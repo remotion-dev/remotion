@@ -89,21 +89,32 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 						embeddedFontStyle.blob,
 						serializedSvg.slice(openingTagEnd + 1),
 					];
-		const url = URL.createObjectURL(
-			new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'}),
-		);
+		const blob = new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'});
+		// Chromium taints canvases drawn from blob SVGs containing foreignObject.
+		const url = svg.querySelector('foreignObject')
+			? null
+			: URL.createObjectURL(blob);
 
 		image.onload = function () {
-			URL.revokeObjectURL(url);
+			if (url !== null) URL.revokeObjectURL(url);
 			resolve(image);
 		};
 
 		image.onerror = () => {
-			URL.revokeObjectURL(url);
+			if (url !== null) URL.revokeObjectURL(url);
 			reject(new Error('Failed to convert SVG to image'));
 		};
 
-		image.src = url;
+		if (url !== null) {
+			image.src = url;
+		} else {
+			blob
+				.text()
+				.then((markup) => {
+					image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
+				})
+				.catch(reject);
+		}
 	});
 	drawableBySvg.set(svg, {fontStyleKey, serializedSvg, drawable});
 	drawable.catch(() => {

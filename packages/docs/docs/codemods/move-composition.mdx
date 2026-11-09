@@ -29,7 +29,7 @@ const result = moveComposition({
 console.log(result);
 ```
 
-The composition and destination must be in the same registration file. Their source must allow a direct child move. The component implementation and composition ID stay unchanged.
+The source must allow a direct child move. The component implementation and composition ID stay unchanged.
 
 ## Options
 
@@ -47,7 +47,15 @@ The static ID of the composition to edit.
 
 ### destination
 
-Where to move the item within the same file. Use `{type: 'root'}`, `{type: 'folder', folder: {name, parentName}}`, or `{type: 'before' | 'after', target}`. A target is `{type: 'composition', compositionId}` or `{type: 'folder', name, parentName}`. Moving an item into its current parent is a no-op.
+Where to move the item. Use `{type: 'root'}`, `{type: 'folder', folder: {name, parentName}}`, or `{type: 'before' | 'after', target}`. A target is `{type: 'composition', compositionId}` or `{type: 'folder', name, parentName}`. Moving an item into its current parent is a no-op.
+
+### destinationFile?<AvailableFrom v="4.0.542" />
+
+The project file containing the destination. Defaults to `null`: named destinations are resolved in `compositionFile` first, then across `project.files` if absent. The destination must be unambiguous. For `{type: 'root'}`, `null` means the root of `compositionFile`.
+
+When moving between files, include both files in `project.files`. Imported components and props are transferred, relative import paths are updated, and conflicting import names are aliased. Imports still used in the source file are retained. Apply all returned `changes` together.
+
+Registrations that reference variables declared outside the moved JSX cannot move between files. Move these dependencies into an imported module first. Unsupported moves throw before returning any changes.
 
 ## Return value
 
@@ -63,7 +71,7 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 
 ### updatedNode<AvailableFrom v="4.0.530" />
 
-The moved registration's node reference in the new project.
+The moved registration's node reference in the new project. For cross-file moves, use this reference to locate the registration in its destination file.
 
 ## Errors
 

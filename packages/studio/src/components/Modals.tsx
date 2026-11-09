@@ -13,7 +13,6 @@ import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
-import {EffectPickerModal} from './EffectPickerModal';
 import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
@@ -39,6 +38,7 @@ import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
+import {ReorderCompositionModal} from './ReorderCompositionModal';
 import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
@@ -283,6 +283,7 @@ export const Modals: React.FC<{
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
 					canvasCapture={modalContextType.canvasCapture}
+					openTimeline={modalContextType.openTimeline}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'new-folder' && (
@@ -453,6 +454,9 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
 			) : null}
+			{modalContextType && modalContextType.type === 'reorder-composition' ? (
+				<ReorderCompositionModal state={modalContextType} />
+			) : null}
 			{modalContextType &&
 			(modalContextType.type === 'wrap-refactor' ||
 				modalContextType.type === 'unwrap-refactor') ? (
@@ -491,9 +495,6 @@ export const Modals: React.FC<{
 			{modalContextType?.type === 'element-install' && library === null ? (
 				<ElementInstallConfirmation state={modalContextType} />
 			) : null}
-			{modalContextType && modalContextType.type === 'add-effect' && (
-				<EffectPickerModal state={modalContextType} />
-			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
 			)}

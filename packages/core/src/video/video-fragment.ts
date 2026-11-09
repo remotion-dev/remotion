@@ -9,15 +9,11 @@ export const isSafari = () => {
 		return false;
 	}
 
-	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
-
-	if (!isAppleWebKit) {
-		return false;
-	}
-
-	const isNotChrome = !window.navigator.userAgent.includes('Chrome/');
-
-	return isNotChrome;
+	const {userAgent} = window.navigator;
+	return (
+		/AppleWebKit/.test(userAgent) &&
+		!/Chrome\/|Chromium\/|Android/.test(userAgent)
+	);
 };
 
 export const isIosSafari = () => {

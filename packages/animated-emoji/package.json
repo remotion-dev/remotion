@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/animated-emoji",
-	"version": "4.0.541",
+	"version": "4.0.542",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -8,7 +8,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"exports": {
 		"./package.json": "./package.json",

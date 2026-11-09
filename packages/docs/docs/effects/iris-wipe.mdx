@@ -18,20 +18,13 @@ Erases the inside of a polygon or star from a canvas-based component. Animate th
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {irisWipe} from '@remotion/effects/iris-wipe';
 import {Video} from '@remotion/media';
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, height} = useVideoConfig();
-  const outerRadius = interpolate(
-    frame,
-    [0, 60],
-    [0, Math.hypot(width, height)],
-    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-  );
 
   return (
     <Video
@@ -40,7 +33,10 @@ export const MyComp: React.FC = () => {
         irisWipe({
           center: [0.5, 0.5],
           points: 6,
-          outerRadius,
+          outerRadius: interpolate(frame, [0, 60], [0, 1500], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
           feather: 12,
         }),
       ]}
@@ -48,6 +44,8 @@ export const MyComp: React.FC = () => {
   );
 };
 ```
+
+The final radius of `1500` pixels covers a centered opening on a 1920×1080 canvas. Increase it for larger canvases.
 
 ## API
 

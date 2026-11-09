@@ -1,11 +1,13 @@
 export const rotateFrame = async ({
 	frame,
 	rotation,
+	flip,
 }: {
 	frame: VideoFrame;
 	rotation: number;
+	flip: boolean;
 }): Promise<ImageBitmap> => {
-	if (rotation === 0) {
+	if (rotation === 0 && !flip) {
 		const directBitmap = await createImageBitmap(frame);
 		return directBitmap;
 	}
@@ -27,6 +29,13 @@ export const rotateFrame = async ({
 
 	canvas.width = width;
 	canvas.height = height;
+
+	// Mediabunny applies the flip after the rotation.
+	// Canvas transforms run in reverse order, so we set the flip first.
+	if (flip) {
+		ctx.translate(width, 0);
+		ctx.scale(-1, 1);
+	}
 
 	if (rotation === 90) {
 		ctx.translate(width, 0);

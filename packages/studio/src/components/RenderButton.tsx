@@ -13,7 +13,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
@@ -425,7 +425,7 @@ const RenderButtonInner: React.FC<{
 				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
 				disabled: false,
-				idleColor: WHITE_ALPHA_80,
+				idleColor: LIGHT_TEXT,
 				onClick,
 				onPointerDown: null,
 				renderContent: (color) => (
@@ -463,7 +463,7 @@ const RenderButtonInner: React.FC<{
 				ariaLabel: 'Select render type',
 				buttonId: null,
 				disabled: false,
-				idleColor: WHITE_ALPHA_80,
+				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: false,
 				onOpenChange: null,
 				renderContent: (color) => <CaretDown color={color} />,

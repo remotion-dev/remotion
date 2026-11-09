@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.541",
+	"version": "4.0.542",
 	"scripts": {
 		"formatting": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options --check",
 		"format": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options",
@@ -120,6 +120,7 @@
 		"@types/uuid": "8.3.4",
 		"@vercel/config": "0.0.28",
 		"@vercel/functions": "3.4.1",
+		"@vercel/routing-utils": "6.6.1",
 		"@vercel/sandbox": "1.6.0",
 		"chalk": "4.1.2",
 		"clipboard": "2.0.11",

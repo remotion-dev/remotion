@@ -51,6 +51,7 @@ import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
+	getMockInvokeWithResponseStream,
 } from './aws-clients';
 import {mockBundleSite} from './mock-bundle-site';
 import {mockCreateFunction} from './mock-create-function';
@@ -104,6 +105,7 @@ export type FakeAwsDefaults = {
 	callFunctionAsync: typeof callLambdaAsync.callFunctionAsyncImplementation;
 	callFunctionStreaming: typeof callLambdaStreaming.callFunctionWithStreamingImplementation;
 	callFunctionSync: typeof callLambdaSync.callFunctionSyncImplementation;
+	invokeWithResponseStream: typeof callLambdaStreaming.invokeWithResponseStreamImplementation;
 	getFunctions: typeof getFunctions.getFunctions;
 	getFunctionInfo: typeof getFunctionInfo.getFunctionInfo;
 	deleteFunction: typeof deleteFunction.deleteFunction;
@@ -209,6 +211,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
+	invokeWithResponseStream: getMockInvokeWithResponseStream,
 	getFunctions: getAllMockFunctions,
 	getFunctionInfo: ({functionName, region}) => {
 		const fn = findFunction(functionName, region);
@@ -278,6 +281,10 @@ const makeSpies = (): FakeAwsSpies => ({
 		'callFunctionWithStreamingImplementation',
 	),
 	callFunctionSync: spyOn(callLambdaSync, 'callFunctionSyncImplementation'),
+	invokeWithResponseStream: spyOn(
+		callLambdaStreaming,
+		'invokeWithResponseStreamImplementation',
+	),
 	getFunctions: spyOn(getFunctions, 'getFunctions'),
 	getFunctionInfo: spyOn(getFunctionInfo, 'getFunctionInfo'),
 	deleteFunction: spyOn(deleteFunction, 'deleteFunction'),

@@ -8,6 +8,7 @@ import {
 	renderImportDeclaration,
 	type SourceEdit,
 } from './source-edits';
+import {getSourceFormattingConfig} from './source-style';
 
 export const collectReferencedNames = (node: Node) => {
 	const names = new Set<string>();
@@ -73,6 +74,10 @@ export const removeUnusedImports = ({
 					prettierConfigOverride: null,
 				}),
 				declaration: {...statement, specifiers: kept},
+				formatting: getSourceFormattingConfig({
+					input,
+					prettierConfigOverride: null,
+				}),
 				quote: original.includes('"') ? '"' : "'",
 				semicolon: original.trimEnd().endsWith(';') ? ';' : '',
 			}),

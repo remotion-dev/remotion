@@ -347,6 +347,49 @@ export type AddCompositionRequest = CompositionEditRequest & {
 	options: NewCompositionOptions;
 };
 
+export type PrepareOpenTimelineImportRequest = {
+	contents: string;
+	mediaDirectory: string | null;
+	componentName: string;
+	fps: number;
+	width: number;
+	height: number;
+};
+
+export type PickOpenTimelineRequest = {
+	type: 'timeline' | 'media-directory';
+	initialDirectory: string | null;
+	position: {x: number; y: number} | null;
+};
+
+export type PickOpenTimelineResponse =
+	| {
+			type: 'timeline';
+			name: string;
+			contents: string;
+			mediaDirectory: string;
+	  }
+	| {type: 'media-directory'; mediaDirectory: string}
+	| null;
+
+export type PrepareOpenTimelineImportResponse = {
+	source: string | null;
+	metadata: {
+		fps: number;
+		width: number;
+		height: number;
+		durationInFrames: number;
+	} | null;
+	diagnostics: {
+		code: string;
+		severity: 'error' | 'warning' | 'info';
+		path: string;
+		message: string;
+	}[];
+	filesToCopy: number;
+	hasRelativeMedia: boolean;
+};
+
 export type DuplicateCompositionRequest = CompositionEditRequest & {
 	idToDuplicate: string;
 	newId: string;
@@ -377,6 +420,7 @@ export type DeleteCompositionRequest = CompositionEditRequest & {
 export type MoveCompositionRequest = CompositionEditRequest & {
 	compositionId: string;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 };
 
 export type AddFolderRequest = CompositionEditRequest & {
@@ -399,6 +443,7 @@ export type MoveFolderRequest = CompositionEditRequest & {
 	folderName: string;
 	parentName: string | null;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 };
 
 export type CompositionEditResponse =
@@ -411,6 +456,12 @@ export type CompositionEditResponse =
 			reason: string;
 			stack: string;
 	  };
+
+export type CompositionMoveResponse =
+	| Extract<CompositionEditResponse, {success: true}>
+	| (Extract<CompositionEditResponse, {success: false}> & {
+			canRefactor: boolean;
+	  });
 
 export type DeleteStaticFileRequest = {
 	relativePath: string;
@@ -669,6 +720,7 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 			insertedEffect: {
 				effectIndex: number;
 				nodePath: SequencePropsSubscriptionKey['nodePath'];
@@ -691,6 +743,7 @@ export type ReorderEffectRequest = {
 export type ReorderEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -709,6 +762,12 @@ export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
 export type DuplicateEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+			duplicatedEffects: {
+				absolutePath: string;
+				nodePath: SequenceNodePath;
+				effectIndex: number;
+			}[];
 	  }
 	| {
 			success: false;
@@ -924,6 +983,7 @@ export type DeleteEffectRequest = DeleteEffectRequestItem[];
 export type DeleteEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -943,6 +1003,7 @@ export type PasteEffectsRequest = {
 export type PasteEffectsResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -1840,6 +1901,14 @@ export const studioOperations = {
 		AddCompositionRequest,
 		CompositionEditResponse
 	>({mutatesSource: true}),
+	'/api/prepare-open-timeline-import': new StudioOperation<
+		PrepareOpenTimelineImportRequest,
+		PrepareOpenTimelineImportResponse
+	>({mutatesSource: false}),
+	'/api/pick-open-timeline': new StudioOperation<
+		PickOpenTimelineRequest,
+		PickOpenTimelineResponse
+	>({mutatesSource: false}),
 	'/api/duplicate-composition': new StudioOperation<
 		DuplicateCompositionRequest,
 		CompositionEditResponse
@@ -1858,7 +1927,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-composition': new StudioOperation<
 		MoveCompositionRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/add-folder': new StudioOperation<
 		AddFolderRequest,
@@ -1874,7 +1943,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-folder': new StudioOperation<
 		MoveFolderRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/project-info': new StudioOperation<
 		ProjectInfoRequest,

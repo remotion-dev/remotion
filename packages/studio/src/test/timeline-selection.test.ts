@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {beforeEach, expect, test} from 'bun:test';
 import {CanvasInternals} from '@remotion/sdk';
 import type {RefObject} from 'react';
 import {
@@ -69,6 +69,7 @@ import {
 } from '../components/SelectedOutlineOverlay';
 import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
 import {callDeleteKeyframes} from '../components/Timeline/call-delete-keyframe';
+import {deleteSelectedKeyframes} from '../components/Timeline/delete-selected-keyframe';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -77,6 +78,8 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {getKeyframedSequenceDragTargets} from '../components/Timeline/get-keyframed-sequence-drag-targets';
+import {getParentTimelineSelection} from '../components/Timeline/get-parent-timeline-selection';
 import {getTimelineSequenceTimingLimits} from '../components/Timeline/get-timeline-sequence-timing-limits';
 import {
 	getKeyframeClipboardDataFromSelections,
@@ -113,7 +116,6 @@ import {
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
-	getTimelineSequenceSelectionForEscape,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -148,6 +150,7 @@ import {
 	parseTransformOrigin,
 	serializeTransformOrigin,
 } from '../components/Timeline/transform-origin-utils';
+import {getSelectedEasingUpdate} from '../components/Timeline/update-selected-easing';
 import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
@@ -162,6 +165,10 @@ import {
 	persistEditorShowOutlinesOption,
 } from '../state/editor-outlines';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
+
+beforeEach(() => {
+	Internals.OptimisticEffects.clear();
+});
 
 const makeKey = (
 	nodePath: SequenceNodePath,
@@ -1568,6 +1575,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
 	} satisfies InteractivitySchema;
+	const effectDefinition = {type: 'test/halftone', schema: effectSchema};
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			durationDependentKeyframes: null,
@@ -1612,7 +1620,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 				sequences: [
 					makeTimelineSequence({
 						schema: {},
-						effects: [{schema: effectSchema}, {schema: effectSchema}],
+						effects: [effectDefinition, effectDefinition],
 					}),
 				],
 				overrideIdsToNodePaths: {override: nodePath},
@@ -4144,7 +4152,7 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Sequence double-click opens one connected composition before its source', () => {
+test('Sequence double-click opens the first connected composition before its source', () => {
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4176,7 +4184,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBe('open-source');
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4184,7 +4192,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBeNull();
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 2,
@@ -6765,7 +6773,7 @@ test('Crop prop and keyframe selections target crop handles', () => {
 	).toBe(null);
 });
 
-test('Escape moves crop and rotation selections to the sequence', () => {
+test('Escape moves nested selections up one meaningful level', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const expectedSelection = {
 		type: 'sequence' as const,
@@ -6773,68 +6781,67 @@ test('Escape moves crop and rotation selections to the sequence', () => {
 	};
 
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropLeft']),
-				key: 'cropLeft',
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence-prop',
+			nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropLeft']),
+			key: 'cropLeft',
+		}),
 	).toEqual(expectedSelection);
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'rotate'],
-				),
-				key: 'style.rotate',
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence-effect-prop',
+			nodePathInfo: makeNodePathInfo(['body', 0], ['effects', '0', 'amount']),
+			i: 0,
+			key: 'amount',
+		}),
+	).toEqual(expectedSelection);
+	const rotationNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style', 'rotate'],
+	);
+	expect(
+		getParentTimelineSelection({
+			type: 'keyframe',
+			nodePathInfo: rotationNodePathInfo,
+			frame: 10,
+		}),
+	).toEqual({
+		type: 'sequence-prop',
+		nodePathInfo: rotationNodePathInfo,
+		key: 'style.rotate',
+	});
+	const cropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'cropBottom'],
+	);
+	expect(
+		getParentTimelineSelection({
+			type: 'easing',
+			nodePathInfo: cropNodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		}),
+	).toEqual({
+		type: 'sequence-prop',
+		nodePathInfo: cropNodePathInfo,
+		key: 'cropBottom',
+	});
+	expect(
+		getParentTimelineSelection({
+			type: 'sequence-prop',
+			nodePathInfo: makeNodePathInfo(
+				['body', 0],
+				['controls', 'style', 'opacity'],
+			),
+			key: 'style.opacity',
+		}),
 	).toEqual(expectedSelection);
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'keyframe',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'rotate'],
-				),
-				frame: 10,
-			},
-		]),
-	).toEqual(expectedSelection);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'easing',
-				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropBottom']),
-				fromFrame: 10,
-				toFrame: 20,
-				segmentIndex: 0,
-			},
-		]),
-	).toEqual(expectedSelection);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'opacity'],
-				),
-				key: 'style.opacity',
-			},
-		]),
-	).toBe(null);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence',
-				nodePathInfo: sequenceNodePathInfo,
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
 	).toBe(null);
 });
 
@@ -9880,3 +9887,142 @@ test.each([
 		}
 	},
 );
+
+test('pending effect copies expose their schema and keyframes before source refresh', async () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const schema = {
+		amount: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '1', 'amount'],
+		true,
+		[['amount'], ['other']],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const sequence = makeTimelineSequence({
+		schema: {},
+		effects: [
+			{schema},
+			{schema: {other: {type: 'number', default: 0, hiddenFromList: false}}},
+		],
+	});
+	const [original] = Internals.OptimisticEffects.getItems(
+		nodePath,
+		sequence.effects,
+	);
+	Internals.OptimisticEffects.begin({
+		nodePath,
+		definitions: sequence.effects,
+		action: {type: 'duplicate', ids: [original.id]},
+	});
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {},
+			durationDependentKeyframes: null,
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'test',
+					importPath: '@remotion/effects/test',
+					props: {
+						amount: {
+							status: 'keyframed',
+							keyframeDisplayOffsetAdjustment: null,
+							interpolationFunction: 'interpolate',
+							keyframes: [
+								{frame: 0, value: 0},
+								{frame: 10, value: 1},
+							],
+							easing: [{type: 'linear'}],
+							clamping: {left: 'extend', right: 'extend'},
+							posterize: undefined,
+							output: undefined,
+						},
+					},
+				},
+				{
+					canUpdate: true,
+					effectIndex: 1,
+					callee: 'other',
+					importPath: '@remotion/effects/other',
+					props: {},
+				},
+			],
+		},
+	} satisfies PropStatuses;
+	const {tracks} = calculate({
+		sequences: [sequence],
+		overrideIdsToNodePaths: {override: nodePath},
+	});
+	const selection = {
+		type: 'sequence-effect-prop' as const,
+		nodePathInfo,
+		i: 1,
+		key: 'amount',
+	};
+	const copied = getEffectPropClipboardDataFromSelection({
+		selection,
+		propStatuses,
+	});
+	expect(copied?.effect.importPath).toBe('@remotion/effects/test');
+	expect(copied).not.toBe(null);
+	if (copied === null)
+		throw new Error('Pending effect property was not copyable');
+	expect(
+		getPasteEffectPropTarget({
+			selectedItems: [selection],
+			payload: copied,
+			propStatuses,
+			tracks,
+		}),
+	).toMatchObject({type: 'valid', targets: [{effectIndex: 1, schema}]});
+	expect(
+		getTimelinePropResetTargets({
+			selections: [selection],
+			propStatuses,
+			tracks,
+		}),
+	).toMatchObject([{type: 'effect-prop', effectIndex: 1, schema}]);
+	expect(
+		getSelectedEasingUpdate({
+			selection: {
+				type: 'easing',
+				nodePathInfo,
+				fromFrame: 0,
+				toFrame: 10,
+				segmentIndex: 0,
+			},
+			tracks,
+			propStatuses,
+		}),
+	).toMatchObject({type: 'effect', effectIndex: 1, schema});
+	expect(
+		getKeyframedSequenceDragTargets({
+			nodePath,
+			sequence,
+			sequences: [sequence],
+			propStatuses,
+			isDescendant: false,
+		}).effectKeyframes.map((target) => target.effectIndex),
+	).toEqual([0, 1]);
+	const deletions: unknown[] = [];
+	const deletion = deleteSelectedKeyframes({
+		keyframes: [{nodePathInfo, frame: 10}],
+		tracks,
+		propStatuses,
+		timelinePosition: 5,
+		clientId: 'test',
+		deleteKeyframes: (action) => {
+			deletions.push(action);
+			return Promise.resolve();
+		},
+	});
+	expect(deletion).not.toBe(null);
+	await deletion;
+	expect(deletions).toMatchObject([
+		{effectKeyframes: [{effectIndex: 1, schema}]},
+	]);
+});

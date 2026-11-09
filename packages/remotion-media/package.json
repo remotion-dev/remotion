@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/remotion-media",
-	"version": "4.0.541",
+	"version": "4.0.542",
 	"private": true,
 	"type": "module",
 	"repository": {
@@ -13,7 +13,7 @@
 		"generate": "bun generate.ts",
 		"bundle": "bun run build.ts",
 		"clean": "bun clean.ts",
-		"lint": "eslint src && bun check",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"test": "bun test src/seo-build.test.ts",
 		"formatting": "prettier src --check"
 	},

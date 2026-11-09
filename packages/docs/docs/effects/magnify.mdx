@@ -1,0 +1,120 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-magnify.png
+slug: /effects/magnify
+title: magnify()
+sidebar_label: magnify()
+crumb: '@remotion/effects'
+---
+
+# magnify()<AvailableFrom v="4.0.542" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Enlarges a circular or square area of a canvas-based component, like a magnifying glass.
+
+## Preview
+
+<EffectsDemo type="effects-magnify" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {magnify} from '@remotion/effects/magnify';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <CanvasImage
+      src="https://remotion.media/landscape.jpg"
+      width={1280}
+      height={720}
+      fit="cover"
+      effects={[
+        magnify({
+          center: [interpolate(frame, [0, 120], [0.25, 0.75], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }), 0.5],
+          magnification: 200,
+          size: 180,
+          feather: 12,
+          scaling: 'soft',
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `magnify()` without arguments.
+
+### `shape?`
+
+Shape of the magnified area: `'circle'` or `'square'`. Defaults to `'circle'`.
+
+### `center?`
+
+Center as `[x, y]`, with both values between `0` and `1`. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner. Defaults to `[0.5, 0.5]`.
+
+### `magnification?`
+
+Scale as a percentage, from `1` to `10000`. `100` leaves the source unchanged, `200` doubles its size, and values below `100` shrink it inside the selected area. Defaults to `200`.
+
+### `link?`
+
+How magnification affects the area. Defaults to `'none'`.
+
+- `'none'`: Keeps size and feather independent of magnification.
+- `'size'`: Multiplies `size` by `magnification / 100`.
+- `'size-and-feather'`: Multiplies both `size` and `feather` by `magnification / 100`.
+
+### `size?`
+
+Radius of the circle, or half the side length of the square, in pixels. Must be at least `0`. Defaults to `100`. At `0`, the magnified area is empty.
+
+The effect keeps the canvas dimensions. The area is clipped at the canvas edges.
+
+### `feather?`
+
+Width of the soft edge in pixels, extending inward from the boundary. Must be at least `0`. Defaults to `0`.
+
+### `opacity?`
+
+Strength of the magnified area, from `0` to `1`. Defaults to `1`. With `'normal'` blending, `0` shows the original source. With `'none'` blending, `0` makes the output transparent.
+
+### `scaling?`
+
+Sampling method. Defaults to `'standard'`.
+
+- `'standard'`: Nearest source pixel, producing sharp, blocky edges at high magnification.
+- `'soft'`: Bicubic interpolation for smoother enlargement.
+- `'scatter'`: Adds deterministic jitter around each enlarged source pixel.
+
+### `blendingMode?`
+
+How the magnified area is combined with the source. Defaults to `'normal'`.
+
+- `'normal'`: Blends the magnified area with the original source using `opacity` and `feather`.
+- `'none'`: Shows only the magnified area, with transparent pixels around it.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`fisheye()`](/docs/effects/fisheye)
+- [`scale()`](/docs/effects/scale)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/magnify.ts)

@@ -1,3 +1,7 @@
+import type {
+	InvokeWithResponseStreamCommandOutput,
+	InvokeWithResponseStreamResponseEvent,
+} from '@aws-sdk/client-lambda';
 import {
 	LambdaClientInternals,
 	type CallFunctionAsync,
@@ -13,6 +17,7 @@ import {
 	type StreamingMessage,
 } from '@remotion/lambda-client';
 import {makeStreamer} from '@remotion/streaming';
+import type * as callLambdaStreaming from '../../../../lambda-client/src/call-lambda-streaming';
 import {Log} from '../../cli/log';
 import {innerHandler} from '../../functions/inner-routine';
 import {ResponseStream} from '../../functions/streaming/response-stream';
@@ -134,3 +139,107 @@ export const getMockCallFunctionSync: CallFunctionSync = async <
 
 	return parsed;
 };
+
+// Runs the handler in-process and exposes its writes as a Lambda response event stream.
+export const getMockInvokeWithResponseStream: typeof callLambdaStreaming.invokeWithResponseStreamImplementation =
+	({payload, timeoutInMilliseconds}) => {
+		const params = payload as Parameters<typeof innerHandler>[0]['params'];
+		trackMockInvocation(params);
+		const chunks: Uint8Array[] = [];
+		let finished = false;
+		let error: Error | null = null;
+		let wake: (() => void) | null = null;
+		const notify = () => {
+			wake?.();
+			wake = null;
+		};
+
+		innerHandler({
+			params,
+			responseWriter: {
+				write(message) {
+					chunks.push(message);
+					notify();
+					return Promise.resolve();
+				},
+				end() {
+					return Promise.resolve();
+				},
+			},
+			context: {
+				expectedBucketOwner: '124',
+				getRemainingTimeInMillis: () => timeoutInMilliseconds,
+				requestId: 'fake',
+			},
+		})
+			.catch((err) => {
+				error = err as Error;
+			})
+			.finally(() => {
+				finished = true;
+				notify();
+			});
+
+		const events =
+			async function* (): AsyncGenerator<InvokeWithResponseStreamResponseEvent> {
+				while (true) {
+					const chunk = chunks.shift();
+					if (chunk) {
+						yield {PayloadChunk: {Payload: chunk}};
+						continue;
+					}
+
+					if (finished) {
+						yield {
+							InvokeComplete: error
+								? {ErrorCode: 'Unhandled', ErrorDetails: error.message}
+								: {},
+						};
+						return;
+					}
+
+					await new Promise<void>((resolve) => {
+						wake = resolve;
+					});
+				}
+			};
+
+		return Promise.resolve({
+			$metadata: {},
+			EventStream: events(),
+		} as InvokeWithResponseStreamCommandOutput);
+	};
+
+// Reports a started render over the stream, then keeps observing it forever.
+export const mockStartedRenderStream =
+	(
+		onStarted: () => void,
+	): typeof callLambdaStreaming.invokeWithResponseStreamImplementation =>
+	({functionName, region}) => {
+		const events =
+			async function* (): AsyncGenerator<InvokeWithResponseStreamResponseEvent> {
+				yield {
+					PayloadChunk: {
+						Payload: LambdaClientInternals.makeStreamPayload({
+							message: {
+								type: 'render-started',
+								payload: LambdaClientInternals.makeRenderMediaOnLambdaOutput({
+									renderId: 'render-id',
+									bucketName: 'bucket',
+									functionName,
+									region,
+									rendererFunctionName: null,
+								}),
+							},
+						}),
+					},
+				};
+				onStarted();
+				await new Promise<never>(() => undefined);
+			};
+
+		return Promise.resolve({
+			$metadata: {},
+			EventStream: events(),
+		} as InvokeWithResponseStreamCommandOutput);
+	};

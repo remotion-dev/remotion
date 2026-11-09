@@ -16,7 +16,7 @@ Pass the `licenseKey` option to the rendering API you use.
 
 **Supported packages**
 
-- [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
+- [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream), or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
 - [`@remotion/vercel`](/docs/vercel/api): Pass `licenseKey` to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey) to trigger an event.
 - [`@remotion/renderer`](/docs/renderer): Pass `licenseKey` to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.
 - [`@remotion/web-renderer`](/docs/web-renderer): An event is always sent. Pass a real `licenseKey`, or declare eligibility for the free license with `licenseKey: "free-license"`. See [Telemetry](/docs/telemetry#setting-a-license-key).

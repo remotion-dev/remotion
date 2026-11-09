@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.541",
+	"version": "4.0.542",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -15,8 +15,8 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"watch": "tsc -w",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "node ../.monorepo/tsrs.cjs -w",
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist",

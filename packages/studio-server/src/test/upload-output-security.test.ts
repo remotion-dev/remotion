@@ -16,6 +16,7 @@ import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleRoutes} from '../routes';
 
 const makeLiveEventsServer = (): LiveEventsServer => ({
+	getClientIds: () => [],
 	addNewClientListener: () => () => undefined,
 	closeConnections: () => Promise.resolve(),
 	router: () => Promise.resolve(),

@@ -1,0 +1,175 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-generate-open-timeline-composition.png
+title: 'generateOpenTimelineComposition()'
+crumb: '@remotion/codemods'
+---
+
+# generateOpenTimelineComposition()<AvailableFrom v="4.0.542" />
+
+Converts an OpenTimelineIO (`.otio`) timeline into editable Remotion TSX. Each clip becomes a separate JSX node with its own timing. To also register the component in a project, use [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition).
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="import-timeline.ts"
+import {generateOpenTimelineComposition} from '@remotion/codemods';
+
+declare const otioJson: string;
+// ---cut---
+const result = generateOpenTimelineComposition({
+  timeline: otioJson,
+  componentName: 'ImportedTimeline',
+  fps: 30,
+  width: 1920,
+  height: 1080,
+});
+
+if (result.source !== null) {
+  console.log(result.source, result.metadata);
+} else {
+  console.error(result.diagnostics);
+}
+```
+
+The function is synchronous and does not read files, fetch URLs, probe media, or install packages. The generated component uses `remotion` and, when needed, `@remotion/media`. Keep these packages at the same version as `@remotion/codemods`.
+
+## Options
+
+### timeline
+
+An OTIO JSON string or parsed object with a `Timeline.1` root. Convert other interchange formats, such as AAF, EDL, FCPXML, `.otioz`, or `.otiod`, to OTIO JSON first.
+
+### componentName
+
+The generated named export. Must begin with an uppercase ASCII letter and contain only letters, digits, underscores, or dollar signs.
+
+### fps
+
+The composition frame rate, as a positive finite number. Source timing is converted to this rate. Individual clip boundaries retain fractional frames; the composition duration is rounded up to a whole frame.
+
+### width
+
+The composition width, as a positive safe integer in pixels.
+
+### height
+
+The composition height, as a positive safe integer in pixels. Width, height, and frame rate must be supplied because OTIO does not define the output composition settings.
+
+### resolveMedia?
+
+A synchronous function that maps media references to browser-accessible assets. By default, supported remote URLs are used directly and public-relative paths use [`staticFile()`](/docs/staticfile). Absolute paths and `file:` URLs require a resolver. Assets are not copied or downloaded.
+
+```ts twoslash title="resolve-media.ts"
+import {generateOpenTimelineComposition} from '@remotion/codemods';
+
+declare const otioJson: string;
+// ---cut---
+const result = generateOpenTimelineComposition({
+  timeline: otioJson,
+  componentName: 'Interview',
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  resolveMedia: ({targetUrl}) => {
+    if (targetUrl === 'file:///edit/interview.mov') {
+      return {src: 'interview.mp4', source: 'public', kind: 'video'};
+    }
+
+    return null;
+  },
+});
+```
+
+The resolver receives an object with the following fields.
+
+#### reference
+
+The OTIO media reference as a read-only record, including its schema and metadata.
+
+#### targetUrl
+
+The reference's URL, or `null` when absent. For an image sequence, this is its directory base.
+
+#### path
+
+The path of the source clip in the OTIO input.
+
+#### trackKind
+
+`'Video'` or `'Audio'`.
+
+Return `{src, source, kind}`, where `source` is `'url'` or `'public'` and `kind` is `'video'`, `'audio'`, or `'image'`. Return `null` to use default resolution. A thrown error becomes an error diagnostic.
+
+For image sequences, `src` is a directory base; file naming, numbering, rate, and frame step still come from the OTIO reference. Supply converted browser-decodable images under those filenames when necessary.
+
+## Return value
+
+### source
+
+Generated TSX, or `null` if an error prevents importing. Unsupported effects are ignored with warnings.
+
+### metadata
+
+`{width, height, fps, durationInFrames}`, or `null` if the timeline or output settings are invalid. Metadata remains available when media resolution fails. Only register the generated component as a [composition](/docs/terminology#composition) when `source` is not `null`.
+
+### diagnostics
+
+An ordered array of `{code, severity, path, message}` objects. `severity` is `'error'`, `'warning'`, or `'info'`. `path` identifies the affected part of the input or options. Any error blocks source generation.
+
+### assets
+
+An array of resolved `{src, source, kind, path}` objects. `source` is `'url'` or `'public'`; `kind` is `'video'`, `'audio'`, `'image'`, or `'image-sequence'`. `path` identifies the source clip. Media availability and codec support are not verified.
+
+### annotations
+
+An array of `{path, metadata, markers}` records. `metadata` is a record or `null`, and `markers` is an array of retained OTIO marker objects. These do not become visible overlays or effects.
+
+### globalStartTime
+
+The original timeline start timecode as `{value, rate}`, or `null`. Composition playback starts at frame zero; no leading gap is inserted for this timecode.
+
+## Supported timelines
+
+| Feature                                  | Behavior                                                                                                                |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Tracks, stacks, and nesting              | Preserves sequential timing, overlapping layers, and nested source ranges.                                              |
+| Clips and gaps                           | Supports `Clip.1`, `Clip.2`, gaps, and legacy sequences/fillers. Disabled items retain their duration.                  |
+| Source trims and mixed frame rates       | Preserves source ranges and accounts for media start timecode.                                                          |
+| Forward clip retiming and freezes        | Supports positive `LinearTimeWarp.1` and `FreezeFrame.1`.                                                               |
+| Other active effects                     | Ignored with a warning that includes the effect's name when available.                                                  |
+| Internal `SMPTE_Dissolve` transitions    | Generates visual and audio fades between neighboring clips or gaps.                                                     |
+| Image sequences                          | Supports browser-decodable images with frame numbering, padding, and frame steps. Missing-frame policy must be `error`. |
+| Metadata, markers, and global start time | Retained in the result without rendered behavior.                                                                       |
+
+Reverse playback, retimed tracks/stacks, unsupported combinations of time effects, custom transitions, transitions at a track boundary, and transitions adjacent to nested compositions produce errors. Unknown item schemas or versions also produce errors.
+
+Missing media and application-specific generators require `resolveMedia`. PNG, JPG, JPEG, SVG, and BMP are detected as still images by default. Ambiguous formats such as GIF, WebP, and AVIF require an explicit resolver choice. Convert formats such as EXR, DPX, and TIFF to browser-decodable media first.
+
+Video tracks render visuals with embedded audio muted. Include an audio track to import sound. Images use `objectFit="contain"`; application-specific crop, scale, color, and effect metadata is not interpreted.
+
+## Importing in Studio
+
+In a connected [Remotion Studio](/docs/studio) or Browser Studio, choose File → Import OpenTimeline... and select an `.otio` file. Local Studio uses a native file picker on macOS and Windows; Browser Studio uses the browser's picker. Choose the composition name, dimensions, and destination folder, then add the composition. Duration comes from the imported timeline.
+
+Studio preserves the rate of `global_start_time` when present, or the common rate of the timeline's time ranges. The detected FPS and calculated duration are shown as non-editable values. If no single rate can be determined, choose the FPS before importing.
+
+The dialog checks the timeline and its media before importing. In a connected local Studio, referenced local media is copied into the [public folder](/docs/assets) and the generated component uses `staticFile()` paths. Shared media is copied once per import; existing public assets and browser-accessible URLs are reused. Image sequences keep their filenames and numbering.
+
+If a local media reference has no `available_range`, Studio reads its duration and embedded video timecode to calculate file-relative trims. Explicit `available_range` values take precedence. When using the codemod directly, provide `available_range` for media whose source timecode does not start at zero.
+
+Absolute paths and `file:` URLs are resolved on the Studio server. The native picker provides the timeline's folder, which is used to resolve relative media paths. Use Locate media... if the referenced files are stored elsewhere. The browser file picker does not provide the original file's folder.
+
+Browser Studio can use URLs and existing public assets, but cannot read files from your computer through a Studio server. The action is unavailable in read-only or disconnected Studios.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition)
+- [Export to OpenTimelineIO](/docs/export-opentimeline)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/open-timeline/generate.ts)

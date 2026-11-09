@@ -1,12 +1,12 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.541",
+	"version": "4.0.542",
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
-		"lint": "tsc && eslint src",
+		"lint": "node ../.monorepo/tsrs.cjs && eslint src",
 		"dev": "bun server.ts"
 	},
 	"type": "module",

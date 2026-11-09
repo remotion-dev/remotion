@@ -4,6 +4,7 @@ import {
 	getMaxVideoCacheSize,
 	globalMediaCache,
 	keyframeManager,
+	makeMediaCache,
 } from '../caches';
 import {makePrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 import {extractFrame} from '../video-extraction/extract-frame';
@@ -40,6 +41,60 @@ const openBankAt = async (src: string, timestamp: number) => {
 
 	return {bank, decodedTimestamps, input};
 };
+
+// ffmpeg -f lavfi -i testsrc2=size=320x180:rate=24:duration=3 \
+//   -c:v libx264 -pix_fmt yuv420p -bf 0 -g 72 -video_track_timescale 90000 \
+//   -movie_timescale 90000 -output_ts_offset 2.916667 delayed-fractional-start.mp4
+test.each([0, 1 / 30])(
+	'reuses a decoder before a delayed fractional first frame when starting at %s seconds',
+	async (initialTimestamp) => {
+		const mediaCache = makeMediaCache();
+		const NativeVideoDecoder = globalThis.VideoDecoder;
+		let decodersCreated = 0;
+		globalThis.VideoDecoder = new Proxy(NativeVideoDecoder, {
+			construct(target, args) {
+				decodersCreated++;
+				return Reflect.construct(target, args);
+			},
+		});
+
+		try {
+			for (const timestamp of [
+				initialTimestamp,
+				...Array.from({length: 12}, (_, i) => initialTimestamp + i / 30),
+				3.5,
+			]) {
+				const result = await extractFrame({
+					src: '/delayed-fractional-start.mp4',
+					timeInSeconds: timestamp,
+					logLevel: 'error',
+					loop: false,
+					trimAfter: undefined,
+					trimBefore: undefined,
+					playbackRate: 1,
+					fps: 30,
+					maxCacheSize: 1024 * 1024 * 1024,
+					credentials: undefined,
+					mediaCache,
+				});
+				assert(result.type === 'success');
+				assert(result.frame);
+				try {
+					expect(result.frame.timestamp / 1_000_000).toBeCloseTo(
+						Math.max(35 / 12, timestamp),
+						5,
+					);
+					expect(decodersCreated).toBe(1);
+				} finally {
+					result.frame.close();
+				}
+			}
+		} finally {
+			globalThis.VideoDecoder = NativeVideoDecoder;
+			mediaCache.dispose('error');
+		}
+	},
+);
 
 // ffmpeg -f lavfi -i testsrc2=size=128x72:rate=30000/1001 -frames:v 150 \
 //   -c:v libx264 -g 61 -keyint_min 61 -sc_threshold 0 -bf 0 \

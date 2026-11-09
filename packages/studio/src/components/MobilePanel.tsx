@@ -84,6 +84,7 @@ export default function MobilePanel({
 					aria-label="Composition browser"
 					aria-modal="true"
 					tabIndex={-1}
+					data-canvas-drop-occluder
 					style={{
 						...panel,
 						width: sidebarWidth,

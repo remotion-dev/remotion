@@ -3,6 +3,10 @@ import type {DragOverrideValue} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	projectEffectSequence,
+	projectEffectPropStatuses,
+} from '../../helpers/optimistic-effect-projection';
+import {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from '../../helpers/timeline-layout';
@@ -56,11 +60,33 @@ const addKeyframeIcon: React.CSSProperties = {
 export const EasingInspector: React.FC<{
 	readonly selection: EasingSelection;
 }> = ({selection}) => {
-	const track = useTrackForSelection(selection);
+	const sourceTrack = useTrackForSelection(selection);
+	const nodePath = sourceTrack?.nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const optimisticEffects = Internals.useOptimisticEffects(nodePath);
+	const track = useMemo(
+		() =>
+			sourceTrack === null || nodePath === null
+				? sourceTrack
+				: {
+						...sourceTrack,
+						sequence: projectEffectSequence(
+							sourceTrack.sequence,
+							nodePath,
+							optimisticEffects?.items ?? null,
+						),
+					},
+		[sourceTrack, nodePath, optimisticEffects],
+	);
 	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {propStatuses: sourcePropStatuses} = useContext(
+		Internals.VisualModePropStatusesContext,
+	);
+	const propStatuses =
+		nodePath === null
+			? sourcePropStatuses
+			: projectEffectPropStatuses(sourcePropStatuses, nodePath);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);

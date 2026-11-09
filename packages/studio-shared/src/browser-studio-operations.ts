@@ -47,6 +47,7 @@ import type {
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveCompositionRequest,
+	CompositionMoveResponse,
 	MoveFolderRequest,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
@@ -160,6 +161,7 @@ export type BrowserStudioPackageInstallationOperations = {
 };
 
 export type BrowserStudioOperations = {
+	supportsOpenTimelineImport: boolean;
 	consumeInitialElement: () => {
 		element: InstallableElement;
 		sourceOrigin: string | null;
@@ -208,8 +210,8 @@ export type BrowserStudioOperations = {
 	) => Promise<InsertCompositionElementResponse>;
 	moveComposition: (
 		request: MoveCompositionRequest,
-	) => Promise<CompositionEditResponse>;
-	moveFolder: (request: MoveFolderRequest) => Promise<CompositionEditResponse>;
+	) => Promise<CompositionMoveResponse>;
+	moveFolder: (request: MoveFolderRequest) => Promise<CompositionMoveResponse>;
 	keyframes: BrowserStudioKeyframeOperations;
 	packageInstallation: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (

@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.541
+version: 4.0.542
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -171,6 +171,12 @@ See [audio.md](audio.md) for advanced audio features like trimming, volume, spee
 ## Cropping
 
 See [cropping.md](cropping.md) if needing to crop the visible rectangle of a component.
+
+## Video matting
+
+For background removal, text behind a subject, background blur or replacement,
+and effects applied only to a subject, read [video-matting.md](video-matting.md).
+Generate reusable foreground layers with `@remotion/video-matting` before composing them.
 
 ## Transitions
 

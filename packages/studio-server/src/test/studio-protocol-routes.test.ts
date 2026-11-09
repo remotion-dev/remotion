@@ -103,6 +103,7 @@ test('discovers a sole unfocused Studio without a composition and delivers one i
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const liveEventsServer: LiveEventsServer = {
+		getClientIds: () => ['focused-studio-tab'],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -367,6 +368,7 @@ test('delivers an Element Library request without changing config before confirm
 	writeFileSync(configFile, configContents);
 	let loadedConfigFile: string | null = configFile;
 	const liveEventsServer: LiveEventsServer = {
+		getClientIds: () => ['focused-studio-tab'],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -578,6 +580,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 		].join('\n'),
 	);
 	const liveEventsServer: LiveEventsServer = {
+		getClientIds: () => ['focused-studio-tab'],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -767,4 +770,202 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 		rmSync(directory, {recursive: true, force: true});
 		clearElementInstallStateForTests();
 	}
+});
+
+// The focused CI tab replied after 267 ms; the former 250 ms window issued a token
+// for the faster, less recently focused tab instead.
+const withDiscoveryClients = async (
+	clients: Set<string>,
+	onRequest: (
+		requestId: string,
+		reply: (delay: number, clientId: string, lastFocusedAt: number) => void,
+	) => void,
+	run: (
+		discover: (signal?: AbortSignal) => Promise<{
+			capabilities: {target: {compositionId: string} | null}[];
+		}>,
+		handled: Promise<void>,
+	) => Promise<void>,
+) => {
+	const timers: ReturnType<typeof setTimeout>[] = [];
+	const liveEventsServer: LiveEventsServer = {
+		getClientIds: () => [...clients],
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClientId: () => false,
+		sendEventToClient: (event) => {
+			if (event.type !== 'request-element-install-target') return;
+			onRequest(event.requestId, (delay, clientId, lastFocusedAt) => {
+				timers.push(
+					setTimeout(
+						() =>
+							updateElementInstallTarget({
+								requestId: event.requestId,
+								clientId,
+								compositionFile: '/src/Root.tsx',
+								compositionId: clientId,
+								lastFocusedAt,
+								readOnly: false,
+								studioUrl: 'http://localhost:3000',
+							}),
+						delay,
+					),
+				);
+			});
+		},
+	};
+	let markHandled: () => void;
+	const handled = new Promise<void>((resolve) => {
+		markHandled = resolve;
+	});
+	const server = createServer((request, response) => {
+		handleStudioProtocolDiscovery({
+			gitSource: null,
+			liveEventsServer,
+			remotionRoot: '/tmp/discovery-race',
+			request,
+			response,
+		}).then(
+			() => markHandled(),
+			(error) => {
+				markHandled();
+				response.destroy(error);
+			},
+		);
+	});
+	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+	try {
+		const address = server.address();
+		if (address === null || typeof address === 'string')
+			throw new Error('Expected HTTP address');
+		await run(async (signal = AbortSignal.timeout(1900)) => {
+			const response = await fetch(
+				`http://127.0.0.1:${address.port}/api/studio-protocol`,
+				{headers: {Origin: 'https://example.com'}, signal},
+			);
+			expect(response.status).toBe(200);
+			return response.json();
+		}, handled);
+	} finally {
+		for (const timer of timers) clearTimeout(timer);
+		await new Promise<void>((resolve, reject) =>
+			server.close((error) => (error ? reject(error) : resolve())),
+		);
+	}
+};
+
+test('discovery waits for a later, more recently focused connected editor', async () => {
+	clearElementInstallStateForTests();
+	await withDiscoveryClients(
+		new Set(['decoy', 'focused']),
+		(_requestId, reply) => {
+			reply(40, 'decoy', 1);
+			reply(350, 'focused', 2);
+		},
+		async (discover) => {
+			const descriptor = await discover();
+			expect(descriptor.capabilities[0].target?.compositionId).toBe('focused');
+		},
+	);
+});
+
+test('discovery completes promptly when the connected editor responds', async () => {
+	clearElementInstallStateForTests();
+	await withDiscoveryClients(
+		new Set(['focused']),
+		(_requestId, reply) => reply(0, 'focused', 2),
+		async (discover) => {
+			const descriptor = await discover(AbortSignal.timeout(500));
+			expect(descriptor.capabilities[0].target?.compositionId).toBe('focused');
+		},
+	);
+});
+
+test('discovery with no connected clients returns no target without waiting for the response budget', async () => {
+	clearElementInstallStateForTests();
+	await withDiscoveryClients(
+		new Set(),
+		() => undefined,
+		async (discover) => {
+			const descriptor = await discover(AbortSignal.timeout(500));
+			expect(
+				descriptor.capabilities.every(
+					(capability) => capability.target === null,
+				),
+			).toBe(true);
+		},
+	);
+});
+
+test('discovery bounds non-editor live clients without discarding the responding editor', async () => {
+	clearElementInstallStateForTests();
+	await withDiscoveryClients(
+		new Set(['focused', 'ssr-client']),
+		(_requestId, reply) => reply(0, 'focused', 2),
+		async (discover) => {
+			const descriptor = await discover();
+			expect(descriptor.capabilities[0].target?.compositionId).toBe('focused');
+		},
+	);
+});
+
+test('discovery does not issue a target for an editor disconnected before collection completes', async () => {
+	clearElementInstallStateForTests();
+	const clients = new Set(['focused', 'remaining']);
+	await withDiscoveryClients(
+		clients,
+		(_requestId, reply) => {
+			reply(0, 'focused', 2);
+			clients.delete('focused');
+			reply(30, 'remaining', 1);
+		},
+		async (discover) => {
+			const descriptor = await discover();
+			expect(descriptor.capabilities[0].target?.compositionId).toBe(
+				'remaining',
+			);
+		},
+	);
+});
+
+test('overlapping discoveries retain their own responses when latest-client state is overwritten', async () => {
+	clearElementInstallStateForTests();
+	let requests = 0;
+	await withDiscoveryClients(
+		new Set(['decoy', 'focused']),
+		(_requestId, reply) => {
+			const first = ++requests === 1;
+			reply(first ? 10 : 30, 'decoy', 1);
+			reply(first ? 90 : 60, 'focused', 2);
+		},
+		async (discover) => {
+			const descriptors = await Promise.all([discover(), discover()]);
+			for (const descriptor of descriptors)
+				expect(descriptor.capabilities[0].target?.compositionId).toBe(
+					'focused',
+				);
+		},
+	);
+});
+
+test('closing a discovery response releases its pending collection before the timeout', async () => {
+	clearElementInstallStateForTests();
+	await withDiscoveryClients(
+		new Set(['silent']),
+		() => undefined,
+		async (discover, handled) => {
+			await expect(discover(AbortSignal.timeout(30))).rejects.toThrow();
+			await new Promise<void>((resolve, reject) => {
+				const timeout = setTimeout(
+					() => reject(new Error('Aborted discovery collection was retained')),
+					500,
+				);
+				handled.then(() => {
+					clearTimeout(timeout);
+					resolve();
+				}, reject);
+			});
+		},
+	);
 });

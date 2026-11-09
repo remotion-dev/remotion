@@ -8,6 +8,7 @@ export const makeBrowserStudioOperations = (
 	overrides: Partial<BrowserStudioOperations>,
 ): BrowserStudioOperations => {
 	return {
+		supportsOpenTimelineImport: false,
 		addComposition: () => unusedOperation('addComposition'),
 		addFolder: () => unusedOperation('addFolder'),
 		consumeInitialElement: () => null,

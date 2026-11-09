@@ -44,7 +44,6 @@ export const gifSchema: InteractivitySchema = {
 		description: 'Loop',
 		keyframable: false,
 	},
-	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
@@ -134,6 +133,7 @@ const GifInner = ({
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		runtimeValues: controls?.runtimeValues ?? null,
 		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
@@ -270,6 +270,11 @@ const GifComponent = (
 		readonly ref?: React.Ref<HTMLCanvasElement>;
 	},
 ) => {
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	if (props.loop && props.durationInFrames === undefined) {
 		const resolvedSrc = resolveGifSource(props.src);
 		const cacheKey = getGifCacheKey({

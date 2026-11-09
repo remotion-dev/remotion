@@ -8,6 +8,7 @@ import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {addComposition} from '../components/RenderQueue/actions';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 import {slugifyName} from './slugify-name';
 import {getRoute} from './url-state';
 import {
@@ -74,6 +75,7 @@ export const useCreateComposition = ({
 	selectedFrameRate,
 	size,
 	canvasCapture,
+	openTimeline,
 	asset,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
@@ -93,6 +95,7 @@ export const useCreateComposition = ({
 		readonly videoWidth: number;
 	} | null;
 	asset: NewCompositionAsset | null;
+	openTimeline: NewCompositionOptions['openTimeline'];
 }) => {
 	const selectComposition = useSelectComposition();
 	const {
@@ -115,6 +118,7 @@ export const useCreateComposition = ({
 	const options: NewCompositionOptions = useMemo(() => {
 		return {
 			asset,
+			openTimeline,
 			newDurationInFrames: Number(durationInFrames),
 			newFps: Number(selectedFrameRate),
 			newHeight: Number(size.height),
@@ -137,6 +141,7 @@ export const useCreateComposition = ({
 		};
 	}, [
 		asset,
+		openTimeline,
 		canvasCapture,
 		componentName,
 		compositionId,
@@ -161,6 +166,18 @@ export const useCreateComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
+			if (options.openTimeline !== null) {
+				const browserOperations = getBrowserStudioOperations();
+				if (
+					browserOperations !== null &&
+					!browserOperations.supportsOpenTimelineImport
+				) {
+					throw new Error(
+						'This Browser Studio does not support importing timelines.',
+					);
+				}
+			}
+
 			const result = await addComposition(
 				{
 					options,
