@@ -3,10 +3,12 @@ import path from 'node:path';
 import type {GitSource} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import type {ElementInstallTarget} from '../element-install-state';
 import {
 	ELEMENT_INSTALL_TARGET_MAX_AGE,
 	getElementInstallTarget,
 	issueStudioProtocolTarget,
+	subscribeToElementInstallTargets,
 } from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {
@@ -15,23 +17,58 @@ import {
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
 
-export const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
+// Leave time to return the descriptor before the protocol client's 2-second deadline.
+export const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 1500;
 
 const requestInstallTarget = ({
 	liveEventsServer,
+	response,
 }: {
 	readonly liveEventsServer: LiveEventsServer;
-}) => {
+	readonly response: ServerResponse;
+}): Promise<ElementInstallTarget | null> => {
+	const clients = new Set(liveEventsServer.getClientIds());
+	if (clients.size === 0) return Promise.resolve(null);
 	const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-	liveEventsServer.sendEventToClient({
-		type: 'request-element-install-target',
-		requestId,
+	return new Promise((resolve) => {
+		// Another discovery can overwrite the latest target cached for a client.
+		// Keep this request's replies until every known client answers or time runs out.
+		const targets = new Map<string, ElementInstallTarget>();
+		let settled = false;
+		const finish = () => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timeout);
+			unsubscribe();
+			response.off('close', finish);
+			const connected = new Set(liveEventsServer.getClientIds());
+			for (const clientId of targets.keys()) {
+				if (!connected.has(clientId)) targets.delete(clientId);
+			}
+
+			resolve(getLiveStudioTarget(requestId, targets));
+		};
+
+		const unsubscribe = subscribeToElementInstallTargets((target) => {
+			if (target.requestId !== requestId || !clients.has(target.clientId))
+				return;
+			targets.set(target.clientId, target);
+			if (targets.size === clients.size) finish();
+		});
+		const timeout = setTimeout(finish, ELEMENT_INSTALL_TARGET_RESPONSE_WAIT);
+		response.once('close', finish);
+		liveEventsServer.sendEventToClient({
+			type: 'request-element-install-target',
+			requestId,
+		});
 	});
-	return requestId;
 };
 
-const getLiveStudioTarget = (requestId: string) => {
-	const target = getElementInstallTarget(requestId);
+const getLiveStudioTarget = (
+	requestId: string,
+	targets: Map<string, ElementInstallTarget>,
+) => {
+	const target = getElementInstallTarget(requestId, targets);
 	const now = Date.now();
 	if (
 		target === null ||
@@ -92,11 +129,9 @@ export const handleStudioProtocolDiscovery = ({
 		return Promise.resolve();
 	}
 
-	const requestId = requestInstallTarget({liveEventsServer});
-	return new Promise<void>((resolve) => {
-		setTimeout(() => {
+	return requestInstallTarget({liveEventsServer, response}).then((target) => {
+		if (!response.destroyed) {
 			const now = Date.now();
-			const target = getLiveStudioTarget(requestId);
 			const installTarget = target;
 			const issuedInstallTarget =
 				installTarget === null
@@ -179,7 +214,6 @@ export const handleStudioProtocolDiscovery = ({
 					],
 				}),
 			);
-			resolve();
-		}, ELEMENT_INSTALL_TARGET_RESPONSE_WAIT);
+		}
 	});
 };

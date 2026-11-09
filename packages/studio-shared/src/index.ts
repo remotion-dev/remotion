@@ -120,6 +120,7 @@ export {
 	LogStudioErrorResponse,
 	MoveEffectKeyframe,
 	MoveCompositionRequest,
+	CompositionMoveResponse,
 	MoveFolderRequest,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
