@@ -123,6 +123,16 @@ import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {
+	maskMathExtendedOpaque,
+	maskMathExtendedTransparent,
+	maskMathExtendedMultipleOpaque,
+	maskMathExtendedMultipleTransparent,
+	maskMathExtendedLiteralOpaque,
+	maskMathExtendedLiteralTransparent,
+	maskMathExtendedLiteralMultipleOpaque,
+	maskMathExtendedLiteralMultipleTransparent,
+} from './fixtures/mask-image-url-math-size';
+import {
 	maskImageUrlMathSize,
 	maskImageUrlMathSizeLiteral,
 } from './fixtures/mask-image-url-math-size';
@@ -334,6 +344,15 @@ export const Root: React.FC = () => {
 				<Composition {...maskImageUrlSizing} />
 				<Composition {...maskImageUrlMathSize} />
 				<Composition {...maskImageUrlMathSizeLiteral} />
+				<Composition {...maskMathExtendedOpaque} />
+				<Composition {...maskMathExtendedTransparent} />
+				<Composition {...maskMathExtendedMultipleOpaque} />
+				<Composition {...maskMathExtendedMultipleTransparent} />
+				<Composition {...maskMathExtendedLiteralOpaque} />
+				<Composition {...maskMathExtendedLiteralTransparent} />
+				<Composition {...maskMathExtendedLiteralMultipleOpaque} />
+				<Composition {...maskMathExtendedLiteralMultipleTransparent} />
+
 				<Composition {...maskImageLayers} />
 				<Composition {...maskImageLayersTransparent} />
 				<Composition {...maskImageLayersUrl} />

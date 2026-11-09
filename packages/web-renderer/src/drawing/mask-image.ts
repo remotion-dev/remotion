@@ -193,7 +193,7 @@ const validateUrlMaskImageStyle = (
 			sizeParts.every(
 				(value) =>
 					value === 'auto' ||
-					/^(calc|min|max|clamp)\(/.test(value) ||
+					value.includes('(') ||
 					(parseLengthPercentage(value)?.value ?? -1) >= 0,
 			));
 	const unsupportedProperties = [
@@ -220,7 +220,7 @@ const validateUrlMaskImageStyle = (
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/CSS-math/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}

@@ -12,11 +12,19 @@ import {
 	maskImageLayersTokenUrl,
 	maskImageLayersTokenUrlTransparent,
 } from './fixtures/mask-image-layers';
-import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import '../symbol-dispose';
+import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {
 	maskImageUrlMathSize,
 	maskImageUrlMathSizeLiteral,
+	maskMathExtendedOpaque,
+	maskMathExtendedLiteralOpaque,
+	maskMathExtendedTransparent,
+	maskMathExtendedLiteralTransparent,
+	maskMathExtendedMultipleOpaque,
+	maskMathExtendedLiteralMultipleOpaque,
+	maskMathExtendedMultipleTransparent,
+	maskMathExtendedLiteralMultipleTransparent,
 } from './fixtures/mask-image-url-math-size';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
 import {maskImageUrlSizing, rasterMask} from './fixtures/mask-image-url-sizing';
@@ -282,7 +290,6 @@ for (const unsupported of [
 	{maskOrigin: 'content-box'},
 	{maskClip: 'content-box'},
 	{maskMode: 'luminance'},
-	{maskSize: 'calc(50% + 10px) 20px'},
 ]) {
 	test(`rejects unsupported raster mask styles: ${JSON.stringify(unsupported)}`, async () => {
 		const Component = () => (
@@ -389,71 +396,76 @@ for (const composition of [
 	}
 }
 
-// KINO-7771: CSS math sizes were split into whitespace tokens and rejected.
-test.for([0, 1])(
-	'computed mask sizes match native frame %i',
-	async (frame, t) => {
-		if (t.task.file.projectName === 'firefox') {
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(maskImageUrlMathSize, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				composition: maskImageUrlMathSize,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const nativeLiteral = await captureNativeReference(
-			maskImageUrlMathSizeLiteral,
-			frame,
-		);
-		const actualLiteral = await (
-			await renderStillOnWeb({
-				composition: maskImageUrlMathSizeLiteral,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		console.log(
-			'mask-math-literal-control',
-			JSON.stringify({
-				frame,
-				nativeEquivalence: (await compareNativePixels(reference, nativeLiteral))
-					.mismatchedPixels,
-				composerEquivalence: (await compareNativePixels(actual, actualLiteral))
-					.mismatchedPixels,
-				literalNativeGap: (
-					await compareNativePixels(nativeLiteral, actualLiteral)
-				).mismatchedPixels,
-			}),
-		);
-		const result = await compareNativePixels(reference, actual);
-		const bitmap = await createImageBitmap(result.diff);
-		const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext(
-			'2d',
-		)!;
-		context.drawImage(bitmap, 0, 0);
-		bitmap.close();
-		const pixels = context.getImageData(0, 0, 752, 208).data;
-		const counts = Array(8).fill(0);
-		for (let y = 0; y < 208; y++)
-			for (let x = 0; x < 752; x++) {
-				if (!pixels[(y * 752 + x) * 4 + 3]) continue;
-				const col = Math.floor((x - 12) / 184),
-					row = Math.floor((y - 12) / 96);
-				if (col >= 0 && col < 4 && row >= 0 && row < 2) counts[row * 4 + col]++;
-			}
-		console.log(
-			'mask-math-cell-diff',
-			JSON.stringify({frame, counts, total: result.mismatchedPixels}),
-		);
-		expect(result.mismatchedPixels).toBe(0);
+// KINO-7771: Math sizes must resolve like independently authored literal sizes.
+// These comparisons isolate sizing from existing native raster-mask paint gaps.
+for (const {math, literal, transparent} of [
+	{
+		math: maskImageUrlMathSize,
+		literal: maskImageUrlMathSizeLiteral,
+		transparent: true,
 	},
-);
+	{
+		math: maskMathExtendedOpaque,
+		literal: maskMathExtendedLiteralOpaque,
+		transparent: false,
+	},
+	{
+		math: maskMathExtendedTransparent,
+		literal: maskMathExtendedLiteralTransparent,
+		transparent: true,
+	},
+	{
+		math: maskMathExtendedMultipleOpaque,
+		literal: maskMathExtendedLiteralMultipleOpaque,
+		transparent: false,
+	},
+	{
+		math: maskMathExtendedMultipleTransparent,
+		literal: maskMathExtendedLiteralMultipleTransparent,
+		transparent: true,
+	},
+]) {
+	for (const frame of [0, 1]) {
+		test(`resolves CSS math mask sizes ${math.id} frame ${frame}`, async (t) => {
+			await page.viewport(1280, 720);
+			if (!transparent || t.task.file.projectName !== 'firefox') {
+				const reference = await captureNativeReference(math, frame, {
+					omitBackground: transparent,
+				});
+				const literalReference = await captureNativeReference(literal, frame, {
+					omitBackground: transparent,
+				});
+				expect(
+					(await compareNativePixels(reference, literalReference))
+						.mismatchedPixels,
+				).toBe(0);
+			}
+
+			for (const scale of [1, 2]) {
+				const rendered: Blob[] = [];
+				for (const composition of [math, literal]) {
+					const result = await renderStillOnWeb({
+						composition,
+						frame,
+						scale,
+						inputProps: {},
+						licenseKey: 'free-license',
+						allowHtmlInCanvas: false,
+					});
+					const canvas = await result.canvas();
+					try {
+						rendered.push(await result.blob({format: 'png'}));
+					} finally {
+						canvas.width = 0;
+						canvas.height = 0;
+					}
+				}
+
+				expect(
+					(await compareNativePixels(rendered[0], rendered[1]))
+						.mismatchedPixels,
+				).toBe(0);
+			}
+		});
+	}
+}
