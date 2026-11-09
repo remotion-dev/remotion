@@ -125,6 +125,7 @@ const makeFixture = () => {
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 

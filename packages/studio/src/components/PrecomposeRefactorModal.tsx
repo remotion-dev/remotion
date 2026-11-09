@@ -1,67 +1,14 @@
-import React, {useCallback, useContext, useRef} from 'react';
-import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
+import React from 'react';
 import {formatFileLocation} from '../helpers/format-file-location';
-import {getCodexAnnotation} from '../helpers/get-codex-annotation';
-import {requestCodexAnnotation} from '../helpers/request-codex-annotation';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import type {ModalState} from '../state/modals';
-import {AgentPrompt} from './AgentPrompt';
-import {ModalButton} from './ModalButton';
-import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
-import {ModalHeader} from './ModalHeader';
-import {DismissableModal} from './NewComposition/DismissableModal';
-import {useSettings} from './SettingsContext';
-
-const panelStyle: React.CSSProperties = {
-	borderRadius: 6,
-	display: 'flex',
-	flexDirection: 'column',
-	maxHeight: getMaxModalHeight(800),
-	minWidth: 0,
-	overflow: 'hidden',
-	width: getMaxModalWidth(560),
-};
-
-const container: React.CSSProperties = {
-	minHeight: 0,
-	overflowY: 'auto',
-	padding: 16,
-};
-
-const text: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: 1.5,
-	marginBottom: 16,
-};
+import {CodeChangeModal} from './CodeChangeModal';
 
 type State = Extract<ModalState, {type: 'precompose-refactor'}>;
 
 export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 	state,
 }) => {
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {error, remotionSkillsInfo} = useSettings();
-	const annotationTarget = useRef<HTMLDivElement>(null);
-	const markupSkill = remotionSkillsInfo?.skills.find(
-		({name}) => name === 'remotion-markup',
-	);
-	const markupSkillAvailable = Boolean(
-		markupSkill?.installedInProject || markupSkill?.installedGlobally,
-	);
-	const isBrowserStudio = getBrowserStudioOperations() !== null;
-	const canAnnotate =
-		!isBrowserStudio &&
-		markupSkillAvailable &&
-		!window.remotion_isReadOnlyStudio &&
-		getCodexAnnotation() !== null;
-	const canSuggestAgent =
-		!isBrowserStudio &&
-		!window.remotion_isReadOnlyStudio &&
-		previewServerState.type === 'connected' &&
-		remotionSkillsInfo?.skills.some(({name}) => name === 'remotion-markup');
 	const targets = [
 		...new Set(
 			state.targets.map(({fileName, displayName, line}) => {
@@ -74,54 +21,22 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 			}),
 		),
 	];
-	const promptDetails =
-		targets.length === 1
-			? ` Pre-compose ${targets[0]}`
-			: ` Pre-compose these sequences: ${targets.join('; ')}`;
-	const selection = targets.join('; ');
-	const onSendToChatGPT = useCallback(() => {
-		requestCodexAnnotation({
-			target: annotationTarget.current,
-			initialComment: '$remotion-markup',
-			metadata: {
-				action: 'Pre-compose',
-				sequenceCount: targets.length,
-				...(selection.length <= 256 ? {selection} : {}),
-			},
+	const sources = state.targets.flatMap(({fileName, line}) => {
+		const source = resolvedStackToSymbolicated({
+			source: fileName,
+			line,
+			column: null,
 		});
-	}, [selection, targets.length]);
-
+		return source ? [source] : [];
+	});
 	return (
-		<DismissableModal panelStyle={panelStyle}>
-			<ModalHeader title="Pre-compose" />
-			<div ref={annotationTarget} style={container}>
-				<div style={text}>
-					Move these items into their own composition and re-import them into
-					this composition.
-				</div>
-				{canSuggestAgent || canAnnotate ? (
-					<AgentPrompt
-						action={
-							canAnnotate ? (
-								<ModalButton size="compact" onClick={onSendToChatGPT}>
-									Send to ChatGPT
-								</ModalButton>
-							) : null
-						}
-						availableText="You can pre-compose using an agent:"
-						promptDetails={promptDetails}
-						skillId="remotion-markup"
-					/>
-				) : (
-					<div style={text}>
-						{isBrowserStudio
-							? 'Agent-assisted refactoring is unavailable in remotion.new.'
-							: remotionSkillsInfo === null && error === null
-								? 'Checking whether /remotion-markup is available...'
-								: 'The /remotion-markup Agent Skill is unavailable in this Studio.'}
-					</div>
-				)}
-			</div>
-		</DismissableModal>
+		<CodeChangeModal
+			title="Pre-compose"
+			description="Studio could not automatically pre-compose these items. Move them into their own composition and re-import them here, or ask an agent to do it."
+			prompt={`Pre-compose ${targets.join('; ')}: move the selected items into their own composition and re-import it into this composition.`}
+			skillId="remotion-markup"
+			sources={sources}
+			sourceStatus={null}
+		/>
 	);
 };

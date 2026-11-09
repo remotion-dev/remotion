@@ -35,6 +35,7 @@ test('transcription inserts inline Basic captions beside selected Video and Audi
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const captions = [
