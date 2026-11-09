@@ -37,25 +37,25 @@ export const MyComp: React.FC = () => {
 
 ## API
 
-All parameters are optional. You can call `colorKey()` without arguments to use the defaults for a classic green screen.
+Pass an object with the following properties. You can also call `colorKey()` without arguments.
 
-### keyColor?
+### `keyColor?`
 
 The color to key out. Accepts any CSS color string. Defaults to `'#00ff00'`.
 
-### similarity?
+### `similarity?`
 
 How close a pixel has to be to the key color to be turned transparent, from `0` to `1`. Higher values key a wider range of colors. Defaults to `0.18`.
 
-### smoothness?
+### `smoothness?`
 
 Softness of the keyed edges, from `0` to `1`. `0` gives a hard cutoff; higher values produce smoother transparency transitions. Defaults to `0.08`.
 
-### spillSuppression?
+### `spillSuppression?`
 
 Strength of key-color spill suppression on the remaining pixels, from `0` to `1`. Reduces the dominant key color channel where it bleeds into the foreground (for example greenish edges around hair on a green screen). Defaults to `0.25`.
 
-### disabled?
+### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.
 
@@ -65,6 +65,10 @@ When `true`, the effect is skipped. Defaults to `false`.
 - WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 
