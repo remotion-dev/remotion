@@ -253,7 +253,10 @@ test(
 				reject: false,
 			},
 		);
-		expect(task.exitCode).toBe(0);
+		expect(
+			task.exitCode,
+			`stdout:\n${task.stdout}\nstderr:\n${task.stderr}`,
+		).toBe(0);
 		expect(fs.existsSync(outImg)).toBe(true);
 
 		const info = await RenderInternals.callFf({

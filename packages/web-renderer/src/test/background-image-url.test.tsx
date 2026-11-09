@@ -9,6 +9,7 @@ import {
 	backgroundImagePixelated,
 	backgroundImagePixelatedContexts,
 } from './fixtures/background-image-url-pixelated';
+import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -22,6 +23,7 @@ test
 		[
 			backgroundImageUrl,
 			backgroundImageContain,
+			backgroundImageRound,
 			backgroundImagePixelated,
 			backgroundImagePixelatedContexts,
 		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
