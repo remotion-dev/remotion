@@ -60,17 +60,94 @@ const StyledSvg = ({
 	);
 };
 
+const structuralVariants = [
+	'nth-child',
+	'nth-last-child',
+	'empty',
+	'empty-source',
+	'whitespace-source',
+	'comment-source',
+] as const;
+const StructuralSvg = ({
+	kind,
+	index,
+}: {
+	readonly kind: (typeof structuralVariants)[number];
+	readonly index: number;
+}) => {
+	const svg = useRef<SVGSVGElement>(null);
+	useLayoutEffect(() => {
+		const style =
+			svg.current!.querySelector<SVGStyleElement>('[data-disabled]')!;
+		if (!style.sheet) throw new Error('Structural stylesheet is not ready');
+		style.sheet.disabled = true;
+	}, []);
+	const selector = `disabled-structural-${kind}`;
+	const disabled = (
+		<style data-disabled="true">
+			{kind === 'empty-source'
+				? ''
+				: kind === 'whitespace-source'
+					? ' \n '
+					: kind === 'comment-source'
+						? '/* Original CSS comment. */'
+						: `.${selector} {fill:red}`}
+		</style>
+	);
+	const active = (
+		<style>
+			{kind === 'nth-child'
+				? `.${selector}:nth-child(3) {fill:lime}`
+				: kind === 'nth-last-child'
+					? `.${selector}:nth-last-child(2) {fill:lime}`
+					: `style:empty + .${selector} {fill:lime}`}
+		</style>
+	);
+	const rect = <rect className={selector} fill="blue" width={24} height={24} />;
+	return (
+		<svg
+			ref={svg}
+			width={24}
+			height={24}
+			style={{position: 'absolute', left: 8 + index * 36, top: 8}}
+		>
+			{kind === 'nth-child' ? (
+				<>
+					{disabled}
+					{active}
+					{rect}
+				</>
+			) : kind === 'nth-last-child' ? (
+				<>
+					{active}
+					{rect}
+					{disabled}
+				</>
+			) : (
+				<>
+					{active}
+					{disabled}
+					{rect}
+				</>
+			)}
+		</svg>
+	);
+};
+
 const Component = ({opaque = false}: {readonly opaque?: boolean}) => (
 	<AbsoluteFill style={{backgroundColor: opaque ? 'black' : undefined}}>
 		{variants.map((kind, index) => (
 			<StyledSvg key={kind} kind={kind} index={index} />
+		))}
+		{structuralVariants.map((kind, index) => (
+			<StructuralSvg key={kind} kind={kind} index={index + variants.length} />
 		))}
 	</AbsoluteFill>
 );
 export const svgDisabledStyles = {
 	component: Component,
 	id: 'svg-disabled-styles',
-	width: 224,
+	width: 440,
 	height: 40,
 	fps: 30,
 	durationInFrames: 2,

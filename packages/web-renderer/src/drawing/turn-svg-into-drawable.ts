@@ -44,7 +44,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.fill = fill;
 	svg.style.color = color;
 	// CSSStyleSheet.disabled is runtime state and is not serialized as markup.
-	// Remove disabled styles only from a clone so authored sheets stay untouched.
+	// Neutralize rules only in a clone, preserving nodes for structural selectors.
 	const styles = svg.querySelectorAll('style');
 	const hasDisabledStyles = Array.from(styles).some(
 		(style) => style.sheet?.disabled,
@@ -55,7 +55,13 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	if (hasDisabledStyles) {
 		const clonedStyles = serializationTarget.querySelectorAll('style');
 		for (let i = 0; i < styles.length; i++) {
-			if (styles[i].sheet?.disabled) clonedStyles[i].remove();
+			if (styles[i].sheet?.disabled) {
+				const text = styles[i].textContent;
+				// Preserve :empty as well as the element's structural position.
+				clonedStyles[i].textContent = text?.trim()
+					? '/* Disabled stylesheet. */'
+					: text;
+			}
 		}
 	}
 
