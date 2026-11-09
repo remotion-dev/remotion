@@ -153,6 +153,8 @@ export const handleMask = async ({
 	tempContext.restore();
 };
 
+// Use the existing group layer and SVG drawable rather than combining contours
+// whose reflected winding is interpreted differently by native engines.
 export const handleSvgClip = async ({
 	resource,
 	maskRect,

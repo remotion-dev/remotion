@@ -16,15 +16,7 @@ const Component = ({
 							objectBoundingBox ? 'objectBoundingBox' : 'userSpaceOnUse'
 						}
 					>
-						<rect
-							width={objectBoundingBox ? 0.4 : 80}
-							height={objectBoundingBox ? 1 : 80}
-						/>
-						<rect
-							x={objectBoundingBox ? 0.4 : 80}
-							width={objectBoundingBox ? 0.4 : 80}
-							height={objectBoundingBox ? 1 : 80}
-						/>
+						<path d={objectBoundingBox ? 'M0 0H0.8V1H0Z' : 'M0 0H160V80H0Z'} />
 					</clipPath>
 				</defs>
 			</svg>
@@ -53,7 +45,7 @@ const Component = ({
 
 export const clipPathDescendantFilter = {
 	component: Component,
-	id: 'clip-path-rectangle-descendant-filter',
+	id: 'clip-path-descendant-filter',
 	width: 320,
 	height: 160,
 	fps: 30,
@@ -62,6 +54,6 @@ export const clipPathDescendantFilter = {
 
 export const clipPathDescendantFilterObjectBox = {
 	...clipPathDescendantFilter,
-	id: 'clip-path-rectangle-descendant-filter-object-box',
+	id: 'clip-path-descendant-filter-object-box',
 	component: () => <Component objectBoundingBox />,
 };

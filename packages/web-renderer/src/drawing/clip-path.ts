@@ -258,7 +258,11 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 	return {type: 'none'};
 }
 
-const getReferencedClipPath = (source: string, element: Element) => {
+// Resolve local resources once for the native HTML mask and SVG vector paths.
+const getReferencedClipPath = (
+	source: string,
+	element: Element,
+): SVGClipPathElement | null => {
 	let url: URL;
 	let id: string;
 	try {
@@ -278,10 +282,10 @@ const getReferencedClipPath = (source: string, element: Element) => {
 	)
 		return null;
 	const resource = element.ownerDocument.getElementById(id);
-	return resource instanceof SVGClipPathElement ? resource : null;
+	if (!(resource instanceof SVGClipPathElement)) return null;
+	return resource;
 };
 
-// Single shapes use Canvas vector clipping, which also clips descendants.
 const getReferencedShape = (
 	source: string,
 	element: Element,
@@ -294,7 +298,7 @@ const getReferencedShape = (
 	);
 	const path = new Path2D();
 	if (children.length === 0) return {path, fillRule: 'nonzero'};
-	// Sibling shapes use SVG painting through the existing group layer.
+	// Multiple shapes need union coverage rather than a combined winding rule.
 	if (children.length !== 1) return null;
 	const child = children[0];
 	if (
@@ -366,19 +370,39 @@ export const getSvgClipForPrecompositing = (
 	if (parsed.type !== 'url') return null;
 	const resource = getReferencedClipPath(parsed.source, element);
 	if (!resource) return null;
-	const children = Array.from(resource.children);
-	// Keep single shapes on the vector path. SVG painting preserves each engine's
-	// native treatment of reflected, overlapping sibling contours.
-	return children.filter((child) => getComputedStyle(child).display !== 'none')
-		.length > 1 &&
-		children.every(
-			(child) =>
-				child instanceof SVGRectElement &&
-				child.rx.baseVal.valueInSpecifiedUnits === 0 &&
-				child.ry.baseVal.valueInSpecifiedUnits === 0,
+	const children = Array.from(resource.children).filter(
+		(node) =>
+			node instanceof SVGGraphicsElement &&
+			getComputedStyle(node).display !== 'none',
+	);
+	if (children.length > 1) {
+		return children.every(
+			(node) =>
+				node instanceof SVGRectElement &&
+				node.rx.baseVal.valueInSpecifiedUnits === 0 &&
+				node.ry.baseVal.valueInSpecifiedUnits === 0,
 		)
-		? resource
-		: null;
+			? resource
+			: null;
+	}
+
+	if (!(element instanceof HTMLElement)) return null;
+	if (
+		children.some((node) => {
+			if (node instanceof SVGRectElement) {
+				return (
+					node.rx.baseVal.valueInSpecifiedUnits > 0 ||
+					node.ry.baseVal.valueInSpecifiedUnits > 0
+				);
+			}
+
+			return !(
+				node instanceof SVGPolygonElement || node instanceof SVGPathElement
+			);
+		})
+	)
+		return null;
+	return resource;
 };
 
 export function setClipPath({
