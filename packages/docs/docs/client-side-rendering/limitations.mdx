@@ -48,6 +48,8 @@ The `background-size` and `background-position` properties are <a style={{color:
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
 `background-repeat: round` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background. It includes both-axis round repetition, mixed `round repeat` / `repeat round`, and preservation of the source aspect ratio when the other size is `auto`. The opaque test cases match native Chromium; fractional positioning, arbitrary source interpolation and other image types require further pixel-parity qualification.
 
+`image-rendering: pixelated` is partially supported for a single raster URL background, including inherited values. Opaque integer-scale repeats and no-repeat images use nearest-neighbor sampling; tested odd-sized no-repeat tiles also retain the native local paint context for identity and integer-translation transforms. Fractional translation, arbitrary ratios, translucent assets and effected groups may still differ from native painting.
+
 Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
@@ -141,6 +143,8 @@ The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: '
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
 
 SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
+
+`image-rendering: pixelated` is partially supported for raster images and `<canvas>` elements, including inherited values. Opaque integer-sized `object-fit: fill`, `cover`, and `contain` cases are qualified against native Chromium and WebKit. Raster sampling does not change the SVG vector path. Fractional sampling, arbitrary ratios, transparency, video and transformed/effected groups require further pixel-parity qualification.
 
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
