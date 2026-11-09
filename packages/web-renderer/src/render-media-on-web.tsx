@@ -640,6 +640,7 @@ const internalRenderMediaOnWeb = async <
 				const createFrameStart = performance.now();
 				const layer = await createLayer({
 					element: div,
+					transparent,
 					scale,
 					logLevel,
 					internalState,

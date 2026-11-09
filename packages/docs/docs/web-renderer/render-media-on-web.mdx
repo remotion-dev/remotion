@@ -201,6 +201,7 @@ _boolean_
 
 If set to `true`, the video will be encoded with an alpha channel, allowing for transparent backgrounds.
 The composition must render with a transparent background for this to work.
+When `false`, the final canvas is opaque and uncovered areas render against black. Intermediate compositing layers retain their alpha channels.
 
 Only the `"webm"` and `"mkv"` containers support transparency. Only the `"vp8"` and `"vp9"` codecs support transparency. An error will be thrown if an incompatible container or codec is used.
 
