@@ -17,13 +17,19 @@ export const makeRasterImageLoaderState = ({
 }): RasterImageLoaderState => {
 	const images = new Set<ImageBitmap>();
 	const cache = new Map<string, Promise<RasterImageResource>>();
+	const owner = new AbortController();
+	const abort = () => owner.abort();
+	if (signal?.aborted) abort();
+	else signal?.addEventListener('abort', abort, {once: true});
 
 	return {
 		cache,
 		images,
-		signal,
+		signal: owner.signal,
 		timeoutInMilliseconds,
 		[Symbol.dispose]: () => {
+			owner.abort();
+			signal?.removeEventListener('abort', abort);
 			for (const image of images) {
 				image.close();
 			}
