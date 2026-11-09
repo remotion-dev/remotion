@@ -172,6 +172,7 @@ test('visual-control handler preserves source formatting', async () => {
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const filePath = path.join(remotionRoot, 'Root.tsx');
@@ -271,6 +272,7 @@ const expectCompositionEditUndoRedo = async <
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const consoleSpy = expectedLogMessage
@@ -433,6 +435,7 @@ test('moveCompositionHandler pushes composition moves to undo and redo stacks', 
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 
@@ -534,6 +537,7 @@ test('moveCompositionHandler pushes composition moves to root to undo and redo s
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 
@@ -599,6 +603,7 @@ test('addCompositionHandler creates compositions and timecoded imports with undo
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 
@@ -836,6 +841,7 @@ test('addCompositionHandler creates an interactive Canvas Capture composition', 
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 

@@ -21,6 +21,7 @@ type Client = {
 };
 
 export type LiveEventsServer = {
+	getClientIds: () => string[];
 	sendEventToClient: (event: EventSourceEvent) => void;
 	sendEventToClientId: (clientId: string, event: EventSourceEvent) => boolean;
 	router: (request: IncomingMessage, response: ServerResponse) => Promise<void>;
@@ -163,6 +164,7 @@ export const makeLiveEventsRouter = (
 	};
 
 	return {
+		getClientIds: () => clients.map((client) => client.id),
 		sendEventToClient,
 		sendEventToClientId,
 		router,
