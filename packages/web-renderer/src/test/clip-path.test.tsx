@@ -2,8 +2,12 @@ import {expect, test} from 'vitest';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import '../symbol-dispose';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
@@ -261,3 +265,44 @@ test('restores inline group properties and important priorities after clipping',
 		host.remove();
 	}
 });
+
+// PR #13100: capture bounds must include a child's filter beyond its layout box.
+for (const fixture of [
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+]) {
+	for (const frame of [0, 1]) {
+		test(`${fixture.id} preserves descendant filter paint at frame ${frame}`, async (t) => {
+			if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
+				t.skip();
+				return;
+			}
+
+			const reference = await captureNativeReference(fixture, frame, {
+				omitBackground: false,
+			});
+			const actual = await (
+				await renderStillOnWeb({
+					licenseKey: 'free-license',
+					composition: fixture,
+					frame,
+					inputProps: {},
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+			const diff = await compareNativePixels(reference, actual);
+			await Promise.all([
+				savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
+					omitBackground: false,
+				}),
+				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
+					omitBackground: false,
+				}),
+				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
+					omitBackground: false,
+				}),
+			]);
+			expect(diff.mismatchedPixels).toBe(0);
+		});
+	}
+}
