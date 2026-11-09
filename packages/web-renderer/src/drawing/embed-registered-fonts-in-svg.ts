@@ -290,5 +290,6 @@ export const insertFontStyleInSvg = (svg: SVGSVGElement, css: string) => {
 		svg.prepend(style);
 	}
 
-	style.textContent = css + (style.textContent ?? '');
+	// Keep authored @namespace/@import preambles ahead of carried rules.
+	style.textContent = (style.textContent ?? '') + '\n' + css;
 };
