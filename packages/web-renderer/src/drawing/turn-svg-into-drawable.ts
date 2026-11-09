@@ -13,6 +13,12 @@ const textFontProperties = [
 	'font-stretch',
 ] as const;
 
+const serializeSvg = (svg: SVGSVGElement) =>
+	new XMLSerializer()
+		.serializeToString(svg)
+		// eslint-disable-next-line no-control-regex
+		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
@@ -191,17 +197,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
+	// Font discovery includes explicit template choices without freezing their inheritance.
 	const fontFamilies = new Set(
-		textStyles.flatMap((style) => style ? parseFontFamilies(style[0]) : []),
+		textElements.flatMap((element) =>
+			parseFontFamilies(getComputedStyle(element).fontFamily),
+		),
 	);
 	const cssFontRules = textElements.length
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
-	const serializedSvg = new XMLSerializer()
-		.serializeToString(svgForSerialization)
-		// eslint-disable-next-line no-control-regex
-		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+	const serializedSvg = serializeSvg(svgForSerialization);
 
 	if (originalStyle === null) {
 		svg.removeAttribute('style');
@@ -245,13 +251,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			const src = `url("data:application/octet-stream;base64,${getBase64(fontData)}")`;
 			return `@font-face{${rule.declarations.map(([name, value]) => `${name}:${name === 'src' ? src : value}`).join(';')}}`;
 		}),
-	).then((rules) => {
-		const css = rules.join('').replace(/]]>/g, ']]]]><![CDATA[>');
-		return css ? `<style type="text/css"><![CDATA[${css}]]></style>` : '';
-	});
+	).then((rules) => rules.join(''));
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		const openingTagEnd = serializedSvg.indexOf('>');
 		let url: string;
 
 		image.onload = function () {
@@ -265,18 +267,28 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		};
 
 		cssFontStyle
-			.then((style) => {
-				const blobParts: BlobPart[] =
-					openingTagEnd === -1
-						? [serializedSvg]
-						: [
-								serializedSvg.slice(0, openingTagEnd + 1),
-								embeddedFontStyle?.blob ?? '',
-								style,
-								serializedSvg.slice(openingTagEnd + 1),
-							];
+			.then((css) => {
+				const fontCss = (embeddedFontStyle?.css ?? '') + css;
+				let markup = serializedSvg;
+				if (fontCss) {
+					let style = svgForSerialization.querySelector<
+						SVGStyleElement | HTMLStyleElement
+					>('style');
+					if (!style) {
+						style = svg.ownerDocument.createElementNS(
+							'http://www.w3.org/2000/svg',
+							'style',
+						);
+						svgForSerialization.prepend(style);
+					}
+
+					// Preserve authored child positions when carrying font definitions.
+					style.textContent = fontCss + (style.textContent ?? '');
+					markup = serializeSvg(svgForSerialization);
+				}
+
 				url = URL.createObjectURL(
-					new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'}),
+					new Blob([markup], {type: 'image/svg+xml;charset=utf-8'}),
 				);
 				image.src = url;
 			})

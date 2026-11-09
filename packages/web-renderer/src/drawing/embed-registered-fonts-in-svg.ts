@@ -271,9 +271,8 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const css = sortedIndexes
 		.map((index) => getFontFaceRule(registeredFonts[index]!))
-		.join('')
-		.replace(/]]>/g, ']]]]><![CDATA[>');
-	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+		.join('');
+	const style = `<style type="text/css"><![CDATA[${css.replace(/]]>/g, ']]]]><![CDATA[>')}]]></style>`;
 	const embeddedStyle = {
 		blob: new Blob([style]),
 		cacheKey,

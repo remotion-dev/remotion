@@ -14,6 +14,8 @@ const Component: React.FC = () => {
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`.svg-font-from-external-css { font-family: "External SVG, class font"; font-size: ${40 + frame * 2}px; }`}</style>
 			<svg width={600} height={320} viewBox="0 0 600 320">
+				<style>{'rect:nth-child(2){fill:red}'}</style>
+				<rect width={20} height={20} />
 				<defs>
 					<path id="external-svg-text-path" d="M 12 194 L 580 194" />
 					<text id="external-svg-use-template">Template inheritance</text>
