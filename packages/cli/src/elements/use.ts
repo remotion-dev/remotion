@@ -460,7 +460,7 @@ export const elementsUseCommand = async ({
 	for (const assetPath of newAssetPaths) {
 		Log.info(
 			{indent: false, logLevel},
-			`${chalk.blueBright(assetPath)} Downloaded asset`,
+			`${chalk.blueBright(assetPath)} Added asset`,
 		);
 	}
 
