@@ -10,6 +10,7 @@ import {
 } from './composition-selector-drag-data';
 import {showNotification} from './Notifications/NotificationCenter';
 import {moveComposition, moveFolder} from './RenderQueue/actions';
+import {getCachedResolvedStack} from './Timeline/use-resolved-stack';
 
 export const moveCompositionOrFolder = async ({
 	dragData,
@@ -61,12 +62,39 @@ export const moveCompositionOrFolder = async ({
 		});
 		if (!result.success) {
 			if (result.canRefactor) {
+				const snapshot = getSnapshot();
+				const target =
+					destination.type === 'root'
+						? null
+						: destination.type === 'folder'
+							? {
+									type: 'folder' as const,
+									folderName: destination.folderName,
+									parentName: destination.parentName,
+								}
+							: destination.target;
+				const sourceLocations = [source, target].flatMap((item) => {
+					if (item === null) return [];
+					const stack =
+						item.type === 'composition'
+							? snapshot.compositions.find(
+									(composition) => composition.id === item.compositionId,
+								)?.stack
+							: snapshot.folders.find(
+									(folder) =>
+										folder.name === item.folderName &&
+										folder.parent === item.parentName,
+								)?.stack;
+					const location = getCachedResolvedStack(stack ?? null);
+					return location ? [location] : [];
+				});
 				setSelectedModal({
 					type: 'reorder-composition',
 					item: source,
 					destination,
 					sourceFile,
 					destinationFile,
+					sourceLocations,
 				});
 			} else {
 				showNotification(result.reason, 4000);
