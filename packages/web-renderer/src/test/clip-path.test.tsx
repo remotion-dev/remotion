@@ -2,8 +2,12 @@ import {expect, test} from 'vitest';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import '../symbol-dispose';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
@@ -263,6 +267,8 @@ test('restores multi-rectangle clip group properties and important priorities (K
 
 for (const [fixture, referenceFixture, scale] of [
 	[clipDescendantFilter, clipDescendantFilter, 1],
+	[clipPathDescendantFilter, clipPathDescendantFilter, 1],
+	[clipPathDescendantFilterObjectBox, clipPathDescendantFilterObjectBox, 1],
 	[clipTransformedDescendantFilter, clipTransformedDescendantFilter, 1],
 	[clipDescendantBlur, clipDescendantBlur, 1],
 	[clipNestedDescendantFilter, clipNestedDescendantFilter, 1],

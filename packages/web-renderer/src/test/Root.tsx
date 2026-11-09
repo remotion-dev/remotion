@@ -30,6 +30,10 @@ import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
@@ -346,6 +350,8 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathShapeReference} />
 				<Composition {...clipPathRectangleUnion} />
 				<Composition {...clipDescendantFilter} />
+				<Composition {...clipPathDescendantFilter} />
+				<Composition {...clipPathDescendantFilterObjectBox} />
 				<Composition {...clipTransformedDescendantFilter} />
 				<Composition {...clipDescendantBlur} />
 				<Composition {...clipNestedDescendantFilter} />
