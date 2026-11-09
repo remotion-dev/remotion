@@ -198,7 +198,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	gsap: 'Use GSAP timelines in Remotion',
 	'media-utils': 'Utilities for working with media files',
 	lottie: 'Include Lottie animations in Remotion',
-	licensing: 'Manage your Remotion.pro license',
+	licensing: 'Manage your Remotion license',
 	'layout-utils': 'Utilities for working with layouts',
 	'rounded-text-box':
 		'Create a TikTok-like multiline text box SVG path with rounded corners',
