@@ -225,39 +225,31 @@ export const calculateTransforms = ({
 					? computedStyle.filter
 					: filterRequiresPrecompositing(computedStyle.filter);
 
-			const originalClipPath = parent.style.clipPath;
-			if (svgClip) parent.style.clipPath = 'none';
-			const originalMaskImage = parent.style.maskImage;
-			const originalWebkitMaskImage = parent.style.webkitMaskImage;
-			parent.style.maskImage = 'none';
-			parent.style.webkitMaskImage = 'none';
-
-			const originalMixBlendMode = parent.style.mixBlendMode;
-			const originalOpacity = parent.style.opacity;
+			// An authored !important rule must also be neutralized while drawing the
+			// group, then restored with its original inline priority.
+			const overrides: [string, string][] = [
+				['mask-image', 'none'],
+				['-webkit-mask-image', 'none'],
+			];
+			if (svgClip) overrides.push(['clip-path', 'none']);
 			if (needsGroup) {
-				parent.style.mixBlendMode = 'normal';
-				parent.style.opacity = '1';
+				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);
 			}
 
-			// Neutralize filter if it requires precompositing to prevent double-application
-			const originalFilter = parent.style.filter;
-			if (filterForPrecompositing) {
-				parent.style.filter = 'none';
+			if (filterForPrecompositing) overrides.push(['filter', 'none']);
+			const {style} = parent;
+			const originals = overrides.map(([property]) => ({
+				property,
+				value: style.getPropertyValue(property),
+				priority: style.getPropertyPriority(property),
+			}));
+			for (const [property, value] of overrides) {
+				style.setProperty(property, value, 'important');
 			}
-
-			const parentRef = parent;
 
 			toReset.push(() => {
-				if (svgClip) parentRef!.style.clipPath = originalClipPath;
-				parentRef!.style.maskImage = originalMaskImage;
-				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
-				if (filterForPrecompositing) {
-					parentRef!.style.filter = originalFilter;
-				}
-
-				if (needsGroup) {
-					parentRef!.style.mixBlendMode = originalMixBlendMode;
-					parentRef!.style.opacity = originalOpacity;
+				for (const {property, value, priority} of originals) {
+					style.setProperty(property, value, priority);
 				}
 			});
 		}

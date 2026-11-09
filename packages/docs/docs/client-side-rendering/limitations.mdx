@@ -160,7 +160,7 @@ The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` can reference a same-document SVG `<clipPath>` containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, or multiple non-rounded rectangles. `userSpaceOnUse` and `objectBoundingBox` units, SVG transform attributes, and `clip-rule` are supported. Multi-rectangle clips retain the rendering engine's native winding behavior, including reflected overlap. External documents, mixed multiple shapes, and nested references are not supported. Native pixel comparisons cover rectilinear geometry; diagonal and curved antialiasing can differ between engines.
+- `clip-path: url()` can reference a same-document SVG `<clipPath>` containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, or multiple non-rounded rectangles. `userSpaceOnUse` and `objectBoundingBox` units, SVG transform attributes, and `clip-rule` are supported. Multi-rectangle clips retain the rendering engine's native winding behavior, including reflected overlap and authored visibility. Rectangle coordinates and sizes from CSS are retained in their original SVG viewport. Authored `!important` declarations retain their original priorities after rendering. Filters precede clipping in Chrome; WebKit still lacks the Canvas filter API described above. External documents, mixed multiple shapes, and nested references are not supported. Native pixel comparisons cover rectilinear geometry; diagonal and curved antialiasing can differ between engines.
 
 ## Unsupported styles
 
