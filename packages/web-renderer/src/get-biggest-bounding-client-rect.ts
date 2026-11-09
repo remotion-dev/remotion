@@ -1,5 +1,7 @@
 import {parseBoxShadow} from './drawing/draw-box-shadow';
 import {parseOutlineOffset, parseOutlineWidth} from './drawing/draw-outline';
+import {parseDropShadowExpansion} from './drawing/filter-outsets';
+import {makeDOMMatrix} from './drawing/make-dom-matrix';
 import {skipToNextNonDescendant} from './walk-tree';
 
 /**
@@ -49,6 +51,7 @@ const getTextOverflowForLineHeight = (
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
 	includePaintOutsets = true,
+	includeDescendantFilters = false,
 ) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -104,17 +107,73 @@ export const getBiggestBoundingClientRect = (
 			}
 		}
 
+		const filterOutsets = {left: 0, right: 0, top: 0, bottom: 0};
+		if (
+			includePaintOutsets &&
+			includeDescendantFilters &&
+			treeWalker.currentNode !== element
+		) {
+			const ancestors: Element[] = [];
+			for (
+				let ancestor = treeWalker.currentNode as Element;
+				ancestor !== element;
+				ancestor = ancestor.parentElement!
+			)
+				ancestors.push(ancestor);
+			let matrix = new DOMMatrix();
+			for (const ancestor of ancestors.reverse()) {
+				const style = getComputedStyle(ancestor);
+				let local = makeDOMMatrix(
+					style.transform === 'none' ? undefined : style.transform,
+				);
+				if (style.scale !== 'none')
+					local = makeDOMMatrix(`scale(${style.scale})`).multiply(local);
+				if (style.rotate !== 'none')
+					local = makeDOMMatrix(`rotate(${style.rotate})`).multiply(local);
+				matrix = matrix.multiply(local);
+				const expansion = parseDropShadowExpansion(style.filter, true);
+				const transformed = {left: 0, right: 0, top: 0, bottom: 0};
+				for (const x of [-expansion.left, expansion.right]) {
+					for (const y of [-expansion.top, expansion.bottom]) {
+						const point = new DOMPoint(x, y, 0, 0).matrixTransform(matrix);
+						transformed.left = Math.max(transformed.left, -point.x);
+						transformed.right = Math.max(transformed.right, point.x);
+						transformed.top = Math.max(transformed.top, -point.y);
+						transformed.bottom = Math.max(transformed.bottom, point.y);
+					}
+				}
+
+				filterOutsets.left += transformed.left;
+				filterOutsets.right += transformed.right;
+				filterOutsets.top += transformed.top;
+				filterOutsets.bottom += transformed.bottom;
+			}
+		}
+
 		mostLeft = Math.min(
 			mostLeft,
-			rect.left - outlineOffset - outlineWidth - shadowLeft,
+			rect.left -
+				outlineOffset -
+				outlineWidth -
+				shadowLeft -
+				filterOutsets.left,
 		);
 		mostTop = Math.min(
 			mostTop,
-			rect.top - outlineOffset - outlineWidth - shadowTop - textOverflow.top,
+			rect.top -
+				outlineOffset -
+				outlineWidth -
+				shadowTop -
+				textOverflow.top -
+				filterOutsets.top,
 		);
 		mostRight = Math.max(
 			mostRight,
-			rect.right + outlineOffset + outlineWidth + shadowRight,
+			rect.right +
+				outlineOffset +
+				outlineWidth +
+				shadowRight +
+				filterOutsets.right,
 		);
 		mostBottom = Math.max(
 			mostBottom,
@@ -122,7 +181,8 @@ export const getBiggestBoundingClientRect = (
 				outlineOffset +
 				outlineWidth +
 				shadowBottom +
-				textOverflow.bottom,
+				textOverflow.bottom +
+				filterOutsets.bottom,
 		);
 
 		if (computedStyle.overflow === 'hidden') {

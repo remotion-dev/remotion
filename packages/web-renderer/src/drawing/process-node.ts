@@ -17,6 +17,7 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	scaleFilterLengths,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {
@@ -140,7 +141,11 @@ export const processNode = async ({
 			precomposeRect = roundToExpandRect(
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
-					secondRect: getBiggestBoundingClientRect(element),
+					secondRect: getBiggestBoundingClientRect(
+						element,
+						true,
+						precompositing.needsSvgClip !== null,
+					),
 				}),
 			);
 		}
@@ -197,17 +202,17 @@ export const processNode = async ({
 			}),
 		);
 
-		const filteredBeforeClip = Boolean(
-			precompositing.needsSvgClip && precompositing.needsFilterPrecompositing,
-		);
-		if (filteredBeforeClip) {
+		if (precompositing.needsFilterPrecompositing) {
 			tempContext.save();
 			tempContext.resetTransform();
 			tempContext.globalAlpha = 1;
 			tempContext.globalCompositeOperation = 'copy';
 			applyFilterToDrawOperation({
 				context: tempContext,
-				filter: precompositing.needsFilterPrecompositing!,
+				filter: scaleFilterLengths(
+					precompositing.needsFilterPrecompositing,
+					layerScale,
+				),
 				drawFn: () => tempContext.drawImage(tempContext.canvas, 0, 0),
 			});
 			tempContext.restore();
@@ -298,16 +303,7 @@ export const processNode = async ({
 			? setOpacity({ctx: context, opacity})
 			: () => {};
 
-		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing && !filteredBeforeClip) {
-			applyFilterToDrawOperation({
-				context,
-				filter: precompositing.needsFilterPrecompositing,
-				drawFn: drawPrecomposedCanvas,
-			});
-		} else {
-			drawPrecomposedCanvas();
-		}
+		drawPrecomposedCanvas();
 
 		finishOpacity();
 		context.globalCompositeOperation = previousCompositeOperation;
