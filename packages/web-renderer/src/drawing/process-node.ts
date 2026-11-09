@@ -305,6 +305,7 @@ export const processNode = async ({
 		draw,
 		opacity,
 		totalMatrix,
+		hasCssTransform: transforms.hasCssTransform,
 		parentRect,
 		logLevel,
 		element,
