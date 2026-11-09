@@ -17,7 +17,7 @@ import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
-const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
+export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
 const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {

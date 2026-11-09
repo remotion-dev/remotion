@@ -4,6 +4,7 @@ import {getElementLibraryLabel} from '../../helpers/get-element-library-label';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CaretDown} from '../../icons/caret';
 import {SetSelectedModalContext} from '../../state/modals';
+import {REMOTION_ELEMENTS_URL} from '../ElementLibrariesSettings';
 import {
 	INSPECTOR_PANEL_HORIZONTAL_PADDING,
 	INSPECTOR_CONTENT_RIGHT_INSET,
@@ -129,24 +130,26 @@ export const ElementLibraryButton: React.FC = () => {
 						quickSwitcherLabel: null,
 						subMenu: null,
 						type: 'item',
-						value: 'https://www.remotion.dev/elements',
+						value: REMOTION_ELEMENTS_URL,
 					},
-					...elementLibraries.map((library, index) => {
-						const label = getElementLibraryLabel(library);
+					...elementLibraries
+						.filter((library) => library.url !== REMOTION_ELEMENTS_URL)
+						.map((library, index) => {
+							const label = getElementLibraryLabel(library);
 
-						return {
-							disabled: false,
-							id: `external-element-library-${index}`,
-							keyHint: null,
-							label,
-							leftItem: null,
-							onClick: () => openElementLibrary(label, library.url),
-							quickSwitcherLabel: null,
-							subMenu: null,
-							type: 'item' as const,
-							value: library.url,
-						};
-					}),
+							return {
+								disabled: false,
+								id: `external-element-library-${index}`,
+								keyHint: null,
+								label,
+								leftItem: null,
+								onClick: () => openElementLibrary(label, library.url),
+								quickSwitcherLabel: null,
+								subMenu: null,
+								type: 'item' as const,
+								value: library.url,
+							};
+						}),
 					{
 						id: 'element-library-settings-divider',
 						type: 'divider',
