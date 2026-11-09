@@ -99,6 +99,12 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {
+	svgFullSourceUrlFill,
+	svgFullSourceBlobFill,
+	svgFullSourceUrlContain,
+	svgFullSourceBlobContain,
+} from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -175,6 +181,10 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
+			<Composition {...svgFullSourceUrlFill} />
+			<Composition {...svgFullSourceBlobFill} />
+			<Composition {...svgFullSourceUrlContain} />
+			<Composition {...svgFullSourceBlobContain} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
