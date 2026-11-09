@@ -108,6 +108,18 @@ import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
+} from './fixtures/mask-image-layers';
+import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
+import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
@@ -316,6 +328,20 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...maskImageUrlSizing} />
+				<Composition {...maskImageLayers} />
+				<Composition {...maskImageLayersTransparent} />
+				<Composition {...maskImageLayersUrl} />
+				<Composition {...maskImageLayersUrlTransparent} />
+				<Composition {...maskImageLayersBlob} />
+				<Composition {...maskImageLayersBlobTransparent} />
+				<Composition {...maskImageLayersTokenUrl} />
+				<Composition {...maskImageLayersTokenUrlTransparent} />
+				{unsupportedMaskImages.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
+				{legacyMaskComposites.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
 				<Composition {...maskImageUrlPosition} />
 				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />
