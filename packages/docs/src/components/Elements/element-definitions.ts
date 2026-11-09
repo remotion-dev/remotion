@@ -133,7 +133,7 @@ const youtubeSubscribeNudgeAssets = {
 	},
 } as const satisfies Record<string, ElementAsset>;
 
-// Array order defines the order of categories and cards in the Element Library.
+// Array order defines the order of cards within each category. Category order comes from element-registry.ts.
 const elementImplementations = [
 	{
 		slug: 'audio/oscilloscope',
