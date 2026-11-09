@@ -73,8 +73,31 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView! as Window &
 		typeof globalThis;
-	const visitRules = (cssRules: CSSRuleList, baseUrl: string) => {
+	const visitSheet = (sheet: CSSStyleSheet) => {
+		if (
+			sheet.disabled ||
+			(sheet.media.mediaText &&
+				!ownerWindow.matchMedia(sheet.media.mediaText).matches)
+		)
+			return;
+		let cssRules: CSSRuleList;
+		try {
+			cssRules = sheet.cssRules;
+		} catch (error) {
+			if (error instanceof DOMException && error.name === 'SecurityError')
+				return;
+			throw error;
+		}
+
+		const baseUrl = sheet.href ?? svg.baseURI;
 		for (const rule of getActiveCssRules(cssRules, ownerWindow)) {
+			if (rule instanceof ownerWindow.CSSImportRule) {
+				// Layer ordering remains outside this source-selection subset.
+				if (rule.layerName === null && rule.styleSheet !== null)
+					visitSheet(rule.styleSheet);
+				continue;
+			}
+
 			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
@@ -124,24 +147,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		}
 	};
 
-	for (const sheet of svg.ownerDocument.styleSheets) {
-		if (
-			sheet.disabled ||
-			(sheet.media.mediaText &&
-				!ownerWindow.matchMedia(sheet.media.mediaText).matches)
-		)
-			continue;
-		let cssRules: CSSRuleList;
-		try {
-			cssRules = sheet.cssRules;
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
-				continue;
-			throw error;
-		}
-
-		visitRules(cssRules, sheet.href ?? svg.baseURI);
-	}
+	for (const sheet of svg.ownerDocument.styleSheets) visitSheet(sheet);
 
 	return rules;
 };
