@@ -99,7 +99,7 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 `mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> for alpha masks.  
 The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Fractional raster-mask sampling can differ from native output.
 
-The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`, `linear-gradient()` and `none` layers.
+The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`, `linear-gradient()` and `none` layers. Legacy composite keywords that the browser does not normalize to these values are <a style={{color: 'red'}}>not supported</a>.
 
 Cross-origin URLs, SVG masks, luminance masks, `calc()` mask sizes and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>.
 
