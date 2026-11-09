@@ -98,7 +98,7 @@ const drawReplacedElement = ({
 
 	if (
 		drawable instanceof HTMLImageElement &&
-		(drawable.currentSrc.startsWith('data:image/svg+xml') ||
+		(/^data:image\/svg\+xml[\t\n\f\r ]*[;,]/i.test(drawable.currentSrc) ||
 			(drawable.currentSrc !== '' &&
 				new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg')))
 	) {
@@ -156,6 +156,34 @@ const drawReplacedElement = ({
 			dimensions.top,
 			dimensions.width,
 			dimensions.height,
+		);
+		return;
+	}
+
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
+	}
+
+	// Preserve the concrete destination size when the entire image is visible.
+	if (
+		drawable instanceof HTMLImageElement &&
+		result.sourceX === 0 &&
+		result.sourceY === 0 &&
+		result.sourceWidth === intrinsicSize.width &&
+		result.sourceHeight === intrinsicSize.height
+	) {
+		contextToDraw.drawImage(
+			drawable,
+			result.destX,
+			result.destY,
+			result.destWidth,
+			result.destHeight,
 		);
 		return;
 	}

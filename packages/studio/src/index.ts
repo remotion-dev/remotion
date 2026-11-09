@@ -1,4 +1,3 @@
-import {createComposition, createStill} from './api/create-composition';
 import {CodingAgentIcon} from './components/CodingAgentIcon';
 import {EditorIcon} from './icons/editor';
 import {FinderIcon} from './icons/finder';
@@ -31,6 +30,4 @@ export const StudioInternals = {
 	EditorIcon,
 	FinderIcon,
 	TerminalIcon,
-	createComposition,
-	createStill,
 };

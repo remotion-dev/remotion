@@ -27,6 +27,7 @@ import {
 	getUnchangedStructureRemappings,
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
+import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
@@ -186,6 +187,7 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,
 	getDurationDependentKeyframesFromContent,
 	JsxElementIdentityMismatchError,

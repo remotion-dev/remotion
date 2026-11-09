@@ -1,9 +1,17 @@
 import {AbsoluteFill} from 'remotion';
 import {expect, test} from 'vitest';
-import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
+import {createPixelatedBackgroundSamplerLifetime} from './fixtures/background-image-pixelated-sampler-lifetime';
+import {createSpaceTextMask} from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {
+	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
+} from './fixtures/background-image-url-pixelated';
+import {backgroundImageRound} from './fixtures/background-image-url-round';
+import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -14,9 +22,14 @@ import {testImage} from './utils';
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))
 	.each(
-		[backgroundImageUrl, backgroundImageContain].flatMap((fixture) =>
-			[0, 1].map((frame) => ({fixture, frame})),
-		),
+		[
+			backgroundImageUrl,
+			backgroundImageContain,
+			backgroundImageSpace,
+			backgroundImageRound,
+			backgroundImagePixelated,
+			backgroundImagePixelatedContexts,
+		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
 	)(
 	'raster $fixture.id matches native frame $frame',
 	{timeout: 30_000},
@@ -129,4 +142,46 @@ test('renders native contain tile repeat periods', async () => {
 		threshold: 0,
 		allowedMismatchedPixelRatio: 0,
 	});
+});
+
+// PR #13101: all spaced tiles must accumulate before source-in masks them once.
+test('text-clipped space tiles preserve earlier tiles on transparent backgrounds', async () => {
+	const render = async (backgroundColor: string) =>
+		(
+			await renderStillOnWeb({
+				composition: createSpaceTextMask(backgroundColor),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+	const transparent = await render('transparent');
+	const white = await render('white');
+	const result = await compareNativePixels(white, transparent);
+	expect(result.mismatchedPixels).toBe(0);
+});
+
+// Pixelated patterns must not change the sampler used by later auto backgrounds.
+test('pixelated backgrounds restore smoothing before later siblings', async () => {
+	const render = async (paintPixelated: boolean) =>
+		(
+			await renderStillOnWeb({
+				composition: createPixelatedBackgroundSamplerLifetime(paintPixelated),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+	const control = await render(false);
+	const afterPixelated = await render(true);
+	const result = await compareNativePixels(control, afterPixelated);
+	if (result.mismatchedPixels > 0) {
+		await savePixelEvidence(control, 'pixelated-state-control');
+		await savePixelEvidence(afterPixelated, 'pixelated-state-after');
+		await savePixelEvidence(result.diff, 'pixelated-state-diff');
+	}
+
+	expect(result.mismatchedPixels).toBe(0);
 });

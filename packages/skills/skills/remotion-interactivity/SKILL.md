@@ -1,8 +1,12 @@
 ---
 name: remotion-interactivity
-description: Structure Remotion markup for interactivity
-version: 4.0.541
+description: Structures Remotion markup so layers, timing and styles are editable in Remotion Studio. Use when writing a new composition or restructuring existing markup.
+version: 4.0.542
 ---
+
+Make markup editable in Studio by default. Keep a part programmatic only if it is
+generated from external data or computed per frame, and tell the user it won't be
+editable. Text you write yourself is not external data.
 
 Studio edits the JSX nodes that create timeline items. Structure the code around
 what the user should be able to select, move, trim, or style independently.

@@ -3,9 +3,13 @@ import {halftone} from '@remotion/effects/halftone';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {RemotionRiveCanvas} from '@remotion/rive';
-import {StudioInternals} from '@remotion/studio';
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Composition,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const RIVE_SRC = 'https://cdn.rive.app/animations/vehicles.riv';
 
@@ -196,11 +200,15 @@ const Comp: React.FC = () => {
 	);
 };
 
-export const RiveEffectsTestbed = StudioInternals.createComposition({
-	component: Comp,
-	id: 'rive-effects-testbed',
-	width: 1920,
-	height: 1080,
-	durationInFrames: 300,
-	fps: 30,
-});
+export const RiveEffectsTestbed = () => {
+	return (
+		<Composition
+			component={Comp}
+			id="rive-effects-testbed"
+			width={1920}
+			height={1080}
+			durationInFrames={300}
+			fps={30}
+		/>
+	);
+};

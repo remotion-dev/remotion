@@ -192,6 +192,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	wrapper.style.zIndex = '-9999';
 
 	const div = document.createElement('div');
+	div.dataset.remotionScaffold = '';
 
 	div.style.position = 'absolute';
 	div.style.top = '0';
