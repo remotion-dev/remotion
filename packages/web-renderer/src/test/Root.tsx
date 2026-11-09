@@ -5,6 +5,10 @@ import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
+import {
+	spaceTextMaskTransparent,
+	spaceTextMaskWhite,
+} from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
@@ -170,6 +174,8 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
 			<Composition {...backgroundImageSpace} />
+			<Composition {...spaceTextMaskTransparent} />
+			<Composition {...spaceTextMaskWhite} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
 			<Composition {...nestedTranslateScale} />

@@ -44,7 +44,9 @@ The `background-color` property is <a style={{color: 'green'}}>supported</a>.
 `background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
 The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
-Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+`background-repeat: space` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background, including `space no-repeat` and `no-repeat space`. Native-sized opaque tiles and the one-tile positioning fallback are qualified against native Chromium. Text-clipped backgrounds accumulate the tiles before applying the glyph mask; exact glyph antialiasing and arbitrary resampling remain unqualified.
+
+Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
