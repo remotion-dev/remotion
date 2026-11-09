@@ -1,4 +1,4 @@
-import {parseLengthPercentage} from './background-image-rect';
+import {parseLengthPercentage, splitAtTopLevel} from './background-image-rect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseLinearGradient} from './parse-linear-gradient';
 
@@ -145,15 +145,15 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 		}),
 	);
 
+	const positionParts = splitAtTopLevel(maskPosition, ' ');
 	const isSupportedPosition =
-		maskPosition.split(' ').length === 2 &&
-		maskPosition
-			.split(' ')
-			.every(
-				(value) =>
-					['left', 'right', 'top', 'bottom', 'center'].includes(value) ||
-					parseLengthPercentage(value) !== null,
-			);
+		positionParts.length === 2 &&
+		positionParts.every(
+			(value) =>
+				['left', 'right', 'top', 'bottom', 'center'].includes(value) ||
+				parseLengthPercentage(value) !== null ||
+				/^(calc|min|max|clamp)\(/.test(value),
+		);
 	const sizeParts = maskSize.split(' ');
 	const isSupportedSize =
 		['contain', 'cover'].includes(maskSize) ||
@@ -186,7 +186,7 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage mask positioning, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}
