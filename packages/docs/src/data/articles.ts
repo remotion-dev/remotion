@@ -6013,6 +6013,15 @@ export const articles = [
 		slug: 'license/faq',
 	},
 	{
+		id: 'license/which-license',
+		title: 'Which license do I need?',
+		relativePath: 'docs/license/which-license.mdx',
+		compId: 'articles-docs-license-which-license',
+		crumb: 'License and terms',
+		noAi: false,
+		slug: 'license/which-license',
+	},
+	{
 		id: 'license/pricing',
 		title: 'License & Pricing',
 		relativePath: 'docs/license/pricing.mdx',

@@ -7,12 +7,14 @@ export const Pricing: React.FC<{
 	readonly licenseHref?: string;
 	readonly termsHref?: string;
 	readonly purchaseHref?: string;
+	readonly quizHref?: string;
 }> = ({
 	faqHref = '/docs/license/faq',
 	faqLabel = 'License FAQ',
 	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
 	termsHref = 'https://www.remotion.dev/docs/terms',
 	purchaseHref = 'https://remotion.pro/dashboard',
+	quizHref = '/docs/license/which-license',
 }) => {
 	const faqLinkTarget = useMemo(() => {
 		return faqHref.startsWith('http') ? '_blank' : undefined;
@@ -47,8 +49,15 @@ export const Pricing: React.FC<{
 				<div
 					style={{
 						fontFamily: 'GTPlanar',
+						textAlign: 'center',
 					}}
 				>
+					Not sure which license you need?{' '}
+					<a className="bluelink" href={quizHref}>
+						Answer a few questions
+					</a>
+					.
+					<br />
 					See our{' '}
 					<a target={licenseLinkTarget} className="bluelink" href={licenseHref}>
 						LICENSE.md

@@ -1,6 +1,7 @@
 import {
 	Button,
 	Card,
+	ChoiceButton,
 	Counter,
 	InlineCode,
 	Input,
@@ -34,6 +35,7 @@ const Explainer: React.FC<{
 export const DesignPage: React.FC = () => {
 	const [count, setCount] = useState<number>(10);
 	const [active, setActive] = useState<boolean>(false);
+	const [choice, setChoice] = useState<'person' | 'software'>('person');
 	const [sliderValue, setSliderValue] = useState<number>(50);
 
 	const [submitButtonActive, setSubmitButtonActive] = useState<boolean>(true);
@@ -195,6 +197,24 @@ export const DesignPage: React.FC = () => {
 					value={sliderValue}
 					onChange={setSliderValue}
 				/>
+				<br /> <h2 className="text-brand">&lt;ChoiceButton /&gt;</h2>
+				<Explainer>One answer in a set of choices</Explainer>
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+					{(['person', 'software'] as const).map((value) => (
+						<ChoiceButton
+							key={value}
+							selected={choice === value}
+							description={
+								value === 'person'
+									? 'Someone starts each video.'
+									: 'An app starts the renders.'
+							}
+							onClick={() => setChoice(value)}
+						>
+							{value === 'person' ? 'A person' : 'Software'}
+						</ChoiceButton>
+					))}
+				</div>
 				<br /> <h2 className="text-brand">&lt;Card /&gt;</h2>
 				<Card className="px-4 py-4">
 					<h3 className="text-text">Card</h3>

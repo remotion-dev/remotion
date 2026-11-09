@@ -47,6 +47,7 @@ const results = [
 			'./src/components/Homepage.tsx',
 			'./src/components/GetStartedCta.tsx',
 			'./src/components/homepage/Pricing.tsx',
+			'./src/components/LicenseQuiz.tsx',
 			'./src/components/team.tsx',
 			'./src/components/design.tsx',
 			'./src/components/templates.tsx',
