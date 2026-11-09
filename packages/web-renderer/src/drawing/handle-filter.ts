@@ -1,6 +1,6 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import {splitAtTopLevel} from './background-image-rect';
-import {parseDropShadowExpansion} from './filter-outsets';
+import {parseFilterOutsets} from './filter-outsets';
 
 /**
  * Gets the precompose rect for an element with a filter that requires precompositing.
@@ -9,15 +9,13 @@ import {parseDropShadowExpansion} from './filter-outsets';
 export const getPrecomposeRectForFilter = ({
 	element,
 	filter,
-	includeBlur = false,
 }: {
 	element: HTMLElement | SVGElement;
 	filter: string;
-	includeBlur?: boolean;
 }): DOMRect => {
 	// Use getBiggestBoundingClientRect to include all children that may overflow
 	const elementRect = getBiggestBoundingClientRect(element);
-	const expansion = parseDropShadowExpansion(filter, includeBlur);
+	const expansion = parseFilterOutsets(filter);
 
 	return new DOMRect(
 		elementRect.left - expansion.left,

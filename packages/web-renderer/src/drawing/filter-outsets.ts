@@ -1,10 +1,5 @@
-/**
- * Parses drop-shadow values from a CSS filter string to calculate
- * how much the precompose rect needs to be expanded.
- */
-export const parseDropShadowExpansion = (
+export const parseFilterOutsets = (
 	filter: string,
-	includeBlur = false,
 ): {left: number; right: number; top: number; bottom: number} => {
 	const expansion = {left: 0, right: 0, top: 0, bottom: 0};
 
@@ -42,36 +37,20 @@ export const parseDropShadowExpansion = (
 			// Visible extent is approximately 3σ, so we multiply by 3
 			const blurSpread = blurRadius * 3;
 
-			if (offsetX > 0) {
-				expansion.right = Math.max(expansion.right, offsetX + blurSpread);
-				expansion.left = Math.max(expansion.left, blurSpread);
-			} else {
-				expansion.left = Math.max(
-					expansion.left,
-					Math.abs(offsetX) + blurSpread,
-				);
-				expansion.right = Math.max(expansion.right, blurSpread);
-			}
-
-			if (offsetY > 0) {
-				expansion.bottom = Math.max(expansion.bottom, offsetY + blurSpread);
-				expansion.top = Math.max(expansion.top, blurSpread);
-			} else {
-				expansion.top = Math.max(expansion.top, Math.abs(offsetY) + blurSpread);
-				expansion.bottom = Math.max(expansion.bottom, blurSpread);
-			}
+			expansion.left += Math.max(0, blurSpread - offsetX);
+			expansion.right += Math.max(0, blurSpread + offsetX);
+			expansion.top += Math.max(0, blurSpread - offsetY);
+			expansion.bottom += Math.max(0, blurSpread + offsetY);
 		}
 	}
 
-	if (includeBlur) {
-		const blurRegex = /(?:^|\s)blur\(([^)]+)\)/g;
-		while ((match = blurRegex.exec(filter)) !== null) {
-			const spread = parseFloat(match[1]) * 3;
-			expansion.left += spread;
-			expansion.right += spread;
-			expansion.top += spread;
-			expansion.bottom += spread;
-		}
+	const blurRegex = /(?:^|\s)blur\(([^)]+)\)/g;
+	while ((match = blurRegex.exec(filter)) !== null) {
+		const spread = parseFloat(match[1]) * 3;
+		expansion.left += spread;
+		expansion.right += spread;
+		expansion.top += spread;
+		expansion.bottom += spread;
 	}
 
 	return expansion;
