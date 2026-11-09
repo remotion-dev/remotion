@@ -208,6 +208,8 @@ export const Root: React.FC = () => {
 					'opacity-paint-bounds',
 					'local-group-depth',
 					'magnified-mask',
+					'review-inset',
+					'review-inset-control',
 				].map((kind) => (
 					<Composition
 						key={kind}

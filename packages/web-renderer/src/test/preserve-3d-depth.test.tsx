@@ -6,8 +6,9 @@ import {expect, test} from 'vitest';
 import {page, server} from 'vitest/browser';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {FallbackDepthScene, size} from './fixtures/preserve-3d-depth';
+import '../symbol-dispose';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 
 const pixels = async (blob: Blob) => {
 	const image = await createImageBitmap(blob);
@@ -215,5 +216,61 @@ test.skipIf(server.browser !== 'chromium')(
 		});
 		expect(capturedFrames).toBe(2);
 		expect((await media.getBlob()).size).toBeGreaterThan(0);
+	},
+);
+
+const insetComposition = (kind: string) => ({
+	id: `3d-${kind}`,
+	component: () => <FallbackDepthScene kind={kind} />,
+	...size,
+	fps: 30,
+	durationInFrames: 1,
+});
+
+test('keeps unsupported inset shadows disabled on the default path', async () => {
+	const control = await (
+		await renderStillOnWeb({
+			composition: insetComposition('review-inset-control'),
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		})
+	).blob({format: 'png'});
+	for (const experimental3DRendering of [undefined, false]) {
+		const actual = await (
+			await renderStillOnWeb({
+				composition: insetComposition('review-inset'),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+				experimental3DRendering,
+			})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(control, actual)).mismatchedPixels).toBe(
+			0,
+		);
+	}
+});
+
+test.skipIf(server.browser !== 'chromium')(
+	'keeps experimental sharp inset shadows native-exact',
+	async () => {
+		const composition = insetComposition('review-inset');
+		const native = await captureNativeReference(composition);
+		const actual = await (
+			await renderStillOnWeb({
+				composition,
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+				experimental3DRendering: true,
+			})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+			0,
+		);
 	},
 );

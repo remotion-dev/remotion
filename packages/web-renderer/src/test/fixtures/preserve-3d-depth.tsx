@@ -10,6 +10,20 @@ const plane = (
 	);
 export const size = {width: 640, height: 480};
 export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
+	if (kind === 'review-inset' || kind === 'review-inset-control') {
+		return plane(
+			{...size, background: 'white'},
+			plane({
+				left: 100,
+				top: 100,
+				width: 100,
+				height: 100,
+				background: 'lime',
+				boxShadow: kind === 'review-inset' ? 'inset 10px 0 0 red' : undefined,
+			}),
+		);
+	}
+
 	const tiles = plane(
 		{
 			left: 160,

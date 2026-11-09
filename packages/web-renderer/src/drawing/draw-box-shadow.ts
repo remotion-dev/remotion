@@ -55,7 +55,7 @@ export const drawBorderRadius = ({
 
 	for (let i = shadows.length - 1; i >= 0; i--) {
 		const shadow = shadows[i];
-		if (experimental3DRendering && shadow.inset !== inset) continue;
+		if (shadow.inset !== inset) continue;
 		if (shadow.inset && experimental3DRendering) {
 			// A blurred outer ring casts into the padding box even with zero spread.
 			if (
