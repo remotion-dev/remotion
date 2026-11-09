@@ -202,3 +202,84 @@ export const svgFilterOffsetReference = {
 	width: 620,
 	height: 500,
 };
+
+// KINO-7772: preserve overflowing filter inputs and apply masks after filtering.
+const ReviewComponent = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<svg width={0} height={0} style={{position: 'absolute'}}>
+				<defs>
+					<filter
+						id="svg-filter-review-identity"
+						filterUnits="userSpaceOnUse"
+						x={-20}
+						y={-20}
+						width={140}
+						height={120}
+						colorInterpolationFilters="sRGB"
+					>
+						<feColorMatrix
+							type="matrix"
+							values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"
+						/>
+					</filter>
+					<filter
+						id="svg-filter-review-offset"
+						filterUnits="userSpaceOnUse"
+						x={0}
+						y={0}
+						width={100}
+						height={80}
+						colorInterpolationFilters="sRGB"
+					>
+						<feOffset dx={30 + frame * 2} dy={0} />
+					</filter>
+				</defs>
+			</svg>
+			{[
+				'url(#svg-filter-review-identity) brightness(1)',
+				'url(#missing-review-filter)',
+				'url(#svg-filter-review-offset)',
+			].map((filter, index) => (
+				<div
+					key={filter}
+					style={{
+						position: 'absolute',
+						left: 40 + index * 160,
+						top: 30,
+						width: 100,
+						height: 80,
+						backgroundColor: 'red',
+						filter,
+						maskImage:
+							index === 2
+								? 'linear-gradient(to right, black 50%, transparent 50%)'
+								: undefined,
+					}}
+				>
+					{index !== 2 ? (
+						<div
+							style={{
+								position: 'absolute',
+								left: -15 - frame * 2,
+								top: 10,
+								width: 30,
+								height: 40,
+								backgroundColor: 'blue',
+							}}
+						/>
+					) : null}
+				</div>
+			))}
+		</AbsoluteFill>
+	);
+};
+
+export const svgFilterReviewReference = {
+	...svgFilterReference,
+	component: ReviewComponent,
+	id: 'svg-filter-review',
+	width: 520,
+	height: 140,
+};

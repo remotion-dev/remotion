@@ -143,22 +143,21 @@ export const applySvgFilterToPrecomposedCanvas = ({
 	filter: string;
 	ownerDocument: Document;
 }) => {
-	// Rebase qualified graphs onto their filter region. Other graphs retain the
-	// element-local reference box used by the original document-backed stage.
+	// Only graphs with qualified geometry use this document-backed stage.
+	// Leave other URL filters on the existing draw path without cropping input.
 	const geometry = getSvgFilterGeometry({
 		filter,
 		ownerDocument,
 		width: sourceRect.width / scale,
 		height: sourceRect.height / scale,
 	});
-	const rebased = geometry
-		? rebaseSvgFilter({geometry, scale, ownerDocument})
-		: null;
+	if (!geometry) return null;
+	const rebased = rebaseSvgFilter({geometry, scale, ownerDocument});
 	const canvas = ownerDocument.createElement('canvas');
-	canvas.width = rebased?.width ?? Math.ceil(sourceRect.width);
-	canvas.height = rebased?.height ?? Math.ceil(sourceRect.height);
+	canvas.width = rebased.width;
+	canvas.height = rebased.height;
 	const dispose = () => {
-		rebased?.[Symbol.dispose]();
+		rebased[Symbol.dispose]();
 		canvas.width = 0;
 		canvas.height = 0;
 	};
@@ -166,11 +165,11 @@ export const applySvgFilterToPrecomposedCanvas = ({
 	try {
 		const context = canvas.getContext('2d');
 		if (!context) throw new Error('Could not get SVG filter context');
-		context.filter = rebased?.filter ?? filter;
+		context.filter = rebased.filter;
 		context.drawImage(
 			source,
-			-sourceRect.left - (rebased?.left ?? 0),
-			-sourceRect.top - (rebased?.top ?? 0),
+			-sourceRect.left - rebased.left,
+			-sourceRect.top - rebased.top,
 		);
 	} catch (error) {
 		dispose();
@@ -179,8 +178,8 @@ export const applySvgFilterToPrecomposedCanvas = ({
 
 	return {
 		canvas,
-		sourceX: -sourceRect.left - (rebased?.left ?? 0),
-		sourceY: -sourceRect.top - (rebased?.top ?? 0),
+		sourceX: -sourceRect.left - rebased.left,
+		sourceY: -sourceRect.top - rebased.top,
 		[Symbol.dispose]: dispose,
 	};
 };

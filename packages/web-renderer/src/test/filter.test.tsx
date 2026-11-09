@@ -9,6 +9,7 @@ import {
 	svgFilterBoundingBoxReference,
 	svgFilterFractionalReference,
 	svgFilterOffsetReference,
+	svgFilterReviewReference,
 } from './fixtures/svg-filter-reference';
 import {
 	captureNativeReference,
@@ -37,6 +38,7 @@ for (const fixture of [
 	svgFilterBoundingBoxReference,
 	svgFilterFractionalReference,
 	svgFilterOffsetReference,
+	svgFilterReviewReference,
 ]) {
 	for (const frame of [0, 1]) {
 		test(`${fixture.id} matches native painting at frame ${frame}`, async (t) => {
@@ -86,10 +88,10 @@ test('SVG filter surfaces release bitmap storage (KINO-7772)', () => {
 		});
 		const clone = document.querySelector('[id^="remotion-filter-"]')!;
 		expect(clone).not.toBeNull();
-		layer[Symbol.dispose]();
+		layer![Symbol.dispose]();
 		expect(clone.isConnected).toBe(false);
-		expect(layer.canvas.width).toBe(0);
-		expect(layer.canvas.height).toBe(0);
+		expect(layer!.canvas.width).toBe(0);
+		expect(layer!.canvas.height).toBe(0);
 	} finally {
 		svg.remove();
 	}

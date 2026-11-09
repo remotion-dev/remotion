@@ -11,7 +11,10 @@ export const getSvgFilterGeometry = ({
 	width: number;
 	height: number;
 }) => {
-	const match = /^url\(["']?([^"')]+)["']?\)$/.exec(filter);
+	const match =
+		/^url\(["']?([^"')]+)["']?\)((?:\s+(?:brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia)\([^()]*\))*)$/.exec(
+			filter,
+		);
 	if (!match) return null;
 	let url: URL;
 	try {
@@ -79,7 +82,7 @@ export const getSvgFilterGeometry = ({
 		length(element.height, height),
 	);
 	if (rect.width <= 0 || rect.height <= 0) return null;
-	return {element, primitives, rect};
+	return {element, primitives, rect, colorFilters: match[2]};
 };
 
 export const rebaseSvgFilter = ({
@@ -151,7 +154,7 @@ export const rebaseSvgFilter = ({
 	svg.append(clone);
 	ownerDocument.body.append(svg);
 	return {
-		filter: `url(#${id})`,
+		filter: `url(#${id})${geometry.colorFilters}`,
 		left,
 		top,
 		width,
