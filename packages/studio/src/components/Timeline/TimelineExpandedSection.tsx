@@ -105,7 +105,10 @@ export const TimelineExpandedSection: React.FC<{
 								keyframeDisplayOffset={keyframeDisplayOffset}
 								keyframePlaybackRate={keyframePlaybackRate}
 								keyframeControlsMode="timeline"
-							/>
+								beforeDropTargetRef={null}
+							>
+								{null}
+							</TimelineExpandedRow>
 						</React.Fragment>
 					);
 				})}

@@ -78,6 +78,10 @@ The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for 
 The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
 
+### Inline SVG stylesheet state
+
+The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</a> for inline SVG stylesheets.
+
 ### Web fonts inside SVG
 
 Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
@@ -96,9 +100,12 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` with a single raster `url()` (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a>. The mask uses its alpha channel.  
-The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>supported</a>.  
-Cross-origin URLs, SVG masks, multiple mask layers, luminance masks, `calc()` mask sizes and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>.
+`mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> for alpha masks.  
+The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Fractional raster-mask sampling can differ from native output.
+
+The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`/`none` layers. Legacy composite keywords that the browser does not normalize to these values are <a style={{color: 'red'}}>not supported</a>.
+
+`image-set()` masks, cross-origin URLs, SVG masks, mixed or multiple gradient layers, luminance masks, `calc()` mask sizes and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>. Unsupported `mask-image` functions cause an export error.
 
 ## Filters
 
@@ -135,6 +142,7 @@ The following Remotion components are supported:
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
+SVG blob URLs preserve file-source content for uncropped `object-fit: fill` and `contain` images. Cropped SVG blob URLs and exact native SVG pixel parity remain limited.
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
