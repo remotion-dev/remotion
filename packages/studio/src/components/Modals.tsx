@@ -38,6 +38,7 @@ import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
+import {ReorderCompositionModal} from './ReorderCompositionModal';
 import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
@@ -452,6 +453,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
+			) : null}
+			{modalContextType && modalContextType.type === 'reorder-composition' ? (
+				<ReorderCompositionModal state={modalContextType} />
 			) : null}
 			{modalContextType &&
 			(modalContextType.type === 'wrap-refactor' ||

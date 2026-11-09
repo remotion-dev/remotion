@@ -365,7 +365,7 @@ export const getSvgClipForPrecompositing = (
 	clipPath: string,
 	element: Element,
 ): SVGClipPathElement | null => {
-	if (!(element instanceof HTMLElement)) return null;
+	if (!clipPath.startsWith('url(')) return null;
 	const parsed = parseClipPath(clipPath, new DOMRect());
 	if (parsed.type !== 'url') return null;
 	const resource = getReferencedClipPath(parsed.source, element);
@@ -375,8 +375,19 @@ export const getSvgClipForPrecompositing = (
 			node instanceof SVGGraphicsElement &&
 			getComputedStyle(node).display !== 'none',
 	);
+	if (children.length > 1) {
+		return children.every(
+			(node) =>
+				node instanceof SVGRectElement &&
+				node.rx.baseVal.valueInSpecifiedUnits === 0 &&
+				node.ry.baseVal.valueInSpecifiedUnits === 0,
+		)
+			? resource
+			: null;
+	}
+
+	if (!(element instanceof HTMLElement)) return null;
 	if (
-		children.length > 1 ||
 		children.some((node) => {
 			if (node instanceof SVGRectElement) {
 				return (

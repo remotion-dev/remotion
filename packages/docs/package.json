@@ -120,6 +120,7 @@
 		"@types/uuid": "8.3.4",
 		"@vercel/config": "0.0.28",
 		"@vercel/functions": "3.4.1",
+		"@vercel/routing-utils": "6.6.1",
 		"@vercel/sandbox": "1.6.0",
 		"chalk": "4.1.2",
 		"clipboard": "2.0.11",
