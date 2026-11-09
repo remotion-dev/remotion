@@ -5,7 +5,7 @@ title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# ~~Interactive.withSchema()~~<AvailableFrom v="4.0.530" />
+# ~~Interactive.withSchema()~~<AvailableFrom v="4.0.479" />
 
 :::info Deprecated
 Use [`Interactive.create()`](/docs/interactive-create) instead, available from <AvailableFrom v="4.0.536" inline />. It always wraps the component in a sequence and makes `schema` and `componentName` optional. See the [migration guide](/docs/interactive-create#migrating-from-interactivewithschema) before replacing calls that omit `wrapInSequence`.
@@ -84,17 +84,17 @@ The component name used by Studio and in validation messages.
 
 ### `schema`
 
-An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio. Basic schemas like timing, premounting, cropping, and transforms are included by default and don't need to be specified
+An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio. Timing, cropping, and transform controls are included by default and don't need to be specified. Premounting controls are only shown if you spread [`Interactive.premountSchema`](/docs/interactivity-schema#interactivepremountschema) into the schema.
 
 See: [Make a component interactive](/docs/studio/make-component-interactive#create-a-schema)
 
-### `wrapInSequence`<AvailableFrom v="4.0.530" />
+### `wrapInSequence?`<AvailableFrom v="4.0.530" />
 
 Wraps the component in a [`<Sequence>`](/docs/sequence) automatically.
 Set this to `true`, unless you already have components from previous examples which handle wrapping in a `<Sequence>` manually.
 If set to false, you need to manually forward all props.
 
-### `layout`?<AvailableFrom v="4.0.535" />
+### `layout?`<AvailableFrom v="4.0.535" />
 
 Requires `wrapInSequence: true`. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
 
