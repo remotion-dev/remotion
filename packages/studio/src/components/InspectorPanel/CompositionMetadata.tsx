@@ -56,23 +56,6 @@ const fieldLabels: Record<CompositionMetadataField, string> = {
 	width: 'Width',
 };
 
-const computedContainerStyle: React.CSSProperties = {
-	...inputDraggerContainerStyle,
-	textAlign: 'right',
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-};
-
-const computedValueStyle: React.CSSProperties = {
-	color: COMPUTED_VALUE_COLOR,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontStyle: 'italic',
-	lineHeight: '20px',
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-};
-
 const metadataFormatterStyle: React.CSSProperties = {
 	display: 'block',
 	fontSize: 13,
@@ -89,6 +72,21 @@ const metadataDraggerStyle: React.CSSProperties = {
 	padding: '2px 0',
 	textAlign: 'right',
 	width: '100%',
+};
+
+// Lays out like the editable InputDragger, whose button sits in an inline-flex wrapper.
+const computedContainerStyle: React.CSSProperties = {
+	...inputDraggerContainerStyle,
+	...metadataDraggerStyle,
+	display: 'inline-flex',
+	justifyContent: 'flex-end',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
+};
+
+const computedValueStyle: React.CSSProperties = {
+	...metadataFormatterStyle,
+	color: COMPUTED_VALUE_COLOR,
 };
 
 const metadataField: React.CSSProperties = {
@@ -284,10 +282,8 @@ const CompositionMetadataValue: React.FC<{
 
 	const content =
 		computed || disabled ? (
-			<span style={{...computedContainerStyle, ...metadataDraggerStyle}}>
-				<span style={{...metadataFormatterStyle, ...computedValueStyle}}>
-					{formatValue(value)}
-				</span>
+			<span style={computedContainerStyle}>
+				<span style={computedValueStyle}>{formatValue(value)}</span>
 			</span>
 		) : (
 			<InputDraggerWithTextEditing
