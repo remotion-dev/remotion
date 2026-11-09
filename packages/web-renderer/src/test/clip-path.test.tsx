@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {expect, test} from 'vitest';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -117,9 +118,15 @@ for (const {fixture, frame} of [
 		}
 
 		const stageStart = performance.now();
-		console.info('clip-parity native:start', fixture.id, frame);
+		Internals.Log.info(
+			{logLevel: 'info', tag: 'clip-parity-ci'},
+			'clip-parity native:start',
+			fixture.id,
+			frame,
+		);
 		const reference = await captureNativeReference(fixture, frame);
-		console.info(
+		Internals.Log.info(
+			{logLevel: 'info', tag: 'clip-parity-ci'},
 			'clip-parity native:end',
 			fixture.id,
 			frame,
@@ -134,14 +141,16 @@ for (const {fixture, frame} of [
 				allowHtmlInCanvas: false,
 			})
 		).blob({format: 'png'});
-		console.info(
+		Internals.Log.info(
+			{logLevel: 'info', tag: 'clip-parity-ci'},
 			'clip-parity render:end',
 			fixture.id,
 			frame,
 			performance.now() - stageStart,
 		);
 		const diff = await compareNativePixels(reference, actual);
-		console.info(
+		Internals.Log.info(
+			{logLevel: 'info', tag: 'clip-parity-ci'},
 			'clip-parity compare:end',
 			fixture.id,
 			frame,
