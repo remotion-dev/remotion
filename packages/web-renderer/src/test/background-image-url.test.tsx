@@ -1,13 +1,13 @@
 import {AbsoluteFill} from 'remotion';
 import {expect, test} from 'vitest';
-import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
+import {createPixelatedBackgroundSamplerLifetime} from './fixtures/background-image-pixelated-sampler-lifetime';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {
 	backgroundImagePixelated,
 	backgroundImagePixelatedContexts,
-	pixelatedRaster,
 } from './fixtures/background-image-url-pixelated';
 import {
 	captureNativeReference,
@@ -141,52 +141,10 @@ test('renders native contain tile repeat periods', async () => {
 
 // Pixelated patterns must not change the sampler used by later auto backgrounds.
 test('pixelated backgrounds restore smoothing before later siblings', async () => {
-	const fixture = (paintPixelated: boolean) => ({
-		id: 'pixelated-sampler-lifetime',
-		width: 64,
-		height: 128,
-		fps: 25,
-		durationInFrames: 1,
-		component: () => (
-			<AbsoluteFill style={{backgroundColor: 'white'}}>
-				<div
-					style={{
-						position: 'absolute',
-						width: 64,
-						height: 64,
-						backgroundImage: paintPixelated
-							? `url("${pixelatedRaster}")`
-							: 'none',
-						backgroundSize: '16px 16px',
-						imageRendering: 'pixelated',
-					}}
-				/>
-				<div
-					style={{
-						position: 'absolute',
-						width: 64,
-						height: 64,
-						backgroundColor: 'white',
-					}}
-				/>
-				<div
-					style={{
-						position: 'absolute',
-						top: 64,
-						width: 64,
-						height: 64,
-						backgroundImage: `url("${pixelatedRaster}")`,
-						backgroundSize: '16px 16px',
-						imageRendering: 'auto',
-					}}
-				/>
-			</AbsoluteFill>
-		),
-	});
 	const render = async (paintPixelated: boolean) =>
 		(
 			await renderStillOnWeb({
-				composition: fixture(paintPixelated),
+				composition: createPixelatedBackgroundSamplerLifetime(paintPixelated),
 				frame: 0,
 				inputProps: {},
 				licenseKey: 'free-license',
