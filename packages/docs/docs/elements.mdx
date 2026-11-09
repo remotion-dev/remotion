@@ -55,7 +55,7 @@ Where possible, expose the Element's layers so users can edit them with [Studio 
 
 `installationMode: 'wrapped'` is the default. Studio wraps the component in a [`<Sequence>`](/docs/sequence) that sets its placement and duration, and the layers inside stay editable through their `Interactive` call sites.
 
-Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
+Size the Element to its smallest useful bounding box. If it adapts to the composition, set [`dimensions`](/docs/studio-protocol/create-element-payload#dimensions) to `null`.
 
 #### One interactive object
 
@@ -73,6 +73,6 @@ Give editable objects clear names. Use a generic name such as `Container` for th
 
 ### Initial props
 
-If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
+If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. Studio writes them onto the installed component in both installation modes, so users can edit them in the Inspector or in the source.
 
 To submit an Element to the official gallery, read the [contribution guide](/docs/contributing/elements).
