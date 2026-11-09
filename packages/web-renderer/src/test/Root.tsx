@@ -165,6 +165,18 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {
+	svgFullSourceUrlFill,
+	svgFullSourceUrlContainFractional,
+	svgFullSourceBlobContainFractional,
+	svgFullSourceUrlContain64,
+	svgFullSourceBlobContain64,
+	svgFullSourceUrlContain61,
+	svgFullSourceBlobContain61,
+	svgFullSourceBlobFill,
+	svgFullSourceUrlContain,
+	svgFullSourceBlobContain,
+} from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -268,6 +280,16 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
+			<Composition {...svgFullSourceUrlFill} />
+			<Composition {...svgFullSourceBlobFill} />
+			<Composition {...svgFullSourceUrlContain} />
+			<Composition {...svgFullSourceBlobContain} />
+			<Composition {...svgFullSourceUrlContain64} />
+			<Composition {...svgFullSourceBlobContain64} />
+			<Composition {...svgFullSourceUrlContain61} />
+			<Composition {...svgFullSourceBlobContain61} />
+			<Composition {...svgFullSourceUrlContainFractional} />
+			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
