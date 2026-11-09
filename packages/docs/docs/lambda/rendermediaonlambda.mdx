@@ -10,7 +10,7 @@ import {MinimumFramesPerLambda} from '../../components/lambda/default-frames-per
 Kicks off a render process on Remotion Lambda. The progress can be tracked using [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
-A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
+A [site](/docs/lambda/deploysitefrombundle) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
@@ -458,7 +458,11 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ### `storageClass?`<AvailableFrom v="4.0.305"/>
 
