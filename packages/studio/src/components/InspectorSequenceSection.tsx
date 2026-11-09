@@ -65,6 +65,7 @@ import {
 	AssetSelectionContext,
 	type InspectorSourceAction,
 } from './Timeline/TimelineAssetField';
+import {EffectReorderTargetsProvider} from './Timeline/TimelineEffectItem';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -1339,26 +1340,28 @@ export const InspectorSequenceSection: React.FC<{
 							>
 								{effectRows.length > 0 ? (
 									<TimelineSelectionOrderProvider items={effectSelectableItems}>
-										{effectGroups.map(([effectRow, ...propertyRows]) => (
-											<div
-												key={getInspectorExpansionKey(
-													effectRow.node.nodePathInfo,
-												)}
-												ref={
-													selectedEffect?.type === 'sequence-effect' &&
-													effectRow.node.kind === 'group' &&
-													effectRow.node.effectInfo?.effectIndex ===
-														selectedEffect.i
-														? selectedEffectRowRef
-														: null
-												}
-											>
-												{renderRow(
-													effectRow,
-													propertyRows.map(renderEffectProperty),
-												)}
-											</div>
-										))}
+										<EffectReorderTargetsProvider>
+											{effectGroups.map(([effectRow, ...propertyRows]) => (
+												<div
+													key={getInspectorExpansionKey(
+														effectRow.node.nodePathInfo,
+													)}
+													ref={
+														selectedEffect?.type === 'sequence-effect' &&
+														effectRow.node.kind === 'group' &&
+														effectRow.node.effectInfo?.effectIndex ===
+															selectedEffect.i
+															? selectedEffectRowRef
+															: null
+													}
+												>
+													{renderRow(
+														effectRow,
+														propertyRows.map(renderEffectProperty),
+													)}
+												</div>
+											))}
+										</EffectReorderTargetsProvider>
 									</TimelineSelectionOrderProvider>
 								) : null}
 							</InspectorSection>
