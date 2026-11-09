@@ -15,38 +15,41 @@ const label: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-type FrameSample = {
-	time: number;
-	frame: number;
+const pushWithMaxSize = (
+	arr: number[],
+	value: number,
+	maxSize: number,
+): number[] => {
+	arr.push(value);
+	return arr.slice(-maxSize);
 };
 
-const MAX_SAMPLES = 15;
-
-// Playback advances by elapsed time, so above the display refresh rate one
-// update can move several frames. Count frames advanced, not updates.
-export const getFramesAdvancedPerSecond = (
-	samples: FrameSample[],
-	playbackSpeed: number,
-): number | null => {
-	let frames = 0;
-	let time = 0;
-	for (let i = 1; i < samples.length; i++) {
-		const frameDelta = samples[i].frame - samples[i - 1].frame;
-		// The frame jumped against the playback direction: playback looped.
-		if (frameDelta * playbackSpeed < 0) {
-			continue;
-		}
-
-		frames += Math.abs(frameDelta);
-		time += samples[i].time - samples[i - 1].time;
-	}
-
-	if (time === 0) {
+export const getRefreshRate = (frameTimes: number[]): number | null => {
+	const gaps = frameTimes
+		.slice(1)
+		.map((time, i) => time - frameTimes[i])
+		.sort((a, b) => a - b);
+	if (gaps.length === 0) {
 		return null;
 	}
 
-	return (frames / time) * 1000;
+	const median = gaps[Math.floor(gaps.length / 2)];
+	return median > 0 ? 1000 / median : null;
 };
+
+export const getExpectedFps = ({
+	fps,
+	playbackSpeed,
+	refreshRate,
+}: {
+	fps: number;
+	playbackSpeed: number;
+	refreshRate: number | null;
+}) => {
+	return Math.min(Math.abs(playbackSpeed) * fps, refreshRate ?? Infinity);
+};
+
+const REFRESH_RATE_PROBE_FRAMES = 30;
 
 export const FpsCounter: React.FC<{
 	readonly playbackSpeed: number;
@@ -57,38 +60,59 @@ export const FpsCounter: React.FC<{
 
 	const [marker, rerender] = useState({});
 	const [fps, setFps] = useState(0);
+	const [refreshRate, setRefreshRate] = useState<number | null>(null);
 
-	const previousUpdates = useRef<FrameSample[]>([]);
+	const previousUpdates = useRef<number[]>([]);
 	const fpsRef = useRef<number>(0);
 	const playingRef = useRef<boolean>(playing);
-	const playbackSpeedRef = useRef<number>(playbackSpeed);
 
 	useLayoutEffect(() => {
 		fpsRef.current = 0;
 		previousUpdates.current = [];
 		playingRef.current = playing;
-		playbackSpeedRef.current = playbackSpeed;
-	}, [playing, playbackSpeed]);
+	}, [playing]);
 
 	useLayoutEffect(() => {
 		if (playingRef.current === false) return;
 
-		previousUpdates.current = [
-			...previousUpdates.current,
-			{time: performance.now(), frame},
-		].slice(-MAX_SAMPLES);
-
-		const framesPerSecond = getFramesAdvancedPerSecond(
+		previousUpdates.current = pushWithMaxSize(
 			previousUpdates.current,
-			playbackSpeedRef.current,
+			performance.now(),
+			15,
 		);
-		if (framesPerSecond === null) return;
 
-		fpsRef.current = framesPerSecond;
+		if (previousUpdates.current.length < 2) return;
+
+		const diff =
+			Math.max(...previousUpdates.current) -
+			Math.min(...previousUpdates.current);
+		const averageDistanceBetween = diff / (previousUpdates.current.length - 1);
+		fpsRef.current = 1000 / averageDistanceBetween;
 
 		if (previousUpdates.current.length === 2) setFps(fpsRef.current);
 		/* This effect should depends only on frame, otherwise it will push extra updates to ref and fps will be wrong */
 	}, [frame]);
+
+	useEffect(() => {
+		let handle = 0;
+		const frameTimes: number[] = [];
+		const onFrame = (now: number) => {
+			frameTimes.push(now);
+			if (frameTimes.length < REFRESH_RATE_PROBE_FRAMES) {
+				handle = requestAnimationFrame(onFrame);
+				return;
+			}
+
+			const measured = getRefreshRate(frameTimes);
+			if (measured !== null) {
+				// A busy main thread only lowers the estimate, so keep the highest.
+				setRefreshRate((prev) => Math.max(prev ?? 0, measured));
+			}
+		};
+
+		handle = requestAnimationFrame(onFrame);
+		return () => cancelAnimationFrame(handle);
+	}, [playing]);
 
 	useEffect(() => {
 		if (playing) {
@@ -105,13 +129,17 @@ export const FpsCounter: React.FC<{
 			return {};
 		}
 
-		const expectedFps = Math.abs(playbackSpeed) * videoConfig.fps;
+		const expectedFps = getExpectedFps({
+			fps: videoConfig.fps,
+			playbackSpeed,
+			refreshRate,
+		});
 
 		return {
 			...label,
 			color: fps < expectedFps * 0.9 ? RED : LIGHT_TEXT,
 		};
-	}, [fps, playbackSpeed, videoConfig]);
+	}, [fps, playbackSpeed, refreshRate, videoConfig]);
 
 	if (fps === 0) {
 		return null;
