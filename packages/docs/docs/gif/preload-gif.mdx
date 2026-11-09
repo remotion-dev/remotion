@@ -25,6 +25,18 @@ waitUntilDone().then(() => {
 });
 ```
 
+## Return value
+
+An object with two functions:
+
+### `waitUntilDone()`
+
+Returns a promise that resolves once the GIF has been loaded and parsed.
+
+### `free()`
+
+Cancels preloading, or frees the memory if the GIF is not used anymore.
+
 ## Options
 
 ### `requestInit?`<AvailableFrom v="4.0.471" />
@@ -49,5 +61,5 @@ preloadGif("https://example.com/authenticated-gif.gif", {
 
 ## See also
 
-- [`<Gif>`](/docs/gif)
+- [`<Gif>`](/docs/gif/gif)
 - [Preloading](/docs/preload)
