@@ -264,6 +264,12 @@ export const parseMaskImage = (
 ): MaskImageInfo | null => {
 	const images = splitAtTopLevel(value, ',');
 	if (images.length === 1) return parseSingleMaskImage(value, computedStyle, 0);
+	if (!CSS.supports('mask-composite', computedStyle.maskComposite)) {
+		throw new Error(
+			`Unsupported mask-composite value: ${computedStyle.maskComposite}. Use add, subtract, intersect, or exclude.`,
+		);
+	}
+
 	return {
 		type: 'layers',
 		style: {

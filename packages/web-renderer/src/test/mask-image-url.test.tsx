@@ -3,8 +3,10 @@ import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {rasterMask} from './fixtures/mask-image-url-sizing';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
 
 test('renders a same-origin raster URL mask', async () => {
@@ -194,3 +196,39 @@ test('loads a PNG URL containing gradient syntax through the raster loader', asy
 		spy.mockRestore();
 	}
 });
+
+// KINO-7771 / PR13129: computed legacy keywords must not silently become add.
+for (const {composition, composite} of legacyMaskComposites) {
+	test(`preserves normalized or rejects ${composition.id}`, async (t) => {
+		if (!CSS.supports('-webkit-mask-composite', composite)) {
+			t.skip();
+			return;
+		}
+
+		const probe = document.createElement('div');
+		probe.style.setProperty('-webkit-mask-composite', composite);
+		document.body.appendChild(probe);
+		const computed = getComputedStyle(probe).maskComposite;
+		probe.remove();
+		const options = {
+			composition,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		};
+		if (CSS.supports('mask-composite', computed)) {
+			const native = await captureNativeReference(composition);
+			const actual = await (
+				await renderStillOnWeb(options)
+			).blob({format: 'png'});
+			expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+				0,
+			);
+		} else {
+			await expect(renderStillOnWeb(options)).rejects.toThrow(
+				'Unsupported mask-composite value:',
+			);
+		}
+	});
+}
