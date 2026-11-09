@@ -1,4 +1,7 @@
-import {getEmbeddedFontStyleForSvg} from './embed-registered-fonts-in-svg';
+import {
+	getEmbeddedFontStyleForSvg,
+	insertFontStyleInSvg,
+} from './embed-registered-fonts-in-svg';
 
 const textFontProperties = [
 	'font-family',
@@ -61,6 +64,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
+	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -95,7 +99,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 ? svg : (svg.cloneNode(true) as SVGSVGElement);
+		textStyles.length === 0 && embeddedFontStyle === null
+			? svg
+			: (svg.cloneNode(true) as SVGSVGElement);
 	svgForSerialization
 		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
 		.forEach((element, index) => {
@@ -109,6 +115,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
+	if (embeddedFontStyle)
+		insertFontStyleInSvg(svgForSerialization, embeddedFontStyle.css);
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
 		// eslint-disable-next-line no-control-regex
@@ -134,7 +142,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const fontStyleKey = embeddedFontStyle?.cacheKey ?? null;
 	const cached = drawableBySvg.get(svg);
 	if (
@@ -146,16 +153,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		const openingTagEnd = serializedSvg.indexOf('>');
-		const blobParts: BlobPart[] =
-			embeddedFontStyle === null || openingTagEnd === -1
-				? [serializedSvg]
-				: [
-						serializedSvg.slice(0, openingTagEnd + 1),
-						embeddedFontStyle.blob,
-						serializedSvg.slice(openingTagEnd + 1),
-					];
-		const blob = new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'});
+		const blob = new Blob([serializedSvg], {
+			type: 'image/svg+xml;charset=utf-8',
+		});
 		// Chromium taints canvases drawn from blob SVGs containing foreignObject.
 		const url = svg.querySelector('foreignObject')
 			? null
