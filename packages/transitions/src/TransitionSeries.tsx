@@ -107,7 +107,6 @@ const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
 
 const transitionSeriesOverlaySchema = {
 	hidden: Internals.sequenceSchema.hidden,
-	...Internals.premountSchema,
 } satisfies InteractivitySchema;
 
 const SeriesOverlay = Interactive.withSchema({

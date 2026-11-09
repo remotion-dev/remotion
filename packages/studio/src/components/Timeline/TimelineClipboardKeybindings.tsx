@@ -34,6 +34,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {projectEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -268,10 +269,10 @@ export const getSnapshotsFromSelection = ({
 	}
 
 	const {sequenceSubscriptionKey} = selection.nodePathInfo;
-	const sequenceStatus =
-		propStatuses[
-			Internals.makeSequencePropsSubscriptionKey(sequenceSubscriptionKey)
-		];
+	const sequenceStatus = projectEffectPropStatuses(
+		propStatuses,
+		sequenceSubscriptionKey,
+	)[Internals.makeSequencePropsSubscriptionKey(sequenceSubscriptionKey)];
 	if (!sequenceStatus || !sequenceStatus.canUpdate) {
 		return null;
 	}
@@ -441,12 +442,14 @@ export const getEffectPropClipboardDataFromSelection = ({
 		return null;
 	}
 
-	const sequenceStatus =
-		propStatuses[
-			Internals.makeSequencePropsSubscriptionKey(
-				selection.nodePathInfo.sequenceSubscriptionKey,
-			)
-		];
+	const sequenceStatus = projectEffectPropStatuses(
+		propStatuses,
+		selection.nodePathInfo.sequenceSubscriptionKey,
+	)[
+		Internals.makeSequencePropsSubscriptionKey(
+			selection.nodePathInfo.sequenceSubscriptionKey,
+		)
+	];
 	if (!sequenceStatus || !sequenceStatus.canUpdate) {
 		return null;
 	}
@@ -561,18 +564,23 @@ const getPasteEffectPropTargetForSelection = ({
 		return {type: 'none'};
 	}
 
-	const effect = sequence.effects[target.effectIndex];
+	const effect = Internals.OptimisticEffects.getItems(
+		selection.nodePathInfo.sequenceSubscriptionKey,
+		sequence.effects,
+	)[target.effectIndex]?.definition;
 	const fieldSchema = effect?.schema[target.fieldKey];
 	if (!effect || !isVisibleFieldSchema(fieldSchema)) {
 		return {type: 'prop-mismatch'};
 	}
 
-	const sequenceStatus =
-		propStatuses[
-			Internals.makeSequencePropsSubscriptionKey(
-				selection.nodePathInfo.sequenceSubscriptionKey,
-			)
-		];
+	const sequenceStatus = projectEffectPropStatuses(
+		propStatuses,
+		selection.nodePathInfo.sequenceSubscriptionKey,
+	)[
+		Internals.makeSequencePropsSubscriptionKey(
+			selection.nodePathInfo.sequenceSubscriptionKey,
+		)
+	];
 	if (!sequenceStatus?.canUpdate) {
 		return {type: 'uncopyable'};
 	}

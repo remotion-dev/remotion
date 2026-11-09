@@ -102,7 +102,6 @@ import {
 	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
-	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
 	LinearBlurTransitionDocThumb,
@@ -125,6 +124,7 @@ import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
+import {UnavailableVideo} from './MediaErrorHandling/UnavailableVideo';
 import {MissingImg} from './MissingImg';
 import {ClosingScene} from './MultiSceneSample/ClosingScene';
 import {FeatureScene} from './MultiSceneSample/FeatureScene';
@@ -1571,14 +1571,6 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
-						id="html-in-canvas-privacy"
-						component={HtmlInCanvasPrivacy}
-						fps={30}
-						height={900}
-						width={1400}
-						durationInFrames={60}
-					/>
-					<Composition
 						id="html-in-canvas-react-svg"
 						component={HtmlInCanvasReactSvg}
 						width={1920}
@@ -2777,6 +2769,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="MediaErrorHandling">
+				<Composition
+					id="UnavailableVideo"
+					component={UnavailableVideo}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="AudioError"
 					component={HandleAudioRenderError}

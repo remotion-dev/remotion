@@ -258,6 +258,7 @@ export const usePlayback = ({
 			| null = null;
 		let playbackFrame = getCurrentFrame();
 		let lastSeekRevision = seek?.revision.current ?? null;
+		let unsubscribeBuffering: (() => void) | null = null;
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -266,15 +267,20 @@ export const usePlayback = ({
 				} else {
 					clearTimeout(reqAnimFrameCall.id);
 				}
+
+				reqAnimFrameCall = null;
 			}
 		};
 
 		const stop = () => {
 			hasBeenStopped = true;
 			cancelQueuedFrame();
+			unsubscribeBuffering?.();
+			unsubscribeBuffering = null;
 		};
 
 		const callback = () => {
+			reqAnimFrameCall = null;
 			if (hasBeenStopped) {
 				return;
 			}
@@ -284,7 +290,12 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !audioContextFailed && !isBuffering()) {
+			if (isBuffering()) {
+				queueNextFrame();
+				return;
+			}
+
+			if (!muted && !audioContextFailed) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -326,23 +337,18 @@ export const usePlayback = ({
 						: actualFirstFrame
 					: nextFrame;
 
-			if (!isBuffering()) {
-				const didLoop = loop && nextFrame !== currentFrame + framesToAdvance;
-				if (didLoop) {
-					// Re-anchor after the loop's target frame commits.
-					audioLoopRevision.current++;
-				}
+			const didLoop = loop && nextFrame !== currentFrame + framesToAdvance;
+			if (didLoop) {
+				// Re-anchor after the loop's target frame commits.
+				audioLoopRevision.current++;
+			}
 
-				if (frameToDisplay !== currentFrame) {
-					playbackFrame = frameToDisplay;
-					setFrameFromPlayback((c) => ({
-						...c,
-						[compositionId]: frameToDisplay,
-					}));
-				} else if (didLoop) {
-					// A loop can wrap back to the same frame without a React commit.
-					updateAudioAnchor(frameToDisplay);
-				}
+			if (frameToDisplay !== currentFrame) {
+				playbackFrame = frameToDisplay;
+				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
+			} else if (didLoop) {
+				// A loop can wrap back to the same frame without a React commit.
+				updateAudioAnchor(frameToDisplay);
 			}
 
 			if (hasEnded) {
@@ -389,12 +395,13 @@ export const usePlayback = ({
 					sharedAudioContext?.suspend?.();
 				}
 
-				const unsubscribe = subscribeBuffering((state) => {
+				unsubscribeBuffering = subscribeBuffering((state) => {
 					if (state.buffering) {
 						return;
 					}
 
-					unsubscribe();
+					unsubscribeBuffering?.();
+					unsubscribeBuffering = null;
 					if (hasBeenStopped) {
 						return;
 					}
@@ -431,15 +438,18 @@ export const usePlayback = ({
 			reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
 		};
 
+		const unsubscribeSeek = seek?.subscribe(() => {
+			clock.startedTime = performance.now();
+			clock.framesAdvanced = 0;
+		});
+
 		queueNextFrame();
 
 		const onVisibilityChange = () => {
-			if (document.visibilityState === 'visible') {
+			if (reqAnimFrameCall === null) {
 				return;
 			}
 
-			// If tab goes into the background, cancel requestAnimationFrame() and update immediately.
-			// , so the transition to setTimeout() can be fulfilled.
 			cancelQueuedFrame();
 			callback();
 		};
@@ -448,6 +458,7 @@ export const usePlayback = ({
 
 		return () => {
 			window.removeEventListener('visibilitychange', onVisibilityChange);
+			unsubscribeSeek?.();
 			stop();
 		};
 	}, [

@@ -1,10 +1,10 @@
+import {getSvgClipForPrecompositing} from './clip-path';
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {makeDOMMatrix} from './make-dom-matrix';
 import {
 	getMaskImageValue,
 	type MaskImageInfo,
 	parseMaskImage,
-	validateUrlMaskImageStyle,
 } from './mask-image';
 import {parseTransformOrigin} from './parse-transform-origin';
 
@@ -29,7 +29,7 @@ const filterRequiresPrecompositing = (filter: string): string | null => {
 
 // CSS mix-blend-mode keywords share their names with canvas composite
 // operations, except plus-lighter which is called lighter on canvas.
-const getBlendMode = (
+export const getBlendMode = (
 	mixBlendMode: string,
 ): GlobalCompositeOperation | null => {
 	switch (mixBlendMode) {
@@ -172,8 +172,10 @@ export const calculateTransforms = ({
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
+	let hasCssTransform = false;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
+	let svgClip: SVGClipPathElement | null = null;
 	let filterForPrecompositing: string | null = null;
 	let blendMode: GlobalCompositeOperation | null = null;
 	while (parent) {
@@ -209,51 +211,46 @@ export const calculateTransforms = ({
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
-			if (maskImageInfo?.type === 'url') {
-				validateUrlMaskImageStyle(computedStyle);
-			}
+			maskImageInfo = maskImageValue
+				? parseMaskImage(maskImageValue, computedStyle)
+				: null;
 
+			svgClip = getSvgClipForPrecompositing(computedStyle.clipPath, parent);
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated;
+			const needsGroup = blendMode !== null || isolated || svgClip !== null;
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'
 					? computedStyle.filter
 					: filterRequiresPrecompositing(computedStyle.filter);
 
-			const originalMaskImage = parent.style.maskImage;
-			const originalWebkitMaskImage = parent.style.webkitMaskImage;
-			parent.style.maskImage = 'none';
-			parent.style.webkitMaskImage = 'none';
-
-			const originalMixBlendMode = parent.style.mixBlendMode;
-			const originalOpacity = parent.style.opacity;
+			// An authored !important rule must also be neutralized while drawing the
+			// group, then restored with its original inline priority.
+			const overrides: [string, string][] = [
+				['mask-image', 'none'],
+				['-webkit-mask-image', 'none'],
+			];
+			if (svgClip) overrides.push(['clip-path', 'none']);
 			if (needsGroup) {
-				parent.style.mixBlendMode = 'normal';
-				parent.style.opacity = '1';
+				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);
 			}
 
-			// Neutralize filter if it requires precompositing to prevent double-application
-			const originalFilter = parent.style.filter;
-			if (filterForPrecompositing) {
-				parent.style.filter = 'none';
+			if (filterForPrecompositing) overrides.push(['filter', 'none']);
+			const {style} = parent;
+			const originals = overrides.map(([property]) => ({
+				property,
+				value: style.getPropertyValue(property),
+				priority: style.getPropertyPriority(property),
+			}));
+			for (const [property, value] of overrides) {
+				style.setProperty(property, value, 'important');
 			}
-
-			const parentRef = parent;
 
 			toReset.push(() => {
-				parentRef!.style.maskImage = originalMaskImage;
-				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
-				if (filterForPrecompositing) {
-					parentRef!.style.filter = originalFilter;
-				}
-
-				if (needsGroup) {
-					parentRef!.style.mixBlendMode = originalMixBlendMode;
-					parentRef!.style.opacity = originalOpacity;
+				for (const {property, value, priority} of originals) {
+					style.setProperty(property, value, priority);
 				}
 			});
 		}
@@ -262,6 +259,7 @@ export const calculateTransforms = ({
 			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
 			hasAnyTransformCssValue(transformStyle);
 
+		hasCssTransform ||= hasApplicableTransformCssValue;
 		if (hasApplicableTransformCssValue || parent === element) {
 			const toParse =
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
@@ -353,6 +351,7 @@ export const calculateTransforms = ({
 	return {
 		dimensions,
 		totalMatrix,
+		hasCssTransform,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
@@ -365,12 +364,14 @@ export const calculateTransforms = ({
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
+			needsSvgClip: svgClip,
 			needsFilterPrecompositing: filterForPrecompositing,
 			needsBlendMode: blendMode,
 			needsIsolation: isolated,
 			needsPrecompositing: Boolean(
 				needs3DTransformViaWebGL ||
 				needsMaskImage ||
+				svgClip !== null ||
 				needsFilterPrecompositing ||
 				blendMode !== null ||
 				isolated,

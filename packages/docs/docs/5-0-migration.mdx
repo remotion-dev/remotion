@@ -134,7 +134,7 @@ Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
 ## `diskSizeInMb` is now 10240 by default
 
 For Remotion Lambda, the default disk size is now 10240 MB.  
-This will add a miniscule cost to your renders technically, but will lead to more reliable and faster renders, since Chrome is less likely to run out of disk cache.
+This will add a minuscule cost to your renders technically, but will lead to more reliable and faster renders, since Chrome is less likely to run out of disk cache.
 
 **Required actions**:
 
@@ -180,6 +180,14 @@ loadFont('normal', {
 [`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box), and [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) now default `validateFontIsLoaded` to `true`.
 
 **Required action**: Ensure custom fonts are loaded before calling these APIs, or pass `validateFontIsLoaded: false` explicitly to keep the previous behavior. See [layout utils best practices](/docs/layout-utils/best-practices).
+
+## `fitText()` throws for text that measures 0 wide
+
+[`fitText()`](/docs/layout-utils/fit-text) measures the text once and then scales that measurement to `withinWidth`. A text that measures 0 wide, for example an empty string, has no font size that fits it, and the function returns `Infinity` or `NaN` in that case today.
+
+In Remotion 5, `fitText()` throws an error instead. The documented example caps the result with `Math.min(80, fitText({...}).fontSize)`, which silently turned the non-finite value into `80` and kept rendering, so compositions that pass text which can be empty, including our own [fit text example](https://github.com/remotion-dev/remotion/blob/main/packages/example/src/Title/FitText.tsx), would start failing after upgrading.
+
+**Required action**: Handle the empty case before calling `fitText()`, for example by rendering a placeholder when the text is empty, or by checking `text.trim().length > 0` first. In v4 nothing changes, the function keeps returning `Infinity` and a `Math.min()` cap keeps working.
 
 ## Default premount duration is now 2 seconds
 

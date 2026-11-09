@@ -1,7 +1,6 @@
-import {StudioPlaybackRateComposition} from './StudioPlaybackRateComposition';
-import {StudioLevelsComposition} from './StudioLevelsComposition';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
+import {AgenticallyProgrammaticallyCompositions} from './AgenticallyProgrammatically/AgenticallyProgrammaticallyCompositions';
 import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
 import {AirDropFootage20261031} from './AirDropFootage20261031';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
@@ -41,6 +40,8 @@ import {
 } from './CanvasCaptureBanner';
 import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
 import {CaptionsRecordingComposition} from './CaptionsRecordingComposition';
+import {AiPromptRecreation, ChatGPTPrompt} from './ChatGPTPrompt';
+import {ChatGPTPromptHomepage} from './ChatGPTPromptHomepage';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp3} from './CloseUp3';
@@ -50,6 +51,7 @@ import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
+import {CodexPrompt} from './CodexPrompt';
 import {ColorCorrectionDemo} from './ColorCorrectionDemo';
 import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {ColorCorrectionStudioRecordingComposition} from './ColorCorrectionStudioRecordingComposition';
@@ -201,7 +203,6 @@ import {
 } from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
-import {AgenticallyProgrammaticallyCompositions} from './AgenticallyProgrammatically/AgenticallyProgrammaticallyCompositions';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
 import {
@@ -227,8 +228,8 @@ import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
 import {RemotionPrototype2020} from './RemotionPrototype2020';
-import './index.css';
 import {RenderModalCodec} from './RenderModalCodec';
+import './index.css';
 import {RenderOnWeb, StudioRenderOnWeb} from './RenderOnWeb';
 import {RenderOnWebCaptureComposition} from './RenderOnWebCaptureComposition';
 import {ProductHuntLogo} from './ScalingLogo';
@@ -268,12 +269,15 @@ import {
 	StudioHomepageRender,
 	StudioHomepageTransitions,
 } from './StudioHomepageShots';
+import {StudioLevelsComposition} from './StudioLevelsComposition';
 import {StudioMusicTrackStill} from './StudioMusicTrackStill';
+import {StudioPlaybackRateComposition} from './StudioPlaybackRateComposition';
 import {StudioRenderClickComposition} from './StudioRenderClickComposition';
 import {StudioRenderProgressComposition} from './StudioRenderProgressComposition';
 import {StudioScreenshotRattle} from './StudioScreenshotRattle';
 import {StudioTimelineClip} from './StudioTimelineClip';
 import {StudioUpdate, studioUpdateSchema} from './StudioUpdate';
+import {StudioUpdateBeatTimeline} from './StudioUpdateBeatTimeline';
 import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
 import {
@@ -347,6 +351,20 @@ export const RemotionRoot: React.FC = () => {
 						height: props.height,
 						width: props.width,
 					})}
+				/>
+				<Composition
+					id="CodexPrompt"
+					component={CodexPrompt}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={130}
+					defaultProps={{
+						prompt: 'Cut away the silent parts.',
+						typingStartFrame: 0,
+						typingDurationInFrames: 30,
+						style: {},
+					}}
 				/>
 				<Composition
 					id="TextEditorUI"
@@ -1685,7 +1703,7 @@ export const RemotionRoot: React.FC = () => {
 				id="StudioUpdate"
 				component={StudioUpdate}
 				schema={studioUpdateSchema}
-				defaultProps={{mode: 'widescreen' as const}}
+				defaultProps={{mode: 'widescreen' as const, soundtrackVolume: 1}}
 				calculateMetadata={({props}) =>
 					props.mode === 'instagram-reel'
 						? {width: 1080, height: 1920}
@@ -1693,6 +1711,14 @@ export const RemotionRoot: React.FC = () => {
 				}
 				fps={30}
 				durationInFrames={1023}
+			/>
+			<Composition
+				id="StudioUpdateBeatTimeline"
+				component={StudioUpdateBeatTimeline}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={993}
 			/>
 			<Composition
 				id="TimelineLayoutReveal"
@@ -1921,6 +1947,68 @@ export const RemotionRoot: React.FC = () => {
 				fps={60}
 				width={1494}
 				height={1440}
+			/>
+			<Composition
+				id="AiPromptRecreation"
+				component={AiPromptRecreation}
+				durationInFrames={660}
+				fps={60}
+				width={1494}
+				height={1440}
+			/>
+			<Composition
+				id="ChatGPTPrompt"
+				component={ChatGPTPrompt}
+				durationInFrames={360}
+				fps={60}
+				width={2014}
+				height={622}
+				defaultProps={{
+					theme: 'dark',
+					isInitialPrompt: true,
+					prompt: 'please import my footage on a timeline.',
+					pluginName: 'Remotion',
+					heading: 'What should we work on?',
+					typingStartFrame: 30,
+					typingDurationInFrames: 180,
+					showCaret: true,
+					showTools: true,
+					style: {backgroundColor: '#0d0d0d'},
+				}}
+			/>
+			<Composition
+				id="ChatGPTPromptSkills"
+				component={ChatGPTPrompt}
+				durationInFrames={480}
+				fps={60}
+				width={2014}
+				height={622}
+				defaultProps={{
+					theme: 'dark',
+					isInitialPrompt: true,
+					prompt:
+						'$remotion-create Make a short launch video, then use $remotion-captions to add subtitles.',
+					pluginName: '',
+					heading: 'Build with skills',
+					typingStartFrame: 30,
+					typingDurationInFrames: 360,
+					showCaret: true,
+					showTools: true,
+					style: {backgroundColor: '#0d0d0d'},
+				}}
+			/>
+			<Composition
+				id="ChatGPTPromptHomepage"
+				component={ChatGPTPromptHomepage}
+				durationInFrames={222}
+				fps={30}
+				width={1080}
+				height={1080}
+				defaultProps={{
+					prompt: 'please import my footage on a timeline.',
+					typingStartFrame: 0,
+					typingDurationInFrames: 120,
+				}}
 			/>
 			<Composition
 				id="ParameterizationRecording"

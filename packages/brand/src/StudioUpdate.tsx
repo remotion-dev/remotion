@@ -36,6 +36,7 @@ import {TimelineZoomComposition} from './TimelineZoomComposition';
 
 export const studioUpdateSchema = z.object({
 	mode: z.enum(['widescreen', 'instagram-reel']),
+	soundtrackVolume: z.number().min(0).max(1),
 });
 
 // Cut points follow the recorded transients at 30 fps (approximately 145 BPM).
@@ -44,7 +45,10 @@ export const studioUpdateSchema = z.object({
 // Build in complexity: timeline zoom, trims, rolling edits, pitch, then color curves.
 // Accelerate into shorter cuts; late slots follow measured transients and subdivisions.
 // Use original recordings with live cameras and cursors for the homepage montage.
-export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
+export const StudioUpdate = ({
+	mode,
+	soundtrackVolume,
+}: z.infer<typeof studioUpdateSchema>) => {
 	const reel = mode === 'instagram-reel';
 	const captionTimelineFill = reel
 		? 'linear-gradient(to bottom, transparent 50%, #15161b 50%)'
@@ -332,10 +336,7 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					durationInFrames={48}
 					playbackRate={48 / 31}
 					premountFor={30}
-					style={{
-						scale: 1.5,
-						translate: '0px -119.1px',
-					}}
+					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 				<StudioCurvesSplit
 					name="29b - Curves - fullscreen adjustment"
@@ -445,6 +446,7 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					src="https://remotion.media/studio-update/takiti-instrumental-lawd-ito-adapted-2026-11-02-448ab724379d.wav"
 					from={0}
 					durationInFrames={993}
+					volume={soundtrackVolume}
 				/>
 			</Track>
 		</>

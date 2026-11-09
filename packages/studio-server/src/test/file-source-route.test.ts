@@ -52,6 +52,7 @@ const makeResponse = () => {
 };
 
 const noopLiveEventsServer: LiveEventsServer = {
+	getClientIds: () => [],
 	addNewClientListener: () => () => undefined,
 	closeConnections: () => Promise.resolve(),
 	router: () => Promise.resolve(),
@@ -84,6 +85,7 @@ test('serves file source from an origin-less GET request', async () => {
 			getNumberOfAudioTags: () => 0,
 			getPreviewSampleRate: () => null,
 			getStudioRuntimeConfig: () => ({
+				highContrast: null,
 				preferredEffectBackend: null,
 				preservePitchOnPlayback: true,
 				showLayerFrameNumbers: false,
@@ -91,12 +93,14 @@ test('serves file source from an origin-less GET request', async () => {
 				defaultPremountInSeconds: null,
 				sequenceActivityLimit: null,
 				askAIEnabled: false,
+				elementLibraries: [],
 				bufferStateDelayInMilliseconds: null,
 				canvasTabsEnabled: true,
 				defaultCodingAgent: null,
 				defaultEditor: null,
 				interactivityEnabled: true,
 				keyboardShortcutsEnabled: true,
+				keyboardShortcuts: null,
 				maxTimelineTracks: null,
 				publicLicenseKey: null,
 				configFileStudioSettings: null,

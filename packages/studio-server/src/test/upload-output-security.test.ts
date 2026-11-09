@@ -16,6 +16,7 @@ import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleRoutes} from '../routes';
 
 const makeLiveEventsServer = (): LiveEventsServer => ({
+	getClientIds: () => [],
 	addNewClientListener: () => () => undefined,
 	closeConnections: () => Promise.resolve(),
 	router: () => Promise.resolve(),
@@ -88,6 +89,7 @@ const requestWriteRoute = async ({
 		getRenderDefaults: () => ({}) as RenderDefaults,
 		getRenderQueue: () => [],
 		getStudioRuntimeConfig: () => ({
+			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
 			showLayerFrameNumbers: false,
@@ -95,6 +97,7 @@ const requestWriteRoute = async ({
 			defaultPremountInSeconds: null,
 			sequenceActivityLimit: null,
 			askAIEnabled: false,
+			elementLibraries: [],
 			bufferStateDelayInMilliseconds: null,
 			canvasTabsEnabled: true,
 			configFileStudioSettings: null,
@@ -102,6 +105,7 @@ const requestWriteRoute = async ({
 			defaultEditor: null,
 			interactivityEnabled: true,
 			keyboardShortcutsEnabled: true,
+			keyboardShortcuts: null,
 			maxTimelineTracks: null,
 			publicLicenseKey: null,
 		}),

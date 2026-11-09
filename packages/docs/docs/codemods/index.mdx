@@ -175,6 +175,10 @@ Registration edits use explicit composition files and static IDs. They support `
 
 Unsupported edits throw or reject without mutating the input project. Batch operations resolve their references against the same input snapshot. Unrelated source formatting and comments are preserved; edited regions use the surrounding source style.
 
+## Importing OpenTimelineIO<AvailableFrom v="4.0.542" />
+
+Convert `.otio` timelines into editable TSX with [`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition), or create and register a component with [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition). You can also [import a timeline in Studio](/docs/codemods/generate-open-timeline-composition#importing-in-studio).
+
 ## APIs
 
 import {TableOfContents} from './table-of-contents';

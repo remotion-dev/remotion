@@ -1,13 +1,13 @@
 {
 	"name": "@remotion/canvas-capture-extension",
-	"version": "4.0.540",
+	"version": "4.0.542",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "bunx --bun wxt",
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
-		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && bun check",
+		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && node ../.monorepo/tsrs.cjs --noEmit",
 		"build-extension": "bunx --bun wxt build"
 	},
 	"dependencies": {

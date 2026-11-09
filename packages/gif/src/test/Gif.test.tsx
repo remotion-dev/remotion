@@ -271,9 +271,9 @@ test('<Gif> registers an automatic canvas outline', async () => {
 		),
 	).toEqual([]);
 });
-test('<Gif> exposes non-keyframable premounting schema fields', () => {
-	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
-	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});
+test('<Gif> does not expose premounting schema fields by default', () => {
+	expect(gifSchema).not.toHaveProperty('premountFor');
+	expect(gifSchema).not.toHaveProperty('postmountFor');
 });
 
 test('<Gif> applies crop props to its canvas', () => {

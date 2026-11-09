@@ -33,6 +33,12 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [Client-side rendering](https://www.remotion.dev/docs/client-side-rendering/index.md)
 - [@remotion/lambda](https://www.remotion.dev/docs/lambda.md)
 
+## Elements
+
+- [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown includes its install command and source code.
+- [More Elements](https://www.remotion.dev/elements/libraries.md): Third-party Element Libraries and their Markdown indexes. To install an Element from a page that embeds its payload, run `npx remotion elements use <url> --composition <composition-id> --yes`.
+- [Building Element Libraries](https://www.remotion.dev/docs/elements/libraries.md)
+
 ## Building applications
 
 - [Editor Starter](https://www.remotion.dev/docs/editor-starter/index.md)

@@ -190,14 +190,14 @@ export const RenderModalAudio: React.FC<{
 						<OptionExplainerBubble id="forSeamlessAacConcatenationOption" />
 					</div>
 
-					<div style={rightRow}>
+					<label style={rightRow} aria-label="For seamless AAC concatenation">
 						<Checkbox
 							disabled={false}
 							checked={forSeamlessAacConcatenation}
 							onChange={onSeamlessAacConcatenationChanges}
 							name="enforce-audio-track"
 						/>
-					</div>
+					</label>
 				</div>
 			) : null}
 
@@ -207,13 +207,13 @@ export const RenderModalAudio: React.FC<{
 						Custom audio bitrate{' '}
 						<OptionExplainerBubble id="audioBitrateOption" />
 					</div>
-					<div style={rightRow}>
+					<label style={rightRow} aria-label="Custom audio bitrate">
 						<Checkbox
 							checked={shouldHaveCustomTargetAudioBitrate}
 							onChange={onShouldHaveTargetAudioBitrateChanged}
 							name="custom-audio-bitrate"
 						/>
-					</div>
+					</label>
 				</div>
 			)}
 
@@ -226,6 +226,7 @@ export const RenderModalAudio: React.FC<{
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
+								aria-label="Target audio bitrate"
 								style={input}
 								value={customTargetAudioBitrate}
 								onChange={onTargetAudioBitrateChanged}

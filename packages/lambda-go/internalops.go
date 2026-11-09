@@ -26,6 +26,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams := renderInternalOptions{
+		StreamProgress:                 false,
 		EnableCancellation:             options.EnableCancellation,
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,
@@ -129,6 +130,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams.Concurrency = options.Concurrency
+	internalParams.Chunks = options.Chunks
 
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000

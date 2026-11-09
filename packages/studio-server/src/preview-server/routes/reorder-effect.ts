@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -55,6 +56,15 @@ export const reorderEffectHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
+			if (output === fileContents) {
+				return {success: true, nodePathMutation: null};
+			}
+
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[{absolutePath, remappings: result.nodePathRemappings}],
+				null,
+			);
+
 			pushToUndoStack({
 				filePath: absolutePath,
 				oldContents: fileContents,
@@ -68,14 +78,14 @@ export const reorderEffectHandler: ApiHandler<
 				},
 				entryType: 'reorder-effect',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings: result.nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -100,6 +110,7 @@ export const reorderEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

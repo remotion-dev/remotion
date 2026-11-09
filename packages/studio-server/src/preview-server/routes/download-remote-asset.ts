@@ -13,6 +13,7 @@ import {
 	type DownloadRemoteAssetRequest,
 	type DownloadRemoteAssetResponse,
 } from '@remotion/studio-shared';
+import {httpGet} from '../../helpers/http-get';
 import type {ApiHandler} from '../api-types';
 import {validateSameOrigin} from '../validate-same-origin';
 
@@ -101,104 +102,6 @@ const ensureRemoteUrlIsAllowed = async (url: URL) => {
 	}
 };
 
-const fetchRemoteAsset = async ({
-	acceptHeader,
-	signal,
-	url,
-}: {
-	acceptHeader: string | null;
-	signal: AbortSignal;
-	url: URL;
-}) => {
-	let currentUrl = url;
-
-	for (let redirects = 0; redirects <= maxRemoteAssetRedirects; redirects++) {
-		await ensureRemoteUrlIsAllowed(currentUrl);
-
-		const response = await fetch(currentUrl, {
-			headers: acceptHeader === null ? undefined : {accept: acceptHeader},
-			redirect: 'manual',
-			signal,
-		});
-
-		if (response.status < 300 || response.status >= 400) {
-			return response;
-		}
-
-		const location = response.headers.get('location');
-		if (location === null) {
-			throw new Error('Remote asset redirect is missing a Location header');
-		}
-
-		if (redirects === maxRemoteAssetRedirects) {
-			throw new Error('Remote asset redirected too many times');
-		}
-
-		await response.body?.cancel();
-		currentUrl = new URL(location, currentUrl);
-	}
-
-	throw new Error('Remote asset redirected too many times');
-};
-
-const readRemoteAsset = async ({
-	response,
-	abort,
-	maxSize,
-}: {
-	response: Response;
-	abort: () => void;
-	maxSize: number;
-}) => {
-	const contentLength = response.headers.get('content-length');
-	if (contentLength !== null && Number(contentLength) > maxSize) {
-		abort();
-		throw new Error('Remote asset exceeds the 50MB size limit');
-	}
-
-	if (!response.body) {
-		const buffer = await response.arrayBuffer();
-		if (buffer.byteLength > maxSize) {
-			throw new Error('Remote asset exceeds the 50MB size limit');
-		}
-
-		return new Uint8Array(buffer);
-	}
-
-	const reader = response.body.getReader();
-	const chunks: Uint8Array[] = [];
-	let size = 0;
-
-	while (true) {
-		const {done, value} = await reader.read();
-		if (done) {
-			break;
-		}
-
-		if (!value) {
-			continue;
-		}
-
-		size += value.byteLength;
-		if (size > maxSize) {
-			abort();
-			await reader.cancel();
-			throw new Error('Remote asset exceeds the 50MB size limit');
-		}
-
-		chunks.push(value);
-	}
-
-	const result = new Uint8Array(size);
-	let offset = 0;
-	for (const chunk of chunks) {
-		result.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
-
-	return result;
-};
-
 export const downloadRemoteAssetBytes = async ({
 	acceptHeader,
 	maxSize,
@@ -208,34 +111,30 @@ export const downloadRemoteAssetBytes = async ({
 	maxSize: number;
 	url: URL;
 }) => {
-	if (typeof fetch !== 'function') {
-		throw new Error(
-			'Downloading remote assets requires Node.js 18 or newer. Drag a local file instead.',
-		);
-	}
-
 	const controller = new AbortController();
 	const timeout = setTimeout(
 		() => controller.abort(),
 		remoteAssetDownloadTimeout,
 	);
 	try {
-		const response = await fetchRemoteAsset({
-			acceptHeader,
-			signal: controller.signal,
+		const response = await httpGet({
 			url,
+			headers: acceptHeader === null ? {} : {accept: acceptHeader},
+			signal: controller.signal,
+			maxSize,
+			tooLargeMessage: 'Remote asset exceeds the 50MB size limit',
+			maxRedirects: maxRemoteAssetRedirects,
+			validateUrl: ensureRemoteUrlIsAllowed,
 		});
-		if (!response.ok) {
-			throw new Error(`Could not download remote asset: ${response.status}`);
+		if (response.statusCode < 200 || response.statusCode >= 300) {
+			throw new Error(
+				`Could not download remote asset: ${response.statusCode}`,
+			);
 		}
 
-		return await readRemoteAsset({
-			response,
-			abort: () => controller.abort(),
-			maxSize,
-		});
+		return response.body;
 	} catch (err) {
-		if (err instanceof Error && err.name === 'AbortError') {
+		if (controller.signal.aborted) {
 			throw new Error('Timed out downloading remote asset');
 		}
 

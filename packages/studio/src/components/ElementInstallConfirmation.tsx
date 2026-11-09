@@ -496,6 +496,7 @@ export const ElementInstallConfirmation: React.FC<{
 	} = useCreateComposition({
 		asset: null,
 		canvasCapture: null,
+		openTimeline: null,
 		compositions,
 		durationInFrames: newCompositionValues.durationInFrames,
 		folderName: newCompositionValues.folder.folderName,
@@ -935,6 +936,8 @@ export const ElementInstallConfirmation: React.FC<{
 							aria-label="New composition settings"
 						>
 							<NewCompositionFields
+								fixedFps={null}
+								fixedDuration={null}
 								compositionId={newCompositionId}
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}

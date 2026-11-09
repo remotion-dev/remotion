@@ -18,24 +18,23 @@ Burns irregular holes into a canvas-based component, with charred rims and glowi
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {filmBurn} from '@remotion/effects/film-burn';
 import {Video} from '@remotion/media';
 import {interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <Video
       src="https://remotion.media/video.mp4"
       effects={[
         filmBurn({
-          progress,
+          progress: interpolate(frame, [0, 60], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
           center: [0.5, 0.5],
           seed: 0,
         }),

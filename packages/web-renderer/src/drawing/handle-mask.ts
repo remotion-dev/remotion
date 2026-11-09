@@ -1,8 +1,10 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
+import {getBackgroundImageRect} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
-import {getMaskImage} from './mask-image-loader';
 import {createCanvasGradient} from './parse-linear-gradient';
+import {getRasterImage} from './raster-image-loader';
+import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -52,16 +54,130 @@ export const handleMask = async ({
 		return;
 	}
 
-	const image = await getMaskImage({
+	const image = await getRasterImage({
 		src: maskImageInfo.src,
-		state: internalState.maskImageLoaderState,
+		sourceProperty: 'mask-image',
+		state: internalState.rasterImageLoaderState,
+	});
+	const {maskSize, maskRepeat, maskPosition} = maskImageInfo;
+	const tile = getBackgroundImageRect({
+		backgroundSize: maskSize,
+		backgroundPosition: maskPosition,
+		positioningArea: maskRect,
+		intrinsicSize: image,
+	});
+	const {width, height} = tile;
+	const imageLeft = (tile.left - precomposeRect.left) * scale;
+	const imageTop = (tile.top - precomposeRect.top) * scale;
+
+	tempContext.globalCompositeOperation = 'destination-in';
+	if (width === 0 || height === 0) {
+		tempContext.clearRect(
+			0,
+			0,
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		);
+		return;
+	}
+
+	const repetition =
+		{
+			'repeat repeat': 'repeat',
+			'no-repeat no-repeat': 'no-repeat',
+			'repeat no-repeat': 'repeat-x',
+			'no-repeat repeat': 'repeat-y',
+		}[maskRepeat] ?? maskRepeat;
+	const imageWidth = width * scale;
+	const imageHeight = height * scale;
+	if (repetition === 'no-repeat') {
+		// Preserve drawImage's filtering for a single tile, including the
+		// previously supported full-size mask case.
+		tempContext.drawImage(image, imageLeft, imageTop, imageWidth, imageHeight);
+	} else {
+		const pattern = tempContext.createPattern(image, repetition);
+		if (!pattern) {
+			throw new Error('Could not create URL mask pattern');
+		}
+
+		pattern.setTransform(
+			new DOMMatrix()
+				.translate(imageLeft, imageTop)
+				.scale(imageWidth / image.width, imageHeight / image.height),
+		);
+		tempContext.fillStyle = pattern;
+		tempContext.fillRect(
+			0,
+			0,
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		);
+	}
+
+	// Filter precomposition can extend beyond the border box. Preserve mask-clip
+	// even when the pattern repeats into that expanded region.
+	tempContext.save();
+	tempContext.beginPath();
+	tempContext.rect(0, 0, tempContext.canvas.width, tempContext.canvas.height);
+	const clipLeft =
+		repetition === 'no-repeat'
+			? Math.max(rectToFill.left, imageLeft)
+			: rectToFill.left;
+	const clipTop =
+		repetition === 'no-repeat'
+			? Math.max(rectToFill.top, imageTop)
+			: rectToFill.top;
+	tempContext.rect(
+		clipLeft,
+		clipTop,
+		repetition === 'no-repeat'
+			? Math.max(
+					0,
+					Math.min(rectToFill.right, imageLeft + imageWidth) - clipLeft,
+				)
+			: rectToFill.width,
+		repetition === 'no-repeat'
+			? Math.max(
+					0,
+					Math.min(rectToFill.bottom, imageTop + imageHeight) - clipTop,
+				)
+			: rectToFill.height,
+	);
+	tempContext.clip('evenodd');
+	tempContext.clearRect(
+		0,
+		0,
+		tempContext.canvas.width,
+		tempContext.canvas.height,
+	);
+	tempContext.restore();
+};
+
+// Use the existing group layer and SVG drawable rather than combining contours
+// whose reflected winding is interpreted differently by native engines.
+export const handleSvgClip = async ({
+	resource,
+	maskRect,
+	precomposeRect,
+	element,
+	tempContext,
+}: {
+	resource: SVGClipPathElement;
+	element: HTMLElement | SVGElement;
+	maskRect: DOMRect;
+	precomposeRect: DOMRect;
+	tempContext: OffscreenCanvasRenderingContext2D;
+}) => {
+	const image = await createSvgClipMask({
+		resource,
+		maskRect,
+		precomposeRect,
+		// Descendant filters contribute to the native HTML clipping reference in
+		// Firefox. The clipped element's own filter and outline padding do not.
+		referenceRect: getBiggestBoundingClientRect(element, false, true),
+		width: tempContext.canvas.width,
+		height: tempContext.canvas.height,
 	});
 	tempContext.globalCompositeOperation = 'destination-in';
-	tempContext.drawImage(
-		image,
-		rectToFill.left,
-		rectToFill.top,
-		rectToFill.width,
-		rectToFill.height,
-	);
+	tempContext.drawImage(image, 0, 0);
 };

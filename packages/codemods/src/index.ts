@@ -18,10 +18,14 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
-import {getKeyframeSourceLocationRemappings} from './node-references';
+import {
+	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
+} from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
@@ -35,6 +39,7 @@ import {getDurationDependentKeyframesFromContent} from './sequence-props/duratio
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
 export {
@@ -197,11 +202,14 @@ export const CodemodsInternals = {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getJsxSourceLocation,
 	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
+	getStaticNumericValue,
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -223,3 +231,19 @@ export {
 	type UpdateVisualControlsOptions,
 	type UpdateVisualControlsResult,
 } from './update-visual-controls';
+export {
+	generateOpenTimelineComposition,
+	type GenerateOpenTimelineCompositionOptions,
+	type GenerateOpenTimelineCompositionResult,
+	type OpenTimelineAnnotation,
+	type OpenTimelineAsset,
+	type OpenTimelineDiagnostic,
+	type OpenTimelineMediaResolver,
+	type OpenTimelineResolvedMedia,
+} from './open-timeline/generate';
+export {
+	addOpenTimelineComposition,
+	OpenTimelineImportError,
+	type AddOpenTimelineCompositionOptions,
+	type AddOpenTimelineCompositionResult,
+} from './add-open-timeline-composition';
