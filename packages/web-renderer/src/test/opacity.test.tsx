@@ -98,6 +98,9 @@ for (const frame of [0, 1]) {
 			128,
 			128,
 			255,
+			128,
+			64,
+			32,
 		];
 		const pixels = expectedAlpha.map((_, index) =>
 			Array.from(context.getImageData(40 + index * 90, 40, 1, 1).data),
