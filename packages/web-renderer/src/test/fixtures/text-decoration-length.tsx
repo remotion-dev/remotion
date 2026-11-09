@@ -113,6 +113,14 @@ const cases: {
 		line: 'line-through',
 		inheritance: 'none',
 	},
+	{
+		id: 'round-math',
+		fontSize: 24,
+		value: 'round(up, 10%, 1px)',
+		pixels: 3,
+		line: 'underline',
+		inheritance: 'none',
+	},
 ];
 
 export const textDecorationLengths = cases.map((entry) => {

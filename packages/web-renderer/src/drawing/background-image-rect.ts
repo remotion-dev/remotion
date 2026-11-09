@@ -130,7 +130,11 @@ export const resolveLengthPercentage = ({
 			(_, number) => `${(Number(number) * percentageBasis) / 100}px`,
 		);
 		if (typeof CSSNumericValue !== 'undefined') {
-			return CSSNumericValue.parse(pixels).to('px').value;
+			try {
+				return CSSNumericValue.parse(pixels).to('px').value;
+			} catch {
+				// Native CSS can support math functions that Typed OM cannot parse.
+			}
 		}
 
 		// Without Typed OM, resolve the same absolute-length expression
