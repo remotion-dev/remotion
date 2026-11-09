@@ -35,13 +35,16 @@ test('renders a same-origin raster URL mask at a higher scale', async () => {
 	await testImage({blob, testId: 'mask-image-url-scaled', threshold: 0.02});
 });
 
-test('rejects a cross-origin URL mask', async () => {
+test.for([
+	'url("https://example.com/mask.png")',
+	'none, url("https://example.com/mask.png")',
+])('rejects a cross-origin URL mask: %s', async (maskImage) => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill
 				style={{
 					backgroundColor: 'red',
-					maskImage: 'url("https://example.com/mask.png")',
+					maskImage,
 					maskPosition: '0% 0%',
 					maskRepeat: 'no-repeat',
 					maskSize: '100% 100%',

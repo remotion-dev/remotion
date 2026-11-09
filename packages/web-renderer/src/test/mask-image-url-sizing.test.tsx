@@ -1,6 +1,14 @@
 import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import {
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+} from './fixtures/mask-image-layers';
 import '../symbol-dispose';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
@@ -312,6 +320,41 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 			}
 
 			const reference = await captureNativeReference(composition, frame);
+			const actual = await (
+				await renderStillOnWeb({
+					composition,
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+			const result = await compareNativePixels(reference, actual);
+			expect(result.mismatchedPixels).toBe(0);
+		});
+	}
+}
+
+// KINO-7771: authored mask layers must be composed before masking the content.
+for (const composition of [
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+]) {
+	for (const frame of [0, 1]) {
+		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {
+			const transparent = composition.id.endsWith('transparent');
+			if (transparent && t.task.file.projectName === 'firefox') {
+				t.skip();
+				return;
+			}
+
+			const reference = await captureNativeReference(composition, frame, {
+				omitBackground: transparent,
+			});
 			const actual = await (
 				await renderStillOnWeb({
 					composition,

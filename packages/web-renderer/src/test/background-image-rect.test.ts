@@ -3,6 +3,7 @@ import {
 	getBackgroundImageRect,
 	parsePosition,
 	resolvePosition,
+	splitAtTopLevel,
 } from '../drawing/background-image-rect';
 
 test('positions an oversized percentage background image', () => {
@@ -97,3 +98,12 @@ test.each([
 		expect(rect.height).toBe(height);
 	},
 );
+
+// Multiple CSS masks may include URL punctuation inside quoted arguments.
+test('retains parentheses and commas inside quoted image URLs', () => {
+	const value = 'url("/mask)tile.png"), url("/mask(,tile.png")';
+	expect(splitAtTopLevel(value, ',')).toEqual([
+		'url("/mask)tile.png")',
+		'url("/mask(,tile.png")',
+	]);
+});
