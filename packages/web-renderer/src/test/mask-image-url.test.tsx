@@ -2,8 +2,9 @@ import {AbsoluteFill} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
+import '../symbol-dispose';
+import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {rasterMask} from './fixtures/mask-image-url-sizing';
 import {captureNativeReference, compareNativePixels} from './native-reference';
@@ -230,5 +231,25 @@ for (const {composition, composite} of legacyMaskComposites) {
 				'Unsupported mask-composite value:',
 			);
 		}
+	});
+}
+
+// KINO-7771: nested gradient text must not admit unsupported source functions.
+for (const {composition, maskImage} of unsupportedMaskImages) {
+	test(`rejects ${composition.id}`, async (t) => {
+		if (!CSS.supports('mask-image', maskImage)) {
+			t.skip();
+			return;
+		}
+
+		await expect(
+			renderStillOnWeb({
+				composition,
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			}),
+		).rejects.toThrow(/mask-image/);
 	});
 }
