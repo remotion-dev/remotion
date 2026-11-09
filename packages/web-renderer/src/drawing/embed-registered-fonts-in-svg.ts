@@ -1,4 +1,5 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {parseFontFamilies} from './parse-font-families';
 
 type RegisteredFontFace = ReturnType<
 	typeof NoReactInternals.getRegisteredFontFaces
@@ -236,11 +237,9 @@ export const getEmbeddedFontStyleForSvg = (
 					parentElement,
 				);
 			computedStyleByElement.set(parentElement, computedStyle);
-			for (const family of computedStyle.fontFamily.split(',')) {
-				const normalizedFamily = family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase();
+			for (const normalizedFamily of parseFontFamilies(
+				computedStyle.fontFamily,
+			)) {
 				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
 				const matchingIndexes = familyIndexes.filter((index) =>
 					descriptorsMatch(registeredFonts[index]!, computedStyle),
@@ -272,9 +271,8 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const css = sortedIndexes
 		.map((index) => getFontFaceRule(registeredFonts[index]!))
-		.join('')
-		.replace(/]]>/g, ']]]]><![CDATA[>');
-	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+		.join('');
+	const style = `<style type="text/css"><![CDATA[${css.replace(/]]>/g, ']]]]><![CDATA[>')}]]></style>`;
 	const embeddedStyle = {
 		blob: new Blob([style]),
 		cacheKey,

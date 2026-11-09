@@ -2,7 +2,7 @@ import {loadFont} from '@remotion/fonts';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 
 export const svgExternalFontReady = loadFont({
-	family: 'External SVG class font',
+	family: 'External SVG, class font',
 	url: new URL('../../../../example/public/bangers.woff2', import.meta.url)
 		.href,
 	format: 'woff2',
@@ -12,8 +12,10 @@ const Component: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<style>{`.svg-font-from-external-css { font-family: "External SVG class font"; font-size: ${40 + frame * 2}px; }`}</style>
+			<style>{`.svg-font-from-external-css { font-family: "External SVG, class font"; font-size: ${40 + frame * 2}px; }`}</style>
 			<svg width={600} height={320} viewBox="0 0 600 320">
+				<style>{'rect:nth-child(2){fill:red}'}</style>
+				<rect width={20} height={20} />
 				<defs>
 					<path id="external-svg-text-path" d="M 12 194 L 580 194" />
 					<text id="external-svg-use-template">Template inheritance</text>
