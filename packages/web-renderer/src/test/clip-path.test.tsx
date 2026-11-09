@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -43,6 +43,7 @@ import {
 import {
 	captureNativeReference,
 	compareNativePixels,
+	countNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 import {testImage} from './utils';
@@ -469,8 +470,19 @@ for (const [fixture, referenceFixture, scale] of [
 			const reference = await captureNativeReference(referenceFixture, frame, {
 				omitBackground: false,
 			});
-			const comparison = await compareNativePixels(reference, actual);
-			expect(comparison.mismatchedPixels).toBe(0);
+			const encoder = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob');
+			try {
+				const comparison = await countNativePixels(reference, actual);
+				if (comparison.mismatchedPixels !== 0) {
+					// Keep original failure attachments without encoding unused passing diffs.
+					await compareNativePixels(reference, actual);
+				}
+
+				expect(comparison.mismatchedPixels).toBe(0);
+				expect(encoder).not.toHaveBeenCalled();
+			} finally {
+				encoder.mockRestore();
+			}
 		}
 	});
 }
