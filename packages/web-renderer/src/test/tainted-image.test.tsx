@@ -3,24 +3,36 @@ import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
-// Note: The behavior varies by browser when loading an image that redirects
-// without CORS headers (like https://github.com/JonnyBurger.png):
-// - Chromium/Firefox: Image fails to load when crossOrigin="anonymous" is set
-//   and the redirect response doesn't have CORS headers → "broken state" error
-// - WebKit: May handle the redirect differently and succeed in some cases
-// This test verifies we get a readable error message when an image fails to load,
-// whether due to CORS restrictions or other broken-state load failures.
-test('should throw readable error when image fails to load or is blocked by CORS', async (t) => {
-	const Component: React.FC = () => {
-		return (
-			<AbsoluteFill>
-				<Img src="https://github.com/JonnyBurger.png" />
-			</AbsoluteFill>
-		);
-	};
+// The GitHub avatar redirect could hang before the browser reported its CORS
+// failure. Serve a valid local image without CORS headers on a separate origin.
+test('should throw readable error when image is blocked by CORS', async () => {
+	const imageUrl = new URL('/1.jpg?cors-denied', window.location.href);
+	const response = await fetch(imageUrl);
+	const address = response.headers.get('X-Test-Local-Address');
+	await response.arrayBuffer();
+	expect(address).not.toBeNull();
+	imageUrl.hostname =
+		imageUrl.hostname === 'localhost'
+			? address!.includes(':')
+				? `[${address}]`
+				: address!
+			: 'localhost';
+	expect(imageUrl.origin).not.toBe(window.location.origin);
 
-	try {
-		await renderStillOnWeb({
+	// A non-CORS image must decode: the fixture is neither missing nor corrupt.
+	const control = new Image();
+	control.src = imageUrl.href;
+	await control.decode();
+	expect(control.naturalWidth).toBeGreaterThan(0);
+
+	const Component: React.FC = () => (
+		<AbsoluteFill>
+			<Img src={imageUrl.href} />
+		</AbsoluteFill>
+	);
+
+	await expect(
+		renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: Component,
@@ -32,24 +44,8 @@ test('should throw readable error when image fails to load or is blocked by CORS
 			},
 			frame: 0,
 			inputProps: {},
-		});
-		// WebKit may not throw - that's okay for this test
-		if (t.task.file.projectName === 'webkit') {
-			return;
-		}
-
-		throw new Error('Expected render to fail');
-	} catch (err) {
-		if (!(err instanceof Error)) {
-			throw err;
-		}
-
-		// Should get either a CORS error or a broken state error with a readable message
-		const hasReadableError =
-			err.message.includes('CORS restrictions') ||
-			err.message.includes('broken state') ||
-			err.message.includes('Could not draw image') ||
-			err.message.includes('Error loading image with src');
-		expect(hasReadableError).toBe(true);
-	}
+		}),
+	).rejects.toThrow(
+		/CORS restrictions|broken state|Could not draw image|Error loading image with src/,
+	);
 });
