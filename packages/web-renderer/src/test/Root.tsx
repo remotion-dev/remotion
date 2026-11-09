@@ -35,11 +35,26 @@ import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {clipPathReference} from './fixtures/clip-path-reference';
+import {
+	clipPathReferenceReview,
+	clipPathReferenceReviewOpaque,
+	clipPathReferenceFilterOutsets,
+} from './fixtures/clip-path-reference-review';
+import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
+import {
+	clipPathShapeReview,
+	clipPathShapeReviewOpaque,
+} from './fixtures/clip-path-shape-review';
 import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
@@ -341,6 +356,15 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
 				<Composition {...clipPathCircle} />
+				<Composition {...clipPathReference} />
+				<Composition {...clipPathDescendantFilter} />
+				<Composition {...clipPathDescendantFilterObjectBox} />
+				<Composition {...clipPathReferenceReview} />
+				<Composition {...clipPathReferenceReviewOpaque} />
+				<Composition {...clipPathReferenceFilterOutsets} />
+				<Composition {...clipPathShapeReference} />
+				<Composition {...clipPathShapeReview} />
+				<Composition {...clipPathShapeReviewOpaque} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>

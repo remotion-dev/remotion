@@ -24,6 +24,8 @@ import {
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
 	anchorContentX: number | null;
+	/** Keep the anchor at this x offset in the viewport instead of where it currently is. */
+	anchorViewportX: number | null;
 };
 
 type TimelineZoomContextValue = {
@@ -112,6 +114,7 @@ export const TimelineZoomContext: React.FC<{
 				currentFrame: getCurrentFrame(),
 				anchorFrame: options?.anchorFrame ?? null,
 				anchorContentX: options?.anchorContentX ?? null,
+				anchorViewportX: options?.anchorViewportX ?? null,
 			});
 
 			flushSync(() => {
