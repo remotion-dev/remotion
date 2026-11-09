@@ -98,7 +98,7 @@ const drawReplacedElement = ({
 
 	if (
 		drawable instanceof HTMLImageElement &&
-		(drawable.currentSrc.startsWith('data:image/svg+xml') ||
+		(/^data:image\/svg\+xml[;,]/i.test(drawable.currentSrc) ||
 			(drawable.currentSrc !== '' &&
 				new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg')))
 	) {
