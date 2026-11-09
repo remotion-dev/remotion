@@ -1,4 +1,7 @@
-import {getEmbeddedFontStyleForSvg} from './embed-registered-fonts-in-svg';
+import {
+	getEmbeddedFontStyleForSvg,
+	insertFontStyleInSvg,
+} from './embed-registered-fonts-in-svg';
 import {parseFontFamilies} from './parse-font-families';
 
 const textFontProperties = [
@@ -100,6 +103,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
+	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -134,7 +138,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 ? svg : (svg.cloneNode(true) as SVGSVGElement);
+		textStyles.length === 0 && embeddedFontStyle === null
+			? svg
+			: (svg.cloneNode(true) as SVGSVGElement);
 	svgForSerialization
 		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
 		.forEach((element, index) => {
@@ -148,26 +154,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
+	// Discovery includes explicit templates without freezing their inheritance.
 	const fontFamilies = new Set(
-		textStyles.flatMap((style) => (style ? parseFontFamilies(style[0]) : [])),
+		textElements.flatMap((element) =>
+			parseFontFamilies(getComputedStyle(element).fontFamily),
+		),
 	);
 	const cssFontRules = textElements.length
 		? getCssDataFontRules(svg, fontFamilies)
 		: '';
-	if (cssFontRules) {
-		const existingStyle = svgForSerialization.querySelector('style');
-		if (existingStyle) {
-			// Adding a sibling would change authored nth-child/last-child selectors.
-			existingStyle.textContent = cssFontRules + existingStyle.textContent;
-		} else {
-			const style = svg.ownerDocument.createElementNS(
-				'http://www.w3.org/2000/svg',
-				'style',
-			);
-			style.textContent = cssFontRules;
-			svgForSerialization.prepend(style);
-		}
-	}
+	const fontCss = (embeddedFontStyle?.css ?? '') + cssFontRules;
+	if (fontCss) insertFontStyleInSvg(svgForSerialization, fontCss);
 
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
@@ -194,7 +191,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const fontStyleKey = embeddedFontStyle?.cacheKey ?? null;
 	const cached = drawableBySvg.get(svg);
 	if (
@@ -206,17 +202,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		const openingTagEnd = serializedSvg.indexOf('>');
-		const blobParts: BlobPart[] =
-			embeddedFontStyle === null || openingTagEnd === -1
-				? [serializedSvg]
-				: [
-						serializedSvg.slice(0, openingTagEnd + 1),
-						embeddedFontStyle.blob,
-						serializedSvg.slice(openingTagEnd + 1),
-					];
+
 		const url = URL.createObjectURL(
-			new Blob(blobParts, {type: 'image/svg+xml;charset=utf-8'}),
+			new Blob([serializedSvg], {type: 'image/svg+xml;charset=utf-8'}),
 		);
 
 		image.onload = function () {
