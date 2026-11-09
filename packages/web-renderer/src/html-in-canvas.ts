@@ -159,14 +159,14 @@ export const drawWithHtmlInCanvas = async ({
 	scaledWidth,
 	scaledHeight,
 	signal,
-	transparent = true,
+	transparent,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
 	signal: AbortSignal | null;
-	transparent?: boolean;
+	transparent: boolean;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 

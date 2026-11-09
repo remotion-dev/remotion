@@ -63,13 +63,13 @@ test('still and batch targets preserve transparent defaults and translucent grou
 });
 
 // The encoder alpha setting must not make internal group surfaces opaque.
-test('media applies its transparent option to the final target', async (t) => {
+test('media composites default and explicit opaque targets against black', async (t) => {
 	if (t.task.file.projectName !== 'chromium') {
 		t.skip();
 		return;
 	}
 
-	for (const transparent of [false, true]) {
+	for (const transparent of [undefined, false, true]) {
 		let frames = 0;
 		await renderMediaOnWeb({
 			composition: opaqueTargetGroup,

@@ -161,9 +161,11 @@ _default `true`_
 
 <Options id="is-production" />
 
-### `transparent?`
+### `transparent?`<AvailableFrom v="4.0.542" />
 
-Whether the final canvas retains an alpha channel. Defaults to `true`.
+_boolean — default `true`_
+
+Whether the final canvas retains an alpha channel.
 Set to `false` for an opaque final canvas, which renders uncovered areas against black.
 Intermediate layers retain alpha so masks, filters and group opacity keep working.
 On Linux Chromium, opaque targets can preserve native LCD text rendering that is unavailable on a transparent canvas.

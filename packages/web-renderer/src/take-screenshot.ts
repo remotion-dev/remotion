@@ -20,7 +20,7 @@ export const createLayer = async ({
 	internalState,
 	onlyBackgroundClipText,
 	cutout,
-	transparent = true,
+	transparent,
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
@@ -31,7 +31,7 @@ export const createLayer = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	cutout: DOMRect;
-	transparent?: boolean;
+	transparent: boolean;
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
