@@ -131,6 +131,7 @@ import {
 	maskImageLayersTokenUrlTransparent,
 } from './fixtures/mask-image-layers';
 import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
+import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
@@ -327,6 +328,9 @@ export const Root: React.FC = () => {
 				<Composition {...maskImageLayersBlobTransparent} />
 				<Composition {...maskImageLayersTokenUrl} />
 				<Composition {...maskImageLayersTokenUrlTransparent} />
+				{unsupportedMaskImages.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
 				{legacyMaskComposites.map(({composition}) => (
 					<Composition key={composition.id} {...composition} />
 				))}

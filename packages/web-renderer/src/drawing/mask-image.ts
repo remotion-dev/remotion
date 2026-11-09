@@ -231,7 +231,7 @@ const parseSingleMaskImage = (
 	maskImageValue: string,
 	computedStyle: CSSStyleDeclaration,
 	layer: number,
-): SingleMaskImageInfo | null => {
+): SingleMaskImageInfo => {
 	const url = parseUrlFunction(maskImageValue);
 	if (url !== null) {
 		if (!url) {
@@ -245,7 +245,9 @@ const parseSingleMaskImage = (
 		};
 	}
 
-	const gradientInfo = parseLinearGradient(maskImageValue);
+	const gradientInfo = /^\s*linear-gradient\(/i.test(maskImageValue)
+		? parseLinearGradient(maskImageValue)
+		: null;
 	if (gradientInfo) {
 		return {type: 'linear-gradient', gradientInfo, value: maskImageValue};
 	}
@@ -256,7 +258,7 @@ const parseSingleMaskImage = (
 		);
 	}
 
-	return null;
+	throw new Error(`Unsupported mask-image layer: ${maskImageValue}`);
 };
 
 export const parseMaskImage = (
@@ -284,9 +286,7 @@ export const parseMaskImage = (
 		},
 		layers: images.map((image, index) => {
 			if (image === 'none') return null;
-			const parsed = parseSingleMaskImage(image, computedStyle, index);
-			if (!parsed) throw new Error(`Unsupported mask-image layer: ${image}`);
-			return parsed;
+			return parseSingleMaskImage(image, computedStyle, index);
 		}),
 	};
 };
