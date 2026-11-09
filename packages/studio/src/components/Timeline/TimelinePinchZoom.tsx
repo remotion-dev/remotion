@@ -103,7 +103,9 @@ export const TimelinePinchZoom: FC = () => {
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
 	const pinchAnchorRef = useRef<ZoomAnchor | null>(null);
-	const wheelAnchorRef = useRef<(ZoomAnchor & {clientX: number}) | null>(null);
+	const wheelAnchorRef = useRef<
+		(ZoomAnchor & {clientX: number; scrollLeft: number}) | null
+	>(null);
 	const suppressWheelFromWebKitPinchRef = useRef(false);
 	const touchPinchRef = useRef<{
 		initialDistance: number;
@@ -141,12 +143,20 @@ export const TimelinePinchZoom: FC = () => {
 
 			e.preventDefault();
 
-			if (wheelAnchorRef.current === null) {
+			// If something else scrolled the timeline since the last step (playback
+			// paging, the scrollbar), the anchor no longer matches what is on screen.
+			if (
+				wheelAnchorRef.current === null ||
+				wheelAnchorRef.current.scrollLeft !== scrollEl.scrollLeft
+			) {
 				wheelAnchorRef.current = {
 					...getZoomAnchor(clientX, scrollEl),
 					clientX,
+					scrollLeft: scrollEl.scrollLeft,
 				};
 			}
+
+			const anchor = wheelAnchorRef.current;
 
 			let scaledDeltaY = deltaY;
 			if (deltaMode === WheelEvent.DOM_DELTA_LINE) {
@@ -158,8 +168,9 @@ export const TimelinePinchZoom: FC = () => {
 			setZoom(
 				videoConfig.id,
 				(z) => z * Math.exp(-scaledDeltaY * ZOOM_WHEEL_SENSITIVITY),
-				getAnchoredZoomOptions(wheelAnchorRef.current, clientX, scrollEl),
+				getAnchoredZoomOptions(anchor, clientX, scrollEl),
 			);
+			anchor.scrollLeft = scrollEl.scrollLeft;
 		},
 		[editorZoomGestures, isVideoComposition, videoConfig, setZoom],
 	);
