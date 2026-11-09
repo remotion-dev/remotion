@@ -25,15 +25,24 @@ test.for(
 )(
 	'conditional CSS fonts $id match native frame $frame (KINO-7769)',
 	async ({composition, frame}, t) => {
-		if (t.task.file.projectName !== 'chromium') {
+		const isFirefox = t.task.file.projectName === 'firefox';
+		const isLocal =
+			composition === svgLocalConditionalFont ||
+			composition === svgLocalConditionalUrlFont;
+		if (t.task.file.projectName !== 'chromium' && !(isFirefox && isLocal)) {
 			t.skip();
 			return;
 		}
 
+		const screenshotOptions = isFirefox ? {omitBackground: false} : undefined;
 		await svgLocalConditionalFontReady;
 		expect(window.matchMedia('(min-width:900px)').matches).toBe(true);
 		expect(CSS.supports('display', 'grid')).toBe(true);
-		const reference = await captureNativeReference(composition, frame);
+		const reference = await captureNativeReference(
+			composition,
+			frame,
+			screenshotOptions,
+		);
 		const actual = await (
 			await renderStillOnWeb({
 				composition,
@@ -48,14 +57,17 @@ test.for(
 			await savePixelEvidence(
 				reference,
 				`conditional-font-${composition.id}-${frame}-native`,
+				screenshotOptions,
 			);
 			await savePixelEvidence(
 				actual,
 				`conditional-font-${composition.id}-${frame}-actual`,
+				screenshotOptions,
 			);
 			await savePixelEvidence(
 				result.diff,
 				`conditional-font-${composition.id}-${frame}-diff`,
+				screenshotOptions,
 			);
 		}
 

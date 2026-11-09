@@ -1,10 +1,5 @@
 import {useEffect, useState} from 'react';
-import {
-	AbsoluteFill,
-	continueRender,
-	delayRender,
-	useCurrentFrame,
-} from 'remotion';
+import {AbsoluteFill, useDelayRender, useCurrentFrame} from 'remotion';
 
 const bangers = new URL(
 	'../../../../example/public/bangers.woff2',
@@ -24,13 +19,14 @@ const face = (family: string, url: string, format: string) =>
 	`@font-face{font-family:"${family}";src:url("${url}") format("${format}")}`;
 
 const Component = () => {
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading conditional CSS fonts'));
 	const frame = useCurrentFrame();
 	useEffect(() => {
 		Promise.all(
 			cases.map(({family}) => document.fonts.load(`34px "${family}"`)),
 		).then(() => continueRender(handle));
-	}, [handle]);
+	}, [handle, continueRender]);
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`
