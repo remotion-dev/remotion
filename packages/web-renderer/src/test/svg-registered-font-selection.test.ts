@@ -136,16 +136,33 @@ const mountLifetimeScene = (owner: Document, family: string) => {
 	};
 };
 
-const lifetimePng = async (svg: SVGSVGElement) => {
+const withLifetimeCanvas = async <T>(
+	svg: SVGSVGElement,
+	read: (
+		canvas: OffscreenCanvas,
+		context: OffscreenCanvasRenderingContext2D,
+	) => T | Promise<T>,
+) => {
 	const canvas = new OffscreenCanvas(680, 100);
 	try {
-		canvas.getContext('2d')!.drawImage(await turnSvgIntoDrawable(svg), 0, 0);
-		return await canvas.convertToBlob({type: 'image/png'});
+		const context = canvas.getContext('2d')!;
+		context.drawImage(await turnSvgIntoDrawable(svg), 0, 0);
+		return await read(canvas, context);
 	} finally {
 		canvas.width = 0;
 		canvas.height = 0;
 	}
 };
+
+const lifetimePng = (svg: SVGSVGElement) =>
+	withLifetimeCanvas(svg, (canvas) =>
+		canvas.convertToBlob({type: 'image/png'}),
+	);
+
+const lifetimePixels = (svg: SVGSVGElement) =>
+	withLifetimeCanvas(svg, (_canvas, context) =>
+		context.getImageData(0, 0, 680, 100),
+	);
 
 const referenceFamily = 'SVG font lifetime reference';
 const loadLifetimeReference = async () => {
@@ -165,8 +182,18 @@ const loadLifetimeReference = async () => {
 	};
 };
 
-test('font-family snapshots follow removal, re-addition and the owning document (KINO-7769)', async () => {
+test('font-family snapshots follow removal, re-addition and the owning document (KINO-7769)', async (t) => {
+	let phase = 'loading fixture face';
+	const started = performance.now();
+	t.onTestFailed(() =>
+		// eslint-disable-next-line no-console
+		console.error('SVG font lifetime failure', {
+			phase,
+			elapsedMs: performance.now() - started,
+		}),
+	);
 	const face = await svgFontFamilyLifetimeReady;
+	phase = 'loading reference face';
 	const releaseReference = await loadLifetimeReference();
 	const original = mountLifetimeScene(document, svgFontFamilyLifetimeFamily);
 	const registered = mountLifetimeScene(document, referenceFamily);
@@ -180,50 +207,82 @@ test('font-family snapshots follow removal, re-addition and the owning document 
 		(svg.querySelector('text') as SVGTextElement).getComputedTextLength();
 	const markup = new XMLSerializer().serializeToString(original.svg);
 	try {
-		const fontPng = await lifetimePng(registered.svg);
-		const fallbackPng = await lifetimePng(fallback.svg);
+		phase = 'rasterizing registered reference';
+		const fontPixels = await lifetimePixels(registered.svg);
+		phase = 'rasterizing fallback reference';
+		const fallbackPixels = await lifetimePixels(fallback.svg);
 		expect(textWidth(registered.svg)).not.toBe(textWidth(fallback.svg));
-		const check = async (svg: SVGSVGElement, expected: Blob, width: number) => {
-			expect(textWidth(svg)).toBe(width);
+		const check = async (
+			stage: string,
+			svg: SVGSVGElement,
+			expected: ImageData,
+			width: number,
+		) => {
+			phase = stage + ': measuring native font';
+			expect(textWidth(svg), stage).toBe(width);
 			const before = Array.from(svg.ownerDocument.fonts);
-			const result = await compareNativePixels(
-				expected,
-				await lifetimePng(svg),
-			);
+			phase = stage + ': rasterizing SVG';
+			const actual = await lifetimePixels(svg);
+			phase = stage + ': comparing RGBA';
+			expect(actual.width, stage).toBe(expected.width);
+			expect(actual.height, stage).toBe(expected.height);
+			expect(
+				actual.data.every((value, index) => value === expected.data[index]),
+				stage,
+			).toBe(true);
 			const after = Array.from(svg.ownerDocument.fonts);
 			expect(after.length).toBe(before.length);
 			expect(after.every((current, index) => current === before[index])).toBe(
 				true,
 			);
-			expect(result.mismatchedPixels).toBe(0);
 		};
 
 		const pending = turnSvgIntoDrawable(original.svg);
 		expect(turnSvgIntoDrawable(original.svg)).toBe(pending);
-		await check(original.svg, fontPng, textWidth(registered.svg));
+		await check('loaded', original.svg, fontPixels, textWidth(registered.svg));
 		document.fonts.delete(face);
-		await check(original.svg, fallbackPng, textWidth(fallback.svg));
-		document.fonts.add(face);
-		await check(original.svg, fontPng, textWidth(registered.svg));
 		await check(
+			'removed',
+			original.svg,
+			fallbackPixels,
+			textWidth(fallback.svg),
+		);
+		document.fonts.add(face);
+		await check(
+			're-added',
+			original.svg,
+			fontPixels,
+			textWidth(registered.svg),
+		);
+		phase = 'rasterizing other-document fallback';
+		await check(
+			'other document absent',
 			other.svg,
-			await lifetimePng(childFallback.svg),
+			await lifetimePixels(childFallback.svg),
 			textWidth(childFallback.svg),
 		);
 		const win = iframe.contentWindow! as Window & typeof globalThis;
 		const data = NoReactInternals.getRegisteredFontFaces().find(
 			(font) => font.fontFamily === svgFontFamilyLifetimeFamily,
 		)!.fontData;
+		phase = 'loading other-document face';
 		const childFace = await new win.FontFace(
 			svgFontFamilyLifetimeFamily,
 			data,
 		).load();
 		child.fonts.add(childFace);
-		await check(other.svg, fontPng, textWidth(registered.svg));
-		child.fonts.delete(childFace);
 		await check(
+			'other document loaded',
 			other.svg,
-			await lifetimePng(childFallback.svg),
+			fontPixels,
+			textWidth(registered.svg),
+		);
+		child.fonts.delete(childFace);
+		phase = 'rasterizing removed-document fallback';
+		await check(
+			'other document removed',
+			other.svg,
+			await lifetimePixels(childFallback.svg),
 			textWidth(childFallback.svg),
 		);
 		expect(new XMLSerializer().serializeToString(original.svg)).toBe(markup);
