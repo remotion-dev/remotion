@@ -170,7 +170,7 @@ The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` can reference a same-document SVG `<clipPath>` containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, optionally accompanied by descriptive `<title>` / `<desc>` metadata. For HTML targets, authored visibility and the resource SVG viewport are preserved through native clipping; rectangle CSS geometry and `!important` group styles are preserved as well. `userSpaceOnUse` and `objectBoundingBox` units, SVG transform attributes, and `clip-rule` are supported. External documents, multiple shapes, and nested references are not supported. Descendant CSS filter outsets are retained when the browser supports Canvas filters, including fractional object-bounding-box clip edges. Native pixel comparisons cover rectilinear geometry; diagonal and curved antialiasing can differ between engines.
+- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
 
 ## Unsupported styles
 
