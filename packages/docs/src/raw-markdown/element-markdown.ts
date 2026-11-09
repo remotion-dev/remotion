@@ -33,6 +33,10 @@ export const getElementCatalogMarkdown = () => {
 					.join('\n'),
 			].join('\n\n'),
 		),
+		'## More Elements',
+		'Browse the catalog [directly inside Remotion Studio](https://www.remotion.dev/docs/studio/browse-elements.md).',
+		'Add [third-party Element Libraries](https://www.remotion.dev/elements/libraries.md) to browse and install Elements from other creators in Studio.',
+		'Have an Element idea? [Contribute](https://www.remotion.dev/docs/contributing/elements.md).',
 		'',
 	].join('\n\n');
 };
