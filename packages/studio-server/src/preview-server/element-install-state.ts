@@ -22,6 +22,17 @@ export type StudioProtocolTargetPurpose =
 const targetsByClientId = new Map<string, ElementInstallTarget>();
 const targetListeners = new Set<(target: ElementInstallTarget) => void>();
 
+const removeExpiredTargets = (
+	targets: Map<string, ElementInstallTarget>,
+	now: number,
+) => {
+	for (const [clientId, target] of targets) {
+		if (now - target.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
+			targets.delete(clientId);
+		}
+	}
+};
+
 type StudioProtocolTarget = {
 	readonly id: string;
 	readonly origin: string;
@@ -46,9 +57,11 @@ const compareTargets = (a: ElementInstallTarget, b: ElementInstallTarget) => {
 export const updateElementInstallTarget = (
 	newTarget: Omit<ElementInstallTarget, 'updatedAt'>,
 ) => {
+	const now = Date.now();
+	removeExpiredTargets(targetsByClientId, now);
 	const target = {
 		...newTarget,
-		updatedAt: Date.now(),
+		updatedAt: now,
 	};
 	targetsByClientId.set(newTarget.clientId, target);
 	for (const listener of targetListeners) {
@@ -74,16 +87,12 @@ export const getElementInstallTarget = (
 	targets = targetsByClientId,
 ) => {
 	const now = Date.now();
+	removeExpiredTargets(targets, now);
 	let bestTarget: ElementInstallTarget | null = null;
 	let unfocusedTarget: ElementInstallTarget | null = null;
 	let multipleUnfocusedTargets = false;
 
-	for (const [clientId, currentTarget] of targets) {
-		if (now - currentTarget.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
-			targets.delete(clientId);
-			continue;
-		}
-
+	for (const currentTarget of targets.values()) {
 		if (
 			(requestId !== null && currentTarget.requestId !== requestId) ||
 			currentTarget.readOnly
