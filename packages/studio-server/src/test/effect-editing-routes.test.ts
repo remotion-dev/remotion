@@ -52,6 +52,7 @@ test('effect routes return receipts for chained edits, animated paste, and undo'
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const context = {
@@ -418,6 +419,7 @@ test('external changes reject queued and in-flight codemods without overwriting 
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const sequenceNodePath = {
@@ -724,6 +726,7 @@ test.each(['direct', 'fallback'] as const)(
 			sendEventToClientId: () => true,
 			router: () => Promise.resolve(),
 			closeConnections: () => Promise.resolve(),
+			getClientIds: () => [],
 			addNewClientListener: () => () => undefined,
 		});
 		const context = {

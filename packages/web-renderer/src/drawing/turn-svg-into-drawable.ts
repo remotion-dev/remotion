@@ -162,7 +162,7 @@ const drawableBySvg = new WeakMap<
 >();
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color, width, height} = getComputedStyle(svg);
+	const {fill, color, width, height, opacity} = getComputedStyle(svg);
 	const textElements = Array.from(
 		svg.querySelectorAll('text, tspan, textPath'),
 	);
@@ -189,6 +189,21 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
+
+	// Only direct children can inherit the root opacity. Preserve their computed
+	// values before neutralizing the root; descendants then inherit as authored.
+	const childOpacities =
+		opacity === '1'
+			? []
+			: Array.from(svg.children, (child) => ({
+					child: child as SVGElement,
+					opacity: getComputedStyle(child).opacity,
+					style: child.getAttribute('style'),
+				})).filter((child) => child.opacity !== '1');
+	for (const child of childOpacities) {
+		child.child.style.setProperty('opacity', child.opacity, 'important');
+	}
+
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -203,11 +218,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		svg.setAttribute('height', height);
 	}
 
-	// Position and transforms are applied by the canvas renderer. Remove them
+	// Position, transforms, and opacity are applied by the canvas renderer. Remove them
 	// from the serialized SVG so they are not applied again inside its viewport.
 	svg.style.position = 'static';
 	svg.style.inset = 'auto';
 	svg.style.transform = 'none';
+	svg.style.setProperty('opacity', '1', 'important');
 	svg.style.translate = 'none';
 	svg.style.scale = 'none';
 	svg.style.rotate = 'none';
@@ -273,6 +289,14 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 
+	for (const child of childOpacities) {
+		if (child.style === null) {
+			child.child.removeAttribute('style');
+		} else {
+			child.child.setAttribute('style', child.style);
+		}
+	}
+
 	if (originalStyle === null) {
 		svg.removeAttribute('style');
 	} else {
@@ -317,15 +341,16 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	).then((rules) => rules.join(''));
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		let url: string;
+		let url: string | null = null;
+		const hasForeignObject = svg.querySelector('foreignObject') !== null;
 
 		image.onload = function () {
-			URL.revokeObjectURL(url);
+			if (url !== null) URL.revokeObjectURL(url);
 			resolve(image);
 		};
 
 		image.onerror = () => {
-			URL.revokeObjectURL(url);
+			if (url !== null) URL.revokeObjectURL(url);
 			reject(new Error('Failed to convert SVG to image'));
 		};
 
@@ -339,9 +364,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 					markup = serializeSvg(svgForSerialization);
 				}
 
-				url = URL.createObjectURL(
-					new Blob([markup], {type: 'image/svg+xml;charset=utf-8'}),
-				);
+				const blob = new Blob([markup], {type: 'image/svg+xml;charset=utf-8'});
+				// Preserve main's origin-clean foreignObject loading after font data resolves.
+				if (hasForeignObject) {
+					return blob.text().then((svgMarkup) => {
+						image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+					});
+				}
+
+				url = URL.createObjectURL(blob);
 				image.src = url;
 			})
 			.catch(reject);

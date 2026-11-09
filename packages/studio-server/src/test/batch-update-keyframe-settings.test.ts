@@ -46,6 +46,7 @@ test('batches sequence and effect easing changes into one undo entry', async () 
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),

@@ -2248,6 +2248,7 @@ export const WebMcp: FC = () => {
 						setTimelineZoom(id, () => timelineZoom, {
 							anchorFrame: null,
 							anchorContentX: null,
+							anchorViewportX: null,
 						});
 
 						return Promise.resolve({
