@@ -176,7 +176,11 @@ export const CodeChangeModal: React.FC<{
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title={title} />
-			<div ref={annotationTarget} style={container}>
+			<div
+				ref={annotationTarget}
+				className="__remotion-vertical-scrollbar"
+				style={container}
+			>
 				<div style={text}>{description}</div>
 				{[...uniqueSources].map(([key, source], index) => (
 					<CodeChangeSource
