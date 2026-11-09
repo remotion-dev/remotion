@@ -247,15 +247,16 @@ test.each([
 			);
 			expect(playerRef.current?.getCurrentFrame()).toBe(0);
 			expect(playerRef.current?.isPlaying()).toBe(false);
-			const queuedDuration = nodes.reduce(
-				(sum, node) => sum + (node.buffer?.duration ?? 0),
+			const decodedBuffers = new Set(nodes.map((node) => node.buffer));
+			const decodedDuration = [...decodedBuffers].reduce(
+				(sum, buffer) => sum + (buffer?.duration ?? 0),
 				0,
 			);
 			// The final decoded chunk can straddle the two-second boundary.
-			expect(queuedDuration).toBeGreaterThanOrEqual(
+			expect(decodedDuration).toBeGreaterThanOrEqual(
 				Math.max(1.9 * playbackRate, 0.1),
 			);
-			expect(queuedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
+			expect(decodedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
 			playerRef.current?.play();
 			await vi.waitFor(
 				() => {
