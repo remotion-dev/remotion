@@ -5,6 +5,10 @@ import {renderStillOnWeb} from '../render-still-on-web';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {
+	backgroundImagePixelated,
+	pixelatedRaster,
+} from './fixtures/background-image-url-pixelated';
+import {
 	captureNativeReference,
 	compareNativePixels,
 	savePixelEvidence,
@@ -14,9 +18,11 @@ import {testImage} from './utils';
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))
 	.each(
-		[backgroundImageUrl, backgroundImageContain].flatMap((fixture) =>
-			[0, 1].map((frame) => ({fixture, frame})),
-		),
+		[
+			backgroundImageUrl,
+			backgroundImageContain,
+			backgroundImagePixelated,
+		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
 	)(
 	'raster $fixture.id matches native frame $frame',
 	{timeout: 30_000},
@@ -129,4 +135,70 @@ test('renders native contain tile repeat periods', async () => {
 		threshold: 0,
 		allowedMismatchedPixelRatio: 0,
 	});
+});
+
+// Pixelated patterns must not change the sampler used by later auto backgrounds.
+test('pixelated backgrounds restore smoothing before later siblings', async () => {
+	const fixture = (paintPixelated: boolean) => ({
+		id: 'pixelated-sampler-lifetime',
+		width: 64,
+		height: 128,
+		fps: 25,
+		durationInFrames: 1,
+		component: () => (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<div
+					style={{
+						position: 'absolute',
+						width: 64,
+						height: 64,
+						backgroundImage: paintPixelated
+							? `url("${pixelatedRaster}")`
+							: 'none',
+						backgroundSize: '16px 16px',
+						imageRendering: 'pixelated',
+					}}
+				/>
+				<div
+					style={{
+						position: 'absolute',
+						width: 64,
+						height: 64,
+						backgroundColor: 'white',
+					}}
+				/>
+				<div
+					style={{
+						position: 'absolute',
+						top: 64,
+						width: 64,
+						height: 64,
+						backgroundImage: `url("${pixelatedRaster}")`,
+						backgroundSize: '16px 16px',
+						imageRendering: 'auto',
+					}}
+				/>
+			</AbsoluteFill>
+		),
+	});
+	const render = async (paintPixelated: boolean) =>
+		(
+			await renderStillOnWeb({
+				composition: fixture(paintPixelated),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+	const control = await render(false);
+	const afterPixelated = await render(true);
+	const result = await compareNativePixels(control, afterPixelated);
+	if (result.mismatchedPixels > 0) {
+		await savePixelEvidence(control, 'pixelated-state-control');
+		await savePixelEvidence(afterPixelated, 'pixelated-state-after');
+		await savePixelEvidence(result.diff, 'pixelated-state-diff');
+	}
+
+	expect(result.mismatchedPixels).toBe(0);
 });

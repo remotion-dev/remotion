@@ -4,6 +4,7 @@ import {createLayer} from '../take-screenshot';
 import {getBlendMode} from './calculate-transforms';
 import {getBackgroundFill, isColorTransparent} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
+import {parseUrlFunction} from './mask-image';
 
 export const drawBackground = async ({
 	backgroundImage,
@@ -106,6 +107,19 @@ export const drawBackground = async ({
 		originY: number,
 	) => {
 		if (!fill) return;
+		const previousSmoothing = target.imageSmoothingEnabled;
+		using _restoreImageSmoothing = {
+			[Symbol.dispose]: () => {
+				target.imageSmoothingEnabled = previousSmoothing;
+			},
+		};
+		if (
+			computedStyle.imageRendering === 'pixelated' &&
+			parseUrlFunction(backgroundImage) !== null
+		) {
+			target.imageSmoothingEnabled = false;
+		}
+
 		if ('image' in fill) {
 			target.save();
 			target.beginPath();
