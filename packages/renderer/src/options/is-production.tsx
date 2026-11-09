@@ -5,7 +5,7 @@ const cliFlag = 'is-production' as const;
 let currentIsProductionKey: boolean | null = null;
 
 export const isProductionOption = {
-	name: 'Is Production',
+	name: 'Is production',
 	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
