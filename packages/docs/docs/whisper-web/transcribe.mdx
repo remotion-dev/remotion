@@ -4,10 +4,10 @@ title: transcribe()
 crumb: '@remotion/whisper-web'
 ---
 
-# transcribe()
+# ~~transcribe()~~
 
-:::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Use [`transcribe()`](/docs/whisper-webgpu/transcribe) from [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) instead.
 :::
 
 Transcribes pre-processed audio data (a `Float32Array` waveform) using WebAssembly-compiled Whisper.cpp, returning the transcription.
