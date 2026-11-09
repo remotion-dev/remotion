@@ -57,7 +57,6 @@ import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row} from './layout';
 import {moveCompositionOrFolder} from './move-composition-or-folder';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {useOpenInMenuApps} from './use-open-in-menu-apps';
@@ -690,25 +689,22 @@ export const CompositionSelectorItem: React.FC<{
 				toggleFolder(item.folderName, item.parentName);
 			}
 
-			try {
-				const result = await moveCompositionOrFolder({
-					dragData,
-					destination,
-					destinationFile: sourceFile,
-					getSnapshot: () => compositionManagerRef.current,
-				});
-
-				if (!result.success) {
-					showNotification(result.reason, 4000);
-				}
-			} catch (error) {
-				showNotification(
-					error instanceof Error ? error.message : String(error),
-					4000,
-				);
-			}
+			await moveCompositionOrFolder({
+				dragData,
+				destination,
+				destinationFile: sourceFile,
+				getSnapshot: () => compositionManagerRef.current,
+				setSelectedModal,
+			});
 		},
-		[activeDragRef, compositionManagerRef, item, sourceFile, toggleFolder],
+		[
+			activeDragRef,
+			compositionManagerRef,
+			item,
+			sourceFile,
+			toggleFolder,
+			setSelectedModal,
+		],
 	);
 
 	const onRowDrop = useCallback(

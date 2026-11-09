@@ -13,6 +13,8 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	CanvasCaptureData,
+	CompositionDestination,
+	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
@@ -331,6 +333,13 @@ export type ModalState =
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'reorder-composition';
+			item: CompositionOrFolder;
+			destination: CompositionDestination;
+			sourceFile: string | null;
+			destinationFile: string | null;
 	  }
 	| {
 			type: 'wrap-refactor';
