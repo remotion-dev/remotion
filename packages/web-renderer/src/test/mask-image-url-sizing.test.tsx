@@ -2,7 +2,12 @@ import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {
+	maskImageUrlMathSize,
+	maskImageUrlMathSizeLiteral,
+} from './fixtures/mask-image-url-math-size';
 import {maskImageUrlSizing, rasterMask} from './fixtures/mask-image-url-sizing';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
 
 for (const scale of [1, 2]) {
@@ -299,3 +304,72 @@ for (const unsupported of [
 		).rejects.toThrow('Unsupported value');
 	});
 }
+
+// KINO-7771: CSS math sizes were split into whitespace tokens and rejected.
+test.for([0, 1])(
+	'computed mask sizes match native frame %i',
+	async (frame, t) => {
+		if (t.task.file.projectName === 'firefox') {
+			t.skip();
+			return;
+		}
+
+		const reference = await captureNativeReference(maskImageUrlMathSize, frame);
+		const actual = await (
+			await renderStillOnWeb({
+				composition: maskImageUrlMathSize,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		const nativeLiteral = await captureNativeReference(
+			maskImageUrlMathSizeLiteral,
+			frame,
+		);
+		const actualLiteral = await (
+			await renderStillOnWeb({
+				composition: maskImageUrlMathSizeLiteral,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		console.log(
+			'mask-math-literal-control',
+			JSON.stringify({
+				frame,
+				nativeEquivalence: (await compareNativePixels(reference, nativeLiteral))
+					.mismatchedPixels,
+				composerEquivalence: (await compareNativePixels(actual, actualLiteral))
+					.mismatchedPixels,
+				literalNativeGap: (
+					await compareNativePixels(nativeLiteral, actualLiteral)
+				).mismatchedPixels,
+			}),
+		);
+		const result = await compareNativePixels(reference, actual);
+		const bitmap = await createImageBitmap(result.diff);
+		const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext(
+			'2d',
+		)!;
+		context.drawImage(bitmap, 0, 0);
+		bitmap.close();
+		const pixels = context.getImageData(0, 0, 752, 208).data;
+		const counts = Array(8).fill(0);
+		for (let y = 0; y < 208; y++)
+			for (let x = 0; x < 752; x++) {
+				if (!pixels[(y * 752 + x) * 4 + 3]) continue;
+				const col = Math.floor((x - 12) / 184),
+					row = Math.floor((y - 12) / 96);
+				if (col >= 0 && col < 4 && row >= 0 && row < 2) counts[row * 4 + col]++;
+			}
+		console.log(
+			'mask-math-cell-diff',
+			JSON.stringify({frame, counts, total: result.mismatchedPixels}),
+		);
+		expect(result.mismatchedPixels).toBe(0);
+	},
+);

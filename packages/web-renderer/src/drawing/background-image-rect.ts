@@ -3,7 +3,7 @@ type LengthPercentage = {
 	value: number;
 };
 
-const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
+export const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
 	const parts: string[] = [];
 	let depth = 0;
 	let start = 0;
@@ -44,27 +44,6 @@ export const parseLengthPercentage = (
 	}
 
 	return null;
-};
-
-export const resolveSize = ({
-	containerSize,
-	value,
-}: {
-	containerSize: number;
-	value: string | undefined;
-}) => {
-	if (value === undefined || value === 'auto') {
-		return containerSize;
-	}
-
-	const parsed = parseLengthPercentage(value);
-	if (!parsed) {
-		return containerSize;
-	}
-
-	return parsed.unit === '%'
-		? containerSize * (parsed.value / 100)
-		: parsed.value;
 };
 
 const positionKeywordToPercentage = (value: string) => {
@@ -149,6 +128,31 @@ export const resolvePosition = ({
 		: parsed.value;
 };
 
+export const resolveSize = ({
+	containerSize,
+	value,
+}: {
+	containerSize: number;
+	value: string | undefined;
+}) => {
+	if (value === undefined || value === 'auto') {
+		return containerSize;
+	}
+
+	if (value.includes('(')) {
+		return Math.max(0, resolvePosition({containerSize, imageSize: 0, value}));
+	}
+
+	const parsed = parseLengthPercentage(value);
+	if (!parsed) {
+		return containerSize;
+	}
+
+	return parsed.unit === '%'
+		? containerSize * (parsed.value / 100)
+		: parsed.value;
+};
+
 export const parsePosition = (value: string) => {
 	const parts = splitAtTopLevel(firstLayer(value), ' ');
 	if (parts.length === 1) {
@@ -177,7 +181,7 @@ export const getBackgroundImageRect = ({
 	positioningArea: DOMRect;
 	intrinsicSize: {width: number; height: number} | null;
 }) => {
-	const [x, y = 'auto'] = firstLayer(backgroundSize).split(/\s+/);
+	const [x, y = 'auto'] = splitAtTopLevel(firstLayer(backgroundSize), ' ');
 	let width: number;
 	let height: number;
 	if (

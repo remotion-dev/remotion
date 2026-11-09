@@ -1,4 +1,4 @@
-import {parseLengthPercentage} from './background-image-rect';
+import {parseLengthPercentage, splitAtTopLevel} from './background-image-rect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseLinearGradient} from './parse-linear-gradient';
 
@@ -148,13 +148,15 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 		maskPosition === '0% 0%' ||
 		maskPosition === '0px 0px' ||
 		maskPosition === 'left top';
-	const sizeParts = maskSize.split(' ');
+	const sizeParts = splitAtTopLevel(maskSize, ' ');
 	const isSupportedSize =
 		['contain', 'cover'].includes(maskSize) ||
 		(sizeParts.length <= 2 &&
 			sizeParts.every(
 				(value) =>
-					value === 'auto' || (parseLengthPercentage(value)?.value ?? -1) >= 0,
+					value === 'auto' ||
+					/^(calc|min|max|clamp)\(/.test(value) ||
+					(parseLengthPercentage(value)?.value ?? -1) >= 0,
 			));
 	const unsupportedProperties = [
 		!isSupportedSize ? `mask-size: ${maskSize}` : null,
