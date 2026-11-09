@@ -297,7 +297,13 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				!sheet.disabled &&
 				(!sheet.media.mediaText ||
 					ownerWindow.matchMedia(sheet.media.mediaText).matches);
-			clonedStyles[index].removeAttribute('media');
+			if (
+				sheet.media.mediaText &&
+				sheet.media.mediaText.toLowerCase() !== 'all'
+			) {
+				clonedStyles[index].removeAttribute('media');
+			}
+
 			clonedStyles[index].textContent = active
 				? getActiveCssRules(sheet.cssRules, ownerWindow)
 						.map((rule) => rule.cssText)

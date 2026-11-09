@@ -181,7 +181,10 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
-import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
+import {
+	svgExternalFontSelection,
+	svgUnconditionalMediaFixture,
+} from './fixtures/svg-external-font-selection';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -300,6 +303,13 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{['', 'all', ' ALL ', ' \t ', '\u00a0', '\u00a0all\u00a0'].flatMap(
+				(media) =>
+					[false, true].map((cssSource) => {
+						const fixture = svgUnconditionalMediaFixture({media, cssSource});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+			)}
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssImportFont} />
 			<Composition {...svgCssConditionalFont} />
