@@ -546,9 +546,8 @@ The [`--disable-web-security`](/docs/options/disable-web-security) flag takes pr
 
 <Options id="dark-mode" />
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
 Config.setChromiumDarkMode(true);
 ```
@@ -595,11 +594,9 @@ Config.setChromiumMultiProcessOnLinux(false);
 
 <Options id="chrome-mode" cli />
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
-
 Config.setChromeMode('chrome-for-testing');
 ```
 

@@ -15,10 +15,16 @@ export const mediaCacheSizeInBytesOption = {
 	description: () => (
 		<>
 			Specify the memory budget for decoded media cached by{' '}
-			<code>&lt;Video&gt;</code> and <code>&lt;Audio&gt;</code> from{' '}
-			<code>@remotion/media</code>, in bytes. This value also determines the
-			maximum read cache size for each distinct media source. It is not a limit
-			on total memory usage. <br />
+			<a href="/docs/media/video">
+				<code>&lt;Video&gt;</code>
+			</a>{' '}
+			and{' '}
+			<a href="/docs/media/audio">
+				<code>&lt;Audio&gt;</code>
+			</a>{' '}
+			from <code>@remotion/media</code>, in bytes. This value also determines
+			the maximum read cache size for each distinct media source. It is not a
+			limit on total memory usage. <br />
 			The default is half of the available system memory when the render starts.
 		</>
 	),
