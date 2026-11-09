@@ -100,6 +100,7 @@ import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -184,6 +185,7 @@ export const Root: React.FC = () => {
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
 				<Composition {...opacityZero} />
+				<Composition {...svgRootOpacity} />
 				<Composition {...opacityReset} />
 				<Composition {...opacityInherited} />
 				<Composition {...opaqueLayerOverFadingLayer} />

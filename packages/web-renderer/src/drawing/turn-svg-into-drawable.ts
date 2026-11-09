@@ -26,11 +26,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		svg.setAttribute('height', height);
 	}
 
-	// Position and transforms are applied by the canvas renderer. Remove them
+	// Position, transforms, and opacity are applied by the canvas renderer. Remove them
 	// from the serialized SVG so they are not applied again inside its viewport.
 	svg.style.position = 'static';
 	svg.style.inset = 'auto';
 	svg.style.transform = 'none';
+	svg.style.opacity = '1';
 	svg.style.translate = 'none';
 	svg.style.scale = 'none';
 	svg.style.rotate = 'none';
