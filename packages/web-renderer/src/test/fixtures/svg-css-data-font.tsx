@@ -34,17 +34,33 @@ const Component = () => {
 	}, []);
 	useEffect(() => {
 		if (!url) return;
-		document.fonts
-			.load(`40px ${JSON.stringify(family)}`)
-			.then(() => continueRender(handle));
+		Promise.all([
+			document.fonts.load(`40px ${JSON.stringify(family)}`),
+			document.fonts.load('26px "SVG template-only data face"'),
+			document.fonts.load('40px "SVG selector font"'),
+		]).then(() => continueRender(handle));
 	}, [handle, url]);
 	if (!url) return null;
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<style>{`@font-face {font-family: ${JSON.stringify(family)}; src:url("${url}") format("woff2");} .svg-data-font {font-family:${JSON.stringify(family)}, serif;font-size:${40 + frame * 2}px;}`}</style>
-			<svg width={600} height={160}>
+			<style>{`@font-face {font-family: ${JSON.stringify(family)}; src:url("${url}") format("woff2");}@font-face{font-family:"SVG template-only data face";src:url("${url}") format("woff2")} .svg-data-font {font-family:${JSON.stringify(family)}, serif;font-size:${40 + frame * 2}px;}`}</style>
+			<svg width={600} height={220}>
 				<style>{`@font-face{font-family:"SVG selector font";src:url("${url}") format("woff2")} rect:nth-child(2){fill:red}`}</style>
 				<rect width={20} height={20} />
+				<defs>
+					<text
+						id="template-only-data-font"
+						x={12}
+						y={180}
+						style={{
+							fontFamily: '"SVG template-only data face"',
+							fontSize: 26 + frame * 2,
+						}}
+					>
+						Template own data font
+					</text>
+				</defs>
+				<use href="#template-only-data-font" />
 				<text x={12} y={54} className="svg-data-font">
 					CSS data font selection
 				</text>
@@ -65,7 +81,7 @@ export const svgCssDataFont = {
 	component: Component,
 	id: 'svg-css-data-font',
 	width: 600,
-	height: 160,
+	height: 220,
 	fps: 30,
 	durationInFrames: 2,
 } as const;
