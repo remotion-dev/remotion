@@ -4,7 +4,7 @@ title: transcribe()
 crumb: '@remotion/install-whisper-cpp'
 ---
 
-# transcribe()<AvailableFrom v="4.0.131 "/>
+# transcribe()<AvailableFrom v="4.0.131"/>
 
 Transcribes a media file by utilizing Whisper.cpp.  
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
@@ -41,17 +41,20 @@ The file has to be a 16-bit, 16KHz, WAVE file. See [Resample audio to 16kHz](/do
 ### `whisperPath`
 
 The path to your `whisper.cpp` folder.  
-If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `folder`.
+If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `to` path.
+
+### `whisperCppVersion`<AvailableFrom v="4.0.271"/>
+
+The version of Whisper.cpp that is installed at `whisperPath`, for example `1.5.5`.  
+Used to locate the executable: From Whisper.cpp 1.7.4, the `build/bin/whisper-cli` executable is used instead of `main`.
 
 ### `tokenLevelTimestamps`<AvailableFrom v="4.0.131"/>
 
 Passes the `--dtw` flag to Whisper.cpp to generate more accurate timestamps, which are being returned under the `t_dtw` field.  
-Recommended to get actually accurate timings, but only available from Whisper.cpp versions later than 1.0.55.  
+Recommended to get actually accurate timings, but only available from Whisper.cpp versions 1.5.5 or later.  
 Set to `false` if you use an older version of Whisper.cpp.
 
-### `model?`
-
-_default: `base.en`_
+### `model`
 
 Specify a specific Whisper model for the transcription.
 
@@ -217,7 +220,7 @@ export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 ```
 
 Prefer relying on the `t_dtw` value for accurate timestamps over `offsets`.  
-Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use our opinionated suggestion for postprocessing the captions.
+Use [`toCaptions()`](/docs/install-whisper-cpp/to-captions) to convert the transcription into an array of [`Caption`](/docs/captions/caption) objects.
 
 ## Compatibility
 
@@ -229,6 +232,6 @@ Serverless functions need a compatible Whisper.cpp executable, the model, and en
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)
 - [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
-- [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions)
+- [`toCaptions()`](/docs/install-whisper-cpp/to-captions)
 - [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
 - [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)
