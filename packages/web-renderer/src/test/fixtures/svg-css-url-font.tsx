@@ -28,6 +28,11 @@ const Component = () => {
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`@font-face {font-family:"SVG CSS URL, WOFF2";src:url("${bangers}") format("woff2");}@font-face {font-family:"SVG CSS URL TTF";src:url("${roboto}") format("truetype");}@font-face{font-family:"SVG CSS URL template";src:url("${bangers}") format("woff2")}.svg-css-woff2 {font-family:"SVG CSS URL, WOFF2";font-size:${40 + frame * 2}px}.svg-css-ttf {font-family:"SVG CSS URL TTF";font-size:${32 + frame * 2}px}`}</style>
 			<svg width={640} height={280}>
+				<style media={frame === 0 ? 'print' : 'screen'}>
+					{
+						'@namespace svg url("http://www.w3.org/2000/svg");svg|rect{fill:yellow}'
+					}
+				</style>
 				<defs>
 					<text
 						id="css-url-font-template"
