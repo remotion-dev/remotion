@@ -121,7 +121,6 @@ export const processNode = async ({
 			const tentativePrecomposeRect = getPrecomposeRectForFilter({
 				element,
 				filter: precompositing.needsFilterPrecompositing,
-				includeBlur: precompositing.needsSvgClip !== null,
 			});
 
 			precomposeRect = roundToExpandRect(
