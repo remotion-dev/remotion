@@ -465,8 +465,13 @@ const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. When [parallel encoding is enabled](#disallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
-- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+#### `type`
+
+Either `"stitcher"` or `"pre-stitcher"`. When [parallel encoding is enabled](#disallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+
+#### `args`
+
+An array of strings that is passed as arguments to the FFMPEG command.
 
 Your function must return a modified array of strings.
 
@@ -610,9 +615,17 @@ _**from v4.0.0:**_
 
 The return value is an object with the following properties:
 
-- `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
-- `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
-- `contentType`: <AvailableFrom v="4.0.426" inline /> The content type of the rendered output, e.g. `"video/mp4"`, `"video/webm"`, `"image/gif"`.
+### `buffer`
+
+If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
+
+### `slowestFrames`
+
+An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+### `contentType`<AvailableFrom v="4.0.426" />
+
+The content type of the rendered output, e.g. `"video/mp4"`, `"video/webm"`, `"image/gif"`.
 
 _**from v3.0.26**:_
 

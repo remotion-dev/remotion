@@ -111,13 +111,18 @@ As children, put the contents of your scene.
 Placed between two sequences to animate from one scene to the next.  
 During the transition, both scenes are rendered simultaneously and the total duration is [shortened](#duration-of-a-transitionseries) by the transition length.
 
-Takes two props:
-
-- `timing`: A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
-- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
-
 Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
+
+Takes two props:
+
+#### `timing`
+
+A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
+
+#### `presentation?`
+
+A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 
@@ -127,12 +132,17 @@ The overlay does [not shorten](#duration-of-a-transitionseries) the timeline —
 The overlay is centered on the cut point by default: half the duration before the cut, half after.  
 Children animate independently — no progress context is provided.
 
+The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
+
 Takes two props:
 
-- `durationInFrames`: How long the overlay is visible. Must be a positive integer.
-- `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+#### `durationInFrames`
 
-The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
+How long the overlay is visible. Must be a positive integer.
+
+#### `offset?`
+
+Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
 
 ## Enter and exit animations
 

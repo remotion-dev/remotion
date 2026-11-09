@@ -198,12 +198,29 @@ Since <AvailableFrom v="4.0.540" inline />, uncaught exceptions and unhandled pr
 
 A browser log has three properties:
 
-- `text`: The message being printed
-- `stackTrace`: The available stack or source location, with the following properties:
-  - `url`: URL of the resource that logged.
-  - `lineNumber`: 0-based line number in the file where the log got called.
-  - `columnNumber`: 0-based column number in the file where the log got called.
-- `type`: The console method or browser diagnostic severity - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
+#### `text`
+
+The message being printed.
+
+#### `stackTrace`
+
+The available stack or source location, as an array of objects with the following properties:
+
+##### `url?`
+
+URL of the resource that logged.
+
+##### `lineNumber?`
+
+0-based line number in the file where the log got called.
+
+##### `columnNumber?`
+
+0-based column number in the file where the log got called.
+
+#### `type`
+
+The console method or browser diagnostic severity - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`.
 
 ```tsx twoslash
 interface ConsoleMessageLocation {
@@ -382,8 +399,13 @@ An absolute path overriding the `ffprobe` executable to use.
 
 A promise resolving to an object containing the following properties:
 
-- `frameCount`: `number` - describing how many frames got rendered.
-- `assetsInfo`: `RenderAssetInfo` - information that can be passed to `stitchFramesToVideo()` to mix audio. The shape of this object should be considered as Remotion internals and may change across Remotion versions.
+### `frameCount`
+
+`number` - describing how many frames got rendered.
+
+### `assetsInfo`
+
+`RenderAssetInfo` - information that can be passed to `stitchFramesToVideo()` to mix audio. The shape of this object should be considered as Remotion internals and may change across Remotion versions.
 
 ## Compatibility
 

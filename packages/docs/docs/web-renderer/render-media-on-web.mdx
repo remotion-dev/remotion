@@ -42,14 +42,37 @@ An object with the following properties:
 
 An object describing a composition. The object should have the following properties:
 
-- `id`: A unique identifier for the composition.
-- `component`: A React component that renders the video content.
-- `durationInFrames`: The duration of the video in frames.
-- `fps`: The frame rate of the video.
-- `width`: The width of the video in pixels.
-- `height`: The height of the video in pixels.
-- `defaultProps?`: Optional default props to pass to the component.
-- `calculateMetadata?`: Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
+#### `id`
+
+A unique identifier for the composition.
+
+#### `component`
+
+A React component that renders the video content.
+
+#### `durationInFrames`
+
+The duration of the video in frames.
+
+#### `fps`
+
+The frame rate of the video.
+
+#### `width`
+
+The width of the video in pixels.
+
+#### `height`
+
+The height of the video in pixels.
+
+#### `defaultProps?`
+
+Optional default props to pass to the component.
+
+#### `calculateMetadata?`
+
+Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
 
 ### `inputProps?`
 

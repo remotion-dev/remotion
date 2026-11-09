@@ -642,11 +642,13 @@ Gets the volume of the video. The volume is a value between 0 and 1 and is initi
 
 ### `setVolume()`
 
-#### Arguments
+Set the volume of the video.
 
-- `volume`: `number`
+#### `volume`
 
-Set the volume of the video. Must be a value between 0 and 1, otherwise an exception will be thrown.
+_number_
+
+Must be a value between 0 and 1, otherwise an exception will be thrown.
 
 ### `isMuted()`
 
@@ -654,11 +656,13 @@ Returns a boolean specifying whether the video is muted.
 
 ### `seekTo()`
 
-#### Arguments
-
-- `frame`: `number`
-
 Move the position in the video to a specific frame. If the video is playing, it will pause for a brief moment, then start playing again after the seek is completed.
+
+#### `frame`
+
+_number_
+
+The frame to seek to.
 
 ### `isFullscreen()`
 

@@ -9,15 +9,29 @@ crumb: 'API'
 
 A React hook that provides information about the current Remotion Environment. This is the preferred way to access environment information.
 
+This can be useful if you want components to behave differently depending on the environment.
+
 It returns an object with the following properties:
 
-- `isStudio`: Whether the hook got called in the [Remotion Studio](/docs/cli/studio).
-- `isRendering`: Whether the hook got called in a render.
-- `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
-- `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used
-- `isClientSideRendering`: Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser) (_available from v4.0.344_)
+### `isStudio`
 
-This can be useful if you want components to behave differently depending on the environment.
+Whether the hook got called in the [Remotion Studio](/docs/cli/studio).
+
+### `isRendering`
+
+Whether the hook got called in a render.
+
+### `isPlayer`
+
+Whether a [`<Player>`](/docs/player) is mounted on the current page.
+
+### `isReadOnlyStudio`
+
+Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used.
+
+### `isClientSideRendering`<AvailableFrom v="4.0.344" />
+
+Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser).
 
 ### Example
 
