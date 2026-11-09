@@ -1225,14 +1225,22 @@ export const TimelineSelectionProvider: React.FC<{
 				if (
 					!item ||
 					item.type === 'guide' ||
-					item.nodePathInfo.auxiliaryKeys[0] !== 'effects' ||
-					item.nodePathInfo.auxiliaryKeys.length < 2
+					item.nodePathInfo.auxiliaryKeys[0] !== 'effects'
 				)
 					return item;
 				const key = nodeKey(item.nodePathInfo.sequenceSubscriptionKey);
 				const next = current.find((entry) => nodeKey(entry.nodePath) === key);
 				const old = from.find((entry) => nodeKey(entry.nodePath) === key);
 				if (!next) return item;
+				if (item.nodePathInfo.auxiliaryKeys.length < 2) {
+					if (next.items.length > 0 || !old?.items.length) return item;
+					removed = true;
+					return {
+						type: 'sequence',
+						nodePathInfo: {...item.nodePathInfo, auxiliaryKeys: []},
+					};
+				}
+
 				const index = Number(item.nodePathInfo.auxiliaryKeys[1]);
 				const oldItems = old?.items ?? next.compiledItems;
 				const id = oldItems[index]?.id;
@@ -1240,13 +1248,37 @@ export const TimelineSelectionProvider: React.FC<{
 				let nextIndex = next.items.findIndex((effect) => effect.id === id);
 				if (nextIndex === -1) {
 					removed = true;
-					const originIndex = next.items.findIndex(
-						(effect) => effect.id === oldItems[index]?.originId,
+					const explicitlyDeleted = next.operations.some(
+						({action, status}) =>
+							(status === 'queued' || status === 'acknowledged') &&
+							action.type === 'delete' &&
+							action.ids.includes(id),
 					);
+					const originIndex = explicitlyDeleted
+						? -1
+						: next.items.findIndex(
+								(effect) => effect.id === oldItems[index]?.originId,
+							);
+					const remainingIndexes = new Map(
+						next.items.map((effect, remainingIndex) => [
+							effect.id,
+							remainingIndex,
+						]),
+					);
+					const neighbor =
+						oldItems
+							.slice(index + 1)
+							.find((effect) => remainingIndexes.has(effect.id)) ??
+						oldItems
+							.slice(0, index)
+							.reverse()
+							.find((effect) => remainingIndexes.has(effect.id));
 					nextIndex =
-						originIndex === -1
-							? Math.min(index, next.items.length - 1)
-							: originIndex;
+						originIndex !== -1
+							? originIndex
+							: neighbor
+								? remainingIndexes.get(neighbor.id)!
+								: Math.min(index, next.items.length - 1);
 					if (nextIndex < 0)
 						return {
 							type: 'sequence',
