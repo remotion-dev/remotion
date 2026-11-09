@@ -113,13 +113,9 @@ export const drawBorderRadius = ({
 				backgroundClip: 'padding-box',
 				forceClipEvenWhenZero: true,
 			});
-			const insetMargin = Math.ceil(
-				shadow.blurRadius * 2 +
-					Math.abs(shadow.offsetX) +
-					Math.abs(shadow.offsetY) +
-					Math.abs(spread) +
-					2,
-			);
+			// Only blur support can affect pixels outside the padding-box crop.
+			// Spread and offsets move the hole; they do not enlarge this surface.
+			const insetMargin = Math.ceil(shadow.blurRadius * 2 + 2);
 			const canvas = new OffscreenCanvas(
 				Math.ceil(paddingRect.width + insetMargin * 2),
 				Math.ceil(paddingRect.height + insetMargin * 2),

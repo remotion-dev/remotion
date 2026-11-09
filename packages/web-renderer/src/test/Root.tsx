@@ -23,6 +23,9 @@ import {boxShadow} from './fixtures/box-shadow';
 import {
 	boxShadowSpreadInset,
 	boxShadowSpreadInsetAlpha,
+	boxShadowInsetReview,
+	boxShadowInsetContentClip,
+	boxShadowInsetRoundingControl,
 } from './fixtures/box-shadow-spread-inset';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
@@ -212,6 +215,9 @@ export const Root: React.FC = () => {
 			<Composition {...boxShadow} />
 			<Composition {...boxShadowSpreadInset} />
 			<Composition {...boxShadowSpreadInsetAlpha} />
+			<Composition {...boxShadowInsetReview} />
+			<Composition {...boxShadowInsetContentClip} />
+			<Composition {...boxShadowInsetRoundingControl} />
 			<Folder name="Filter">
 				<Composition {...filter} />
 				<Composition {...filterImage} />

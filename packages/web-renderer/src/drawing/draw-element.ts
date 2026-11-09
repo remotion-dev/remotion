@@ -75,7 +75,7 @@ export const drawElement = async ({
 		borderRadius,
 		inset: false,
 	});
-	const finishBorderRadius = setBorderRadius({
+	let finishBorderRadius = setBorderRadius({
 		ctx: context,
 		rect,
 		borderRadius,
@@ -99,13 +99,26 @@ export const drawElement = async ({
 		scale,
 	});
 
-	drawBorderRadius({
-		ctx: context,
-		computedStyle,
-		rect,
-		borderRadius,
-		inset: true,
-	});
+	if (computedStyle.boxShadow.includes('inset')) {
+		finishBorderRadius();
+
+		drawBorderRadius({
+			ctx: context,
+			computedStyle,
+			rect,
+			borderRadius,
+			inset: true,
+		});
+
+		finishBorderRadius = setBorderRadius({
+			ctx: context,
+			rect,
+			borderRadius,
+			forceClipEvenWhenZero: false,
+			computedStyle,
+			backgroundClip,
+		});
+	}
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});
 

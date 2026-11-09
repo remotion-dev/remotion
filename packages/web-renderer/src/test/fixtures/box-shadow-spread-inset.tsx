@@ -57,3 +57,87 @@ export const boxShadowSpreadInsetAlpha = {
 	),
 	id: 'box-shadow-spread-inset-alpha',
 } as const;
+
+// KINO-7770: inset buffers must be independent of spread and background clipping.
+const ReviewComponent = ({
+	contentClip = false,
+}: {
+	readonly contentClip?: boolean;
+}) => {
+	const frame = useCurrentFrame();
+	const shadows = contentClip
+		? [
+				{id: 'rounded-content', value: 'inset 0 0 0 10px blue', radius: 4},
+				{id: 'rectangular-content', value: 'inset 0 0 0 10px blue', radius: 0},
+			]
+		: [
+				{id: 'positive-spread', value: 'inset 0 0 0 20000px blue', radius: 0},
+				{id: 'positive-offset', value: 'inset 20000px 0 0 0 blue', radius: 0},
+				{id: 'negative-spread', value: 'inset 0 0 0 -20000px blue', radius: 0},
+				{
+					id: 'offset-negative-spread',
+					value: 'inset 20000px 20000px 0 -20000px blue',
+					radius: 0,
+				},
+			];
+	return (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			{shadows.map((shadow, index) => (
+				<div
+					key={shadow.id}
+					style={{
+						position: 'absolute',
+						left: 20 + index * 140 + frame * 4,
+						top: 20,
+						width: 100,
+						height: 80,
+						boxSizing: 'border-box',
+						padding: contentClip ? 20 : 0,
+						borderRadius: shadow.radius,
+						backgroundColor: 'red',
+						backgroundClip: contentClip ? 'content-box' : 'border-box',
+						boxShadow: shadow.value,
+					}}
+				/>
+			))}
+		</AbsoluteFill>
+	);
+};
+
+export const boxShadowInsetReview = {
+	...boxShadowSpreadInset,
+	component: () => <ReviewComponent />,
+	id: 'box-shadow-inset-review',
+	width: 600,
+	height: 140,
+};
+export const boxShadowInsetContentClip = {
+	...boxShadowInsetReview,
+	component: () => <ReviewComponent contentClip />,
+	id: 'box-shadow-inset-content-clip',
+	width: 300,
+};
+const RoundingControl = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<div
+				style={{
+					position: 'absolute',
+					left: 20 + frame * 4,
+					top: 20,
+					width: 100,
+					height: 80,
+					borderRadius: 4,
+					backgroundColor: 'blue',
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+
+export const boxShadowInsetRoundingControl = {
+	...boxShadowInsetContentClip,
+	component: RoundingControl,
+	id: 'box-shadow-inset-rounding-control',
+};
