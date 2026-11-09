@@ -203,7 +203,7 @@ const getFontFaceRule = (font: RegisteredFontFace): string => {
 export const getEmbeddedFontStyleForSvg = (
 	svg: SVGSVGElement,
 ): EmbeddedFontStyle | null => {
-	const textElements = svg.querySelectorAll('text');
+	const textElements = svg.querySelectorAll('text, foreignObject');
 	if (textElements.length === 0) {
 		return null;
 	}
