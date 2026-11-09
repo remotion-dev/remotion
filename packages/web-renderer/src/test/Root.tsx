@@ -115,6 +115,8 @@ import {
 	maskImageLayersUrlTransparent,
 	maskImageLayersBlob,
 	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
 } from './fixtures/mask-image-layers';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
@@ -300,6 +302,8 @@ export const Root: React.FC = () => {
 				<Composition {...maskImageLayersUrlTransparent} />
 				<Composition {...maskImageLayersBlob} />
 				<Composition {...maskImageLayersBlobTransparent} />
+				<Composition {...maskImageLayersTokenUrl} />
+				<Composition {...maskImageLayersTokenUrlTransparent} />
 				<Composition {...maskImageUrlPosition} />
 				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />

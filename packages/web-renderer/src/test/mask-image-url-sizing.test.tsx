@@ -8,6 +8,8 @@ import {
 	maskImageLayersUrlTransparent,
 	maskImageLayersBlob,
 	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
 } from './fixtures/mask-image-layers';
 import '../symbol-dispose';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
@@ -343,6 +345,8 @@ for (const composition of [
 	maskImageLayersUrlTransparent,
 	maskImageLayersBlob,
 	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
 ]) {
 	for (const frame of [0, 1]) {
 		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {

@@ -39,6 +39,8 @@ test('renders a same-origin raster URL mask at a higher scale', async () => {
 test.for([
 	'url("https://example.com/mask.png")',
 	'none, url("https://example.com/mask.png")',
+	'url("https://example.com/linear-gradient(red,blue).png")',
+	'none, url("https://example.com/linear-gradient(red,blue).png")',
 ])('rejects a cross-origin URL mask: %s', async (maskImage) => {
 	const Component: React.FC = () => {
 		return (
@@ -146,5 +148,49 @@ test('closes a late raster decode when another mask layer fails', async () => {
 		decodeSpy.mockRestore();
 		fetchSpy.mockRestore();
 		(bitmap as ImageBitmap | null)?.close();
+	}
+});
+
+test('loads a PNG URL containing gradient syntax through the raster loader', async () => {
+	const source = new URL(
+		'/mask-linear-gradient(red,blue).png',
+		document.baseURI,
+	).href;
+	const fetch = window.fetch.bind(window);
+	let requests = 0;
+	const spy = vi.spyOn(window, 'fetch').mockImplementation((input, init) => {
+		if (String(input) === source) requests++;
+		return fetch(input, init);
+	});
+	const Component = () => (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'red',
+				maskImage: `url("${source}"), none`,
+				maskSize: '16px 8px',
+				maskRepeat: 'no-repeat',
+			}}
+		/>
+	);
+	try {
+		await (
+			await renderStillOnWeb({
+				composition: {
+					component: Component,
+					id: 'mask-url-gradient-token',
+					width: 40,
+					height: 24,
+					fps: 25,
+					durationInFrames: 1,
+				},
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		expect(requests).toBe(1);
+	} finally {
+		spy.mockRestore();
 	}
 });
