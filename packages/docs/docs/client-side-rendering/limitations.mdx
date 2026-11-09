@@ -89,7 +89,7 @@ Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows and positive or negative spread radius are partially supported for hard-edged (zero-blur) rectangular boxes, including borders and multiple shadow layers. Opaque and translucent cases are qualified against native Chromium and WebKit. Large zero-blur inset spreads and offsets preserve the padding-box fill. Inset padding is painted independently of `background-clip`. Rounded or blurred inset/spread combinations require further pixel-parity qualification; rounded inset corners still have measured native differences.
+`inset` shadows and positive or negative spread radius are partially supported for hard-edged rectangular boxes, including borders, multiple layers, large spreads and offsets. Rounded or blurred inset/spread combinations may differ from native rendering.
 
 ## Masks
 
