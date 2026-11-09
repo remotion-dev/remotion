@@ -115,7 +115,7 @@ The `filter` property is <a style={{color: 'green'}}>supported</a> with the foll
 - `saturate()` is <a style={{color: 'green'}}>supported</a>.
 - `sepia()` is <a style={{color: 'green'}}>supported</a>.
 - Multiple combined filters are <a style={{color: 'green'}}>supported</a>.
-- `url()` referencing inline SVG filters is <a style={{color: 'red'}}>not supported</a>.
+- `url()` can reference a same-document SVG `<filter>` using `feColorMatrix`, `feGaussianBlur`, and `feOffset` with `primitiveUnits="userSpaceOnUse"`. Expanded filter regions, `userSpaceOnUse` and `objectBoundingBox` filter units, and render scaling are supported in Chrome. External filter documents, inherited filters, other primitives, and percentage primitive subregions are not supported.
 
 :::warning
 Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
