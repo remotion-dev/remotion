@@ -80,7 +80,7 @@ The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-wid
 
 ### Inline SVG stylesheet state
 
-Inline SVG `<style>` elements preserve their `CSSStyleSheet.disabled` state when drawn to canvas, including nested SVGs and enabled/disabled changes between frames. The authored stylesheet remains unchanged, and stylesheet nodes keep their structural-selector positions and empty/nonempty behavior.
+Inline SVG stylesheets support `CSSStyleSheet.disabled`, including nested SVGs and changes between frames. Structural selectors retain their authored behavior.
 
 ### Web fonts inside SVG
 
