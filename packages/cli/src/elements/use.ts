@@ -240,7 +240,7 @@ export const elementsUseCommand = async ({
 	const compositionIds = [...new Set(compositions.map((c) => c.id))];
 	if (compositionIds.length === 0) {
 		return fail(
-			`Could not find a <Composition> with a string id in ${path.relative(process.cwd(), path.dirname(entryPoint)) || '.'}.`,
+			`Could not find a <Composition> or <Still> with a string id in ${path.relative(process.cwd(), path.dirname(entryPoint)) || '.'}.`,
 		);
 	}
 
