@@ -62,7 +62,7 @@ That means whenever you deploy to e.g. Vercel, the site on S3 will be updated as
 
 This prevents you from forgetting to deploy whenever you make a change.
 
-To make the deployment more robust, we recommend to separate production deployments from development deployments of the site, for example by giving the site a different name based on the `VERCEL_ENV` environment variable:
+Separate production deployments from development deployments of the site, for example by giving the site a different name based on the `VERCEL_ENV` environment variable:
 
 ```ts
 export const SITE_NAME = process.env.VERCEL_ENV === 'production' ? 'remotion-editor-starter' : 'remotion-editor-starter-dev';

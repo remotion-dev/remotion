@@ -25,7 +25,7 @@ In this part I will go over all the steps for creating a 3D model in Spline, if 
 
    ![Blank Workspace](../static/img/spline-guide/1_blank_workspace.png)
 
-3. Click the box in the scene, and press <kbd>Backspace</kbd>, because we don't need it. We will also delete the directional light later, but keep it for now.
+3. Click the box in the scene, and press <kbd>Backspace</kbd>, because it is not needed. The directional light will also be deleted later, but keep it for now.
 4. New shapes can be added using the **+** icon on the toolbar at the top. Click on it, scroll down and select **Torus**.
 
    ![Top Menu](../static/img/spline-guide/2_top_menu.png)
@@ -43,11 +43,11 @@ In this part I will go over all the steps for creating a 3D model in Spline, if 
 
    ![Position Options](../static/img/spline-guide/5_position_options.png)
 
-9. You can play around with the different fields in the **Shape** section to modify the Torus, however we will continue with the default properties.
+9. You can play around with the different fields in the **Shape** section to modify the Torus, however this guide continues with the default properties.
 
    ![Shape Options](../static/img/spline-guide/6_shape_options.png)
 
-10. Scroll down to the **Material** section in the right column, click on the textbox beside the colour picker and enter `3489DC` or any color you like. Effects on the 3D object in Spline are applied as layers, let's add another effect.
+10. Scroll down to the **Material** section in the right column, click on the textbox beside the colour picker and enter `3489DC` or any color you like. Effects on the 3D object in Spline are applied as layers, add another effect.
 
 11. Click on the **+** icon in the **Material** section, and from the dropdown select **Noise**
 
@@ -57,7 +57,7 @@ In this part I will go over all the steps for creating a 3D model in Spline, if 
 
     ![Overlay](../static/img/spline-guide/8_overlay.png)
 
-13. Finally, let's change the noise type, just for better visuals. Click on the squiggly lines beside noise, select **Simplex Fractal** and set **Movement** to 2.
+13. Finally, change the noise type for better visuals. Click on the squiggly lines beside noise, select **Simplex Fractal** and set **Movement** to 2.
 
     ![Change Noise Type](../static/img/spline-guide/9_change_noise_type.png)
 
@@ -65,7 +65,7 @@ Your 3D model should look like this:
 
 ![Completed Torus](../static/img/spline-guide/10_completed_torus.png)
 
-14. Click on **Directional Light** in the left column, and press <kbd>Backspace</kbd> key because we don't need it anymore.
+14. Click on **Directional Light** in the left column, and press <kbd>Backspace</kbd> key because it is not needed anymore.
 15. Click **Export** in the top menu. Click on the first dropdown and select **Code (Experimental)**. Select **react-three-fiber** in the second dropdown. Finally, click on the Copy icon in the code section to copy the generated code.
 
 ![Export Model Code](../static/img/spline-guide/11_export_model_code.png)
@@ -83,7 +83,7 @@ Your 3D model should look like this:
    ```
 
 3. Create a new file at `src/Torus.tsx` with the code that you have copied from Spline.
-4. Remove the `OrthographicCamera` import, and the `<OrthographicCamera>` component as we will be using the `useThree` hook for the camera.
+4. Remove the `OrthographicCamera` import, and the `<OrthographicCamera>` component as you will be using the `useThree` hook for the camera.
 
 5. In `src/Scene.tsx`, replace the default scene with:
 
@@ -141,7 +141,7 @@ useEffect(() => {
 }, [camera]);
 ```
 
-9. Let's add some animation. Below the above code, insert the following:
+9. Add some animation. Below the above code, insert the following:
 
 ```tsx twoslash title="src/Torus.tsx"
 import {interpolate, spring} from 'remotion';
@@ -176,7 +176,7 @@ rotation={[constantRotation / 2, constantRotation, 0]}
 ```
 
 :::note
-The X rotation is half of the Y rotation, so for every 2 turns in the Y axis, our Torus will turn once in the X axis.
+The X rotation is half of the Y rotation, so for every 2 turns in the Y axis, the Torus will turn once in the X axis.
 :::
 
 11. That's it! See a rotating Torus in the Remotion Studio.

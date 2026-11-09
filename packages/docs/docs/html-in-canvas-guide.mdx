@@ -72,7 +72,7 @@ If you do so, you are responsible yourself for calling [`delayRender()`](/docs/d
 
 Find example components in the [`remotion-dev/html-in-canvas`](https://github.com/remotion-dev/html-in-canvas) repository.
 
-Also see the following sample prompts in our prompt gallery that you can give your coding agent:
+Also see the following sample prompts in the prompt gallery that you can give your coding agent:
 
 - [Magnifying glass](https://www.remotion.dev/prompts/html-in-canvas-magnifying-glass)
 - [Vintage screen effect](https://www.remotion.dev/prompts/vintage-screen-effect-html-in-canvas)
@@ -116,7 +116,7 @@ For native `<img>` and `<video>` elements, set `crossOrigin="anonymous"` yoursel
 
 From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455), render is supported locally via [`npx remotion render`](/docs/cli/render) and Studio, on [Lambda](/docs/lambda), on [Vercel](/docs/vercel) and through [server-side rendering](/docs/ssr) APIs.
 
-We compiled a version of Chrome and made it the default, and enabled the flag for you.
+Remotion compiled a version of Chrome, made it the default, and enabled the flag for you.
 
 Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion <AvailableFrom v="4.0.534" inline />, which uses Chromium 157.0.8080.0.
 
@@ -134,7 +134,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
-If your machine has no GPU, we recommend `--gl=swangle` instead (default on Lambda).
+If your machine has no GPU, use `--gl=swangle` instead (default on Lambda).
 
 ## AI agents
 

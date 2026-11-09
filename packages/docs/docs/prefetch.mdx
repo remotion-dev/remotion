@@ -71,7 +71,7 @@ Read below for which option is suitable for you.
 
 #### `contentType?`<AvailableFrom v="4.0.40" />
 
-Set a content type for the blob. By default, the content type from the HTTP response is taken. We recommend setting an appropriate content type for the media, e.g `video/mp4` only if the HTTP resource does not contain the right one by default.
+Set a content type for the blob. By default, the content type from the HTTP response is taken. Set an appropriate content type for the media, e.g `video/mp4` only if the HTTP resource does not contain the right one by default.
 
 #### `credentials?`<AvailableFrom v="4.0.229" />
 
@@ -141,7 +141,7 @@ Files loaded from the internet should be served with a proper content type, e.g.
 
 This can lead to the video file not playing correctly in the browser. If you cannot influence the server, you can also set the content type manually using the [`contentType`](#contenttype) option.
 
-This issue may arise in Safari specifically. We recommend testing your implementation in Safari after you coded it.
+This issue may arise in Safari specifically. Test your implementation in Safari after you coded it.
 
 ## Compatibility
 

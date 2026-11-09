@@ -77,7 +77,7 @@ Set this boolean flag to `true` if you want to get a translated transcription of
 Make sure to not use a \*.en model, as they will not be able to translate a foreign language to english.
 
 :::note
-We recommend using at least the `medium` model to get satisfactory results when translating.
+Use at least the `medium` model to get satisfactory results when translating.
 :::
 
 ### `printOutput?`<AvailableFrom v="4.0.132" />
@@ -217,7 +217,7 @@ export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 ```
 
 Prefer relying on the `t_dtw` value for accurate timestamps over `offsets`.  
-Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use our opinionated suggestion for postprocessing the captions.
+Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use an opinionated suggestion for postprocessing the captions.
 
 ## Compatibility
 

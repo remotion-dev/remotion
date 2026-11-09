@@ -38,7 +38,7 @@ Lambda and Cloud Run continue to use `swangle` by default.
 
 In cases where a GPU could be beneficial for rendering, it can often make sense to use the <code>angle</code> renderer (<code>angle-egl</code> on Linux). An in-depth explanation when and how to use it is given in [this article](/docs/gpu).
 
-⚠️ Memory leaks are a known problem with <code>angle</code>. We recommend to split up long renders into multiple parts when rendering large videos, since sometimes renders can fail due to memory leaks.
+⚠️ Memory leaks are a known problem with <code>angle</code>. Split up long renders into multiple parts when rendering large videos, since sometimes renders can fail due to memory leaks.
 
 In Remotion 4.0, GitHub Actions will fail when using <code>angle</code>, since Actions runners don't have a GPU.
 

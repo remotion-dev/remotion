@@ -5,7 +5,7 @@ title: Distributed rendering
 crumb: 'Advanced rendering'
 ---
 
-[Remotion Lambda](/docs/lambda) is our recommended solution if you are looking for a way to split up renders into chunks that run on different machines.
+[Remotion Lambda](/docs/lambda) is the recommended solution if you are looking for a way to split up renders into chunks that run on different machines.
 
 It takes care of a lot of engineering work that you would have to undergo yourself otherwise:
 
@@ -25,7 +25,7 @@ It takes care of a lot of engineering work that you would have to undergo yourse
 
 ## You might not want a custom distributed renderer
 
-We think Lambda is the best balance between speed, cost, scalability and ease of use.
+Lambda is the best balance between speed, cost, scalability and ease of use.
 
 Many users are setting the memory too high for their Lambda cost and are unnecessarily causing their renders to be way too expensive.  
 See how to [optimize a Lambda render](/docs/lambda/optimizing-cost).
@@ -41,7 +41,7 @@ Should you have come to the conclusion that you still need a distributed renderi
 
 ### 1. Splitting up the work
 
-We're calling the machine which orchestrates the render the "main routine".
+The machine which orchestrates the render is called the "main routine".
 
 - You must first determine the length of the video that you want to render by calling [`selectComposition()`](/docs/renderer/select-composition).
 - Consider the `frameRange` and `everyNthFrame` options if necessary to determine how many frames you are actually rendering.

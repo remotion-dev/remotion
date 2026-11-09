@@ -11,7 +11,7 @@ Only certain HTML elements such as `<canvas>`, `<img>`, `<video>` or `<svg>` can
 Unlike in server-side rendering, where a pixel-perfect screenshot is made, in client-side rendering Remotion places all elements on a canvas based on how it believes they are positioned and appearing in the DOM.
 
 For this, Remotion has developed a sophisticated algorithm for calculating the placement of the elements on the canvas.  
-Of course, we cannot support all web features, [so only a specific subset of elements and styles are supported](/docs/client-side-rendering/limitations).
+Not all web features can be supported, [so only a specific subset of elements and styles are supported](/docs/client-side-rendering/limitations).
 
 ## Rendering process
 
@@ -50,7 +50,7 @@ For rendering other types of elements, [only a subset of properties](/docs/clien
 
 For text nodes, more layout calculations need to be made.
 
-Normally, it is not possible to get the bounding box of a text node, but by wrapping a text node in a `<span>` element, we can call `.getBoundingClientRect()` on the span to get the bounding box and resolve the transforms as described [above](#frame-capture-process).
+Normally, it is not possible to get the bounding box of a text node, but by wrapping a text node in a `<span>` element, `.getBoundingClientRect()` can be called on the span to get the bounding box and resolve the transforms as described [above](#frame-capture-process).
 
 Then `Intl.Segmenter` is used to split the text into words, and each token is again wrapped in a `<span>`. For each token, `.getBoundingClientRect()` is called and the tokens are drawn to the canvas.
 

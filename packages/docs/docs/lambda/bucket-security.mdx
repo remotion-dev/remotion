@@ -28,7 +28,7 @@ Existing buckets and new buckets created without the `s3:PutBucketPolicy` permis
 
 ## Recommendation
 
-Since it is not required for the public to be able to list the bucket, we recommend disabling this to minimize exposure of your files.
+Since it is not required for the public to be able to list the bucket, disable this to minimize exposure of your files.
 
 **For new buckets:** Ensure you add [`s3:PutBucketPolicy`](/docs/lambda/permissions) to your IAM user policy (default only from v4.0.418, if upgrading, you need to manually update your user policy). Then create a bucket.
 

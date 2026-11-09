@@ -29,13 +29,13 @@ Enabled by default. To disable multi-process mode for Chromium during rendering 
 - **Config file**: Use the [`Config.setChromiumMultiProcessInLinux()`](/docs/config#setchromiummultiprocessonlinux) option.
 - **Remotion Studio**: Check the toggle in the advanced settings.
 - **Cloud Run**: From v4.0.42, this option is automatically enabled.
-- **Lambda**: This option is disabled with no option to enable it because on Amazon Linux, Chrome will crash if the `--single-process` flag is not used. We recommend using more Lambdas instead of more concurrency per Lambda.
+- **Lambda**: This option is disabled with no option to enable it because on Amazon Linux, Chrome will crash if the `--single-process` flag is not used. Use more Lambdas instead of more concurrency per Lambda.
 
 ## Should I enable multi-process mode?
 
 The answer depends on the Linux environment. If you are running Remotion on a server, you should try to enable multi-process mode and see if it works.
 
-Our recommended [Docker](/docs/docker) image is confirmed working with multi-process mode enabled.
+The recommended [Docker](/docs/docker) image is confirmed working with multi-process mode enabled.
 
 ## See also
 

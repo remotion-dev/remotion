@@ -35,8 +35,8 @@ const scale = enter - exit;
 ```
 
 - At the beginning of the animation, the value of `enter` is `0`, it goes to `1` over the course of the animation.
-- Before the sequence ends, we create an `exit` animation that goes from `0` to `1`.
-- Subtracting the `exit` animation from the `enter` animation gives us the overall state of the animation which we use to animate `scale`.
+- Before the sequence ends, create an `exit` animation that goes from `0` to `1`.
+- Subtracting the `exit` animation from the `enter` animation gives the overall state of the animation, which is used to animate `scale`.
 
 <Demo type="animation-math" />
 

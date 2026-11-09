@@ -9,9 +9,9 @@ crumb: 'Tutorials'
 import {Player} from '@remotion/player';
 import {DatasetDemo} from '../components/Dataset/DatasetDemo';
 
-You can use Remotion to do a batch render to create many videos based on a dataset. In the following example, we are going to turn a JSON dataset into a series of videos.
+You can use Remotion to do a batch render to create many videos based on a dataset. The following example turns a JSON dataset into a series of videos.
 
-We'll start by creating a blank Remotion project:
+Start by creating a blank Remotion project:
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -196,7 +196,7 @@ export const RemotionRoot = () => (
 
 ## Writing the script
 
-In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
+In order to render the videos, first bundle your project using Webpack and prepare it for rendering.
 This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Make sure to include the webpack override in the bundle if you have one.
 
 ```ts twoslash

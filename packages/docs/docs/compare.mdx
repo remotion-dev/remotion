@@ -16,11 +16,11 @@ This page compares 5 options for rendering videos in the cloud:
 
 These options are deliberately distinct with different tradeoffs, so that you can choose the one that best fits your use case.
 
-See also our guides for deploying to [Azure Container Apps](/docs/azure-container-apps) and [Cloudflare Containers](/docs/cloudflare-containers), which uses the Node.JS/Bun APIs.
+See also the guides for deploying to [Azure Container Apps](/docs/azure-container-apps) and [Cloudflare Containers](/docs/cloudflare-containers), which uses the Node.JS/Bun APIs.
 
 ## Overall recommendation
 
-We recommend Remotion Lambda for most people as it has the best tradeoff for speed, ease of setup, maturity, total cost and scalability.
+Remotion Lambda is recommended for most people as it has the best tradeoff for speed, ease of setup, maturity, total cost and scalability.
 
 If you are already a Vercel customer and want the simplest setup, [Vercel Sandbox](/docs/vercel-sandbox) is a great choice.
 
@@ -32,9 +32,9 @@ Remotion Lambda is the fastest option, because it implements distributed renderi
 
 Vercel Sandbox, Cloud Run, and custom servers do not support distributed rendering, so rendering happens on one physical machine.
 
-Vercel Sandbox currently has longer cold starts due to VM provisioning, installing system dependencies and downloading a browser on each render. We plan to improve this with Vercel Sandbox snapshots.
+Vercel Sandbox currently has longer cold starts due to VM provisioning, installing system dependencies and downloading a browser on each render. This is planned to be improved with Vercel Sandbox snapshots.
 
-Implementing a custom distributed rendering solution from scratch is challenging and we do not yet provide documentation.
+Implementing a custom distributed rendering solution from scratch is challenging and there is no documentation yet.
 
 ## Cost
 
@@ -57,7 +57,7 @@ Conclusion: The more videos you render, the more a long-running server might be 
 Vercel Sandbox is the easiest to set up. You only need a Vercel account and a Blob store. Push to deploy.
 
 Remotion Lambda and Cloud Run are also fast to set up.
-Remotion Lambda is built into our SaaS templates, so you can get started very quickly.
+Remotion Lambda is built into the Remotion SaaS templates, so you can get started very quickly.
 
 Using the Node.JS APIs requires you to set up a server yourself and manage certain things yourself:
 
@@ -96,27 +96,27 @@ Rendering with Vercel Sandbox or the Node.JS APIs does not come with the other f
 
 Most renders do not become faster with GPU acceleration. See: [Which content benefits from a GPU?](/docs/gpu).
 
-We have guides for configuring [a server with GPU acceleration](/docs/miscellaneous/cloud-gpu), but it is not yet supported by Remotion.
+There are guides for configuring [a server with GPU acceleration](/docs/miscellaneous/cloud-gpu), but it is not yet supported by Remotion.
 
 Remotion Lambda and Vercel Sandbox do not have GPUs. You are limited to CPU-only rendering.
 
-We have not tested Cloud Run with GPU acceleration. It is possible add a GPU to the Cloud Run instance - we are curious to hear your feedback.
+Cloud Run with GPU acceleration has not been tested. It is possible add a GPU to the Cloud Run instance - feedback is welcome.
 
 ## Stability
 
-We are happy with the architecture of Remotion Lambda and Node.js APIs and are committed to it in the long-term.
+Remotion is committed to the architecture of Remotion Lambda and Node.js APIs in the long-term.
 
-Vercel Sandbox support is new. We are actively improving it with planned features like snapshots for faster cold starts and custom Chrome builds for better codec support.
+Vercel Sandbox support is new. It is actively being improved with planned features like snapshots for faster cold starts and custom Chrome builds for better codec support.
 
-Cloud Run is in Alpha and we are considering moving it to a model which re-uses the code of Remotion Lambda.
-This would allow us to better match the features of Remotion Lambda and enable distributed rendering.
+Cloud Run is in Alpha and Remotion is considering moving it to a model which re-uses the code of Remotion Lambda.
+This would better match the features of Remotion Lambda and enable distributed rendering.
 
 Currently, the development of Cloud Run is hindered because a new Docker image needs to be built for each change, making testing slow.
-Therefore, we are currently only making essential changes to the current Cloud Run product.
+Therefore, only essential changes are currently being made to the current Cloud Run product.
 
 ## Alternative: [Cloudflare Containers](/docs/cloudflare-containers)
 
-Our Cloudflare containers solution ships as a template which you adopt and own. It's not a package like Lambda, but we do plan on maintaining the template and it is officially blessed by Remotion.
+The Cloudflare containers solution ships as a template which you adopt and own. It's not a package like Lambda, but Remotion plans on maintaining the template and it is officially blessed by Remotion.
 
 Functionally, it also uses a chunking strategy like Lambda, leading to a faster, distributed render.
 
