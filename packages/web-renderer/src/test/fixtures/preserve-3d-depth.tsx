@@ -472,3 +472,55 @@ export const perspectiveFilter = {
 	durationInFrames: 2,
 	component: PerspectiveFilterScene,
 } as const;
+
+// PR #12686: 64×48 capture maps to80×60 pixels at scale1.25,
+// while the actual copy into its parent has a fractional device-pixel origin.
+const GridSamplerParent = () => {
+	const frame = useCurrentFrame();
+	return plane(
+		{width: 300, height: 300, background: 'white'},
+		plane(
+			{
+				width: 300,
+				height: 300,
+				perspective: 700,
+				transformStyle: 'preserve-3d',
+			},
+			plane(
+				{
+					left: 5,
+					top: 5,
+					width: 160,
+					height: 140,
+					opacity: 0.5,
+					background: 'rgba(40,80,120,.4)',
+				},
+				plane(
+					{
+						left: 2 + frame * 4,
+						top: 2,
+						width: 100,
+						height: 80,
+						perspective: 700,
+						transformStyle: 'preserve-3d',
+					},
+					plane({
+						width: 50,
+						height: 42,
+						background: '#2060c0',
+						filter: 'drop-shadow(8px 0 0 red)',
+					}),
+				),
+			),
+		),
+	);
+};
+
+export const gridSamplerParent = {
+	id: '3d-grid-sampler-parent',
+	component: GridSamplerParent,
+	width: 300,
+	height: 300,
+	fps: 30,
+	durationInFrames: 2,
+} as const;

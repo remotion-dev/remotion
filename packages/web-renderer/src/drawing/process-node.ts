@@ -326,12 +326,21 @@ export const processNode = async ({
 			}
 		}
 
+		const destinationRect = is3DPrecomposition
+			? rectAfterTransforms
+			: layerRect;
+		const parentOffsetScale = is3DPrecomposition ? scale : 1;
+		const copyX = destinationRect.left - parentRect.x * parentOffsetScale;
+		const copyY = destinationRect.top - parentRect.y * parentOffsetScale;
+
 		if (precompositing.needs3DTransformViaWebGL) {
 			const t = handle3dTransform({
 				matrix: totalMatrix,
 				sourceRect: precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
+				parentCopyPixelAligned:
+					Number.isInteger(copyX) && Number.isInteger(copyY),
 				internalState,
 				scale,
 			});
@@ -359,11 +368,6 @@ export const processNode = async ({
 			});
 		}
 
-		const destinationRect = is3DPrecomposition
-			? rectAfterTransforms
-			: layerRect;
-		const parentOffsetScale = is3DPrecomposition ? scale : 1;
-
 		const drawPrecomposedCanvas = () => {
 			context.drawImage(
 				drawable,
@@ -371,8 +375,8 @@ export const processNode = async ({
 				0,
 				layerPixelWidth ?? drawable.width,
 				layerPixelHeight ?? drawable.height,
-				destinationRect.left - parentRect.x * parentOffsetScale,
-				destinationRect.top - parentRect.y * parentOffsetScale,
+				copyX,
+				copyY,
 				destinationRect.width,
 				destinationRect.height,
 			);

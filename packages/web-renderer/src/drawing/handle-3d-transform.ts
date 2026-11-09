@@ -52,6 +52,7 @@ export const handle3dTransform = ({
 	sourceRect,
 	tempCanvas,
 	rectAfterTransforms,
+	parentCopyPixelAligned,
 	internalState,
 	scale,
 }: {
@@ -59,6 +60,7 @@ export const handle3dTransform = ({
 	sourceRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
+	parentCopyPixelAligned: boolean;
 	internalState: InternalState;
 	scale: number;
 }) => {
@@ -71,6 +73,7 @@ export const handle3dTransform = ({
 		matrix,
 		sourceCanvas: tempCanvas,
 		destRect: rectAfterTransforms,
+		parentCopyPixelAligned,
 		internalState,
 		scale,
 	});
