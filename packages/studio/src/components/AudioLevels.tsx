@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
-	BORDER_BLACK,
 	FAIL_COLOR,
 	LIGHT_TEXT,
 	WARNING_COLOR,
@@ -30,7 +29,6 @@ const AudioLevelsInner: React.FC = () => {
 	const meterRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const fillRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const peakRefs = useRef<(HTMLDivElement | null)[]>([]);
-	const readingRefs = useRef<(HTMLDivElement | null)[]>([]);
 
 	useEffect(() => {
 		if (!audioContext || !gainNode) {
@@ -91,17 +89,13 @@ const AudioLevelsInner: React.FC = () => {
 				currentLevels[channel === 0 ? 'left' : 'right'] = db;
 				const fill = fillRefs.current[channel];
 				const peak = peakRefs.current[channel];
-				const reading = readingRefs.current[channel];
 				const meter = meterRefs.current[channel];
-				if (fill && peak && reading && meter) {
+				if (fill && peak && meter) {
 					fill.style.clipPath = `inset(${(data.level / MIN_DB) * 100}% 0 0)`;
 					peak.style.bottom = `${(1 - data.peak / MIN_DB) * 100}%`;
 					peak.style.opacity = data.peak <= MIN_DB ? '0' : '1';
 					peak.style.backgroundColor =
 						time < data.clipUntil ? FAIL_COLOR : WHITE;
-					reading.textContent =
-						data.peak <= MIN_DB ? '−∞' : data.peak.toFixed(1);
-					reading.style.color = time < data.clipUntil ? FAIL_COLOR : LIGHT_TEXT;
 					meter.setAttribute('aria-valuenow', data.level.toFixed(1));
 					meter.setAttribute(
 						'aria-valuetext',
@@ -151,7 +145,6 @@ const AudioLevelsInner: React.FC = () => {
 			style={{
 				width: 104,
 				flexShrink: 0,
-				borderLeft: BORDER_BLACK,
 				backgroundColor: BACKGROUND,
 				display: 'flex',
 				flexDirection: 'column',
@@ -162,7 +155,7 @@ const AudioLevelsInner: React.FC = () => {
 		>
 			<div style={{...textStyle, fontSize: 11}}>Audio</div>
 			<div style={{display: 'flex', flex: 1, minHeight: 0, gap: 6}}>
-				<div style={{position: 'relative', width: 20, marginBottom: 28}}>
+				<div style={{position: 'relative', width: 20, marginBottom: 14}}>
 					{[0, -6, -12, -24, -36, -48, -60].map((db) => (
 						<div
 							key={db}
@@ -243,14 +236,6 @@ const AudioLevelsInner: React.FC = () => {
 							/>
 						</div>
 						<div style={textStyle}>{label[0]}</div>
-						<div
-							ref={(node) => {
-								readingRefs.current[channel] = node;
-							}}
-							style={textStyle}
-						>
-							−∞
-						</div>
 					</div>
 				))}
 			</div>

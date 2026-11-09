@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {BORDER_BLACK} from '../helpers/colors';
 import {AudioLevelsContext} from '../state/audio-levels';
 import {Transform3DModeStateProvider} from '../state/transform-3d-mode';
 import {AudioLevels} from './AudioLevels';
@@ -90,11 +91,16 @@ export const EditorContent: React.FC<{
 			<SplitterElement sticky={null} type="anti-flexer">
 				<div style={{display: 'flex', flex: 1, minHeight: 0}}>
 					<div
+						role="region"
+						aria-label="Timeline"
 						style={{
 							display: 'flex',
 							flexDirection: 'column',
 							flex: 1,
 							minWidth: 0,
+							position: 'relative',
+							overflow: 'hidden',
+							borderRight: audioLevelsVisible ? BORDER_BLACK : undefined,
 						}}
 					>
 						{showTimeline ? <Timeline /> : <TimelineEmptyState />}
