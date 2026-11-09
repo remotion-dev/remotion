@@ -62,6 +62,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>cancelRenderOnLambda()</strong>
 					<div>Cancel an in-progress render</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/deleterender">
+					<strong>deleteRender()</strong>
+					<div>Delete a render and its metadata from S3</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/getuserpolicy">
 					<strong>getUserPolicy()</strong>
 					<div>Get the policy JSON for your AWS user</div>
@@ -82,9 +86,21 @@ export const TableOfContents: React.FC = () => {
 					<strong>presignUrl()</strong>
 					<div>Make a private file public to those with the link</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/renderframesonlambda">
+					<strong>renderFramesOnLambda()</strong>
+					<div>Trigger an image sequence render</div>
+				</TOCItem>
+				<TOCItem link="/docs/lambda/renderframesonlambdaandstream">
+					<strong>renderFramesOnLambdaAndStream()</strong>
+					<div>Render an image sequence and stream progress</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/rendermediaonlambda">
 					<strong>renderMediaOnLambda()</strong>
 					<div>Trigger a video or audio render</div>
+				</TOCItem>
+				<TOCItem link="/docs/lambda/rendermediaonlambdaandstream">
+					<strong>renderMediaOnLambdaAndStream()</strong>
+					<div>Render a video or audio and stream progress</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/renderstillonlambda">
 					<strong>renderStillOnLambda()</strong>
