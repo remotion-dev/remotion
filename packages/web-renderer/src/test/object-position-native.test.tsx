@@ -7,6 +7,7 @@ import {
 	replacedElementPixelated,
 	pixelatedReplacedRaster,
 } from './fixtures/replaced-element-pixelated';
+import {svgUrlBlurredCover} from './fixtures/svg-url-nonzero-viewbox';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -94,6 +95,48 @@ test('restores sampling before the next replaced element', async () => {
 		height: 64,
 		fps: 25,
 		durationInFrames: 1,
+	});
+	const render = async (pixelated: boolean) =>
+		(
+			await renderStillOnWeb({
+				composition: fixture(pixelated),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+	const result = await compareNativePixels(
+		await render(false),
+		await render(true),
+	);
+	expect(result.mismatchedPixels).toBe(0);
+});
+
+// PR #13110: vector sources ignore this raster sampler, including scaled SVG crops.
+test('keeps vector SVG painting independent of the raster sampler', async () => {
+	const fixture = (pixelated: boolean) => ({
+		...svgUrlBlurredCover,
+		width: 160,
+		height: 160,
+		component: () => (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<div
+					style={{
+						position: 'absolute',
+						left: 8,
+						top: 8,
+						width: 80,
+						height: 80,
+						transform: 'scale(1.5)',
+						transformOrigin: '0 0',
+						imageRendering: pixelated ? 'pixelated' : 'auto',
+					}}
+				>
+					<svgUrlBlurredCover.component />
+				</div>
+			</AbsoluteFill>
+		),
 	});
 	const render = async (pixelated: boolean) =>
 		(

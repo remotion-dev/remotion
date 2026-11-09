@@ -73,16 +73,6 @@ const drawReplacedElement = ({
 	computedStyle: CSSStyleDeclaration;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
 }) => {
-	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
-	using _restoreImageSmoothing = {
-		[Symbol.dispose]: () => {
-			contextToDraw.imageSmoothingEnabled = previousSmoothing;
-		},
-	};
-	if (computedStyle.imageRendering === 'pixelated') {
-		contextToDraw.imageSmoothingEnabled = false;
-	}
-
 	const objectFit = parseObjectFit(computedStyle.objectFit);
 
 	const intrinsicSize =
@@ -168,6 +158,16 @@ const drawReplacedElement = ({
 			dimensions.height,
 		);
 		return;
+	}
+
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
 	}
 
 	// Use the 9-argument drawImage to support source cropping (for cover mode)
