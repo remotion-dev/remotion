@@ -507,6 +507,15 @@ for (const frame of [0, 1])
 						{omitBackground: false},
 					),
 				]);
-			expect(diff.mismatchedPixels).toBe(0);
+			expect(
+				diff.mismatchedPixels,
+				JSON.stringify({
+					frame,
+					experimental3DRendering,
+					maxChannelDelta: diff.maxChannelDelta,
+					devicePixelRatio,
+					userAgent: navigator.userAgent,
+				}),
+			).toBe(0);
 		}
 	});
