@@ -44,7 +44,9 @@ The `background-color` property is <a style={{color: 'green'}}>supported</a>.
 `background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
 The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
-Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+`background-repeat: round` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background. It includes both-axis round repetition, mixed `round repeat` / `repeat round`, and preservation of the source aspect ratio when the other size is `auto`. The opaque test cases match native Chromium; fractional positioning, arbitrary source interpolation and other image types require further pixel-parity qualification.
+
+Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
