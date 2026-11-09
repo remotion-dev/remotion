@@ -98,6 +98,10 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {svgDataUri} from './fixtures/svg-data-uri';
+import {
+	svgDisabledStyles,
+	svgDisabledStylesOpaque,
+} from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -180,6 +184,8 @@ export const Root: React.FC = () => {
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
 			<Composition {...scalePrecomposeFixture} />
+			<Composition {...svgDisabledStyles} />
+			<Composition {...svgDisabledStylesOpaque} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
