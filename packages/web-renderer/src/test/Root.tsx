@@ -9,6 +9,10 @@ import {
 	pixelatedBackgroundSampler,
 	pixelatedBackgroundSamplerControl,
 } from './fixtures/background-image-pixelated-sampler-lifetime';
+import {
+	spaceTextMaskTransparent,
+	spaceTextMaskWhite,
+} from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {
@@ -16,6 +20,7 @@ import {
 	backgroundImagePixelatedContexts,
 } from './fixtures/background-image-url-pixelated';
 import {backgroundImageRound} from './fixtures/background-image-url-round';
+import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -30,11 +35,41 @@ import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {
+	clipPathRectangleDescendantFilter,
+	clipPathRectangleDescendantFilterObjectBox,
+} from './fixtures/clip-path-rectangle-descendant-filter';
+import {
+	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
+	clipPathRectangleUnionOpaque,
+	clipPathRectangleUnionSvgTarget,
+	clipPathRectangleUnionFilterOutsets,
+} from './fixtures/clip-path-rectangle-union';
+import {clipPathReference} from './fixtures/clip-path-reference';
+import {
+	clipPathReferenceReview,
+	clipPathReferenceReviewOpaque,
+	clipPathReferenceFilterOutsets,
+} from './fixtures/clip-path-reference-review';
+import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
+import {
+	clipPathShapeReview,
+	clipPathShapeReviewOpaque,
+} from './fixtures/clip-path-shape-review';
 import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
@@ -127,6 +162,7 @@ import {
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -151,6 +187,10 @@ import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {
+	transformPrecision,
+	transformGeometric2d,
+} from './fixtures/transform-precision';
 import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -178,6 +218,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...transformPrecision} />
+			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
@@ -202,6 +244,9 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
+			<Composition {...backgroundImageSpace} />
+			<Composition {...spaceTextMaskTransparent} />
+			<Composition {...spaceTextMaskWhite} />
 			<Composition {...backgroundImagePixelated} />
 			<Composition {...backgroundImagePixelatedContexts} />
 			<Composition {...pixelatedBackgroundSampler} />
@@ -228,6 +273,7 @@ export const Root: React.FC = () => {
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
 				<Composition {...opacityZero} />
+				<Composition {...svgRootOpacity} />
 				<Composition {...opacityReset} />
 				<Composition {...opacityInherited} />
 				<Composition {...opaqueLayerOverFadingLayer} />
@@ -329,6 +375,26 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
 				<Composition {...clipPathCircle} />
+				<Composition {...clipPathReference} />
+				<Composition {...clipPathDescendantFilter} />
+				<Composition {...clipPathDescendantFilterObjectBox} />
+				<Composition {...clipPathReferenceReview} />
+				<Composition {...clipPathReferenceReviewOpaque} />
+				<Composition {...clipPathReferenceFilterOutsets} />
+				<Composition {...clipPathShapeReference} />
+				<Composition {...clipPathShapeReview} />
+				<Composition {...clipPathShapeReviewOpaque} />
+				<Composition {...clipPathRectangleUnion} />
+				<Composition {...clipDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilterObjectBox} />
+				<Composition {...clipTransformedDescendantFilter} />
+				<Composition {...clipDescendantBlur} />
+				<Composition {...clipNestedDescendantFilter} />
+				<Composition {...clipScaledFilter} />
+				<Composition {...clipPathRectangleUnionOpaque} />
+				<Composition {...clipPathRectangleUnionSvgTarget} />
+				<Composition {...clipPathRectangleUnionFilterOutsets} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>

@@ -1,8 +1,12 @@
-import {expect, test} from 'bun:test';
+import {expect, setSystemTime, test} from 'bun:test';
+import type {ElementInstallTarget} from '../preview-server/element-install-state';
 import {
+	ELEMENT_INSTALL_TARGET_MAX_AGE,
 	clearElementInstallStateForTests,
 	consumeStudioProtocolTarget,
 	getElementInstallTarget,
+	getElementInstallTargetByClientId,
+	subscribeToElementInstallTargets,
 	issueStudioProtocolTarget,
 	updateElementInstallTarget,
 } from '../preview-server/element-install-state';
@@ -174,4 +178,28 @@ test('config targets are project-level, purpose-bound, single-use and invalidate
 			targetId: readOnlyToken.id,
 		}),
 	).toBe(null);
+});
+
+// PR #13120: request-local selection must not leave old disconnected clients cached.
+test('expires disconnected target entries while discoveries select their own replies', () => {
+	clearElementInstallStateForTests();
+	const replies = new Map<string, ElementInstallTarget>();
+	const unsubscribe = subscribeToElementInstallTargets((target) =>
+		replies.set(target.clientId, target),
+	);
+	const now = Date.now();
+	try {
+		setSystemTime(now);
+		updateTarget({clientId: 'disconnected', requestId: 'old-discovery'});
+		setSystemTime(now + ELEMENT_INSTALL_TARGET_MAX_AGE);
+		updateTarget({clientId: 'active', requestId: 'current-discovery'});
+		expect(
+			getElementInstallTarget('current-discovery', replies)?.clientId,
+		).toBe('active');
+		expect(getElementInstallTargetByClientId('disconnected')).toBe(null);
+	} finally {
+		unsubscribe();
+		clearElementInstallStateForTests();
+		setSystemTime();
+	}
 });

@@ -52,6 +52,7 @@ const makeResponse = () => {
 };
 
 const noopLiveEventsServer: LiveEventsServer = {
+	getClientIds: () => [],
 	addNewClientListener: () => () => undefined,
 	closeConnections: () => Promise.resolve(),
 	router: () => Promise.resolve(),

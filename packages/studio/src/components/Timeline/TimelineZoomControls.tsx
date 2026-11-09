@@ -72,6 +72,7 @@ const TimelineZoomSlider: React.FC<{
 				{
 					anchorFrame: null,
 					anchorContentX: null,
+					anchorViewportX: null,
 				},
 			);
 		},
@@ -152,6 +153,7 @@ const TimelineZoomControlsInner: React.FC<{
 		setZoom(videoConfig.id, (z) => z / TIMELINE_ZOOM_BUTTON_FACTOR, {
 			anchorFrame: null,
 			anchorContentX: null,
+			anchorViewportX: null,
 		});
 	}, [setZoom, videoConfig]);
 
@@ -163,6 +165,7 @@ const TimelineZoomControlsInner: React.FC<{
 		setZoom(videoConfig.id, (z) => z * TIMELINE_ZOOM_BUTTON_FACTOR, {
 			anchorFrame: null,
 			anchorContentX: null,
+			anchorViewportX: null,
 		});
 	}, [setZoom, videoConfig]);
 

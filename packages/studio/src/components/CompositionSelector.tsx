@@ -35,7 +35,6 @@ import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {moveCompositionOrFolder} from './move-composition-or-folder';
-import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
@@ -391,24 +390,15 @@ export const CompositionSelector: React.FC<{
 			// The dragged row may remount at its new position before `dragend`.
 			activeDragRef.current = null;
 
-			try {
-				const result = await moveCompositionOrFolder({
-					dragData,
-					destination: {type: 'root'},
-					destinationFile: null,
-					getSnapshot: () => compositionManagerRef.current,
-				});
-				if (!result.success) {
-					showNotification(result.reason, 4000);
-				}
-			} catch (error) {
-				showNotification(
-					error instanceof Error ? error.message : String(error),
-					4000,
-				);
-			}
+			await moveCompositionOrFolder({
+				dragData,
+				destination: {type: 'root'},
+				destinationFile: null,
+				getSnapshot: () => compositionManagerRef.current,
+				setSelectedModal,
+			});
 		},
-		[compositionManagerRef, stopCompositionListAutoScroll],
+		[compositionManagerRef, stopCompositionListAutoScroll, setSelectedModal],
 	);
 
 	return (
