@@ -5,8 +5,8 @@ import {
 	type TransformStyleCache,
 } from '../drawing/calculate-transforms';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
+import '../symbol-dispose';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -20,6 +20,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {transformPrecisionValues} from './fixtures/transform-precision';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
@@ -294,13 +295,7 @@ test('preserves native transform precision across cached reads', (t) => {
 		return;
 	}
 
-	for (const transform of [
-		'rotate(15deg)',
-		'rotate(-10deg) scale(1.4,.8)',
-		'skew(11.25deg,-7.125deg) translate(12.125px,3.875px)',
-		'rotateX(20deg) rotateY(15deg)',
-		'translate(10%,20%) rotate(15deg)',
-	]) {
+	for (const transform of transformPrecisionValues) {
 		const element = document.createElement('div');
 		Object.assign(element.style, {
 			position: 'fixed',
