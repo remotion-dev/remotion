@@ -1,5 +1,9 @@
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
+import {
+	calculateTransforms,
+	type TransformStyleCache,
+} from '../drawing/calculate-transforms';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
@@ -278,4 +282,66 @@ test('SVG with explicit width/height props should render at specified size (issu
 	).blob({format: 'png'});
 
 	await testImage({blob, testId: 'svg-explicit-dimensions'});
+});
+
+// Rounded computed-style matrices lost native rotation/skew precision.
+test('preserves native transform precision across cached reads', (t) => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in Element.prototype)
+	) {
+		t.skip();
+		return;
+	}
+
+	for (const transform of [
+		'rotate(15deg)',
+		'rotate(-10deg) scale(1.4,.8)',
+		'skew(11.25deg,-7.125deg) translate(12.125px,3.875px)',
+		'rotateX(20deg) rotateY(15deg)',
+		'translate(10%,20%) rotate(15deg)',
+	]) {
+		const element = document.createElement('div');
+		Object.assign(element.style, {
+			position: 'fixed',
+			left: '0px',
+			top: '0px',
+			width: '100px',
+			height: '80px',
+			transformOrigin: '0 0',
+			transform,
+		});
+		const child = document.createElement('div');
+		Object.assign(child.style, {position: 'absolute', inset: '0'});
+		element.appendChild(child);
+		document.body.appendChild(element);
+		try {
+			const value = element
+				.computedStyleMap()
+				.get('transform') as CSSTransformValue;
+			const reference = transform.includes('%')
+				? new DOMMatrix(getComputedStyle(element).transform)
+				: value.toMatrix();
+			const expected = Array.from(reference.toFloat64Array(), (n) =>
+				n === 0 ? 0 : n,
+			);
+			const cache: TransformStyleCache = new WeakMap();
+			for (let read = 0; read < 2; read++) {
+				using plan = calculateTransforms({
+					element: child,
+					rootElement: element,
+					transformStyleCache: cache,
+					isolated: false,
+				});
+				expect(
+					Array.from(plan.totalMatrix.toFloat64Array(), (n) =>
+						n === 0 ? 0 : n,
+					),
+				).toEqual(expected);
+				plan.totalMatrix.a = 42;
+			}
+		} finally {
+			element.remove();
+		}
+	}
 });

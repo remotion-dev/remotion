@@ -65,18 +65,41 @@ type Transform = {
 type TransformStyle = Pick<
 	CSSStyleDeclaration,
 	'display' | 'rotate' | 'scale' | 'transform' | 'transformOrigin'
->;
+> & {matrix: DOMMatrixReadOnly | null};
 
 export type TransformStyleCache = WeakMap<Element, TransformStyle>;
 
+const getTypedTransformMatrix = (
+	element: Element,
+): DOMMatrixReadOnly | null => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in element)
+	)
+		return null;
+	const value = element.computedStyleMap().get('transform');
+	if (!(value instanceof CSSTransformValue)) return null;
+	try {
+		return DOMMatrixReadOnly.fromMatrix(value.toMatrix());
+	} catch (error) {
+		// Typed OM cannot convert percentage translations to a pixel matrix.
+		if (error instanceof TypeError) return null;
+		throw error;
+	}
+};
+
 const snapshotTransformStyle = (
 	computedStyle: CSSStyleDeclaration,
+	element: Element,
 ): TransformStyle => {
 	return {
 		display: computedStyle.display,
 		rotate: computedStyle.rotate,
 		scale: computedStyle.scale,
 		transform: computedStyle.transform,
+		matrix: hasTransformCssValue(computedStyle)
+			? getTypedTransformMatrix(element)
+			: null,
 		transformOrigin: computedStyle.transformOrigin,
 	};
 };
@@ -194,7 +217,7 @@ export const calculateTransforms = ({
 		const transformStyle =
 			computedStyle === null
 				? cachedTransformStyle!
-				: snapshotTransformStyle(computedStyle);
+				: snapshotTransformStyle(computedStyle, parent);
 
 		if (computedStyle !== null) {
 			transformStyleCache.set(parent, transformStyle);
@@ -265,7 +288,10 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = makeDOMMatrix(toParse);
+			const matrix =
+				toParse && transformStyle.matrix
+					? DOMMatrix.fromMatrix(transformStyle.matrix)
+					: makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
 			const {scale, rotate} = parent.style;
