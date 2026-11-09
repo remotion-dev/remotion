@@ -20,6 +20,7 @@ import type {PreferredEffectBackend} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getDownloadFilename} from '../../helpers/download-blob';
 import {canEditStudioConfig} from '../../helpers/settings-tab-availability';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
@@ -42,6 +43,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
 import {DataEditor} from './DataEditor';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {hasInvalidOutputDotSegment} from './out-name-checker';
 import {
 	buttonStyle,
 	container as containerStyle,
@@ -61,6 +63,7 @@ import {
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
+import {useRenderFrameInput} from './use-render-frame-input';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
@@ -121,17 +124,6 @@ const validateOutnameForStill = ({
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 
-		const hasDotAfterSlash = () => {
-			const substrings = prefix.split('/');
-			for (const str of substrings) {
-				if (str[0] === '.') {
-					return true;
-				}
-			}
-
-			return false;
-		};
-
 		const hasInvalidChar = () => {
 			return prefix.split('').some((char) => invalidCharacters.includes(char));
 		};
@@ -140,7 +132,7 @@ const validateOutnameForStill = ({
 			throw new Error('The prefix must be at least 1 character long');
 		}
 
-		if (prefix[0] === '.' || hasDotAfterSlash()) {
+		if (hasInvalidOutputDotSegment(outName)) {
 			throw new Error('The output name must not start with a dot');
 		}
 
@@ -230,6 +222,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [tab, setTab] = useState<TabType>('general');
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const downloadOutput =
+		window.remotion_isReadOnlyStudio ||
+		isBrowserStudio ||
+		previewServerState.type !== 'connected';
 	const canEditConfig = canEditStudioConfig({
 		isBrowserStudio,
 		previewServerConnected: previewServerState.type === 'connected',
@@ -238,7 +234,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
 		() => initialStillImageFormat ?? 'png',
 	);
-	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, _setInputProps] = useState(() => defaultProps);
 	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
@@ -281,10 +276,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(
 		initialKeyframeIntervalInSeconds ?? 5,
 	);
-	const [startFrame, setStartFrame] = useState<number | null>(
-		() => inFrameMark,
-	);
-	const [endFrame, setEndFrame] = useState<number | null>(() => outFrameMark);
 	const [transparent, setTransparent] = useState(initialTransparent ?? false);
 	const [muted, setMuted] = useState(initialMuted ?? false);
 	const [scale, setScale] = useState(initialScale ?? 1);
@@ -316,31 +307,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return encodableVideoCodecs[0] ?? codec;
 	}, [codec, encodableVideoCodecs]);
 
-	const finalEndFrame = useMemo(() => {
-		if (endFrame === null) {
-			return resolvedComposition.durationInFrames - 1;
-		}
+	const lastFrame = resolvedComposition.durationInFrames - 1;
+	const endFrameInput = useRenderFrameInput(outFrameMark, lastFrame, lastFrame);
+	const startFrameInput = useRenderFrameInput(
+		inFrameMark,
+		0,
+		endFrameInput.value,
+	);
+	const stillFrameInput = useRenderFrameInput(initialFrame, 0, lastFrame);
+	const {value: finalEndFrame} = endFrameInput;
+	const {value: finalStartFrame} = startFrameInput;
+	const {value: frame} = stillFrameInput;
 
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, endFrame),
-		);
-	}, [endFrame, resolvedComposition.durationInFrames]);
-
-	const finalStartFrame = useMemo(() => {
-		if (startFrame === null) {
-			return 0;
-		}
-
-		return Math.max(0, Math.min(finalEndFrame, startFrame));
-	}, [finalEndFrame, startFrame]);
-
-	const [initialOutNameState] = useState(() => {
+	const [outputPath, setOutputPath] = useState(() => {
 		if (initialDefaultOutName) {
 			return initialDefaultOutName;
 		}
 
-		const defaultOut = getDefaultOutLocation({
+		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
 				renderMode === 'still'
@@ -352,18 +336,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
 			outputLocation: window.remotion_renderDefaults?.outputLocation ?? null,
 		});
-
-		if (window.remotion_isReadOnlyStudio) {
-			return defaultOut.replace(/^out\//, '');
-		}
-
-		return defaultOut;
 	});
-
-	const [outName, setOutName] = useState(() => initialOutNameState);
+	const [hasCustomOutName, setHasCustomOutName] = useState(
+		initialDefaultOutName !== null,
+	);
+	const outName =
+		downloadOutput && !hasCustomOutName
+			? getDownloadFilename(outputPath)
+			: outputPath;
 
 	const updateOutNameExtension = useCallback((extension: string) => {
-		setOutName((prev) => getStringBeforeSuffix(prev) + '.' + extension);
+		setOutputPath((prev) => getStringBeforeSuffix(prev) + '.' + extension);
 	}, []);
 
 	const setStillFormat = useCallback(
@@ -459,30 +442,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return options;
 	}, [renderMode, resolvedComposition.durationInFrames, onRenderModeChange]);
 
-	const onFrameSetDirectly = useCallback(
-		(newFrame: number) => {
-			setFrame(newFrame);
-		},
-		[setFrame],
-	);
-
-	const onFrameChanged = useCallback(
-		(e: string) => {
-			setFrame((q) => {
-				const newFrame = parseFloat(e);
-				if (Number.isNaN(newFrame)) {
-					return q;
-				}
-
-				return newFrame;
-			});
-		},
-		[setFrame],
-	);
-
 	const onOutNameChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback((e) => {
-			setOutName(e.target.value);
+			setHasCustomOutName(true);
+			setOutputPath(e.target.value);
 		}, []);
 
 	const outnameValidation = useMemo(() => {
@@ -498,17 +461,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			const extension = outName.substring(outName.lastIndexOf('.') + 1);
 			const prefix = outName.substring(0, outName.lastIndexOf('.'));
 
-			const hasDotAfterSlash = () => {
-				const substrings = prefix.split('/');
-				for (const str of substrings) {
-					if (str[0] === '.') {
-						return true;
-					}
-				}
-
-				return false;
-			};
-
 			const hasInvalidChar = () => {
 				return prefix
 					.split('')
@@ -519,7 +471,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				throw new Error('The prefix must be at least 1 character long');
 			}
 
-			if (prefix[0] === '.' || hasDotAfterSlash()) {
+			if (hasInvalidOutputDotSegment(outName)) {
 				throw new Error('The output name must not start with a dot');
 			}
 
@@ -556,6 +508,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			addClientStillJob(
 				{
 					type: 'client-still',
+					downloadOutput,
 					compositionId: resolvedComposition.id,
 					outName,
 					imageFormat,
@@ -575,6 +528,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			addClientVideoJob(
 				{
 					type: 'client-video',
+					downloadOutput,
 					compositionId: resolvedComposition.id,
 					outName,
 					container,
@@ -619,6 +573,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		setSidebarCollapsedState,
+		downloadOutput,
 		outName,
 		imageFormat,
 		frame,
@@ -758,19 +713,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							resolvedComposition={resolvedComposition}
 							imageFormat={imageFormat}
 							setStillFormat={setStillFormat}
-							frame={frame}
-							onFrameChanged={onFrameChanged}
-							onFrameSetDirectly={onFrameSetDirectly}
+							frame={stillFrameInput}
 							container={container}
 							setContainerFormat={setContainerFormat}
 							setCodec={setCodecWithContainer}
 							encodableVideoCodecs={encodableVideoCodecs}
 							effectiveVideoCodec={effectiveVideoCodec}
-							startFrame={finalStartFrame}
-							setStartFrame={setStartFrame}
-							endFrame={finalEndFrame}
-							setEndFrame={setEndFrame}
+							startFrame={startFrameInput}
+							endFrame={endFrameInput}
 							outName={outName}
+							outputNameLabel={downloadOutput ? 'Download name' : 'Output name'}
 							onOutNameChange={onOutNameChange}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message

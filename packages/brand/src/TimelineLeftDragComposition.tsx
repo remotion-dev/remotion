@@ -1,36 +1,37 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {CloseUpFrame} from './CloseUpFrame';
 
 const TimelineLeftDragContent = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	// Cursor keyframes were captured at 60 fps.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={271}
+			durationInFrames={Math.round((271 / 60) * fps)}
 			style={{
 				width: 2560,
 				height: 1134,
 				rotate: '0.948186 0.15788 -0.275711 26.23743deg',
 				scale: 1.378,
-				translate: interpolate(
-					frame,
-					[135, 185],
-					['320px 80px', '-480px 80px'],
-					{
-						easing: Easing.bezier(0.42, 0, 0.58, 1),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
+				translate: '420px 80px',
 			}}
-			trimBefore={1190}
+			trimBefore={(1190 / 60) * fps}
 		>
 			<Video
 				src="https://remotion.media/studio-close-ups/basics-showcase/timeline-left-drag-02de7769165d.mp4"
-				durationInFrames={1461}
+				durationInFrames={Math.round((1461 / 60) * fps)}
+				muted
 				style={{
 					position: 'absolute',
 				}}
@@ -1184,10 +1185,31 @@ const TimelineLeftDragContent = () => {
 	);
 };
 
-export const TimelineLeftDragComposition = () => {
+const TimelineLeftDragCompositionContent = () => {
+	const {width, height} = useVideoConfig();
+
 	return (
 		<CloseUpFrame>
-			<TimelineLeftDragContent />
+			<div
+				style={{
+					position: 'absolute',
+					width: 1920,
+					height: 1080,
+					left: '50%',
+					top: '50%',
+					translate: '-50% -50%',
+					scale: Math.min(width / 1920, height / 1080),
+					overflow: 'hidden',
+				}}
+			>
+				<TimelineLeftDragContent />
+			</div>
 		</CloseUpFrame>
 	);
 };
+
+export const TimelineLeftDragComposition = Interactive.create({
+	Component: TimelineLeftDragCompositionContent,
+	layout: 'absolute-fill',
+	schema: {},
+});

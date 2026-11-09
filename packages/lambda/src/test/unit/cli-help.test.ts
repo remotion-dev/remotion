@@ -138,6 +138,7 @@ test('defines help for every Lambda command', () => {
 	expect(compositionsHelp).not.toContain('--force-path-style');
 
 	const deployFunctionHelp = getLambdaHelp(['functions', 'deploy']).join('\n');
+	expect(deployFunctionHelp).toContain('--function-name <name>');
 	expect(deployFunctionHelp).toContain('--timeout <seconds>');
 	expect(deployFunctionHelp).toContain(
 		'--runtime-preference <default|apple-emojis|cjk>',

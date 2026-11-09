@@ -13,6 +13,7 @@ import {CanvasTabs} from './CanvasTabs';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
+import {FullscreenControls} from './FullscreenControls';
 import MobilePanel from './MobilePanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
@@ -183,6 +184,7 @@ const TopPanelInner: React.FC<{
 										<CanvasTabs />
 										<div ref={drawRef} style={canvasContainerStyle}>
 											<CanvasIfSizeIsAvailable />
+											<FullscreenControls />
 										</div>
 									</div>
 								</SplitterElement>

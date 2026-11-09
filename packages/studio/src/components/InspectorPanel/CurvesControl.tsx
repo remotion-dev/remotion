@@ -2,6 +2,10 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
 import {ContextMenu} from '../ContextMenu';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 
 export type CurvePoints = readonly (readonly [number, number])[];
 
@@ -69,6 +73,7 @@ export const CurvesControl: React.FC<{
 	const cancel = useCallback(() => {
 		const {current} = drag;
 		drag.current = null;
+		stopForcingSpecificCursor();
 		if (current && graph.current?.hasPointerCapture(current.pointerId)) {
 			graph.current.releasePointerCapture(current.pointerId);
 		}
@@ -166,6 +171,7 @@ export const CurvesControl: React.FC<{
 
 		setSelection(pointIndex);
 		graph.current.setPointerCapture(event.pointerId);
+		forceSpecificCursor('default');
 		drag.current = {
 			pointerId: event.pointerId,
 			index: pointIndex,
@@ -213,6 +219,7 @@ export const CurvesControl: React.FC<{
 					const {current} = drag;
 					if (!current || current.pointerId !== event.pointerId) return;
 					drag.current = null;
+					stopForcingSpecificCursor();
 					event.currentTarget.releasePointerCapture(event.pointerId);
 					if (
 						JSON.stringify(current.points) === JSON.stringify(current.initial)

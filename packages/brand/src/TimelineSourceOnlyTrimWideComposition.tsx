@@ -1,15 +1,49 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const TimelineSourceOnlyTrimWideComposition = () => {
-	const frame = useCurrentFrame();
+const TimelineSourceOnlyTrimWideContent = () => {
+	const {fps} = useVideoConfig();
+	// Keep the camera, cursor, and recording on the captured 60 fps clock.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#1f2427'}}>
+		<Interactive.Div
+			name="Close-up to wide camera"
+			style={{
+				position: 'absolute',
+				inset: 0,
+				backgroundColor: '#1f2427',
+				// Hold the trim close-up before gradually revealing the changing preview.
+				scale: interpolate(frame, [140, 230], [2.4, 1], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+					easing: Easing.bezier(0.2, 0, 0.2, 1),
+					output: 'perceptual-scale',
+				}),
+				translate: interpolate(
+					frame,
+					[140, 230],
+					['-336px -864px', '0px 0px'],
+					{
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.bezier(0.2, 0, 0.2, 1),
+					},
+				),
+			}}
+		>
 			<AbsoluteFill
 				name="Canvas Capture"
-				durationInFrames={431}
+				durationInFrames={(431 / 60) * fps}
 				style={{
 					width: 2820,
 					height: 2348,
@@ -20,7 +54,8 @@ export const TimelineSourceOnlyTrimWideComposition = () => {
 			>
 				<Video
 					src="https://remotion.media/studio-close-ups/timeline-source-only-trim-wide-b0439388cc61.mp4"
-					durationInFrames={431}
+					durationInFrames={(431 / 60) * fps}
+					muted
 					style={{
 						position: 'absolute',
 					}}
@@ -324,6 +359,35 @@ export const TimelineSourceOnlyTrimWideComposition = () => {
 					}}
 				/>
 			</AbsoluteFill>
-		</AbsoluteFill>
+		</Interactive.Div>
 	);
 };
+
+const TimelineSourceOnlyTrimWideCompositionContent = () => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<CloseUpFrame>
+			<div
+				style={{
+					position: 'absolute',
+					width: 1920,
+					height: 1080,
+					left: '50%',
+					top: '50%',
+					translate: '-50% -50%',
+					scale: Math.min(width / 1920, height / 1080),
+					overflow: 'hidden',
+				}}
+			>
+				<TimelineSourceOnlyTrimWideContent />
+			</div>
+		</CloseUpFrame>
+	);
+};
+
+export const TimelineSourceOnlyTrimWideComposition = Interactive.create({
+	Component: TimelineSourceOnlyTrimWideCompositionContent,
+	layout: 'absolute-fill',
+	schema: {},
+});

@@ -60,10 +60,12 @@ type SequenceInspectorSourceLocation = {
 };
 
 export const useSequenceInspectorSourceLocation = (
-	sequence: TimelineTrackData['sequence'],
+	track: TimelineTrackData,
 ): SequenceInspectorSourceLocation => {
-	const {canOpenSource, openSource, originalLocation} =
-		useOpenSequenceInApps(sequence);
+	const {canOpenSource, openSource, originalLocation} = useOpenSequenceInApps(
+		track.sequence,
+		track.nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -219,7 +221,7 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 export const SequenceInspectorSections: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
