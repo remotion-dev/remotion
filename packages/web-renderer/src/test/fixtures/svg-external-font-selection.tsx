@@ -22,9 +22,14 @@ const Component: React.FC = () => {
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`.svg-font-from-external-css { font-family: "External SVG, class font"; font-size: ${40 + frame * 2}px; }`}</style>
 			<svg width={600} height={320} viewBox="0 0 600 320">
+				<style media={frame === 0 ? 'print' : 'screen'}>
+					{
+						'@namespace svg url("http://www.w3.org/2000/svg");svg|rect{fill:yellow}'
+					}
+				</style>
 				<style>
 					{
-						'@namespace svg url("http://www.w3.org/2000/svg");svg|rect:nth-child(2){fill:red}'
+						'@namespace svg url("http://www.w3.org/2000/svg");svg|rect:nth-child(3){fill:red}'
 					}
 				</style>
 				<rect width={20} height={20} />
