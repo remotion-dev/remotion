@@ -7,6 +7,7 @@ import {getBoxBasedOnBackgroundClip} from './get-padding-box';
 import {parseUrlFunction} from './mask-image';
 
 export const drawBackground = async ({
+	hasCssTransform,
 	backgroundImage,
 	context,
 	rect,
@@ -20,6 +21,7 @@ export const drawBackground = async ({
 	offsetTop: parentOffsetTop,
 	scale,
 }: {
+	hasCssTransform: boolean;
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
@@ -134,7 +136,25 @@ export const drawBackground = async ({
 			const top = Math.round(fill.rect.top - originY);
 			const right = Math.round(fill.rect.right - originX);
 			const bottom = Math.round(fill.rect.bottom - originY);
-			target.drawImage(fill.image, left, top, right - left, bottom - top);
+			const matrix = target.getTransform();
+			if (
+				computedStyle.imageRendering === 'pixelated' &&
+				hasCssTransform &&
+				matrix.a === 1 &&
+				matrix.b === 0 &&
+				matrix.c === 0 &&
+				matrix.d === 1 &&
+				Number.isInteger(matrix.e) &&
+				Number.isInteger(matrix.f)
+			) {
+				// Transformed native backgrounds sample in local paint coordinates.
+				// Localize integer translations without changing the tile geometry.
+				target.translate(left, top);
+				target.drawImage(fill.image, 0, 0, right - left, bottom - top);
+			} else {
+				target.drawImage(fill.image, left, top, right - left, bottom - top);
+			}
+
 			target.restore();
 			return;
 		}

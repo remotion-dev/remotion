@@ -45,3 +45,63 @@ export const backgroundImagePixelated = {
 	fps: 25,
 	durationInFrames: 2,
 } as const;
+
+// PR #13105: identity transforms select a local native paint context too.
+const contexts = [
+	{transform: 'none', ancestor: false},
+	{transform: 'matrix(1,0,0,1,0,0)', ancestor: false},
+	{transform: 'translate(2px,3px)', ancestor: false},
+	{transform: 'scale(2)', ancestor: false},
+	{transform: 'scale(1.5)', ancestor: false},
+	{transform: 'matrix(1,0,0,1,0,0)', ancestor: true},
+	{transform: 'translate(2px,3px)', ancestor: true},
+	{transform: 'scale(2)', ancestor: true},
+	{transform: 'scale(1.5)', ancestor: true},
+];
+const Contexts: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill
+			style={{backgroundColor: 'white', imageRendering: 'pixelated'}}
+		>
+			<Img src={pixelatedRaster} style={{display: 'none'}} />
+			{contexts.flatMap(({transform, ancestor}, row) =>
+				[0, 1, 2].map((column) => (
+					<div
+						key={`${transform}-${ancestor}-${column}`}
+						style={{
+							position: 'absolute',
+							left: 4 + column * 64 + frame,
+							top: 4 + row * 64 + frame,
+							width: 56,
+							height: 56,
+							transformOrigin: '0 0',
+							transform: ancestor ? transform : 'none',
+						}}
+					>
+						<div
+							style={{
+								width: 56,
+								height: 56,
+								transformOrigin: '0 0',
+								transform: ancestor ? 'none' : transform,
+								backgroundImage: `url("${pixelatedRaster}")`,
+								backgroundSize: '7px 11px',
+								backgroundRepeat: 'no-repeat',
+							}}
+						/>
+					</div>
+				)),
+			)}
+		</AbsoluteFill>
+	);
+};
+
+export const backgroundImagePixelatedContexts = {
+	component: Contexts,
+	id: 'background-image-pixelated-contexts',
+	width: 192,
+	height: 576,
+	fps: 25,
+	durationInFrames: 2,
+} as const;

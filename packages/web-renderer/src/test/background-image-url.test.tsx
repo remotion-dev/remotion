@@ -6,6 +6,7 @@ import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {
 	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
 	pixelatedRaster,
 } from './fixtures/background-image-url-pixelated';
 import {
@@ -22,6 +23,7 @@ test
 			backgroundImageUrl,
 			backgroundImageContain,
 			backgroundImagePixelated,
+			backgroundImagePixelatedContexts,
 		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
 	)(
 	'raster $fixture.id matches native frame $frame',
