@@ -603,6 +603,13 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			dependencies.push(dependency);
 		}
 
+		if (
+			parsed.data.element.isCaptionStyle &&
+			parsed.data.element.installationMode !== 'component-owned-sequence'
+		) {
+			return null;
+		}
+
 		const initialProps = parsed.data.element.initialProps ?? null;
 
 		if (
