@@ -4,6 +4,7 @@ import {
 	preserves3DChildren,
 	type TransformStyleCache,
 } from './drawing/calculate-transforms';
+import {parseDropShadowExpansion} from './drawing/filter-outsets';
 import {
 	clipPolygonToHalfPlanes,
 	clipSourceRectToViewport,
@@ -238,19 +239,39 @@ const planPreserve3DPlanes = ({
 					return;
 				}
 
+				const filterOutsets = transforms.precompositing
+					.needsFilterPrecompositing
+					? parseDropShadowExpansion(
+							transforms.precompositing.needsFilterPrecompositing,
+							true,
+						)
+					: {left: 0, right: 0, top: 0, bottom: 0};
+				const filterViewport = new DOMRect(
+					parentRect.left - filterOutsets.right,
+					parentRect.top - filterOutsets.bottom,
+					parentRect.width + filterOutsets.left + filterOutsets.right,
+					parentRect.height + filterOutsets.top + filterOutsets.bottom,
+				);
+				const bounds = getBiggestBoundingClientRect(
+					node,
+					preserving,
+					experimental3DRendering,
+				);
+				const paintBounds = new DOMRect(
+					bounds.left - filterOutsets.left,
+					bounds.top - filterOutsets.top,
+					bounds.width + filterOutsets.left + filterOutsets.right,
+					bounds.height + filterOutsets.top + filterOutsets.bottom,
+				);
 				const paintRect = transforms.totalMatrix.is2D
 					? clipSourceRectToViewport(
-							getBiggestBoundingClientRect(
-								node,
-								preserving,
-								experimental3DRendering,
-							),
+							paintBounds,
 							transforms.totalMatrix,
-							parentRect,
+							filterViewport,
 						)
 					: getPrecomposeRectFor3DTransform({
 							element: node,
-							parentRect,
+							parentRect: filterViewport,
 							matrix: transforms.totalMatrix,
 							onlyOwnPlane: preserving,
 							experimental3DRendering,

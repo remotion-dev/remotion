@@ -96,7 +96,7 @@ import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {
 	FallbackDepthScene,
-	size as preserve3DSize,
+	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
@@ -233,6 +233,11 @@ export const Root: React.FC = () => {
 					'review-blend',
 					'review-opacity-control',
 					'review-blend-inherit',
+					'review-blend-explicit',
+					'review-projected-visible-exact',
+					'review-eye-plane',
+					'review-descendant-blur',
+					'review-offscreen-filter',
 					'review-projected',
 					'review-projected-exact',
 					'review-blur',
@@ -241,7 +246,7 @@ export const Root: React.FC = () => {
 						key={kind}
 						id={`experimental-3d-${kind}`}
 						component={FallbackDepthScene}
-						{...preserve3DSize}
+						{...reviewSceneSize(kind)}
 						fps={30}
 						durationInFrames={1}
 						defaultProps={{kind}}

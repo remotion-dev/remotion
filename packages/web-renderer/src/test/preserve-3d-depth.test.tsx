@@ -7,20 +7,25 @@ import {page, server} from 'vitest/browser';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
-import {FallbackDepthScene, size} from './fixtures/preserve-3d-depth';
+import {
+	FallbackDepthScene,
+	size,
+	reviewSceneSize,
+} from './fixtures/preserve-3d-depth';
 import '../symbol-dispose';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
-const pixels = async (blob: Blob) => {
+const pixels = async (blob: Blob, dimensions = size) => {
 	const image = await createImageBitmap(blob);
 	try {
-		expect(image.width).toBe(size.width);
-		expect(image.height).toBe(size.height);
-		const context = new OffscreenCanvas(size.width, size.height).getContext(
-			'2d',
-		)!;
+		expect(image.width).toBe(dimensions.width);
+		expect(image.height).toBe(dimensions.height);
+		const context = new OffscreenCanvas(
+			dimensions.width,
+			dimensions.height,
+		).getContext('2d')!;
 		context.drawImage(image, 0, 0);
-		return context.getImageData(0, 0, size.width, size.height).data;
+		return context.getImageData(0, 0, dimensions.width, dimensions.height).data;
 	} finally {
 		image.close();
 	}
@@ -223,7 +228,7 @@ test.skipIf(server.browser !== 'chromium')(
 const reviewComposition = (kind: string) => ({
 	id: `3d-${kind}`,
 	component: () => <FallbackDepthScene kind={kind} />,
-	...size,
+	...reviewSceneSize(kind),
 	fps: 30,
 	durationInFrames: 1,
 });
@@ -312,49 +317,80 @@ test.skipIf(server.browser !== 'chromium')(
 	},
 );
 
-test.skipIf(server.browser !== 'chromium')(
-	'preserves explicitly inherited opacity inside a blended group',
-	async () => {
-		const composition = reviewComposition('review-blend-inherit');
-		const native = await captureNativeReference(composition);
-		const actual = await (
-			await renderStillOnWeb({
-				composition,
-				frame: 0,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-				experimental3DRendering: true,
-			})
-		).blob({format: 'png'});
-		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
-			0,
+// Producer equivalence protects inherited opacity/culling without claiming that
+// the separately retained native opaque-backdrop rounding diagnostic is repaired.
+for (const [kind, controlKind] of [
+	['review-blend-inherit', 'review-blend-explicit'],
+	['review-projected-exact', 'review-projected-visible-exact'],
+] as const) {
+	test(`preserves render bytes for ${kind} against equivalent explicit geometry`, async () => {
+		const rendered = await Promise.all(
+			[kind, controlKind].map(async (selected) =>
+				(
+					await renderStillOnWeb({
+						composition: reviewComposition(selected),
+						frame: 0,
+						inputProps: {},
+						licenseKey: 'free-license',
+						allowHtmlInCanvas: false,
+						experimental3DRendering: true,
+					})
+				).blob({format: 'png'}),
+			),
 		);
-	},
-);
+		expect(
+			(await compareNativePixels(rendered[0], rendered[1])).mismatchedPixels,
+		).toBe(0);
+	});
+}
 
-// Opacity 0.4 maps to integer 8-bit coverage. The original .5 full-native scene remains an
-// unchanged diagnostic for the separate opaque-backdrop channel gap.
-test.skipIf(server.browser !== 'chromium')(
-	'projects translucent 2D layers into the viewport without clipping',
-	async () => {
-		const composition = reviewComposition('review-projected-exact');
-		const native = await captureNativeReference(composition);
-		const actual = await (
-			await renderStillOnWeb({
+for (const [kind, x, y, color] of [
+	['review-eye-plane', 150, 250, [0, 255, 0, 255]],
+	['review-descendant-blur', 95, 150, [255, 222, 222, 255]],
+	['review-offscreen-filter', 75, 125, [0, 0, 255, 255]],
+] as const) {
+	test.skipIf(server.browser !== 'chromium')(
+		`${kind} retains the reported visible filter or projection output`,
+		async () => {
+			const composition = reviewComposition(kind);
+			const actual = await pixels(
+				await (
+					await renderStillOnWeb({
+						composition,
+						frame: 0,
+						inputProps: {},
+						licenseKey: 'free-license',
+						allowHtmlInCanvas: false,
+						experimental3DRendering: true,
+					})
+				).blob({format: 'png'}),
 				composition,
-				frame: 0,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-				experimental3DRendering: true,
-			})
-		).blob({format: 'png'});
-		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
-			0,
-		);
-	},
-);
+			);
+			const reference = await pixels(
+				// Preserve the default blur footprint; its full native channel diagnostic remains open.
+				kind === 'review-descendant-blur'
+					? await (
+							await renderStillOnWeb({
+								composition,
+								frame: 0,
+								inputProps: {},
+								licenseKey: 'free-license',
+								allowHtmlInCanvas: false,
+								experimental3DRendering: false,
+							})
+						).blob({format: 'png'})
+					: await captureNativeReference(composition),
+				composition,
+			);
+			const offset = (y * composition.width + x) * 4;
+			if (kind !== 'review-descendant-blur')
+				expect(Array.from(reference.slice(offset, offset + 4))).toEqual(color);
+			expect(Array.from(actual.slice(offset, offset + 4))).toEqual(
+				Array.from(reference.slice(offset, offset + 4)),
+			);
+		},
+	);
+}
 
 test('restores authored opacity and priority after 3D planning', () => {
 	const root = document.createElement('div');

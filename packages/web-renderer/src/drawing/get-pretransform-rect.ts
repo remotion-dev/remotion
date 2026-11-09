@@ -58,7 +58,7 @@ export const clipPolygonToHalfPlanes = <T extends Record<string, number>>(
 	return polygon;
 };
 
-export const clipSourceRectToViewport = (
+const clippedSourcePolygon = (
 	rect: DOMRect,
 	matrix: DOMMatrix,
 	viewport: DOMRect,
@@ -84,11 +84,46 @@ export const clipSourceRectToViewport = (
 	];
 	polygon = clipPolygonToHalfPlanes(polygon, distances);
 	if (!polygon.length) return null;
-	const left = Math.min(...polygon.map((p) => p.x));
-	const top = Math.min(...polygon.map((p) => p.y));
-	const right = Math.max(...polygon.map((p) => p.x));
-	const bottom = Math.max(...polygon.map((p) => p.y));
-	return new DOMRect(left, top, right - left, bottom - top);
+	return polygon;
+};
+
+export const clipSourceRectToViewport = (
+	rect: DOMRect,
+	matrix: DOMMatrix,
+	viewport: DOMRect,
+) => {
+	const polygon = clippedSourcePolygon(rect, matrix, viewport);
+	if (!polygon) return null;
+	const xs = polygon.map((point) => point.x);
+		const ys = polygon.map((point) => point.y);
+	return new DOMRect(
+		Math.min(...xs),
+		Math.min(...ys),
+		Math.max(...xs) - Math.min(...xs),
+		Math.max(...ys) - Math.min(...ys),
+	);
+};
+
+// Destination bounds must use the valid clipped polygon, not the four corners
+// of its source bounding rectangle, which can reintroduce negative-w corners.
+export const projectSourceRectToViewport = (
+	rect: DOMRect,
+	matrix: DOMMatrix,
+	viewport: DOMRect,
+) => {
+	const polygon = clippedSourcePolygon(rect, matrix, viewport);
+	if (!polygon) return null;
+	const projected = polygon.map((point) =>
+		new DOMPoint(point.x, point.y).matrixTransform(matrix),
+	);
+	const xs = projected.map((point) => point.x / point.w);
+		const ys = projected.map((point) => point.y / point.w);
+	return new DOMRect(
+		Math.min(...xs),
+		Math.min(...ys),
+		Math.max(...xs) - Math.min(...xs),
+		Math.max(...ys) - Math.min(...ys),
+	);
 };
 
 // Invert a single point through a projective transform

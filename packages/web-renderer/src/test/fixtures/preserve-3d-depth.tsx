@@ -9,36 +9,94 @@ const plane = (
 		React.Children.toArray(children),
 	);
 export const size = {width: 640, height: 480};
+export const reviewSceneSize = (kind: string) =>
+	[
+		'review-eye-plane',
+		'review-descendant-blur',
+		'review-offscreen-filter',
+	].includes(kind)
+		? {width: 300, height: 300}
+		: size;
 export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
+	if (kind === 'review-eye-plane')
+		return plane(
+			{...size, background: 'white'},
+			plane(
+				{width: 300, height: 300, perspective: 100},
+				plane({
+					left: 50,
+					top: 50,
+					width: 200,
+					height: 200,
+					background: 'lime',
+					transform: 'translateZ(50px) rotateY(45deg) rotateX(75deg)',
+				}),
+			),
+		);
+	if (kind === 'review-descendant-blur')
+		return plane(
+			{...size, background: 'white'},
+			plane(
+				{left: 100, top: 100, width: 100, height: 100, opacity: 0.4},
+				plane({
+					width: 100,
+					height: 100,
+					background: 'red',
+					filter: 'blur(10px)',
+				}),
+			),
+		);
+	if (kind === 'review-offscreen-filter')
+		return plane(
+			{...size, background: 'white'},
+			plane(
+				{width: 300, height: 300, transformStyle: 'preserve-3d'},
+				plane({
+					left: -100,
+					top: 100,
+					width: 50,
+					height: 50,
+					background: 'red',
+					filter: 'drop-shadow(150px 0 0 blue)',
+				}),
+			),
+		);
 	if (kind.startsWith('review-')) {
 		const style: React.CSSProperties = {
-			left: kind.startsWith('review-projected') ? 1000 : 100,
+			left:
+				kind === 'review-projected-visible-exact'
+					? 100
+					: kind.startsWith('review-projected')
+						? 1000
+						: 100,
 			top: 100,
 			width: 100,
 			height: 100,
 			background: kind.startsWith('review-inset') ? 'lime' : 'red',
 			opacity: kind.startsWith('review-inset')
 				? 1
-				: kind === 'review-projected-exact'
+				: kind.startsWith('review-projected') && kind.endsWith('exact')
 					? 0.4
 					: 0.5,
 			boxShadow: kind === 'review-inset' ? 'inset 10px 0 0 red' : undefined,
-			transform: kind.startsWith('review-projected')
-				? 'translateX(-900px)'
-				: undefined,
+			transform:
+				kind.startsWith('review-projected') &&
+				kind !== 'review-projected-visible-exact'
+					? 'translateX(-900px)'
+					: undefined,
 			filter: kind === 'review-blur' ? 'blur(10px)' : undefined,
 			mixBlendMode: kind.startsWith('review-blend') ? 'multiply' : undefined,
 		};
 		const reviewContent = plane(
 			style,
-			kind === 'review-blend-inherit'
+			kind === 'review-blend-inherit' || kind === 'review-blend-explicit'
 				? plane({
 						left: 20,
 						top: 20,
 						width: 60,
 						height: 60,
 						background: 'blue',
-						opacity: 'inherit',
+						opacity: kind === 'review-blend-explicit' ? 0.5 : 'inherit',
 					})
 				: undefined,
 		);

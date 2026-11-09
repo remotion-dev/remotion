@@ -10,15 +10,18 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import {parseDropShadowExpansion} from './filter-outsets';
 import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
-import {clipSourceRectToViewport} from './get-pretransform-rect';
+import {
+	clipSourceRectToViewport,
+	projectSourceRectToViewport,
+} from './get-pretransform-rect';
 import {
 	getPrecomposeRectFor3DTransform,
 	handle3dTransform,
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
-	parseDropShadowExpansion,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
@@ -99,6 +102,7 @@ export const processNode = async ({
 		const start = Date.now();
 
 		let precomposeRect: DOMRect | null = null;
+		let projectedRect: DOMRect | null = null;
 		if (
 			internalState.experimental3DRendering &&
 			(precompositing.needsOpacityPrecompositing || forceSubtreePrecompositing)
@@ -197,6 +201,11 @@ export const processNode = async ({
 					cleanupAfterChildren: null,
 				};
 			precomposeRect = roundToExpandRect(visibleSourceRect);
+			projectedRect = projectSourceRectToViewport(
+				precomposeRect,
+				totalMatrix,
+				captureViewport,
+			);
 		}
 
 		if (precomposeRect.width <= 0 || precomposeRect.height <= 0) {
@@ -207,9 +216,7 @@ export const processNode = async ({
 		// projected destination against the viewport when applying a 3D matrix.
 		if (
 			!doRectsIntersect(
-				internalState.experimental3DRendering
-					? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
-					: precomposeRect,
+				internalState.experimental3DRendering ? projectedRect! : precomposeRect,
 				parentRect,
 			)
 		) {
@@ -251,10 +258,12 @@ export const processNode = async ({
 		const rectAfterTransforms = roundToExpandRect(
 			scaleRect({
 				scale,
-				rect: transformDOMRect({
-					rect: precomposeRect,
-					matrix: totalMatrix,
-				}),
+				rect:
+					projectedRect ??
+					transformDOMRect({
+						rect: precomposeRect,
+						matrix: totalMatrix,
+					}),
 			}),
 		);
 
