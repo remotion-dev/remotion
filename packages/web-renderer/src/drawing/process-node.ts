@@ -19,7 +19,11 @@ import {
 	applyFilterToDrawOperation,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {
+	getPrecomposeRectForMask,
+	handleMask,
+	handleSvgClip,
+} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -90,7 +94,7 @@ export const processNode = async ({
 		const start = Date.now();
 
 		let precomposeRect: DOMRect | null = null;
-		if (precompositing.needsMaskImage) {
+		if (precompositing.needsMaskImage || precompositing.needsSvgClip) {
 			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
@@ -127,7 +131,9 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsSvgClip !== null;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -189,6 +195,15 @@ export const processNode = async ({
 				}),
 			}),
 		);
+
+		if (precompositing.needsSvgClip) {
+			await handleSvgClip({
+				resource: precompositing.needsSvgClip,
+				maskRect: dimensions,
+				precomposeRect: layerRect,
+				tempContext,
+			});
+		}
 
 		if (precompositing.needsMaskImage) {
 			await handleMask({

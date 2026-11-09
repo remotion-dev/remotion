@@ -1,3 +1,4 @@
+import {getSvgClipForPrecompositing} from './clip-path';
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {makeDOMMatrix} from './make-dom-matrix';
 import {
@@ -173,6 +174,7 @@ export const calculateTransforms = ({
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
+	let svgClip: SVGClipPathElement | null = null;
 	let filterForPrecompositing: string | null = null;
 	let blendMode: GlobalCompositeOperation | null = null;
 	while (parent) {
@@ -212,16 +214,19 @@ export const calculateTransforms = ({
 				? parseMaskImage(maskImageValue, computedStyle)
 				: null;
 
+			svgClip = getSvgClipForPrecompositing(computedStyle.clipPath, parent);
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated;
+			const needsGroup = blendMode !== null || isolated || svgClip !== null;
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'
 					? computedStyle.filter
 					: filterRequiresPrecompositing(computedStyle.filter);
 
+			const originalClipPath = parent.style.clipPath;
+			if (svgClip) parent.style.clipPath = 'none';
 			const originalMaskImage = parent.style.maskImage;
 			const originalWebkitMaskImage = parent.style.webkitMaskImage;
 			parent.style.maskImage = 'none';
@@ -243,6 +248,7 @@ export const calculateTransforms = ({
 			const parentRef = parent;
 
 			toReset.push(() => {
+				if (svgClip) parentRef!.style.clipPath = originalClipPath;
 				parentRef!.style.maskImage = originalMaskImage;
 				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
 				if (filterForPrecompositing) {
@@ -363,12 +369,14 @@ export const calculateTransforms = ({
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
+			needsSvgClip: svgClip,
 			needsFilterPrecompositing: filterForPrecompositing,
 			needsBlendMode: blendMode,
 			needsIsolation: isolated,
 			needsPrecompositing: Boolean(
 				needs3DTransformViaWebGL ||
 				needsMaskImage ||
+				svgClip !== null ||
 				needsFilterPrecompositing ||
 				blendMode !== null ||
 				isolated,

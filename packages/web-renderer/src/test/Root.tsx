@@ -26,6 +26,7 @@ import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {clipPathRectangleUnion} from './fixtures/clip-path-rectangle-union';
 import {clipPathReference} from './fixtures/clip-path-reference';
 import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
 import {threeDFlattening} from './fixtures/clipped';
@@ -287,6 +288,7 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathCircle} />
 				<Composition {...clipPathReference} />
 				<Composition {...clipPathShapeReference} />
+				<Composition {...clipPathRectangleUnion} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>

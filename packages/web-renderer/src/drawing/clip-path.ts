@@ -258,13 +258,7 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 	return {type: 'none'};
 }
 
-// The Canvas clip must be vector geometry so it also applies to descendants.
-// Reuse Path2D rather than rasterizing the SVG resource into a separate mask.
-const getReferencedShape = (
-	source: string,
-	element: Element,
-	rect: DOMRect,
-): {path: Path2D; fillRule: CanvasFillRule} | null => {
+const getReferencedClipPath = (source: string, element: Element) => {
 	let url: URL;
 	let id: string;
 	try {
@@ -284,13 +278,23 @@ const getReferencedShape = (
 	)
 		return null;
 	const resource = element.ownerDocument.getElementById(id);
-	if (!(resource instanceof SVGClipPathElement)) return null;
+	return resource instanceof SVGClipPathElement ? resource : null;
+};
+
+// Single shapes use Canvas vector clipping, which also clips descendants.
+const getReferencedShape = (
+	source: string,
+	element: Element,
+	rect: DOMRect,
+): {path: Path2D; fillRule: CanvasFillRule} | null => {
+	const resource = getReferencedClipPath(source, element);
+	if (!resource) return null;
 	const children = Array.from(resource.children).filter(
 		(node) => getComputedStyle(node).display !== 'none',
 	);
 	const path = new Path2D();
 	if (children.length === 0) return {path, fillRule: 'nonzero'};
-	// Multiple shapes need union coverage rather than a combined winding rule.
+	// Sibling shapes use SVG painting through the existing group layer.
 	if (children.length !== 1) return null;
 	const child = children[0];
 	if (
@@ -351,6 +355,30 @@ const getReferencedShape = (
 		fillRule:
 			getComputedStyle(child).clipRule === 'evenodd' ? 'evenodd' : 'nonzero',
 	};
+};
+
+export const getSvgClipForPrecompositing = (
+	clipPath: string,
+	element: Element,
+): SVGClipPathElement | null => {
+	if (!clipPath.startsWith('url(')) return null;
+	const parsed = parseClipPath(clipPath, new DOMRect());
+	if (parsed.type !== 'url') return null;
+	const resource = getReferencedClipPath(parsed.source, element);
+	if (!resource) return null;
+	const children = Array.from(resource.children);
+	// Keep single shapes on the vector path. SVG painting preserves each engine's
+	// native treatment of reflected, overlapping sibling contours.
+	return children.filter((child) => getComputedStyle(child).display !== 'none')
+		.length > 1 &&
+		children.every(
+			(child) =>
+				child instanceof SVGRectElement &&
+				child.rx.baseVal.valueInSpecifiedUnits === 0 &&
+				child.ry.baseVal.valueInSpecifiedUnits === 0,
+		)
+		? resource
+		: null;
 };
 
 export function setClipPath({
