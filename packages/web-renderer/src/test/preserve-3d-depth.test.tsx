@@ -346,7 +346,7 @@ for (const [kind, controlKind] of [
 
 for (const [kind, x, y, color] of [
 	['review-eye-plane', 150, 250, [0, 255, 0, 255]],
-	['review-descendant-blur', 95, 150, [255, 222, 222, 255]],
+	['review-descendant-blur', 95, 150, null],
 	['review-offscreen-filter', 75, 125, [0, 0, 255, 255]],
 ] as const) {
 	test.skipIf(server.browser !== 'chromium')(
@@ -383,7 +383,7 @@ for (const [kind, x, y, color] of [
 				composition,
 			);
 			const offset = (y * composition.width + x) * 4;
-			if (kind !== 'review-descendant-blur')
+			if (color !== null)
 				expect(Array.from(reference.slice(offset, offset + 4))).toEqual(color);
 			expect(Array.from(actual.slice(offset, offset + 4))).toEqual(
 				Array.from(reference.slice(offset, offset + 4)),
