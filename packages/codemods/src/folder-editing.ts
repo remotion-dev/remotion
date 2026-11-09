@@ -21,6 +21,7 @@ import {
 	type CodemodNodeResult,
 	type NodeReference,
 } from './node-references';
+import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {
 	findRegistrationRoot,
 	getCompositionIdFromJSXElement,
@@ -116,6 +117,19 @@ export const requireTreeItem = (
 	return matches[0];
 };
 
+const requireMovableTreeItem = (
+	entries: TreeEntry[],
+	item: CompositionTreeItem,
+) => {
+	try {
+		return requireTreeItem(entries, item);
+	} catch (error) {
+		throw new RegistrationRequiresRefactorError(
+			error instanceof Error ? error.message : String(error),
+		);
+	}
+};
+
 // The result of inserting one registration element. The element is located in
 // the output by its ID or folder reference, or as the last element appended to
 // the folder or the registration root.
@@ -192,7 +206,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	const input = project.files[filePath];
 	const ast = parseAst(input);
 	const entries = getTreeEntries({ast});
-	const entry = requireTreeItem(entries, source);
+	const entry = requireMovableTreeItem(entries, source);
 	const before = captureJsxNodePaths(ast);
 	const targetItem =
 		destination.type === 'root'
@@ -228,7 +242,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 			},
 		);
 		if (matches.length !== 1)
-			throw new Error(
+			throw new RegistrationRequiresRefactorError(
 				`Expected one destination matching ${JSON.stringify(targetItem)}, found ${matches.length}. Specify destinationFile to disambiguate.`,
 			);
 		[targetFilePath] = matches;
@@ -244,7 +258,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	const target =
 		targetItem === null
 			? null
-			: requireTreeItem(destinationEntries, targetItem);
+			: requireMovableTreeItem(destinationEntries, targetItem);
 	const destinationParentName =
 		destination.type === 'folder'
 			? [destination.folder.parentName, destination.folder.name]
@@ -301,7 +315,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 				entry.path.parentPath?.node.type === 'ArrowFunctionExpression')
 		)
 	)
-		throw new Error(
+		throw new RegistrationRequiresRefactorError(
 			'Could not locate the JSX element to move as a direct JSX child',
 		);
 	if (
@@ -313,7 +327,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 				target.path.parentPath?.node.type === 'ArrowFunctionExpression')
 		)
 	)
-		throw new Error(
+		throw new RegistrationRequiresRefactorError(
 			'Could not locate the JSX destination as a direct JSX child',
 		);
 	if (targetFilePath !== filePath) {
