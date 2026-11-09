@@ -28,7 +28,11 @@ import {
 } from './fixtures/mask-image-url-math-size';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
 import {maskImageUrlSizing, rasterMask} from './fixtures/mask-image-url-sizing';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	countNativePixels,
+} from './native-reference';
 import {testImage} from './utils';
 
 for (const scale of [1, 2]) {
@@ -436,7 +440,7 @@ for (const {math, literal, transparent} of [
 					omitBackground: transparent,
 				});
 				expect(
-					(await compareNativePixels(reference, literalReference))
+					(await countNativePixels(reference, literalReference))
 						.mismatchedPixels,
 				).toBe(0);
 			}
@@ -462,8 +466,7 @@ for (const {math, literal, transparent} of [
 				}
 
 				expect(
-					(await compareNativePixels(rendered[0], rendered[1]))
-						.mismatchedPixels,
+					(await countNativePixels(rendered[0], rendered[1])).mismatchedPixels,
 				).toBe(0);
 			}
 		});

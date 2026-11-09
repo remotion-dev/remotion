@@ -99,7 +99,11 @@ const decodePixels = async (blob: Blob) => {
 };
 
 // No perceptual threshold, antialias exclusion, or alpha-channel exception.
-export const compareNativePixels = async (reference: Blob, actual: Blob) => {
+const compareNativePixelData = async (
+	reference: Blob,
+	actual: Blob,
+	createDiff: boolean,
+) => {
 	const [expected, received] = await Promise.all([
 		decodePixels(reference),
 		decodePixels(actual),
@@ -113,7 +117,9 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 		);
 	}
 
-	const diff = new ImageData(expected.width, expected.height);
+	const diff = createDiff
+		? new ImageData(expected.width, expected.height)
+		: null;
 	let mismatchedPixels = 0;
 	let maxChannelDelta = 0;
 	for (let offset = 0; offset < expected.data.length; offset += 4) {
@@ -128,14 +134,29 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 
 		if (differs) {
 			mismatchedPixels++;
-			diff.data.set([255, 0, 255, 255], offset);
+			diff?.data.set([255, 0, 255, 255], offset);
 		}
 	}
 
+	return {mismatchedPixels, maxChannelDelta, diff};
+};
+
+export const countNativePixels = async (reference: Blob, actual: Blob) => {
+	const {mismatchedPixels, maxChannelDelta} = await compareNativePixelData(
+		reference,
+		actual,
+		false,
+	);
+	return {mismatchedPixels, maxChannelDelta};
+};
+
+export const compareNativePixels = async (reference: Blob, actual: Blob) => {
+	const {mismatchedPixels, maxChannelDelta, diff} =
+		await compareNativePixelData(reference, actual, true);
 	const canvas = document.createElement('canvas');
-	canvas.width = expected.width;
-	canvas.height = expected.height;
-	canvas.getContext('2d')!.putImageData(diff, 0, 0);
+	canvas.width = diff!.width;
+	canvas.height = diff!.height;
+	canvas.getContext('2d')!.putImageData(diff!, 0, 0);
 	const diffBlob = await new Promise<Blob>((resolve) =>
 		canvas.toBlob((blob) => resolve(blob!), 'image/png'),
 	);
