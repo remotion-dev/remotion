@@ -198,6 +198,7 @@ export const processNode = async ({
 
 		if (precompositing.needsSvgClip) {
 			await handleSvgClip({
+				element,
 				resource: precompositing.needsSvgClip,
 				maskRect: dimensions,
 				precomposeRect: layerRect,

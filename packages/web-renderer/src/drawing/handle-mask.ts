@@ -4,7 +4,7 @@ import {getBackgroundImageRect} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
 import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
-import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
+import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -142,69 +142,27 @@ export const handleMask = async ({
 	tempContext.restore();
 };
 
-// Use the existing group layer and SVG drawable rather than combining contours
-// whose reflected winding is interpreted differently by native engines.
 export const handleSvgClip = async ({
 	resource,
 	maskRect,
 	precomposeRect,
+	element,
 	tempContext,
 }: {
 	resource: SVGClipPathElement;
+	element: HTMLElement | SVGElement;
 	maskRect: DOMRect;
 	precomposeRect: DOMRect;
 	tempContext: OffscreenCanvasRenderingContext2D;
 }) => {
-	const namespace = 'http://www.w3.org/2000/svg';
-	const svg = resource.ownerDocument.createElementNS(namespace, 'svg');
-	svg.setAttribute('width', String(tempContext.canvas.width));
-	svg.setAttribute('height', String(tempContext.canvas.height));
-	const x = precomposeRect.left - maskRect.left;
-	const y = precomposeRect.top - maskRect.top;
-	svg.setAttribute(
-		'viewBox',
-		`${x} ${y} ${precomposeRect.width} ${precomposeRect.height}`,
-	);
-	const clip = resource.cloneNode(true) as SVGClipPathElement;
-	clip.id = 'remotion-svg-clip';
-	const originals = Array.from(resource.children);
-	for (let i = 0; i < originals.length; i++) {
-		const originalRect = originals[i] as SVGRectElement;
-		const style = getComputedStyle(originalRect);
-		const child = clip.children[i] as SVGRectElement;
-		child.style.clipRule = style.clipRule;
-		child.style.display = style.display;
-		// Resolve lengths against the original SVG viewport before serialization.
-		for (const attribute of ['x', 'y', 'width', 'height'] as const)
-			child.setAttribute(
-				attribute,
-				String(originalRect[attribute].baseVal.value),
-			);
-	}
-
-	if (
-		resource.clipPathUnits.baseVal ===
-		SVGUnitTypes.SVG_UNIT_TYPE_OBJECTBOUNDINGBOX
-	) {
-		clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
-		clip.setAttribute(
-			'transform',
-			`scale(${maskRect.width} ${maskRect.height}) ${resource.getAttribute('transform') ?? ''}`,
-		);
-	}
-
-	const defs = resource.ownerDocument.createElementNS(namespace, 'defs');
-	defs.appendChild(clip);
-	svg.appendChild(defs);
-	const rect = resource.ownerDocument.createElementNS(namespace, 'rect');
-	rect.setAttribute('x', String(x));
-	rect.setAttribute('y', String(y));
-	rect.setAttribute('width', String(precomposeRect.width));
-	rect.setAttribute('height', String(precomposeRect.height));
-	rect.setAttribute('fill', 'white');
-	rect.setAttribute('clip-path', 'url(#remotion-svg-clip)');
-	svg.appendChild(rect);
-	const image = await turnSvgIntoDrawable(svg);
+	const image = await createSvgClipMask({
+		resource,
+		referenceRect: getBiggestBoundingClientRect(element, false),
+		maskRect,
+		precomposeRect,
+		width: tempContext.canvas.width,
+		height: tempContext.canvas.height,
+	});
 	tempContext.globalCompositeOperation = 'destination-in';
 	tempContext.drawImage(image, 0, 0);
 };
