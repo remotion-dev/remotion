@@ -42,23 +42,23 @@ type CssFontRule = {
 // Font sources must be self-contained before the SVG is loaded as an image.
 const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
-	for (const sheet of svg.ownerDocument.styleSheets) {
-		if (
-			sheet.disabled ||
-			(sheet.media.mediaText && !matchMedia(sheet.media.mediaText).matches)
-		)
-			continue;
-		let cssRules: CSSRuleList;
-		try {
-			cssRules = sheet.cssRules;
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
-				continue;
-			throw error;
-		}
-
+	const ownerWindow = svg.ownerDocument.defaultView! as Window &
+		typeof globalThis;
+	const visitRules = (cssRules: CSSRuleList, baseUrl: string) => {
 		for (const rule of cssRules) {
-			if (!(rule instanceof CSSFontFaceRule)) continue;
+			if (rule instanceof ownerWindow.CSSMediaRule) {
+				if (ownerWindow.matchMedia(rule.conditionText).matches)
+					visitRules(rule.cssRules, baseUrl);
+				continue;
+			}
+
+			if (rule instanceof ownerWindow.CSSSupportsRule) {
+				if (ownerWindow.CSS.supports(rule.conditionText))
+					visitRules(rule.cssRules, baseUrl);
+				continue;
+			}
+
+			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = rule.style.fontFamily
 				.replace(/^(['"])(.*)\1$/, '$2')
 				.toLowerCase();
@@ -75,7 +75,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			if (!/^data:/i.test(sourceUrl)) {
 				let resolved: URL;
 				try {
-					resolved = new URL(sourceUrl, sheet.href ?? svg.baseURI);
+					resolved = new URL(sourceUrl, baseUrl);
 				} catch {
 					// Invalid authored font URLs retain the browser's fallback behavior.
 					continue;
@@ -107,6 +107,25 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 				]),
 			});
 		}
+	};
+
+	for (const sheet of svg.ownerDocument.styleSheets) {
+		if (
+			sheet.disabled ||
+			(sheet.media.mediaText &&
+				!ownerWindow.matchMedia(sheet.media.mediaText).matches)
+		)
+			continue;
+		let cssRules: CSSRuleList;
+		try {
+			cssRules = sheet.cssRules;
+		} catch (error) {
+			if (error instanceof DOMException && error.name === 'SecurityError')
+				continue;
+			throw error;
+		}
+
+		visitRules(cssRules, sheet.href ?? svg.baseURI);
 	}
 
 	return rules;

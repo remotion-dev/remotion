@@ -98,6 +98,7 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
+import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {svgDataUri} from './fixtures/svg-data-uri';
@@ -180,6 +181,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgCssDataFont} />
+			<Composition {...svgCssConditionalFont} />
 			<Composition {...svgCssUrlFont} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
