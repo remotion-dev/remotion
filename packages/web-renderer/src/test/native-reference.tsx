@@ -50,19 +50,7 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 				/>,
 			);
 		});
-		Internals.Log.info(
-			{logLevel: 'info', tag: 'clip-parity-ci'},
-			'native-reference fonts:start',
-			fixture.id,
-			frame,
-		);
 		await document.fonts.ready;
-		Internals.Log.info(
-			{logLevel: 'info', tag: 'clip-parity-ci'},
-			'native-reference fonts:end',
-			fixture.id,
-			frame,
-		);
 		await Promise.all(
 			Array.from(host.querySelectorAll('img'), (img) => img.decode()),
 		);
@@ -75,12 +63,6 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 				throw new Error('Native reference remained buffering');
 		} while (readBuffering!());
 
-		Internals.Log.info(
-			{logLevel: 'info', tag: 'clip-parity-ci'},
-			'native-reference screenshot:start',
-			fixture.id,
-			frame,
-		);
 		const {base64} = await page.getByTestId(host.dataset.testid).screenshot({
 			base64: true,
 			omitBackground: true,
@@ -88,12 +70,6 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 			style:
 				'html, body, iframe[data-vitest] { background: transparent !important; }',
 		});
-		Internals.Log.info(
-			{logLevel: 'info', tag: 'clip-parity-ci'},
-			'native-reference screenshot:end',
-			fixture.id,
-			frame,
-		);
 		return new Blob(
 			[Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))],
 			{type: 'image/png'},
