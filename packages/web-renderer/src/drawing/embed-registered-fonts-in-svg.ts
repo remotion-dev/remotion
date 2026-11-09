@@ -1,11 +1,11 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {parseFontFamilies} from './parse-font-families';
 
 type RegisteredFontFace = ReturnType<
 	typeof NoReactInternals.getRegisteredFontFaces
 >[number];
 
 export type EmbeddedFontStyle = {
-	blob: Blob;
 	cacheKey: string;
 	css: string;
 };
@@ -236,11 +236,9 @@ export const getEmbeddedFontStyleForSvg = (
 					parentElement,
 				);
 			computedStyleByElement.set(parentElement, computedStyle);
-			for (const family of computedStyle.fontFamily.split(',')) {
-				const normalizedFamily = family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase();
+			for (const normalizedFamily of parseFontFamilies(
+				computedStyle.fontFamily,
+			)) {
 				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
 				const matchingIndexes = familyIndexes.filter((index) =>
 					descriptorsMatch(registeredFonts[index]!, computedStyle),
@@ -272,14 +270,25 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const css = sortedIndexes
 		.map((index) => getFontFaceRule(registeredFonts[index]!))
-		.join('')
-		.replace(/]]>/g, ']]]]><![CDATA[>');
-	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+		.join('');
 	const embeddedStyle = {
-		blob: new Blob([style]),
 		cacheKey,
 		css,
 	};
 	styleByFontFaceSet.set(cacheKey, embeddedStyle);
 	return embeddedStyle;
+};
+
+// Add definitions without changing authored child selectors when a style exists.
+export const insertFontStyleInSvg = (svg: SVGSVGElement, css: string) => {
+	let style = svg.querySelector<SVGStyleElement | HTMLStyleElement>('style');
+	if (!style) {
+		style = svg.ownerDocument.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'style',
+		);
+		svg.prepend(style);
+	}
+
+	style.textContent = css + (style.textContent ?? '');
 };
