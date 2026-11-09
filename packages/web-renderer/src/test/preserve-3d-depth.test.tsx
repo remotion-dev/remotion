@@ -1,4 +1,5 @@
 import {Thumbnail} from '@remotion/player';
+import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
@@ -157,7 +158,17 @@ test
 // KINO-7765: each public render API must own its 3D policy without a global flag.
 test.skipIf(server.browser !== 'chromium')(
 	'3D policy belongs to each still, batch and media render',
-	async () => {
+	async (t) => {
+		const startedAt = performance.now();
+		let phase = 'disabled still';
+		t.onTestFailed(() => {
+			Internals.Log.error(
+				{logLevel: 'error', tag: '@remotion/web-renderer'},
+				`3D render policy: ${phase}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
+			);
+		});
+		// This smoke checks option ownership; native geometry remains covered at 640x480 above.
+		const outputSize = {width: 160, height: 120};
 		const composition = {
 			id: '3d-render-policy',
 			component: FallbackDepthScene,
@@ -171,6 +182,7 @@ test.skipIf(server.browser !== 'chromium')(
 			inputProps: {kind: 'depth'},
 			licenseKey: 'free-license',
 			allowHtmlInCanvas: false,
+			scale: 0.25,
 		} as const;
 		const disabled = await pixels(
 			await (
@@ -180,27 +192,32 @@ test.skipIf(server.browser !== 'chromium')(
 					experimental3DRendering: false,
 				})
 			).blob({format: 'png'}),
+			outputSize,
 		);
+		phase = 'default still';
 		const defaultResult = await pixels(
 			await (await renderStillOnWeb({...options, frame: 0})).blob({
 				format: 'png',
 			}),
+			outputSize,
 		);
 		expect(defaultResult).toEqual(disabled);
+		phase = 'enabled batch';
 		const batch = await renderFramesOnWeb({
 			...options,
 			frames: [0, 1],
 			experimental3DRendering: true,
 		});
-		const index = (220 * 640 + 300) * 4;
+		const index = (55 * outputSize.width + 75) * 4;
 		for (const still of batch) {
-			const data = await pixels(await still.blob({format: 'png'}));
+			const data = await pixels(await still.blob({format: 'png'}), outputSize);
 			expect(Array.from(data.slice(index, index + 3))).toEqual([34, 221, 68]);
 			expect(Array.from(disabled.slice(index, index + 3))).not.toEqual([
 				34, 221, 68,
 			]);
 		}
 
+		phase = 'enabled media';
 		let capturedFrames = 0;
 		const media = await renderMediaOnWeb({
 			...options,
@@ -210,18 +227,31 @@ test.skipIf(server.browser !== 'chromium')(
 			muted: true,
 			experimental3DRendering: true,
 			onFrame: (frame) => {
-				const canvas = new OffscreenCanvas(640, 480);
+				expect(frame.displayWidth).toBe(outputSize.width);
+				expect(frame.displayHeight).toBe(outputSize.height);
+				const canvas = new OffscreenCanvas(outputSize.width, outputSize.height);
 				const context = canvas.getContext('2d')!;
 				context.drawImage(frame, 0, 0);
 				expect(
-					Array.from(context.getImageData(300, 220, 1, 1).data.slice(0, 3)),
+					Array.from(context.getImageData(75, 55, 1, 1).data.slice(0, 3)),
 				).toEqual([34, 221, 68]);
 				capturedFrames++;
 				return frame;
 			},
 		});
 		expect(capturedFrames).toBe(2);
-		expect((await media.getBlob()).size).toBeGreaterThan(0);
+
+		phase = 'encoded media dimensions';
+		const blob = await media.getBlob();
+		expect(blob.size).toBeGreaterThan(0);
+		using input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(blob),
+		});
+		const track = await input.getPrimaryVideoTrack();
+		expect(track).not.toBeNull();
+		expect(track!.displayWidth).toBe(outputSize.width);
+		expect(track!.displayHeight).toBe(outputSize.height);
 	},
 );
 
