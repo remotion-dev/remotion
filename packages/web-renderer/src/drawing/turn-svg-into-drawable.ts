@@ -163,7 +163,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const cssFontRules = textElements.length
 		? getCssDataFontRules(svg, fontFamilies)
 		: '';
-	const fontCss = (embeddedFontStyle?.css ?? '') + cssFontRules;
+	// Script-added faces follow CSS-connected faces in FontFaceSet order.
+	const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
 	if (fontCss) insertFontStyleInSvg(svgForSerialization, fontCss);
 
 	const serializedSvg = new XMLSerializer()
