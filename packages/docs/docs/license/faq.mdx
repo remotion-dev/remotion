@@ -128,7 +128,8 @@ An automation is defined as owning code that programmatically calls one of the f
 
 In practice, organizations building video editors, prompt-to-video tools, automated video pipelines or using the [Remotion Player](/docs/player) will fall under Remotion for Automators.
 
-Rendering a video yourself with the render button in the [Remotion Studio](/docs/studio) is not an automation.
+Rendering a video yourself with the render button in the [Remotion Studio](/docs/studio) is not an automation.  
+Rendering from a [deployed Studio](/docs/studio/deploy-static) is not an automation either.
 
 ### My AI agent wrote a script that renders many videos. Is that an automation?
 
@@ -136,20 +137,21 @@ By default, yes, since the script calls one of the APIs listed above.
 
 There is one exception. Remotion for Creators covers the script if both of the following apply:
 
-- You run the script yourself for a single production for your organization.
+- You start each run of the script yourself, and you render videos for your organization.
 - Your organization has an active Seat for you. A Seat that your organization bought for a colleague does not cover scripts that you run.
 
-For example, you ask your agent to render one campaign in 12 languages and you run the resulting script once.
+For example, you ask your agent to render a campaign in 12 languages and you run the resulting script yourself.
 
-The exception no longer applies once you reuse the script as a tool, deploy it, schedule it, let events or other people trigger it, or render at high volume.  
+The exception no longer applies once you reuse the script as a tool, schedule it, let events or other people trigger it, or render at high volume.  
 We decide whether usage falls under this exception. If you are unsure, [contact us](/contact).
 
 ### Who needs a Seat under Remotion for Creators?
 
 Every person who makes videos with Remotion needs a Seat, whether they write code, use an agentic coding tool or edit and assemble compositions in the [Remotion Studio](/docs/studio).  
-This includes people who only assemble videos from existing templates in the Studio.
+This includes people who only assemble videos from existing templates in the Studio on their own machine.
 
 AI agents do not need a Seat, only the people using them.  
+People who only render videos from a [deployed Studio](/docs/studio/deploy-static) do not need a Seat.  
 People who only review or receive the finished videos do not need a Seat.  
 Developers working only on automations do not need a Seat either.
 
