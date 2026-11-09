@@ -104,6 +104,10 @@ import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
+import {
+	svgLocalConditionalFont,
+	svgLocalConditionalUrlFont,
+} from './fixtures/svg-local-conditional-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -182,6 +186,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssConditionalFont} />
+			<Composition {...svgLocalConditionalFont} />
+			<Composition {...svgLocalConditionalUrlFont} />
 			<Composition {...svgCssUrlFont} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />

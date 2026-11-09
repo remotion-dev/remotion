@@ -4,28 +4,39 @@ import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {
+	svgLocalConditionalFont,
+	svgLocalConditionalFontReady,
+	svgLocalConditionalUrlFont,
+} from './fixtures/svg-local-conditional-font';
+import {
 	captureNativeReference,
 	compareNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 
-test.for([0, 1])(
-	'conditional CSS fonts match native frame %i (KINO-7769)',
-	async (frame, t) => {
+test.for(
+	[
+		svgCssConditionalFont,
+		svgLocalConditionalFont,
+		svgLocalConditionalUrlFont,
+	].flatMap((composition) =>
+		[0, 1].map((frame) => ({composition, frame, id: composition.id})),
+	),
+)(
+	'conditional CSS fonts $id match native frame $frame (KINO-7769)',
+	async ({composition, frame}, t) => {
 		if (t.task.file.projectName !== 'chromium') {
 			t.skip();
 			return;
 		}
 
+		await svgLocalConditionalFontReady;
 		expect(window.matchMedia('(min-width:900px)').matches).toBe(true);
 		expect(CSS.supports('display', 'grid')).toBe(true);
-		const reference = await captureNativeReference(
-			svgCssConditionalFont,
-			frame,
-		);
+		const reference = await captureNativeReference(composition, frame);
 		const actual = await (
 			await renderStillOnWeb({
-				composition: svgCssConditionalFont,
+				composition,
 				frame,
 				inputProps: {},
 				licenseKey: 'free-license',
@@ -34,9 +45,18 @@ test.for([0, 1])(
 		).blob({format: 'png'});
 		const result = await compareNativePixels(reference, actual);
 		if (result.mismatchedPixels !== 0) {
-			await savePixelEvidence(reference, `conditional-font-${frame}-native`);
-			await savePixelEvidence(actual, `conditional-font-${frame}-actual`);
-			await savePixelEvidence(result.diff, `conditional-font-${frame}-diff`);
+			await savePixelEvidence(
+				reference,
+				`conditional-font-${composition.id}-${frame}-native`,
+			);
+			await savePixelEvidence(
+				actual,
+				`conditional-font-${composition.id}-${frame}-actual`,
+			);
+			await savePixelEvidence(
+				result.diff,
+				`conditional-font-${composition.id}-${frame}-diff`,
+			);
 		}
 
 		expect(result.mismatchedPixels).toBe(0);

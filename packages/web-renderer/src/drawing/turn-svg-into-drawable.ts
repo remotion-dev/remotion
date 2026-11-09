@@ -39,25 +39,34 @@ type CssFontRule = {
 	declarations: [string, string][];
 };
 
+// Evaluate conditional rules before SVG image loading changes the viewport.
+const getActiveCssRules = (
+	cssRules: CSSRuleList,
+	ownerWindow: Window & typeof globalThis,
+): CSSRule[] => {
+	const activeRules: CSSRule[] = [];
+	for (const rule of cssRules) {
+		if (rule instanceof ownerWindow.CSSMediaRule) {
+			if (ownerWindow.matchMedia(rule.conditionText).matches)
+				activeRules.push(...getActiveCssRules(rule.cssRules, ownerWindow));
+		} else if (rule instanceof ownerWindow.CSSSupportsRule) {
+			if (ownerWindow.CSS.supports(rule.conditionText))
+				activeRules.push(...getActiveCssRules(rule.cssRules, ownerWindow));
+		} else {
+			activeRules.push(rule);
+		}
+	}
+
+	return activeRules;
+};
+
 // Font sources must be self-contained before the SVG is loaded as an image.
 const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView! as Window &
 		typeof globalThis;
 	const visitRules = (cssRules: CSSRuleList, baseUrl: string) => {
-		for (const rule of cssRules) {
-			if (rule instanceof ownerWindow.CSSMediaRule) {
-				if (ownerWindow.matchMedia(rule.conditionText).matches)
-					visitRules(rule.cssRules, baseUrl);
-				continue;
-			}
-
-			if (rule instanceof ownerWindow.CSSSupportsRule) {
-				if (ownerWindow.CSS.supports(rule.conditionText))
-					visitRules(rule.cssRules, baseUrl);
-				continue;
-			}
-
+		for (const rule of getActiveCssRules(cssRules, ownerWindow)) {
 			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = rule.style.fontFamily
 				.replace(/^(['"])(.*)\1$/, '$2')
@@ -225,6 +234,28 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const cssFontRules = textElements.length
 		? getCssFontRules(svg, fontFamilies)
 		: [];
+
+	if (cssFontRules.length) {
+		const ownerWindow = svg.ownerDocument.defaultView! as Window &
+			typeof globalThis;
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
+		svg.querySelectorAll('style').forEach((style, index) => {
+			const {sheet} = style;
+			if (!sheet) return;
+			// SVG-local rules must use the same owning-window conditions as the
+			// embedded font snapshot; otherwise inactive faces can override it.
+			const active =
+				!sheet.disabled &&
+				(!sheet.media.mediaText ||
+					ownerWindow.matchMedia(sheet.media.mediaText).matches);
+			clonedStyles[index].removeAttribute('media');
+			clonedStyles[index].textContent = active
+				? getActiveCssRules(sheet.cssRules, ownerWindow)
+						.map((rule) => rule.cssText)
+						.join('')
+				: '';
+		});
+	}
 
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
