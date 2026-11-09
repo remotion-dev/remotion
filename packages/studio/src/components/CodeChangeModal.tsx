@@ -1,5 +1,9 @@
-import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
-import React, {useContext, useRef} from 'react';
+import type {
+	EditorPickerId,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
 import {OpenInEditor} from '../error-overlay/remotion-overlay/OpenInEditor';
 import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -34,6 +38,119 @@ const text: React.CSSProperties = {
 	marginBottom: 16,
 };
 
+const CodeChangeSource: React.FC<{
+	readonly source: SymbolicatedStackFrame;
+	readonly editorId: EditorPickerId | null;
+	readonly editorName: string | null;
+	readonly isFirst: boolean;
+}> = ({source, editorId, editorName, isFirst}) => {
+	const {
+		originalFileName,
+		originalLineNumber,
+		originalColumnNumber,
+		originalScriptCode,
+	} = source;
+	const key = JSON.stringify([
+		originalFileName,
+		originalLineNumber,
+		originalColumnNumber,
+	]);
+	const [resolved, setResolved] = useState<{
+		key: string;
+		source: SymbolicatedStackFrame | null;
+		error: string | null;
+	} | null>(null);
+
+	useEffect(() => {
+		if (
+			originalScriptCode !== null ||
+			originalFileName === null ||
+			originalLineNumber === null
+		) {
+			return;
+		}
+
+		let cancelled = false;
+		resolveFileSource(
+			{
+				fileName: originalFileName,
+				lineNumber: originalLineNumber,
+				columnNumber: originalColumnNumber ?? 0,
+				message: '',
+			},
+			3,
+		)
+			.then((resolvedFrame) => {
+				if (!cancelled) setResolved({key, source: resolvedFrame, error: null});
+			})
+			.catch((error: unknown) => {
+				if (!cancelled)
+					setResolved({
+						key,
+						source: null,
+						error: error instanceof Error ? error.message : String(error),
+					});
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [
+		key,
+		originalFileName,
+		originalLineNumber,
+		originalColumnNumber,
+		originalScriptCode,
+	]);
+
+	const current = resolved?.key === key ? resolved : null;
+	const frame =
+		originalScriptCode === null ? (current?.source ?? source) : source;
+	const status =
+		frame.originalScriptCode !== null
+			? null
+			: originalFileName === null || originalLineNumber === null
+				? 'The source location is unavailable.'
+				: current?.error
+					? `Could not load code preview: ${current.error}`
+					: 'Loading code preview...';
+
+	return (
+		<div style={{marginBottom: 16}}>
+			<StackElement
+				collapsible={false}
+				defaultFunctionName={null}
+				editorId={editorId}
+				fontSize={13}
+				headerAction={
+					editorId && editorName ? (
+						<OpenInEditor
+							canHaveKeyboardShortcuts={false}
+							editorId={editorId}
+							editorName={editorName}
+							size="compact"
+							stack={frame}
+						/>
+					) : null
+				}
+				horizontalSpacing={0}
+				isFirst={isFirst}
+				lineNumberWidth={
+					String(
+						Math.max(
+							0,
+							...(frame.originalScriptCode ?? []).map(
+								(line) => line.lineNumber,
+							),
+						),
+					).length
+				}
+				s={frame}
+			/>
+			{status ? <div style={text}>{status}</div> : null}
+		</div>
+	);
+};
+
 export const CodeChangeModal: React.FC<{
 	readonly title: string;
 	readonly description: React.ReactNode;
@@ -59,41 +176,20 @@ export const CodeChangeModal: React.FC<{
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title={title} />
-			<div ref={annotationTarget} style={container}>
+			<div
+				ref={annotationTarget}
+				className="__remotion-vertical-scrollbar"
+				style={container}
+			>
 				<div style={text}>{description}</div>
 				{[...uniqueSources].map(([key, source], index) => (
-					<div key={key} style={{marginBottom: 16}}>
-						<StackElement
-							collapsible={false}
-							defaultFunctionName={null}
-							editorId={canOpenInEditor ? defaultEditorId : null}
-							fontSize={13}
-							headerAction={
-								canOpenInEditor && defaultEditorId && defaultEditorName ? (
-									<OpenInEditor
-										canHaveKeyboardShortcuts={false}
-										editorId={defaultEditorId}
-										editorName={defaultEditorName}
-										size="compact"
-										stack={source}
-									/>
-								) : null
-							}
-							horizontalSpacing={0}
-							isFirst={index === 0}
-							lineNumberWidth={
-								String(
-									Math.max(
-										0,
-										...(source.originalScriptCode ?? []).map(
-											(line) => line.lineNumber,
-										),
-									),
-								).length
-							}
-							s={source}
-						/>
-					</div>
+					<CodeChangeSource
+						key={key}
+						source={source}
+						editorId={canOpenInEditor ? defaultEditorId : null}
+						editorName={defaultEditorName}
+						isFirst={index === 0}
+					/>
 				))}
 				{sourceStatus ? <div style={text}>{sourceStatus}</div> : null}
 				<AgentPrompt
