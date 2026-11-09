@@ -41,6 +41,7 @@ export const makeAudioIterator = ({
 	};
 
 	let mostRecentTimestamp = -Infinity;
+	let waitingForFirstChunk = true;
 
 	const clearSchedule = () => {
 		for (const node of queuedAudioNodes.keys()) {
@@ -66,6 +67,7 @@ export const makeAudioIterator = ({
 
 	const scheduleAudio = (chunk: PreparedAudioChunk) => {
 		if (destroyed) return;
+		waitingForFirstChunk = false;
 		const node = scheduleChunk(chunk);
 		if (!node) return;
 		queuedFrom = Math.min(queuedFrom, chunk.timestamp);
@@ -79,6 +81,7 @@ export const makeAudioIterator = ({
 
 	const getNextFn = async () => {
 		const next = await iterator.next();
+		waitingForFirstChunk = false;
 
 		if (next.value) {
 			mostRecentTimestamp = Math.max(
@@ -109,13 +112,16 @@ export const makeAudioIterator = ({
 		// so replace only their scheduling after the shared clock moves.
 		rescheduleAudio: (time: number) => {
 			const queued = [...queuedAudioNodes.values()];
+			const canKeepPendingRead =
+				waitingForFirstChunk && time === startFromSecond;
 			if (
 				destroyed ||
-				!queued.some(
-					(item) =>
-						time >= item.timestamp &&
-						time < item.timestamp + item.sourceDurationInSeconds,
-				)
+				(!canKeepPendingRead &&
+					!queued.some(
+						(item) =>
+							time >= item.timestamp &&
+							time < item.timestamp + item.sourceDurationInSeconds,
+					))
 			) {
 				return false;
 			}
