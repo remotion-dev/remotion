@@ -305,8 +305,8 @@ export function assertElementAssets(
 }
 
 const dimensionsSchema = z.object({
-	width: z.number().check(z.positive()),
-	height: z.number().check(z.positive()),
+	width: z.number().check(z.positive(), z.lte(100_000)),
+	height: z.number().check(z.positive(), z.lte(100_000)),
 });
 
 const elementInstallationModeSchema = z.union([
