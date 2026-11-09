@@ -35,7 +35,7 @@ The `opacity` property is <a style={{color: 'green'}}>supported</a>.
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
 The `perspective` and `perspective-origin` properties have <a style={{color: 'orange'}}>experimental support</a> when `experimental3DRendering: true` is passed to the render API. This option defaults to `false`.<br />
 With that option, the `transform-style: preserve-3d` property is <a style={{color: 'orange'}}>partially supported</a>: overlapping, nonintersecting planes are drawn from back to front, retaining DOM order at equal depth. Grouping effects such as opacity, masks and filters flatten their subtree. Intersecting planes, ordering cycles, direct text in a preserving element and contexts with more than 256 planes retain traversal order. General polygon splitting and full CSS 3D stacking are not supported.<br />
-Experimental 3D qualification is bounded to the measured Chromium scenes. Arbitrary edge antialiasing, magnified text and cross-engine perspective remain open; this option does not promise pixel-for-pixel parity.<br />
+Experimental 3D qualification is bounded to the measured Chromium scenes. Arbitrary edge antialiasing, opaque-backdrop opacity rounding, magnified text and cross-engine perspective remain open; this option does not promise pixel-for-pixel parity.<br />
 The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
 
 ### Backgrounds

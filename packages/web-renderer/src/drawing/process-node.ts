@@ -140,6 +140,7 @@ export const processNode = async ({
 			const tentativePrecomposeRect = getPrecomposeRectForFilter({
 				element,
 				filter: precompositing.needsFilterPrecompositing,
+				experimental3DRendering: internalState.experimental3DRendering,
 			});
 
 			precomposeRect = roundToExpandRect(
@@ -174,7 +175,10 @@ export const processNode = async ({
 			// Clip after every bounds union, including opacity and filter groups.
 			// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
 			const outsets = precompositing.needsFilterPrecompositing
-				? parseDropShadowExpansion(precompositing.needsFilterPrecompositing)
+				? parseDropShadowExpansion(
+						precompositing.needsFilterPrecompositing,
+						true,
+					)
 				: {left: 0, right: 0, top: 0, bottom: 0};
 			const captureViewport = new DOMRect(
 				parentRect.left - outsets.right,
@@ -203,8 +207,7 @@ export const processNode = async ({
 		// projected destination against the viewport when applying a 3D matrix.
 		if (
 			!doRectsIntersect(
-				internalState.experimental3DRendering &&
-					precompositing.needs3DTransformViaWebGL
+				internalState.experimental3DRendering
 					? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
 					: precomposeRect,
 				parentRect,

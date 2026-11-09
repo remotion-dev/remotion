@@ -260,14 +260,6 @@ export const calculateTransforms = ({
 			}
 
 			opacity = parseFloat(computedStyle.opacity);
-			if (experimental3DRendering && opacity > 0 && opacity < 1) {
-				const ungroupedOpacity = parent.style.opacity;
-				const groupParent = parent;
-				parent.style.opacity = '1';
-				toReset.push(() => {
-					groupParent.style.opacity = ungroupedOpacity;
-				});
-			}
 
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue
@@ -277,7 +269,10 @@ export const calculateTransforms = ({
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated;
+			const needsGroup =
+				blendMode !== null ||
+				isolated ||
+				(experimental3DRendering && opacity > 0 && opacity < 1);
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'
@@ -291,15 +286,48 @@ export const calculateTransforms = ({
 
 			const originalMixBlendMode = parent.style.mixBlendMode;
 			const originalOpacity = parent.style.opacity;
+			const originalOpacityPriority =
+				parent.style.getPropertyPriority('opacity');
+			const childPaintStyles =
+				experimental3DRendering &&
+				needsGroup &&
+				(opacity !== 1 || filterForPrecompositing !== null)
+					? Array.from(parent.children, (child) => {
+							const style = getComputedStyle(child);
+							return {
+								child: child as HTMLElement | SVGElement,
+								opacity: style.opacity,
+								filter: filterForPrecompositing ? style.filter : 'none',
+								style: child.getAttribute('style'),
+							};
+						}).filter(
+							(child) => child.opacity !== '1' || child.filter !== 'none',
+						)
+					: [];
 			if (needsGroup) {
 				parent.style.mixBlendMode = 'normal';
-				parent.style.opacity = '1';
+				if (experimental3DRendering)
+					parent.style.setProperty('opacity', '1', 'important');
+				else parent.style.opacity = '1';
+				for (const child of childPaintStyles) {
+					if (child.opacity !== '1')
+						child.child.style.setProperty(
+							'opacity',
+							child.opacity,
+							'important',
+						);
+					if (child.filter !== 'none')
+						child.child.style.setProperty('filter', child.filter, 'important');
+				}
 			}
 
 			// Neutralize filter if it requires precompositing to prevent double-application
 			const originalFilter = parent.style.filter;
+			const originalFilterPriority = parent.style.getPropertyPriority('filter');
 			if (filterForPrecompositing) {
-				parent.style.filter = 'none';
+				if (experimental3DRendering)
+					parent.style.setProperty('filter', 'none', 'important');
+				else parent.style.filter = 'none';
 			}
 
 			const parentRef = parent;
@@ -308,12 +336,24 @@ export const calculateTransforms = ({
 				parentRef!.style.maskImage = originalMaskImage;
 				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
 				if (filterForPrecompositing) {
-					parentRef!.style.filter = originalFilter;
+					parentRef!.style.setProperty(
+						'filter',
+						originalFilter,
+						originalFilterPriority,
+					);
 				}
 
 				if (needsGroup) {
 					parentRef!.style.mixBlendMode = originalMixBlendMode;
-					parentRef!.style.opacity = originalOpacity;
+					parentRef!.style.setProperty(
+						'opacity',
+						originalOpacity,
+						originalOpacityPriority,
+					);
+					for (const child of childPaintStyles) {
+						if (child.style === null) child.child.removeAttribute('style');
+						else child.child.setAttribute('style', child.style);
+					}
 				}
 			});
 		}

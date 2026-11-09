@@ -10,17 +10,43 @@ const plane = (
 	);
 export const size = {width: 640, height: 480};
 export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
-	if (kind === 'review-inset' || kind === 'review-inset-control') {
+	if (kind.startsWith('review-')) {
+		const style: React.CSSProperties = {
+			left: kind.startsWith('review-projected') ? 1000 : 100,
+			top: 100,
+			width: 100,
+			height: 100,
+			background: kind.startsWith('review-inset') ? 'lime' : 'red',
+			opacity: kind.startsWith('review-inset')
+				? 1
+				: kind === 'review-projected-exact'
+					? 0.4
+					: 0.5,
+			boxShadow: kind === 'review-inset' ? 'inset 10px 0 0 red' : undefined,
+			transform: kind.startsWith('review-projected')
+				? 'translateX(-900px)'
+				: undefined,
+			filter: kind === 'review-blur' ? 'blur(10px)' : undefined,
+			mixBlendMode: kind.startsWith('review-blend') ? 'multiply' : undefined,
+		};
+		const reviewContent = plane(
+			style,
+			kind === 'review-blend-inherit'
+				? plane({
+						left: 20,
+						top: 20,
+						width: 60,
+						height: 60,
+						background: 'blue',
+						opacity: 'inherit',
+					})
+				: undefined,
+		);
 		return plane(
 			{...size, background: 'white'},
-			plane({
-				left: 100,
-				top: 100,
-				width: 100,
-				height: 100,
-				background: 'lime',
-				boxShadow: kind === 'review-inset' ? 'inset 10px 0 0 red' : undefined,
-			}),
+			kind.startsWith('review-blend') || kind === 'review-opacity-control'
+				? plane({...size, transformStyle: 'preserve-3d'}, reviewContent)
+				: reviewContent,
 		);
 	}
 

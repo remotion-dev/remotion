@@ -6,6 +6,7 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
  */
 export const parseDropShadowExpansion = (
 	filter: string,
+	includeBlur = false,
 ): {left: number; right: number; top: number; bottom: number} => {
 	const expansion = {left: 0, right: 0, top: 0, bottom: 0};
 
@@ -64,6 +65,17 @@ export const parseDropShadowExpansion = (
 		}
 	}
 
+	if (includeBlur) {
+		const blurRegex = /(?:^|\s)blur\(([^)]+)\)/g;
+		while ((match = blurRegex.exec(filter)) !== null) {
+			const spread = parseFloat(match[1]) * 3;
+			expansion.left += spread;
+			expansion.right += spread;
+			expansion.top += spread;
+			expansion.bottom += spread;
+		}
+	}
+
 	return expansion;
 };
 
@@ -74,13 +86,15 @@ export const parseDropShadowExpansion = (
 export const getPrecomposeRectForFilter = ({
 	element,
 	filter,
+	experimental3DRendering = false,
 }: {
 	element: HTMLElement | SVGElement;
 	filter: string;
+	experimental3DRendering?: boolean;
 }): DOMRect => {
 	// Use getBiggestBoundingClientRect to include all children that may overflow
 	const elementRect = getBiggestBoundingClientRect(element);
-	const expansion = parseDropShadowExpansion(filter);
+	const expansion = parseDropShadowExpansion(filter, experimental3DRendering);
 
 	return new DOMRect(
 		elementRect.left - expansion.left,

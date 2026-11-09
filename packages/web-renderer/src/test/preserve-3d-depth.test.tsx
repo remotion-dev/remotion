@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
 import {expect, test} from 'vitest';
 import {page, server} from 'vitest/browser';
+import {calculateTransforms} from '../drawing/calculate-transforms';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
 import {FallbackDepthScene, size} from './fixtures/preserve-3d-depth';
@@ -219,7 +220,7 @@ test.skipIf(server.browser !== 'chromium')(
 	},
 );
 
-const insetComposition = (kind: string) => ({
+const reviewComposition = (kind: string) => ({
 	id: `3d-${kind}`,
 	component: () => <FallbackDepthScene kind={kind} />,
 	...size,
@@ -230,7 +231,7 @@ const insetComposition = (kind: string) => ({
 test('keeps unsupported inset shadows disabled on the default path', async () => {
 	const control = await (
 		await renderStillOnWeb({
-			composition: insetComposition('review-inset-control'),
+			composition: reviewComposition('review-inset-control'),
 			frame: 0,
 			inputProps: {},
 			licenseKey: 'free-license',
@@ -240,7 +241,7 @@ test('keeps unsupported inset shadows disabled on the default path', async () =>
 	for (const experimental3DRendering of [undefined, false]) {
 		const actual = await (
 			await renderStillOnWeb({
-				composition: insetComposition('review-inset'),
+				composition: reviewComposition('review-inset'),
 				frame: 0,
 				inputProps: {},
 				licenseKey: 'free-license',
@@ -257,7 +258,7 @@ test('keeps unsupported inset shadows disabled on the default path', async () =>
 test.skipIf(server.browser !== 'chromium')(
 	'keeps experimental sharp inset shadows native-exact',
 	async () => {
-		const composition = insetComposition('review-inset');
+		const composition = reviewComposition('review-inset');
 		const native = await captureNativeReference(composition);
 		const actual = await (
 			await renderStillOnWeb({
@@ -274,3 +275,121 @@ test.skipIf(server.browser !== 'chromium')(
 		);
 	},
 );
+
+test.skipIf(server.browser !== 'chromium')(
+	'retains the blur footprint when opacity requires a layer',
+	async () => {
+		const options = {
+			composition: reviewComposition('review-blur'),
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		} as const;
+		const control = await pixels(
+			await (
+				await renderStillOnWeb({...options, experimental3DRendering: false})
+			).blob({format: 'png'}),
+		);
+		const actual = await pixels(
+			await (
+				await renderStillOnWeb({...options, experimental3DRendering: true})
+			).blob({format: 'png'}),
+		);
+		// Full native .5 comparisons remain a separate exact diagnostic; Canvas
+		// compositing still differs by one channel value on an opaque backdrop.
+		for (const [x, y] of [
+			[95, 150],
+			[205, 150],
+			[150, 95],
+			[150, 205],
+		]) {
+			const offset = (y * size.width + x) * 4;
+			expect(Array.from(actual.slice(offset, offset + 4))).toEqual(
+				Array.from(control.slice(offset, offset + 4)),
+			);
+		}
+	},
+);
+
+test.skipIf(server.browser !== 'chromium')(
+	'preserves explicitly inherited opacity inside a blended group',
+	async () => {
+		const composition = reviewComposition('review-blend-inherit');
+		const native = await captureNativeReference(composition);
+		const actual = await (
+			await renderStillOnWeb({
+				composition,
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+				experimental3DRendering: true,
+			})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+			0,
+		);
+	},
+);
+
+// Opacity 0.4 maps to integer 8-bit coverage. The original .5 full-native scene remains an
+// unchanged diagnostic for the separate opaque-backdrop channel gap.
+test.skipIf(server.browser !== 'chromium')(
+	'projects translucent 2D layers into the viewport without clipping',
+	async () => {
+		const composition = reviewComposition('review-projected-exact');
+		const native = await captureNativeReference(composition);
+		const actual = await (
+			await renderStillOnWeb({
+				composition,
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+				experimental3DRendering: true,
+			})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+			0,
+		);
+	},
+);
+
+test('restores authored opacity and priority after 3D planning', () => {
+	const root = document.createElement('div');
+	const child = document.createElement('div');
+	Object.assign(root.style, {
+		position: 'fixed',
+		left: '0',
+		top: '0',
+		width: '200px',
+		height: '200px',
+		transformStyle: 'preserve-3d',
+	});
+	Object.assign(child.style, {
+		width: '100px',
+		height: '100px',
+		mixBlendMode: 'multiply',
+	});
+	child.style.setProperty('opacity', '.5', 'important');
+	root.appendChild(child);
+	document.body.appendChild(root);
+	try {
+		{
+			using plan = calculateTransforms({
+				element: child,
+				rootElement: root,
+				transformStyleCache: new WeakMap(),
+				isolated: false,
+				experimental3DRendering: true,
+			});
+			expect(plan.opacity).toBe(0.5);
+		}
+
+		expect(child.style.opacity).toBe('0.5');
+		expect(child.style.getPropertyPriority('opacity')).toBe('important');
+	} finally {
+		root.remove();
+	}
+});

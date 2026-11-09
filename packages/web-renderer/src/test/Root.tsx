@@ -210,6 +210,12 @@ export const Root: React.FC = () => {
 					'magnified-mask',
 					'review-inset',
 					'review-inset-control',
+					'review-blend',
+					'review-opacity-control',
+					'review-blend-inherit',
+					'review-projected',
+					'review-projected-exact',
+					'review-blur',
 				].map((kind) => (
 					<Composition
 						key={kind}
