@@ -74,7 +74,7 @@ export const commitNodeCodemod = <
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
-			newContents: null,
+			newContents: output,
 			logLevel,
 			remotionRoot,
 			logLine,

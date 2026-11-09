@@ -441,7 +441,7 @@ const SequenceExpandedInspector: React.FC<{
 }> = ({track, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
-	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const {validatedLocation} = sourceLocation;
 	const sequenceSelection = useMemo((): Extract<
 		TimelineSelection,

@@ -1,4 +1,9 @@
 export type {SourceFileVersion} from './source-file-version';
+export {getConflictingOutputPaths} from './get-conflicting-output-paths';
+export {
+	getPortableDownloadFilename,
+	validateStudioArtifactFilename,
+} from './validate-studio-artifact-filename';
 export {studioOperations} from './api-requests';
 export {splitAnsi, stripAnsi} from './ansi';
 export type {TerminalId} from './terminal';

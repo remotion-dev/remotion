@@ -5,6 +5,10 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 
 export type LevelsValues = {
 	blackPoint: number;
@@ -135,6 +139,7 @@ const LevelsHandle: React.FC<{
 					initialValue: values[field],
 				};
 				event.currentTarget.setPointerCapture(event.pointerId);
+				forceSpecificCursor('default');
 			}}
 			onPointerMove={(event) => {
 				if (!drag.current) return;
@@ -147,6 +152,7 @@ const LevelsHandle: React.FC<{
 				if (!drag.current) return;
 				const {value, initialValue} = drag.current;
 				drag.current = null;
+				stopForcingSpecificCursor();
 				event.currentTarget.releasePointerCapture(event.pointerId);
 				if (value === initialValue) {
 					onCancel();
@@ -157,6 +163,7 @@ const LevelsHandle: React.FC<{
 			onLostPointerCapture={() => {
 				if (!drag.current) return;
 				drag.current = null;
+				stopForcingSpecificCursor();
 				onCancel();
 			}}
 			onKeyDown={(event) => {
@@ -165,6 +172,7 @@ const LevelsHandle: React.FC<{
 					event.preventDefault();
 					event.stopPropagation();
 					drag.current = null;
+					stopForcingSpecificCursor();
 					onCancel();
 					return;
 				}

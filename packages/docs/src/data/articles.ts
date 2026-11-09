@@ -1702,6 +1702,15 @@ export const articles = [
 		slug: 'sdk/get-canvas-keyframe-toggle',
 	},
 	{
+		id: 'sdk/get-canvas-keyframe-value-change',
+		title: 'getCanvasKeyframeValueChange()',
+		relativePath: 'docs/sdk/get-canvas-keyframe-value-change.mdx',
+		compId: 'articles-docs-sdk-get-canvas-keyframe-value-change',
+		crumb: '@remotion/sdk',
+		noAi: false,
+		slug: 'sdk/get-canvas-keyframe-value-change',
+	},
+	{
 		id: 'sdk/get-canvas-keyframes',
 		title: 'getCanvasKeyframes()',
 		relativePath: 'docs/sdk/get-canvas-keyframes.mdx',

@@ -88,19 +88,23 @@ export type BrowserStudioRemotionPackageSource =
 			readonly version: string;
 	  };
 
+export type BrowserStudioCompileInput = {
+	project: VirtualProject;
+	sourceMutationId: string | null;
+};
+
+type ProjectRequest = BrowserStudioCompileInput & {
+	dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+};
+
 export type BrowserStudioWorkerCompileRequest =
-	| {
+	| (ProjectRequest & {
 			type: 'init';
-			project: VirtualProject;
-			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
 			remotionPackageSource: BrowserStudioRemotionPackageSource | null;
 			useVendorBundle: boolean;
-	  }
-	| {
-			type: 'update-project';
-			project: VirtualProject;
-			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
-	  };
+	  })
+	| (ProjectRequest & {type: 'update-project'})
+	| {type: 'acknowledge-project'; sourceMutationId: string};
 
 export type BrowserStudioHmrAsset = {
 	content: string;
@@ -124,7 +128,7 @@ export type BrowserStudioWorkerCompileResponse =
 	  }
 	| {
 			type: 'hmr-update';
-			assets: BrowserStudioHmrAsset[];
+			assets: BrowserStudioHmrAsset[] | null;
 			hmrEvent: HotMiddlewareMessage;
 			warnings: string[];
 	  }

@@ -10,17 +10,21 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVER_GROUP_REVEAL_CLASS_NAME,
 	NO_HOVER_BACKGROUND_STYLE,
 } from '../helpers/hoverable';
+import {getPreviewServerConnectionState} from '../helpers/preview-server-events';
 import {ThinRenderIcon} from '../icons/render';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {
+	canRenderOnServer,
+	openClientRenderModalForComposition,
+} from './RenderModal/open-client-render-modal';
 
 const revealStyle: React.CSSProperties = {
 	display: 'flex',
@@ -41,18 +45,35 @@ export const SidebarRenderButton: React.FC<{
 		};
 	}, []);
 
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			e.stopPropagation();
+			const defaultProps = props[composition.id] ?? composition.defaultProps;
+			if (
+				!canRenderOnServer(
+					readOnlyStudio,
+					getPreviewServerConnectionState().type,
+				)
+			) {
+				openClientRenderModalForComposition({
+					compositionId: composition.id,
+					defaultProps,
+					getInitialFrame: () => 0,
+					inFrameMark: null,
+					outFrameMark: null,
+					prepareServerBundle: false,
+					setSelectedModal,
+				});
+				return;
+			}
+
 			const defaults = window.remotion_renderDefaults;
 			if (!defaults) {
 				throw new Error('expected defaults');
 			}
 
-			e.stopPropagation();
 			setSelectedModal({
 				type: 'server-render',
 				retrySettings: null,
@@ -87,7 +108,7 @@ export const SidebarRenderButton: React.FC<{
 					defaults.offthreadVideoCacheSizeInBytes,
 				initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
-				defaultProps: props[composition.id] ?? composition.defaultProps,
+				defaultProps,
 				inFrameMark: null,
 				outFrameMark: null,
 				initialColorSpace: defaults.colorSpace as ColorSpace,
@@ -128,7 +149,7 @@ export const SidebarRenderButton: React.FC<{
 		[iconStyle],
 	);
 
-	if (!visible || (connectionStatus !== 'connected' && !readOnlyStudio)) {
+	if (!visible) {
 		return null;
 	}
 

@@ -788,6 +788,7 @@ const TimelineInner: React.FC = () => {
 								<TimelineSelectAllKeybindings timeline={shown} />
 							) : null}
 							<TimelineHeightContainer>
+								<TimelinePlayCursorSyncer />
 								{isStill ? (
 									<TimelineList />
 								) : (
@@ -826,7 +827,6 @@ const TimelineInner: React.FC = () => {
 											>
 												<TimelineScrollable>
 													<TimelineTracks hasBeenCut={hasBeenCut} />
-													<TimelinePlayCursorSyncer />
 													<TimelineInOutPointer />
 													<TimelineDragHandler />
 													{isStudioInteractivityEnabled() ? (

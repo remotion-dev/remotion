@@ -84,17 +84,20 @@ test('routes sequence prop operations through Browser Studio', async () => {
 		value: {remotion_browserStudio: operations},
 	});
 
-	const subscription = await subscribeToSequenceProps({
-		fileName: 'src/Composition.tsx',
-		line: 2,
-		column: 0,
-		nodePath: null,
-		componentIdentity: 'dev.remotion.remotion.Sequence',
-		keys: ['from'],
-		assetKeys: [],
-		effects: [],
-		clientId: 'browser-studio',
-	});
+	const subscription = await subscribeToSequenceProps(
+		{
+			fileName: 'src/Composition.tsx',
+			line: 2,
+			column: 0,
+			nodePath: null,
+			componentIdentity: 'dev.remotion.remotion.Sequence',
+			keys: ['from'],
+			assetKeys: [],
+			effects: [],
+			clientId: 'browser-studio',
+		},
+		null,
+	);
 	expect(subscription.success).toBe(true);
 	await saveSequenceProps({
 		edits: [
@@ -180,17 +183,20 @@ test('batches server sequence prop subscriptions into one request', async () => 
 	}) as typeof fetch;
 
 	const subscribe = (line: number) =>
-		subscribeToSequenceProps({
-			fileName: 'src/Composition.tsx',
-			line,
-			column: 0,
-			nodePath: null,
-			componentIdentity: 'dev.remotion.remotion.Sequence',
-			keys: ['from'],
-			assetKeys: [],
-			effects: [],
-			clientId: 'studio',
-		});
+		subscribeToSequenceProps(
+			{
+				fileName: 'src/Composition.tsx',
+				line,
+				column: 0,
+				nodePath: null,
+				componentIdentity: 'dev.remotion.remotion.Sequence',
+				keys: ['from'],
+				assetKeys: [],
+				effects: [],
+				clientId: 'studio',
+			},
+			null,
+		);
 
 	try {
 		const results = await Promise.all(
