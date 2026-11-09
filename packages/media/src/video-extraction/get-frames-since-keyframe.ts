@@ -56,6 +56,7 @@ export const makeSinks = (
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
+			getRetryDelay: src.startsWith('blob:') ? () => null : undefined,
 			handleUnhandledError: (error) => {
 				Internals.Log.warn(
 					{logLevel, tag: '@remotion/media'},
