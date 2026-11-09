@@ -1,10 +1,5 @@
 import {useEffect, useState} from 'react';
-import {
-	AbsoluteFill,
-	continueRender,
-	delayRender,
-	useCurrentFrame,
-} from 'remotion';
+import {AbsoluteFill, useDelayRender, useCurrentFrame} from 'remotion';
 
 const dataUrls = Promise.all(
 	['bangers.woff2', 'Roboto-Medium.ttf'].map(async (file) => {
@@ -25,6 +20,7 @@ export const svgLocalConditionalFontReady = dataUrls.then((urls) => {
 	loadedUrls = urls;
 });
 const Component = ({useDataUrls = true}: {readonly useDataUrls?: boolean}) => {
+	const {delayRender, continueRender} = useDelayRender();
 	const [urls, setUrls] = useState(
 		useDataUrls
 			? loadedUrls
@@ -45,7 +41,7 @@ const Component = ({useDataUrls = true}: {readonly useDataUrls?: boolean}) => {
 		document.fonts
 			.load('34px "Local conditional font"')
 			.then(() => continueRender(handle));
-	}, [handle, urls]);
+	}, [handle, urls, continueRender]);
 	if (!urls) return null;
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
