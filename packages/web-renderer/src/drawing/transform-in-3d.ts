@@ -6,7 +6,11 @@ const vsSource = `
     uniform mat4 uTransform;
     uniform vec2 uResolution;
     uniform vec2 uOffset;
-    varying vec2 vTexCoord;
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    varying highp vec2 vTexCoord;
+    #else
+    varying mediump vec2 vTexCoord;
+    #endif
 
     void main() {
         vec4 pos = uTransform * vec4(aPosition, 0.0, 1.0);
@@ -26,9 +30,17 @@ const vsSource = `
 
 // Fragment shader - samples from texture and unpremultiplies alpha
 const fsSource = `
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+		precision highp float;
+		#else
 		precision mediump float;
+		#endif
 		uniform sampler2D uTexture;
-		varying vec2 vTexCoord;
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+		varying highp vec2 vTexCoord;
+		#else
+		varying mediump vec2 vTexCoord;
+		#endif
 
 		void main() {
 				gl_FragColor = texture2D(uTexture, vTexCoord);

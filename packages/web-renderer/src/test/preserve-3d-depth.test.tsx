@@ -3,7 +3,7 @@ import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {page, server} from 'vitest/browser';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {renderMediaOnWeb} from '../render-media-on-web';
@@ -478,18 +478,95 @@ for (const frame of [0, 1])
 			omitBackground: false,
 		});
 		for (const experimental3DRendering of [false, true]) {
-			const actual = await (
-				await renderStillOnWeb({
-					composition: perspectiveFilter,
-					frame,
-					inputProps: {},
-					licenseKey: 'free-license',
-					allowHtmlInCanvas: false,
-					experimental3DRendering,
-				})
-			).blob({format: 'png'});
+			const glDiagnostics: unknown[] = [];
+			const originalCreateShader = WebGLRenderingContext.prototype.createShader;
+			const shaderSpy = vi
+				.spyOn(WebGLRenderingContext.prototype, 'createShader')
+				.mockImplementation(function (this: WebGLRenderingContext, ...args) {
+					const shader = originalCreateShader.apply(this, args);
+					try {
+						if (args[0] === this.FRAGMENT_SHADER) {
+							const describe = (format: WebGLShaderPrecisionFormat | null) =>
+								format === null
+									? null
+									: {
+											precision: format.precision,
+											rangeMin: format.rangeMin,
+											rangeMax: format.rangeMax,
+										};
+							glDiagnostics.push({
+								medium: describe(
+									this.getShaderPrecisionFormat(
+										this.FRAGMENT_SHADER,
+										this.MEDIUM_FLOAT,
+									),
+								),
+								high: describe(
+									this.getShaderPrecisionFormat(
+										this.FRAGMENT_SHADER,
+										this.HIGH_FLOAT,
+									),
+								),
+								renderer: this.getParameter(this.RENDERER),
+								vendor: this.getParameter(this.VENDOR),
+								version: this.getParameter(this.VERSION),
+								context: this.getContextAttributes(),
+							});
+						}
+					} catch (error) {
+						glDiagnostics.push({
+							diagnosticError:
+								error instanceof Error ? error.message : String(error),
+						});
+					}
+
+					return shader;
+				});
+			let actual: Blob;
+			try {
+				actual = await (
+					await renderStillOnWeb({
+						composition: perspectiveFilter,
+						frame,
+						inputProps: {},
+						licenseKey: 'free-license',
+						allowHtmlInCanvas: false,
+						experimental3DRendering,
+					})
+				).blob({format: 'png'});
+			} finally {
+				shaderSpy.mockRestore();
+			}
+
+			expect(WebGLRenderingContext.prototype.createShader).toBe(
+				originalCreateShader,
+			);
 			const diff = await compareNativePixels(native, actual);
-			if (diff.mismatchedPixels !== 0)
+			if (diff.mismatchedPixels !== 0) {
+				if (diff.evidence !== null) {
+					try {
+						await server.commands.writeFile(
+							`${diff.evidence}/gpu.json`,
+							JSON.stringify(
+								{
+									frame,
+									experimental3DRendering,
+									devicePixelRatio,
+									userAgent: navigator.userAgent,
+									contexts: glDiagnostics,
+								},
+								null,
+								2,
+							),
+						);
+					} catch (error) {
+						glDiagnostics.push({
+							attachmentError:
+								error instanceof Error ? error.message : String(error),
+						});
+					}
+				}
+
 				await Promise.all([
 					savePixelEvidence(
 						native,
@@ -507,6 +584,8 @@ for (const frame of [0, 1])
 						{omitBackground: false},
 					),
 				]);
+			}
+
 			expect(
 				diff.mismatchedPixels,
 				JSON.stringify({
@@ -515,6 +594,7 @@ for (const frame of [0, 1])
 					maxChannelDelta: diff.maxChannelDelta,
 					devicePixelRatio,
 					userAgent: navigator.userAgent,
+					glDiagnostics,
 				}),
 			).toBe(0);
 		}
