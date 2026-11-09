@@ -31,4 +31,14 @@ export const thirdPartyElementLibraries = [
 		displayName: 'snapcn',
 		markdownIndexUrl: 'https://snapcn.dev/llms-components.txt',
 	},
+	{
+		bannerUrl: null,
+		browseUrl:
+			'https://arcmira.github.io/integrations/remotion-quote-elements/',
+		libraryUrl:
+			'https://arcmira.github.io/integrations/remotion-quote-elements/',
+		displayName: 'Arcmira Quotes',
+		markdownIndexUrl:
+			'https://arcmira.github.io/integrations/remotion-quote-elements/llms-components.txt',
+	},
 ] as const satisfies readonly ThirdPartyElementLibrary[];
