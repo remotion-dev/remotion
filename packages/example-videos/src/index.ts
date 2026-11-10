@@ -107,6 +107,8 @@ export const exampleVideos = {
 		'output.m3u8',
 	),
 	mp3nomagicword: cachedExampleMediaPaths.mp3nomagicword,
+	edts: cachedExampleMediaPaths.edts,
+	h264Aac1080p: path.join(__dirname, '..', 'videos', 'video.mp4'),
 	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
 	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
 	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),
