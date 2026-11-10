@@ -171,7 +171,7 @@ export const TimelineNonEditableStatus: React.FC<{
 			<UnsupportedStatus
 				label={
 					runtimeValue === undefined
-						? 'computed'
+						? 'Not set'
 						: formatTimelineFieldValueForDisplay({
 								fieldSchema: field.fieldSchema,
 								value: runtimeValue,
