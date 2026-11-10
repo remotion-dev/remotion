@@ -252,20 +252,20 @@ export const importCompositionCommand = async ({
 		);
 	}
 
-	const installedPackages = new Set(
-		Object.values(
-			StudioServerInternals.getInstalledDependencies(remotionRoot),
-		).flat(),
-	);
-	for (const dependency of plan.dependencies) {
-		const installed = installedPackages.has(dependency);
-		Log.info(
-			{indent: false, logLevel},
-			`${installed ? '○' : '+'} ${dependency} ${chalk.gray(installed ? '(already installed)' : '(will install)')}`,
-		);
-	}
-
 	if (commandLine['dry-run']) {
+		const installedPackages = new Set(
+			Object.values(
+				StudioServerInternals.getInstalledDependencies(remotionRoot),
+			).flat(),
+		);
+		for (const dependency of plan.dependencies) {
+			const installed = installedPackages.has(dependency);
+			Log.info(
+				{indent: false, logLevel},
+				`${installed ? '○' : '+'} ${dependency} ${chalk.gray(installed ? '(already installed)' : '(will install)')}`,
+			);
+		}
+
 		Log.info(
 			{indent: false, logLevel},
 			chalk.gray('Dry run. No files were changed.'),
@@ -279,8 +279,4 @@ export const importCompositionCommand = async ({
 		packageManager,
 		logLevel,
 	});
-	Log.info(
-		{indent: false, logLevel},
-		chalk.green(`Imported composition "${compositionId}".`),
-	);
 };
