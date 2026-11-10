@@ -11,7 +11,7 @@ A presentation that applies a directional multi-sample blur while blending betwe
 <Demo type="linear-blur" />
 
 :::warning
-This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+This presentation is built with [HTML-in-canvas](/docs/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
 :::
 
 ## Example
@@ -66,9 +66,17 @@ Accepts an object with the following options:
 
 ### `intensity?`
 
-Controls how far the 6×6 blur samples spread during the transition.
+Controls how far the 20×20 blur samples spread during the transition.
 
 Defaults to `0.1`.
+
+### `effects?`
+
+[Effects](/docs/effects/api) to apply after the transition shader. See [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation#effects).
+
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+Sets the [effect resolution](/docs/effects/api#effect-resolution). See [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation#effectsoutputsize).
 
 ## Compatibility
 
@@ -94,5 +102,5 @@ The fragment shader is adapted from the [`LinearBlur`](https://gl-transitions.co
 ## See also
 
 - [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/linear-blur.tsx)
-- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [HTML-in-canvas](/docs/html-in-canvas)
 - [Presentations](/docs/transitions/presentations)
