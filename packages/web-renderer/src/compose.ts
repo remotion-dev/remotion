@@ -226,7 +226,9 @@ const planPreserve3DPlanes = ({
 			experimental3DRendering,
 		});
 		try {
-			const preserving = transforms.preserves3DChildren;
+			const preserving =
+				transforms.preserves3DChildren &&
+				!transforms.precompositing.needsIsolation;
 			if (
 				!preserving ||
 				(transforms.dimensions.width > 0 && transforms.dimensions.height > 0)

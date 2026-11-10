@@ -11,6 +11,7 @@ import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
 import {
 	FallbackDepthScene,
 	perspectiveFilter,
+	preserve3DBlendIsolation,
 	size,
 	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
@@ -18,6 +19,7 @@ import '../symbol-dispose';
 import {
 	captureNativeReference,
 	compareNativePixels,
+	countNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 
@@ -597,5 +599,43 @@ for (const frame of [0, 1])
 					glDiagnostics,
 				}),
 			).toBe(0);
+		}
+	});
+
+// PR #12686: preserving-plane capture must retain the nearest blend isolation group.
+for (const frame of [0, 1])
+	test(`retains the complete preserving blend isolation group at frame ${frame}`, async () => {
+		const native = await captureNativeReference(
+			preserve3DBlendIsolation,
+			frame,
+			{omitBackground: false},
+		);
+		for (const experimental3DRendering of [false, true]) {
+			const result = await renderStillOnWeb({
+				licenseKey: 'free-license',
+				composition: preserve3DBlendIsolation,
+				frame,
+				inputProps: {},
+				allowHtmlInCanvas: false,
+				experimental3DRendering,
+			});
+			const canvas = await result.canvas();
+			try {
+				const actual = await result.blob({format: 'png'});
+				const comparison = await countNativePixels(native, actual);
+				if (comparison.mismatchedPixels > 0)
+					await compareNativePixels(native, actual);
+				expect(
+					comparison.mismatchedPixels,
+					JSON.stringify({
+						frame,
+						experimental3DRendering,
+						maxChannelDelta: comparison.maxChannelDelta,
+					}),
+				).toBe(0);
+			} finally {
+				canvas.width = 0;
+				canvas.height = 0;
+			}
 		}
 	});

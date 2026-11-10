@@ -77,6 +77,8 @@ export const processNode = async ({
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
 		transforms;
+	const preserves3D =
+		transforms.preserves3DChildren && !precompositing.needsIsolation;
 	if (forceSubtreePrecompositing) precompositing.needsPrecompositing = true;
 	if (opacity === 0) {
 		return {type: 'skip-children'};
@@ -151,7 +153,7 @@ export const processNode = async ({
 				element,
 				parentRect: captureViewport,
 				matrix: totalMatrix,
-				onlyOwnPlane: transforms.preserves3DChildren,
+				onlyOwnPlane: preserves3D,
 				experimental3DRendering: internalState.experimental3DRendering,
 				sourceRect:
 					internalState.experimental3DRendering && filterBounds
@@ -216,7 +218,7 @@ export const processNode = async ({
 			);
 			if (!visibleSourceRect)
 				return {
-					type: transforms.preserves3DChildren ? 'continue' : 'skip-children',
+					type: preserves3D ? 'continue' : 'skip-children',
 					cleanupAfterChildren: null,
 				};
 			precomposeRect = roundToExpandRect(visibleSourceRect);
@@ -242,7 +244,6 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		const preserves3D = transforms.preserves3DChildren;
 		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
 		const {

@@ -153,6 +153,7 @@ import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {
 	FallbackDepthScene,
 	perspectiveFilter,
+	preserve3DBlendIsolation,
 	gridSamplerParent,
 	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
@@ -326,6 +327,7 @@ export const Root: React.FC = () => {
 				<Composition {...opaqueLayerOverFadingLayer} />
 			</Folder>
 			<Composition {...perspectiveFilter} />
+			<Composition {...preserve3DBlendIsolation} />
 			<Composition {...gridSamplerParent} />
 			<Composition {...threeDTransformOpacity} />
 			<Folder name="Experimental3D">

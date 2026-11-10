@@ -12,6 +12,7 @@ const plane = (
 export const size = {width: 640, height: 480};
 export const reviewSceneSize = (kind: string) =>
 	[
+		'review-preserve-blend-isolation',
 		'review-eye-plane',
 		'review-descendant-blur',
 		'review-offscreen-filter',
@@ -24,6 +25,27 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 	const shadowOffset =
 		kind === 'review-offscreen-filter-perspective' ? 150 + frame * 16 : 150;
 
+	if (kind === 'review-preserve-blend-isolation')
+		return plane(
+			{width: 300, height: 300, background: 'red'},
+			plane(
+				{
+					left: 50 + frame * 16,
+					top: 50,
+					width: 200,
+					height: 200,
+					transformStyle: 'preserve-3d',
+				},
+				React.createElement('div', {
+					style: {
+						width: 100,
+						height: 100,
+						background: 'blue',
+						mixBlendMode: 'multiply',
+					},
+				}),
+			),
+		);
 	if (kind === 'review-eye-plane')
 		return plane(
 			{...size, background: 'white'},
@@ -519,6 +541,18 @@ const GridSamplerParent = () => {
 export const gridSamplerParent = {
 	id: '3d-grid-sampler-parent',
 	component: GridSamplerParent,
+	width: 300,
+	height: 300,
+	fps: 30,
+	durationInFrames: 2,
+} as const;
+
+export const preserve3DBlendIsolation = {
+	id: '3d-preserve-blend-isolation',
+	component: () =>
+		React.createElement(FallbackDepthScene, {
+			kind: 'review-preserve-blend-isolation',
+		}),
 	width: 300,
 	height: 300,
 	fps: 30,
