@@ -169,6 +169,7 @@ import {
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
 import {
+	bufferingDiagnostics,
 	playbackDiagnostics,
 	registerMediabunnySink,
 } from './playback-diagnostics.js';
@@ -373,6 +374,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	bufferingDiagnostics,
 	playbackDiagnostics,
 	registerMediabunnySink,
 	HtmlInCanvasFallback,

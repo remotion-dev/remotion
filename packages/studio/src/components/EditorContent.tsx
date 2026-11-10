@@ -4,6 +4,7 @@ import {BORDER_BLACK} from '../helpers/colors';
 import {AudioLevelsContext} from '../state/audio-levels';
 import {Transform3DModeStateProvider} from '../state/transform-3d-mode';
 import {AudioLevels} from './AudioLevels';
+import {Diagnostics} from './Diagnostics';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
@@ -115,6 +116,7 @@ export const EditorContent: React.FC<{
 		<TimelineTickFormatProvider>
 			<TimelineSelectionProvider>
 				<WebMcp />
+				<Diagnostics />
 				<Transform3DModeStateProvider>
 					<StudioClearSelectionArea>
 						<InitialCompositionLoader />

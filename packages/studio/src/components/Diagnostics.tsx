@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -9,7 +10,10 @@ import {
 } from '../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {startCapturedPointerSession} from '../helpers/pointer-session';
+import {useZIndex} from '../state/z-index';
+import {BufferingEvents} from './BufferingEvents';
 import {Button} from './Button';
+import {getPortal} from './Menu/portals';
 import {useSettings} from './SettingsContext';
 
 const textStyle: React.CSSProperties = {
@@ -20,6 +24,7 @@ const textStyle: React.CSSProperties = {
 };
 
 const DiagnosticsWindow: React.FC = () => {
+	const {currentZIndex, tabIndex} = useZIndex();
 	const [position, setPosition] = useState({x: 24, y: 72});
 	const [counts, setCounts] = useState(() => ({
 		...Internals.playbackDiagnostics,
@@ -69,7 +74,10 @@ const DiagnosticsWindow: React.FC = () => {
 
 		onResize();
 		window.addEventListener('resize', onResize);
+		const observer = new ResizeObserver(onResize);
+		if (panel.current) observer.observe(panel.current);
 		return () => {
+			observer.disconnect();
 			window.removeEventListener('resize', onResize);
 			endDrag.current?.();
 		};
@@ -100,7 +108,7 @@ const DiagnosticsWindow: React.FC = () => {
 		[move],
 	);
 
-	return (
+	return createPortal(
 		<div
 			ref={panel}
 			className="css-reset"
@@ -109,10 +117,14 @@ const DiagnosticsWindow: React.FC = () => {
 			aria-label="Diagnostics"
 			style={{
 				position: 'fixed',
+				pointerEvents: 'auto',
 				left: position.x,
 				top: position.y,
-				width: 320,
+				width: 480,
 				maxWidth: '100vw',
+				maxHeight: '100vh',
+				display: 'flex',
+				flexDirection: 'column',
 				backgroundColor: BACKGROUND,
 				border: `1px solid ${LINE_COLOR}`,
 				borderRadius: 6,
@@ -124,6 +136,7 @@ const DiagnosticsWindow: React.FC = () => {
 				type="button"
 				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 				aria-label="Move diagnostics window"
+				tabIndex={tabIndex}
 				onPointerDown={onPointerDown}
 				onKeyDown={(event) => {
 					const directions: Record<string, [number, number]> = {
@@ -141,6 +154,7 @@ const DiagnosticsWindow: React.FC = () => {
 				}}
 				style={{
 					...textStyle,
+					flexShrink: 0,
 					color: WHITE,
 					fontSize: 14,
 					textAlign: 'left',
@@ -156,7 +170,7 @@ const DiagnosticsWindow: React.FC = () => {
 			>
 				Diagnostics
 			</button>
-			<dl style={{margin: 0, padding: '10px 14px'}}>
+			<dl style={{margin: 0, padding: '10px 14px', flexShrink: 0}}>
 				{[
 					['Audio iterators created', counts.audioIteratorsCreated],
 					['Mediabunny sinks open', counts.mediabunnySinksOpen],
@@ -197,7 +211,9 @@ const DiagnosticsWindow: React.FC = () => {
 					</div>
 				))}
 			</dl>
-		</div>
+			<BufferingEvents />
+		</div>,
+		getPortal(currentZIndex),
 	);
 };
 
