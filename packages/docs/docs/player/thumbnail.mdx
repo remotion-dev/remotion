@@ -59,7 +59,7 @@ The width you would like the video to have when rendered as an MP4. Use `style={
 :::note
 **Example**:
 If you want to render a Full HD video, set `compositionWidth` to `1920` and `compositionHeight` to `1080`. By default, the thumbnail will also assume these dimensions.
-To make it smaller, pass a `style` prop to give the Thumbnail a different width: `{"style={{width: 400}}"}`. See [Player Scaling](/docs/player/scaling) to learn more.
+To make it smaller, pass a `style` prop to give the Thumbnail a different width: `{"style={{width: 400}}"}`. See [Sizing](/docs/player/scaling) to learn more.
 :::
 
 ### `compositionHeight`
@@ -120,9 +120,9 @@ const MyApp: React.FC = () => {
 A thumbnail needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
-### `inputProps?`
+### `inputProps`
 
-Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Required if your component accepts props, otherwise optional.
 
 ### `style?`
 
@@ -142,7 +142,7 @@ Makes the Player render things outside of the canvas. Useful if you have interac
 
 ### `noSuspense`<AvailableFrom v="4.0.271" />
 
-Disables React Suspense, which is [useful for writing tests](/docs/player/thumbnail).
+Disables React Suspense, which is [useful for writing tests](/docs/testing).
 
 ## ThumbnailRef
 
