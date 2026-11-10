@@ -1,9 +1,9 @@
 ---
-name: studio-dev
+name: studio-checklist
 description: Develop or review Remotion Studio features and UI. Apply Studio principles for optimistic updates, agent access through code or WebMCP, iframe-safe hover behavior, design consistency, mode availability, and performance verification.
 ---
 
-# Studio development
+# Studio checklist
 
 Apply these principles when implementing or reviewing Studio itself. They cover
 the regular Studio and Browser Studio at `remotion.new`.
