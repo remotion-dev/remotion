@@ -225,6 +225,7 @@ export const lambdaCommandHelp = [
 				'buffer-size',
 				'max-rate',
 				'prores-profile',
+				'prores-bits-per-macroblock',
 				'x264-preset',
 				'gop',
 				'disable-shared-memory-capture',

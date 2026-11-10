@@ -12,12 +12,18 @@ export type CodecSettings = {
 export const hasSpecifiedUnsupportedHardwareQualifySettings = ({
 	encodingMaxRate,
 	encodingBufferSize,
+	proResBitsPerMacroblock,
 	crf,
 }: {
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	proResBitsPerMacroblock: number | null;
 	crf: unknown;
 }) => {
+	if (proResBitsPerMacroblock !== null) {
+		return 'proResBitsPerMacroblock';
+	}
+
 	if (encodingBufferSize !== null) {
 		return 'encodingBufferSize';
 	}
@@ -37,6 +43,7 @@ export const getCodecName = ({
 	codec,
 	encodingMaxRate,
 	encodingBufferSize,
+	proResBitsPerMacroblock,
 	crf,
 	hardwareAcceleration,
 	logLevel,
@@ -47,6 +54,7 @@ export const getCodecName = ({
 	hardwareAcceleration: HardwareAccelerationOption;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	proResBitsPerMacroblock: number | null;
 	crf: unknown;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -60,6 +68,7 @@ export const getCodecName = ({
 		hasSpecifiedUnsupportedHardwareQualifySettings({
 			encodingMaxRate,
 			encodingBufferSize,
+			proResBitsPerMacroblock,
 			crf,
 		});
 

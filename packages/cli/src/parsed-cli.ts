@@ -50,6 +50,7 @@ const {
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	userAgentOption,
 	disableWebSecurityOption,
@@ -115,6 +116,9 @@ export type CommandLineOptions = {
 	>;
 	[pixelFormatOption.cliFlag]: TypeOfOption<typeof pixelFormatOption>;
 	['image-format']: VideoImageFormat | StillImageFormat;
+	[proResBitsPerMacroblockOption.cliFlag]: TypeOfOption<
+		typeof proResBitsPerMacroblockOption
+	>;
 	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	[bundleCacheOption.cliFlag]: TypeOfOption<typeof bundleCacheOption> | null;

@@ -733,6 +733,10 @@ export const renderVideoFlow = async ({
 	};
 
 	const {slowestFrames} = await RenderInternals.internalRenderMedia({
+		proResBitsPerMacroblock:
+			BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 		outputLocation: absoluteOutputFile,
 		composition: {
 			...config,

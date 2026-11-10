@@ -1378,6 +1378,15 @@ export const articles = [
 		slug: 'options/props',
 	},
 	{
+		id: 'options/prores-bits-per-macroblock',
+		title: 'ProRes bits per macroblock',
+		relativePath: 'docs/options/prores-bits-per-macroblock.mdx',
+		compId: 'articles-docs-options-prores-bits-per-macroblock',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/prores-bits-per-macroblock',
+	},
+	{
 		id: 'options/prores-profile',
 		title: 'ProRes profile',
 		relativePath: 'docs/options/prores-profile.mdx',
