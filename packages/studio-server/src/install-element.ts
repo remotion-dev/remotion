@@ -90,6 +90,7 @@ export type InstallElementOptions = InsertElementRequest & {
 	 * browser beforehand and passes `false`.
 	 */
 	readonly installDependencies: boolean;
+	readonly packageManager: string | null;
 	/**
 	 * Whether the installation runs inside a Remotion Studio server. If so,
 	 * files are written through the Studio file watchers and the installation is
@@ -122,6 +123,7 @@ export const installElement = async ({
 	publicDir,
 	binariesDirectory,
 	installDependencies,
+	packageManager,
 	studio,
 }: InstallElementOptions): Promise<InsertElementResponse> => {
 	const writeSourceFile = ({
@@ -176,6 +178,7 @@ export const installElement = async ({
 					logLevel,
 					remotionRoot,
 					dependencies: withRequiredAuxiliaryPackages(missingDependencies),
+					packageManager,
 					invalidateBundle: null,
 				});
 			}

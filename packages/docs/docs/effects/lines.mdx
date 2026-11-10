@@ -64,11 +64,11 @@ Direction of the unrotated lines. Either `'horizontal'` or `'vertical'`. Default
 
 ### `thickness?`
 
-Thickness of each stripe in pixels. Defaults to `40`.
+Thickness of each stripe in pixels. Defaults to `40`. Must be greater than `0`.
 
 ### `gap?`
 
-Transparent gap in pixels between each stripe. Defaults to `0`.
+Transparent gap in pixels between each stripe. Defaults to `0`. Must be at least `0`.
 
 With `gap: 0` (the default), stripes are packed solid with no gap between them — colors are directly adjacent to each other.  
 With `gap > 0`, a transparent band appears between each stripe, allowing the source content to show through.

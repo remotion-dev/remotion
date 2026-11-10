@@ -59,6 +59,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
@@ -103,6 +104,9 @@ const {
 }: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[openTimelineMediaDirectoryOption.cliFlag]: TypeOfOption<
+		typeof openTimelineMediaDirectoryOption
+	>;
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
 		typeof allowHtmlInCanvasOption
 	> | null;
