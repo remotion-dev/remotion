@@ -51,6 +51,8 @@ Playback tools work with compositions and, from <AvailableFrom v="4.0.540" inlin
 
 Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and Browser Studio. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
 
+From <AvailableFrom v="4.0.543" inline />, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
+
 ### `install_package`<AvailableFrom v="4.0.523" />
 
 Installs an npm package into the current Remotion project. Remotion packages use the current Remotion version. Auxiliary packages such as `@huggingface/transformers` use Remotion's recommended version.
