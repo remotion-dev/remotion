@@ -35,9 +35,7 @@ In this part I will go over all the steps for creating a 3D model in Spline, if 
 
    ![Blank Torus](../static/img/spline-guide/4_blank_torus.png)
 
-:::note
-The camera rotation can be changed by clicking and dragging while holding the <kbd>Alt</kbd> (Windows) or <kbd>Option</kbd> (Mac) key.
-:::
+6. Optionally, rotate the camera by clicking and dragging while holding the <kbd>Alt</kbd> (Windows) or <kbd>Option</kbd> (Mac) key.
 
 7. Center the Torus by right clicking on it, scrolling down and selecting `Reset Position`. Alternatively, you can enter 0 in all three fields of the Position row on the right.
 
@@ -89,12 +87,12 @@ Your 3D model should look like this:
 
 5. In `src/Scene.tsx`, replace the default scene with:
 
-```tsx twoslash title="src/Root.tsx"
+```tsx twoslash title="src/Scene.tsx"
 // @filename: src/Torus.tsx
 import React from 'react';
 const Torus: React.FC = () => null;
 export default Torus;
-// @filename: src/Root.tsx
+// @filename: src/Scene.tsx
 // ---cut---
 // @jsx: react-jsx
 import {ThreeCanvas} from '@remotion/three';
