@@ -19,7 +19,7 @@ const GoogleMaps = () => {
 				>
 					<iframe
 						style={{height: '100%', width: '100%', border: '0'}}
-						src="https://www.google.com/maps/embed/v1/place?q=Remotion,+Hohlstrasse+186,+8004+Zurich&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"
+						src="https://www.google.com/maps/embed/v1/place?q=Neunbrunnenstrasse+38,+8050+Zurich,+Switzerland&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"
 					/>
 				</div>
 			</div>
