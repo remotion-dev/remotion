@@ -76,10 +76,9 @@ const compositionImportOptions = [
 		description: 'New composition ID (default: filename without extension).',
 	},
 	{
-		flag: '--composition-file <path>',
+		flag: '--root-file <path>',
 		optionIds: [],
-		description:
-			'Registration file (default: discovered from the project entry point).',
+		description: 'Root file (default: detected automatically).',
 	},
 	{
 		flag: '--dry-run',

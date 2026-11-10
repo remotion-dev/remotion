@@ -35,7 +35,7 @@ export const importCompositionCommand = async ({
 		string: [
 			'_',
 			'composition',
-			'composition-file',
+			'root-file',
 			'media-dir',
 			'public-dir',
 			'package-manager',
@@ -72,17 +72,15 @@ export const importCompositionCommand = async ({
 		);
 	}
 
-	const explicitCompositionFile = commandLine['composition-file'];
-	if (explicitCompositionFile !== undefined && !explicitCompositionFile) {
-		throw new Error(
-			'--composition-file must name an existing registration file.',
-		);
+	const explicitRootFile = commandLine['root-file'];
+	if (explicitRootFile !== undefined && !explicitRootFile) {
+		throw new Error('--root-file must name an existing root file.');
 	}
 
 	const requestedFile =
-		explicitCompositionFile === undefined
+		explicitRootFile === undefined
 			? null
-			: await realpath(path.resolve(remotionRoot, explicitCompositionFile));
+			: await realpath(path.resolve(remotionRoot, explicitRootFile));
 	const {entryPoint, project, compositions} = getProjectCompositions({
 		remotionRoot,
 		logLevel,
@@ -104,7 +102,7 @@ export const importCompositionCommand = async ({
 		);
 	}
 
-	const compositionFile =
+	const rootFile =
 		requestedFile === null
 			? (
 					await StudioServerInternals.getProjectInfo(
@@ -118,9 +116,9 @@ export const importCompositionCommand = async ({
 					project,
 					compositionFile: requestedFile,
 				});
-	if (compositionFile === null) {
+	if (rootFile === null) {
 		throw new Error(
-			'Could not determine the composition registration file. Pass --composition-file <file>.',
+			'Could not determine the root file. Pass --root-file <file>.',
 		);
 	}
 
@@ -147,7 +145,7 @@ export const importCompositionCommand = async ({
 	if (feature === 'canvas-capture') {
 		plan = await importCanvasCapture({
 			captureFile: file,
-			compositionFile,
+			rootFile,
 			compositionId,
 			remotionRoot,
 			publicDir,
@@ -164,7 +162,7 @@ export const importCompositionCommand = async ({
 			.join('');
 		const componentName = `${/^[0-9]/.test(name) ? 'Timeline' : ''}${name || 'OpenTimeline'}Composition`;
 		const componentFile = path.join(
-			path.dirname(compositionFile),
+			path.dirname(rootFile),
 			`${componentName}.tsx`,
 		);
 		if (existsSync(componentFile)) {
@@ -205,9 +203,9 @@ export const importCompositionCommand = async ({
 		const imported = addOpenTimelineComposition({
 			project: {
 				rootDir: remotionRoot,
-				files: {[compositionFile]: await readFile(compositionFile, 'utf-8')},
+				files: {[rootFile]: await readFile(rootFile, 'utf-8')},
 			},
-			compositionFile,
+			compositionFile: rootFile,
 			compositionId,
 			component: {
 				filePath: componentFile,
@@ -242,7 +240,7 @@ export const importCompositionCommand = async ({
 				`${change.previousContents === null ? '+' : '○'} ${path.relative(remotionRoot, change.filePath)}`,
 			),
 		);
-		if (change.filePath === compositionFile) {
+		if (change.filePath === rootFile) {
 			Log.info(
 				{indent: false, logLevel},
 				`  + ${chalk.bold(compositionId)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,

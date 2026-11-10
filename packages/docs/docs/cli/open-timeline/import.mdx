@@ -25,9 +25,9 @@ The command prints the files and dependencies, then imports them. Use `--dry-run
 
 The new composition ID. Defaults to the filename without its extension, with unsupported characters replaced by hyphens. For example, `my-edit.otio` becomes `my-edit`. Existing IDs are rejected; pass another ID with `--composition`.
 
-### `--composition-file`
+### `--root-file`
 
-The existing TypeScript file containing the composition registrations, relative to the project root. By default, the command finds the registered root component from the project's entry point. If it cannot determine the file, pass it explicitly.
+The [root file](/docs/terminology/root-file), relative to the project root. Detected automatically if not passed.
 
 The generated component is created beside this file. Existing component files and conflicting assets are never overwritten.
 

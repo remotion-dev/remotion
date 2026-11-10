@@ -74,7 +74,7 @@ Remotion workflow; keep this skill in `.agents/skills`.
    ```bash
    node ../cli/remotion-cli.js canvas-capture import \
      /absolute/path/to/downloaded-capture.mp4 \
-     --composition-file src/Root.tsx --composition TimelineRecording
+     --root-file src/Root.tsx --composition TimelineRecording
    ```
 
    Follow that skill's dimension, dependency, and conflict guidance. Inspect

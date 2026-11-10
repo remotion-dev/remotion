@@ -11,7 +11,7 @@ import {applyCompositionImport} from './apply-composition-import';
 
 export const importCanvasCapture = async ({
 	captureFile,
-	compositionFile,
+	rootFile,
 	compositionId,
 	remotionRoot,
 	publicDir,
@@ -23,7 +23,7 @@ export const importCanvasCapture = async ({
 	dryRun,
 }: {
 	captureFile: string;
-	compositionFile: string;
+	rootFile: string;
 	compositionId: string;
 	remotionRoot: string;
 	publicDir: string | null;
@@ -35,13 +35,9 @@ export const importCanvasCapture = async ({
 	dryRun: boolean;
 }) => {
 	const rootDir = path.resolve(remotionRoot);
-	const registrationFile = await realpath(
-		path.resolve(rootDir, compositionFile),
-	);
-	if (!/\.tsx?$/.test(registrationFile)) {
-		throw new Error(
-			'The composition file must be a TypeScript file (.ts or .tsx)',
-		);
+	const resolvedRootFile = await realpath(path.resolve(rootDir, rootFile));
+	if (!/\.tsx?$/.test(resolvedRootFile)) {
+		throw new Error('The root file must be a TypeScript file (.ts or .tsx)');
 	}
 
 	const words = compositionId.match(/[a-zA-Z0-9]+/g) ?? [];
@@ -50,7 +46,7 @@ export const importCanvasCapture = async ({
 		.join('');
 	const componentName = `${/^[0-9]/.test(name) ? 'Capture' : ''}${name || 'CanvasCapture'}Composition`;
 	const componentFile = path.join(
-		path.dirname(registrationFile),
+		path.dirname(resolvedRootFile),
 		`${componentName}.tsx`,
 	);
 	if (existsSync(componentFile)) {
@@ -126,10 +122,10 @@ export const importCanvasCapture = async ({
 			Math.ceil(capture.durationInSeconds * (fps ?? 60)),
 		),
 	};
-	const previousContents = await readFile(registrationFile, 'utf-8');
+	const previousContents = await readFile(resolvedRootFile, 'utf-8');
 	const result = addCanvasCaptureComposition({
-		project: {rootDir, files: {[registrationFile]: previousContents}},
-		compositionFile: registrationFile,
+		project: {rootDir, files: {[resolvedRootFile]: previousContents}},
+		compositionFile: resolvedRootFile,
 		compositionId,
 		component: {
 			filePath: componentFile,
@@ -145,14 +141,14 @@ export const importCanvasCapture = async ({
 			videoHeight: capture.videoHeight,
 		},
 	});
-	const registrationContents = result.changes.find(
-		(change) => change.filePath === registrationFile,
+	const rootContents = result.changes.find(
+		(change) => change.filePath === resolvedRootFile,
 	)?.nextContents;
 	const componentContents = result.changes.find(
 		(change) => change.filePath === componentFile,
 	)?.nextContents;
 	if (
-		typeof registrationContents !== 'string' ||
+		typeof rootContents !== 'string' ||
 		typeof componentContents !== 'string'
 	) {
 		throw new Error(
@@ -180,7 +176,7 @@ export const importCanvasCapture = async ({
 		compositionId,
 		copies,
 		dependencies,
-		compositionFile: registrationFile,
+		rootFile: resolvedRootFile,
 		componentFile,
 		videoFile,
 		metadata,

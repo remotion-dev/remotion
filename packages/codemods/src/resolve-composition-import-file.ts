@@ -21,7 +21,7 @@ export const resolveCompositionImportFile = ({
 	} catch (error) {
 		if (compositionFile === null) {
 			throw new Error(
-				`Could not determine the composition registration file. Pass --composition-file <file>. ${error instanceof Error ? error.message : String(error)}`,
+				`Could not determine the root file. Pass --root-file <file>. ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -29,7 +29,7 @@ export const resolveCompositionImportFile = ({
 	const target = compositionFile ?? registeredRoot?.filePath;
 	if (target === undefined) {
 		throw new Error(
-			'Could not determine the composition registration file. Pass --composition-file <file>.',
+			'Could not determine the root file. Pass --root-file <file>.',
 		);
 	}
 
@@ -50,7 +50,7 @@ export const resolveCompositionImportFile = ({
 			actual.column !== expected.column
 		) {
 			throw new Error(
-				`The insertion target in "${filePath}" is not the registered root component. Pass --composition-file <file> with an unambiguous registration component.`,
+				`The insertion target in "${filePath}" is not the registered root component. Pass --root-file <file> with an unambiguous root component.`,
 			);
 		}
 	}

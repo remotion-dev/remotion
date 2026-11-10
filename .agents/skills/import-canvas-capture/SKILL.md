@@ -10,8 +10,9 @@ description: Import a recorded Remotion Canvas Capture into a project without St
 1. Locate the recorded capture file and the target Remotion project. The original
    recording must contain embedded `REMOTION_CAPTURE_DATA` metadata; a converted
    video that has lost this metadata cannot be imported.
-2. The command finds the composition registration file and derives the composition
-   ID from the recording's filename. Use `--composition-file` or `--composition`
+2. The command finds the
+   [root file](https://www.remotion.dev/docs/terminology/root-file) and derives the
+   composition ID from the recording's filename. Use `--root-file` or `--composition`
    to override these defaults.
 3. From the target project's root, run:
 
@@ -30,7 +31,7 @@ description: Import a recorded Remotion Canvas Capture into a project without St
    ```
 
 4. Review the reported source files and public asset. The importer generates a
-   component beside the registration file, registers it, copies the video to the
+   component beside the root file, registers it, copies the video to the
    public directory, and installs missing `@remotion/media` and
    `@remotion/mac-cursors` dependencies at the project's Remotion version. Studio
    does not need to be running. Existing Studio sessions pick up source changes
@@ -47,7 +48,7 @@ description: Import a recorded Remotion Canvas Capture into a project without St
 - Imports proceed immediately. `--dry-run` parses the recording and generates source changes without installing
   dependencies or writing project files. The programmatic result includes the
   proposed source changes.
-- The registration file is resolved relative to the project root; the CLI capture
+- The root file is resolved relative to the project root; the CLI capture
   path is resolved relative to the current working directory.
 - Existing component files and conflicting public assets are rejected. If the
   recording is already in the public directory, pass that file as the input to
@@ -57,7 +58,7 @@ description: Import a recorded Remotion Canvas Capture into a project without St
 ## Programmatic access
 
 Use `CliInternals.importCanvasCapture` from `@remotion/cli`. It is internal and
-unstable. Its inputs are `captureFile`, `compositionFile`, `compositionId`,
+unstable. Its inputs are `captureFile`, `rootFile`, `compositionId`,
 `remotionRoot`, `publicDir`, `fps`, `width`, `height`, `packageManager`, `logLevel`,
 and `dryRun`. Supply `null` for default directory, dimensions, frame rate, and
 package manager. File paths are resolved relative to `remotionRoot`.
