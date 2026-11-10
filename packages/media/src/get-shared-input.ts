@@ -67,7 +67,7 @@ export const acquireSharedInput = ({
 		create: () => {
 			const input = new Input({
 				source: new UrlSource(src, {
-					getRetryDelay: src.startsWith('blob:') ? () => null : undefined,
+					getRetryDelay: (attempts) => (attempts <= 2 ? 0.25 * attempts : null),
 					handleUnhandledError: (error) => {
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
