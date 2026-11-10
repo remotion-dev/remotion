@@ -65,11 +65,12 @@ for (const fixture of [
 				})
 			).blob({format: 'png'});
 			const diff = await compareNativePixels(reference, actual);
-			await Promise.all([
-				savePixelEvidence(reference, `${fixture.id}-${frame}-native`),
-				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`),
-				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`),
-			]);
+			if (diff.mismatchedPixels !== 0)
+				await Promise.all([
+					savePixelEvidence(reference, `${fixture.id}-${frame}-native`),
+					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`),
+					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`),
+				]);
 			expect(diff.mismatchedPixels).toBe(0);
 		});
 	}
