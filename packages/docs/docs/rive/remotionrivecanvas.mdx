@@ -207,14 +207,14 @@ import {RemotionRiveCanvas} from '@remotion/rive';
 import {File} from '@rive-app/canvas-advanced';
 import {useCallback} from 'react';
 
-// Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
-const onLoadHandler = useCallback((file: File) => {
-  const artboard = file.defaultArtboard();
-  const textRun = artboard.textRun('city');
-  textRun.text = 'Tokyo';
-}, []);
-
 function App() {
+  // Make sure to wrap your onLoad handler in `useCallback` to avoid re-rendering this component every single time
+  const onLoadHandler = useCallback((file: File) => {
+    const artboard = file.defaultArtboard();
+    const textRun = artboard.textRun('city');
+    textRun.text = 'Tokyo';
+  }, []);
+
   return (
     <RemotionRiveCanvas
       src="https://example.com/myAnimation.riv"

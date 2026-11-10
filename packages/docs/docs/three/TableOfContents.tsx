@@ -15,12 +15,14 @@ export const TableOfContents: React.FC = () => {
 					<div>Use Three.js with the WebGPU renderer</div>
 				</TOCItem>
 				<TOCItem link="/docs/use-video-texture">
-					<strong>{'useVideoTexture('}</strong>
-					<div>Use a video in React Three Fiber </div>
+					<strong>{'useVideoTexture()'}</strong>
+					<div>Deprecated. Use a video in React Three Fiber</div>
 				</TOCItem>
 				<TOCItem link="/docs/use-offthread-video-texture">
 					<strong>{'useOffthreadVideoTexture()'}</strong>
-					<div>Use an {'<OffthreadVideo>'} in React Three Fiber </div>
+					<div>
+						Deprecated. Use an {'<OffthreadVideo>'} in React Three Fiber
+					</div>
 				</TOCItem>
 			</Grid>
 		</div>
