@@ -30,7 +30,7 @@ The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>par
 
 ### Transformations
 
-Transform measurement restores previously absent inline `style` attributes after cleanup. Existing empty attributes and unrelated inline property updates are retained, along with authored inline transform and transition priorities.
+Transform measurement restores previously absent inline `style` attributes after cleanup. Existing empty attributes and unrelated inline property updates are retained, along with authored inline transform and transition priorities. Variable-based transition shorthands are restored when CSSOM can serialize the complete shorthand. A variable shorthand combined with individual transition overrides can still lose unresolved values during measurement.
 
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  

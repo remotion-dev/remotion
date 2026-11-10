@@ -471,6 +471,67 @@ test('restores transform measurement style ownership including priorities', () =
 	}
 });
 
+for (const {name, transition, priority} of [
+	{name: 'whole-value', transition: 'var(--transition)', priority: ''},
+	{
+		name: 'whole-value-important',
+		transition: 'var(--transition)',
+		priority: 'important',
+	},
+	{
+		name: 'duration-value',
+		transition: 'opacity var(--duration) ease',
+		priority: '',
+	},
+	{
+		name: 'duration-value-important',
+		transition: 'opacity var(--duration) ease',
+		priority: 'important',
+	},
+]) {
+	test(`restores variable transition shorthand ${name} after measurement`, () => {
+		const {host, element} = mountStyleOwnershipSvg();
+		const cache: TransformStyleCache = new WeakMap();
+		const observations = [];
+		const expected = [];
+		try {
+			for (const target of [element, host]) {
+				target.style.setProperty('--transition', 'opacity 2s linear');
+				target.style.setProperty('--duration', '2s');
+				target.style.setProperty('transition', transition, priority);
+			}
+
+			const originals = [element, host].map((target) => [
+				target.style.getPropertyValue('transition'),
+				target.style.getPropertyPriority('transition'),
+			]);
+			for (let read = 0; read < 2; read++) {
+				const plan = calculateTransforms({
+					element,
+					rootElement: host,
+					transformStyleCache: cache,
+					isolated: false,
+				});
+				element.style.setProperty('--duration', '3s', 'important');
+				plan[Symbol.dispose]();
+				observations.push([
+					[element, host].map((target) => [
+						target.style.getPropertyValue('transition'),
+						target.style.getPropertyPriority('transition'),
+					]),
+					element.style.getPropertyValue('--duration'),
+					element.style.getPropertyPriority('--duration'),
+				]);
+				expected.push([originals, '3s', 'important']);
+			}
+
+			expect(observations).toEqual(expected);
+		} finally {
+			host.remove();
+		}
+	});
+}
+
 test('restores transform measurement style ownership without erasing unrelated authored updates', () => {
 	const {host, element} = mountStyleOwnershipSvg();
 	try {

@@ -242,6 +242,9 @@ export const calculateTransforms = ({
 		// when we set transform to 'none' for measurement
 		const originallyAbsentStyle = !parent.hasAttribute('style');
 		const parentStyle = parent.style;
+		const originalTransition = parentStyle.getPropertyValue('transition');
+		const originalTransitionPriority =
+			parentStyle.getPropertyPriority('transition');
 		// The shorthand can be empty for authored mixed-priority longhands.
 		const originalTransitions = [
 			'transition-property',
@@ -371,8 +374,17 @@ export const calculateTransforms = ({
 
 		const parentRef = parent;
 		toReset.push(() => {
-			for (const {property, value, priority} of originalTransitions) {
-				parentRef.style.setProperty(property, value, priority);
+			// Pending-substitution shorthands have empty CSSOM longhand values.
+			if (originalTransition) {
+				parentRef.style.setProperty(
+					'transition',
+					originalTransition,
+					originalTransitionPriority,
+				);
+			} else {
+				for (const {property, value, priority} of originalTransitions) {
+					parentRef.style.setProperty(property, value, priority);
+				}
 			}
 
 			// Leave unrelated authored updates intact and preserve explicit style="".
