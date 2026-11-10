@@ -1,6 +1,10 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {BORDER_BLACK} from '../helpers/colors';
+import {AudioLevelsContext} from '../state/audio-levels';
 import {Transform3DModeStateProvider} from '../state/transform-3d-mode';
+import {AudioLevels} from './AudioLevels';
+import {Diagnostics} from './Diagnostics';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
@@ -54,6 +58,7 @@ export const EditorContent: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly children: React.ReactNode;
 }> = ({readOnlyStudio, children}) => {
+	const {visible: audioLevelsVisible} = useContext(AudioLevelsContext);
 	const {canvasContent, currentAssetMetadata} = useContext(
 		Internals.CompositionManager,
 	);
@@ -85,7 +90,24 @@ export const EditorContent: React.FC<{
 				onCollapseDuringDrag={null}
 			/>
 			<SplitterElement sticky={null} type="anti-flexer">
-				{showTimeline ? <Timeline /> : <TimelineEmptyState />}
+				<div style={{display: 'flex', flex: 1, minHeight: 0}}>
+					<div
+						role="region"
+						aria-label="Timeline"
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							flex: 1,
+							minWidth: 0,
+							position: 'relative',
+							overflow: 'hidden',
+							borderRight: audioLevelsVisible ? BORDER_BLACK : undefined,
+						}}
+					>
+						{showTimeline ? <Timeline /> : <TimelineEmptyState />}
+					</div>
+					{audioLevelsVisible ? <AudioLevels /> : null}
+				</div>
 			</SplitterElement>
 		</SplitterContainer>
 	);
@@ -94,6 +116,7 @@ export const EditorContent: React.FC<{
 		<TimelineTickFormatProvider>
 			<TimelineSelectionProvider>
 				<WebMcp />
+				<Diagnostics />
 				<Transform3DModeStateProvider>
 					<StudioClearSelectionArea>
 						<InitialCompositionLoader />

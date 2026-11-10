@@ -515,7 +515,11 @@ export function popUndo(): UndoResponse {
 					entry.suppressHmrOnFileRestore,
 				);
 
-	for (const snapshot of entry.snapshots) {
+	for (const snapshot of redoSnapshots) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);
@@ -627,6 +631,10 @@ export function popRedo(): RedoResponse {
 				);
 
 	for (const snapshot of snapshotsWithNewContents) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);

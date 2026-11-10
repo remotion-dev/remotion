@@ -102,11 +102,29 @@ The Studio shows either the shorthand or the four longhands. Mixing `style.borde
 
 When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
 
+### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+
+Use it for custom components that accept SVG paint props.
+
+### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+
+Use it for custom components such as lines that do not have a paintable interior.
+
 ### `Interactive.premountSchema`
 
 Mounting props: `premountFor` and `postmountFor`.
 
 Spread this fragment into a custom component's schema to expose premounting controls in Studio. [`Interactive.create()`](/docs/interactive-create) accepts these props and uses them for its [`<Sequence>`](/docs/sequence), but does not include this fragment by default.
+
+### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
+
+The schema used by [`<Sequence>`](/docs/sequence).
+
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.borderRadiusSchema`.
 
 These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 
@@ -359,7 +377,7 @@ Set to `true` if the prop is a `number` and requires a whole number. Remotion St
 
 Applies to `number` fields.
 
-When `true`, the field is not listed by default in the timeline controls list. Default: `false`.
+Required for `number` fields. When `true`, the field is not listed by default in the timeline controls list.
 
 ## Enum Fields
 

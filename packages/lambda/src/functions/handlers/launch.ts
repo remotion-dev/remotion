@@ -19,6 +19,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import {waitForPromisesToFinish} from '../../shared/wait-for-promises-to-finish';
 import {
 	makeArtifactRegistry,
 	type OnArtifactFromRenderer,
@@ -63,12 +64,14 @@ const innerLaunchHandler = async ({
 	overallProgress,
 	registerCleanupTask,
 	onBrowser,
+	cancelOtherRenderers,
 }: {
 	params: ServerlessPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	onBrowser: (browser: LaunchedBrowser) => void;
+	cancelOtherRenderers: () => Promise<void>;
 }): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -465,6 +468,7 @@ const innerLaunchHandler = async ({
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			proResBitsPerMacroblock: params.proResBitsPerMacroblock ?? null,
 			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
@@ -847,7 +851,7 @@ const innerLaunchHandler = async ({
 		const outdir = RenderInternals.tmpDir(
 			LambdaClientInternals.CONCAT_FOLDER_TOKEN,
 		);
-		await Promise.all(
+		await waitForPromisesToFinish(
 			lambdaPayloads.map((payload) =>
 				renderRendererFunctionWithRetry({
 					payload,
@@ -859,6 +863,9 @@ const innerLaunchHandler = async ({
 					onArtifact,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
+				}).catch(async (err) => {
+					await cancelOtherRenderers();
+					throw err;
 				}),
 			),
 		);
@@ -991,9 +998,9 @@ const innerLaunchHandler = async ({
 		mkdirSync(outdir);
 		const files: string[] = [];
 
-		await Promise.all(
-			lambdaPayloads.map(async (payload) => {
-				await renderRendererFunctionWithRetry({
+		await waitForPromisesToFinish(
+			lambdaPayloads.map((payload) =>
+				renderRendererFunctionWithRetry({
 					files,
 					functionName: rendererFunctionName,
 					outdir,
@@ -1003,8 +1010,11 @@ const innerLaunchHandler = async ({
 					onArtifact,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
-				});
-			}),
+				}).catch(async (err) => {
+					await cancelOtherRenderers();
+					throw err;
+				}),
+			),
 		);
 
 		postRenderData = await mergeChunksAndFinishRender({
@@ -1138,27 +1148,30 @@ export const launchHandler = async ({
 		return prom;
 	};
 
-	const cancelOtherRenderers = async () => {
+	let cancellationSignal: Promise<void> | null = null;
+	const cancelOtherRenderers = (): Promise<void> => {
 		if (!params.enableCancellation) {
-			return;
+			return Promise.resolve();
 		}
 
-		try {
-			await LambdaClientInternals.writeCancellationSignal({
-				bucketName: params.bucketName,
-				renderId: params.renderId,
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner: options.expectedBucketOwner,
-				forcePathStyle: params.forcePathStyle,
-				requestHandler: null,
-			});
-		} catch (err) {
-			RenderInternals.Log.warn(
-				{indent: false, logLevel: params.logLevel},
-				'Could not signal other renderers to stop.',
-				err,
-			);
-		}
+		cancellationSignal ??= LambdaClientInternals.writeCancellationSignal({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			region: getCurrentRegionInFunction(),
+			expectedBucketOwner: options.expectedBucketOwner,
+			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
+		}).then(
+			() => undefined,
+			(err) => {
+				RenderInternals.Log.warn(
+					{indent: false, logLevel: params.logLevel},
+					'Could not signal other renderers to stop.',
+					err,
+				);
+			},
+		);
+		return cancellationSignal;
 	};
 
 	const onTimeout = async () => {
@@ -1375,6 +1388,7 @@ export const launchHandler = async ({
 			onBrowser: (browser) => {
 				instance = browser;
 			},
+			cancelOtherRenderers,
 		});
 		clearTimeout(webhookDueToTimeout);
 		publishProgress();

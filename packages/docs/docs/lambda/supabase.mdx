@@ -29,7 +29,7 @@ AWS_SECRET_ACCESS_KEY=xxx
 ```tsx title="supabase/functions/trigger-render.ts"
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 // FIXME: Replace 4.0.265 with the version of Remotion you are using.
-import {renderMediaOnLambda} from 'npm:@remotion/lambda-client@4.0.265';
+import {renderMediaOnLambda, speculateFunctionName} from 'npm:@remotion/lambda-client@4.0.265';
 
 Deno.serve(async (req) => {
   const {props} = await req.json();
