@@ -98,6 +98,23 @@ test('streams changed progress and completes real renders through idle and busy 
 					},
 				});
 			});
+			// Time progress where the launch function emits it. Receipt times also
+			// include pauses (GC, CPU preemption) between emitting and delivering
+			// an update, which can shrink the observed gap below the throttle.
+			const emitted: number[] = [];
+			const {normalizeRenderProgress} = LambdaClientInternals;
+			const normalizeSpy = spyOn(
+				LambdaClientInternals,
+				'normalizeRenderProgress',
+			).mockImplementation((input) => {
+				const time = performance.now();
+				const progress = normalizeRenderProgress(input);
+				if (!progress.done) {
+					emitted.push(time);
+				}
+
+				return progress;
+			});
 			const start = performance.now();
 			const result = await renderMediaOnLambdaAndStream({
 				functionName: speculateFunctionName({
@@ -119,7 +136,7 @@ test('streams changed progress and completes real renders through idle and busy 
 						progress: structuredClone(progress),
 					});
 				},
-			});
+			}).finally(() => normalizeSpy.mockRestore());
 			const file = readMockS3File({
 				bucketName: result.outBucket,
 				key: result.outKey,
@@ -134,10 +151,10 @@ test('streams changed progress and completes real renders through idle and busy 
 			expect(result.framesRendered).toBe(idle ? 1 : 120);
 			expect(updates.at(-1)?.progress.done).toBe(true);
 			const intermediate = updates.filter(({progress}) => !progress.done);
-			for (let i = 1; i < intermediate.length; i++) {
-				expect(
-					intermediate[i].time - intermediate[i - 1].time,
-				).toBeGreaterThanOrEqual(80);
+			expect(emitted.length).toBe(intermediate.length);
+			for (let i = 1; i < emitted.length; i++) {
+				// The throttle measures with millisecond-precision Date.now().
+				expect(emitted[i] - emitted[i - 1]).toBeGreaterThanOrEqual(98);
 			}
 
 			const keys = intermediate.map(({progress}) =>
