@@ -285,7 +285,8 @@ export const calculateTransforms = ({
 				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);
 			}
 
-			if (filterForPrecompositing) overrides.push(['filter', 'none']);
+			// Keep the filter's containing block while removing its visual effect.
+			if (filterForPrecompositing) overrides.push(['filter', 'opacity(1)']);
 			const {style} = parent;
 			const originals = overrides.map(([property]) => ({
 				property,
