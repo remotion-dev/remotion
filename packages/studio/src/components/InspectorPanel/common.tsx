@@ -27,9 +27,17 @@ import {
 	sectionHeader,
 } from './styles';
 
-export const InspectorSectionHeader: React.FC<{
-	readonly children: React.ReactNode;
-}> = ({children}) => <div style={sectionHeader}>{children}</div>;
+export const InspectorSectionHeader = React.forwardRef<
+	HTMLDivElement,
+	{readonly children: React.ReactNode}
+>(({children}, ref) => {
+	return (
+		<div ref={ref} style={sectionHeader}>
+			{children}
+		</div>
+	);
+});
+InspectorSectionHeader.displayName = 'InspectorSectionHeader';
 
 export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
@@ -157,10 +165,11 @@ export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
 	readonly expanded: boolean;
 	readonly header: React.ReactNode;
-}> = ({children, expanded, header}) => {
+	readonly headerRef: React.RefObject<HTMLDivElement | null> | null;
+}> = ({children, expanded, header, headerRef}) => {
 	return (
 		<>
-			<InspectorSectionHeader>{header}</InspectorSectionHeader>
+			<InspectorSectionHeader ref={headerRef}>{header}</InspectorSectionHeader>
 			<InspectorSectionBody
 				expanded={expanded}
 				keepMounted={false}

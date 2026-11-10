@@ -1,4 +1,4 @@
-import {createWriteStream, writeFileSync} from 'fs';
+import {createWriteStream, writeFileSync, type WriteStream} from 'fs';
 import {pipeline} from 'node:stream/promises';
 import {join} from 'path';
 import {
@@ -26,7 +26,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = ({
+const streamRenderer = async ({
 	payload,
 	functionName,
 	outdir,
@@ -45,204 +45,212 @@ const streamRenderer = ({
 	onArtifact: OnArtifactFromRenderer;
 	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
-}) => {
+}): Promise<StreamRendererResponse> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
-	return new Promise<StreamRendererResponse>((resolve) => {
-		let chunkCompleted = false;
-		let invocation = 0;
-		const artifactInvocations = new Map<string, number>();
-		const chunkFilename = (type: 'video' | 'audio') =>
-			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
+	let response: StreamRendererResponse | null = null;
+	const sinks: {stream: WriteStream; closed: Promise<Error | null>}[] = [];
+	let chunkCompleted = false;
+	let invocation = 0;
+	const artifactInvocations = new Map<string, number>();
+	const chunkFilename = (type: 'video' | 'audio') =>
+		join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
 
-		// Stream the chunks to disk as they arrive instead of buffering them
-		// in memory. With many chunks arriving concurrently, buffering can
-		// exhaust the memory of the main function.
-		const getBinaryPayloadSink: GetBinaryPayloadSink = ({messageType}) => {
-			const filename = chunkFilename(
-				messageType === 'video-chunk-rendered' ? 'video' : 'audio',
-			);
-			const writeStream = createWriteStream(filename);
-			return {
-				write: (data) =>
-					new Promise<void>((resolve_, reject) => {
-						writeStream.write(data, (err) => {
-							if (err) {
-								reject(err);
-							} else {
-								resolve_();
-							}
-						});
-					}),
-				end: () =>
-					new Promise<void>((resolve_) => {
-						writeStream.end(resolve_);
-					}),
-			};
+	const getBinaryPayloadSink: GetBinaryPayloadSink = ({messageType}) => {
+		const filename = chunkFilename(
+			messageType === 'video-chunk-rendered' ? 'video' : 'audio',
+		);
+		const writeStream = createWriteStream(filename);
+		const closed = new Promise<Error | null>((resolve) => {
+			let error: Error | null = null;
+			writeStream.on('error', (err) => {
+				error = err;
+			});
+			writeStream.once('close', () => resolve(error));
+		});
+		sinks.push({stream: writeStream, closed});
+		return {
+			write: (data) =>
+				new Promise<void>((resolve_, reject) => {
+					writeStream.write(data, (err) => {
+						if (err) {
+							reject(err);
+						} else {
+							resolve_();
+						}
+					});
+				}),
+			end: async () => {
+				writeStream.end();
+				const error = await closed;
+				if (error) {
+					throw error;
+				}
+			},
 		};
+	};
 
-		const receivedStreamingPayload: OnMessage = ({message}) => {
-			if (message.type === 'lambda-invoked') {
-				invocation++;
-				overallProgress.setLambdaInvoked(
-					payload.chunk,
-					message.payload.memorySizeInMb,
-				);
-				return;
+	const receivedStreamingPayload: OnMessage = ({message}) => {
+		if (message.type === 'lambda-invoked') {
+			invocation++;
+			overallProgress.setLambdaInvoked(
+				payload.chunk,
+				message.payload.memorySizeInMb,
+			);
+			return;
+		}
+
+		if (message.type === 'frames-uploaded') {
+			overallProgress.setUploadedFrames({
+				index: payload.chunk,
+				...message.payload,
+			});
+			return;
+		}
+
+		if (message.type === 'frames-rendered') {
+			overallProgress.setFrames({
+				index: payload.chunk,
+				encoded: message.payload.encoded,
+				rendered: message.payload.rendered,
+			});
+			return;
+		}
+
+		if (message.type === 'video-chunk-rendered') {
+			const filename = chunkFilename('video');
+			// An empty payload means the chunk was already streamed to disk
+			if (message.payload.length > 0) {
+				writeFileSync(filename, message.payload);
 			}
 
-			if (message.type === 'frames-uploaded') {
-				overallProgress.setUploadedFrames({
-					index: payload.chunk,
-					...message.payload,
-				});
-				return;
+			if (!files.includes(filename)) {
+				files.push(filename);
 			}
 
-			if (message.type === 'frames-rendered') {
-				overallProgress.setFrames({
-					index: payload.chunk,
-					encoded: message.payload.encoded,
-					rendered: message.payload.rendered,
-				});
-				return;
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`Received video chunk for chunk ${payload.chunk}`,
+			);
+
+			return;
+		}
+
+		if (message.type === 'audio-chunk-rendered') {
+			const filename = chunkFilename('audio');
+			// An empty payload means the chunk was already streamed to disk
+			if (message.payload.length > 0) {
+				writeFileSync(filename, message.payload);
 			}
 
-			if (message.type === 'video-chunk-rendered') {
-				const filename = chunkFilename('video');
-				// An empty payload means the chunk was already streamed to disk
-				if (message.payload.length > 0) {
-					writeFileSync(filename, message.payload);
-				}
-
-				if (!files.includes(filename)) {
-					files.push(filename);
-				}
-
-				RenderInternals.Log.verbose(
-					{indent: false, logLevel},
-					`Received video chunk for chunk ${payload.chunk}`,
-				);
-
-				return;
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`Received audio chunk for chunk ${payload.chunk}`,
+			);
+			if (!files.includes(filename)) {
+				files.push(filename);
 			}
 
-			if (message.type === 'audio-chunk-rendered') {
-				const filename = chunkFilename('audio');
-				// An empty payload means the chunk was already streamed to disk
-				if (message.payload.length > 0) {
-					writeFileSync(filename, message.payload);
-				}
+			return;
+		}
 
-				RenderInternals.Log.verbose(
-					{indent: false, logLevel},
-					`Received audio chunk for chunk ${payload.chunk}`,
-				);
-				if (!files.includes(filename)) {
-					files.push(filename);
-				}
+		if (message.type === 'chunk-complete') {
+			chunkCompleted = true;
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`Finished chunk ${payload.chunk}`,
+			);
+			overallProgress.addChunkCompleted(
+				payload.chunk,
+				message.payload.start,
+				message.payload.rendered,
+			);
+			return;
+		}
 
-				return;
-			}
-
-			if (message.type === 'chunk-complete') {
-				chunkCompleted = true;
-				RenderInternals.Log.verbose(
-					{indent: false, logLevel},
-					`Finished chunk ${payload.chunk}`,
-				);
-				overallProgress.addChunkCompleted(
-					payload.chunk,
-					message.payload.start,
-					message.payload.rendered,
-				);
-				return;
-			}
-
-			if (message.type === 'artifact-emitted') {
-				const artifact = LambdaClientInternals.deserializeArtifact(
-					message.payload.artifact,
-				);
+		if (message.type === 'artifact-emitted') {
+			const artifact = LambdaClientInternals.deserializeArtifact(
+				message.payload.artifact,
+			);
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				`Received artifact on frame ${message.payload.artifact.frame}:`,
+				artifact.filename,
+				artifact.content.length + 'bytes.',
+			);
+			const artifactKey = JSON.stringify([artifact.filename, artifact.frame]);
+			const previousInvocation = artifactInvocations.get(artifactKey);
+			if (previousInvocation !== undefined && previousInvocation < invocation) {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`Received artifact on frame ${message.payload.artifact.frame}:`,
-					artifact.filename,
-					artifact.content.length + 'bytes.',
+					`Ignoring artifact ${artifact.filename} replayed by a retried stream of chunk ${payload.chunk}`,
 				);
-				const artifactKey = JSON.stringify([artifact.filename, artifact.frame]);
-				const previousInvocation = artifactInvocations.get(artifactKey);
-				if (
-					previousInvocation !== undefined &&
-					previousInvocation < invocation
-				) {
-					RenderInternals.Log.info(
-						{indent: false, logLevel},
-						`Ignoring artifact ${artifact.filename} replayed by a retried stream of chunk ${payload.chunk}`,
-					);
-					return;
-				}
-
-				artifactInvocations.set(artifactKey, invocation);
-				const artifactRegistration = onArtifact({
-					artifact,
-					chunk: payload.chunk,
-					attempt: payload.attempt,
-				});
-				if (artifactRegistration.type === 'conflict') {
-					return resolve({
-						type: 'error',
-						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
-						shouldRetry: false,
-					});
-				}
-
-				if (artifactRegistration.type === 'retry-replay') {
-					RenderInternals.Log.info(
-						{indent: false, logLevel},
-						`Ignoring artifact ${artifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
-					);
-				}
-
 				return;
 			}
 
-			if (message.type === 'error-occurred') {
-				overallProgress.addErrorWithoutUpload(message.payload.errorInfo);
-				overallProgress.setFrames({
-					encoded: 0,
-					index: payload.chunk,
-					rendered: 0,
-				});
-
-				RenderInternals.Log.error(
-					{
-						indent: false,
-						logLevel,
-					},
-					`Renderer function of chunk ${payload.chunk} failed with error: ${message.payload.error}`,
-				);
-				RenderInternals.Log.error(
-					{
-						indent: false,
-						logLevel,
-					},
-					`Will retry chunk = ${message.payload.shouldRetry}`,
-				);
-
-				resolve({
+			artifactInvocations.set(artifactKey, invocation);
+			const artifactRegistration = onArtifact({
+				artifact,
+				chunk: payload.chunk,
+				attempt: payload.attempt,
+			});
+			if (artifactRegistration.type === 'conflict') {
+				response ??= {
 					type: 'error',
-					error: message.payload.error,
-					shouldRetry: message.payload.shouldRetry,
-				});
+					error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
+					shouldRetry: false,
+				};
 				return;
 			}
 
-			throw new Error(`Unknown message type ${message.type}`);
-		};
+			if (artifactRegistration.type === 'retry-replay') {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`Ignoring artifact ${artifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+				);
+			}
 
-		LambdaClientInternals.callFunctionWithStreamingImplementation({
+			return;
+		}
+
+		if (message.type === 'error-occurred') {
+			overallProgress.addErrorWithoutUpload(message.payload.errorInfo);
+			overallProgress.setFrames({
+				encoded: 0,
+				index: payload.chunk,
+				rendered: 0,
+			});
+
+			RenderInternals.Log.error(
+				{
+					indent: false,
+					logLevel,
+				},
+				`Renderer function of chunk ${payload.chunk} failed with error: ${message.payload.error}`,
+			);
+			RenderInternals.Log.error(
+				{
+					indent: false,
+					logLevel,
+				},
+				`Will retry chunk = ${message.payload.shouldRetry}`,
+			);
+
+			response ??= {
+				type: 'error',
+				error: message.payload.error,
+				shouldRetry: message.payload.shouldRetry,
+			};
+			return;
+		}
+
+		throw new Error(`Unknown message type ${message.type}`);
+	};
+
+	try {
+		await LambdaClientInternals.callFunctionWithStreamingImplementation({
 			functionName,
 			payload,
 			retriesRemaining: 1,
@@ -252,36 +260,49 @@ const streamRenderer = ({
 			receivedStreamingPayload,
 			requestHandler,
 			getBinaryPayloadSink,
-		})
-			.then(() => {
-				if (payload.output.type === 'sequence' && !chunkCompleted) {
-					resolve({
-						type: 'error',
-						error: `Image sequence chunk ${payload.chunk} ended without completing its uploads`,
-						shouldRetry: true,
-					});
-					return;
-				}
+		});
+	} catch (err) {
+		const shouldRetry =
+			(err as Error).stack?.includes('Error: aborted') ||
+			(err as Error).stack?.includes('ETIMEDOUT') ||
+			(err as Error).stack?.includes('socket hang up') ||
+			(err as Error).stack?.includes('ECONNRESET') ||
+			false;
 
-				resolve({
-					type: 'success',
-				});
-			})
-			.catch((err) => {
-				const shouldRetry =
-					(err as Error).stack?.includes('Error: aborted') ||
-					(err as Error).stack?.includes('ETIMEDOUT') ||
-					(err as Error).stack?.includes('socket hang up') ||
-					(err as Error).stack?.includes('ECONNRESET') ||
-					false;
+		response ??= {
+			type: 'error',
+			error: (err as Error).stack as string,
+			shouldRetry,
+		};
+	} finally {
+		for (const {stream} of sinks) {
+			stream.destroy();
+		}
 
-				resolve({
-					type: 'error',
-					error: (err as Error).stack as string,
-					shouldRetry,
-				});
-			});
-	});
+		const errors = await Promise.all(sinks.map(({closed}) => closed));
+		const writeError = errors.find((error) => error !== null);
+		if (writeError) {
+			response = {
+				type: 'error',
+				error: writeError.stack ?? writeError.message,
+				shouldRetry: false,
+			};
+		}
+	}
+
+	if (response) {
+		return response;
+	}
+
+	if (payload.output.type === 'sequence' && !chunkCompleted) {
+		return {
+			type: 'error',
+			error: `Image sequence chunk ${payload.chunk} ended without completing its uploads`,
+			shouldRetry: true,
+		};
+	}
+
+	return {type: 'success'};
 };
 
 const wait = (duration: number) =>
