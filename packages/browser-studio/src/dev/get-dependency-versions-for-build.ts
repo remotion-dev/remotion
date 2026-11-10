@@ -19,9 +19,9 @@ const nodeOnlyStudioDependencies = new Set(['memfs', 'open']);
 const readPackageJson = (path: string): PackageJson =>
 	JSON.parse(readFileSync(path, 'utf-8')) as PackageJson;
 
-const getWorkspacePackageVersions = () => {
+const getWorkspacePackages = () => {
 	const packageJsonGlob = new Bun.Glob('packages/**/package.json');
-	const workspacePackageVersions: Record<string, string> = {};
+	const workspacePackages: Record<string, PackageJson> = {};
 
 	for (const packageJsonPath of packageJsonGlob.scanSync({cwd: repoDir})) {
 		if (isBrowserStudioArtifactPath(packageJsonPath)) {
@@ -39,10 +39,10 @@ const getWorkspacePackageVersions = () => {
 			continue;
 		}
 
-		workspacePackageVersions[packageJson.name] = packageJson.version;
+		workspacePackages[packageJson.name] = packageJson;
 	}
 
-	return workspacePackageVersions;
+	return workspacePackages;
 };
 
 const resolveDependencyVersion = ({
@@ -109,17 +109,47 @@ export const getBrowserStudioDependencyVersionsForBuild = (): Record<
 			browserStudioPackageJson.dependencies?.['react-refresh'] ?? '0.18.0',
 	};
 
-	for (const [name, spec] of Object.entries(
-		studioPackageJson.dependencies ?? {},
-	)) {
-		if (nodeOnlyStudioDependencies.has(name)) {
+	const workspacePackages = getWorkspacePackages();
+	const workspacePackageVersions = Object.fromEntries(
+		Object.entries(workspacePackages).map(([name, packageJson]) => [
+			name,
+			packageJson.version as string,
+		]),
+	);
+
+	// Third-party dependencies of every workspace package the Studio preview
+	// can import must be pinned. Otherwise the fallback bundle requests them as
+	// `@latest` from esm.sh, which changes with every upstream release and can
+	// fail while esm.sh builds a version that was just published.
+	const visitedWorkspacePackages = new Set<string>();
+	const workspacePackagesToVisit = [studioPackageJson.name];
+	while (workspacePackagesToVisit.length > 0) {
+		const workspacePackageName = workspacePackagesToVisit.pop() as string;
+		if (visitedWorkspacePackages.has(workspacePackageName)) {
 			continue;
 		}
 
-		dependencySpecs[name] = spec;
+		visitedWorkspacePackages.add(workspacePackageName);
+		const packageJson =
+			workspacePackageName === studioPackageJson.name
+				? studioPackageJson
+				: workspacePackages[workspacePackageName];
+		for (const [name, spec] of Object.entries(
+			packageJson?.dependencies ?? {},
+		)) {
+			if (spec.startsWith('workspace:')) {
+				workspacePackagesToVisit.push(name);
+				continue;
+			}
+
+			if (nodeOnlyStudioDependencies.has(name) || name in dependencySpecs) {
+				continue;
+			}
+
+			dependencySpecs[name] = spec;
+		}
 	}
 
-	const workspacePackageVersions = getWorkspacePackageVersions();
 	Object.assign(dependencySpecs, workspacePackageVersions);
 
 	return Object.fromEntries(

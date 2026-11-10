@@ -2,6 +2,7 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -22,6 +23,7 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
+	setInsertedElementSelectionBaselineGetter,
 	subscribeToInsertedElementSelection,
 	type PendingInsertedElementSelection,
 } from '../../helpers/inserted-element-selection';
@@ -533,6 +535,16 @@ const TimelineInner: React.FC = () => {
 	} | null>(null);
 	const selectionBaselineRef = useRef({fastRefreshes, timeline});
 	selectionBaselineRef.current = {fastRefreshes, timeline};
+	useEffect(() => {
+		const getBaseline = () => ({
+			fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+			existingSequenceIds: new Set(
+				selectionBaselineRef.current.timeline.map((track) => track.sequence.id),
+			),
+		});
+		setInsertedElementSelectionBaselineGetter(getBaseline);
+		return () => setInsertedElementSelectionBaselineGetter(null);
+	}, []);
 	const subscribeToPendingSelection = useCallback((listener: () => void) => {
 		return subscribeToInsertedElementSelection(() => {
 			const selection = getInsertedElementSelection();
@@ -541,12 +553,14 @@ const TimelineInner: React.FC = () => {
 				// already committed the inserted sequence by the next layout effect.
 				pendingSelectionStart.current = {
 					selection,
-					fastRefreshes: selectionBaselineRef.current.fastRefreshes,
-					existingSequenceIds: new Set(
-						selectionBaselineRef.current.timeline.map(
-							(track) => track.sequence.id,
+					...(selection.baseline ?? {
+						fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+						existingSequenceIds: new Set(
+							selectionBaselineRef.current.timeline.map(
+								(track) => track.sequence.id,
+							),
 						),
-					),
+					}),
 				};
 			}
 
@@ -667,12 +681,16 @@ const TimelineInner: React.FC = () => {
 		) {
 			pendingSelectionStart.current = {
 				selection: pendingInsertedElementSelection,
-				fastRefreshes,
-				existingSequenceIds: new Set(
-					timeline.map((track) => track.sequence.id),
-				),
+				...(pendingInsertedElementSelection.baseline ?? {
+					fastRefreshes,
+					existingSequenceIds: new Set(
+						timeline.map((track) => track.sequence.id),
+					),
+				}),
 			};
-			return;
+			if (pendingInsertedElementSelection.baseline === null) {
+				return;
+			}
 		}
 
 		if (pendingSelectionStart.current.fastRefreshes === fastRefreshes) {

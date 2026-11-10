@@ -86,6 +86,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -148,12 +149,14 @@ import {nativeReferenceControl} from './fixtures/native-reference-control';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
+import {offlineRecovery} from './fixtures/offline-recovery';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
 import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
 import {opaqueLayerOverFadingLayer} from './fixtures/opaque-layer-over-fading-layer';
+import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {outline} from './fixtures/outline';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
@@ -178,6 +181,7 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
+import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {
 	svgCssDataCarrierModes,
 	svgCssDataEmptyCarrier,
@@ -278,6 +282,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...styleAttributeCleanupFixture(false)} />
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
@@ -301,7 +306,9 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
+			<Composition {...htmlInCanvasResize} />
 			<Composition {...objectFit} />
+			<Composition {...offlineRecovery} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
 			<Composition {...backgroundImageSpace} />
@@ -358,6 +365,8 @@ export const Root: React.FC = () => {
 				<Composition {...opacityReset} />
 				<Composition {...opacityInherited} />
 				<Composition {...opaqueLayerOverFadingLayer} />
+				<Composition {...opaqueTargetText} />
+				<Composition {...opaqueTargetGroup} />
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />

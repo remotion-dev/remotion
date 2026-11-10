@@ -20,7 +20,7 @@ const fasterConfig = {
 	rspackBundler: true,
 	rspackPersistentCache: !isVercel,
 	ssgWorkerThreads: !isVercel,
-	gitEagerVcs: true,
+	gitEagerVcs: !isVercel,
 };
 
 const showGitLastUpdate =

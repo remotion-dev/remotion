@@ -415,6 +415,7 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
+			...(retrySettings?.chromiumOptions ?? renderDefaults.chromiumOptions),
 			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
@@ -425,6 +426,8 @@ const RenderModal: React.FC<
 			darkMode,
 		};
 	}, [
+		renderDefaults.chromiumOptions,
+		retrySettings,
 		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
@@ -1359,6 +1362,7 @@ const RenderModal: React.FC<
 			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
+			chromiumOptions,
 			gl: openGlOption === 'default' ? null : openGlOption,
 			userAgent,
 			multiProcessOnLinux,
@@ -1375,6 +1379,7 @@ const RenderModal: React.FC<
 			inputProps,
 		});
 	}, [
+		chromiumOptions,
 		audioBitrate,
 		audioCodec,
 		beepOnFinish,

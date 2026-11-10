@@ -1,7 +1,7 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-media-video.png
 title: '<Video>'
-crumb: 'API - @remotion/media'
+crumb: '@remotion/media'
 ---
 
 `<Video>` from `@remotion/media` is the recommended component for embedding videos in Remotion.
@@ -64,6 +64,10 @@ The URL of the video to be rendered. Can be a remote URL or a local file referen
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
+
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+An object with positive integer `width` and `height` values that sets the [effect resolution](/docs/effects/api#effect-resolution). This does not change the layout or the output dimensions.
 
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
@@ -310,6 +314,10 @@ export const MyComposition = () => {
 };
 ```
 
+### `className?`
+
+A CSS class name applied to the `<canvas>` element, or to the fallback element when [falling back](/docs/media/fallback).
+
 ### `objectFit?`<AvailableFrom v="4.0.442" />
 
 Controls how the video content is resized to fit the canvas element, similar to the CSS `object-fit` property on `<img>` elements.
@@ -397,6 +405,10 @@ When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame 
 
 It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
+### `logLevel?`
+
+<Options id="log" />
+
 ### `showInTimeline?`
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
@@ -458,7 +470,9 @@ export const MyComposition = () => {
 
 ### `requestInit?`<AvailableFrom v="4.0.465" />
 
-Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the video data.
+Passes a subset of [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the video data: `cache`, `credentials`, `headers`, `integrity`, `mode`, `redirect`, `referrer` and `referrerPolicy`.
+
+`headers` accepts an object or an array of `[key, value]` tuples, but not a `Headers` instance.
 
 Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
 The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
@@ -486,7 +500,7 @@ The value must stay constant for each audio or video asset. Animating or keyfram
 
 Works during preview and server-side rendering. [Client-side rendering](/docs/client-side-rendering/) is supported from <AvailableFrom v="4.0.523" inline />.
 
-If the component [falls back to `<OffthreadVideo>`](/docs/media/fallback) during preview, pitch shifting is not applied.
+If the component [falls back to `<Html5Video>`](/docs/media/fallback) during preview, pitch shifting is not applied.
 
 ### `headless?`<AvailableFrom v="4.0.387" />
 
@@ -537,7 +551,7 @@ Maps to [`<OffthreadVideo />` -> `onAutoPlayError`](/docs/offthreadvideo#onautop
 #### `preservePitch?`<AvailableFrom v="4.0.463" />
 
 Maps to [`<OffthreadVideo />` -> `preservePitch`](/docs/offthreadvideo#preservepitch).  
-Only affects preview playback when falling back to [`<Html5Video>`](/docs/html5-video) or [`<OffthreadVideo>`](/docs/offthreadvideo).
+Takes precedence over [`preservePitch`](#preservepitch) when falling back to [`<Html5Video>`](/docs/html5-video) or [`<OffthreadVideo>`](/docs/offthreadvideo).
 
 ### `disallowFallbackToOffthreadVideo?`
 
@@ -552,6 +566,10 @@ When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side render
 ### `debugOverlay?`
 
 Shows a debug overlay on the video. This is useful for debugging the video playback.
+
+### Inherited props
+
+`<Video>` inherits [`freeze`](/docs/sequence#freeze)<AvailableFrom v="4.0.477" inline /> and [`hidden`](/docs/sequence#hidden)<AvailableFrom v="4.0.463" inline /> from [`<Sequence>`](/docs/sequence).
 
 ## Compatibility
 

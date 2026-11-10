@@ -68,7 +68,8 @@ export class MediaPlayer {
 
 	audioIteratorManager: AudioIteratorManager | null = null;
 	private muted = false;
-	private unsupportedAudioError: Error | null = null;
+	private volume = 1;
+	private audioInitialized = false;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
@@ -258,12 +259,9 @@ export class MediaPlayer {
 		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
 		this.muted = initialMuted;
+		this.volume = initialVolume;
 		this.lastRequestedTime = startTimeUnresolved;
-		const promise = this._initialize(
-			startTimeUnresolved,
-			initialMuted,
-			initialVolume,
-		);
+		const promise = this._initialize(startTimeUnresolved);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -303,10 +301,103 @@ export class MediaPlayer {
 		);
 	}
 
+	private async initializeAudio(): Promise<Extract<
+		MediaPlayerInitResult,
+		{type: 'cannot-decode' | 'no-tracks' | 'disposed'}
+	> | null> {
+		if (this.audioInitialized || this.muted || !this.sharedAudioContext) {
+			return null;
+		}
+
+		using _ = this.delayPlaybackHandleIfNotPremounting();
+		const [videoTrack, audioTracks] = await Promise.all([
+			this.input.getPrimaryVideoTrack(),
+			this.input.getAudioTracks(),
+		]);
+		if (this.isDisposalError()) {
+			return {type: 'disposed'};
+		}
+
+		if (this.muted) {
+			return null;
+		}
+
+		const audioTrack = await resolveAudioTrack({
+			videoTrack,
+			audioTracks,
+			audioStreamIndex: this.audioStreamIndex,
+		});
+		if (this.isDisposalError()) {
+			return {type: 'disposed'};
+		}
+
+		if (this.muted) {
+			return null;
+		}
+
+		if (!videoTrack && !audioTrack) {
+			return {type: 'no-tracks'};
+		}
+
+		if (!audioTrack) {
+			this.audioInitialized = true;
+			return null;
+		}
+
+		if (await audioTrack.isLive()) {
+			throw new Error(
+				'Live streams are not currently supported by Remotion. Sorry! Source: ' +
+					this.src,
+			);
+		}
+
+		if (await audioTrack.isRelativeToUnixEpoch()) {
+			throw new Error(
+				'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
+					this.src,
+			);
+		}
+
+		const canDecode = await audioTrack.canDecode();
+		if (this.isDisposalError()) {
+			return {type: 'disposed'};
+		}
+
+		if (this.muted) {
+			return null;
+		}
+
+		if (!canDecode) {
+			return {
+				type: 'cannot-decode',
+				error: new Error(
+					`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+				),
+			};
+		}
+
+		this.audioIteratorManager = audioIteratorManager({
+			audioTrack,
+			delayPlaybackHandleIfNotPremounting:
+				this.delayPlaybackHandleIfNotPremounting,
+			sharedAudioContext: this.sharedAudioContext,
+			getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
+			getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
+			getStartTime: () => this.getStartTime(),
+			getIsPlaying: () => this.playing,
+			initialMuted: this.muted,
+			initialVolume: this.volume,
+			toneFrequency: this.toneFrequency,
+			drawDebugOverlay: this.drawDebugOverlay,
+			onError: (error) => this.reportTerminalError(error),
+			getSequenceDurationInSeconds: () => this.getSequenceDurationInSeconds(),
+		});
+		this.audioInitialized = true;
+		return null;
+	}
+
 	private async _initialize(
 		startTimeUnresolved: number,
-		initialMuted: boolean,
-		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
@@ -336,26 +427,15 @@ export class MediaPlayer {
 				return {type: 'unknown-container-format', error: err};
 			}
 
-			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
+			const [durationInSeconds, videoTrack] = await Promise.all([
 				this.getDuration(),
 				this.input.getPrimaryVideoTrack(),
-				this.input.getAudioTracks(),
 			]);
 			if (this.isDisposalError()) {
 				return {type: 'disposed'};
 			}
 
 			this.totalDuration = durationInSeconds;
-
-			const audioTrack = await resolveAudioTrack({
-				videoTrack,
-				audioTracks,
-				audioStreamIndex: this.audioStreamIndex,
-			});
-
-			if (!videoTrack && !audioTrack) {
-				return {type: 'no-tracks'};
-			}
 
 			if (videoTrack && this.tagType === 'video') {
 				if (await videoTrack.isLive()) {
@@ -421,60 +501,9 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			if (audioTrack && this.sharedAudioContext) {
-				if (await audioTrack.isLive()) {
-					throw new Error(
-						'Live streams are not currently supported by Remotion. Sorry! Source: ' +
-							this.src,
-					);
-				}
-
-				if (await audioTrack.isRelativeToUnixEpoch()) {
-					throw new Error(
-						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
-							this.src,
-					);
-				}
-
-				const canDecode = await audioTrack.canDecode();
-				if (!canDecode && !this.muted) {
-					return {
-						type: 'cannot-decode',
-						error: new Error(
-							`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
-						),
-					};
-				}
-
-				if (this.isDisposalError()) {
-					return {type: 'disposed'};
-				}
-
-				if (canDecode) {
-					this.audioIteratorManager = audioIteratorManager({
-						audioTrack,
-						delayPlaybackHandleIfNotPremounting:
-							this.delayPlaybackHandleIfNotPremounting,
-						sharedAudioContext: this.sharedAudioContext,
-						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
-						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
-						getStartTime: () => this.getStartTime(),
-						getIsPlaying: () => this.playing,
-						initialMuted,
-						initialVolume,
-						toneFrequency: this.toneFrequency,
-						drawDebugOverlay: this.drawDebugOverlay,
-						onError: (error) => this.reportTerminalError(error),
-						getSequenceDurationInSeconds: () =>
-							this.getSequenceDurationInSeconds(),
-					});
-				} else {
-					// Muted video can draw without an audio decoder. Report the
-					// unavailable audio if the caller later requests sound.
-					this.unsupportedAudioError = new Error(
-						`Cannot decode audio for ${this.src}.`,
-					);
-				}
+			const audioResult = await this.initializeAudio();
+			if (audioResult) {
+				return audioResult;
 			}
 
 			const nonce = this.nonceManager.createAsyncOperation();
@@ -592,6 +621,23 @@ export class MediaPlayer {
 		}
 
 		try {
+			const audioResult = await this.initializeAudio();
+			if (audioResult) {
+				if (audioResult.type !== 'disposed') {
+					this.reportTerminalError(
+						audioResult.type === 'cannot-decode'
+							? audioResult.error
+							: new Error(`No video or audio tracks found for ${this.src}.`),
+					);
+				}
+
+				return;
+			}
+
+			if (nonce.isStale() || this.isDisposalError()) {
+				return;
+			}
+
 			await Promise.all([
 				this.videoIteratorManager?.seek({
 					newTime,
@@ -666,20 +712,17 @@ export class MediaPlayer {
 
 	public setMuted(muted: boolean): void {
 		this.muted = muted;
-		if (!muted && this.unsupportedAudioError) {
-			this.reportTerminalError(this.unsupportedAudioError);
-			return;
-		}
-
 		this.audioIteratorManager?.setMuted(muted);
+		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
+			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
+				this.reportTerminalError(error),
+			);
+		}
 	}
 
 	public setVolume(volume: number): void {
-		if (!this.audioIteratorManager) {
-			return;
-		}
-
-		this.audioIteratorManager.setVolume(volume);
+		this.volume = volume;
+		this.audioIteratorManager?.setVolume(volume);
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
@@ -826,7 +869,7 @@ export class MediaPlayer {
 		// Cancel pending paints before waiting for initialization to settle.
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
-		this.audioIteratorManager?.destroyIterator();
+		this.audioIteratorManager?.dispose();
 		this.premountAwareDelayPlayback.dispose();
 		// Release before awaiting startup: disposing the last lease cancels a
 		// stalled read, while other players keep their shared Input alive.
@@ -842,7 +885,7 @@ export class MediaPlayer {
 		}
 
 		this.videoIteratorManager?.destroy();
-		this.audioIteratorManager?.destroyIterator();
+		this.audioIteratorManager?.dispose();
 	}
 
 	private getTargetTime = (
