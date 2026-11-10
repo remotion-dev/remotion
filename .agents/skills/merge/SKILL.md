@@ -52,7 +52,7 @@ If it is a genuine CI failure:
 3. Commit and push the fix.
 4. Start the loop from the top.
 
-If it is a CI flake in a test file this PR added or changed, or a `Web renderer burn-in` failure, treat it as a genuine failure: record it with the [`flake`](../flake/SKILL.md) skill, then fix the test (or skip it with a link to its tracker row) and push. Do not rerun it to get a green check.
+If it is a CI flake in a test file this PR added or changed, or a `Web renderer burn-in` failure, treat it as a genuine failure: fix the test so it is deterministic, then push. Do not record it in the flake tracker and do not rerun it to get a green check.
 
 If it is a CI flake in an existing test:
 
