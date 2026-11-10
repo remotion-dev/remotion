@@ -62,6 +62,14 @@ export const TableOfContents: React.FC = () => {
 					<strong>elements</strong>
 					<div>Install Elements from Element Libraries</div>
 				</TOCItem>
+				<TOCItem link="/docs/cli/canvas-capture">
+					<strong>canvas-capture</strong>
+					<div>Import Canvas Capture recordings</div>
+				</TOCItem>
+				<TOCItem link="/docs/cli/open-timeline">
+					<strong>open-timeline</strong>
+					<div>Import OpenTimelineIO timelines</div>
+				</TOCItem>
 				<TOCItem link="/docs/cli/gpu">
 					<strong>gpu</strong>
 					<div>Print information about {"Chrome's"} usage of the GPU</div>

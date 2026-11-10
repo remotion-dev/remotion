@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {expect, test} from '@playwright/test';
+import {expect, test, type Locator} from '@playwright/test';
 import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 import {STUDIO_URL, effectKeyframeE2eFile} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -246,6 +246,110 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			effects.getByRole('button', {name: '0.5', exact: true}),
 		).toHaveCount(2);
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(240);
+		const indicator = page.locator('[data-remotion-effect-drop-indicator]');
+		const checkReorderGaps = async (
+			headers: Locator,
+			beforeFirst: Locator | null,
+		) => {
+			const dataTransfer = await page.evaluateHandle(() => new DataTransfer());
+			const hoverEffect = async (index: number, edge: 'top' | 'bottom') => {
+				const bounds = await headers.nth(index).evaluate((header) => {
+					const rect =
+						header.parentElement!.parentElement!.getBoundingClientRect();
+					return {x: rect.x, top: rect.top, bottom: rect.bottom};
+				});
+				await headers.nth(index).dispatchEvent('dragover', {
+					dataTransfer,
+					clientX: bounds.x + 10,
+					clientY: edge === 'top' ? bounds.top + 1 : bounds.bottom - 1,
+				});
+				return bounds;
+			};
+			await headers.first().dispatchEvent('dragstart', {dataTransfer});
+			await hoverEffect(1, 'bottom');
+			await expect(indicator).toHaveCount(1);
+			const afterSecondEffect = await indicator.boundingBox();
+			await headers.nth(1).dispatchEvent('dragleave', {
+				dataTransfer,
+				relatedTarget: await headers.nth(2).elementHandle(),
+			});
+			await expect(indicator).toHaveCount(1);
+			await hoverEffect(2, 'top');
+			await expect(indicator).toHaveCount(1);
+			expect(await indicator.boundingBox()).toEqual(afterSecondEffect);
+			await hoverEffect(0, 'top');
+			await expect(indicator).toHaveCount(0);
+			const lastEffect = await hoverEffect(2, 'bottom');
+			await expect(indicator).toHaveCount(1);
+			const lastGap = await indicator.boundingBox();
+			expect(lastGap!.y + lastGap!.height).toBe(lastEffect.bottom);
+			await headers.first().dispatchEvent('dragend', {dataTransfer});
+			await expect(indicator).toHaveCount(0);
+			await headers.last().dispatchEvent('dragstart', {dataTransfer});
+			let headingGap: Awaited<ReturnType<Locator['boundingBox']>> = null;
+			if (beforeFirst) {
+				await beforeFirst.dispatchEvent('dragover', {dataTransfer});
+				await expect(indicator).toHaveCount(1);
+				headingGap = await indicator.boundingBox();
+			}
+			const firstEffect = await hoverEffect(0, 'top');
+			await expect(indicator).toHaveCount(1);
+			const firstGap = await indicator.boundingBox();
+			expect(firstGap!.y).toBe(firstEffect.top);
+			if (headingGap) expect(firstGap).toEqual(headingGap);
+			await headers.first().dispatchEvent('dragleave', {dataTransfer});
+			await expect(indicator).toHaveCount(0);
+			await headers.last().dispatchEvent('dragend', {dataTransfer});
+			await dataTransfer.dispose();
+			if (beforeFirst) {
+				const sourceBounds = (await headers.last().boundingBox())!;
+				const firstBounds = (await headers.first().boundingBox())!;
+				const headingBounds = (await beforeFirst.boundingBox())!;
+				const positions: number[] = [];
+				for (
+					let y = headingBounds.y + headingBounds.height - 1;
+					y <= firstBounds.y + 1;
+					y++
+				) {
+					positions.push(y);
+				}
+
+				await page.mouse.move(sourceBounds.x + 60, sourceBounds.y + 10);
+				await page.mouse.down();
+				try {
+					await page.mouse.move(sourceBounds.x + 60, sourceBounds.y - 10, {
+						steps: 3,
+					});
+					for (const x of [
+						firstBounds.x + 2,
+						firstBounds.x + 60,
+						firstBounds.x + firstBounds.width - 2,
+					]) {
+						for (const y of positions) {
+							await page.mouse.move(x, y);
+							await page.mouse.move(x, y);
+							await page.evaluate(() => new Promise(requestAnimationFrame));
+							expect(await indicator.count(), `Top gap at ${x}, ${y}`).toBe(1);
+						}
+						positions.reverse();
+					}
+				} finally {
+					await page.keyboard.press('Escape');
+					await page.mouse.up();
+				}
+				await expect(indicator).toHaveCount(0);
+			}
+		};
+		await checkReorderGaps(
+			effects.locator('[draggable="true"]'),
+			effects.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		);
+		const timelineEffects = page
+			.locator('[draggable="true"]:not(section[aria-label="Effects"] *)')
+			.filter({has: page.getByRole('group', {name: 'scale()', exact: true})});
+		await expect(timelineEffects).toHaveCount(3);
+		await checkReorderGaps(timelineEffects, null);
+		await scaleEffects.last().click();
 		await page.keyboard.press('Backspace');
 		await expect(scaleEffects).toHaveCount(2, {timeout: 1_000});
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(480);

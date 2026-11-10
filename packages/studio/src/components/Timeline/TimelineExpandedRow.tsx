@@ -13,6 +13,7 @@ import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getExpandedRowDepth} from './timeline-row-layout';
 import {TimelineEffectItem} from './TimelineEffectItem';
 import {TimelineEffectPropItem} from './TimelineEffectPropItem';
+import {TimelineEffectsContextMenu} from './TimelineEffectsContextMenu';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -116,31 +117,36 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 		// Group like "Effects"
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
-			<TimelineRowChrome
-				depth={rowDepth}
-				eye={<TimelineLayerEyeSpacer />}
-				arrow={
-					<TimelineExpandArrowButton
-						iconVariant="timeline"
-						isExpanded={isExpanded}
-						onClick={() => toggleTrack(node.nodePathInfo)}
-						label={`${node.label} section`}
-						disabled={false}
-					/>
-				}
-				style={{
-					height: TREE_GROUP_ROW_HEIGHT,
-				}}
-				selected={selection.selected}
-				selectable={selection.selectable}
-				onSelect={selection.onSelect}
-				showSelectedBackground
-				containsSelection={containsSelection}
-				outerHeight={null}
-				showBottomBorder={false}
+			<TimelineEffectsContextMenu
+				onSelect={selection.selectable ? selection.onSelect : null}
+				validatedLocation={validatedLocation}
 			>
-				<span style={labelStyle}>{node.label}</span>
-			</TimelineRowChrome>
+				<TimelineRowChrome
+					depth={rowDepth}
+					eye={<TimelineLayerEyeSpacer />}
+					arrow={
+						<TimelineExpandArrowButton
+							iconVariant="timeline"
+							isExpanded={isExpanded}
+							onClick={() => toggleTrack(node.nodePathInfo)}
+							label={`${node.label} section`}
+							disabled={false}
+						/>
+					}
+					style={{
+						height: TREE_GROUP_ROW_HEIGHT,
+					}}
+					selected={selection.selected}
+					selectable={selection.selectable}
+					onSelect={selection.onSelect}
+					showSelectedBackground
+					containsSelection={containsSelection}
+					outerHeight={null}
+					showBottomBorder={false}
+				>
+					<span style={labelStyle}>{node.label}</span>
+				</TimelineRowChrome>
+			</TimelineEffectsContextMenu>
 		);
 	}
 

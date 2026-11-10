@@ -275,7 +275,7 @@ export const makeStreamer = (
 				const {sink} = activeSink;
 				activeSink = null;
 				try {
-					Promise.resolve(sink.end()).catch(() => undefined);
+					return Promise.resolve(sink.end()).catch(() => undefined);
 				} catch {}
 			}
 		},
