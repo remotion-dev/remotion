@@ -9,8 +9,10 @@ import React, {
 	useState,
 } from 'react';
 import type {CanvasContent} from 'remotion';
-import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
+import {Internals, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
+import {watchStaticFile} from '../api/watch-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
@@ -761,6 +763,10 @@ export const Canvas: React.FC<{
 		}
 
 		if (canvasContent.type !== 'asset') {
+			return;
+		}
+
+		if (window.remotion_isReadOnlyStudio && !getBrowserStudioOperations()) {
 			return;
 		}
 

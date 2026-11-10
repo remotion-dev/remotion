@@ -52,7 +52,7 @@ test('Overlay is centered on the cut point', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20}>
+			<TransitionSeries.Overlay durationInFrames={20} premountFor={0}>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -69,7 +69,7 @@ test('Overlay is centered on the cut point', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20}>
+			<TransitionSeries.Overlay durationInFrames={20} premountFor={0}>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -86,7 +86,7 @@ test('Overlay is centered on the cut point', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20}>
+			<TransitionSeries.Overlay durationInFrames={20} premountFor={0}>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -103,7 +103,7 @@ test('Overlay is centered on the cut point', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20}>
+			<TransitionSeries.Overlay durationInFrames={20} premountFor={0}>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -123,7 +123,11 @@ test('Overlay with positive offset shifts right', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20} offset={5}>
+			<TransitionSeries.Overlay
+				durationInFrames={20}
+				offset={5}
+				premountFor={0}
+			>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -139,7 +143,11 @@ test('Overlay with positive offset shifts right', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20} offset={5}>
+			<TransitionSeries.Overlay
+				durationInFrames={20}
+				offset={5}
+				premountFor={0}
+			>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -159,7 +167,11 @@ test('Overlay with negative offset shifts left', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20} offset={-5}>
+			<TransitionSeries.Overlay
+				durationInFrames={20}
+				offset={-5}
+				premountFor={0}
+			>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
@@ -175,7 +187,11 @@ test('Overlay with negative offset shifts left', () => {
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="green">A</Letter>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Overlay durationInFrames={20} offset={-5}>
+			<TransitionSeries.Overlay
+				durationInFrames={20}
+				offset={-5}
+				premountFor={0}
+			>
 				<Letter color="red">OVL</Letter>
 			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence durationInFrames={60}>
