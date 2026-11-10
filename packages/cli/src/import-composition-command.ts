@@ -227,7 +227,7 @@ export const importCompositionCommand = async ({
 		if (change.filePath === compositionFile) {
 			Log.info(
 				{indent: false, logLevel},
-				`  ${chalk.bold(compositionId)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,
+				`  + ${chalk.bold(compositionId)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,
 			);
 		}
 	}
