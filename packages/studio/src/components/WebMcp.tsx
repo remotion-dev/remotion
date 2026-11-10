@@ -43,6 +43,7 @@ import {
 	projectEffectSequence,
 } from '../helpers/optimistic-effect-projection';
 import {getRenderOutputPlaybackTarget} from '../helpers/render-output-playback';
+import {AudioLevelsContext} from '../state/audio-levels';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
@@ -52,6 +53,10 @@ import {loadLoopOption, loopSetterRef, persistLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
+import {
+	getBufferingEvents,
+	useRevealBufferingHandle,
+} from './buffering-diagnostics';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
@@ -300,8 +305,16 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const {
+		visible: audioLevelsVisible,
+		setVisible: setAudioLevelsVisible,
+		levels: audioLevels,
+	} = useContext(AudioLevelsContext);
+	const audioLevelsVisibleRef = useRef(audioLevelsVisible);
+	audioLevelsVisibleRef.current = audioLevelsVisible;
 	const calculateTimeline = useTimelineCalculator();
 	const compactSeries = useCompactSeries();
+	const revealBufferingHandle = useRevealBufferingHandle();
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
 	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
@@ -1680,6 +1693,215 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_diagnostics',
+					title: 'Get Studio diagnostics',
+					description:
+						'Read cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({...Internals.playbackDiagnostics}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'reset_buffering_handles_created',
+					title: 'Reset buffering handle count',
+					description:
+						'Reset the buffering handles created counter to zero without changing active buffering handles or other diagnostics counters. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => {
+						Internals.playbackDiagnostics.bufferingHandlesCreated = 0;
+						return Promise.resolve({...Internals.playbackDiagnostics});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_buffering_tracing',
+					title: 'Set buffering tracing',
+					description:
+						'Enable or disable detailed buffering tracing requested through WebMCP. The Diagnostics panel also enables tracing while visible. Enable before reproducing a stall to capture future handles, their owning layers, and creation stacks. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {enabled: {type: 'boolean'}},
+						required: ['enabled'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({enabled}) => {
+						if (typeof enabled !== 'boolean') {
+							throw new Error('enabled must be a boolean.');
+						}
+
+						Internals.bufferingDiagnostics.setEnabled('webmcp', enabled);
+						return getBufferingEvents({limit: 20, afterId: null});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_buffering_events',
+					title: 'Get buffering events',
+					description:
+						'Read recorded buffering episodes, contributing handles, owning layers, source locations, and creation stacks. Requires tracing enabled before reproduction through the Diagnostics panel or set_buffering_tracing. Returns up to 100 events, newest last. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							limit: {type: 'integer', minimum: 1, maximum: 100, default: 20},
+							afterId: {
+								type: 'integer',
+								minimum: 0,
+								description:
+									'Only return events with a greater ID. Omit to include updates to existing events.',
+							},
+						},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: ({limit = 20, afterId = null}) => {
+						if (
+							typeof limit !== 'number' ||
+							!Number.isInteger(limit) ||
+							limit < 1 ||
+							limit > 100
+						) {
+							throw new Error('limit must be an integer between 1 and 100.');
+						}
+
+						if (
+							afterId !== null &&
+							(typeof afterId !== 'number' ||
+								!Number.isInteger(afterId) ||
+								afterId < 0)
+						) {
+							throw new Error('afterId must be a non-negative integer.');
+						}
+
+						return getBufferingEvents({limit, afterId});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'clear_buffering_events',
+					title: 'Clear completed buffering events',
+					description:
+						'Clear completed buffering episodes and the dropped-event count, preserving active episodes and all diagnostics counters. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => {
+						Internals.bufferingDiagnostics.clear();
+						return getBufferingEvents({limit: 20, afterId: null});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'reveal_buffering_handle',
+					title: 'Reveal buffering handle',
+					description:
+						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and Browser Studio. Errors if the recorded composition or layer can no longer be found.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							eventId: {type: 'integer', minimum: 1},
+							handleId: {type: 'integer', minimum: 1},
+						},
+						required: ['eventId', 'handleId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({eventId, handleId}) => {
+						if (
+							typeof eventId !== 'number' ||
+							!Number.isInteger(eventId) ||
+							eventId < 1 ||
+							typeof handleId !== 'number' ||
+							!Number.isInteger(handleId) ||
+							handleId < 1
+						) {
+							throw new Error(
+								'eventId and handleId must be positive integers.',
+							);
+						}
+
+						return revealBufferingHandle(eventId, handleId);
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_audio_levels',
+					title: 'Get Studio audio levels',
+					description:
+						'Read whether the Audio Levels panel is visible and the current left and right sample peaks in dBFS. Levels are null while the panel is hidden or audio is unavailable.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							visible: audioLevelsVisibleRef.current,
+							levels: audioLevels.current,
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_audio_levels_visible',
+					title: 'Set Studio audio levels visibility',
+					description:
+						'Show or hide the Audio Levels panel to the right of the timeline. Saves the preference in this browser and works in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							visible: {
+								type: 'boolean',
+								description:
+									'Whether the Audio Levels panel should be visible.',
+							},
+						},
+						required: ['visible'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({visible}) => {
+						if (typeof visible !== 'boolean') {
+							throw new Error('visible must be a boolean.');
+						}
+
+						audioLevelsVisibleRef.current = visible;
+						setAudioLevelsVisible(() => visible);
+
+						return Promise.resolve({visible});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
@@ -2426,6 +2648,8 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		addCaptionJob,
+		audioLevels,
+		setAudioLevelsVisible,
 		addVideoMattingJob,
 		calculateTimeline,
 		compositionManagerRef,
@@ -2433,6 +2657,7 @@ export const WebMcp: FC = () => {
 		propStatusesRef,
 		renderQueueActions,
 		renderJobRetry,
+		revealBufferingHandle,
 		selectComposition,
 		sequencesRef,
 		setEditorShowGuides,

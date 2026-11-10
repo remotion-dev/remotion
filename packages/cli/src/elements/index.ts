@@ -40,5 +40,14 @@ export const elementsCommand = async ({
 		return;
 	}
 
+	if (args[0] !== undefined) {
+		Log.error(
+			{indent: false, logLevel},
+			`Command ${ELEMENTS_COMMAND} ${args[0]} not found.`,
+		);
+		printHelp(logLevel);
+		process.exit(1);
+	}
+
 	printHelp(logLevel);
 };

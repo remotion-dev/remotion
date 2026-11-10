@@ -65,6 +65,7 @@ import {
 	AssetSelectionContext,
 	type InspectorSourceAction,
 } from './Timeline/TimelineAssetField';
+import {EffectReorderTargetsProvider} from './Timeline/TimelineEffectItem';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -1125,40 +1126,38 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const effectsHeader = (
-		<div ref={firstEffectDropTargetRef}>
-			<CollapsibleInspectorSectionHeader
-				action={
-					<ActionTooltip
-						label="Add effect"
-						shortcut={selectEffectsShortcut}
-						delay={800}
-						dismissOnClick
-					>
-						<InlineAction
-							variant={null}
-							disabled={!canAddEffect}
-							onClick={onAddEffect}
-							aria-label="Add effect"
-							style={sectionHeaderActionStyle}
-							renderAction={(color) => (
-								<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
-									<path
-										d="M6 1.25v9.5M1.25 6h9.5"
-										fill="none"
-										stroke={color}
-										strokeWidth="1"
-										strokeLinecap="round"
-									/>
-								</svg>
-							)}
-						/>
-					</ActionTooltip>
-				}
-				expanded={effectsExpanded}
-				label="Effects"
-				onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
-			/>
-		</div>
+		<CollapsibleInspectorSectionHeader
+			action={
+				<ActionTooltip
+					label="Add effect"
+					shortcut={selectEffectsShortcut}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						variant={null}
+						disabled={!canAddEffect}
+						onClick={onAddEffect}
+						aria-label="Add effect"
+						style={sectionHeaderActionStyle}
+						renderAction={(color) => (
+							<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
+								<path
+									d="M6 1.25v9.5M1.25 6h9.5"
+									fill="none"
+									stroke={color}
+									strokeWidth="1"
+									strokeLinecap="round"
+								/>
+							</svg>
+						)}
+					/>
+				</ActionTooltip>
+			}
+			expanded={effectsExpanded}
+			label="Effects"
+			onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
+		/>
 	);
 
 	const renderRow = ({node, depth}: FlatTreeRow, children: React.ReactNode) => {
@@ -1303,6 +1302,7 @@ export const InspectorSequenceSection: React.FC<{
 								<React.Fragment key={group.id}>
 									{group.id === 'transforms' ? captionsInspector : null}
 									<InspectorSection
+										headerRef={null}
 										expanded={isControlGroupExpanded(group)}
 										header={renderControlGroupHeader(group)}
 									>
@@ -1334,31 +1334,34 @@ export const InspectorSequenceSection: React.FC<{
 					{showEffectsSection ? (
 						<section ref={effectsSectionRef} aria-label="Effects">
 							<InspectorSection
+								headerRef={firstEffectDropTargetRef}
 								expanded={effectsExpanded}
 								header={effectsHeader}
 							>
 								{effectRows.length > 0 ? (
 									<TimelineSelectionOrderProvider items={effectSelectableItems}>
-										{effectGroups.map(([effectRow, ...propertyRows]) => (
-											<div
-												key={getInspectorExpansionKey(
-													effectRow.node.nodePathInfo,
-												)}
-												ref={
-													selectedEffect?.type === 'sequence-effect' &&
-													effectRow.node.kind === 'group' &&
-													effectRow.node.effectInfo?.effectIndex ===
-														selectedEffect.i
-														? selectedEffectRowRef
-														: null
-												}
-											>
-												{renderRow(
-													effectRow,
-													propertyRows.map(renderEffectProperty),
-												)}
-											</div>
-										))}
+										<EffectReorderTargetsProvider>
+											{effectGroups.map(([effectRow, ...propertyRows]) => (
+												<div
+													key={getInspectorExpansionKey(
+														effectRow.node.nodePathInfo,
+													)}
+													ref={
+														selectedEffect?.type === 'sequence-effect' &&
+														effectRow.node.kind === 'group' &&
+														effectRow.node.effectInfo?.effectIndex ===
+															selectedEffect.i
+															? selectedEffectRowRef
+															: null
+													}
+												>
+													{renderRow(
+														effectRow,
+														propertyRows.map(renderEffectProperty),
+													)}
+												</div>
+											))}
+										</EffectReorderTargetsProvider>
 									</TimelineSelectionOrderProvider>
 								) : null}
 							</InspectorSection>
@@ -1367,6 +1370,7 @@ export const InspectorSequenceSection: React.FC<{
 					{layoutGroup ? (
 						<TimelineSelectionOrderProvider items={controlSelectableItems}>
 							<InspectorSection
+								headerRef={null}
 								expanded={isControlGroupExpanded(layoutGroup)}
 								header={renderControlGroupHeader(layoutGroup)}
 							>

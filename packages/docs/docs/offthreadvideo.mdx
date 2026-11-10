@@ -98,7 +98,7 @@ This prop has been renamed to [`trimBefore`](#trimbefore) in 4.0.319. It will co
 ### ~~`endAt?`~~
 
 :::info Deprecated
-This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
+This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319, which is itself deprecated. Use [`durationInFrames`](#durationinframes) instead. It will continue to work but you cannot use it together with the new props.
 :::
 
 ### `transparent?`<AvailableFrom v="4.0.0" />
@@ -156,13 +156,13 @@ It has no effect on numeric `volume` values, including `volume={interpolate(fram
 You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<OffthreadVideo>` renders an [`<Img>`](/docs/img) tag, but a `<video>` tag is used during preview.
 
 ```tsx twoslash
-import {Img, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <>
-      <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+      <OffthreadVideo src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
     </>
   );
 };
@@ -236,14 +236,6 @@ export const MyComposition = () => {
 ### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42" />
 
 In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
-
-### `toneFrequency?`<AvailableFrom v="4.0.47"/>
-
-Adjust the pitch of the audio during server-side rendering. This prop is not supported during preview.
-
-Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-
-A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
 ### `pauseWhenBuffering?`<AvailableFrom v="4.0.111"/>
 
@@ -347,7 +339,7 @@ The option does not make sense anymore, because it is now possible to set the vo
 
 ### Other props
 
-The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during Preview, this is a `<video>` element.
+The props `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during Preview, this is a `<video>` element.
 
 ## Performance tips
 
@@ -393,11 +385,12 @@ export const getMediaMetadata = async (src: string) => {
 // @filename: index.tsx
 // ---cut---
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
+import {Loop, OffthreadVideo, RemotionOffthreadVideoProps, useDelayRender, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
 import {getMediaMetadata} from './get-media-metadata';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender());
   const {fps} = useVideoConfig();
 
@@ -414,7 +407,7 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
     return () => {
       continueRender(handle);
     };
-  }, [handle, props.src]);
+  }, [cancelRender, continueRender, handle, props.src]);
 
   if (duration === null) {
     return null;

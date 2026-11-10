@@ -64,18 +64,19 @@ The `font-size` property is <a style={{color: 'green'}}>supported</a>.
 The `font-style` property is <a style={{color: 'green'}}>supported</a>.  
 The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
 The `line-height` property is <a style={{color: 'green'}}>supported</a>.  
-The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.
-The `word-spacing` property is <a style={{color: 'green'}}>supported</a>.
-The `text-transform` property is <a style={{color: 'green'}}>supported</a>.
-The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.
-The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.
-The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.
-The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.
-The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.
-The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
-The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.
-`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.
-The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
+The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `word-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.  
+The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.  
+The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.  
+`text-decoration-thickness` supports percentages and CSS math expressions. Font-derived thickness and minimum device-pixel thickness may differ from native output.  
+`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.  
+The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.  
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
 
 ### Inline SVG stylesheet state
@@ -85,6 +86,8 @@ The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</
 ### Web fonts inside SVG
 
 Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
+
+Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
 The font selection must be part of the SVG markup, for example through an inline `style`, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
 
@@ -101,11 +104,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> for alpha masks.  
-The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Fractional raster-mask sampling can differ from native output.
+The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Browser-supported CSS math expressions in `mask-size` are supported. Fractional raster-mask sampling can differ from native output.
 
 The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`/`none` layers. Legacy composite keywords that the browser does not normalize to these values are <a style={{color: 'red'}}>not supported</a>.
 
-`image-set()` masks, cross-origin URLs, SVG masks, mixed or multiple gradient layers, luminance masks, `calc()` mask sizes and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>. Unsupported `mask-image` functions cause an export error.
+`image-set()` masks, cross-origin URLs, SVG masks, mixed or multiple gradient layers, luminance masks and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>. Unsupported `mask-image` functions cause an export error.
 
 ## Filters
 
@@ -121,8 +124,9 @@ The `filter` property is <a style={{color: 'green'}}>supported</a> with the foll
 - `opacity()` is <a style={{color: 'green'}}>supported</a>.
 - `saturate()` is <a style={{color: 'green'}}>supported</a>.
 - `sepia()` is <a style={{color: 'green'}}>supported</a>.
+- Filter-established containing blocks for absolutely and fixed-positioned descendants are supported.
 - Multiple combined filters are <a style={{color: 'green'}}>supported</a>.
-- `url()` referencing inline SVG filters is <a style={{color: 'red'}}>not supported</a>.
+- `url()` can reference a same-document SVG `<filter>` using `feColorMatrix`, `feGaussianBlur`, and `feOffset` with `primitiveUnits="userSpaceOnUse"`. Expanded filter regions, `userSpaceOnUse` and `objectBoundingBox` filter units, and render scaling are supported in Chrome. Color-only filter functions such as `brightness()` can follow the URL effect. External filter documents, inherited filters, other primitives, and percentage primitive subregions are not supported.
 
 :::warning
 Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
@@ -203,7 +207,7 @@ const MyComp = () => (
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
 
-Exports pause media-fetch timeout accounting while the browser reports being offline and resume after it reports being online. Canceling a render still works while offline.
+Media fetches can resume after an interruption when the browser reports being offline. Failed reads of an existing response are not recovered. Renders can still be canceled while offline.
 
 ## Single concurrency
 

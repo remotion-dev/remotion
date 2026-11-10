@@ -413,3 +413,50 @@ test('Returning to a visible tab resumes playback on the next paint, including t
 		clock.restore();
 	}
 });
+
+test('Buffering indicator appears after the delay even when buffering briefly stops and restarts within one frame', () => {
+	const clock = mockPlaybackClock();
+	const player = createRef<PlayerRef>();
+	try {
+		const view = render(
+			<Player
+				ref={player}
+				component={PlaybackComposition}
+				durationInFrames={300}
+				compositionWidth={320}
+				compositionHeight={180}
+				fps={30}
+				initiallyMuted
+				numberOfSharedAudioTags={0}
+				bufferStateDelayInMilliseconds={300}
+				showPosterWhenBuffering
+				renderPoster={({isBuffering}) =>
+					isBuffering ? <div>Buffering spinner</div> : null
+				}
+			/>,
+		);
+		act(() => player.current!.play());
+
+		fireEvent.click(view.getByRole('button', {name: 'Start buffering'}));
+		fireEvent.click(view.getByRole('button', {name: 'Resume after buffering'}));
+		fireEvent.click(view.getByRole('button', {name: 'Start buffering'}));
+		act(() => clock.tick(16));
+		act(() => clock.runTimeouts(200));
+		expect(view.queryByText('Buffering spinner')).toBe(null);
+
+		act(() => clock.tick(332));
+		act(() => clock.runTimeouts(332));
+		expect(view.getByText('Buffering spinner')).toBeTruthy();
+
+		act(() => {
+			fireEvent.click(
+				view.getByRole('button', {name: 'Resume after buffering'}),
+			);
+		});
+		act(() => clock.tick(348));
+		expect(view.queryByText('Buffering spinner')).toBe(null);
+	} finally {
+		cleanup();
+		clock.restore();
+	}
+});

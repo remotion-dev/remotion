@@ -9,7 +9,10 @@ import type {
 	StringLiteral,
 } from '@babel/types';
 import {getInteractiveComponent} from './get-interactive-component';
-import {getLazyComponentImport} from './get-lazy-component-import';
+import {
+	getDynamicImportPath,
+	getLazyComponentImport,
+} from './get-lazy-component-import';
 
 // Keep this entry browser-safe. The main codemod entry imports Recast, which
 // depends on Node built-ins and cannot be loaded by a static Studio bundle.
@@ -676,4 +679,173 @@ export const resolveCompositionComponentLocation = ({
 		compositionId,
 		project,
 	}).location;
+};
+
+export const resolveRootComponentInProject = ({
+	entryPoint,
+	project,
+}: {
+	entryPoint: string;
+	project: SourceMapProject;
+}) => {
+	const filePath = getProjectFile({filePath: entryPoint, project});
+	const ast = parseSource(project.files[filePath]);
+	const registerNames = new Set<string>();
+	const namespaceNames = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getExportedName(specifier.imported) === 'registerRoot'
+			) {
+				registerNames.add(specifier.local.name);
+			} else if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaceNames.add(specifier.local.name);
+			}
+		}
+	}
+
+	const components: {name: string; call: Node}[] = [];
+	visit(ast, (node) => {
+		if (node.type !== 'CallExpression') {
+			return false;
+		}
+
+		const {callee} = node;
+		const isRegisterRoot =
+			callee.type === 'Identifier'
+				? registerNames.has(callee.name)
+				: callee.type === 'MemberExpression' &&
+					!callee.computed &&
+					callee.object.type === 'Identifier' &&
+					namespaceNames.has(callee.object.name) &&
+					callee.property.type === 'Identifier' &&
+					callee.property.name === 'registerRoot';
+		if (isRegisterRoot && node.arguments[0]?.type === 'Identifier') {
+			components.push({name: node.arguments[0].name, call: node});
+		}
+
+		return false;
+	});
+	if (components.length !== 1) {
+		throw new Error(
+			'Expected a single registerRoot() call with a component identifier.',
+		);
+	}
+
+	const {name, call} = components[0];
+	const scopes: Array<Extract<Node, {type: 'Program' | 'BlockStatement'}>> = [];
+	visit(ast, (node) => {
+		if (
+			(node.type === 'Program' || node.type === 'BlockStatement') &&
+			typeof node.start === 'number' &&
+			typeof node.end === 'number' &&
+			typeof call.start === 'number' &&
+			typeof call.end === 'number' &&
+			node.start <= call.start &&
+			node.end >= call.end
+		) {
+			scopes.push(node);
+		}
+
+		return false;
+	});
+	scopes.sort((a, b) => a.end! - a.start! - (b.end! - b.start!));
+	let dynamicImport = null as {importPath: string; exportName: string} | null;
+	scopes.some((scope) =>
+		scope.body.some((statement) => {
+			if (
+				statement.type === 'FunctionDeclaration' &&
+				statement.id?.name === name
+			) {
+				if (scope.type !== 'Program') {
+					throw new Error(`Cannot resolve the local root component "${name}".`);
+				}
+
+				return true;
+			}
+
+			if (statement.type !== 'VariableDeclaration') {
+				return false;
+			}
+
+			return statement.declarations.some((declaration) => {
+				if (
+					declaration.id.type === 'Identifier' &&
+					declaration.id.name === name
+				) {
+					if (scope.type !== 'Program') {
+						throw new Error(
+							`Cannot resolve the local root component "${name}".`,
+						);
+					}
+
+					return true;
+				}
+
+				if (declaration.id.type !== 'ObjectPattern') {
+					return false;
+				}
+
+				const property = declaration.id.properties.find(
+					(prop) =>
+						prop.type === 'ObjectProperty' &&
+						prop.value.type === 'Identifier' &&
+						prop.value.name === name,
+				);
+				if (!property || property.type !== 'ObjectProperty') {
+					return false;
+				}
+
+				const initial = unwrapExpression(declaration.init ?? null);
+				const imported =
+					initial?.type === 'AwaitExpression'
+						? unwrapExpression(initial.argument)
+						: initial;
+				const importPath =
+					imported === null ? null : getDynamicImportPath(imported);
+				const exportName =
+					!property.computed && property.key.type === 'Identifier'
+						? property.key.name
+						: property.key.type === 'StringLiteral'
+							? property.key.value
+							: null;
+				if (importPath === null || exportName === null) {
+					throw new Error(
+						`Cannot resolve the root component binding "${name}".`,
+					);
+				}
+
+				dynamicImport = {importPath, exportName};
+				return true;
+			});
+		}),
+	);
+
+	const resolved = resolveDeclaration({
+		filePath:
+			dynamicImport === null
+				? filePath
+				: resolveImport({
+						fromFile: filePath,
+						importPath: dynamicImport.importPath,
+						project,
+					}),
+		exportName: dynamicImport?.exportName ?? name,
+		project,
+		visited: new Set(),
+	});
+	const root = getReturnedRoot(resolved.declaration);
+	if (root?.type !== 'JSXElement' && root?.type !== 'JSXFragment') {
+		throw new Error('The registered root component must return JSX.');
+	}
+
+	return {...resolved, root};
 };

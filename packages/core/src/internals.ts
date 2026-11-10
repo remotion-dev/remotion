@@ -172,6 +172,11 @@ import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
+import {
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
+} from './playback-diagnostics.js';
 import {playbackLogging} from './playback-logging.js';
 import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
@@ -375,6 +380,9 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticEffects,

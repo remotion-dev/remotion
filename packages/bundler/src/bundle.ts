@@ -457,6 +457,7 @@ export const internalBundle = async (
 			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
+			showDiagnostics: {value: false, source: 'config' as const},
 			showLayerFrameNumbers: false,
 			showPremounting: null,
 			defaultPremountInSeconds: null,

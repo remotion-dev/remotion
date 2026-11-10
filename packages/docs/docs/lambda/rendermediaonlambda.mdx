@@ -83,7 +83,7 @@ Specify the number of Lambda functions to use for rendering. This is an alternat
 
 The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
 
-From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
+From <AvailableFrom v="4.0.517" inline />, if you set `concurrency` to `1` and don't pass [`rendererFunctionName`](#rendererfunctionname), the video is rendered on the main function instead of in a separate renderer function.
 
 Maximum value: 200  
 Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
@@ -211,6 +211,10 @@ See [`renderMedia() -> pixelFormat`](/docs/renderer/render-media#pixelformat).
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
 ### `x264Preset?`
 
 <Options id="x264-preset" />
@@ -245,11 +249,11 @@ Renamed to `jpegQuality` in v4.0.0.
 
 <Options id="video-bitrate" />
 
-### `bufferSize?`<AvailableFrom v="4.0.78" />
+### `encodingBufferSize?`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
 
-### `maxRate?`<AvailableFrom v="4.0.78" />
+### `encodingMaxRate?`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
 
@@ -347,6 +351,18 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 #### `gl`
 
 <Options id="gl" />
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `overwrite?`<AvailableFrom v="3.2.25" />
 
