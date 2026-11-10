@@ -17,7 +17,6 @@ export type AudioChannelsAndDurationResultCache = {
 	startTime: number | null;
 };
 
-// Per-src download state. Transitions live in download-and-map-assets-to-file.ts.
 export type AssetDownloadState =
 	| {type: 'downloading'; promise: Promise<string>}
 	| {type: 'downloaded'; path: string};
@@ -26,7 +25,6 @@ export type DownloadMap = {
 	id: string;
 	emitter: OffthreadVideoServerEmitter;
 	downloadListeners: RenderMediaOnDownload[];
-	// Absence of a src means it has not been downloaded (or must be re-checked).
 	assetDownloads: Map<string, AssetDownloadState>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;

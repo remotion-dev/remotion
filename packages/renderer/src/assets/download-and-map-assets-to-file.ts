@@ -23,19 +23,6 @@ export type RenderMediaOnDownload = (
 	| undefined
 	| void;
 
-// Per-src asset download state machine (null = not downloaded).
-//
-// States: null | downloading(promise) | downloaded(path)
-//
-// Transitions:
-//   *                    --start(p)-->     downloading(p)
-//   *                    --succeeded-->    downloaded(path)  (unconditional, also
-//                                                           after markAll cleared it)
-//   downloading(p)       --failed(p)-->    null
-//   other                --failed(p)-->    unchanged (entry belongs to another attempt)
-//   downloaded           --file-missing--> null  (OS deleted the file, download again)
-//   other                --file-missing--> unchanged
-//   markAllAssetsAsDownloaded clears every entry.
 type AssetDownloadEvent =
 	| {type: 'start'; promise: Promise<string>}
 	| {type: 'succeeded'; path: string}
@@ -165,7 +152,7 @@ export const downloadAsset = async ({
 		resolveDownload = resolve;
 		rejectDownload = reject;
 	});
-	// The initiator rethrows the error itself, avoid an unhandled rejection if nobody else waits
+	// Avoid an unhandled rejection if nobody else waits
 	promise.catch(() => undefined);
 
 	apply({type: 'start', promise});
@@ -234,7 +221,6 @@ export const downloadAsset = async ({
 		throw err;
 	}
 
-	// Set the state before waiters resume so they observe 'downloaded'
 	apply({type: 'succeeded', path: to});
 	resolveDownload(to);
 
@@ -257,7 +243,6 @@ export const downloadAsset = async ({
 	return to;
 };
 
-// Forgets all download state so that the next access re-checks or downloads again.
 export const markAllAssetsAsDownloaded = (downloadMap: DownloadMap) => {
 	downloadMap.assetDownloads.clear();
 };
