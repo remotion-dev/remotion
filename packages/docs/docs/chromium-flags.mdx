@@ -5,7 +5,88 @@ title: Chromium flags
 crumb: 'Tweaks'
 ---
 
-We allow you to set the following flags in Chromium and Google Chrome since Remotion 2.6.5:
+You can configure the Chromium or Google Chrome browser that Remotion launches for rendering.
+
+:::note Default flags can change
+Remotion’s default Chrome flags, including enabled and disabled features, can change between patch versions. There is no guarantee that these defaults remain unchanged. Overrides apply to the defaults of the installed Remotion version.
+:::
+
+## Custom flags<AvailableFrom v="4.0.543" />
+
+Pass `chromiumOptions.flags` to add, replace, or remove individual flags:
+
+```ts twoslash title="render.ts"
+import {openBrowser} from '@remotion/renderer';
+// ---cut---
+const browser = await openBrowser('chrome', {
+  chromiumOptions: {
+    gl: 'angle',
+    flags: {
+      'disable-gpu-rasterization': true,
+      'disable-gpu-compositing': true,
+      'force-color-profile': 'display-p3',
+      'disable-background-networking': false,
+    },
+  },
+});
+```
+
+### `flags?`
+
+<Options id="chromium-flags" />
+
+The default is `{}`. Flag names must be lowercase and omit the leading `--`. A string replaces the complete value of a flag, including comma-separated lists. Use `features` or `blinkFeatures` to override individual entries in feature lists. Values are passed as individual process arguments; do not add shell quotes around them.
+
+### `features?`
+
+<Options id="chromium-features" />
+
+The default is `{}`. Keys are feature names without parameters. To specify field trials or feature parameters, set the complete `enable-features` or `disable-features` string through `flags`.
+
+### `blinkFeatures?`
+
+<Options id="chromium-blink-features" />
+
+The default is `{}`. This works like `features`, but modifies `enable-blink-features` and `disable-blink-features`.
+
+```ts twoslash title="render.ts"
+import {openBrowser} from '@remotion/renderer';
+// ---cut---
+const browser = await openBrowser('chrome', {
+  chromiumOptions: {
+    features: {Translate: false},
+    blinkFeatures: {AudioVideoTracks: true},
+  },
+});
+```
+
+### Via CLI flags
+
+Pass JSON objects. Each CLI option replaces the corresponding config value.
+
+```sh title="Terminal"
+bunx remotion render src/index.ts MyComposition out/video.mp4 \
+  --chromium-flags='{"disable-gpu-rasterization":true,"disable-gpu-compositing":true}' \
+  --chromium-features='{"Translate":false}' \
+  --chromium-blink-features='{"AudioVideoTracks":true}'
+```
+
+### Via config file
+
+Use [`Config.setChromiumFlags()`](/docs/config#setchromiumflags), [`Config.setChromiumFeatures()`](/docs/config#setchromiumfeatures), and [`Config.setChromiumBlinkFeatures()`](/docs/config#setchromiumblinkfeatures). These settings also apply to server renders started from the Studio. After changing the config, the new values apply to newly started render jobs.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumFlags({
+  'disable-gpu-rasterization': true,
+  'disable-gpu-compositing': true,
+});
+Config.setChromiumFeatures({Translate: false});
+Config.setChromiumBlinkFeatures({AudioVideoTracks: true});
+```
+
+For common settings, the dedicated options below are also available.
 
 ## `--disable-web-security`
 

@@ -67,6 +67,7 @@ export const makeSinks = (
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),
 	});
+	const releaseSinks: (() => void)[] = [];
 	const getSinks = async () => {
 		let format: InputFormat | null = null;
 		let formatDetectionError: Error | null = null;
@@ -120,6 +121,10 @@ export const makeSinks = (
 
 			const sampleSink = new VideoSampleSink(videoTrack);
 			const packetSink = new EncodedPacketSink(videoTrack);
+			releaseSinks.push(
+				Internals.registerMediabunnySink(input),
+				Internals.registerMediabunnySink(input),
+			);
 
 			// Try to get the keypacket at the requested timestamp.
 			// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
@@ -190,8 +195,10 @@ export const makeSinks = (
 				return 'cannot-decode-audio';
 			}
 
+			const sampleSink = new AudioSampleSink(audioTrack);
+			releaseSinks.push(Internals.registerMediabunnySink(input));
 			return {
-				sampleSink: new AudioSampleSink(audioTrack),
+				sampleSink,
 				sampleRate: await audioTrack.getSampleRate(),
 				numberOfChannels: await audioTrack.getNumberOfChannels(),
 			};
@@ -221,7 +228,14 @@ export const makeSinks = (
 
 	return {
 		promise: getSinks(),
-		dispose: () => input.dispose(),
+		dispose: () => {
+			input.dispose();
+			for (const release of releaseSinks) {
+				release();
+			}
+
+			releaseSinks.length = 0;
+		},
 	};
 };
 

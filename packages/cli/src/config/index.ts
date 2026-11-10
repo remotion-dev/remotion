@@ -94,6 +94,9 @@ export type {
 };
 
 const {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
@@ -142,6 +145,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
 	highContrastOption,
@@ -159,6 +163,7 @@ const {
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	stillImageFormatOption,
 	videoImageFormatOption,
@@ -249,6 +254,7 @@ declare global {
 		 * @default true
 		 */
 		readonly setCanvasTabsEnabled: (enabled: boolean) => void;
+		readonly setShowDiagnostics: (enabled: boolean) => void;
 		/**
 		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
 		 * @default false
@@ -327,6 +333,13 @@ declare global {
 		 * Default: `30000`
 		 */
 		readonly setTimeoutInMilliseconds: (newPuppeteerTimeout: number) => void;
+		readonly setChromiumFlags: (
+			flags: Record<string, string | boolean>,
+		) => void;
+		readonly setChromiumFeatures: (features: Record<string, boolean>) => void;
+		readonly setChromiumBlinkFeatures: (
+			features: Record<string, boolean>,
+		) => void;
 		/**
 		 * Setting deciding whether to disable CORS and other Chrome security features.
 		 * Default: false
@@ -499,6 +512,8 @@ declare global {
 		 * Overrides the duration in frames of a composition
 		 */
 		readonly overrideDuration: (newDuration: number) => void;
+		readonly setProResBitsPerMacroblock: (value: number | null) => void;
+
 		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
@@ -837,6 +852,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setPreservePitchOnPlayback: preservePitchOnPlaybackOption.setConfig,
+	setShowDiagnostics: showDiagnosticsOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
 	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
@@ -863,6 +879,9 @@ export const Config: FlatConfig = {
 	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
 	setDelayRenderTimeoutInMilliseconds:
 		delayRenderTimeoutInMillisecondsOption.setConfig,
+	setChromiumFlags: chromiumFlagsOption.setConfig,
+	setChromiumFeatures: chromiumFeaturesOption.setConfig,
+	setChromiumBlinkFeatures: chromiumBlinkFeaturesOption.setConfig,
 	setChromiumDisableWebSecurity: disableWebSecurityOption.setConfig,
 	setChromiumIgnoreCertificateErrors: ignoreCertificateErrorsOption.setConfig,
 	setChromiumHeadlessMode: headlessOption.setConfig,
@@ -902,6 +921,7 @@ export const Config: FlatConfig = {
 	setCrf: crfOption.setConfig,
 	setGopSize: gopSizeOption.setConfig,
 	setImageSequence: imageSequenceOption.setConfig,
+	setProResBitsPerMacroblock: proResBitsPerMacroblockOption.setConfig,
 	setProResProfile: proResProfileOption.setConfig,
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,

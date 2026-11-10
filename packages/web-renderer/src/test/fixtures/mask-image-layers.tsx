@@ -152,3 +152,45 @@ export const maskImageLayersTokenUrlTransparent = createMaskImageLayersFixture(
 	'token-url',
 	false,
 );
+
+export const maskImageLayerSources = [
+	'data',
+	'url',
+	'blob',
+	'token-url',
+] as const;
+
+// All sources side by side in one 2x2 grid of 200x136 panels, so one native
+// capture and one render cover every source.
+export const createMaskImageLayersGridFixture = (opaque: boolean) => {
+	const panels = maskImageLayerSources.map((source) =>
+		createMaskImageLayersFixture(source, opaque),
+	);
+	const Component = () => (
+		<AbsoluteFill>
+			{panels.map((panel, index) => (
+				<div
+					key={panel.id}
+					style={{
+						position: 'absolute',
+						left: (index % 2) * panel.width,
+						top: Math.floor(index / 2) * panel.height,
+						width: panel.width,
+						height: panel.height,
+					}}
+				>
+					<panel.component />
+				</div>
+			))}
+		</AbsoluteFill>
+	);
+
+	return {
+		component: Component,
+		id: `mask-image-layers-grid-${opaque ? 'opaque' : 'transparent'}`,
+		width: 400,
+		height: 272,
+		fps: 25,
+		durationInFrames: 2,
+	} as const;
+};

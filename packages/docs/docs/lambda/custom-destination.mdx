@@ -49,7 +49,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 If you like to use this feature:
 
-- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow `s3:PutObject` on the destination bucket's objects. See the [policy example](/docs/lambda/without-iam#render-into-a-different-bucket).
+- You must extend the policy of the Lambda execution role (the [Remotion role policy](/docs/lambda/permissions), not the user policy) to allow `s3:PutObject` on the destination bucket's objects. See the [policy example](/docs/lambda/without-iam#render-into-a-different-bucket).
 - If you set `privacy` to `"public"` or `"private"`, also grant `s3:PutObjectAcl` on the destination bucket's objects.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.

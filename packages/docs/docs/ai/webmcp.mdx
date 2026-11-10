@@ -811,6 +811,156 @@ While composition metadata is loading, `currentFrame` is `null` and `outlines` i
 }
 ```
 
+### `get_diagnostics`<AvailableFrom v="4.0.543" />
+
+Returns cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Counters reset when the page reloads. The buffering handle count can also be reset from the Diagnostics window or with `reset_buffering_handles_created`. Available in every Studio mode, including when the diagnostics window is hidden.
+
+`bufferingStatesTriggered` counts each transition into the internal buffering state, including states too short to show the loading indicator. Overlapping handles count as one buffering state. Handles created and cleared within the same React batch do not trigger a buffering state.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  audioIteratorsCreated: number;
+  mediabunnySinksOpen: number;
+  bufferingHandlesCreated: number;
+  bufferingStatesTriggered: number;
+}
+```
+
+### `reset_buffering_handles_created`<AvailableFrom v="4.0.543" />
+
+Resets the buffering handle creation count to zero. Active buffering handles and the other diagnostics counters are unchanged. New buffering handles start counting from zero. Available in every Studio mode, including when the diagnostics window is hidden.
+
+```ts title="Input"
+{}
+```
+
+Returns the same fields as `get_diagnostics` with `bufferingHandlesCreated` set to `0`.
+
+### `set_buffering_tracing`<AvailableFrom v="4.0.543" />
+
+Enables or disables detailed buffering tracing through WebMCP. The [Diagnostics window](/docs/options/show-diagnostics) also enables tracing while visible. Tracing remains enabled while either requests it. Enable tracing before reproducing a stall; handles created earlier have no captured source information. Available in every Studio mode.
+
+```ts title="Input"
+{enabled: boolean}
+```
+
+Returns the same output as `get_buffering_events`. Disabling tracing preserves recorded events. Reloading the page clears them and disables tracing requested through WebMCP.
+
+### `get_buffering_events`<AvailableFrom v="4.0.543" />
+
+Returns recorded buffering episodes, including the handles present at the start and those added while buffering. Each handle includes its creation stack, owning layer ancestry, media source when available, and resolved source locations. Handles created and cleared without a buffering transition do not appear. Available in every Studio mode.
+
+```ts title="Input"
+{
+  limit?: number; // Integer from 1 to 100. Default: 20.
+  afterId?: number; // Only return newer event IDs. Omit to read updates to existing events.
+}
+```
+
+```ts title="Output"
+{
+  enabled: boolean;
+  panelEnabled: boolean;
+  webmcpEnabled: boolean;
+  revision: number;
+  maxEvents: number; // 100
+  maxHandlesPerEvent: number; // 50
+  droppedEvents: number;
+  events: Array<{
+    id: number;
+    compositionId: string | null;
+    frame: number;
+    startedAt: number;
+    endedAt: number | null;
+    endReason: 'resumed' | 'unmounted' | null;
+    durationInMilliseconds: number;
+    omittedHandles: number;
+    handles: Array<{
+      id: number;
+      compositionId: string | null;
+      frame: number;
+      createdAt: number;
+      releasedAt: number | null;
+      releasedFrame: number | null;
+      durationInMilliseconds: number;
+      activeAtStart: boolean;
+      stack: string | null;
+      owners: Array<{
+        sequenceId: string;
+        name: string;
+        source: string | null;
+        stack: string | null;
+        overrideId: string | null;
+        location: {filename: string; line: number | null; column: number | null} | null;
+      }>;
+    }>;
+  }>;
+}
+```
+
+Events are ordered oldest first. Timestamps use milliseconds since the page's performance time origin. A null `endedAt` indicates ongoing buffering; a null `releasedAt` means no release was recorded. `activeAtStart` distinguishes initial handles from those that joined later. Owners are ordered from the nearest layer to its ancestors.
+
+History is limited to 100 events with 50 handles per event. `droppedEvents` counts discarded events; `omittedHandles` counts handles that exceeded the limit or were created before tracing began. Events may be shorter than the loading indicator's display threshold. The Diagnostics window displays the most recent 20 events.
+
+### `clear_buffering_events`<AvailableFrom v="4.0.543" />
+
+Clears completed buffering events and resets `droppedEvents`. Active events and diagnostics counters are preserved. Available in every Studio mode.
+
+```ts title="Input"
+{}
+```
+
+Returns the same output as `get_buffering_events`.
+
+### `reveal_buffering_handle`<AvailableFrom v="4.0.543" />
+
+Pauses playback, selects the recorded composition, seeks to the frame where the buffering episode began, and reveals the handle's owning layer in the timeline and Inspector. Use IDs from `get_buffering_events`. Available when composition timeline selection is supported, including detached, deployed, and Browser Studio.
+
+```ts title="Input"
+{eventId: number; handleId: number}
+```
+
+```ts title="Output"
+{compositionId: string; frame: number; sequenceId: string}
+```
+
+If the nearest layer is unavailable, an available ancestor is selected. Returns an error if the record was cleared or the composition or layer can no longer be found. Captured source information remains readable after the original layer unmounts.
+
+### `get_audio_levels`<AvailableFrom v="4.0.543" />
+
+Returns the Audio Levels panel's visibility and the current left and right sample peaks in dBFS from Studio's shared Web Audio context. Silence is reported as `-60`. Levels are `null` when the panel is hidden or audio is unavailable. Media that bypasses this context is not measured. Available in every Studio mode.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+  levels: {left: number; right: number} | null;
+}
+```
+
+### `set_audio_levels_visible`<AvailableFrom v="4.0.543" />
+
+Shows or hides the fixed-width Audio Levels panel to the right of the timeline. Updates the View menu and saves the preference in the browser. The panel is hidden by default. Available in every Studio mode.
+
+```ts title="Input"
+{
+  visible: boolean;
+}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+}
+```
+
 ### `get_playback_state`
 
 Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.

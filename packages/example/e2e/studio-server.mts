@@ -22,6 +22,7 @@ import {
 	rootFile,
 	visualControlsFile,
 } from './constants.mts';
+import {nodeFetch} from './node-fetch.mts';
 
 let studioProcess: ChildProcess | null = null;
 
@@ -32,7 +33,7 @@ async function waitForServer(
 	const start = Date.now();
 	while (Date.now() - start < timeoutMs) {
 		try {
-			const res = await fetch(url);
+			const res = await nodeFetch(url, null);
 			if (res.ok) {
 				return;
 			}

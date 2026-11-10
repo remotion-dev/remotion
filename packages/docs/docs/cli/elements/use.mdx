@@ -22,11 +22,11 @@ npx remotion elements use https://example.com/elements/lower-third --composition
 The URL is the Element's page. The command:
 
 1. Fetches the page and reads the Element payload embedded in it
-2. Prints the files it will create and change, the npm packages it will install and the assets it will download
+2. Prints the files it will create and change, the npm packages it will install and the assets it will add
 3. Asks for confirmation
-4. Installs the missing packages with your package manager, downloads the assets into the `public` folder, writes `<slug>.element.tsx` next to the composition's component and adds the Element to the composition
+4. Installs the missing packages with your package manager, saves the assets into the `public` folder, writes an `.element.tsx` file next to the composition's component and adds the Element to the composition.
 
-The result is the same as installing the Element in Remotion Studio.
+The command inserts the Element at frame 0. If the Element has fixed dimensions and the composition's `width` and `height` are numbers, the Element is centered.
 
 The Element's source code comes from the website and runs in your project. Install Elements only from websites you trust.
 
@@ -62,9 +62,21 @@ Replaces the Element's `.element.tsx` file if it already exists with different c
 
 If the existing file has the same contents, it is reused.
 
+### `--dry-run`<AvailableFrom v="4.0.543" />
+
+Previews the Element, composition, source files, dependencies, and assets without installing packages or writing files. Does not ask for confirmation.
+
+### `--package-manager`<AvailableFrom v="4.0.543" />
+
+<Options id="package-manager" />
+
 ### `--public-dir`
 
 <Options id="public-dir" />
+
+### `--log`
+
+<Options id="log" />
 
 ## See also
 

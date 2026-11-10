@@ -11,7 +11,7 @@ crumb: '@remotion/lambda'
 To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
-- Sending large input props (>200KB) is not supported with Go at the moment.
+- Input props larger than ~194KB (video and audio renders) or ~4.99MB (still renders) are automatically uploaded to S3 to stay within the AWS Lambda payload limit.
 - Always match the version of the Go client with the version of the Lambda function you deployed. Otherwise, calls will fail due to version mismatch!
 
 ```go title="main.go"
@@ -75,9 +75,14 @@ func main() {
 	// Check if there are validation errors
 	if renderError != nil {
 
-		validationOut := make([]ValidationError, len(renderError.(validator.ValidationErrors)))
+		validationErrors, ok := renderError.(validator.ValidationErrors)
+		if !ok {
+			log.Fatal(renderError)
+		}
 
-		for i, fieldError := range renderError.(validator.ValidationErrors) {
+		validationOut := make([]ValidationError, len(validationErrors))
+
+		for i, fieldError := range validationErrors {
 
 			validationOut[i] = ValidationError{fieldError.Field(), msgForTag(fieldError)}
 		}
@@ -91,7 +96,7 @@ func main() {
 
 	fmt.Print(renderResponse.RenderId)
 	/// Get bucket information
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
 	// Render Progress request
 	renderProgressInputRequest := lambda_go_sdk.RenderConfig{

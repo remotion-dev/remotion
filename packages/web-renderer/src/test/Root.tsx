@@ -86,6 +86,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -297,6 +298,7 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
+			<Composition {...htmlInCanvasResize} />
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />

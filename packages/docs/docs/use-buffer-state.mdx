@@ -99,10 +99,11 @@ If you are loading data, you might want to both delay the screenshotting of your
 
 ```tsx twoslash title="Using delayRender() and delayPlayback() together"
 import React from 'react';
-import {useBufferState, delayRender, continueRender} from 'remotion';
+import {useBufferState, useDelayRender} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
+  const {delayRender, continueRender} = useDelayRender();
   const [handle] = React.useState(() => delayRender());
 
   React.useEffect(() => {

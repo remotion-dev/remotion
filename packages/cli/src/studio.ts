@@ -62,6 +62,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
 	highContrastOption,
@@ -234,6 +235,7 @@ export const studioCommand = async (
 			preservePitchOnPlayback: preservePitchOnPlaybackOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			showDiagnostics: showDiagnosticsOption.getValue({commandLine: parsedCli}),
 			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -264,6 +266,7 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				showDiagnostics: showDiagnosticsOption.getConfigValue(),
 				highContrast: highContrastOption.getConfigValue(),
 				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
 				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),

@@ -68,13 +68,20 @@ export const captureNativeReference = async (
 				throw new Error('Native reference remained buffering');
 		} while (readBuffering!());
 
-		const {base64} = await page.getByTestId(host.dataset.testid).screenshot({
-			base64: true,
-			omitBackground,
-			scale: 'css',
-			style:
-				'html, body, iframe[data-vitest] { background: transparent !important; }',
-		});
+		// `save: false` skips writing the PNG to disk. Vitest 5.0.3 then resolves
+		// to the base64 string even though its types still declare {path, base64}.
+		const screenshot: string | {base64: string} = await page
+			.getByTestId(host.dataset.testid)
+			.screenshot({
+				base64: true,
+				save: false,
+				omitBackground,
+				scale: 'css',
+				style:
+					'html, body, iframe[data-vitest] { background: transparent !important; }',
+			});
+		const base64 =
+			typeof screenshot === 'string' ? screenshot : screenshot.base64;
 		return new Blob(
 			[Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))],
 			{type: 'image/png'},
@@ -91,7 +98,7 @@ const decodePixels = async (blob: Blob) => {
 		const canvas = document.createElement('canvas');
 		canvas.width = bitmap.width;
 		canvas.height = bitmap.height;
-		const context = canvas.getContext('2d')!;
+		const context = canvas.getContext('2d', {willReadFrequently: true})!;
 		context.drawImage(bitmap, 0, 0);
 		return context.getImageData(0, 0, bitmap.width, bitmap.height);
 	} finally {
@@ -118,9 +125,7 @@ const compareNativePixelData = async (
 		);
 	}
 
-	const diff = createDiff
-		? new ImageData(expected.width, expected.height)
-		: null;
+	let diff: ImageData | null = null;
 	let mismatchedPixels = 0;
 	let maxChannelDelta = 0;
 	for (let offset = 0; offset < expected.data.length; offset += 4) {
@@ -135,12 +140,24 @@ const compareNativePixelData = async (
 
 		if (differs) {
 			mismatchedPixels++;
-			diff?.data.set([255, 0, 255, 255], offset);
+			if (createDiff) {
+				diff ??= new ImageData(expected.width, expected.height);
+				diff.data.set([255, 0, 255, 255], offset);
+			}
 		}
 	}
 
-	return {mismatchedPixels, maxChannelDelta, diff};
+	return {
+		mismatchedPixels,
+		maxChannelDelta,
+		diff,
+		width: expected.width,
+		height: expected.height,
+	};
 };
+
+// A matching comparison has an all-transparent diff, so encode it once per size.
+const emptyDiffs = new Map<string, Promise<Blob>>();
 
 export const countNativePixels = async (reference: Blob, actual: Blob) => {
 	const {mismatchedPixels, maxChannelDelta} = await compareNativePixelData(
@@ -152,15 +169,24 @@ export const countNativePixels = async (reference: Blob, actual: Blob) => {
 };
 
 export const compareNativePixels = async (reference: Blob, actual: Blob) => {
-	const {mismatchedPixels, maxChannelDelta, diff} =
+	const {mismatchedPixels, maxChannelDelta, diff, width, height} =
 		await compareNativePixelData(reference, actual, true);
-	const canvas = document.createElement('canvas');
-	canvas.width = diff!.width;
-	canvas.height = diff!.height;
-	canvas.getContext('2d')!.putImageData(diff!, 0, 0);
-	const diffBlob = await new Promise<Blob>((resolve) =>
-		canvas.toBlob((blob) => resolve(blob!), 'image/png'),
-	);
+	const encodeDiff = (imageData: ImageData | null) => {
+		const canvas = document.createElement('canvas');
+		canvas.width = width;
+		canvas.height = height;
+		if (imageData) canvas.getContext('2d')!.putImageData(imageData, 0, 0);
+		return new Promise<Blob>((resolve) =>
+			canvas.toBlob((blob) => resolve(blob!), 'image/png'),
+		);
+	};
+
+	const emptyKey = `${width}x${height}`;
+	if (!diff && !emptyDiffs.has(emptyKey)) {
+		emptyDiffs.set(emptyKey, encodeDiff(null));
+	}
+
+	const diffBlob = await (diff ? encodeDiff(diff) : emptyDiffs.get(emptyKey)!);
 	let evidence: string | null = null;
 	if (mismatchedPixels > 0) {
 		const testName = expect.getState().currentTestName ?? 'native-pixels';
@@ -200,8 +226,8 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 					runtime: server.version,
 					userAgent: navigator.userAgent,
 					devicePixelRatio: window.devicePixelRatio,
-					width: diff!.width,
-					height: diff!.height,
+					width,
+					height,
 					mismatchedPixels,
 					maxChannelDelta,
 					referenceSha256: originals[0].sha256,

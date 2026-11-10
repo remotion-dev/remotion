@@ -16,7 +16,7 @@ import type {Caption} from '@remotion/captions';
 
 By establishing a standard data structure, we allow many operations that involve captions to be interoperable:
 
-- **Transcribing**: Using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), [`@remotion/openai-whisper`](/docs/openai-whisper), or [`@remotion/elevenlabs`](/docs/elevenlabs) packages
+- **Transcribing**: Using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), [`@remotion/openai-whisper`](/docs/openai-whisper), or [`@remotion/elevenlabs`](/docs/elevenlabs) packages
 - **Formatting**: For example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
 - **Parsing**: Using [`parseSrt()`](/docs/captions/parse-srt) for `.srt` files or [`parseVtt()`](/docs/captions/parse-vtt) for `.vtt` files
 - **Serializing**: For example to a `.srt` file using [`serializeSrt()`](/docs/captions/serialize-srt)
@@ -46,14 +46,15 @@ The end time of the caption in milliseconds.
 _number | null_
 
 The timestamp of the caption as a singular timestamp in milliseconds.
-When using [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), this is the `t_dtw` value.
-Otherwise, it is `null`, but may be the average of the start and end timestamps.
+When using [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) or [`@remotion/whisper-web`](/docs/whisper-web), this is the `t_dtw` value converted to milliseconds, or `null` if it is not available.
+Other built-in sources set it to the midpoint between `startMs` and `endMs`.
 
 ### `confidence`
 
 _number | null_
 
 A number between 0 and 1 that indicates how confident the transcription is, or `null` if no confidence value is available.
+[`parseSrt()`](/docs/captions/parse-srt) and [`parseVtt()`](/docs/captions/parse-vtt) set it to `1`.
 
 ### `pageBreakAfter?`<AvailableFrom v="4.0.517" />
 
