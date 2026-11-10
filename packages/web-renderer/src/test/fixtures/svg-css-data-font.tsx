@@ -120,3 +120,98 @@ export const svgCssDataFont = {
 	fps: 30,
 	durationInFrames: 2,
 } as const;
+
+export const svgCssDataCarrierModes = [
+	'empty',
+	'disabled-empty',
+	'malformed-comment',
+	'cache',
+	'media-empty',
+	'media-all',
+	'media-whitespace-all',
+] as const;
+type DataCarrierMode = (typeof svgCssDataCarrierModes)[number];
+const carrierFamily = 'SVG data carrier, selector';
+const DataCarrier = ({
+	mode,
+	literal,
+}: {
+	readonly mode: DataCarrierMode;
+	readonly literal: boolean;
+}) => {
+	const {delayRender, continueRender} = useDelayRender();
+	const [urls, setUrls] = useState(fontUrls);
+	const [handle] = useState(() => delayRender('Loading CSS data carrier font'));
+	const frame = useCurrentFrame();
+	useEffect(() => {
+		dataFont.then(setUrls);
+	}, []);
+	useEffect(() => {
+		if (!urls) return;
+		document.fonts
+			.load(`36px ${JSON.stringify(carrierFamily)}`)
+			.then(() => continueRender(handle));
+	}, [handle, urls, continueRender]);
+	if (!urls) return null;
+	const media =
+		mode === 'media-empty'
+			? ''
+			: mode === 'media-all'
+				? 'all'
+				: mode === 'media-whitespace-all'
+					? ' \tALL\n '
+					: undefined;
+	return (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<style>{`@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[0]}") format("woff2")} .css-data-carrier-font{font-family:${JSON.stringify(carrierFamily)};font-size:${36 + frame * 2}px}`}</style>
+			<svg width={600} height={180}>
+				<style
+					media={media}
+				>{`rect{fill:red}style:empty + .empty-marker{fill:blue}style[media] ~ .media-marker{fill:blue}${mode === 'malformed-comment' ? '/*' : ''}`}</style>
+				<style
+					ref={(style) => {
+						const sheet = style?.sheet;
+						if (!sheet) return;
+						sheet.disabled = mode === 'disabled-empty';
+						while (sheet.cssRules.length) sheet.deleteRule(0);
+						if (mode === 'cache' && frame === 1)
+							sheet.insertRule('@media print{.empty-marker{fill:purple}}');
+					}}
+				/>
+				<rect
+					className="empty-marker"
+					width={20}
+					height={20}
+					style={literal ? {fill: 'blue'} : undefined}
+				/>
+				<rect
+					className="media-marker"
+					x={40}
+					width={20}
+					height={20}
+					style={
+						literal ? {fill: media === undefined ? 'red' : 'blue'} : undefined
+					}
+				/>
+				<text className="css-data-carrier-font" x={12} y={80}>
+					CSS data carrier selection
+				</text>
+			</svg>
+		</AbsoluteFill>
+	);
+};
+
+export const svgCssDataEmptyCarrier = ({
+	mode,
+	literal,
+}: {
+	mode: DataCarrierMode;
+	literal: boolean;
+}) => ({
+	component: () => <DataCarrier mode={mode} literal={literal} />,
+	id: `svg-css-data-carrier-${mode}${literal ? '-literal' : ''}`,
+	width: 600,
+	height: 180,
+	fps: 30,
+	durationInFrames: 3,
+});

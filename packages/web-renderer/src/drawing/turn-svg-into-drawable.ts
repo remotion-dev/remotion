@@ -105,7 +105,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
-	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
@@ -204,6 +204,46 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		: '';
 	// Script-added faces follow CSS-connected faces in FontFaceSet order.
 	const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
+	if (fontCss && styles[fontStyleIndex]?.matches(':empty')) {
+		const originalFontStyleIndex = fontStyleIndex;
+		for (let index = styles.length - 1; index >= 0; index--) {
+			const style = styles[index];
+			const {sheet} = style;
+			if (!sheet) continue;
+			let ruleCount: number;
+			try {
+				ruleCount = sheet.cssRules.length;
+			} catch {
+				// An unreadable sheet cannot establish a safe carrier or ordering boundary.
+				break;
+			}
+
+			const media = sheet.media.mediaText;
+			if (
+				!sheet.disabled &&
+				(!media || media.toLowerCase() === 'all') &&
+				!style.matches(':empty')
+			) {
+				fontStyleIndex = index;
+				break;
+			}
+
+			// Even inactive CSSOM rules preserve an authored ordering boundary.
+			if (ruleCount !== 0) break;
+		}
+
+		if (fontStyleIndex !== originalFontStyleIndex) {
+			// This synchronous data-font path does not flatten all local sheets.
+			// Canonicalize only the newly reused carrier before appending definitions.
+			svgForSerialization.querySelectorAll('style')[
+				fontStyleIndex
+			].textContent = Array.from(
+				styles[fontStyleIndex].sheet!.cssRules,
+				(rule) => rule.cssText,
+			).join('');
+		}
+	}
+
 	if (fontCss)
 		insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
 

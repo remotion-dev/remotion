@@ -163,7 +163,11 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
-import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {
+	svgCssDataCarrierModes,
+	svgCssDataEmptyCarrier,
+	svgCssDataFont,
+} from './fixtures/svg-css-data-font';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -294,6 +298,12 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgCssDataFont} />
+			{svgCssDataCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const composition = svgCssDataEmptyCarrier({mode, literal});
+					return <Composition key={composition.id} {...composition} />;
+				}),
+			)}
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
 			<Composition {...svgFullSourceUrlFill} />

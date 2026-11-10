@@ -90,6 +90,8 @@ External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight
 
 CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
 
+An empty SVG stylesheet can remain empty when an earlier active stylesheet can carry data or registered font definitions. Empty and `all` media attributes remain on reused carriers. Later CSSOM rules can prevent this reuse.
+
 SVG-local `style:empty` and `style[media]` selectors are partially supported. WebKit and Firefox may render different text pixels or select a different face.
 
 ## Shadows
