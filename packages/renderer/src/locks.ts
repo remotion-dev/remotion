@@ -1,20 +1,3 @@
-// FIFO mutex used for port selection.
-//
-// States:
-//   free                      - nobody holds the lock
-//   held(holderId, queue)     - one holder, waiters queued in FIFO order
-//
-// Transitions:
-//   free     --acquire-->          held (waiter becomes holder, granted)
-//   held     --acquire-->          held (waiter appended to queue)
-//   held     --release(holder)-->  held (next waiter granted) | free (queue empty)
-//   *        --release(other)-->   unchanged (stale / duplicate release is a no-op)
-//   held     --waiter-timed-out--> held (waiter removed from queue)
-//   free     --waiter-timed-out--> free
-//
-// A waiter that times out proceeds without the lock (its release is a no-op)
-// instead of becoming a co-holder.
-
 type Waiter = {id: number; grant: () => void};
 
 export type MutexState =
@@ -26,7 +9,6 @@ export type MutexEvent =
 	| {type: 'release'; id: number}
 	| {type: 'waiter-timed-out'; id: number};
 
-// Pure. Returns the next state plus the waiter (if any) that now holds the lock.
 export const mutexTransition = (
 	state: MutexState,
 	event: MutexEvent,
@@ -87,7 +69,6 @@ export const createMutex = ({timeout}: {timeout: number | null}) => {
 		result.granted?.grant();
 	};
 
-	// Resolves with a release function once the lock is held.
 	const acquire = (): Promise<() => void> => {
 		return new Promise((resolve) => {
 			const id = nextId++;

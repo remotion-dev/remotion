@@ -1,9 +1,3 @@
-// Wait-until-zero barrier for pending error symbolications.
-// States: idle (pending is empty) | pending (one or more ids registered).
-// register: idle|pending -> pending. unlock(id): removes id; unknown ids are a
-// no-op. When pending drains to empty, all current waiters resolve and are
-// cleared. A waiter also resolves (and is removed) after a 50s timeout.
-
 const pending = new Set<number>();
 let waiters: Array<() => void> = [];
 let nextId = 1;
