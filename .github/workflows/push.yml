@@ -173,12 +173,12 @@ jobs:
           path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
           if-no-files-found: ignore
           retention-days: 7
-  webrenderer-burn-in:
+  webrenderer-flake-test:
     needs: affected
     if: ${{ github.event_name == 'pull_request' && needs.affected.outputs.webrenderer == 'true' && needs.affected.outputs.scm_base != '' }}
     runs-on: macos-latest
     timeout-minutes: 40
-    name: Web renderer burn-in
+    name: Web renderer flake test
     steps:
       - uses: actions/checkout@v6
         with:
@@ -200,10 +200,10 @@ jobs:
           if [ "$count" -eq 0 ]; then
             echo "No added or changed web renderer test files."
           elif [ "$count" -gt "$MAX_FILES" ]; then
-            echo "::notice::Skipping burn-in: $count test files changed (limit $MAX_FILES)."
+            echo "::notice::Skipping flake test: $count test files changed (limit $MAX_FILES)."
             files=""
           else
-            echo "Burning in: $files"
+            echo "Testing for flakes: $files"
           fi
           echo "files=$files" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v6
@@ -229,7 +229,7 @@ jobs:
       # Runs each added or changed test file 5 times (1 + 4 repeats) under the
       # same single-worker, three-browser setup as "Web renderer tests", so
       # flaky new tests fail here instead of in the merge queue.
-      - name: Burn in changed tests
+      - name: Run changed tests 5 times
         if: ${{ steps.changed.outputs.files != '' }}
         env:
           FILES: ${{ steps.changed.outputs.files }}
@@ -455,7 +455,7 @@ jobs:
       - nextjs-tests
       - browser-tests
       - webrenderer-tests
-      - webrenderer-burn-in
+      - webrenderer-flake-test
       - ssr-tests
       - monorepo-tests
       - template-tests
@@ -472,5 +472,5 @@ jobs:
         env:
           CI_PLAN: ${{ needs.affected.outputs.plan }}
           CI_RESULTS: >-
-            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","webrenderer_burn_in":"${{ needs.webrenderer-burn-in.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
+            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","webrenderer_flake_test":"${{ needs.webrenderer-flake-test.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
         run: bun .github/scripts/ci.ts validate

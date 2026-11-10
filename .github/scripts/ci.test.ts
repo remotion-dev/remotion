@@ -59,7 +59,7 @@ const skippedResults = (): RequiredCiResults => ({
 	nextjs: 'skipped',
 	browser: 'skipped',
 	webrenderer: 'skipped',
-	webrenderer_burn_in: 'skipped',
+	webrenderer_flake_test: 'skipped',
 	ssr: 'skipped',
 	monorepo: 'skipped',
 	templates: 'skipped',

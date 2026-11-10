@@ -264,7 +264,7 @@ export type RequiredCiResults = {
 	nextjs: string;
 	browser: string;
 	webrenderer: string;
-	webrenderer_burn_in: string;
+	webrenderer_flake_test: string;
 	ssr: string;
 	monorepo: string;
 	templates: string;
@@ -282,14 +282,14 @@ export const validateRequiredCi = (
 	if (results.lint !== 'success') {
 		throw new Error(`Lint concluded with ${results.lint}`);
 	}
-	// The burn-in only runs on pull requests with a known diff base,
+	// The flake test only runs on pull requests with a known diff base,
 	// so it may be skipped, but it must never fail or be cancelled.
 	if (
-		results.webrenderer_burn_in !== 'success' &&
-		results.webrenderer_burn_in !== 'skipped'
+		results.webrenderer_flake_test !== 'success' &&
+		results.webrenderer_flake_test !== 'skipped'
 	) {
 		throw new Error(
-			`Web renderer burn-in concluded with ${results.webrenderer_burn_in}`,
+			`Web renderer flake test concluded with ${results.webrenderer_flake_test}`,
 		);
 	}
 
