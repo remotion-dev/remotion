@@ -284,11 +284,14 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
-	if (cssFontRules.length) {
-		const ownerWindow = svg.ownerDocument.defaultView! as Window &
-			typeof globalThis;
-		// These sheets are serialized from CSSOM below, so an authored trailing
-		// comment cannot swallow carried rules. Keep registered-only rendering unchanged.
+	const originalFontStyleIndex = fontStyleIndex;
+	const retargetRegisteredCarrier =
+		cssFontRules.length === 0 &&
+		embeddedFontStyle !== null &&
+		styles[fontStyleIndex]?.matches(':empty');
+	if (cssFontRules.length || retargetRegisteredCarrier) {
+		// CSS-backed sheets are serialized below. Registered-only snapshots may
+		// move off an empty carrier only when the chosen sheet is serialized too.
 		const originalStyles = svg.querySelectorAll('style');
 		for (let index = originalStyles.length - 1; index >= 0; index--) {
 			const style = originalStyles[index];
@@ -317,6 +320,22 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			if (ruleCount !== 0) break;
 		}
 
+		if (
+			retargetRegisteredCarrier &&
+			fontStyleIndex !== originalFontStyleIndex
+		) {
+			svgForSerialization.querySelectorAll('style')[
+				fontStyleIndex
+			].textContent = Array.from(
+				originalStyles[fontStyleIndex].sheet!.cssRules,
+				(rule) => rule.cssText,
+			).join('');
+		}
+	}
+
+	if (cssFontRules.length) {
+		const ownerWindow = svg.ownerDocument.defaultView! as Window &
+			typeof globalThis;
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		svg.querySelectorAll('style').forEach((style, index) => {
 			const {sheet} = style;
@@ -372,13 +391,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const fontStyleKey = cssFontRules.length
-		? JSON.stringify([
-				embeddedFontStyle?.cacheKey ?? null,
-				cssFontRules.map((rule) => [rule.css, rule.url]),
-				fontStyleIndex,
-			])
-		: (embeddedFontStyle?.cacheKey ?? null);
+	const fontStyleKey =
+		cssFontRules.length ||
+		(retargetRegisteredCarrier && fontStyleIndex !== originalFontStyleIndex)
+			? JSON.stringify([
+					embeddedFontStyle?.cacheKey ?? null,
+					cssFontRules.map((rule) => [rule.css, rule.url]),
+					fontStyleIndex,
+				])
+			: (embeddedFontStyle?.cacheKey ?? null);
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&

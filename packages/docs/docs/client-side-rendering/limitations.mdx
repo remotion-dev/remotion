@@ -90,7 +90,7 @@ External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight
 
 CSS `@font-face` at the top level or in active `@media` and `@supports` rules is supported from accessible, enabled document stylesheets with a single `data:` or same-origin HTTP(S) source. HTTP(S) families require exactly one loaded face. Readable, unlayered CSS imports are supported, including active import media conditions. Other grouping rules, layered imports, multiple sources, CSS-escaped URLs, font collection fragments, cross-origin font URLs, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
 
-`style[media]` selectors on SVG-local stylesheets with empty or `all` media are supported. For CSS `@font-face` sources, empty trailing SVG stylesheets are preserved when an enabled, nonempty, unconditional stylesheet is available after all other SVG-local rules. `style:empty` selectors remain partially supported when all stylesheets are empty or only registered font APIs are used. Selectors involving conditional media remain partially supported. WebKit and Firefox may render different text pixels or select a different face.
+`style[media]` selectors on SVG-local stylesheets with empty or `all` media are supported. For CSS `@font-face` sources and registered font APIs, empty trailing SVG stylesheets are preserved when an enabled, nonempty, unconditional stylesheet is available after all other SVG-local rules. `style:empty` selectors remain partially supported when all stylesheets are empty. Selectors involving conditional media remain partially supported. WebKit and Firefox may render different text pixels or select a different face.
 
 ## Shadows
 

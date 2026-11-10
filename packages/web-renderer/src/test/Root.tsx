@@ -307,10 +307,18 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
-			{svgCssEmptyCarrierModes.map((mode) => {
-				const fixture = svgCssEmptyCarrierFixture({mode, literal: false});
-				return <Composition key={fixture.id} {...fixture} />;
-			})}
+			{[false, true].flatMap((registered) =>
+				svgCssEmptyCarrierModes
+					.filter((mode) => registered || mode !== 'malformed-comment')
+					.map((mode) => {
+						const fixture = svgCssEmptyCarrierFixture({
+							mode,
+							literal: false,
+							registered,
+						});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+			)}
 			{['', 'all', ' ALL ', ' \t ', '\u00a0', '\u00a0all\u00a0'].flatMap(
 				(media) =>
 					[false, true].map((cssSource) => {

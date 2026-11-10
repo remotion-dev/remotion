@@ -25,13 +25,20 @@ const markerPixels = async (blob: Blob) => {
 };
 
 test.for(
-	(['empty', 'disabled-empty'] as const).flatMap((mode) =>
-		[0, 1].map((frame) => ({mode, frame})),
+	[false, true].flatMap((registered) =>
+		(registered
+			? (['empty', 'disabled-empty', 'malformed-comment'] as const)
+			: (['empty', 'disabled-empty'] as const)
+		).flatMap((mode) => [0, 1].map((frame) => ({mode, frame, registered}))),
 	),
 )(
-	'preserves the SVG CSS empty carrier $mode frame=$frame',
-	async ({mode, frame}, t) => {
-		const fixture = svgCssEmptyCarrierFixture({mode, literal: false});
+	'preserves the SVG empty carrier $mode registered=$registered frame=$frame',
+	async ({mode, frame, registered}, t) => {
+		const fixture = svgCssEmptyCarrierFixture({
+			mode,
+			literal: false,
+			registered,
+		});
 		const reference = await captureNativeReference(fixture, frame, {
 			omitBackground: false,
 		});
@@ -41,7 +48,11 @@ test.for(
 		const literal = await (
 			await renderStillOnWeb({
 				...options,
-				composition: svgCssEmptyCarrierFixture({mode, literal: true}),
+				composition: svgCssEmptyCarrierFixture({
+					mode,
+					literal: true,
+					registered,
+				}),
 				frame,
 			})
 		).blob({format: 'png'});
@@ -57,24 +68,31 @@ test.for(
 	},
 );
 
-test('invalidates the SVG carrier cache when CSSOM rules change', async () => {
-	const fixture = svgCssEmptyCarrierFixture({mode: 'cache', literal: false});
-	const frames = await renderFramesOnWeb({
-		...options,
-		composition: fixture,
-		frames: [0, 1, 2],
-	});
-	const differences = [];
-	for (let frame = 0; frame < 3; frame++) {
-		const batch = await frames[frame].blob({format: 'png'});
-		const fresh = await (
-			await renderStillOnWeb({...options, composition: fixture, frame})
-		).blob({format: 'png'});
-		differences.push(
-			(await compareNativePixels(fresh, batch)).mismatchedPixels,
-		);
-	}
+test.for([false, true])(
+	'invalidates the SVG carrier cache when CSSOM rules change registered=%s',
+	async (registered) => {
+		const fixture = svgCssEmptyCarrierFixture({
+			mode: 'cache',
+			literal: false,
+			registered,
+		});
+		const frames = await renderFramesOnWeb({
+			...options,
+			composition: fixture,
+			frames: [0, 1, 2],
+		});
+		const differences = [];
+		for (let frame = 0; frame < 3; frame++) {
+			const batch = await frames[frame].blob({format: 'png'});
+			const fresh = await (
+				await renderStillOnWeb({...options, composition: fixture, frame})
+			).blob({format: 'png'});
+			differences.push(
+				(await compareNativePixels(fresh, batch)).mismatchedPixels,
+			);
+		}
 
-	// This checks cache consistency with fresh exports, including the existing conservative fallback at frame1.
-	expect(differences).toEqual([0, 0, 0]);
-});
+		// This checks cache consistency with fresh exports, including the existing conservative fallback at frame1.
+		expect(differences).toEqual([0, 0, 0]);
+	},
+);
