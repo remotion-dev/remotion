@@ -422,9 +422,9 @@ export const calculateTransforms = ({
 		const originalPerspective = parent.style.perspective;
 		if (hasPerspective) {
 			parent.style.perspective = 'none';
-			const parentRef = parent;
+			const perspectiveParent = parent;
 			toReset.push(() => {
-				parentRef.style.perspective = originalPerspective;
+				perspectiveParent.style.perspective = originalPerspective;
 			});
 		}
 
