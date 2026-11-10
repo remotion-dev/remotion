@@ -108,6 +108,18 @@ export const captureNativeReference = async (
 	}
 };
 
+// The first paint of some content in a fresh page is much slower than later
+// ones. On macOS CI runners (ANGLE Metal on a paravirtual GPU), screenshotting
+// blend modes for the first time blocked the page for up to 5s. Paint each
+// fixture once in beforeAll() so that cost is not charged to a test's timeout.
+export const warmUpNativeReferences = async (
+	fixtures: Parameters<typeof captureNativeReference>[0][],
+) => {
+	for (const fixture of fixtures) {
+		await captureNativeReference(fixture, 0);
+	}
+};
+
 const decodePixels = async (blob: Blob) => {
 	const bitmap = await createImageBitmap(blob);
 	try {
