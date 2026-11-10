@@ -62,27 +62,6 @@ export const parseLengthPercentage = (
 	return null;
 };
 
-export const resolveSize = ({
-	containerSize,
-	value,
-}: {
-	containerSize: number;
-	value: string | undefined;
-}) => {
-	if (value === undefined || value === 'auto') {
-		return containerSize;
-	}
-
-	const parsed = parseLengthPercentage(value);
-	if (!parsed) {
-		return containerSize;
-	}
-
-	return parsed.unit === '%'
-		? containerSize * (parsed.value / 100)
-		: parsed.value;
-};
-
 const positionKeywordToPercentage = (value: string) => {
 	if (value === 'left' || value === 'top') {
 		return 0;
@@ -161,6 +140,34 @@ export const resolveLengthPercentage = ({
 		: parsed.value;
 };
 
+export const resolveSize = ({
+	containerSize,
+	value,
+}: {
+	containerSize: number;
+	value: string | undefined;
+}) => {
+	if (value === undefined || value === 'auto') {
+		return containerSize;
+	}
+
+	if (value.includes('(')) {
+		return Math.max(
+			0,
+			resolveLengthPercentage({percentageBasis: containerSize, value}),
+		);
+	}
+
+	const parsed = parseLengthPercentage(value);
+	if (!parsed) {
+		return containerSize;
+	}
+
+	return parsed.unit === '%'
+		? containerSize * (parsed.value / 100)
+		: parsed.value;
+};
+
 export const resolvePosition = ({
 	containerSize,
 	imageSize,
@@ -211,7 +218,7 @@ export const getBackgroundImageRect = ({
 	positioningArea: DOMRect;
 	intrinsicSize: {width: number; height: number} | null;
 }) => {
-	const [x, y = 'auto'] = firstLayer(backgroundSize).split(/\s+/);
+	const [x, y = 'auto'] = splitAtTopLevel(firstLayer(backgroundSize), ' ');
 	let width: number;
 	let height: number;
 	if (
