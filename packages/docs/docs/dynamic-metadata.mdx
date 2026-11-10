@@ -80,9 +80,7 @@ export const Root: React.FC = () => {
         const compositionFps = fps ?? 30;
 
         return {
-          durationInFrames: Math.floor(
-            durationInSeconds * compositionFps,
-          ),
+          durationInFrames: Math.round(durationInSeconds * compositionFps),
           fps: compositionFps,
         };
       }}
