@@ -163,7 +163,11 @@ const canApplyCssTransforms = ({
 };
 
 const makeTransformResetter = (element: HTMLElement | SVGElement) => {
-	const {transform, scale, rotate} = element.style;
+	const originals = ['transform', 'scale', 'rotate'].map((property) => ({
+		property,
+		value: element.style.getPropertyValue(property),
+		priority: element.style.getPropertyPriority(property),
+	}));
 
 	return (hasApplicableTransformCssValue: boolean) => {
 		if (hasApplicableTransformCssValue) {
@@ -174,9 +178,9 @@ const makeTransformResetter = (element: HTMLElement | SVGElement) => {
 
 		return () => {
 			if (hasApplicableTransformCssValue) {
-				element.style.transform = transform;
-				element.style.scale = scale;
-				element.style.rotate = rotate;
+				for (const {property, value, priority} of originals) {
+					element.style.setProperty(property, value, priority);
+				}
 			}
 		};
 	};
@@ -236,7 +240,20 @@ export const calculateTransforms = ({
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
 		// when we set transform to 'none' for measurement
-		const originalTransition = parent.style.transition;
+		const originallyAbsentStyle = !parent.hasAttribute('style');
+		const parentStyle = parent.style;
+		// The shorthand can be empty for authored mixed-priority longhands.
+		const originalTransitions = [
+			'transition-property',
+			'transition-duration',
+			'transition-timing-function',
+			'transition-delay',
+			'transition-behavior',
+		].map((property) => ({
+			property,
+			value: parentStyle.getPropertyValue(property),
+			priority: parentStyle.getPropertyPriority(property),
+		}));
 		parent.style.transition = 'none';
 
 		const computedStyle = shouldReadComputedStyle
@@ -349,17 +366,20 @@ export const calculateTransforms = ({
 				boundingClientRect: null,
 				matrices: additionalMatrices,
 			});
-			const parentRef = parent;
-			toReset.push(() => {
-				cleanup();
-				parentRef!.style.transition = originalTransition;
-			});
-		} else {
-			const parentRef = parent;
-			toReset.push(() => {
-				parentRef!.style.transition = originalTransition;
-			});
+			toReset.push(cleanup);
 		}
+
+		const parentRef = parent;
+		toReset.push(() => {
+			for (const {property, value, priority} of originalTransitions) {
+				parentRef.style.setProperty(property, value, priority);
+			}
+
+			// Leave unrelated authored updates intact and preserve explicit style="".
+			if (originallyAbsentStyle && parentRef.getAttribute('style') === '') {
+				parentRef.removeAttribute('style');
+			}
+		});
 
 		if (parent === rootElement) {
 			break;

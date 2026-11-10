@@ -163,6 +163,7 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
+import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -246,6 +247,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...styleAttributeCleanupFixture(false)} />
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
