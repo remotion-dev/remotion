@@ -430,22 +430,29 @@ for (const {math, literal, transparent} of [
 	},
 ]) {
 	for (const frame of [0, 1]) {
-		test(`resolves CSS math mask sizes ${math.id} frame ${frame}`, async (t) => {
-			await page.viewport(1280, 720);
-			if (!transparent || t.task.file.projectName !== 'firefox') {
-				const reference = await captureNativeReference(math, frame, {
-					omitBackground: transparent,
-				});
-				const literalReference = await captureNativeReference(literal, frame, {
-					omitBackground: transparent,
-				});
-				expect(
-					(await countNativePixels(reference, literalReference))
-						.mismatchedPixels,
-				).toBe(0);
+		// Each check gets its own test so the per-test timeout covers one native
+		// capture pair or one render pair instead of all of them serially.
+		test(`resolves CSS math mask sizes ${math.id} frame ${frame} natively`, async (t) => {
+			if (transparent && t.task.file.projectName === 'firefox') {
+				t.skip();
+				return;
 			}
 
-			for (const scale of [1, 2]) {
+			await page.viewport(1280, 720);
+			const reference = await captureNativeReference(math, frame, {
+				omitBackground: transparent,
+			});
+			const literalReference = await captureNativeReference(literal, frame, {
+				omitBackground: transparent,
+			});
+			expect(
+				(await countNativePixels(reference, literalReference)).mismatchedPixels,
+			).toBe(0);
+		});
+
+		for (const scale of [1, 2]) {
+			test(`resolves CSS math mask sizes ${math.id} frame ${frame} at scale ${scale}`, async () => {
+				await page.viewport(1280, 720);
 				const rendered: Blob[] = [];
 				for (const composition of [math, literal]) {
 					const result = await renderStillOnWeb({
@@ -468,7 +475,7 @@ for (const {math, literal, transparent} of [
 				expect(
 					(await countNativePixels(rendered[0], rendered[1])).mismatchedPixels,
 				).toBe(0);
-			}
-		});
+			});
+		}
 	}
 }
