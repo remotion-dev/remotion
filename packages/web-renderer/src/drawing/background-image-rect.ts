@@ -62,27 +62,6 @@ export const parseLengthPercentage = (
 	return null;
 };
 
-export const resolveSize = ({
-	containerSize,
-	value,
-}: {
-	containerSize: number;
-	value: string | undefined;
-}) => {
-	if (value === undefined || value === 'auto') {
-		return containerSize;
-	}
-
-	const parsed = parseLengthPercentage(value);
-	if (!parsed) {
-		return containerSize;
-	}
-
-	return parsed.unit === '%'
-		? containerSize * (parsed.value / 100)
-		: parsed.value;
-};
-
 const positionKeywordToPercentage = (value: string) => {
 	if (value === 'left' || value === 'top') {
 		return 0;
@@ -99,20 +78,13 @@ const positionKeywordToPercentage = (value: string) => {
 	return null;
 };
 
-export const resolvePosition = ({
-	containerSize,
-	imageSize,
+export const resolveLengthPercentage = ({
+	percentageBasis,
 	value,
 }: {
-	containerSize: number;
-	imageSize: number;
+	percentageBasis: number;
 	value: string;
 }): number => {
-	const keywordPercentage = positionKeywordToPercentage(value);
-	if (keywordPercentage !== null) {
-		return (containerSize - imageSize) * (keywordPercentage / 100);
-	}
-
 	if (value.startsWith('calc(')) {
 		// Keep computed sums fast, without treating other math as a sum.
 		const expression = value.slice(5, -1).replace(/\s/g, '');
@@ -122,23 +94,26 @@ export const resolvePosition = ({
 		if (terms && terms.join('') === expression) {
 			return terms.reduce(
 				(sum, term) =>
-					sum + resolvePosition({containerSize, imageSize, value: term}),
+					sum + resolveLengthPercentage({percentageBasis, value: term}),
 				0,
 			);
 		}
 	}
 
 	if (value.includes('(')) {
-		// Resolve percentages against the fitted content's free space before
-		// letting the browser evaluate nested CSS math. The free space can be
-		// negative for cover/none, so an element width cannot represent the basis.
+		// Resolve percentages before letting the browser evaluate nested CSS math.
+		// Positioning can have negative free space, so an element width cannot
+		// represent every caller's percentage basis.
 		const pixels = value.replace(
 			/([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)%/gi,
-			(_, number) =>
-				`${(Number(number) * (containerSize - imageSize)) / 100}px`,
+			(_, number) => `${(Number(number) * percentageBasis) / 100}px`,
 		);
 		if (typeof CSSNumericValue !== 'undefined') {
-			return CSSNumericValue.parse(pixels).to('px').value;
+			try {
+				return CSSNumericValue.parse(pixels).to('px').value;
+			} catch {
+				// Native CSS can support math functions that Typed OM cannot parse.
+			}
 		}
 
 		// Without Typed OM, resolve the same absolute-length expression
@@ -161,8 +136,56 @@ export const resolvePosition = ({
 	}
 
 	return parsed.unit === '%'
-		? (containerSize - imageSize) * (parsed.value / 100)
+		? percentageBasis * (parsed.value / 100)
 		: parsed.value;
+};
+
+export const resolveSize = ({
+	containerSize,
+	value,
+}: {
+	containerSize: number;
+	value: string | undefined;
+}) => {
+	if (value === undefined || value === 'auto') {
+		return containerSize;
+	}
+
+	if (value.includes('(')) {
+		return Math.max(
+			0,
+			resolveLengthPercentage({percentageBasis: containerSize, value}),
+		);
+	}
+
+	const parsed = parseLengthPercentage(value);
+	if (!parsed) {
+		return containerSize;
+	}
+
+	return parsed.unit === '%'
+		? containerSize * (parsed.value / 100)
+		: parsed.value;
+};
+
+export const resolvePosition = ({
+	containerSize,
+	imageSize,
+	value,
+}: {
+	containerSize: number;
+	imageSize: number;
+	value: string;
+}): number => {
+	const keywordPercentage = positionKeywordToPercentage(value);
+	if (keywordPercentage !== null) {
+		return (containerSize - imageSize) * (keywordPercentage / 100);
+	}
+
+	return resolveLengthPercentage({
+		percentageBasis: containerSize - imageSize,
+		value,
+	});
 };
 
 export const parsePosition = (value: string) => {
@@ -195,7 +218,7 @@ export const getBackgroundImageRect = ({
 	positioningArea: DOMRect;
 	intrinsicSize: {width: number; height: number} | null;
 }) => {
-	const [x, y = 'auto'] = firstLayer(backgroundSize).split(/\s+/);
+	const [x, y = 'auto'] = splitAtTopLevel(firstLayer(backgroundSize), ' ');
 	let width: number;
 	let height: number;
 	if (

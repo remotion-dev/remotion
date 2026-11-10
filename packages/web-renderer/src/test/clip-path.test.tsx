@@ -266,7 +266,7 @@ test('restores inline group properties and important priorities after clipping',
 			const style = getComputedStyle(element);
 			expect(style.clipPath).toBe('none');
 			expect(style.opacity).toBe('1');
-			expect(style.filter).toBe('none');
+			expect(style.filter).toBe('opacity(1)');
 			expect(style.mixBlendMode).toBe('normal');
 			expect(style.maskImage).toBe('none');
 		} finally {
@@ -421,7 +421,7 @@ test('restores multi-rectangle clip group properties and important priorities (K
 			const style = getComputedStyle(element);
 			expect(style.clipPath).toBe('none');
 			expect(style.opacity).toBe('1');
-			expect(style.filter).toBe('none');
+			expect(style.filter).toBe('opacity(1)');
 			expect(style.mixBlendMode).toBe('normal');
 			expect(style.maskImage).toBe('none');
 		} finally {
