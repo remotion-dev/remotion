@@ -31,9 +31,6 @@ const ConnectionEmittedEvents = {
 	Disconnected: Symbol('Connection.Disconnected'),
 } as const;
 
-// Connection lifecycle: 'open' -> 'closed' (on transport close or dispose()).
-// 'closed' is terminal: send() rejects with "Target closed" and a repeated
-// close is a no-op.
 type ConnectionState = 'open' | 'closed';
 
 export class Connection extends EventEmitter {
