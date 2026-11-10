@@ -1348,6 +1348,26 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
 }
 ```
 
+## Development-only React Scan tools
+
+These tools are available only in the Remotion repository's React Scan capture mode, started with `bun run react-scan:capture` or `bun run react-scan:capture:brand` from the repository root.
+
+Call `start_react_scan_recording` with `{}`, perform a short interaction, then call `stop_react_scan_recording` with `{}`. Starting clears the previous recording. Stopping freezes the events for retrieval.
+
+### `get_react_scan_recording`
+
+Requires a recording that has been started and stopped. Returns recording status, timestamps, `durationInMilliseconds`, `eventCount`, raw `events`, and a `summary` of commit costs, component costs and profiling-hook availability.
+
+#### `includeEvents?`
+
+Defaults to `true`. Set to `false` to return `events: null` with the same status and summary fields. This avoids serializing raw fiber trees, which can exceed the size supported by a native WebMCP response even for a short recording.
+
+```json title="Summary-only input"
+{"includeEvents": false}
+```
+
+Summary-only reads keep the raw events in memory. Retrieve them with `{"includeEvents": true}` or `{}` when needed. Recordings are cleared by the next recording or page reload.
+
 ## Example prompts
 
 You can ask a browser agent:
