@@ -91,6 +91,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 	const mediaCache = useRenderMediaCache(logLevel);
+	const delayRenderScope = useContext(Internals.DelayRenderContextType);
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const {isMutedForPlayback, shouldUseAudio} = Internals.useMediaAudioState({
@@ -116,6 +117,11 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
+
+		const stopTracking =
+			environment.isClientSideRendering && delayRenderScope
+				? mediaCache.trackRenderHandle(delayRenderScope, newHandle)
+				: () => {};
 
 		extractFrameViaBroadcastChannel({
 			sampleRate,
@@ -263,6 +269,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					});
 				}
 
+				stopTracking();
 				continueRender(newHandle);
 			})
 			.catch((error) => {
@@ -275,6 +282,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 		return () => {
 			cancelled = true;
+			stopTracking();
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -314,6 +322,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		credentials,
 		initialRequestInit,
 		mediaCache,
+		delayRenderScope,
 	]);
 
 	if (replaceWithHtml5Audio) {

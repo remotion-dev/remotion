@@ -24,7 +24,7 @@ There are two ways to ensure Chrome Headless Shell is installed:
 - [`npx remotion browser ensure`](/docs/cli/browser/ensure) on the command line
 - [`ensureBrowser()`](/docs/renderer/ensure-browser) as a Node.js / Bun API
 
-It is recommended use call these functions if you do server-side rendering.  
+Call these functions if you do server-side rendering.  
 That way, if a request comes in wanting to render a video, the browser is already downloaded and ready to go.
 
 ## Using Chrome for Testing instead
@@ -165,7 +165,7 @@ See [Shared-memory capture](/docs/shared-memory-capture) for activation conditio
 
 On Lambda, it is not possible to change the Chrome version.
 
-If you use the [`server-side rendering APIs`](/docs/ssr), use the callback in [`ensureBrowser()`](/docs/renderer/ensure-browser#onbrowserdownload) to change the Chrome version.
+If you use the [server-side rendering APIs](/docs/ssr), use the callback in [`ensureBrowser()`](/docs/renderer/ensure-browser#onbrowserdownload) to change the Chrome version.
 
 ## On Lambda and Cloud Run
 

@@ -71,6 +71,7 @@ export const createLayer = async ({
 	internalState,
 	onlyBackgroundClipText,
 	cutout,
+	transparent,
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
@@ -82,6 +83,7 @@ export const createLayer = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	cutout: DOMRect;
+	transparent: boolean;
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
@@ -130,6 +132,7 @@ export const createLayer = async ({
 					scaledWidth,
 					scaledHeight,
 					signal: internalState.rasterImageLoaderState.signal,
+					transparent,
 				});
 				onHtmlInCanvasLayerOutcome({native: true});
 				return offCtx;
@@ -154,10 +157,16 @@ export const createLayer = async ({
 	}
 
 	const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
-	const context = canvas.getContext('2d');
+	const context = canvas.getContext('2d', {alpha: transparent});
 
 	if (!context) {
 		throw new Error('Could not get context');
+	}
+
+	// WebKit may retain alpha despite the context option. Initialize the opaque
+	// backdrop explicitly; intermediate layers explicitly retain alpha.
+	if (!transparent) {
+		context.fillRect(0, 0, scaledWidth, scaledHeight);
 	}
 
 	await compose({

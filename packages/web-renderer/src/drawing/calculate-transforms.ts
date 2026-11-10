@@ -193,7 +193,11 @@ const makeTransformResetter = (
 	element: HTMLElement | SVGElement,
 	experimental3DRendering: boolean,
 ) => {
-	const {transform, scale, rotate} = element.style;
+	const originals = ['transform', 'scale', 'rotate'].map((property) => ({
+		property,
+		value: element.style.getPropertyValue(property),
+		priority: element.style.getPropertyPriority(property),
+	}));
 
 	return (hasApplicableTransformCssValue: boolean) => {
 		if (hasApplicableTransformCssValue) {
@@ -206,9 +210,9 @@ const makeTransformResetter = (
 
 		return () => {
 			if (hasApplicableTransformCssValue) {
-				element.style.transform = transform;
-				element.style.scale = scale;
-				element.style.rotate = rotate;
+				for (const {property, value, priority} of originals) {
+					element.style.setProperty(property, value, priority);
+				}
 			}
 		};
 	};
@@ -272,7 +276,23 @@ export const calculateTransforms = ({
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
 		// when we set transform to 'none' for measurement
-		const originalTransition = parent.style.transition;
+		const originallyAbsentStyle = !parent.hasAttribute('style');
+		const parentStyle = parent.style;
+		const originalTransition = parentStyle.getPropertyValue('transition');
+		const originalTransitionPriority =
+			parentStyle.getPropertyPriority('transition');
+		// The shorthand can be empty for authored mixed-priority longhands.
+		const originalTransitions = [
+			'transition-property',
+			'transition-duration',
+			'transition-timing-function',
+			'transition-delay',
+			'transition-behavior',
+		].map((property) => ({
+			property,
+			value: parentStyle.getPropertyValue(property),
+			priority: parentStyle.getPropertyPriority(property),
+		}));
 		parent.style.transition = 'none';
 
 		const computedStyle = shouldReadComputedStyle
@@ -325,6 +345,7 @@ export const calculateTransforms = ({
 				blendMode !== null ||
 				isolated ||
 				svgClip !== null ||
+				computedStyle.filter.includes('url(') ||
 				(experimental3DRendering && opacity > 0 && opacity < 1);
 
 			filterForPrecompositing =
@@ -464,17 +485,29 @@ export const calculateTransforms = ({
 				boundingClientRect: null,
 				matrices: additionalMatrices,
 			});
-			const parentRef = parent;
-			toReset.push(() => {
-				cleanup();
-				parentRef!.style.transition = originalTransition;
-			});
-		} else {
-			const parentRef = parent;
-			toReset.push(() => {
-				parentRef!.style.transition = originalTransition;
-			});
+			toReset.push(cleanup);
 		}
+
+		const parentRef = parent;
+		toReset.push(() => {
+			// Pending-substitution shorthands have empty CSSOM longhand values.
+			if (originalTransition) {
+				parentRef.style.setProperty(
+					'transition',
+					originalTransition,
+					originalTransitionPriority,
+				);
+			} else {
+				for (const {property, value, priority} of originalTransitions) {
+					parentRef.style.setProperty(property, value, priority);
+				}
+			}
+
+			// Leave unrelated authored updates intact and preserve explicit style="".
+			if (originallyAbsentStyle && parentRef.getAttribute('style') === '') {
+				parentRef.removeAttribute('style');
+			}
+		});
 
 		if (parent === rootElement) {
 			break;

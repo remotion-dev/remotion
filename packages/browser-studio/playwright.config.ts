@@ -1,6 +1,8 @@
 import {defineConfig, devices} from '@playwright/test';
 
-const port = 62338;
+// Below every OS's ephemeral port range (macOS and Windows start at 49152,
+// Linux at 32768), so an outgoing connection cannot already occupy it.
+const port = 31338;
 
 export default defineConfig({
 	testDir: './e2e',

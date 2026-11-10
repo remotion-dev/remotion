@@ -29,6 +29,7 @@ import {saveEffectPropsHandler} from '../preview-server/routes/save-effect-props
 import {updateDefaultPropsHandler} from '../preview-server/routes/update-default-props';
 import {
 	clearUndoStackForTests,
+	getUndoStack,
 	popRedo,
 	popUndo,
 } from '../preview-server/undo-stack';
@@ -159,6 +160,36 @@ export const Comp = () => <>
 		expect(
 			readFileSync(filePath, 'utf-8').match(/brightness\(\{/g),
 		).toHaveLength(2);
+		const beforeIdenticalReorder = readFileSync(filePath, 'utf-8');
+		const changesBeforeIdenticalReorder = sourceChanges.length;
+		const modifiedBeforeIdenticalReorder = statSync(filePath).mtimeMs;
+		const historyBeforeIdenticalReorder = getUndoStack().length;
+		const identicalReorder = await reorderEffectHandler({
+			...context,
+			input: {
+				fileName: filePath,
+				sequenceNodePath,
+				fromIndex: 0,
+				toIndex: 1,
+				clientId: 'effect-routes-test',
+			},
+		});
+		if (!identicalReorder.success) throw new Error(identicalReorder.reason);
+		acceptMutation(identicalReorder.nodePathMutation);
+		expect(identicalReorder.nodePathMutation?.applyWithoutFastRefresh).toBe(
+			true,
+		);
+		expect(getUndoStack()).toHaveLength(historyBeforeIdenticalReorder + 1);
+		for (const restore of [popUndo, popRedo]) {
+			const restored = restore();
+			if (!restored.success) throw new Error(restored.reason);
+			acceptMutation(restored.nodePathMutation);
+			expect(restored.nodePathMutation?.applyWithoutFastRefresh).toBe(true);
+		}
+
+		expect(readFileSync(filePath, 'utf-8')).toBe(beforeIdenticalReorder);
+		expect(statSync(filePath).mtimeMs).toBe(modifiedBeforeIdenticalReorder);
+		expect(sourceChanges).toHaveLength(changesBeforeIdenticalReorder);
 
 		const reorder = await reorderEffectHandler({
 			...context,
@@ -181,6 +212,7 @@ export const Comp = () => <>
 		);
 		expect(reordered).toContain("const untouched  = { value : 'keep' };");
 		const changesBeforeNoopReorder = sourceChanges.length;
+		const historyBeforeNoopReorder = getUndoStack().length;
 		expect(
 			await reorderEffectHandler({
 				...context,
@@ -194,6 +226,7 @@ export const Comp = () => <>
 			}),
 		).toEqual({success: true, nodePathMutation: null});
 		expect(sourceChanges).toHaveLength(changesBeforeNoopReorder);
+		expect(getUndoStack()).toHaveLength(historyBeforeNoopReorder);
 
 		const pathBeforePaste = sequenceNodePath.nodePath;
 		const pasted = await pasteEffectsHandler({

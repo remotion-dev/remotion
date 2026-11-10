@@ -137,6 +137,8 @@ export const videoIteratorManager = async ({
 		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
 
+	const releaseSink = Internals.registerMediabunnySink(videoTrack.input);
+
 	const paintFrame = async (
 		frame: WrappedCanvas,
 		mediaTime: number | null,
@@ -235,6 +237,22 @@ export const videoIteratorManager = async ({
 	const redrawCurrentFrame = async (): Promise<void> => {
 		if (!lastDrawnFrame) {
 			return;
+		}
+
+		if (context && canvas) {
+			// Once the player becomes ready, an effects redraw is requested even
+			// though the initial paint already used the current effects. Skip it
+			// so that onVideoFrame does not report the same frame twice.
+			const effects = getEffects();
+			const chainState = getEffectChainState(canvas.width, canvas.height);
+			if (
+				effects === lastPaintedEffects &&
+				chainState === lastPaintedEffectChainState &&
+				(effects.length === 0 ||
+					lastCompletedEffectPaint?.frame === lastDrawnFrame)
+			) {
+				return;
+			}
 		}
 
 		await paintFrame(lastDrawnFrame, lastDrawnMediaTime);
@@ -481,6 +499,7 @@ export const videoIteratorManager = async ({
 			}
 
 			destroyed = true;
+			releaseSink();
 			// Cancel only this manager's pending run, not a newer run sharing its state.
 			if (
 				pendingEffectRun &&

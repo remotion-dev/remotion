@@ -22,6 +22,7 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	applySvgFilterToPrecomposedCanvas,
 	scaleFilterLengths,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
@@ -187,7 +188,8 @@ export const processNode = async ({
 		const needsGroup =
 			precompositing.needsBlendMode !== null ||
 			precompositing.needsIsolation ||
-			precompositing.needsSvgClip !== null;
+			precompositing.needsSvgClip !== null ||
+			precompositing.needsFilterPrecompositing?.includes('url(') === true;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -260,6 +262,7 @@ export const processNode = async ({
 		});
 
 		const tempContext = await createLayer({
+			transparent: true,
 			cutout: layerRect,
 			onlyOwnPlane: preserves3D,
 			element,
@@ -287,7 +290,39 @@ export const processNode = async ({
 			}),
 		);
 
-		if (precompositing.needsFilterPrecompositing) {
+		// Only graphs with qualified coordinate mapping can run at raster scales
+		// other than 1. Projected surfaces still need separate region mapping.
+		using svgFilteredLayer =
+			!is3DPrecomposition &&
+			precompositing.needsFilterPrecompositing?.includes('url(')
+				? applySvgFilterToPrecomposedCanvas({
+						source: drawable,
+						scale: layerScale,
+						sourceRect: new DOMRect(
+							(dimensions.left - layerRect.left) * layerScale,
+							(dimensions.top - layerRect.top) * layerScale,
+							dimensions.width * layerScale,
+							dimensions.height * layerScale,
+						),
+						filter: precompositing.needsFilterPrecompositing,
+						ownerDocument: element.ownerDocument,
+					})
+				: null;
+
+		if (svgFilteredLayer) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			tempContext.drawImage(
+				svgFilteredLayer.canvas,
+				-svgFilteredLayer.sourceX,
+				-svgFilteredLayer.sourceY,
+			);
+			tempContext.restore();
+		}
+
+		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
 			tempContext.save();
 			tempContext.resetTransform();
 			tempContext.globalAlpha = 1;

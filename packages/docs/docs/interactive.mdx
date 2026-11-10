@@ -76,6 +76,12 @@ Controls inherited from [`<Sequence>`](/docs/sequence):
 
 [`Interactive.create()`](/docs/interactive-create) includes this schema and uses it for its [`<Sequence>`](/docs/sequence).
 
+### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
+
+A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
+
+This schema fragment is headless: it does not render an element or add layout, transform, or text-style controls. Add other `Interactive` schema fragments only when the component renders and supports those props.
+
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 
 Controls for transform-related style props:
@@ -166,13 +172,13 @@ Controls for mounting behavior:
 
 `premountFor` and `postmountFor`.
 
-[`Interactive.create()`](/docs/interactive-create) includes this schema and uses the props for its [`<Sequence>`](/docs/sequence).
+Spread this schema into a custom component's schema to expose premounting controls in Studio. [`Interactive.create()`](/docs/interactive-create) accepts these props and uses them for its [`<Sequence>`](/docs/sequence), but does not include this schema by default.
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.borderRadiusSchema`.
 
 ### `Interactive.create()`<AvailableFrom v="4.0.536" />
 

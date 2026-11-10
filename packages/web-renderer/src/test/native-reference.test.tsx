@@ -112,7 +112,10 @@ test('captures opaque native RGBA and reads back opaque evidence in every engine
 	const encoder = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob');
 	try {
 		const countOnly = await countNativePixels(reference, actual);
-		expect(countOnly).toEqual({mismatchedPixels: 0, maxChannelDelta: 0});
+		expect(countOnly).toEqual({
+			mismatchedPixels: 0,
+			maxChannelDelta: 0,
+		});
 		expect(encoder).not.toHaveBeenCalled();
 	} finally {
 		encoder.mockRestore();

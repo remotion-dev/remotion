@@ -27,7 +27,7 @@ test(
 				'x',
 				'remotion',
 				'render',
-				'src/index.ts',
+				'build',
 				'ten-frame-tester',
 				'--frames',
 				'0-1',
@@ -69,7 +69,6 @@ test(
 		expect(data).toContain('30 fps');
 	},
 	{
-		retry: 3,
 		timeout: 90000,
 	},
 );
@@ -125,7 +124,6 @@ test(
 		expect(data).toContain('30 fps');
 	},
 	{
-		retry: 3,
 		timeout: 30000,
 	},
 );

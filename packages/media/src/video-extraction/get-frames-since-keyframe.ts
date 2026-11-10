@@ -16,6 +16,7 @@ import {getDurationOrCompute} from '../get-duration-or-compute';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 import {isNetworkError} from '../is-type-of-error';
 import {getMaxSourceCacheSize} from '../max-cache-size';
+import {makeOfflineMediaFetch} from '../offline-media-fetch';
 import type {MediaRequestInit} from '../request-init';
 import {resolveRequestInit} from '../request-init';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
@@ -51,11 +52,14 @@ export const makeSinks = (
 	logLevel: LogLevel,
 	credentials: RequestCredentials | undefined,
 	requestInit?: MediaRequestInit,
+	onOfflineWait: ((waiting: boolean) => void) | null = null,
 ) => {
 	const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
+	const recovery = makeOfflineMediaFetch(onOfflineWait);
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
+			fetchFn: recovery.fetchFn,
 			handleUnhandledError: (error) => {
 				Internals.Log.warn(
 					{logLevel, tag: '@remotion/media'},
@@ -67,6 +71,7 @@ export const makeSinks = (
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),
 	});
+	const releaseSinks: (() => void)[] = [];
 	const getSinks = async () => {
 		let format: InputFormat | null = null;
 		let formatDetectionError: Error | null = null;
@@ -120,6 +125,10 @@ export const makeSinks = (
 
 			const sampleSink = new VideoSampleSink(videoTrack);
 			const packetSink = new EncodedPacketSink(videoTrack);
+			releaseSinks.push(
+				Internals.registerMediabunnySink(input),
+				Internals.registerMediabunnySink(input),
+			);
 
 			// Try to get the keypacket at the requested timestamp.
 			// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
@@ -190,8 +199,10 @@ export const makeSinks = (
 				return 'cannot-decode-audio';
 			}
 
+			const sampleSink = new AudioSampleSink(audioTrack);
+			releaseSinks.push(Internals.registerMediabunnySink(input));
 			return {
-				sampleSink: new AudioSampleSink(audioTrack),
+				sampleSink,
 				sampleRate: await audioTrack.getSampleRate(),
 				numberOfChannels: await audioTrack.getNumberOfChannels(),
 			};
@@ -221,7 +232,15 @@ export const makeSinks = (
 
 	return {
 		promise: getSinks(),
-		dispose: () => input.dispose(),
+		dispose: () => {
+			recovery.dispose();
+			input.dispose();
+			for (const release of releaseSinks) {
+				release();
+			}
+
+			releaseSinks.length = 0;
+		},
 	};
 };
 
