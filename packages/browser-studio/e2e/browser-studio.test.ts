@@ -1463,6 +1463,7 @@ export const BrowserElement = ({logoSrc}: {logoSrc: string}) => <>
 });
 
 test('confirms and imports an Element payload from the URL fragment', async ({
+	baseURL,
 	page,
 }) => {
 	const payload = createElementPayload({
@@ -1477,7 +1478,7 @@ test('confirms and imports an Element payload from the URL fragment', async ({
 export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;`,
 	});
 	const url = StudioProtocolInternals.makeBrowserStudioUrl({
-		endpoint: 'http://127.0.0.1:62338/',
+		endpoint: new URL('/', baseURL).href,
 		payload,
 	});
 

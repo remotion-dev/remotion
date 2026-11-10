@@ -14,12 +14,12 @@ The version should be the same version of the `@remotion/lambda` NPM package ver
 ## Notes
 
 - This module is experimental and might have breaking changes in minor versions. Check on this page for up-to-date examples.
-- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgressOnLambda()`](/docs/lambda/getrenderprogress), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
+- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgress()`](/docs/lambda/getrenderprogress), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
 - We will maintain the Ruby SDK to ensure the fields stay in sync with the Node.js functions.
 - The fields in the input payload are `snake_case` versions of the Node.js field names.
-- Nested field names, e.g. `s3_output_provder.accessKeyId` have the original `camelCase` capitalization.
+- Nested field names, e.g. `s3_output_provider.accessKeyId` have the original `camelCase` capitalization.
 - All fields of the response payloads are in `camelCase` like the original Node.js functions.
-- The maximum input payload size is around 60KB. The workaround for bigger payloads where they get uploaded to S3 is not implemented in the Ruby SDK.
+- Input props larger than ~194KB (video and audio renders) or ~4.99MB (still renders) are automatically uploaded to S3 to stay within the AWS Lambda payload limit.
 
 ## Rendering a video and getting the progress
 
@@ -34,6 +34,7 @@ function_name = ENV.fetch('REMOTION_APP_FUNCTION_NAME')
 
 payload = get_render_media_on_lambda_payload(
   composition: "still-helloworld",
+  serve_url: ENV.fetch('REMOTION_APP_SERVE_URL'),
   download_behavior: {
     type: "play-in-browser",
   },
@@ -89,7 +90,7 @@ The URL of the deployed [Remotion project](/docs/terminology). Required by `get_
 
 ### input_props?
 
-Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. Defaults to an empty hash; no composition ID is required. Input props are included in the invocation payload and are subject to the size limit described above.
+Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. Defaults to an empty hash; no composition ID is required. Input props are always sent inline in the invocation payload and are not uploaded to S3.
 
 ### Other arguments
 
@@ -122,6 +123,7 @@ Enable cancellation in the render payload, then call `cancel_render_on_lambda()`
 ```ruby title="Cancelling a render from Ruby"
 payload = get_render_media_on_lambda_payload(
   composition: "still-helloworld",
+  serve_url: ENV.fetch('REMOTION_APP_SERVE_URL'),
   codec: "h264",
   enable_cancellation: true,
 )
@@ -171,6 +173,7 @@ function_name = ENV.fetch('REMOTION_APP_FUNCTION_NAME')
 
 payload = get_render_still_on_lambda_payload(
   composition: "still-helloworld",
+  serve_url: ENV.fetch('REMOTION_APP_SERVE_URL'),
   input_props: {
     message: "Hello from props!",
   }

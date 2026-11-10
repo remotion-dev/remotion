@@ -11,10 +11,17 @@ export const licenseKeyOption = {
 	description: () => (
 		<>
 			License key for sending a usage event using{' '}
-			<code>@remotion/licensing</code>. For <code>npx remotion render</code> and{' '}
-			<code>npx remotion still</code>, pass a private API key starting with{' '}
-			<code>rm_sec_</code> from the License keys page on{' '}
-			<a href="https://www.remotion.pro/dashboard">remotion.pro</a>.
+			<code>@remotion/licensing</code>. For server-side rendering, including{' '}
+			<code>renderMedia()</code> and <code>renderStill()</code>, and CLI
+			renders, pass your private license key starting with <code>rm_sec_</code>.
+			For client-side rendering with <code>@remotion/web-renderer</code>, pass
+			your public license key starting with <code>rm_pub_</code>. You can find
+			both keys on the License keys page on{' '}
+			<a href="https://www.remotion.pro/dashboard">remotion.pro</a>. If you{' '}
+			<a href="https://www.remotion.dev/docs/license">
+				qualify for the free license
+			</a>
+			, pass <code>"free-license"</code> instead.
 		</>
 	),
 	ssrName: 'licenseKey' as const,

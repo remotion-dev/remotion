@@ -11,10 +11,12 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {ActionTooltip} from './ActionTooltip';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {useAudioLevelsMenuItem} from './use-audio-levels-menu-item';
 
 export const PreviewViewOptionsDropdown: React.FC<{
 	readonly showCompositionControls: boolean;
 }> = ({showCompositionControls}) => {
+	const audioLevelsMenuItem = useAudioLevelsMenuItem(null);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
 	);
@@ -81,8 +83,10 @@ export const PreviewViewOptionsDropdown: React.FC<{
 			quickSwitcherLabel: null,
 		});
 
+		items.push(audioLevelsMenuItem);
 		return items;
 	}, [
+		audioLevelsMenuItem,
 		editorShowGuides,
 		editorShowOutlines,
 		editorShowPixelGrid,

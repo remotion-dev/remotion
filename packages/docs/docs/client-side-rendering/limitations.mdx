@@ -30,6 +30,8 @@ The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>par
 
 ### Transformations
 
+Inline transform and transition priorities are <a style={{color: 'green'}}>supported</a>. Variable-based `transition` shorthands combined with individual transition overrides are <a style={{color: 'green'}}>partially supported</a>: unresolved values may be lost.
+
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
 The `opacity` property is <a style={{color: 'green'}}>supported</a>, including root SVG elements.<br />
@@ -78,6 +80,8 @@ The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for 
 `wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.  
 The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.  
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
+
+Text pixels may differ on transparent output, including LCD text on Linux Chromium. Opaque output against black is supported with `transparent: false` in [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#transparent), [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#transparent).
 
 ### Inline SVG stylesheet state
 
@@ -209,6 +213,8 @@ const MyComp = () => (
 ## Video and media constraints
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+Media fetches can resume after an interruption when the browser reports being offline. Failed reads of an existing response are not recovered. Renders can still be canceled while offline.
 
 ## Single concurrency
 

@@ -66,6 +66,7 @@ class RenderParams
     protected $isProduction = null;
     protected $sampleRate = 48000;
     protected $gopSize = null;
+    protected $proResBitsPerMacroblock = null;
     protected $disableSharedMemoryCapture = false;
     protected $chunks = null;
 
@@ -124,7 +125,8 @@ class RenderParams
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
         string $preferredEffectBackend = 'auto',
-        ?array  $chunks = null
+        ?array  $chunks = null,
+        ?int    $proResBitsPerMacroblock = null
     )
     {
         if ($chromiumOptions === null) {
@@ -183,6 +185,7 @@ class RenderParams
         $this->forcePathStyle = $forcePathStyle;
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
+        $this->proResBitsPerMacroblock = $proResBitsPerMacroblock;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
         $this->chunks = $chunks;
@@ -243,6 +246,7 @@ class RenderParams
             'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'gopSize' => $this->getGopSize(),
+            'proResBitsPerMacroblock' => $this->getProResBitsPerMacroblock(),
             'disableSharedMemoryCapture' => $this->getDisableSharedMemoryCapture(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
@@ -1083,6 +1087,17 @@ class RenderParams
     public function setGopSize($gopSize)
     {
         $this->gopSize = $gopSize;
+        return $this;
+    }
+
+    public function getProResBitsPerMacroblock()
+    {
+        return $this->proResBitsPerMacroblock;
+    }
+
+    public function setProResBitsPerMacroblock(?int $proResBitsPerMacroblock)
+    {
+        $this->proResBitsPerMacroblock = $proResBitsPerMacroblock;
         return $this;
     }
 

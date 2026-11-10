@@ -202,6 +202,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		chunks: options.chunks ?? null,
 		crf: options.crf,
 		gopSize: options.gopSize ?? null,
+		proResBitsPerMacroblock: options.proResBitsPerMacroblock ?? null,
 		disableSharedMemoryCapture: options.disableSharedMemoryCapture ?? false,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		envVariables: options.envVariables ?? {},
