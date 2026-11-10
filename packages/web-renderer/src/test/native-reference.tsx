@@ -7,6 +7,7 @@ import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
 import {expect} from 'vitest';
 import {page, server} from 'vitest/browser';
+import {diagLog, diagTime} from './diag';
 
 type Fixture = {
 	component: ComponentType;
@@ -55,26 +56,41 @@ export const captureNativeReference = async (
 				/>,
 			);
 		});
-		await document.fonts.ready;
-		await Promise.all(
-			Array.from(host.querySelectorAll('img'), (img) => img.decode()),
+		const label = `native ${fixture.id} frame ${frame}`;
+		await diagTime(`${label} fonts.ready`, () => document.fonts.ready);
+		await diagTime(`${label} img.decode`, () =>
+			Promise.all(
+				Array.from(host.querySelectorAll('img'), (img) => img.decode()),
+			),
 		);
+		const bufferingStart = performance.now();
+		let frames = 0;
+		let maxFrameGap = 0;
 		const deadline = performance.now() + 10000;
 		do {
+			const before = performance.now();
 			await new Promise<void>((resolve) =>
 				requestAnimationFrame(() => resolve()),
 			);
+			frames++;
+			maxFrameGap = Math.max(maxFrameGap, performance.now() - before);
 			if (performance.now() > deadline)
 				throw new Error('Native reference remained buffering');
 		} while (readBuffering!());
 
-		const {base64} = await page.getByTestId(host.dataset.testid).screenshot({
-			base64: true,
-			omitBackground,
-			scale: 'css',
-			style:
-				'html, body, iframe[data-vitest] { background: transparent !important; }',
-		});
+		diagLog(
+			`${label} buffering: ${Math.round(performance.now() - bufferingStart)}ms, ${frames} rAF, max rAF gap ${Math.round(maxFrameGap)}ms`,
+		);
+
+		const {base64} = await diagTime(`${label} screenshot`, () =>
+			page.getByTestId(host.dataset.testid!).screenshot({
+				base64: true,
+				omitBackground,
+				scale: 'css',
+				style:
+					'html, body, iframe[data-vitest] { background: transparent !important; }',
+			}),
+		);
 		return new Blob(
 			[Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))],
 			{type: 'image/png'},
@@ -105,10 +121,9 @@ const compareNativePixelData = async (
 	actual: Blob,
 	createDiff: boolean,
 ) => {
-	const [expected, received] = await Promise.all([
-		decodePixels(reference),
-		decodePixels(actual),
-	]);
+	const [expected, received] = await diagTime('decode for compare', () =>
+		Promise.all([decodePixels(reference), decodePixels(actual)]),
+	);
 	if (
 		expected.width !== received.width ||
 		expected.height !== received.height

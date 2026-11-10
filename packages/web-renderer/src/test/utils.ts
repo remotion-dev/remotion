@@ -1,6 +1,7 @@
 import {expect, onTestFinished} from 'vitest';
 import {page} from 'vitest/browser';
 import {withResolvers} from '../with-resolvers';
+import {diagTime} from './diag';
 
 export const testImage = async ({
 	blob,
@@ -33,10 +34,12 @@ export const testImage = async ({
 
 	await promise;
 
-	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
-		comparatorOptions: {
-			threshold,
-			allowedMismatchedPixelRatio,
-		},
-	});
+	await diagTime(`toMatchScreenshot ${testId}`, () =>
+		expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
+			comparatorOptions: {
+				threshold,
+				allowedMismatchedPixelRatio,
+			},
+		}),
+	);
 };

@@ -1,0 +1,61 @@
+# Temporary: diagnose multi-second stalls of web renderer tests on macOS
+# runners (#8375). Runs only on the diagnostic PR branch. Remove before merging.
+name: Web renderer macOS stall diagnostics
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  diag:
+    if: ${{ github.head_ref == 'diag-web-renderer-macos-stalls' }}
+    runs-on: macos-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: Diagnostics ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+        with:
+          bun-version: 1.4.3
+      - name: Install
+        run: bun ci
+      - name: Install browsers
+        run: cd packages/web-renderer && bunx playwright install --with-deps chromium
+      - name: Build dependencies
+        run: bunx turbo run make --filter=@remotion/web-renderer...
+      - name: System info
+        run: |
+          sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize || true
+          system_profiler SPDisplaysDataType || true
+      - name: Run stalling tests repeatedly
+        working-directory: packages/web-renderer
+        env:
+          VITE_WR_DIAG: '1'
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "::group::iteration $i"
+            (while true; do date +%T; top -l 1 -n 5 -o cpu -stats pid,command,cpu,mem | tail -6; sleep 5; done) > top-$i.log 2>&1 &
+            TOP_PID=$!
+            bunx vitest --run --config vitest.diag.config.ts \
+              src/test/stacking-context-siblings.test.tsx \
+              src/test/object-position-native.test.tsx \
+              src/test/background-blend-mode.test.tsx \
+              src/test/background-image-url.test.tsx || echo "::warning::iteration $i failed"
+            kill $TOP_PID || true
+            echo "::endgroup::"
+          done
+      - name: Upload process snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: top-${{ matrix.shard }}
+          path: packages/web-renderer/top-*.log
+          retention-days: 7
