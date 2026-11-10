@@ -50,7 +50,7 @@ export const elementsUseCommand = async ({
 	const [, , pageUrl, ...extraArgs] = commandLine._;
 	if (pageUrl === undefined || extraArgs.length > 0) {
 		return fail(
-			`Usage: npx remotion elements ${USE_COMMAND} <url> [--element <slug>] [--composition <id>] [--yes]`,
+			`Usage: npx remotion elements ${USE_COMMAND} <url> [--element <slug>] [--composition <id>] [--overwrite] [--public-dir <path>] [--yes]`,
 		);
 	}
 
@@ -193,7 +193,7 @@ export const elementsUseCommand = async ({
 	const compositionIds = [...new Set(compositions.map((c) => c.id))];
 	if (compositionIds.length === 0) {
 		return fail(
-			`Could not find a <Composition> with a string id in ${path.relative(process.cwd(), path.dirname(entryPoint)) || '.'}.`,
+			`Could not find a <Composition> or <Still> with a string id in ${path.relative(process.cwd(), path.dirname(entryPoint)) || '.'}.`,
 		);
 	}
 
@@ -421,7 +421,7 @@ export const elementsUseCommand = async ({
 	for (const assetPath of newAssetPaths) {
 		Log.info(
 			{indent: false, logLevel},
-			`${chalk.blueBright(assetPath)} Downloaded asset`,
+			`${chalk.blueBright(assetPath)} Added asset`,
 		);
 	}
 
