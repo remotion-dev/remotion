@@ -713,8 +713,6 @@ const internalRenderFramesRaw = ({
 			.catch((err) => reject(err))
 			.finally(() => {
 				if (browserReplacer) {
-					// Closes the current browser (which may be a replacement after a
-					// crash) if we own it, otherwise only the pages we opened.
 					browserReplacer.close(openedPages);
 				} else if (puppeteerInstance) {
 					// If browser instance was passed in, we close all the pages

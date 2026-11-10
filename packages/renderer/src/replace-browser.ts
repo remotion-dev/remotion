@@ -4,26 +4,6 @@ import {isTargetClosedErr} from './browser/flaky-errors';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 
-/**
- * Browser slot state machine for a render.
- *
- * States:
- * - running:   `browser` is in use. `owned` is false if it was passed in by
- *              the user (we only close our pages), true if we launched it.
- * - replacing: the browser crashed. `previous` is being closed, then a new
- *              browser is launched (`launched`), then new pages are made.
- *              Concurrent replace requests share `promise`.
- * - closed:    terminal. The render finished and the browser was cleaned up.
- *
- * Transitions:
- * - running   + replace-started  -> replacing (launched: null)
- * - replacing + browser-launched -> replacing (launched: browser)
- * - replacing + pages-ready      -> running (launched, owned: true)
- * - replacing + replace-failed   -> running (launched ?? previous)
- * - running | replacing + closed -> closed
- * - closed    + any              -> closed
- * Any other combination leaves the state unchanged.
- */
 export type BrowserSlot =
 	| {type: 'running'; browser: HeadlessBrowser; owned: boolean}
 	| {
@@ -154,7 +134,6 @@ export const handleBrowserCrash = (
 						browser,
 					});
 					if (state.type === 'closed') {
-						// Render ended while the new browser was launching
 						browser.close({silent: true}).catch(() => undefined);
 						throw new Error(
 							'Cannot replace the browser after the render has ended',
@@ -188,10 +167,6 @@ export const handleBrowserCrash = (
 					: (state.launched ?? state.previous);
 			state = browserSlotReducer(state, {type: 'closed'});
 
-			// If browser instance was passed in, we close all the pages
-			// we opened.
-			// If we opened the browser (or replaced it after a crash),
-			// we close it.
 			if (isOwned) {
 				browser.close({silent: true}).catch((err) => {
 					if (!(err as Error | undefined)?.message.includes('Target closed')) {
