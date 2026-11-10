@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
+import json
 from enum import Enum
 from typing import Optional, Dict, Any, Union, Literal, List
 from dataclasses import dataclass, field
@@ -334,6 +335,9 @@ class ShouldDownload:
     fileName: str  # Additional fields for this type
 
 
+MAX_WEBHOOK_CUSTOM_DATA_SIZE = 1024
+
+
 @dataclass
 class Webhook:
     """
@@ -421,6 +425,14 @@ class RenderMediaParams:
         """
         Convert instance attributes to a dictionary for serialization.
         """
+        if self.webhook is not None and self.webhook.customData is not None:
+            size = len(json.dumps(self.webhook.customData))
+            if size > MAX_WEBHOOK_CUSTOM_DATA_SIZE:
+                raise ValueError(
+                    f'Webhook "customData" must be less than {MAX_WEBHOOK_CUSTOM_DATA_SIZE} '
+                    f'bytes. Current size: {size} bytes.'
+                )
+
         parameters = {
             'streamProgress': False,
             'enableCancellation': self.enable_cancellation,
