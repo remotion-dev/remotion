@@ -79,6 +79,7 @@ import {preferredEffectBackendOption} from './preferred-effect-backend';
 import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
+import {proResBitsPerMacroblockOption} from './prores-bits-per-macroblock';
 import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
@@ -151,6 +152,7 @@ export const allOptions = {
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
 	previewSampleRateOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	x264Option,
 	logLevelOption,

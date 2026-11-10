@@ -211,6 +211,10 @@ export const renderCommand = async ({
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -457,6 +461,7 @@ export const renderCommand = async ({
 		imageFormat,
 		crf: crf ?? undefined,
 		gopSize,
+		proResBitsPerMacroblock,
 		disableSharedMemoryCapture,
 		envVariables,
 		pixelFormat,
