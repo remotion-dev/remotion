@@ -253,7 +253,7 @@ export const articles = [
 	},
 	{
 		id: 'get-available-emoji',
-		title: 'getAvailableEmoji()',
+		title: 'getAvailableEmojis()',
 		relativePath: 'docs/animated-emoji/get-available-emoji.mdx',
 		compId: 'articles-docs-animated-emoji-get-available-emoji',
 		crumb: '@remotion/animated-emoji',
