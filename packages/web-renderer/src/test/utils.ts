@@ -32,7 +32,7 @@ export const testImage = async ({
 		reject(new Error('Image failed to load'));
 	};
 
-	await promise;
+	await diagTime(`testImage img load ${testId}`, () => promise);
 
 	await diagTime(`toMatchScreenshot ${testId}`, () =>
 		expect(page.getByTestId(testId)).toMatchScreenshot(testId, {

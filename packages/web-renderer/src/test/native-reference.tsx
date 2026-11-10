@@ -173,8 +173,12 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 	canvas.width = diff!.width;
 	canvas.height = diff!.height;
 	canvas.getContext('2d')!.putImageData(diff!, 0, 0);
-	const diffBlob = await new Promise<Blob>((resolve) =>
-		canvas.toBlob((blob) => resolve(blob!), 'image/png'),
+	const diffBlob = await diagTime(
+		'diff canvas.toBlob',
+		() =>
+			new Promise<Blob>((resolve) =>
+				canvas.toBlob((blob) => resolve(blob!), 'image/png'),
+			),
 	);
 	let evidence: string | null = null;
 	if (mismatchedPixels > 0) {
