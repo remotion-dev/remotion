@@ -217,10 +217,6 @@ export const importCompositionCommand = async ({
 		};
 	}
 
-	Log.info(
-		{indent: false, logLevel},
-		`Import ${chalk.blue(path.basename(file))} as ${chalk.bold(`"${compositionId}"`)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,
-	);
 	for (const change of plan.changes) {
 		Log.info(
 			{indent: false, logLevel},
@@ -228,6 +224,12 @@ export const importCompositionCommand = async ({
 				`${change.previousContents === null ? '+' : '○'} ${path.relative(remotionRoot, change.filePath)}`,
 			),
 		);
+		if (change.filePath === compositionFile) {
+			Log.info(
+				{indent: false, logLevel},
+				`  ${chalk.bold(compositionId)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,
+			);
+		}
 	}
 
 	for (const copy of plan.copies) {
