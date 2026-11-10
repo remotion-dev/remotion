@@ -580,6 +580,8 @@ If the video is playing, pause it and return to the playback position where the 
 
 Play the video. Nothing happens if the video is already playing.
 
+From <AvailableFrom v="4.0.543" inline />, playing from the `outFrame` restarts at the `inFrame`. With a negative `playbackRate`, playing from the `inFrame` restarts at the `outFrame`. Omitted range limits use the first and last frames of the composition.
+
 If you play the video from a user gesture, pass the `SyntheticEvent` in as an argument so [browser autoplay restrictions do not apply](/docs/player/autoplay).
 
 ### `toggle()`
