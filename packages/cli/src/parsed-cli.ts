@@ -50,6 +50,7 @@ const {
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	userAgentOption,
 	disableWebSecurityOption,
@@ -59,6 +60,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
@@ -103,6 +105,9 @@ const {
 }: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[openTimelineMediaDirectoryOption.cliFlag]: TypeOfOption<
+		typeof openTimelineMediaDirectoryOption
+	>;
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
 		typeof allowHtmlInCanvasOption
 	> | null;
@@ -111,6 +116,9 @@ export type CommandLineOptions = {
 	>;
 	[pixelFormatOption.cliFlag]: TypeOfOption<typeof pixelFormatOption>;
 	['image-format']: VideoImageFormat | StillImageFormat;
+	[proResBitsPerMacroblockOption.cliFlag]: TypeOfOption<
+		typeof proResBitsPerMacroblockOption
+	>;
 	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	[bundleCacheOption.cliFlag]: TypeOfOption<typeof bundleCacheOption> | null;

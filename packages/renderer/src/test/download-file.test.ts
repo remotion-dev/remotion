@@ -97,3 +97,30 @@ test('Should reject callers waiting for an asset whose download failed', async (
 		cleanDownloadMap(downloadMap);
 	}
 });
+
+test('Should retry an invalid data URL instead of waiting forever', async () => {
+	const downloadMap = makeDownloadMap(48000);
+	const download = () =>
+		Promise.race([
+			downloadAsset({
+				src: 'data:audio/wav,AAAA',
+				downloadMap,
+				indent: false,
+				logLevel: 'info',
+				shouldAnalyzeAudioImmediately: false,
+				binariesDirectory: null,
+				cancelSignalForAudioAnalysis: undefined,
+				audioStreamIndex: undefined,
+			}),
+			new Promise((_, reject) => {
+				setTimeout(() => reject(new Error('Download hung')), 2000);
+			}),
+		]);
+
+	try {
+		await expect(download()).rejects.toThrow(/data URL/);
+		await expect(download()).rejects.toThrow(/data URL/);
+	} finally {
+		cleanDownloadMap(downloadMap);
+	}
+});

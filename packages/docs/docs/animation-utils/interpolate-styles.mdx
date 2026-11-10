@@ -7,7 +7,7 @@ crumb: "@remotion/animation-utils"
 
 _Part of the [`@remotion/animation-utils`](/docs/animation-utils) package._
 
-This function provides a convenient way to interpolate styles based on a specified range of values, allowing for smooth animations between different styles.
+Interpolates between style objects based on an input value.
 
 ## Example
 
@@ -36,16 +36,27 @@ const MyComponent: React.FC = () => {
 
 ## API
 
-A function that takes 3-4 arguments:
+Takes the following arguments:
 
-1. The input value.
-2. The range of values that you expect the input to assume.
-3. The range of output styles that you want the input to map to.
-4. Options object with the same keys as [`interpolate()`](/docs/interpolate#easing) (`extrapolateLeft`, `extrapolateRight`, `easing`, `posterize`), including a [per-segment `easing` array](/docs/interpolate#per-segment-easing-array) when you have more than two keyframes. Optional.
+### input
+
+The input value.
+
+### inputRange
+
+The range of values that you expect the input to assume.
+
+### outputStylesRange
+
+The range of output styles that you want the input to map to. Must have the same number of elements as `inputRange`.
+
+### options?
+
+An object with the same keys as the options of [`interpolate()`](/docs/interpolate#easing): `extrapolateLeft`, `extrapolateRight`, `easing` and `posterize`<AvailableFrom v="4.0.470" inline />. `easing` can be a [per-segment array](/docs/interpolate#per-segment-easing-array)<AvailableFrom v="4.0.462" inline /> when you have more than two keyframes.
 
 ## Return value
 
-- A style object representing the interpolated styles based on the current frame.
+A style object representing the interpolated styles for the current input value.
 
 ## Usage Notes
 

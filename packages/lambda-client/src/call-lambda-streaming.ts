@@ -213,9 +213,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 			);
 		}
 
-		// Also closes the active payload sink if the stream aborted
-		// mid-payload, so no file descriptor is leaked
-		clear();
+		await clear();
 	}
 };
 

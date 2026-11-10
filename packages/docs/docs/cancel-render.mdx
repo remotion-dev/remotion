@@ -3,7 +3,7 @@ image: https://remotion.media/docs/generated/articles-docs-cancel-render.png
 id: cancel-render
 title: cancelRender()
 sidebar_label: cancelRender()
-crumb: 'How to'
+crumb: 'API'
 ---
 
 # cancelRender()<AvailableFrom v="3.3.44" />
@@ -70,16 +70,20 @@ const MyComp: React.FC = () => {
 In [client-side rendering](/docs/miscellaneous/render-in-browser), this is not caught by [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) or [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and is an unhandled error.  
 Wrap `cancelRender()` in a `try`/`catch` block to avoid this:
 
-```tsx twoslash title="✅ Best practice - wrap cancelRender() in a try/catch block" {4-7}
+```tsx twoslash title="✅ Best practice - wrap cancelRender() in a try/catch block" {6-10}
 import {useDelayRender} from 'remotion';
 
-const {cancelRender} = useDelayRender();
+const MyComp: React.FC = () => {
+  const {cancelRender} = useDelayRender();
 
-try {
-  cancelRender(new Error('This throws an error'));
-} catch {
-  // Ignore the resulting error
-}
+  try {
+    cancelRender(new Error('This throws an error'));
+  } catch {
+    // Ignore the resulting error
+  }
+
+  return null;
+};
 ```
 
 ## Compatibility

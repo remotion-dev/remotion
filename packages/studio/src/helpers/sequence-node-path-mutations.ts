@@ -263,6 +263,7 @@ export const queueSequenceNodePathMutation = (
 				nodePath: mutation.timelineSelection.nodePath,
 			},
 			notification: null,
+			baseline: null,
 		});
 	}
 
