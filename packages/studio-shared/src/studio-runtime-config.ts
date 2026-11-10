@@ -34,7 +34,10 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly showDiagnostics: boolean;
+	readonly showDiagnostics: {
+		readonly value: boolean;
+		readonly source: 'cli' | 'config';
+	};
 	readonly highContrast: {
 		readonly value: boolean;
 		readonly source: 'cli' | 'config';

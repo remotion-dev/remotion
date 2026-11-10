@@ -11,6 +11,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
@@ -39,7 +40,7 @@ type SettingsContextValue = {
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
 	readonly showDiagnostics: boolean;
-	readonly setShowDiagnosticsPreview: (visible: boolean | null) => void;
+	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
@@ -64,7 +65,7 @@ export const SettingsProvider: React.FC<{
 			| 'removeSkill'
 			| 'upgradeSkill'
 			| 'showDiagnostics'
-			| 'setShowDiagnosticsPreview'
+			| 'setShowDiagnostics'
 		>
 	>({
 		codingAgentInfo: null,
@@ -82,6 +83,66 @@ export const SettingsProvider: React.FC<{
 	const [showDiagnosticsPreview, setShowDiagnosticsPreview] = useState<
 		boolean | null
 	>(null);
+	const diagnosticsSaveQueue = useRef<Promise<void>>(Promise.resolve());
+	const studioRuntimeConfigRef = useRef(settings.studioRuntimeConfig);
+	studioRuntimeConfigRef.current = settings.studioRuntimeConfig;
+	const diagnosticsSave = useRef<{
+		value: boolean;
+		saved: boolean;
+		initialRuntimeConfig: StudioRuntimeConfig | null;
+	} | null>(null);
+	const setShowDiagnostics = useCallback(
+		(visible: boolean) => {
+			if (
+				previewServerState.type !== 'connected' ||
+				studioRuntimeConfigRef.current?.showDiagnostics.source === 'cli'
+			) {
+				return;
+			}
+
+			const request = {
+				value: visible,
+				saved: false,
+				initialRuntimeConfig: studioRuntimeConfigRef.current,
+			};
+			diagnosticsSave.current = request;
+			setShowDiagnosticsPreview(visible);
+			setSettings((current) => ({...current, error: null}));
+			diagnosticsSaveQueue.current = diagnosticsSaveQueue.current
+				.then(() =>
+					callApi('/api/update-config', {
+						clientId: previewServerState.clientId,
+						updates: [
+							{setter: 'setShowDiagnostics', type: 'set', value: visible},
+						],
+					}),
+				)
+				.then((response) => {
+					if (!response.success) throw new Error(response.reason);
+					if (diagnosticsSave.current !== request) return;
+					request.saved = true;
+					const runtimeConfig = studioRuntimeConfigRef.current;
+					if (
+						runtimeConfig !== request.initialRuntimeConfig &&
+						runtimeConfig?.showDiagnostics.value === request.value
+					) {
+						diagnosticsSave.current = null;
+						setShowDiagnosticsPreview(null);
+					}
+				})
+				.catch((err: Error) => {
+					if (diagnosticsSave.current !== request) return;
+					diagnosticsSave.current = null;
+					setShowDiagnosticsPreview(null);
+					setSettings((current) => ({...current, error: err.message}));
+					showNotification(
+						`Could not save diagnostics setting: ${err.message}`,
+						5000,
+					);
+				});
+		},
+		[previewServerState],
+	);
 
 	useEffect(() => {
 		if (
@@ -194,7 +255,17 @@ export const SettingsProvider: React.FC<{
 				return;
 			}
 
-			setShowDiagnosticsPreview(null);
+			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			const request = diagnosticsSave.current;
+			if (
+				event.studioRuntimeConfig.showDiagnostics.source === 'cli' ||
+				(request?.saved &&
+					event.studioRuntimeConfig.showDiagnostics.value === request.value)
+			) {
+				diagnosticsSave.current = null;
+				setShowDiagnosticsPreview(null);
+			}
+
 			setSettings((currentSettings) => ({
 				...currentSettings,
 				codingAgentInfo: currentSettings.codingAgentInfo
@@ -221,6 +292,11 @@ export const SettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (diagnosticsSave.current !== null) {
+					diagnosticsSave.current = null;
+					setShowDiagnosticsPreview(null);
+				}
+
 				setSettings((current) => ({
 					...current,
 					error: event.errorMessage,
@@ -318,9 +394,9 @@ export const SettingsProvider: React.FC<{
 			...settings,
 			showDiagnostics:
 				showDiagnosticsPreview ??
-				settings.studioRuntimeConfig?.showDiagnostics ??
+				settings.studioRuntimeConfig?.showDiagnostics.value ??
 				false,
-			setShowDiagnosticsPreview,
+			setShowDiagnostics,
 			setPublicLicenseKey,
 			installSkill,
 			removeSkill,
@@ -333,6 +409,7 @@ export const SettingsProvider: React.FC<{
 		settings,
 		upgradeSkill,
 		showDiagnosticsPreview,
+		setShowDiagnostics,
 	]);
 
 	return (

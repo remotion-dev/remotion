@@ -235,8 +235,7 @@ export const studioCommand = async (
 			preservePitchOnPlayback: preservePitchOnPlaybackOption.getValue({
 				commandLine: parsedCli,
 			}).value,
-			showDiagnostics: showDiagnosticsOption.getValue({commandLine: parsedCli})
-				.value,
+			showDiagnostics: showDiagnosticsOption.getValue({commandLine: parsedCli}),
 			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
 				commandLine: parsedCli,
 			}).value,

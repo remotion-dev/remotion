@@ -16,7 +16,7 @@ const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
-	showDiagnostics: false,
+	showDiagnostics: {value: false, source: 'config' as const},
 	showLayerFrameNumbers: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,

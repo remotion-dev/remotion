@@ -16,8 +16,9 @@ export const showDiagnosticsOption = {
 			buffering states triggered. Creation counts reset when the page reloads.
 			The buffering handle count can also be reset in the window. While open,
 			the window records buffering events with their contributing handles and
-			lets you reveal the owning layers in the timeline. Defaults to{' '}
-			<code>false</code>.
+			lets you reveal the owning layers in the timeline. Setting this option on
+			the command line disables the corresponding Studio settings switch.
+			Defaults to <code>false</code>.
 		</>
 	),
 	ssrName: null,
@@ -25,10 +26,13 @@ export const showDiagnosticsOption = {
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
-			return {value: commandLine[cliFlag] as boolean, source: 'cli'};
+			return {value: commandLine[cliFlag] as boolean, source: 'cli' as const};
 		}
 
-		return {value: configuredShowDiagnostics ?? false, source: 'config'};
+		return {
+			value: configuredShowDiagnostics ?? false,
+			source: 'config' as const,
+		};
 	},
 	setConfig(value) {
 		if (typeof value !== 'boolean') {
