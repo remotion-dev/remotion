@@ -87,11 +87,6 @@ const compositionImportOptions = [
 		description:
 			'Preview the import without installing packages or writing files.',
 	},
-	{
-		flag: '--yes, -y',
-		optionIds: [],
-		description: 'Import without asking for confirmation.',
-	},
 	...options(
 		['width', 'height', 'fps', 'public-dir', 'package-manager', 'log'],
 		{

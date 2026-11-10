@@ -58,7 +58,7 @@ export const experimentalCodemodCommand = async (
 	await importCompositionCommand({
 		feature: 'canvas-capture',
 		remotionRoot,
-		argv: ['canvas-capture', 'import', ...forwarded, '--yes'],
+		argv: ['canvas-capture', 'import', ...forwarded],
 		logLevel,
 	});
 };

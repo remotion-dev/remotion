@@ -15,7 +15,7 @@ bunx remotion canvas-capture import recording.webm
 
 The recording must contain the original Canvas Capture metadata. The command creates an editable video and cursor composition, copies the recording to the public directory, and installs `@remotion/media` and `@remotion/mac-cursors` if needed.
 
-The command previews the files and dependencies, then asks for confirmation. Use `--yes` in scripts or `--dry-run` to preview without changing files.
+The command prints the files and dependencies, then imports them. Use `--dry-run` to preview without installing packages or writing files.
 
 ## Flags
 
@@ -31,11 +31,7 @@ The generated component is created beside this file. Existing component files an
 
 ### `--dry-run`
 
-Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files. Does not ask for confirmation.
-
-### `--yes`
-
-Imports without asking for confirmation. Also available as `-y`. Required in non-interactive shells unless `--dry-run` is passed.
+Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files.
 
 ### `--width`
 

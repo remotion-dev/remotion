@@ -19,7 +19,6 @@ import {getProjectCompositions} from './get-project-compositions';
 import {importCanvasCapture} from './import-canvas-capture';
 import {Log} from './log';
 import {printHelp} from './print-help';
-import {yesOrNo} from './yes-or-no';
 
 export const importCompositionCommand = async ({
 	feature,
@@ -52,7 +51,7 @@ export const importCompositionCommand = async ({
 
 	if (command !== 'import' || !inputFile || extraArgs.length > 0) {
 		throw new Error(
-			`Usage: bunx remotion ${feature} import <file> [--composition <id>] [--yes]`,
+			`Usage: bunx remotion ${feature} import <file> [--composition <id>] [--dry-run]`,
 		);
 	}
 
@@ -272,26 +271,6 @@ export const importCompositionCommand = async ({
 			chalk.gray('Dry run. No files were changed.'),
 		);
 		return;
-	}
-
-	if (!commandLine.yes) {
-		if (!process.stdin.isTTY || !process.stdout.isTTY || process.env.CI) {
-			throw new Error(
-				'Pass --yes to import without confirmation, or --dry-run to preview the changes.',
-			);
-		}
-
-		const confirmed = await yesOrNo({
-			question: 'Import this composition? (y/N)',
-			defaultValue: false,
-		});
-		if (!confirmed) {
-			Log.info(
-				{indent: false, logLevel},
-				chalk.gray('Cancelled. No files were changed.'),
-			);
-			return;
-		}
 	}
 
 	await applyCompositionImport({

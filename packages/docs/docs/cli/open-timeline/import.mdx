@@ -17,7 +17,7 @@ The command creates an editable composition, copies referenced local media into 
 
 Relative media paths are resolved from the timeline's directory. Use `--media-dir` to import media from another directory. Unsupported timeline features are reported before files are written; see [supported timelines](/docs/codemods/generate-open-timeline-composition#supported-timelines).
 
-The command previews the files and dependencies, then asks for confirmation. Use `--yes` in scripts or `--dry-run` to preview without changing files.
+The command prints the files and dependencies, then imports them. Use `--dry-run` to preview without installing packages or writing files.
 
 ## Flags
 
@@ -33,11 +33,7 @@ The generated component is created beside this file. Existing component files an
 
 ### `--dry-run`
 
-Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files. Does not ask for confirmation.
-
-### `--yes`
-
-Imports without asking for confirmation. Also available as `-y`. Required in non-interactive shells unless `--dry-run` is passed.
+Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files.
 
 ### `--width`
 
