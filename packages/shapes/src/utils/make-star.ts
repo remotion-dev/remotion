@@ -79,6 +79,12 @@ export const makeStar = ({
 		throw new Error(`"points" should be minimum 3, got ${points}`);
 	}
 
+	if (!Number.isFinite(innerRadius) || !Number.isFinite(outerRadius)) {
+		throw new Error(
+			`"innerRadius" and "outerRadius" must be finite numbers, got ${innerRadius} and ${outerRadius}`,
+		);
+	}
+
 	const width = outerRadius * 2;
 	const height = outerRadius * 2;
 

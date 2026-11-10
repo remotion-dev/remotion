@@ -15,6 +15,14 @@ export type MakeEllipseOptions = {
  */
 
 export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
+	if (!Number.isFinite(rx) || rx < 0) {
+		throw new Error(`"rx" must be a non-negative number, got ${rx}`);
+	}
+
+	if (!Number.isFinite(ry) || ry < 0) {
+		throw new Error(`"ry" must be a non-negative number, got ${ry}`);
+	}
+
 	const instructions: Instruction[] = [
 		{
 			type: 'M',

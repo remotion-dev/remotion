@@ -51,6 +51,10 @@ export const makePie = ({
 	counterClockwise = false,
 	rotation = 0,
 }: MakePieProps) => {
+	if (!Number.isFinite(radius) || radius < 0) {
+		throw new Error(`"radius" must be a non-negative number, got ${radius}`);
+	}
+
 	const actualProgress = Math.min(Math.max(progress, 0), 1);
 
 	const endAngleX = getCoord({

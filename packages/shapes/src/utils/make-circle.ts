@@ -12,6 +12,10 @@ export type MakeCircleProps = {
  * @see [Documentation](https://www.remotion.dev/docs/shapes/make-circle)
  */
 export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
+	if (!Number.isFinite(radius) || radius < 0) {
+		throw new Error(`"radius" must be a non-negative number, got ${radius}`);
+	}
+
 	const instructions: Instruction[] = [
 		{
 			type: 'M',
