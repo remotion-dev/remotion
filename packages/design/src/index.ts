@@ -1,6 +1,7 @@
 export {Button} from './Button';
 export {Card} from './Card';
 export {CheckIcon} from './CheckIcon';
+export {ChoiceButton, type ChoiceButtonProps} from './ChoiceButton';
 export {Counter} from './Counter';
 export {InlineCode} from './InlineCode';
 export {Input} from './Input';
