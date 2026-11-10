@@ -6,6 +6,7 @@ import {normalizeHttpUrl} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
@@ -115,11 +116,9 @@ export const Modals: React.FC<{
 					return;
 				}
 
-				const parsedUrl = new URL(url);
-				const pathname = parsedUrl.pathname.replace(/\/$/, '');
 				setSelectedModal({
 					type: 'element-library',
-					name: displayName ?? `${parsedUrl.host}${pathname}`,
+					name: getElementLibraryLabel({url, displayName}),
 					url,
 				});
 			} catch (error) {
