@@ -2,6 +2,7 @@ import {beforeEach, expect, test} from 'bun:test';
 import {act, render} from '@testing-library/react';
 import React, {useContext, useLayoutEffect} from 'react';
 import {BufferingContextReact, BufferingProvider} from '../buffering.js';
+import {playbackDiagnostics} from '../playback-diagnostics.js';
 import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import {
@@ -60,6 +61,7 @@ test('does not emit "resume" on mount', () => {
 });
 
 test('emits "waiting" and "resume" only on empty <-> non-empty transitions', () => {
+	const statesBefore = playbackDiagnostics.bufferingStatesTriggered;
 	render(<Provider />);
 
 	let firstBlock: {unblock: () => void} | null = null;
@@ -70,11 +72,13 @@ test('emits "waiting" and "resume" only on empty <-> non-empty transitions', () 
 	});
 	expect(events).toEqual(['waiting']);
 	expect(readIsBuffering()).toBe(true);
+	expect(playbackDiagnostics.bufferingStatesTriggered).toBe(statesBefore + 1);
 
 	act(() => {
 		secondBlock = manager!.addBlock();
 	});
 	expect(events).toEqual(['waiting']);
+	expect(playbackDiagnostics.bufferingStatesTriggered).toBe(statesBefore + 1);
 
 	act(() => {
 		firstBlock!.unblock();
@@ -87,9 +91,11 @@ test('emits "waiting" and "resume" only on empty <-> non-empty transitions', () 
 	});
 	expect(events).toEqual(['waiting', 'resume']);
 	expect(readIsBuffering()).toBe(false);
+	expect(playbackDiagnostics.bufferingStatesTriggered).toBe(statesBefore + 1);
 });
 
 test('a block added and removed within the same commit emits no events', () => {
+	const statesBefore = playbackDiagnostics.bufferingStatesTriggered;
 	render(<Provider />);
 
 	act(() => {
@@ -99,6 +105,7 @@ test('a block added and removed within the same commit emits no events', () => {
 
 	expect(events).toEqual([]);
 	expect(readIsBuffering()).toBe(false);
+	expect(playbackDiagnostics.bufferingStatesTriggered).toBe(statesBefore);
 });
 
 test('a subscriber registered while buffering receives the resume transition', () => {

@@ -50,7 +50,8 @@ const DiagnosticsWindow: React.FC = () => {
 			setCounts((current) =>
 				current.audioIteratorsCreated === next.audioIteratorsCreated &&
 				current.mediabunnySinksOpen === next.mediabunnySinksOpen &&
-				current.bufferingHandlesCreated === next.bufferingHandlesCreated
+				current.bufferingHandlesCreated === next.bufferingHandlesCreated &&
+				current.bufferingStatesTriggered === next.bufferingStatesTriggered
 					? current
 					: {...next},
 			);
@@ -160,6 +161,7 @@ const DiagnosticsWindow: React.FC = () => {
 					['Audio iterators created', counts.audioIteratorsCreated],
 					['Mediabunny sinks open', counts.mediabunnySinksOpen],
 					['Buffering handles created', counts.bufferingHandlesCreated],
+					['Buffering states triggered', counts.bufferingStatesTriggered],
 				].map(([label, value]) => (
 					<div key={label} style={{display: 'flex', gap: 12, padding: '3px 0'}}>
 						<dt

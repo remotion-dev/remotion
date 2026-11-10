@@ -1691,7 +1691,7 @@ export const WebMcp: FC = () => {
 					name: 'get_diagnostics',
 					title: 'Get Studio diagnostics',
 					description:
-						'Read cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Available in every Studio mode, even when the diagnostics window is hidden.',
+						'Read cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Available in every Studio mode, even when the diagnostics window is hidden.',
 					inputSchema: {
 						type: 'object',
 						properties: {},

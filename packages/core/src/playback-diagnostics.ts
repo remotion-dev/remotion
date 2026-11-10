@@ -2,6 +2,7 @@ export const playbackDiagnostics = {
 	audioIteratorsCreated: 0,
 	mediabunnySinksOpen: 0,
 	bufferingHandlesCreated: 0,
+	bufferingStatesTriggered: 0,
 };
 
 export const registerMediabunnySink = (input: {disposed: boolean}) => {

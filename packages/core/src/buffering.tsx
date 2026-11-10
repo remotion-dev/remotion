@@ -60,6 +60,7 @@ const useBufferManager = (
 		// already buffering (e.g. a second media element starts loading) must
 		// not re-dispatch `waiting` to listeners.
 		if (blockCount > 0 && !isBuffering()) {
+			playbackDiagnostics.bufferingStatesTriggered++;
 			setBuffering(true);
 			playbackLogging({
 				logLevel,

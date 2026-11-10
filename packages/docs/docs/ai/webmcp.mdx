@@ -813,7 +813,9 @@ While composition metadata is loading, `currentFrame` is `null` and `outlines` i
 
 ### `get_diagnostics`<AvailableFrom v="4.0.543" />
 
-Returns cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Creation counts reset when the page reloads. The buffering handle count can also be reset from the Diagnostics window or with `reset_buffering_handles_created`. Available in every Studio mode, including when the diagnostics window is hidden.
+Returns cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Counters reset when the page reloads. The buffering handle count can also be reset from the Diagnostics window or with `reset_buffering_handles_created`. Available in every Studio mode, including when the diagnostics window is hidden.
+
+`bufferingStatesTriggered` counts each transition into the internal buffering state, including states too short to show the loading indicator. Overlapping handles count as one buffering state. Handles created and cleared within the same React batch do not trigger a buffering state.
 
 ```ts title="Input"
 {}
@@ -824,6 +826,7 @@ Returns cumulative audio iterator and buffering handle creation counts and the n
   audioIteratorsCreated: number;
   mediabunnySinksOpen: number;
   bufferingHandlesCreated: number;
+  bufferingStatesTriggered: number;
 }
 ```
 
