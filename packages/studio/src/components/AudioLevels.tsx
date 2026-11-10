@@ -10,13 +10,36 @@ import {
 import {AudioLevelsContext} from '../state/audio-levels';
 
 const MIN_DB = -60;
-const gradient = `linear-gradient(to top, #36c26b 70%, ${WARNING_COLOR} 70%, ${WARNING_COLOR} 90%, ${FAIL_COLOR} 90%)`;
+// Web Audio mixes in floating point, so the preview can exceed 0 dBFS.
+// Rendered audio is 16-bit and hard clips everything above 0 dBFS.
+const MAX_DB = 6;
+const WARNING_DB = -6;
+const SCALE_LABELS = [6, 0, -6, -12, -24, -36, -48, -60];
+
+const toPercent = (db: number) => ((db - MIN_DB) / (MAX_DB - MIN_DB)) * 100;
+
+const gradient = `linear-gradient(to top, #36c26b ${toPercent(WARNING_DB)}%, ${WARNING_COLOR} ${toPercent(WARNING_DB)}%, ${WARNING_COLOR} ${toPercent(0)}%, ${FAIL_COLOR} ${toPercent(0)}%)`;
 const textStyle: React.CSSProperties = {
 	fontSize: 10,
 	lineHeight: '14px',
 	color: LIGHT_TEXT,
 	fontVariantNumeric: 'tabular-nums',
 	textAlign: 'center',
+};
+
+const peakButtonStyle: React.CSSProperties = {
+	...textStyle,
+	height: 14,
+	padding: 0,
+	border: 'none',
+	background: 'none',
+	cursor: 'default',
+	whiteSpace: 'nowrap',
+};
+
+const formatDb = (db: number) => {
+	const rounded = Math.round(db * 10) / 10;
+	return rounded > 0 ? `+${rounded.toFixed(1)}` : rounded.toFixed(1);
 };
 
 const AudioLevelsInner: React.FC = () => {
@@ -29,6 +52,8 @@ const AudioLevelsInner: React.FC = () => {
 	const meterRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const fillRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const peakRefs = useRef<(HTMLDivElement | null)[]>([]);
+	const maxPeakRefs = useRef<(HTMLButtonElement | null)[]>([]);
+	const resetMaxPeaks = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
 		if (!audioContext || !gainNode) {
@@ -52,12 +77,37 @@ const AudioLevelsInner: React.FC = () => {
 				peak: MIN_DB,
 				peakTime: 0,
 				clipUntil: 0,
+				maxPeak: MIN_DB,
+				maxPeakText: '',
 			};
 		});
 		let animationFrame = 0;
 		let lastTime = performance.now();
 		const currentLevels = {left: MIN_DB, right: MIN_DB};
 		levels.current = currentLevels;
+
+		const updateMaxPeak = (channel: number) => {
+			const data = channels[channel];
+			const button = maxPeakRefs.current[channel];
+			const text = data.maxPeak <= MIN_DB ? '-inf' : formatDb(data.maxPeak);
+			if (!button || text === data.maxPeakText) {
+				return;
+			}
+
+			data.maxPeakText = text;
+			button.textContent = text;
+			button.style.color =
+				data.maxPeak > MIN_DB && Math.round(data.maxPeak * 10) >= 0
+					? FAIL_COLOR
+					: LIGHT_TEXT;
+		};
+
+		resetMaxPeaks.current = () => {
+			for (let channel = 0; channel < channels.length; channel++) {
+				channels[channel].maxPeak = MIN_DB;
+				updateMaxPeak(channel);
+			}
+		};
 
 		const draw = (time: number) => {
 			const elapsed = (time - lastTime) / 1000;
@@ -74,9 +124,9 @@ const AudioLevelsInner: React.FC = () => {
 				}
 
 				const db = Math.max(MIN_DB, 20 * Math.log10(amplitude));
-				data.level = Math.min(0, Math.max(db, data.level - elapsed * 40));
+				data.level = Math.min(MAX_DB, Math.max(db, data.level - elapsed * 40));
 				if (db >= data.peak) {
-					data.peak = Math.min(0, db);
+					data.peak = Math.min(MAX_DB, db);
 					data.peakTime = time;
 				} else if (time - data.peakTime > 1000) {
 					data.peak = Math.max(data.level, data.peak - elapsed * 18);
@@ -86,20 +136,23 @@ const AudioLevelsInner: React.FC = () => {
 					data.clipUntil = time + 1000;
 				}
 
+				data.maxPeak = Math.max(data.maxPeak, db);
+				updateMaxPeak(channel);
+
 				currentLevels[channel === 0 ? 'left' : 'right'] = db;
 				const fill = fillRefs.current[channel];
 				const peak = peakRefs.current[channel];
 				const meter = meterRefs.current[channel];
 				if (fill && peak && meter) {
-					fill.style.clipPath = `inset(${(data.level / MIN_DB) * 100}% 0 0)`;
-					peak.style.bottom = `${(1 - data.peak / MIN_DB) * 100}%`;
+					fill.style.clipPath = `inset(${100 - toPercent(data.level)}% 0 0)`;
+					peak.style.bottom = `${toPercent(data.peak)}%`;
 					peak.style.opacity = data.peak <= MIN_DB ? '0' : '1';
 					peak.style.backgroundColor =
 						time < data.clipUntil ? FAIL_COLOR : WHITE;
 					meter.setAttribute('aria-valuenow', data.level.toFixed(1));
 					meter.setAttribute(
 						'aria-valuetext',
-						data.level <= MIN_DB ? 'Silent' : `${data.level.toFixed(1)} dBFS`,
+						data.level <= MIN_DB ? 'Silent' : `${formatDb(data.level)} dBFS`,
 					);
 				}
 			}
@@ -133,6 +186,7 @@ const AudioLevelsInner: React.FC = () => {
 				analyser.disconnect();
 			}
 
+			resetMaxPeaks.current = null;
 			levels.current = null;
 		};
 	}, [audioContext, gainNode, isPlaying, levels, subscribePlaying]);
@@ -154,19 +208,27 @@ const AudioLevelsInner: React.FC = () => {
 			}}
 		>
 			<div style={{display: 'flex', flex: 1, minHeight: 0, gap: 6}}>
-				<div style={{position: 'relative', width: 20, marginBottom: 14}}>
-					{[0, -6, -12, -24, -36, -48, -60].map((db) => (
+				<div
+					style={{
+						position: 'relative',
+						width: 20,
+						marginTop: 14,
+						marginBottom: 14,
+					}}
+				>
+					{SCALE_LABELS.map((db) => (
 						<div
 							key={db}
 							style={{
 								...textStyle,
 								position: 'absolute',
 								right: 0,
-								bottom: `${(1 - db / MIN_DB) * 100}%`,
+								bottom: `${toPercent(db)}%`,
 								transform: 'translateY(50%)',
+								color: db > 0 ? FAIL_COLOR : LIGHT_TEXT,
 							}}
 						>
-							{db}
+							{db > 0 ? `+${db}` : db}
 						</div>
 					))}
 				</div>
@@ -180,6 +242,18 @@ const AudioLevelsInner: React.FC = () => {
 							minWidth: 0,
 						}}
 					>
+						<button
+							ref={(node) => {
+								maxPeakRefs.current[channel] = node;
+							}}
+							type="button"
+							title="Highest peak. Above 0 dBFS clips when rendered. Click to reset."
+							aria-label={`${label} highest peak, click to reset`}
+							style={peakButtonStyle}
+							onClick={() => resetMaxPeaks.current?.()}
+						>
+							-inf
+						</button>
 						<div
 							ref={(node) => {
 								meterRefs.current[channel] = node;
@@ -187,7 +261,7 @@ const AudioLevelsInner: React.FC = () => {
 							role="meter"
 							aria-label={`${label} audio level`}
 							aria-valuemin={MIN_DB}
-							aria-valuemax={0}
+							aria-valuemax={MAX_DB}
 							aria-valuenow={MIN_DB}
 							aria-valuetext="Silent"
 							style={{position: 'relative', flex: 1, overflow: 'hidden'}}
