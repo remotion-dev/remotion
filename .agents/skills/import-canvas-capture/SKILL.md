@@ -1,26 +1,23 @@
 ---
 name: import-canvas-capture
-description: Import a recorded Remotion Canvas Capture into a project without Studio interactions using the internal experimental-codemod command. Use when adding a capture file as an editable composition with cursor keyframes.
+description: Import a recorded Remotion Canvas Capture into a project without Studio interactions using canvas-capture import. Use when adding a capture file as an editable composition with cursor keyframes.
 ---
 
 # Import Canvas Capture
-
-This is an internal, unstable workflow. Keep this skill in `.agents/skills`; do
-not distribute it through `packages/skills` or document the command as a stable API.
 
 ## Workflow
 
 1. Locate the recorded capture file and the target Remotion project. The original
    recording must contain embedded `REMOTION_CAPTURE_DATA` metadata; a converted
    video that has lost this metadata cannot be imported.
-2. Inspect the project to find the TypeScript file containing its composition
-   registrations (usually `src/Root.tsx`). Choose an unused composition ID.
+2. The command finds the composition registration file and derives the composition
+   ID from the recording's filename. Use `--composition-file` or `--composition`
+   to override these defaults.
 3. From the target project's root, run:
 
    ```sh
-   bunx remotion experimental-codemod add-canvas-capture /absolute/path/capture.webm \
-     --composition-file src/Root.tsx \
-     --id MyCapture
+   bunx remotion canvas-capture import /absolute/path/capture.webm \
+     --composition MyCapture
    ```
 
    When developing this command in the monorepo, build the CLI first with
@@ -28,8 +25,8 @@ not distribute it through `packages/skills` or document the command as a stable 
 
    ```sh
    node /absolute/path/to/remotion/packages/cli/remotion-cli.js \
-     experimental-codemod add-canvas-capture /absolute/path/capture.webm \
-     --composition-file src/Root.tsx --id MyCapture
+     canvas-capture import /absolute/path/capture.webm \
+     --composition MyCapture
    ```
 
 4. Review the reported source files and public asset. The importer generates a
@@ -47,7 +44,7 @@ not distribute it through `packages/skills` or document the command as a stable 
   Recorded video dimensions remain independent from composition dimensions.
 - `--public-dir` overrides the configured public directory. `--package-manager`
   selects the dependency installer.
-- `--dry-run` parses the recording and generates source changes without installing
+- Imports proceed immediately. `--dry-run` parses the recording and generates source changes without installing
   dependencies or writing project files. The programmatic result includes the
   proposed source changes.
 - The registration file is resolved relative to the project root; the CLI capture
