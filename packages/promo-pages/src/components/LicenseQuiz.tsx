@@ -388,9 +388,7 @@ export const LicenseQuiz: React.FC = () => {
 							aria-labelledby={`license-quiz-q-${i}`}
 							className={
 								hasDescriptions
-									? step.options.length === 2
-										? 'grid grid-cols-1 sm:grid-cols-2 gap-3'
-										: 'grid grid-cols-1 gap-3'
+									? 'grid grid-cols-1 sm:grid-cols-2 gap-3'
 									: 'flex flex-wrap gap-3'
 							}
 						>
