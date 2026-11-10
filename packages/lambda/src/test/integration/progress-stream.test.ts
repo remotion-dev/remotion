@@ -98,16 +98,25 @@ test('streams changed progress and completes real renders through idle and busy 
 					},
 				});
 			});
-			// Time progress where the launch function emits it. Receipt times also
-			// include pauses (GC, CPU preemption) between emitting and delivering
-			// an update, which can shrink the observed gap below the throttle.
+			// Record the timestamps the launch function's throttle itself used.
+			// launch.ts sets `lastProgressUpdate = Date.now()` and then
+			// synchronously calls normalizeRenderProgress() without reading the
+			// clock in between, so the latest Date.now() value at that call is the
+			// throttle's timestamp. Pauses (GC, CPU preemption) after that point
+			// can't shrink the measured gap.
 			const emitted: number[] = [];
+			const originalNow = Date.now;
+			let lastNow = originalNow();
+			const nowSpy = spyOn(Date, 'now').mockImplementation(() => {
+				lastNow = originalNow();
+				return lastNow;
+			});
 			const {normalizeRenderProgress} = LambdaClientInternals;
 			const normalizeSpy = spyOn(
 				LambdaClientInternals,
 				'normalizeRenderProgress',
 			).mockImplementation((input) => {
-				const time = performance.now();
+				const time = lastNow;
 				const progress = normalizeRenderProgress(input);
 				if (!progress.done) {
 					emitted.push(time);
@@ -136,7 +145,10 @@ test('streams changed progress and completes real renders through idle and busy 
 						progress: structuredClone(progress),
 					});
 				},
-			}).finally(() => normalizeSpy.mockRestore());
+			}).finally(() => {
+				normalizeSpy.mockRestore();
+				nowSpy.mockRestore();
+			});
 			const file = readMockS3File({
 				bucketName: result.outBucket,
 				key: result.outKey,
@@ -153,8 +165,8 @@ test('streams changed progress and completes real renders through idle and busy 
 			const intermediate = updates.filter(({progress}) => !progress.done);
 			expect(emitted.length).toBe(intermediate.length);
 			for (let i = 1; i < emitted.length; i++) {
-				// The throttle measures with millisecond-precision Date.now().
-				expect(emitted[i] - emitted[i - 1]).toBeGreaterThanOrEqual(98);
+				// Timers can fire up to about 1ms early relative to Date.now().
+				expect(emitted[i] - emitted[i - 1]).toBeGreaterThanOrEqual(99);
 			}
 
 			const keys = intermediate.map(({progress}) =>
