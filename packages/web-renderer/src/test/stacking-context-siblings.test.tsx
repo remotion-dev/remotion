@@ -2,6 +2,7 @@ import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {diagTime} from './diag';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
@@ -12,14 +13,18 @@ test('orders atomic stacking-context siblings', async () => {
 		stackingContextSiblings.height,
 	);
 	for (const frame of [0, 1]) {
-		const still = await renderStillOnWeb({
-			licenseKey: 'free-license',
-			composition: stackingContextSiblings,
-			frame,
-			inputProps: {},
-			allowHtmlInCanvas: false,
-		});
-		const blob = await still.blob();
+		const still = await diagTime(`renderStillOnWeb frame ${frame}`, () =>
+			renderStillOnWeb({
+				licenseKey: 'free-license',
+				composition: stackingContextSiblings,
+				frame,
+				inputProps: {},
+				allowHtmlInCanvas: false,
+			}),
+		);
+		const blob = await diagTime(`still.blob frame ${frame}`, () =>
+			still.blob(),
+		);
 		if (navigator.userAgent.includes('Chrome')) {
 			const result = await compareNativePixels(
 				await captureNativeReference(stackingContextSiblings, frame),

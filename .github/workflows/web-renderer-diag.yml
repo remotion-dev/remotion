@@ -44,7 +44,7 @@ jobs:
             echo "::group::iteration $i"
             (while true; do date +%T; top -l 1 -n 5 -o cpu -stats pid,command,cpu,mem | tail -6; sleep 5; done) > top-$i.log 2>&1 &
             TOP_PID=$!
-            bunx vitest --run --config vitest.diag.config.ts \
+            bunx vitest --run --silent=false --config vitest.diag.config.ts \
               src/test/stacking-context-siblings.test.tsx \
               src/test/object-position-native.test.tsx \
               src/test/background-blend-mode.test.tsx \
