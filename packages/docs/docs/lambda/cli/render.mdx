@@ -117,7 +117,7 @@ One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
 - `"private"`: The rendered media is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
-- `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`--out-name`](#--out-name).
+- `"no-acl"`<AvailableFrom v="3.1.7" inline />: No ACL is set. Use this if you write to another bucket that does not support ACLs using [`--out-name`](#--out-name).
 
 ### `--max-retries`
 
@@ -131,7 +131,7 @@ Default value: [Dependant on video length](/docs/lambda/concurrency)
 Minimum value: <MinimumFramesPerLambda />
 
 :::note
-`--frames-per-lambda` cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
+`--frames-per-lambda` cannot result in more than 200 functions being spawned. See [Concurrency](/docs/lambda/concurrency).
 :::
 
 :::note
