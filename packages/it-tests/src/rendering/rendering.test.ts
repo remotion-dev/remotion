@@ -538,10 +538,7 @@ test(
 
 		fs.unlinkSync(outputPath);
 	},
-	{
-		timeout: 30000,
-		retry: 3,
-	},
+	{timeout: 30000},
 );
 
 test(
@@ -581,10 +578,7 @@ test(
 		expect(data).toContain('48000 Hz, stereo');
 		fs.unlinkSync(out);
 	},
-	{
-		timeout: 90000,
-		retry: 3,
-	},
+	{timeout: 90000},
 );
 
 test(
@@ -620,7 +614,10 @@ test(
 		expect(data).toContain('Audio: mp3, 48000 Hz');
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -651,7 +648,10 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -724,7 +724,10 @@ test(
 		);
 		fs.unlinkSync(audio);
 	},
-	{timeout: 20000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -748,7 +751,10 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 20000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -792,12 +798,21 @@ test(
 			},
 		);
 
+		if (!task.stdout.includes('The following compositions')) {
+			console.log({
+				exitCode: task.exitCode,
+				signal: task.signal,
+				stdout: task.stdout,
+				stderr: task.stderr,
+			});
+		}
+
 		expect(task.stdout).toContain('The following compositions');
 	},
-	{
-		timeout: 30000,
-		retry: 3,
-	},
+	// Must exceed the CLI's own 30s composition timeout. When Bun's test timeout
+	// fires first, it kills the CLI's browser, the CLI only prints a
+	// target-closed docs link, and a retry would overlap the killed attempt.
+	{timeout: 60000},
 );
 
 test(
