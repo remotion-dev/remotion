@@ -193,6 +193,7 @@ import {
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
+import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -461,6 +462,13 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Folder name="Issue8650">
 				<Composition {...issue8650LottieControlChars} />
+			</Folder>
+			<Folder name="Text-decoration-lengths">
+				{textDecorationLengths
+					.flatMap(({fixture, reference}) => [fixture, reference])
+					.map((fixture) => (
+						<Composition key={fixture.id} {...fixture} />
+					))}
 			</Folder>
 		</>
 	);
