@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {commands} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
@@ -6,6 +6,7 @@ import {nativeReferenceControl} from './fixtures/native-reference-control';
 import {
 	captureNativeReference,
 	compareNativePixels,
+	countNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 
@@ -48,6 +49,18 @@ test.for([0, 1])(
 		const result = await compareNativePixels(reference, changed);
 		expect(result.mismatchedPixels).toBe(1);
 		expect(result.maxChannelDelta).toBe(frame === 0 ? 1 : 127);
+		const encoder = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob');
+		try {
+			const countOnly = await countNativePixels(reference, changed);
+			expect(countOnly).toEqual({
+				mismatchedPixels: 1,
+				maxChannelDelta: frame === 0 ? 1 : 127,
+			});
+			expect(encoder).not.toHaveBeenCalled();
+		} finally {
+			encoder.mockRestore();
+		}
+
 		const saved = await savePixelEvidence(
 			actual,
 			`native-reference-control-${frame}-actual`,
@@ -95,6 +108,19 @@ test('captures opaque native RGBA and reads back opaque evidence in every engine
 	const matching = await compareNativePixels(reference, actual);
 	expect(matching.mismatchedPixels).toBe(0);
 	expect(matching.evidence).toBeNull();
+	// PR13162: count-only guards must not schedule an unused PNG diff encoding.
+	const encoder = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob');
+	try {
+		const countOnly = await countNativePixels(reference, actual);
+		expect(countOnly).toEqual({
+			mismatchedPixels: 0,
+			maxChannelDelta: 0,
+		});
+		expect(encoder).not.toHaveBeenCalled();
+	} finally {
+		encoder.mockRestore();
+	}
+
 	const saved = await savePixelEvidence(
 		actual,
 		'native-reference-control-opaque',
