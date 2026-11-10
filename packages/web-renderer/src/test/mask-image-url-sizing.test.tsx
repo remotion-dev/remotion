@@ -15,14 +15,6 @@ import {
 	maskGradientLayersBlobTransparent,
 } from './fixtures/mask-gradient-layers';
 import {
-	maskImageLayers,
-	maskImageLayersTransparent,
-	maskImageLayersUrl,
-	maskImageLayersUrlTransparent,
-	maskImageLayersBlob,
-	maskImageLayersBlobTransparent,
-	maskImageLayersTokenUrl,
-	maskImageLayersTokenUrlTransparent,
 	createMaskImageLayersGridFixture,
 	maskImageLayerSources,
 } from './fixtures/mask-image-layers';
@@ -400,18 +392,13 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 }
 
 // KINO-7771: authored mask layers must be composed before masking the content.
+// The grid covers every raster source in one native capture and render per frame.
 const layeredMaskCases = [
 	...[false, true].map((transparent) => ({
 		composition: createMaskImageLayersGridFixture(!transparent),
 		gridSources: maskImageLayerSources,
 	})),
 	...[
-		maskImageLayers,
-		maskImageLayersTransparent,
-		maskImageLayersUrl,
-		maskImageLayersUrlTransparent,
-		maskImageLayersBlob,
-		maskImageLayersBlobTransparent,
 		maskGradientLayers,
 		maskGradientLayersTransparent,
 		maskGradientLayersUrl,
@@ -422,8 +409,6 @@ const layeredMaskCases = [
 		maskGradientPaletteTransparent,
 		maskGradientLayersTokenUrl,
 		maskGradientLayersTokenUrlTransparent,
-		maskImageLayersTokenUrl,
-		maskImageLayersTokenUrlTransparent,
 	].map((composition) => ({composition, gridSources: null})),
 ];
 
