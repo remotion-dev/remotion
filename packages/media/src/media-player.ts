@@ -309,6 +309,7 @@ export class MediaPlayer {
 			return null;
 		}
 
+		using _ = this.delayPlaybackHandleIfNotPremounting();
 		const [videoTrack, audioTracks] = await Promise.all([
 			this.input.getPrimaryVideoTrack(),
 			this.input.getAudioTracks(),

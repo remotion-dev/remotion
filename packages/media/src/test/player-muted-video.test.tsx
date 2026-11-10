@@ -40,7 +40,12 @@ const VideoComposition: React.FC<{readonly audioEnabled: boolean}> = ({
 test('renders an initially muted video and resumes audio after reverse playback', async () => {
 	// Call through to Web Audio so invalid start offsets still throw.
 	const starts = vi.spyOn(AudioBufferSourceNode.prototype, 'start');
+	const {canDecode} = InputAudioTrack.prototype;
 	const audioSupport = vi.spyOn(InputAudioTrack.prototype, 'canDecode');
+	let releaseAudio = () => {};
+	const audioReady = new Promise<void>((resolve) => {
+		releaseAudio = resolve;
+	});
 	const startedMediaNodes = () =>
 		(starts.mock.contexts as AudioBufferSourceNode[]).filter(
 			(node) => node.buffer !== null,
@@ -89,7 +94,29 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		await waitFor(() => playerRef.current!.getCurrentFrame() > 62);
 		expect(audioSupport).not.toHaveBeenCalled();
 		expect(startedMediaNodes()).toHaveLength(0);
+		let buffering = false;
+		playerRef.current!.addEventListener('waiting', () => {
+			buffering = true;
+		});
+		playerRef.current!.addEventListener('resume', () => {
+			buffering = false;
+		});
+		audioSupport.mockImplementationOnce(async function (this: InputAudioTrack) {
+			await audioReady;
+			return canDecode.call(this);
+		});
 		renderPlayer(1, true);
+		await waitFor(() => buffering);
+		const bufferingFrame = playerRef.current!.getCurrentFrame();
+		for (let i = 0; i < 4; i++) {
+			await new Promise<void>((resolve) =>
+				requestAnimationFrame(() => resolve()),
+			);
+		}
+
+		expect(playerRef.current!.getCurrentFrame()).toBe(bufferingFrame);
+		expect(buffering).toBe(true);
+		releaseAudio();
 		await waitFor(
 			() =>
 				startedMediaNodes().length > 0 &&
@@ -119,6 +146,7 @@ test('renders an initially muted video and resumes audio after reverse playback'
 				playerRef.current!.getCurrentFrame() > reverseFrame,
 		);
 	} finally {
+		releaseAudio();
 		root.unmount();
 		container.remove();
 		starts.mockRestore();
