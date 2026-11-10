@@ -16,7 +16,6 @@ if (!semver.satisfies(version, '^1.1.7')) {
 
 const outDir = path.join('dist', 'esm');
 
-// Chunks from previous builds have a content hash in their name
 mkdirSync(outDir, {recursive: true});
 for (const f of readdirSync(outDir)) {
 	if (f.startsWith('chunk-')) {
@@ -24,9 +23,6 @@ for (const f of readdirSync(outDir)) {
 	}
 }
 
-// `remotion` and `remotion/no-react` are built together with code splitting,
-// so that modules used by both entrypoints end up in a shared chunk
-// and are not shipped twice when an app imports both.
 const output = await build({
 	entrypoints: ['src/index.ts', 'src/no-react.ts'],
 	naming: {
