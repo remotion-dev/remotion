@@ -58,7 +58,7 @@ The following regions are available for Remotion Lambda:
 
 ## Limitations
 
-- A Lambda function has between 512MB and 10240MB of disk space (2048MB by default). This must be sufficient for both the separated chunks and the concatenated output, which limits the maximum video length to approximately 32 minutes of Full HD video with the default disk size and approximately 2 hours 40 minutes with the maximum. See [Disk size](/docs/lambda/disk-size#approximate-maximum-video-length).
+- A Lambda function has between 512MB and 10240MB of disk space. The default is 2048MB before Remotion 5.0 and 10240MB from Remotion 5.0. This must be sufficient for both the separated chunks and the concatenated output, which limits the maximum video length to approximately 32 minutes of Full HD video at 2048MB and approximately 2 hours 40 minutes at 10240MB. See [Disk size](/docs/lambda/disk-size#approximate-maximum-video-length).
 - [Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased](/docs/lambda/troubleshooting/rate-limit).
 - AV1 encoding is not available on Lambda.
 
