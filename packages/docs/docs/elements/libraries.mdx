@@ -30,7 +30,7 @@ Append [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string) to an i
 ```tsx title="LowerThirdGalleryItem.tsx"
 import {Player} from '@remotion/player';
 import {InstallActions} from './InstallActions';
-import LowerThirdElement, {lowerThirdElementDefinition} from './LowerThirdElement';
+import {LowerThirdElement, lowerThirdElementDefinition} from './LowerThirdElement';
 import lowerThirdSourceCode from './LowerThirdElement.tsx?raw';
 
 export const LowerThirdGalleryItem = () => {
@@ -116,7 +116,7 @@ When Studio embeds your library in Browse Elements, use [`isInsideStudio()`](/do
 If no Studio receives the request, `installInStudio()` resolves with `success: false` and a [`code`](/docs/studio-protocol/install-in-studio#code). Show a message that tells the user what to do, for example:
 
 - `no-compatible-studio`: Start Remotion Studio.
-- `no-installable-target`: Open a video in Studio.
+- `no-installable-target`: Focus the Remotion Studio tab to install into, then try again.
 - `studio-upgrade-required`: [Upgrade Remotion](/docs/upgrading).
 
 Also offer a way around the failure:
