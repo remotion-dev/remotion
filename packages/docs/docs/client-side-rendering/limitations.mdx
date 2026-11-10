@@ -207,6 +207,8 @@ const MyComp = () => (
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
 
+Media fetches can resume after an interruption when the browser reports being offline. Failed reads of an existing response are not recovered. Renders can still be canceled while offline.
+
 ## Single concurrency
 
 There is no multithreading for client-side rendering.  

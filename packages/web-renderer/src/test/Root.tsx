@@ -149,6 +149,7 @@ import {nativeReferenceControl} from './fixtures/native-reference-control';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
+import {offlineRecovery} from './fixtures/offline-recovery';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -298,6 +299,7 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...htmlInCanvasResize} />
 			<Composition {...objectFit} />
+			<Composition {...offlineRecovery} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
 			<Composition {...backgroundImageSpace} />
