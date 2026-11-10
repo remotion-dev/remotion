@@ -197,19 +197,6 @@ export const importCompositionCommand = async ({
 			const error = new OpenTimelineImportError(prepared.result.diagnostics);
 			if (prepared.missingMedia.length > 0) {
 				error.message += `\n\nLooked for:\n${prepared.missingMedia.map((media) => `  ${path.relative(process.cwd(), media.resolvedPath)}`).join('\n')}\n\nPass --media-dir <directory> to specify the folder containing the timeline's media files.`;
-				const publicDirectory = path.resolve(
-					remotionRoot,
-					publicDir ?? 'public',
-				);
-				if (
-					prepared.missingMedia.every((media) =>
-						existsSync(
-							path.join(publicDirectory, path.basename(media.resolvedPath)),
-						),
-					)
-				) {
-					error.message += `\nTry: --media-dir ${JSON.stringify(path.relative(process.cwd(), publicDirectory) || '.')}`;
-				}
 			}
 
 			throw error;
