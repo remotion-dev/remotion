@@ -468,6 +468,7 @@ const innerLaunchHandler = async ({
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			proResBitsPerMacroblock: params.proResBitsPerMacroblock ?? null,
 			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,

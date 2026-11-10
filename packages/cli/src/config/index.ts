@@ -162,6 +162,7 @@ const {
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	stillImageFormatOption,
 	videoImageFormatOption,
@@ -509,6 +510,8 @@ declare global {
 		 * Overrides the duration in frames of a composition
 		 */
 		readonly overrideDuration: (newDuration: number) => void;
+		readonly setProResBitsPerMacroblock: (value: number | null) => void;
+
 		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
@@ -915,6 +918,7 @@ export const Config: FlatConfig = {
 	setCrf: crfOption.setConfig,
 	setGopSize: gopSizeOption.setConfig,
 	setImageSequence: imageSequenceOption.setConfig,
+	setProResBitsPerMacroblock: proResBitsPerMacroblockOption.setConfig,
 	setProResProfile: proResProfileOption.setConfig,
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,

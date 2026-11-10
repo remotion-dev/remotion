@@ -360,6 +360,10 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -412,6 +416,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		proResProfile,
 		x264Preset,
 		gopSize,
+		proResBitsPerMacroblock,
 		disableSharedMemoryCapture,
 		crf: crf ?? undefined,
 		pixelFormat,

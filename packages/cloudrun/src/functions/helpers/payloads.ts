@@ -57,6 +57,13 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		proResProfile,
 		x264Preset,
 		gopSize: z.number().nullable(),
+		proResBitsPerMacroblock: z
+			.number()
+			.int()
+			.min(128)
+			.max(8192)
+			.nullable()
+			.default(null),
 		disableSharedMemoryCapture: z.boolean(),
 		everyNthFrame: z.number(),
 		numberOfGifLoops: z.number().nullable(),

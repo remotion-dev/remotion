@@ -936,6 +936,18 @@ Config.setProResProfile('4444');
 
 The [`--prores-profile`](/docs/options/prores-profile) flag takes precedence over this option.
 
+## `setProResBitsPerMacroblock()`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setProResBitsPerMacroblock(1000);
+```
+
+The [`--prores-bits-per-macroblock`](/docs/options/prores-bits-per-macroblock) flag takes precedence over this option.
+
 ## `setX264Preset()`<AvailableFrom v="4.0.22" />
 
 Set the Preset profile. This option is only valid if the codec has been set to `h264`.

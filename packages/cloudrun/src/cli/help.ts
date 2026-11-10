@@ -166,6 +166,7 @@ const renderOptions = options(
 		'webhook',
 		'render-id-override',
 		'prores-profile',
+		'prores-bits-per-macroblock',
 		'x264-preset',
 		'gop',
 		'disable-shared-memory-capture',
