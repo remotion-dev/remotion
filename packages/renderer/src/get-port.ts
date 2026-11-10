@@ -1,5 +1,5 @@
 import net from 'net';
-import {createLock} from './locks';
+import {createMutex} from './locks';
 
 type PortStatus = 'available' | 'unavailable';
 
@@ -75,7 +75,7 @@ const getPort = async ({
 	throw new Error('No available ports found');
 };
 
-const portLocks = createLock({timeout: 10000});
+const portMutex = createMutex({timeout: 10000});
 
 export const getDesiredPort = async ({
 	desiredPort,
@@ -90,47 +90,49 @@ export const getDesiredPort = async ({
 	hostsToTry: string[];
 	onPortUnavailable?: (port: number) => Promise<'continue' | 'stop'>;
 }) => {
-	await portLocks.waitForAllToBeDone();
-	const lockPortSelection = portLocks.lock();
-	const unlockPort = () => portLocks.unlock(lockPortSelection);
+	const unlockPort = await portMutex.acquire();
 
-	if (
-		typeof desiredPort !== 'undefined' &&
-		(await testPortAvailableOnMultipleHosts({
-			port: desiredPort,
-			hosts: hostsToTry,
-		})) === 'available'
-	) {
-		return {port: desiredPort, unlockPort, didUsePort: false as const};
-	}
-
-	if (typeof desiredPort !== 'undefined' && onPortUnavailable) {
-		const action = await onPortUnavailable(desiredPort);
-		if (action === 'stop') {
-			return {port: desiredPort, unlockPort, didUsePort: true as const};
+	try {
+		if (
+			typeof desiredPort !== 'undefined' &&
+			(await testPortAvailableOnMultipleHosts({
+				port: desiredPort,
+				hosts: hostsToTry,
+			})) === 'available'
+		) {
+			return {port: desiredPort, unlockPort, didUsePort: false as const};
 		}
-	}
 
-	const result = await getPort({
-		from,
-		to,
-		hostsToTest: hostsToTry,
-		onPortUnavailable,
-	});
+		if (typeof desiredPort !== 'undefined' && onPortUnavailable) {
+			const action = await onPortUnavailable(desiredPort);
+			if (action === 'stop') {
+				return {port: desiredPort, unlockPort, didUsePort: true as const};
+			}
+		}
 
-	if (result.didUsePort) {
-		return {port: result.port, unlockPort, didUsePort: true as const};
-	}
+		const result = await getPort({
+			from,
+			to,
+			hostsToTest: hostsToTry,
+			onPortUnavailable,
+		});
 
-	// If did specify a port but did not get that one, fail hard.
-	if (desiredPort && desiredPort !== result.port) {
+		if (result.didUsePort) {
+			return {port: result.port, unlockPort, didUsePort: true as const};
+		}
+
+		// If did specify a port but did not get that one, fail hard.
+		if (desiredPort && desiredPort !== result.port) {
+			throw new Error(
+				`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
+			);
+		}
+
+		return {port: result.port, unlockPort, didUsePort: false as const};
+	} catch (err) {
 		unlockPort();
-		throw new Error(
-			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
-		);
+		throw err;
 	}
-
-	return {port: result.port, unlockPort, didUsePort: false as const};
 };
 
 const makeRange = (from: number, to: number): number[] => {

@@ -100,7 +100,7 @@ Specify a desired output directory. If not passed, the bundle will be created in
 
 ### `rspack?`
 
-Whether to use [Rspack](https://rspack.dev) instead of Webpack as the bundler. Default `false`.
+Whether to use [Rspack](https://rspack.dev) instead of Webpack as the bundler. Default: `false`.
 
 ### `keyboardShortcutsEnabled?`
 
@@ -142,31 +142,28 @@ Ignore an error that gets thrown if you pass an entry point file which does not 
 
 ## Legacy function signature
 
-Remotion versions earlier than v3.2.17 had the following function signature instead:
+Remotion versions earlier than v3.2.17 only supported a signature with positional arguments. Remotion 4 still accepts it:
 
 ```ts
 const bundle: (
   entryPoint: string,
   onProgress?: (progress: number) => void,
-  options?: {
-    bundlerOverride?: BundlerOverrideFn;
-    rspackOverride?: RspackOverrideFn;
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
-    publicPath?: string;
-    rootDir?: string;
-    publicDir?: string | null;
-  },
+  options?: LegacyBundleOptions,
 ) => Promise<string>;
 ```
+
+`options` accepts the options described above, except `entryPoint`, `onProgress` and `ignoreRegisterRootWarning`. The `LegacyBundleOptions` type is exported from `@remotion/bundler`.
 
 Example:
 
 ```ts
-await bundle('src/index.ts', () => console.log(progress * 100 + '% done'), {
-  webpackOverride,
-});
+await bundle(
+  "src/index.ts",
+  (progress) => console.log(progress + "% done"),
+  {
+    webpackOverride,
+  },
+);
 ```
 
 It is supported through Remotion v4 and removed in Remotion 5.0. Migrate to the options object signature before upgrading.

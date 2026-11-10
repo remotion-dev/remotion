@@ -50,6 +50,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Cropping</strong>
 					<div>Mechanics, UI, state management</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/snapping">
+					<strong>Snapping</strong>
+					<div>Timeline and canvas snapping</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/fonts">
 					<strong>Fonts</strong>
 					<div>How fonts work and which ones are included</div>
@@ -63,7 +67,7 @@ export const TableOfContents: React.FC = () => {
 					<div>How to cleanup assets that are no longer needed</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/persistance">
-					<strong>Persistance</strong>
+					<strong>Persistence</strong>
 					<div>How data is persisted in the Editor Starter</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/captioning">
@@ -82,6 +86,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Backend Routes</strong>
 					<div>Backend routes used by the Editor Starter</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/production-checklist">
+					<strong>Production Checklist</strong>
+					<div>What to check before going to production</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/features-not-included">
 					<strong>Features not included</strong>
 					<div>Features not included in the Editor Starter</div>
@@ -89,6 +97,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/editor-starter/faq">
 					<strong>FAQ</strong>
 					<div>Frequently asked questions</div>
+				</TOCItem>
+				<TOCItem link="/docs/editor-starter/vs-studio">
+					<strong>vs. Remotion Studio</strong>
+					<div>How the Editor Starter differs from Remotion Studio</div>
 				</TOCItem>
 			</Grid>
 		</div>

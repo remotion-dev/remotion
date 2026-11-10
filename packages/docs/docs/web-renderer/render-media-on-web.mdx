@@ -201,6 +201,8 @@ _boolean_
 
 If set to `true`, the video will be encoded with an alpha channel, allowing for transparent backgrounds.
 The composition must render with a transparent background for this to work.
+From v4.0.543, `false` makes the final canvas opaque and composites the composition against black before encoding and before [`onFrame`](#onframe) is called. This changes the default output: a root pixel painted as `rgba(0, 0, 255, 0.5)` now becomes `rgb(0, 0, 128)`. Earlier versions only discarded alpha at the encoder, producing `rgb(0, 0, 255)` for that pixel.
+Opaque canvases can also change text antialiasing, including LCD text on Linux Chromium. Intermediate compositing layers retain their alpha channels.
 
 Only the `"webm"` and `"mkv"` containers support transparency. Only the `"vp8"` and `"vp9"` codecs support transparency. An error will be thrown if an incompatible container or codec is used.
 

@@ -75,6 +75,7 @@ const initialSettings: ConfigFileStudioSettings = {
 	numberOfSharedAudioTags: null,
 	rspack: null,
 	canvasTabsEnabled: null,
+	showDiagnostics: null,
 };
 
 const ConfigNumber = ({
@@ -154,7 +155,13 @@ const ConfigNumber = ({
 };
 
 export const StudioSettings: React.FC = () => {
-	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
+	const {
+		error: settingsError,
+		revision,
+		studioRuntimeConfig,
+		showDiagnostics,
+		setShowDiagnostics,
+	} = useSettings();
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [sequenceActivityLimitText, setSequenceActivityLimitText] =
@@ -810,6 +817,26 @@ export const StudioSettings: React.FC = () => {
 				}))}
 				value={settings.logLevel}
 			/>
+			<p style={sectionTitle}>Debug</p>
+			<div style={optionRow}>
+				<label htmlFor="remotion-show-diagnostics" style={label}>
+					Show diagnostics
+				</label>
+				<div style={{...rightRow, gap: 8}}>
+					{studioRuntimeConfig.showDiagnostics.source === 'cli' ? (
+						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
+							Set by --show-diagnostics
+						</span>
+					) : null}
+					<Checkbox
+						inputId="remotion-show-diagnostics"
+						name="Show diagnostics"
+						checked={showDiagnostics}
+						disabled={studioRuntimeConfig.showDiagnostics.source === 'cli'}
+						onChange={(event) => setShowDiagnostics(event.target.checked)}
+					/>
+				</div>
+			</div>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

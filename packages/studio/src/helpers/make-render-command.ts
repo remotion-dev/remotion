@@ -241,6 +241,7 @@ type ReadOnlyStudioRenderCommandInput = RenderMediaCommandOptions &
 		headless: boolean;
 		disableWebSecurity: boolean;
 		ignoreCertificateErrors: boolean;
+		chromiumOptions: RenderDefaults['chromiumOptions'];
 		gl: RenderDefaults['openGlRenderer'];
 		userAgent: string | null;
 		multiProcessOnLinux: boolean;
@@ -294,6 +295,7 @@ export const makeReadOnlyStudioRenderCommand = ({
 	headless,
 	disableWebSecurity,
 	ignoreCertificateErrors,
+	chromiumOptions,
 	gl,
 	userAgent,
 	multiProcessOnLinux,
@@ -320,6 +322,15 @@ export const makeReadOnlyStudioRenderCommand = ({
 	const command = getNpmRemotionCommandPrefix(remotionVersion);
 	const {options} = BrowserSafeApis;
 	const flags: string[] = [];
+	for (const [value, option] of [
+		[chromiumOptions.flags, options.chromiumFlagsOption],
+		[chromiumOptions.features, options.chromiumFeaturesOption],
+		[chromiumOptions.blinkFeatures, options.chromiumBlinkFeaturesOption],
+	] as const) {
+		if (Object.keys(value).length > 0) {
+			addFlagWithValue(flags, option.cliFlag, JSON.stringify(value));
+		}
+	}
 
 	addValueFlagsIfChanged(flags, [
 		valueFlag(options.scaleOption.cliFlag, scale, renderDefaults.scale),

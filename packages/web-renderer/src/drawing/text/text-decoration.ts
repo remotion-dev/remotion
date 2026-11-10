@@ -1,3 +1,5 @@
+import {resolveLengthPercentage} from '../background-image-rect';
+
 type TextDecorationLine = 'underline' | 'overline' | 'line-through';
 export type TextDecorationStyle =
 	| 'solid'
@@ -61,9 +63,16 @@ export const parseTextDecoration = ({
 		'text-decoration-thickness',
 	);
 	const thicknessValue = parseFloat(textDecorationThickness);
-	const thickness = Number.isFinite(thicknessValue)
-		? thicknessValue
-		: getDefaultTextDecorationThickness(parseFloat(style.fontSize));
+	const thickness =
+		textDecorationThickness.includes('%') ||
+		textDecorationThickness.includes('(')
+			? resolveLengthPercentage({
+					percentageBasis: parseFloat(style.fontSize),
+					value: textDecorationThickness,
+				})
+			: Number.isFinite(thicknessValue)
+				? thicknessValue
+				: getDefaultTextDecorationThickness(parseFloat(style.fontSize));
 
 	if (thickness <= 0) {
 		return null;

@@ -9,6 +9,8 @@ const accountHosts = [
 	},
 ];
 const accountPaths = [
+	'/compliance',
+	'/compliance.md',
 	'/login',
 	'/dashboard',
 	'/dashboard/:path*',
@@ -685,6 +687,12 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/terms.pdf', '/docs/terms.pdf', {permanent: true}),
 		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
 		routes.redirect('/privacy.pdf', '/docs/privacy.pdf', {permanent: true}),
+		routes.redirect('/terms-4-0', '/docs/terms-4-0', {permanent: true}),
+		routes.redirect('/terms-4-0.md', '/docs/terms-4-0.md', {permanent: true}),
+		routes.redirect('/privacy-4-0', '/docs/privacy-4-0', {permanent: true}),
+		routes.redirect('/privacy-4-0.md', '/docs/privacy-4-0.md', {
+			permanent: true,
+		}),
 		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
 		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
 		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),

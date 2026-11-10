@@ -40,7 +40,7 @@ export const PlayerGuide: React.FC = () => {
 					<div>Dealing with browser autoplay policies</div>
 				</TOCItem>
 				<TOCItem link="/docs/player/current-time">
-					<strong>Display time</strong>
+					<strong>Displaying the current time</strong>
 					<div>Write a custom component for displaying the current time</div>
 				</TOCItem>
 				<TOCItem link="/docs/player/preloading">

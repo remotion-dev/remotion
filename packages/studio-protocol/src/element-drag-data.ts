@@ -305,8 +305,8 @@ export function assertElementAssets(
 }
 
 const dimensionsSchema = z.object({
-	width: z.number().check(z.positive()),
-	height: z.number().check(z.positive()),
+	width: z.number().check(z.positive(), z.lte(100_000)),
+	height: z.number().check(z.positive(), z.lte(100_000)),
 });
 
 const elementInstallationModeSchema = z.union([
@@ -601,6 +601,13 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			}
 
 			dependencies.push(dependency);
+		}
+
+		if (
+			parsed.data.element.isCaptionStyle &&
+			parsed.data.element.installationMode !== 'component-owned-sequence'
+		) {
+			return null;
 		}
 
 		const initialProps = parsed.data.element.initialProps ?? null;
