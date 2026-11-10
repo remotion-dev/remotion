@@ -20,7 +20,9 @@ const fasterConfig = {
 	rspackBundler: true,
 	rspackPersistentCache: !isVercel,
 	ssgWorkerThreads: !isVercel,
-	gitEagerVcs: true,
+	// Docusaurus buffers the repository-wide Git log with a 20 MiB limit.
+	// Per-file lookups preserve last-update metadata without overflowing it.
+	gitEagerVcs: false,
 };
 
 const showGitLastUpdate =

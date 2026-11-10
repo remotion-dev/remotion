@@ -37,7 +37,8 @@ export const applyChromiumOptions = (
 		for (const [name, enabled] of Object.entries(features)) {
 			for (let i = 0; i < lists.length; i++) {
 				lists[i] = lists[i].filter(
-					(feature) => feature.replace(/^\*/, '').split(/[<:]/)[0] !== name,
+					(feature) =>
+						feature.replace(/^\*/, '').split(/[<:]/)[0].trim() !== name,
 				);
 			}
 
