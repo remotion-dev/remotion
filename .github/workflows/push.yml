@@ -173,6 +173,67 @@ jobs:
           path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
           if-no-files-found: ignore
           retention-days: 7
+  webrenderer-burn-in:
+    needs: affected
+    if: ${{ github.event_name == 'pull_request' && needs.affected.outputs.webrenderer == 'true' && needs.affected.outputs.scm_base != '' }}
+    runs-on: macos-latest
+    timeout-minutes: 40
+    name: Web renderer burn-in
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          filter: blob:none
+      - name: Find added or changed web renderer tests
+        id: changed
+        env:
+          SCM_BASE: ${{ needs.affected.outputs.scm_base }}
+          SCM_HEAD: ${{ needs.affected.outputs.scm_head }}
+          MAX_FILES: 5
+        run: |
+          files=$(git diff --name-only --diff-filter=AMR "$SCM_BASE" "$SCM_HEAD" -- \
+            'packages/web-renderer/src/test/*.test.ts' \
+            'packages/web-renderer/src/test/*.test.tsx' \
+            | sed 's#^packages/web-renderer/##' | tr '\n' ' ')
+          count=$(echo "$files" | wc -w | tr -d ' ')
+          if [ "$count" -eq 0 ]; then
+            echo "No added or changed web renderer test files."
+          elif [ "$count" -gt "$MAX_FILES" ]; then
+            echo "::notice::Skipping burn-in: $count test files changed (limit $MAX_FILES)."
+            files=""
+          else
+            echo "Burning in: $files"
+          fi
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v6
+        if: ${{ steps.changed.outputs.files != '' }}
+        with:
+          node-version: 26
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+        if: ${{ steps.changed.outputs.files != '' }}
+        with:
+          bun-version: 1.4.3
+      - name: Install
+        if: ${{ steps.changed.outputs.files != '' }}
+        run: bun ci
+      - name: Install deps
+        if: ${{ steps.changed.outputs.files != '' }}
+        run: cd packages/web-renderer && bunx playwright install --with-deps
+      - name: Cache Turbo
+        if: ${{ steps.changed.outputs.files != '' }}
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
+      - name: Build web renderer
+        if: ${{ steps.changed.outputs.files != '' }}
+        run: bunx turbo run make --filter=@remotion/web-renderer
+      # Runs each added or changed test file 5 times (1 + 4 repeats) under the
+      # same single-worker, three-browser setup as "Web renderer tests", so
+      # flaky new tests fail here instead of in the merge queue.
+      - name: Burn in changed tests
+        if: ${{ steps.changed.outputs.files != '' }}
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: cd packages/web-renderer && bunx vitest --browser --run --repeats 4 $FILES
   ssr-tests:
     needs: affected
     if: ${{ needs.affected.outputs.ssr == 'true' }}
@@ -394,6 +455,7 @@ jobs:
       - nextjs-tests
       - browser-tests
       - webrenderer-tests
+      - webrenderer-burn-in
       - ssr-tests
       - monorepo-tests
       - template-tests
@@ -410,5 +472,5 @@ jobs:
         env:
           CI_PLAN: ${{ needs.affected.outputs.plan }}
           CI_RESULTS: >-
-            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
+            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","webrenderer_burn_in":"${{ needs.webrenderer-burn-in.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
         run: bun .github/scripts/ci.ts validate

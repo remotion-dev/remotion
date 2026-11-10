@@ -62,6 +62,12 @@ Treat a failure as a flake when at least one is true:
 - The failure is infrastructure/network related, such as `fetch failed`, connection resets, package manager download failures, cache service failures, or runner provisioning errors.
 - The test failure is a timeout, race, browser disconnect, port collision, or intermittent external service failure, and the PR changes do not plausibly touch that area.
 
+### Flakes In Tests The PR Added Or Changed
+
+If the flaky test lives in a test file the PR added or modified (check with `gh pr diff <pr-number> --name-only`), the flake was introduced by the PR. Still record it in the tracker, but do not rerun to get a green check. Instead, report it as a blocker: the PR must make the test deterministic, or skip it with a link to its tracker row, before merging. A green rerun does not prove the new test is stable, and merging it moves the flake onto every other PR and the merge queue.
+
+The `Web renderer burn-in` job runs changed web renderer test files 5 times. A failure there is never rerun away; treat it the same way.
+
 Do not record deterministic type errors, lint errors, snapshots, or test assertions caused by changed source behavior unless there is evidence they pass on retry.
 
 ## Signature Rules
@@ -129,6 +135,8 @@ gh issue view 8375 --repo remotion-dev/remotion --json body --jq .body
 Confirm the saved body matches the prepared Markdown and still has one complete, uninterrupted table with descending counts. Inspect the rendered issue (or GitHub-rendered HTML) to ensure every entry appears inside the five-column table; a successful API response alone does not verify the layout.
 
 ## Rerun
+
+Skip this section for flakes in tests the PR added or changed (see above).
 
 Prefer rerunning only failed jobs:
 

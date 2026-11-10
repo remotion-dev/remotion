@@ -264,6 +264,7 @@ export type RequiredCiResults = {
 	nextjs: string;
 	browser: string;
 	webrenderer: string;
+	webrenderer_burn_in: string;
 	ssr: string;
 	monorepo: string;
 	templates: string;
@@ -280,6 +281,16 @@ export const validateRequiredCi = (
 	}
 	if (results.lint !== 'success') {
 		throw new Error(`Lint concluded with ${results.lint}`);
+	}
+	// The burn-in only runs on pull requests with a known diff base,
+	// so it may be skipped, but it must never fail or be cancelled.
+	if (
+		results.webrenderer_burn_in !== 'success' &&
+		results.webrenderer_burn_in !== 'skipped'
+	) {
+		throw new Error(
+			`Web renderer burn-in concluded with ${results.webrenderer_burn_in}`,
+		);
 	}
 
 	const selectedSuites = getSelectedSuites(plan);
