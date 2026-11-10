@@ -35,11 +35,13 @@ export const installPackageDependencies = async ({
 	logLevel,
 	remotionRoot,
 	dependencies,
+	packageManager,
 	invalidateBundle,
 }: {
 	readonly logLevel: LogLevel;
 	readonly remotionRoot: string;
 	readonly dependencies: readonly PackageInstallSpec[];
+	readonly packageManager: string | null;
 	readonly invalidateBundle: (() => Promise<void>) | null;
 }): Promise<void> => {
 	for (const dependency of dependencies) {
@@ -67,7 +69,7 @@ export const installPackageDependencies = async ({
 
 	const manager = getPackageManager({
 		remotionRoot,
-		packageManager: undefined,
+		packageManager: packageManager ?? undefined,
 		dirUp: 0,
 		logLevel,
 	});
@@ -178,6 +180,7 @@ export const handleInstallPackage = async ({
 		logLevel,
 		remotionRoot,
 		dependencies,
+		packageManager: null,
 		invalidateBundle,
 	});
 	return {};

@@ -67,11 +67,11 @@ Base band direction before wave displacement. Either `'horizontal'` or `'vertica
 
 ### `thickness?`
 
-Thickness of each band in pixels. Defaults to `40`.
+Thickness of each band in pixels. Defaults to `40`. Must be greater than `0`.
 
 ### `gap?`
 
-Transparent gap in pixels between each band. Defaults to `0`.
+Transparent gap in pixels between each band. Defaults to `0`. Must be at least `0`.
 
 ### `angle?`
 
@@ -85,7 +85,7 @@ Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll
 
 ### `amplitude?`
 
-Wave displacement in pixels. Defaults to `24`.
+Wave displacement in pixels. Defaults to `24`. Must be at least `0`.
 
 ### `wavelength?`
 

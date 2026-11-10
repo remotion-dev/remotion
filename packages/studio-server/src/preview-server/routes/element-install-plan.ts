@@ -58,7 +58,7 @@ export const validateElementForInstallation = (
 	if (
 		typeof element.sourceCode !== 'string' ||
 		element.sourceCode.trim().length === 0 ||
-		element.sourceCode.length > 200000
+		element.sourceCode.length >= 200_000
 	) {
 		throw new Error('Unsupported Element source code');
 	}

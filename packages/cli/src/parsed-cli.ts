@@ -62,6 +62,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
@@ -109,6 +110,9 @@ export type CommandLineOptions = {
 	[chromiumFlagsOption.cliFlag]: string;
 	[chromiumFeaturesOption.cliFlag]: string;
 	[chromiumBlinkFeaturesOption.cliFlag]: string;
+	[openTimelineMediaDirectoryOption.cliFlag]: TypeOfOption<
+		typeof openTimelineMediaDirectoryOption
+	>;
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
 		typeof allowHtmlInCanvasOption
 	> | null;

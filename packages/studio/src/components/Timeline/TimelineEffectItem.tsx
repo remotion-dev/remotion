@@ -1,6 +1,15 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
@@ -60,6 +69,65 @@ type EffectReorderDragData = {
 };
 
 let currentEffectDrag: EffectReorderDragData | null = null;
+
+type EffectDropTarget = {
+	element: HTMLDivElement;
+	beforeElement: HTMLDivElement | null;
+	setIndicator: (indicator: 'before' | 'after' | null) => void;
+};
+
+const EffectReorderTargetsContext = createContext<Map<
+	number,
+	EffectDropTarget
+> | null>(null);
+
+export const EffectReorderTargetsProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const [targets] = useState(() => new Map<number, EffectDropTarget>());
+	return (
+		<EffectReorderTargetsContext.Provider value={targets}>
+			<div
+				style={{display: 'contents'}}
+				onDragLeave={(event) => handleEffectDragLeave(event, targets)}
+			>
+				{children}
+			</div>
+		</EffectReorderTargetsContext.Provider>
+	);
+};
+
+let activeEffectDropTarget: {
+	target: EffectDropTarget;
+	scope: Map<number, EffectDropTarget>;
+} | null = null;
+
+const clearEffectDropIndicator = () => {
+	activeEffectDropTarget?.target.setIndicator(null);
+	activeEffectDropTarget = null;
+};
+
+const handleEffectDragLeave = (
+	e: React.DragEvent<HTMLDivElement> | DragEvent,
+	targets: Map<number, EffectDropTarget>,
+) => {
+	const {currentTarget, relatedTarget} = e;
+	if (
+		relatedTarget instanceof Node &&
+		((currentTarget instanceof Node && currentTarget.contains(relatedTarget)) ||
+			Array.from(targets.values()).some(
+				({element, beforeElement}) =>
+					element.contains(relatedTarget) ||
+					beforeElement?.contains(relatedTarget),
+			))
+	) {
+		return;
+	}
+
+	if (activeEffectDropTarget?.scope === targets) {
+		clearEffectDropIndicator();
+	}
+};
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -151,6 +219,8 @@ export const TimelineEffectItem: React.FC<{
 	readonly revealInInspector: boolean;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
+	readonly children: React.ReactNode;
+	readonly beforeDropTargetRef: React.RefObject<HTMLDivElement | null> | null;
 }> = ({
 	label,
 	nodePathInfo,
@@ -165,6 +235,8 @@ export const TimelineEffectItem: React.FC<{
 	revealInInspector,
 	getIsExpanded,
 	toggleTrack,
+	children,
+	beforeDropTargetRef,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {openInApps} = useOpenInMenuApps();
@@ -187,6 +259,31 @@ export const TimelineEffectItem: React.FC<{
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,
 	);
+	const reorderTargetRef = useRef<HTMLDivElement>(null);
+	const dropTargets = useContext(EffectReorderTargetsContext);
+	if (dropTargets === null) {
+		throw new Error('EffectReorderTargetsProvider is missing');
+	}
+
+	useLayoutEffect(() => {
+		const element = reorderTargetRef.current;
+		if (!element) return;
+		const target: EffectDropTarget = {
+			element,
+			beforeElement: beforeDropTargetRef?.current ?? null,
+			setIndicator: setDropIndicator,
+		};
+		dropTargets.set(effectIndex, target);
+		return () => {
+			if (activeEffectDropTarget?.target === target) {
+				clearEffectDropIndicator();
+			}
+
+			if (dropTargets.get(effectIndex) === target) {
+				dropTargets.delete(effectIndex);
+			}
+		};
+	}, [beforeDropTargetRef, dropTargets, effectIndex]);
 
 	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
@@ -473,14 +570,18 @@ export const TimelineEffectItem: React.FC<{
 	}, [containsSelection, selection.selected]);
 
 	const getDropTarget = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
+		(e: React.DragEvent<HTMLDivElement> | DragEvent, forceBefore: boolean) => {
+			if (!e.dataTransfer || !(e.currentTarget instanceof HTMLElement)) {
+				return null;
+			}
+
 			const dragData = getEffectReorderDragData(e.dataTransfer);
 			if (!dragData || dragData.nodePathKey !== nodePathKey) {
 				return null;
 			}
 
 			const rect = e.currentTarget.getBoundingClientRect();
-			const before = e.clientY < rect.top + rect.height / 2;
+			const before = forceBefore || e.clientY < rect.top + rect.height / 2;
 			const insertionIndex = before ? effectIndex : effectIndex + 1;
 			const toIndex = getDestinationIndex({
 				fromIndex: dragData.effectIndex,
@@ -494,7 +595,7 @@ export const TimelineEffectItem: React.FC<{
 			return {
 				dragData,
 				toIndex,
-				indicator: before ? ('before' as const) : ('after' as const),
+				insertionIndex,
 			};
 		},
 		[effectIndex, nodePathKey],
@@ -508,6 +609,7 @@ export const TimelineEffectItem: React.FC<{
 			}
 
 			const dragData = {nodePathKey, effectIndex};
+			clearEffectDropIndicator();
 			currentEffectDrag = dragData;
 			e.dataTransfer.effectAllowed = 'move';
 			e.dataTransfer.setData(
@@ -521,39 +623,58 @@ export const TimelineEffectItem: React.FC<{
 
 	const onDragEnd = useCallback(() => {
 		currentEffectDrag = null;
-		setDropIndicator(null);
+		clearEffectDropIndicator();
 	}, []);
 
 	const onDragOver = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!canReorder || !hasEffectReorderDragType(e.dataTransfer)) {
+		(e: React.DragEvent<HTMLDivElement> | DragEvent, forceBefore: boolean) => {
+			if (
+				!canReorder ||
+				!e.dataTransfer ||
+				!hasEffectReorderDragType(e.dataTransfer)
+			) {
 				return;
 			}
 
-			const dropTarget = getDropTarget(e);
+			const dropTarget = getDropTarget(e, forceBefore);
 			if (!dropTarget) {
-				setDropIndicator(null);
+				clearEffectDropIndicator();
+				return;
+			}
+
+			const afterLastEffect = dropTarget.insertionIndex === effects.length;
+			const target = dropTargets.get(
+				afterLastEffect ? effects.length - 1 : dropTarget.insertionIndex,
+			);
+			if (!target) {
+				clearEffectDropIndicator();
 				return;
 			}
 
 			e.preventDefault();
 			e.stopPropagation();
 			e.dataTransfer.dropEffect = 'move';
-			setDropIndicator(dropTarget.indicator);
+			if (activeEffectDropTarget?.target !== target) {
+				clearEffectDropIndicator();
+				activeEffectDropTarget = {target, scope: dropTargets};
+			}
+
+			target.setIndicator(afterLastEffect ? 'after' : 'before');
 		},
-		[canReorder, getDropTarget],
+		[canReorder, dropTargets, effects.length, getDropTarget],
 	);
 
-	const onDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-		if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
-			return;
-		}
-
-		setDropIndicator(null);
-	}, []);
+	const onDragLeave = useCallback(
+		(event: React.DragEvent<HTMLDivElement> | DragEvent) =>
+			handleEffectDragLeave(event, dropTargets),
+		[dropTargets],
+	);
 
 	const onDrop = useCallback(
-		async (e: React.DragEvent<HTMLDivElement>) => {
+		async (
+			e: React.DragEvent<HTMLDivElement> | DragEvent,
+			forceBefore: boolean,
+		) => {
 			if (
 				!canReorder ||
 				previewServerState.type !== 'connected' ||
@@ -562,15 +683,15 @@ export const TimelineEffectItem: React.FC<{
 				return;
 			}
 
-			const dropTarget = getDropTarget(e);
+			const dropTarget = getDropTarget(e, forceBefore);
 			if (!dropTarget) {
-				setDropIndicator(null);
+				clearEffectDropIndicator();
 				return;
 			}
 
 			e.preventDefault();
 			e.stopPropagation();
-			setDropIndicator(null);
+			clearEffectDropIndicator();
 			currentEffectDrag = null;
 
 			try {
@@ -598,6 +719,25 @@ export const TimelineEffectItem: React.FC<{
 		],
 	);
 
+	useEffect(() => {
+		const target = beforeDropTargetRef?.current;
+		if (!target || !canReorder) {
+			return;
+		}
+
+		const onBeforeDragOver = (event: DragEvent) => onDragOver(event, true);
+		const onBeforeDrop = (event: DragEvent) => onDrop(event, true);
+
+		target.addEventListener('dragover', onBeforeDragOver);
+		target.addEventListener('dragleave', onDragLeave);
+		target.addEventListener('drop', onBeforeDrop);
+		return () => {
+			target.removeEventListener('dragover', onBeforeDragOver);
+			target.removeEventListener('dragleave', onDragLeave);
+			target.removeEventListener('drop', onBeforeDrop);
+		};
+	}, [beforeDropTargetRef, canReorder, onDragLeave, onDragOver, onDrop]);
+
 	const reorderLineStyle = useMemo((): React.CSSProperties | null => {
 		if (!dropIndicator) {
 			return null;
@@ -605,7 +745,7 @@ export const TimelineEffectItem: React.FC<{
 
 		return {
 			...reorderLineBase,
-			...(dropIndicator === 'before' ? {top: -1} : {bottom: -1}),
+			...(dropIndicator === 'before' ? {top: 0} : {bottom: 0}),
 		};
 	}, [dropIndicator]);
 
@@ -648,26 +788,26 @@ export const TimelineEffectItem: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	const draggableRow = canReorder ? (
+	return (
 		<div
-			draggable
-			onDragStart={onDragStart}
-			onDragEnd={onDragEnd}
-			onDragOver={onDragOver}
-			onDragLeave={onDragLeave}
-			onDrop={onDrop}
+			ref={reorderTargetRef}
+			onDragOver={canReorder ? (event) => onDragOver(event, false) : undefined}
+			onDrop={canReorder ? (event) => onDrop(event, false) : undefined}
 			style={reorderWrapper}
 		>
-			{reorderLineStyle ? <div style={reorderLineStyle} /> : null}
-			{row}
+			{reorderLineStyle ? (
+				<div data-remotion-effect-drop-indicator style={reorderLineStyle} />
+			) : null}
+			<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+				<div
+					draggable={canReorder}
+					onDragStart={onDragStart}
+					onDragEnd={onDragEnd}
+				>
+					{row}
+				</div>
+			</ContextMenu>
+			{children}
 		</div>
-	) : (
-		row
-	);
-
-	return (
-		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
-			{draggableRow}
-		</ContextMenu>
 	);
 };

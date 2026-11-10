@@ -1,10 +1,10 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-media-audio.png
 title: '<Audio>'
-crumb: 'API - @remotion/media'
+crumb: '@remotion/media'
 ---
 
-[`<Audio>` from `@remotion/media`](/docs/media/audio) is the recommended component for embedding audio in Remotion.
+`<Audio>` from `@remotion/media` is the recommended component for embedding audio in Remotion.
 
 During rendering, it extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg. This keeps the audio in sync with Remotion's timeline.
 
@@ -23,7 +23,7 @@ export const MyVideo = () => {
 };
 ```
 
-You can load a video from an URL as well:
+You can load audio from a URL as well:
 
 ```tsx twoslash
 import {Audio} from '@remotion/media';
@@ -181,7 +181,7 @@ export const MyVideo = () => {
 - If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
   :::
 
-### `playbackRate?`
+### `playbackRate?`<AvailableFrom v="4.0.354" />
 
 Controls the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
@@ -205,7 +205,7 @@ Playing audio in reverse is not supported.
 Changing `playbackRate` also changes the audio pitch by default. Pass [`preservePitch={true}`](#preservepitch) to preserve the original pitch.
 :::
 
-### `loop?`<AvailableFrom v="3.2.29" />
+### `loop?`
 
 Makes the audio loop indefinitely.
 
@@ -218,7 +218,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `loopVolumeCurveBehavior?`
+### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
 
 This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
@@ -249,7 +249,7 @@ When [falling back to a native media component](/docs/media/fallback), this prop
 
 ### `muted?`
 
-The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
+The `muted` prop will be respected. It will lead to no audio being played while still keeping the component mounted. Its value may change over time, for example to only mute a certain section of the audio.
 
 ```tsx twoslash title="Example of a muted video"
 import {Audio} from '@remotion/media';
@@ -258,6 +258,14 @@ export const MyComposition = () => {
   return <Audio muted src="https://remotion.media/audio.wav" />;
 };
 ```
+
+### `style?`
+
+Styles applied to the `<audio>` element when [falling back to `<Html5Audio>`](/docs/media/fallback). Has no effect otherwise.
+
+### `logLevel?`
+
+<Options id="log" />
 
 ### `showInTimeline?`
 
@@ -314,7 +322,9 @@ export const MyComposition = () => {
 
 ### `requestInit?`<AvailableFrom v="4.0.465" />
 
-Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the audio data.
+Passes a subset of [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the audio data: `cache`, `credentials`, `headers`, `integrity`, `mode`, `redirect`, `referrer` and `referrerPolicy`.
+
+`headers` accepts an object or an array of `[key, value]` tuples, but not a `Headers` instance.
 
 Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
 The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
@@ -332,7 +342,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `toneFrequency?`
+### `toneFrequency?`<AvailableFrom v="4.0.357" />
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 
@@ -376,7 +386,7 @@ Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
 #### `preservePitch?`<AvailableFrom v="4.0.463" />
 
 Maps to [`<Html5Audio />` -> `preservePitch`](/docs/html5-audio#preservepitch).  
-Only affects preview playback when falling back to [`<Html5Audio>`](/docs/html5-audio).
+Takes precedence over [`preservePitch`](#preservepitch) when falling back to [`<Html5Audio>`](/docs/html5-audio).
 
 ### `disallowFallbackToHtml5Audio?`
 
@@ -387,6 +397,10 @@ Pass this prop to disable the fallback and fail the render instead.
 :::note
 When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
 :::
+
+### Inherited props
+
+`<Audio>` inherits [`freeze`](/docs/sequence#freeze)<AvailableFrom v="4.0.477" inline /> and [`hidden`](/docs/sequence#hidden)<AvailableFrom v="4.0.463" inline /> from [`<Sequence>`](/docs/sequence).
 
 ## Compatibility
 

@@ -2,8 +2,33 @@ import {expect, test} from 'vitest';
 import {
 	getBackgroundImageRect,
 	parsePosition,
+	resolveLengthPercentage,
 	resolvePosition,
+	splitAtTopLevel,
 } from '../drawing/background-image-rect';
+
+test('uses native CSS math when Typed OM rejects a supported function', () => {
+	const original = Object.getOwnPropertyDescriptor(window, 'CSSNumericValue');
+	Object.defineProperty(window, 'CSSNumericValue', {
+		configurable: true,
+		value: {
+			parse: () => {
+				throw new SyntaxError('Unsupported Typed OM function');
+			},
+		},
+	});
+	try {
+		expect(
+			resolveLengthPercentage({
+				percentageBasis: 40,
+				value: 'round(up, 10%, 3px)',
+			}),
+		).toBe(6);
+	} finally {
+		if (original) Object.defineProperty(window, 'CSSNumericValue', original);
+		else Reflect.deleteProperty(window, 'CSSNumericValue');
+	}
+});
 
 test('positions an oversized percentage background image', () => {
 	const rect = getBackgroundImageRect({
@@ -97,3 +122,12 @@ test.each([
 		expect(rect.height).toBe(height);
 	},
 );
+
+// Multiple CSS masks may include URL punctuation inside quoted arguments.
+test('retains parentheses and commas inside quoted image URLs', () => {
+	const value = 'url("/mask)tile.png"), url("/mask(,tile.png")';
+	expect(splitAtTopLevel(value, ',')).toEqual([
+		'url("/mask)tile.png")',
+		'url("/mask(,tile.png")',
+	]);
+});

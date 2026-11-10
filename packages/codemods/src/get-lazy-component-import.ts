@@ -74,7 +74,7 @@ const unwrapExpression = (node: Node | null | undefined): Node | null => {
 	return null;
 };
 
-const getDynamicImportPath = (node: Node): string | null => {
+export const getDynamicImportPath = (node: Node): string | null => {
 	if (
 		node.type === 'ImportExpression' &&
 		node.source.type === 'StringLiteral'

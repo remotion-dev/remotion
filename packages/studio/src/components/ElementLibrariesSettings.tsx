@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {BookIcon} from '../icons/book';
 import {BrowseElementsIcon} from '../icons/browse-elements';
 import {LinkIcon} from '../icons/link';
@@ -16,7 +17,7 @@ import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
-const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
+export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
 const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {
@@ -261,9 +262,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 							style={libraryIcon}
 						/>
 						<div style={libraryDetails}>
-							<div style={libraryName}>
-								{library.displayName ?? new URL(library.url).host}
-							</div>
+							<div style={libraryName}>{getElementLibraryLabel(library)}</div>
 							<a
 								href={library.url}
 								target="_blank"

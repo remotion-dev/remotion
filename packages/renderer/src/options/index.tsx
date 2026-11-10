@@ -66,6 +66,7 @@ import {numberOfSharedAudioTagsOption} from './number-of-shared-audio-tags';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
+import {openTimelineMediaDirectoryOption} from './open-timeline-media-directory';
 import type {AnyRemotionOption} from './option';
 import {outDirOption} from './out-dir';
 import {overrideDurationOption} from './override-duration';
@@ -206,6 +207,7 @@ export const allOptions = {
 	overrideDurationOption,
 	rspackOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	skipSkillsOption,
 	sampleRateOption,

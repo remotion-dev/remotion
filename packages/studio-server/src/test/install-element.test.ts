@@ -162,6 +162,7 @@ test('installs an Element into a project without a running Studio', async () => 
 			publicDir: project.publicDir,
 			logLevel: 'error',
 			installDependencies: true,
+			packageManager: null,
 			studio: false,
 		});
 
