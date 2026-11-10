@@ -1688,6 +1688,22 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_diagnostics',
+					title: 'Get Studio diagnostics',
+					description:
+						'Read cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({...Internals.playbackDiagnostics}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_audio_levels',
 					title: 'Get Studio audio levels',
 					description:

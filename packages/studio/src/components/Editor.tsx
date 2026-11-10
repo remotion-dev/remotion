@@ -12,6 +12,7 @@ import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {CanvasCaptureDropHandler} from './CanvasCaptureDropHandler';
+import {Diagnostics} from './Diagnostics';
 import {EditorContent} from './EditorContent';
 import {ElementInstallRequestHandler} from './ElementInstallRequestHandler';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
@@ -141,6 +142,7 @@ export const Editor: React.FC<{
 						</Internals.CurrentScaleContext.Provider>
 					</RefreshCanvasSizeContext.Provider>
 					<ElementInstallRequestHandler />
+					<Diagnostics />
 					<Modals readOnlyStudio={readOnlyStudio} />
 					<NotificationCenter />
 				</SequencePropsSubscriptionProvider>

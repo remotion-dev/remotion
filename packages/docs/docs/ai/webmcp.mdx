@@ -811,6 +811,22 @@ While composition metadata is loading, `currentFrame` is `null` and `outlines` i
 }
 ```
 
+### `get_diagnostics`<AvailableFrom v="4.0.543" />
+
+Returns cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Creation counts reset when the page reloads. Available in every Studio mode, including when the diagnostics window is hidden.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  audioIteratorsCreated: number;
+  mediabunnySinksOpen: number;
+  bufferingHandlesCreated: number;
+}
+```
+
 ### `get_audio_levels`<AvailableFrom v="4.0.543" />
 
 Returns the Audio Levels panel's visibility and the current left and right sample peaks in dBFS from Studio's shared Web Audio context. Silence is reported as `-60`. Levels are `null` when the panel is hidden or audio is unavailable. Media that bypasses this context is not measured. Available in every Studio mode.

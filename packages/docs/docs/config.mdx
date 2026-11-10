@@ -320,6 +320,20 @@ Config.setHighContrast(true);
 
 The [`--high-contrast`](/docs/options/high-contrast) flag takes precedence over this option.
 
+## `setShowDiagnostics()`<AvailableFrom v="4.0.543" />
+
+<Options id="show-diagnostics" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowDiagnostics(true);
+```
+
+You can also toggle this in Settings → Studio → Debug. Drag the window by its title, or focus the title and use the arrow keys to move it.
+
+The [`--show-diagnostics`](/docs/options/show-diagnostics) flag takes precedence over this option.
+
 ## `setShowLayerFrameNumbers()`<AvailableFrom v="4.0.535" />
 
 <Options id="show-layer-frame-numbers" />

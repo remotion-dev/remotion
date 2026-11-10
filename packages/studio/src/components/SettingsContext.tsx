@@ -38,6 +38,8 @@ type SettingsContextValue = {
 	readonly renderDefaults: RenderDefaults | null;
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
+	readonly showDiagnostics: boolean;
+	readonly setShowDiagnosticsPreview: (visible: boolean | null) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
@@ -57,7 +59,12 @@ export const SettingsProvider: React.FC<{
 	const [settings, setSettings] = useState<
 		Omit<
 			SettingsContextValue,
-			'setPublicLicenseKey' | 'installSkill' | 'removeSkill' | 'upgradeSkill'
+			| 'setPublicLicenseKey'
+			| 'installSkill'
+			| 'removeSkill'
+			| 'upgradeSkill'
+			| 'showDiagnostics'
+			| 'setShowDiagnosticsPreview'
 		>
 	>({
 		codingAgentInfo: null,
@@ -72,6 +79,9 @@ export const SettingsProvider: React.FC<{
 		skillActionError: null,
 	});
 	const [skillsRevision, setSkillsRevision] = useState(0);
+	const [showDiagnosticsPreview, setShowDiagnosticsPreview] = useState<
+		boolean | null
+	>(null);
 
 	useEffect(() => {
 		if (
@@ -184,6 +194,7 @@ export const SettingsProvider: React.FC<{
 				return;
 			}
 
+			setShowDiagnosticsPreview(null);
 			setSettings((currentSettings) => ({
 				...currentSettings,
 				codingAgentInfo: currentSettings.codingAgentInfo
@@ -305,12 +316,24 @@ export const SettingsProvider: React.FC<{
 	const value = useMemo<SettingsContextValue>(() => {
 		return {
 			...settings,
+			showDiagnostics:
+				showDiagnosticsPreview ??
+				settings.studioRuntimeConfig?.showDiagnostics ??
+				false,
+			setShowDiagnosticsPreview,
 			setPublicLicenseKey,
 			installSkill,
 			removeSkill,
 			upgradeSkill,
 		};
-	}, [installSkill, removeSkill, setPublicLicenseKey, settings, upgradeSkill]);
+	}, [
+		installSkill,
+		removeSkill,
+		setPublicLicenseKey,
+		settings,
+		upgradeSkill,
+		showDiagnosticsPreview,
+	]);
 
 	return (
 		<SettingsContext.Provider value={value}>

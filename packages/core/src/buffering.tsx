@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {LogLevel} from './log';
 import {LogLevelContext} from './log-level-context';
+import {playbackDiagnostics} from './playback-diagnostics';
 import {playbackLogging} from './playback-logging';
 import {SetTimelineContext} from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment';
@@ -34,6 +35,7 @@ const useBufferManager = (
 			};
 		}
 
+		playbackDiagnostics.bufferingHandlesCreated++;
 		let unblocked = false;
 
 		setBlockCount((count) => count + 1);

@@ -137,6 +137,8 @@ export const videoIteratorManager = async ({
 		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
 
+	const releaseSink = Internals.registerMediabunnySink(videoTrack.input);
+
 	const paintFrame = async (
 		frame: WrappedCanvas,
 		mediaTime: number | null,
@@ -497,6 +499,7 @@ export const videoIteratorManager = async ({
 			}
 
 			destroyed = true;
+			releaseSink();
 			// Cancel only this manager's pending run, not a newer run sharing its state.
 			if (
 				pendingEffectRun &&

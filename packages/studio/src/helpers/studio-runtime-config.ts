@@ -8,6 +8,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
 	showLayerFrameNumbers: false,
+	showDiagnostics: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,

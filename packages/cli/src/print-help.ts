@@ -110,6 +110,7 @@ const studioOptions = options(
 		'disable-keyboard-shortcuts',
 		'preserve-pitch-on-playback',
 		'disable-canvas-tabs',
+		'show-diagnostics',
 		'disable-interactivity',
 		'sequence-activity-limit',
 		'allow-html-in-canvas',

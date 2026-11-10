@@ -142,6 +142,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
 	highContrastOption,
@@ -250,6 +251,7 @@ declare global {
 		 * @default true
 		 */
 		readonly setCanvasTabsEnabled: (enabled: boolean) => void;
+		readonly setShowDiagnostics: (enabled: boolean) => void;
 		/**
 		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
 		 * @default false
@@ -840,6 +842,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setPreservePitchOnPlayback: preservePitchOnPlaybackOption.setConfig,
+	setShowDiagnostics: showDiagnosticsOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
 	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,

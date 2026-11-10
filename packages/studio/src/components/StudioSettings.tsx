@@ -75,6 +75,7 @@ const initialSettings: ConfigFileStudioSettings = {
 	numberOfSharedAudioTags: null,
 	rspack: null,
 	canvasTabsEnabled: null,
+	showDiagnostics: null,
 };
 
 const ConfigNumber = ({
@@ -154,7 +155,13 @@ const ConfigNumber = ({
 };
 
 export const StudioSettings: React.FC = () => {
-	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
+	const {
+		error: settingsError,
+		revision,
+		studioRuntimeConfig,
+		showDiagnostics,
+		setShowDiagnosticsPreview,
+	} = useSettings();
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [sequenceActivityLimitText, setSequenceActivityLimitText] =
@@ -210,10 +217,14 @@ export const StudioSettings: React.FC = () => {
 			setter: string,
 			value: ConfigFileStudioSettings[keyof ConfigFileStudioSettings],
 		) => {
+			if (key === 'showDiagnostics') {
+				setShowDiagnosticsPreview(value === true);
+			}
+
 			setSettings((current) => ({...current, [key]: value}));
 			setEditedSetters((current) => new Set(current).add(setter));
 		},
-		[],
+		[setShowDiagnosticsPreview],
 	);
 	const previewNumberSetting = useCallback(
 		(
@@ -274,6 +285,7 @@ export const StudioSettings: React.FC = () => {
 				committedNumberSettings.sequenceActivityLimit,
 			),
 			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
+			update('setShowDiagnostics', settings.showDiagnostics),
 			update('setLogLevel', settings.logLevel),
 		].filter((item) => editedSetters.has(item.setter));
 
@@ -299,6 +311,12 @@ export const StudioSettings: React.FC = () => {
 		syncRevision: syncedRevision,
 		updates,
 	});
+
+	useEffect(() => {
+		if (error !== null || settingsError !== null) {
+			setShowDiagnosticsPreview(null);
+		}
+	}, [error, settingsError, setShowDiagnosticsPreview]);
 
 	const editingHighContrast =
 		ready && editedSetters.has('setHighContrast') && error === null;
@@ -810,6 +828,26 @@ export const StudioSettings: React.FC = () => {
 				}))}
 				value={settings.logLevel}
 			/>
+			<p style={sectionTitle}>Debug</p>
+			<div style={optionRow}>
+				<label htmlFor="remotion-show-diagnostics" style={label}>
+					Show diagnostics
+				</label>
+				<div style={rightRow}>
+					<Checkbox
+						inputId="remotion-show-diagnostics"
+						name="Show diagnostics"
+						checked={showDiagnostics}
+						onChange={(event) =>
+							changeSetting(
+								'showDiagnostics',
+								'setShowDiagnostics',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</div>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />
