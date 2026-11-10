@@ -148,11 +148,11 @@ Remotion versions earlier than v3.2.17 only supported a signature with positiona
 const bundle: (
   entryPoint: string,
   onProgress?: (progress: number) => void,
-  options?: Omit<BundleOptions, "entryPoint" | "onProgress">,
+  options?: LegacyBundleOptions,
 ) => Promise<string>;
 ```
 
-`options` accepts the same options as the options object described above, except `entryPoint` and `onProgress`.
+`options` accepts the options described above, except `entryPoint`, `onProgress` and `ignoreRegisterRootWarning`. The `LegacyBundleOptions` type is exported from `@remotion/bundler`.
 
 Example:
 
