@@ -101,14 +101,14 @@ You can also modify the architecture to render on a long-running server using th
 ## Can I export the videos generated with the Editor Starter as Remotion compositions?
 
 The Editor Starter previews and renders it's videos using the regular Remotion APIs.  
-The state is stored as JSON and fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and either [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+The state is stored as JSON and fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player/player) and either [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 So yes, the Editor Starter produces just Remotion compositions and they can also be rendered if they are decoupled from the editor user interface.
 However, it is important to understand that the Editor Starter applies an abstraction on top of Remotion where the whole state is expressed as JSON, which then maps to code.
 It is different from the code you find in regular Remotion templates, which usually do not have any abstraction layer.
 
 The Remotion composition that powers the Editor Starter is located in the `src/remotion` folder of the project.  
-You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotion render`](/docs/cli/studio) commands as usual.
+You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotion render`](/docs/cli/render) commands as usual.
 
 ## Can I include the Editor Starter in an open source project?
 
