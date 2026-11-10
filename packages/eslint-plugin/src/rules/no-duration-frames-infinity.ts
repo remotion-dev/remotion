@@ -42,12 +42,20 @@ export default createRule<Options, MessageIds>({
 				}
 
 				const expression = value.expression;
-				if (!expression || expression.type !== 'Identifier') {
+				if (!expression) {
 					return;
 				}
 
-				const stringValue = expression.name;
-				if (typeof stringValue !== 'string') {
+				const isInfinity =
+					(expression.type === 'Identifier' &&
+						expression.name === 'Infinity') ||
+					(expression.type === 'MemberExpression' &&
+						expression.object.type === 'Identifier' &&
+						expression.object.name === 'Number' &&
+						expression.property.type === 'Identifier' &&
+						expression.property.name === 'POSITIVE_INFINITY');
+
+				if (!isInfinity) {
 					return;
 				}
 
@@ -67,15 +75,14 @@ export default createRule<Options, MessageIds>({
 				if (name.name !== 'Sequence') {
 					return;
 				}
-				if (stringValue === 'Infinity') {
-					context.report({
-						messageId: 'DurationInFrames',
-						node,
-						fix: (fixer) => {
-							return fixer.removeRange([node.name.range[0], value.range[1]]);
-						},
-					});
-				}
+
+				context.report({
+					messageId: 'DurationInFrames',
+					node,
+					fix: (fixer) => {
+						return fixer.removeRange([node.name.range[0], value.range[1]]);
+					},
+				});
 			},
 		};
 	},
