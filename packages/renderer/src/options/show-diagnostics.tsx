@@ -13,8 +13,8 @@ export const showDiagnosticsOption = {
 		<>
 			Show a movable diagnostics window in the Studio with the number of audio
 			iterators created, open Mediabunny sinks, and buffering handles created.
-			Creation counts accumulate until the page reloads. Defaults to{' '}
-			<code>false</code>.
+			Creation counts reset when the page reloads. The buffering handle count
+			can also be reset in the window. Defaults to <code>false</code>.
 		</>
 	),
 	ssrName: null,

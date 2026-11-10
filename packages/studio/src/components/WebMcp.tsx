@@ -1704,6 +1704,25 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'reset_buffering_handles_created',
+					title: 'Reset buffering handle count',
+					description:
+						'Reset the buffering handles created counter to zero without changing active buffering handles or other diagnostics counters. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => {
+						Internals.playbackDiagnostics.bufferingHandlesCreated = 0;
+						return Promise.resolve({...Internals.playbackDiagnostics});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_audio_levels',
 					title: 'Get Studio audio levels',
 					description:

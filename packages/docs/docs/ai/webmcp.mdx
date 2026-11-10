@@ -813,7 +813,7 @@ While composition metadata is loading, `currentFrame` is `null` and `outlines` i
 
 ### `get_diagnostics`<AvailableFrom v="4.0.543" />
 
-Returns cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Creation counts reset when the page reloads. Available in every Studio mode, including when the diagnostics window is hidden.
+Returns cumulative audio iterator and buffering handle creation counts and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Creation counts reset when the page reloads. The buffering handle count can also be reset from the Diagnostics window or with `reset_buffering_handles_created`. Available in every Studio mode, including when the diagnostics window is hidden.
 
 ```ts title="Input"
 {}
@@ -826,6 +826,16 @@ Returns cumulative audio iterator and buffering handle creation counts and the n
   bufferingHandlesCreated: number;
 }
 ```
+
+### `reset_buffering_handles_created`<AvailableFrom v="4.0.543" />
+
+Resets the buffering handle creation count to zero. Active buffering handles and the other diagnostics counters are unchanged. New buffering handles start counting from zero. Available in every Studio mode, including when the diagnostics window is hidden.
+
+```ts title="Input"
+{}
+```
+
+Returns the same fields as `get_diagnostics` with `bufferingHandlesCreated` set to `0`.
 
 ### `get_audio_levels`<AvailableFrom v="4.0.543" />
 

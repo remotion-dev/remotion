@@ -9,6 +9,7 @@ import {
 } from '../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {startCapturedPointerSession} from '../helpers/pointer-session';
+import {Button} from './Button';
 import {useSettings} from './SettingsContext';
 
 const textStyle: React.CSSProperties = {
@@ -25,6 +26,10 @@ const DiagnosticsWindow: React.FC = () => {
 	}));
 	const panel = useRef<HTMLDivElement>(null);
 	const endDrag = useRef<(() => void) | null>(null);
+	const resetBufferingHandlesCreated = useCallback(() => {
+		Internals.playbackDiagnostics.bufferingHandlesCreated = 0;
+		setCounts({...Internals.playbackDiagnostics});
+	}, []);
 
 	const move = useCallback((x: number, y: number) => {
 		setPosition({
@@ -157,7 +162,26 @@ const DiagnosticsWindow: React.FC = () => {
 					['Buffering handles created', counts.bufferingHandlesCreated],
 				].map(([label, value]) => (
 					<div key={label} style={{display: 'flex', gap: 12, padding: '3px 0'}}>
-						<dt style={{...textStyle, flex: 1}}>{label}</dt>
+						<dt
+							style={{
+								...textStyle,
+								flex: 1,
+								display: 'flex',
+								alignItems: 'center',
+								gap: 6,
+							}}
+						>
+							{label}
+							{label === 'Buffering handles created' ? (
+								<Button
+									size="condensed"
+									aria-label="Reset buffering handles created"
+									onClick={resetBufferingHandlesCreated}
+								>
+									Reset
+								</Button>
+							) : null}
+						</dt>
 						<dd
 							style={{
 								...textStyle,
