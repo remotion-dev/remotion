@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -15,9 +15,39 @@ import {
 	RenderInternals,
 } from '@remotion/renderer';
 import {fakeAws, fakeAwsDefaults, useFakeAws} from '../mocks/fake-aws';
-import {readMockS3File} from '../mocks/mock-store';
+import {
+	addMockBucket,
+	readMockS3File,
+	resetMockStore,
+} from '../mocks/mock-store';
 
 useFakeAws();
+
+test('fake AWS does not fetch a real bucket-security endpoint before streaming (#13145)', async () => {
+	resetMockStore();
+	const bucketName = 'remotionlambda-eucentral1-abcdef';
+	addMockBucket({name: bucketName, region: 'eu-central-1', creationDate: 0});
+	const fetch = spyOn(globalThis, 'fetch').mockResolvedValue(
+		new Response(null, {status: 403}),
+	);
+	try {
+		expect(
+			await LambdaClientInternals.internalGetOrCreateBucket({
+				region: 'eu-central-1',
+				enableFolderExpiry: null,
+				customCredentials: null,
+				forcePathStyle: false,
+				skipPutAcl: false,
+				requestHandler: null,
+				logLevel: 'error',
+			}),
+		).toEqual({bucketName, alreadyExisted: true});
+		expect(fetch).not.toHaveBeenCalled();
+	} finally {
+		fetch.mockRestore();
+		resetMockStore();
+	}
+});
 
 test('streams changed progress and completes real renders through idle and busy periods', async () => {
 	const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'progress-stream-'));
