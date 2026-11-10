@@ -180,6 +180,15 @@ import {
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
+	svgFilterReference,
+	svgFilterExpandedReference,
+	svgFilterBoundingBoxReference,
+	svgFilterFractionalReference,
+	svgFilterOffsetReference,
+	svgFilterReviewReference,
+	svgFilterContainingBlockReference,
+} from './fixtures/svg-filter-reference';
+import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
 	svgFullSourceBlobContainFractional,
@@ -358,6 +367,13 @@ export const Root: React.FC = () => {
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />
+				<Composition {...svgFilterReference} />
+				<Composition {...svgFilterExpandedReference} />
+				<Composition {...svgFilterBoundingBoxReference} />
+				<Composition {...svgFilterFractionalReference} />
+				<Composition {...svgFilterOffsetReference} />
+				<Composition {...svgFilterReviewReference} />
+				<Composition {...svgFilterContainingBlockReference} />
 				<Composition {...filterContainingBlockReference} />
 				<Composition {...filterImage} />
 			</Folder>

@@ -267,7 +267,11 @@ export const calculateTransforms = ({
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated || svgClip !== null;
+			const needsGroup =
+				blendMode !== null ||
+				isolated ||
+				svgClip !== null ||
+				computedStyle.filter.includes('url(');
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'
