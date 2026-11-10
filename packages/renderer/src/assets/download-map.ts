@@ -17,27 +17,17 @@ export type AudioChannelsAndDurationResultCache = {
 	startTime: number | null;
 };
 
+// Per-src download state. Transitions live in download-and-map-assets-to-file.ts.
+export type AssetDownloadState =
+	| {type: 'downloading'; promise: Promise<string>}
+	| {type: 'downloaded'; path: string};
+
 export type DownloadMap = {
 	id: string;
 	emitter: OffthreadVideoServerEmitter;
 	downloadListeners: RenderMediaOnDownload[];
-	isDownloadingMap: {
-		[src: string]:
-			| {
-					[downloadDir: string]: boolean;
-			  }
-			| undefined;
-	};
-	hasBeenDownloadedMap: {
-		[src: string]:
-			| {
-					[downloadDir: string]: string | null;
-			  }
-			| undefined;
-	};
-	listeners: {
-		[key: string]: {[downloadDir: string]: ((err: Error | null) => void)[]};
-	};
+	// Absence of a src means it has not been downloaded (or must be re-checked).
+	assetDownloads: Map<string, AssetDownloadState>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
 	preEncode: string;
@@ -77,9 +67,7 @@ export const makeDownloadMap = (sampleRate: number): DownloadMap => {
 	let prevented = false;
 
 	return {
-		isDownloadingMap: {},
-		hasBeenDownloadedMap: {},
-		listeners: {},
+		assetDownloads: new Map(),
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		assetDir: dir,
