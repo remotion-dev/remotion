@@ -75,6 +75,7 @@ import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
 import {filter} from './fixtures/filter';
+import {filterContainingBlockReference} from './fixtures/filter-containing-block';
 import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
@@ -370,6 +371,7 @@ export const Root: React.FC = () => {
 				<Composition {...svgFilterOffsetReference} />
 				<Composition {...svgFilterReviewReference} />
 				<Composition {...svgFilterContainingBlockReference} />
+				<Composition {...filterContainingBlockReference} />
 				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">
