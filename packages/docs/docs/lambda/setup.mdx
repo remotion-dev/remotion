@@ -122,7 +122,7 @@ The function name is returned which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
+The function consists of necessary binaries and JavaScript code that can take a [Serve URL](/docs/terminology/serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
 
 ## 9. Deploy a site
 
@@ -207,7 +207,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the step 9 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
+Take the URL you received from the step 9 - your "Serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
 npx remotion lambda render <serve-url> <composition-id>

@@ -10,7 +10,7 @@ crumb: 'Lambda API'
 
 Gets the compositions inside a Lambda function.
 
-Note that you can also get the compositions of a site that is hosted on Lambda using [`getCompositions()`](/docs/renderer/get-compositions). Vice versa, you can also get the compositions from a serve URL that is not hosted on AWS Lambda using `getCompositionsOnLambda()`.
+Note that you can also get the compositions of a site that is hosted on Lambda using [`getCompositions()`](/docs/renderer/get-compositions). Vice versa, you can also get the compositions from a Serve URL that is not hosted on AWS Lambda using `getCompositionsOnLambda()`.
 
 You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()`](/docs/renderer/get-compositions) because the machine cannot run Chrome.
 
@@ -54,7 +54,7 @@ A URL pointing to a Remotion project. Create one by building with [`bundle()`](/
 
 [Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a JSON object.  
-From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+From the Root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
 ### `envVariables?`
