@@ -75,7 +75,7 @@ Change it to get a different static displacement pattern. To animate the distort
 
 ### `grainSize?`
 
-Size of each noise cell in pixels. Defaults to `8`.
+Size of each noise cell in pixels. Defaults to `8`. Must be greater than `0`.
 
 Larger values create chunkier distortion. Smaller values create finer distortion.
 
@@ -93,7 +93,7 @@ The blur is strongest at the center and fades with the effect mask.
 
 ### `feather?`
 
-Softness of the edge as a fraction of `radius`. Defaults to `0.25`.
+Softness of the edge as a fraction of `radius`. Defaults to `0.25`. Must be between `0` and `1`.
 
 Use `0` for a hard circular boundary.
 

@@ -5,6 +5,7 @@ tsconfig.tsbuildinfo
 coverage
 .vitest-attachments
 .vitest
+packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
 /.idea/
 */**/.env
 .cache

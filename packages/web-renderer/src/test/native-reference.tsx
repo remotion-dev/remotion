@@ -5,7 +5,8 @@ import {useContext} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
-import {page} from 'vitest/browser';
+import {expect} from 'vitest';
+import {page, server} from 'vitest/browser';
 
 type Fixture = {
 	component: ComponentType;
@@ -99,7 +100,11 @@ const decodePixels = async (blob: Blob) => {
 };
 
 // No perceptual threshold, antialias exclusion, or alpha-channel exception.
-export const compareNativePixels = async (reference: Blob, actual: Blob) => {
+const compareNativePixelData = async (
+	reference: Blob,
+	actual: Blob,
+	createDiff: boolean,
+) => {
 	const [expected, received] = await Promise.all([
 		decodePixels(reference),
 		decodePixels(actual),
@@ -113,7 +118,9 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 		);
 	}
 
-	const diff = new ImageData(expected.width, expected.height);
+	const diff = createDiff
+		? new ImageData(expected.width, expected.height)
+		: null;
 	let mismatchedPixels = 0;
 	let maxChannelDelta = 0;
 	for (let offset = 0; offset < expected.data.length; offset += 4) {
@@ -128,18 +135,85 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 
 		if (differs) {
 			mismatchedPixels++;
-			diff.data.set([255, 0, 255, 255], offset);
+			diff?.data.set([255, 0, 255, 255], offset);
 		}
 	}
 
+	return {mismatchedPixels, maxChannelDelta, diff};
+};
+
+export const countNativePixels = async (reference: Blob, actual: Blob) => {
+	const {mismatchedPixels, maxChannelDelta} = await compareNativePixelData(
+		reference,
+		actual,
+		false,
+	);
+	return {mismatchedPixels, maxChannelDelta};
+};
+
+export const compareNativePixels = async (reference: Blob, actual: Blob) => {
+	const {mismatchedPixels, maxChannelDelta, diff} =
+		await compareNativePixelData(reference, actual, true);
 	const canvas = document.createElement('canvas');
-	canvas.width = expected.width;
-	canvas.height = expected.height;
-	canvas.getContext('2d')!.putImageData(diff, 0, 0);
+	canvas.width = diff!.width;
+	canvas.height = diff!.height;
+	canvas.getContext('2d')!.putImageData(diff!, 0, 0);
 	const diffBlob = await new Promise<Blob>((resolve) =>
 		canvas.toBlob((blob) => resolve(blob!), 'image/png'),
 	);
-	return {mismatchedPixels, maxChannelDelta, diff: diffBlob};
+	let evidence: string | null = null;
+	if (mismatchedPixels > 0) {
+		const testName = expect.getState().currentTestName ?? 'native-pixels';
+		const originals = await Promise.all(
+			[reference, actual, diffBlob].map(async (blob) => {
+				const bytes = new Uint8Array(await blob.arrayBuffer());
+				const hash = new Uint8Array(
+					await crypto.subtle.digest('SHA-256', bytes),
+				);
+				let binary = '';
+				for (const byte of bytes) binary += String.fromCharCode(byte);
+				return {
+					base64: btoa(binary),
+					sha256: Array.from(hash, (byte) =>
+						byte.toString(16).padStart(2, '0'),
+					).join(''),
+				};
+			}),
+		);
+		evidence = `src/test/__screenshots__/native-pixel-failures/${server.browser}/${testName.replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80)}-${originals[0].sha256}-${originals[1].sha256}`;
+		await Promise.all(
+			['reference', 'actual', 'diff'].map((name, index) =>
+				server.commands.writeFile(
+					`${evidence}/${name}.png`,
+					originals[index].base64,
+					'base64',
+				),
+			),
+		);
+		await server.commands.writeFile(
+			`${evidence}/comparison.json`,
+			JSON.stringify(
+				{
+					testName,
+					browser: server.browser,
+					platform: server.platform,
+					runtime: server.version,
+					userAgent: navigator.userAgent,
+					devicePixelRatio: window.devicePixelRatio,
+					width: diff!.width,
+					height: diff!.height,
+					mismatchedPixels,
+					maxChannelDelta,
+					referenceSha256: originals[0].sha256,
+					actualSha256: originals[1].sha256,
+				},
+				null,
+				2,
+			),
+		);
+	}
+
+	return {mismatchedPixels, maxChannelDelta, diff: diffBlob, evidence};
 };
 
 export const savePixelEvidence = async (
