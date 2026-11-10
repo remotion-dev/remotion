@@ -29,8 +29,8 @@ export const getMediaMetadata = async (src: string) => {
   const videoTrack = await input.getPrimaryVideoTrack();
   const dimensions = videoTrack
     ? {
-        width: videoTrack.displayWidth,
-        height: videoTrack.displayHeight,
+        width: await videoTrack.getDisplayWidth(),
+        height: await videoTrack.getDisplayHeight(),
       }
     : null;
   const frameRateMetrics = videoTrack
@@ -123,8 +123,8 @@ export const getMediaMetadata = async (src: string) => {
   const videoTrack = await input.getPrimaryVideoTrack();
   const dimensions = videoTrack
     ? {
-        width: videoTrack.displayWidth,
-        height: videoTrack.displayHeight,
+        width: await videoTrack.getDisplayWidth(),
+        height: await videoTrack.getDisplayHeight(),
       }
     : null;
   const frameRateMetrics = videoTrack
@@ -230,8 +230,8 @@ export const getMediaMetadata = async (src: string) => {
   const videoTrack = await input.getPrimaryVideoTrack();
   const dimensions = videoTrack
     ? {
-        width: videoTrack.displayWidth,
-        height: videoTrack.displayHeight,
+        width: await videoTrack.getDisplayWidth(),
+        height: await videoTrack.getDisplayHeight(),
       }
     : null;
   const frameRateMetrics = videoTrack
