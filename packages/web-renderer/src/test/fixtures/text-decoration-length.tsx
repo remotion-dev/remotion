@@ -123,53 +123,63 @@ const cases: {
 	},
 ];
 
+const Case = ({
+	entry,
+	absolute,
+}: {
+	readonly entry: (typeof cases)[number];
+	readonly absolute: boolean;
+}) => {
+	const frame = useCurrentFrame();
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: 14,
+				top: 16,
+				fontFamily: 'Arial, sans-serif',
+				fontSize: entry.inheritance === 'none' ? entry.fontSize : 24,
+				lineHeight: 1.4,
+				color: '#123456',
+				textDecorationColor: '#d02040',
+				textDecorationLine: entry.inheritance === 'value' ? 'none' : entry.line,
+				textDecorationThickness: absolute ? `${entry.pixels}px` : entry.value,
+				transform: `scale(${frame ? 1.125 : 1})`,
+				transformOrigin: '0 0',
+			}}
+		>
+			<span
+				style={{
+					fontSize: entry.fontSize,
+					textDecorationLine:
+						entry.inheritance === 'value' ? entry.line : undefined,
+					textDecorationColor: '#d02040',
+					textDecorationThickness:
+						entry.inheritance === 'value' ? 'inherit' : undefined,
+				}}
+			>
+				Ag
+			</span>
+		</div>
+	);
+};
+
+const cellWidth = 220;
+const cellHeight = 190;
+
 export const textDecorationLengths = cases.map((entry) => {
 	const makeFixture = (absolute: boolean) => {
-		const Component = () => {
-			const frame = useCurrentFrame();
-			return (
-				<AbsoluteFill style={{backgroundColor: 'white'}}>
-					<div
-						style={{
-							position: 'absolute',
-							left: 14,
-							top: 16,
-							fontFamily: 'Arial, sans-serif',
-							fontSize: entry.inheritance === 'none' ? entry.fontSize : 24,
-							lineHeight: 1.4,
-							color: '#123456',
-							textDecorationColor: '#d02040',
-							textDecorationLine:
-								entry.inheritance === 'value' ? 'none' : entry.line,
-							textDecorationThickness: absolute
-								? `${entry.pixels}px`
-								: entry.value,
-							transform: `scale(${frame ? 1.125 : 1})`,
-							transformOrigin: '0 0',
-						}}
-					>
-						<span
-							style={{
-								fontSize: entry.fontSize,
-								textDecorationLine:
-									entry.inheritance === 'value' ? entry.line : undefined,
-								textDecorationColor: '#d02040',
-								textDecorationThickness:
-									entry.inheritance === 'value' ? 'inherit' : undefined,
-							}}
-						>
-							Ag
-						</span>
-					</div>
-				</AbsoluteFill>
-			);
-		};
+		const Component = () => (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<Case entry={entry} absolute={absolute} />
+			</AbsoluteFill>
+		);
 
 		return {
 			id: `decoration-length-${entry.id}${absolute ? '-px' : ''}`,
 			component: Component,
-			width: 220,
-			height: 190,
+			width: cellWidth,
+			height: cellHeight,
 			fps: 30,
 			durationInFrames: 2,
 		} as const;
@@ -181,3 +191,51 @@ export const textDecorationLengths = cases.map((entry) => {
 		reference: makeFixture(true),
 	};
 });
+
+// All cases in one composition. Each cell has the size of a standalone case
+// composition, which already contains the scaled glyphs and decorations, so
+// cells never paint into each other.
+const gridColumns = 4;
+
+export const textDecorationLengthGridCells = cases.map((entry, index) => ({
+	id: entry.id,
+	left: (index % gridColumns) * cellWidth,
+	top: Math.floor(index / gridColumns) * cellHeight,
+	width: cellWidth,
+	height: cellHeight,
+}));
+
+const makeGrid = (absolute: boolean) => {
+	const Component = () => (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			{cases.map((entry, index) => (
+				<div
+					key={entry.id}
+					style={{
+						position: 'absolute',
+						left: textDecorationLengthGridCells[index].left,
+						top: textDecorationLengthGridCells[index].top,
+						width: cellWidth,
+						height: cellHeight,
+					}}
+				>
+					<Case entry={entry} absolute={absolute} />
+				</div>
+			))}
+		</AbsoluteFill>
+	);
+
+	return {
+		id: `decoration-length-grid${absolute ? '-px' : ''}`,
+		component: Component,
+		width: gridColumns * cellWidth,
+		height: Math.ceil(cases.length / gridColumns) * cellHeight,
+		fps: 30,
+		durationInFrames: 2,
+	} as const;
+};
+
+export const textDecorationLengthGrid = {
+	fixture: makeGrid(false),
+	reference: makeGrid(true),
+};

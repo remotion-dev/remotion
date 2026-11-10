@@ -139,12 +139,12 @@ for (const fixture of [
 ]) {
 	for (const frame of [0, 1]) {
 		test(`${fixture.id} clips all descendants at frame ${frame}`, async (t) => {
-			if (
-				t.task.file.projectName === 'firefox' &&
-				fixture !== clipPathReferenceReviewOpaque &&
-				fixture !== clipPathShapeReviewOpaque
-			) {
-				// Native transparent element capture is unsupported in this engine.
+			const opaque =
+				fixture === clipPathReferenceReviewOpaque ||
+				fixture === clipPathShapeReviewOpaque;
+			if ((t.task.file.projectName === 'firefox') !== opaque) {
+				// Firefox: native transparent element capture is unsupported in this engine.
+				// Other engines: the transparent variant already compares alpha strictly.
 				t.skip();
 				return;
 			}
@@ -158,9 +158,7 @@ for (const fixture of [
 			}
 
 			const reference = await captureNativeReference(fixture, frame, {
-				omitBackground:
-					fixture !== clipPathReferenceReviewOpaque &&
-					fixture !== clipPathShapeReviewOpaque,
+				omitBackground: !opaque,
 			});
 			const actual = await (
 				await renderStillOnWeb({
@@ -173,23 +171,20 @@ for (const fixture of [
 			).blob({format: 'png'});
 			const diff = await compareNativePixels(reference, actual);
 
-			await Promise.all([
-				savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
-					omitBackground:
-						fixture !== clipPathReferenceReviewOpaque &&
-						fixture !== clipPathShapeReviewOpaque,
-				}),
-				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
-					omitBackground:
-						fixture !== clipPathReferenceReviewOpaque &&
-						fixture !== clipPathShapeReviewOpaque,
-				}),
-				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
-					omitBackground:
-						fixture !== clipPathReferenceReviewOpaque &&
-						fixture !== clipPathShapeReviewOpaque,
-				}),
-			]);
+			if (diff.mismatchedPixels !== 0) {
+				await Promise.all([
+					savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
+						omitBackground: !opaque,
+					}),
+					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
+						omitBackground: !opaque,
+					}),
+					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
+						omitBackground: !opaque,
+					}),
+				]);
+			}
+
 			expect(diff.mismatchedPixels).toBe(0);
 		});
 	}
@@ -307,17 +302,20 @@ for (const fixture of [
 				})
 			).blob({format: 'png'});
 			const diff = await compareNativePixels(reference, actual);
-			await Promise.all([
-				savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
-					omitBackground: false,
-				}),
-				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
-					omitBackground: false,
-				}),
-				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
-					omitBackground: false,
-				}),
-			]);
+			if (diff.mismatchedPixels !== 0) {
+				await Promise.all([
+					savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
+						omitBackground: false,
+					}),
+					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
+						omitBackground: false,
+					}),
+					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
+						omitBackground: false,
+					}),
+				]);
+			}
+
 			expect(diff.mismatchedPixels).toBe(0);
 		});
 	}
