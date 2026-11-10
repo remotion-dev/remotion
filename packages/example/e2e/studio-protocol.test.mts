@@ -7,6 +7,10 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {expect, test} from '@playwright/test';
 import {remotionBin} from './constants.mts';
+import {nodeFetch} from './node-fetch.mts';
+
+// Failures here should surface instead of being retried away.
+test.describe.configure({retries: 0});
 
 const waitForUrl = async (url: string, process: ChildProcess) => {
 	const startedAt = Date.now();
@@ -16,7 +20,7 @@ const waitForUrl = async (url: string, process: ChildProcess) => {
 		}
 
 		try {
-			const response = await fetch(url);
+			const response = await nodeFetch(url, null);
 			if (response.ok) {
 				return;
 			}
@@ -288,8 +292,10 @@ const CloseupPlaceholder = () => {
 		await expect
 			.poll(
 				() =>
-					fetch(`${studioUrl}/api/studio-protocol`, {
+					nodeFetch(`${studioUrl}/api/studio-protocol`, {
+						method: 'GET',
 						headers: {Origin: 'http://localhost:4000'},
+						body: null,
 					}).then((response) => response.json()),
 				{
 					message: 'Studio should expose MyComp as an installable target',
@@ -857,8 +863,10 @@ const CloseupPlaceholder = () => {
 		await expect(browseElements).toBeVisible();
 		await expect
 			.poll(() =>
-				fetch(`${studioUrl}/api/studio-protocol`, {
+				nodeFetch(`${studioUrl}/api/studio-protocol`, {
+					method: 'GET',
 					headers: {Origin: 'http://localhost:4000'},
+					body: null,
 				})
 					.then((response) => response.json())
 					.then(
