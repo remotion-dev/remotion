@@ -19,6 +19,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import {waitForPromisesToFinish} from '../../shared/wait-for-promises-to-finish';
 import {
 	makeArtifactRegistry,
 	type OnArtifactFromRenderer,
@@ -847,7 +848,7 @@ const innerLaunchHandler = async ({
 		const outdir = RenderInternals.tmpDir(
 			LambdaClientInternals.CONCAT_FOLDER_TOKEN,
 		);
-		await Promise.all(
+		await waitForPromisesToFinish(
 			lambdaPayloads.map((payload) =>
 				renderRendererFunctionWithRetry({
 					payload,
@@ -991,7 +992,7 @@ const innerLaunchHandler = async ({
 		mkdirSync(outdir);
 		const files: string[] = [];
 
-		await Promise.all(
+		await waitForPromisesToFinish(
 			lambdaPayloads.map(async (payload) => {
 				await renderRendererFunctionWithRetry({
 					files,
