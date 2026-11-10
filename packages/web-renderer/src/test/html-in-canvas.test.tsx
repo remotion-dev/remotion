@@ -165,6 +165,7 @@ test('can evict WebGL contexts after native capture without crashing', async (t)
 			requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
 		});
 		const captured = await drawWithHtmlInCanvas({
+			transparent: true,
 			htmlInCanvasContext,
 			element,
 			scaledWidth: 100,
@@ -453,6 +454,7 @@ for (const allowHtmlInCanvas of [false, true]) {
 				let frameCount = 0;
 				await renderMediaOnWeb({
 					...options,
+					transparent: true,
 					frameRange: [0, 2],
 					container: 'webm',
 					videoCodec: 'vp9',
@@ -612,6 +614,7 @@ test('does not create a nested HTML-in-canvas capture before Chrome 157', async 
 
 	try {
 		await createLayer({
+			transparent: true,
 			cutout: new DOMRect(0, 0, 10, 10),
 			element,
 			htmlInCanvasContext: {

@@ -79,6 +79,8 @@ The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for 
 The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.  
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
 
+Text pixels may differ on transparent output, including LCD text on Linux Chromium. Opaque output against black is supported with `transparent: false` in [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#transparent), [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#transparent).
+
 ### Inline SVG stylesheet state
 
 The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</a> for inline SVG stylesheets.
