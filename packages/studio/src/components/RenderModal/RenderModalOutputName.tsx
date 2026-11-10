@@ -64,12 +64,14 @@ export const RenderModalOutputName = ({
 	label: labelText,
 }: Props) => {
 	const openExistingOutput = useCallback(() => {
-		openInFileExplorer({directory: existingOutputPath ?? outName}).catch(
-			(err) => {
-				showNotification(`Could not open file: ${err.message}`, 2000);
-			},
-		);
-	}, [existingOutputPath, outName]);
+		if (existingOutputPath === null) {
+			return;
+		}
+
+		openInFileExplorer({directory: existingOutputPath}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	}, [existingOutputPath]);
 
 	const renderOpenIcon: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIconSolid style={openIconStyle} color={color} />;
@@ -127,7 +129,7 @@ export const RenderModalOutputName = ({
 								align="flex-end"
 								message={
 									<span style={existsMessageStyle}>
-										{isBrowserStudio ? null : (
+										{isBrowserStudio || existingOutputPath === null ? null : (
 											<InlineAction
 												variant={null}
 												onClick={openExistingOutput}
