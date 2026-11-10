@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {expect, test} from '@playwright/test';
 import {exampleDir} from './constants.mts';
+import {nodeFetch} from './node-fetch.mts';
 
 test.use({viewport: {width: 1920, height: 1200}});
 
@@ -57,7 +58,7 @@ export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" comp
 			.poll(
 				async () => {
 					try {
-						return (await fetch('http://localhost:3124')).ok;
+						return (await nodeFetch('http://localhost:3124', null)).ok;
 					} catch {
 						return false;
 					}
@@ -110,27 +111,13 @@ export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" comp
 				.toBeCloseTo(30 / (299 + delta), 5);
 		}
 		await page.mouse.up();
+		// Timeline rows keep their identity across source commits, so the bar can
+		// be measured once it shows the committed parent duration.
 		const expression = page.getByRole('button', {
-			name: /^Expression A: from frame/,
+			name: /^Expression A: from frame \d+, 180 frames$/,
 		});
-		let edge = await expression.boundingBox();
-		await expect
-			.poll(async () => {
-				try {
-					await expression.scrollIntoViewIfNeeded();
-					edge = await expression.boundingBox();
-					return edge;
-				} catch (error) {
-					if (
-						error instanceof Error &&
-						error.message.includes('Element is not attached to the DOM')
-					) {
-						return null;
-					}
-					throw error;
-				}
-			})
-			.not.toBeNull();
+		await expression.scrollIntoViewIfNeeded();
+		const edge = await expression.boundingBox();
 		if (!edge) throw new Error('Expected expression timeline bar');
 		await page.mouse.move(edge.x + edge.width - 2, edge.y + edge.height / 2);
 		await page.mouse.down();

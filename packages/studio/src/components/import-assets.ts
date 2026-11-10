@@ -18,7 +18,10 @@ import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
-import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
+import {
+	captureInsertedElementSelectionBaseline,
+	requestInsertedElementSelection,
+} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
@@ -1337,6 +1340,7 @@ export const insertElement = async ({
 	overwriteExisting,
 	undoRedoNavigation,
 	newComposition,
+	onInstalled,
 }: {
 	installationName: string | null;
 	compositionFile: string;
@@ -1348,12 +1352,18 @@ export const insertElement = async ({
 	overwriteExisting: boolean;
 	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
+	// Runs before the inserted sequence selection is requested, so navigation
+	// to its composition happens before the Timeline looks for it.
+	onInstalled: (() => void) | null;
 }) => {
 	try {
 		if (getBrowserStudioOperations() === null) {
 			await installRequiredPackages(element.dependencies);
 		}
 
+		// Fast Refresh may commit the inserted sequence before the response
+		// arrives, so compare against the Timeline from before the request.
+		const baseline = captureInsertedElementSelectionBaseline();
 		const response = await installElement({
 			captionTarget: null,
 			installationName,
@@ -1377,10 +1387,12 @@ export const insertElement = async ({
 			return false;
 		}
 
+		onInstalled?.();
 		requestInsertedElementSelection({
 			compositionId,
 			nodePath: null,
 			notification: `Installed ${element.displayName}`,
+			baseline,
 		});
 		return true;
 	} catch (error) {
