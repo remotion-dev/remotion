@@ -179,6 +179,7 @@ export const processNode = async ({
 		});
 
 		const tempContext = await createLayer({
+			transparent: true,
 			cutout: layerRect,
 			element,
 			logLevel,

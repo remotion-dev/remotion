@@ -292,6 +292,15 @@ export const benchmarkCommand = async (
 	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
+		flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		blinkFeatures: BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue(
+			{commandLine: parsedCli},
+		).value,
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
@@ -445,6 +454,10 @@ export const benchmarkCommand = async (
 	}).value;
 	const crfSetting = crfOption.getValue({commandLine: parsedCli});
 	const gopSize = gopSizeOption.getValue({commandLine: parsedCli}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -535,6 +548,7 @@ export const benchmarkCommand = async (
 					},
 					crf,
 					gopSize,
+					proResBitsPerMacroblock,
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: videoImageFormatOption.getValue(

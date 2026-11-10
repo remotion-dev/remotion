@@ -8,7 +8,7 @@ description: Continuously improve Remotion Studio by making a video, reproducing
 Own the Studio experience: make it quick, responsive, and reliable. Continue
 making a real YouTube video combining NLE editing and motion graphics, using
 that workflow to discover and fix problems. Apply
-[studio-dev](../studio-dev/SKILL.md) to every implementation change.
+[studio-checklist](../studio-checklist/SKILL.md) to every implementation change.
 
 The Source start Inspector field was intentionally removed; do not reintroduce it.
 
@@ -53,7 +53,7 @@ The Source start Inspector field was intentionally removed; do not reintroduce i
    Studio's existing design, optimistic/history paths, CSS reset, iframe hover
    handling, and mode capabilities. Code-editable actions already provide agentic
    access; do not add redundant WebMCP wrappers. Document any new tools or changed
-   tool contracts as required by studio-dev.
+   tool contracts as required by studio-checklist.
 4. Repeat the original interaction in the rebuilt UI. Verify immediate feedback,
    persistence/HMR, relevant failure/navigation races, and undo/redo. Cover the
    applicable Studio modes, using a real Browser Studio iframe for changes that
