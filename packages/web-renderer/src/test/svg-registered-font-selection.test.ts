@@ -4,8 +4,10 @@ import '../symbol-dispose';
 import {expect, test} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
 import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
 	svgExternalFontReady,
 	svgExternalFontSelection,
 } from './fixtures/svg-external-font-selection';
@@ -197,4 +199,72 @@ test('non-CSS style elements retain native and exported font selection', async (
 	}
 
 	expect(comparison.mismatchedPixels).toBe(0);
+});
+
+const carrierOptions = {
+	inputProps: {},
+	licenseKey: 'free-license',
+	allowHtmlInCanvas: false,
+} as const;
+
+test.for(
+	svgExternalCarrierModes
+		.filter((mode) => mode !== 'cache')
+		.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
+)(
+	'preserves external font selection with an empty $mode carrier at frame $frame',
+	async ({mode, frame}, t) => {
+		await svgExternalFontReady;
+		const fixture = svgExternalEmptyCarrier({mode, literal: false});
+		const literal = svgExternalEmptyCarrier({mode, literal: true});
+		const native = await captureNativeReference(fixture, frame, {
+			omitBackground: false,
+		});
+		const nativeLiteral = await captureNativeReference(literal, frame, {
+			omitBackground: false,
+		});
+		expect(
+			(await compareNativePixels(native, nativeLiteral)).mismatchedPixels,
+		).toBe(0);
+		const actual = await (
+			await renderStillOnWeb({...carrierOptions, composition: fixture, frame})
+		).blob({format: 'png'});
+		const exportedLiteral = await (
+			await renderStillOnWeb({...carrierOptions, composition: literal, frame})
+		).blob({format: 'png'});
+		// Compare every pixel in the complete frames. Native glyph raster gaps in
+		// Firefox/WebKit remain separate from structural selector preservation.
+		expect(
+			(await compareNativePixels(actual, exportedLiteral)).mismatchedPixels,
+		).toBe(0);
+		if (t.task.file.projectName === 'chromium') {
+			expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+				0,
+			);
+		}
+	},
+);
+
+test('keeps external font carrier batch and fresh frames consistent for CSSOM-only changes', async () => {
+	await svgExternalFontReady;
+	const fixture = svgExternalEmptyCarrier({mode: 'cache', literal: false});
+	const frames = await renderFramesOnWeb({
+		...carrierOptions,
+		composition: fixture,
+		frames: [0, 1, 2],
+	});
+	const differences = [];
+	for (let frame = 0; frame < 3; frame++) {
+		const batch = await frames[frame].blob({format: 'png'});
+		const fresh = await (
+			await renderStillOnWeb({...carrierOptions, composition: fixture, frame})
+		).blob({format: 'png'});
+		differences.push(
+			(await compareNativePixels(batch, fresh)).mismatchedPixels,
+		);
+	}
+
+	// Includes the existing conservative fallback when a later inactive rule
+	// prevents retargeting at frame 1; consistency does not imply native parity.
+	expect(differences).toEqual([0, 0, 0]);
 });

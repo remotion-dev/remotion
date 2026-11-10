@@ -177,7 +177,11 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
-import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
+import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
+	svgExternalFontSelection,
+} from './fixtures/svg-external-font-selection';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -292,6 +296,12 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgExternalCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const fixture = svgExternalEmptyCarrier({mode, literal});
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
+			)}
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
 			<Composition {...svgFullSourceUrlFill} />

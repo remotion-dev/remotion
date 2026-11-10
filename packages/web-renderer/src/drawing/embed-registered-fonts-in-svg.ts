@@ -299,12 +299,16 @@ export const insertFontStyleInSvg = (
 	}
 
 	// Carried fonts must not inherit an unrelated authored media restriction.
-	const media = style.getAttribute('media');
-	if (media && !svg.ownerDocument.defaultView!.matchMedia(media).matches) {
-		style.textContent = '';
-	}
+	const media = style
+		.getAttribute('media')
+		?.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+	if (media && media.toLowerCase() !== 'all') {
+		if (!svg.ownerDocument.defaultView!.matchMedia(media).matches) {
+			style.textContent = '';
+		}
 
-	style.removeAttribute('media');
+		style.removeAttribute('media');
+	}
 
 	// Keep authored @namespace/@import preambles ahead of carried rules.
 	style.textContent = (style.textContent ?? '') + '\n' + css;
