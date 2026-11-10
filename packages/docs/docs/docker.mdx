@@ -79,6 +79,8 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libatk-bridge2.0-0 \
+  libpango-1.0-0 \
+  libcairo2 \
   libcups2
 ```
 
@@ -103,7 +105,7 @@ COPY public ./public
   RUN npm i
   ```
 
-- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 3. Then put following in your Dockerfile:
+- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line above. Then put following in your Dockerfile:
 
   ```docker title="If you use PNPM"
   RUN corepack enable
@@ -174,7 +176,7 @@ console.log(`Rendered composition ${composition.id}.`);
 ```
 
 :::note
-We recommend setting the `enableMultiProcessOnLinux` option for this Docker image, available from v4.0.42. [Read more](/docs/miscellaneous/linux-single-process)
+From v4.0.137, [`enableMultiProcessOnLinux`](/docs/miscellaneous/linux-single-process) is enabled by default. On versions v4.0.42 to v4.0.136, set it explicitly for this Docker image as shown above.
 :::
 
 ## Building the Docker image
@@ -194,7 +196,7 @@ docker run remotion-app
 
 ## Giving access to the CPUs
 
-By default, Docker containers are not allowed to use all memory CPUs . Consider:
+By default, Docker containers are not allowed to use all CPUs. Consider:
 
 - Changing the resource settings in Docker Desktop settings
 - Using the `--cpus` and `--cpuset-cpus` flags with the `docker run` command. Example: `--cpus=16 --cpuset-cpus=0-15`
@@ -243,6 +245,7 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 ## Changelog
 
 **November 6th, 2024**: Use node:22-bookworm-slim over node:20-bookworm to update to LTS and get a much smaller image.
+
 **October 11th, 2023**: Used the node:20-bookworm, which is faster to deploy and also Debian.
 
 **September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.

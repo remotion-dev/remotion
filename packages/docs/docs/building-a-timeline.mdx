@@ -168,7 +168,7 @@ type BaseItem = {
 };
 
 export type SolidItem = BaseItem & {
-  type: 'shape';
+  type: 'solid';
   color: string;
 };
 
@@ -237,7 +237,7 @@ We do not currently provide samples how to build a timeline component, since eve
 
 An opinionated sample implementation is [available for purchase in the Remotion Store](https://www.remotion.pro/timeline).
 
-```tsx twoslash title="remotion/Timeline.tsx" {23}
+```tsx twoslash title="Editor.tsx" {16}
 type Item = {};
 type Track = {};
 const inputProps = {};
