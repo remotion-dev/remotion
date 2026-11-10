@@ -70,6 +70,11 @@ test.for([0, 1])(
 			result.diff,
 			`native-reference-control-${frame}-diff`,
 		);
+		await Promise.all(
+			['reference.png', 'actual.png', 'diff.png', 'comparison.json'].map(
+				(name) => commands.removeFile(`${result.evidence}/${name}`),
+			),
+		);
 	},
 );
 
@@ -87,9 +92,9 @@ test('captures opaque native RGBA and reads back opaque evidence in every engine
 			allowHtmlInCanvas: false,
 		})
 	).blob({format: 'png'});
-	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
-		0,
-	);
+	const matching = await compareNativePixels(reference, actual);
+	expect(matching.mismatchedPixels).toBe(0);
+	expect(matching.evidence).toBeNull();
 	const saved = await savePixelEvidence(
 		actual,
 		'native-reference-control-opaque',
@@ -103,4 +108,58 @@ test('captures opaque native RGBA and reads back opaque evidence in every engine
 		(await compareNativePixels(new Blob([bytes], {type: 'image/png'}), actual))
 			.mismatchedPixels,
 	).toBe(0);
+});
+
+test('retains the original PNG bytes and runtime for a pixel mismatch', async () => {
+	const reference = await captureNativeReference(nativeReferenceControl, 0, {
+		omitBackground: false,
+	});
+	const canvas = new OffscreenCanvas(32, 24);
+	const context = canvas.getContext('2d')!;
+	const bitmap = await createImageBitmap(reference);
+	context.drawImage(bitmap, 0, 0);
+	bitmap.close();
+	context.fillStyle = 'red';
+	context.fillRect(4, 7, 1, 1);
+	const actual = await canvas.convertToBlob({type: 'image/png'});
+	const result = await compareNativePixels(reference, actual);
+	expect(result.mismatchedPixels).toBe(1);
+	expect(result.evidence).not.toBeNull();
+	try {
+		for (const [name, blob] of [
+			['reference', reference],
+			['actual', actual],
+			['diff', result.diff],
+		] as const) {
+			const encoded = await commands.readFile(
+				`${result.evidence}/${name}.png`,
+				'base64',
+			);
+			const original = new Uint8Array(await blob.arrayBuffer());
+			expect(
+				Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0)),
+			).toEqual(original);
+		}
+
+		const metadata = JSON.parse(
+			await commands.readFile(`${result.evidence}/comparison.json`),
+		);
+		expect(metadata).toMatchObject({
+			width: 32,
+			height: 24,
+			mismatchedPixels: 1,
+			maxChannelDelta: result.maxChannelDelta,
+			userAgent: navigator.userAgent,
+			devicePixelRatio: window.devicePixelRatio,
+		});
+		expect(metadata.referenceSha256).toMatch(/^[0-9a-f]{64}$/);
+		expect(metadata.actualSha256).toMatch(/^[0-9a-f]{64}$/);
+		expect(metadata.referenceSha256).not.toBe(metadata.actualSha256);
+	} finally {
+		await Promise.all(
+			['reference.png', 'actual.png', 'diff.png', 'comparison.json'].map(
+				(name) => commands.removeFile(`${result.evidence}/${name}`),
+			),
+		);
+	}
 });

@@ -99,20 +99,13 @@ const positionKeywordToPercentage = (value: string) => {
 	return null;
 };
 
-export const resolvePosition = ({
-	containerSize,
-	imageSize,
+export const resolveLengthPercentage = ({
+	percentageBasis,
 	value,
 }: {
-	containerSize: number;
-	imageSize: number;
+	percentageBasis: number;
 	value: string;
 }): number => {
-	const keywordPercentage = positionKeywordToPercentage(value);
-	if (keywordPercentage !== null) {
-		return (containerSize - imageSize) * (keywordPercentage / 100);
-	}
-
 	if (value.startsWith('calc(')) {
 		// Keep computed sums fast, without treating other math as a sum.
 		const expression = value.slice(5, -1).replace(/\s/g, '');
@@ -122,23 +115,26 @@ export const resolvePosition = ({
 		if (terms && terms.join('') === expression) {
 			return terms.reduce(
 				(sum, term) =>
-					sum + resolvePosition({containerSize, imageSize, value: term}),
+					sum + resolveLengthPercentage({percentageBasis, value: term}),
 				0,
 			);
 		}
 	}
 
 	if (value.includes('(')) {
-		// Resolve percentages against the fitted content's free space before
-		// letting the browser evaluate nested CSS math. The free space can be
-		// negative for cover/none, so an element width cannot represent the basis.
+		// Resolve percentages before letting the browser evaluate nested CSS math.
+		// Positioning can have negative free space, so an element width cannot
+		// represent every caller's percentage basis.
 		const pixels = value.replace(
 			/([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)%/gi,
-			(_, number) =>
-				`${(Number(number) * (containerSize - imageSize)) / 100}px`,
+			(_, number) => `${(Number(number) * percentageBasis) / 100}px`,
 		);
 		if (typeof CSSNumericValue !== 'undefined') {
-			return CSSNumericValue.parse(pixels).to('px').value;
+			try {
+				return CSSNumericValue.parse(pixels).to('px').value;
+			} catch {
+				// Native CSS can support math functions that Typed OM cannot parse.
+			}
 		}
 
 		// Without Typed OM, resolve the same absolute-length expression
@@ -161,8 +157,28 @@ export const resolvePosition = ({
 	}
 
 	return parsed.unit === '%'
-		? (containerSize - imageSize) * (parsed.value / 100)
+		? percentageBasis * (parsed.value / 100)
 		: parsed.value;
+};
+
+export const resolvePosition = ({
+	containerSize,
+	imageSize,
+	value,
+}: {
+	containerSize: number;
+	imageSize: number;
+	value: string;
+}): number => {
+	const keywordPercentage = positionKeywordToPercentage(value);
+	if (keywordPercentage !== null) {
+		return (containerSize - imageSize) * (keywordPercentage / 100);
+	}
+
+	return resolveLengthPercentage({
+		percentageBasis: containerSize - imageSize,
+		value,
+	});
 };
 
 export const parsePosition = (value: string) => {
