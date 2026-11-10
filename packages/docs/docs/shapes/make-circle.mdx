@@ -17,7 +17,7 @@ import { makeCircle } from "@remotion/shapes";
 
 const { path, width, height, transformOrigin } = makeCircle({ radius: 50 });
 
-console.log(path); // M 0 0 m -50, 0 a 50,50 0 1,0 100,0  50,50 0 1,0 -100,0
+console.log(path); // M 50 0 a 50 50 0 1 1 0 100 a 50 50 0 1 1 0 -100 Z
 console.log(width); // 100
 console.log(height); // 100
 console.log(transformOrigin); // '50 50'
