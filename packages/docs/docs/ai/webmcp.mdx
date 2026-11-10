@@ -1048,8 +1048,40 @@ Returns source-code context when exactly one supported timeline item is selected
     stack: string | null;
     selectable: boolean;
   } | null;
+  selectedItems: SelectedTimelineItem[];
 }
 ```
+
+#### `selectedItems`<AvailableFrom v="4.0.543" />
+
+Lists every selected timeline item, including multi-selections. The field is available in regular, detached, read-only deployed and Browser Studio. An empty array means nothing is selected. Match `sequenceId` against [`get_sequences`](#get_sequences) and `guideId` against [`get_guides`](#get_guides). If the owning sequence is unavailable, its ID is `null`.
+
+```ts
+type SelectedTimelineItem =
+  | {type: 'guide'; guideId: string}
+  | {type: 'sequence' | 'sequence-all-effects'; sequenceId: string | null}
+  | {type: 'sequence-prop'; sequenceId: string | null; fieldKey: string}
+  | {type: 'sequence-effect'; sequenceId: string | null; effectIndex: number}
+  | {type: 'sequence-effect-prop'; sequenceId: string | null; effectIndex: number; fieldKey: string}
+  | {
+      type: 'keyframe';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      frame: number;
+    }
+  | {
+      type: 'easing';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      fromFrame: number;
+      toFrame: number;
+      segmentIndex: number;
+    };
+```
+
+Keyframes and easing segments on a sequence property have a `null` `effectIndex`. Studio returns a `null` `fieldKey` when it cannot identify the property.
 
 ### `get_guides`
 

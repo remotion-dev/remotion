@@ -81,6 +81,7 @@ import {
 	getPendingSequenceDuplications,
 	isSequenceDuplicationPending,
 } from './Timeline/duplicate-selected-timeline-item';
+import {createTrackLookupForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -1985,7 +1986,7 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame of the selected composition, asset, or render output, and the source-code context for the selected item. The frame is 0 when there is no ready playhead. The selection matches "Copy context for agents".',
+						'Read the current frame of the selected composition, asset, or render output and all selected timeline items. A single supported item also includes its source-code context from "Copy context for agents". The frame is 0 when there is no ready playhead.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1994,6 +1995,16 @@ export const WebMcp: FC = () => {
 					annotations: {readOnlyHint: true},
 					execute: () => {
 						const target = getCurrentPlaybackTarget();
+						const {selectedItems} = timelineSelectionRef.current;
+						const findTrack = createTrackLookupForNodePathInfo(
+							selectedItems.some((item) => item.type !== 'guide')
+								? calculateTimeline({
+										sequences: sequencesRef.current,
+										overrideIdsToNodePaths:
+											overrideIdToNodePathMappingsRef.current,
+									}).tracks
+								: [],
+						);
 						return Promise.resolve({
 							currentFrame:
 								target?.type === 'timeline'
@@ -2002,10 +2013,57 @@ export const WebMcp: FC = () => {
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
-								timelineSelectionRef.current.selectedItems.length === 1
-									? timelineSelectionRef.current.selectedItems[0].type
-									: null,
+								selectedItems.length === 1 ? selectedItems[0].type : null,
 							selectedSequence: selectedSequenceRef.current,
+							selectedItems: selectedItems.map((item) => {
+								if (item.type === 'guide') {
+									return {type: item.type, guideId: item.guideId};
+								}
+
+								const sequenceId =
+									findTrack(item.nodePathInfo)?.sequence.id ?? null;
+								switch (item.type) {
+									case 'sequence':
+									case 'sequence-all-effects':
+										return {type: item.type, sequenceId};
+									case 'sequence-prop':
+										return {type: item.type, sequenceId, fieldKey: item.key};
+									case 'sequence-effect':
+										return {type: item.type, sequenceId, effectIndex: item.i};
+									case 'sequence-effect-prop':
+										return {
+											type: item.type,
+											sequenceId,
+											effectIndex: item.i,
+											fieldKey: item.key,
+										};
+									default: {
+										const field = parseKeyframeFieldFromNodePath(
+											item.nodePathInfo.auxiliaryKeys,
+										);
+										const fieldKey = field?.fieldKey ?? null;
+										const effectIndex =
+											field?.type === 'effect' ? field.effectIndex : null;
+										return item.type === 'keyframe'
+											? {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													frame: item.frame,
+												}
+											: {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													fromFrame: item.fromFrame,
+													toFrame: item.toFrame,
+													segmentIndex: item.segmentIndex,
+												};
+									}
+								}
+							}),
 						});
 					},
 				},
