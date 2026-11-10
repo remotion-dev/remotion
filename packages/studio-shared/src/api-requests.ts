@@ -895,12 +895,29 @@ export type AddEffectKeyframe = Omit<AddEffectKeyframeRequest, 'clientId'>;
 export type AddKeyframesRequest = {
 	sequenceKeyframes: AddSequenceKeyframe[];
 	effectKeyframes: AddEffectKeyframe[];
+	paste: {
+		keyframeDisplayOffset: number;
+		keyframePlaybackRate: number;
+		easing: KeyframeEasing[];
+		timingGuards:
+			| readonly {
+					fileName: string;
+					nodePath: SequencePropsSubscriptionKey;
+					fields: readonly {
+						key: 'from' | 'trimBefore' | 'playbackRate';
+						value: number;
+						defaultValue: number | null;
+					}[];
+			  }[]
+			| null;
+	} | null;
 	clientId: string;
 };
 
 export type AddKeyframesResponse = {
 	success: true;
 	nodePathMutation: SequenceNodePathMutation | null;
+	results: KeyframeMutationResult[];
 };
 
 export type KeyframeSettings =

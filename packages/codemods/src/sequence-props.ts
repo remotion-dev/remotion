@@ -892,7 +892,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 		: null;
 };
 
-const getDefaultFrameDisplayOffsetAdjustment = ({
+export const getDefaultFrameDisplayOffsetAdjustment = ({
 	jsxPath,
 	ast,
 	videoConfigValues,
@@ -1076,7 +1076,7 @@ const resolveCurrentFrameExpression = ({
 	});
 };
 
-const getCurrentFrameDisplayOffsetAdjustment = ({
+export const getCurrentFrameDisplayOffsetAdjustment = ({
 	node,
 	ast,
 	videoConfigValues,

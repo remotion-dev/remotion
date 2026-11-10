@@ -5,6 +5,7 @@ import {
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
 	type SequenceKeyframeUpdate,
+	type SourceKeyframeUpdate,
 } from '@remotion/codemods';
 import type {
 	InteractivitySchema,
@@ -17,11 +18,12 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 };
 
 type KeyframeInput = {
 	input: string;
-	updates: SequenceKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
