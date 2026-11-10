@@ -18,7 +18,7 @@ export const licenseKeyOption = {
 			your public license key starting with <code>rm_pub_</code>. You can find
 			both keys on the License keys page on{' '}
 			<a href="https://www.remotion.pro/dashboard">remotion.pro</a>. If you{' '}
-			<a href="https://www.remotion.dev/license">
+			<a href="https://www.remotion.dev/docs/license">
 				qualify for the free license
 			</a>
 			, pass <code>"free-license"</code> instead.
