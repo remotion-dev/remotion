@@ -165,6 +165,10 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {
+	svgCssEmptyCarrierModes,
+	svgCssEmptyCarrierFixture,
+} from './fixtures/svg-css-empty-carrier';
 import {svgCssImportFont} from './fixtures/svg-css-import-font';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
@@ -303,6 +307,10 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgCssEmptyCarrierModes.map((mode) => {
+				const fixture = svgCssEmptyCarrierFixture({mode, literal: false});
+				return <Composition key={fixture.id} {...fixture} />;
+			})}
 			{['', 'all', ' ALL ', ' \t ', '\u00a0', '\u00a0all\u00a0'].flatMap(
 				(media) =>
 					[false, true].map((cssSource) => {

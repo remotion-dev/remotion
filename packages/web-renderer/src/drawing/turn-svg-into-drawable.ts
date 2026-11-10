@@ -186,7 +186,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
-	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
@@ -287,6 +287,36 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	if (cssFontRules.length) {
 		const ownerWindow = svg.ownerDocument.defaultView! as Window &
 			typeof globalThis;
+		// These sheets are serialized from CSSOM below, so an authored trailing
+		// comment cannot swallow carried rules. Keep registered-only rendering unchanged.
+		const originalStyles = svg.querySelectorAll('style');
+		for (let index = originalStyles.length - 1; index >= 0; index--) {
+			const style = originalStyles[index];
+			const {sheet} = style;
+			if (!sheet) continue;
+			let ruleCount: number;
+			try {
+				ruleCount = sheet.cssRules.length;
+			} catch {
+				// An unreadable sheet cannot establish a safe carrier or ordering boundary.
+				break;
+			}
+
+			const media = sheet.media.mediaText;
+			if (
+				!sheet.disabled &&
+				(!media || media.toLowerCase() === 'all') &&
+				!style.matches(':empty')
+			) {
+				fontStyleIndex = index;
+				break;
+			}
+
+			// Even an inactive rule can affect face order after serialization.
+			// In particular, empty text can still have CSSOM-inserted rules.
+			if (ruleCount !== 0) break;
+		}
+
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		svg.querySelectorAll('style').forEach((style, index) => {
 			const {sheet} = style;
@@ -346,6 +376,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		? JSON.stringify([
 				embeddedFontStyle?.cacheKey ?? null,
 				cssFontRules.map((rule) => [rule.css, rule.url]),
+				fontStyleIndex,
 			])
 		: (embeddedFontStyle?.cacheKey ?? null);
 	const cached = drawableBySvg.get(svg);
