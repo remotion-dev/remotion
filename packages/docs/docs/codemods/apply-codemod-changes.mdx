@@ -8,6 +8,12 @@ crumb: '@remotion/codemods'
 
 Applies the file changes returned by a codemod to an in-memory project. The input project remains unchanged.
 
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
 ```ts twoslash title="apply-changes.ts"
 import {applyCodemodChanges, updateNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
@@ -58,4 +64,5 @@ Throws if a file's current contents do not match `previousContents`, or if the a
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/codemod-project.ts)
 - [`@remotion/codemods`](/docs/codemods)
