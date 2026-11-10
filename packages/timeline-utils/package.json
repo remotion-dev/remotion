@@ -27,6 +27,7 @@
 	"devDependencies": {
 		"@mediabunny/server": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/example-videos": "workspace:*",
 		"eslint": "catalog:",
 		"typescript": "catalog:"
 	},

@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getElementLibraryLabel} from '../../helpers/get-element-library-label';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
@@ -749,7 +750,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		type: 'item',
 		id: url,
 		value: url,
-		label: libraryName ?? new URL(url).host,
+		label: getElementLibraryLabel({url, displayName: libraryName}),
 		leftItem: url === libraryUrl ? <Checkmark /> : null,
 		keyHint: null,
 		subMenu: null,

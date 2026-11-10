@@ -92,6 +92,13 @@ const stitchVideo = async ({
 			outputLocation: output,
 			pixelFormat: codec === 'prores' ? 'yuv422p10le' : undefined,
 			width: 128,
+			// libaom-av1 defaults to its slowest presets, which takes ~10s for
+			// this single frame on Windows CI. This test only needs an AV1
+			// stream to check the container, not the encoding quality.
+			ffmpegOverride: ({args}) =>
+				codec === 'av1'
+					? [...args.slice(0, -1), '-cpu-used', '6', ...args.slice(-1)]
+					: args,
 		});
 	} finally {
 		downloadMap.allowCleanup();

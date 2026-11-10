@@ -1,7 +1,7 @@
-import {StudioInternals} from '@remotion/studio';
 import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
+	Composition,
 	OffthreadVideo,
 	Sequence,
 	useCurrentFrame,
@@ -128,11 +128,15 @@ const Component: React.FC = () => {
 	);
 };
 
-export const Issue7562OffthreadVideoCuts = StudioInternals.createComposition({
-	component: Component,
-	id: 'issue-7562-offthread-video-cuts',
-	width: 1080,
-	height: 1920,
-	fps,
-	durationInFrames,
-});
+export const Issue7562OffthreadVideoCuts = () => {
+	return (
+		<Composition
+			component={Component}
+			id="issue-7562-offthread-video-cuts"
+			width={1080}
+			height={1920}
+			fps={fps}
+			durationInFrames={durationInFrames}
+		/>
+	);
+};

@@ -3,10 +3,10 @@ import {halftone} from '@remotion/effects/halftone';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {Gif} from '@remotion/gif';
-import {StudioInternals} from '@remotion/studio';
 import React from 'react';
 import {
 	AbsoluteFill,
+	Composition,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -204,11 +204,15 @@ const Comp: React.FC = () => {
 	);
 };
 
-export const GifEffectsTestbed = StudioInternals.createComposition({
-	component: Comp,
-	id: 'gif-effects-testbed',
-	width: 1920,
-	height: 1080,
-	durationInFrames: 300,
-	fps: 30,
-});
+export const GifEffectsTestbed = () => {
+	return (
+		<Composition
+			component={Comp}
+			id="gif-effects-testbed"
+			width={1920}
+			height={1080}
+			durationInFrames={300}
+			fps={30}
+		/>
+	);
+};

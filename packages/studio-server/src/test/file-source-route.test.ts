@@ -52,6 +52,7 @@ const makeResponse = () => {
 };
 
 const noopLiveEventsServer: LiveEventsServer = {
+	getClientIds: () => [],
 	addNewClientListener: () => () => undefined,
 	closeConnections: () => Promise.resolve(),
 	router: () => Promise.resolve(),
@@ -87,6 +88,7 @@ test('serves file source from an origin-less GET request', async () => {
 				highContrast: null,
 				preferredEffectBackend: null,
 				preservePitchOnPlayback: true,
+				showDiagnostics: {value: false, source: 'config' as const},
 				showLayerFrameNumbers: false,
 				showPremounting: null,
 				defaultPremountInSeconds: null,

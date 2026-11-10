@@ -1,6 +1,6 @@
-import {createRef, type ComponentType} from 'react';
+import {createRef, type ComponentType, type ReactNode} from 'react';
 import {flushSync} from 'react-dom';
-import ReactDOM from 'react-dom/client';
+import ReactDOM, {type Root, type RootOptions} from 'react-dom/client';
 import type {PreferredEffectBackend} from 'remotion';
 import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
@@ -117,6 +117,29 @@ const normalizeUncaughtReactError = (
 	return appendComponentStack(normalized, componentStack);
 };
 
+// Development tooling can retain an unmounted React root. Keep its callback
+// outside the scaffold's scope so it owns no resolved props or component.
+const createUncaughtErrorHandler = (
+	errorHolder: ErrorHolder,
+): NonNullable<RootOptions['onUncaughtError']> => {
+	return (err, errorInfo) => {
+		errorHolder.error = normalizeUncaughtReactError(
+			err,
+			errorInfo?.componentStack,
+		);
+	};
+};
+
+// React's development component stacks can retain the synchronous render
+// callback after unmount. Clear the only tree reference that callback owns.
+const renderScaffold = (root: Root, treeHolder: {current: ReactNode}): void => {
+	try {
+		flushSync(() => root.render(treeHolder.current));
+	} finally {
+		treeHolder.current = null;
+	}
+};
+
 export function checkForError(errorHolder: ErrorHolder): void {
 	if (errorHolder.error) {
 		throw errorHolder.error;
@@ -192,6 +215,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	wrapper.style.zIndex = '-9999';
 
 	const div = document.createElement('div');
+	div.dataset.remotionScaffold = '';
 
 	div.style.position = 'absolute';
 	div.style.top = '0';
@@ -236,12 +260,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const errorHolder: ErrorHolder = {error: null};
 
 	const root = ReactDOM.createRoot(div, {
-		onUncaughtError: (err, errorInfo) => {
-			errorHolder.error = normalizeUncaughtReactError(
-				err,
-				errorInfo?.componentStack,
-			);
-		},
+		onUncaughtError: createUncaughtErrorHandler(errorHolder),
 	});
 
 	const delayRenderScope: DelayRenderScope = {
@@ -259,8 +278,8 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	}>();
 	const renderResourceManager = Internals.makeRenderResourceManager();
 
-	flushSync(() => {
-		root.render(
+	renderScaffold(root, {
+		current: (
 			<Internals.RenderResourceManagerContext.Provider
 				value={renderResourceManager}
 			>
@@ -350,8 +369,8 @@ export function createScaffold<Props extends Record<string, unknown>>({
 						</Internals.RemotionEnvironmentContext.Provider>
 					</Internals.MaxMediaCacheSizeContext.Provider>
 				</Internals.PreferredEffectBackendContext.Provider>
-			</Internals.RenderResourceManagerContext.Provider>,
-		);
+			</Internals.RenderResourceManagerContext.Provider>
+		),
 	});
 	updateFallbackScaffoldVisibility();
 

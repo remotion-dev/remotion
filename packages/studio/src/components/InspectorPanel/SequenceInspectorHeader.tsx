@@ -158,6 +158,7 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 	return (
 		<InspectorSection
+			headerRef={null}
 			expanded
 			header={
 				<span

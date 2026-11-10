@@ -17,9 +17,15 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	applySvgFilterToPrecomposedCanvas,
+	scaleFilterLengths,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {
+	getPrecomposeRectForMask,
+	handleMask,
+	handleSvgClip,
+} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -90,7 +96,7 @@ export const processNode = async ({
 		const start = Date.now();
 
 		let precomposeRect: DOMRect | null = null;
-		if (precompositing.needsMaskImage) {
+		if (precompositing.needsMaskImage || precompositing.needsSvgClip) {
 			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
@@ -127,13 +133,20 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsSvgClip !== null ||
+			precompositing.needsFilterPrecompositing?.includes('url(') === true;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
-					secondRect: getBiggestBoundingClientRect(element),
+					secondRect: getBiggestBoundingClientRect(
+						element,
+						true,
+						precompositing.needsSvgClip !== null,
+					),
 				}),
 			);
 		}
@@ -166,6 +179,7 @@ export const processNode = async ({
 		});
 
 		const tempContext = await createLayer({
+			transparent: true,
 			cutout: layerRect,
 			element,
 			logLevel,
@@ -189,6 +203,64 @@ export const processNode = async ({
 				}),
 			}),
 		);
+
+		// Only graphs with qualified coordinate mapping can run at raster scales
+		// other than 1. Projected surfaces still need separate region mapping.
+		using svgFilteredLayer =
+			!is3DPrecomposition &&
+			precompositing.needsFilterPrecompositing?.includes('url(')
+				? applySvgFilterToPrecomposedCanvas({
+						source: drawable,
+						scale: layerScale,
+						sourceRect: new DOMRect(
+							(dimensions.left - layerRect.left) * layerScale,
+							(dimensions.top - layerRect.top) * layerScale,
+							dimensions.width * layerScale,
+							dimensions.height * layerScale,
+						),
+						filter: precompositing.needsFilterPrecompositing,
+						ownerDocument: element.ownerDocument,
+					})
+				: null;
+
+		if (svgFilteredLayer) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			tempContext.drawImage(
+				svgFilteredLayer.canvas,
+				-svgFilteredLayer.sourceX,
+				-svgFilteredLayer.sourceY,
+			);
+			tempContext.restore();
+		}
+
+		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			applyFilterToDrawOperation({
+				context: tempContext,
+				filter: scaleFilterLengths(
+					precompositing.needsFilterPrecompositing,
+					layerScale,
+				),
+				drawFn: () => tempContext.drawImage(tempContext.canvas, 0, 0),
+			});
+			tempContext.restore();
+		}
+
+		if (precompositing.needsSvgClip) {
+			await handleSvgClip({
+				element,
+				resource: precompositing.needsSvgClip,
+				maskRect: dimensions,
+				precomposeRect: layerRect,
+				tempContext,
+			});
+		}
 
 		if (precompositing.needsMaskImage) {
 			await handleMask({
@@ -265,16 +337,7 @@ export const processNode = async ({
 			? setOpacity({ctx: context, opacity})
 			: () => {};
 
-		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing) {
-			applyFilterToDrawOperation({
-				context,
-				filter: precompositing.needsFilterPrecompositing,
-				drawFn: drawPrecomposedCanvas,
-			});
-		} else {
-			drawPrecomposedCanvas();
-		}
+		drawPrecomposedCanvas();
 
 		finishOpacity();
 		context.globalCompositeOperation = previousCompositeOperation;

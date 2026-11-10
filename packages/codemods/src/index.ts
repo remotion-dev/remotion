@@ -27,8 +27,10 @@ import {
 	getUnchangedStructureRemappings,
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
+import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
+import {resolveCompositionImportFile} from './resolve-composition-import-file';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {
 	computeSequencePropsStatusFromContent,
@@ -186,6 +188,8 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	resolveCompositionImportFile,
+	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,
 	getDurationDependentKeyframesFromContent,
 	JsxElementIdentityMismatchError,

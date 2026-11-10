@@ -457,6 +457,12 @@ export type CompositionEditResponse =
 			stack: string;
 	  };
 
+export type CompositionMoveResponse =
+	| Extract<CompositionEditResponse, {success: true}>
+	| (Extract<CompositionEditResponse, {success: false}> & {
+			canRefactor: boolean;
+	  });
+
 export type DeleteStaticFileRequest = {
 	relativePath: string;
 };
@@ -1921,7 +1927,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-composition': new StudioOperation<
 		MoveCompositionRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/add-folder': new StudioOperation<
 		AddFolderRequest,
@@ -1937,7 +1943,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-folder': new StudioOperation<
 		MoveFolderRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/project-info': new StudioOperation<
 		ProjectInfoRequest,

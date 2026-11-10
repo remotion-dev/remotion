@@ -209,7 +209,7 @@ Config.addElementLibrary({
 
 Call `addElementLibrary()` once for each third-party Element Library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
 
-When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+The Browse Elements dropdown lists Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
 Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
 
@@ -319,6 +319,20 @@ Config.setHighContrast(true);
 ```
 
 The [`--high-contrast`](/docs/options/high-contrast) flag takes precedence over this option.
+
+## `setShowDiagnostics()`<AvailableFrom v="4.0.543" />
+
+<Options id="show-diagnostics" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowDiagnostics(true);
+```
+
+You can also toggle this in Settings → Studio → Debug. Drag the window by its title, or focus the title and use the arrow keys to move it.
+
+The [`--show-diagnostics`](/docs/options/show-diagnostics) flag takes precedence over this option.
 
 ## `setShowLayerFrameNumbers()`<AvailableFrom v="4.0.535" />
 
@@ -477,6 +491,42 @@ Config.setDelayRenderTimeoutInMilliseconds(60000);
 ```
 
 The [`--timeout`](/docs/options/timeout) flag takes precedence over this option.
+
+## `setChromiumFlags()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumFlags({'disable-gpu-rasterization': true, 'disable-gpu-compositing': true});
+```
+
+See [`--chromium-flags`](/docs/options/chromium-flags). The CLI flag takes precedence over the config value.
+
+## `setChromiumFeatures()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumFeatures({Translate: false});
+```
+
+See [`--chromium-features`](/docs/options/chromium-features). The CLI flag takes precedence over the config value.
+
+## `setChromiumBlinkFeatures()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumBlinkFeatures({AudioVideoTracks: true});
+```
+
+See [`--chromium-blink-features`](/docs/options/chromium-blink-features). The CLI flag takes precedence over the config value.
 
 ## `setChromiumDisableWebSecurity()`<AvailableFrom v="2.6.5" />
 
@@ -899,6 +949,18 @@ Config.setProResProfile('4444');
 ```
 
 The [`--prores-profile`](/docs/options/prores-profile) flag takes precedence over this option.
+
+## `setProResBitsPerMacroblock()`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setProResBitsPerMacroblock(1000);
+```
+
+The [`--prores-bits-per-macroblock`](/docs/options/prores-bits-per-macroblock) flag takes precedence over this option.
 
 ## `setX264Preset()`<AvailableFrom v="4.0.22" />
 

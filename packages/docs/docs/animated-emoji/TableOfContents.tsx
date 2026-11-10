@@ -11,7 +11,7 @@ export const TableOfContents: React.FC = () => {
 					<div>Component for rendering an animated emoji.</div>
 				</TOCItem>
 				<TOCItem link="/docs/animated-emoji/get-available-emoji">
-					<strong>{'getAvailableEmoji()'}</strong>
+					<strong>{'getAvailableEmojis()'}</strong>
 					<div>Get a list of available emoji.</div>
 				</TOCItem>
 			</Grid>
