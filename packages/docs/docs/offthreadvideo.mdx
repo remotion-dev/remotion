@@ -393,11 +393,12 @@ export const getMediaMetadata = async (src: string) => {
 // @filename: index.tsx
 // ---cut---
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
+import {Loop, OffthreadVideo, RemotionOffthreadVideoProps, useDelayRender, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
 import {getMediaMetadata} from './get-media-metadata';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender());
   const {fps} = useVideoConfig();
 
@@ -414,7 +415,7 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
     return () => {
       continueRender(handle);
     };
-  }, [handle, props.src]);
+  }, [cancelRender, continueRender, handle, props.src]);
 
   if (duration === null) {
     return null;
