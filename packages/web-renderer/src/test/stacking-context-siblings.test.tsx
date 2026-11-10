@@ -1,10 +1,22 @@
-import {expect, test} from 'vitest';
+import {beforeAll, expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	warmUpNativeReferences,
+} from './native-reference';
 import {testImage} from './utils';
+
+beforeAll(async () => {
+	if (!navigator.userAgent.includes('Chrome')) {
+		return;
+	}
+
+	await warmUpNativeReferences([stackingContextSiblings]);
+}, 60_000);
 
 test('orders atomic stacking-context siblings', async () => {
 	await page.viewport(
