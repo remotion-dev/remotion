@@ -1,8 +1,8 @@
 import {existsSync, readFileSync} from 'node:fs';
-import {moveComposition} from '@remotion/codemods';
+import {CodemodsInternals, moveComposition} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	CompositionEditResponse,
+	CompositionMoveResponse,
 	MoveCompositionRequest,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
@@ -24,7 +24,7 @@ import {
 
 export const moveCompositionHandler: ApiHandler<
 	MoveCompositionRequest,
-	CompositionEditResponse
+	CompositionMoveResponse
 > = ({input: request, logLevel, remotionRoot, entryPoint}) =>
 	withSourceFileWriteQueue(async () => {
 		try {
@@ -177,6 +177,8 @@ export const moveCompositionHandler: ApiHandler<
 		} catch (error) {
 			return {
 				success: false,
+				canRefactor:
+					error instanceof CodemodsInternals.RegistrationRequiresRefactorError,
 				reason: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? (error.stack ?? '') : '',
 			};

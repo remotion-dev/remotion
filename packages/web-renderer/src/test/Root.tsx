@@ -5,9 +5,22 @@ import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
+import {
+	pixelatedBackgroundSampler,
+	pixelatedBackgroundSamplerControl,
+} from './fixtures/background-image-pixelated-sampler-lifetime';
+import {
+	spaceTextMaskTransparent,
+	spaceTextMaskWhite,
+} from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {
+	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
+} from './fixtures/background-image-url-pixelated';
 import {backgroundImageRound} from './fixtures/background-image-url-round';
+import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -22,11 +35,41 @@ import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
+import {
+	clipPathDescendantFilter,
+	clipPathDescendantFilterObjectBox,
+} from './fixtures/clip-path-descendant-filter';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {
+	clipPathRectangleDescendantFilter,
+	clipPathRectangleDescendantFilterObjectBox,
+} from './fixtures/clip-path-rectangle-descendant-filter';
+import {
+	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
+	clipPathRectangleUnionOpaque,
+	clipPathRectangleUnionSvgTarget,
+	clipPathRectangleUnionFilterOutsets,
+} from './fixtures/clip-path-rectangle-union';
+import {clipPathReference} from './fixtures/clip-path-reference';
+import {
+	clipPathReferenceReview,
+	clipPathReferenceReviewOpaque,
+	clipPathReferenceFilterOutsets,
+} from './fixtures/clip-path-reference-review';
+import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
+import {
+	clipPathShapeReview,
+	clipPathShapeReviewOpaque,
+} from './fixtures/clip-path-shape-review';
 import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
@@ -65,6 +108,18 @@ import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
+} from './fixtures/mask-image-layers';
+import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
+import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
@@ -95,6 +150,13 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
+import {
+	replacedSamplerPixelated,
+	replacedSamplerAuto,
+	svgSamplerPixelated,
+	svgSamplerAuto,
+} from './fixtures/replaced-element-sampler-controls';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
 import {scalePrecomposeFixture} from './fixtures/scale-precompose';
@@ -111,8 +173,25 @@ import {
 	svgDataMimeCoverUppercase,
 } from './fixtures/svg-data-mime-case';
 import {svgDataUri} from './fixtures/svg-data-uri';
+import {
+	svgDisabledStyles,
+	svgDisabledStylesOpaque,
+} from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {
+	svgFullSourceUrlFill,
+	svgFullSourceUrlContainFractional,
+	svgFullSourceBlobContainFractional,
+	svgFullSourceUrlContain64,
+	svgFullSourceBlobContain64,
+	svgFullSourceUrlContain61,
+	svgFullSourceBlobContain61,
+	svgFullSourceBlobFill,
+	svgFullSourceUrlContain,
+	svgFullSourceBlobContain,
+} from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -137,6 +216,10 @@ import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {
+	transformPrecision,
+	transformGeometric2d,
+} from './fixtures/transform-precision';
 import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -164,6 +247,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...transformPrecision} />
+			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
@@ -189,23 +274,48 @@ export const Root: React.FC = () => {
 			<Composition {...offlineRecovery} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
+			<Composition {...backgroundImageSpace} />
+			<Composition {...spaceTextMaskTransparent} />
+			<Composition {...spaceTextMaskWhite} />
+			<Composition {...backgroundImagePixelated} />
+			<Composition {...backgroundImagePixelatedContexts} />
+			<Composition {...pixelatedBackgroundSampler} />
+			<Composition {...pixelatedBackgroundSamplerControl} />
 			<Composition {...backgroundImageRound} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
+			<Composition {...replacedElementPixelated} />
+			<Composition {...replacedSamplerPixelated} />
+			<Composition {...replacedSamplerAuto} />
+			<Composition {...svgSamplerPixelated} />
+			<Composition {...svgSamplerAuto} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgUrlNonzeroViewbox} />
+			<Composition {...svgFullSourceUrlFill} />
+			<Composition {...svgFullSourceBlobFill} />
+			<Composition {...svgFullSourceUrlContain} />
+			<Composition {...svgFullSourceBlobContain} />
+			<Composition {...svgFullSourceUrlContain64} />
+			<Composition {...svgFullSourceBlobContain64} />
+			<Composition {...svgFullSourceUrlContain61} />
+			<Composition {...svgFullSourceBlobContain61} />
+			<Composition {...svgFullSourceUrlContainFractional} />
+			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
 			<Composition {...scalePrecomposeFixture} />
+			<Composition {...svgDisabledStyles} />
+			<Composition {...svgDisabledStylesOpaque} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
 				<Composition {...opacityZero} />
+				<Composition {...svgRootOpacity} />
 				<Composition {...opacityReset} />
 				<Composition {...opacityInherited} />
 				<Composition {...opaqueLayerOverFadingLayer} />
@@ -220,6 +330,20 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...maskImageUrlSizing} />
+				<Composition {...maskImageLayers} />
+				<Composition {...maskImageLayersTransparent} />
+				<Composition {...maskImageLayersUrl} />
+				<Composition {...maskImageLayersUrlTransparent} />
+				<Composition {...maskImageLayersBlob} />
+				<Composition {...maskImageLayersBlobTransparent} />
+				<Composition {...maskImageLayersTokenUrl} />
+				<Composition {...maskImageLayersTokenUrlTransparent} />
+				{unsupportedMaskImages.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
+				{legacyMaskComposites.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
 				<Composition {...maskImageUrlPosition} />
 				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />
@@ -307,6 +431,26 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
 				<Composition {...clipPathCircle} />
+				<Composition {...clipPathReference} />
+				<Composition {...clipPathDescendantFilter} />
+				<Composition {...clipPathDescendantFilterObjectBox} />
+				<Composition {...clipPathReferenceReview} />
+				<Composition {...clipPathReferenceReviewOpaque} />
+				<Composition {...clipPathReferenceFilterOutsets} />
+				<Composition {...clipPathShapeReference} />
+				<Composition {...clipPathShapeReview} />
+				<Composition {...clipPathShapeReviewOpaque} />
+				<Composition {...clipPathRectangleUnion} />
+				<Composition {...clipDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilterObjectBox} />
+				<Composition {...clipTransformedDescendantFilter} />
+				<Composition {...clipDescendantBlur} />
+				<Composition {...clipNestedDescendantFilter} />
+				<Composition {...clipScaledFilter} />
+				<Composition {...clipPathRectangleUnionOpaque} />
+				<Composition {...clipPathRectangleUnionSvgTarget} />
+				<Composition {...clipPathRectangleUnionFilterOutsets} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>

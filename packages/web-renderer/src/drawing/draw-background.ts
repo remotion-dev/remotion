@@ -4,8 +4,10 @@ import {createLayer} from '../take-screenshot';
 import {getBlendMode} from './calculate-transforms';
 import {getBackgroundFill, isColorTransparent} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
+import {parseUrlFunction} from './mask-image';
 
 export const drawBackground = async ({
+	hasCssTransform,
 	backgroundImage,
 	context,
 	rect,
@@ -19,6 +21,7 @@ export const drawBackground = async ({
 	offsetTop: parentOffsetTop,
 	scale,
 }: {
+	hasCssTransform: boolean;
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
@@ -106,6 +109,19 @@ export const drawBackground = async ({
 		originY: number,
 	) => {
 		if (!fill) return;
+		const previousSmoothing = target.imageSmoothingEnabled;
+		using _restoreImageSmoothing = {
+			[Symbol.dispose]: () => {
+				target.imageSmoothingEnabled = previousSmoothing;
+			},
+		};
+		if (
+			computedStyle.imageRendering === 'pixelated' &&
+			parseUrlFunction(backgroundImage) !== null
+		) {
+			target.imageSmoothingEnabled = false;
+		}
+
 		if ('image' in fill) {
 			target.save();
 			target.beginPath();
@@ -116,11 +132,32 @@ export const drawBackground = async ({
 				boundingRect.height,
 			);
 			target.clip();
-			const left = Math.round(fill.rect.left - originX);
-			const top = Math.round(fill.rect.top - originY);
-			const right = Math.round(fill.rect.right - originX);
-			const bottom = Math.round(fill.rect.bottom - originY);
-			target.drawImage(fill.image, left, top, right - left, bottom - top);
+			const matrix = target.getTransform();
+			// Transformed native backgrounds sample in local paint coordinates.
+			// Localize integer translations without changing the tile geometry.
+			const localizeTranslation =
+				computedStyle.imageRendering === 'pixelated' &&
+				hasCssTransform &&
+				matrix.a === 1 &&
+				matrix.b === 0 &&
+				matrix.c === 0 &&
+				matrix.d === 1 &&
+				Number.isInteger(matrix.e) &&
+				Number.isInteger(matrix.f);
+			for (const tile of fill.rects) {
+				const left = Math.round(tile.left - originX);
+				const top = Math.round(tile.top - originY);
+				const right = Math.round(tile.right - originX);
+				const bottom = Math.round(tile.bottom - originY);
+				if (localizeTranslation) {
+					target.translate(left, top);
+					target.drawImage(fill.image, 0, 0, right - left, bottom - top);
+					target.translate(-left, -top);
+				} else {
+					target.drawImage(fill.image, left, top, right - left, bottom - top);
+				}
+			}
+
 			target.restore();
 			return;
 		}
@@ -140,10 +177,9 @@ export const drawBackground = async ({
 	if (
 		backgroundImage !== 'none' &&
 		(blendMode ||
+			contextToDraw !== context ||
 			(!isColorTransparent(backgroundColor) &&
-				(context.globalAlpha !== 1 ||
-					context.filter !== 'none' ||
-					contextToDraw !== context)))
+				(context.globalAlpha !== 1 || context.filter !== 'none')))
 	) {
 		// Blend inside the background group before applying element opacity, filters and text masks.
 		const backgroundCanvas = new OffscreenCanvas(

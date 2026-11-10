@@ -1,4 +1,5 @@
 type ClipPathNone = {type: 'none'};
+type ClipPathReference = {type: 'url'; source: string};
 type ClipPathPolygon = {
 	type: 'polygon';
 	fillRule: CanvasFillRule;
@@ -28,6 +29,7 @@ type ClipPathInset = {
 
 type ParsedClipPath =
 	| ClipPathNone
+	| ClipPathReference
 	| ClipPathPolygon
 	| ClipPathPath
 	| ClipPathCircle
@@ -218,6 +220,16 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 		return {type: 'none'};
 	}
 
+	if (clipPath.startsWith('url(') && clipPath.endsWith(')')) {
+		return {
+			type: 'url',
+			source: clipPath
+				.slice(4, -1)
+				.trim()
+				.replace(/^(["'])(.*)\1$/, '$2'),
+		};
+	}
+
 	const polygonMatch = clipPath.match(/^polygon\((.+)\)$/);
 	if (polygonMatch) {
 		return parsePolygon(polygonMatch[1], rect);
@@ -246,14 +258,163 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 	return {type: 'none'};
 }
 
+// Resolve local resources once for the native HTML mask and SVG vector paths.
+const getReferencedClipPath = (
+	source: string,
+	element: Element,
+): SVGClipPathElement | null => {
+	let url: URL;
+	let id: string;
+	try {
+		url = new URL(source, element.ownerDocument.baseURI);
+		id = decodeURIComponent(url.hash.slice(1));
+	} catch {
+		// Malformed resource URLs do not resolve a clip in the browser.
+		return null;
+	}
+
+	const documentUrl = new URL(element.ownerDocument.URL);
+	if (
+		url.origin !== documentUrl.origin ||
+		url.pathname !== documentUrl.pathname ||
+		url.search !== documentUrl.search ||
+		!url.hash
+	)
+		return null;
+	const resource = element.ownerDocument.getElementById(id);
+	if (!(resource instanceof SVGClipPathElement)) return null;
+	return resource;
+};
+
+const getReferencedShape = (
+	source: string,
+	element: Element,
+	rect: DOMRect,
+): {path: Path2D; fillRule: CanvasFillRule} | null => {
+	const resource = getReferencedClipPath(source, element);
+	if (!resource) return null;
+	const children = Array.from(resource.children).filter(
+		(node) => getComputedStyle(node).display !== 'none',
+	);
+	const path = new Path2D();
+	if (children.length === 0) return {path, fillRule: 'nonzero'};
+	// Multiple shapes need union coverage rather than a combined winding rule.
+	if (children.length !== 1) return null;
+	const child = children[0];
+	if (
+		!(
+			child instanceof SVGRectElement ||
+			child instanceof SVGPolygonElement ||
+			child instanceof SVGPathElement
+		)
+	)
+		return null;
+	if (
+		child instanceof SVGRectElement &&
+		(child.rx.baseVal.valueInSpecifiedUnits > 0 ||
+			child.ry.baseVal.valueInSpecifiedUnits > 0)
+	)
+		return null;
+	const objectBoundingBox =
+		resource.clipPathUnits.baseVal ===
+		SVGUnitTypes.SVG_UNIT_TYPE_OBJECTBOUNDINGBOX;
+	const length = (value: SVGLength) =>
+		objectBoundingBox && value.unitType === SVGLength.SVG_LENGTHTYPE_PERCENTAGE
+			? value.valueInSpecifiedUnits / 100
+			: value.value;
+	const matrix = new DOMMatrix().translate(rect.left, rect.top);
+	if (objectBoundingBox) matrix.scaleSelf(rect.width, rect.height);
+	for (let i = 0; i < resource.transform.baseVal.numberOfItems; i++)
+		matrix.multiplySelf(resource.transform.baseVal.getItem(i).matrix);
+	for (let i = 0; i < child.transform.baseVal.numberOfItems; i++)
+		matrix.multiplySelf(child.transform.baseVal.getItem(i).matrix);
+	let shape: Path2D;
+	if (child instanceof SVGRectElement) {
+		shape = new Path2D();
+		const width = length(child.width.baseVal);
+		const height = length(child.height.baseVal);
+		if (width > 0 && height > 0)
+			shape.rect(
+				length(child.x.baseVal),
+				length(child.y.baseVal),
+				width,
+				height,
+			);
+	} else if (child instanceof SVGPolygonElement) {
+		shape = new Path2D();
+		for (let i = 0; i < child.points.numberOfItems; i++) {
+			const point = child.points.getItem(i);
+			if (i === 0) shape.moveTo(point.x, point.y);
+			else shape.lineTo(point.x, point.y);
+		}
+
+		shape.closePath();
+	} else {
+		shape = new Path2D(child.getAttribute('d') ?? '');
+	}
+
+	path.addPath(shape, matrix);
+	return {
+		path,
+		fillRule:
+			getComputedStyle(child).clipRule === 'evenodd' ? 'evenodd' : 'nonzero',
+	};
+};
+
+export const getSvgClipForPrecompositing = (
+	clipPath: string,
+	element: Element,
+): SVGClipPathElement | null => {
+	if (!clipPath.startsWith('url(')) return null;
+	const parsed = parseClipPath(clipPath, new DOMRect());
+	if (parsed.type !== 'url') return null;
+	const resource = getReferencedClipPath(parsed.source, element);
+	if (!resource) return null;
+	const children = Array.from(resource.children).filter(
+		(node) =>
+			node instanceof SVGGraphicsElement &&
+			getComputedStyle(node).display !== 'none',
+	);
+	if (children.length > 1) {
+		return children.every(
+			(node) =>
+				node instanceof SVGRectElement &&
+				node.rx.baseVal.valueInSpecifiedUnits === 0 &&
+				node.ry.baseVal.valueInSpecifiedUnits === 0,
+		)
+			? resource
+			: null;
+	}
+
+	if (!(element instanceof HTMLElement)) return null;
+	if (
+		children.some((node) => {
+			if (node instanceof SVGRectElement) {
+				return (
+					node.rx.baseVal.valueInSpecifiedUnits > 0 ||
+					node.ry.baseVal.valueInSpecifiedUnits > 0
+				);
+			}
+
+			return !(
+				node instanceof SVGPolygonElement || node instanceof SVGPathElement
+			);
+		})
+	)
+		return null;
+	return resource;
+};
+
 export function setClipPath({
 	ctx,
 	clipPath,
 	rect,
+	element,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	clipPath: string;
 	rect: DOMRect;
+	element: Element;
 }): () => void {
 	const parsed = parseClipPath(clipPath, rect);
 
@@ -264,6 +425,12 @@ export function setClipPath({
 	ctx.save();
 
 	switch (parsed.type) {
+		case 'url': {
+			const shape = getReferencedShape(parsed.source, element, rect);
+			if (shape) ctx.clip(shape.path, shape.fillRule);
+			break;
+		}
+
 		case 'polygon': {
 			ctx.beginPath();
 			for (let i = 0; i < parsed.points.length; i++) {

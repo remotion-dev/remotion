@@ -22,6 +22,7 @@ test('wrapping JSX writes the child on a new line with aligned indentation', asy
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 

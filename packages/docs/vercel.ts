@@ -1,15 +1,14 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
+import {getTransformedRoutes} from '@vercel/routing-utils';
 
-// This deployment is independent of the existing remotion.pro production app.
-const accountMirrorOrigin =
-	'https://pro-git-codex-dev-account-mirror-preview-remotion.vercel.app';
-const accountMirrorHosts = [
+const accountOrigin = 'https://www.remotion.pro';
+const accountHosts = [
 	{
 		type: 'host' as const,
 		value: '(?:www\\.)?remotion\\.dev|remotion(?:-[a-z0-9-]+)?\\.vercel\\.app',
 	},
 ];
-const accountMirrorPaths = [
+const accountPaths = [
 	'/login',
 	'/dashboard',
 	'/dashboard/:path*',
@@ -37,20 +36,14 @@ const browserStudioAssetHeaders = [
 	...browserStudioIsolationHeaders,
 ];
 
-export const config: VercelConfig = {
-	// Vercel extracts these commands before evaluating this file; keep them literal
-	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
-	installCommand:
-		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
-	buildCommand:
-		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
+const siteConfig: VercelConfig = {
 	headers: [
-		...accountMirrorPaths.map((source) =>
+		...accountPaths.map((source) =>
 			routes.header(
 				source,
 				[{key: 'Cache-Control', value: 'private, no-store'}],
 				{
-					has: accountMirrorHosts,
+					has: accountHosts,
 				},
 			),
 		),
@@ -114,17 +107,8 @@ export const config: VercelConfig = {
 		]),
 	],
 	rewrites: [
-		// These existing endpoints require the production-only GitHub invite
-		// credential. Reuse them without copying it into the mirror deployment.
-		...['/api/github/invite', '/api/store/invite', '/api/store/redeem'].map(
-			(source) => ({
-				source,
-				destination: `https://www.remotion.pro${source}`,
-				has: accountMirrorHosts,
-			}),
-		),
 		...[
-			...accountMirrorPaths,
+			...accountPaths,
 			'/_next/:path*',
 			'/animated-captions-og.png',
 			'/colorsandshapes-ogimage.png',
@@ -166,8 +150,8 @@ export const config: VercelConfig = {
 			'/wordmark.png',
 		].map((source) => ({
 			source,
-			destination: `${accountMirrorOrigin}${source}`,
-			has: accountMirrorHosts,
+			destination: `${accountOrigin}${source}`,
+			has: accountHosts,
 		})),
 	],
 	redirects: [
@@ -701,6 +685,12 @@ export const config: VercelConfig = {
 		routes.redirect('/terms.pdf', '/docs/terms.pdf', {permanent: true}),
 		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
 		routes.redirect('/privacy.pdf', '/docs/privacy.pdf', {permanent: true}),
+		routes.redirect('/terms-4-0', '/docs/terms-4-0', {permanent: true}),
+		routes.redirect('/terms-4-0.md', '/docs/terms-4-0.md', {permanent: true}),
+		routes.redirect('/privacy-4-0', '/docs/privacy-4-0', {permanent: true}),
+		routes.redirect('/privacy-4-0.md', '/docs/privacy-4-0.md', {
+			permanent: true,
+		}),
 		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
 		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
 		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
@@ -736,4 +726,35 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 	],
+};
+
+const {headers, redirects, rewrites, ...deploymentConfig} = siteConfig;
+const transformed = getTransformedRoutes({headers, redirects, rewrites});
+if (transformed.error) {
+	throw new Error(transformed.error.message);
+}
+
+export const config = {
+	// Vercel extracts these commands before evaluating this file; keep them literal
+	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
+	installCommand:
+		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
+	buildCommand:
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
+	...deploymentConfig,
+	routes: transformed.routes?.map((route) =>
+		'dest' in route && route.dest?.startsWith(accountOrigin)
+			? {
+					...route,
+					transforms: [
+						{
+							type: 'request.headers',
+							op: 'set',
+							target: {key: 'x-remotion-public-origin'},
+							args: 'https://www.remotion.dev',
+						},
+					],
+				}
+			: route,
+	),
 };

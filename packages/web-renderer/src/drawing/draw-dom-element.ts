@@ -160,6 +160,34 @@ const drawReplacedElement = ({
 		return;
 	}
 
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
+	}
+
+	// Preserve the concrete destination size when the entire image is visible.
+	if (
+		drawable instanceof HTMLImageElement &&
+		result.sourceX === 0 &&
+		result.sourceY === 0 &&
+		result.sourceWidth === intrinsicSize.width &&
+		result.sourceHeight === intrinsicSize.height
+	) {
+		contextToDraw.drawImage(
+			drawable,
+			result.destX,
+			result.destY,
+			result.destWidth,
+			result.destHeight,
+		);
+		return;
+	}
+
 	// Use the 9-argument drawImage to support source cropping (for cover mode)
 	contextToDraw.drawImage(
 		drawable,

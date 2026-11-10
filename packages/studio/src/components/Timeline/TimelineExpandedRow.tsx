@@ -48,6 +48,8 @@ type TimelineExpandedRowProps = {
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly children: React.ReactNode;
+	readonly beforeDropTargetRef: React.RefObject<HTMLDivElement | null> | null;
 };
 
 const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
@@ -63,6 +65,8 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 	keyframeDisplayOffset,
 	keyframePlaybackRate,
 	keyframeControlsMode,
+	children,
+	beforeDropTargetRef,
 }) => {
 	const rowDepth =
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
@@ -102,7 +106,10 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					revealInInspector={!isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
-				/>
+					beforeDropTargetRef={beforeDropTargetRef}
+				>
+					{children}
+				</TimelineEffectItem>
 			);
 		}
 

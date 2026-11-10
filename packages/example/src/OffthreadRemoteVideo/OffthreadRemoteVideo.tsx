@@ -1,5 +1,4 @@
-import {StudioInternals} from '@remotion/studio';
-import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
+import {CalculateMetadataFunction, Composition, OffthreadVideo} from 'remotion';
 import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
@@ -30,9 +29,13 @@ const Component = () => {
 	);
 };
 
-export const OffthreadRemoteVideo = StudioInternals.createComposition({
-	component: Component,
-	id: 'OffthreadRemoteVideo',
-	calculateMetadata: calculateMetadataFn,
-	fps,
-});
+export const OffthreadRemoteVideo = () => {
+	return (
+		<Composition
+			component={Component}
+			id="OffthreadRemoteVideo"
+			calculateMetadata={calculateMetadataFn}
+			fps={fps}
+		/>
+	);
+};

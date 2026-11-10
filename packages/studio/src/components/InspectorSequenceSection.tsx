@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -45,6 +46,7 @@ import {
 } from './InspectorPanel/inspector-section-collapse';
 import {LevelsEditor} from './InspectorPanel/LevelsEditor';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -384,6 +386,8 @@ export const InspectorSequenceSection: React.FC<{
 		readonly index: number;
 	} | null>(null);
 	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
+	const effectsSectionRef = useRef<HTMLElement>(null);
+	const firstEffectDropTargetRef = useRef<HTMLDivElement>(null);
 	const scrolledInspectorRevealToken = useRef<number | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
@@ -398,6 +402,16 @@ export const InspectorSequenceSection: React.FC<{
 		Transform3DModeStateContext,
 	);
 	const sequenceKey = getTimelineSequenceSelectionKey(nodePathInfo);
+	const initialEffectReveal = useRef({
+		sequenceKey,
+		effectKey: selectedEffectKey,
+	});
+	if (initialEffectReveal.current.sequenceKey !== sequenceKey) {
+		initialEffectReveal.current = {sequenceKey, effectKey: selectedEffectKey};
+	} else if (initialEffectReveal.current.effectKey !== selectedEffectKey) {
+		initialEffectReveal.current.effectKey = null;
+	}
+
 	const manuallyEnabled3DTransform =
 		manuallyEnabledSequenceKeys.has(sequenceKey);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -530,7 +544,7 @@ export const InspectorSequenceSection: React.FC<{
 		[isAdditionalSectionExpanded, setAdditionalSectionExpanded],
 	);
 	const effectsExpanded = isAdditionalSectionExpanded('effects');
-	const {controlRows, effectRows, hasEffects} = useMemo(() => {
+	const {controlRows, effectGroups, effectRows, hasEffects} = useMemo(() => {
 		const controlNodes: TimelineTreeNode[] = [];
 		let root: Extract<TimelineTreeNode, {kind: 'group'}> | null = null;
 
@@ -542,19 +556,21 @@ export const InspectorSequenceSection: React.FC<{
 			}
 		}
 
+		const groups =
+			root === null || !effectsExpanded
+				? []
+				: root.children.map((node) =>
+						flattenVisibleTreeNodes({nodes: [node], getIsExpanded}),
+					);
+
 		return {
 			hasEffects: root !== null && root.children.length > 0,
 			controlRows: flattenVisibleTreeNodes({
 				nodes: controlNodes,
 				getIsExpanded,
 			}),
-			effectRows:
-				root === null || !effectsExpanded
-					? []
-					: flattenVisibleTreeNodes({
-							nodes: root.children,
-							getIsExpanded,
-						}),
+			effectGroups: groups,
+			effectRows: groups.flat(),
 		};
 	}, [effectsExpanded, getIsExpanded, tree]);
 
@@ -612,7 +628,7 @@ export const InspectorSequenceSection: React.FC<{
 		tree,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (inspectorRevealToken === null) {
 			return;
 		}
@@ -624,10 +640,58 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
-		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
+		const row = selectedEffectRowRef.current;
+		const section = effectsSectionRef.current;
+		const scrollContainer = section?.closest<HTMLElement>(
+			`.${VERTICAL_SCROLLBAR_CLASSNAME}`,
+		);
+		if (!section || !scrollContainer) {
+			return;
+		}
+
+		const rowBounds = row.getBoundingClientRect();
+		const viewportTop =
+			scrollContainer.getBoundingClientRect().top + scrollContainer.clientTop;
+		const viewportBottom = viewportTop + scrollContainer.clientHeight;
+		if (
+			(initialEffectReveal.current.effectKey !== null &&
+				initialEffectReveal.current.effectKey === selectedEffectKey) ||
+			rowBounds.top < viewportTop ||
+			rowBounds.bottom > viewportBottom
+		) {
+			const sectionScrollTop = Math.max(
+				0,
+				Math.min(
+					scrollContainer.scrollTop +
+						section.getBoundingClientRect().top -
+						viewportTop,
+					scrollContainer.scrollHeight - scrollContainer.clientHeight,
+				),
+			);
+			const scrollDelta = sectionScrollTop - scrollContainer.scrollTop;
+			if (
+				rowBounds.top - scrollDelta >= viewportTop &&
+				rowBounds.bottom - scrollDelta <= viewportBottom
+			) {
+				scrollContainer.scrollTop = sectionScrollTop;
+			} else {
+				scrollContainer.scrollTop +=
+					rowBounds.top < viewportTop ||
+					rowBounds.bottom - rowBounds.top > scrollContainer.clientHeight
+						? rowBounds.top - viewportTop
+						: rowBounds.bottom - viewportBottom;
+			}
+		}
+
 		scrolledInspectorRevealToken.current = inspectorRevealToken;
+		initialEffectReveal.current.effectKey = null;
 		consumeInspectorRevealRequest(inspectorRevealToken);
-	}, [consumeInspectorRevealRequest, effectRows, inspectorRevealToken]);
+	}, [
+		consumeInspectorRevealRequest,
+		effectRows,
+		inspectorRevealToken,
+		selectedEffectKey,
+	]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -1061,41 +1125,43 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const effectsHeader = (
-		<CollapsibleInspectorSectionHeader
-			action={
-				<ActionTooltip
-					label="Add effect"
-					shortcut={selectEffectsShortcut}
-					delay={800}
-					dismissOnClick
-				>
-					<InlineAction
-						variant={null}
-						disabled={!canAddEffect}
-						onClick={onAddEffect}
-						aria-label="Add effect"
-						style={sectionHeaderActionStyle}
-						renderAction={(color) => (
-							<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
-								<path
-									d="M6 1.25v9.5M1.25 6h9.5"
-									fill="none"
-									stroke={color}
-									strokeWidth="1"
-									strokeLinecap="round"
-								/>
-							</svg>
-						)}
-					/>
-				</ActionTooltip>
-			}
-			expanded={effectsExpanded}
-			label="Effects"
-			onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
-		/>
+		<div ref={firstEffectDropTargetRef}>
+			<CollapsibleInspectorSectionHeader
+				action={
+					<ActionTooltip
+						label="Add effect"
+						shortcut={selectEffectsShortcut}
+						delay={800}
+						dismissOnClick
+					>
+						<InlineAction
+							variant={null}
+							disabled={!canAddEffect}
+							onClick={onAddEffect}
+							aria-label="Add effect"
+							style={sectionHeaderActionStyle}
+							renderAction={(color) => (
+								<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
+									<path
+										d="M6 1.25v9.5M1.25 6h9.5"
+										fill="none"
+										stroke={color}
+										strokeWidth="1"
+										strokeLinecap="round"
+									/>
+								</svg>
+							)}
+						/>
+					</ActionTooltip>
+				}
+				expanded={effectsExpanded}
+				label="Effects"
+				onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
+			/>
+		</div>
 	);
 
-	const renderRow = ({node, depth}: FlatTreeRow) => {
+	const renderRow = ({node, depth}: FlatTreeRow, children: React.ReactNode) => {
 		return (
 			<TimelineRowLayoutContext.Provider
 				key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
@@ -1114,8 +1180,75 @@ export const InspectorSequenceSection: React.FC<{
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode="inspector"
-				/>
+					beforeDropTargetRef={
+						node.kind === 'group' && node.effectInfo?.effectIndex === 0
+							? firstEffectDropTargetRef
+							: null
+					}
+				>
+					{children}
+				</TimelineExpandedRow>
 			</TimelineRowLayoutContext.Provider>
+		);
+	};
+
+	const renderEffectProperty = (row: FlatTreeRow) => {
+		const selection = getTimelineSelectionFromNodePathInfo(
+			row.node.nodePathInfo,
+		);
+		const selected =
+			selection !== null &&
+			getTimelineSelectionKey(selection) === selectedEffectKey;
+		return (
+			<div
+				key={getInspectorExpansionKey(row.node.nodePathInfo)}
+				ref={selected ? selectedEffectRowRef : null}
+			>
+				{row.node.kind === 'field' &&
+				row.node.field?.kind === 'effect-field' &&
+				row.node.field.key === 'points' &&
+				projectedSequence.effects[row.node.field.effectIndex]?.type ===
+					'remotion/curves' ? (
+					<CurvesEditor
+						multipleInstances={
+							nodePathInfo.numberOfSequencesWithThisNodePath > 1
+						}
+						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						effectIndex={row.node.field.effectIndex}
+						schema={row.node.field.effectSchema}
+						validatedLocation={validatedLocation}
+						runtimeValueStore={
+							projectedSequence.effectRuntimeValues?.[
+								row.node.field.effectIndex
+							] ?? null
+						}
+					/>
+				) : (
+					renderRow(row, null)
+				)}
+				{row.node.kind === 'field' &&
+				row.node.field?.kind === 'effect-field' &&
+				row.node.field.key === 'channel' &&
+				projectedSequence.effects[row.node.field.effectIndex]?.type ===
+					'remotion/levels' ? (
+					<LevelsEditor
+						multipleInstances={
+							nodePathInfo.numberOfSequencesWithThisNodePath > 1
+						}
+						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						effectIndex={row.node.field.effectIndex}
+						schema={row.node.field.effectSchema}
+						validatedLocation={validatedLocation}
+						runtimeValueStore={
+							projectedSequence.effectRuntimeValues?.[
+								row.node.field.effectIndex
+							] ?? null
+						}
+						keyframeDisplayOffset={keyframeDisplayOffset}
+						keyframePlaybackRate={keyframePlaybackRate}
+					/>
+				) : null}
+			</div>
 		);
 	};
 
@@ -1182,10 +1315,10 @@ export const InspectorSequenceSection: React.FC<{
 														{renderTransformControls()}
 														{transform3DAction}
 													</div>
-													{group.rows.map(renderRow)}
+													{group.rows.map((row) => renderRow(row, null))}
 												</Transform3DModeContext.Provider>
 											) : (
-												group.rows.map(renderRow)
+												group.rows.map((row) => renderRow(row, null))
 											)
 										) : null}
 									</InspectorSection>
@@ -1199,75 +1332,33 @@ export const InspectorSequenceSection: React.FC<{
 						? captionsInspector
 						: null}
 					{showEffectsSection ? (
-						<section aria-label="Effects">
+						<section ref={effectsSectionRef} aria-label="Effects">
 							<InspectorSection
 								expanded={effectsExpanded}
 								header={effectsHeader}
 							>
 								{effectRows.length > 0 ? (
 									<TimelineSelectionOrderProvider items={effectSelectableItems}>
-										{effectRows.map((row) => {
-											const selection = getTimelineSelectionFromNodePathInfo(
-												row.node.nodePathInfo,
-											);
-											const selected =
-												selection !== null &&
-												getTimelineSelectionKey(selection) ===
-													selectedEffectKey;
-											return (
-												<div
-													key={getInspectorExpansionKey(row.node.nodePathInfo)}
-													ref={selected ? selectedEffectRowRef : null}
-												>
-													{row.node.kind === 'field' &&
-													row.node.field?.kind === 'effect-field' &&
-													row.node.field.key === 'points' &&
-													projectedSequence.effects[row.node.field.effectIndex]
-														?.type === 'remotion/curves' ? (
-														<CurvesEditor
-															multipleInstances={
-																nodePathInfo.numberOfSequencesWithThisNodePath >
-																1
-															}
-															nodePath={nodePathInfo.sequenceSubscriptionKey}
-															effectIndex={row.node.field.effectIndex}
-															schema={row.node.field.effectSchema}
-															validatedLocation={validatedLocation}
-															runtimeValueStore={
-																projectedSequence.effectRuntimeValues?.[
-																	row.node.field.effectIndex
-																] ?? null
-															}
-														/>
-													) : (
-														renderRow(row)
-													)}
-													{row.node.kind === 'field' &&
-													row.node.field?.kind === 'effect-field' &&
-													row.node.field.key === 'channel' &&
-													projectedSequence.effects[row.node.field.effectIndex]
-														?.type === 'remotion/levels' ? (
-														<LevelsEditor
-															multipleInstances={
-																nodePathInfo.numberOfSequencesWithThisNodePath >
-																1
-															}
-															nodePath={nodePathInfo.sequenceSubscriptionKey}
-															effectIndex={row.node.field.effectIndex}
-															schema={row.node.field.effectSchema}
-															validatedLocation={validatedLocation}
-															runtimeValueStore={
-																projectedSequence.effectRuntimeValues?.[
-																	row.node.field.effectIndex
-																] ?? null
-															}
-															keyframeDisplayOffset={keyframeDisplayOffset}
-															keyframePlaybackRate={keyframePlaybackRate}
-														/>
-													) : null}
-												</div>
-											);
-										})}
+										{effectGroups.map(([effectRow, ...propertyRows]) => (
+											<div
+												key={getInspectorExpansionKey(
+													effectRow.node.nodePathInfo,
+												)}
+												ref={
+													selectedEffect?.type === 'sequence-effect' &&
+													effectRow.node.kind === 'group' &&
+													effectRow.node.effectInfo?.effectIndex ===
+														selectedEffect.i
+														? selectedEffectRowRef
+														: null
+												}
+											>
+												{renderRow(
+													effectRow,
+													propertyRows.map(renderEffectProperty),
+												)}
+											</div>
+										))}
 									</TimelineSelectionOrderProvider>
 								) : null}
 							</InspectorSection>
@@ -1280,7 +1371,7 @@ export const InspectorSequenceSection: React.FC<{
 								header={renderControlGroupHeader(layoutGroup)}
 							>
 								{isControlGroupExpanded(layoutGroup)
-									? layoutGroup.rows.map(renderRow)
+									? layoutGroup.rows.map((row) => renderRow(row, null))
 									: null}
 							</InspectorSection>
 						</TimelineSelectionOrderProvider>

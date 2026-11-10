@@ -1,7 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
-version: 4.0.541
+version: 4.0.542
 ---
 
 These are instructions for making a new Remotion project and composition.  
@@ -63,7 +63,7 @@ If this is a video with multiple subsequent scenes, follow guidance at [Multi-sc
 
 ## Interactivity Best Practices
 
-By structuring the React Markup following [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md), you allow the user to make edits in the Studio which write back to code.
+Make new markup editable in Studio by default by following [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
 
 ## TailwindCSS
 

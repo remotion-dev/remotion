@@ -1,6 +1,17 @@
+import {Internals} from 'remotion';
 import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import {
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
+} from './fixtures/mask-image-layers';
 import '../symbol-dispose';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
@@ -311,7 +322,54 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 				return;
 			}
 
+			const startedAt = performance.now();
+			let phase = 'native browser capture';
+			t.onTestFailed(() => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: '@remotion/web-renderer'},
+					`${composition.id} frame ${frame}: ${phase}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
+				);
+			});
 			const reference = await captureNativeReference(composition, frame);
+			phase = 'rendering output';
+			const still = await renderStillOnWeb({
+				composition,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			});
+			phase = 'PNG encoding';
+			const actual = await still.blob({format: 'png'});
+			phase = 'decoding and comparing RGBA';
+			const result = await compareNativePixels(reference, actual);
+			expect(result.mismatchedPixels).toBe(0);
+		});
+	}
+}
+
+// KINO-7771: authored mask layers must be composed before masking the content.
+for (const composition of [
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
+]) {
+	for (const frame of [0, 1]) {
+		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {
+			const transparent = composition.id.endsWith('transparent');
+			if (transparent && t.task.file.projectName === 'firefox') {
+				t.skip();
+				return;
+			}
+
+			const reference = await captureNativeReference(composition, frame, {
+				omitBackground: transparent,
+			});
 			const actual = await (
 				await renderStillOnWeb({
 					composition,
