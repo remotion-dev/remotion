@@ -105,11 +105,25 @@ export const importCompositionCommand = async ({
 		);
 	}
 
-	const compositionFile = CodemodsInternals.resolveCompositionImportFile({
-		entryPoint,
-		project,
-		compositionFile: requestedFile,
-	});
+	const compositionFile =
+		requestedFile === null
+			? (
+					await StudioServerInternals.getProjectInfo(
+						remotionRoot,
+						entryPoint,
+						project,
+					)
+				).rootFile
+			: CodemodsInternals.resolveCompositionImportFile({
+					entryPoint,
+					project,
+					compositionFile: requestedFile,
+				});
+	if (compositionFile === null) {
+		throw new Error(
+			'Could not determine the composition registration file. Pass --composition-file <file>.',
+		);
+	}
 
 	const {
 		overrideWidthOption,

@@ -1,5 +1,6 @@
 import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {findRegistrationRoot} from './registration-source-edits';
 import {resolveRootComponentInProject} from './resolve-composition-component-location';
 import {parseAst} from './sequence-props/parse-ast';
@@ -38,7 +39,9 @@ export const resolveCompositionImportFile = ({
 			ast: parseAst(project.files[filePath]),
 			folder: null,
 		});
-		const actual = insertionRoot.loc?.start;
+		const actual = insertionRoot.loc
+			? getJsxSourceLocation(project.files[filePath], insertionRoot.loc.start)
+			: null;
 		const expected = registeredRoot.root.loc?.start;
 		if (
 			!actual ||
