@@ -165,6 +165,14 @@ jobs:
       - name: Test Browser Studio
         run: |
           bun run testbrowserstudio
+      - name: Upload native pixel failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-pixel-failures-${{ github.run_attempt }}
+          path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
+          if-no-files-found: ignore
+          retention-days: 7
   ssr-tests:
     needs: affected
     if: ${{ needs.affected.outputs.ssr == 'true' }}
