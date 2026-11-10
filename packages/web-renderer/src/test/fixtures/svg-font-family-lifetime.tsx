@@ -22,14 +22,18 @@ export const svgFontFamilyLifetimeReady = loadFont({
 export const SvgFontFamilyLifetimeScene = ({
 	family,
 }: {
-	readonly family: string;
+	readonly family: string | null;
 }) => (
 	<svg width={680} height={100}>
 		<rect width={680} height={100} fill="white" />
 		<text
 			x={12}
 			y={72}
-			style={{fontFamily: `${JSON.stringify(family)},serif`, fontSize: 32}}
+			style={{
+				fontFamily:
+					family === null ? 'serif' : `${JSON.stringify(family)},serif`,
+				fontSize: 32,
+			}}
 		>
 			Font ownership follows the native document
 		</text>

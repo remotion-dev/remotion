@@ -120,7 +120,7 @@ test('reuses the drawable while an SVG is unchanged', async () => {
 	}
 });
 
-const mountLifetimeScene = (owner: Document, family: string) => {
+const mountLifetimeScene = (owner: Document, family: string | null) => {
 	const host = owner.createElement('div');
 	owner.body.append(host);
 	const root = createRoot(host);
@@ -197,12 +197,12 @@ test('font-family snapshots follow removal, re-addition and the owning document 
 	const releaseReference = await loadLifetimeReference();
 	const original = mountLifetimeScene(document, svgFontFamilyLifetimeFamily);
 	const registered = mountLifetimeScene(document, referenceFamily);
-	const fallback = mountLifetimeScene(document, 'serif');
+	const fallback = mountLifetimeScene(document, null);
 	const iframe = document.createElement('iframe');
 	document.body.append(iframe);
 	const child = iframe.contentDocument!;
 	const other = mountLifetimeScene(child, svgFontFamilyLifetimeFamily);
-	const childFallback = mountLifetimeScene(child, 'serif');
+	const childFallback = mountLifetimeScene(child, null);
 	const textWidth = (svg: SVGSVGElement) =>
 		(svg.querySelector('text') as SVGTextElement).getComputedTextLength();
 	const markup = new XMLSerializer().serializeToString(original.svg);
@@ -302,7 +302,7 @@ test.for([0, 1, 2])(
 		const releaseReference = await loadLifetimeReference();
 		const reference = mountLifetimeScene(
 			document,
-			frame === 1 ? 'serif' : referenceFamily,
+			frame === 1 ? null : referenceFamily,
 		);
 		try {
 			const actual = await (
