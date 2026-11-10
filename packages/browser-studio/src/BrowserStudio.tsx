@@ -113,6 +113,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		codec: 'h264',
 		colorSpace: 'default',
 		configFileRenderDefaults: null,
+		chromiumOptions: {flags: {}, features: {}, blinkFeatures: {}},
 		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
 		crf: null,
 		darkMode: false,

@@ -478,6 +478,42 @@ Config.setDelayRenderTimeoutInMilliseconds(60000);
 
 The [`--timeout`](/docs/options/timeout) flag takes precedence over this option.
 
+## `setChromiumFlags()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumFlags({'disable-gpu-rasterization': true, 'disable-gpu-compositing': true});
+```
+
+See [`--chromium-flags`](/docs/options/chromium-flags). The CLI flag takes precedence over the config value.
+
+## `setChromiumFeatures()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumFeatures({Translate: false});
+```
+
+See [`--chromium-features`](/docs/options/chromium-features). The CLI flag takes precedence over the config value.
+
+## `setChromiumBlinkFeatures()`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumBlinkFeatures({AudioVideoTracks: true});
+```
+
+See [`--chromium-blink-features`](/docs/options/chromium-blink-features). The CLI flag takes precedence over the config value.
+
 ## `setChromiumDisableWebSecurity()`<AvailableFrom v="2.6.5" />
 
 <Options id="disable-web-security" />

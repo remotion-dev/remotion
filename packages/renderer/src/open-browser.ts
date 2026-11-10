@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
+import {applyChromiumOptions} from './apply-chromium-options';
 import type {Browser} from './browser';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
@@ -17,11 +18,15 @@ import type {validOpenGlRenderers} from './options/gl';
 import {getDefaultOpenGlRenderer, validateOpenGlRenderer} from './options/gl';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
+import {validateChromiumOption} from './validate-chromium-option';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
+	flags?: Record<string, string | boolean>;
+	features?: Record<string, boolean>;
+	blinkFeatures?: Record<string, boolean>;
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
@@ -142,6 +147,12 @@ export const internalOpenBrowser = async ({
 	onBrowserDownload,
 	chromeMode,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
+	for (const name of ['flags', 'features', 'blinkFeatures'] as const) {
+		if (chromiumOptions[name] !== undefined) {
+			validateChromiumOption(chromiumOptions[name], name);
+		}
+	}
+
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
@@ -192,91 +203,94 @@ export const internalOpenBrowser = async ({
 		indent,
 		userDataDir,
 		timeout: 25000,
-		args: [
-			'about:blank',
-			'--allow-pre-commit-input',
-			'--disable-background-networking',
-			`--enable-features=${featuresToEnable(chromiumOptions.gl).join(',')}`,
-			'--disable-background-timer-throttling',
-			'--disable-backgrounding-occluded-windows',
-			'--disable-breakpad',
-			'--disable-client-side-phishing-detection',
-			'--disable-component-extensions-with-background-pages',
-			'--disable-default-apps',
-			'--disable-dev-shm-usage',
-			'--no-proxy-server',
-			"--proxy-server='direct://'",
-			'--proxy-bypass-list=*',
-			'--force-gpu-mem-available-mb=4096',
-			// https://github.com/remotion-dev/remotion/issues/12929
-			process.platform === 'win32' ? '--disable-skia-graphite' : null,
-			// Prevent duplicated horizontal strips in Lambda renders: https://github.com/remotion-dev/remotion/issues/11428
-			process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA === 'true'
-				? '--disable-gpu-rasterization'
-				: null,
-			'--disable-hang-monitor',
-			'--disable-extensions',
-			'--allow-chrome-scheme-url',
-			'--disable-ipc-flooding-protection',
-			'--disable-popup-blocking',
-			'--disable-prompt-on-repost',
-			'--disable-renderer-backgrounding',
-			'--disable-sync',
-			'--force-color-profile=srgb',
-			'--metrics-recording-only',
-			'--mute-audio',
-			'--no-first-run',
-			`--video-threads=${getIdealVideoThreadsFlag(logLevel)}`,
-			'--enable-automation',
-			'--password-store=basic',
-			'--use-mock-keychain',
-			'--enable-blink-features=IdleDetection',
-			'--export-tagged-pdf',
-			'--intensive-wake-up-throttling-policy=0',
-			(chromiumOptions.headless ?? true)
-				? chromeMode === 'chrome-for-testing'
-					? '--headless=new'
-					: '--headless=old'
-				: null,
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			...customGlRenderer,
-			'--disable-background-media-suspend',
-			process.platform === 'linux' &&
-			chromiumOptions.gl !== 'vulkan' &&
-			!enableMultiProcessOnLinux
-				? '--single-process'
-				: null,
-			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
-			'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
-			'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
-			'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process,Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
-			'--disable-print-preview', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
-			'--disable-site-isolation-trials', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
-			'--disk-cache-size=268435456', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
-			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
-			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
-			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
-			'--font-render-hinting=none',
-			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
-			'--ignore-gpu-blocklist',
-			'--enable-unsafe-webgpu',
-			typeof forceDeviceScaleFactor === 'undefined'
-				? null
-				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
-			chromiumOptions.ignoreCertificateErrors
-				? '--ignore-certificate-errors'
-				: null,
-			...(chromiumOptions?.disableWebSecurity
-				? ['--disable-web-security']
-				: []),
-			chromiumOptions?.userAgent
-				? `--user-agent="${chromiumOptions.userAgent}"`
-				: null,
-			'--remotion-shared-memory-capture',
-			'--remote-debugging-port=0',
-			`--user-data-dir=${userDataDir}`,
-		].filter(Boolean) as string[],
+		args: applyChromiumOptions(
+			[
+				'about:blank',
+				'--allow-pre-commit-input',
+				'--disable-background-networking',
+				`--enable-features=${featuresToEnable(chromiumOptions.gl).join(',')}`,
+				'--disable-background-timer-throttling',
+				'--disable-backgrounding-occluded-windows',
+				'--disable-breakpad',
+				'--disable-client-side-phishing-detection',
+				'--disable-component-extensions-with-background-pages',
+				'--disable-default-apps',
+				'--disable-dev-shm-usage',
+				'--no-proxy-server',
+				"--proxy-server='direct://'",
+				'--proxy-bypass-list=*',
+				'--force-gpu-mem-available-mb=4096',
+				// https://github.com/remotion-dev/remotion/issues/12929
+				process.platform === 'win32' ? '--disable-skia-graphite' : null,
+				// Prevent duplicated horizontal strips in Lambda renders: https://github.com/remotion-dev/remotion/issues/11428
+				process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA === 'true'
+					? '--disable-gpu-rasterization'
+					: null,
+				'--disable-hang-monitor',
+				'--disable-extensions',
+				'--allow-chrome-scheme-url',
+				'--disable-ipc-flooding-protection',
+				'--disable-popup-blocking',
+				'--disable-prompt-on-repost',
+				'--disable-renderer-backgrounding',
+				'--disable-sync',
+				'--force-color-profile=srgb',
+				'--metrics-recording-only',
+				'--mute-audio',
+				'--no-first-run',
+				`--video-threads=${getIdealVideoThreadsFlag(logLevel)}`,
+				'--enable-automation',
+				'--password-store=basic',
+				'--use-mock-keychain',
+				'--enable-blink-features=IdleDetection',
+				'--export-tagged-pdf',
+				'--intensive-wake-up-throttling-policy=0',
+				(chromiumOptions.headless ?? true)
+					? chromeMode === 'chrome-for-testing'
+						? '--headless=new'
+						: '--headless=old'
+					: null,
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				...customGlRenderer,
+				'--disable-background-media-suspend',
+				process.platform === 'linux' &&
+				chromiumOptions.gl !== 'vulkan' &&
+				!enableMultiProcessOnLinux
+					? '--single-process'
+					: null,
+				'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
+				'--disable-component-update', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableComponentUpdate&ss=chromium
+				'--disable-domain-reliability', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableDomainReliability&ss=chromium
+				'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process,Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
+				'--disable-print-preview', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
+				'--disable-site-isolation-trials', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
+				'--disk-cache-size=268435456', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
+				'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
+				'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
+				'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
+				'--font-render-hinting=none',
+				'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+				'--ignore-gpu-blocklist',
+				'--enable-unsafe-webgpu',
+				typeof forceDeviceScaleFactor === 'undefined'
+					? null
+					: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
+				chromiumOptions.ignoreCertificateErrors
+					? '--ignore-certificate-errors'
+					: null,
+				...(chromiumOptions?.disableWebSecurity
+					? ['--disable-web-security']
+					: []),
+				chromiumOptions?.userAgent
+					? `--user-agent="${chromiumOptions.userAgent}"`
+					: null,
+				'--remotion-shared-memory-capture',
+				'--remote-debugging-port=0',
+				`--user-data-dir=${userDataDir}`,
+			].filter(Boolean) as string[],
+			chromiumOptions,
+		),
 		defaultViewport: viewport ?? {
 			height: 720,
 			width: 1280,

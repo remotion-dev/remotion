@@ -11,6 +11,9 @@ import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
 import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
+import {chromiumBlinkFeaturesOption} from './chromium-blink-features';
+import {chromiumFeaturesOption} from './chromium-features';
+import {chromiumFlagsOption} from './chromium-flags';
 import {chunksOption} from './chunks';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
@@ -109,6 +112,9 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	preservePitchOnPlaybackOption,
 	showLayerFrameNumbersOption,
 	highContrastOption,

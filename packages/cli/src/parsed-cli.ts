@@ -8,6 +8,9 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	allowHtmlInCanvasOption,
 	preferredEffectBackendOption,
 	benchmarkConcurrenciesOption,
@@ -105,6 +108,9 @@ const {
 }: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[chromiumFlagsOption.cliFlag]: string;
+	[chromiumFeaturesOption.cliFlag]: string;
+	[chromiumBlinkFeaturesOption.cliFlag]: string;
 	[openTimelineMediaDirectoryOption.cliFlag]: TypeOfOption<
 		typeof openTimelineMediaDirectoryOption
 	>;
