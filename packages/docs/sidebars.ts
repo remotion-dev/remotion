@@ -633,6 +633,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'paths/get-length',
+				'paths/cut-path',
 				'paths/get-point-at-length',
 				'paths/get-tangent-at-length',
 				'paths/get-instruction-index-at-length',
@@ -1524,6 +1525,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/python',
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
+				'lambda/sqs',
 				'lambda/supabase',
 				'lambda/r2',
 				'lambda/insights',
