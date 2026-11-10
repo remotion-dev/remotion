@@ -78,7 +78,7 @@ npx remotion lambda render --codec=mp3 testbed my-comp
 Render an image sequence using [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda). Defaults to PNG. The optional output location is a local directory into which the images and manifest are downloaded.
 
 ```sh title="Render an image sequence"
-bunx remotion lambda render testbed my-comp out/frames --sequence
+npx remotion lambda render testbed my-comp out/frames --sequence
 ```
 
 ### `--output-prefix`<AvailableFrom v="4.0.535" />
@@ -116,8 +116,8 @@ Log level to be used inside the Lambda function. Also, if you set it to `verbose
 One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
-- `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
-- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](/docs/lambda/cli/render#--out-name).
+- `"private"`: The rendered media is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
+- `"no-acl"`<AvailableFrom v="3.1.7" inline />: No ACL is set. Use this if you write to another bucket that does not support ACLs using [`--out-name`](#--out-name).
 
 ### `--max-retries`
 
@@ -131,7 +131,7 @@ Default value: [Dependant on video length](/docs/lambda/concurrency)
 Minimum value: <MinimumFramesPerLambda />
 
 :::note
-The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
+`--frames-per-lambda` cannot result in more than 200 functions being spawned. See [Concurrency](/docs/lambda/concurrency).
 :::
 
 :::note
@@ -142,12 +142,12 @@ When rendering transparent WebM videos, chunk boundaries can be visible in the a
 
 Specify the number of Lambda functions to use for rendering. This is an alternative to `--frames-per-lambda` that allows you to set the concurrency directly without needing to know the video duration.
 
-The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
+The concurrency is defined as the frame count divided by the frames per Lambda. Remotion will automatically calculate the appropriate frames per Lambda based on your concurrency setting.
 
 From <AvailableFrom v="4.0.517" inline />, you can set `--concurrency=1` to render the video on the main function.
 
 Maximum value: 200  
-Minimum value: 1 if rendering on main function, otherwise value must result in `framesPerLambda >= 4`
+Minimum value: 1 if rendering on main function, otherwise value must result in at least <MinimumFramesPerLambda /> frames per Lambda
 
 :::note
 Cannot be used together with `--frames-per-lambda`. Use only one of them.
@@ -187,7 +187,7 @@ See [Shared-memory capture](/docs/shared-memory-capture).
 
 ### ~~`--quality`~~
 
-Renamed to `jpegQuality` in `v4.0.0`.
+Renamed to `--jpeg-quality` in `v4.0.0`.
 
 ### `--muted`<AvailableFrom v="3.2.1" />
 
@@ -214,6 +214,10 @@ Renamed to `jpegQuality` in `v4.0.0`.
 ### `--prores-profile`
 
 <Options id="prores-profile" />
+
+### `--prores-bits-per-macroblock`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
 
 ### `--x264-preset`
 
@@ -269,10 +273,10 @@ The file name of the media output as stored in the S3 bucket. By default, it is 
 
 ### `--separate-audio-to`<AvailableFrom v="4.0.535" />
 
-Save the mixed audio as a separate file in the render bucket and omit the audio track from the video. The value is a the output name, such as `audio.wav`, which will then be saved under `renders/{renderId}/audio.wav`.
+Save the mixed audio as a separate file in the render bucket and omit the audio track from the video. The value is the output name, such as `audio.wav`, which will then be saved under `renders/{renderId}/audio.wav`.
 
 ```bash title="Render separate video and audio outputs"
-bunx remotion lambda render <serve-url> <composition-id> --codec=h264 --out-name=video.mp4 --separate-audio-to=audio.wav
+npx remotion lambda render <serve-url> <composition-id> --codec=h264 --out-name=video.mp4 --separate-audio-to=audio.wav
 ```
 
 See [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) for supported formats and restrictions.
@@ -355,6 +359,18 @@ If you want to use this option, the function must be in the same region, the sam
 ### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `--ignore-certificate-errors`
 

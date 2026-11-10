@@ -30,6 +30,9 @@ test('captures the current public license key for Studio renders', async () => {
 		compositionId: 'comp',
 		outName: 'out',
 		chromiumOptions: {
+			flags: {},
+			features: {},
+			blinkFeatures: {},
 			darkMode: false,
 			disableWebSecurity: false,
 			enableMultiProcessOnLinux: true,
@@ -122,6 +125,9 @@ test('resolves pre-render outputs inside the public folder', async () => {
 				compositionId: 'Catalog',
 				outName,
 				chromiumOptions: {
+					flags: {},
+					features: {},
+					blinkFeatures: {},
 					darkMode: false,
 					disableWebSecurity: false,
 					enableMultiProcessOnLinux: true,

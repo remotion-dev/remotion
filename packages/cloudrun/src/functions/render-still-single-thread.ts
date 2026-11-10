@@ -55,6 +55,9 @@ export const renderStillSingleThread = async (
 
 		const actualChromiumOptions: Required<ChromiumOptions> = {
 			...body.chromiumOptions,
+			flags: body.chromiumOptions?.flags ?? {},
+			features: body.chromiumOptions?.features ?? {},
+			blinkFeatures: body.chromiumOptions?.blinkFeatures ?? {},
 			darkMode: body.chromiumOptions?.darkMode ?? false,
 			disableWebSecurity: body.chromiumOptions?.disableWebSecurity ?? false,
 			headless: body.chromiumOptions?.headless ?? true,

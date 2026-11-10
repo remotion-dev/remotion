@@ -4,7 +4,7 @@ import type {BasicCaptions} from './basic-captions';
 export const basicCaptionsInitialProps = {
 	captions: [
 		{
-			text: 'Simple captions,ready for every video.',
+			text: 'Simple captions,\nready for every video.',
 			startMs: 0,
 			endMs: 2200,
 			timestampMs: 1100,

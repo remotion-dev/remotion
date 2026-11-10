@@ -31,16 +31,17 @@ To use a custom bucket name, you need to:
   - [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
   - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
   - [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
+  - [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda)
+  - [`getSites()`](/docs/lambda/getsites)
   - [`npx remotion lambda render`](/docs/lambda/cli/render)
-  - [`npx remotion lambda still`](/docs/lambda/cli/render)
-  - [`npx remotion lambda compositions`](/docs/lambda/cli/render)
+  - [`npx remotion lambda still`](/docs/lambda/cli/still)
+  - [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)
   - [`npx remotion lambda sites create`](/docs/lambda/cli/sites/create)
   - [`npx remotion lambda sites rm`](/docs/lambda/cli/sites/rm)
   - [`npx remotion lambda sites rmall`](/docs/lambda/cli/sites/rmall)
     using the `--force-bucket-name` or `forceBucketName` option respectively.
 - Be aware that the following APIs are unavailable when using custom bucket names:
   - [`npx remotion lambda sites ls`](/docs/lambda/cli/sites/ls)
-  - [`getSites()`](/docs/lambda/getsites)
   - [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket)
 - Be aware that you are opting out of automatic bucket discovery and validation. Be careful to:
   - Ensure that you are passing valid bucket names to all APIs, especially to those for which the bucket name is optional.

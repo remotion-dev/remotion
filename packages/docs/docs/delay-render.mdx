@@ -3,7 +3,7 @@ image: https://remotion.media/docs/generated/articles-docs-delay-render.png
 id: delay-render
 title: delayRender() and continueRender()
 sidebar_label: delayRender()
-crumb: 'How to'
+crumb: 'API'
 ---
 
 `delayRender()` pauses the render to let an asynchronous task such as data fetching complete.  
@@ -13,7 +13,7 @@ This API returns a handle. Once you have fetched data or finished the asynchrono
 
 If the asynchronous task fails and you cannot recover, call [`cancelRender()`](/docs/cancel-render) to cancel the render.
 
-`delayRender()` can be imported from the [`remotion`](/docs/remotion) package, but preferrably, you should use the [`useDelayRender()`](/docs/use-delay-render) hook instead, because it future-proofs your code for [browser rendering](/docs/miscellaneous/render-in-browser).
+`delayRender()` can be imported from the [`remotion`](/docs/remotion) package, but preferably, you should use the [`useDelayRender()`](/docs/use-delay-render) hook instead, because it future-proofs your code for [browser rendering](/docs/miscellaneous/render-in-browser).
 
 ## Example
 
@@ -159,7 +159,7 @@ const MyComp: React.FC = () => {
 
 ## Data fetching
 
-Note that data fetching can also be performed in [`calculateMetadata()`](/docs/composition#calculatemetadata), which has 2 advantages:
+Note that data fetching can also be performed in [`calculateMetadata()`](/docs/calculate-metadata), which has 2 advantages:
 
 - It runs only once, rather than the amount of [concurrency](/docs/terminology/concurrency).
 - You don't need to call `continueRender()` or `cancelRender()` manually.

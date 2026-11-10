@@ -156,11 +156,12 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
+	const audioEnabled = Internals.useAudioEnabled();
 
 	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
-		muted,
+		muted: muted || audioEnabled === false,
 		volume: userPreferredVolume,
-		audioEnabled: true,
+		audioEnabled: audioEnabled !== false,
 	});
 	const mediaPlayerMuted = useMediaPlayerMuted({
 		muted,

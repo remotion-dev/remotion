@@ -292,11 +292,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+	const audioEnabled = Internals.useAudioEnabled();
 	// TODO: Consider Sequence hidden
 	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
-		muted,
+		muted: muted || audioEnabled === false,
 		volume: userPreferredVolume,
-		audioEnabled: true,
+		audioEnabled: audioEnabled !== false,
 	});
 	const mediaPlayerMuted = useMediaPlayerMuted({
 		muted,
