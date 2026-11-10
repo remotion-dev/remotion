@@ -192,7 +192,6 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
-import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
 	svgFilterReference,
 	svgFilterExpandedReference,
@@ -202,6 +201,7 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
