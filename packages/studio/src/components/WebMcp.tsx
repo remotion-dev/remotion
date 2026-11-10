@@ -43,6 +43,7 @@ import {
 	projectEffectSequence,
 } from '../helpers/optimistic-effect-projection';
 import {getRenderOutputPlaybackTarget} from '../helpers/render-output-playback';
+import {AudioLevelsContext} from '../state/audio-levels';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
@@ -300,6 +301,13 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const {
+		visible: audioLevelsVisible,
+		setVisible: setAudioLevelsVisible,
+		levels: audioLevels,
+	} = useContext(AudioLevelsContext);
+	const audioLevelsVisibleRef = useRef(audioLevelsVisible);
+	audioLevelsVisibleRef.current = audioLevelsVisible;
 	const calculateTimeline = useTimelineCalculator();
 	const compactSeries = useCompactSeries();
 	const compactSeriesRef = useRef(compactSeries);
@@ -1680,6 +1688,58 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_audio_levels',
+					title: 'Get Studio audio levels',
+					description:
+						'Read whether the Audio Levels panel is visible and the current left and right sample peaks in dBFS. Levels are null while the panel is hidden or audio is unavailable.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							visible: audioLevelsVisibleRef.current,
+							levels: audioLevels.current,
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_audio_levels_visible',
+					title: 'Set Studio audio levels visibility',
+					description:
+						'Show or hide the Audio Levels panel to the right of the timeline. Saves the preference in this browser and works in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							visible: {
+								type: 'boolean',
+								description:
+									'Whether the Audio Levels panel should be visible.',
+							},
+						},
+						required: ['visible'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({visible}) => {
+						if (typeof visible !== 'boolean') {
+							throw new Error('visible must be a boolean.');
+						}
+
+						audioLevelsVisibleRef.current = visible;
+						setAudioLevelsVisible(() => visible);
+
+						return Promise.resolve({visible});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
@@ -2426,6 +2486,8 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		addCaptionJob,
+		audioLevels,
+		setAudioLevelsVisible,
 		addVideoMattingJob,
 		calculateTimeline,
 		compositionManagerRef,

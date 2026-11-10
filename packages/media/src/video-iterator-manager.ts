@@ -237,6 +237,22 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
+		if (context && canvas) {
+			// Once the player becomes ready, an effects redraw is requested even
+			// though the initial paint already used the current effects. Skip it
+			// so that onVideoFrame does not report the same frame twice.
+			const effects = getEffects();
+			const chainState = getEffectChainState(canvas.width, canvas.height);
+			if (
+				effects === lastPaintedEffects &&
+				chainState === lastPaintedEffectChainState &&
+				(effects.length === 0 ||
+					lastCompletedEffectPaint?.frame === lastDrawnFrame)
+			) {
+				return;
+			}
+		}
+
 		await paintFrame(lastDrawnFrame, lastDrawnMediaTime);
 		if (destroyed) {
 			return;

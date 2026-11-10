@@ -100,7 +100,7 @@ See also: [Undo and Redo](/docs/editor-starter/undo-redo)
 
 ## Contexts
 
-In [`src/editor-context-provider.tsx`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/context-provider.tsx), you will see a very deeply nested tree of various context providers.
+In [`src/editor/context-provider.tsx`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/context-provider.tsx), you will see a very deeply nested tree of various context providers.
 
 This is intentional and achieves that when updating a portion of the state, only the components that are dependent on that portion of the state will re-render, while the rest of the components will not.
 

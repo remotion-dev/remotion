@@ -811,6 +811,37 @@ While composition metadata is loading, `currentFrame` is `null` and `outlines` i
 }
 ```
 
+### `get_audio_levels`<AvailableFrom v="4.0.543" />
+
+Returns the Audio Levels panel's visibility and the current left and right sample peaks in dBFS from Studio's shared Web Audio context. Silence is reported as `-60`. Levels are `null` when the panel is hidden or audio is unavailable. Media that bypasses this context is not measured. Available in every Studio mode.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+  levels: {left: number; right: number} | null;
+}
+```
+
+### `set_audio_levels_visible`<AvailableFrom v="4.0.543" />
+
+Shows or hides the fixed-width Audio Levels panel to the right of the timeline. Updates the View menu and saves the preference in the browser. The panel is hidden by default. Available in every Studio mode.
+
+```ts title="Input"
+{
+  visible: boolean;
+}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+}
+```
+
 ### `get_playback_state`
 
 Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.

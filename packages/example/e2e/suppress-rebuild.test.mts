@@ -3,7 +3,11 @@ import path from 'path';
 import {expect, test} from '@playwright/test';
 import {exampleDir, rootFile, STUDIO_URL} from './constants.mts';
 import {readStudioLogs, stripAnsi} from './helpers.mts';
+import {nodeFetch} from './node-fetch.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
+
+// Failures here should surface instead of being retried away.
+test.describe.configure({retries: 0});
 
 test.describe('suppress webpack rebuild', () => {
 	test.beforeEach(async () => {
@@ -22,7 +26,7 @@ test.describe('suppress webpack rebuild', () => {
 		const currentDelay = currentContent.match(/delay:\s*(\d+)/)?.[1];
 		const newDelay = currentDelay === '99' ? 98 : 99;
 
-		const res = await fetch(`${STUDIO_URL}/api/update-default-props`, {
+		const res = await nodeFetch(`${STUDIO_URL}/api/update-default-props`, {
 			method: 'POST',
 			headers: {'content-type': 'application/json', origin: STUDIO_URL},
 			body: JSON.stringify({

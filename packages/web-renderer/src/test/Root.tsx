@@ -75,6 +75,7 @@ import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
 import {filter} from './fixtures/filter';
+import {filterContainingBlockReference} from './fixtures/filter-containing-block';
 import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
@@ -108,8 +109,34 @@ import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {
+	maskImageLayers,
+	maskImageLayersTransparent,
+	maskImageLayersUrl,
+	maskImageLayersUrlTransparent,
+	maskImageLayersBlob,
+	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
+} from './fixtures/mask-image-layers';
+import {legacyMaskComposites} from './fixtures/mask-image-legacy-composite';
+import {unsupportedMaskImages} from './fixtures/mask-image-unsupported';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
+import {
+	maskMathExtendedOpaque,
+	maskMathExtendedTransparent,
+	maskMathExtendedMultipleOpaque,
+	maskMathExtendedMultipleTransparent,
+	maskMathExtendedLiteralOpaque,
+	maskMathExtendedLiteralTransparent,
+	maskMathExtendedLiteralMultipleOpaque,
+	maskMathExtendedLiteralMultipleTransparent,
+} from './fixtures/mask-image-url-math-size';
+import {
+	maskImageUrlMathSize,
+	maskImageUrlMathSizeLiteral,
+} from './fixtures/mask-image-url-math-size';
 import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
 import {maskImageUrlSizing} from './fixtures/mask-image-url-sizing';
 import {
@@ -160,10 +187,37 @@ import {
 	svgDataMimeCoverUppercase,
 } from './fixtures/svg-data-mime-case';
 import {svgDataUri} from './fixtures/svg-data-uri';
+import {
+	svgDisabledStyles,
+	svgDisabledStylesOpaque,
+} from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {
+	svgFilterReference,
+	svgFilterExpandedReference,
+	svgFilterBoundingBoxReference,
+	svgFilterFractionalReference,
+	svgFilterOffsetReference,
+	svgFilterReviewReference,
+	svgFilterContainingBlockReference,
+} from './fixtures/svg-filter-reference';
+import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
+import {
+	svgFullSourceUrlFill,
+	svgFullSourceUrlContainFractional,
+	svgFullSourceBlobContainFractional,
+	svgFullSourceUrlContain64,
+	svgFullSourceBlobContain64,
+	svgFullSourceUrlContain61,
+	svgFullSourceBlobContain61,
+	svgFullSourceBlobFill,
+	svgFullSourceUrlContain,
+	svgFullSourceBlobContain,
+} from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
+import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -263,12 +317,25 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
+			<Composition {...svgFullSourceUrlFill} />
+			<Composition {...svgFullSourceBlobFill} />
+			<Composition {...svgFullSourceUrlContain} />
+			<Composition {...svgFullSourceBlobContain} />
+			<Composition {...svgFullSourceUrlContain64} />
+			<Composition {...svgFullSourceBlobContain64} />
+			<Composition {...svgFullSourceUrlContain61} />
+			<Composition {...svgFullSourceBlobContain61} />
+			<Composition {...svgFullSourceUrlContainFractional} />
+			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
 			<Composition {...scalePrecomposeFixture} />
+			<Composition {...svgDisabledStyles} />
+			<Composition {...svgDisabledStylesOpaque} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
@@ -288,6 +355,31 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...maskImageUrlSizing} />
+				<Composition {...maskImageUrlMathSize} />
+				<Composition {...maskImageUrlMathSizeLiteral} />
+				<Composition {...maskMathExtendedOpaque} />
+				<Composition {...maskMathExtendedTransparent} />
+				<Composition {...maskMathExtendedMultipleOpaque} />
+				<Composition {...maskMathExtendedMultipleTransparent} />
+				<Composition {...maskMathExtendedLiteralOpaque} />
+				<Composition {...maskMathExtendedLiteralTransparent} />
+				<Composition {...maskMathExtendedLiteralMultipleOpaque} />
+				<Composition {...maskMathExtendedLiteralMultipleTransparent} />
+
+				<Composition {...maskImageLayers} />
+				<Composition {...maskImageLayersTransparent} />
+				<Composition {...maskImageLayersUrl} />
+				<Composition {...maskImageLayersUrlTransparent} />
+				<Composition {...maskImageLayersBlob} />
+				<Composition {...maskImageLayersBlobTransparent} />
+				<Composition {...maskImageLayersTokenUrl} />
+				<Composition {...maskImageLayersTokenUrlTransparent} />
+				{unsupportedMaskImages.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
+				{legacyMaskComposites.map(({composition}) => (
+					<Composition key={composition.id} {...composition} />
+				))}
 				<Composition {...maskImageUrlPosition} />
 				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />
@@ -300,6 +392,14 @@ export const Root: React.FC = () => {
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />
+				<Composition {...svgFilterReference} />
+				<Composition {...svgFilterExpandedReference} />
+				<Composition {...svgFilterBoundingBoxReference} />
+				<Composition {...svgFilterFractionalReference} />
+				<Composition {...svgFilterOffsetReference} />
+				<Composition {...svgFilterReviewReference} />
+				<Composition {...svgFilterContainingBlockReference} />
+				<Composition {...filterContainingBlockReference} />
 				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">
@@ -405,6 +505,13 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Folder name="Issue8650">
 				<Composition {...issue8650LottieControlChars} />
+			</Folder>
+			<Folder name="Text-decoration-lengths">
+				{textDecorationLengths
+					.flatMap(({fixture, reference}) => [fixture, reference])
+					.map((fixture) => (
+						<Composition key={fixture.id} {...fixture} />
+					))}
 			</Folder>
 		</>
 	);
