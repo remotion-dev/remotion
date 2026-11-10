@@ -177,16 +177,18 @@ describe('Elements must follow the colocated single-file format', () => {
 	}
 });
 
+// Use the same MDX compiler as Docusaurus. It spans hundreds of modules, so
+// load it with the other imports instead of inside the test's timeout.
+const requireFromDocusaurus = createRequire(
+	require.resolve('@docusaurus/core/package.json'),
+);
+const requireFromMdxLoader = createRequire(
+	requireFromDocusaurus.resolve('@docusaurus/mdx-loader'),
+);
+const {evaluate} = requireFromMdxLoader('@mdx-js/mdx');
+
 describe('Element MDX pages', () => {
 	test('resolves each page definition through its real MDX expression', async () => {
-		// Use the same MDX compiler as Docusaurus.
-		const requireFromDocusaurus = createRequire(
-			require.resolve('@docusaurus/core/package.json'),
-		);
-		const requireFromMdxLoader = createRequire(
-			requireFromDocusaurus.resolve('@docusaurus/mdx-loader'),
-		);
-		const {evaluate} = requireFromMdxLoader('@mdx-js/mdx');
 		for (const element of productionElements) {
 			const source = readFileSync(element.mdxPath, 'utf8')
 				.replace(/^---[\s\S]*?---\s*/, '')

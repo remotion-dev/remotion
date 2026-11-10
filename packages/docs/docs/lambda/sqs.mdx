@@ -38,7 +38,7 @@ The project will create all the resources defined by the CDK stack, including se
 
 ### Prerequisites
 
-- AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine.
+- An AWS deployment profile configured on your local machine.
 - A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
 - The AWS CDK should be installed globally on your local machine. If not yet done, follow the instructions in the "Install the AWS CDK" section [here](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html).
 
@@ -255,7 +255,7 @@ arn:aws:cloudformation:ap-southeast-2:XXXXXXXXXX:stack/apigw-sqs-app-stack/acb8b
 
 The deployment will provide variables such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`.
 
-#### 8. Remove the apigw-sqs-app from your AWS account, if not needed anymore
+#### 7. Remove the apigw-sqs-app from your AWS account, if not needed anymore
 
 From the `apigw-sqs-app` directory.
 
@@ -355,10 +355,8 @@ curl --location --request POST 'https://xxxxxxxx.execute-api.ap-southeast-2.amaz
 }'
 ```
 
-```bash title="response"
-{
-   {"message":"Message Send to SQS- Here is MessageId: a6abd0bc-b838-48b5-a562-4c511fac5b2f"}
-}
+```json title="response"
+{"message": "Message Send to SQS- Here is MessageId: a6abd0bc-b838-48b5-a562-4c511fac5b2f"}
 ```
 
 This will initiate the render request of a video by taking the JSON and putting it in the queue.  

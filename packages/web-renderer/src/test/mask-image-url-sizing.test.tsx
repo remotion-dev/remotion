@@ -3,14 +3,8 @@ import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {
-	maskImageLayers,
-	maskImageLayersTransparent,
-	maskImageLayersUrl,
-	maskImageLayersUrlTransparent,
-	maskImageLayersBlob,
-	maskImageLayersBlobTransparent,
-	maskImageLayersTokenUrl,
-	maskImageLayersTokenUrlTransparent,
+	createMaskImageLayersGridFixture,
+	maskImageLayerSources,
 } from './fixtures/mask-image-layers';
 import '../symbol-dispose';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
@@ -189,51 +183,73 @@ const cases: {
 	},
 ];
 
-for (const {size, repeat, samples} of cases) {
-	test(`preserves intrinsic sizing and alpha for ${size} / ${repeat}`, async () => {
-		const Component = () => (
-			<div
-				style={{
-					width: 100,
-					height: 60,
-					backgroundColor: 'red',
-					maskImage: `url("${rasterMask}")`,
-					maskSize: size,
-					maskRepeat: repeat,
-				}}
-			/>
-		);
-		const blob = await (
-			await renderStillOnWeb({
-				composition: {
-					component: Component,
-					id: 'sized-mask',
-					fps: 30,
-					width: 100,
-					height: 60,
-					durationInFrames: 1,
-				},
-				frame: 0,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const bitmap = await createImageBitmap(blob);
-		try {
-			const context = new OffscreenCanvas(
-				bitmap.width,
-				bitmap.height,
-			).getContext('2d')!;
-			context.drawImage(bitmap, 0, 0);
+// All cases share one render: each case gets its own 100x60 cell with a 10px gap.
+test('preserves intrinsic sizing and alpha for every size / repeat case', async () => {
+	const Component = () => (
+		<>
+			{cases.map(({size, repeat}, index) => (
+				<div
+					key={`${size} / ${repeat}`}
+					style={{
+						position: 'absolute',
+						left: (index % 4) * 110,
+						top: Math.floor(index / 4) * 70,
+						width: 100,
+						height: 60,
+						backgroundColor: 'red',
+						maskImage: `url("${rasterMask}")`,
+						maskSize: size,
+						maskRepeat: repeat,
+					}}
+				/>
+			))}
+		</>
+	);
+	const blob = await (
+		await renderStillOnWeb({
+			composition: {
+				component: Component,
+				id: 'sized-mask',
+				fps: 30,
+				width: 430,
+				height: 130,
+				durationInFrames: 1,
+			},
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		})
+	).blob({format: 'png'});
+	const bitmap = await createImageBitmap(blob);
+	try {
+		const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext(
+			'2d',
+		)!;
+		context.drawImage(bitmap, 0, 0);
+		const expected: string[] = [];
+		const actual: string[] = [];
+		cases.forEach(({size, repeat, samples}, index) => {
 			for (const [x, y, alpha] of samples) {
-				expect(context.getImageData(x, y, 1, 1).data[3]).toBe(alpha);
+				const label = `${size} / ${repeat} at ${x},${y}: alpha`;
+				expected.push(`${label} ${alpha}`);
+				actual.push(
+					`${label} ${
+						context.getImageData(
+							(index % 4) * 110 + x,
+							Math.floor(index / 4) * 70 + y,
+							1,
+							1,
+						).data[3]
+					}`,
+				);
 			}
-		} finally {
-			bitmap.close();
-		}
-	});
-}
+		});
+		expect(actual).toEqual(expected);
+	} finally {
+		bitmap.close();
+	}
+});
 
 test('clips a repeating mask to its border box when children overflow', async () => {
 	const Component = () => (
@@ -364,19 +380,11 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 }
 
 // KINO-7771: authored mask layers must be composed before masking the content.
-for (const composition of [
-	maskImageLayers,
-	maskImageLayersTransparent,
-	maskImageLayersUrl,
-	maskImageLayersUrlTransparent,
-	maskImageLayersBlob,
-	maskImageLayersBlobTransparent,
-	maskImageLayersTokenUrl,
-	maskImageLayersTokenUrlTransparent,
-]) {
+// All four mask sources share one 2x2 grid composition per background.
+for (const transparent of [false, true]) {
+	const composition = createMaskImageLayersGridFixture(!transparent);
 	for (const frame of [0, 1]) {
 		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {
-			const transparent = composition.id.endsWith('transparent');
 			if (transparent && t.task.file.projectName === 'firefox') {
 				t.skip();
 				return;
@@ -395,7 +403,49 @@ for (const composition of [
 				})
 			).blob({format: 'png'});
 			const result = await compareNativePixels(reference, actual);
-			expect(result.mismatchedPixels).toBe(0);
+			const cellMismatches: Record<string, number> = {};
+			if (result.mismatchedPixels > 0) {
+				const [expectedPixels, actualPixels] = await Promise.all(
+					[reference, actual].map(async (blob) => {
+						const bitmap = await createImageBitmap(blob);
+						try {
+							const context = new OffscreenCanvas(
+								bitmap.width,
+								bitmap.height,
+							).getContext('2d')!;
+							context.drawImage(bitmap, 0, 0);
+							return context.getImageData(0, 0, bitmap.width, bitmap.height)
+								.data;
+						} finally {
+							bitmap.close();
+						}
+					}),
+				);
+				for (let y = 0; y < composition.height; y++) {
+					for (let x = 0; x < composition.width; x++) {
+						const offset = (y * composition.width + x) * 4;
+						const source =
+							maskImageLayerSources[
+								(y >= composition.height / 2 ? 2 : 0) +
+									(x >= composition.width / 2 ? 1 : 0)
+							];
+						for (let channel = 0; channel < 4; channel++) {
+							if (
+								expectedPixels[offset + channel] !==
+								actualPixels[offset + channel]
+							) {
+								cellMismatches[source] = (cellMismatches[source] ?? 0) + 1;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			expect({
+				mismatchedPixels: result.mismatchedPixels,
+				cellMismatches,
+			}).toEqual({mismatchedPixels: 0, cellMismatches: {}});
 		});
 	}
 }

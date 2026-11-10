@@ -208,7 +208,10 @@ test(
 				reject: false,
 			},
 		);
-		expect(task.exitCode).toBe(0);
+		expect(
+			task.exitCode,
+			`stdout:\n${task.stdout}\nstderr:\n${task.stderr}`,
+		).toBe(0);
 
 		const exists = fs.existsSync(out);
 		expect(exists).toBe(true);

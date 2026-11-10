@@ -65,6 +65,13 @@ class Semantic
 			'utf-8',
 		);
 		const composerJsonJson = JSON.parse(composerJson);
+		// Outside of `set-version.ts`, the version is already correct.
+		// `composer update --lock` then only resolves against Packagist, which
+		// can hang past the test timeout when Packagist is slow.
+		if (composerJsonJson.version === version) {
+			return;
+		}
+
 		composerJsonJson.version = version;
 		writeFileSync(
 			path.join(process.cwd(), '..', 'lambda-php', 'composer.json'),
