@@ -61,13 +61,13 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 ### sourceCode
 
-A string containing the complete Element source code. It must contain exactly one exported named component.
+A string containing the complete Element source code. It must contain exactly one exported named component and be shorter than 200,000 characters.
 
 See [Building Element Libraries](/docs/elements/libraries) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
 
 ### dependencies
 
-An array of npm packages needed by the Element. Declare each dependency as an object with `name` and `version` properties. Duplicate names are removed.
+An array of npm packages needed by the Element. Declare each dependency as an object with `name` and `version` properties. Duplicate names are removed. You can declare at most 100 dependencies.
 
 For `@remotion/*` packages, set `version` to `null`. Studio installs the version matching the Remotion project. Every non-Remotion package must specify an exact semantic version. Version ranges and tags are not accepted.
 
@@ -89,13 +89,13 @@ Assets use Element payload version 2. Asset-free payloads continue to use versio
 
 ### dimensions
 
-The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive finite numbers.
+The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive numbers of at most 100,000.
 
 Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
 
 ### durationInFrames
 
-The preferred duration shown while dragging. It must be a positive integer.
+The preferred duration shown while dragging. It must be a positive integer of at most 100,000,000.
 
 ### initialProps?<AvailableFrom v="4.0.524" />
 
