@@ -159,12 +159,14 @@ export const drawWithHtmlInCanvas = async ({
 	scaledWidth,
 	scaledHeight,
 	signal,
+	transparent,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
 	signal: AbortSignal | null;
+	transparent: boolean;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -182,9 +184,13 @@ export const drawWithHtmlInCanvas = async ({
 	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
 
 	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
-	const offCtx = offscreen.getContext('2d');
+	const offCtx = offscreen.getContext('2d', {alpha: transparent});
 	if (!offCtx) {
 		throw new Error('Could not get offscreen context');
+	}
+
+	if (!transparent) {
+		offCtx.fillRect(0, 0, scaledWidth, scaledHeight);
 	}
 
 	offCtx.drawImage(layoutCanvas, 0, 0);

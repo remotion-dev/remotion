@@ -23,7 +23,9 @@ export const getSinkCacheKey = ({
 		getMediaRequestInitFingerprint(requestInit),
 	]);
 
-export const makeSinkManager = () => {
+export const makeSinkManager = (
+	onOfflineWait: ((waiting: boolean) => void) | null = null,
+) => {
 	const sinkPromises: Record<string, Promise<GetSink>> = {};
 	const inputDisposers: Record<string, () => void> = {};
 	let disposed = false;
@@ -61,6 +63,7 @@ export const makeSinkManager = () => {
 					logLevel,
 					credentials,
 					normalizedRequestInit,
+					onOfflineWait,
 				);
 				promise = sinks.promise;
 				sinkPromises[cacheKey] = promise;

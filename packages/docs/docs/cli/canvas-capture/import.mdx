@@ -1,0 +1,63 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-canvas-capture-import.png
+title: npx remotion canvas-capture import
+crumb: CLI Reference
+sidebar_label: import
+---
+
+# npx remotion canvas-capture import<AvailableFrom v="4.0.543" />
+
+Imports a [Canvas Capture](/docs/canvas-capture) recording as a new composition without starting Remotion Studio.
+
+```bash title="Import a composition"
+bunx remotion canvas-capture import recording.webm
+```
+
+The recording must contain the [original Canvas Capture metadata](/docs/canvas-capture/metadata).
+
+## Flags
+
+### `--composition`
+
+The new composition ID. If not passed, a composition ID will be chosen for you.
+
+### `--root-file`
+
+The [root file](/docs/terminology/root-file), relative to the project root. Detected automatically if not passed.
+
+The generated component is created beside this file. Existing component files and conflicting assets are never overwritten.
+
+### `--dry-run`
+
+Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files.
+
+### `--width`
+
+<Options id="width" />
+
+Defaults to `1920`.
+
+### `--height`
+
+<Options id="height" />
+
+Defaults to `1080`.
+
+### `--fps`
+
+<Options id="fps" />
+
+Defaults to `60`. The composition duration is calculated from the recording at this frame rate.
+
+### `--public-dir`
+
+<Options id="public-dir" />
+
+### `--package-manager`
+
+<Options id="package-manager" />
+
+## See also
+
+- [`npx remotion canvas-capture`](/docs/cli/canvas-capture)
+- [`addCanvasCaptureComposition()`](/docs/codemods/add-canvas-capture-composition)

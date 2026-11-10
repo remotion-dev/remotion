@@ -186,13 +186,15 @@ const validateUrlMaskImageStyle = (
 				parseLengthPercentage(value) !== null ||
 				/^(calc|min|max|clamp)\(/.test(value),
 		);
-	const sizeParts = maskSize.split(' ');
+	const sizeParts = splitAtTopLevel(maskSize, ' ');
 	const isSupportedSize =
 		['contain', 'cover'].includes(maskSize) ||
 		(sizeParts.length <= 2 &&
 			sizeParts.every(
 				(value) =>
-					value === 'auto' || (parseLengthPercentage(value)?.value ?? -1) >= 0,
+					value === 'auto' ||
+					value.includes('(') ||
+					(parseLengthPercentage(value)?.value ?? -1) >= 0,
 			));
 	const unsupportedProperties = [
 		!isSupportedSize ? `mask-size: ${maskSize}` : null,
@@ -218,7 +220,7 @@ const validateUrlMaskImageStyle = (
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/CSS-math/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}

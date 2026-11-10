@@ -25,6 +25,7 @@ import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {preferredEffectBackendOption} from './preferred-effect-backend';
+import {proResBitsPerMacroblockOption} from './prores-bits-per-macroblock';
 import {reproOption} from './repro';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
@@ -47,6 +48,7 @@ export const optionsMap = {
 		repro: reproOption,
 		x264Preset: x264Option,
 		gopSize: gopSizeOption,
+		proResBitsPerMacroblock: proResBitsPerMacroblockOption,
 		audioBitrate: audioBitrateOption,
 		colorSpace: colorSpaceOption,
 		codec: videoCodecOption,
@@ -69,6 +71,7 @@ export const optionsMap = {
 		sampleRate: sampleRateOption,
 	},
 	stitchFramesToVideo: {
+		proResBitsPerMacroblock: proResBitsPerMacroblockOption,
 		separateAudioTo: separateAudioOption,
 		hardwareAcceleration: hardwareAccelerationOption,
 	},
@@ -136,6 +139,7 @@ export const optionsMap = {
 		deleteAfter: deleteAfterOption,
 		x264Preset: x264Option,
 		gopSize: gopSizeOption,
+		proResBitsPerMacroblock: proResBitsPerMacroblockOption,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
 		colorSpace: colorSpaceOption,
@@ -179,6 +183,7 @@ export const optionsMap = {
 		videoBitrate: videoBitrateOption,
 		x264Preset: x264Option,
 		gopSize: gopSizeOption,
+		proResBitsPerMacroblock: proResBitsPerMacroblockOption,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
 		muted: mutedOption,

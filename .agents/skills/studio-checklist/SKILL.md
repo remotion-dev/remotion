@@ -1,9 +1,9 @@
 ---
-name: studio-dev
+name: studio-checklist
 description: Develop or review Remotion Studio features and UI. Apply Studio principles for optimistic updates, agent access through code or WebMCP, iframe-safe hover behavior, design consistency, mode availability, and performance verification.
 ---
 
-# Studio development
+# Studio checklist
 
 Apply these principles when implementing or reviewing Studio itself. They cover
 the regular Studio and Browser Studio at `remotion.new`.
@@ -143,6 +143,12 @@ WebMCP where a tool is provided or needed for transient Studio state and actions
 Check immediate feedback, persistence after HMR, failure recovery, and undo/redo
 for edits that participate in history. Check availability in each mode and the
 relevant hover, focus, cursor, and CSS-reset behavior above.
+
+Apply [nullable-new-params](../nullable-new-params/SKILL.md) when adding or
+reviewing TypeScript parameters, React props, and type/interface members. Use
+required nullable inputs for internal APIs, update callers explicitly, and
+preserve public API compatibility. Run the skill's scanner against the PR diff
+before finishing.
 
 For Studio code changes, run the package build and relevant existing checks:
 

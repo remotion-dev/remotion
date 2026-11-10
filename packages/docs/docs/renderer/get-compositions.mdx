@@ -7,7 +7,7 @@ crumb: '@remotion/renderer'
 
 _Part of the `@remotion/renderer` package._
 
-Gets a list of compositions defined in a Remotion project based on a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Remotion Root](/docs/terminology/remotion-root).
+Gets a list of compositions defined in a Remotion project based on a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Root component](/docs/terminology/root-file).
 
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
@@ -125,6 +125,18 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 ### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
