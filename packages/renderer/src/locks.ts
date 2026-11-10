@@ -2,7 +2,7 @@ type Waiter = {id: number; grant: () => void};
 
 export type MutexState =
 	| {type: 'free'}
-	| {type: 'held'; holderId: number; queue: Waiter[]};
+	| {type: 'held'; holderIds: number[]; queue: Waiter[]};
 
 export type MutexEvent =
 	| {type: 'acquire'; waiter: Waiter}
@@ -17,7 +17,7 @@ export const mutexTransition = (
 		case 'acquire':
 			if (state.type === 'free') {
 				return {
-					state: {type: 'held', holderId: event.waiter.id, queue: []},
+					state: {type: 'held', holderIds: [event.waiter.id], queue: []},
 					granted: event.waiter,
 				};
 			}
@@ -27,8 +27,13 @@ export const mutexTransition = (
 				granted: null,
 			};
 		case 'release': {
-			if (state.type === 'free' || state.holderId !== event.id) {
+			if (state.type === 'free' || !state.holderIds.includes(event.id)) {
 				return {state, granted: null};
+			}
+
+			const holderIds = state.holderIds.filter((id) => id !== event.id);
+			if (holderIds.length > 0) {
+				return {state: {...state, holderIds}, granted: null};
 			}
 
 			const [next, ...rest] = state.queue;
@@ -37,23 +42,31 @@ export const mutexTransition = (
 			}
 
 			return {
-				state: {type: 'held', holderId: next.id, queue: rest},
+				state: {type: 'held', holderIds: [next.id], queue: rest},
 				granted: next,
 			};
 		}
 
-		case 'waiter-timed-out':
+		case 'waiter-timed-out': {
 			if (state.type === 'free') {
+				return {state, granted: null};
+			}
+
+			const waiter = state.queue.find((w) => w.id === event.id);
+			if (!waiter) {
 				return {state, granted: null};
 			}
 
 			return {
 				state: {
-					...state,
+					type: 'held',
+					holderIds: [...state.holderIds, waiter.id],
 					queue: state.queue.filter((w) => w.id !== event.id),
 				},
-				granted: null,
+				granted: waiter,
 			};
+		}
+
 		default:
 			throw new Error('Unknown mutex event ' + (event satisfies never));
 	}
@@ -73,7 +86,6 @@ export const createMutex = ({timeout}: {timeout: number | null}) => {
 		return new Promise((resolve) => {
 			const id = nextId++;
 			let timer: ReturnType<typeof setTimeout> | null = null;
-			const release = () => dispatch({type: 'release', id});
 
 			dispatch({
 				type: 'acquire',
@@ -84,15 +96,18 @@ export const createMutex = ({timeout}: {timeout: number | null}) => {
 							clearTimeout(timer);
 						}
 
-						resolve(release);
+						resolve(() => dispatch({type: 'release', id}));
 					},
 				},
 			});
 
-			if (state.type === 'held' && state.holderId !== id && timeout !== null) {
+			if (
+				state.type === 'held' &&
+				!state.holderIds.includes(id) &&
+				timeout !== null
+			) {
 				timer = setTimeout(() => {
 					dispatch({type: 'waiter-timed-out', id});
-					resolve(() => undefined);
 				}, timeout);
 			}
 		});
