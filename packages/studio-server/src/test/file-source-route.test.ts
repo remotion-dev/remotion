@@ -88,6 +88,7 @@ test('serves file source from an origin-less GET request', async () => {
 				highContrast: null,
 				preferredEffectBackend: null,
 				preservePitchOnPlayback: true,
+				showDiagnostics: false,
 				showLayerFrameNumbers: false,
 				showPremounting: null,
 				defaultPremountInSeconds: null,

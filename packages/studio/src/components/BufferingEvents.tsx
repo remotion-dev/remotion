@@ -61,12 +61,12 @@ const BufferingHandle: React.FC<{
 					? ' · Active'
 					: ''}
 			</div>
-			{file ? (
+			{file === null ? null : (
 				<div style={{...textStyle, overflowWrap: 'anywhere'}}>{file}</div>
-			) : null}
-			{source ? (
+			)}
+			{source === null ? null : (
 				<div style={{...textStyle, overflowWrap: 'anywhere'}}>{source}</div>
-			) : null}
+			)}
 			{handle.owners.length > 1 ? (
 				<div style={{...textStyle, overflowWrap: 'anywhere'}}>
 					{handle.owners
@@ -162,11 +162,11 @@ export const BufferingEvents: React.FC = () => {
 					Clear
 				</Button>
 			</div>
-			{error ? (
+			{error === null ? null : (
 				<div role="alert" style={{...textStyle, color: RED}}>
 					{error}
 				</div>
-			) : null}
+			)}
 			<div
 				className={VERTICAL_SCROLLBAR_CLASSNAME}
 				style={{maxHeight: 320, minHeight: 0, overflowY: 'auto'}}

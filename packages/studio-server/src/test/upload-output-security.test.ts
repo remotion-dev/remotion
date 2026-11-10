@@ -92,6 +92,7 @@ const requestWriteRoute = async ({
 			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
+			showDiagnostics: false,
 			showLayerFrameNumbers: false,
 			showPremounting: null,
 			defaultPremountInSeconds: null,

@@ -7,7 +7,7 @@ import type {PreferredEffectBackend} from 'remotion';
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
-	readonly showDiagnostics?: boolean | null;
+	readonly showDiagnostics: boolean | null;
 	readonly highContrast: boolean | null;
 	readonly preservePitchOnPlayback: boolean | null;
 	readonly showLayerFrameNumbers: boolean | null;
@@ -34,7 +34,7 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly showDiagnostics?: boolean;
+	readonly showDiagnostics: boolean;
 	readonly highContrast: {
 		readonly value: boolean;
 		readonly source: 'cli' | 'config';
