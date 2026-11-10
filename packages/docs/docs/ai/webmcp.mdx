@@ -107,7 +107,7 @@ The default model is `small.en`. The default output is `<asset>-captions.json`. 
 }
 ```
 
-The job continues in the background and can be followed in the Jobs panel.
+`success: true` acknowledges that the job was queued. The job continues in the background. Find the returned job ID in `get_transcription_jobs` to follow its progress and outcome, or use the Jobs panel. `outputPath` identifies the intended destination. A `done` status confirms that the file was written.
 
 This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it returns:
 
@@ -123,6 +123,104 @@ This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it 
 ```
 
 Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
+### `get_transcription_jobs`<AvailableFrom v="4.0.543" />
+
+Returns the transcription jobs shown in this Studio tab, including jobs started through the UI and `transcribe_asset`. Available in all four Studio modes, including with a detached server. A reload clears the tab-local queue.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  jobs: Array<{
+    id: string;
+    displayName: string;
+    src: string;
+    output:
+      | {type: 'file'; path: string}
+      | {type: 'composition'; fileName: string};
+    status: 'idle' | 'running' | 'saving' | 'done' | 'failed' | 'cancelled';
+    canCancel: boolean;
+    progress: number | null;
+    progressMessage: string | null;
+    captionCount: number | null;
+    error: {message: string; stack: string | null} | null;
+  }>;
+}
+```
+
+#### `jobs`
+
+The transcription jobs currently known to the tab. An empty array indicates that the queue is empty.
+
+##### `id`
+
+The identifier returned by `transcribe_asset` and accepted as `jobId` by `cancel_transcription_job`.
+
+##### `displayName`
+
+The source label shown in the Jobs panel.
+
+##### `src`
+
+The URL of the audio or video being transcribed.
+
+##### `output`
+
+`file` identifies the intended Caption JSON path relative to `public/`. `composition` identifies the source file where the UI requested captions to be inserted. The destination is present before the job completes. A `done` status confirms that its output was saved or inserted.
+
+##### `status`
+
+`idle` means queued, `running` includes model loading and transcription, and `saving` means the captions are being saved or inserted. `done`, `failed` and `cancelled` are terminal outcomes.
+
+##### `canCancel`
+
+Matches the UI's Cancel transcription action. Returns `true` while `running` and `false` for queued, saving or terminal jobs. Cancellation runs locally in the tab and may take time to finish after being requested.
+
+##### `progress`
+
+Progress from `0` to `1` while running or saving. Queued jobs report `0`, completed jobs report `1`, and failed or cancelled jobs report `null`.
+
+##### `progressMessage`
+
+The progress message shown in the Jobs panel while running or saving, otherwise `null`.
+
+##### `captionCount`
+
+The number of generated captions for a completed job, otherwise `null`. For file outputs, read the generated JSON to obtain the captions. For composition outputs, read the updated source.
+
+##### `error`
+
+The failure message and available stack for a failed job, otherwise `null`.
+
+### `cancel_transcription_job`<AvailableFrom v="4.0.543" />
+
+Requests cancellation using the same action as the UI's Cancel transcription control. Only running jobs can be cancelled. Queued jobs can be cleared in the Jobs panel. Available for local transcription jobs in all four Studio modes, including with a detached server.
+
+```ts title="Input"
+{
+  jobId: string;
+}
+```
+
+#### `jobId`
+
+Required. A non-empty transcription job identifier returned by `get_transcription_jobs` or `transcribe_asset`.
+
+```ts title="Output"
+{
+  jobId: string;
+  status: 'requested' | 'not-cancellable' | 'not-found';
+}
+```
+
+#### `status`
+
+`requested` acknowledges the cancellation request. Repeating it while the job is still running is harmless and also returns `requested`. Read `get_transcription_jobs` for the terminal outcome.
+
+`not-cancellable` means the job is queued, saving or already finished, including an already cancelled job. `not-found` means the job is absent from this tab's transcription queue. Invalid input rejects the tool call before cancellation starts.
 
 ### `remove_video_background`<AvailableFrom v="4.0.523" />
 

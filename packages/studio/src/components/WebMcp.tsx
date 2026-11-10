@@ -318,7 +318,10 @@ export const WebMcp: FC = () => {
 	const revealBufferingHandle = useRevealBufferingHandle();
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
-	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const {addCaptionJob, addVideoMattingJob, captionJobs, cancelClientJob} =
+		useContext(RenderQueueContext);
+	const captionJobsRef = useRef(captionJobs);
+	captionJobsRef.current = captionJobs;
 	const renderQueueActions = useContext(RenderQueueActionsContext);
 	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
@@ -567,7 +570,7 @@ export const WebMcp: FC = () => {
 					name: 'transcribe_asset',
 					title: 'Transcribe Studio asset',
 					description:
-						'Transcribe an audio or video asset from the public folder into Remotion Caption[] JSON and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+						'Queue transcription of an audio or video asset from the public folder into Remotion Caption[] JSON. A successful response acknowledges queuing. Read get_transcription_jobs for progress and the outcome. If assetPath is omitted, the asset currently open in Studio is used.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -754,6 +757,97 @@ export const WebMcp: FC = () => {
 							topK,
 						});
 						return {jobId, outputPath, success: true};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_transcription_jobs',
+					title: 'Get Studio transcription jobs',
+					description:
+						'Read the transcription jobs in this Studio tab, including their source, output destination, status, progress, errors, caption count and cancellation availability. Includes jobs started in the UI or by transcribe_asset. Available in all Studio modes. A reload clears the tab-local queue.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							jobs: captionJobsRef.current.map((job) => ({
+								id: job.id,
+								displayName: job.displayName,
+								src: job.src,
+								output:
+									job.target === null
+										? {type: 'file', path: job.outName}
+										: {type: 'composition', fileName: job.target.fileName},
+								status: job.status,
+								canCancel: job.status === 'running',
+								progress:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.value
+										: job.status === 'done'
+											? 1
+											: job.status === 'idle'
+												? 0
+												: null,
+								progressMessage:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.message
+										: null,
+								captionCount: job.status === 'done' ? job.captionCount : null,
+								error:
+									job.status === 'failed'
+										? {
+												message: job.error.message,
+												stack: job.error.stack ?? null,
+											}
+										: null,
+							})),
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'cancel_transcription_job',
+					title: 'Cancel Studio transcription job',
+					description:
+						'Request cancellation of a running transcription using the same action as Studio. Read jobId and canCancel from get_transcription_jobs. Available in all Studio modes for jobs running in this tab. A requested result acknowledges the cancellation request. Read get_transcription_jobs for the terminal outcome.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							jobId: {
+								type: 'string',
+								minLength: 1,
+								description:
+									'The transcription job id returned by get_transcription_jobs.',
+							},
+						},
+						required: ['jobId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({jobId}) => {
+						if (typeof jobId !== 'string' || jobId.length === 0) {
+							throw new Error('jobId must be a non-empty string.');
+						}
+
+						const job = captionJobsRef.current.find(
+							(item) => item.id === jobId,
+						);
+						if (!job) {
+							return Promise.resolve({jobId, status: 'not-found'});
+						}
+
+						if (job.status !== 'running') {
+							return Promise.resolve({jobId, status: 'not-cancellable'});
+						}
+
+						cancelClientJob(job.id);
+						return Promise.resolve({jobId, status: 'requested'});
 					},
 				},
 				{signal: controller.signal},
@@ -2709,6 +2803,7 @@ export const WebMcp: FC = () => {
 		audioLevels,
 		setAudioLevelsVisible,
 		addVideoMattingJob,
+		cancelClientJob,
 		calculateTimeline,
 		compositionManagerRef,
 		isPlaying,
