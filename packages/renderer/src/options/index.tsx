@@ -94,6 +94,7 @@ import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
 import {sequenceActivityLimitOption} from './sequence-activity-limit';
+import {showDiagnosticsOption} from './show-diagnostics';
 import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
 import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
@@ -116,6 +117,7 @@ export const allOptions = {
 	chromiumFeaturesOption,
 	chromiumBlinkFeaturesOption,
 	preservePitchOnPlaybackOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	highContrastOption,
 	showPremountingOption,

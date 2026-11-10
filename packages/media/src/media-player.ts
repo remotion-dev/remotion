@@ -869,7 +869,7 @@ export class MediaPlayer {
 		// Cancel pending paints before waiting for initialization to settle.
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
-		this.audioIteratorManager?.destroyIterator();
+		this.audioIteratorManager?.dispose();
 		this.premountAwareDelayPlayback.dispose();
 		// Release before awaiting startup: disposing the last lease cancels a
 		// stalled read, while other players keep their shared Input alive.
@@ -885,7 +885,7 @@ export class MediaPlayer {
 		}
 
 		this.videoIteratorManager?.destroy();
-		this.audioIteratorManager?.destroyIterator();
+		this.audioIteratorManager?.dispose();
 	}
 
 	private getTargetTime = (

@@ -1522,6 +1522,15 @@ export const articles = [
 		slug: 'options/sequence-activity-limit',
 	},
 	{
+		id: 'options/show-diagnostics',
+		title: 'Show Studio diagnostics',
+		relativePath: 'docs/options/show-diagnostics.mdx',
+		compId: 'articles-docs-options-show-diagnostics',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/show-diagnostics',
+	},
+	{
 		id: 'options/show-layer-frame-numbers',
 		title: 'Show frame numbers of layer',
 		relativePath: 'docs/options/show-layer-frame-numbers.mdx',
