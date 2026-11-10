@@ -218,7 +218,7 @@ class PHPClient
 
         $maxSize = ($renderType === 'still') ? $maxStillInlineSize : $maxVideoInlineSize;
 
-        if ($payloadSize < $maxSize) {
+        if ($payloadSize <= $maxSize) {
             return false;
         }
 
