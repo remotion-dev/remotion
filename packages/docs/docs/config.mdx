@@ -209,7 +209,7 @@ Config.addElementLibrary({
 
 Call `addElementLibrary()` once for each third-party Element Library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
 
-When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+The Browse Elements dropdown lists Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
 Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
 
@@ -899,6 +899,18 @@ Config.setProResProfile('4444');
 ```
 
 The [`--prores-profile`](/docs/options/prores-profile) flag takes precedence over this option.
+
+## `setProResBitsPerMacroblock()`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setProResBitsPerMacroblock(1000);
+```
+
+The [`--prores-bits-per-macroblock`](/docs/options/prores-bits-per-macroblock) flag takes precedence over this option.
 
 ## `setX264Preset()`<AvailableFrom v="4.0.22" />
 

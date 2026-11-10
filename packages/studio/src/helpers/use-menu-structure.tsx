@@ -21,6 +21,7 @@ import {getSidebarMenuItems} from '../components/sidebar-menu-items';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
+import {useAudioLevelsMenuItem} from '../components/use-audio-levels-menu-item';
 import {useOpenInMenuApps} from '../components/use-open-in-menu-apps';
 import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
@@ -422,6 +423,7 @@ const useMenuStructureBase = ({
 }) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
+	const audioLevelsMenuItem = useAudioLevelsMenuItem(closeMenu);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
 	);
@@ -796,6 +798,7 @@ const useMenuStructureBase = ({
 							? 'Disable Checkerboard Transparency'
 							: 'Enable Checkerboard Transparency',
 					},
+					audioLevelsMenuItem,
 					{
 						id: 'timeline-divider-3',
 						type: 'divider' as const,
@@ -1209,6 +1212,7 @@ const useMenuStructureBase = ({
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
+		audioLevelsMenuItem,
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,

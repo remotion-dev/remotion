@@ -53,6 +53,30 @@ const config: Config = {
 		hooks: {
 			onBrokenMarkdownLinks: 'warn',
 		},
+		parseFrontMatter: async (params) => {
+			const result = await params.defaultParseFrontMatter(params);
+			const slug = params.filePath
+				.replaceAll('\\', '/')
+				.match(/\/elements\/(.+)\/index\.mdx$/)?.[1];
+			if (slug === undefined || !Object.hasOwn(elementRegistry, slug)) {
+				return result;
+			}
+
+			if (result.frontMatter.description !== undefined) {
+				throw new Error(
+					`${params.filePath}: Remove "description" from the frontmatter. Element descriptions come from element-registry.ts.`,
+				);
+			}
+
+			return {
+				...result,
+				frontMatter: {
+					...result.frontMatter,
+					description:
+						elementRegistry[slug as keyof typeof elementRegistry].description,
+				},
+			};
+		},
 	},
 	favicon: 'img/favicon.png',
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.

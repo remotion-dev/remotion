@@ -1,8 +1,9 @@
-import {expect, test} from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import {expect, test} from '@playwright/test';
 import {apiCall} from './api-call.mts';
 import {STUDIO_URL, exampleDir} from './constants.mts';
+import {nodeFetch} from './node-fetch.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 test.describe('render output dragging', () => {
@@ -145,7 +146,10 @@ test.describe('render output dragging', () => {
 			const prefix = 'application/octet-stream:render-output-drag-e2e.mp4:';
 			expect(drag.downloadUrl.startsWith(prefix)).toBe(true);
 
-			const response = await fetch(drag.downloadUrl.slice(prefix.length));
+			const response = await nodeFetch(
+				drag.downloadUrl.slice(prefix.length),
+				null,
+			);
 			expect(response.status).toBe(200);
 			expect(Buffer.from(await response.arrayBuffer())).toEqual(contents);
 			await renderItem.dispatchEvent('dragend');

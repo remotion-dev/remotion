@@ -17,6 +17,7 @@ import {toggleLoop} from './LoopToggle';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {usePlaybackRateMenuItems} from './PlaybackRateSelector';
 import {usePreviewSizeMenuItems} from './SizeSelector';
+import {useAudioLevelsMenuItem} from './use-audio-levels-menu-item';
 
 const clickButton = (id: string) => {
 	(document.getElementById(id) as HTMLButtonElement | null)?.click();
@@ -44,6 +45,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	setLoop,
 }) => {
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const audioLevelsMenuItem = useAudioLevelsMenuItem(null);
 	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
 	const loopShortcut = useKeyboardShortcutLabel('toggleLoop');
 	const outlinesShortcut = useKeyboardShortcutLabel('toggleOutlines');
@@ -218,6 +220,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			});
 		}
 
+		items.push(audioLevelsMenuItem);
+
 		if (showFullscreen) {
 			items.push({
 				type: 'item',
@@ -237,6 +241,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 
 		return items;
 	}, [
+		audioLevelsMenuItem,
 		checkerboardShortcut,
 		fullscreenShortcut,
 		loopShortcut,

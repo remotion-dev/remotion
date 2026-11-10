@@ -63,6 +63,7 @@ import {numberOfSharedAudioTagsOption} from './number-of-shared-audio-tags';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
+import {openTimelineMediaDirectoryOption} from './open-timeline-media-directory';
 import type {AnyRemotionOption} from './option';
 import {outDirOption} from './out-dir';
 import {overrideDurationOption} from './override-duration';
@@ -78,6 +79,7 @@ import {preferredEffectBackendOption} from './preferred-effect-backend';
 import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
+import {proResBitsPerMacroblockOption} from './prores-bits-per-macroblock';
 import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
@@ -150,6 +152,7 @@ export const allOptions = {
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
 	previewSampleRateOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	x264Option,
 	logLevelOption,
@@ -200,6 +203,7 @@ export const allOptions = {
 	overrideDurationOption,
 	rspackOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	skipSkillsOption,
 	sampleRateOption,

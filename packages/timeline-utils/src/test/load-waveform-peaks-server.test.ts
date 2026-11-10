@@ -1,9 +1,12 @@
 import {beforeAll, expect, test} from 'bun:test';
+import {pathToFileURL} from 'node:url';
 import {registerMediabunnyServer} from '@mediabunny/server';
+import {exampleVideos} from '@remotion/example-videos';
 import {loadWaveformPeaks} from '../audio-waveform/load-waveform-peaks';
 
-const SAMPLE_MEDIA_URL = 'https://remotion.media/video.mp4';
-const EDTS_MEDIA_URL = 'https://remotion.media/edts.mp4';
+// Local fixtures so that CDN latency does not count against the test timeout.
+const SAMPLE_MEDIA_URL = pathToFileURL(exampleVideos.h264Aac1080p).href;
+const EDTS_MEDIA_URL = pathToFileURL(exampleVideos.edts).href;
 
 beforeAll(() => {
 	registerMediabunnyServer();

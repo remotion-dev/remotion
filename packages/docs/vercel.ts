@@ -9,6 +9,8 @@ const accountHosts = [
 	},
 ];
 const accountPaths = [
+	'/compliance',
+	'/compliance.md',
 	'/login',
 	'/dashboard',
 	'/dashboard/:path*',

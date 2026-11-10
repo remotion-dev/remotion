@@ -86,6 +86,7 @@ export const configMethodLifecycles = {
 	setPreservePitchOnPlayback: 'runtime',
 	setPreviewSampleRate: 'reload',
 	setPreferredEffectBackend: 'reload',
+	setProResBitsPerMacroblock: 'runtime',
 	setProResProfile: 'runtime',
 	setPublicDir: 'restart',
 	setPublicLicenseKey: 'runtime',

@@ -89,6 +89,13 @@ export function createBackgroundKeepalive({
 	return {
 		waitForTick: () => {
 			return new Promise((resolve) => {
+				// A failed worker has already released its pending waits. Keep later
+				// readiness checks progressing with the same timer fallback as above.
+				if (worker === null) {
+					setTimeout(resolve, intervalMs);
+					return;
+				}
+
 				pendingResolvers.push(resolve);
 			});
 		},

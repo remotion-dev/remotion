@@ -445,6 +445,10 @@ export const benchmarkCommand = async (
 	}).value;
 	const crfSetting = crfOption.getValue({commandLine: parsedCli});
 	const gopSize = gopSizeOption.getValue({commandLine: parsedCli}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -535,6 +539,7 @@ export const benchmarkCommand = async (
 					},
 					crf,
 					gopSize,
+					proResBitsPerMacroblock,
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: videoImageFormatOption.getValue(

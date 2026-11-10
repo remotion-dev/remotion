@@ -9,6 +9,7 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToStableKey} from '../../helpers/timeline-node-path-key';
+import {EffectReorderTargetsProvider} from './TimelineEffectItem';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {TimelineRowSelectedBackgroundContext} from './TimelineRowChrome';
 import {
@@ -86,30 +87,35 @@ export const TimelineExpandedSection: React.FC<{
 		<TimelineRowSelectedBackgroundContext.Provider
 			value={TIMELINE_EXPANDED_SELECTED_BACKGROUND}
 		>
-			<div style={style}>
-				{flat.map(({node, depth}, i) => {
-					return (
-						<React.Fragment
-							key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
-						>
-							{i > 0 ? <div style={separator} /> : null}
-							<TimelineExpandedRow
-								node={node}
-								depth={depth}
-								nestedDepth={nestedDepth}
-								getIsExpanded={getIsExpanded}
-								toggleTrack={toggleTrack}
-								validatedLocation={validatedLocation}
-								nodePath={nodePathInfo.sequenceSubscriptionKey}
-								schema={schema}
-								keyframeDisplayOffset={keyframeDisplayOffset}
-								keyframePlaybackRate={keyframePlaybackRate}
-								keyframeControlsMode="timeline"
-							/>
-						</React.Fragment>
-					);
-				})}
-			</div>
+			<EffectReorderTargetsProvider>
+				<div style={style}>
+					{flat.map(({node, depth}, i) => {
+						return (
+							<React.Fragment
+								key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
+							>
+								{i > 0 ? <div style={separator} /> : null}
+								<TimelineExpandedRow
+									node={node}
+									depth={depth}
+									nestedDepth={nestedDepth}
+									getIsExpanded={getIsExpanded}
+									toggleTrack={toggleTrack}
+									validatedLocation={validatedLocation}
+									nodePath={nodePathInfo.sequenceSubscriptionKey}
+									schema={schema}
+									keyframeDisplayOffset={keyframeDisplayOffset}
+									keyframePlaybackRate={keyframePlaybackRate}
+									keyframeControlsMode="timeline"
+									beforeDropTargetRef={null}
+								>
+									{null}
+								</TimelineExpandedRow>
+							</React.Fragment>
+						);
+					})}
+				</div>
+			</EffectReorderTargetsProvider>
 		</TimelineRowSelectedBackgroundContext.Provider>
 	);
 };

@@ -30,6 +30,7 @@ const makeArgs = ({
 		pixelFormat: 'yuv420p',
 		x264Preset: null,
 		gopSize: null,
+		proResBitsPerMacroblock: null,
 		codec,
 		crf,
 		videoBitrate: null,

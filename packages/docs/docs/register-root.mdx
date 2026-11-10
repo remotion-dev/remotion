@@ -61,7 +61,7 @@ export const RemotionRoot = () => <></>;
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
-import {continueRender, delayRender, registerRoot} from 'remotion';
+import {registerRoot} from 'remotion';
 import {RemotionRoot} from './Root';
 
 loadWebAssembly().then(() => {
