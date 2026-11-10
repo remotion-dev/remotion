@@ -2,9 +2,33 @@ import {expect, test} from 'vitest';
 import {
 	getBackgroundImageRect,
 	parsePosition,
+	resolveLengthPercentage,
 	resolvePosition,
 	splitAtTopLevel,
 } from '../drawing/background-image-rect';
+
+test('uses native CSS math when Typed OM rejects a supported function', () => {
+	const original = Object.getOwnPropertyDescriptor(window, 'CSSNumericValue');
+	Object.defineProperty(window, 'CSSNumericValue', {
+		configurable: true,
+		value: {
+			parse: () => {
+				throw new SyntaxError('Unsupported Typed OM function');
+			},
+		},
+	});
+	try {
+		expect(
+			resolveLengthPercentage({
+				percentageBasis: 40,
+				value: 'round(up, 10%, 3px)',
+			}),
+		).toBe(6);
+	} finally {
+		if (original) Object.defineProperty(window, 'CSSNumericValue', original);
+		else Reflect.deleteProperty(window, 'CSSNumericValue');
+	}
+});
 
 test('positions an oversized percentage background image', () => {
 	const rect = getBackgroundImageRect({

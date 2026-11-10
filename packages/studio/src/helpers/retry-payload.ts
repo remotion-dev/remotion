@@ -24,6 +24,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		return {
 			type: 'server-render',
 			retrySettings: {
+				chromiumOptions: job.chromiumOptions,
 				jobId: job.id,
 				outName: job.outName,
 				crf: null,
@@ -92,6 +93,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		return {
 			type: 'server-render',
 			retrySettings: {
+				chromiumOptions: job.chromiumOptions,
 				jobId: job.id,
 				outName: job.outName,
 				crf: null,
@@ -160,6 +162,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 		return {
 			type: 'server-render',
 			retrySettings: {
+				chromiumOptions: job.chromiumOptions,
 				jobId: job.id,
 				outName: job.outName,
 				crf: job.crf,

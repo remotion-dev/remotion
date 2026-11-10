@@ -62,6 +62,10 @@ test('browser studio dependency versions are derived from package metadata', () 
 	expect(dependencyVersions['@huggingface/transformers']).toBe(
 		transformersVersion,
 	);
+	// Transitive dependency of @remotion/studio via @remotion/web-renderer.
+	expect(dependencyVersions['@mediabunny/mp3-encoder']).toBe(
+		rootPackageJson.workspaces?.catalog?.['@mediabunny/mp3-encoder'],
+	);
 	expect(dependencyVersions.react).toBe(reactVersion);
 	expect(dependencyVersions['react-dom']).toBe(reactDomVersion);
 	expect(dependencyVersions.memfs).toBeUndefined();

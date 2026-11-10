@@ -96,6 +96,18 @@ Define how long it may take to resolve all [`delayRender()`](/docs/delay-render)
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
 
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
 ### `--ignore-certificate-errors`
 
 Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
@@ -112,7 +124,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 <Options id="disable-headless" />
 
-### `--quiet`, `--q`
+### `--quiet`, `-q`
 
 Only prints the composition IDs, separated by a space.
 

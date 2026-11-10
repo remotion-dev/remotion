@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React from 'react';
 import {PreviewServerConnection} from '../helpers/client-id';
+import {AudioLevelsProvider} from '../state/audio-levels';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
@@ -58,7 +59,9 @@ export const EditorContexts: React.FC<{
 																					<HighestZIndexProvider>
 																						<SetTimelineInOutProvider>
 																							<ExpandedTracksProvider>
-																								{children}
+																								<AudioLevelsProvider>
+																									{children}
+																								</AudioLevelsProvider>
 																							</ExpandedTracksProvider>
 																						</SetTimelineInOutProvider>
 																					</HighestZIndexProvider>

@@ -4,10 +4,10 @@ import {
 	calculateTransforms,
 	type TransformStyleCache,
 } from '../drawing/calculate-transforms';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
-import '../symbol-dispose';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
+import '../symbol-dispose';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
@@ -18,6 +18,7 @@ import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {
@@ -383,4 +384,217 @@ test('keeps zero-angle 3D rotations geometrically 2D under strong downscaling', 
 			bitmap.close();
 		}
 	}
+});
+
+const mountStyleOwnershipSvg = () => {
+	const host = document.createElement('div');
+	host.innerHTML = '<svg width="100" height="80"></svg>';
+	const element = host.firstElementChild as SVGSVGElement;
+	document.body.appendChild(host);
+	return {host, element};
+};
+
+test.for([null, ''])(
+	'restores transform measurement style ownership for initial attribute %s',
+	(initial) => {
+		const {host, element} = mountStyleOwnershipSvg();
+		if (initial !== null) {
+			element.setAttribute('style', initial);
+			host.setAttribute('style', initial);
+		}
+
+		const cache: TransformStyleCache = new WeakMap();
+		try {
+			const observations = [];
+			for (let read = 0; read < 2; read++) {
+				const plan = calculateTransforms({
+					element,
+					rootElement: host,
+					transformStyleCache: cache,
+					isolated: false,
+				});
+				plan[Symbol.dispose]();
+				observations.push([
+					element.getAttribute('style'),
+					host.getAttribute('style'),
+				]);
+			}
+
+			expect(observations).toEqual([
+				[initial, initial],
+				[initial, initial],
+			]);
+		} finally {
+			host.remove();
+		}
+	},
+);
+
+test('restores transform measurement style ownership including priorities', () => {
+	const {host, element} = mountStyleOwnershipSvg();
+	const properties = [
+		'transition-property',
+		'transition-duration',
+		'transition-timing-function',
+		'transition-delay',
+		'transition-behavior',
+		'transform',
+		'scale',
+		'rotate',
+	];
+	element.style.setProperty('transition-property', 'transform', 'important');
+	element.style.setProperty('transition-duration', '1s');
+	element.style.setProperty('transition-delay', '.2s', 'important');
+	element.style.setProperty('transform', 'translateX(2px)', 'important');
+	element.style.setProperty('scale', '1.25', 'important');
+	element.style.setProperty('rotate', '5deg', 'important');
+	const before = properties.map((property) => [
+		element.style.getPropertyValue(property),
+		element.style.getPropertyPriority(property),
+	]);
+	try {
+		const plan = calculateTransforms({
+			element,
+			rootElement: host,
+			transformStyleCache: new WeakMap(),
+			isolated: false,
+		});
+		plan[Symbol.dispose]();
+		expect(
+			properties.map((property) => [
+				element.style.getPropertyValue(property),
+				element.style.getPropertyPriority(property),
+			]),
+		).toEqual(before);
+	} finally {
+		host.remove();
+	}
+});
+
+for (const {name, transition, priority} of [
+	{name: 'whole-value', transition: 'var(--transition)', priority: ''},
+	{
+		name: 'whole-value-important',
+		transition: 'var(--transition)',
+		priority: 'important',
+	},
+	{
+		name: 'duration-value',
+		transition: 'opacity var(--duration) ease',
+		priority: '',
+	},
+	{
+		name: 'duration-value-important',
+		transition: 'opacity var(--duration) ease',
+		priority: 'important',
+	},
+]) {
+	test(`restores variable transition shorthand ${name} after measurement`, () => {
+		const {host, element} = mountStyleOwnershipSvg();
+		const cache: TransformStyleCache = new WeakMap();
+		const observations = [];
+		const expected = [];
+		try {
+			for (const target of [element, host]) {
+				target.style.setProperty('--transition', 'opacity 2s linear');
+				target.style.setProperty('--duration', '2s');
+				target.style.setProperty('transition', transition, priority);
+			}
+
+			const originals = [element, host].map((target) => [
+				target.style.getPropertyValue('transition'),
+				target.style.getPropertyPriority('transition'),
+			]);
+			for (let read = 0; read < 2; read++) {
+				const plan = calculateTransforms({
+					element,
+					rootElement: host,
+					transformStyleCache: cache,
+					isolated: false,
+				});
+				element.style.setProperty('--duration', '3s', 'important');
+				plan[Symbol.dispose]();
+				observations.push([
+					[element, host].map((target) => [
+						target.style.getPropertyValue('transition'),
+						target.style.getPropertyPriority('transition'),
+					]),
+					element.style.getPropertyValue('--duration'),
+					element.style.getPropertyPriority('--duration'),
+				]);
+				expected.push([originals, '3s', 'important']);
+			}
+
+			expect(observations).toEqual(expected);
+		} finally {
+			host.remove();
+		}
+	});
+}
+
+test('restores transform measurement style ownership without erasing unrelated authored updates', () => {
+	const {host, element} = mountStyleOwnershipSvg();
+	try {
+		const plan = calculateTransforms({
+			element,
+			rootElement: host,
+			transformStyleCache: new WeakMap(),
+			isolated: false,
+		});
+		element.style.setProperty('color', 'rgb(1, 2, 3)', 'important');
+		element.style.setProperty('--authored-update', 'kept', 'important');
+		plan[Symbol.dispose]();
+		expect(element.style.getPropertyValue('color')).toBe('rgb(1, 2, 3)');
+		expect(element.style.getPropertyPriority('color')).toBe('important');
+		expect(element.style.getPropertyValue('--authored-update')).toBe('kept');
+		expect(element.style.getPropertyPriority('--authored-update')).toBe(
+			'important',
+		);
+		expect(element.hasAttribute('style')).toBe(true);
+	} finally {
+		host.remove();
+	}
+});
+
+test('preserves following-sibling paint after zero-size SVG transform cleanup', async () => {
+	const fixture = styleAttributeCleanupFixture(false);
+	const frames = await renderFramesOnWeb({
+		composition: fixture,
+		frames: [0, 1],
+		inputProps: {},
+		licenseKey: 'free-license',
+		allowHtmlInCanvas: false,
+	});
+	const differences = [];
+	for (const frame of [0, 1]) {
+		const native = await captureNativeReference(fixture, frame, {
+			omitBackground: false,
+		});
+		const batch = await frames[frame].blob({format: 'png'});
+		const fresh = await (
+			await renderStillOnWeb({
+				composition: fixture,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		const literal = await (
+			await renderStillOnWeb({
+				composition: styleAttributeCleanupFixture(true),
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		differences.push(
+			(await compareNativePixels(native, batch)).mismatchedPixels,
+			(await compareNativePixels(literal, batch)).mismatchedPixels,
+			(await compareNativePixels(fresh, batch)).mismatchedPixels,
+		);
+	}
+
+	expect(differences).toEqual([0, 0, 0, 0, 0, 0]);
 });

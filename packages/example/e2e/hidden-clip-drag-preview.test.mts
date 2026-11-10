@@ -4,6 +4,9 @@ import {expect, test} from '@playwright/test';
 import {EXPANDED_SIDEBAR_STATE, STUDIO_URL, exampleDir} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+// Failures here should surface instead of being retried away.
+test.describe.configure({retries: 0});
+
 test.use({
 	storageState: EXPANDED_SIDEBAR_STATE,
 	viewport: {width: 1920, height: 1200},

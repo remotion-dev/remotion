@@ -69,6 +69,7 @@ export type WebRenderModalState = {
 };
 
 export type ServerRenderRetrySettings = {
+	chromiumOptions: RenderDefaults['chromiumOptions'];
 	jobId: string;
 	outName: string;
 	crf: number | null;

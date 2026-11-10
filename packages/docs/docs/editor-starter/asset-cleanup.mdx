@@ -25,7 +25,7 @@ As mentioned above, you need to ensure that the user is unable to undo the delet
 
 ### Deleting assets from IndexedDB
 
-If you have a `assetId` from an object in the `deletedAssets` array, you can delete it from IndexedDB by calling the [`deleteCachedAsset`](https://github.com/remotion-dev/editor-starter/blob/9fdd35812f8505273edf29f207dd9d021c901491/src/editor/caching/indexeddb.ts#L92) method.
+If you have a `assetId` from an object in the `deletedAssets` array, you can delete it from IndexedDB by calling the [`deleteCachedAsset`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/caching/indexeddb.ts) method.
 
 ### Deleting assets from S3
 
@@ -50,7 +50,7 @@ const command = new sdk.DeleteObjectCommand({
 await client.send(command);
 ```
 
-You only need to clear assets which have an `assetStatus` of `uploaded`.
+You only need to clear assets which have a `statusAtDeletion` of `uploaded`.
 
 ### Removing from the state
 

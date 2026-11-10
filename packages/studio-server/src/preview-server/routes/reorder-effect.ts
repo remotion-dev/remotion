@@ -56,19 +56,21 @@ export const reorderEffectHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
-			if (output === fileContents) {
+			if (fromIndex === toIndex) {
 				return {success: true, nodePathMutation: null};
 			}
 
+			const sourceUnchanged = output === fileContents;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: result.nodePathRemappings}],
 				null,
+				sourceUnchanged,
 			);
 
 			pushToUndoStack({
 				filePath: absolutePath,
 				oldContents: fileContents,
-				newContents: null,
+				newContents: output,
 				logLevel,
 				remotionRoot,
 				logLine,
@@ -77,16 +79,18 @@ export const reorderEffectHandler: ApiHandler<
 					redoMessage: `↪️  Reordering of ${effectLabel}`,
 				},
 				entryType: 'reorder-effect',
-				suppressHmrOnFileRestore: false,
+				suppressHmrOnFileRestore: sourceUnchanged,
 				nodePathRemappings: result.nodePathRemappings,
 			});
-			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers({
-				file: absolutePath,
-				content: output,
-				originatorClientId: clientId,
-				metadata: {skipSequencePropsUpdate: true},
-			});
+			if (!sourceUnchanged) {
+				suppressUndoStackInvalidation(absolutePath);
+				writeFileAndNotifyFileWatchers({
+					file: absolutePath,
+					content: output,
+					originatorClientId: clientId,
+					metadata: {skipSequencePropsUpdate: true},
+				});
+			}
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -103,7 +107,7 @@ export const reorderEffectHandler: ApiHandler<
 
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[reorder-effect] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
+				`[reorder-effect] ${sourceUnchanged ? 'Kept' : 'Wrote'} ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
 			);
 
 			printUndoHint(logLevel);

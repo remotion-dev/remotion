@@ -161,11 +161,11 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`videoBitrate`](#videobitrate) option instead.
 :::
 
-### `bufferSize?`<AvailableFrom v="4.0.78" />
+### `encodingBufferSize?`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
 
-### `maxRate?`<AvailableFrom v="4.0.78" />
+### `encodingMaxRate?`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
 
@@ -349,6 +349,10 @@ const onDownload: RenderMediaOnDownload = (src) => {
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Rendering ProRes - Choosing a ProRes profile](/docs/prores#choosing-a-prores-profile) for possible options.
 
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
 ### `x264Preset?`
 
 _string_
@@ -419,6 +423,18 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 #### `gl?`
 
 <Options id="gl" />
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `chromeMode?`<AvailableFrom v="4.0.248" />
 
