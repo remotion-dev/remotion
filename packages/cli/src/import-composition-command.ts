@@ -14,6 +14,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
 import {Internals} from 'remotion';
 import {applyCompositionImport} from './apply-composition-import';
+import {chalk} from './chalk';
 import {getProjectCompositions} from './get-project-compositions';
 import {importCanvasCapture} from './import-canvas-capture';
 import {Log} from './log';
@@ -218,28 +219,42 @@ export const importCompositionCommand = async ({
 
 	Log.info(
 		{indent: false, logLevel},
-		`Import ${path.basename(file)} as "${compositionId}" (${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`,
+		`Import ${chalk.blue(path.basename(file))} as ${chalk.bold(`"${compositionId}"`)} ${chalk.gray(`(${plan.metadata.width}×${plan.metadata.height}, ${plan.metadata.fps} fps, ${plan.metadata.durationInFrames} frames)`)}`,
 	);
 	for (const change of plan.changes) {
 		Log.info(
 			{indent: false, logLevel},
-			`${change.previousContents === null ? 'Creates' : 'Changes'}  ${path.relative(remotionRoot, change.filePath)}`,
+			chalk.blue(
+				`${change.previousContents === null ? '+' : '○'} ${path.relative(remotionRoot, change.filePath)}`,
+			),
 		);
 	}
 
 	for (const copy of plan.copies) {
 		Log.info(
 			{indent: false, logLevel},
-			`Copies   ${path.relative(remotionRoot, copy.destination)}`,
+			chalk.blue(`+ ${path.relative(remotionRoot, copy.destination)}`),
 		);
 	}
 
-	Log.info(
-		{indent: false, logLevel},
-		`Packages ${plan.dependencies.length === 0 ? 'No packages' : plan.dependencies.join(', ')}`,
+	const installedPackages = new Set(
+		Object.values(
+			StudioServerInternals.getInstalledDependencies(remotionRoot),
+		).flat(),
 	);
+	for (const dependency of plan.dependencies) {
+		const installed = installedPackages.has(dependency);
+		Log.info(
+			{indent: false, logLevel},
+			`${installed ? '○' : '+'} ${dependency} ${chalk.gray(installed ? '(already installed)' : '(will install)')}`,
+		);
+	}
+
 	if (commandLine['dry-run']) {
-		Log.info({indent: false, logLevel}, 'Dry run. No files were changed.');
+		Log.info(
+			{indent: false, logLevel},
+			chalk.gray('Dry run. No files were changed.'),
+		);
 		return;
 	}
 
@@ -255,7 +270,10 @@ export const importCompositionCommand = async ({
 			defaultValue: false,
 		});
 		if (!confirmed) {
-			Log.info({indent: false, logLevel}, 'Cancelled. No files were changed.');
+			Log.info(
+				{indent: false, logLevel},
+				chalk.gray('Cancelled. No files were changed.'),
+			);
 			return;
 		}
 	}
@@ -268,6 +286,6 @@ export const importCompositionCommand = async ({
 	});
 	Log.info(
 		{indent: false, logLevel},
-		`Imported composition "${compositionId}".`,
+		chalk.green(`Imported composition "${compositionId}".`),
 	);
 };
