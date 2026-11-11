@@ -1,5 +1,5 @@
 export type QueryResult = {
-  cursor: string;
+  cursor: string | null;
   results: Stargazer[];
 };
 

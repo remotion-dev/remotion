@@ -126,18 +126,41 @@ An object with the following properties:
 
 An array of `TikTokPage` objects.
 
+If a [`Caption`](/docs/captions/caption) has `pageBreakAfter: true`, the current page ends after the corresponding token and the next caption starts a new page. The token preserves the marker, while the page's `text` does not include a trailing newline.
+
 A page consists of:
 
-- `text`: The text of the page.
-- `startMs`: The start time of the page in milliseconds.
-- `durationMs`: The duration of the page in milliseconds (_from v4.0.261_).
-- `tokens`: An array of objects, if you want to animate word-per-word:
-  - `text`: The text of the token.
-  - `fromMs`: The absolute start time of the token in milliseconds.
-  - `toMs`: The absolute end time of the token in milliseconds.
-  - `pageBreakAfter`: Whether the source caption forced the page to end after this token (_from v4.0.517_).
+#### `text`
 
-If a [`Caption`](/docs/captions/caption) has `pageBreakAfter: true`, the current page ends after the corresponding token and the next caption starts a new page. The token preserves the marker, while the page's `text` does not include a trailing newline.
+The text of the page.
+
+#### `startMs`
+
+The start time of the page in milliseconds.
+
+#### `durationMs`<AvailableFrom v="4.0.261" />
+
+The duration of the page in milliseconds.
+
+#### `tokens`
+
+An array of objects, if you want to animate word-per-word:
+
+##### `text`
+
+The text of the token.
+
+##### `fromMs`
+
+The absolute start time of the token in milliseconds.
+
+##### `toMs`
+
+The absolute end time of the token in milliseconds.
+
+##### `pageBreakAfter?`<AvailableFrom v="4.0.517" />
+
+Whether the source caption forced the page to end after this token.
 
 ## Whitespace sensitivity
 

@@ -77,10 +77,29 @@ Callback from Webpack when the bundling has progressed. Passes a number between 
 
 Callback function that gets called when uploading of the assets has progressed. Passes an object with the following properties to the callback:
 
-- `totalFiles` (_number_): Total number of files in the bundle.
-- `filesUploaded` (_number_): Number of files that have been fully uploaded so far.
-- `totalSize` (_number_): Total size in bytes of all the files in the bundle.
-- `sizeUploaded` (_number_): Amount of bytes uploaded so far.
+##### `totalFiles`
+
+_number_
+
+Total number of files in the bundle.
+
+##### `filesUploaded`
+
+_number_
+
+Number of files that have been fully uploaded so far.
+
+##### `totalSize`
+
+_number_
+
+Total size in bytes of all the files in the bundle.
+
+##### `sizeUploaded`
+
+_number_
+
+Amount of bytes uploaded so far.
 
 #### `webpackOverride?`
 
@@ -107,12 +126,12 @@ Passes a custom Rspack override. See [`bundle()` → `rspackOverride`](/docs/bun
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
 :::note
-The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where [`bundle()`](/docs/bundle) gets called.
 :::
 
 #### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.55" />
 
-Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+Ignore an error that gets thrown if you pass an entry point file which does not contain [`registerRoot()`](/docs/register-root).
 
 #### `keyboardShortcutsEnabled?`<AvailableFrom v="4.0.407"/>
 
@@ -142,19 +161,48 @@ Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, yo
 
 An object with the following values:
 
-- `serveUrl` _(string)_: An URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+### `serveUrl`
 
-  You can use this "Serve URL" to render a video on Remotion Lambda using:
-  - The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
-  - The [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
-  - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
-  - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+_string_
 
-  If you are rendering on Lambda, you can also pass the site name (in this case `abcdef`) as an abbreviation.
+An URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
 
-- `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+You can use this "Serve URL" to render a video on Remotion Lambda using:
 
-- `stats`<AvailableFrom v="3.3.7" inline />: An object with 3 entries: `uploadedFiles`, `deletedFiles` and `untouchedFiles`. Each one is a `number`.
+- The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
+- The [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
+- Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
+- Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+
+If you are rendering on Lambda, you can also pass the site name (in this case `abcdef`) as an abbreviation.
+
+### `siteName`
+
+_string_
+
+The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+### `stats`<AvailableFrom v="3.3.7" />
+
+An object with 3 entries:
+
+#### `uploadedFiles`
+
+_number_
+
+The number of files that were uploaded.
+
+#### `deletedFiles`
+
+_number_
+
+The number of files that were deleted.
+
+#### `untouchedFiles`
+
+_number_
+
+The number of files that already existed and were left untouched.
 
 ## Changelog
 
@@ -169,5 +217,5 @@ From `v3.3.7`, this function is incremental: It only compares the contents of th
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
 - [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
 - [CLI equivalent: `npx remotion lambda sites create`](/docs/lambda/cli/sites/create)
-- [getSites()](/docs/lambda/getsites)
-- [deleteSite()](/docs/lambda/deletesite)
+- [`getSites()`](/docs/lambda/getsites)
+- [`deleteSite()`](/docs/lambda/deletesite)

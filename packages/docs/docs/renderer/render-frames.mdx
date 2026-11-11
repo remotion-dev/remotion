@@ -9,7 +9,7 @@ _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
-If you want to render only a still image, use [renderStill()](/docs/renderer/render-still).
+If you want to render only a still image, use [`renderStill()`](/docs/renderer/render-still).
 
 :::info
 In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
@@ -198,12 +198,29 @@ Since <AvailableFrom v="4.0.540" inline />, uncaught exceptions and unhandled pr
 
 A browser log has three properties:
 
-- `text`: The message being printed
-- `stackTrace`: The available stack or source location, with the following properties:
-  - `url`: URL of the resource that logged.
-  - `lineNumber`: 0-based line number in the file where the log got called.
-  - `columnNumber`: 0-based column number in the file where the log got called.
-- `type`: The console method or browser diagnostic severity - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
+#### `text`
+
+The message being printed.
+
+#### `stackTrace`
+
+The available stack or source location, as an array of objects with the following properties:
+
+##### `url?`
+
+URL of the resource that logged.
+
+##### `lineNumber?`
+
+0-based line number in the file where the log got called.
+
+##### `columnNumber?`
+
+0-based column number in the file where the log got called.
+
+#### `type`
+
+The console method or browser diagnostic severity - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`.
 
 ```tsx twoslash
 interface ConsoleMessageLocation {
@@ -396,8 +413,13 @@ An absolute path overriding the `ffprobe` executable to use.
 
 A promise resolving to an object containing the following properties:
 
-- `frameCount`: `number` - describing how many frames got rendered.
-- `assetsInfo`: `RenderAssetInfo` - information that can be passed to `stitchFramesToVideo()` to mix audio. The shape of this object should be considered as Remotion internals and may change across Remotion versions.
+### `frameCount`
+
+`number` - describing how many frames got rendered.
+
+### `assetsInfo`
+
+`RenderAssetInfo` - information that can be passed to `stitchFramesToVideo()` to mix audio. The shape of this object should be considered as Remotion internals and may change across Remotion versions.
 
 ## Compatibility
 

@@ -70,7 +70,7 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 One of:
 
 - `"public"`: The rendered still is publicly accessible under the S3 URL.
-- `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"private"`: The rendered still is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
 - `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame?`
@@ -88,12 +88,6 @@ See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 ### `onInit?`<AvailableFrom v="4.0.6" />
 
 A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
-
-It receives an object with the following properties:
-
-- `renderId`: The ID of the render.
-- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
-- `lambdaInsightsUrl`<AvailableFrom v="4.0.61" />: A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
 
 Example usage:
 
@@ -124,6 +118,20 @@ await renderStillOnLambda({
   },
 });
 ```
+
+It receives an object with the following properties:
+
+#### `renderId`
+
+The ID of the render.
+
+#### `cloudWatchLogs`
+
+A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+
+#### `lambdaInsightsUrl`<AvailableFrom v="4.0.61" />
+
+A link to the [Lambda insights](/docs/lambda/insights), if you enabled it.
 
 ### `jpegQuality?`
 
@@ -326,5 +334,5 @@ For serverless functions, use the [light client](/docs/lambda/light-client).
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/render-still-on-lambda.ts)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
-- [renderStill()](/docs/renderer/render-still)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`renderStill()`](/docs/renderer/render-still)

@@ -86,7 +86,7 @@ export const RemotionMediaVideoTexture: React.FC = () => {
 ### Notes
 
 - By using the [`headless`](/docs/media/video#headless) prop, nothing will be returned by the `<Video>` tag, so it can be mounted within a [`<ThreeCanvas>`](/docs/three-canvas) without affecting the rendering.
-- During rendering, [`<ThreeCanvas>`](/docs/three-canvas) sets `frameloop='never'`, which means the scene is only re-rendered on demand. Use `advance()` inside `onVideoFrame` to synchronously re-render the scene before the screenshot is taken. Using `invalidate()` would only schedule an asynchronous re-render, which can lead to stale frames — especially with concurrency greater than 1.
+- During rendering, [`<ThreeCanvas>`](/docs/three-canvas) sets `frameloop='never'`, which means the scene is only re-rendered on demand. Use `advance()` inside [`onVideoFrame`](/docs/media/video#onvideoframe) to synchronously re-render the scene before the screenshot is taken. Using `invalidate()` would only schedule an asynchronous re-render, which can lead to stale frames — especially with concurrency greater than 1.
 - During preview, `invalidate()` is sufficient because the frame loop runs continuously.
 
 ## Examples

@@ -2,13 +2,11 @@ on:
   workflow_dispatch:
     inputs:
       repoOrg:
-        description: "Repo Org"
+        description: "Owner of the repository your token can access"
         required: true
-        default: "pomber"
       repoName:
-        description: "Repo Name"
+        description: "Repository whose stargazers you want to render"
         required: true
-        default: "didact"
       starCount:
         description: "Star Count"
         required: true
@@ -23,6 +21,14 @@ jobs:
     name: Render video
     runs-on: ubuntu-latest
     steps:
+      - name: Check GitHub authentication
+        env:
+          REMOTION_GITHUB_TOKEN: ${{ secrets.REMOTION_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$REMOTION_GITHUB_TOKEN" ]; then
+            echo "::error::Add a repository Actions secret named REMOTION_GITHUB_TOKEN containing a token with access to the repository whose stargazers you want to render. Your account must be an admin or collaborator of that repository. See the Authentication section in README.md."
+            exit 1
+          fi
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup node
@@ -43,7 +49,7 @@ jobs:
       - name: Render video
         run: npx remotion render --props="./input-props.json"
         env:
-          REMOTION_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOTION_GITHUB_TOKEN: ${{ secrets.REMOTION_GITHUB_TOKEN }}
       - name: Upload video
         uses: actions/upload-artifact@v4
         with:
