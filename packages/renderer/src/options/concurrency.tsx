@@ -36,9 +36,12 @@ export const concurrencyOption = {
 	cliFlag,
 	description: () => (
 		<>
-			How many CPU threads to use. Minimum 1. The maximum is the amount of
-			threads you have (In Node.JS <code>os.cpus().length</code>). You can also
-			provide a percentage value (e.g. <code>50%</code>).
+			How many browser tabs should render frames in parallel. Minimum 1. The
+			maximum is the amount of CPU threads you have (In Node.JS{' '}
+			<code>os.cpus().length</code>). You can also provide a percentage value
+			(e.g. <code>50%</code>). See{' '}
+			<a href="/docs/terminology/concurrency">Concurrency</a> for how this
+			differs on Lambda.
 		</>
 	),
 	ssrName: 'concurrency' as const,

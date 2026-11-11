@@ -33,12 +33,12 @@ for (const site of sites) {
 for (const bucket of buckets) {
   console.log(bucket.region); // 'eu-central-1'
   console.log(bucket.name); // The name of the S3 bucket.
-  console.log(bucket.creationDate); // A unix timestamp of when the site was created.
+  console.log(bucket.creationDate); // A unix timestamp of when the bucket was created.
 }
 ```
 
 :::note
-Preferably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
+Preferably import this function from `@remotion/lambda/client` (available from <AvailableFrom v="3.3.42" inline />) to avoid problems [inside serverless functions](/docs/lambda/light-client).
 :::
 
 ## Arguments

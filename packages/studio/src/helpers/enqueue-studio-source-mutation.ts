@@ -10,6 +10,10 @@ import {
 	clearPendingSequenceSplits,
 	supersedePendingSequenceSplits,
 } from '../components/Timeline/pending-sequence-splits';
+import {
+	getSequencePropsForEffectEdit,
+	receiveSequencePropsFromEffectEdit,
+} from '../components/Timeline/sequence-props-subscription-store';
 import {invalidateDuplicatedElementSelection} from './duplicated-element-selection';
 import {
 	captureExternalSourceRevision,
@@ -31,7 +35,10 @@ import {
 	queueSequenceNodePathMutationFromApiResponse,
 	subscribeToSequenceNodePathMutations,
 } from './sequence-node-path-mutations';
-import {enqueueSourceMutation} from './source-mutation-queue';
+import {
+	cancelActiveSourceMutation,
+	enqueueSourceMutation,
+} from './source-mutation-queue';
 
 export const enqueueStudioSourceMutation = <T>(
 	endpoint: keyof ApiRoutes,
@@ -97,10 +104,31 @@ export const enqueueStudioSourceMutation = <T>(
 				}
 
 				Internals.OptimisticEffects.startSourceMutation(operation.revision);
-				const result = await run(
-					effectMutation?.resolve(rebasedBody) ?? rebasedBody,
-					sourceGuard,
-				);
+				let resolvedBody = effectMutation?.resolve(rebasedBody) ?? rebasedBody;
+				if (
+					[
+						'/api/add-effect',
+						'/api/delete-effect',
+						'/api/duplicate-effect',
+						'/api/reorder-effect',
+						'/api/undo',
+						'/api/redo',
+					].includes(endpoint)
+				) {
+					const sequenceProps = getSequencePropsForEffectEdit(
+						effectMutation?.getEffectMetadata() ?? [],
+					);
+					if (sequenceProps.length > 0) {
+						resolvedBody = Array.isArray(resolvedBody)
+							? resolvedBody.map((item, index) =>
+									index === 0 ? {...item, sequenceProps} : item,
+								)
+							: {...(resolvedBody as object), sequenceProps};
+					}
+				}
+
+				if (rebaseError !== null) throw rebaseError;
+				const result = await run(resolvedBody, sourceGuard);
 				if (rebaseError !== null) throw rebaseError;
 				queueSequenceNodePathMutationFromApiResponse(result);
 				const ownMutation =
@@ -110,6 +138,20 @@ export const enqueueStudioSourceMutation = <T>(
 					result.nodePathMutation
 						? (result.nodePathMutation as SequenceNodePathMutation)
 						: null;
+				if (
+					ownMutation &&
+					typeof result === 'object' &&
+					result !== null &&
+					'sequenceProps' in result
+				) {
+					receiveSequencePropsFromEffectEdit(
+						ownMutation.mutationId,
+						result.sequenceProps as Parameters<
+							typeof receiveSequencePropsFromEffectEdit
+						>[1],
+					);
+				}
+
 				markSourceRequestPaths(
 					result,
 					ownMutation ? [...mutations, ownMutation] : mutations,
@@ -208,6 +250,8 @@ export const enqueueStudioSourceMutation = <T>(
 					(file) => {
 						if (!files.has(file)) return;
 						rebaseError = new Error(sourceEditCancelledMessage);
+						if (sourceGuard !== null)
+							cancelActiveSourceMutation(operation.revision);
 						effectMutation?.rollback();
 						Internals.OptimisticSequenceDeletion.rollbackRevision(
 							operation.revision,

@@ -61,6 +61,30 @@ await saveDefaultProps({
 });
 ```
 
+## Arguments
+
+Takes an object with the following properties:
+
+### `compositionId`
+
+The ID of the [composition](/docs/terminology/composition) whose default props should be saved.
+
+### `defaultProps`
+
+A function that returns the new default props. It receives an object with the following properties:
+
+#### `savedDefaultProps`
+
+The composition's current default props.
+
+#### `schema`
+
+The composition's Zod schema, or `null` if the composition has none.
+
+#### `unsavedDefaultProps`
+
+The same value as `savedDefaultProps`. Kept for backwards compatibility.
+
 ## `unsavedDefaultProps`
 
 :::info

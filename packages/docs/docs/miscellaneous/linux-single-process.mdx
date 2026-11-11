@@ -6,11 +6,11 @@ crumb: 'Server-side rendering'
 ---
 
 :::info
-This document is outdated. As of 4.0.137, the default behavior is to use multi-process mode.  
+This document is outdated. As of <AvailableFrom v="4.0.137" inline />, the default behavior is to use multi-process mode.  
 The setting still exists, but is `true` by default.
 :::
 
-By default, Remotion starts the Chromium browser on Linux with the `--single-process` flag. This is because:
+Before v4.0.137, Remotion started the Chromium browser on Linux with the `--single-process` flag by default. This was because:
 
 - The sandboxing feature of Chromium is not supported on all Linux distributions
 - Older versions of Chromium used to crash when starting headlessly with multiple processes
@@ -18,17 +18,15 @@ By default, Remotion starts the Chromium browser on Linux with the `--single-pro
 
 This can lead to degraded rendering performance, especially when trying to leverage high-core CPUs and high Remotion concurrency.
 
-## Enable multi-process rendering on Linux
-
-_available from v4.0.42_
+## Enable multi-process rendering on Linux<AvailableFrom v="4.0.42" />
 
 Enabled by default. To disable multi-process mode for Chromium during rendering on Linux:
 
 - **renderMedia()** / **openBrowser()** / **renderFrames()**: Use the [`chromiumOptions.enableMultiProcessOnLinux`](/docs/options/enable-multiprocess-on-linux) option.
 - **CLI**: Use the [`--enable-multi-process-on-linux=false`](/docs/options/enable-multiprocess-on-linux) flag.
-- **Config file**: Use the [`Config.setChromiumMultiProcessInLinux()`](/docs/config#setchromiummultiprocessonlinux) option.
+- **Config file**: Use the [`Config.setChromiumMultiProcessOnLinux()`](/docs/config#setchromiummultiprocessonlinux) option.
 - **Remotion Studio**: Check the toggle in the advanced settings.
-- **Cloud Run**: From v4.0.42, this option is automatically enabled.
+- **Cloud Run**: From <AvailableFrom v="4.0.42" inline />, this option is automatically enabled.
 - **Lambda**: This option is disabled with no option to enable it because on Amazon Linux, Chrome will crash if the `--single-process` flag is not used. We recommend using more Lambdas instead of more concurrency per Lambda.
 
 ## Should I enable multi-process mode?

@@ -19,13 +19,13 @@ const upload = async (file: File) => {
 import {Video} from '@remotion/media';
 
 type VideoProps = {
-  videoURL: string;
+  videoUrl: string;
 };
 
-export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
+export const MyComponent: React.FC<VideoProps> = ({videoUrl}) => {
   return (
     <>
-      <Video src={videoURL} />
+      <Video src={videoUrl} />
     </>
   );
 };

@@ -4,10 +4,10 @@ title: downloadWhisperModel()
 crumb: '@remotion/whisper-web'
 ---
 
-# downloadWhisperModel()
+# ~~downloadWhisperModel()~~
 
-:::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) from [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) instead.
 :::
 
 Downloads a Whisper model into IndexedDB.
@@ -29,7 +29,7 @@ const {alreadyDownloaded} = await downloadWhisperModel({
 
 The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`.
 
-### `onProgress?`
+### `onProgress`
 
 Act upon download progress. This is the function signature:
 

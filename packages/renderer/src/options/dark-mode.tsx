@@ -13,7 +13,7 @@ export const darkModeOption = {
 	description: () => (
 		<>
 			Whether Chromium should pretend to be in dark mode by emulating the media
-			feature 'prefers-color-scheme: dark'. Default is{' '}
+			feature <code>prefers-color-scheme: dark</code>. Default is{' '}
 			<code>{String(DEFAULT_VALUE)}</code>.
 		</>
 	),

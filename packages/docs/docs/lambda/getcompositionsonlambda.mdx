@@ -69,23 +69,23 @@ A number describing how long the function may take in milliseconds to evaluate t
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-#### `disableWebSecurity`
+#### `disableWebSecurity?`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-#### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `gl`
+#### `gl?`
 
 <Options id="gl" />
 
-#### `userAgent`<AvailableFrom v="3.3.83"/>
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
@@ -113,7 +113,7 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 <Options id="log" />
 
-Logs can be read through the CloudWatch URL that this function returns.
+Logs of the Lambda function can be read in CloudWatch.
 
 ### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
 
@@ -126,10 +126,6 @@ Logs can be read through the CloudWatch URL that this function returns.
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
-
-### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
-
-<Options id="offthreadvideo-video-threads" />
 
 ### ~~`dumpBrowserLogs?`~~
 
@@ -164,11 +160,13 @@ Returns a promise that resolves to an array of available compositions. Example v
 ];
 ```
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/get-compositions-on-lambda.ts)
-- [getCompositions()](/docs/renderer/get-compositions)
-
 ## Compatibility
 
 <CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering player="" studio="" hideBrowsers />
 
 For serverless functions, use the [light client](/docs/lambda/light-client).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/get-compositions-on-lambda.ts)
+- [getCompositions()](/docs/renderer/get-compositions)

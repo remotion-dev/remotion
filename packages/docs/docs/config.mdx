@@ -558,9 +558,8 @@ The [`--disable-web-security`](/docs/options/disable-web-security) flag takes pr
 
 <Options id="dark-mode" />
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
 Config.setChromiumDarkMode(true);
 ```
@@ -600,18 +599,16 @@ import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
-Config.setChromiumMultiProcessOnLinux(true);
+Config.setChromiumMultiProcessOnLinux(false);
 ```
 
 ## `setChromeMode()`<AvailableFrom v="4.0.248" />
 
 <Options id="chrome-mode" cli />
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
-
 Config.setChromeMode('chrome-for-testing');
 ```
 
@@ -964,7 +961,7 @@ Choose one of the supported codecs:
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
 - `av1` is the successor of VP9 and achieves lower file size, with longer compression time.
-- `prores` is a common codec if you want to import the output into another video editing program _(available from v2.1.6)_
+- `prores` is a common codec if you want to import the output into another video editing program <AvailableFrom v="2.1.6" inline />
 - `mp3` will export audio only as an MP3 file _(available from v2.0)_
 - `wav` will export audio only as an WAV file _(available from v2.0)_
 - `aac` will export audio only as an AAC file _(available from v2.0)_
@@ -1596,7 +1593,7 @@ Config.overrideWebpackConfig(async (currentConfiguration) => {
 
 ## Old config file format
 
-In v3.3.39, a new config file format was introduced which flattens the options so they can more easily be discovered using TypeScript autocompletion.
+In <AvailableFrom v="3.3.39" inline />, a new config file format was introduced which flattens the options so they can be discovered using TypeScript autocompletion.
 
 Previously, each config option was two levels deep:
 
@@ -1604,7 +1601,7 @@ Previously, each config option was two levels deep:
 Config.Bundling.setCachingEnabled(false);
 ```
 
-From v3.3.39 on, all options can be accessed directly from the `Config` object.
+From <AvailableFrom v="3.3.39" inline /> on, all options can be accessed directly from the `Config` object.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';

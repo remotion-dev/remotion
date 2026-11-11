@@ -37,15 +37,13 @@ const {captions} = elevenLabsTranscriptToCaptions({transcript});
 
 ## API
 
-### Arguments
-
 An object with the following property:
 
-#### `transcript`
+### `transcript`
 
 Pass the parsed JSON object in either of the following formats. The function converts it locally without calling the ElevenLabs API.
 
-##### Speech-to-Text API response
+#### Speech-to-Text API response
 
 The response must include a `words` array. Set `timestamps_granularity` to `"word"` when calling the API, as shown in the [example above](#example).
 
@@ -62,7 +60,7 @@ Each `"word"` entry becomes one caption. `start` and `end` are measured in secon
 
 Entries with `type: "audio_event"` are skipped. Entries with `type: "spacing"` do not produce captions, but their start times are used as the start times of the following words.
 
-##### JSON export<AvailableFrom v="4.0.530" />
+#### JSON export<AvailableFrom v="4.0.530" />
 
 You can also pass a JSON transcript exported from ElevenLabs. It must contain a `language_code` field (which can be `null`) and a `segments` array:
 
@@ -100,15 +98,15 @@ Each segment becomes one caption unless it contains a non-empty `words` array. I
 
 All `start_time` and `end_time` values are measured in seconds from the start of the audio, not from the start of the segment.
 
-##### Invalid input
+#### Invalid input
 
 The function throws an error if required fields are missing or invalid, timestamps are negative, or an end time is earlier than its start time.
 
-### Return value
+## Return value
 
 An object with the following property:
 
-#### `captions`
+### `captions`
 
 An array of [`Caption`](/docs/captions/caption) objects.
 

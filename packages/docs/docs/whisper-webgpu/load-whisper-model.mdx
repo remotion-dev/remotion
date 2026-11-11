@@ -29,7 +29,29 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 ### onProgress?
 
-Called while the cached model is initialized. `progress` is `null` during initialization and `1` when ready. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) for download progress.
+Called while the cached model is initialized. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) for download progress.
+
+The callback receives an object with the following properties:
+
+#### status
+
+`'initializing'` while the model is initialized, `'ready'` when it is ready.
+
+#### file
+
+Always `null`.
+
+#### progress
+
+`null` during initialization, `1` when ready.
+
+#### loadedBytes
+
+Always `null`.
+
+#### totalBytes
+
+Always `null`.
 
 ### signal?<AvailableFrom v="4.0.528" />
 
