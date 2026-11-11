@@ -127,6 +127,7 @@ export const svgCssDataCarrierModes = [
 	'malformed-comment',
 	'malformed-final-comment',
 	'local-order',
+	'authored-root',
 	'cache',
 	'media-empty',
 	'media-all',
@@ -165,6 +166,10 @@ const DataCarrier = ({
 					: undefined;
 	const localOrder = mode === 'local-order';
 	const finalComment = mode === 'malformed-final-comment';
+	const fontSelector =
+		mode === 'authored-root' && !literal
+			? '.css-data-carrier-root:not([style]) .css-data-carrier-font'
+			: '.css-data-carrier-font';
 	const firstFace = `@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[0]}") format("woff2")}`;
 	const laterFace = `@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[1]}") format("truetype")}`;
 	const localFaces = localOrder
@@ -177,8 +182,8 @@ const DataCarrier = ({
 		mode === 'malformed-comment' || (finalComment && !literal) ? '/*' : '';
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<style>{`${localOrder ? '' : firstFace} .css-data-carrier-font{font-family:${JSON.stringify(carrierFamily)};font-size:${36 + frame * 2}px}`}</style>
-			<svg width={600} height={180}>
+			<style>{`${localOrder ? '' : firstFace} .css-data-carrier-font{font-size:${36 + frame * 2}px} ${fontSelector}{font-family:${JSON.stringify(carrierFamily)}}`}</style>
+			<svg className="css-data-carrier-root" width={600} height={180}>
 				<style
 					media={media}
 				>{`${localFaces}rect{fill:red}${marker}{fill:blue}style[media] ~ .media-marker{fill:blue}${comment}`}</style>

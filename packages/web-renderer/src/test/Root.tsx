@@ -201,7 +201,10 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
-import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
+import {
+	svgExternalFontSelection,
+	svgExternalStyleSelectors,
+} from './fixtures/svg-external-font-selection';
 import {
 	svgFilterReference,
 	svgFilterExpandedReference,
@@ -330,6 +333,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			<Composition {...svgCssDataFont} />
 			{svgCssDataCarrierModes.flatMap((mode) =>
 				[false, true].map((literal) => {

@@ -3,6 +3,7 @@ import {
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {parseFontFamilies} from './parse-font-families';
+import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -103,8 +104,7 @@ const drawableBySvg = new WeakMap<
 	}
 >();
 
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const textElements = Array.from(
 		svg.querySelectorAll('text, tspan, textPath'),
 	);
@@ -126,7 +126,39 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	// Discovery includes explicit templates without freezing their inheritance.
+	const fontFamilies = new Set(
+		textElements.flatMap((element) =>
+			parseFontFamilies(getComputedStyle(element).fontFamily),
+		),
+	);
+	const cssFontRules = textElements.length
+		? getCssDataFontRules(svg, fontFamilies)
+		: '';
+	const authoredStyles =
+		textStyles.some((style) => style !== null) &&
+		Array.from(svg.querySelectorAll('style')).some((style) =>
+			style.textContent?.includes('['),
+		)
+			? [svg, ...svg.querySelectorAll('*')].map((element) =>
+					element.getAttribute('style'),
+				)
+			: null;
+	return {
+		textStyles,
+		authoredStyles,
+		cssFontRules,
+		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+	};
+};
+
+export const turnSvgIntoDrawable = (
+	svg: SVGSVGElement,
+	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
+) => {
+	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
+		fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -216,15 +248,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
-	// Discovery includes explicit templates without freezing their inheritance.
-	const fontFamilies = new Set(
-		textElements.flatMap((element) =>
-			parseFontFamilies(getComputedStyle(element).fontFamily),
-		),
-	);
-	const cssFontRules = textElements.length
-		? getCssDataFontRules(svg, fontFamilies)
-		: '';
+
 	// Script-added faces follow CSS-connected faces in FontFaceSet order.
 	const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
 	if (fontCss && styles[fontStyleIndex]?.matches(':empty')) {
@@ -269,9 +293,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
 				'/* Empty stylesheet rules. */';
 		}
-
-		insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
 	}
+
+	if (authoredStyles)
+		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+	if (fontCss)
+		insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
 
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
