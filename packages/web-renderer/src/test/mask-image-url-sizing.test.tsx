@@ -534,24 +534,27 @@ for (const {math, literal, transparent} of [
 		for (const scale of [1, 2]) {
 			test(`resolves CSS math mask sizes ${math.id} frame ${frame} at scale ${scale}`, async () => {
 				await page.viewport(1280, 720);
-				const rendered: Blob[] = [];
-				for (const composition of [math, literal]) {
-					const result = await renderStillOnWeb({
-						composition,
-						frame,
-						scale,
-						inputProps: {},
-						licenseKey: 'free-license',
-						allowHtmlInCanvas: false,
-					});
-					const canvas = await result.canvas();
-					try {
-						rendered.push(await result.blob({format: 'png'}));
-					} finally {
-						canvas.width = 0;
-						canvas.height = 0;
-					}
-				}
+				// Render calls already queue internally. Let the first PNG encode
+				// overlap the second render instead of serializing both operations.
+				const rendered = await Promise.all(
+					[math, literal].map(async (composition) => {
+						const result = await renderStillOnWeb({
+							composition,
+							frame,
+							scale,
+							inputProps: {},
+							licenseKey: 'free-license',
+							allowHtmlInCanvas: false,
+						});
+						const canvas = await result.canvas();
+						try {
+							return await result.blob({format: 'png'});
+						} finally {
+							canvas.width = 0;
+							canvas.height = 0;
+						}
+					}),
+				);
 
 				expect(
 					(await countNativePixels(rendered[0], rendered[1])).mismatchedPixels,
