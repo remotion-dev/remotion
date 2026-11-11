@@ -197,6 +197,10 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {
+	svgEmptyPredicate,
+	svgEmptyPredicates,
+} from './fixtures/svg-empty-predicate';
+import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
@@ -353,6 +357,12 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={`empty-predicate-${predicate}`}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
 			{svgPreferredFontModes.map((mode) => (
 				<Composition
 					key={`preferred-font-${mode}`}
