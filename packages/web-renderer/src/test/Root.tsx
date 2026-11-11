@@ -233,6 +233,10 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {
+	svgLocalFontOrder,
+	svgLocalFontOrderModes,
+} from './fixtures/svg-local-font-order';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {
@@ -350,6 +354,12 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgLocalFontOrderModes.map((mode) => (
+				<Composition
+					key={`local-font-${mode}`}
+					{...svgLocalFontOrder({literal: false, mode, fallback: false})}
+				/>
+			))}
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition

@@ -149,11 +149,13 @@ const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
-			// Keep only one self-contained source, without local/network fallbacks.
+			// External discovery accepts one self-contained source. Retain local
+			// faces in order even when their sources are outside that subset.
 			if (
 				!/^url\((?:"data:[^"]*"|'data:[^']*'|data:[^)]*)\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.test(
 					src,
-				)
+				) &&
+				!retainedLocalSheet
 			)
 				continue;
 			rules.push(rule.cssText);
