@@ -6869,7 +6869,7 @@ export const articles = [
 	},
 	{
 		id: 'motion-blur/common-mistake',
-		title: 'Common mistake with <MotionBlur> and <Trail>',
+		title: 'Common mistake with <CameraMotionBlur> and <Trail>',
 		relativePath: 'docs/motion-blur/common-mistake.mdx',
 		compId: 'articles-docs-motion-blur-common-mistake',
 		crumb: null,
