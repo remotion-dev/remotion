@@ -1,3 +1,4 @@
+// Temporary: exercise the web renderer flake test job.
 import {expect, test} from 'vitest';
 import {getCanvasFontStretch} from '../drawing/text/get-canvas-font-stretch';
 
