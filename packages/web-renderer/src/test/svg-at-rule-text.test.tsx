@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest';
+import {server} from 'vitest/browser';
 import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
@@ -35,6 +36,26 @@ test.for(
 		const expected = await (
 			await renderStillOnWeb({...options, composition: literal})
 		).blob({format: 'png'});
+		if (mode.startsWith('url-')) {
+			const result = await compareNativePixels(native, actual);
+			for (const [name, blob] of [
+				['native', native],
+				['literal', nativeLiteral],
+				['actual', actual],
+				['expected', expected],
+				['diff', result.diff],
+			] as const) {
+				let binary = '';
+				for (const byte of new Uint8Array(await blob.arrayBuffer()))
+					binary += String.fromCharCode(byte);
+				await server.commands.writeFile(
+					`validation/svg-url-token/${server.browser}/${mode}-${positive}-${frame}-${name}.png`,
+					btoa(binary),
+					'base64',
+				);
+			}
+		}
+
 		expect((await compareNativePixels(expected, actual)).mismatchedPixels).toBe(
 			0,
 		);
