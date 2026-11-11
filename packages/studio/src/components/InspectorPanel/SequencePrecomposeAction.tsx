@@ -78,15 +78,16 @@ export const SequencePrecomposeAction: React.FC<{
 			displayName,
 			line,
 		}));
-		const openRefactorModal = () => {
+		const openRefactorModal = (failureReason: string | null) => {
 			setSelectedModal({
 				type: 'precompose-refactor',
 				targets: modalTargets,
+				failureReason,
 			});
 		};
 
 		if (compositionFile === null || compositionId === null) {
-			openRefactorModal();
+			openRefactorModal(null);
 			return;
 		}
 
@@ -112,12 +113,12 @@ export const SequencePrecomposeAction: React.FC<{
 			new Set(nodes.map((node) => JSON.stringify(node))).size === nodes.length;
 
 		if (!uniqueSourceNodes) {
-			openRefactorModal();
+			openRefactorModal(null);
 			return;
 		}
 
 		if (nodes.some((node) => node.fileName !== nodes[0].fileName)) {
-			openRefactorModal();
+			openRefactorModal(null);
 			return;
 		}
 
@@ -130,7 +131,7 @@ export const SequencePrecomposeAction: React.FC<{
 				}
 
 				if (!result.canPrecompose || result.newCompositionId === null) {
-					openRefactorModal();
+					openRefactorModal(result.reason);
 					return;
 				}
 

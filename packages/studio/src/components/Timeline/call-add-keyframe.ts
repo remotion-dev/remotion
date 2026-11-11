@@ -50,7 +50,7 @@ const addEffectKeyframe = (request: AddEffectKeyframeRequest) => {
 		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
-const addKeyframes = (request: AddKeyframesRequest) => {
+export const addKeyframes = (request: AddKeyframesRequest) => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (!browserStudioOperations) {
 		return callApi('/api/add-keyframes', request);
@@ -195,6 +195,7 @@ export const callAddKeyframes = ({
 	return addKeyframes(
 		attachOptimisticEffectPropHistory(
 			{
+				paste: null,
 				sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 					fileName: keyframe.fileName,
 					nodePath: keyframe.nodePath,

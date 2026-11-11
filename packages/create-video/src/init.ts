@@ -350,9 +350,9 @@ export const init = async () => {
 		'Adopting Remotion in your company? Visit ' +
 			chalk.blue(
 				makeHyperlink({
-					text: 'remotion.pro/license',
-					url: 'https://remotion.pro/license',
-					fallback: 'https://www.remotion.pro/license',
+					text: 'remotion.dev/docs/license/pricing',
+					url: 'https://www.remotion.dev/docs/license/pricing',
+					fallback: 'https://www.remotion.dev/docs/license/pricing',
 				}),
 			),
 	);

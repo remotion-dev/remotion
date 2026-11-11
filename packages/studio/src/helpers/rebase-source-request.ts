@@ -34,6 +34,8 @@ const envelopes = new Set([
 	'captionTarget',
 	'results',
 	'insertedEffect',
+	'paste',
+	'timingGuards',
 ]);
 
 // Only visit transport locations. Props, schemas, captions and effect configs

@@ -162,7 +162,8 @@ export type FindInFileRequest = {
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-	search: string;
+	search: string | null;
+	effectIndex: number | null;
 };
 
 export type FindInFileResponse = {
@@ -895,12 +896,29 @@ export type AddEffectKeyframe = Omit<AddEffectKeyframeRequest, 'clientId'>;
 export type AddKeyframesRequest = {
 	sequenceKeyframes: AddSequenceKeyframe[];
 	effectKeyframes: AddEffectKeyframe[];
+	paste: {
+		keyframeDisplayOffset: number;
+		keyframePlaybackRate: number;
+		easing: KeyframeEasing[];
+		timingGuards:
+			| readonly {
+					fileName: string;
+					nodePath: SequencePropsSubscriptionKey;
+					fields: readonly {
+						key: 'from' | 'trimBefore' | 'playbackRate';
+						value: number;
+						defaultValue: number | null;
+					}[];
+			  }[]
+			| null;
+	} | null;
 	clientId: string;
 };
 
 export type AddKeyframesResponse = {
 	success: true;
 	nodePathMutation: SequenceNodePathMutation | null;
+	results: KeyframeMutationResult[];
 };
 
 export type KeyframeSettings =

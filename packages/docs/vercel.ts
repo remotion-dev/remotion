@@ -9,6 +9,7 @@ const accountHosts = [
 	},
 ];
 const accountPaths = [
+	'/pricing',
 	'/compliance',
 	'/compliance.md',
 	'/login',
@@ -109,6 +110,11 @@ const siteConfig: VercelConfig = {
 		]),
 	],
 	rewrites: [
+		{
+			source: '/portal-sitemap.xml',
+			destination: `${accountOrigin}/sitemap.xml`,
+			has: accountHosts,
+		},
 		...[
 			...accountPaths,
 			'/_next/:path*',
@@ -157,6 +163,7 @@ const siteConfig: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',
@@ -318,8 +325,8 @@ const siteConfig: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md',
 			{permanent: false},
 		),
-		routes.redirect('/license', '/docs/license/pricing', {permanent: false}),
-		routes.redirect('/pricing', '/docs/license/pricing', {permanent: false}),
+		routes.redirect('/license', '/pricing', {permanent: false}),
+		routes.redirect('/pricing/', '/pricing', {permanent: true}),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
 		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {
 			permanent: false,
@@ -721,7 +728,15 @@ const siteConfig: VercelConfig = {
 		),
 		routes.redirect(
 			'/docs/license/accessibility-statement-remotion-pro',
-			'/docs/accessibility/pro',
+			'/docs/accessibility/dev',
+			{permanent: true},
+		),
+		routes.redirect('/docs/accessibility/pro', '/docs/accessibility/dev', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/accessibility/pro.md',
+			'/docs/accessibility/dev.md',
 			{permanent: true},
 		),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {

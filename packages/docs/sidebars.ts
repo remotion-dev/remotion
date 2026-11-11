@@ -1826,7 +1826,7 @@ const sidebars: SidebarsConfig = {
 				},
 				{
 					type: 'link',
-					href: 'https://remotion.dev/discord',
+					href: 'https://remotion.dev/issue',
 					label: 'GitHub Issues',
 				},
 				'support',
@@ -1889,7 +1889,7 @@ const sidebars: SidebarsConfig = {
 				id: 'accessibility',
 			},
 			collapsed: true,
-			items: ['accessibility/dev', 'accessibility/pro'],
+			items: ['accessibility/dev'],
 		},
 
 		{
@@ -2054,8 +2054,8 @@ const sidebars: SidebarsConfig = {
 				'timeline/demo',
 				'timeline/setup',
 				'timeline/usage',
-				'timeline/faq',
 				'timeline/render',
+				'timeline/faq',
 			],
 		},
 	],

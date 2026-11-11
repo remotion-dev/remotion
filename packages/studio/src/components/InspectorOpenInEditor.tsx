@@ -15,7 +15,9 @@ import {
 	openInCodingAgent,
 	openInGitClient,
 	openInTerminal,
-	openOriginalPositionInEditor,
+	openSourceInEditor,
+	resolveSourceLocation,
+	type SourceLocationTarget,
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
@@ -56,6 +58,7 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly annotationName: string | null;
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
+	readonly sourceTarget: SourceLocationTarget | null;
 	readonly label?: React.ReactNode;
 	readonly locationType: 'file' | 'folder' | null;
 	readonly showTooltips: boolean;
@@ -65,6 +68,7 @@ export const InspectorOpenInEditor: React.FC<{
 	contextForAgents = null,
 	label,
 	location,
+	sourceTarget,
 	locationType,
 	showTooltips,
 }) => {
@@ -83,18 +87,45 @@ export const InspectorOpenInEditor: React.FC<{
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId) => {
-			if (!location) {
+			if (!location?.source) {
 				return;
 			}
 
 			try {
-				await openOriginalPositionInEditor(location, editorId);
+				await openSourceInEditor({
+					originalPosition: {
+						source: location.source,
+						line: location.line ?? 1,
+						column: location.column ?? 1,
+					},
+					editorId,
+					property: sourceTarget?.property ?? null,
+					effectIndex: sourceTarget?.effectIndex ?? null,
+				});
 			} catch (err) {
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[location],
+		[location, sourceTarget],
 	);
+
+	const openInGitSource = useCallback(async () => {
+		if (!location?.source) return;
+		try {
+			const resolved = await resolveSourceLocation({
+				originalPosition: {
+					source: location.source,
+					line: location.line ?? 1,
+					column: location.column ?? 1,
+				},
+				property: sourceTarget?.property ?? null,
+				effectIndex: sourceTarget?.effectIndex ?? null,
+			});
+			openGitSource({folder: locationType === 'folder', location: resolved});
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	}, [location, locationType, sourceTarget]);
 
 	const openWithCodingAgent = useCallback(
 		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
@@ -134,18 +165,12 @@ export const InspectorOpenInEditor: React.FC<{
 		(event) => {
 			event.stopPropagation();
 			if (defaultOpenInTarget === 'git-source') {
-				openGitSource({folder: locationType === 'folder', location});
+				openInGitSource();
 			} else if (defaultOpenInTarget === 'editor' && defaultEditorId) {
 				openWithEditor(defaultEditorId).catch(() => undefined);
 			}
 		},
-		[
-			defaultEditorId,
-			defaultOpenInTarget,
-			location,
-			locationType,
-			openWithEditor,
-		],
+		[defaultEditorId, defaultOpenInTarget, openWithEditor, openInGitSource],
 	);
 	const menuItems = useMemo((): ComboboxValue[] => {
 		const items = getOpenInMenuItems({
@@ -200,7 +225,7 @@ export const InspectorOpenInEditor: React.FC<{
 					});
 			},
 			onOpenInGitSource: () => {
-				openGitSource({folder: locationType === 'folder', location});
+				openInGitSource();
 			},
 			onOpenInTerminal: (terminalId) => {
 				if (!location?.source || locationType !== 'folder') {
@@ -262,6 +287,7 @@ export const InspectorOpenInEditor: React.FC<{
 		menuTrigger,
 		openWithCodingAgent,
 		openWithEditor,
+		openInGitSource,
 		previewServerState.type,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {

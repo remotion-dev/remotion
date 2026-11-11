@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/licensing",
 	"version": "4.0.542",
-	"description": "Manage your Remotion.pro license",
+	"description": "Manage your Remotion license",
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",
