@@ -154,6 +154,11 @@ const config: Config = {
 					position: 'left',
 					items: [
 						{to: '/docs/license/pricing', label: 'License + Pricing'},
+						{
+							to: 'https://www.remotion.dev/dashboard',
+							label: 'Dashboard',
+							target: '_self',
+						},
 						{to: 'https://www.remotion.dev/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
