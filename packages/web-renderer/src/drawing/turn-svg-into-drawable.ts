@@ -30,14 +30,36 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
 	const templates = new Set<Element>();
-	for (const use of svg.querySelectorAll('use')) {
+	const uses = Array.from(svg.querySelectorAll('use')).filter(
+		(use) => !use.closest('defs, symbol'),
+	);
+	for (const use of uses) {
 		try {
 			const url = new URL(use.href.baseVal, use.baseURI);
 			const id = decodeURIComponent(url.hash.slice(1));
 			url.hash = '';
 			if (url.href !== documentUrl.href) continue;
 			const template = svg.getElementById(id);
-			if (template) templates.add(template);
+			if (!template || templates.has(template)) continue;
+			templates.add(template);
+			for (const nested of [
+				...(template.localName === 'use' ? [template as SVGUseElement] : []),
+				...template.querySelectorAll('use'),
+			]) {
+				if (nested === template) {
+					uses.push(nested);
+					continue;
+				}
+
+				let ancestor: Element | null = nested.parentElement;
+				while (
+					ancestor &&
+					ancestor !== template &&
+					!ancestor.matches('defs, symbol')
+				)
+					ancestor = ancestor.parentElement;
+				if (ancestor === template) uses.push(nested);
+			}
 		} catch {
 			// Invalid authored references do not instantiate a template.
 			continue;
@@ -227,6 +249,19 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			if (!walker.currentNode.textContent?.length) continue;
 			const parent = walker.currentNode.parentElement;
 			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
+				continue;
+			let ancestor: Element | null = parent;
+			while (
+				ancestor !== null &&
+				ancestor !== svg &&
+				!referencedTemplates.has(ancestor) &&
+				!ancestor.matches('defs, symbol')
+			)
+				ancestor = ancestor.parentElement;
+			if (
+				ancestor === null ||
+				(ancestor !== svg && !referencedTemplates.has(ancestor))
+			)
 				continue;
 			let style = computedStyles.get(parent);
 			if (!style) {

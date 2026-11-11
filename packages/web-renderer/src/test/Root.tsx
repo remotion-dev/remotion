@@ -215,6 +215,13 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {
+	svgDefinitionModes,
+	svgDefinitionFont,
+	svgDefinitionFontUrl,
+	svgWildcardStyleModes,
+	svgWildcardStyle,
+} from './fixtures/svg-font-definition-review';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
 import {
@@ -363,6 +370,15 @@ export const Root: React.FC = () => {
 				/>
 			))}
 			<Composition {...svgFontBeforeMutation({literal: false})} />
+			{svgDefinitionModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgDefinitionFont({mode, fontUrl: svgDefinitionFontUrl})}
+				/>
+			))}
+			{svgWildcardStyleModes.map((mode) => (
+				<Composition key={mode} {...svgWildcardStyle({mode, literal: false})} />
+			))}
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />

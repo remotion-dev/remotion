@@ -1,6 +1,6 @@
 // Match attribute names in selector text, skipping quoted values and escapes.
 const attributeSelector =
-	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:\|[\t\n\f\r ]*)?)style(?=[\t\n\f\r \]~^$*=]|\|=)/g;
+	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)style(?=[\t\n\f\r \]~^$*=]|\|=)/g;
 
 export const preserveSvgStyleSelectors = ({
 	svg,
@@ -33,8 +33,10 @@ export const preserveSvgStyleSelectors = ({
 		);
 	let attribute = 'data-remotion-authored-style';
 	while (
-		svg.hasAttribute(attribute) ||
-		svg.querySelector(`[${attribute}]`) ||
+		Array.from(svg.attributes).some(
+			(original) => original.localName === attribute,
+		) ||
+		svg.querySelector(`[*|${attribute}]`) ||
 		stylesheetText.includes(attribute)
 	) {
 		attribute += '-';
@@ -83,5 +85,14 @@ export const preserveSvgStyleSelectors = ({
 	[svg, ...svg.querySelectorAll('*')].forEach((element, index) => {
 		const value = authoredStyles[index];
 		if (value !== null) element.setAttribute(attribute, value);
+		for (const original of Array.from(element.attributes)) {
+			if (original.localName !== 'style' || original.namespaceURI === null)
+				continue;
+			element.setAttributeNS(
+				original.namespaceURI,
+				original.prefix ? `${original.prefix}:${attribute}` : attribute,
+				original.value,
+			);
+		}
 	});
 };
