@@ -198,6 +198,10 @@ import {
 	svgDisabledStyles,
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
+import {
+	escapedStyleSelectorModes,
+	svgEscapedStyleSelector,
+} from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgExternalFontSelection,
@@ -213,6 +217,8 @@ import {
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
+import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
+import {svgFontReviewCarrier} from './fixtures/svg-font-review-carrier';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -232,6 +238,7 @@ import {
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
+import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -336,8 +343,19 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{escapedStyleSelectorModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgEscapedStyleSelector({mode, literal: false})}
+				/>
+			))}
+			{svgXmlMetadataModes.map((mode) => (
+				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
+			))}
+			<Composition {...svgFontMediaCache({active: null})} />
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssConditionalFont} />
+			<Composition {...svgFontReviewCarrier({literal: false})} />
 			<Composition {...svgLocalConditionalFont} />
 			<Composition {...svgLocalConditionalUrlFont} />
 			<Composition {...svgCssUrlFont} />

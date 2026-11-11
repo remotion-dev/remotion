@@ -13,11 +13,29 @@ export const preserveSvgStyleSelectors = ({
 	if (typeof ownerWindow.CSSStyleSheet.prototype.replaceSync !== 'function')
 		return;
 	const styles = Array.from(svg.querySelectorAll('style'));
+	// Authored selectors may spell an attribute name using CSS escapes.
+	const stylesheetText = styles
+		.map((style) => style.textContent ?? '')
+		.join('\n')
+		.replace(
+			/\\(?:([0-9a-f]{1,6})(?:\r\n|[\t\n\f\r ])?|([^\n\r\f]))/gi,
+			(_match, hex: string | undefined, escaped: string | undefined) => {
+				if (!hex) return escaped!;
+				const codePoint = Number.parseInt(hex, 16);
+				return String.fromCodePoint(
+					codePoint === 0 ||
+						codePoint > 0x10ffff ||
+						(codePoint >= 0xd800 && codePoint <= 0xdfff)
+						? 0xfffd
+						: codePoint,
+				);
+			},
+		);
 	let attribute = 'data-remotion-authored-style';
 	while (
 		svg.hasAttribute(attribute) ||
 		svg.querySelector(`[${attribute}]`) ||
-		styles.some((style) => style.textContent?.includes(attribute))
+		stylesheetText.includes(attribute)
 	) {
 		attribute += '-';
 	}
