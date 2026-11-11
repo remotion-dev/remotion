@@ -81,7 +81,23 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 				/^url\((?:"([^"\\]*)"|'([^'\\]*)'|([^()\\]*))\)(?:\s+format\([^)]*\))?$/i.exec(
 					src,
 				);
-			if (!source) continue;
+			if (!source) {
+				// Retained SVG-local faces keep their authored order even when their
+				// source list is outside the external-font embedding subset.
+				if (sheet.ownerNode !== null && svg.contains(sheet.ownerNode)) {
+					rules.push({
+						css: rule.cssText,
+						url: null,
+						declarations: Array.from(rule.style, (name) => [
+							name,
+							rule.style.getPropertyValue(name),
+						]),
+					});
+				}
+
+				continue;
+			}
+
 			const sourceUrl = source[1] ?? source[2] ?? source[3];
 			let url: string | null = null;
 			if (!/^data:/i.test(sourceUrl)) {

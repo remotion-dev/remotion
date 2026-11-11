@@ -4,6 +4,7 @@ import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
+import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -182,3 +183,40 @@ test.for([
 		iframe?.remove();
 	}
 });
+
+test.for([0, 1])(
+	'retains SVG local fallback face order at frame %i',
+	async (frame, t) => {
+		const options = {
+			frame,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		} as const;
+		const composition = svgLocalFontOrder({literal: false});
+		const control = svgLocalFontOrder({literal: true});
+		const reference = await captureNativeReference(composition, frame, {
+			omitBackground: false,
+		});
+		const nativeControl = await captureNativeReference(control, frame, {
+			omitBackground: false,
+		});
+		expect(
+			(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
+		).toBe(0);
+		const actual = await (
+			await renderStillOnWeb({...options, composition})
+		).blob({format: 'png'});
+		const expected = await (
+			await renderStillOnWeb({...options, composition: control})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(expected, actual)).mismatchedPixels).toBe(
+			0,
+		);
+		if (t.task.file.projectName === 'chromium') {
+			expect(
+				(await compareNativePixels(reference, actual)).mismatchedPixels,
+			).toBe(0);
+		}
+	},
+);

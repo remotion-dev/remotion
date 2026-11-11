@@ -224,6 +224,7 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -333,6 +334,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssUrlFont} />
+			<Composition {...svgLocalFontOrder({literal: false})} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
