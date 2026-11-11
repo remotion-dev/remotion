@@ -10,6 +10,7 @@ import {
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {
+	fakeAws,
 	getWebhookCalls,
 	resetWebhookCalls,
 	useFakeAws,
@@ -174,7 +175,7 @@ test(
 );
 
 test(
-	'Should call webhook upon timeout',
+	'Should call only the timeout webhook when the render finishes while it is being sent',
 	async () => {
 		const {port, close} = await RenderInternals.serveStatic(webhookBundle, {
 			binariesDirectory: null,
@@ -189,6 +190,14 @@ test(
 		});
 
 		resetWebhookCalls();
+		fakeAws().invokeWebhook.mockImplementation((params) => {
+			getWebhookCalls().push(params);
+			return params.options.payload.type === 'timeout'
+				? new Promise((resolve) => {
+						setTimeout(resolve, 3000);
+					})
+				: Promise.resolve();
+		});
 
 		await LambdaClientInternals.callFunctionSyncImplementation({
 			functionName: 'remotion-dev-lambda',
@@ -284,5 +293,5 @@ test(
 		});
 		await close();
 	},
-	{timeout: 10000},
+	{timeout: 15000},
 );
