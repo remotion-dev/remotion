@@ -348,7 +348,7 @@ export const App: React.FC = () => {
 
 Allows you to customize the Mute button of the controls, must return a valid React element.  
 Action is disabled, you must attach click handlers yourself using the [`PlayerRef`](#playerref).  
-If unmuting a video, call both [`.setVolume(1)`](#setvolume) and [`.unmute()`](#unmute).
+If unmuting a video, we recommend calling both [`.setVolume(1)`](#setvolume) and [`.unmute()`](#unmute).
 
 ```tsx twoslash
 const VolumeOnIcon: React.FC = () => null;
