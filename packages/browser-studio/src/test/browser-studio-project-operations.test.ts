@@ -125,6 +125,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	).toEqual({lineNumber: 14, columnNumber: 7});
 
 	const insertResult = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1192,6 +1193,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 		resolveDependencies: null,
 	});
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1232,6 +1234,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 		resolveDependencies: null,
 	});
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {

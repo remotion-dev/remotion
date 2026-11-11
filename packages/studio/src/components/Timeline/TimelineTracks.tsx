@@ -95,6 +95,12 @@ const TimelineTrackRow: React.FC<{
 
 	return (
 		<TimelineTrackRowLayout
+			dropTargetId={
+				track.sequence.controls?.componentIdentity ===
+				'dev.remotion.remotion.Track'
+					? track.sequence.id
+					: null
+			}
 			sceneRange={sceneRange}
 			start={start}
 			height={height}
@@ -127,17 +133,27 @@ const TimelineTrackRow: React.FC<{
 // Only horizontal geometry subscribes to width; track contents stay stable.
 const TimelineTrackRowLayout: React.FC<{
 	readonly sceneRange: TimelineSceneRange | null;
+	readonly dropTargetId: string | null;
 	readonly start: number;
 	readonly height: number;
 	readonly clippedHeight: number;
 	readonly children: React.ReactNode;
 	readonly keyframes: React.ReactNode;
-}> = ({sceneRange, start, height, clippedHeight, children, keyframes}) => {
+}> = ({
+	sceneRange,
+	start,
+	height,
+	clippedHeight,
+	children,
+	keyframes,
+	dropTargetId,
+}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();
 	const durationInFrames = video?.durationInFrames ?? null;
 	return (
 		<div
+			data-track-drop-target={dropTargetId ?? undefined}
 			style={{
 				height,
 				left: TIMELINE_PADDING,

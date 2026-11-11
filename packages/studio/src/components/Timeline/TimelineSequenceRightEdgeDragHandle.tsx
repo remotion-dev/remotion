@@ -19,6 +19,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
@@ -27,6 +28,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {startThresholdPointerSession} from '../../helpers/start-threshold-pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
@@ -87,6 +89,7 @@ import {
 	TimelineTrimTooltip,
 	type TimelineTrimTooltipState,
 } from './TimelineTrimTooltip';
+import {createTrackMove} from './track-drop';
 
 const {sortItemsByCommitOrder} = CanvasInternals;
 
@@ -2881,6 +2884,8 @@ export const useTimelineSequenceFromDrag = ({
 	const dragStateRef = useRef<{
 		preview: ReturnType<typeof createCanvasDragPreview>;
 		initialClientX: number;
+		initialClientY: number;
+		trackMove: ReturnType<typeof createTrackMove>;
 		latestDeltaFrames: number;
 		lastPreviewDeltaFrames: number;
 		didMove: boolean;
@@ -2930,6 +2935,16 @@ export const useTimelineSequenceFromDrag = ({
 			document.body.style.userSelect = '';
 			document.body.style.webkitUserSelect = '';
 			const {previewServerState: latestServerState} = latestRef.current;
+
+			if (dragState.trackMove?.active) {
+				dragState.preview.cancel();
+				if (commit && latestServerState.type === 'connected')
+					dragState.trackMove.commit().catch(() => undefined);
+				else dragState.trackMove.cancel();
+				return;
+			}
+
+			dragState.trackMove?.cancel();
 
 			const changes = getTimelineSequenceFromDragChanges({
 				targets: dragState.targets,
@@ -3015,7 +3030,13 @@ export const useTimelineSequenceFromDrag = ({
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.button !== 0) {
+			if (
+				e.button !== 0 ||
+				!isStudioInteractivityEnabled() ||
+				latestRef.current.previewServerState.type !== 'connected' ||
+				(window.remotion_isReadOnlyStudio &&
+					getBrowserStudioOperations() === null)
+			) {
 				return;
 			}
 
@@ -3037,7 +3058,7 @@ export const useTimelineSequenceFromDrag = ({
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			});
-			const targets = getTimelineSequenceFromDragTargets({
+			const timingTargets = getTimelineSequenceFromDragTargets({
 				tracks,
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
@@ -3045,7 +3066,35 @@ export const useTimelineSequenceFromDrag = ({
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 			});
-			if (targets === null || targets.length === 0) {
+			const selectedSources = latestSelectedItems.filter(
+				(item) => item.type === 'sequence',
+			);
+			const sources = selectedSources.some(
+				(item) =>
+					getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+					getTimelineSequenceSelectionKey(latestNodePathInfo),
+			)
+				? selectedSources.map(
+						(item) => item.nodePathInfo.sequenceSubscriptionKey,
+					)
+				: [latestNodePathInfo.sequenceSubscriptionKey];
+			const trackMove = createTrackMove({
+				snappingEnabled: latestRef.current.editorSnapping,
+				tracks,
+				sources: timingTargets?.length
+					? timingTargets.map((target) => target.nodePath)
+					: sources,
+				fps:
+					latestNodePathInfo.sequenceSubscriptionKey.videoConfigValues?.fps ??
+					30,
+				durationInFrames: timelineDurationInFrames,
+				clientId:
+					latestRef.current.previewServerState.type === 'connected'
+						? latestRef.current.previewServerState.clientId
+						: '',
+			});
+			const targets = timingTargets ?? [];
+			if (targets.length === 0 && trackMove === null) {
 				return;
 			}
 
@@ -3064,6 +3113,8 @@ export const useTimelineSequenceFromDrag = ({
 						],
 				}),
 				initialClientX: e.clientX,
+				initialClientY: e.clientY,
+				trackMove,
 				latestDeltaFrames: 0,
 				lastPreviewDeltaFrames: 0,
 				didMove: false,
@@ -3098,6 +3149,23 @@ export const useTimelineSequenceFromDrag = ({
 
 						const dx = moveEvent.clientX - dragState.initialClientX;
 						const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
+						if (
+							(dragState.trackMove?.active ||
+								Math.abs(moveEvent.clientY - dragState.initialClientY) > 6) &&
+							dragState.trackMove?.update(
+								moveEvent.clientX,
+								moveEvent.clientY,
+								pointerDeltaFrames,
+							)
+						) {
+							capturePointer();
+							dragState.didMove = true;
+							dragState.preview.cancel();
+							updateSnapFrameRef?.current(null);
+							return;
+						}
+
+						if (dragState.targets.length === 0) return;
 						const {deltaFrames, snapFrame} = getTimelineSequenceFromDragResult({
 							timelineDurationInFrames,
 							deltaFrames: pointerDeltaFrames,

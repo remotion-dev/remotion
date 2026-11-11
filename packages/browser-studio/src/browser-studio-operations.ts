@@ -136,6 +136,19 @@ const insertIntoProject = async ({
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
+	if (request.track) {
+		const trackResult = CodemodsInternals.insertElementIntoTrack({
+			project,
+			request,
+		});
+		return {
+			changes: trackResult.changes,
+			filePath: trackResult.insertedNode.filePath,
+			insertedNodePath: trackResult.insertedNode.nodePath,
+			nodePathRemappings: trackResult.nodePathRemappings,
+		};
+	}
+
 	// SVG markup and compositions need the dedicated insertion pipeline.
 	if (
 		request.element.type === 'svg' ||
@@ -2275,27 +2288,48 @@ export const createBrowserStudioOperations = ({
 		});
 	};
 
-	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
-		fileName,
-		sourceNodePaths,
-		targetNodePath,
-		position,
-	}) => {
+	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async (
+		request,
+	) => {
+		const {fileName, sourceNodePaths, targetNodePath} = request;
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNodes({
-				project,
-				nodes: sourceNodePaths.map((sourceNodePath) => ({
-					filePath: absolutePath,
-					nodePath: sourceNodePath.nodePath,
-				})),
-				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-				position,
-			});
+			const move =
+				request.position === 'inside'
+					? CodemodsInternals.moveNodesIntoTrack({
+							input: project.files[absolutePath],
+							sourceNodePaths: sourceNodePaths.map((node) => node.nodePath),
+							targetNodePath: targetNodePath.nodePath,
+							timings: request.timings,
+						})
+					: null;
+			const result = move
+				? {
+						changes: [
+							{
+								filePath: absolutePath,
+								previousContents: project.files[absolutePath],
+								nextContents: move.output,
+							},
+						],
+						nodePathRemappings: move.nodePathRemappings.map((mapping) => ({
+							...mapping,
+							filePath: absolutePath,
+						})),
+					}
+				: await reorderNodes({
+						project,
+						nodes: sourceNodePaths.map((sourceNodePath) => ({
+							filePath: absolutePath,
+							nodePath: sourceNodePath.nodePath,
+						})),
+						target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+						position: request.position as 'before' | 'after',
+					});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
@@ -3152,6 +3186,7 @@ export const createBrowserStudioOperations = ({
 					insertion = await insertIntoProject({
 						project,
 						request: {
+							track: null,
 							compositionFile: request.compositionFile,
 							compositionId: request.compositionId,
 							element: {
