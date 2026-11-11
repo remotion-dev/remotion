@@ -1033,6 +1033,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 	const previousKeyframeFieldsRef = useRef<Map<string, KeyframeFieldState>>(
 		new Map(),
 	);
+	const interactiveKeyframeFieldsRef = useRef<Set<string>>(new Set());
 	useLayoutEffect(() => {
 		if (selectionController === null) {
 			return;
@@ -1047,45 +1048,44 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		const getTrack = createTrackLookupForNodePathInfo(tracksRef.current);
 		const getFieldState = (
 			item: TimelineSelection,
-		): KeyframeFieldState | null => {
+		): {state: KeyframeFieldState | null; interactive: boolean} => {
 			if (item.type !== 'keyframe' && item.type !== 'easing') {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const track = getTrack(item.nodePathInfo);
 			if (!track?.sequence.controls) {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const field = parseKeyframeFieldFromNodePath(
 				item.nodePathInfo.auxiliaryKeys,
 			);
 			if (field === null) {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const nodePath = {
 				...item.nodePathInfo.sequenceSubscriptionKey,
 				videoConfigValues: track.sequence.controls.videoConfigValues,
 			};
-			const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
-			if (propStatusesSubscription.getSnapshot(key) !== propStatuses[key]) {
-				return null;
-			}
-
-			// A delayed notification from an earlier edit can temporarily replace
-			// the optimistic status of a pending keyframe change. Do not prune the
-			// selection until that change has been acknowledged.
-			if (hasPendingSavePropChange(nodePath)) {
-				return null;
-			}
-
 			const overrides =
 				field.type === 'sequence'
 					? getDragOverrides(nodePath)
 					: getEffectDragOverrides(nodePath, field.effectIndex);
-			if (Object.prototype.hasOwnProperty.call(overrides, field.fieldKey)) {
-				return null;
+			// A drag override or a pending save belongs to an interactive edit.
+			// The first resolved run after it must adopt the source state and
+			// keep the selection the interaction produced.
+			if (
+				Object.prototype.hasOwnProperty.call(overrides, field.fieldKey) ||
+				hasPendingSavePropChange(nodePath)
+			) {
+				return {state: null, interactive: true};
+			}
+
+			const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
+			if (propStatusesSubscription.getSnapshot(key) !== propStatuses[key]) {
+				return {state: null, interactive: false};
 			}
 
 			const sequenceStatus =
@@ -1093,7 +1093,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 					? projectEffectPropStatuses(propStatuses, nodePath)[key]
 					: propStatuses[key];
 			if (!sequenceStatus?.canUpdate) {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const effectStatus =
@@ -1109,7 +1109,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 						? effectStatus.props[field.fieldKey]
 						: null;
 			if (!sourceStatus) {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const status = Internals.evaluateSourcePropStatuses(
@@ -1117,7 +1117,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 				nodePath.videoConfigValues,
 			).value;
 			if (status.status === 'computed' && sourceStatus.status !== 'computed') {
-				return null;
+				return {state: null, interactive: false};
 			}
 
 			const schema =
@@ -1134,18 +1134,25 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			);
 
 			return {
-				keyframes,
-				easingSegments: getKeyframeSegments(keyframes),
-				canEditEasing: CanvasInternals.canEditKeyframeEasing({
-					field: schema
-						? CanvasInternals.getSchemaField(schema, field.fieldKey)
-						: undefined,
-					propStatus: status,
-				}),
+				state: {
+					keyframes,
+					easingSegments: getKeyframeSegments(keyframes),
+					canEditEasing: CanvasInternals.canEditKeyframeEasing({
+						field: schema
+							? CanvasInternals.getSchemaField(schema, field.fieldKey)
+							: undefined,
+						propStatus: status,
+					}),
+				},
+				interactive: false,
 			};
 		};
 
+		const previousFields = previousKeyframeFieldsRef.current;
 		const currentFields = new Map<string, KeyframeFieldState>();
+		const nextPreviousFields = new Map(previousFields);
+		const interactiveFields = new Set(interactiveKeyframeFieldsRef.current);
+		const adoptedFields = new Set<string>();
 		const selectedFieldKeys = new Set<string>();
 		for (const item of [...snapshot.selectedItems, snapshot.anchor]) {
 			if (
@@ -1157,29 +1164,24 @@ export const TimelineSelectableItemsProvider: React.FC<{
 
 			const fieldKey = timelineNodePathInfoToKey(item.nodePathInfo);
 			selectedFieldKeys.add(fieldKey);
-			const state = getFieldState(item);
+			const {state, interactive} = getFieldState(item);
 			if (state !== null) {
+				nextPreviousFields.set(fieldKey, state);
+				if (adoptedFields.has(fieldKey)) {
+					continue;
+				}
+
+				if (interactiveFields.delete(fieldKey)) {
+					// The interaction already chose the selection; adopt the
+					// resolved keyframes as the new baseline exactly once.
+					adoptedFields.add(fieldKey);
+					continue;
+				}
+
 				currentFields.set(fieldKey, state);
+			} else if (interactive) {
+				interactiveFields.add(fieldKey);
 			}
-		}
-
-		const next = reconcileKeyframeSelection({
-			previousFields: previousKeyframeFieldsRef.current,
-			currentFields,
-			getFieldKey: (item) =>
-				item.type === 'keyframe' || item.type === 'easing'
-					? timelineNodePathInfoToKey(item.nodePathInfo)
-					: '',
-			state: snapshot,
-		});
-
-		// An unresolved field (pending update, active drag override, missing
-		// track) is not in currentFields, so the reconciler leaves its
-		// selection untouched. Retain its last resolved keyframes for the run
-		// that can actually reconcile it.
-		const nextPreviousFields = new Map(previousKeyframeFieldsRef.current);
-		for (const [fieldKey, state] of currentFields) {
-			nextPreviousFields.set(fieldKey, state);
 		}
 
 		for (const fieldKey of nextPreviousFields.keys()) {
@@ -1188,7 +1190,23 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			}
 		}
 
+		for (const fieldKey of interactiveFields) {
+			if (!selectedFieldKeys.has(fieldKey)) {
+				interactiveFields.delete(fieldKey);
+			}
+		}
+
+		const next = reconcileKeyframeSelection({
+			previousFields,
+			currentFields,
+			getFieldKey: (item) =>
+				item.type === 'keyframe' || item.type === 'easing'
+					? timelineNodePathInfoToKey(item.nodePathInfo)
+					: '',
+			state: snapshot,
+		});
 		previousKeyframeFieldsRef.current = nextPreviousFields;
+		interactiveKeyframeFieldsRef.current = interactiveFields;
 		if (next === snapshot) {
 			return;
 		}

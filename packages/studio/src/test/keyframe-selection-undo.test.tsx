@@ -98,7 +98,10 @@ const makeTrack = (): TimelineTrackData => ({
 	parentVisibleEnd: null,
 });
 
-const makeStatuses = (frames: readonly number[]): PropStatuses => ({
+const makeStatuses = (
+	frames: readonly number[],
+	values: readonly unknown[] = frames.map((_, index) => index),
+): PropStatuses => ({
 	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 		durationDependentKeyframes: null,
 		canUpdate: true,
@@ -117,7 +120,7 @@ const makeStatuses = (frames: readonly number[]): PropStatuses => ({
 							keyframeDisplayOffsetAdjustment: null,
 							keyframes: frames.map((frame, index) => ({
 								frame,
-								value: index,
+								value: values[index],
 							})),
 							easing: frames.slice(1).map(() => ({type: 'linear'})),
 							clamping: {left: 'clamp', right: 'clamp'},
@@ -358,6 +361,89 @@ test('an active keyframe drag keeps the dragged selection', () => {
 	expect(getSelectedFrames(selection!)).toEqual([27]);
 
 	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+});
+
+test('dragging a selected keyframe onto another keeps the selection', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+
+	// The drag replaces the destination keyframe and moves the selection onto
+	// it while the override is still published.
+	activeDragOverride = {opacity: {type: 'static', value: 1}};
+	act(() => {
+		selection!.selectItems([keyframeSelection(40)]);
+		rerender(<Harness statuses={makeStatuses([40])} onSelection={capture} />);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([40]);
+
+	// The first resolved run adopts the new source and keeps the interaction's
+	// selection instead of dropping it.
+	activeDragOverride = {};
+	rerender(<Harness statuses={makeStatuses([40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([40]);
+
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+});
+
+test('an in-place value edit with duplicate values keeps the selected frame', async () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40], [5, 5])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+
+	let resolveSave: (value: null) => void = () => undefined;
+	const saveRequest = new Promise<null>((resolve) => {
+		resolveSave = resolve;
+	});
+	const pending = enqueueSavePropChangeWithResult({
+		nodePath,
+		setPropStatuses: () => undefined,
+		applyOptimistic: (previous) => previous,
+		apiCall: () => saveRequest,
+		errorLabel: 'Could not edit keyframe',
+	});
+
+	try {
+		rerender(
+			<Harness
+				statuses={makeStatuses([30, 40], [6, 5])}
+				onSelection={capture}
+			/>,
+		);
+		expect(getSelectedFrames(selection!)).toEqual([30]);
+	} finally {
+		resolveSave(null);
+		await pending;
+	}
+
+	// The edit is acknowledged: adopt the edited source without moving the
+	// selection to the keyframe that still has the old value.
+	rerender(
+		<Harness statuses={makeStatuses([30, 40], [6, 5])} onSelection={capture} />,
+	);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+
+	rerender(
+		<Harness statuses={makeStatuses([30, 40], [5, 5])} onSelection={capture} />,
+	);
 	expect(getSelectedFrames(selection!)).toEqual([30]);
 });
 
