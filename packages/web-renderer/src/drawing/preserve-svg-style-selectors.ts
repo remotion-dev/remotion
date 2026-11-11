@@ -73,7 +73,13 @@ export const preserveSvgStyleSelectors = ({
 		const type = style.getAttribute('type')?.trim().toLowerCase();
 		if (type && type !== 'text/css') continue;
 		const text = style.textContent;
-		if (!text || (!text.includes('[') && !text.includes(':empty'))) continue;
+		// CSSOM canonicalizes pseudo-class case and escapes. Inspect potential
+		// pseudo-classes before deciding whether the parsed selector needs rewriting.
+		if (
+			!text ||
+			(!text.includes('[') && !text.includes('\\') && !/:empty/i.test(text))
+		)
+			continue;
 		// Constructed sheets discard @import and do not expose writable @scope selectors.
 		if (hasExcludedSvgStyleAtRule(text)) continue;
 		const sheet = new ownerWindow.CSSStyleSheet();

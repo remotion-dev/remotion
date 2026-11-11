@@ -209,7 +209,12 @@ const getFontFaceRule = (font: RegisteredFontFace): string => {
 export const getEmbeddedFontStyleForSvg = (
 	svg: SVGSVGElement,
 ): EmbeddedFontStyle | null => {
-	const textElements = svg.querySelectorAll('text');
+	const textElements = Array.from(svg.querySelectorAll('text')).filter(
+		(element) =>
+			element.namespaceURI === 'http://www.w3.org/2000/svg' ||
+			element.closest('foreignObject')?.namespaceURI ===
+				'http://www.w3.org/2000/svg',
+	);
 	if (textElements.length === 0) {
 		return null;
 	}
