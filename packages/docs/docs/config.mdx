@@ -149,7 +149,7 @@ Config.setBundleOutDir('./custom-build-dir');
 
 The [`--out-dir`](/docs/options/out-dir) flag takes precedence over this option.
 
-## `setBenchmarkRuns()`
+## `setBenchmarkRuns()`<AvailableFrom v="3.2.28" />
 
 <Options id="runs" />
 
@@ -957,9 +957,9 @@ The [`--color-space`](/docs/options/color-space) flag takes precedence over this
 
 ## `setCodec()`<AvailableFrom v="1.4.0" />
 
-Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`, `av1`.
+Choose one of the supported codecs:
 
-- `h264` is the classic MP4 file as you know it.
+- `h264` _(default)_ is the classic MP4 file as you know it.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
@@ -968,6 +968,9 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`, `a
 - `mp3` will export audio only as an MP3 file _(available from v2.0)_
 - `wav` will export audio only as an WAV file _(available from v2.0)_
 - `aac` will export audio only as an AAC file _(available from v2.0)_
+- `h264-mkv` will export H.264 video in a Matroska container
+- `h264-ts` will export H.264 video in an MPEG Transport Stream container, useful for [distributed rendering](/docs/distributed-rendering)
+- `gif` will export an animated GIF. See [Render as GIF](/docs/render-as-gif)
 
 `AV1` is not available on Remotion Lambda or Linux ARM64 GNU. See the [Encoding guide](/docs/encoding) for details.
 
@@ -1458,7 +1461,7 @@ Config.setPublicLicenseKey('your-license-key');
 
 The [`--public-license-key`](/docs/options/public-license-key) flag takes precedence over this option.
 
-## `setImageSequencePattern()`
+## `setImageSequencePattern()`<AvailableFrom v="4.0.313" />
 
 <Options id="image-sequence-pattern" />
 
@@ -1470,9 +1473,21 @@ Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
 
 The [`--image-sequence-pattern`](/docs/options/image-sequence-pattern) flag takes precedence over this option.
 
+## `setPreferredEffectBackend()`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreferredEffectBackend('webgl2');
+```
+
+The [`--preferred-effect-backend`](/docs/options/preferred-effect-backend) CLI flag takes precedence. Changes apply after Studio reloads and to newly queued renders. Existing render jobs retain their preference.
+
 ## ~~`setQuality()`~~
 
-Renamed to `setJpegQuality` in `v4.0.0`.
+Renamed to `setJpegQuality()` in `v4.0.0`.
 
 ## ~~`setFfmpegExecutable()`~~
 
@@ -1540,8 +1555,6 @@ Config.setOutputFormat('mp4');
 
 The [`--sequence`](/docs/options/sequence) and [`--codec`](/docs/options/codec) flags take precedence over this option.
 
-The [command line flag](/docs/cli) `--quality` will take precedence over this option.
-
 ## ~~`setImageFormat()`~~<AvailableFrom v="1.4.0" />
 
 _Removed in v4.0_
@@ -1604,15 +1617,3 @@ The old way is deprecated, but will work for the foreseeable future.
 ## See also
 
 - [Encoding guide](/docs/encoding)
-
-## `setPreferredEffectBackend()`<AvailableFrom v="4.0.540" />
-
-<Options id="preferred-effect-backend" />
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setPreferredEffectBackend('webgl2');
-```
-
-The [`--preferred-effect-backend`](/docs/options/preferred-effect-backend) CLI flag takes precedence. Changes apply after Studio reloads and to newly queued renders. Existing render jobs retain their preference.
