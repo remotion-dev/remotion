@@ -17,7 +17,9 @@ export const svgExternalFontReady = Promise.all([
 	}),
 ]);
 
-const Component: React.FC<{styleType?: string}> = ({styleType}) => {
+export const SvgExternalFontSelection: React.FC<{styleType: string | null}> = ({
+	styleType,
+}) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -94,7 +96,7 @@ const Component: React.FC<{styleType?: string}> = ({styleType}) => {
 };
 
 export const svgExternalFontSelection = {
-	component: Component,
+	component: () => <SvgExternalFontSelection styleType={null} />,
 	id: 'svg-external-font-selection',
 	width: 600,
 	height: 320,
@@ -105,14 +107,14 @@ export const svgExternalFontSelection = {
 // Reuse the loaded SVG fixture font while isolating the authored media selector.
 export const svgUnconditionalMediaFixture = ({
 	media,
-	literal = false,
-	cssSource = false,
-	literalFill = '#1373ab',
+	literal,
+	cssSource,
+	literalFill,
 }: {
-	media?: string;
-	literal?: boolean;
-	cssSource?: boolean;
-	literalFill?: string;
+	media: string | null;
+	literal: boolean;
+	cssSource: boolean;
+	literalFill: string | null;
 }) => {
 	const family = cssSource
 		? 'SVG unconditional CSS font'
@@ -156,8 +158,8 @@ export const svgUnconditionalMediaFixture = ({
 				<svg width={300} height={100}>
 					<style
 						ref={authoredStyle}
-						media={literal ? undefined : media}
-					>{`${selector}{fill:${literal ? literalFill : '#1373ab'}}`}</style>
+						media={literal ? undefined : (media ?? undefined)}
+					>{`${selector}{fill:${literal ? (literalFill ?? '#1373ab') : '#1373ab'}}`}</style>
 					<rect width={20} height={20} />
 					<text
 						x={12}

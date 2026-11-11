@@ -19,7 +19,7 @@ let loadedUrls: string[] | null = null;
 export const svgLocalConditionalFontReady = dataUrls.then((urls) => {
 	loadedUrls = urls;
 });
-const Component = ({useDataUrls = true}: {readonly useDataUrls?: boolean}) => {
+const Component = ({useDataUrls}: {readonly useDataUrls: boolean}) => {
 	const {delayRender, continueRender} = useDelayRender();
 	const [urls, setUrls] = useState(
 		useDataUrls
@@ -75,7 +75,7 @@ const Component = ({useDataUrls = true}: {readonly useDataUrls?: boolean}) => {
 };
 
 export const svgLocalConditionalFont = {
-	component: Component,
+	component: () => <Component useDataUrls />,
 	id: 'svg-local-conditional-font',
 	width: 500,
 	height: 140,

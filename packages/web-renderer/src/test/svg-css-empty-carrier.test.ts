@@ -27,8 +27,18 @@ const markerPixels = async (blob: Blob) => {
 test.for(
 	[false, true].flatMap((registered) =>
 		(registered
-			? (['empty', 'disabled-empty', 'malformed-comment'] as const)
-			: (['empty', 'disabled-empty'] as const)
+			? ([
+					'empty',
+					'disabled-empty',
+					'malformed-comment',
+					'malformed-final-comment',
+				] as const)
+			: ([
+					'empty',
+					'disabled-empty',
+					'disabled-nonempty',
+					'authored-root',
+				] as const)
 		).flatMap((mode) => [0, 1].map((frame) => ({mode, frame, registered}))),
 	),
 )(

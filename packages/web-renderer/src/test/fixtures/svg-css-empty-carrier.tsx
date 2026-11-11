@@ -7,6 +7,9 @@ export const svgCssEmptyCarrierModes = [
 	'disabled-empty',
 	'cache',
 	'malformed-comment',
+	'malformed-final-comment',
+	'disabled-nonempty',
+	'authored-root',
 ] as const;
 
 const registeredFamily = 'SVG registered empty carrier font';
@@ -39,7 +42,7 @@ export const svgCssEmptyCarrierFixture = ({
 			delayRender('Loading SVG empty-carrier font'),
 		);
 		useLayoutEffect(() => {
-			const sheet = carrier.current!.sheet!;
+			const sheet = carrier.current?.sheet;
 			if (registered && mode === 'cache') {
 				const style = first.current!;
 				style.closest('svg')!.setAttribute('style', '');
@@ -49,9 +52,12 @@ export const svgCssEmptyCarrierFixture = ({
 				).join('');
 			}
 
-			if (mode === 'disabled-empty') sheet.disabled = true;
+			if (mode === 'disabled-empty' || mode === 'disabled-nonempty') {
+				sheet!.disabled = true;
+			}
+
 			if (mode === 'cache' && frame === 1)
-				sheet.insertRule('@media not all {.unused-carrier {fill:red}}');
+				sheet!.insertRule('@media not all {.unused-carrier {fill:red}}');
 			if (registered && mode === 'cache') {
 				const style = first.current!;
 				const serialized = new XMLSerializer().serializeToString(
@@ -63,7 +69,7 @@ export const svgCssEmptyCarrierFixture = ({
 						Array.from(style.sheet!.cssRules, (rule) => rule.cssText).join(
 							'',
 						) ||
-					sheet.cssRules.length !== (frame === 1 ? 1 : 0) ||
+					sheet!.cssRules.length !== (frame === 1 ? 1 : 0) ||
 					(markup.current !== null && markup.current !== serialized)
 				) {
 					throw new Error(
@@ -75,15 +81,18 @@ export const svgCssEmptyCarrierFixture = ({
 			}
 
 			if (
-				!carrier.current!.matches(':empty') ||
+				(carrier.current !== null &&
+					carrier.current.matches(':empty') ===
+						(mode === 'disabled-nonempty')) ||
 				getComputedStyle(marker.current!).fill !== 'rgb(19, 115, 171)'
 			) {
 				throw new Error(
-					'Authored empty stylesheet must match the native CSS marker selector',
+					'Authored stylesheet must match the native CSS marker selector',
 				);
 			}
 
 			return () => {
+				if (!sheet) return;
 				while (sheet.cssRules.length) sheet.deleteRule(0);
 				sheet.disabled = false;
 			};
@@ -105,18 +114,47 @@ export const svgCssEmptyCarrierFixture = ({
 				continueRender(handle);
 			};
 		}, [handle, continueRender, cancelRender]);
+		const markerSelector =
+			literal || mode === 'malformed-final-comment'
+				? 'rect'
+				: mode === 'disabled-nonempty'
+					? 'style:not(:empty) + rect'
+					: 'style:empty + rect';
+		const comment =
+			mode === 'malformed-comment' || mode === 'malformed-final-comment'
+				? literal
+					? '/**/'
+					: '/*'
+				: '';
 		return (
 			<AbsoluteFill style={{backgroundColor: 'white'}}>
 				{registered ? null : (
-					<style>{`@font-face{font-family:"${family}";src:url("${url}") format("woff2")}`}</style>
+					<style>{`@font-face{font-family:"${family}";src:url("${url}") format("woff2")}${mode === 'authored-root' && !literal ? `.carrier-root:not([style]) text{font-family:"${family}"}` : ''}`}</style>
 				)}
-				<svg width={300} height={100}>
+				<svg className="carrier-root" width={300} height={100}>
 					<style
 						ref={first}
-					>{`${literal ? 'rect' : 'style:empty + rect'}{fill:#1373ab}${mode === 'malformed-comment' ? (literal ? '/**/' : '/*') : ''}`}</style>
-					<style ref={carrier} />
+					>{`${markerSelector}{fill:#1373ab}${comment}`}</style>
+					{mode === 'malformed-final-comment' ? null : (
+						<style ref={carrier}>
+							{mode === 'disabled-nonempty' ? 'rect{fill:red}' : null}
+						</style>
+					)}
 					<rect ref={marker} width={20} height={20} />
-					<text x={12} y={72} style={{fontFamily: `"${family}"`, fontSize: 32}}>
+					{mode === 'disabled-nonempty' ? (
+						<style>{'/* Font carrier. */'}</style>
+					) : null}
+					<text
+						x={12}
+						y={72}
+						style={{
+							fontFamily:
+								mode === 'authored-root' && !literal
+									? undefined
+									: `"${family}"`,
+							fontSize: 32,
+						}}
+					>
 						Carried font
 					</text>
 				</svg>

@@ -342,7 +342,13 @@ export const Root: React.FC = () => {
 			<Composition {...svgExternalFontSelection} />
 			{[false, true].flatMap((registered) =>
 				svgCssEmptyCarrierModes
-					.filter((mode) => registered || mode !== 'malformed-comment')
+					.filter((mode) =>
+						mode === 'disabled-nonempty' || mode === 'authored-root'
+							? !registered
+							: registered ||
+								(mode !== 'malformed-comment' &&
+									mode !== 'malformed-final-comment'),
+					)
 					.map((mode) => {
 						const fixture = svgCssEmptyCarrierFixture({
 							mode,
@@ -355,7 +361,12 @@ export const Root: React.FC = () => {
 			{['', 'all', ' ALL ', ' \t ', '\u00a0', '\u00a0all\u00a0'].flatMap(
 				(media) =>
 					[false, true].map((cssSource) => {
-						const fixture = svgUnconditionalMediaFixture({media, cssSource});
+						const fixture = svgUnconditionalMediaFixture({
+							media,
+							cssSource,
+							literal: false,
+							literalFill: null,
+						});
 						return <Composition key={fixture.id} {...fixture} />;
 					}),
 			)}

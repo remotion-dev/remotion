@@ -84,7 +84,10 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		try {
 			cssRules = sheet.cssRules;
 		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
+			if (
+				error instanceof ownerWindow.DOMException &&
+				error.name === 'SecurityError'
+			)
 				return;
 			throw error;
 		}
@@ -161,8 +164,7 @@ const drawableBySvg = new WeakMap<
 	}
 >();
 
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const textElements = Array.from(
 		svg.querySelectorAll('text, tspan, textPath'),
 	);
@@ -184,7 +186,30 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	// Font discovery includes explicit template choices without freezing their inheritance.
+	const fontFamilies = new Set(
+		textElements.flatMap((element) =>
+			parseFontFamilies(getComputedStyle(element).fontFamily),
+		),
+	);
+	const cssFontRules = textElements.length
+		? getCssFontRules(svg, fontFamilies)
+		: [];
+
+	return {
+		textStyles,
+		cssFontRules,
+		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+	};
+};
+
+export const turnSvgIntoDrawable = (
+	svg: SVGSVGElement,
+	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
+) => {
+	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const {textStyles, cssFontRules, embeddedFontStyle} =
+		fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -274,16 +299,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
-	// Font discovery includes explicit template choices without freezing their inheritance.
-	const fontFamilies = new Set(
-		textElements.flatMap((element) =>
-			parseFontFamilies(getComputedStyle(element).fontFamily),
-		),
-	);
-	const cssFontRules = textElements.length
-		? getCssFontRules(svg, fontFamilies)
-		: [];
-
 	const originalFontStyleIndex = fontStyleIndex;
 	const retargetRegisteredCarrier =
 		cssFontRules.length === 0 &&
@@ -319,17 +334,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			// In particular, empty text can still have CSSOM-inserted rules.
 			if (ruleCount !== 0) break;
 		}
+	}
 
-		if (
-			retargetRegisteredCarrier &&
-			fontStyleIndex !== originalFontStyleIndex
-		) {
+	if (cssFontRules.length === 0 && embeddedFontStyle !== null) {
+		const style = styles[fontStyleIndex];
+		if (style?.sheet && !style.sheet.disabled && !style.matches(':empty')) {
+			// CSSOM drops an unterminated comment that would consume appended faces.
 			svgForSerialization.querySelectorAll('style')[
 				fontStyleIndex
-			].textContent = Array.from(
-				originalStyles[fontStyleIndex].sheet!.cssRules,
-				(rule) => rule.cssText,
-			).join('');
+			].textContent =
+				Array.from(style.sheet.cssRules, (rule) => rule.cssText).join('') ||
+				'/* Empty stylesheet rules. */';
 		}
 	}
 
@@ -339,13 +354,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		svg.querySelectorAll('style').forEach((style, index) => {
 			const {sheet} = style;
-			if (!sheet) return;
+			if (!sheet || sheet.disabled) return;
 			// SVG-local rules must use the same owning-window conditions as the
 			// embedded font snapshot; otherwise inactive faces can override it.
 			const active =
-				!sheet.disabled &&
-				(!sheet.media.mediaText ||
-					ownerWindow.matchMedia(sheet.media.mediaText).matches);
+				!sheet.media.mediaText ||
+				ownerWindow.matchMedia(sheet.media.mediaText).matches;
 			if (
 				sheet.media.mediaText &&
 				sheet.media.mediaText.toLowerCase() !== 'all'
@@ -353,11 +367,13 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				clonedStyles[index].removeAttribute('media');
 			}
 
-			clonedStyles[index].textContent = active
+			const css = active
 				? getActiveCssRules(sheet.cssRules, ownerWindow)
 						.map((rule) => rule.cssText)
 						.join('')
 				: '';
+			clonedStyles[index].textContent =
+				css || (style.matches(':empty') ? '' : '/* Empty stylesheet rules. */');
 		});
 	}
 

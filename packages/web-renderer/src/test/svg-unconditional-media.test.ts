@@ -17,7 +17,12 @@ test.for(cases)(
 	'preserves unconditional SVG media $media CSS=$cssSource frame=$frame',
 	async ({media, cssSource, frame}, t) => {
 		await svgExternalFontReady;
-		const fixture = svgUnconditionalMediaFixture({media, cssSource});
+		const fixture = svgUnconditionalMediaFixture({
+			media,
+			cssSource,
+			literal: false,
+			literalFill: null,
+		});
 		const reference = await captureNativeReference(fixture, frame, {
 			omitBackground: false,
 		});
@@ -31,6 +36,7 @@ test.for(cases)(
 			})
 		).blob({format: 'png'});
 		const literalFixture = svgUnconditionalMediaFixture({
+			media: null,
 			cssSource,
 			literal: true,
 			literalFill: media.includes('\u00a0') ? 'black' : '#1373ab',
