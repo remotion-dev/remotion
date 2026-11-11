@@ -5,6 +5,7 @@ import {
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
+import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -156,8 +157,7 @@ const drawableBySvg = new WeakMap<
 	}
 >();
 
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const textElements = Array.from(
 		svg.querySelectorAll('text, tspan, textPath'),
 	);
@@ -179,7 +179,40 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	// Font discovery includes explicit template choices without freezing their inheritance.
+	const fontFamilies = new Set(
+		textElements.flatMap((element) =>
+			parseFontFamilies(getComputedStyle(element).fontFamily),
+		),
+	);
+	const cssFontRules = textElements.length
+		? getCssFontRules(svg, fontFamilies)
+		: [];
+
+	const authoredStyles =
+		textStyles.some((style) => style !== null) &&
+		Array.from(svg.querySelectorAll('style')).some((style) =>
+			style.textContent?.includes('['),
+		)
+			? [svg, ...svg.querySelectorAll('*')].map((element) =>
+					element.getAttribute('style'),
+				)
+			: null;
+	return {
+		textStyles,
+		authoredStyles,
+		cssFontRules,
+		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+	};
+};
+
+export const turnSvgIntoDrawable = (
+	svg: SVGSVGElement,
+	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
+) => {
+	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
+		fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -269,15 +302,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
-	// Font discovery includes explicit template choices without freezing their inheritance.
-	const fontFamilies = new Set(
-		textElements.flatMap((element) =>
-			parseFontFamilies(getComputedStyle(element).fontFamily),
-		),
-	);
-	const cssFontRules = textElements.length
-		? getCssFontRules(svg, fontFamilies)
-		: [];
 
 	if (cssFontRules.length) {
 		const ownerWindow = svg.ownerDocument.defaultView! as Window &
@@ -300,6 +324,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				: '';
 		});
 	}
+
+	if (authoredStyles)
+		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 
