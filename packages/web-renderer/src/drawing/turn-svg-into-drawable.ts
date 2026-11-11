@@ -303,18 +303,23 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		? getCssDataFontRules(svg, fontFamilies)
 		: '';
 
-	const authoredStyles =
-		textStyles.some((style) => style !== null) &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes('['),
-		)
-			? [svg, ...svg.querySelectorAll('*')].map((element) =>
-					element.getAttribute('style'),
-				)
+	// Snapshot authored predicates before font serialization changes inline styles,
+	// media attributes, or emptiness. SVGs without local styles need no snapshot.
+	const authoredElements =
+		textElements.length > 0 && svg.querySelector('style')
+			? [svg, ...svg.querySelectorAll('*')]
 			: null;
+	const authoredStyles =
+		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
+	const authoredMedia =
+		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
+	const authoredEmpty =
+		authoredElements?.map((element) => element.matches(':empty')) ?? null;
 	return {
 		textStyles,
 		authoredStyles,
+		authoredMedia,
+		authoredEmpty,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
 	};
@@ -325,8 +330,14 @@ export const turnSvgIntoDrawable = (
 	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
 ) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
-		fontSnapshot ?? getSvgFontSnapshot(svg);
+	const {
+		textStyles,
+		authoredStyles,
+		authoredEmpty,
+		authoredMedia,
+		cssFontRules,
+		embeddedFontStyle,
+	} = fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -448,9 +459,19 @@ export const turnSvgIntoDrawable = (
 	const usesStylesheetSets = Boolean(
 		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
 	);
+	// The first titled sheet selects the preferred set even when empty. Retain
+	// fonts there without duplicating them across every empty titled stylesheet.
+	const firstTitledCarrier = usesStylesheetSets
+		? Array.from(styles).findIndex(
+				(style) => style.sheet && Boolean(style.getAttribute('title')?.trim()),
+			)
+		: -1;
 	const fontCarriers = usesStylesheetSets
 		? Array.from(styles, (style, index) =>
-				style.sheet && !style.matches(':empty') ? index : null,
+				style.sheet &&
+				(!style.matches(':empty') || index === firstTitledCarrier)
+					? index
+					: null,
 			).filter((index) => index !== null)
 		: [fontStyleIndex];
 	if (hasFontCss) {
@@ -469,8 +490,13 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
-	if (authoredStyles)
-		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+	if (authoredStyles || authoredEmpty || authoredMedia)
+		preserveSvgStyleSelectors({
+			svg: svgForSerialization,
+			authoredStyles,
+			authoredEmpty,
+			authoredMedia,
+		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
 	for (const child of childOpacities) {

@@ -203,6 +203,10 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {
+	svgEmptyPredicate,
+	svgEmptyPredicates,
+} from './fixtures/svg-empty-predicate';
+import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
@@ -234,6 +238,10 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {
+	svgInactiveTitledFont,
+	svgInactiveTitleModes,
+} from './fixtures/svg-inactive-titled-font';
 import {
 	svgLocalFontOrder,
 	svgLocalFontOrderModes,
@@ -603,6 +611,18 @@ export const Root: React.FC = () => {
 					))}
 			</Folder>
 			<Composition {...svgNoUseChart} />
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={predicate}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
 		</>
 	);
 };
