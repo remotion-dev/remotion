@@ -26,7 +26,12 @@ test('chains effect edits before persistence and HMR without losing the latest i
 	page,
 }) => {
 	test.setTimeout(120_000);
-	const subscriptionCounts = {subscribed: 0, unsubscribed: 0, updated: 0};
+	const subscriptionCounts = {
+		subscribed: 0,
+		unsubscribed: 0,
+		updated: 0,
+		metadataReads: 0,
+	};
 	const sourceReadErrors: string[] = [];
 	page.on('console', (message) => {
 		if (
@@ -40,13 +45,27 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		const endpoint = new URL(response.url()).pathname;
 		if (
 			endpoint !== '/api/subscribe-to-sequence-props' &&
-			endpoint !== '/api/update-sequence-props-subscription'
+			![
+				'/api/update-sequence-props-subscription',
+				'/api/add-effect',
+				'/api/delete-effect',
+				'/api/duplicate-effect',
+				'/api/reorder-effect',
+				'/api/undo',
+				'/api/redo',
+			].includes(endpoint)
 		)
 			return;
 		const body = (await response.json()) as {
-			data: SubscribeToSequencePropsBatchResponse;
+			data: SubscribeToSequencePropsBatchResponse & {
+				sequenceProps?: {
+					result: SubscribeToSequencePropsBatchResponse['results'][number];
+				}[];
+			};
 		};
-		for (const result of body.data?.results ?? []) {
+		for (const result of body.data?.results ??
+			body.data?.sequenceProps?.map((update) => update.result) ??
+			[]) {
 			if (
 				!result.success ||
 				result.status.props.name?.status !== 'static' ||
@@ -60,6 +79,18 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		}
 	});
 	page.on('request', (request) => {
+		if (request.url().endsWith('/api/update-sequence-props-subscription')) {
+			const body = request.postDataJSON() as {
+				requests: {
+					subscription: UnsubscribeFromSequencePropsBatchRequest['requests'][number];
+				}[];
+			};
+			subscriptionCounts.metadataReads += body.requests.filter(
+				({subscription}) =>
+					subscription.fileName.endsWith('EffectKeyframeE2e.tsx') &&
+					JSON.stringify(subscription.nodePath.nodePath) === subscribedNodePath,
+			).length;
+		}
 		if (!request.url().endsWith('/api/unsubscribe-from-sequence-props')) return;
 		const body =
 			request.postDataJSON() as UnsubscribeFromSequencePropsBatchRequest;
@@ -576,6 +607,7 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await expect.poll(() => subscriptionCounts.updated).toBeGreaterThan(0);
 		expect(subscriptionCounts.subscribed).toBe(1);
 		expect(subscriptionCounts.unsubscribed).toBe(0);
+		expect(subscriptionCounts.metadataReads).toBe(0);
 		await page.reload();
 		await page
 			.getByRole('group', {name: 'Effect scale precision', exact: true})
@@ -744,6 +776,18 @@ test('chains effect edits before persistence and HMR without losing the latest i
 				.filter({hasText: /^0\.65$/}),
 		).toHaveCount(1);
 		await expect.poll(opaqueWidth).toBe(832);
+		await page.evaluate((event) => {
+			const state = window as typeof window & {__editRefreshes: number};
+			state.__editRefreshes = 0;
+			window.addEventListener(event, () => {
+				state.__editRefreshes++;
+			});
+		}, REACT_REFRESH_FINISHED_EVENT);
+		const refreshCount = () =>
+			page.evaluate(
+				() =>
+					(window as typeof window & {__editRefreshes: number}).__editRefreshes,
+			);
 		const beforeClear = {...subscriptionCounts};
 		for (const name of [
 			'brightness()',
@@ -751,12 +795,14 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			'duotone()',
 			'scale()',
 		]) {
+			const previousRefreshes = await refreshCount();
 			const previousUpdates = subscriptionCounts.updated;
 			await effects.getByRole('group', {name, exact: true}).first().click();
 			await page.keyboard.press('Backspace');
 			await expect
 				.poll(() => subscriptionCounts.updated)
 				.toBeGreaterThan(previousUpdates);
+			await expect.poll(refreshCount).toBeGreaterThan(previousRefreshes);
 		}
 		await expect.poll(opaqueWidth).toBe(1280);
 		expect(
@@ -765,6 +811,7 @@ test('chains effect edits before persistence and HMR without losing the latest i
 				.split('name="Effect scale precision"')[1]
 				.split('/>')[0],
 		).not.toContain('effects=');
+		const beforeUndoRefresh = await refreshCount();
 		const beforeUndo = subscriptionCounts.updated;
 		await page.keyboard.press('ControlOrMeta+z');
 		await expect(scaleEffects).toHaveCount(1);
@@ -772,6 +819,8 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await expect
 			.poll(() => subscriptionCounts.updated)
 			.toBeGreaterThan(beforeUndo);
+		await expect.poll(refreshCount).toBeGreaterThan(beforeUndoRefresh);
+		const beforeRedoRefresh = await refreshCount();
 		const beforeRedo = subscriptionCounts.updated;
 		await page.keyboard.press('ControlOrMeta+Shift+z');
 		await expect(scaleEffects).toHaveCount(0);
@@ -779,6 +828,7 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await expect
 			.poll(() => subscriptionCounts.updated)
 			.toBeGreaterThan(beforeRedo);
+		await expect.poll(refreshCount).toBeGreaterThan(beforeRedoRefresh);
 		const metadataGate = new Promise<void>((resolve) => {
 			releaseMetadata = resolve;
 		});
@@ -787,18 +837,15 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			metadataRead = resolve;
 		});
 		let holdMetadata = true;
-		await page.route(
-			'**/api/update-sequence-props-subscription',
-			async (route) => {
-				const response = await route.fetch();
-				if (holdMetadata) {
-					holdMetadata = false;
-					metadataRead();
-					await metadataGate;
-				}
-				await route.fulfill({response});
-			},
-		);
+		await page.route('**/api/add-effect', async (route) => {
+			const response = await route.fetch();
+			if (holdMetadata) {
+				holdMetadata = false;
+				metadataRead();
+				await metadataGate;
+			}
+			await route.fulfill({response});
+		});
 		await page.getByRole('button', {name: 'Add effect', exact: true}).click();
 		await page.getByPlaceholder('Search effects...').fill('brightness');
 		await page
@@ -809,15 +856,6 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await brightnessEffects.click();
 		await page.keyboard.press('Backspace');
 		await expect(brightnessEffects).toHaveCount(0);
-		await expect
-			.poll(
-				() =>
-					fs
-						.readFileSync(effectKeyframeE2eFile, 'utf8')
-						.split('name="Effect scale precision"')[1]
-						.split('/>')[0],
-			)
-			.not.toContain('effects=');
 		await page.getByRole('button', {name: 'Add effect', exact: true}).click();
 		await page.getByPlaceholder('Search effects...').fill('scale');
 		await page
@@ -845,9 +883,50 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			)
 			.toContain('scale: 0.5');
 		await expect.poll(opaqueWidth).toBe(640);
+
+		const valuePersistenceGate = new Promise<void>((resolve) => {
+			releasePersistence = resolve;
+		});
+		await page.route('**/api/duplicate-effect', async (route) => {
+			await valuePersistenceGate;
+			await route.continue();
+		});
+		const valueHmrGate = new Promise<void>((resolve) => {
+			releaseHmr = resolve;
+		});
+		await page.route('**/*.hot-update.json', async (route) => {
+			await valueHmrGate;
+			await route.continue();
+		});
+		await scaleEffects.click({button: 'right'});
+		await page
+			.getByRole('button', {name: 'Duplicate', exact: true})
+			.last()
+			.click();
+		await expect(scaleEffects).toHaveCount(2);
+		await effects
+			.getByRole('button', {name: 'Factor', exact: true})
+			.last()
+			.click();
+		await factorInput.fill('0.25');
+		await factorInput.press('Enter');
+		releasePersistence();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf8'))
+			.toContain('scale: 0.25');
+		const beforeValueRefresh = await refreshCount();
+		releaseHmr();
+		await expect.poll(refreshCount).toBeGreaterThan(beforeValueRefresh);
+		await expect(
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.25$/}),
+		).toHaveCount(1);
+		await expect.poll(opaqueWidth).toBe(160);
 		expect(sourceReadErrors).toEqual([]);
 		expect(subscriptionCounts.subscribed).toBe(beforeClear.subscribed);
 		expect(subscriptionCounts.unsubscribed).toBe(beforeClear.unsubscribed);
+		expect(subscriptionCounts.metadataReads).toBe(beforeClear.metadataReads);
 	} catch (error) {
 		await test.info().attach('failure-before-cleanup.png', {
 			body: await page.screenshot(),

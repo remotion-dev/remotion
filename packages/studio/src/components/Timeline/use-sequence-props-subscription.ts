@@ -22,6 +22,7 @@ import {getBrowserStudioOperations} from '../../helpers/browser-studio-operation
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {copySourcePathProvenance} from '../../helpers/rebase-source-request';
 import {hasSourceOnlyRemappings} from '../../helpers/sequence-node-path-mutations';
+import {acceptSequencePropsSourceVersion} from '../../helpers/sequence-props-source-version';
 import {reconcileCanvasDragPreviewStatuses} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
@@ -117,6 +118,7 @@ export const useSequencePropsSubscription = ({
 	useEffect(() => {
 		return subscribeToSequencePropsRefresh(overrideId, (event) => {
 			if (event.type === 'refresh-start') {
+				if (event.mutationId === null) setRefreshToken((token) => token + 1);
 				setRefresh((previous) => ({
 					preserveSource:
 						previous.preserveSource &&
@@ -204,6 +206,7 @@ export const useSequencePropsSubscription = ({
 		// Optimistic deletion can remount siblings with stacks from the old source.
 		// Wait for HMR before resolving those locations against the updated file.
 		if (
+			refresh.refreshing ||
 			pendingDeletions.size > 0 ||
 			!clientId ||
 			!locationSource ||
@@ -246,7 +249,14 @@ export const useSequencePropsSubscription = ({
 					: stack,
 
 			applyOnce: (result) => {
-				if (!result.success) {
+				if (
+					!result.success ||
+					!acceptSequencePropsSourceVersion(
+						updateDragOverrides,
+						result.nodePath,
+						result.sourceVersion ?? null,
+					)
+				) {
 					return;
 				}
 

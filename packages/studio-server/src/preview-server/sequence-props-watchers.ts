@@ -4,6 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
+	type SourceFileVersion,
 	type UpdateSequencePropsSubscriptionRequest,
 } from '@remotion/studio-shared';
 import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
@@ -19,6 +20,7 @@ import {
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
+	sourceVersion: SourceFileVersion | null;
 	componentIdentity: JsxComponentIdentity | null;
 	assetKeys: string[];
 	effects: string[][];
@@ -280,6 +282,7 @@ export const subscribeToSequencePropsWatchers = ({
 	}
 
 	const watcherInfo: WatcherInfo = {
+		sourceVersion: null,
 		componentIdentity,
 		assetKeys,
 		effects,
@@ -297,6 +300,8 @@ export const subscribeToSequencePropsWatchers = ({
 			if (event.type === 'deleted') {
 				return;
 			}
+
+			watcherInfo.sourceVersion = event.sourceVersion;
 
 			// Even the editing client needs the saved expression: its optimistic
 			// numeric value only describes the instance that initiated the edit.
@@ -399,7 +404,30 @@ export const updateSequencePropsSubscription = ({
 		.map((effect) => effect.canUpdate && effect.callee)
 		.join(',');
 	watcher.currentNodePath = {...watcher.currentNodePath, effectKeys: effects};
-	return {success: true, nodePath: watcher.currentNodePath, status};
+	return {
+		success: true,
+		nodePath: watcher.currentNodePath,
+		status,
+		sourceVersion: watcher.sourceVersion,
+	};
+};
+
+export const updateSequencePropsForEffectEdit = (
+	requests: UpdateSequencePropsSubscriptionRequest[],
+	remotionRoot: string,
+) => {
+	if (requests.length === 0) return {};
+	const fileContentsCache = new Map<string, string>();
+	return {
+		sequenceProps: requests.map((request) => ({
+			request,
+			result: updateSequencePropsSubscription({
+				request,
+				remotionRoot,
+				fileContentsCache,
+			}),
+		})),
+	};
 };
 
 export const unsubscribeFromSequencePropsWatchers = ({

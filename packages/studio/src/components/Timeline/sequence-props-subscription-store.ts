@@ -2,10 +2,13 @@ import {
 	getAllSchemaKeys,
 	getAssetSchemaKeys,
 	type UnsubscribeFromSequencePropsRequest,
+	type UpdateSequencePropsSubscriptionRequest,
+	type SequencePropsSubscriptionUpdate,
 } from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -57,8 +60,10 @@ type Entry = {
 	subscription: Promise<UnsubscribeFromSequencePropsRequest | null>;
 	listeners: Set<Subscriber>;
 	metadataKey: string;
+	resolvedSubscription: UnsubscribeFromSequencePropsRequest | null;
 	pending: Metadata | null;
 	updating: boolean;
+	editResults: Map<string, {effects: string[][]; result: SubscribeResult}>;
 };
 
 const applyResult = (entry: Entry, result: SubscribeResult) => {
@@ -67,6 +72,43 @@ const applyResult = (entry: Entry, result: SubscribeResult) => {
 };
 
 const entries = new Map<Key, Entry>();
+export const getSequencePropsForEffectEdit = (
+	nodes: {nodePath: SequencePropsSubscriptionKey; effects: string[][]}[],
+): UpdateSequencePropsSubscriptionRequest[] => {
+	if (nodes.length === 0) return [];
+	const requests = [...entries.values()].map((entry) => {
+		const subscription = entry.resolvedSubscription;
+		if (!subscription || entry.listeners.size === 0) return null;
+		const node = nodes.find(
+			({nodePath}) =>
+				nodePath.absolutePath === subscription.nodePath.absolutePath &&
+				JSON.stringify(nodePath.nodePath) ===
+					JSON.stringify(subscription.nodePath.nodePath),
+		);
+		return node ? {subscription, effects: node.effects} : null;
+	});
+	return requests.filter((request) => request !== null);
+};
+
+export const receiveSequencePropsFromEffectEdit = (
+	mutationId: string,
+	updates: SequencePropsSubscriptionUpdate[],
+) => {
+	for (const entry of entries.values()) {
+		const subscription = entry.resolvedSubscription;
+		if (!subscription || entry.listeners.size === 0) continue;
+		const update = updates.find(
+			({request}) =>
+				JSON.stringify(request.subscription) === JSON.stringify(subscription),
+		);
+		if (update)
+			entry.editResults.set(mutationId, {
+				effects: update.request.effects,
+				result: update.result,
+			});
+	}
+};
+
 type SequencePropsRefresh =
 	| {type: 'source'; nodePath: SequenceNodePath | null}
 	| {type: 'effects'; mutationId: string; refreshing: boolean}
@@ -180,9 +222,11 @@ export const acquireSequencePropsSubscription = ({
 					: null,
 			),
 			listeners: new Set(),
+			resolvedSubscription: null,
 			metadataKey: JSON.stringify({effects: effectKeys, sourceRevision}),
 			pending: null,
 			updating: false,
+			editResults: new Map(),
 		};
 		entries.set(key, created);
 		entry = created;
@@ -197,7 +241,11 @@ export const acquireSequencePropsSubscription = ({
 				if (err instanceof SequenceSourceReadCancelledError) return;
 				Internals.Log.error({logLevel: 'error', tag: null}, err);
 			});
-		created.subscription.catch(() => {});
+		created.subscription
+			.then((value) => {
+				created.resolvedSubscription = value;
+			})
+			.catch(() => {});
 	}
 
 	const acquired = entry;
@@ -229,10 +277,26 @@ export const acquireSequencePropsSubscription = ({
 						const {pending} = acquired;
 						acquired.pending = null;
 						try {
-							const result = await updateSequencePropsSubscription({
-								subscription,
-								effects: pending.effects,
-							});
+							const fromEdit =
+								pending.sourceRevision === null
+									? null
+									: acquired.editResults.get(pending.sourceRevision);
+							const result =
+								fromEdit &&
+								JSON.stringify(fromEdit.effects) ===
+									JSON.stringify(pending.effects)
+									? fromEdit.result
+									: await updateSequencePropsSubscription({
+											subscription,
+											effects: pending.effects,
+										});
+							if (fromEdit) {
+								for (const revision of acquired.editResults.keys()) {
+									if (revision === pending.sourceRevision) break;
+									acquired.editResults.delete(revision);
+								}
+							}
+
 							if (!acquired.pending) {
 								acquired.promise = Promise.resolve(result);
 								applyResult(acquired, result);

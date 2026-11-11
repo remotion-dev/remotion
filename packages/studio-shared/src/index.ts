@@ -191,6 +191,7 @@ export {
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
 	UpdateSequencePropsSubscriptionRequest,
+	SequencePropsSubscriptionUpdate,
 	UpdateSequencePropsSubscriptionBatchRequest,
 	UnsubscribeFromSequencePropsBatchRequest,
 	UnsubscribeFromSequencePropsRequest,

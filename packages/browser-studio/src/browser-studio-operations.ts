@@ -70,6 +70,7 @@ import {
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
 	type UnsubscribeFromSequencePropsRequest,
+	type UpdateSequencePropsSubscriptionRequest,
 	type UndoRedoNavigation,
 	withRequiredAuxiliaryPackages,
 } from '@remotion/studio-shared';
@@ -1306,6 +1307,60 @@ export const createBrowserStudioOperations = ({
 		);
 	};
 
+	const updateSequencePropsSubscription = ({
+		subscription: initial,
+		effects,
+	}: UpdateSequencePropsSubscriptionRequest): SubscribeToSequencePropsResponse => {
+		const subscription = sequencePropsSubscriptions.get(
+			makeSequencePropsSubscriptionKey(initial),
+		);
+		if (!subscription)
+			return {
+				success: false,
+				status: {canUpdate: false, reason: 'not-found'},
+			};
+		const project = getProject();
+		const request = {
+			...subscription.request,
+			nodePath: subscription.result.nodePath.nodePath,
+			effects,
+		};
+		const {absolutePath} = subscription.result.nodePath;
+		const result: SuccessfulSequencePropsSubscription = {
+			success: true,
+			sourceVersion: captureSourceVersions(project).get(absolutePath) ?? null,
+			nodePath: {...subscription.result.nodePath, effectKeys: effects},
+			status: computeSequencePropsStatusFromContent({
+				fileContents: project.files[absolutePath],
+				includeSourceLocation: true,
+				nodePath: request.nodePath,
+				componentIdentity: request.componentIdentity,
+				keys: request.keys,
+				assetKeys: request.assetKeys,
+				effects,
+			}),
+		};
+		subscription.request = request;
+		subscription.result = result;
+		subscription.effectChain = getEffectChain(result);
+		subscription.fileContents = project.files[absolutePath];
+		subscription.sourceVersion =
+			captureSourceVersions(project).get(absolutePath) ?? null;
+		return result;
+	};
+
+	const updateSequencePropsForEffectEdit = (
+		requests: UpdateSequencePropsSubscriptionRequest[],
+	) =>
+		requests.length === 0
+			? {}
+			: {
+					sequenceProps: requests.map((request) => ({
+						request,
+						result: updateSequencePropsSubscription(request),
+					})),
+				};
+
 	const effectOperations: BrowserStudioEffectOperations = {
 		addEffect: async (request) => {
 			try {
@@ -1353,6 +1408,7 @@ export const createBrowserStudioOperations = ({
 
 				return {
 					success: true,
+					...updateSequencePropsForEffectEdit(request.sequenceProps ?? []),
 					nodePathMutation,
 					insertedEffect: {
 						effectIndex: result.insertedEffect.effectIndex,
@@ -1386,7 +1442,13 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true, nodePathMutation};
+				return {
+					success: true,
+					nodePathMutation,
+					...updateSequencePropsForEffectEdit(
+						request.flatMap((item) => item.sequenceProps ?? []),
+					),
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -1419,6 +1481,9 @@ export const createBrowserStudioOperations = ({
 
 				return {
 					success: true,
+					...updateSequencePropsForEffectEdit(
+						request.flatMap((item) => item.sequenceProps ?? []),
+					),
 					nodePathMutation,
 					duplicatedEffects: result.insertedEffects.map(
 						({filePath, nodePath, effectIndex}) => ({
@@ -1515,7 +1580,11 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true, nodePathMutation};
+				return {
+					success: true,
+					nodePathMutation,
+					...updateSequencePropsForEffectEdit(request.sequenceProps ?? []),
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -3304,7 +3373,15 @@ export const createBrowserStudioOperations = ({
 		},
 		renameComposition: renameCompositionOperation,
 		renameFolder: renameFolderOperation,
-		redo: controller.redo,
+		redo: async (request) => {
+			const result = await controller.redo();
+			return result.success
+				? {
+						...result,
+						...updateSequencePropsForEffectEdit(request?.sequenceProps ?? []),
+					}
+				: result;
+		},
 		renameStaticFile: controller.renameStaticFile,
 		reorderSequence,
 		saveSequenceProps: async (request) => {
@@ -3497,44 +3574,17 @@ export const createBrowserStudioOperations = ({
 			});
 			return Promise.resolve(result);
 		},
-		updateSequencePropsSubscription: ({subscription: initial, effects}) => {
-			const subscription = sequencePropsSubscriptions.get(
-				makeSequencePropsSubscriptionKey(initial),
-			);
-			if (!subscription)
-				return Promise.resolve({
-					success: false,
-					status: {canUpdate: false, reason: 'not-found'},
-				});
-			const project = getProject();
-			const request = {
-				...subscription.request,
-				nodePath: subscription.result.nodePath.nodePath,
-				effects,
-			};
-			const {absolutePath} = subscription.result.nodePath;
-			const result: SuccessfulSequencePropsSubscription = {
-				success: true,
-				nodePath: {...subscription.result.nodePath, effectKeys: effects},
-				status: computeSequencePropsStatusFromContent({
-					fileContents: project.files[absolutePath],
-					includeSourceLocation: true,
-					nodePath: request.nodePath,
-					componentIdentity: request.componentIdentity,
-					keys: request.keys,
-					assetKeys: request.assetKeys,
-					effects,
-				}),
-			};
-			subscription.request = request;
-			subscription.result = result;
-			subscription.effectChain = getEffectChain(result);
-			subscription.fileContents = project.files[absolutePath];
-			subscription.sourceVersion =
-				captureSourceVersions(project).get(absolutePath) ?? null;
-			return Promise.resolve(result);
+		updateSequencePropsSubscription: (request) =>
+			Promise.resolve(updateSequencePropsSubscription(request)),
+		undo: async (request) => {
+			const result = await controller.undo();
+			return result.success
+				? {
+						...result,
+						...updateSequencePropsForEffectEdit(request?.sequenceProps ?? []),
+					}
+				: result;
 		},
-		undo: controller.undo,
 		unsubscribeFromDefaultProps: ({clientId, compositionId}) => {
 			const clients = defaultPropsSubscriptions.get(compositionId);
 			clients?.delete(clientId);

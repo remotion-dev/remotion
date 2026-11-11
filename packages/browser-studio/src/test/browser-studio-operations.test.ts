@@ -2162,6 +2162,19 @@ export const Comp = () => (
 	);
 
 	const reorderResult = await effects.reorderEffect({
+		sequenceProps: [
+			{
+				subscription: {
+					fileName: 'src/Comp.tsx',
+					nodePath: subscription.nodePath,
+					clientId: 'browser-studio',
+					sequenceKeys: [],
+					assetKeys: [],
+					effectKeys: [['amount'], ['amount']],
+				},
+				effects: [['color'], ['amount'], ['amount'], ['amount']],
+			},
+		],
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
 		fromIndex: 3,
@@ -2177,17 +2190,7 @@ export const Comp = () => (
 		currentProject.files[fileName].indexOf('brightness({'),
 	);
 
-	const metadata = await operations.updateSequencePropsSubscription!({
-		subscription: {
-			fileName: 'src/Comp.tsx',
-			nodePath: subscription.nodePath,
-			clientId: 'browser-studio',
-			sequenceKeys: [],
-			assetKeys: [],
-			effectKeys: [['amount'], ['amount']],
-		},
-		effects: [['color'], ['amount'], ['amount'], ['amount']],
-	});
+	const metadata = reorderResult.sequenceProps?.[0].result;
 	expect(metadata).toMatchObject({
 		success: true,
 		status: {
