@@ -11,6 +11,7 @@ import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../components/ExpandedTracksProvider';
+import {enqueueSavePropChangeWithResult} from '../components/Timeline/save-prop-queue';
 import {TimelineKeyframeTracksProvider} from '../components/Timeline/TimelineKeyframeTracksContext';
 import {
 	TimelineSelectableItemsProvider,
@@ -263,6 +264,66 @@ test('a selection made while the history operation is pending survives it', () =
 	);
 
 	expect(getSelectedFrames(selection!)).toEqual([10]);
+});
+
+test('undoing an overlapping keyframe move keeps both selections', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([20, 30])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(20), keyframeSelection(30)]);
+	});
+
+	// Undo restores [30, 40]; the frame 30 exists again but now holds the
+	// keyframe that was selected at 20.
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+
+	expect(getSelectedFrames(selection!)).toEqual([30, 40]);
+});
+
+test('a pending keyframe add is not pruned by a delayed status update', async () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+
+	let resolveAdd: (value: null) => void = () => undefined;
+	const addRequest = new Promise<null>((resolve) => {
+		resolveAdd = resolve;
+	});
+	const pending = enqueueSavePropChangeWithResult({
+		nodePath,
+		setPropStatuses: () => undefined,
+		applyOptimistic: (previous) => previous,
+		apiCall: () => addRequest,
+		errorLabel: 'Could not add keyframe',
+	});
+
+	try {
+		act(() => {
+			selection!.selectItems([keyframeSelection(27)]);
+		});
+		expect(getSelectedFrames(selection!)).toEqual([27]);
+
+		// A delayed notification from an earlier edit renders a status that does
+		// not contain the pending keyframe yet.
+		rerender(
+			<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+		);
+		expect(getSelectedFrames(selection!)).toEqual([27]);
+	} finally {
+		resolveAdd(null);
+		await pending;
+	}
 });
 
 test('an active keyframe drag keeps the dragged selection', () => {

@@ -107,6 +107,7 @@ import {
 	reconcileKeyframeSelection,
 	type KeyframeFieldState,
 } from './reconcile-keyframe-selection';
+import {hasPendingSavePropChange} from './save-prop-queue';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1069,6 +1070,13 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			};
 			const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
 			if (propStatusesSubscription.getSnapshot(key) !== propStatuses[key]) {
+				return null;
+			}
+
+			// A delayed notification from an earlier edit can temporarily replace
+			// the optimistic status of a pending keyframe change. Do not prune the
+			// selection until that change has been acknowledged.
+			if (hasPendingSavePropChange(nodePath)) {
 				return null;
 			}
 

@@ -258,3 +258,82 @@ test('Crossed keyframes are matched by value instead of position', () => {
 		makeKeyframeSelection(opacityField, 30),
 	]);
 });
+
+test('Overlapping restored keyframes are matched by value', () => {
+	const result = reconcileKeyframeSelection({
+		previousFields: new Map([
+			['controls.opacity', makeField({frames: [20, 30], values: [0, 1]})],
+		]),
+		currentFields: new Map([
+			['controls.opacity', makeField({frames: [30, 40], values: [0, 1]})],
+		]),
+		getFieldKey,
+		state: {
+			selectedItems: [
+				makeKeyframeSelection(opacityField, 20),
+				makeKeyframeSelection(opacityField, 30),
+				makeEasingSelection({
+					nodePathInfo: opacityField,
+					fromFrame: 20,
+					toFrame: 30,
+					segmentIndex: 0,
+				}),
+			],
+			anchor: makeKeyframeSelection(opacityField, 30),
+		},
+	});
+
+	expect(result).toEqual({
+		selectedItems: [
+			makeKeyframeSelection(opacityField, 30),
+			makeKeyframeSelection(opacityField, 40),
+			makeEasingSelection({
+				nodePathInfo: opacityField,
+				fromFrame: 30,
+				toFrame: 40,
+				segmentIndex: 0,
+			}),
+		],
+		anchor: makeKeyframeSelection(opacityField, 40),
+	});
+});
+
+test('A value edited in place keeps the selected keyframe', () => {
+	const result = reconcileKeyframeSelection({
+		previousFields: new Map([
+			['controls.opacity', makeField({frames: [30, 40], values: [0.2, 1]})],
+		]),
+		currentFields: new Map([
+			['controls.opacity', makeField({frames: [30, 40], values: [0.5, 1]})],
+		]),
+		getFieldKey,
+		state: {
+			selectedItems: [makeKeyframeSelection(opacityField, 30)],
+			anchor: makeKeyframeSelection(opacityField, 30),
+		},
+	});
+
+	expect(result.selectedItems).toEqual([
+		makeKeyframeSelection(opacityField, 30),
+	]);
+});
+
+test('A newly selected keyframe is preserved', () => {
+	const result = reconcileKeyframeSelection({
+		previousFields: new Map([
+			['controls.opacity', makeField({frames: [20], values: [0]})],
+		]),
+		currentFields: new Map([
+			['controls.opacity', makeField({frames: [20, 30], values: [0, 1]})],
+		]),
+		getFieldKey,
+		state: {
+			selectedItems: [makeKeyframeSelection(opacityField, 30)],
+			anchor: makeKeyframeSelection(opacityField, 30),
+		},
+	});
+
+	expect(result.selectedItems).toEqual([
+		makeKeyframeSelection(opacityField, 30),
+	]);
+});

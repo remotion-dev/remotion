@@ -23,36 +23,54 @@ const getKeyframeFrame = ({
 	readonly previous: KeyframeFieldState | undefined;
 	readonly current: KeyframeFieldState;
 }): number | null => {
-	if (current.keyframes.some((keyframe) => keyframe.frame === frame)) {
-		return frame;
-	}
+	const currentKeyframe = current.keyframes.find(
+		(keyframe) => keyframe.frame === frame,
+	);
 
-	if (
-		previous === undefined ||
-		previous.keyframes.length !== current.keyframes.length
-	) {
-		return null;
+	if (previous === undefined) {
+		return currentKeyframe ? frame : null;
 	}
 
 	const previousIndex = previous.keyframes.findIndex(
 		(keyframe) => keyframe.frame === frame,
 	);
 	if (previousIndex === -1) {
-		return null;
+		// The selection was created after the previous source snapshot.
+		return currentKeyframe ? frame : null;
 	}
 
 	const previousValue = previous.keyframes[previousIndex].value;
+	if (
+		currentKeyframe &&
+		isSameKeyframeValue(currentKeyframe.value, previousValue)
+	) {
+		return frame;
+	}
+
+	// The frame may now hold a different keyframe whose range overlapped the
+	// moved one. Match by value within the equal-value group so both keep
+	// their identities.
+	const valueOrdinal = previous.keyframes
+		.slice(0, previousIndex)
+		.filter((keyframe) =>
+			isSameKeyframeValue(keyframe.value, previousValue),
+		).length;
 	const sameValue = current.keyframes.filter((keyframe) =>
 		isSameKeyframeValue(keyframe.value, previousValue),
 	);
-	if (sameValue.length === 1) {
-		return sameValue[0].frame;
+	const matched = sameValue[valueOrdinal];
+	if (matched) {
+		return matched.frame;
 	}
 
-	// A move does not change the number of keyframes. Fall back to the position
-	// when keyframes with the same value were moved past each other.
+	// A move does not change the number of keyframes. Fall back to the
+	// position when the value was edited in place or equal values crossed.
 	// shortcut: equal-valued keyframes that cross are matched by order.
-	return current.keyframes[previousIndex]?.frame ?? null;
+	if (previous.keyframes.length === current.keyframes.length) {
+		return current.keyframes[previousIndex]?.frame ?? null;
+	}
+
+	return null;
 };
 
 /**
