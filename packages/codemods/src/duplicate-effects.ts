@@ -35,7 +35,10 @@ export const duplicateEffects = async <Project extends CodemodProject>({
 				formatted,
 				effectLabels,
 				logLines,
-				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
+				nodePathRemappings: getUnchangedStructureRemappings({
+					input,
+					output,
+				}).map((remapping) => ({...remapping, effectsOnly: true as const})),
 			};
 		}),
 	);

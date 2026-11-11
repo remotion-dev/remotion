@@ -560,6 +560,15 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type UpdateSequencePropsSubscriptionRequest = {
+	subscription: UnsubscribeFromSequencePropsRequest;
+	effects: string[][];
+};
+
+export type UpdateSequencePropsSubscriptionBatchRequest = {
+	requests: UpdateSequencePropsSubscriptionRequest[];
+};
+
 export type UnsubscribeFromSequencePropsBatchRequest = {
 	requests: UnsubscribeFromSequencePropsRequest[];
 };
@@ -1746,6 +1755,10 @@ export const studioOperations = {
 	>({mutatesSource: false}),
 	'/api/subscribe-to-sequence-props': new StudioOperation<
 		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
+	>({mutatesSource: false}),
+	'/api/update-sequence-props-subscription': new StudioOperation<
+		UpdateSequencePropsSubscriptionBatchRequest,
 		SubscribeToSequencePropsBatchResponse
 	>({mutatesSource: false}),
 	'/api/unsubscribe-from-sequence-props': new StudioOperation<

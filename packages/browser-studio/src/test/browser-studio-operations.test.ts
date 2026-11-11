@@ -2091,13 +2091,7 @@ export const Comp = () => (
 			events.filter((event) => event.type === 'sequence-node-paths-remapped'),
 		).toEqual([{type: 'sequence-node-paths-remapped', mutation}]);
 		expect(sourceMutationIds.at(-1)).toBe(mutation.mutationId);
-		expect(
-			events.some(
-				(event) =>
-					event.type === 'sequence-props-updated' ||
-					event.type === 'lost-node-path',
-			),
-		).toBe(false);
+		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
 		const remapping = mutation.files
 			.find((file) => file.absolutePath === fileName)
 			?.remappings.find(
@@ -2183,6 +2177,49 @@ export const Comp = () => (
 		currentProject.files[fileName].indexOf('brightness({'),
 	);
 
+	const metadata = await operations.updateSequencePropsSubscription!({
+		subscription: {
+			fileName: 'src/Comp.tsx',
+			nodePath: subscription.nodePath,
+			clientId: 'browser-studio',
+			sequenceKeys: [],
+			assetKeys: [],
+			effectKeys: [['amount'], ['amount']],
+		},
+		effects: [['color'], ['amount'], ['amount'], ['amount']],
+	});
+	expect(metadata).toMatchObject({
+		success: true,
+		status: {
+			effects: [
+				{
+					canUpdate: true,
+					effectIndex: 0,
+					callee: 'tint',
+					props: {color: {status: 'static', codeValue: 'red'}},
+				},
+				{
+					canUpdate: true,
+					effectIndex: 1,
+					callee: 'brightness',
+					props: {amount: {status: 'static', codeValue: 1}},
+				},
+				{
+					canUpdate: true,
+					effectIndex: 2,
+					callee: 'brightness',
+					props: {amount: {status: 'static', codeValue: 1}},
+				},
+				{
+					canUpdate: true,
+					effectIndex: 3,
+					callee: 'contrast',
+					props: {amount: {status: 'static', codeValue: 2}},
+				},
+			],
+		},
+	});
+
 	const beforeNoopReorder = currentProject;
 	const changesBeforeNoopReorder = sourceMutationIds.length;
 	expect(
@@ -2218,6 +2255,21 @@ export const Comp = () => (
 		props: {amount: {status: 'static', codeValue: 0.5}},
 	});
 	expect(currentProject.files[fileName]).toContain('amount: 0.5');
+	const updated = events.findLast(
+		(event) => event.type === 'sequence-props-updated',
+	);
+	expect(updated).toMatchObject({
+		type: 'sequence-props-updated',
+		nodePath: {effectKeys: [['color'], ['amount'], ['amount'], ['amount']]},
+		result: {
+			effects: [
+				{callee: 'tint'},
+				{callee: 'brightness', props: {amount: {codeValue: 0.5}}},
+				{callee: 'brightness'},
+				{callee: 'contrast'},
+			],
+		},
+	});
 
 	const multipleEditResult = await effects.saveMultipleEffectProps({
 		edits: [

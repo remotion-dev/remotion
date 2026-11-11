@@ -82,6 +82,7 @@ import type {
 	SubscribeToSequencePropsResponse,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
+	UpdateSequencePropsSubscriptionRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
@@ -254,6 +255,9 @@ export type BrowserStudioOperations = {
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;
+	updateSequencePropsSubscription?: (
+		request: UpdateSequencePropsSubscriptionRequest,
+	) => Promise<SubscribeToSequencePropsResponse>;
 	subscribeToSequenceProps: (
 		request: SubscribeToSequencePropsRequest,
 	) => Promise<SubscribeToSequencePropsResponse>;

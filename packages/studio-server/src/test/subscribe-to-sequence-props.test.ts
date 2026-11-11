@@ -12,6 +12,7 @@ import {
 } from '../file-watcher';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
 import {unsubscribeFromSequenceProps} from '../preview-server/routes/unsubscribe-from-sequence-props';
+import {updateSequencePropsSubscriptions} from '../preview-server/routes/update-sequence-props-subscription';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
 import {lineColumnToNodePath} from './test-utils';
 
@@ -143,6 +144,42 @@ export const Second = () => {
 				assetKeys: requestBase.assetKeys,
 				effectKeys: requestBase.effects,
 			});
+		}
+
+		for (const values of [[1, 2], [2, 1], []]) {
+			const effects = values
+				.map((amount) => `brightness({amount: ${amount}})`)
+				.join(', ');
+			writeFileSync(
+				join(remotionRoot, secondFileName),
+				secondInput.replace(
+					'name="Three"',
+					`name="Three" effects={[${effects}]}`,
+				),
+			);
+			const updated = await updateSequencePropsSubscriptions({
+				...handlerOptions,
+				input: {
+					requests: [
+						{
+							subscription: unsubscriptions[2],
+							effects: values.map(() => ['amount']),
+						},
+					],
+				},
+			});
+			const result = updated.results[0];
+			if (!result.success) throw new Error('Expected metadata update');
+			expect(result.nodePath.nodePath).toEqual(expectedNodePaths[2]);
+			expect(result.status.effects).toMatchObject(
+				values.map((amount, effectIndex) => ({
+					canUpdate: true,
+					effectIndex,
+					callee: 'brightness',
+					props: {amount: {status: 'static', codeValue: amount}},
+				})),
+			);
+			expect(unwatchedFiles).toEqual([]);
 		}
 
 		await unsubscribeFromSequenceProps({

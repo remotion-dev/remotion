@@ -199,12 +199,15 @@ const getNodePathMutationFiles = (result: CodemodNodeResult) =>
 		absolutePath,
 		remappings: result.nodePathRemappings
 			.filter(({filePath}) => filePath === absolutePath)
-			.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
-				oldNodePath,
-				newNodePath,
-				oldJsxName,
-				newJsxName,
-			})),
+			.map(
+				({oldNodePath, newNodePath, oldJsxName, newJsxName, effectsOnly}) => ({
+					...(effectsOnly ? {effectsOnly} : {}),
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
+			),
 	}));
 
 const getStructuredError = (error: unknown) => ({
@@ -3476,6 +3479,9 @@ export const createBrowserStudioOperations = ({
 			const existing = sequencePropsSubscriptions.get(key);
 			if (existing) {
 				existing.refCount++;
+				existing.request = request;
+				existing.result = result;
+				existing.effectChain = getEffectChain(result);
 				existing.fileContents = fileContents;
 				existing.sourceVersion = sourceVersion;
 				return Promise.resolve(result);
@@ -3489,6 +3495,43 @@ export const createBrowserStudioOperations = ({
 				fileContents,
 				sourceVersion,
 			});
+			return Promise.resolve(result);
+		},
+		updateSequencePropsSubscription: ({subscription: initial, effects}) => {
+			const subscription = sequencePropsSubscriptions.get(
+				makeSequencePropsSubscriptionKey(initial),
+			);
+			if (!subscription)
+				return Promise.resolve({
+					success: false,
+					status: {canUpdate: false, reason: 'not-found'},
+				});
+			const project = getProject();
+			const request = {
+				...subscription.request,
+				nodePath: subscription.result.nodePath.nodePath,
+				effects,
+			};
+			const {absolutePath} = subscription.result.nodePath;
+			const result: SuccessfulSequencePropsSubscription = {
+				success: true,
+				nodePath: {...subscription.result.nodePath, effectKeys: effects},
+				status: computeSequencePropsStatusFromContent({
+					fileContents: project.files[absolutePath],
+					includeSourceLocation: true,
+					nodePath: request.nodePath,
+					componentIdentity: request.componentIdentity,
+					keys: request.keys,
+					assetKeys: request.assetKeys,
+					effects,
+				}),
+			};
+			subscription.request = request;
+			subscription.result = result;
+			subscription.effectChain = getEffectChain(result);
+			subscription.fileContents = project.files[absolutePath];
+			subscription.sourceVersion =
+				captureSourceVersions(project).get(absolutePath) ?? null;
 			return Promise.resolve(result);
 		},
 		undo: controller.undo,
