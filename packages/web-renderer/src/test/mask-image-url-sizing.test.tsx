@@ -41,6 +41,120 @@ import {
 } from './native-reference';
 import {testImage} from './utils';
 
+// KINO-7771: authored mask layers must be composed before masking the content.
+// The grid covers every raster source in one native capture and render per frame.
+// Hosted Chromium has timed out in these native capture and PNG checks.
+const maskPixelTestTimeout = 30_000;
+const layeredMaskCases = [
+	...[false, true].map((transparent) => ({
+		composition: createMaskImageLayersGridFixture(!transparent),
+		gridSources: maskImageLayerSources,
+	})),
+	...[
+		maskGradientLayers,
+		maskGradientLayersTransparent,
+		maskGradientLayersUrl,
+		maskGradientLayersUrlTransparent,
+		maskGradientLayersBlob,
+		maskGradientLayersBlobTransparent,
+		maskGradientPalette,
+		maskGradientPaletteTransparent,
+		maskGradientLayersTokenUrl,
+		maskGradientLayersTokenUrlTransparent,
+	].map((composition) => ({composition, gridSources: null})),
+];
+
+for (const {composition, gridSources} of layeredMaskCases) {
+	const transparent = composition.id.endsWith('-transparent');
+	for (const frame of [0, 1]) {
+		test(
+			`composes multiple alpha mask layers ${composition.id} frame ${frame}`,
+			async (t) => {
+				if (transparent && t.task.file.projectName === 'firefox') {
+					t.skip();
+					return;
+				}
+
+				const startedAt = performance.now();
+				let phase = 'native browser capture';
+				t.onTestFailed(() => {
+					Internals.Log.error(
+						{logLevel: 'error', tag: '@remotion/web-renderer'},
+						`${composition.id} frame ${frame}: ${phase}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
+					);
+				});
+				const reference = await captureNativeReference(composition, frame, {
+					omitBackground: transparent,
+				});
+				phase = 'rendering output';
+				const still = await renderStillOnWeb({
+					composition,
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				});
+				const canvas = await still.canvas();
+				let actual: Blob;
+				try {
+					phase = 'PNG encoding';
+					actual = await still.blob({format: 'png'});
+				} finally {
+					canvas.width = 0;
+					canvas.height = 0;
+				}
+
+				phase = 'decoding and comparing RGBA';
+				const result = await compareNativePixels(reference, actual);
+				const cellMismatches: Record<string, number> = {};
+				if (gridSources && result.mismatchedPixels > 0) {
+					const [expectedPixels, actualPixels] = await Promise.all(
+						[reference, actual].map(async (blob) => {
+							const bitmap = await createImageBitmap(blob);
+							try {
+								const context = new OffscreenCanvas(
+									bitmap.width,
+									bitmap.height,
+								).getContext('2d')!;
+								context.drawImage(bitmap, 0, 0);
+								return context.getImageData(0, 0, bitmap.width, bitmap.height)
+									.data;
+							} finally {
+								bitmap.close();
+							}
+						}),
+					);
+					for (let y = 0; y < composition.height; y++) {
+						for (let x = 0; x < composition.width; x++) {
+							const offset = (y * composition.width + x) * 4;
+							const source =
+								gridSources[
+									(y >= composition.height / 2 ? 2 : 0) +
+										(x >= composition.width / 2 ? 1 : 0)
+								];
+							for (let channel = 0; channel < 4; channel++) {
+								if (
+									expectedPixels[offset + channel] !==
+									actualPixels[offset + channel]
+								) {
+									cellMismatches[source] = (cellMismatches[source] ?? 0) + 1;
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				expect({
+					mismatchedPixels: result.mismatchedPixels,
+					cellMismatches,
+				}).toEqual({mismatchedPixels: 0, cellMismatches: {}});
+			},
+			maskPixelTestTimeout,
+		);
+	}
+}
+
 for (const scale of [1, 2]) {
 	test(`renders raster mask sizing and repeat at scale ${scale}`, async () => {
 		await page.viewport(500 * scale, 180 * scale);
@@ -388,112 +502,6 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 			const result = await compareNativePixels(reference, actual);
 			expect(result.mismatchedPixels).toBe(0);
 		});
-	}
-}
-
-// KINO-7771: authored mask layers must be composed before masking the content.
-// The grid covers every raster source in one native capture and render per frame.
-// Hosted Chromium has timed out in these native capture and PNG checks.
-const maskPixelTestTimeout = 30_000;
-const layeredMaskCases = [
-	...[false, true].map((transparent) => ({
-		composition: createMaskImageLayersGridFixture(!transparent),
-		gridSources: maskImageLayerSources,
-	})),
-	...[
-		maskGradientLayers,
-		maskGradientLayersTransparent,
-		maskGradientLayersUrl,
-		maskGradientLayersUrlTransparent,
-		maskGradientLayersBlob,
-		maskGradientLayersBlobTransparent,
-		maskGradientPalette,
-		maskGradientPaletteTransparent,
-		maskGradientLayersTokenUrl,
-		maskGradientLayersTokenUrlTransparent,
-	].map((composition) => ({composition, gridSources: null})),
-];
-
-for (const {composition, gridSources} of layeredMaskCases) {
-	const transparent = composition.id.endsWith('-transparent');
-	for (const frame of [0, 1]) {
-		test(
-			`composes multiple alpha mask layers ${composition.id} frame ${frame}`,
-			async (t) => {
-				if (transparent && t.task.file.projectName === 'firefox') {
-					t.skip();
-					return;
-				}
-
-				const startedAt = performance.now();
-				let phase = 'native browser capture';
-				t.onTestFailed(() => {
-					Internals.Log.error(
-						{logLevel: 'error', tag: '@remotion/web-renderer'},
-						`${composition.id} frame ${frame}: ${phase}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
-					);
-				});
-				const reference = await captureNativeReference(composition, frame, {
-					omitBackground: transparent,
-				});
-				phase = 'rendering output';
-				const still = await renderStillOnWeb({
-					composition,
-					frame,
-					inputProps: {},
-					licenseKey: 'free-license',
-					allowHtmlInCanvas: false,
-				});
-				phase = 'PNG encoding';
-				const actual = await still.blob({format: 'png'});
-				phase = 'decoding and comparing RGBA';
-				const result = await compareNativePixels(reference, actual);
-				const cellMismatches: Record<string, number> = {};
-				if (gridSources && result.mismatchedPixels > 0) {
-					const [expectedPixels, actualPixels] = await Promise.all(
-						[reference, actual].map(async (blob) => {
-							const bitmap = await createImageBitmap(blob);
-							try {
-								const context = new OffscreenCanvas(
-									bitmap.width,
-									bitmap.height,
-								).getContext('2d')!;
-								context.drawImage(bitmap, 0, 0);
-								return context.getImageData(0, 0, bitmap.width, bitmap.height)
-									.data;
-							} finally {
-								bitmap.close();
-							}
-						}),
-					);
-					for (let y = 0; y < composition.height; y++) {
-						for (let x = 0; x < composition.width; x++) {
-							const offset = (y * composition.width + x) * 4;
-							const source =
-								gridSources[
-									(y >= composition.height / 2 ? 2 : 0) +
-										(x >= composition.width / 2 ? 1 : 0)
-								];
-							for (let channel = 0; channel < 4; channel++) {
-								if (
-									expectedPixels[offset + channel] !==
-									actualPixels[offset + channel]
-								) {
-									cellMismatches[source] = (cellMismatches[source] ?? 0) + 1;
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				expect({
-					mismatchedPixels: result.mismatchedPixels,
-					cellMismatches,
-				}).toEqual({mismatchedPixels: 0, cellMismatches: {}});
-			},
-			maskPixelTestTimeout,
-		);
 	}
 }
 
