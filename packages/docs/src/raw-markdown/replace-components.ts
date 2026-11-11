@@ -97,15 +97,12 @@ export const replaceRawMarkdownComponents = ({
 	}, raw);
 };
 
-// The Markdown files that copy-raw-docs.ts writes for the article catalog.
 const rawMarkdownSlugs = new Set(
 	articles
 		.filter((article) => !article.noAi)
 		.flatMap((article) => [article.slug, article.slug.replace(/\/index$/, '')]),
 );
 
-// Link a docs page to its Markdown version, or to the HTML page if there is none.
-// A page named like its folder (cli/cli.mdx) is served at /docs/cli.
 const toRawMarkdownUrl = (link: string) => {
 	const match = link.match(/^\/docs\/([^#?]*?)\/?([#?].*)?$/);
 	if (!match) {
@@ -282,7 +279,6 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		},
 		{
 			componentName: 'Pricing',
-			// Mirrors the text and prop defaults of Pricing in @remotion/promo-pages.
 			render: ({attributes}) => {
 				const href = (name: string, defaultHref: string) =>
 					toRawMarkdownUrl(
@@ -376,7 +372,6 @@ const stripJsx = (value: string) => {
 			part.startsWith('`')
 				? part
 				: decodeEntities(
-						// Keep escaped tags such as &lt;Composition&gt; visible as code
 						part.replace(/&lt;(.*?)&gt;/g, (__, tag: string) => `\`<${tag}>\``),
 					),
 		)
@@ -385,8 +380,6 @@ const stripJsx = (value: string) => {
 		.trim();
 };
 
-// Components that render a list of <TOCItem link="..."> entries.
-// Read them from the component source so that the Markdown lists the pages.
 const expandTableOfContents = ({
 	raw,
 	sourcePath,
@@ -413,7 +406,6 @@ const expandTableOfContents = ({
 				.find(
 					(part) => part.startsWith(`${name}:`) || part.startsWith(`${name} `),
 				);
-			// The items may be wrapped in a local component, such as <SfxItem link="...">
 			if (
 				body === undefined ||
 				!componentSource.includes('<TOCItem') ||
