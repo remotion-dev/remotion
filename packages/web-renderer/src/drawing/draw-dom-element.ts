@@ -3,6 +3,7 @@ import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
 import {
 	getSvgFontSnapshot,
+	type SvgFontSnapshots,
 	turnSvgIntoDrawable,
 } from './turn-svg-into-drawable';
 
@@ -205,10 +206,18 @@ const drawReplacedElement = ({
 	);
 };
 
-export const drawDomElement = (node: HTMLElement | SVGElement) => {
-	// Measuring transforms temporarily sets inline styles on the mounted SVG.
-	const svgFonts =
-		node instanceof SVGSVGElement ? getSvgFontSnapshot(node) : null;
+export const drawDomElement = (
+	node: HTMLElement | SVGElement,
+	svgFontSnapshots: SvgFontSnapshots,
+) => {
+	// Recursive precomposition re-enters this SVG while transform overrides are
+	// still mounted. Reuse the capture's first snapshot of its authored font state.
+	let svgFonts: ReturnType<typeof getSvgFontSnapshot> | null = null;
+	if (node instanceof SVGSVGElement) {
+		svgFonts = svgFontSnapshots.get(node) ?? getSvgFontSnapshot(node);
+		svgFontSnapshots.set(node, svgFonts);
+	}
+
 	const domDrawFn: DrawFn = async ({
 		dimensions,
 		contextToDraw,

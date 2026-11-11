@@ -268,6 +268,12 @@ import {
 	svgPaintFontModes,
 	svgPaintResourceFont,
 } from './fixtures/svg-paint-resource-font';
+import {
+	svgPrecomposeFont,
+	svgPrecomposeFontSources,
+	svgPrecomposeFontEffects,
+	svgPrecomposePaintKinds,
+} from './fixtures/svg-precompose-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {
@@ -341,6 +347,46 @@ export const Root: React.FC = () => {
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
+			{svgPrecomposeFontSources.flatMap((source) =>
+				svgPrecomposePaintKinds.map((paint) => (
+					<Composition
+						key={`precompose-paint-${source}-${paint}`}
+						{...svgPrecomposeFont({
+							source,
+							effect: 'blend',
+							literal: false,
+							fontStep: null,
+							paint,
+						})}
+					/>
+				)),
+			)}
+			{svgPrecomposeFontSources.map((source) => (
+				<Composition
+					key={`precompose-step-four-${source}`}
+					{...svgPrecomposeFont({
+						source,
+						effect: 'blend',
+						literal: false,
+						fontStep: 4,
+						paint: null,
+					})}
+				/>
+			))}
+			{svgPrecomposeFontSources.flatMap((source) =>
+				svgPrecomposeFontEffects.map((effect) => (
+					<Composition
+						key={`precompose-font-${source}-${effect}`}
+						{...svgPrecomposeFont({
+							source,
+							effect,
+							literal: false,
+							fontStep: null,
+							paint: null,
+						})}
+					/>
+				)),
+			)}
 			{svgEmptyPredicates.map((predicate, index) => (
 				<Composition
 					key={`empty-predicate-${predicate}`}

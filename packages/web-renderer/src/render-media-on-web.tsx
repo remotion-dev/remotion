@@ -640,6 +640,7 @@ const internalRenderMediaOnWeb = async <
 				if (videoEnabled) {
 					const createFrameStart = performance.now();
 					const layer = await createLayer({
+						svgFontSnapshots: null,
 						element: div,
 						transparent,
 						scale,

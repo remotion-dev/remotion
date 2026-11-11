@@ -89,6 +89,8 @@ The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</
 
 ### Web fonts inside SVG
 
+External font selection on SVG roots is preserved when CSS filters, masks, isolation or blending require intermediate rendering layers.
+
 SVG text with explicitly authored font families is supported inside locally referenced `<pattern>` and `<mask>` resources, including pattern inheritance and nested mask-to-pattern references. Unused definitions do not trigger CSS font fetching.
 
 Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.

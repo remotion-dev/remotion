@@ -4,6 +4,7 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
+import {getSvgPaintBounds} from './get-svg-paint-bounds';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
 import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
 
@@ -250,6 +251,7 @@ const drawableBySvg = new WeakMap<
 >();
 
 export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
+	const paintBounds = getSvgPaintBounds(svg);
 	const textElements = getSvgFontElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
@@ -338,8 +340,14 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		authoredMedia,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+		paintBounds,
 	};
 };
+
+export type SvgFontSnapshots = WeakMap<
+	SVGSVGElement,
+	ReturnType<typeof getSvgFontSnapshot>
+>;
 
 export const turnSvgIntoDrawable = (
 	svg: SVGSVGElement,
