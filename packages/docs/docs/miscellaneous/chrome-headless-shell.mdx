@@ -7,7 +7,8 @@ crumb: 'FAQ'
 
 # Installing Chrome <AvailableFrom v="4.0.247"/>
 
-Remotion is automatically installing "Chrome Headless Shell" into your `node_modules` in order to render videos.
+Remotion downloads "Chrome Headless Shell" into your `node_modules` in order to render videos.  
+The download is not part of `npm install`: it happens the first time a browser is needed, for example on the first render, unless you [ensure Chrome is installed](#ensure-chrome-is-installed) beforehand.
 
 ## Supported platforms
 
@@ -70,6 +71,15 @@ The file structure inside this folder varies by OS.
 
 `platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
 
+## Download hosts
+
+If your network restricts outgoing traffic, allow the following hosts:
+
+- `remotion.media`: Remotion's default Chrome Headless Shell builds.
+- `storage.googleapis.com`: Chrome for Testing, custom Chrome versions, and Chrome Headless Shell on platforms without a Remotion build (Intel Macs and Linux with glibc below 2.35).
+
+If the machine that renders has no internet access, run [`npx remotion browser ensure`](/docs/cli/browser/ensure) while building it, for example in your [Dockerfile](/docs/docker).
+
 ## Version tracking<AvailableFrom v="4.0.415" />
 
 Remotion writes a `VERSION` file to the download folder to track which Chrome version is installed:
@@ -79,7 +89,7 @@ node_modules/.remotion/chrome-headless-shell/VERSION
 node_modules/.remotion/chrome-for-testing/VERSION
 ```
 
-The file contains the Chrome version string, e.g. `157.0.8080.0`.
+The file contains the Chrome version string, e.g. `158.0.8127.2-remotion-v3` for builds from `remotion.media` or `158.0.8127.2` for builds from `storage.googleapis.com`.
 
 If the `VERSION` file is missing (e.g. when upgrading from an older version of Remotion) or does not match the expected version, Remotion will delete the existing browser and download the correct version.
 
@@ -115,7 +125,7 @@ To ensure your project does not get disrupted by an upcoming Chrome change, you 
 
 - Use Remotion v4.0.208 or later to not pick up an externally installed browser.
 - Use [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure Chrome Headless Shell is available.
-- Do not download Chrome in your Dockerfile, but do install [Linux dependencies](/docs/miscellaneous/linux-dependencies) if you use Linux.
+- Do not install Chrome or Chromium using your system package manager (e.g. `apt-get install chromium`). In a [Dockerfile](/docs/docker), run `npx remotion browser ensure` instead and install the [Linux dependencies](/docs/miscellaneous/linux-dependencies).
 - Do not use `--browser-executable`, `browserExecutable` or `setBrowserExecutable()` options to override the Headless Shell with an incompatible Chrome version.
 
 :::warning
