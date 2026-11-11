@@ -13,7 +13,10 @@ export const enableCrossSiteIsolationOption = {
 		<>
 			Enable Cross-Site Isolation in the Studio (sets Cross-Origin-Opener-Policy
 			and Cross-Origin-Embedder-Policy HTTP headers, required for{' '}
-			<code>@remotion/whisper-web</code>).
+			<a href="/docs/whisper-web">
+				<code>@remotion/whisper-web</code>
+			</a>
+			).
 		</>
 	),
 	ssrName: null,
