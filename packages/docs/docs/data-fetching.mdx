@@ -9,7 +9,7 @@ In Remotion, you may fetch data from an API to use it in your video. On this pag
 
 ## Fetching data before the render<AvailableFrom v="4.0.0"/>
 
-You may use the [`calculateMetadata`](/docs/composition#calculatemetadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
+You may use the [`calculateMetadata`](/docs/calculate-metadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
 
 ### When to use
 
@@ -225,7 +225,7 @@ export const Root = () => {
 };
 ```
 
-By implementing this pattern, The `id` in the [props editor](/docs/visual-editing) can now be tweaked and Remotion will refetch the data whenever it changes.
+By implementing this pattern, the `id` in the [props editor](/docs/visual-editing) can now be tweaked and Remotion will refetch the data whenever it changes.
 
 ### Setting the duration based on data
 
@@ -251,12 +251,12 @@ export const calculateMyCompMetadata: CalculateMetadataFunction<
 };
 ```
 
-Learn more about this feature in the [Variable metadata](/docs/dynamic-metadata) page.
+Learn more about this feature in the [Variable duration and dimensions](/docs/dynamic-metadata) page.
 
 ### Aborting stale requests
 
 The props in the props editor may rapidly change for example by typing fast.  
-It is a good practice to cancel requests which are stale using the `abortSignal` that gets passed to the [`calculateMetadata()`](/docs/composition#calculatemetadata) function:
+It is a good practice to cancel requests which are stale using the `abortSignal` that gets passed to the [`calculateMetadata()`](/docs/calculate-metadata) function:
 
 ```tsx twoslash title="src/MyComp.tsx" {3-6}
 // ---cut---

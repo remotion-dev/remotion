@@ -96,7 +96,7 @@ The values passed in there did not influence the calculation at all. Therefore w
 
 ## Path sampling returns `null` beyond the end of a path
 
-[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length).
+[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length). This change already shipped in v4.0.498.
 Previously, they returned the point or tangent at the end of the path.
 
 **Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.

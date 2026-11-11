@@ -79,7 +79,7 @@ await ensureBrowser({
 
 ## Return value
 
-A promise with no value.
+A promise resolving to an object describing the browser that is now available. Its `type` field is `"user-defined-path"` if a [`browserExecutable`](#browserexecutable) was passed, otherwise `"local-puppeteer-browser"`. Both include the `path` of the executable.
 
 ## Compatibility
 

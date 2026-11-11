@@ -113,7 +113,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-Loading audio from an URL is also possible:
+Loading audio from a URL is also possible:
 
 ```tsx twoslash
 import {Audio} from '@remotion/media';
@@ -184,7 +184,7 @@ Prefer importing using [`staticFile()`](/docs/staticfile) if possible.
 
 ## Dynamic duration based on assets
 
-To make your videos duration dependent based on your assets, see: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)
+To make your videos duration dependent based on your assets, see: [Variable duration and dimensions](/docs/dynamic-metadata)
 
 ## Files outside of the project
 
@@ -192,7 +192,7 @@ Remotion runs in the browser, so it does not have access to arbitrary files on y
 It is also not possible to use the `fs` module from Node.js in the browser.  
 Instead, put assets in the `public/` folder and use [`getStaticFiles()`](/docs/getstaticfiles) to enumerate them.
 
-See [why does Remotion does not support absolute paths](/docs/miscellaneous/absolute-paths).
+See [why Remotion does not support absolute paths](/docs/miscellaneous/absolute-paths).
 
 ## Adding assets after bundling
 
@@ -203,7 +203,7 @@ However, if you use the [server-side rendering APIs](/docs/ssr-node), you can ad
 ## Use `<Img>`, `<Video>` and `<Audio>`
 
 **Use [`<Img />`](/docs/img) or [`<Gif />`](/docs/gif)** over the native `<img>` tag, `<Image>` from Next.js and CSS `background-image`.  
-**Use [`<Video />` from `@remotion/media`](/docs/media/video), [`<OffthreadVideo />`](/docs/offthreadvideo) or [`<Html5Video />`](/docs/html5-video)** over the native `<video>` tag.
+**Use [`<Video />` from `@remotion/media`](/docs/media/video)** (or the legacy [`<OffthreadVideo />`](/docs/offthreadvideo) and [`<Html5Video />`](/docs/html5-video)) over the native `<video>` tag.  
 **Use [`<Audio />`](/docs/media/audio) or [`<Html5Audio />`](/docs/html5-audio)** over the native `<audio>` tag.  
 **Use [`<IFrame />`](/docs/iframe)** over the native `<iframe>` tag.
 
