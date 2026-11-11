@@ -20,6 +20,34 @@ Can be used on traditional long-running servers that can spawn a headless browse
 - Renderer package: https://www.remotion.dev/docs/renderer.md
 - Node SSR: https://www.remotion.dev/docs/ssr-node.md
 
+Bundle once, then render with different input props:
+
+```ts
+import { bundle } from "@remotion/bundler";
+import { renderMedia, selectComposition } from "@remotion/renderer";
+
+const serveUrl = await bundle({ entryPoint: "./src/index.ts" });
+
+const inputProps = { title: "Hello" };
+const composition = await selectComposition({
+  serveUrl,
+  id: "MyComp",
+  inputProps,
+});
+
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: "h264",
+  outputLocation: "out/video.mp4",
+  inputProps,
+  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY,
+  onProgress: ({ progress }) => console.log(progress),
+});
+```
+
+Companies that need a [Remotion license](../remotion-license/SKILL.md) should pass `licenseKey` to every render. If the user qualifies for the free license, pass `"free-license"`. Pass `isProduction: false` for test renders. See https://www.remotion.dev/docs/telemetry.md.
+
 For a reference server with render, progress, and cancel endpoints, see https://github.com/remotion-dev/template-render-server.
 
 ## Remotion Lambda

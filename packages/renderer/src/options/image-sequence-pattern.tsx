@@ -13,8 +13,9 @@ export const imageSequencePatternOption = {
 	description: () => (
 		<>
 			Pattern for naming image sequence files. Supports <code>[frame]</code> for
-			the zero-padded frame number and <code>[ext]</code> for the file
-			extension.
+			the frame number and <code>[ext]</code> for the file extension. The frame
+			number is zero-padded to the number of digits of the last frame. The
+			default is <code>element-[frame].[ext]</code>.
 		</>
 	),
 	docLink: 'https://www.remotion.dev/docs/options/image-sequence-pattern',
