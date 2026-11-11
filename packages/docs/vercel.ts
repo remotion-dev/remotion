@@ -10,7 +10,6 @@ const accountHosts = [
 ];
 const accountPaths = [
 	'/pricing',
-	'/pricing/',
 	'/compliance',
 	'/compliance.md',
 	'/login',
@@ -327,6 +326,7 @@ const siteConfig: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/license', '/pricing', {permanent: false}),
+		routes.redirect('/pricing/', '/pricing', {permanent: true}),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
 		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {
 			permanent: false,
