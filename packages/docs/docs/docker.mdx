@@ -192,7 +192,7 @@ From v4.0.137, [`enableMultiProcessOnLinux`](/docs/miscellaneous/linux-single-pr
 ## Bundling ahead of time
 
 The example script above calls [`bundle()`](/docs/bundle) every time the container starts.  
-For a long-running render server, create the bundle while building the image instead. Add this line after copying your source code:
+For a long-running render server, create the bundle while building the image instead. Add this line after copying `src` and `public`:
 
 ```docker
 RUN npx remotion bundle --out-dir=build
@@ -224,12 +224,8 @@ By default, Docker containers are not allowed to use all CPUs. Consider:
 
 ## Fonts
 
-Chrome Headless Shell uses the fonts installed on the system. In the Dockerfile above, `libpango-1.0-0` and `libcairo2` install a basic font (`fonts-dejavu-core`) as a dependency.  
-If you change the list of packages or use a different base image, make sure at least one font is installed:
-
-```docker
-RUN apt-get install -y fonts-dejavu-core
-```
+Chrome Headless Shell uses the fonts installed on the system. In the Dockerfile above, `libpango-1.0-0` and `libcairo2` install a basic font as a dependency.  
+If you change the list of packages or use a different base image, make sure at least one font is installed, for example by adding `fonts-dejavu-core` to the `apt install` list.
 
 If no font is installed, text renders invisibly without an error.
 
