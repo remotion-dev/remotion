@@ -73,6 +73,25 @@ const triviaEnd = (text: string, index: number) => {
 	return index;
 };
 
+// Quoted URLs are functions. URL and bad-URL tokens both consume through
+// their first unescaped closing parenthesis; brackets inside them are data.
+const unquotedUrlEnd = (text: string, index: number): number | null => {
+	while (whitespace.test(text[index] ?? '')) index++;
+	if (text[index] === '"' || text[index] === "'") return null;
+	while (index < text.length) {
+		if (text[index] === ')') return index + 1;
+		if (
+			text[index] === '\\' &&
+			text[index + 1] !== undefined &&
+			!/[\n\r\f]/.test(text[index + 1])
+		)
+			index = escapeAt(text, index).end;
+		else index++;
+	}
+
+	return index;
+};
+
 // Custom properties contain arbitrary component values, including brace blocks.
 // Their at-keywords are values, not stylesheet or nested-rule statements.
 const valueEnd = (text: string, index: number) => {
@@ -81,8 +100,15 @@ const valueEnd = (text: string, index: number) => {
 		const char = text[index];
 		if (text.startsWith('/*', index)) index = commentEnd(text, index);
 		else if (char === '"' || char === "'") index = stringEnd(text, index);
-		else if (char === '\\') index = escapeAt(text, index).end;
-		else if (char === ';' && depth === 0) return index;
+		else if (/[a-z0-9_\\-]/i.test(char) || char.charCodeAt(0) >= 0x80) {
+			const name = nameAt(text, index);
+			if (name.end === index) index = escapeAt(text, index).end;
+			else
+				index =
+					name.value.toLowerCase() === 'url' && text[name.end] === '('
+						? (unquotedUrlEnd(text, name.end + 1) ?? name.end)
+						: name.end;
+		} else if (char === ';' && depth === 0) return index;
 		else if (char === '}' && depth === 0) return index;
 		else {
 			if ('([{'.includes(char)) depth++;
@@ -118,6 +144,25 @@ export const hasExcludedSvgStyleAtRule = (text: string) => {
 			continue;
 		}
 
+		const name = nameAt(text, index);
+		if (name.end > index) {
+			if (start && depth === 0 && name.value.startsWith('--')) {
+				const colon = triviaEnd(text, name.end);
+				if (text[colon] === ':') {
+					index = valueEnd(text, colon + 1);
+					start = false;
+					continue;
+				}
+			}
+
+			index =
+				name.value.toLowerCase() === 'url' && text[name.end] === '('
+					? (unquotedUrlEnd(text, name.end + 1) ?? name.end)
+					: name.end;
+			start = false;
+			continue;
+		}
+
 		if (char === '(' || char === '[') {
 			depth++;
 			start = false;
@@ -143,23 +188,11 @@ export const hasExcludedSvgStyleAtRule = (text: string) => {
 		}
 
 		if (start && char === '@') {
-			const name = nameAt(text, index + 1);
-			if (['import', 'scope'].includes(name.value.toLowerCase())) return true;
-			index = Math.max(index + 1, name.end);
+			const atName = nameAt(text, index + 1);
+			if (['import', 'scope'].includes(atName.value.toLowerCase())) return true;
+			index = Math.max(index + 1, atName.end);
 			start = false;
 			continue;
-		}
-
-		if (start) {
-			const name = nameAt(text, index);
-			if (name.value.startsWith('--')) {
-				const colon = triviaEnd(text, name.end);
-				if (text[colon] === ':') {
-					index = valueEnd(text, colon + 1);
-					start = false;
-					continue;
-				}
-			}
 		}
 
 		if (char === '\\') index = escapeAt(text, index).end;
