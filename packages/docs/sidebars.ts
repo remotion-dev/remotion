@@ -734,7 +734,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'rive/index',
 			},
-			items: ['rive/index', 'rive/remotionrivecanvas'],
+			items: ['rive/remotionrivecanvas'],
 		},
 		{
 			type: 'category',
