@@ -27,4 +27,4 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: |
           cd packages/discord-poster
-          bun post.ts ${{ github.event.inputs.tag }}
+          bun post.ts ${{ github.event.release.tag_name || github.event.inputs.tag }}
