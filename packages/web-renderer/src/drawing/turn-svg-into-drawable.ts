@@ -216,7 +216,8 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	};
 
 	const {templates: referencedTemplates, uses: renderedUses} =
-		textElements.length
+		textElements.length &&
+		svg.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'use').length
 			? getReferencedTemplates(svg, styleFor)
 			: {templates: new Set<Element>(), uses: new Set<SVGUseElement>()};
 

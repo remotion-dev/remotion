@@ -238,6 +238,7 @@ import {
 	svgLocalFontOrder,
 	svgLocalFontOrderModes,
 } from './fixtures/svg-local-font-order';
+import {svgNoUseChart} from './fixtures/svg-no-use-chart';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {
@@ -601,6 +602,7 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			<Composition {...svgNoUseChart} />
 		</>
 	);
 };
