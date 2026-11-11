@@ -96,17 +96,17 @@ Rendering with Vercel Sandbox or the Node.JS APIs does not come with the other f
 
 Most renders do not become faster with GPU acceleration. See: [Which content benefits from a GPU?](/docs/gpu).
 
-There is a guide for configuring [a server with GPU acceleration](/docs/miscellaneous/cloud-gpu).
+We have a guide for configuring [a server with GPU acceleration](/docs/miscellaneous/cloud-gpu).
 
 Remotion Lambda and Vercel Sandbox do not have GPUs. You are limited to CPU-only rendering.
 
-Cloud Run with GPU acceleration has not been tested. It is possible to add a GPU to the Cloud Run instance, and feedback is welcome.
+We have not tested Cloud Run with GPU acceleration. It is possible to add a GPU to the Cloud Run instance - we are curious to hear your feedback.
 
 ## Stability
 
 We are happy with the architecture of Remotion Lambda and Node.js APIs and are committed to it in the long-term.
 
-Vercel Sandbox support is new and is being improved, with planned features like custom Chrome builds for better codec support.
+Vercel Sandbox support is new. We are actively improving it with planned features like custom Chrome builds for better codec support.
 
 Cloud Run is in Alpha and we are considering moving it to a model which re-uses the code of Remotion Lambda.
 This would allow us to better match the features of Remotion Lambda and enable distributed rendering.
