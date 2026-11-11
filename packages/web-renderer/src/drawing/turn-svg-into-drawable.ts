@@ -199,19 +199,33 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
+	// A titled sheet can be inactive without sheet.disabled being set. Put
+	// registered faces after local faces in every candidate when sets are used.
+	const usesStylesheetSets = Boolean(
+		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	);
+	const fontCarriers =
+		embeddedFontStyle && usesStylesheetSets
+			? Array.from(styles, (style, index) =>
+					style.sheet && !style.sheet.disabled && !style.matches(':empty')
+						? index
+						: null,
+				).filter((index) => index !== null)
+			: [fontStyleIndex];
+
 	if (embeddedFontStyle) {
-		const carrier = styles[fontStyleIndex];
-		if (
-			carrier?.sheet &&
-			!carrier.sheet.disabled &&
-			!carrier.matches(':empty')
-		) {
-			// End malformed comments before appending carried faces.
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent =
-				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
-				'/* Empty stylesheet rules. */';
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
+		for (const index of fontCarriers) {
+			const carrier = styles[index];
+			if (
+				carrier?.sheet &&
+				!carrier.sheet.disabled &&
+				!carrier.matches(':empty')
+			) {
+				clonedStyles[index].textContent =
+					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+					'/* Empty stylesheet rules. */';
+			}
 		}
 	}
 
@@ -256,6 +270,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		? JSON.stringify([
 				embeddedFontStyle.cacheKey,
 				fontStyleIndex,
+				fontCarriers,
 				!carrierMedia ||
 					svg.ownerDocument.defaultView!.matchMedia(carrierMedia).matches,
 			])
@@ -273,11 +288,21 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 		let markup = serializedSvg;
 		if (embeddedFontStyle) {
-			insertFontStyleInSvg(
-				svgForSerialization,
-				embeddedFontStyle.css,
-				fontStyleIndex,
-			);
+			if (usesStylesheetSets && fontCarriers.length) {
+				const clonedStyles = svgForSerialization.querySelectorAll('style');
+				for (const index of fontCarriers) {
+					const carrier = clonedStyles[index];
+					carrier.textContent =
+						(carrier.textContent ?? '') + '\n' + embeddedFontStyle.css;
+				}
+			} else {
+				insertFontStyleInSvg(
+					svgForSerialization,
+					embeddedFontStyle.css,
+					usesStylesheetSets ? -1 : fontStyleIndex,
+				);
+			}
+
 			markup = serializeSvg(svgForSerialization);
 		}
 

@@ -109,6 +109,8 @@ export const svgExternalCarrierModes = [
 	'disabled-empty',
 	'malformed-comment',
 	'malformed-final-comment',
+	'titled',
+	'titled-empty',
 	'cache',
 	'media-empty',
 	'media-all',
@@ -131,6 +133,7 @@ export const svgExternalEmptyCarrier = ({
 					? ' all '
 					: undefined;
 	const hasMediaOwner = media !== undefined;
+	const titled = mode === 'titled' || mode === 'titled-empty';
 	const Carrier = () => {
 		const frame = useCurrentFrame();
 		const first = useRef<HTMLStyleElement>(null);
@@ -187,12 +190,24 @@ export const svgExternalEmptyCarrier = ({
 		return (
 			<AbsoluteFill style={{backgroundColor: 'white'}}>
 				<svg width={300} height={100}>
-					<style ref={first} media={media}>
+					<style
+						ref={first}
+						media={media}
+						title={titled && !literal ? 'a' : undefined}
+					>
 						{hasMediaOwner
 							? 'rect{fill:red} style:empty + .empty-marker{fill:#1373ab} style[media] ~ .media-marker{fill:#1373ab}'
-							: `${literal || mode === 'malformed-final-comment' ? 'rect' : 'style:empty + rect'}{fill:#1373ab}${mode === 'malformed-comment' || mode === 'malformed-final-comment' ? (literal ? '/**/' : '/*') : ''}`}
+							: `${mode === 'titled' && !literal ? 'style[title="b"] + rect' : literal || mode === 'malformed-final-comment' || mode === 'titled' ? 'rect' : 'style:empty + rect'}{fill:#1373ab}${mode === 'malformed-comment' || mode === 'malformed-final-comment' ? (literal ? '/**/' : '/*') : ''}`}
 					</style>
-					{mode === 'malformed-final-comment' ? null : <style ref={last} />}
+					{mode === 'malformed-final-comment' ? null : (
+						<style
+							ref={last}
+							title={titled && !literal ? 'b' : undefined}
+							media={titled && literal ? 'not all' : undefined}
+						>
+							{mode === 'titled' ? 'rect{fill:red}' : null}
+						</style>
+					)}
 					<rect
 						className={hasMediaOwner ? 'empty-marker' : undefined}
 						width={20}
