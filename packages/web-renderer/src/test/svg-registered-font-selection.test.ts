@@ -12,6 +12,7 @@ import {
 	svgExternalCarrierModes,
 	svgExternalEmptyCarrier,
 	svgExternalFontReady,
+	SvgExternalFontSelection,
 	svgExternalFontSelection,
 } from './fixtures/svg-external-font-selection';
 import {
@@ -381,7 +382,7 @@ test('non-CSS style elements retain native and exported font selection', async (
 		...svgExternalFontSelection,
 		id: 'svg-external-font-selection-css-control',
 		component: () =>
-			createElement(svgExternalFontSelection.component, {
+			createElement(SvgExternalFontSelection, {
 				styleType: 'text/css',
 			}),
 	};

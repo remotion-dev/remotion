@@ -157,7 +157,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	if (embeddedFontStyle && styles[fontStyleIndex]?.matches(':empty')) {
 		// Keep an authored empty sheet empty when an earlier active carrier can
 		// retain font order. A later CSSOM rule remains an ordering boundary.
-		const originalFontStyleIndex = fontStyleIndex;
 		for (let index = styles.length - 1; index >= 0; index--) {
 			const style = styles[index];
 			const {sheet} = style;
@@ -181,25 +180,30 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 			if (ruleCount !== 0) break;
 		}
-
-		if (fontStyleIndex !== originalFontStyleIndex) {
-			// CSSOM serialization also closes an authored unterminated comment
-			// before the carried font rules are appended to this clone.
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent = Array.from(
-				styles[fontStyleIndex].sheet!.cssRules,
-				(rule) => rule.cssText,
-			).join('');
-		}
 	}
 
-	if (embeddedFontStyle)
+	if (embeddedFontStyle) {
+		const carrier = styles[fontStyleIndex];
+		if (
+			carrier?.sheet &&
+			!carrier.sheet.disabled &&
+			!carrier.matches(':empty')
+		) {
+			// End malformed comments before appending carried faces.
+			svgForSerialization.querySelectorAll('style')[
+				fontStyleIndex
+			].textContent =
+				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+				'/* Empty stylesheet rules. */';
+		}
+
 		insertFontStyleInSvg(
 			svgForSerialization,
 			embeddedFontStyle.css,
 			fontStyleIndex,
 		);
+	}
+
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
 		// eslint-disable-next-line no-control-regex

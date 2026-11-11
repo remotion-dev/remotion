@@ -17,7 +17,9 @@ export const svgExternalFontReady = Promise.all([
 	}),
 ]);
 
-const Component: React.FC<{styleType?: string}> = ({styleType}) => {
+export const SvgExternalFontSelection: React.FC<{styleType: string | null}> = ({
+	styleType,
+}) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -94,7 +96,7 @@ const Component: React.FC<{styleType?: string}> = ({styleType}) => {
 };
 
 export const svgExternalFontSelection = {
-	component: Component,
+	component: () => <SvgExternalFontSelection styleType={null} />,
 	id: 'svg-external-font-selection',
 	width: 600,
 	height: 320,
@@ -106,6 +108,7 @@ export const svgExternalCarrierModes = [
 	'empty',
 	'disabled-empty',
 	'malformed-comment',
+	'malformed-final-comment',
 	'cache',
 	'media-empty',
 	'media-all',
@@ -138,7 +141,8 @@ export const svgExternalEmptyCarrier = ({
 			delayRender('Loading external SVG carrier font'),
 		);
 		useLayoutEffect(() => {
-			const sheet = last.current!.sheet!;
+			const sheet = last.current?.sheet;
+			if (!sheet) return;
 			if (mode === 'disabled-empty') sheet.disabled = true;
 			if (mode === 'cache') {
 				const style = first.current!;
@@ -186,9 +190,9 @@ export const svgExternalEmptyCarrier = ({
 					<style ref={first} media={media}>
 						{hasMediaOwner
 							? 'rect{fill:red} style:empty + .empty-marker{fill:#1373ab} style[media] ~ .media-marker{fill:#1373ab}'
-							: `${literal ? 'rect' : 'style:empty + rect'}{fill:#1373ab}${mode === 'malformed-comment' ? (literal ? '/**/' : '/*') : ''}`}
+							: `${literal || mode === 'malformed-final-comment' ? 'rect' : 'style:empty + rect'}{fill:#1373ab}${mode === 'malformed-comment' || mode === 'malformed-final-comment' ? (literal ? '/**/' : '/*') : ''}`}
 					</style>
-					<style ref={last} />
+					{mode === 'malformed-final-comment' ? null : <style ref={last} />}
 					<rect
 						className={hasMediaOwner ? 'empty-marker' : undefined}
 						width={20}
