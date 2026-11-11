@@ -7,7 +7,11 @@ export const getFontFormat = (url: string): FontFormat => {
 		);
 	}
 
-	const ext = url.split('.').pop()?.toLowerCase();
+	const pathname = url.split(/[?#]/)[0];
+	const lastSegment = pathname.split('/').pop() ?? '';
+	const ext = lastSegment.includes('.')
+		? lastSegment.split('.').pop()?.toLowerCase()
+		: null;
 	switch (ext) {
 		case 'woff2':
 			return 'woff2';
@@ -19,7 +23,7 @@ export const getFontFormat = (url: string): FontFormat => {
 			return 'truetype';
 		default:
 			throw new Error(
-				`Could not automatically derive font format from extension: ${ext}. Pass the "format" parameter explicitly.`,
+				`Could not automatically derive font format from the URL "${url.length > 200 ? `${url.slice(0, 200)}...` : url}"${ext ? ` (extension: ${ext})` : ' (no file extension)'}. Pass the "format" parameter explicitly ("woff2", "woff", "opentype" or "truetype").`,
 			);
 	}
 };

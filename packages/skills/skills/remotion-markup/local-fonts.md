@@ -55,6 +55,23 @@ await Promise.all([
 ]);
 ```
 
+### Loading a font URL from props
+
+If the font URL comes from input props, call `loadFont()` inside the component in a `useState()` initializer, so it runs once and delays the render until the font is loaded:
+
+```tsx
+import { loadFont } from "@remotion/fonts";
+import { useState } from "react";
+
+export const MyComposition: React.FC<{ fontUrl: string }> = ({ fontUrl }) => {
+  useState(() => loadFont({ family: "CustomFont", url: fontUrl }));
+  return <div style={{ fontFamily: "CustomFont" }}>Hello World</div>;
+};
+```
+
+If the font fails to load, the render fails.  
+If the URL has no file extension (e.g. an API endpoint), pass `format` explicitly.
+
 ### Available options
 
 ```tsx

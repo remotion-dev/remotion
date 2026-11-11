@@ -9,7 +9,8 @@ crumb: "@remotion/fonts"
 _Part of the [`@remotion/fonts`](/docs/fonts-api) package._
 
 Load a local or remote font for use in Remotion.  
-Automatically blocks the render until the font is ready.
+Automatically blocks the render until the font is ready.  
+If the font fails to load (for example, the URL returns a 404), the render fails with an error.
 
 ## Usage
 
@@ -35,6 +36,29 @@ export const GoogleFontsExample: React.FC = () => {
 };
 ```
 
+## Loading a font URL from input props
+
+If the font URL is passed as an [input prop](/docs/passing-props), call `loadFont()` inside the component instead of at the top level of the file.  
+Wrap it in a `useState()` initializer so it only runs once:
+
+```tsx twoslash title="MyComp.tsx"
+import { loadFont } from "@remotion/fonts";
+import { useState } from "react";
+import { AbsoluteFill } from "remotion";
+
+export const MyComp: React.FC<{
+  fontUrl: string;
+}> = ({ fontUrl }) => {
+  useState(() => loadFont({ family: "CustomFont", url: fontUrl }));
+
+  return (
+    <AbsoluteFill style={{ fontFamily: "CustomFont" }}>
+      <h1>Dynamic font</h1>
+    </AbsoluteFill>
+  );
+};
+```
+
 ## Options
 
 ### family
@@ -48,8 +72,10 @@ Where to load the font from. Can be a local file using [`staticFile()`](/docs/st
 
 ### format?
 
-Defines the format of the font file. By default gets derived from the file extension of the URL.  
+Defines the format of the font file. By default gets derived from the file extension of the URL. Query strings and hashes are ignored.  
 Override with one of the following values explicitly: `woff2`, `woff`, `opentype`, `truetype`.
+
+Pass this option if the URL has no file extension, for example a font served by an API endpoint.
 
 ### ascentOverride?
 
