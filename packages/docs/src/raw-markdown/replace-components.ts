@@ -1,6 +1,10 @@
+import fs from 'fs';
 import path from 'path';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
+import {optionDescriptionToMarkdown} from '../../option-description';
 import {
 	getElementLibrarySections,
 	isElementCategory,
@@ -233,7 +237,119 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 				/^import\s+\{\s*TableOfContents\s*\}\s+from\s+['"]\.\/TableOfContents['"];\s*\n/m,
 			required: true,
 		},
+		{
+			componentName: 'Options',
+			render: ({attributes}) => {
+				const id = getStringAttribute({attributes, name: 'id'});
+				const option = Object.values(BrowserSafeApis.options).find(
+					(o) => o.id === id,
+				);
+				if (!option) {
+					throw new Error(`Unknown option in <Options>: ${id}`);
+				}
+
+				const cli = /(?:^|\s)cli(?:\s|$|=\{true\})/.test(attributes);
+				return optionDescriptionToMarkdown(
+					option.description(cli ? 'cli' : 'ssr'),
+				).trim();
+			},
+		},
+		{
+			componentName: 'Pricing',
+			render: () =>
+				'For the license terms, see [LICENSE.md](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md), the [License FAQ](https://www.remotion.dev/docs/license/faq.md) and the [Terms and Conditions](https://www.remotion.dev/docs/terms.md).',
+			removeImport:
+				/^import\s+\{\s*Pricing\s*\}\s+from\s+['"]@remotion\/promo-pages\/dist\/homepage\/Pricing\.js['"];?\s*\n/m,
+		},
+		{
+			componentName: 'MinNodeVersion',
+			render: () => String(NoReactInternals.MIN_NODE_VERSION),
+		},
+		{
+			componentName: 'MinBunVersion',
+			render: () => String(NoReactInternals.MIN_BUN_VERSION),
+		},
 	];
+
+const stripJsx = (value: string) => {
+	return value
+		.replace(
+			/\{\s*(['"`])(.*?)\1\s*\}|<[^>]+>/g,
+			(_, quote: string | undefined, text: string | undefined) =>
+				quote === undefined ? '' : text!.includes('<') ? `\`${text}\`` : text!,
+		)
+		.replace(/\s+/g, ' ')
+		.trim();
+};
+
+// Table of contents components are a list of <TOCItem link="..."> entries.
+// Read them from the component source so that the Markdown lists the pages.
+const expandTableOfContents = ({
+	raw,
+	sourcePath,
+}: {
+	raw: string;
+	sourcePath: string;
+}) => {
+	let result = raw;
+	for (const [importStatement, names, importPath] of Array.from(
+		raw.matchAll(/^import\s+\{([^}]*)\}\s+from\s+['"](\.[^'"]+)['"];?\s*\n/gm),
+	)) {
+		const componentPath = ['.tsx', '/index.tsx', '']
+			.map((ext) => path.resolve(path.dirname(sourcePath), importPath + ext))
+			.find((p) => fs.existsSync(p) && fs.statSync(p).isFile());
+		if (!componentPath) {
+			continue;
+		}
+
+		const componentSource = fs.readFileSync(componentPath, 'utf8');
+		let expandedAll = true;
+		for (const name of names.split(',').map((n) => n.trim())) {
+			if (!name.endsWith('TableOfContents')) {
+				expandedAll = false;
+				continue;
+			}
+
+			const body = componentSource
+				.split(/^export const /m)
+				.find(
+					(part) => part.startsWith(`${name}:`) || part.startsWith(`${name} `),
+				);
+			const items = (body ?? '')
+				.split(/(?=\blink=")/)
+				.slice(1)
+				.map((chunk) => {
+					const link = chunk.match(/^link="([^"]+)"/)![1];
+					const label =
+						chunk.match(/<strong[^>]*>([\s\S]*?)<\/strong>/)?.[1] ??
+						chunk.match(/\bname="([^"]+)"/)?.[1] ??
+						chunk.match(/<div[^>]*>([\s\S]*?)<\/div>/)?.[1] ??
+						link;
+					const description =
+						chunk.match(/<\/strong>\s*<div[^>]*>([\s\S]*?)<\/div>/)?.[1] ??
+						chunk.match(/\bdescription="([^"]+)"/)?.[1] ??
+						null;
+					const url = /^\/[^#?]*$/.test(link)
+						? `https://www.remotion.dev${link}.md`
+						: link;
+					return `- [${stripJsx(label)}](${url})${description ? ` — ${stripJsx(description)}` : ''}`;
+				});
+			const tag = new RegExp(`<${name}\\s*/>`, 'g');
+			if (items.length === 0 || !tag.test(result)) {
+				expandedAll = false;
+				continue;
+			}
+
+			result = result.replace(tag, () => items.join('\n'));
+		}
+
+		if (expandedAll) {
+			result = result.replace(importStatement, '');
+		}
+	}
+
+	return result;
+};
 
 export const expandRawMarkdownComponents = ({
 	raw,
@@ -242,9 +358,12 @@ export const expandRawMarkdownComponents = ({
 	raw: string;
 	sourcePath: string;
 }) => {
-	return replaceRawMarkdownComponents({
-		raw,
+	return expandTableOfContents({
+		raw: replaceRawMarkdownComponents({
+			raw,
+			sourcePath,
+			replacements: rawMarkdownComponentReplacements,
+		}),
 		sourcePath,
-		replacements: rawMarkdownComponentReplacements,
 	});
 };
