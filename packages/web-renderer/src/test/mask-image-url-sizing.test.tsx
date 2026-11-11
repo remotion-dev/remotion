@@ -393,6 +393,8 @@ for (const composition of [maskImageUrlPosition, maskImageUrlCalcPosition]) {
 
 // KINO-7771: authored mask layers must be composed before masking the content.
 // The grid covers every raster source in one native capture and render per frame.
+// Hosted Chromium has timed out in these native capture and PNG checks.
+const maskPixelTestTimeout = 30_000;
 const layeredMaskCases = [
 	...[false, true].map((transparent) => ({
 		composition: createMaskImageLayersGridFixture(!transparent),
@@ -415,69 +417,83 @@ const layeredMaskCases = [
 for (const {composition, gridSources} of layeredMaskCases) {
 	const transparent = composition.id.endsWith('-transparent');
 	for (const frame of [0, 1]) {
-		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {
-			if (transparent && t.task.file.projectName === 'firefox') {
-				t.skip();
-				return;
-			}
+		test(
+			`composes multiple alpha mask layers ${composition.id} frame ${frame}`,
+			async (t) => {
+				if (transparent && t.task.file.projectName === 'firefox') {
+					t.skip();
+					return;
+				}
 
-			const reference = await captureNativeReference(composition, frame, {
-				omitBackground: transparent,
-			});
-			const actual = await (
-				await renderStillOnWeb({
+				const startedAt = performance.now();
+				let phase = 'native browser capture';
+				t.onTestFailed(() => {
+					Internals.Log.error(
+						{logLevel: 'error', tag: '@remotion/web-renderer'},
+						`${composition.id} frame ${frame}: ${phase}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
+					);
+				});
+				const reference = await captureNativeReference(composition, frame, {
+					omitBackground: transparent,
+				});
+				phase = 'rendering output';
+				const still = await renderStillOnWeb({
 					composition,
 					frame,
 					inputProps: {},
 					licenseKey: 'free-license',
 					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-			const result = await compareNativePixels(reference, actual);
-			const cellMismatches: Record<string, number> = {};
-			if (gridSources && result.mismatchedPixels > 0) {
-				const [expectedPixels, actualPixels] = await Promise.all(
-					[reference, actual].map(async (blob) => {
-						const bitmap = await createImageBitmap(blob);
-						try {
-							const context = new OffscreenCanvas(
-								bitmap.width,
-								bitmap.height,
-							).getContext('2d')!;
-							context.drawImage(bitmap, 0, 0);
-							return context.getImageData(0, 0, bitmap.width, bitmap.height)
-								.data;
-						} finally {
-							bitmap.close();
-						}
-					}),
-				);
-				for (let y = 0; y < composition.height; y++) {
-					for (let x = 0; x < composition.width; x++) {
-						const offset = (y * composition.width + x) * 4;
-						const source =
-							gridSources[
-								(y >= composition.height / 2 ? 2 : 0) +
-									(x >= composition.width / 2 ? 1 : 0)
-							];
-						for (let channel = 0; channel < 4; channel++) {
-							if (
-								expectedPixels[offset + channel] !==
-								actualPixels[offset + channel]
-							) {
-								cellMismatches[source] = (cellMismatches[source] ?? 0) + 1;
-								break;
+				});
+				phase = 'PNG encoding';
+				const actual = await still.blob({format: 'png'});
+				phase = 'decoding and comparing RGBA';
+				const result = await compareNativePixels(reference, actual);
+				const cellMismatches: Record<string, number> = {};
+				if (gridSources && result.mismatchedPixels > 0) {
+					const [expectedPixels, actualPixels] = await Promise.all(
+						[reference, actual].map(async (blob) => {
+							const bitmap = await createImageBitmap(blob);
+							try {
+								const context = new OffscreenCanvas(
+									bitmap.width,
+									bitmap.height,
+								).getContext('2d')!;
+								context.drawImage(bitmap, 0, 0);
+								return context.getImageData(0, 0, bitmap.width, bitmap.height)
+									.data;
+							} finally {
+								bitmap.close();
+							}
+						}),
+					);
+					for (let y = 0; y < composition.height; y++) {
+						for (let x = 0; x < composition.width; x++) {
+							const offset = (y * composition.width + x) * 4;
+							const source =
+								gridSources[
+									(y >= composition.height / 2 ? 2 : 0) +
+										(x >= composition.width / 2 ? 1 : 0)
+								];
+							for (let channel = 0; channel < 4; channel++) {
+								if (
+									expectedPixels[offset + channel] !==
+									actualPixels[offset + channel]
+								) {
+									cellMismatches[source] = (cellMismatches[source] ?? 0) + 1;
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
 
-			expect({
-				mismatchedPixels: result.mismatchedPixels,
-				cellMismatches,
-			}).toEqual({mismatchedPixels: 0, cellMismatches: {}});
-		});
+				expect({
+					mismatchedPixels: result.mismatchedPixels,
+					cellMismatches,
+				}).toEqual({mismatchedPixels: 0, cellMismatches: {}});
+			},
+			maskPixelTestTimeout,
+		);
 	}
 }
 
@@ -532,34 +548,51 @@ for (const {math, literal, transparent} of [
 		});
 
 		for (const scale of [1, 2]) {
-			test(`resolves CSS math mask sizes ${math.id} frame ${frame} at scale ${scale}`, async () => {
-				await page.viewport(1280, 720);
-				// Render calls already queue internally. Let the first PNG encode
-				// overlap the second render instead of serializing both operations.
-				const rendered = await Promise.all(
-					[math, literal].map(async (composition) => {
-						const result = await renderStillOnWeb({
-							composition,
-							frame,
-							scale,
-							inputProps: {},
-							licenseKey: 'free-license',
-							allowHtmlInCanvas: false,
-						});
-						const canvas = await result.canvas();
-						try {
-							return await result.blob({format: 'png'});
-						} finally {
-							canvas.width = 0;
-							canvas.height = 0;
-						}
-					}),
-				);
+			test(
+				`resolves CSS math mask sizes ${math.id} frame ${frame} at scale ${scale}`,
+				async (t) => {
+					const startedAt = performance.now();
+					const phases = ['viewport setup', 'viewport setup'];
+					t.onTestFailed(() => {
+						Internals.Log.error(
+							{logLevel: 'error', tag: '@remotion/web-renderer'},
+							`${math.id} frame ${frame} scale ${scale}: math ${phases[0]}, literal ${phases[1]}, ${Math.round(performance.now() - startedAt)}ms elapsed`,
+						);
+					});
+					await page.viewport(1280, 720);
+					// Render calls already queue internally. Let the first PNG encode
+					// overlap the second render instead of serializing both operations.
+					const rendered = await Promise.all(
+						[math, literal].map(async (composition, index) => {
+							phases[index] = 'rendering output';
+							const result = await renderStillOnWeb({
+								composition,
+								frame,
+								scale,
+								inputProps: {},
+								licenseKey: 'free-license',
+								allowHtmlInCanvas: false,
+							});
+							const canvas = await result.canvas();
+							try {
+								phases[index] = 'PNG encoding';
+								const blob = await result.blob({format: 'png'});
+								phases[index] = 'ready for RGBA comparison';
+								return blob;
+							} finally {
+								canvas.width = 0;
+								canvas.height = 0;
+							}
+						}),
+					);
 
-				expect(
-					(await countNativePixels(rendered[0], rendered[1])).mismatchedPixels,
-				).toBe(0);
-			});
+					expect(
+						(await countNativePixels(rendered[0], rendered[1]))
+							.mismatchedPixels,
+					).toBe(0);
+				},
+				maskPixelTestTimeout,
+			);
 		}
 	}
 }
