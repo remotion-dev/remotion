@@ -721,7 +721,15 @@ const siteConfig: VercelConfig = {
 		),
 		routes.redirect(
 			'/docs/license/accessibility-statement-remotion-pro',
-			'/docs/accessibility/pro',
+			'/docs/accessibility/dev',
+			{permanent: true},
+		),
+		routes.redirect('/docs/accessibility/pro', '/docs/accessibility/dev', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/accessibility/pro.md',
+			'/docs/accessibility/dev.md',
 			{permanent: true},
 		),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
