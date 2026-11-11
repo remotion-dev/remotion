@@ -278,15 +278,25 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 				(ancestor !== svg && !referencedTemplates.has(ancestor))
 			)
 				continue;
-			let style = computedStyles.get(parent);
-			if (!style) {
-				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
-					parent,
-				);
-				computedStyles.set(parent, style);
+			// A descendant cannot override display:none on an ancestor. Avoid
+			// fetching CSS fonts for labels that contribute no rendered text.
+			ancestor = parent;
+			while (ancestor) {
+				let style = computedStyles.get(ancestor);
+				if (!style) {
+					style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
+						ancestor,
+					);
+					computedStyles.set(ancestor, style);
+				}
+
+				if (style.display === 'none') break;
+				ancestor = ancestor.parentElement;
 			}
 
-			for (const family of parseFontFamilies(style.fontFamily))
+			if (ancestor) continue;
+			const textStyle = computedStyles.get(parent)!;
+			for (const family of parseFontFamilies(textStyle.fontFamily))
 				fontFamilies.add(family);
 		}
 	}

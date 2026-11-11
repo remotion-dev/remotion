@@ -242,6 +242,10 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {
+	hiddenCssFontModes,
+	svgHiddenCssFont,
+} from './fixtures/svg-hidden-css-font';
+import {
 	svgLayerFontIdentity,
 	svgLayerFontModes,
 } from './fixtures/svg-layer-font-identity';
@@ -365,6 +369,9 @@ export const Root: React.FC = () => {
 			))}
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssUrlFont} />
+			{hiddenCssFontModes.map((mode) => (
+				<Composition key={mode} {...svgHiddenCssFont(mode, false)} />
+			))}
 			<Composition {...svgFontMediaCache({active: null})} />
 			<Composition {...svgLocalFontOrder({literal: false})} />
 			{svgLocalFontGroups.map((group) => (
