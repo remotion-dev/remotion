@@ -16,10 +16,10 @@ Read this page if you encounter issues with media playback in the Player such as
 ## Ensure best practices
 
 <div>
-<Step>1</Step> <span>Use `<Video>` and `<Audio>` from <a href="/docs/media">`@remotion/media`</a> where possible; they use the <a href="/docs/player/buffer-state">buffer state</a> by default. For `<Html5Audio>`, `<Html5Video>`, and `<OffthreadVideo>`, add `pauseWhenBuffering`. For `<Img>`, add `pauseWhenLoading`.</span>
+<Step>1</Step> <span>Use <a href="/docs/media/video">`<Video>`</a> and <a href="/docs/media/audio">`<Audio>`</a> from <a href="/docs/media">`@remotion/media`</a> where possible; they use the <a href="/docs/player/buffer-state">buffer state</a> by default. For <a href="/docs/html5-audio">`<Html5Audio>`</a>, <a href="/docs/html5-video">`<Html5Video>`</a>, and <a href="/docs/offthreadvideo">`<OffthreadVideo>`</a>, add `pauseWhenBuffering`. For <a href="/docs/img">`<Img>`</a>, add `pauseWhenLoading`.</span>
 </div>
 <div>
-<Step>2</Step> <span>For seamless transitions, use the <a href="/docs/player/premounting">`premountFor`</a> prop for `<Sequence>`'s.</span>
+<Step>2</Step> <span>For seamless transitions, use the <a href="/docs/player/premounting">`premountFor`</a> prop for <a href="/docs/sequence">`<Sequence>`</a>'s.</span>
 </div>
 <div>
 <Step>3</Step> <span>Don't use <a href="/docs/prefetch">`prefetch()`</a> if the Player is already mounted.</span>

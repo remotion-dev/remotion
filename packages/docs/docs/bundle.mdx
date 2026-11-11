@@ -123,7 +123,7 @@ From <AvailableFrom v="4.0.497" inline />, the default `./` makes the bundle rel
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
 :::note
-The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where `bundle()` gets called.
 :::
 
 ### `publicDir?`<AvailableFrom v="3.2.13" />
@@ -140,7 +140,7 @@ Gets called when a symbolic link is detected in the `public/` directory. Since R
 
 ### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.46" />
 
-Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+Ignore an error that gets thrown if you pass an entry point file which does not contain [`registerRoot()`](/docs/register-root).
 
 ## Legacy function signature
 
@@ -184,8 +184,8 @@ Pass this directory to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombun
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/bundle.ts)
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/renderer/get-compositions)
-- [renderMedia()](/docs/renderer/render-media)
-- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
-- [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)
+- [`getCompositions()`](/docs/renderer/get-compositions)
+- [`renderMedia()`](/docs/renderer/render-media)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video)
+- [Calling `bundle()` in bundled code](/docs/troubleshooting/bundling-bundle)
 - [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)

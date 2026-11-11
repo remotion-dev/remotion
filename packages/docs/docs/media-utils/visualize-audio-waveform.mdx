@@ -48,7 +48,7 @@ An object containing audio data. You can fetch this object using [`useAudioData(
 
 `number`
 
-The time of the track that you want to get the audio information for. The `frame` always refers to the position in the audio track - if you have shifted or trimmed the audio in your timeline, the frame returned by `useCurrentFrame` must also be tweaked before you pass it into this function.
+The time of the track that you want to get the audio information for. The `frame` always refers to the position in the audio track - if you have shifted or trimmed the audio in your timeline, the frame returned by [`useCurrentFrame()`](/docs/use-current-frame) must also be tweaked before you pass it into this function.
 
 ### `fps`
 
@@ -69,7 +69,7 @@ The length of the output array. A lower number gives a simpler waveform, a highe
 `number`
 
 Time in seconds (can be float) which represents the duration for which you want to see the audio waveform.  
-Example: Your video has an `fps` of 30, and you pass 15 as the `frame` on `visualizeAudioWaveform` and 0.25 as `windowInSeconds` then output will have audio waveform data from (15/30) - .125 = 0.375 sec to (15/30) +0.125 = 0.625 sec.
+Example: Your video has an `fps` of 30, and you pass 15 as the `frame` on `visualizeAudioWaveform()` and 0.25 as `windowInSeconds` then output will have audio waveform data from (15/30) - .125 = 0.375 sec to (15/30) +0.125 = 0.625 sec.
 
 ### `channel?`
 
