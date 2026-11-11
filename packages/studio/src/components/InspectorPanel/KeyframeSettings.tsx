@@ -233,7 +233,7 @@ export const KeyframeSettings: React.FC<{
 				) : null}
 				<InspectorDetailRow label="Posterize">
 					<InputDragger
-						aria-label="Posterize"
+						name="Posterize"
 						onValueChangeCancel={null}
 						type="number"
 						value={posterize}
