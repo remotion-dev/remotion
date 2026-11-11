@@ -33,6 +33,14 @@ The following APIs accept this option:
 - [`renderMedia()`](/docs/renderer/render-media#overwrite)
 - [`renderStill()`](/docs/renderer/render-still#overwrite)
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setOverwriteOutput(false);
+```
+
 ## See also
 
 - [All options](/docs/options)

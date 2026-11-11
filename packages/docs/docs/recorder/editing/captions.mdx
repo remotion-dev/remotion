@@ -27,16 +27,16 @@ words programmatically inside the <code>config/autocorrect.ts</code> file by add
 logic inside the <code>autocorrectWord</code> function. For example:
 
 ```tsx
-const autocorrectWord = (word: Word): Word => {
+const autocorrectWord = (caption: Caption): Caption => {
   // Replace a single word with another one
-  if (word.word === " github") {
+  if (caption.text === " github") {
     return {
-      ...word,
-      word: word.word.replace("github", " GitHub"),
+      ...caption,
+      text: caption.text.replace("github", " GitHub"),
     };
   }
 
-  return word;
+  return caption;
 };
 ```
 
