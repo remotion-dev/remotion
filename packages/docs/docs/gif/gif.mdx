@@ -82,10 +82,21 @@ Apply [effects](/docs/effects/api) to each GIF frame after it has been drawn to 
 
 Callback that gets called once the GIF has loaded and finished processing. As its only argument, the callback gives the following object:
 
-- `width`: Width of the GIF file in pixels.
-- `height`: Height of the GIF file in pixels.
-- `delays`: Array of timestamps of type `number` containing position of each frame.
-- `frames`: Array of frames of type [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData)
+#### `width`
+
+Width of the GIF file in pixels.
+
+#### `height`
+
+Height of the GIF file in pixels.
+
+#### `delays`
+
+Array of timestamps of type `number` containing position of each frame.
+
+#### `frames`
+
+Array of frames of type [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData).
 
 ### `onError?`
 

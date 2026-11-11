@@ -36,6 +36,7 @@ jobs:
       build: ${{ steps.query.outputs.build }}
       build_matrix: ${{ steps.query.outputs.build_matrix }}
       bundle_example: ${{ steps.query.outputs.bundle_example }}
+      webrenderer_flake_test_files: ${{ steps.flake_test_files.outputs.files }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -48,6 +49,30 @@ jobs:
       - name: Query Turborepo task graph and create CI plan
         id: query
         run: bun .github/scripts/ci.ts plan
+      # Selected here so the macOS flake test job only starts when there are
+      # added or changed web renderer test files to run.
+      - name: Find added or changed web renderer tests
+        id: flake_test_files
+        if: ${{ github.event_name == 'pull_request' && steps.query.outputs.webrenderer == 'true' && steps.query.outputs.scm_base != '' }}
+        env:
+          SCM_BASE: ${{ steps.query.outputs.scm_base }}
+          SCM_HEAD: ${{ steps.query.outputs.scm_head }}
+          MAX_FILES: 5
+        run: |
+          files=$(git diff --name-only --diff-filter=AMR "$SCM_BASE" "$SCM_HEAD" -- \
+            'packages/web-renderer/src/test/*.test.ts' \
+            'packages/web-renderer/src/test/*.test.tsx' \
+            | sed 's#^packages/web-renderer/##' | tr '\n' ' ')
+          count=$(echo "$files" | wc -w | tr -d ' ')
+          if [ "$count" -eq 0 ]; then
+            echo "No added or changed web renderer test files."
+          elif [ "$count" -gt "$MAX_FILES" ]; then
+            echo "::notice::Skipping flake test: $count test files changed (limit $MAX_FILES)."
+            files=""
+          else
+            echo "Testing for flakes: $files"
+          fi
+          echo "files=$files" >> "$GITHUB_OUTPUT"
 
   lambda-tests:
     needs: affected
@@ -173,6 +198,37 @@ jobs:
           path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
           if-no-files-found: ignore
           retention-days: 7
+  webrenderer-flake-test:
+    needs: affected
+    if: ${{ needs.affected.outputs.webrenderer_flake_test_files != '' }}
+    runs-on: macos-latest
+    timeout-minutes: 40
+    name: Web renderer flake test
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+        with:
+          bun-version: 1.4.3
+      - name: Install
+        run: bun ci
+      - name: Install deps
+        run: cd packages/web-renderer && bunx playwright install --with-deps
+      - name: Cache Turbo
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
+      - name: Build web renderer
+        run: bunx turbo run make --filter=@remotion/web-renderer
+      # Runs each added or changed test file 5 times (1 + 4 repeats) under the
+      # same single-worker, three-browser setup as "Web renderer tests", so
+      # flaky new tests fail here instead of in the merge queue.
+      - name: Run changed tests 5 times
+        env:
+          FILES: ${{ needs.affected.outputs.webrenderer_flake_test_files }}
+        run: cd packages/web-renderer && bunx vitest --browser --run --repeats 4 $FILES
   ssr-tests:
     needs: affected
     if: ${{ needs.affected.outputs.ssr == 'true' }}
@@ -394,6 +450,7 @@ jobs:
       - nextjs-tests
       - browser-tests
       - webrenderer-tests
+      - webrenderer-flake-test
       - ssr-tests
       - monorepo-tests
       - template-tests
@@ -410,5 +467,5 @@ jobs:
         env:
           CI_PLAN: ${{ needs.affected.outputs.plan }}
           CI_RESULTS: >-
-            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
+            {"detector":"${{ needs.affected.result }}","lint":"${{ needs.lint.result }}","build_job":"${{ needs.build.result }}","lambda":"${{ needs.lambda-tests.result }}","nextjs":"${{ needs.nextjs-tests.result }}","browser":"${{ needs.browser-tests.result }}","webrenderer":"${{ needs.webrenderer-tests.result }}","webrenderer_flake_test":"${{ needs.webrenderer-flake-test.result }}","ssr":"${{ needs.ssr-tests.result }}","monorepo":"${{ needs.monorepo-tests.result }}","templates":"${{ needs.template-tests.result }}"}
         run: bun .github/scripts/ci.ts validate

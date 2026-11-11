@@ -29,8 +29,15 @@ import type {CreateSandboxOnProgress} from '@remotion/vercel';
 //                ^?
 ```
 
-- `progress`: A number from `0` to `1` indicating overall progress
-- `message`: A human-readable description of the current phase
+The callback receives an object with the following properties:
+
+### `progress`
+
+A number from `0` to `1` indicating overall progress.
+
+### `message`
+
+A human-readable description of the current phase.
 
 ## `RenderMediaOnVercelProgress`
 
