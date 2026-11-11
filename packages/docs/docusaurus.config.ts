@@ -350,6 +350,9 @@ const config: Config = {
 		[
 			'classic',
 			{
+				sitemap: {
+					filename: 'docs-sitemap.xml',
+				},
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',
