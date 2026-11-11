@@ -182,6 +182,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {
 	svgCssDataCarrierModes,
 	svgCssDataEmptyCarrier,
@@ -354,6 +355,14 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgAtRuleTextModes.flatMap((mode) =>
+				[false, true].map((positive) => (
+					<Composition
+						key={`at-rule-${mode}-${positive}`}
+						{...svgAtRuleText({mode, positive, literal: false})}
+					/>
+				)),
+			)}
 			{svgLocalFontOrderModes.map((mode) => (
 				<Composition
 					key={`local-font-${mode}`}
