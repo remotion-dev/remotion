@@ -7,7 +7,7 @@ crumb: '@remotion/renderer'
 
 # selectComposition()<AvailableFrom v="4.0.0"/>
 
-Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Remotion Root](/docs/terminology/remotion-root) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology/composition).
+Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Root component](/docs/terminology/root-file) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology/composition).
 
 If you want to get a list of all compositions, use [`getCompositions()`](/docs/renderer/get-compositions).
 
@@ -62,6 +62,18 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 ### `chromiumOptions?`
 
 See: [Chromium Flags](/docs/chromium-flags)
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `timeoutInMilliseconds?`
 

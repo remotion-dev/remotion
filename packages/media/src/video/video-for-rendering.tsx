@@ -154,6 +154,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 	const mediaCache = useRenderMediaCache(logLevel);
+	const delayRenderScope = useContext(Internals.DelayRenderContextType);
 	const effectChainState = Internals.useEffectChainState(effectsOutputSize);
 
 	const [error, setError] = useState<Error | null>(null);
@@ -194,6 +195,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 			},
 		);
+
+		const stopTracking =
+			environment.isClientSideRendering && delayRenderScope
+				? mediaCache.trackRenderHandle(delayRenderScope, newHandle)
+				: () => {};
 
 		extractFrameViaBroadcastChannel({
 			sampleRate,
@@ -423,6 +429,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 				}
 
+				stopTracking();
 				continueRender(newHandle);
 			})
 			.catch((err) => {
@@ -435,6 +442,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 		return () => {
 			cancelled = true;
+			stopTracking();
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -479,6 +487,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		effects,
 		initialRequestInit,
 		mediaCache,
+		delayRenderScope,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

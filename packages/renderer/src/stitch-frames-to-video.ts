@@ -131,6 +131,7 @@ const innerStitchFramesToVideo = async (
 		codec,
 		crf,
 		gopSize,
+		proResBitsPerMacroblock,
 		enforceAudioTrack,
 		ffmpegOverride,
 		force,
@@ -174,6 +175,7 @@ const innerStitchFramesToVideo = async (
 		logLevel,
 	});
 	validateSelectedCodecAndProResCombination({
+		proResBitsPerMacroblock,
 		codec,
 		proResProfile,
 	});
@@ -439,6 +441,7 @@ const innerStitchFramesToVideo = async (
 				crf,
 				encodingMaxRate: maxRate,
 				encodingBufferSize: bufferSize,
+				proResBitsPerMacroblock,
 				onLog,
 			});
 
@@ -482,6 +485,7 @@ const innerStitchFramesToVideo = async (
 			pixelFormat,
 			x264Preset,
 			gopSize,
+			proResBitsPerMacroblock,
 			colorSpace,
 			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent,
@@ -665,6 +669,7 @@ export const stitchFramesToVideo = ({
 	codec,
 	crf,
 	gopSize,
+	proResBitsPerMacroblock,
 	enforceAudioTrack,
 	ffmpegOverride,
 	muted,
@@ -696,6 +701,7 @@ export const stitchFramesToVideo = ({
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
 		gopSize: gopSize ?? null,
+		proResBitsPerMacroblock: proResBitsPerMacroblock ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
 		force: force ?? true,

@@ -66,6 +66,10 @@ test.describe('node-path cache for stale source maps', () => {
 		const videoLineIndex = lines.findIndex((l) => l.includes('<Video'));
 		expect(videoLineIndex).toBeGreaterThan(-1);
 		const videoLine = videoLineIndex + 1; // 1-indexed
+		const videoTag = lines[videoLineIndex]
+			.trim()
+			.replace(/^return /, '')
+			.replace(/;$/, '');
 
 		// 1. Initial subscription → resolves line to AST nodePath and caches it
 		const result1 = await subscribeToSequenceProps({
@@ -88,8 +92,8 @@ test.describe('node-path cache for stale source maps', () => {
 		// 2. Simulate prettier wrapping the return in parentheses,
 		//    shifting <Video> down by one line.
 		const editedContent = content.replace(
-			'return <Video src={src} debugOverlay />;',
-			'return (\n\t\t<Video src={src} debugOverlay />\n\t);',
+			`return ${videoTag};`,
+			`return (\n\t\t${videoTag}\n\t);`,
 		);
 		expect(editedContent).not.toBe(content);
 		fs.writeFileSync(newVideoFile, editedContent);
@@ -157,8 +161,8 @@ test.describe('node-path cache for stale source maps', () => {
 
 		const staleNodePath = identityResult.nodePath.nodePath;
 		const wrappedInSequence = identityContent.replace(
-			'return <Video src={src} debugOverlay />;',
-			'return (\n\t\t<Sequence>\n\t\t\t<Video src={src} debugOverlay />\n\t\t</Sequence>\n\t);',
+			`return ${videoTag};`,
+			`return (\n\t\t<Sequence>\n\t\t\t${videoTag}\n\t\t</Sequence>\n\t);`,
 		);
 		expect(wrappedInSequence).not.toBe(identityContent);
 		fs.writeFileSync(newVideoFile, wrappedInSequence);

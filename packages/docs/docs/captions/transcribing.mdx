@@ -23,14 +23,14 @@ Remotion provides several built-in options for transcribing audio to generate ca
 | **Cost**             | Free                                                         | Free                                               | Paid (OpenAI API pricing)                                                             | Paid (ElevenLabs API pricing)                                                            |
 | **Offline support**  | ✅                                                           | ✅                                                 | ❌                                                                                    | ❌                                                                                       |
 | **No server needed** | ❌                                                           | ✅                                                 | ✅                                                                                    | ✅                                                                                       |
-| **Convert function** | [`toCaptions()`](/docs/install-whisper-cpp/to-captions)      | [`toCaptions()`](/docs/whisper-webgpu/to-captions) | [`openaiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) | [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions) |
+| **Convert function** | [`toCaptions()`](/docs/install-whisper-cpp/to-captions)      | [`toCaptions()`](/docs/whisper-webgpu/to-captions) | [`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) | [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions) |
 
 ## The `Caption` type
 
 All of these options can output captions in the [`Caption`](/docs/captions/caption) type format, which is recommended for use with Remotion. This format:
 
 - Enables usage of the APIs in [`@remotion/captions`](/docs/captions/api), such as [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
-- Matches the format used in the [Remotion Editor Starter](https://remotion.pro/store/editor-starter)
+- Matches the format used in the [Remotion Editor Starter](https://www.remotion.dev/store/editor-starter)
 - Can be displayed using the [caption elements](/elements/captions/)
 
 ## Alternatives

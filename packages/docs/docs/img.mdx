@@ -67,6 +67,10 @@ The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
 When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
 
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
 Crops the image from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
@@ -160,7 +164,7 @@ Prefer the [`maxRetries`](#maxretries) prop over this.
 
 ### Inherited props<AvailableFrom v="4.0.465" />
 
-`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Img>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
@@ -205,4 +209,4 @@ In earlier versions, failing to load an image would lead to an error message in 
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Img.tsx)
-- [Use `<Img>` and `<IFrame>` tags](/docs/use-img-and-iframe)
+- [`<Img>`, `<Video>`, `<Audio>` and `<IFrame>`](/docs/use-img-and-iframe)

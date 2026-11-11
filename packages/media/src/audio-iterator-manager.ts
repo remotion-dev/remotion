@@ -117,6 +117,7 @@ export const audioIteratorManager = ({
 	gainNode.connect(sharedAudioContext.gainNode);
 
 	const audioSink = new AudioBufferSink(audioTrack);
+	const releaseSink = Internals.registerMediabunnySink(audioTrack.input);
 	let audioBufferIterator: AudioIterator | null = null;
 	// When looping, the iterator emits timestamps that continue monotonically
 	// across loop iterations instead of wrapping. This anchor maps the unlooped
@@ -672,6 +673,10 @@ export const audioIteratorManager = ({
 		getAudioBufferIterator: () => audioBufferIterator,
 		getCurrentAnchor: () => currentAnchor,
 		destroyIterator,
+		dispose: () => {
+			destroyIterator();
+			releaseSink();
+		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 		getTotalAudioScheduledInSeconds: () => totalAudioScheduledInSeconds,

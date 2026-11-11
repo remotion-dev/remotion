@@ -1,3 +1,5 @@
+import {mkdirSync, readdirSync, rmSync} from 'node:fs';
+import path from 'node:path';
 import {build, semver, version} from 'bun';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -12,16 +14,38 @@ if (!semver.satisfies(version, '^1.1.7')) {
 	process.exit(1);
 }
 
+const outDir = path.join('dist', 'esm');
+
+mkdirSync(outDir, {recursive: true});
+for (const f of readdirSync(outDir)) {
+	if (f.startsWith('chunk-')) {
+		rmSync(path.join(outDir, f));
+	}
+}
+
 const output = await build({
-	entrypoints: ['src/index.ts'],
-	naming: '[name].mjs',
+	entrypoints: ['src/index.ts', 'src/no-react.ts'],
+	naming: {
+		entry: '[name].mjs',
+		chunk: 'chunk-[hash].mjs',
+	},
+	splitting: true,
 	target: 'browser',
-	external: ['remotion', 'remotion/no-react', 'react', 'react-dom'],
+	external: ['remotion', 'react', 'react-dom'],
 });
 
-const [file] = output.outputs;
-const text = await file.text();
-await Bun.write('dist/esm/index.mjs', text);
+for (const file of output.outputs) {
+	const name = path.basename(file.path);
+	const text = await file.text();
+	if (
+		name !== 'index.mjs' &&
+		(text.includes('createContext') || /from\s*["']react/.test(text))
+	) {
+		throw new Error('remotion/no-react.mjs should not import React');
+	}
+
+	await Bun.write(path.join(outDir, name), text);
+}
 
 const versionOutput = await build({
 	entrypoints: ['src/version.ts'],
@@ -30,22 +54,7 @@ const versionOutput = await build({
 });
 
 const [versionFile] = versionOutput.outputs;
-await Bun.write('dist/esm/version.mjs', await versionFile.text());
-
-const noReactOutput = await build({
-	entrypoints: ['src/no-react.ts'],
-	naming: '[name].mjs',
-	target: 'browser',
-	external: ['remotion', 'react', 'react-dom'],
-});
-const [noReactFile] = noReactOutput.outputs;
-const noReactText = await noReactFile.text();
-
-if (noReactText.includes('createContext')) {
-	throw new Error('remotion/no-react.mjs should not import React');
-}
-
-await Bun.write('dist/esm/no-react.mjs', noReactText);
+await Bun.write(path.join(outDir, 'version.mjs'), await versionFile.text());
 
 export {};
 

@@ -87,6 +87,20 @@ await renderMedia({
 Higher profiles produce larger files.
 ProRes does not support [`crf`](/docs/options/crf), and [`videoBitrate`](/docs/options/video-bitrate) is ignored.
 
+## Controlling file size<AvailableFrom v="4.0.543" />
+
+Use [`proResBitsPerMacroblock`](/docs/options/prores-bits-per-macroblock) to adjust the bit budget for software ProRes encoding:
+
+```bash title="Terminal"
+npx remotion render MyComp out/video.mov --codec=prores --prores-bits-per-macroblock=1000
+```
+
+Pass `proResBitsPerMacroblock: 1000` to [`renderMedia()`](/docs/renderer/render-media#proresbitspermacroblock), or set `Config.setProResBitsPerMacroblock(1000)` in `remotion.config.ts`.
+
+<Options id="prores-bits-per-macroblock" />
+
+This controls the encoder's bit budget, not a fixed output bitrate. Keep selecting a [ProRes profile](#choosing-a-prores-profile) and [pixel format](/docs/options/pixel-format) appropriate for your workflow.
+
 ## Transparent ProRes
 
 To export a transparent overlay or transition for a video editor, use a ProRes profile with alpha support: `"4444"` or `"4444-xq"`.

@@ -732,3 +732,42 @@ test('<CanvasImage> does not reload the source image when effect keys change', a
 
 	expect(imageLoadCount).toBe(1);
 });
+
+test('<CanvasImage> keeps playing without reloading when advancing frames with an inline onError', async () => {
+	const events: string[] = [];
+	const errors: Error[] = [];
+
+	const atFrame = (frame: number) =>
+		wrapCanvasImage(
+			<>
+				<BufferingEvents events={events} />
+				<CanvasImage
+					src="test.png"
+					pauseWhenLoading
+					width={100}
+					height={50}
+					onError={(err) => {
+						errors.push(err);
+					}}
+				/>
+			</>,
+			frame,
+		);
+
+	const {rerender} = render(atFrame(0));
+
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+	const eventsAfterFirstLoad = [...events];
+
+	for (let frame = 1; frame <= 3; frame++) {
+		rerender(atFrame(frame));
+		await act(() => Promise.resolve());
+	}
+
+	expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	expect(events).toEqual(eventsAfterFirstLoad);
+	expect(imageLoadCount).toBe(1);
+	expect(errors).toEqual([]);
+});

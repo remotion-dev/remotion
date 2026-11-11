@@ -56,6 +56,10 @@ import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+} from './delay-render.js';
+import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	timeValueRef,
@@ -168,6 +172,11 @@ import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
+import {
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
+} from './playback-diagnostics.js';
 import {playbackLogging} from './playback-logging.js';
 import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
@@ -369,6 +378,11 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticEffects,

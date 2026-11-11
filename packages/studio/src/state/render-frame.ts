@@ -1,22 +1,22 @@
 export const renderFrame = (frame: number, fps: number): string => {
-	const hours = Math.floor(frame / fps / 3600);
+	const magnitude = Math.abs(frame);
+	const roundedFrame = Math.round(magnitude);
+	const timeInSeconds = magnitude / fps;
+	const nearestSecond = Math.round(timeInSeconds);
+	const elapsedSeconds =
+		roundedFrame === Math.round(nearestSecond * fps)
+			? nearestSecond
+			: Math.floor(timeInSeconds);
+	const hours = Math.floor(elapsedSeconds / 3600);
+	const minutes = Math.floor(elapsedSeconds / 60) % 60;
+	const seconds = elapsedSeconds % 60;
+	const frameAfterSec = roundedFrame - Math.round(elapsedSeconds * fps);
 
-	const remainingMinutes = frame - hours * fps * 3600;
-	const minutes = Math.floor(remainingMinutes / 60 / fps);
-
-	const remainingSec = frame - hours * fps * 3600 - minutes * fps * 60;
-	const seconds = Math.floor(remainingSec / fps);
-
-	const frameAfterSec = Math.round(frame % fps);
-
-	const hoursStr = String(hours);
+	const sign = frame < 0 ? '-' : '';
+	const hoursStr = hours > 0 ? `${hours}:` : '';
 	const minutesStr = String(minutes).padStart(2, '0');
 	const secondsStr = String(seconds).padStart(2, '0');
 	const frameStr = String(frameAfterSec).padStart(2, '0');
 
-	if (hours > 0) {
-		return `${hoursStr}:${minutesStr}:${secondsStr}.${frameStr}`;
-	}
-
-	return `${minutesStr}:${secondsStr}.${frameStr}`;
+	return `${sign}${hoursStr}${minutesStr}:${secondsStr}.${frameStr}`;
 };

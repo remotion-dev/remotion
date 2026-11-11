@@ -272,6 +272,7 @@ export {
 	remoteAssetDownloadTimeout,
 } from './remote-asset';
 export {
+	isKeyframeEasing,
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
 	type EasingClipboardData,

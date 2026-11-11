@@ -5,7 +5,7 @@ title: '<AnimatedImage>'
 crumb: 'API'
 ---
 
-# `<AnimatedImage>`<AvailableFrom v="4.0.246" />
+# &lt;AnimatedImage&gt;<AvailableFrom v="4.0.246" />
 
 Renders an animated GIF, PNG, AVIF or WebP image and syncs it with Remotion's timeline.  
 Relies on the [`ImageDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder) Web API, meaning it only works in Google Chrome and Firefox as of writing.
@@ -51,6 +51,10 @@ Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/We
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) to each frame after it has been drawn to the canvas.
+
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
 
 ### `width?`
 
@@ -133,13 +137,13 @@ Remotion manages the internal `signal` option itself, so passing a `signal` in `
 />
 ```
 
-### `ref?`<AvailableFrom v="3.3.88" />
+### `ref?`
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<AnimatedImage />`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
 
 ### Inherited props
 
-`<AnimatedImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<AnimatedImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 ## Differences to `<Gif>`
 
