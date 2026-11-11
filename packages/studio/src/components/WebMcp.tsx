@@ -75,6 +75,7 @@ import {
 } from './RenderQueue/context';
 import {useRenderJobRetry} from './RenderQueue/render-retry';
 import {measureOutlineTargets} from './selected-outline-measurement';
+import {SplitterImperativeContext} from './Splitter/SplitterImperativeContext';
 import {getPendingTimelineTimingEdits} from './Timeline/commit-timeline-timing-edit';
 import {deleteEffectsFromSource} from './Timeline/delete-effects-from-source';
 import {
@@ -307,6 +308,9 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const {getSplitters, setSplitterPosition} = useContext(
+		SplitterImperativeContext,
+	);
 	const {
 		visible: audioLevelsVisible,
 		setVisible: setAudioLevelsVisible,
@@ -2004,6 +2008,62 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_splitters',
+					title: 'Get Studio panel dividers',
+					description:
+						'Read the mounted, visible Studio panel dividers, their orientation, first-pane size and effective bounds in CSS pixels, and pointer-drag state. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({splitters: getSplitters()}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_splitter_position',
+					title: 'Resize Studio panel',
+					description:
+						'Set the first-pane size of a Studio panel divider in CSS pixels from the start of its container. Horizontal dividers control height and vertical dividers control width. Clamps to current bounds, saves the preference in this browser, and returns the effective divider state. Calls for unavailable or actively dragged dividers return an error. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							id: {
+								type: 'string',
+								description: 'A divider ID returned by get_splitters.',
+							},
+							positionInPixels: {
+								type: 'number',
+								description:
+									'The requested first-pane size in CSS pixels from the start of its container.',
+							},
+						},
+						required: ['id', 'positionInPixels'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({id, positionInPixels}) => {
+						if (typeof id !== 'string' || id.trim().length === 0) {
+							throw new Error('id must be a non-empty string.');
+						}
+
+						if (
+							typeof positionInPixels !== 'number' ||
+							!Number.isFinite(positionInPixels)
+						) {
+							throw new Error('positionInPixels must be a finite number.');
+						}
+
+						return Promise.resolve(setSplitterPosition(id, positionInPixels));
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
@@ -2823,6 +2883,7 @@ export const WebMcp: FC = () => {
 		cancelClientJob,
 		calculateTimeline,
 		compositionManagerRef,
+		getSplitters,
 		isPlaying,
 		propStatusesRef,
 		renderQueueActions,
@@ -2835,6 +2896,7 @@ export const WebMcp: FC = () => {
 		setMediaVolume,
 		setPlaybackRate,
 		setPlayerMuted,
+		setSplitterPosition,
 		setTimelineZoom,
 		timelineSelectionRef,
 	]);

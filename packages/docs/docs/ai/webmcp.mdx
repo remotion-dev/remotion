@@ -24,6 +24,7 @@ Agents can:
 - Get your current playhead position and playback state
 - Play, pause and seek
 - Set timeline zoom, playback rate, looping, volume and mute state
+- Inspect and resize Studio panels
 - See, add and remove guides
 - Install packages into the current project
 - Transcribe audio and video assets
@@ -1060,6 +1061,77 @@ Shows or hides the fixed-width Audio Levels panel to the right of the timeline. 
   visible: boolean;
 }
 ```
+
+### `get_splitters`<AvailableFrom v="4.0.543" />
+
+Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and Browser Studio.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  splitters: Array<{
+    id: string;
+    label: string;
+    orientation: 'horizontal' | 'vertical';
+    positionInPixels: number;
+    minPositionInPixels: number;
+    maxPositionInPixels: number;
+    isDragging: boolean;
+  }>;
+}
+```
+
+#### `id`
+
+Pass this ID to `set_splitter_position`. Read the list again after opening or closing panels, changing previews, or resizing the Studio window.
+
+#### `label`
+
+The divider's accessible name. It describes the preview height, left sidebar width, preview area width, or timeline labels width.
+
+#### `orientation`
+
+The divider's orientation. A horizontal divider controls the height of the pane above it. A vertical divider controls the width of the pane to its left.
+
+#### `positionInPixels`
+
+The current first-pane size in CSS pixels from the start of its container. The right sidebar divider reports the preview area's width.
+
+#### `minPositionInPixels`
+
+The smallest allowed first-pane size for the current layout, including minimum and maximum pixel sizes of both panes.
+
+#### `maxPositionInPixels`
+
+The largest allowed first-pane size for the current layout. Sizes and bounds use whole pixels where the constraints permit. A fractional bound is retained when required by the constraints.
+
+#### `isDragging`
+
+Whether a pointer drag is currently resizing this divider. `set_splitter_position` rejects changes during the drag.
+
+### `set_splitter_position`<AvailableFrom v="4.0.543" />
+
+Resizes a Studio panel using the same size constraints and browser preference as the divider's keyboard controls. Available in all four Studio modes. Resizing updates and saves the local layout.
+
+```ts title="Input"
+{
+  id: string;
+  positionInPixels: number;
+}
+```
+
+#### `id`
+
+A divider ID returned by `get_splitters`. Unknown, hidden and unmounted dividers return an error.
+
+#### `positionInPixels`
+
+The requested first-pane size in CSS pixels from the start of its container. Must be a finite number. The value is clamped to the current bounds and rounded to a whole pixel where possible.
+
+Returns the effective divider state with the same fields as one entry in the `splitters` array returned by `get_splitters`. The returned position may differ from the requested value because of size constraints or rounding. Calls for unavailable or actively dragged dividers return an error.
 
 ### `get_playback_state`
 
