@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # reorderNodes()<AvailableFrom v="4.0.533" />
 
-Moves one or more JSX nodes as a group before or after a sibling. The moved nodes keep their source order. For ordinary `<Sequence>` siblings, this changes stacking order. For `<Series.Sequence>` and `<TransitionSeries.Sequence>` siblings, it also changes their calculated timing.
+Moves one or more nodes as a group before or after a sibling. The moved nodes keep their source order. For ordinary `<Sequence>` siblings, this changes stacking order. For `<Series.Sequence>` and `<TransitionSeries.Sequence>` siblings, it also changes their calculated timing.
 
 :::warning
 
@@ -54,13 +54,15 @@ Either `'before'` or `'after'`.
 
 ## Return value
 
+A promise resolving to an object with the following properties.
+
 ### changes
 
-An array of file changes. This operation changes one file.
+An array of `{filePath, previousContents, nextContents}` file changes. This operation changes one file.
 
 ### nodePathRemappings
 
-The mappings from old to new JSX node paths. Apply them to references and selections from the input project.
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
 
 ### updatedNodes
 
@@ -70,10 +72,16 @@ References to the moved nodes in the output project, in the order passed in `nod
 
 The source location and label for the edit.
 
+## Errors
+
+Throws or rejects when a reference cannot be resolved, the nodes and target are not direct siblings in the same file, or the nodes are already in the requested position. Failed edits leave the input project unchanged.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/reorder-nodes.ts)
+- [`@remotion/codemods`](/docs/codemods)
 - [`getNodes()`](/docs/codemods/get-nodes)
