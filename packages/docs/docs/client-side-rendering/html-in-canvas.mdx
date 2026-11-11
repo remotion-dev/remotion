@@ -8,7 +8,7 @@ sidebar_label: HTML-in-canvas
 # HTML-in-canvas<AvailableFrom v="4.0.447" />
 
 :::note
-This is not the same as the [`<HtmlInCanvas>`](/docs/html-in-canvas) component for designing visuals. This page describes a [`@remotion/web-renderer`](/docs/web-renderer) option that uses HTML-in-canvas to capture full frames during client-side rendering.
+This is not the same as the [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component for designing visuals. This page describes a [`@remotion/web-renderer`](/docs/web-renderer) option that uses HTML-in-canvas to capture full frames during client-side rendering.
 :::
 
 On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
@@ -55,11 +55,13 @@ Or start Studio with `--allow-html-in-canvas`. See [`setAllowHtmlInCanvasEnabled
 
 ## Check if HTML-in-canvas was used
 
-If HTML-in-canvas was used, you will see a warning in the browser console:
+If HTML-in-canvas was used, you will see a warning in the browser console. With [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web):
 
 ```
-Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://remotion.dev/docs/client-side-rendering/html-in-canvas
+Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://remotion.dev/docs/client-side-rendering/html-in-canvas
 ```
+
+With [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web), the warning says `for this frame` instead of `for video frames`.
 
 If native capture starts but fails while capturing a frame, a warning is printed and the renderer falls back to the built-in DOM composer:
 
