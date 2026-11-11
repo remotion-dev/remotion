@@ -622,6 +622,7 @@ export const KeyframeInspector: React.FC<{
 				<div style={detailsBeforeInlineAction}>
 					<InspectorDetailRow label="Frame">
 						<InputDragger
+							aria-label="Frame"
 							onValueChangeCancel={cancelFrameEdit}
 							type="number"
 							value={draftFrame}

@@ -1330,6 +1330,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>X1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="X1"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[0]}
@@ -1354,6 +1355,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Y1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Y1"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[1]}
@@ -1378,6 +1380,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>X2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="X2"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[2]}
@@ -1402,6 +1405,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Y2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Y2"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[3]}
@@ -1450,6 +1454,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Damping</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Damping"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.damping}
@@ -1477,6 +1482,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Mass</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Mass"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.mass}
@@ -1504,6 +1510,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Stiffness</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Stiffness"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.stiffness}
@@ -1531,6 +1538,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<div style={coordinateLabel}>Rest threshold</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									aria-label="Rest threshold"
 									onValueChangeCancel={null}
 									type="number"
 									value={
