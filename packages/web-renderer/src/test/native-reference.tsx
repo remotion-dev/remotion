@@ -107,15 +107,11 @@ const decodePixels = async (blob: Blob) => {
 };
 
 // No perceptual threshold, antialias exclusion, or alpha-channel exception.
-const compareNativePixelData = async (
-	reference: Blob,
-	actual: Blob,
+const comparePixelData = (
+	expected: ImageData,
+	received: ImageData,
 	createDiff: boolean,
 ) => {
-	const [expected, received] = await Promise.all([
-		decodePixels(reference),
-		decodePixels(actual),
-	]);
 	if (
 		expected.width !== received.width ||
 		expected.height !== received.height
@@ -154,6 +150,27 @@ const compareNativePixelData = async (
 		width: expected.width,
 		height: expected.height,
 	};
+};
+
+const compareNativePixelData = async (
+	reference: Blob,
+	actual: Blob,
+	createDiff: boolean,
+) => {
+	const [expected, received] = await Promise.all([
+		decodePixels(reference),
+		decodePixels(actual),
+	]);
+	return comparePixelData(expected, received, createDiff);
+};
+
+export const countRgbaPixels = (reference: ImageData, actual: ImageData) => {
+	const {mismatchedPixels, maxChannelDelta} = comparePixelData(
+		reference,
+		actual,
+		false,
+	);
+	return {mismatchedPixels, maxChannelDelta};
 };
 
 // A matching comparison has an all-transparent diff, so encode it once per size.

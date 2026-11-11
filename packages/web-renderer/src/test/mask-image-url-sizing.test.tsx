@@ -38,6 +38,7 @@ import {
 	captureNativeReference,
 	compareNativePixels,
 	countNativePixels,
+	countRgbaPixels,
 } from './native-reference';
 import {testImage} from './utils';
 
@@ -568,8 +569,8 @@ for (const {math, literal, transparent} of [
 						);
 					});
 					await page.viewport(1280, 720);
-					// Render calls already queue internally. Let the first PNG encode
-					// overlap the second render instead of serializing both operations.
+					// Both sides use the same renderer. Compare its RGBA output directly;
+					// the native-reference cases above still exercise the PNG path.
 					const rendered = await Promise.all(
 						[math, literal].map(async (composition, index) => {
 							phases[index] = 'rendering output';
@@ -583,10 +584,12 @@ for (const {math, literal, transparent} of [
 							});
 							const canvas = await result.canvas();
 							try {
-								phases[index] = 'PNG encoding';
-								const blob = await result.blob({format: 'png'});
+								phases[index] = 'reading canvas RGBA';
+								const pixels = canvas
+									.getContext('2d')!
+									.getImageData(0, 0, canvas.width, canvas.height);
 								phases[index] = 'ready for RGBA comparison';
-								return blob;
+								return pixels;
 							} finally {
 								canvas.width = 0;
 								canvas.height = 0;
@@ -595,8 +598,7 @@ for (const {math, literal, transparent} of [
 					);
 
 					expect(
-						(await countNativePixels(rendered[0], rendered[1]))
-							.mismatchedPixels,
+						countRgbaPixels(rendered[0], rendered[1]).mismatchedPixels,
 					).toBe(0);
 				},
 				maskPixelTestTimeout,
