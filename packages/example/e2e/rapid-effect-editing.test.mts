@@ -38,17 +38,19 @@ test('chains effect edits before persistence and HMR without losing the latest i
 
 	try {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const effects = page.getByRole('region', {name: 'Effects', exact: true});
 		await expect(async () => {
 			await page
 				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
 			await expect(
-				page.getByRole('button', {name: '0.75', exact: true}),
+				effects
+					.getByRole('button', {name: 'Factor', exact: true})
+					.filter({hasText: /^0\.75$/}),
 			).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
 
-		const effects = page.getByRole('region', {name: 'Effects', exact: true});
 		const scaleEffects = effects.getByRole('group', {
 			name: 'scale()',
 			exact: true,
@@ -227,23 +229,33 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await expect(scaleEffects).toHaveCount(2, {timeout: 1_000});
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(720);
 		await expect(
-			effects.getByRole('button', {name: '0.75', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.75$/}),
 		).toHaveCount(2);
 		await effects
-			.getByRole('button', {name: '0.75', exact: true})
+			.getByRole('button', {name: 'Factor', exact: true})
+			.filter({hasText: /^0\.75$/})
 			.last()
 			.click();
-		const factorInput = effects.getByRole('textbox');
+		const factorInput = effects.getByRole('textbox', {
+			name: 'Factor',
+			exact: true,
+		});
 		await factorInput.fill('0.5');
 		await factorInput.press('Enter');
 		await expect(
-			effects.getByRole('button', {name: '0.5', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.5$/}),
 		).toHaveCount(1);
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(480);
 		await page.keyboard.press('ControlOrMeta+d');
 		await expect(scaleEffects).toHaveCount(3, {timeout: 1_000});
 		await expect(
-			effects.getByRole('button', {name: '0.5', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.5$/}),
 		).toHaveCount(2);
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(240);
 		const indicator = page.locator('[data-remotion-effect-drop-indicator]');
@@ -370,7 +382,9 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		expect(beforeHmr).not.toBeNull();
 
 		await expect(
-			effects.getByRole('button', {name: '0.25', exact: true}),
+			effects
+				.getByRole('button', {name: 'Amount', exact: true})
+				.filter({hasText: /^0\.25$/}),
 		).toHaveCount(1);
 		await page.evaluate(() => {
 			(
@@ -398,10 +412,14 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		await expect(scaleEffects).toHaveCount(2);
 		await expect(brightnessEffects).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.75', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.75$/}),
 		).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.5', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.5$/}),
 		).toHaveCount(1);
 
 		expect(
@@ -622,7 +640,10 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			.toBeGreaterThan(0);
 		await expect(scaleEffects).toHaveCount(1);
 		await expect.poll(opaqueWidth).toBe(640);
-		await effects.getByRole('button', {name: '0.5', exact: true}).click();
+		await effects
+			.getByRole('button', {name: 'Factor', exact: true})
+			.filter({hasText: /^0\.5$/})
+			.click();
 		await factorInput.fill('0.6');
 		await factorInput.press('Enter');
 		await expect.poll(opaqueWidth, {timeout: 1_000}).toBe(768);
@@ -646,7 +667,9 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			beforeExternalEdit.replace('scale: 0.6', 'scale: 0.65'),
 		);
 		await expect(
-			effects.getByRole('button', {name: '0.65', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.65$/}),
 		).toHaveCount(1);
 		await expect.poll(opaqueWidth).toBe(832);
 		await expect(
@@ -665,7 +688,9 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			.click();
 		await expect(scaleEffects).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.65', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.65$/}),
 		).toHaveCount(1);
 		await expect.poll(opaqueWidth).toBe(832);
 	} catch (error) {
@@ -724,7 +749,9 @@ test('external source edits supersede queued effects and late save responses', a
 				.first()
 				.click();
 			await expect(
-				effects.getByRole('button', {name: '0.75', exact: true}),
+				effects
+					.getByRole('button', {name: 'Factor', exact: true})
+					.filter({hasText: /^0\.75$/}),
 			).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 30_000});
 		const canvas = page.getByLabel('Effect scale precision canvas', {
@@ -756,17 +783,24 @@ test('external source edits supersede queued effects and late save responses', a
 		await sent;
 		await expect(scales).toHaveCount(2);
 		await effects
-			.getByRole('button', {name: '0.75', exact: true})
+			.getByRole('button', {name: 'Factor', exact: true})
+			.filter({hasText: /^0\.75$/})
 			.last()
 			.click();
-		await effects.getByRole('textbox').fill('0.5');
-		await effects.getByRole('textbox').press('Enter');
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.fill('0.5');
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.press('Enter');
 		await expect.poll(opaqueWidth).toBe(480);
 		const external = original.replace('scale: 0.75', 'scale: 0.6');
 		fs.writeFileSync(effectKeyframeE2eFile, external);
 		await expect(scales).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.6', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.6$/}),
 		).toBeVisible();
 		await expect.poll(opaqueWidth).toBe(768);
 		const rejected = page.waitForResponse('**/api/duplicate-effect');
@@ -795,17 +829,24 @@ test('external source edits supersede queued effects and late save responses', a
 		await persistedGate;
 		await expect(scales).toHaveCount(2);
 		await effects
-			.getByRole('button', {name: '0.6', exact: true})
+			.getByRole('button', {name: 'Factor', exact: true})
+			.filter({hasText: /^0\.6$/})
 			.last()
 			.click();
-		await effects.getByRole('textbox').fill('0.8');
-		await effects.getByRole('textbox').press('Enter');
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.fill('0.8');
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.press('Enter');
 		await expect.poll(opaqueWidth).toBeCloseTo(614, -1);
 		const newest = original.replace('scale: 0.75', 'scale: 0.4');
 		fs.writeFileSync(effectKeyframeE2eFile, newest);
 		await expect(scales).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.4', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.4$/}),
 		).toBeVisible();
 		await expect.poll(opaqueWidth).toBe(512);
 		const lateResponse = page.waitForResponse('**/api/duplicate-effect');
@@ -817,9 +858,16 @@ test('external source edits supersede queued effects and late save responses', a
 		expect(fs.readFileSync(effectKeyframeE2eFile, 'utf8')).toBe(newest);
 		expect(propertyRequests).toBe(0);
 
-		await effects.getByRole('button', {name: '0.4', exact: true}).click();
-		await effects.getByRole('textbox').fill('0.7');
-		await effects.getByRole('textbox').press('Enter');
+		await effects
+			.getByRole('button', {name: 'Factor', exact: true})
+			.filter({hasText: /^0\.4$/})
+			.click();
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.fill('0.7');
+		await effects
+			.getByRole('textbox', {name: 'Factor', exact: true})
+			.press('Enter');
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf8'))
 			.toContain('scale: 0.7');
@@ -836,7 +884,9 @@ test('external source edits supersede queued effects and late save responses', a
 			.click();
 		await expect(scales).toHaveCount(1);
 		await expect(
-			effects.getByRole('button', {name: '0.4', exact: true}),
+			effects
+				.getByRole('button', {name: 'Factor', exact: true})
+				.filter({hasText: /^0\.4$/}),
 		).toBeVisible();
 	} finally {
 		releaseRequest();

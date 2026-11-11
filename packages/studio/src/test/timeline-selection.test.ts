@@ -1072,8 +1072,8 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 		fieldKey: 'style.translate',
 		effectIndex: null,
 		keyframes: [
-			{sourceFrame: 50, value: '0px 0px'},
-			{sourceFrame: 70, value: '100px 0px'},
+			{displayFrame: 50, value: '0px 0px'},
+			{displayFrame: 70, value: '100px 0px'},
 		],
 	});
 });
@@ -1287,18 +1287,19 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 		nodePath,
 		fieldKey: 'opacity',
 		effectIndex: null,
+		sequenceId: 'sequence',
+		keyframeDisplayOffset: 0,
+		keyframePlaybackRate: 1,
 		keyframes: [
-			{sourceFrame: 50, value: 0.4},
-			{sourceFrame: 70, value: 0.8},
+			{displayFrame: 50, value: 0.4},
+			{displayFrame: 70, value: 0.8},
 		],
-		keyframesToDelete: [],
 		easing: [{type: 'linear'}],
-		firstEasingSegmentIndex: 0,
 		schema,
 	} satisfies PasteKeyframeTarget);
 });
 
-test('pasting keyframes replaces the destination range and preserves easing', () => {
+test('pasting keyframes prepares display-clock values and copied easing', () => {
 	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
@@ -1364,13 +1365,14 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 		nodePath,
 		fieldKey: 'opacity',
 		effectIndex: null,
+		sequenceId: 'sequence',
+		keyframeDisplayOffset: 0,
+		keyframePlaybackRate: 1,
 		keyframes: [
-			{sourceFrame: 50, value: 0.25},
-			{sourceFrame: 70, value: 0.75},
+			{displayFrame: 50, value: 0.25},
+			{displayFrame: 70, value: 0.75},
 		],
-		keyframesToDelete: [60],
 		easing: [copiedEasing],
-		firstEasingSegmentIndex: 1,
 		schema,
 	} satisfies PasteKeyframeTarget);
 });

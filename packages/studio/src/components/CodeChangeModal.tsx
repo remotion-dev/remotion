@@ -108,11 +108,13 @@ const CodeChangeSource: React.FC<{
 	const status =
 		frame.originalScriptCode !== null
 			? null
-			: originalFileName === null || originalLineNumber === null
+			: originalFileName === null
 				? 'The source location is unavailable.'
-				: current?.error
-					? `Could not load code preview: ${current.error}`
-					: 'Loading code preview...';
+				: originalLineNumber === null
+					? 'The source line number is unavailable for a code preview.'
+					: current?.error
+						? `Could not load code preview: ${current.error}`
+						: 'Loading code preview...';
 
 	return (
 		<div style={{marginBottom: 16}}>

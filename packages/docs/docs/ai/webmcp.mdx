@@ -24,6 +24,7 @@ Agents can:
 - Get your current playhead position and playback state
 - Play, pause and seek
 - Set timeline zoom, playback rate, looping, volume and mute state
+- Inspect and resize Studio panels
 - See, add and remove guides
 - Install packages into the current project
 - Transcribe audio and video assets
@@ -50,6 +51,8 @@ Tools that edit sequences or guides require a composition to be open.
 Playback tools work with compositions and, from <AvailableFrom v="4.0.540" inline />, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
 
 Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and Browser Studio. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
+
+From <AvailableFrom v="4.0.543" inline />, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
 
 ### `install_package`<AvailableFrom v="4.0.523" />
 
@@ -105,7 +108,7 @@ The default model is `small.en`. The default output is `<asset>-captions.json`. 
 }
 ```
 
-The job continues in the background and can be followed in the Jobs panel.
+`success: true` acknowledges that the job was queued. The job continues in the background. Find the returned job ID in `get_transcription_jobs` to follow its progress and outcome, or use the Jobs panel. `outputPath` identifies the intended destination. A `done` status confirms that the file was written.
 
 This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it returns:
 
@@ -121,6 +124,104 @@ This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it 
 ```
 
 Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
+### `get_transcription_jobs`<AvailableFrom v="4.0.543" />
+
+Returns the transcription jobs shown in this Studio tab, including jobs started through the UI and `transcribe_asset`. Available in all four Studio modes, including with a detached server. A reload clears the tab-local queue.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  jobs: Array<{
+    id: string;
+    displayName: string;
+    src: string;
+    output:
+      | {type: 'file'; path: string}
+      | {type: 'composition'; fileName: string};
+    status: 'idle' | 'running' | 'saving' | 'done' | 'failed' | 'cancelled';
+    canCancel: boolean;
+    progress: number | null;
+    progressMessage: string | null;
+    captionCount: number | null;
+    error: {message: string; stack: string | null} | null;
+  }>;
+}
+```
+
+#### `jobs`
+
+The transcription jobs currently known to the tab. An empty array indicates that the queue is empty.
+
+##### `id`
+
+The identifier returned by `transcribe_asset` and accepted as `jobId` by `cancel_transcription_job`.
+
+##### `displayName`
+
+The source label shown in the Jobs panel.
+
+##### `src`
+
+The URL of the audio or video being transcribed.
+
+##### `output`
+
+`file` identifies the intended Caption JSON path relative to `public/`. `composition` identifies the source file where the UI requested captions to be inserted. The destination is present before the job completes. A `done` status confirms that its output was saved or inserted.
+
+##### `status`
+
+`idle` means queued, `running` includes model loading and transcription, and `saving` means the captions are being saved or inserted. `done`, `failed` and `cancelled` are terminal outcomes.
+
+##### `canCancel`
+
+Matches the UI's Cancel transcription action. Returns `true` while `running` and `false` for queued, saving or terminal jobs. Cancellation runs locally in the tab and may take time to finish after being requested.
+
+##### `progress`
+
+Progress from `0` to `1` while running or saving. Queued jobs report `0`, completed jobs report `1`, and failed or cancelled jobs report `null`.
+
+##### `progressMessage`
+
+The progress message shown in the Jobs panel while running or saving, otherwise `null`.
+
+##### `captionCount`
+
+The number of generated captions for a completed job, otherwise `null`. For file outputs, read the generated JSON to obtain the captions. For composition outputs, read the updated source.
+
+##### `error`
+
+The failure message and available stack for a failed job, otherwise `null`.
+
+### `cancel_transcription_job`<AvailableFrom v="4.0.543" />
+
+Requests cancellation using the same action as the UI's Cancel transcription control. Only running jobs can be cancelled. Queued jobs can be cleared in the Jobs panel. Available for local transcription jobs in all four Studio modes, including with a detached server.
+
+```ts title="Input"
+{
+  jobId: string;
+}
+```
+
+#### `jobId`
+
+Required. A non-empty transcription job identifier returned by `get_transcription_jobs` or `transcribe_asset`.
+
+```ts title="Output"
+{
+  jobId: string;
+  status: 'requested' | 'not-cancellable' | 'not-found';
+}
+```
+
+#### `status`
+
+`requested` acknowledges the cancellation request. Repeating it while the job is still running is harmless and also returns `requested`. Read `get_transcription_jobs` for the terminal outcome.
+
+`not-cancellable` means the job is queued, saving or already finished, including an already cancelled job. `not-found` means the job is absent from this tab's transcription queue. Invalid input rejects the tool call before cancellation starts.
 
 ### `remove_video_background`<AvailableFrom v="4.0.523" />
 
@@ -961,9 +1062,80 @@ Shows or hides the fixed-width Audio Levels panel to the right of the timeline. 
 }
 ```
 
+### `get_splitters`<AvailableFrom v="4.0.543" />
+
+Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and Browser Studio.
+
+```ts title="Input"
+{}
+```
+
+```ts title="Output"
+{
+  splitters: Array<{
+    id: string;
+    label: string;
+    orientation: 'horizontal' | 'vertical';
+    positionInPixels: number;
+    minPositionInPixels: number;
+    maxPositionInPixels: number;
+    isDragging: boolean;
+  }>;
+}
+```
+
+#### `id`
+
+Pass this ID to `set_splitter_position`. Read the list again after opening or closing panels, changing previews, or resizing the Studio window.
+
+#### `label`
+
+The divider's accessible name. It describes the preview height, left sidebar width, preview area width, or timeline labels width.
+
+#### `orientation`
+
+The divider's orientation. A horizontal divider controls the height of the pane above it. A vertical divider controls the width of the pane to its left.
+
+#### `positionInPixels`
+
+The current first-pane size in CSS pixels from the start of its container. The right sidebar divider reports the preview area's width.
+
+#### `minPositionInPixels`
+
+The smallest allowed first-pane size for the current layout, including minimum and maximum pixel sizes of both panes.
+
+#### `maxPositionInPixels`
+
+The largest allowed first-pane size for the current layout. Sizes and bounds use whole pixels where the constraints permit. A fractional bound is retained when required by the constraints.
+
+#### `isDragging`
+
+Whether a pointer drag is currently resizing this divider. `set_splitter_position` rejects changes during the drag.
+
+### `set_splitter_position`<AvailableFrom v="4.0.543" />
+
+Resizes a Studio panel using the same size constraints and browser preference as the divider's keyboard controls. Available in all four Studio modes. Resizing updates and saves the local layout.
+
+```ts title="Input"
+{
+  id: string;
+  positionInPixels: number;
+}
+```
+
+#### `id`
+
+A divider ID returned by `get_splitters`. Unknown, hidden and unmounted dividers return an error.
+
+#### `positionInPixels`
+
+The requested first-pane size in CSS pixels from the start of its container. Must be a finite number. The value is clamped to the current bounds and rounded to a whole pixel where possible.
+
+Returns the effective divider state with the same fields as one entry in the `splitters` array returned by `get_splitters`. The returned position may differ from the requested value because of size constraints or rounding. Calls for unavailable or actively dragged dividers return an error.
+
 ### `get_playback_state`
 
-Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
 
 One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
@@ -979,6 +1151,8 @@ One-frame compositions report frame `0`, duration `1`, their configured `fps`, a
   playbackStartFrame: number | null;
   fps: number | null;
   durationInFrames: number | null;
+  inFrame: number | null;
+  outFrame: number | null;
   playing: boolean | null;
   muted: boolean | null;
   volume: number | null;
@@ -995,6 +1169,18 @@ The preview's frame rate, used to interpret `currentFrame` and `seek_to_frame`. 
 #### `durationInFrames`<AvailableFrom v="4.0.540" />
 
 The current preview's duration in its frame clock, or `null` when unavailable. A rendered video uses the length of its video track when available, with frame `0` at the first picture. While trailing audio finishes, the playhead stays on the last picture. Audio outputs and videos without track timing use the native media duration. An asset preview includes the full soundtrack, even when the audio extends past the video.
+
+The duration remains the full preview duration when in and out points are set.
+
+#### `inFrame`<AvailableFrom v="4.0.543" />
+
+The marked first included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses frame `0`.
+
+Each composition and asset keeps its own marks. These fields follow the range shown in the timeline in regular Studio, detached Studio, deployed read-only Studio and Browser Studio. Both `inFrame` and `outFrame` are `null` for render-output previews, unsupported or unready content, and one-frame compositions.
+
+#### `outFrame`<AvailableFrom v="4.0.543" />
+
+The marked last included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses `durationInFrames - 1`. For example, `inFrame: 225` and `outFrame: 374` mark 150 frames.
 
 #### `playbackStartFrame`<AvailableFrom v="4.0.540" />
 
@@ -1048,8 +1234,40 @@ Returns source-code context when exactly one supported timeline item is selected
     stack: string | null;
     selectable: boolean;
   } | null;
+  selectedItems: SelectedTimelineItem[];
 }
 ```
+
+#### `selectedItems`<AvailableFrom v="4.0.543" />
+
+Lists every selected timeline item, including multi-selections. The field is available in regular, detached, read-only deployed and Browser Studio. An empty array means nothing is selected. Match `sequenceId` against [`get_sequences`](#get_sequences) and `guideId` against [`get_guides`](#get_guides). If the owning sequence is unavailable, its ID is `null`.
+
+```ts
+type SelectedTimelineItem =
+  | {type: 'guide'; guideId: string}
+  | {type: 'sequence' | 'sequence-all-effects'; sequenceId: string | null}
+  | {type: 'sequence-prop'; sequenceId: string | null; fieldKey: string}
+  | {type: 'sequence-effect'; sequenceId: string | null; effectIndex: number}
+  | {type: 'sequence-effect-prop'; sequenceId: string | null; effectIndex: number; fieldKey: string}
+  | {
+      type: 'keyframe';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      frame: number;
+    }
+  | {
+      type: 'easing';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      fromFrame: number;
+      toFrame: number;
+      segmentIndex: number;
+    };
+```
+
+Keyframes and easing segments on a sequence property have a `null` `effectIndex`. Studio returns a `null` `fieldKey` when it cannot identify the property.
 
 ### `get_guides`
 
@@ -1313,6 +1531,26 @@ Seeks to a zero-based frame. Values beyond the duration are clamped to the final
   currentFrame: number;
 }
 ```
+
+## Development-only React Scan tools
+
+These tools are available only in the Remotion repository's React Scan capture mode, started with `bun run react-scan:capture` or `bun run react-scan:capture:brand` from the repository root.
+
+Call `start_react_scan_recording` with `{}`, perform a short interaction, then call `stop_react_scan_recording` with `{}`. Starting clears the previous recording. Stopping freezes the events for retrieval.
+
+### `get_react_scan_recording`
+
+Requires a recording that has been started and stopped. Returns recording status, timestamps, `durationInMilliseconds`, `eventCount`, raw `events`, and a `summary` of commit costs, component costs and profiling-hook availability.
+
+#### `includeEvents?`
+
+Defaults to `true`. Set to `false` to return `events: null` with the same status and summary fields. This avoids serializing raw fiber trees, which can exceed the size supported by a native WebMCP response even for a short recording.
+
+```json title="Summary-only input"
+{"includeEvents": false}
+```
+
+Summary-only reads keep the raw events in memory. Retrieve them with `{"includeEvents": true}` or `{}` when needed. Recordings are cleared by the next recording or page reload.
 
 ## Example prompts
 

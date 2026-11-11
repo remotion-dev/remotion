@@ -57,6 +57,7 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {optionsSidebarTabs} from '../options-sidebar-tabs';
 import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
@@ -98,56 +99,11 @@ import {
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
+import {
+	initialServerRenderSubmitState,
+	serverRenderSubmitReducer,
+} from './server-render-submit-state';
 import {useRenderFrameInput} from './use-render-frame-input';
-
-type State =
-	| {
-			type: 'idle';
-	  }
-	| {
-			type: 'success';
-	  }
-	| {
-			type: 'load';
-	  }
-	| {
-			type: 'error';
-	  };
-
-const initialState: State = {type: 'idle'};
-
-type Action =
-	| {
-			type: 'start';
-	  }
-	| {
-			type: 'succeed';
-	  }
-	| {
-			type: 'fail';
-	  };
-
-const reducer = (state: State, action: Action): State => {
-	if (action.type === 'start') {
-		return {
-			type: 'load',
-		};
-	}
-
-	if (action.type === 'fail') {
-		return {
-			type: 'error',
-		};
-	}
-
-	if (action.type === 'succeed') {
-		return {
-			type: 'success',
-		};
-	}
-
-	return state;
-};
 
 type RenderModalProps = {
 	readonly retrySettings: ServerRenderRetrySettings | null;
@@ -314,7 +270,10 @@ const RenderModal: React.FC<
 		};
 	});
 
-	const [state, dispatch] = useReducer(reducer, initialState);
+	const [state, dispatch] = useReducer(
+		serverRenderSubmitReducer,
+		initialServerRenderSubmitState,
+	);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat,
 	);
@@ -833,7 +792,7 @@ const RenderModal: React.FC<
 		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedOptionsSidebarPanel('renders');
 		optionsSidebarTabs.current?.selectRendersPanel();
-		dispatchIfMounted({type: 'start'});
+		dispatchIfMounted({type: 'submit'});
 		addStillRenderJob({
 			compositionId: resolvedComposition.id,
 			outName,
@@ -857,11 +816,10 @@ const RenderModal: React.FC<
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
-				dispatchIfMounted({type: 'succeed'});
 				setSelectedModal(null);
 			})
-			.catch(() => {
-				dispatchIfMounted({type: 'fail'});
+			.catch((err: Error) => {
+				dispatchIfMounted({type: 'reject', message: err.message});
 			});
 	}, [
 		setSidebarCollapsedState,
@@ -942,7 +900,7 @@ const RenderModal: React.FC<
 		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedOptionsSidebarPanel('renders');
 		optionsSidebarTabs.current?.selectRendersPanel();
-		dispatchIfMounted({type: 'start'});
+		dispatchIfMounted({type: 'submit'});
 		addVideoRenderJob({
 			compositionId: resolvedComposition.id,
 			outName,
@@ -996,11 +954,10 @@ const RenderModal: React.FC<
 			prerenderTarget: null,
 		})
 			.then(() => {
-				dispatchIfMounted({type: 'succeed'});
 				setSelectedModal(null);
 			})
-			.catch(() => {
-				dispatchIfMounted({type: 'fail'});
+			.catch((err: Error) => {
+				dispatchIfMounted({type: 'reject', message: err.message});
 			});
 	}, [
 		setSidebarCollapsedState,
@@ -1057,7 +1014,7 @@ const RenderModal: React.FC<
 		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedOptionsSidebarPanel('renders');
 		optionsSidebarTabs.current?.selectRendersPanel();
-		dispatchIfMounted({type: 'start'});
+		dispatchIfMounted({type: 'submit'});
 		addSequenceRenderJob({
 			compositionId: resolvedComposition.id,
 			outName,
@@ -1085,11 +1042,10 @@ const RenderModal: React.FC<
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
-				dispatchIfMounted({type: 'succeed'});
 				setSelectedModal(null);
 			})
-			.catch(() => {
-				dispatchIfMounted({type: 'fail'});
+			.catch((err: Error) => {
+				dispatchIfMounted({type: 'reject', message: err.message});
 			});
 	}, [
 		setSidebarCollapsedState,
@@ -1440,7 +1396,8 @@ const RenderModal: React.FC<
 	const [commandCopiedAt, setCommandCopiedAt] = useState<number | null>(null);
 	const renderDisabled =
 		separateAudioValidationMessage !== null ||
-		(!readOnlyStudio && (!outnameValidation.valid || state.type === 'load'));
+		(!readOnlyStudio &&
+			(!outnameValidation.valid || state.type === 'submitting'));
 
 	const trigger = useCallback(() => {
 		if (renderDisabled) {
@@ -1551,12 +1508,21 @@ const RenderModal: React.FC<
 						? commandCopiedAt
 							? 'Copied command!'
 							: 'Copy command'
-						: state.type === 'idle'
-							? `Render ${renderMode}`
-							: 'Rendering...'}
+						: state.type === 'submitting'
+							? 'Adding to queue...'
+							: `Render ${renderMode}`}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
+			{!readOnlyStudio && state.type === 'failed' ? (
+				<div style={{padding: '8px 16px'}}>
+					<ValidationMessage
+						type="error"
+						message={state.message}
+						align="flex-start"
+					/>
+				</div>
+			) : null}
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (

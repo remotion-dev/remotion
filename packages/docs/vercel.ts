@@ -9,6 +9,7 @@ const accountHosts = [
 	},
 ];
 const accountPaths = [
+	'/pricing',
 	'/compliance',
 	'/compliance.md',
 	'/login',
@@ -109,6 +110,11 @@ const siteConfig: VercelConfig = {
 		]),
 	],
 	rewrites: [
+		{
+			source: '/portal-sitemap.xml',
+			destination: `${accountOrigin}/sitemap.xml`,
+			has: accountHosts,
+		},
 		...[
 			...accountPaths,
 			'/_next/:path*',
@@ -157,6 +163,7 @@ const siteConfig: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',
@@ -318,8 +325,8 @@ const siteConfig: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md',
 			{permanent: false},
 		),
-		routes.redirect('/license', '/docs/license/pricing', {permanent: false}),
-		routes.redirect('/pricing', '/docs/license/pricing', {permanent: false}),
+		routes.redirect('/license', '/pricing', {permanent: false}),
+		routes.redirect('/pricing/', '/pricing', {permanent: true}),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
 		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {
 			permanent: false,

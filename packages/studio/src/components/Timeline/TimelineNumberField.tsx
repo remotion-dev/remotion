@@ -104,6 +104,7 @@ export const TimelineNumberField: React.FC<{
 		<InputDragger
 			onValueChangeCancel={onValueChangeCancel}
 			type="number"
+			aria-label={field.description ?? field.key}
 			value={currentValue}
 			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}

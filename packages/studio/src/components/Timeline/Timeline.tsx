@@ -854,6 +854,7 @@ const TimelineInner: React.FC = () => {
 												<TimelineList />
 											</SplitterElement>
 											<SplitterHandle
+												label="Timeline labels width"
 												onCollapse={noop}
 												onCollapseDuringDrag={null}
 												allowToCollapse="none"

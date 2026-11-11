@@ -153,7 +153,16 @@ const config: Config = {
 					label: 'Commercial',
 					position: 'left',
 					items: [
-						{to: '/docs/license/pricing', label: 'License + Pricing'},
+						{
+							to: 'https://www.remotion.dev/pricing',
+							label: 'License + Pricing',
+							target: '_self',
+						},
+						{
+							to: 'https://www.remotion.dev/dashboard',
+							label: 'Dashboard',
+							target: '_self',
+						},
 						{to: 'https://www.remotion.dev/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
@@ -228,7 +237,8 @@ const config: Config = {
 						},
 						{
 							label: 'License & Pricing',
-							to: '/docs/license/pricing',
+							to: 'https://www.remotion.dev/pricing',
+							target: '_self',
 						},
 					],
 				},
@@ -350,6 +360,9 @@ const config: Config = {
 		[
 			'classic',
 			{
+				sitemap: {
+					filename: 'docs-sitemap.xml',
+				},
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',

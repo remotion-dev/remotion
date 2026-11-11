@@ -1,6 +1,2 @@
 # Getting a company license is required for teams with more than 3 people.
-custom:
-  [
-    https://www.remotion.dev/docs/license/pricing,
-    https://www.remotion.dev/store,
-  ]
+custom: [https://www.remotion.dev/pricing]
