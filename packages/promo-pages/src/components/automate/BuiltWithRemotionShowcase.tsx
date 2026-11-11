@@ -31,16 +31,6 @@ const videoApps = [
 		buttonText: 'Submagic website',
 	},
 	{
-		title: 'Remotion Recorder',
-		description:
-			'The Remotion Recorder is a video production tool built entirely in JavaScript. Create high-quality videos that feel native on each platform while only editing them once.',
-		link: 'https://www.remotion.dev/recorder',
-		videoWidth: 1080,
-		videoHeight: 1080,
-		muxId: 'pHlwqDZFUH00Aubo9M001ty3gZ6YW8z689XTd9R479ayE',
-		buttonText: 'More infos',
-	},
-	{
 		title: 'GitHub Unwrapped',
 		description:
 			'Your coding year in review. Get a personalized video of your GitHub activity.',
@@ -249,6 +239,50 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 		<div>
 			<SectionTitle>Built with Remotion</SectionTitle>
 			<div className="mt-8 flex flex-col gap-8">
+				<article
+					className="card grid gap-6 p-6 min-[900px]:grid-cols-[1fr_2fr] min-[900px]:gap-10 min-[900px]:p-10"
+					aria-labelledby="trails-case-study"
+				>
+					<div className="fontbrand">
+						<h3 id="trails-case-study" className="mt-0 mb-0 text-3xl font-bold">
+							Trails
+						</h3>
+						<p className="mt-3 mb-0 text-base leading-relaxed text-muted">
+							Process documentation and enterprise training.
+						</p>
+					</div>
+					<div className="fontbrand text-base leading-relaxed min-[900px]:row-span-2">
+						<h4 className="mt-0 mb-3 text-xl font-bold">
+							Training videos that stay up to date
+						</h4>
+						<p className="mt-0 mb-4 text-muted">
+							Trails turns a screen capture into step-by-step guides and
+							AI-narrated training videos, with Remotion powering the animations
+							and rendering. When a process changes, users edit the affected
+							steps and regenerate the video without recording it again.
+						</p>
+						<p className="mt-0 mb-5 text-muted">
+							Canary Technologies reported an 80–90% reduction in the time
+							needed to create training resources with Trails and Remotion.
+						</p>
+						<figure className="m-0">
+							<blockquote className="m-0 border-0 p-0">
+								“Remotion makes our entire product possible. It&apos;s the
+								backbone of the value we provide to customers.”
+							</blockquote>
+							<figcaption className="mt-3 text-sm text-muted">
+								Ryo Chiba, cofounder of Trails
+							</figcaption>
+						</figure>
+					</div>
+					<a
+						className="no-underline text-brand fontbrand font-bold inline-flex items-center self-end justify-self-start min-[900px]:col-start-1 min-[900px]:row-start-2"
+						href="https://trails.so/"
+					>
+						Trails website
+						<Arrow />
+					</a>
+				</article>
 				{videoApps.map((videoApp) => (
 					<ShowcaseItem key={videoApp.title} videoApp={videoApp} />
 				))}
