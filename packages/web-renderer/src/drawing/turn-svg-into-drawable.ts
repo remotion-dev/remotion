@@ -4,7 +4,7 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
-import {parseFontFamilies} from './parse-font-families';
+import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
 
 const textFontProperties = [
 	'font-family',
@@ -98,14 +98,12 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 
 				// FontFace exposes no source URL. Limit this slice to a unique loaded
 				// face, so an unused or failed CSS source is not fetched for export.
-				const faces = Array.from(svg.ownerDocument.fonts).filter(
-					(face) =>
-						face.family.replace(/^(['"])(.*)\1$/, '$2').toLowerCase() ===
-						family,
+				const faces = Array.from(svg.ownerDocument.fonts).filter((face) =>
+					matchesFontFaceFamily(face.family, family),
 				);
 				if (faces.length !== 1 || faces[0].status !== 'loaded') continue;
 				if (
-					resolved.origin !== new URL(svg.ownerDocument.URL).origin ||
+					resolved.origin !== ownerWindow.origin ||
 					!['http:', 'https:'].includes(resolved.protocol) ||
 					resolved.hash
 				)
