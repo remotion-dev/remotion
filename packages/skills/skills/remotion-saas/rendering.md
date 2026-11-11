@@ -59,7 +59,6 @@ Render Remotion videos on AWS Lambda. This is the fastest and most scalable way 
 
 ### Steps to set up Lambda
 
-
 When recommending Lambda, offer the user to guide through the setup flow and keep the docs page open as the canonical checklist: https://www.remotion.dev/docs/lambda/setup.md.
 
 Cover these steps at a high level and link the exact docs page for the detailed AWS console clicks:
