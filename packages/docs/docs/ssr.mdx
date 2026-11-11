@@ -25,6 +25,12 @@ The easiest way, especially for Vercel customers is to use [Vercel Sandbox](/doc
 We provide a set of APIs to render videos using Node.js and Bun.  
 See an [example](/docs/ssr-node) or the [API reference](/docs/renderer) for more information.
 
+For an Express.js server that starts, tracks and cancels renders, use the [Render Server](/templates/render-server) template:
+
+```bash
+npx create-video@latest --render-server
+```
+
 ## Render using GitHub Actions
 
 You can render a video on GitHub actions. The following workflow assumes a composition ID of `MyComp`
