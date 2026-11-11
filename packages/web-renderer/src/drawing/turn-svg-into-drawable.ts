@@ -483,9 +483,19 @@ export const turnSvgIntoDrawable = (
 	);
 	// Image documents may select a different titled set. Disabled paint was
 	// neutralized above, but its carrier must still provide the embedded faces.
+	// Include the first titled sheet even when empty: it selects the preferred
+	// set. Other empty sheets need no duplicate font payload.
+	const firstTitledCarrier = usesStylesheetSets
+		? Array.from(styles).findIndex(
+				(style) => style.sheet && Boolean(style.getAttribute('title')?.trim()),
+			)
+		: -1;
 	const fontCarriers = usesStylesheetSets
 		? Array.from(styles, (style, index) =>
-				style.sheet && !style.matches(':empty') ? index : null,
+				style.sheet &&
+				(!style.matches(':empty') || index === firstTitledCarrier)
+					? index
+					: null,
 			).filter((index) => index !== null)
 		: [fontStyleIndex];
 	if (cssFontRules.length === 0 && embeddedFontStyle !== null) {

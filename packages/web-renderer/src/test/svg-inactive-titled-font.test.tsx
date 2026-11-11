@@ -16,6 +16,7 @@ import {
 	captureNativeReference,
 	compareNativePixels,
 	countNativePixels,
+	savePixelEvidence,
 } from './native-reference';
 
 const markers = async (blob: Blob) => {
@@ -97,6 +98,22 @@ test.for(
 			glyphs.close();
 			canvas.width = 0;
 			canvas.height = 0;
+		}
+
+		if (mode.startsWith('empty-preferred')) {
+			const result = await compareNativePixels(expected, actual);
+			for (const [label, blob] of [
+				['native', reference],
+				['expected', expected],
+				['actual', actual],
+				['diff', result.diff],
+			] as const) {
+				await savePixelEvidence(
+					blob,
+					`empty-preferred-${mode}-${frame}-${label}`,
+					{omitBackground: false},
+				);
+			}
 		}
 
 		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
