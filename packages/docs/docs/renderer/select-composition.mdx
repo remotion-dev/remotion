@@ -77,7 +77,7 @@ See: [Chromium Flags](/docs/chromium-flags)
 
 ### `timeoutInMilliseconds?`
 
-A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `browserExecutable?`
 
