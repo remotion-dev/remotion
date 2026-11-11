@@ -21,16 +21,22 @@ export const hardwareAccelerationOption = {
 	name: 'Hardware Acceleration',
 	addedIn: '4.0.228',
 	cliFlag,
-	description: () =>
-		`
-			One of
-			${new Intl.ListFormat('en', {type: 'disjunction'}).format(
+	description: () => (
+		<>
+			One of{' '}
+			{new Intl.ListFormat('en', {type: 'disjunction'}).format(
 				hardwareAccelerationOptions.map((a) => JSON.stringify(a)),
 			)}
-			. Default "disable". Encode using a hardware-accelerated encoder if
-			available. If set to "required" and no hardware-accelerated encoder is
+			. Default {'"disable"'}. Encode using a hardware-accelerated encoder if
+			available. If set to {'"required"'} and no hardware-accelerated encoder is
 			available, then the render will fail.
-		`,
+			<br />
+			<a href="https://www.remotion.dev/docs/web-renderer/render-media-on-web#hardwareacceleration">
+				<code>renderMediaOnWeb()</code>
+			</a>{' '}
+			accepts different values.
+		</>
+	),
 	ssrName: 'hardwareAcceleration',
 	docLink: 'https://www.remotion.dev/docs/options/hardware-acceleration',
 	type: 'disable' as HardwareAccelerationOption,

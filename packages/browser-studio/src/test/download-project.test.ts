@@ -30,6 +30,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	});
 
 	const insertResult = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {

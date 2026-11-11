@@ -1,5 +1,15 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
@@ -17,6 +27,7 @@ import {
 } from '../element-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSvgImportDialog} from '../SvgImportDialog';
 import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
@@ -24,6 +35,12 @@ import {
 	getFrameFromTimelineDrop,
 	getTimelineContentWidth,
 } from './timeline-scroll-logic';
+import {
+	createTrackDropPreview,
+	getTrackDropTarget,
+	insertElementIntoTimelineTrack,
+	isTrackDropValid,
+} from './track-drop';
 import {useResolvedStack} from './use-resolved-stack';
 
 const isEventTargetInsideElement = (event: DragEvent, element: HTMLElement) => {
@@ -36,6 +53,20 @@ export const useTimelineAssetDrop = () => {
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const chooseSvgImportMode = useSvgImportDialog();
+	const calculate = useTimelineCalculator();
+	const sequences = useContext(Internals.SequenceManagerRefContext);
+	const mappings = useContext(OverrideIdToNodePathMappingsRefContext);
+	const getTracks = useCallback(
+		() =>
+			calculate({
+				sequences: sequences.current,
+				overrideIdsToNodePaths: mappings.current,
+			}).tracks,
+		[calculate, mappings, sequences],
+	);
+	const trackPreview = useRef<ReturnType<typeof createTrackDropPreview> | null>(
+		null,
+	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
@@ -53,7 +84,12 @@ export const useTimelineAssetDrop = () => {
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionFile =
+		resolvedCompositionLocation?.source ??
+		(currentCompositionId
+			? getBrowserStudioOperations()?.getCompositionFile(currentCompositionId)
+			: null) ??
+		null;
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
 		compositionId: currentCompositionId,
@@ -103,6 +139,7 @@ export const useTimelineAssetDrop = () => {
 				!isEventTargetInsideElement(event, timeline)
 			) {
 				setAssetDropFrame(null);
+				trackPreview.current?.clear();
 				return;
 			}
 
@@ -110,6 +147,7 @@ export const useTimelineAssetDrop = () => {
 				event.preventDefault();
 				dataTransfer.dropEffect = 'copy';
 				setAssetDropFrame(null);
+				trackPreview.current?.clear();
 				return;
 			}
 
@@ -128,12 +166,49 @@ export const useTimelineAssetDrop = () => {
 				scrollable !== null &&
 				isEventTargetInsideElement(event, scrollable);
 			setAssetDropFrame(shouldShowDropFrame ? getDropFrame(event) : null);
+			const tracks = getTracks();
+			const target = getTrackDropTarget(event.clientX, event.clientY, tracks);
+			const from = getDropFrame(event);
+			if (target && from !== null && videoConfig) {
+				trackPreview.current ??= createTrackDropPreview(
+					videoConfig.durationInFrames,
+				);
+				const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+					dataTransfer.types,
+				);
+				const rate = target.track.sequence.sequencePlaybackRate;
+				const knownDuration =
+					metadata?.type === 'asset' ? metadata.durationInSeconds : undefined;
+				const previewDuration = Math.max(
+					1,
+					Math.min(
+						((knownDuration ?? 5) * videoConfig.fps) / rate,
+						target.track.sequence.from + target.track.sequence.duration - from,
+					),
+				);
+				const valid =
+					canInsertAsset &&
+					isTrackDropValid({
+						target,
+						tracks,
+						spans: [{from, duration: previewDuration}],
+						excludedIds: new Set(),
+						fps: videoConfig.fps,
+					});
+				trackPreview.current.show(target, from, previewDuration, valid);
+				dataTransfer.dropEffect =
+					valid || (knownDuration === undefined && canInsertAsset)
+						? 'copy'
+						: 'none';
+			} else trackPreview.current?.clear();
 		},
 		[
 			canInsertAsset,
 			canReceiveElementDrop,
 			compositionComponentInfo?.canAddSequence,
 			getDropFrame,
+			getTracks,
+			videoConfig,
 		],
 	);
 
@@ -209,9 +284,29 @@ export const useTimelineAssetDrop = () => {
 				return;
 			}
 
+			const target = getTrackDropTarget(
+				event.clientX,
+				event.clientY,
+				getTracks(),
+			);
 			setIsAddingAsset(true);
+			const notification = target
+				? showNotification('Adding asset to Track...', null)
+				: null;
 			try {
 				await handleDrop({
+					insert: target
+						? ({element}) =>
+								insertElementIntoTimelineTrack({
+									target,
+									tracks: getTracks(),
+									element,
+									from: frame,
+									fps: videoConfig.fps,
+									compositionFile,
+									compositionId: currentCompositionId,
+								})
+						: null,
 					chooseSvgImportMode,
 					compositionFile,
 					compositionId: currentCompositionId,
@@ -229,7 +324,14 @@ export const useTimelineAssetDrop = () => {
 					localFiles,
 					preferCompositionStart: false,
 				});
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
+					4000,
+				);
 			} finally {
+				notification?.dismiss();
+				trackPreview.current?.clear();
 				setIsAddingAsset(false);
 			}
 		},
@@ -241,6 +343,7 @@ export const useTimelineAssetDrop = () => {
 			compositionFile,
 			currentCompositionId,
 			getDropFrame,
+			getTracks,
 			setSelectedModal,
 			videoConfig,
 		],
@@ -248,6 +351,7 @@ export const useTimelineAssetDrop = () => {
 
 	const clearAssetDropFrame = useCallback(() => {
 		setAssetDropFrame(null);
+		trackPreview.current?.clear();
 	}, []);
 
 	useEffect(() => {
@@ -280,7 +384,10 @@ export const useTimelineAssetDrop = () => {
 			{signal: controller.signal},
 		);
 
-		return () => controller.abort();
+		return () => {
+			controller.abort();
+			trackPreview.current?.clear();
+		};
 	}, [clearAssetDropFrame, onAssetDragOver, onAssetDrop]);
 
 	return assetDropFrame;

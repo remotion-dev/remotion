@@ -1077,6 +1077,7 @@ export const Canvas: React.FC<{
 				}
 
 				await handleDrop({
+					insert: null,
 					chooseSvgImportMode,
 					compositionFile,
 					compositionId: currentCompositionId,
@@ -1195,6 +1196,7 @@ export const Canvas: React.FC<{
 			setIsAddingAsset(true);
 			try {
 				await importAssets({
+					insert: null,
 					files,
 					fps: config.fps,
 					compositionFile,

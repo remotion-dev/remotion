@@ -181,10 +181,6 @@ _boolean — default `false`_
 
 Returns a promise that resolves to a <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> once the frame has been painted to an internal canvas.
 
-### `internalState`
-
-Internal bookkeeping used by the web renderer (e.g. for tests and diagnostics).
-
 ### `canvas()`
 
 Returns a promise for the [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) holding the rendered pixels. You can draw from it or pass it to other APIs.
@@ -224,6 +220,10 @@ const img = document.createElement('img');
 img.src = objectUrl;
 document.body.appendChild(img);
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

@@ -1,4 +1,6 @@
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -10,6 +12,7 @@ import {
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
@@ -84,6 +87,10 @@ const validateElement = (
 	remotionRoot: string,
 ) => {
 	validatePosition(element.position);
+
+	if (element.type === 'track') {
+		return;
+	}
 
 	if (element.type === 'solid') {
 		validateDimension('width', element.width);
@@ -189,6 +196,10 @@ const validateElement = (
 };
 
 const getElementLabel = (element: InsertableCompositionElement) => {
+	if (element.type === 'track') {
+		return '<Track>';
+	}
+
 	if (element.type === 'text') {
 		return '<Interactive.Div>';
 	}
@@ -237,17 +248,16 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 export const insertCompositionElementHandler: ApiHandler<
 	InsertCompositionElementRequest,
 	InsertCompositionElementResponse
-> = ({
-	input: {compositionFile, compositionId, element, from},
-	remotionRoot,
-	logLevel,
-}) =>
-	withSourceFileWriteQueue(async () => {
+> = ({input, remotionRoot, logLevel}) => {
+	const {compositionFile, compositionId, element, from} = input;
+	return withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element, remotionRoot);
 			if (
 				from !== null &&
-				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+				((!input.track && !Number.isInteger(from)) ||
+					!Number.isFinite(from) ||
+					from < 0)
 			) {
 				throw new Error('from must be a non-negative integer');
 			}
@@ -267,15 +277,46 @@ export const insertCompositionElementHandler: ApiHandler<
 				insertedNodePath,
 				logLine,
 				nodePathRemappings,
-			} = await insertJsxElementIntoComposition({
-				remotionRoot,
-				compositionFile,
-				compositionId,
-				element,
-				from,
-				prettierConfigOverride: null,
-				sourceFileOverrides: null,
-			});
+			} = input.track
+				? (() => {
+						const {absolutePath} = resolveFileInsideProject({
+							remotionRoot,
+							fileName: input.track.targetNodePath.absolutePath,
+							action: 'modify',
+						});
+						const previousContents = readFileSync(absolutePath, 'utf-8');
+						const result = CodemodsInternals.insertElementIntoTrack({
+							project: {
+								rootDir: remotionRoot,
+								files: {[absolutePath]: previousContents},
+							},
+							request: {
+								...input,
+								track: {
+									...input.track,
+									targetNodePath: {...input.track.targetNodePath, absolutePath},
+								},
+							},
+						});
+						return {
+							fileName: absolutePath,
+							source: absolutePath,
+							oldContents: previousContents,
+							output: result.changes[0].nextContents!,
+							insertedNodePath: result.insertedNode.nodePath,
+							logLine: 1,
+							nodePathRemappings: result.nodePathRemappings,
+						};
+					})()
+				: await insertJsxElementIntoComposition({
+						remotionRoot,
+						compositionFile,
+						compositionId,
+						element,
+						from,
+						prettierConfigOverride: null,
+						sourceFileOverrides: null,
+					});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
 					{
@@ -353,3 +394,4 @@ export const insertCompositionElementHandler: ApiHandler<
 			};
 		}
 	});
+};

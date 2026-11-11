@@ -16,23 +16,23 @@ The function accepts an object with six key-value pairs:
 
 Your webhook secret, must be a `string`
 
-### `testing`
+### `testing?`
 
 Whether or not to allow requests intending to test the endpoint, useful while using Webhook endpoint tester on [Webhooks Page](/docs/lambda/webhooks). Should be a `boolean`.
 
-### `extraHeaders`
+### `extraHeaders?`
 
 Add your own custom headers to the outgoing response. Provide key-value pairs where both the key and value are strings.
 
-### `onSuccess()`
+### `onSuccess?()`
 
 A function that is called with a [`WebhookSuccessPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates a successful event.
 
-### `onError()`
+### `onError?()`
 
 A function that is called with a [`WebhookErrorPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates an error.
 
-### `onTimeout()`
+### `onTimeout?()`
 
 A function that is called with a [`WebhookTimeoutPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates a timeout.
 

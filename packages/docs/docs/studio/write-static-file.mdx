@@ -6,7 +6,7 @@ crumb: "@remotion/studio"
 
 # writeStaticFile()<AvailableFrom v="4.0.147"/>
 
-Saves some content into a file in the [`public` directory](/docs/).  
+Saves some content into a file in the [`public` directory](/docs/terminology/public-dir).  
 This API is useful for building interactive experiences in the [Remotion Studio](/docs/terminology/studio).
 
 ## Examples
@@ -54,7 +54,7 @@ export const WriteStaticFileComp: React.FC = () => {
 
 ## Rules
 
-<Step>1</Step> This API can only be used while in the Remotion Studio.
+<Step>1</Step> This API can only be used while in the Remotion Studio. It throws in a read-only Studio.
 <br />
 <Step>2</Step> The file path must be relative to the <a href="/docs/terminology/public-dir">
   <code>public</code> directory

@@ -290,11 +290,11 @@ A `presentation` that you can pass to a [`<TransitionSeries.Transition>`](/docs/
 
 The returned function accepts your shader props and the following options:
 
-### `effects`?
+### `effects?`
 
 [Effects](/docs/effects/api) to apply after the transition shader. Defaults to an empty array.
 
-### `effectsOutputSize`?<AvailableFrom v="4.0.536" />
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
 
 An object with positive integer `width` and `height` values that sets the [effect resolution](/docs/effects/api#effect-resolution). By default, effects use the transition canvas dimensions. This does not change the shader or output dimensions.
 
@@ -327,8 +327,25 @@ import type {
 } from '@remotion/transitions';
 ```
 
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
 ## See also
 
 - [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas) — full walkthrough and example
-- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [HTML-in-canvas](/docs/html-in-canvas)
 - [Custom presentations](/docs/transitions/presentations/custom) — the CSS-based path

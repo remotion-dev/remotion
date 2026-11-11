@@ -4,11 +4,11 @@ title: resampleTo16Khz()
 crumb: '@remotion/whisper-web'
 ---
 
-:::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
-:::
+# ~~resampleTo16Khz()~~
 
-# resampleTo16Khz()
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Use [`resampleTo16Khz()`](/docs/whisper-webgpu/resample-to-16khz) from [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) instead.
+:::
 
 Processes an audio `File` or `Blob` by decoding it, converting it to mono, and resampling it to a 16kHz `Float32Array`. This prepares the audio data for use with the [`transcribe()`](/docs/whisper-web/transcribe) function.
 
