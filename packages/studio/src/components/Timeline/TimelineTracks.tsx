@@ -170,6 +170,7 @@ const TimelineTrackRowLayout: React.FC<{
 			}}
 		>
 			<TimelineTrimOutlineContainer
+				dropTargetId={dropTargetId}
 				style={{height: clippedHeight, position: 'relative'}}
 				clipPath={
 					durationInFrames !== null && windowWidth !== null

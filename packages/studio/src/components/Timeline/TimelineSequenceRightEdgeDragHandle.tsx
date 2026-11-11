@@ -3276,7 +3276,20 @@ export const useTimelineSequenceFromDrag = ({
 					},
 					onEnd: (reason, endEvent) => {
 						stopPointerSessionRef.current = null;
-						finishDrag(isPointerSessionRelease(reason, endEvent));
+						const released = isPointerSessionRelease(reason, endEvent);
+						const dragState = dragStateRef.current;
+						if (released && endEvent && dragState?.trackMove?.active) {
+							dragState.trackMove.update(
+								endEvent.clientX,
+								endEvent.clientY,
+								Math.round(
+									(endEvent.clientX - dragState.initialClientX) /
+										dragState.pxPerFrame,
+								),
+							);
+						}
+
+						finishDrag(released);
 					},
 				});
 		},

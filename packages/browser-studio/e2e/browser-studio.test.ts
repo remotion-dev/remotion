@@ -919,8 +919,9 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 	).toBeHidden();
 	const movedSource = await readComposition();
 	const undoOrRedo = async (shortcut: string) => {
-		await Promise.all([
-			studio.locator('body').evaluate(
+		const refresh = studio
+			.locator('body')
+			.evaluate(
 				() =>
 					new Promise<void>((resolve) => {
 						window.addEventListener(
@@ -929,9 +930,16 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 							{once: true},
 						);
 					}),
-			),
-			studio.locator('body').press(shortcut),
-		]);
+			)
+			.catch((error: unknown) => {
+				if (
+					!(error instanceof Error) ||
+					!error.message.includes('Execution context was destroyed')
+				)
+					throw error;
+			});
+		await Promise.all([refresh, studio.locator('body').press(shortcut)]);
+		await expect(timeline).toBeVisible();
 	};
 
 	await undoOrRedo('ControlOrMeta+z');
@@ -1002,6 +1010,94 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 		finalSource.lastIndexOf('</Track>'),
 	);
 	await page.screenshot({path: test.info().outputPath('track-drop.png')});
+
+	await addTrack();
+	await studio.locator('body').evaluate(async () => {
+		for (let index = 0; index < 12; index++) {
+			const result =
+				await window.remotion_browserStudio.insertCompositionElement({
+					compositionFile: '/project/src/Composition.tsx',
+					compositionId: 'MyComp',
+					from: null,
+					track: null,
+					element: {
+						type: 'component',
+						componentName: 'Sequence',
+						importName: 'Sequence',
+						importPath: 'remotion',
+						props: [{name: 'name', value: `Filler ${index}`}],
+						position: null,
+					},
+				});
+			if (!result.success) throw new Error(result.reason);
+		}
+	});
+	await expect(
+		studio.getByRole('group', {name: 'Filler 11', exact: true}).last(),
+	).toBeVisible();
+	const scrollArea = timeline.locator('.__remotion-vertical-scrollbar').first();
+	await expect
+		.poll(() =>
+			scrollArea.evaluate(
+				(element) => element.scrollHeight - element.clientHeight,
+			),
+		)
+		.toBeGreaterThan(200);
+	await scrollArea.evaluate((element) => {
+		element.scrollTop = 0;
+	});
+	const source = studio.locator(
+		'[data-timeline-marquee-item][aria-label="Filler 0"]',
+	);
+	await expect(source).toBeInViewport();
+	const destination = studio.locator('[data-track-drop-target]').last();
+	await expect(destination).toBeInViewport();
+	const destinationBox = await destination.boundingBox();
+	const sourceBox = await source.boundingBox();
+	const timelineBox = await timeline.boundingBox();
+	const rulerBox = await timeline
+		.locator('[data-timeline-ruler]')
+		.boundingBox();
+	if (!destinationBox || !sourceBox || !timelineBox || !rulerBox)
+		throw new Error('Expected the source, destination and timeline');
+	const rulerBottom = rulerBox.y + rulerBox.height;
+	const sourceX = sourceBox.x + Math.min(25, sourceBox.width / 2);
+	const beforeRejectedDrop = await readComposition();
+	await page.mouse.move(sourceX, sourceBox.y + sourceBox.height / 2);
+	await page.mouse.down();
+	await page.mouse.move(sourceX, destinationBox.y + destinationBox.height / 2, {
+		steps: 10,
+	});
+	const preview = destination.locator('[data-timeline-track-drop-preview]');
+	await expect(preview).toBeVisible({timeout: 10_000});
+	await scrollArea.evaluate(
+		(element, scrollTop) => {
+			element.scrollTop = scrollTop;
+		},
+		destinationBox.y - rulerBottom + 12,
+	);
+	await expect
+		.poll(() => destination.boundingBox().then((box) => box?.y ?? Infinity))
+		.toBeLessThan(rulerBottom);
+	const paintsOverRuler = await preview.evaluate((element, top) => {
+		const bounds = element.getBoundingClientRect();
+		const {pointerEvents} = element.style;
+		element.style.pointerEvents = 'auto';
+		const hit = document.elementFromPoint(bounds.x + bounds.width / 2, top - 2);
+		element.style.pointerEvents = pointerEvents;
+		return hit === element;
+	}, rulerBottom);
+	expect(paintsOverRuler).toBe(false);
+	await page.screenshot({
+		path: test.info().outputPath('track-drop-clipped.png'),
+	});
+	await page.mouse.move(sourceX, rulerBottom - 2, {steps: 5});
+	await expect(preview).toHaveCount(0);
+	await page.mouse.up();
+	await expect(
+		studio.getByText('Moving into Track...', {exact: true}),
+	).toBeHidden();
+	expect(await readComposition()).toBe(beforeRejectedDrop);
 	expect(studioApiRequests).toEqual([]);
 });
 

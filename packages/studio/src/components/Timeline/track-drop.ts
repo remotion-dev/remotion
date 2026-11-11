@@ -19,7 +19,12 @@ import {getCachedMediaMetadata} from '../../helpers/use-media-metadata';
 import {insertCompositionElement} from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {reorderSequence} from '../reorder-sequence-api';
-import {scrollableRef} from './timeline-refs';
+import {
+	scrollableRef,
+	timelineRulerRef,
+	timelineVerticalScroll,
+	timelineViewportRef,
+} from './timeline-refs';
 import {getTimelineContentWidth} from './timeline-scroll-logic';
 
 export type TrackDropTarget = {element: HTMLElement; track: TimelineTrackData};
@@ -29,14 +34,36 @@ export const getTrackDropTarget = (
 	clientY: number,
 	tracks: readonly TimelineTrackData[],
 ): TrackDropTarget | null => {
-	const viewport = scrollableRef.current?.getBoundingClientRect();
-	if (
-		!viewport ||
-		clientX < viewport.left ||
-		clientX > viewport.right ||
-		clientY < viewport.top ||
-		clientY > viewport.bottom
-	)
+	const scrollable = scrollableRef.current;
+	const timeline = timelineVerticalScroll.current;
+	const timelineViewport = timelineViewportRef.current;
+	if (!scrollable || !timeline || !timelineViewport) return null;
+	const viewport = scrollable.getBoundingClientRect();
+	const visible = timeline.getBoundingClientRect();
+	const bounds = timelineViewport.getBoundingClientRect();
+	const ruler = timelineRulerRef.current?.getBoundingClientRect();
+	const left = Math.max(
+		viewport.left + scrollable.clientLeft,
+		visible.left + timeline.clientLeft,
+		bounds.left + timelineViewport.clientLeft,
+	);
+	const top = Math.max(
+		viewport.top + scrollable.clientTop,
+		visible.top + timeline.clientTop,
+		bounds.top + timelineViewport.clientTop,
+		ruler?.bottom ?? -Infinity,
+	);
+	const right = Math.min(
+		viewport.left + scrollable.clientLeft + scrollable.clientWidth,
+		visible.left + timeline.clientLeft + timeline.clientWidth,
+		bounds.left + timelineViewport.clientLeft + timelineViewport.clientWidth,
+	);
+	const bottom = Math.min(
+		viewport.top + scrollable.clientTop + scrollable.clientHeight,
+		visible.top + timeline.clientTop + timeline.clientHeight,
+		bounds.top + timelineViewport.clientTop + timelineViewport.clientHeight,
+	);
+	if (clientX < left || clientX >= right || clientY < top || clientY >= bottom)
 		return null;
 	const element = Array.from(
 		document.querySelectorAll<HTMLElement>('[data-track-drop-target]'),
@@ -166,10 +193,11 @@ export const createTrackDropPreview = (durationInFrames: number) => {
 	const owner = {};
 	let targetOutline: HTMLElement | null = null;
 	const ghost = document.createElement('div');
+	ghost.dataset.timelineTrackDropPreview = '';
+	ghost.setAttribute('aria-hidden', 'true');
 	Object.assign(ghost.style, {
-		position: 'fixed',
+		position: 'absolute',
 		pointerEvents: 'none',
-		zIndex: '2147483646',
 		borderRadius: '3px',
 		border: '1px solid',
 		boxSizing: 'border-box',
@@ -203,6 +231,14 @@ export const createTrackDropPreview = (durationInFrames: number) => {
 			duration: number,
 			valid: boolean,
 		) => {
+			const previewContainer = target.element.querySelector<HTMLElement>(
+				'[data-track-drop-preview-container]',
+			);
+			if (!previewContainer) {
+				clear();
+				return;
+			}
+
 			const outline = target.element.querySelector<HTMLElement>(
 				'[data-track-drop-outline]',
 			);
@@ -241,9 +277,11 @@ export const createTrackDropPreview = (durationInFrames: number) => {
 			const row = outlineBounds ?? target.element.getBoundingClientRect();
 			const scrollable = scrollableRef.current;
 			if (!scrollable) return;
-			const pxPerFrame =
-				(getTimelineContentWidth() - TIMELINE_PADDING * 2) / durationInFrames;
+			const contentWidth = getTimelineContentWidth() - TIMELINE_PADDING * 2;
+			previewContainer.style.width = `${contentWidth}px`;
+			const pxPerFrame = contentWidth / durationInFrames;
 			const viewport = scrollable.getBoundingClientRect();
+			const previewBounds = previewContainer.getBoundingClientRect();
 			const left =
 				viewport.left +
 				TIMELINE_PADDING +
@@ -251,17 +289,15 @@ export const createTrackDropPreview = (durationInFrames: number) => {
 				scrollable.scrollLeft;
 			const previewLeft = Math.max(
 				left,
-				viewport.left,
 				outlineBounds ? outlineBounds.left + 2 : -Infinity,
 			);
 			const previewRight = Math.min(
 				left + duration * pxPerFrame,
-				viewport.right,
 				outlineBounds ? outlineBounds.right - 2 : Infinity,
 			);
 			Object.assign(ghost.style, {
-				left: `${previewLeft}px`,
-				top: `${row.top + 2}px`,
+				left: `${previewLeft - previewBounds.left}px`,
+				top: `${row.top + 2 - previewBounds.top}px`,
 				width: `${Math.max(2, previewRight - previewLeft)}px`,
 				height: `${Math.max(4, Math.min(row.height - 4, 30))}px`,
 				borderColor: color,
@@ -269,7 +305,8 @@ export const createTrackDropPreview = (durationInFrames: number) => {
 					? TIMELINE_DROP_BLUE_ALPHA_16
 					: `color-mix(in srgb, ${RED} 40%, transparent)`,
 			});
-			if (!ghost.isConnected) document.body.appendChild(ghost);
+			if (ghost.parentElement !== previewContainer)
+				previewContainer.appendChild(ghost);
 		},
 	};
 };

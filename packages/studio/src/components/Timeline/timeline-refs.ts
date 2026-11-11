@@ -3,6 +3,8 @@ import React from 'react';
 export const sliderAreaRef = React.createRef<HTMLDivElement>();
 export const scrollableRef = React.createRef<HTMLDivElement>();
 export const timelineVerticalScroll = React.createRef<HTMLDivElement>();
+export const timelineRulerRef = React.createRef<HTMLDivElement>();
+export const timelineViewportRef = React.createRef<HTMLDivElement>();
 
 export const timelineDurationRef = React.createRef<{
 	getDuration: (durationInFrames: number) => number | null;
