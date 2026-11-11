@@ -1138,6 +1138,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		};
 
 		const currentFields = new Map<string, KeyframeFieldState>();
+		const selectedFieldKeys = new Set<string>();
 		for (const item of [...snapshot.selectedItems, snapshot.anchor]) {
 			if (
 				item === null ||
@@ -1147,16 +1148,10 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			}
 
 			const fieldKey = timelineNodePathInfoToKey(item.nodePathInfo);
+			selectedFieldKeys.add(fieldKey);
 			const state = getFieldState(item);
 			if (state !== null) {
 				currentFields.set(fieldKey, state);
-			} else {
-				// A pending update or an unavailable track does not prove that the
-				// selection is gone. Keep the last known keyframes for a later retry.
-				const previous = previousKeyframeFieldsRef.current.get(fieldKey);
-				if (previous !== undefined) {
-					currentFields.set(fieldKey, previous);
-				}
 			}
 		}
 
@@ -1169,7 +1164,23 @@ export const TimelineSelectableItemsProvider: React.FC<{
 					: '',
 			state: snapshot,
 		});
-		previousKeyframeFieldsRef.current = currentFields;
+
+		// An unresolved field (pending update, active drag override, missing
+		// track) is not in currentFields, so the reconciler leaves its
+		// selection untouched. Retain its last resolved keyframes for the run
+		// that can actually reconcile it.
+		const nextPreviousFields = new Map(previousKeyframeFieldsRef.current);
+		for (const [fieldKey, state] of currentFields) {
+			nextPreviousFields.set(fieldKey, state);
+		}
+
+		for (const fieldKey of nextPreviousFields.keys()) {
+			if (!selectedFieldKeys.has(fieldKey)) {
+				nextPreviousFields.delete(fieldKey);
+			}
+		}
+
+		previousKeyframeFieldsRef.current = nextPreviousFields;
 		if (next === snapshot) {
 			return;
 		}

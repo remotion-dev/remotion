@@ -25,7 +25,10 @@ import type {
 } from '../helpers/get-timeline-sequence-sort-key';
 import {KeybindingContextProvider} from '../state/keybindings';
 
-afterEach(cleanup);
+afterEach(() => {
+	activeDragOverride = {};
+	cleanup();
+});
 
 const nodePath: SequencePropsSubscriptionKey = {
 	absolutePath: '/project/src/Comp.tsx',
@@ -130,9 +133,11 @@ const studioServerConnectionContext = {
 	subscribeToEvent: () => () => undefined,
 } as never;
 
+let activeDragOverride: Record<string, unknown> = {};
+
 const dragOverrides = {
-	getDragOverrides: () => ({}),
-	getEffectDragOverrides: () => ({}),
+	getDragOverrides: () => activeDragOverride,
+	getEffectDragOverrides: () => activeDragOverride,
 } as never;
 
 const expandedTracksGetter = {getIsExpanded: () => false};
@@ -258,6 +263,41 @@ test('a selection made while the history operation is pending survives it', () =
 	);
 
 	expect(getSelectedFrames(selection!)).toEqual([10]);
+});
+
+test('an active keyframe drag keeps the dragged selection', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+
+	// Pointer-up moves the selection and the optimistic source while the drag
+	// override is still published.
+	activeDragOverride = {opacity: {type: 'static', value: 1}};
+	act(() => {
+		selection!.selectItems([keyframeSelection(27)]);
+		rerender(
+			<Harness statuses={makeStatuses([27, 40])} onSelection={capture} />,
+		);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([27]);
+
+	// Once the move is acknowledged the field resolves; the selection must
+	// survive that run and still map back on undo.
+	activeDragOverride = {};
+	rerender(<Harness statuses={makeStatuses([27, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([27]);
+
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
 });
 
 test('undoing keyframe creation removes the selection', () => {
