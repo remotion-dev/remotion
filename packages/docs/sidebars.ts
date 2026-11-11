@@ -1240,13 +1240,13 @@ const sidebars: SidebarsConfig = {
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/showing-unmounted-components',
+				'studio/browse-elements',
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
 				'studio/remotion-dev-new',
-				'studio/browse-elements',
 			],
 		},
 		{
@@ -1256,7 +1256,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'elements',
 			},
-			items: ['elements', 'elements/libraries'],
+			items: ['elements/libraries'],
 		},
 		{
 			type: 'category',

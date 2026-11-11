@@ -52,6 +52,10 @@ Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/We
 
 Apply [effects](/docs/effects/api) to each frame after it has been drawn to the canvas.
 
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+
 ### `width?`
 
 The display width.
@@ -139,7 +143,7 @@ You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs
 
 ### Inherited props
 
-`<AnimatedImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<AnimatedImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 ## Differences to `<Gif>`
 

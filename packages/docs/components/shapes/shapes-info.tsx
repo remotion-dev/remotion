@@ -465,6 +465,17 @@ const globalParams: Param[] = [
 		),
 	},
 	{
+		name: 'effectsOutputSize',
+		type: 'EffectsOutputSize',
+		description: (
+			<>
+				The pixel dimensions used by the effect chain. See{' '}
+				<a href="/docs/effects/api#effect-resolution">Effect resolution</a>.
+				Available from v4.0.536.
+			</>
+		),
+	},
+	{
 		name: 'pixelDensity',
 		type: 'number',
 		description: (
@@ -556,6 +567,14 @@ export const ShapeOptions: React.FC<{
 						<AvailableFrom v="4.0.482" inline />,{' '}
 						<a href="/docs/sequence#playbackrate">
 							<code>playbackRate</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#loop">
+							<code>loop</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#freeze">
+							<code>freeze</code>
 						</a>
 						,{' '}
 						<a href="/docs/sequence#name">
