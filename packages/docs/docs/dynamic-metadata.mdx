@@ -80,7 +80,7 @@ export const Root: React.FC = () => {
         const compositionFps = fps ?? 30;
 
         return {
-          durationInFrames: Math.round(durationInSeconds * compositionFps),
+          durationInFrames: Math.ceil(durationInSeconds * compositionFps),
           fps: compositionFps,
         };
       }}
@@ -161,7 +161,7 @@ export const RemotionRoot: React.FC = () => {
       .then(({durationInSeconds, fps}) => {
         const compositionFps = fps ?? 30;
         setMetadata({
-          durationInFrames: Math.round(durationInSeconds * compositionFps),
+          durationInFrames: Math.ceil(durationInSeconds * compositionFps),
           fps: compositionFps,
         });
         continueRender(handle);
@@ -266,7 +266,7 @@ export const Index: React.FC = () => {
       .then(({durationInSeconds, fps}) => {
         const compositionFps = fps ?? 30;
         setMetadata({
-          durationInFrames: Math.round(durationInSeconds * compositionFps),
+          durationInFrames: Math.ceil(durationInSeconds * compositionFps),
           fps: compositionFps,
         });
       })

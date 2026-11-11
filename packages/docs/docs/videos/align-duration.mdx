@@ -64,7 +64,7 @@ export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async (
   const fps = 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps),
+    durationInFrames: Math.ceil(durationInSeconds * fps),
     fps,
     width,
     height,
