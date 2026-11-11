@@ -21,6 +21,11 @@ const serializeSvg = (svg: SVGSVGElement) =>
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
+const getSvgTextElements = (svg: SVGSVGElement) =>
+	Array.from(
+		svg.querySelectorAll<SVGTextContentElement>('text, tspan, textPath'),
+	).filter((element) => element.namespaceURI === 'http://www.w3.org/2000/svg');
+
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
@@ -149,9 +154,7 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const textElements = Array.from(
-		svg.querySelectorAll('text, tspan, textPath'),
-	);
+	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
@@ -234,6 +237,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// CSSStyleSheet.disabled is runtime state and is not serialized as markup.
 	// Neutralize rules only in a clone, preserving nodes for structural selectors.
 	const styles = svg.querySelectorAll('style');
+	const carrierMedia = styles[fontStyleIndex]?.getAttribute('media');
+	const carrierMediaMatches =
+		!carrierMedia ||
+		(svg.ownerDocument.defaultView ?? window).matchMedia(carrierMedia).matches;
 	const hasDisabledStyles = Array.from(styles).some(
 		(style) => style.sheet?.disabled,
 	);
@@ -256,26 +263,41 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	svgForSerialization
-		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
-		.forEach((element, index) => {
-			const fontStyle = textStyles[index];
-			if (fontStyle === null) return;
-			textFontProperties.forEach((property, propertyIndex) => {
-				element.style.setProperty(
-					property,
-					fontStyle[propertyIndex],
-					'important',
-				);
-			});
+	getSvgTextElements(svgForSerialization).forEach((element, index) => {
+		const fontStyle = textStyles[index];
+		if (fontStyle === null) return;
+		textFontProperties.forEach((property, propertyIndex) => {
+			element.style.setProperty(
+				property,
+				fontStyle[propertyIndex],
+				'important',
+			);
 		});
-	// Font discovery includes explicit template choices without freezing their inheritance.
-	const fontFamilies = new Set(
-		textElements.flatMap((element) =>
-			parseFontFamilies(getComputedStyle(element).fontFamily),
-		),
-	);
-	const cssFontRules = textElements.length
+	});
+	// Discover the families of actual text-node parents, including template text.
+	const fontFamilies = new Set<string>();
+	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
+	for (const element of textElements) {
+		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		while (walker.nextNode()) {
+			if (!walker.currentNode.textContent?.length) continue;
+			const parent = walker.currentNode.parentElement;
+			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
+				continue;
+			let style = computedStyles.get(parent);
+			if (!style) {
+				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
+					parent,
+				);
+				computedStyles.set(parent, style);
+			}
+
+			for (const family of parseFontFamilies(style.fontFamily))
+				fontFamilies.add(family);
+		}
+	}
+
+	const cssFontRules = fontFamilies.size
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
@@ -312,12 +334,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const fontStyleKey = cssFontRules.length
-		? JSON.stringify([
-				embeddedFontStyle?.cacheKey ?? null,
-				cssFontRules.map((rule) => [rule.css, rule.url]),
-			])
-		: (embeddedFontStyle?.cacheKey ?? null);
+	const fontStyleKey =
+		cssFontRules.length || embeddedFontStyle !== null
+			? JSON.stringify([
+					embeddedFontStyle?.cacheKey ?? null,
+					cssFontRules.map((rule) => [rule.css, rule.url]),
+					fontStyleIndex,
+					carrierMediaMatches,
+				])
+			: null;
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
@@ -355,7 +380,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				const fontCss = css + (embeddedFontStyle?.css ?? '');
 				let markup = serializedSvg;
 				if (fontCss) {
-					insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
+					insertFontStyleInSvg(
+						svgForSerialization,
+						fontCss,
+						fontStyleIndex,
+						carrierMediaMatches,
+					);
 					markup = serializeSvg(svgForSerialization);
 				}
 

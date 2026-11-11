@@ -294,6 +294,7 @@ export const insertFontStyleInSvg = (
 	svg: SVGSVGElement,
 	css: string,
 	styleIndex: number,
+	mediaMatches: boolean,
 ) => {
 	// Keep the ordered face snapshot after every retained local font definition.
 	const styles = svg.querySelectorAll<SVGStyleElement | HTMLStyleElement>(
@@ -309,8 +310,7 @@ export const insertFontStyleInSvg = (
 	}
 
 	// Carried fonts must not inherit an unrelated authored media restriction.
-	const media = style.getAttribute('media');
-	if (media && !svg.ownerDocument.defaultView!.matchMedia(media).matches) {
+	if (!mediaMatches) {
 		style.textContent = '';
 	}
 
