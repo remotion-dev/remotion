@@ -1,13 +1,15 @@
 // Match attribute names in selector text, skipping quoted values and escapes.
 const attributeSelector =
-	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:\|[\t\n\f\r ]*)?)style(?=[\t\n\f\r \]~^$*=]|\|=)/g;
+	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:\|[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)/g;
 
-export const preserveSvgStyleSelectors = ({
+export const preserveSvgAttributeSelectors = ({
 	svg,
-	authoredStyles,
+	authoredValues,
+	attributeName,
 }: {
 	svg: SVGSVGElement;
-	authoredStyles: (string | null)[];
+	authoredValues: (string | null)[];
+	attributeName: 'style' | 'media';
 }) => {
 	const ownerWindow = svg.ownerDocument.defaultView ?? window;
 	if (typeof ownerWindow.CSSStyleSheet.prototype.replaceSync !== 'function')
@@ -31,7 +33,7 @@ export const preserveSvgStyleSelectors = ({
 				);
 			},
 		);
-	let attribute = 'data-remotion-authored-style';
+	let attribute = `data-remotion-authored-${attributeName}`;
 	while (
 		svg.hasAttribute(attribute) ||
 		svg.querySelector(`[${attribute}]`) ||
@@ -56,8 +58,10 @@ export const preserveSvgStyleSelectors = ({
 				if (rule instanceof ownerWindow.CSSStyleRule) {
 					const selector = rule.selectorText.replace(
 						attributeSelector,
-						(match, prefix: string | undefined) =>
-							prefix === undefined ? match : `[${prefix}${attribute}`,
+						(match, prefix: string | undefined, name: string | undefined) =>
+							prefix === undefined || name !== attributeName
+								? match
+								: `[${prefix}${attribute}`,
 					);
 					if (selector !== rule.selectorText) {
 						rule.selectorText = selector;
@@ -81,7 +85,7 @@ export const preserveSvgStyleSelectors = ({
 
 	if (!changed) return;
 	[svg, ...svg.querySelectorAll('*')].forEach((element, index) => {
-		const value = authoredStyles[index];
+		const value = authoredValues[index];
 		if (value !== null) element.setAttribute(attribute, value);
 	});
 };

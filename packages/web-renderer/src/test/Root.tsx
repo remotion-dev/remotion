@@ -228,6 +228,11 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {
+	svgInactiveTitleMediaCache,
+	svgInactiveTitleModes,
+	svgInactiveTitledFont,
+} from './fixtures/svg-inactive-titled-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -336,6 +341,18 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition
 					key={mode}

@@ -2,7 +2,7 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
-import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
+import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -231,7 +231,19 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	}
 
 	if (authoredStyles)
-		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+		preserveSvgAttributeSelectors({
+			svg: svgForSerialization,
+			authoredValues: authoredStyles,
+			attributeName: 'style',
+		});
+	if (embeddedFontStyle)
+		preserveSvgAttributeSelectors({
+			svg: svgForSerialization,
+			authoredValues: [svg, ...svg.querySelectorAll('*')].map((element) =>
+				element.getAttribute('media'),
+			),
+			attributeName: 'media',
+		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
 	for (const child of childOpacities) {
@@ -263,17 +275,19 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	}
 
 	const carrierMedia = embeddedFontStyle
-		? svgForSerialization
-				.querySelectorAll('style')
-				[fontStyleIndex]?.getAttribute('media')
+		? fontCarriers.map((index) => {
+				const media = styles[index]?.getAttribute('media');
+				return (
+					!media || svg.ownerDocument.defaultView!.matchMedia(media).matches
+				);
+			})
 		: null;
 	const fontStyleKey = embeddedFontStyle
 		? JSON.stringify([
 				embeddedFontStyle.cacheKey,
 				fontStyleIndex,
 				fontCarriers,
-				!carrierMedia ||
-					svg.ownerDocument.defaultView!.matchMedia(carrierMedia).matches,
+				carrierMedia,
 			])
 		: null;
 	const cached = drawableBySvg.get(svg);
@@ -290,12 +304,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		let markup = serializedSvg;
 		if (embeddedFontStyle) {
 			if (usesStylesheetSets && fontCarriers.length) {
-				const clonedStyles = svgForSerialization.querySelectorAll('style');
-				for (const index of fontCarriers) {
-					const carrier = clonedStyles[index];
-					carrier.textContent =
-						(carrier.textContent ?? '') + '\n' + embeddedFontStyle.css;
-				}
+				for (const index of fontCarriers)
+					insertFontStyleInSvg(
+						svgForSerialization,
+						embeddedFontStyle.css,
+						index,
+					);
 			} else {
 				insertFontStyleInSvg(
 					svgForSerialization,
