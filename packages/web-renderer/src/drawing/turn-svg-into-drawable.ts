@@ -43,25 +43,88 @@ const getSvgFontElements = (svg: SVGSVGElement) => {
 	return [...elements];
 };
 
-const getReferencedTemplates = (svg: SVGSVGElement) => {
-	const documentUrl = new URL(svg.ownerDocument.URL);
-	documentUrl.hash = '';
+const svgDefinitionElements =
+	'defs, symbol, pattern, mask, clipPath, marker, filter, linearGradient, radialGradient';
+const invalidUseTargets =
+	'defs, pattern, mask, clipPath, marker, filter, linearGradient, radialGradient';
+
+const getLocalSvgReference = (
+	svg: SVGSVGElement,
+	value: string,
+	base: string,
+) => {
+	try {
+		const documentUrl = new URL(svg.ownerDocument.URL);
+		documentUrl.hash = '';
+		const url = new URL(value, base);
+		const id = decodeURIComponent(url.hash.slice(1));
+		url.hash = '';
+		return url.href === documentUrl.href ? svg.getElementById(id) : null;
+	} catch {
+		return null;
+	}
+};
+
+const getReferencedTemplates = (
+	svg: SVGSVGElement,
+	styleFor: (element: Element) => CSSStyleDeclaration,
+) => {
 	const templates = new Set<Element>();
-	for (const use of svg.querySelectorAll('use')) {
-		try {
-			const url = new URL(use.href.baseVal, use.baseURI);
-			const id = decodeURIComponent(url.hash.slice(1));
-			url.hash = '';
-			if (url.href !== documentUrl.href) continue;
-			const template = svg.getElementById(id);
-			if (template) templates.add(template);
-		} catch {
-			// Invalid authored references do not instantiate a template.
+	const uses = new Set<SVGUseElement>();
+	const visited = new Set<Element>();
+	const elements: Element[] = [svg];
+	const addResource = (element: Element, value: string, allowed: string) => {
+		const resource = getLocalSvgReference(svg, value, element.baseURI);
+		if (resource?.matches(allowed)) elements.push(resource);
+	};
+
+	for (const element of elements) {
+		if (
+			visited.has(element) ||
+			element.namespaceURI !== 'http://www.w3.org/2000/svg'
+		)
 			continue;
+		visited.add(element);
+		const style = styleFor(element);
+		if (style.display === 'none') continue;
+		if (element.localName === 'use') {
+			const use = element as SVGUseElement;
+			const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
+			if (target && !target.matches(invalidUseTargets)) {
+				templates.add(target);
+				uses.add(use);
+				elements.push(target);
+			}
+		} else if (
+			element.matches('pattern, linearGradient, radialGradient, filter')
+		) {
+			const href =
+				element.getAttribute('href') ??
+				element.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+			if (href) addResource(element, href, element.localName);
 		}
+
+		for (const [property, allowed] of [
+			['fill', 'pattern, linearGradient, radialGradient'],
+			['stroke', 'pattern, linearGradient, radialGradient'],
+			['mask-image', 'mask'],
+			['clip-path', 'clipPath'],
+			['filter', 'filter'],
+			['marker-start', 'marker'],
+			['marker-mid', 'marker'],
+			['marker-end', 'marker'],
+		]) {
+			for (const match of style
+				.getPropertyValue(property)
+				.matchAll(/url\((?:"([^"\\]*)"|'([^'\\]*)'|([^()\\]*))\)/g))
+				addResource(element, match[1] ?? match[2] ?? match[3], allowed);
+		}
+
+		for (const child of element.children)
+			if (!child.matches(svgDefinitionElements)) elements.push(child);
 	}
 
-	return templates;
+	return {templates, uses};
 };
 
 // SVG images cannot load external font resources. Self-contained data fonts from
@@ -137,9 +200,24 @@ const drawableBySvg = new WeakMap<
 
 export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const textElements = getSvgFontElements(svg);
-	const referencedTemplates = textElements.length
-		? getReferencedTemplates(svg)
-		: new Set<Element>();
+	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
+	const styleFor = (element: Element) => {
+		let style = computedStyles.get(element);
+		if (!style) {
+			style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
+				element,
+			);
+			computedStyles.set(element, style);
+		}
+
+		return style;
+	};
+
+	const {templates: referencedTemplates, uses: renderedUses} =
+		textElements.length
+			? getReferencedTemplates(svg, styleFor)
+			: {templates: new Set<Element>(), uses: new Set<SVGUseElement>()};
+
 	const textStyles = textElements.map((element) => {
 		// Templates inherit font selection from each <use> instance.
 		if (element.closest('defs, symbol')) return null;
@@ -149,7 +227,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			ancestor = ancestor.parentElement!;
 		}
 
-		const style = getComputedStyle(element);
+		const style = styleFor(element);
 		return textFontProperties.map((property) =>
 			style.getPropertyValue(property),
 		);
@@ -157,7 +235,6 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 
 	// Discover the families of actual text-node parents, including template text.
 	const fontFamilies = new Set<string>();
-	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
 	for (const element of textElements) {
 		const walker = svg.ownerDocument.createTreeWalker(element, 4);
 		while (walker.nextNode()) {
@@ -165,17 +242,58 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			const parent = walker.currentNode.parentElement;
 			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
 				continue;
-			let style = computedStyles.get(parent);
-			if (!style) {
-				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
-					parent,
-				);
-				computedStyles.set(parent, style);
-			}
+			const style = styleFor(parent);
 
 			for (const family of parseFontFamilies(style.fontFamily))
 				fontFamilies.add(family);
 		}
+	}
+
+	// Inline/presentation font selection on an instance is inherited by its
+	// referenced text, while the source definition keeps its own computed style.
+	const hasRenderedText = (root: Element) => {
+		const pending: {element: Element; withinText: boolean}[] = [
+			{element: root, withinText: false},
+		];
+		const seen = new Set<Element>();
+		for (const {element, withinText} of pending) {
+			if (
+				seen.has(element) ||
+				element.namespaceURI !== 'http://www.w3.org/2000/svg' ||
+				styleFor(element).display === 'none'
+			)
+				continue;
+			seen.add(element);
+			const text = withinText || element.matches('text, tspan, textPath');
+			if (
+				text &&
+				Array.from(element.childNodes).some(
+					(node) =>
+						node.nodeType === Node.TEXT_NODE &&
+						Boolean(node.textContent?.length),
+				)
+			)
+				return true;
+			if (element.localName === 'use') {
+				const use = element as SVGUseElement;
+				const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
+				if (target && !target.matches(invalidUseTargets))
+					pending.push({element: target, withinText: text});
+			}
+
+			for (const child of element.children)
+				if (!child.matches(svgDefinitionElements))
+					pending.push({element: child, withinText: text});
+		}
+
+		return false;
+	};
+
+	for (const use of renderedUses) {
+		const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
+		if (!target || !hasRenderedText(target)) continue;
+		for (const family of parseFontFamilies(styleFor(use).fontFamily))
+			fontFamilies.add(family);
 	}
 
 	const cssFontRules = fontFamilies.size
@@ -411,10 +529,8 @@ export const turnSvgIntoDrawable = (
 		if (hasFontCss) {
 			const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
 			if (usesStylesheetSets && fontCarriers.length) {
-				const clonedStyles = svgForSerialization.querySelectorAll('style');
 				for (const index of fontCarriers)
-					clonedStyles[index].textContent =
-						(clonedStyles[index].textContent ?? '') + '\n' + fontCss;
+					insertFontStyleInSvg(svgForSerialization, fontCss, index);
 			} else
 				insertFontStyleInSvg(
 					svgForSerialization,

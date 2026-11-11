@@ -1,12 +1,16 @@
 import {loadFont} from '@remotion/fonts';
-import {useEffect, useState} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useCurrentFrame, useDelayRender} from 'remotion';
+import {svgFontMediaCache} from './svg-font-media-cache';
 
 export const svgTitledFontModes = [
 	'ab',
 	'ba',
 	'same-title',
 	'trailing-empty',
+	'media-active',
+	'media-inactive',
+	'media-all-inactive',
 ] as const;
 export const svgTitledFontSources = ['registered', 'data'] as const;
 const url = new URL('../../../../example/public/bangers.woff2', import.meta.url)
@@ -72,6 +76,7 @@ export const svgTitledFontCarrier = (
 		const rule = data
 			? `@font-face{font-family:"${family}";src:url("${data}") format("woff2")}`
 			: '';
+		const mediaMode = mode === 'media-active' || mode === 'media-inactive';
 		const first = mode === 'ba' ? 'B' : 'A';
 		const last = mode === 'same-title' ? first : first === 'A' ? 'B' : 'A';
 		return (
@@ -79,14 +84,34 @@ export const svgTitledFontCarrier = (
 				{source === 'data' ? <style>{rule}</style> : null}
 				<svg width={260} height={90}>
 					{literal ? <style>{rule}</style> : null}
-					<style title={first}>
+					<style
+						title={first}
+						media={
+							mode === 'media-active'
+								? '(min-width: 500px)'
+								: mode === 'media-inactive' || mode === 'media-all-inactive'
+									? '(max-width: 500px)'
+									: undefined
+						}
+					>
 						{'rect{fill:blue}style[title] ~ rect{stroke:green;stroke-width:2}'}
 					</style>
-					<style title={last} media={frame === 0 ? '' : 'all'}>
-						{
-							'rect{fill:red}style[media="all"] ~ rect{stroke:purple;stroke-width:2}'
-						}
-					</style>
+					{mediaMode ? null : (
+						<style
+							title={last}
+							media={
+								mode === 'media-all-inactive'
+									? '(max-width: 500px)'
+									: frame === 0
+										? ''
+										: 'all'
+							}
+						>
+							{
+								'rect{fill:red}style[media="all"] ~ rect{stroke:purple;stroke-width:2}'
+							}
+						</style>
+					)}
 					{mode === 'trailing-empty' ? <style /> : null}
 					<rect x={8} y={62} width={20 + frame * 8} height={16} />
 					<text
@@ -111,5 +136,26 @@ export const svgTitledFontCarrier = (
 		height: 90,
 		fps: 30,
 		durationInFrames: 2,
+	} as const;
+};
+
+export const svgTitledFontMediaCache = ({active}: {active: boolean | null}) => {
+	const fixture = svgFontMediaCache({active});
+	const Component = () => {
+		const host = useRef<HTMLDivElement>(null);
+		useLayoutEffect(() => {
+			host.current!.querySelector('svg > style')?.setAttribute('title', 'A');
+		}, []);
+		return (
+			<div ref={host}>
+				<fixture.component />
+			</div>
+		);
+	};
+
+	return {
+		...fixture,
+		component: Component,
+		id: `svg-titled-font-media-cache-${active === null ? 'query' : active ? 'active' : 'inactive'}`,
 	} as const;
 };
