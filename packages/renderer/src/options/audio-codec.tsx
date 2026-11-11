@@ -272,15 +272,8 @@ export const audioCodecOption = {
 			value: null,
 		};
 	},
-	description: () => (
-		<>
-			Set the format of the audio that is embedded in the video. Not all codec
-			and audio codec combinations are supported and certain combinations
-			require a certain file extension and container format. See the{' '}
-			<a href="/docs/encoding#audio-codec">table in the docs</a> to see possible
-			combinations.
-		</>
-	),
+	description: () =>
+		`Set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format. See the table in the docs to see possible combinations.`,
 	docLink: 'https://www.remotion.dev/docs/options/audio-codec',
 	name: 'Audio Codec',
 	addedIn: '3.3.41',
