@@ -55,13 +55,17 @@ const {results} = await simulatePermissions({
 
 ## Return value
 
-**An array of objects** containing simulation results of each necessary permission. The objects contain the following keys:
+An object with the following property:
 
-### `decision`
+### `results`
+
+An array of objects containing simulation results of each necessary permission. The objects contain the following keys:
+
+#### `decision`
 
 Either `"allowed"`, `"implicitDeny"` or `"explicitDeny"`.
 
-### `name`
+#### `name`
 
 The identifier of the required permission. See the [Permissions page](/docs/lambda/permissions) to see a list of required permissions.
 
