@@ -10,6 +10,10 @@ import {
 } from './native-reference';
 
 beforeAll(async () => {
+	if (!navigator.userAgent.includes('Chrome')) {
+		return;
+	}
+
 	await warmUpNativeReferences([backgroundBlendMode]);
 }, 60_000);
 

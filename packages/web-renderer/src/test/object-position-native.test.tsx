@@ -14,12 +14,17 @@ import {
 	savePixelEvidence,
 } from './native-reference';
 
+// Warm up the same fixtures the native comparisons below capture.
 beforeAll(async () => {
-	await warmUpNativeReferences([
-		objectPosition,
-		objectPositionMath,
-		replacedElementPixelated,
-	]);
+	if (navigator.userAgent.includes('Firefox')) {
+		return;
+	}
+
+	await warmUpNativeReferences(
+		navigator.userAgent.includes('Chrome')
+			? [objectPosition, objectPositionMath, replacedElementPixelated]
+			: [replacedElementPixelated],
+	);
 }, 60_000);
 
 // KINO-7764: the general object-position fixtures still differ in WebKit.
