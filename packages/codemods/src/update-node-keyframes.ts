@@ -10,6 +10,7 @@ import {
 import {
 	updateSequenceKeyframes,
 	type SequenceKeyframeUpdate,
+	type SourceKeyframeUpdate,
 } from './update-keyframes';
 
 export type NodeKeyframeUpdate = SequenceKeyframeUpdate;
@@ -17,7 +18,7 @@ export type NodeKeyframeUpdate = SequenceKeyframeUpdate;
 export type UpdateNodeKeyframesOptions<Project extends CodemodProject> = {
 	project: Project;
 	node: NodeReference;
-	updates: NodeKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	videoConfig?: VideoConfigValues;
 	prettierConfigOverride?: Record<string, unknown> | null;

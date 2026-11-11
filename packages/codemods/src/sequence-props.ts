@@ -761,9 +761,11 @@ const getJsxFrom = ({
 			return null;
 		}
 
-		start = combineSourceNumericValues('+', start, offset);
 		if (child === element) {
-			return typeof start !== 'number' || Number.isFinite(start) ? start : null;
+			const currentStart = combineSourceNumericValues('+', start, offset);
+			return typeof currentStart !== 'number' || Number.isFinite(currentStart)
+				? currentStart
+				: null;
 		}
 
 		const duration = getJsxNumericAttribute({
@@ -790,8 +792,12 @@ const getJsxFrom = ({
 
 		start = combineSourceNumericValues(
 			'+',
-			start,
-			combineSourceNumericValues('/', duration, rate),
+			combineSourceNumericValues(
+				'+',
+				start,
+				combineSourceNumericValues('/', duration, rate),
+			),
+			offset,
 		);
 	}
 
@@ -892,7 +898,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 		: null;
 };
 
-const getDefaultFrameDisplayOffsetAdjustment = ({
+export const getDefaultFrameDisplayOffsetAdjustment = ({
 	jsxPath,
 	ast,
 	videoConfigValues,
@@ -1076,7 +1082,7 @@ const resolveCurrentFrameExpression = ({
 	});
 };
 
-const getCurrentFrameDisplayOffsetAdjustment = ({
+export const getCurrentFrameDisplayOffsetAdjustment = ({
 	node,
 	ast,
 	videoConfigValues,
@@ -1571,6 +1577,69 @@ const getJsxElementNodeFromJsxPath = (
 	}
 
 	return null;
+};
+
+export const getSeriesSequenceFromContent = ({
+	fileContents,
+	nodePath,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+}): {from: SourceNumericValue | null} | null => {
+	const cachedAst = getReadOnlySourceSnapshot(fileContents);
+	const {ast} = cachedAst;
+	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const jsxElement = jsxPath ? getJsxElementNodeFromJsxPath(jsxPath) : null;
+	if (!jsxPath || !jsxElement) {
+		throw new JsxElementNotFoundAtLocationError();
+	}
+
+	let root = jsxElement.openingElement.name;
+	while (root.type === 'JSXMemberExpression') {
+		root = root.object;
+	}
+
+	if (
+		getJsxComponentIdentity({ast, jsxElement: jsxElement.openingElement}) !==
+			'dev.remotion.remotion.Series.Sequence' ||
+		root.type !== 'JSXIdentifier' ||
+		jsxPath.scope.lookup(root.name)?.path.node !== ast.program
+	) {
+		return null;
+	}
+
+	let {parentPath} = jsxPath.parentPath;
+	while (parentPath && parentPath.value.type !== 'JSXElement') {
+		parentPath = parentPath.parentPath;
+	}
+
+	const parent = parentPath?.value as JSXElement | undefined;
+	if (!parent) {
+		return {from: null};
+	}
+
+	let parentRoot = parent.openingElement.name;
+	while (parentRoot.type === 'JSXMemberExpression') {
+		parentRoot = parentRoot.object;
+	}
+
+	if (
+		parentRoot.type !== 'JSXIdentifier' ||
+		parentPath.scope.lookup(parentRoot.name)?.path.node !== ast.program
+	) {
+		return {from: null};
+	}
+
+	const videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues ?? getVideoConfigIdentifiers({ast});
+	cachedAst.videoConfigIdentifierValues = videoConfigIdentifierValues;
+	return {
+		from: getJsxFrom({
+			jsxPath: jsxPath.parentPath,
+			ast,
+			videoConfigValues: videoConfigIdentifierValues,
+		}),
+	};
 };
 
 export const findJsxElementNodeAtNodePath = (

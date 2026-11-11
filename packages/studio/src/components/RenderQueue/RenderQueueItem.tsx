@@ -1,15 +1,10 @@
 import type {RenderJob} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {getBackgroundFromHoverState, WHITE} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {
 	getOutputRoute,
 	getRenderJobOutputPath,
@@ -76,7 +71,6 @@ export const RenderQueueItem: React.FC<{
 	readonly selected: boolean;
 }> = ({job, selected}) => {
 	const cancelling = useIsRenderJobCancelling(job.id);
-	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
@@ -86,28 +80,25 @@ export const RenderQueueItem: React.FC<{
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
 	const isHoverable =
 		job.status === 'done' && (isClientJob || job.type !== 'sequence');
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: getBackgroundFromHoverState({
-				hovered: isHoverable && hovered,
-				selected,
+			...hoverableStyle({
+				idleBackground: getBackgroundFromHoverState({hovered: false, selected}),
+				hoverBackground: getBackgroundFromHoverState({
+					hovered: isHoverable,
+					selected,
+				}),
+				idleColor: WHITE,
+				hoverColor: WHITE,
 			}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [hovered, isHoverable, selected]);
+	}, [isHoverable, selected]);
 
 	const scrollCurrentIntoView = useCallback(() => {
 		document
@@ -202,15 +193,17 @@ export const RenderQueueItem: React.FC<{
 	return (
 		<Row
 			data-render-queue-item={job.id}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			style={containerStyle}
 			align="center"
 			onClick={onClick}
 			draggable={canDrag}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
-			className={selected ? RENDER_QUEUE_ITEM_SELECTED_CLASSNAME : undefined}
+			className={
+				selected
+					? `${HOVERABLE_CLASS_NAME} ${RENDER_QUEUE_ITEM_SELECTED_CLASSNAME}`
+					: HOVERABLE_CLASS_NAME
+			}
 		>
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />

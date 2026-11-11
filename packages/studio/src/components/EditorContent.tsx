@@ -11,6 +11,7 @@ import {MenuToolbar} from './MenuToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
+import {SplitterImperativeProvider} from './Splitter/SplitterImperativeContext';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {Timeline} from './Timeline/Timeline';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
@@ -85,6 +86,7 @@ export const EditorContent: React.FC<{
 				{children}
 			</SplitterElement>
 			<SplitterHandle
+				label="Preview height"
 				allowToCollapse="none"
 				onCollapse={noop}
 				onCollapseDuringDrag={null}
@@ -115,18 +117,20 @@ export const EditorContent: React.FC<{
 	return (
 		<TimelineTickFormatProvider>
 			<TimelineSelectionProvider>
-				<WebMcp />
-				<Diagnostics />
-				<Transform3DModeStateProvider>
-					<StudioClearSelectionArea>
-						<InitialCompositionLoader />
-						<MenuToolbar readOnlyStudio={readOnlyStudio} />
-						<GlobalKeybindings />
-						<TimelineKeyframeDragStateProvider>
-							{content}
-						</TimelineKeyframeDragStateProvider>
-					</StudioClearSelectionArea>
-				</Transform3DModeStateProvider>
+				<SplitterImperativeProvider>
+					<WebMcp />
+					<Diagnostics />
+					<Transform3DModeStateProvider>
+						<StudioClearSelectionArea>
+							<InitialCompositionLoader />
+							<MenuToolbar readOnlyStudio={readOnlyStudio} />
+							<GlobalKeybindings />
+							<TimelineKeyframeDragStateProvider>
+								{content}
+							</TimelineKeyframeDragStateProvider>
+						</StudioClearSelectionArea>
+					</Transform3DModeStateProvider>
+				</SplitterImperativeProvider>
 			</TimelineSelectionProvider>
 		</TimelineTickFormatProvider>
 	);

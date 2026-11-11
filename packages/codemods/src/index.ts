@@ -43,6 +43,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
+import {validateKeyframePasteTiming} from './validate-keyframe-paste-timing';
 
 export {
 	CodemodElement,
@@ -172,6 +173,7 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 } from './update-keyframes';
 export type {
 	CodemodEnvironment,
@@ -224,6 +226,7 @@ export const CodemodsInternals = {
 	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,
 	updateInlineCaptionPatches,
+	validateKeyframePasteTiming,
 };
 
 export {

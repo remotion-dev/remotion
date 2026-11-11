@@ -31,6 +31,7 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
+import {PlaybackRangeContext} from './playback-range-context.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {
 	PlayerMethods,
@@ -90,8 +91,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly showPosterWhenUnplayed: boolean;
 		readonly showPosterWhenBuffering: boolean;
 		readonly showPosterWhenBufferingAndPaused: boolean;
-		readonly inFrame: number | null;
-		readonly outFrame: number | null;
 		readonly initiallyShowControls: number | boolean;
 		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
 		readonly renderFullscreen: RenderFullscreenButton | null;
@@ -131,8 +130,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
 		showPosterWhenBufferingAndPaused,
-		inFrame,
-		outFrame,
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
@@ -151,6 +148,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	},
 	ref,
 ) => {
+	const {inFrame, outFrame} = useContext(PlaybackRangeContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);

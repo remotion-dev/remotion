@@ -34,8 +34,9 @@ export const openInEditor = async (
 		editorId,
 		stack: {
 			originalFileName,
-			originalLineNumber,
-			originalColumnNumber,
+			originalLineNumber: originalLineNumber === null ? 1 : originalLineNumber,
+			originalColumnNumber:
+				originalColumnNumber === null ? 1 : originalColumnNumber,
 			originalFunctionName,
 			originalScriptCode,
 		},

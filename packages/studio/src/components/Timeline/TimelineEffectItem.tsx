@@ -756,6 +756,7 @@ export const TimelineEffectItem: React.FC<{
 				canShowToggle ? (
 					<TimelineLayerEye
 						type="effect"
+						displayName={label}
 						hidden={isDisabled}
 						onInvoked={canToggle ? onToggle : null}
 					/>
