@@ -561,6 +561,7 @@ const siteConfig: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/studio', '/docs/studio', {permanent: false}),
+		routes.redirect('/legal', '/docs/legal', {permanent: false}),
 		routes.redirect('/security', '/docs/security', {permanent: false}),
 		routes.redirect('/accessibility', '/docs/accessibility', {
 			permanent: false,

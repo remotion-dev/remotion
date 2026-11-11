@@ -538,7 +538,7 @@ By passing `from` and `durationInFrames` to `Interactive.Div`, the item is only 
 
 ### <TitleStep>3</TitleStep> Outline rendering
 
-Create a React component that renders an outline when an item isselected or hovered.
+Create a React component that renders an outline when an item is selected or hovered.
 
 ```tsx twoslash title="SelectionOutline.tsx"
 // @filename: ResizeHandle.tsx
@@ -566,8 +566,8 @@ Since we consume the coordinates of the pointer events, we need to divide them b
 
 The thickness of the borders will also be affected by the scale, so we need to divide them by the scale too.
 
-**Pointer event handling**: On any `pointerdown` event, we call `e.stopPropagation()` prevent the event from bubbling up.  
-Later, we will treat any event that bubbles up as an click on an empty space and deselect the item.
+**Pointer event handling**: On any `pointerdown` event, we call `e.stopPropagation()` to prevent the event from bubbling up.  
+Later, we treat any event that bubbles up as a click on an empty space and deselect the item.
 
 We also don't do any action if `e.button !== 0`. This prevents a bug where the item moves after a right click.
 

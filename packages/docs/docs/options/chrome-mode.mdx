@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Chrome Mode<AvailableFrom v="4.0.248" />
 
-One of `headless-shell, ` `chrome-for-testing`. Default `headless-shell`. [Use `chrome-for-testing` to take advantage of GPU drivers on Linux.](/docs/miscellaneous/chrome-headless-shell)
+One of `headless-shell`, `chrome-for-testing`. Default `headless-shell`. [Use `chrome-for-testing` to take advantage of GPU drivers on Linux.](/docs/miscellaneous/chrome-headless-shell)
 
 ## CLI flag
 
@@ -40,11 +40,9 @@ The following APIs accept this option:
 
 ## Config file
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
-
 Config.setChromeMode('chrome-for-testing');
 ```
 

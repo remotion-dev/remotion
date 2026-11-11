@@ -50,7 +50,7 @@ Pass the same path to any other API that supports the `browserExecutable` option
 
 <Options id="log" />
 
-### `onBrowserDownload`
+### `onBrowserDownload?`
 
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
@@ -79,7 +79,7 @@ await ensureBrowser({
 
 ## Return value
 
-A promise with no value.
+A promise resolving to an object describing the browser that is now available. Its `type` field is `"user-defined-path"` if a [`browserExecutable`](#browserexecutable) was passed, otherwise `"local-puppeteer-browser"`. Both include the `path` of the executable.
 
 ## Compatibility
 

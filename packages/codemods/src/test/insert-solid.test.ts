@@ -172,6 +172,7 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		insertJsxElementIntoProjectWithNodePathRemappings({
 			project,
 			request: {
+				track: null,
 				compositionFile: '/project/src/index.tsx',
 				compositionId: 'MyComp',
 				element: {height: 720, position: null, type: 'solid', width: 1280},

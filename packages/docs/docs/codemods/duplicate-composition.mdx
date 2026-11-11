@@ -32,7 +32,7 @@ console.log(result);
 
 Both registrations reference the same component implementation. Default props and other registration props are copied. By default, the original registration kind is preserved: a [`<Still>`](/docs/still) remains a [`<Still>`](/docs/still).
 
-[`<Still>`](/docs/still) registrations only support width and height overrides; supplying FPS or duration throws an error.
+When the copy is a [`<Still>`](/docs/still), only `width` and `height` can be overridden; supplying `fps` or `durationInFrames` in `metadata` throws an error.
 
 ## Options
 

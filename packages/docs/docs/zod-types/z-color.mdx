@@ -6,7 +6,16 @@ crumb: '@remotion/zod-types'
 
 Using `zColor()`, you can specify in your [schema](/docs/schemas) that a string has to be a color.
 
-In the Remotion Studio, a color picker will be displayed allowing to change and validate the color picker.
+In the Remotion Studio, a color picker will be displayed, allowing you to change and validate the color.
+
+```tsx twoslash
+import {z} from 'zod';
+import {zColor} from '@remotion/zod-types';
+
+const myCompSchema = z.object({
+  color: zColor(),
+});
+```
 
 ## Compatibility
 

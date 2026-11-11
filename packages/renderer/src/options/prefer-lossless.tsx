@@ -10,7 +10,7 @@ export const preferLosslessAudioOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Uses a lossless audio codec, if one is available for the codec. If you set
+			Uses a lossless audio codec, if one is available for the codec. If you set{' '}
 			<code>audioCodec</code>, it takes priority over{' '}
 			<code>preferLossless</code>.
 		</>

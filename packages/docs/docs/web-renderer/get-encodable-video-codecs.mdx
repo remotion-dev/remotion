@@ -5,6 +5,8 @@ title: getEncodableVideoCodecs()
 crumb: '@remotion/web-renderer'
 ---
 
+# getEncodableVideoCodecs()<AvailableFrom v="4.0.403" />
+
 _Part of the `@remotion/web-renderer` package._
 
 Returns the video codecs that the current browser can encode for a given container format.
@@ -24,7 +26,7 @@ console.log(codecs); // e.g. ['h264', 'h265', 'av1']
 
 _string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" /> - required
 
-The container format: `"mp4"` or `"webm"`.
+The container format: `"mp4"`, `"webm"`, `"mkv"`, `"mov"`, `"wav"`, `"mp3"`, `"aac"`, `"ogg"` or `"flac"`.
 
 ### `options?`
 
@@ -38,7 +40,7 @@ _number | string | Quality_ <TsType type="WebRendererQuality" source="@remotion/
 
 A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`).
 
-Since v4.0.535, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
+Since <AvailableFrom v="4.0.535" inline />, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
 Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) later on as well.
 
 ## Return value
@@ -46,6 +48,10 @@ Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on
 Returns a `Promise<WebRendererVideoCodec[]>` - an array of video codec identifiers that the browser can encode.
 
 Possible values: `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

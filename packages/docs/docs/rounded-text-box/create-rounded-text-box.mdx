@@ -4,6 +4,8 @@ title: 'createRoundedTextBox()'
 crumb: '@remotion/rounded-text-box'
 ---
 
+# createRoundedTextBox()<AvailableFrom v="4.0.360" />
+
 _Part of the [`@remotion/rounded-text-box`](/docs/rounded-text-box) package._
 
 Creates a SVG path for rendering a text box with rounded corners, as pioneered by TikTok and Instagram.
@@ -13,7 +15,7 @@ Creates a SVG path for rendering a text box with rounded corners, as pioneered b
 The above example combines [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) and [`measureText()`](/docs/layout-utils/measure-text) to get the text measurements, and then creates a rounded text box.  
 [View the source code here.](https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/RoundedTextBox.tsx)
 
-## Usage Example
+## Usage example
 
 ```tsx twoslash title="Simple usage example"
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
@@ -149,6 +151,10 @@ The bounding box of the text box. See [`getBoundingBox()`](/docs/paths/get-bound
 _array_ <TsType type="ReducedInstruction[]" source="@remotion/paths" />
 
 The SVG path instructions as an array, for use with the [`@remotion/paths`](/docs/paths) package.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 
