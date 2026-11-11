@@ -86,7 +86,7 @@ The concurrency is defined as `frameCount / framesPerLambda`. Remotion will auto
 From <AvailableFrom v="4.0.517" inline />, if you set `concurrency` to `1` and don't pass [`rendererFunctionName`](#rendererfunctionname), the video is rendered on the main function instead of in a separate renderer function.
 
 Maximum value: 200  
-Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
+If the resulting `framesPerLambda` would be below <MinimumFramesPerLambda />, it is raised to <MinimumFramesPerLambda />, which results in a lower concurrency.
 
 :::note
 Cannot be used together with `framesPerLambda`. Use only one of them.
@@ -318,7 +318,7 @@ By default, each Lambda function renders with concurrency 1 (one open browser ta
 
 ### `everyNthFrame?`<AvailableFrom v="3.1" />
 
-Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+Renders only every nth frame. For example only every second frame, every third frame and so on. Commonly used to lower the frame rate of GIFs. [See here for more details.](/docs/render-as-gif)
 
 ### `numberOfGifLoops?`<AvailableFrom v="3.1" />
 
@@ -336,19 +336,19 @@ Either:
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-#### `disableWebSecurity`
+#### `disableWebSecurity?`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-#### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `gl`
+#### `gl?`
 
 <Options id="gl" />
 
@@ -363,6 +363,14 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 #### `blinkFeatures?`<AvailableFrom v="4.0.543" />
 
 <Options id="chromium-blink-features" />
+
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+#### `darkMode?`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
 
 ### `overwrite?`<AvailableFrom v="3.2.25" />
 

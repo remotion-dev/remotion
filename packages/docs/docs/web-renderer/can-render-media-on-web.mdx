@@ -5,6 +5,8 @@ title: canRenderMediaOnWeb()
 crumb: '@remotion/web-renderer'
 ---
 
+# canRenderMediaOnWeb()<AvailableFrom v="4.0.403" />
+
 _Part of the `@remotion/web-renderer` package._
 
 Checks if a render can be performed with the given configuration before actually attempting it.
@@ -67,8 +69,9 @@ _string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
 
 The video codec to use. Default depends on the container:
 
-- For `mp4` container: `"h264"`
+- For `mp4`, `mkv` and `mov` containers: `"h264"`
 - For `webm` container: `"vp8"`
+- For audio-only containers (`wav`, `mp3`, `aac`, `ogg`, `flac`): no video is encoded
 
 ### `audioCodec?`
 
@@ -76,8 +79,11 @@ _string | null_ <TsType type="WebRendererAudioCodec" source="@remotion/web-rende
 
 The audio codec to use. Default depends on the container:
 
-- For `mp4` container: `"aac"`
-- For `webm` container: `"opus"`
+- For `mp4`, `mkv`, `mov` and `aac` containers: `"aac"`
+- For `webm` and `ogg` containers: `"opus"`
+- For `wav` container: `"pcm-s16"`
+- For `mp3` container: `"mp3"`
+- For `flac` container: `"flac"`
 
 ### `transparent?`
 
@@ -85,7 +91,7 @@ _boolean_
 
 Whether the video should have an alpha channel. Default is `false`.
 
-Only `vp8` and `vp9` codecs support transparency.
+Only the `"webm"` and `"mkv"` containers support transparency. Only the `"vp8"` and `"vp9"` codecs support transparency.
 
 ### `muted?`
 
@@ -101,7 +107,7 @@ The video bitrate. Can be a number (bits per second) or a quality preset: `"very
 
 Default is `"medium"`.
 
-Since v4.0.535, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
+Since <AvailableFrom v="4.0.535" inline />, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
 Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) later on as well.
 
 ### `audioBitrate?`
@@ -118,8 +124,8 @@ _string | null_ <TsType type="WebRendererOutputTarget" source="@remotion/web-ren
 
 The output target to use for rendering. Can be:
 
-- `"web-fs"`: Use the File System Access API for streaming writes to disk
-- `"arraybuffer"`: Buffer the entire video in memory
+- `"web-fs"`: Write the output to a temporary file in the [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system)
+- `"arraybuffer"`: Keep the output in memory as an `ArrayBuffer`
 - `null`: Auto-detect based on browser support (default)
 
 If `"web-fs"` is requested but not supported by the browser, an `output-target-unsupported` error will be returned.
@@ -146,9 +152,9 @@ An array of issues found during the check. Each issue has:
 
 ### `resolvedVideoCodec`
 
-_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+_string | null_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
 
-The video codec that will be used for rendering.
+The video codec that will be used for rendering. `null` for audio-only containers.
 
 ### `resolvedAudioCodec`
 
@@ -176,6 +182,10 @@ The following issue types may be returned:
 | `transparent-video-unsupported` | Transparency requires VP8 or VP9 codec                        |
 | `webgl-unsupported`             | WebGL is required for 3D CSS transforms                       |
 | `output-target-unsupported`     | The requested output target is not supported by this browser  |
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 
