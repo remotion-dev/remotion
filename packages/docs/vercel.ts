@@ -109,6 +109,11 @@ const siteConfig: VercelConfig = {
 		]),
 	],
 	rewrites: [
+		{
+			source: '/portal-sitemap.xml',
+			destination: `${accountOrigin}/sitemap.xml`,
+			has: accountHosts,
+		},
 		...[
 			...accountPaths,
 			'/_next/:path*',
@@ -157,6 +162,7 @@ const siteConfig: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',
