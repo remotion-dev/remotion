@@ -644,6 +644,7 @@ export const createBrowserStudioProjectController = ({
 			absolutePath: file.absolutePath,
 			remappings: file.remappings.map(
 				(remapping): SequenceNodePathRemapping => ({
+					...(remapping.effectsOnly ? {effectsOnly: true as const} : {}),
 					oldNodePath: remapping.newNodePath,
 					newNodePath: remapping.oldNodePath,
 					...(remapping.sourceLocations

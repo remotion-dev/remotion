@@ -19,10 +19,10 @@ Websites can provide [Elements](/elements) to a Studio either using drag-and-dro
 <Step>1</Step> Create an Element payload with [`createElementPayload()`](/docs/studio-protocol/create-element-payload).<br />
 <Step>2</Step> Put it on a drag event with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), or send a signal to a Studio using [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
-| Method                                                         | Benefits                                                                                  | Tradeoffs                                                                                       |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)    | The user chooses the exact Studio tab, timeline position, and canvas position.            | Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
-| [Installation dialog](/docs/studio-protocol/install-in-studio) | The requesting website is shown. Remotion attempts to bring the Studio to the foreground. | The most recently focused tab is selected, or the sole writable tab if none has been focused.   |
+| Method                                                         | Benefits                                                                                            | Tradeoffs                                                                                       |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)    | The user chooses the exact Studio tab, timeline position, and canvas position.                      | Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
+| [Installation dialog](/docs/studio-protocol/install-in-studio) | The requesting website is shown. On macOS, Remotion attempts to bring the Studio to the foreground. | The most recently focused tab is selected, or the sole writable tab if none has been focused.   |
 
 ### Adding an Element Library
 

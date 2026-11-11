@@ -7,7 +7,7 @@ crumb: '@remotion/player'
 
 # &lt;Thumbnail&gt;<AvailableFrom v="3.2.41" />
 
-A component which can be rendered in a regular React App (for example: for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a single frame of a video.
+A component which can be rendered in a regular React App (for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a single frame of a video.
 
 ```tsx twoslash title="MyApp.tsx"
 // @filename: ./remotion/MyVideo.tsx
@@ -132,17 +132,25 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 
 A HTML class name to be applied to the container.
 
-### `overflowVisible`<AvailableFrom v="4.0.173"/>
+### `overflowVisible?`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
+
+### `overrideInternalClassName?`<AvailableFrom v="4.0.233" />
+
+A HTML class name to be used in place of the default `__remotion-player`.
 
 ### `logLevel?`<AvailableFrom v="4.0.250" />
 
 <Options id="log" />
 
-### `noSuspense`<AvailableFrom v="4.0.271" />
+### `noSuspense?`<AvailableFrom v="4.0.271" />
 
 Disables React Suspense, which is [useful for writing tests](/docs/testing).
+
+### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
+
+Prefer a backend for [effects](/docs/effects): `"auto"`, `"webgpu"`, `"webgl2"`, or `"2d"`. Default: `"auto"`, which tries WebGPU, WebGL2, then 2D. The preference is scoped to this component. If an implementation or backend is unavailable, another implementation is used. See [effect backend selection](/docs/options/preferred-effect-backend).
 
 ## ThumbnailRef
 
@@ -291,7 +299,7 @@ This component previews a composition in a web app. To export it, pass the compo
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/Thumbnail.tsx)
 - [`<Composition>`](/docs/composition)
-- [`<Player>`](/docs/player)
+- [`<Player>`](/docs/player/player)
 
 <Credits
   contributors={[
@@ -301,7 +309,3 @@ This component previews a composition in a web app. To export it, pass the compo
     },
   ]}
 />
-
-### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
-
-Prefer a backend for [effects](/docs/effects): `"auto"`, `"webgpu"`, `"webgl2"`, or `"2d"`. Default: `"auto"`, which tries WebGPU, WebGL2, then 2D. The preference is scoped to this component. If an implementation or backend is unavailable, another implementation is used. See [effect backend selection](/docs/options/preferred-effect-backend).

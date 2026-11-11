@@ -87,6 +87,7 @@ import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
+import {updateSequencePropsSubscriptions} from './routes/update-sequence-props-subscription';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 import {wrapNodeHandler} from './routes/wrap-node';
 
@@ -137,6 +138,7 @@ export const allApiRoutes: {
 	'/api/subscribe-to-default-props': subscribeToDefaultProps,
 	'/api/unsubscribe-from-default-props': unsubscribeFromDefaultProps,
 	'/api/subscribe-to-sequence-props': subscribeToSequenceProps,
+	'/api/update-sequence-props-subscription': updateSequencePropsSubscriptions,
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,

@@ -19,7 +19,7 @@ const {outputPath, sizeInBytes} = await downloadMedia({
   renderId: '8hfxlw',
   outPath: 'out.mp4',
   onProgress: ({totalSize, downloaded, percent}) => {
-    console.log(`Download progress: ${totalSize}/${downloaded} bytes (${(percent * 100).toFixed(0)}%)`);
+    console.log(`Download progress: ${downloaded}/${totalSize} bytes (${(percent * 100).toFixed(0)}%)`);
   },
 });
 

@@ -4,7 +4,7 @@ crumb: "@remotion/transitions - Presentations"
 title: "fade()"
 ---
 
-A simple fade animation. The incoming slide fades in over the outgoing slide, while the outgoing slide does not change. Works only if the incoming slide is fully opaque.
+A simple fade animation. The incoming scene fades in over the outgoing scene. By default, the outgoing scene does not change, so this works only if the incoming scene is fully opaque. Set [`shouldFadeOutExitingScene`](#shouldfadeoutexitingscene) to also fade out the outgoing scene.
 
 <Demo type="fade" />
 
@@ -71,9 +71,9 @@ The style of the container element when the scene is exiting.
 Whether the exiting scene should fade out or not. Default `false`.
 
 :::note
-The default is `false` because if both the entering and existing scene are semi-opaque, the whole scene will be semi-opaque, which will make the content underneath shine though.  
-We recommend for transitioning between fully opaque scenes setting this to `false`.  
-If the scenes are not fully covered (like fading between overlays), we recommend setting this to `false`.
+The default is `false` because if both the entering and exiting scene are semi-opaque, the whole scene will be semi-opaque, which will make the content underneath shine through.  
+We recommend keeping this set to `false` for transitioning between fully opaque scenes.  
+If the scenes are not fully covered (like fading between overlays), we recommend setting this to `true`.
 :::
 
 ## Compatibility

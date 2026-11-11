@@ -10,9 +10,13 @@ import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
 } from '../file-watcher';
+import {addEffectHandler} from '../preview-server/routes/add-effect';
+import {deleteEffectHandler} from '../preview-server/routes/delete-effect';
+import {reorderEffectHandler} from '../preview-server/routes/reorder-effect';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
 import {unsubscribeFromSequenceProps} from '../preview-server/routes/unsubscribe-from-sequence-props';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
+import {clearUndoStackForTests} from '../preview-server/undo-stack';
 import {lineColumnToNodePath} from './test-utils';
 
 test('subscribes and unsubscribes batched sequence props through the handlers', async () => {
@@ -145,6 +149,60 @@ export const Second = () => {
 			});
 		}
 
+		for (const [index, values] of [[1], [1, 2], [2, 1], []].entries()) {
+			const sequenceProps = [
+				{
+					subscription: unsubscriptions[2],
+					effects: values.map(() => ['amount']),
+				},
+			];
+			const target = {
+				fileName: secondFileName,
+				sequenceNodePath: unsubscriptions[2].nodePath,
+			};
+			const edit =
+				index < 2
+					? await addEffectHandler({
+							...handlerOptions,
+							input: {
+								...target,
+								clientId,
+								sequenceProps,
+								effectName: 'brightness',
+								effectImportPath: '@remotion/effects/brightness',
+								effectConfig: {amount: values.at(-1)!},
+							},
+						})
+					: index === 2
+						? await reorderEffectHandler({
+								...handlerOptions,
+								input: {
+									...target,
+									clientId,
+									sequenceProps,
+									fromIndex: 0,
+									toIndex: 1,
+								},
+							})
+						: await deleteEffectHandler({
+								...handlerOptions,
+								input: [{...target, sequenceProps, type: 'all-effects'}],
+							});
+			if (!edit.success) throw new Error(edit.reason);
+			const {result} = edit.sequenceProps![0];
+			if (!result.success) throw new Error('Expected metadata update');
+			expect(result.nodePath.nodePath).toEqual(expectedNodePaths[2]);
+			expect(result.status.effects).toMatchObject(
+				values.map((amount, effectIndex) => ({
+					canUpdate: true,
+					effectIndex,
+					callee: 'brightness',
+					props: {amount: {status: 'static', codeValue: amount}},
+				})),
+			);
+			expect(unwatchedFiles).toEqual([]);
+		}
+
 		await unsubscribeFromSequenceProps({
 			...handlerOptions,
 			input: {requests: unsubscriptions.slice(0, 3)},
@@ -164,6 +222,7 @@ export const Second = () => {
 			join(remotionRoot, secondFileName),
 		]);
 	} finally {
+		clearUndoStackForTests();
 		unsubscribeClientSequencePropsWatchers(clientId);
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});

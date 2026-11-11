@@ -4,7 +4,10 @@ import type {
 	PasteEffectsRequest,
 	ReorderEffectRequest,
 } from '@remotion/studio-shared';
-import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	getRequiredPackageForEffectImportPath,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropSource,
 	EffectDefinition,
@@ -573,6 +576,26 @@ export const captureOptimisticEffectMutation = (
 
 	return {
 		files: entry.files,
+		getEffectMetadata: () => {
+			const nodes = new Map<
+				string,
+				{nodePath: SequencePropsSubscriptionKey; effects: string[][]}
+			>();
+			for (const {operation} of changes) {
+				const items =
+					Internals.OptimisticEffects.getItemsAfterOperation(operation);
+				if (items === null) continue;
+				const {nodePath} = operation;
+				nodes.set(JSON.stringify([nodePath.absolutePath, nodePath.nodePath]), {
+					nodePath,
+					effects: items.map((item) =>
+						getAllSchemaKeys(item.definition.schema),
+					),
+				});
+			}
+
+			return [...nodes.values()];
+		},
 		rollback,
 		prepare: async () => {
 			if (entry.status === 'failed')

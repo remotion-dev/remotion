@@ -265,6 +265,10 @@ See [Shared-memory capture](/docs/shared-memory-capture).
 
 <Options id="offthreadvideo-video-threads" />
 
+### `sampleRate?`<AvailableFrom v="4.0.450" />
+
+<Options id="sample-rate" />
+
 ### `licenseKey?`
 
 <Options id="license-key" />
@@ -277,7 +281,7 @@ See [Shared-memory capture](/docs/shared-memory-capture).
 
 _function_ <TsType type="RenderMediaOnVercelProgress" source="@remotion/vercel" href="/docs/vercel/types#rendermediaonvercelprogress" />
 
-A callback that receives progress updates. Every variant includes `overallProgress` (0–1).
+A callback that receives progress updates. Every variant includes `overallProgress` (0–1). Not called when [`detached`](#detached) is `true`.
 
 ```ts twoslash
 import type {RenderMediaOnVercelProgress} from '@remotion/vercel';

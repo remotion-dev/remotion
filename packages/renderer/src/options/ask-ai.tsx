@@ -11,8 +11,9 @@ export const askAIOption = {
 	cliFlag,
 	description: () => (
 		<>
-			If the Cmd + I shortcut of the Ask AI modal conflicts with your Studio,
-			you can disable it using this.
+			The Ask AI feature, opened with the Cmd + I shortcut, is enabled by
+			default in the Studio. This option disables it, for example if the
+			shortcut conflicts with your setup.
 		</>
 	),
 	ssrName: null,

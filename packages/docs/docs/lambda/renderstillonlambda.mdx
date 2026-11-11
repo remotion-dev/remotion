@@ -69,19 +69,19 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 
 One of:
 
-- `"public"` (_default_): The rendered still is publicly accessible under the S3 URL.
+- `"public"`: The rendered still is publicly accessible under the S3 URL.
 - `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
-- `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
+- `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame?`
 
 Which frame of the composition should be rendered. Default: `0`. Frames are zero-indexed.
 
-From v3.2.27, negative values are allowed, with `-1` being the last frame.
+From <AvailableFrom v="3.2.27" inline />, negative values are allowed, with `-1` being the last frame.
 
-### `imageFormat?`
+### `imageFormat`
 
-See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat). Default: `"png"`.
+See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
 `pdf` is not supported on Remotion Lambda due to function size constraints.
 
@@ -171,7 +171,7 @@ Overrides the default composition duration in frames.
 
 It can either be:
 
-- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
+- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.png`.
 - A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
 - An object if you want to render to a different bucket or cloud provider (where `key` is optional and falls back to the default still key if omitted) - [see here for detailed instructions](/docs/lambda/custom-destination).
 
@@ -211,23 +211,23 @@ Either:
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-#### `disableWebSecurity`
+#### `disableWebSecurity?`
 
 _boolean - default `false`_
 
 This will most notably disable CORS among other security features.
 
-#### `ignoreCertificateErrors`
+#### `ignoreCertificateErrors?`
 
 _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `gl`
+#### `gl?`
 
 <Options id="gl" />
 
-#### `userAgent`<AvailableFrom v="3.3.83"/>
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 

@@ -10,6 +10,7 @@ import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-projec
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
@@ -162,6 +163,10 @@ export const deleteEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(
+					effects.flatMap((item) => item.sequenceProps ?? []),
+					remotionRoot,
+				),
 				nodePathMutation,
 			};
 		} catch (err) {

@@ -12,6 +12,23 @@ The downloaded model is loaded automatically if needed. Call [`downloadVideoMatt
 
 Place inserted content between the base and foreground. The base remains opaque and includes the original subject; the foreground repeats the subject with alpha so it appears in front of the inserted content.
 
+```ts twoslash title="separate-layers.ts"
+// @module: es2022
+// @target: es2022
+import {separateVideoLayers} from '@remotion/video-matting';
+
+const {base, foreground} = await separateVideoLayers({
+  src: 'https://remotion.media/video.mp4',
+  model: 'modnet',
+});
+
+const baseBlob = await base.getBlob();
+const foregroundBlob = await foreground.getBlob();
+
+await base.dispose();
+await foreground.dispose();
+```
+
 ## Options
 
 ### src

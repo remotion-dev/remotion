@@ -25,13 +25,6 @@ Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/do
       Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can use{' '}
-      <a href="/docs/get-audio-duration-in-seconds">
-        <code>getAudioDurationInSeconds()</code>
-      </a>{' '}
-      without the audio needing CORS.
-    </li>
-    <li>
       You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
@@ -84,7 +77,7 @@ Only the `requestInit` from the **first** render is used; updates on later rende
 
 ## Return value
 
-`AudioData | null` - An object containing audio data (see documentation of [`getAudioData()`](/docs/get-audio-data)) or `null` if the data has not been loaded.
+`MediaUtilsAudioData | null` - An object containing audio data (see documentation of [`getAudioData()`](/docs/get-audio-data)) or `null` if the data has not been loaded.
 
 From <AvailableFrom v="4.0.539" inline />, when `src` or `sampleRate` changes, results and errors from the previous pending request are ignored. Unmounting the component also releases its pending render delay.
 
@@ -112,7 +105,7 @@ If you pass in a file that has no audio track, this hook will throw an error (_f
 
 To determine if a file has an audio track, you may use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata#audiocodec) function on the server to reject a file if it has no audio track. To do so, check if the `audioCodec` field is `null`.
 
-If you want to catch the error in the component, you need to make your own inline hook by taking the source code from the bottom of this page.
+If you want to catch the error in the component, you need to make your own inline hook by copying the [source code](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-audio-data.ts).
 
 ## Types
 

@@ -31,7 +31,7 @@ const getFileAsBuffer = async () => {
 
   const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
-  const data = client.send(
+  const data = await client.send(
     new sdk.GetObjectCommand({
       Bucket: bucketName,
       Key: progress.outKey,
@@ -50,7 +50,7 @@ import {getAwsClient} from '@remotion/lambda/client';
 
 const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
-client.send(
+await client.send(
   new sdk.PutBucketCorsCommand({
     Bucket: '[bucket-name]',
     CORSConfiguration: {
@@ -109,6 +109,7 @@ An AWS SDK client instantiated with the region you passed and the credentials yo
 - For `cloudwatch`: An instance of [CloudWatchLogsClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cloudwatch-logs/classes/cloudwatchlogsclient.html)
 - For `servicequotas`: An instance of [ServiceQuotasClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-service-quotas/classes/servicequotasclient.html)
 - For `lambda`: An instance of [LambdaClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/classes/lambdaclient.html)
+- For `sts`: An instance of [STSClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sts/classes/stsclient.html)
 
 ### sdk
 
@@ -119,6 +120,7 @@ The full SDK JavaScript module for the service you specified.
 - For `cloudwatch`: The [`@aws-sdk/client-cloudwatch-logs`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cloudwatch-logs/index.html#aws-sdkclient-cloudwatch-logs) package
 - For `servicequotas`: The [`@aws-sdk/client-service-quotas`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-service-quotas/index.html) package
 - For `lambda`: The [`@aws-sdk/client-lambda`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/index.html#aws-sdkclient-lambda) package
+- For `sts`: The [`@aws-sdk/client-sts`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sts/index.html) package
 
 :::note
 You don't need to create a new client from the SDK and should instead reuse the `client` that is also returned and being used by Remotion, in order to save memory.

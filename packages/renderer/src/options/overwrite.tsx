@@ -18,7 +18,8 @@ export const overwriteOption = {
 	description: () => (
 		<>
 			If set to <code>false</code>, will prevent rendering to a path that
-			already exists. Default is <code>true</code>.
+			already exists. Default is <code>true</code> for local rendering and{' '}
+			<code>false</code> for Lambda.
 		</>
 	),
 	ssrName: 'overwrite',

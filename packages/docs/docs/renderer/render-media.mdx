@@ -143,6 +143,10 @@ Choose the encoding of your audio.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
+### `preferLossless?`<AvailableFrom v="4.0.123"/>
+
+<Options id="prefer-lossless" />
+
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
 <Options id="audio-bitrate" />
@@ -187,7 +191,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 ### `everyNthFrame?`<AvailableFrom v="3.1.0" />
 
-Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+Renders only every nth frame. For example only every second frame, every third frame and so on. Commonly used to lower the frame rate of GIFs. [See here for more details.](/docs/render-as-gif)
 
 ### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
@@ -319,7 +323,7 @@ const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encod
 ```
 
 :::note
-The `progress` attribute is available from v3.2.17.
+The `progress` attribute is available from <AvailableFrom v="3.2.17" inline />.
 :::
 
 ### `onDownload?`
