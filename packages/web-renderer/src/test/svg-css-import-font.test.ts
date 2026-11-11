@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {svgCssImportFont} from './fixtures/svg-css-import-font';
@@ -8,24 +8,40 @@ import {
 	savePixelEvidence,
 } from './native-reference';
 
-test.for([0, 1])(
-	'Imported CSS fonts match native frame %i (KINO-7769)',
-	async (frame, t) => {
+test.for([
+	{frame: 0, legacy: false},
+	{frame: 1, legacy: false},
+	{frame: 0, legacy: true},
+	{frame: 1, legacy: true},
+])(
+	'Imported CSS fonts match native $frame, legacy API $legacy (KINO-7769)',
+	async ({frame, legacy}, t) => {
 		if (t.task.file.projectName !== 'chromium') {
 			t.skip();
 			return;
 		}
 
 		const reference = await captureNativeReference(svgCssImportFont, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				composition: svgCssImportFont,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
+		const layerName = legacy
+			? vi
+					.spyOn(CSSImportRule.prototype, 'layerName', 'get')
+					.mockReturnValue(undefined as unknown as string)
+			: null;
+		let actual: Blob;
+		try {
+			actual = await (
+				await renderStillOnWeb({
+					composition: svgCssImportFont,
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+		} finally {
+			layerName?.mockRestore();
+		}
+
 		const result = await compareNativePixels(reference, actual);
 		if (result.mismatchedPixels !== 0) {
 			await savePixelEvidence(reference, `css-import-font-${frame}-native`);

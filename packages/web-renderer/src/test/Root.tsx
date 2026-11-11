@@ -203,6 +203,10 @@ import {
 	svgDisabledStyles,
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
+import {
+	escapedStyleSelectorModes,
+	svgEscapedStyleSelector,
+} from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgExternalFontSelection,
@@ -342,6 +346,12 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{escapedStyleSelectorModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgEscapedStyleSelector({mode, literal: false})}
+				/>
+			))}
 			{[false, true].flatMap((registered) =>
 				svgCssEmptyCarrierModes
 					.filter((mode) =>

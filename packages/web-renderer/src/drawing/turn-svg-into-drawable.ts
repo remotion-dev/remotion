@@ -97,7 +97,10 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		for (const rule of getActiveCssRules(cssRules, ownerWindow)) {
 			if (rule instanceof ownerWindow.CSSImportRule) {
 				// Layer ordering remains outside this source-selection subset.
-				if (rule.layerName === null && rule.styleSheet !== null)
+				if (
+					(rule.layerName === null || rule.layerName === undefined) &&
+					rule.styleSheet !== null
+				)
 					visitSheet(rule.styleSheet);
 				continue;
 			}
