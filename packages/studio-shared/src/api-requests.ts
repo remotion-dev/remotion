@@ -162,7 +162,8 @@ export type FindInFileRequest = {
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-	search: string;
+	search: string | null;
+	effectIndex: number | null;
 };
 
 export type FindInFileResponse = {

@@ -27,7 +27,7 @@ import {
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	openInCodingAgent as openCodingAgent,
-	openOriginalPositionInEditor,
+	openSourceInEditor,
 } from '../../helpers/open-in-editor';
 import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
@@ -358,13 +358,21 @@ export const TimelineEffectItem: React.FC<{
 				return;
 			}
 
-			openOriginalPositionInEditor(validatedLocation, resolvedEditorId).catch(
-				(error) => {
-					showNotification((error as Error).message, 2000);
-				},
-			);
+			openSourceInEditor({
+				originalPosition: validatedLocation,
+				editorId: resolvedEditorId,
+				property: null,
+				effectIndex,
+			}).catch((error) => {
+				showNotification((error as Error).message, 2000);
+			});
 		},
-		[openInApps.canOpenInEditor, openInApps.defaultEditorId, validatedLocation],
+		[
+			openInApps.canOpenInEditor,
+			openInApps.defaultEditorId,
+			validatedLocation,
+			effectIndex,
+		],
 	);
 
 	const openInCodingAgent = useCallback(
@@ -405,6 +413,7 @@ export const TimelineEffectItem: React.FC<{
 				openInCodingAgent,
 				openInEditor,
 				originalLocation: validatedLocation,
+				sourceTarget: {property: null, effectIndex},
 			}),
 			...(previewConnected && documentationLink
 				? [

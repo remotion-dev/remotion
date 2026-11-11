@@ -21,6 +21,7 @@ import {
 	ConnectedCompositionsSection,
 	useConnectedCompositions,
 } from './ConnectedCompositionsSection';
+import type {SequenceSectionSelection} from './inspector-selection';
 
 const renderReactIcon = (color: string) => (
 	<ReactIcon color={color} style={{...inspectorHeaderIconStyle, width: 20}} />
@@ -66,7 +67,8 @@ export const useSequenceInspectorSourceLocation = (
 export const SequenceInspectorHeader: React.FC<{
 	readonly sourceLocation: SequenceInspectorSourceLocation;
 	readonly track: TimelineTrackData;
-}> = ({sourceLocation, track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({sourceLocation, track, selection}) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canRename, displayName, fallbackDisplayName, saveName} =
@@ -112,6 +114,24 @@ export const SequenceInspectorHeader: React.FC<{
 					<InspectorHeaderActionSlot>
 						{sourceLocation.validatedLocation ? (
 							<InspectorOpenInEditor
+								sourceTarget={
+									selection === null || selection.type === 'sequence'
+										? null
+										: {
+												property:
+													selection.type === 'sequence-all-effects'
+														? 'effects'
+														: selection.type === 'sequence-prop' ||
+															  selection.type === 'sequence-effect-prop'
+															? selection.key
+															: null,
+												effectIndex:
+													selection.type === 'sequence-effect' ||
+													selection.type === 'sequence-effect-prop'
+														? selection.i
+														: null,
+											}
+								}
 								menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
 								annotationName={componentName ?? null}
 								contextForAgents={contextForAgents}
@@ -183,13 +203,18 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 export const SequenceInspectorSections: React.FC<{
 	readonly track: TimelineTrackData;
-}> = ({track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({track, selection}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
-			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorHeader
+				selection={selection}
+				sourceLocation={sourceLocation}
+				track={track}
+			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<ConnectedCompositionsSection
