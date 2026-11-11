@@ -37,7 +37,7 @@ The frame rate of the composition. This helps the function understand the meanin
 
 Must be a power of two, such as `32`, `64`, `128`, etc. This parameter controls the length of the output array. A lower number will simplify the spectrum and is useful if you want to animate elements roughly based on the level of lows, mids and highs. A higher number will give the spectrum in more detail, which is useful for displaying a bar chart or waveform-style visualization of the audio.
 
-### `smoothing`
+### `smoothing?`
 
 `boolean`
 
@@ -51,7 +51,7 @@ Default `"accuracy"`. When set to `"speed"`, a faster Fast Fourier transform is 
 
 From [v5.0](/docs/5-0-migration), the default value changes from `"accuracy"` to `"speed"`.
 
-### `dataOffsetInSeconds`<AvailableFrom v="4.0.268" />
+### `dataOffsetInSeconds?`<AvailableFrom v="4.0.268" />
 
 The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
 

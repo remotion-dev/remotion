@@ -273,7 +273,7 @@ Limit playback to only play before a certain frame. The video will end at this f
 
 ### `initiallyShowControls?`<AvailableFrom v="3.2.24" />
 
-If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true`.
 
 ### `initiallyMuted?`<AvailableFrom v="3.3.81" />
 
@@ -311,9 +311,9 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
+Since <AvailableFrom v="4.0.111" inline />, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
 
-Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
+Since <AvailableFrom v="4.0.111" inline />, you can return `null` in the callback to fall back to the default UI.
 
 ### `renderFullscreenButton?`<AvailableFrom v="3.2.32" />
 
@@ -368,7 +368,7 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderVolumeSlider`<AvailableFrom v="4.0.188" />
+### `renderVolumeSlider?`<AvailableFrom v="4.0.188" />
 
 Allows for a custom implementation of the volume slider, must return a valid React element.  
 See the default implementation [here](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/render-volume-slider.tsx).  
@@ -417,7 +417,7 @@ You may pass an array with the available playback rates for selection, however, 
 
 Default `false`.
 
-### `posterFillMode`<AvailableFrom v="4.0.78" />
+### `posterFillMode?`<AvailableFrom v="4.0.78" />
 
 Either `player-size` (default) or `composition-size`:
 
@@ -430,7 +430,7 @@ The default [premount duration](/docs/player/premounting) in seconds for timed c
 Must be a finite, non-negative number. The duration is converted to frames using `fps` and rounded to the nearest frame.
 An explicit [`premountFor`](/docs/sequence#premountfor) prop takes precedence, including `premountFor={0}` to disable premounting for a component.
 
-### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
+### `bufferStateDelayInMilliseconds?`<AvailableFrom v="4.0.111"/>
 
 After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
 This prevents jank when the Player is only in a buffering state for a short time. Default `300`.
@@ -442,11 +442,11 @@ Note:
 
 This allows you to flexibly implement custom UI for the buffer state.
 
-### `overflowVisible`<AvailableFrom v="4.0.173"/>
+### `overflowVisible?`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
 
-### `browserMediaControlsBehavior`<AvailableFrom v="4.0.221" />
+### `browserMediaControlsBehavior?`<AvailableFrom v="4.0.221" />
 
 Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
 See [Media Keys Behavior](/docs/player/media-keys) for more information.
@@ -459,7 +459,7 @@ A HTML class name to be used in place of the default `__remotion-player`.
 
 <Options id="log" />
 
-### `noSuspense`<AvailableFrom v="4.0.271" />
+### `noSuspense?`<AvailableFrom v="4.0.271" />
 
 Disables React Suspense, which is [useful for writing tests](/docs/testing).
 
