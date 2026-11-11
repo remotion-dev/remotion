@@ -28,7 +28,10 @@ const getSvgFontElements = (svg: SVGSVGElement) => {
 		),
 	);
 	for (const element of [...elements]) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			const parent = walker.currentNode.parentElement;
 			if (
@@ -223,7 +226,6 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 
 	const textStyles = textElements.map((element) => {
 		// Templates inherit font selection from each <use> instance.
-		if (element.closest('defs, symbol')) return null;
 		let ancestor: Element = element;
 		while (ancestor !== svg) {
 			if (referencedTemplates.has(ancestor)) return null;
@@ -239,7 +241,10 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	// Discover the families of actual text-node parents, including template text.
 	const fontFamilies = new Set<string>();
 	for (const element of textElements) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			if (!walker.currentNode.textContent?.length) continue;
 			const parent = walker.currentNode.parentElement;
@@ -304,7 +309,8 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 				text &&
 				Array.from(element.childNodes).some(
 					(node) =>
-						node.nodeType === Node.TEXT_NODE &&
+						(node.nodeType === Node.TEXT_NODE ||
+							node.nodeType === Node.CDATA_SECTION_NODE) &&
 						Boolean(node.textContent?.length),
 				)
 			) {

@@ -95,7 +95,7 @@ Removing and re-adding script-loaded SVG font families is supported. Removing or
 
 Literal inline and presentation-attribute `font-family` selection on local `<use>` instances is supported for CSS data fonts, including SVG ancestors, nested instances, patterns and masks. Text with its own font family keeps that selection.
 
-External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements do not affect web-font support. Foreign-namespace XML metadata outside `foreignObject` does not add unused registered fonts or change visible SVG styling.
+External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text, including text in patterns and masks and XML CDATA text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements do not affect web-font support. Foreign-namespace XML metadata outside `foreignObject` does not add unused registered fonts or change visible SVG styling.
 
 External CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Optional `format()` and `tech()` qualifiers are retained; technology availability and fallback follow the browser. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
 
