@@ -7,7 +7,7 @@ crumb: 'Lambda API'
 
 import {MinimumFramesPerLambda} from '../../components/lambda/default-frames-per-lambda';
 
-Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
+Kicks off a render process on Remotion Lambda. The progress can be tracked using [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
 A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) needs to be specified to determine what will be rendered.
@@ -46,7 +46,7 @@ Optional since <AvailableFrom v="3.2.27" />.
 One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
-- `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"private"`: The rendered media is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
 - `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `functionName`
@@ -530,4 +530,4 @@ For serverless functions, use the [light client](/docs/lambda/light-client).
 
 - [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream) - Start a render, stream progress, and wait for the render to finish
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/render-media-on-lambda.ts)
-- [getRenderProgress()](/docs/lambda/getrenderprogress)
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)

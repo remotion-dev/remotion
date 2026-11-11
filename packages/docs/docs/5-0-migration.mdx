@@ -83,14 +83,14 @@ The return value of `bundle()` remains the output directory as a string.
 
 ## TransitionSeries does not support `layout="none"` anymore
 
-Having a [TransitionSeries](/docs/transitions/transitionseries) with `layout="none"` is not supported anymore.  
+Having a [`<TransitionSeries>`](/docs/transitions/transitionseries) with `layout="none"` is not supported anymore.  
 It never made sense to have this prop as transitioned elements need to be positioned absolutely.
 
 **Required action**: Remove the `layout` prop.
 
 ## `measureSpring()` does not accept `from` and `to` options anymore
 
-The values passed in there did not influence the calculation at all. Therefore we removed those options.
+The values passed to [`measureSpring()`](/docs/measure-spring) did not influence the calculation at all. Therefore we removed those options.
 
 **Required action**: Remove the `from` and `to` options from your code.
 
@@ -122,7 +122,7 @@ The default [`x264Preset`](/docs/lambda/rendermediaonlambda#x264preset) for H.26
 
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
-The `shouldDumpIo` option has been removed in 5.0.
+The `shouldDumpIo` option of [`openBrowser()`](/docs/renderer/open-browser) has been removed in 5.0.
 
 **Required action**: Replace `shouldDumpIo: true` with `logLevel: "verbose"`.
 
@@ -140,11 +140,11 @@ This will add a minuscule cost to your renders technically, but will lead to mor
 **Required actions**:
 
 - If you want to keep the old behavior, set `diskSizeInMb: 2048`, explicitly.
-- If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use `speculateFunctionName()` to get the correct name.
+- If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) to get the correct name.
 
 ## Some APIs should be imported from `@remotion/lambda/client`
 
-`renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
+[`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`getRenderProgress()`](/docs/lambda/getrenderprogress), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`presignUrl()`](/docs/lambda/presignurl), [`getSites()`](/docs/lambda/getsites) have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
 
 ## Cloud Run services use a lower maximum instance count
@@ -163,7 +163,7 @@ The `"default"` option has been removed.
 
 ## `@remotion/google-fonts` requires specifying weights and subsets
 
-When using `loadFonts()` from `@remotion/google-fonts`, you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
+When using [`loadFont()`](/docs/google-fonts/load-font) from [`@remotion/google-fonts`](/docs/google-fonts), you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
 
 **Required action**: Explicitly specify the weights and subsets you need:
 

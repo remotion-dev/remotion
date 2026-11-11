@@ -41,7 +41,7 @@ Currently, `<OffthreadVideo>` needs to download the entire video in order to ext
 
 If you are loading a large video, consider chunking it into smaller parts and only load part of the video at a time.
 
-For example, create a `<Series>` of `<OffthreadVideo>` components, each with a different `src` prop.
+For example, create a [`<Series>`](/docs/series) of [`<OffthreadVideo>`](/docs/offthreadvideo) components, each with a different `src` prop.
 
 ```tsx twoslash
 import {Series, useVideoConfig, OffthreadVideo, staticFile} from 'remotion';

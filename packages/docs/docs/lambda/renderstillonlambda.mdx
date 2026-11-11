@@ -70,7 +70,7 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 One of:
 
 - `"public"`: The rendered still is publicly accessible under the S3 URL.
-- `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
+- `"private"`: The rendered still is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
 - `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame?`
@@ -326,5 +326,5 @@ For serverless functions, use the [light client](/docs/lambda/light-client).
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/render-still-on-lambda.ts)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
-- [renderStill()](/docs/renderer/render-still)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`renderStill()`](/docs/renderer/render-still)
