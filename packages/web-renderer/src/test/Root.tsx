@@ -215,6 +215,7 @@ import {
 	svgExternalFontSelection,
 	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
+import {svgFeImageFont, svgFeImageFontModes} from './fixtures/svg-feimage-font';
 import {
 	svgFilterReference,
 	svgFilterExpandedReference,
@@ -615,6 +616,9 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{svgFeImageFontModes.map((mode) => (
+				<Composition key={mode} {...svgFeImageFont(mode, false, false)} />
+			))}
 			<Composition {...svgNoUseChart} />
 			{svgResourceCdataModes.map((mode) => (
 				<Composition key={mode} {...svgResourceCdataFont(mode, false, false)} />

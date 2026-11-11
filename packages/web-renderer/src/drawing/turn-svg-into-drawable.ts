@@ -99,12 +99,19 @@ const getReferencedTemplates = (
 				elements.push(target);
 			}
 		} else if (
-			element.matches('pattern, linearGradient, radialGradient, filter')
+			element.matches(
+				'pattern, linearGradient, radialGradient, filter, feImage',
+			)
 		) {
 			const href =
 				element.getAttribute('href') ??
 				element.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-			if (href) addResource(element, href, element.localName);
+			if (href)
+				addResource(
+					element,
+					href,
+					element.localName === 'feImage' ? '*' : element.localName,
+				);
 		}
 
 		for (const [property, allowed] of [
