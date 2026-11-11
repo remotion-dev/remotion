@@ -18,6 +18,11 @@ const serializeSvg = (svg: SVGSVGElement) =>
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
+const getSvgTextElements = (svg: SVGSVGElement) =>
+	Array.from(
+		svg.querySelectorAll<SVGTextContentElement>('text, tspan, textPath'),
+	).filter((element) => element.namespaceURI === 'http://www.w3.org/2000/svg');
+
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
@@ -50,9 +55,7 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const textElements = Array.from(
-		svg.querySelectorAll('text, tspan, textPath'),
-	);
+	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
@@ -158,19 +161,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	svgForSerialization
-		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
-		.forEach((element, index) => {
-			const fontStyle = textStyles[index];
-			if (fontStyle === null) return;
-			textFontProperties.forEach((property, propertyIndex) => {
-				element.style.setProperty(
-					property,
-					fontStyle[propertyIndex],
-					'important',
-				);
-			});
+	getSvgTextElements(svgForSerialization).forEach((element, index) => {
+		const fontStyle = textStyles[index];
+		if (fontStyle === null) return;
+		textFontProperties.forEach((property, propertyIndex) => {
+			element.style.setProperty(
+				property,
+				fontStyle[propertyIndex],
+				'important',
+			);
 		});
+	});
 	if (embeddedFontStyle && styles[fontStyleIndex]?.matches(':empty')) {
 		// Keep an authored empty sheet empty when an earlier active carrier can
 		// retain font order. A later CSSOM rule remains an ordering boundary.
