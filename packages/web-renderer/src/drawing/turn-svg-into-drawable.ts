@@ -324,19 +324,27 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
+	const usesStylesheetSets = Boolean(
+		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	);
+	const fontCarriers = usesStylesheetSets
+		? Array.from(styles, (style, index) =>
+				style.sheet && !style.matches(':empty') ? index : null,
+			).filter((index) => index !== null)
+		: [fontStyleIndex];
 	if (hasFontCss) {
-		const carrier = styles[fontStyleIndex];
-		if (
-			carrier?.sheet &&
-			!carrier.sheet.disabled &&
-			!carrier.matches(':empty')
-		) {
-			// End malformed comments before appending carried faces.
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent =
-				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
-				'/* Empty stylesheet rules. */';
+		for (const index of fontCarriers) {
+			const carrier = styles[index];
+			if (
+				carrier?.sheet &&
+				!carrier.sheet.disabled &&
+				!carrier.matches(':empty')
+			) {
+				// End malformed comments before appending carried faces.
+				svgForSerialization.querySelectorAll('style')[index].textContent =
+					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+					'/* Empty stylesheet rules. */';
+			}
 		}
 	}
 
@@ -372,16 +380,22 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
-	const carrierMedia = styles[fontStyleIndex]?.getAttribute('media');
 	const fontStyleKey = hasFontCss
 		? JSON.stringify([
 				embeddedFontStyle?.cacheKey ?? null,
 				fontStyleIndex,
-				!carrierMedia ||
-					(svg.ownerDocument.defaultView ?? window).matchMedia(carrierMedia)
-						.matches,
+				fontCarriers.map((index) => {
+					const media = styles[index]?.getAttribute('media');
+					return [
+						index,
+						!media ||
+							(svg.ownerDocument.defaultView ?? window).matchMedia(media)
+								.matches,
+					];
+				}),
 			])
 		: null;
+
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
@@ -396,7 +410,17 @@ export const turnSvgIntoDrawable = (
 		let markup = serializedSvg;
 		if (hasFontCss) {
 			const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
-			insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
+			if (usesStylesheetSets && fontCarriers.length) {
+				const clonedStyles = svgForSerialization.querySelectorAll('style');
+				for (const index of fontCarriers)
+					clonedStyles[index].textContent =
+						(clonedStyles[index].textContent ?? '') + '\n' + fontCss;
+			} else
+				insertFontStyleInSvg(
+					svgForSerialization,
+					fontCss,
+					usesStylesheetSets ? -1 : fontStyleIndex,
+				);
 			markup = serializeSvg(svgForSerialization);
 		}
 

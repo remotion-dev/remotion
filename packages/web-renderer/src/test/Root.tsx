@@ -235,6 +235,11 @@ import {
 } from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
+import {
+	svgTitledFontCarrier,
+	svgTitledFontModes,
+	svgTitledFontSources,
+} from './fixtures/svg-titled-font-carrier';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
@@ -351,6 +356,14 @@ export const Root: React.FC = () => {
 				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
 			))}
 			<Composition {...svgFontMediaCache({active: null})} />
+			{svgTitledFontModes.flatMap((mode) =>
+				svgTitledFontSources.map((source) => (
+					<Composition
+						key={`${mode}-${source}`}
+						{...svgTitledFontCarrier(mode, source, false, false)}
+					/>
+				)),
+			)}
 			<Composition {...svgCssDataFont} />
 			{svgFontTechModes.map((mode) => (
 				<Composition key={mode} {...svgCssTechFont({mode, literal: null})} />
