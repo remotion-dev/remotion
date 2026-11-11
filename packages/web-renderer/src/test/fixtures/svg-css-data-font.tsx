@@ -125,6 +125,8 @@ export const svgCssDataCarrierModes = [
 	'empty',
 	'disabled-empty',
 	'malformed-comment',
+	'malformed-final-comment',
+	'local-order',
 	'cache',
 	'media-empty',
 	'media-all',
@@ -161,23 +163,37 @@ const DataCarrier = ({
 				: mode === 'media-whitespace-all'
 					? ' \tALL\n '
 					: undefined;
+	const localOrder = mode === 'local-order';
+	const finalComment = mode === 'malformed-final-comment';
+	const firstFace = `@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[0]}") format("woff2")}`;
+	const laterFace = `@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[1]}") format("truetype")}`;
+	const localFaces = localOrder
+		? literal
+			? laterFace
+			: `${firstFace}@media all{${laterFace}}`
+		: '';
+	const marker = finalComment ? '.empty-marker' : 'style:empty + .empty-marker';
+	const comment =
+		mode === 'malformed-comment' || (finalComment && !literal) ? '/*' : '';
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<style>{`@font-face{font-family:${JSON.stringify(carrierFamily)};src:url("${urls[0]}") format("woff2")} .css-data-carrier-font{font-family:${JSON.stringify(carrierFamily)};font-size:${36 + frame * 2}px}`}</style>
+			<style>{`${localOrder ? '' : firstFace} .css-data-carrier-font{font-family:${JSON.stringify(carrierFamily)};font-size:${36 + frame * 2}px}`}</style>
 			<svg width={600} height={180}>
 				<style
 					media={media}
-				>{`rect{fill:red}style:empty + .empty-marker{fill:blue}style[media] ~ .media-marker{fill:blue}${mode === 'malformed-comment' ? '/*' : ''}`}</style>
-				<style
-					ref={(style) => {
-						const sheet = style?.sheet;
-						if (!sheet) return;
-						sheet.disabled = mode === 'disabled-empty';
-						while (sheet.cssRules.length) sheet.deleteRule(0);
-						if (mode === 'cache' && frame === 1)
-							sheet.insertRule('@media print{.empty-marker{fill:purple}}');
-					}}
-				/>
+				>{`${localFaces}rect{fill:red}${marker}{fill:blue}style[media] ~ .media-marker{fill:blue}${comment}`}</style>
+				{finalComment ? null : (
+					<style
+						ref={(style) => {
+							const sheet = style?.sheet;
+							if (!sheet) return;
+							sheet.disabled = mode === 'disabled-empty';
+							while (sheet.cssRules.length) sheet.deleteRule(0);
+							if (mode === 'cache' && frame === 1)
+								sheet.insertRule('@media print{.empty-marker{fill:purple}}');
+						}}
+					/>
+				)}
 				<rect
 					className="empty-marker"
 					width={20}

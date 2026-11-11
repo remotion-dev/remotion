@@ -37,23 +37,21 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 // accessible stylesheets can be carried into the serialized SVG without fetching.
 const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: string[] = [];
-	for (const sheet of svg.ownerDocument.styleSheets) {
-		if (
-			sheet.disabled ||
-			(sheet.media.mediaText && !matchMedia(sheet.media.mediaText).matches)
-		)
-			continue;
-		let cssRules: CSSRuleList;
-		try {
-			cssRules = sheet.cssRules;
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
-				continue;
-			throw error;
-		}
-
+	const ownerWindow = svg.ownerDocument.defaultView ?? window;
+	const collectRules = (cssRules: CSSRuleList, retainedLocalSheet: boolean) => {
 		for (const rule of cssRules) {
-			if (!(rule instanceof CSSFontFaceRule)) continue;
+			// Unconditional local groups remain in the SVG image. Carry their faces
+			// in order so an earlier copied definition cannot override them.
+			if (
+				retainedLocalSheet &&
+				rule instanceof ownerWindow.CSSMediaRule &&
+				rule.conditionText.toLowerCase() === 'all'
+			) {
+				collectRules(rule.cssRules, retainedLocalSheet);
+				continue;
+			}
+
+			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
@@ -66,6 +64,31 @@ const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 				continue;
 			rules.push(rule.cssText);
 		}
+	};
+
+	for (const sheet of svg.ownerDocument.styleSheets) {
+		if (
+			sheet.disabled ||
+			(sheet.media.mediaText &&
+				!ownerWindow.matchMedia(sheet.media.mediaText).matches)
+		)
+			continue;
+		let cssRules: CSSRuleList;
+		try {
+			cssRules = sheet.cssRules;
+		} catch (error) {
+			if (
+				error instanceof ownerWindow.DOMException &&
+				error.name === 'SecurityError'
+			)
+				continue;
+			throw error;
+		}
+
+		collectRules(
+			cssRules,
+			sheet.ownerNode !== null && svg.contains(sheet.ownerNode),
+		);
 	}
 
 	return rules.join('');
@@ -205,7 +228,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// Script-added faces follow CSS-connected faces in FontFaceSet order.
 	const fontCss = cssFontRules + (embeddedFontStyle?.css ?? '');
 	if (fontCss && styles[fontStyleIndex]?.matches(':empty')) {
-		const originalFontStyleIndex = fontStyleIndex;
 		for (let index = styles.length - 1; index >= 0; index--) {
 			const style = styles[index];
 			const {sheet} = style;
@@ -231,21 +253,25 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			// Even inactive CSSOM rules preserve an authored ordering boundary.
 			if (ruleCount !== 0) break;
 		}
-
-		if (fontStyleIndex !== originalFontStyleIndex) {
-			// This synchronous data-font path does not flatten all local sheets.
-			// Canonicalize only the newly reused carrier before appending definitions.
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent = Array.from(
-				styles[fontStyleIndex].sheet!.cssRules,
-				(rule) => rule.cssText,
-			).join('');
-		}
 	}
 
-	if (fontCss)
+	if (fontCss) {
+		const carrier = styles[fontStyleIndex];
+		if (
+			carrier?.sheet &&
+			!carrier.sheet.disabled &&
+			!carrier.matches(':empty')
+		) {
+			// End malformed comments before appending carried faces.
+			svgForSerialization.querySelectorAll('style')[
+				fontStyleIndex
+			].textContent =
+				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+				'/* Empty stylesheet rules. */';
+		}
+
 		insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
+	}
 
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)

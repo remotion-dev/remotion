@@ -16,7 +16,9 @@ export const svgExternalFontReady = Promise.all([
 	}),
 ]);
 
-const Component: React.FC<{styleType?: string}> = ({styleType}) => {
+export const SvgExternalFontSelection: React.FC<{styleType: string | null}> = ({
+	styleType,
+}) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -93,7 +95,7 @@ const Component: React.FC<{styleType?: string}> = ({styleType}) => {
 };
 
 export const svgExternalFontSelection = {
-	component: Component,
+	component: () => <SvgExternalFontSelection styleType={null} />,
 	id: 'svg-external-font-selection',
 	width: 600,
 	height: 320,
