@@ -1079,14 +1079,46 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 	await expect
 		.poll(() => destination.boundingBox().then((box) => box?.y ?? Infinity))
 		.toBeLessThan(rulerBottom);
-	const paintsOverRuler = await preview.evaluate((element, top) => {
-		const bounds = element.getBoundingClientRect();
-		const {pointerEvents} = element.style;
-		element.style.pointerEvents = 'auto';
-		const hit = document.elementFromPoint(bounds.x + bounds.width / 2, top - 2);
-		element.style.pointerEvents = pointerEvents;
-		return hit === element;
-	}, rulerBottom);
+	const readPreviewState = () =>
+		preview.evaluate((element, top) => {
+			const bounds = element.getBoundingClientRect();
+			const {pointerEvents} = element.style;
+			element.style.pointerEvents = 'auto';
+			const hit = document.elementFromPoint(
+				bounds.x + bounds.width / 2,
+				top - 2,
+			);
+			element.style.pointerEvents = pointerEvents;
+			return {
+				x: bounds.x,
+				y: bounds.y,
+				width: bounds.width,
+				height: bounds.height,
+				paintsOverRuler: hit === element,
+			};
+		}, rulerBottom);
+	// The layout reflects the new scroll offset synchronously, but the
+	// hit-testing tree can trail it by a frame. Wait until the preview geometry
+	// and the hit result are stable across consecutive frames; a persistent
+	// paint-over still fails the assertion below.
+	await expect
+		.poll(
+			async () => {
+				const before = await readPreviewState();
+				await page.evaluate(() => new Promise(requestAnimationFrame));
+				const after = await readPreviewState();
+				return JSON.stringify(before) === JSON.stringify(after);
+			},
+			{intervals: [16, 32, 64, 100, 250]},
+		)
+		.toBe(true);
+	await page.evaluate(
+		() =>
+			new Promise<void>((resolve) =>
+				requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+			),
+	);
+	const {paintsOverRuler} = await readPreviewState();
 	expect(paintsOverRuler).toBe(false);
 	await page.screenshot({
 		path: test.info().outputPath('track-drop-clipped.png'),
