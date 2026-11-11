@@ -154,7 +154,7 @@ const config: Config = {
 					position: 'left',
 					items: [
 						{to: '/docs/license/pricing', label: 'License + Pricing'},
-						{to: 'https://remotion.pro/store', label: 'Store'},
+						{to: 'https://www.remotion.dev/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
 						{to: 'about', label: 'About us'},
@@ -220,7 +220,7 @@ const config: Config = {
 						},
 						{
 							label: 'Editor Starter',
-							href: 'https://remotion.pro/editor-starter',
+							href: 'https://www.remotion.dev/store/editor-starter',
 						},
 						{
 							label: 'Changelog',
@@ -336,7 +336,7 @@ const config: Config = {
 						},
 						{
 							label: 'Accessibility',
-							to: '/docs/accessibility',
+							to: '/docs/accessibility/dev',
 						},
 					],
 				},

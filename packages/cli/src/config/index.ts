@@ -659,7 +659,7 @@ declare global {
 		readonly setImageSequencePattern: (pattern: string | null) => void;
 		/**
 		 * Set the public license key for your company license.
-		 * Obtain it from https://remotion.pro (License keys page)
+		 * Obtain it from https://www.remotion.dev/dashboard (License keys page)
 		 * Pass "free-license" if you are eligible for the free license.
 		 */
 		readonly setPublicLicenseKey: (key: string | null) => void;
