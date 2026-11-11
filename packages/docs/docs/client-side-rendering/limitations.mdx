@@ -103,6 +103,8 @@ Registered fonts are supported with nonempty titled SVG stylesheets, including i
 
 `style[media]` selectors on SVG-local stylesheets with empty or `all` media are supported. For CSS `@font-face` sources and registered font APIs, empty trailing SVG stylesheets are preserved when an enabled, nonempty, unconditional stylesheet is available after all other SVG-local rules. `style:empty` selectors remain partially supported when all stylesheets are empty. Media-query changes on earlier font carriers invalidate cached SVG images. Full titled-set paint selection remains partially supported. WebKit and Firefox may render different text pixels or select a different face.
 
+Mentions of `@import` or `@scope` inside comments, strings, URLs or custom-property values do not disable SVG-local selector preservation. Actual import and scope rules remain excluded from selector rewriting.
+
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  

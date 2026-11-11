@@ -186,6 +186,7 @@ import {
 	svgAdoptedFont,
 	svgAdoptedFontGroups,
 } from './fixtures/svg-adopted-font';
+import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {
@@ -379,6 +380,14 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgAtRuleTextModes.flatMap((mode) =>
+				[false, true].map((positive) => (
+					<Composition
+						key={`at-rule-${mode}-${positive}`}
+						{...svgAtRuleText({mode, positive, literal: false})}
+					/>
+				)),
+			)}
 			{[null, true, false].map((active) => (
 				<Composition
 					key={`titled-media-${active}`}

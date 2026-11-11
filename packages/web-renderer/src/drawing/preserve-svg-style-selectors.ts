@@ -1,3 +1,5 @@
+import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
+
 // Match authored style and emptiness predicates, skipping quoted values and escapes.
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
@@ -73,7 +75,7 @@ export const preserveSvgStyleSelectors = ({
 		const text = style.textContent;
 		if (!text || (!text.includes('[') && !text.includes(':empty'))) continue;
 		// Constructed sheets discard @import and do not expose writable @scope selectors.
-		if (/@(?:import|scope)\b/i.test(text)) continue;
+		if (hasExcludedSvgStyleAtRule(text)) continue;
 		const sheet = new ownerWindow.CSSStyleSheet();
 		sheet.replaceSync(text);
 		let rewritten = false;
