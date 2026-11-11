@@ -498,6 +498,7 @@ export function popUndo(): UndoResponse {
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings.map(
 					(remapping): SequenceNodePathRemapping => ({
+						...(remapping.effectsOnly ? {effectsOnly: true as const} : {}),
 						oldNodePath: remapping.newNodePath,
 						newNodePath: remapping.oldNodePath,
 						...(remapping.newJsxName === undefined

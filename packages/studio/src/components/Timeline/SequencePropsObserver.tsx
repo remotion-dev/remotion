@@ -23,6 +23,8 @@ import {
 import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
 import {remapOptimisticEffects} from '../../helpers/remap-optimistic-effects';
 import {
+	getInstalledSequenceNodePathMutationId,
+	getPendingSequenceNodePathMutations,
 	subscribeToInstalledMutationBuild,
 	subscribeToSequenceNodePathMutations,
 	takePendingSequenceNodePathMutations,
@@ -121,6 +123,7 @@ export const SequencePropsObserver = ({
 	useEffect(() => {
 		const finishEffectRefresh = (refreshed: boolean) => {
 			effectRefreshInProgress.current = false;
+			refreshSequencePropsSubscription(null, {type: 'refresh-finished'});
 			if (refreshed && effectMutationsToSettle.current.length === 0) {
 				clearIdleOptimisticEffectPropStatuses();
 				clearOptimisticEffectHistoryIfIdle();
@@ -132,6 +135,45 @@ export const SequencePropsObserver = ({
 
 		const handleReactRefreshStarted = () => {
 			effectRefreshInProgress.current = true;
+			refreshSequencePropsSubscription(null, {
+				type: 'refresh-start',
+				mutationId: getInstalledSequenceNodePathMutationId(),
+			});
+			// A refresh may install intermediate builds before their mutation receipt
+			// can settle. Preserve identity now, but read metadata only after settlement.
+			const preserved = new Set<string>();
+			const invalidated = new Set<string>();
+			for (const mutation of getPendingSequenceNodePathMutations()) {
+				for (const file of mutation.files) {
+					for (const remapping of file.remappings) {
+						const before = JSON.stringify([
+							file.absolutePath,
+							remapping.oldNodePath,
+						]);
+						const after = JSON.stringify([
+							file.absolutePath,
+							remapping.newNodePath,
+						]);
+						if (before === after && remapping.effectsOnly)
+							preserved.add(before);
+						else if (before !== after || !mutation.applyWithoutFastRefresh) {
+							invalidated.add(before);
+							invalidated.add(after);
+						}
+					}
+				}
+			}
+
+			for (const [overrideId, node] of Object.entries(
+				overrideIdToNodePathMappingsRef.current,
+			)) {
+				const key = JSON.stringify([node.absolutePath, node.nodePath]);
+				if (preserved.has(key) && !invalidated.has(key))
+					refreshSequencePropsSubscription(overrideId, {
+						type: 'preserve-source',
+					});
+			}
+
 			Internals.OptimisticEffects.startRefresh();
 			// Apply source-node remappings immediately before React commits the
 			// refreshed tree. This keeps the old tree paired with the old statuses
@@ -186,6 +228,21 @@ export const SequencePropsObserver = ({
 	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
+			if (event.type === 'external-source-changed') {
+				for (const [overrideId, node] of Object.entries(
+					overrideIdToNodePathMappingsRef.current,
+				)) {
+					if (node.absolutePath === event.fileName) {
+						refreshSequencePropsSubscription(overrideId, {
+							type: 'refresh-start',
+							mutationId: null,
+						});
+					}
+				}
+
+				return;
+			}
+
 			if (event.type !== 'sequence-props-updated') {
 				return;
 			}
@@ -213,9 +270,14 @@ export const SequencePropsObserver = ({
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
+		const unsubscribeExternal = subscribeToEvent(
+			'external-source-changed',
+			handleEvent,
+		);
 
 		return () => {
 			unsubscribe();
+			unsubscribeExternal();
 		};
 	}, [setPropStatuses, subscribeToEvent, updateDragOverrides]);
 
@@ -294,6 +356,7 @@ export const SequencePropsObserver = ({
 
 				return {
 					absolutePath: file.absolutePath,
+					mutationId: mutation.mutationId,
 					applyWithoutFastRefresh: mutation.applyWithoutFastRefresh ?? false,
 					byOldPath,
 					byNewPath,
@@ -320,6 +383,8 @@ export const SequencePropsObserver = ({
 			let runtimeNodePathExists = true;
 			let runtimeNodePathNeedsRefresh = false;
 			let invalidateStatus = false;
+			let metadataMutationId: string | null = null;
+			let structuralRefresh = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
 			for (const files of indexedMutations) {
@@ -349,13 +414,24 @@ export const SequencePropsObserver = ({
 					const runtimeNodePathWasUpdated = file.updatedPaths.has(
 						previousNodePathString,
 					);
+					const effectsOnly =
+						runtimeNodePathWasUpdated &&
+						runtimeNodePathSource?.effectsOnly === true &&
+						runtimeNodePathDestination?.effectsOnly === true;
+					if (effectsOnly) metadataMutationId = file.mutationId;
+					else if (
+						!file.applyWithoutFastRefresh &&
+						(runtimeNodePathWasUpdated || runtimeNodePathWasInserted)
+					)
+						structuralRefresh = true;
 					if (runtimeNodePathSource) {
 						runtimeNodePathExists = Boolean(
 							runtimeNodePathDestination && replacementComponentMatches,
 						);
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathExists &&
-							(runtimeNodePathWasInserted || runtimeNodePathWasUpdated);
+							(runtimeNodePathWasInserted ||
+								(runtimeNodePathWasUpdated && !effectsOnly));
 					} else if (runtimeNodePathDestination) {
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
@@ -364,6 +440,7 @@ export const SequencePropsObserver = ({
 
 					if (
 						!file.applyWithoutFastRefresh &&
+						!effectsOnly &&
 						runtimeNodePathExists &&
 						(runtimeNodePathWasInserted || runtimeNodePathWasUpdated)
 					) {
@@ -420,6 +497,18 @@ export const SequencePropsObserver = ({
 				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
 			if (
+				metadataMutationId &&
+				!structuralRefresh &&
+				!nodePathChanged &&
+				!wasDeleted &&
+				runtimeNodePathExists
+			) {
+				refreshSequencePropsSubscription(overrideId, {
+					type: 'effects',
+					mutationId: metadataMutationId,
+					refreshing: effectRefreshInProgress.current,
+				});
+			} else if (
 				runtimeNodePathNeedsRefresh ||
 				(!wasDeleted && (nodePathChanged || !runtimeNodePathExists))
 			) {
@@ -439,7 +528,7 @@ export const SequencePropsObserver = ({
 		}
 
 		for (const [overrideId, nodePath] of overrideIdsToRefresh) {
-			refreshSequencePropsSubscription(overrideId, nodePath);
+			refreshSequencePropsSubscription(overrideId, {type: 'source', nodePath});
 		}
 
 		for (const event of statusRemappings) {
