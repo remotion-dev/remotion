@@ -1,10 +1,21 @@
 import {expect, test} from 'bun:test';
 import type {RouteWithSrc} from '@vercel/routing-utils';
+import middleware, {config as middlewareConfig} from '../../middleware';
 import {config} from '../../vercel';
 
 const sourceRoutes = config.routes?.filter(
 	(route): route is RouteWithSrc =>
 		'src' in route && typeof route.src === 'string',
+);
+
+test.each(['/pricing', '/pricing/'])(
+	'%s bypasses documentation middleware redirects',
+	async (path) => {
+		expect(middlewareConfig.matcher).not.toContain('/pricing');
+		expect(
+			await middleware(new Request(`https://www.remotion.dev${path}`)),
+		).toBeUndefined();
+	},
 );
 
 test('serves pricing from Pro with session-aware navigation', () => {
