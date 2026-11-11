@@ -11,6 +11,7 @@ If this is not the next task, see [Remotion Best Practices](../remotion-best-pra
 
 If a project already exists, skip this.
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
+`create-video` also installs the dependencies. If it logs an error while installing them, run `npm i` in the project.
 
 Inspect the current folder, including hidden files, before choosing where to scaffold.
 
@@ -24,7 +25,6 @@ Scaffold in existing folder:
 
 ```bash
 npx create-video@latest --yes --blank --no-tailwind .
-npm i
 ```
 
 ### Non-empty folder
@@ -35,7 +35,6 @@ Replace `my-video` with a suitable project name.
 ```bash
 npx create-video@latest --yes --blank --no-tailwind my-video
 cd my-video
-npm i
 ```
 
 ## Open the preview before building the video

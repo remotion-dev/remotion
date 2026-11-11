@@ -139,9 +139,17 @@ import type {OnStartData} from '@remotion/renderer';
 //                ^?
 ```
 
-- `frameCount`: The number of frames that will be rendered
-- `parallelEncoding`: Whether parallel encoding is enabled<AvailableFrom v="4.0.52" inline />
-- `resolvedConcurrency`: The concurrency that will be used<AvailableFrom v="4.0.180" inline />
+### `frameCount`
+
+The number of frames that will be rendered.
+
+### `parallelEncoding`<AvailableFrom v="4.0.52" />
+
+Whether parallel encoding is enabled.
+
+### `resolvedConcurrency`<AvailableFrom v="4.0.180" />
+
+The concurrency that will be used.
 
 ## `RenderMediaOnProgress`
 
@@ -181,9 +189,17 @@ import type {BrowserLog} from '@remotion/renderer';
 //                ^?
 ```
 
-- `type`: The console message type (`log`, `warning`, `error`, etc.). `console.warn()` is reported as `warning`.
-- `text`: The logged message
-- `stackTrace`: The stack trace of the log
+### `type`
+
+The console message type (`log`, `warning`, `error`, etc.). `console.warn()` is reported as `warning`.
+
+### `text`
+
+The logged message.
+
+### `stackTrace`
+
+The stack trace of the log.
 
 ## `FfmpegOverrideFn`
 
@@ -206,9 +222,17 @@ import type {EmittedArtifact} from '@remotion/renderer';
 //                ^?
 ```
 
-- `filename`: The name of the artifact file
-- `content`: The content of the artifact as a `string` or `Uint8Array`
-- `frame`: The frame number at which the artifact was emitted
+### `filename`
+
+The name of the artifact file.
+
+### `content`
+
+The content of the artifact as a `string` or `Uint8Array`.
+
+### `frame`
+
+The frame number at which the artifact was emitted.
 
 ## `OnBrowserDownload`
 
