@@ -41,12 +41,12 @@ await renderMedia({
   codec: "h264",
   outputLocation: "out/video.mp4",
   inputProps,
-  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY,
+  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY || null,
   onProgress: ({ progress }) => console.log(progress),
 });
 ```
 
-Companies that need a [Remotion license](../remotion-license/SKILL.md) should pass `licenseKey` to every render. If the user qualifies for the free license, pass `"free-license"`. Pass `isProduction: false` for test renders. See https://www.remotion.dev/docs/telemetry.md.
+Companies that need a [Remotion license](../remotion-license/SKILL.md) should pass `licenseKey` to every render. Pass `null` if no key is available, since an empty string is not a valid key. If the user qualifies for the free license, pass `"free-license"`. Pass `isProduction: false` for test renders. See https://www.remotion.dev/docs/telemetry.md.
 
 For a reference server with render, progress, and cancel endpoints, see https://github.com/remotion-dev/template-render-server.
 

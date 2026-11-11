@@ -286,6 +286,9 @@ When scaffolding a composition, use a JSX string literal for `id`, keep `width`,
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or `<Still>`.
 
 ```tsx
+import {Composition, type CalculateMetadataFunction} from 'remotion';
+import {MyComponent, type Props} from './MyComponent';
+
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
 const calculateMetadata: CalculateMetadataFunction<Props> = async () => {
   const dimensions = await getDimensions(); // just an example

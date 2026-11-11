@@ -11,6 +11,7 @@ import {
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
 import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
+import {articles} from '../data/articles';
 import {getElementMarkdownUrl} from './element-markdown';
 
 export type RawMarkdownComponentReplacement = {
@@ -96,6 +97,30 @@ export const replaceRawMarkdownComponents = ({
 	}, raw);
 };
 
+// The Markdown files that copy-raw-docs.ts writes for the article catalog.
+const rawMarkdownSlugs = new Set(
+	articles
+		.filter((article) => !article.noAi)
+		.flatMap((article) => [article.slug, article.slug.replace(/\/index$/, '')]),
+);
+
+// Link a docs page to its Markdown version, or to the HTML page if there is none.
+// A page named like its folder (cli/cli.mdx) is served at /docs/cli.
+const toRawMarkdownUrl = (link: string) => {
+	const match = link.match(/^\/docs\/([^#?]*?)\/?([#?].*)?$/);
+	if (!match) {
+		return link.replace(/^\//, 'https://www.remotion.dev/');
+	}
+
+	const [, route, suffix = ''] = match;
+	const slug = [route, `${route}/${route.split('/').pop()}`].find((s) =>
+		rawMarkdownSlugs.has(s),
+	);
+	return slug === undefined
+		? `https://www.remotion.dev${link}`
+		: `https://www.remotion.dev/docs/${slug}.md${suffix}`;
+};
+
 const markdownTable = (
 	items: readonly {
 		link: string;
@@ -107,7 +132,8 @@ const markdownTable = (
 		'| API | Description |',
 		'| --- | --- |',
 		...items.map(
-			(item) => `| [\`${item.label}\`](${item.link}) | ${item.description} |`,
+			(item) =>
+				`| [\`${item.label}\`](${toRawMarkdownUrl(item.link)}) | ${item.description} |`,
 		),
 	].join('\n');
 };
@@ -256,20 +282,40 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		},
 		{
 			componentName: 'Pricing',
+			// Mirrors the text and prop defaults of Pricing in @remotion/promo-pages.
 			render: ({attributes}) => {
-				const toMarkdownUrl = (name: string) => {
-					const href = getStringAttribute({attributes, name});
-					if (href === null) {
-						throw new Error(`The <Pricing> component is missing ${name}`);
-					}
-
-					return href.replace(
-						/^\/docs\/(.*)$/,
-						'https://www.remotion.dev/docs/$1.md',
+				const href = (name: string, defaultHref: string) =>
+					toRawMarkdownUrl(
+						getStringAttribute({attributes, name}) ?? defaultHref,
 					);
-				};
+				const faqHref = href('faqHref', '/docs/license/faq');
+				const termsHref = href(
+					'termsHref',
+					'https://www.remotion.dev/docs/terms',
+				);
+				const faqLabel =
+					getStringAttribute({attributes, name: 'faqLabel'}) ?? 'License FAQ';
 
-				return `For the license terms, see [LICENSE.md](${toMarkdownUrl('licenseHref')}), the [License FAQ](${toMarkdownUrl('faqHref')}) and the [Terms and Conditions](${toMarkdownUrl('termsHref')}).`;
+				return [
+					'## Free License',
+					'',
+					`For individuals and companies of up to 3 people. Create and automate, all features included, unlimited commercial use. [Terms](${termsHref}) apply. [Check eligibility](${faqHref}).`,
+					'',
+					'## Company License',
+					'',
+					'Required if you do not qualify for the Free License. Pay according to usage, with prioritized support. Choose one or both options:',
+					'',
+					'- **Remotion for Automators**: $0.01 per render, charged in increments of 1000 renders ($10), with a minimum of $100 per month. For batch rendering and automated video products, such as video editors, prompt-to-video apps, and embedding the Remotion Player. Developers working on automation projects do not need a Remotion for Creators seat.',
+					'- **Remotion for Creators**: $25 per month per seat. For low volume manual video creations, and building motion design systems in a local environment (including using AI agents and Remotion Studio). Get 1 seat per user.',
+					'',
+					`Buy a Company License at ${href('purchaseHref', 'https://www.remotion.dev/dashboard')}.`,
+					'',
+					'## Enterprise License',
+					'',
+					'Starting at $500 per month. Everything in the Company License, plus a private Slack, Discord, or Teams channel, a monthly consulting session, custom terms, billing and pricing, compliance forms, prioritized feature requests and the [Editor Starter](https://www.remotion.dev/editor-starter). [Contact us](https://www.remotion.dev/contact).',
+					'',
+					`See [LICENSE.md](${href('licenseHref', 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md')}), the [${faqLabel}](${faqHref}) and the [Terms and Conditions](${termsHref}) for more details.`,
+				].join('\n');
 			},
 			removeImport:
 				/^import\s+\{\s*Pricing\s*\}\s+from\s+['"]@remotion\/promo-pages\/dist\/homepage\/Pricing\.js['"];?\s*\n/m,
@@ -281,6 +327,10 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		{
 			componentName: 'MinBunVersion',
 			render: () => String(NoReactInternals.MIN_BUN_VERSION),
+		},
+		{
+			componentName: 'MinEslintVersion',
+			render: () => String(NoReactInternals.MIN_ESLINT_VERSION),
 		},
 	];
 
@@ -322,13 +372,20 @@ const stripJsx = (value: string) => {
 			},
 		)
 		.split(/(`[^`]*`)/)
-		.map((part) => (part.startsWith('`') ? part : decodeEntities(part)))
+		.map((part) =>
+			part.startsWith('`')
+				? part
+				: decodeEntities(
+						// Keep escaped tags such as &lt;Composition&gt; visible as code
+						part.replace(/&lt;(.*?)&gt;/g, (__, tag: string) => `\`<${tag}>\``),
+					),
+		)
 		.join('')
 		.replace(/\s+/g, ' ')
 		.trim();
 };
 
-// Table of contents components are a list of <TOCItem link="..."> entries.
+// Components that render a list of <TOCItem link="..."> entries.
 // Read them from the component source so that the Markdown lists the pages.
 const expandTableOfContents = ({
 	raw,
@@ -341,12 +398,6 @@ const expandTableOfContents = ({
 	for (const [importStatement, names, importPath] of Array.from(
 		raw.matchAll(/^import\s+\{([^}]*)\}\s+from\s+['"](\.[^'"]+)['"];?\s*\n/gm),
 	)) {
-		if (
-			!names.split(',').some((name) => name.trim().endsWith('TableOfContents'))
-		) {
-			continue;
-		}
-
 		const componentPath = ['.tsx', '/index.tsx', '']
 			.map((ext) => path.resolve(path.dirname(sourcePath), importPath + ext))
 			.find((p) => fs.existsSync(p) && fs.statSync(p).isFile());
@@ -357,17 +408,22 @@ const expandTableOfContents = ({
 		const componentSource = fs.readFileSync(componentPath, 'utf8');
 		let expandedAll = true;
 		for (const name of names.split(',').map((n) => n.trim())) {
-			if (!name.endsWith('TableOfContents')) {
-				expandedAll = false;
-				continue;
-			}
-
 			const body = componentSource
 				.split(/^export const /m)
 				.find(
 					(part) => part.startsWith(`${name}:`) || part.startsWith(`${name} `),
 				);
-			const items = (body ?? '')
+			// The items may be wrapped in a local component, such as <SfxItem link="...">
+			if (
+				body === undefined ||
+				!componentSource.includes('<TOCItem') ||
+				!body.includes('link="')
+			) {
+				expandedAll = false;
+				continue;
+			}
+
+			const items = body
 				.split(/(?=\blink=")/)
 				.slice(1)
 				.map((chunk) => {
@@ -381,10 +437,7 @@ const expandTableOfContents = ({
 						chunk.match(/<\/strong>\s*<div[^>]*>([\s\S]*?)<\/div>/)?.[1] ??
 						chunk.match(/\bdescription="([^"]+)"/)?.[1] ??
 						null;
-					const url = link
-						.replace(/^\/docs\/([^#?]*)/, 'https://www.remotion.dev/docs/$1.md')
-						.replace(/^\//, 'https://www.remotion.dev/');
-					return `- [${stripJsx(label)}](${url})${description ? ` — ${stripJsx(description)}` : ''}`;
+					return `- [${stripJsx(label)}](${toRawMarkdownUrl(link)})${description ? ` — ${stripJsx(description)}` : ''}`;
 				});
 			const tag = new RegExp(`<${name}\\s*/>`, 'g');
 			if (items.length === 0 || !tag.test(result)) {
