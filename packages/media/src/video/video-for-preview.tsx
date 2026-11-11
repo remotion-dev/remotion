@@ -3,6 +3,7 @@ import React, {
 	useEffect,
 	useLayoutEffect,
 	useMemo,
+	useReducer,
 	useRef,
 	useState,
 } from 'react';
@@ -28,6 +29,10 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {
+	initialPreviewPlayerStatus,
+	previewPlayerStatusReducer,
+} from '../preview-player-status';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
@@ -211,11 +216,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
 	const [initialRequestInit] = useState(requestInit);
 
-	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [status, dispatchStatus] = useReducer(
+		previewPlayerStatusReducer,
+		initialPreviewPlayerStatus,
+	);
 	const [knownDuration, setKnownDuration] = useState<number | null>(null);
-	const [terminalError, setTerminalError] = useState<Error | null>(null);
-	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
-		useState(false);
+	const mediaPlayerReady = status.type === 'ready';
+	const shouldFallbackToNativeVideo = status.type === 'fallback';
+	const terminalError = status.type === 'failed' ? status.error : null;
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
@@ -292,11 +300,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+	const audioEnabled = Internals.useAudioEnabled();
 	// TODO: Consider Sequence hidden
 	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
-		muted,
+		muted: muted || audioEnabled === false,
 		volume: userPreferredVolume,
-		audioEnabled: true,
+		audioEnabled: audioEnabled !== false,
 	});
 	const mediaPlayerMuted = useMediaPlayerMuted({
 		muted,
@@ -509,11 +518,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 						isClientSideRendering: false,
 						clientSideError: error,
 					});
-					if (action === 'fallback') {
-						setShouldFallbackToNativeVideo(true);
-					} else {
-						setTerminalError(errorToUse);
-					}
+					dispatchStatus(
+						action === 'fallback'
+							? {type: 'fallback-requested'}
+							: {type: 'failed', error: errorToUse},
+					);
 				},
 			});
 
@@ -563,7 +572,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 							clientSideError: error,
 						});
 						if (action === 'fail') {
-							throw errorToUse;
+							dispatchStatus({type: 'failed', error: errorToUse});
+							return;
 						}
 
 						// action === 'fallback'
@@ -571,7 +581,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 							{logLevel, tag: '@remotion/media'},
 							fallbackMessage,
 						);
-						setShouldFallbackToNativeVideo(true);
+						dispatchStatus({type: 'fallback-requested'});
 					};
 
 					if (
@@ -591,9 +601,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'cannot-decode-prores') {
-						// Unrecoverable: a native <video> can't decode ProRes either, so
-						// we must not fall back. The .catch below notifies onError and
-						// rethrows without falling back.
+						// A native <video> can't decode ProRes either, so we must not fall back.
 						throw new ProResDecoderNotEnabledError(preloadedSrc);
 					}
 
@@ -606,7 +614,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'success') {
-						setMediaPlayerReady(true);
+						dispatchStatus({type: 'init-succeeded'});
 						setMediaDurationInSeconds(result.durationInSeconds);
 						setKnownDuration(result.durationInSeconds);
 
@@ -616,10 +624,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 				.catch((error) => {
 					// ProRes without a registered decoder is unrecoverable and must not
 					// fall back to a native <video> (which cannot decode it either).
-					// Notify onError once for observability, then rethrow.
 					if (error instanceof ProResDecoderNotEnabledError) {
 						onErrorRef.current?.(error);
-						throw error;
+						dispatchStatus({type: 'failed', error});
+						return;
 					}
 
 					const [action, errorToUse] = callOnErrorAndResolve({
@@ -630,7 +638,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 						clientSideError: error,
 					});
 					if (action === 'fail') {
-						throw errorToUse;
+						dispatchStatus({type: 'failed', error: errorToUse});
+						return;
 					}
 
 					Internals.Log.error(
@@ -638,7 +647,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 						'[VideoForPreview] Failed to initialize MediaPlayer',
 						errorToUse,
 					);
-					setShouldFallbackToNativeVideo(true);
+					dispatchStatus({type: 'fallback-requested'});
 				});
 		} catch (error) {
 			const [action, errorToUse] = callOnErrorAndResolve({
@@ -649,15 +658,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 				clientSideError: error as Error,
 			});
 			if (action === 'fail') {
-				throw errorToUse;
+				dispatchStatus({type: 'failed', error: errorToUse});
+			} else {
+				Internals.Log.error(
+					{logLevel, tag: '@remotion/media'},
+					'[VideoForPreview] MediaPlayer initialization failed',
+					errorToUse,
+				);
+				dispatchStatus({type: 'fallback-requested'});
 			}
-
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[VideoForPreview] MediaPlayer initialization failed',
-				errorToUse,
-			);
-			setShouldFallbackToNativeVideo(true);
 		}
 
 		return () => {
@@ -674,8 +683,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				mediaPlayerRef.current = null;
 			}
 
-			setMediaPlayerReady(false);
-			setShouldFallbackToNativeVideo(false);
+			dispatchStatus({type: 'reset'});
 			hasDrawnRealFrameRef.current = false;
 		};
 	}, [

@@ -13,6 +13,11 @@ import React, {
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
+import type {
+	BufferIndicatorEvent,
+	BufferIndicatorState,
+} from './buffer-indicator-state.js';
+import {reduceBufferIndicator} from './buffer-indicator-state.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -26,6 +31,7 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
+import {PlaybackRangeContext} from './playback-range-context.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {
 	PlayerMethods,
@@ -85,8 +91,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly showPosterWhenUnplayed: boolean;
 		readonly showPosterWhenBuffering: boolean;
 		readonly showPosterWhenBufferingAndPaused: boolean;
-		readonly inFrame: number | null;
-		readonly outFrame: number | null;
 		readonly initiallyShowControls: number | boolean;
 		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
 		readonly renderFullscreen: RenderFullscreenButton | null;
@@ -126,8 +130,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
 		showPosterWhenBufferingAndPaused,
-		inFrame,
-		outFrame,
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
@@ -146,6 +148,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	},
 	ref,
 ) => {
+	const {inFrame, outFrame} = useContext(PlaybackRangeContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -356,53 +359,63 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		player.emitter.dispatchScaleChange(scale);
 	}, [player.emitter, scale]);
 
-	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
+	const {subscribeBuffering, isBuffering} = useContext(
+		Internals.SetTimelineContext,
+	);
+	const [bufferIndicator, setBufferIndicator] = useState<BufferIndicatorState>({
+		type: 'idle',
+	});
+	const showBufferIndicator = bufferIndicator.type === 'showing';
 
 	useEffect(() => {
-		let timeout: NodeJS.Timeout | Timer | null = null;
-		let stopped = false;
+		let current: BufferIndicatorState = {type: 'idle'};
+		let timeout: ReturnType<typeof setTimeout> | null = null;
 
-		const onBuffer = () => {
-			stopped = false;
-			requestAnimationFrame(() => {
-				if (bufferStateDelayInMilliseconds === 0) {
-					setShowBufferState(true);
-				} else {
-					timeout = setTimeout(() => {
-						if (!stopped) {
-							setShowBufferState(true);
+		const dispatch = (event: BufferIndicatorEvent) => {
+			const {state: next, effect} = reduceBufferIndicator(current, event);
+			if (effect === 'start-timer') {
+				timeout = setTimeout(() => {
+					timeout = null;
+					dispatch({type: 'delay-elapsed'});
+				}, bufferStateDelayInMilliseconds);
+			} else if (effect === 'clear-timer' && timeout !== null) {
+				clearTimeout(timeout);
+				timeout = null;
+			}
+
+			if (next.type !== current.type) {
+				current = next;
+				setBufferIndicator(next);
+			}
+		};
+
+		const unsubscribe = subscribeBuffering((state) => {
+			dispatch(
+				state.buffering
+					? {
+							type: 'buffer-start',
+							delayInMilliseconds: bufferStateDelayInMilliseconds,
 						}
-					}, bufferStateDelayInMilliseconds);
-				}
-			});
-		};
+					: {type: 'buffer-end'},
+			);
+		});
 
-		const onResume = () => {
-			requestAnimationFrame(() => {
-				stopped = true;
-				setShowBufferState(false);
-				if (timeout) {
-					clearTimeout(timeout);
-				}
+		if (isBuffering()) {
+			dispatch({
+				type: 'buffer-start',
+				delayInMilliseconds: bufferStateDelayInMilliseconds,
 			});
-		};
-
-		player.emitter.addEventListener('waiting', onBuffer);
-		player.emitter.addEventListener('resume', onResume);
+		}
 
 		return () => {
-			player.emitter.removeEventListener('waiting', onBuffer);
-			player.emitter.removeEventListener('resume', onResume);
-
-			setShowBufferState(false);
-
-			if (timeout) {
+			unsubscribe();
+			if (timeout !== null) {
 				clearTimeout(timeout);
 			}
 
-			stopped = true;
+			setBufferIndicator({type: 'idle'});
 		};
-	}, [bufferStateDelayInMilliseconds, player.emitter]);
+	}, [bufferStateDelayInMilliseconds, isBuffering, subscribeBuffering]);
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {

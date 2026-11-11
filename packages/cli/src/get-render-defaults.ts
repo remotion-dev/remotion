@@ -185,6 +185,18 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	};
 
 	return {
+		chromiumOptions: {
+			flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			blinkFeatures:
+				BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue({
+					commandLine: parsedCli,
+				}).value,
+		},
 		darkMode,
 		jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		scale: defaultScale ?? 1,

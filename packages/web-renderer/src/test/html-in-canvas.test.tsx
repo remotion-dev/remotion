@@ -1,4 +1,6 @@
-import {Player} from '@remotion/player';
+import {Player, type PlayerRef} from '@remotion/player';
+import {createRef} from 'react';
+import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {HtmlInCanvas, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
@@ -21,6 +23,10 @@ import {
 	htmlInCanvasFrameMatrix,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {
+	htmlInCanvasResize,
+	htmlInCanvasResizeFrames,
+} from './fixtures/html-in-canvas-resize';
 import {
 	sceneAColor,
 	sceneBColor,
@@ -58,6 +64,66 @@ const countDifferentPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
 
 	return different;
 };
+
+test('preserves the displayed frame while HtmlInCanvas resizes in preview', async (t) => {
+	if (!HtmlInCanvas.isSupported()) {
+		t.skip();
+		return;
+	}
+
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	const playerRef = createRef<PlayerRef>();
+	const {component, width, height, fps, durationInFrames} = htmlInCanvasResize;
+
+	try {
+		flushSync(() => {
+			root.render(
+				<Player
+					ref={playerRef}
+					acknowledgeRemotionLicense
+					component={component}
+					compositionWidth={width}
+					compositionHeight={height}
+					fps={fps}
+					durationInFrames={durationInFrames}
+					style={{width, height}}
+				/>,
+			);
+		});
+		const canvas = container.querySelector('canvas')!;
+		const child = container.querySelector('[data-testid="resize-content"]');
+		expect(child).not.toBeNull();
+		const context = canvas.getContext('2d')!;
+
+		for (const [frame, size] of htmlInCanvasResizeFrames.entries()) {
+			if (frame > 0) {
+				flushSync(() => playerRef.current!.seekTo(frame));
+				expect(canvas.width).toBe(size.width);
+				expect(canvas.height).toBe(size.height);
+				expect(container.querySelector('canvas')).toBe(canvas);
+				expect(container.querySelector('[data-testid="resize-content"]')).toBe(
+					child,
+				);
+				expect(
+					Array.from(context.getImageData(10, 10, 1, 1).data),
+					`previous image immediately after resizing at frame ${frame}`,
+				).toEqual([htmlInCanvasResizeFrames[frame - 1].red, 200, 40, 255]);
+			}
+
+			await vi.waitFor(() => {
+				expect(
+					Array.from(context.getImageData(10, 10, 1, 1).data),
+					`completed paint at frame ${frame}`,
+				).toEqual([size.red, 200, 40, 255]);
+			});
+		}
+	} finally {
+		root.unmount();
+		container.remove();
+	}
+});
 
 test('can evict WebGL contexts after native capture without crashing', async (t) => {
 	if (!supportsNativeHtmlInCanvas()) {
@@ -99,6 +165,7 @@ test('can evict WebGL contexts after native capture without crashing', async (t)
 			requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
 		});
 		const captured = await drawWithHtmlInCanvas({
+			transparent: true,
 			htmlInCanvasContext,
 			element,
 			scaledWidth: 100,
@@ -387,6 +454,7 @@ for (const allowHtmlInCanvas of [false, true]) {
 				let frameCount = 0;
 				await renderMediaOnWeb({
 					...options,
+					transparent: true,
 					frameRange: [0, 2],
 					container: 'webm',
 					videoCodec: 'vp9',
@@ -546,6 +614,7 @@ test('does not create a nested HTML-in-canvas capture before Chrome 157', async 
 
 	try {
 		await createLayer({
+			transparent: true,
 			cutout: new DOMRect(0, 0, 10, 10),
 			element,
 			htmlInCanvasContext: {

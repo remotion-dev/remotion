@@ -19,6 +19,7 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	getKeyframeOutputTypeForSchemaField,
 	HOLD_KEYFRAME_EASING,
+	isKeyframeEasing,
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	LINEAR_KEYFRAME_EASING,
@@ -55,6 +56,9 @@ import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
 	findNodePathForJsxElement,
+	getComputedStatus,
+	getCurrentFrameDisplayOffsetAdjustment,
+	getDefaultFrameDisplayOffsetAdjustment,
 	isStaticValue,
 } from './sequence-props';
 import {
@@ -373,6 +377,36 @@ export type SequenceKeyframeUpdate = {
 export type EffectKeyframeUpdate = {
 	key: string;
 	operation: KeyframeOperation;
+};
+
+export type SourceKeyframeUpdate = {
+	key: string;
+	operation:
+		| KeyframeOperation
+		| {
+				type: 'paste';
+				keyframes: {displayFrame: number; value: unknown}[];
+				keyframeDisplayOffset: number;
+				keyframePlaybackRate: number;
+				easing: KeyframeEasing[];
+		  };
+};
+
+const validateSourceKeyframeUpdates = (updates: SourceKeyframeUpdate[]) => {
+	for (const {operation} of updates) {
+		if (operation.type !== 'paste') continue;
+		if (
+			operation.keyframes.length === 0 ||
+			!Array.isArray(operation.easing) ||
+			operation.easing.length !== operation.keyframes.length - 1 ||
+			!operation.easing.every(isKeyframeEasing) ||
+			!Number.isFinite(operation.keyframeDisplayOffset) ||
+			!Number.isFinite(operation.keyframePlaybackRate) ||
+			operation.keyframePlaybackRate <= 0
+		) {
+			throw new Error('Cannot paste keyframes: invalid timing or easing');
+		}
+	}
 };
 
 export type FormatKeyframesFile = (input: {
@@ -1606,18 +1640,171 @@ const moveKeyframes = ({
 const applyKeyframeOperation = ({
 	ast,
 	expression,
+	jsxPath,
 	key,
 	operation,
 	schema,
 	videoConfigValues,
 }: {
 	expression: Expression;
+	jsxPath: recast.types.NodePath;
 	key: string;
-	operation: KeyframeOperation;
+	operation: SourceKeyframeUpdate['operation'];
 	schema: InteractivitySchema | null;
 	videoConfigValues: VideoConfigIdentifierValues;
 	ast: File;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
+	if (operation.type === 'paste') {
+		const existing = getInterpolationExpression(
+			expression,
+			ast,
+			videoConfigValues,
+		);
+		const status = existing
+			? getComputedStatus(expression, ast, videoConfigValues)
+			: null;
+		if (status !== null && status.status !== 'keyframed') {
+			throw new Error('Cannot paste keyframes onto a computed expression');
+		}
+
+		const clock =
+			existing === null
+				? getDefaultFrameDisplayOffsetAdjustment({
+						jsxPath,
+						ast,
+						videoConfigValues,
+					})
+				: getCurrentFrameDisplayOffsetAdjustment({
+						node: existing.input as Expression,
+						ast,
+						videoConfigValues,
+					});
+		if (clock === null || ('canKeyframe' in clock && !clock.canKeyframe)) {
+			throw new Error(
+				'Cannot determine the source clock for pasting keyframes',
+			);
+		}
+
+		const adjustment = NoReactInternals.evaluateSourceNumericValue(
+			clock.adjustment,
+			null,
+		);
+		const playbackRate =
+			operation.keyframePlaybackRate *
+			NoReactInternals.evaluateSourceNumericValue(
+				clock.playbackRateAdjustment,
+				null,
+			);
+		if (
+			!Number.isFinite(adjustment) ||
+			!Number.isFinite(playbackRate) ||
+			playbackRate <= 0
+		) {
+			throw new Error(
+				'Cannot determine the source clock for pasting keyframes',
+			);
+		}
+
+		const displayOffset =
+			operation.keyframeDisplayOffset + adjustment / playbackRate;
+		const keyframes = operation.keyframes.map(({displayFrame, value}) => {
+			if (!Number.isFinite(displayFrame)) {
+				throw new Error('Cannot paste a keyframe at a non-finite frame');
+			}
+
+			const frame = (displayFrame - displayOffset) * playbackRate;
+			const tolerance =
+				Number.EPSILON *
+				Math.max(1, Math.abs(displayFrame), Math.abs(displayOffset)) *
+				playbackRate *
+				8;
+			const matching = existing?.keyframes
+				.filter((keyframe) => Math.abs(keyframe.frame - frame) <= tolerance)
+				.sort(
+					(left, right) =>
+						Math.abs(left.frame - frame) - Math.abs(right.frame - frame),
+				)[0];
+			return {frame: matching?.frame ?? frame, value};
+		});
+		if (
+			keyframes.some(
+				(keyframe, index) =>
+					!Number.isFinite(keyframe.frame) ||
+					(index > 0 && keyframe.frame <= keyframes[index - 1].frame),
+			)
+		) {
+			throw new Error('Pasted keyframe times must be increasing');
+		}
+
+		let nextExpression = expression as ExpressionKind;
+		const introduced = {...noIntroducedIdentifiers};
+		for (const keyframe of keyframes) {
+			const result = applyKeyframeOperation({
+				ast,
+				expression: nextExpression as Expression,
+				jsxPath,
+				key,
+				schema,
+				videoConfigValues,
+				operation: {type: 'add', ...keyframe},
+			});
+			prepareIntroducedKeyframeIdentifiers({
+				ast,
+				expression: result.expression,
+				introduced: {...result.introduced, needsFrameHook: false},
+				jsxPath,
+			});
+			nextExpression = result.expression;
+			introduced.calleeName =
+				result.introduced.calleeName ?? introduced.calleeName;
+			introduced.needsFrameHook ||= result.introduced.needsFrameHook;
+			introduced.needsEasingImport ||= result.introduced.needsEasingImport;
+		}
+
+		const frames = new Set(keyframes.map((keyframe) => keyframe.frame));
+		for (const keyframe of existing?.keyframes ?? []) {
+			if (
+				keyframe.frame < keyframes[0].frame ||
+				keyframe.frame > keyframes[keyframes.length - 1].frame ||
+				frames.has(keyframe.frame)
+			)
+				continue;
+			const result = removeKeyframe({
+				ast,
+				expression: nextExpression as Expression,
+				frame: keyframe.frame,
+				videoConfigValues,
+				valueWhenLastKeyframeDeleted: null,
+			});
+			nextExpression = result.expression;
+			introduced.needsEasingImport ||= result.introduced.needsEasingImport;
+		}
+
+		const finalFrames = getInterpolationExpression(
+			nextExpression as Expression,
+			ast,
+			videoConfigValues,
+		)!.keyframes;
+		const firstSegment = finalFrames.findIndex(
+			(keyframe) => keyframe.frame === keyframes[0].frame,
+		);
+		for (const [index, easing] of operation.easing.entries()) {
+			const result = applyKeyframeOperation({
+				ast,
+				expression: nextExpression as Expression,
+				jsxPath,
+				key,
+				schema,
+				videoConfigValues,
+				operation: {type: 'easing', segmentIndex: firstSegment + index, easing},
+			});
+			nextExpression = result.expression;
+			introduced.needsEasingImport ||= result.introduced.needsEasingImport;
+		}
+
+		return {expression: nextExpression, introduced};
+	}
+
 	if (operation.type === 'add') {
 		const result = addKeyframe({
 			ast,
@@ -1844,7 +2031,7 @@ const shouldRemovePropAfterKeyframeOperation = ({
 }: {
 	expression: Expression;
 	key: string;
-	operation: KeyframeOperation;
+	operation: SourceKeyframeUpdate['operation'];
 	schema: InteractivitySchema | null;
 	videoConfigValues: VideoConfigIdentifierValues;
 	ast: File;
@@ -2135,7 +2322,7 @@ export const updateSequenceKeyframesAst = ({
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
-	updates: SequenceKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
@@ -2146,6 +2333,7 @@ export const updateSequenceKeyframesAst = ({
 	logLine: number;
 	updatedNodePath: SequenceNodePath;
 } => {
+	validateSourceKeyframeUpdates(updates);
 	const ast = parseAst(input);
 	const formattingConfig = getSourceFormattingConfig({
 		input,
@@ -2180,12 +2368,15 @@ export const updateSequenceKeyframesAst = ({
 			attributes: node.attributes,
 			key: update.key,
 			missingPropInitialValue:
-				update.operation.type === 'add'
+				update.operation.type === 'add' || update.operation.type === 'paste'
 					? {
 							value: getInitialValueForMissingProp({
 								schema: schema ?? null,
 								key: update.key,
-								newValue: update.operation.value,
+								newValue:
+									update.operation.type === 'add'
+										? update.operation.value
+										: update.operation.keyframes[0]?.value,
 							}),
 						}
 					: null,
@@ -2193,6 +2384,7 @@ export const updateSequenceKeyframesAst = ({
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
 			ast,
+			jsxPath,
 			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
@@ -2278,7 +2470,7 @@ export const updateSequenceKeyframes = ({
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
-	updates: SequenceKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	// Kept optional for compatibility with callers from before source edits
 	// replaced the full-file formatting pass.
@@ -2330,7 +2522,7 @@ export const updateEffectKeyframesAst = ({
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
-	updates: EffectKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
@@ -2342,6 +2534,7 @@ export const updateEffectKeyframesAst = ({
 	effectCallee: string;
 	updatedSequenceNodePath: SequenceNodePath;
 } => {
+	validateSourceKeyframeUpdates(updates);
 	const ast = parseAst(input);
 	const formattingConfig = getSourceFormattingConfig({
 		input,
@@ -2382,12 +2575,15 @@ export const updateEffectKeyframesAst = ({
 			objExpr,
 			key: update.key,
 			missingPropInitialValue:
-				update.operation.type === 'add'
+				update.operation.type === 'add' || update.operation.type === 'paste'
 					? {
 							value: getInitialValueForMissingProp({
 								schema: schema ?? null,
 								key: update.key,
-								newValue: update.operation.value,
+								newValue:
+									update.operation.type === 'add'
+										? update.operation.value
+										: update.operation.keyframes[0]?.value,
 							}),
 						}
 					: null,
@@ -2395,6 +2591,7 @@ export const updateEffectKeyframesAst = ({
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
 			ast,
+			jsxPath,
 			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
@@ -2481,7 +2678,7 @@ export const updateEffectKeyframes = ({
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
-	updates: EffectKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	// Kept optional for compatibility with callers from before source edits
 	// replaced the full-file formatting pass.

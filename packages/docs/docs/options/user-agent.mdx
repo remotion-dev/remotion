@@ -36,10 +36,19 @@ The following CLI commands accept this option:
 The following APIs accept this option:
 
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#useragent)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#useragent)
 - [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#useragent)
 - [`renderFrames()`](/docs/renderer/render-frames#useragent)
 - [`renderMedia()`](/docs/renderer/render-media#useragent)
 - [`renderStill()`](/docs/renderer/render-still#useragent)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumUserAgent('Mozilla/5.0 (Remotion)');
+```
 
 ## See also
 

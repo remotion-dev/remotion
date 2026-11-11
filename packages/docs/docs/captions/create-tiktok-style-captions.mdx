@@ -14,7 +14,7 @@ A high value for `combineTokensWithinMilliseconds` will fit many words on 1 page
 This function is safe to use in the browser, Node.js and Bun.
 
 :::note
-This API expects the whitespace to be included in the `text` field **before each word. Spaces are used as delimiters, and omitting them will cause the entire text to merge into a single line or page, resulting in poorly formatted captions.**.
+This API expects the whitespace to be included in the `text` field **before each word**. Spaces are used as delimiters, and omitting them will cause the entire text to merge into a single line or page, resulting in poorly formatted captions.
 :::
 
 ```tsx twoslash title="Create pages from captions"
@@ -58,9 +58,9 @@ const {pages} = createTikTokStyleCaptions({
 
 /* pages: [
   {
-    text: "Using Remotion's",
+    text: "Using Remotion's TikTok",
     startMs: 40,
-    durationMs: 860,
+    durationMs: 1220,
     tokens: [
       {
         text: 'Using',
@@ -72,25 +72,25 @@ const {pages} = createTikTokStyleCaptions({
         fromMs: 300,
         toMs: 900,
       },
-    ],
-  },
-  {
-    text: 'TikTok template,',
-    startMs: 900,
-    durationMs: 1050,
-    tokens: [
       {
-        text: 'TikTok',
+        text: ' TikTok',
         fromMs: 900,
         toMs: 1260,
       },
+    ],
+  },
+  {
+    text: 'template,',
+    startMs: 1260,
+    durationMs: 690,
+    tokens: [
       {
-        text: ' template,',
+        text: 'template,',
         fromMs: 1260,
         toMs: 1950,
       },
     ],
-  }
+  },
 ] */
 ```
 

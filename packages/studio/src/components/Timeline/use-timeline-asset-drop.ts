@@ -251,19 +251,36 @@ export const useTimelineAssetDrop = () => {
 	}, []);
 
 	useEffect(() => {
-		document.addEventListener('dragover', onAssetDragOver, {capture: true});
-		document.addEventListener('drop', onAssetDrop, {capture: true});
-		document.addEventListener('dragend', clearAssetDropFrame, {capture: true});
-
-		return () => {
-			document.removeEventListener('dragover', onAssetDragOver, {
-				capture: true,
-			});
-			document.removeEventListener('drop', onAssetDrop, {capture: true});
-			document.removeEventListener('dragend', clearAssetDropFrame, {
-				capture: true,
-			});
+		const controller = new AbortController();
+		const options = {capture: true, signal: controller.signal};
+		const onAssetDragLeave = (event: DragEvent) => {
+			const scrollable = scrollableRef.current;
+			if (
+				scrollable !== null &&
+				isEventTargetInsideElement(event, scrollable) &&
+				!(
+					event.relatedTarget instanceof Node &&
+					scrollable.contains(event.relatedTarget)
+				)
+			) {
+				clearAssetDropFrame();
+			}
 		};
+
+		document.addEventListener('dragover', onAssetDragOver, options);
+		document.addEventListener('dragleave', onAssetDragLeave, options);
+		document.addEventListener('drop', onAssetDrop, options);
+		document.addEventListener('dragend', clearAssetDropFrame, options);
+		window.addEventListener('blur', clearAssetDropFrame, {
+			signal: controller.signal,
+		});
+		window.addEventListener(
+			'remotion-browser-studio-pointerleave',
+			clearAssetDropFrame,
+			{signal: controller.signal},
+		);
+
+		return () => controller.abort();
 	}, [clearAssetDropFrame, onAssetDragOver, onAssetDrop]);
 
 	return assetDropFrame;

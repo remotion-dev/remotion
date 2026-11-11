@@ -1,7 +1,7 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
-import {findOriginalPositionInFileAtProperty} from '../helpers/open-in-editor';
+import {resolveSourceLocation} from '../helpers/open-in-editor';
 import type {ModalState} from '../state/modals';
 import {CodeChangeModal} from './CodeChangeModal';
 
@@ -29,9 +29,10 @@ export const FixComputedValueModal: React.FC<{
 	useEffect(() => {
 		let cancelled = false;
 		setSourcePreview({type: 'loading'});
-		findOriginalPositionInFileAtProperty({
+		resolveSourceLocation({
 			originalPosition: state.location,
-			property: state.prop.split('.').at(-1) ?? state.prop,
+			property: state.prop,
+			effectIndex: null,
 		})
 			.then((position) => {
 				return resolveFileSource(

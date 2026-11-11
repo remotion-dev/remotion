@@ -2,6 +2,7 @@ import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {getMaxSourceCacheSize} from './max-cache-size';
+import {makeOfflineMediaFetch} from './offline-media-fetch';
 import {
 	getMediaRequestInitFingerprint,
 	normalizeMediaRequestInit,
@@ -65,8 +66,10 @@ export const acquireSharedInput = ({
 	const lease = Internals.globalMediaResourceManager.acquire<Input>({
 		key: cacheKey,
 		create: () => {
+			const recovery = makeOfflineMediaFetch(null);
 			const input = new Input({
 				source: new UrlSource(src, {
+					fetchFn: recovery.fetchFn,
 					handleUnhandledError: (error) => {
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
@@ -82,7 +85,13 @@ export const acquireSharedInput = ({
 				formats: ALL_FORMATS,
 			});
 
-			return {resource: input, dispose: () => input.dispose()};
+			return {
+				resource: input,
+				dispose: () => {
+					recovery.dispose();
+					input.dispose();
+				},
+			};
 		},
 	});
 

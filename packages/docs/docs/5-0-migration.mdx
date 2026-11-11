@@ -42,7 +42,7 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 Previously, we had no idea how many renders our company license customers are making, leading to a lack of accountability.  
 If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.
 
-**Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config). If you are eligible for the free license, pass `"free-license"` as the license key.
+**Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config#setpubliclicensekey). If you are eligible for the free license, pass `"free-license"` as the license key.
 
 ## WebGL and WebGPU during rendering are now enabled by default
 
@@ -96,7 +96,7 @@ The values passed in there did not influence the calculation at all. Therefore w
 
 ## Path sampling returns `null` beyond the end of a path
 
-[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length).
+[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length). This change already shipped in v4.0.498.
 Previously, they returned the point or tangent at the end of the path.
 
 **Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.
@@ -122,8 +122,9 @@ The default [`x264Preset`](/docs/lambda/rendermediaonlambda#x264preset) for H.26
 
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
-The `shouldDumpIo` option has been be removed in 5.0.  
-Use `logLevel: "verbose"` instead.
+The `shouldDumpIo` option has been removed in 5.0.
+
+**Required action**: Replace `shouldDumpIo: true` with `logLevel: "verbose"`.
 
 ## `getVideoMetadata()` has been removed from `@remotion/renderer`
 

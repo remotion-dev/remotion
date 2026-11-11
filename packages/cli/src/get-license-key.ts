@@ -10,7 +10,7 @@ export const getLicenseKey = (): string | null => {
 		(typeof value !== 'string' || !value.startsWith('rm_sec_'))
 	) {
 		throw new Error(
-			'Invalid --license-key. Pass a private API key starting with "rm_sec_" from https://www.remotion.pro/dashboard.',
+			'Invalid --license-key. Pass a private API key starting with "rm_sec_" from https://www.remotion.dev/dashboard.',
 		);
 	}
 

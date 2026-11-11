@@ -7,7 +7,7 @@ const cliFlag = 'throw-if-site-exists' as const;
 export const throwIfSiteExistsOption = {
 	cliFlag,
 	description: () =>
-		`Prevents accidential update of an existing site. If there are any files in the subfolder where the site should be placed, the function will throw.`,
+		`Prevents accidental update of an existing site. If there are any files in the subfolder where the site should be placed, Remotion throws an error.`,
 	docLink: 'https://www.remotion.dev/docs/options/throw-if-site-exists',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {

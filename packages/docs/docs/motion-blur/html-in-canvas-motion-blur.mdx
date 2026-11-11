@@ -90,6 +90,8 @@ Repeats the range selected by `trimBefore` and `durationInFrames`. Set a finite 
 
 See [Timing and trimming](/docs/timing) for how these props combine.
 
+It also inherits [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+
 ### `samples?`
 
 How many snapshots are averaged. Default: `8`, min: `1`, max: `64`.  
@@ -106,6 +108,10 @@ How long the exposure is, expressed as an angle from `0` to `360`. Default: `180
 At `180`, samples span half a frame centered on the current frame.  
 At `0`, no motion blur is applied.  
 Samples outside the composition are clamped to its first or last frame.
+
+### Premounting props
+
+[`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) are also accepted and behave like on [`<Sequence>`](/docs/sequence).
 
 ## Nested HTML-in-canvas caveat
 

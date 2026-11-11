@@ -20,7 +20,7 @@ There are three exceptions when it is possible to deploy multiple functions:
 
 - If you are using multiple regions, you need to deploy a function for each region.
 - If you are upgrading to a newer version of Remotion Lambda, you need to deploy a new function. You can then run the new and the old function side-by-side. The `@remotion/lambda` CLI will always choose the function in your AWS account that has the same version as the client package. If you use the [`getFunctions()`](/docs/lambda/getfunctions) Node.JS API, set the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) flag to `true` to filter out functions that don't match the version of the `@remotion/lambda` package.
-- If you are deploying a function with a different memory size, disk size or timeout, a new function can be created. However, currently if multiple suitable functions are available, Remotion will choose one at random. So you should only use this strategy to change the parameters of the function without causing downtime.
+- If you are deploying a function with a different memory size, disk size or timeout, a new function can be created. However, if multiple functions with the same version are available, the CLI will throw an error unless you pass [`--function-name`](/docs/lambda/cli/render#--function-name). So you should only use this strategy to change the parameters of the function without causing downtime.
 
 ### How many videos can I render concurrently?
 
@@ -49,7 +49,7 @@ We have evaluated Amazon Elastic File System (EFS) and we found the speed benefi
 
 ### How much does Remotion Lambda cost?
 
-There are two cost components: The Remotion licensing fee (see [pricing](https://www.remotion.pro), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. We estimate the Lambda costs for you and report it in the API response.
+There are two cost components: The Remotion licensing fee (see [pricing](/docs/license/pricing), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. We estimate the Lambda costs for you and report it in the API response.
 
 ### How can I upgrade/redeploy a Lambda function?
 

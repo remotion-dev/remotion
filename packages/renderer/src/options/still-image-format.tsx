@@ -13,8 +13,11 @@ export const stillImageFormatOption = {
 	description: () => (
 		<>
 			The image format to use when rendering a still. Must be one of{' '}
-			{validStillImageFormats.map((f) => `"${f}"`).join(', ')}. Default:{' '}
-			<code>&quot;png&quot;</code>.
+			{validStillImageFormats.flatMap((f, i) => [
+				i === 0 ? '' : ', ',
+				<code key={f}>&quot;{f}&quot;</code>,
+			])}
+			. Default: <code>&quot;png&quot;</code>.
 		</>
 	),
 	ssrName: 'imageFormat' as const,

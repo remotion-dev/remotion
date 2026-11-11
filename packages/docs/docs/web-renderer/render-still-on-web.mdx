@@ -161,6 +161,16 @@ _default `true`_
 
 <Options id="is-production" />
 
+### `transparent?`<AvailableFrom v="4.0.543" />
+
+_boolean — default `true`_
+
+Whether the final canvas retains an alpha channel.
+Set to `false` for an opaque final canvas, which renders uncovered areas against black.
+Intermediate layers retain alpha so masks, filters and group opacity keep working.
+On Linux Chromium, opaque targets can preserve native LCD text rendering that is unavailable on a transparent canvas.
+This also applies to [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web).
+
 ### `allowHtmlInCanvas?`<AvailableFrom v="4.0.447" />
 
 _boolean — default `false`_
@@ -170,10 +180,6 @@ _boolean — default `false`_
 ## Return value
 
 Returns a promise that resolves to a <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> once the frame has been painted to an internal canvas.
-
-### `internalState`
-
-Internal bookkeeping used by the web renderer (e.g. for tests and diagnostics).
 
 ### `canvas()`
 
@@ -214,6 +220,10 @@ const img = document.createElement('img');
 img.src = objectUrl;
 document.body.appendChild(img);
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

@@ -83,7 +83,7 @@ export const OverlayExample: React.FC = () => {
 
 ### `<TransitionSeries>`
 
-Inherits the [`from`](/docs/sequence#from), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
 
 The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>`, `<TransitionSeries.Transition>`, and `<TransitionSeries.Overlay>` components.  
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
@@ -97,12 +97,14 @@ By default, the wrapper lasts until the end of its parent sequence or compositio
 
 ### `<TransitionSeries.Sequence>`
 
-Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`hidden`](/docs/sequence#hidden), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
 
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
 
 The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
+
+Also accepts an `offset?` prop, which works like [`<Series.Sequence offset>`](/docs/series#offset): a positive value delays the sequence, a negative value starts it earlier. Sequences that come after it are shifted too. Must be an integer. Default: `0`.
 
 As children, put the contents of your scene.
 
@@ -127,10 +129,12 @@ The overlay does [not shorten](#duration-of-a-transitionseries) the timeline —
 The overlay is centered on the cut point by default: half the duration before the cut, half after.  
 Children animate independently — no progress context is provided.
 
-Takes two props:
+Takes the following props:
 
 - `durationInFrames`: How long the overlay is visible. Must be a positive integer.
 - `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+
+Also inherits the [`hidden`](/docs/sequence#hidden), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) props from [`<Sequence>`](/docs/sequence).
 
 The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
 
@@ -227,12 +231,12 @@ const BasicTransition = () => {
 ```
 
 `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.
-During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
+During this time, both scenes are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
 
 <details>
-<summary>Example with 3 slides</summary>
+<summary>Example with 3 scenes</summary>
 
 ```tsx twoslash title="SlideTransition.tsx"
 import {AbsoluteFill} from 'remotion';

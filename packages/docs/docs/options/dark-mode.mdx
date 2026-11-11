@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Dark Mode<AvailableFrom v="4.0.381" />
 
-Whether Chromium should pretend to be in dark mode by emulating the media feature 'prefers-color-scheme: dark'. Default is `false`.
+Whether Chromium should pretend to be in dark mode by emulating the media feature `prefers-color-scheme: dark`. Default is `false`.
 
 ## CLI flag
 
@@ -36,6 +36,7 @@ The following CLI commands accept this option:
 The following APIs accept this option:
 
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#darkmode)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#darkmode)
 - [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#darkmode)
 - [`renderFrames()`](/docs/renderer/render-frames#darkmode)
 - [`renderMedia()`](/docs/renderer/render-media#darkmode)
@@ -43,9 +44,8 @@ The following APIs accept this option:
 
 ## Config file
 
-```tsx twoslash title="remotion.config.ts"
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-
 // ---cut---
 Config.setChromiumDarkMode(true);
 ```

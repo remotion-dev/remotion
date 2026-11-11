@@ -14,7 +14,7 @@ By writing Remotion markup in a specific way, the [Remotion Studio](/docs/studio
 - Making keyframes and easing values editable
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
-Use the [`/remotion-interactivity` skill](/docs/ai/skills#remotion-interactivity) skill to instruct an agent to restructure the markup to make it editable.
+Use the [`/remotion-interactivity` skill](/docs/ai/skills#remotion-interactivity) to instruct an agent to restructure the markup to make it editable.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -30,7 +30,7 @@ This allows styles and keyframes to be set in the Studio. Be sensible, if a comp
 
 ## Give every independently editable item its own node
 
-The Studio performs static analysis and allows editing the properties of nodes..
+The Studio performs static analysis and allows editing the properties of nodes.
 
 For every clip, scene, layer or sequence that should be editable on its own,
 write a separate JSX node and keep its editable props on that node.
@@ -46,14 +46,14 @@ write a separate JSX node and keep its editable props on that node.
 </Series>
 ```
 
-A `.map()` or another programmatic loop would display all nodes together as one item the Studio, allowing all properties to be edited collectively.  
+A `.map()` or another programmatic loop would display all nodes together as one item in the Studio, allowing all properties to be edited collectively.  
 That is appropriate for repeated output that is intentionally controlled as one template, such as visualization bars or
 particles.  
 It is not appropriate when the instances need independent names, timing, ordering, deletion or duplication in the Studio.
 
 ## Give interactive elements a descriptive name
 
-Add a `name` prop to elements to make them easily identifyable.
+Add a `name` prop to elements to make them identifiable.
 
 ```tsx title="Interactive names"
 <>
@@ -70,7 +70,7 @@ Add a `name` prop to elements to make them easily identifyable.
 
 ## Keep all CSS styles inline
 
-The best way is to just pass a plain object to `style` - no referring to constants, no object spreading, no math.
+The best way is to pass a plain object to `style` - no referring to constants, no object spreading, no math.
 
 ```tsx title="Interactive example"
 <Interactive.Div
@@ -132,7 +132,6 @@ const {fps, durationInFrames} = useVideoConfig();
     }),
     translate: interpolate(frame, [durationInFrames - 30, durationInFrames], ['0px 0px', '0px 120px'], {
       easing: Easing.spring({damping: 200}),
-      output: 'perceptual-scale',
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp'
     }),
@@ -171,10 +170,10 @@ Since <AvailableFrom v="4.0.516" inline />, it also [infers basic controls from 
 
 ```tsx
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
-const calculateMetadata = useMemo(async () => {
+const calculateMetadata = async () => {
   const dimensions = await getDimensions(); // just an example
   return {width: dimensions.width, height: dimensions.height};
-});
+};
 
 <Composition
   id="my-video"
@@ -188,10 +187,10 @@ const calculateMetadata = useMemo(async () => {
 
 ```tsx title="Negative examples"
 const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
-const calculateMetadata = useMemo(() => {
+const calculateMetadata = () => {
   // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
-});
+};
 
 <Composition
   id="my-video"

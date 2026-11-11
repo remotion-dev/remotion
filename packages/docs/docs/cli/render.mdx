@@ -90,7 +90,7 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 ### `--codec`<AvailableFrom v="1.4.0" />
 
-[`h264` or `h265` or `av1` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder.
+[`h264` or `h265` or `av1` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv` or `h264-ts` or `gif`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder.
 
 If you are rendering on Linux ARM64 GNU, `av1` is not available.
 
@@ -117,6 +117,10 @@ If you are rendering on Linux ARM64 GNU, `av1` is not available.
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 <Options id="prores-profile" />
+
+### `--prores-bits-per-macroblock`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
 
 ### `--x264-preset`<AvailableFrom v="4.0.22" />
 
@@ -208,7 +212,7 @@ From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabl
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-<Options id="public-path" />
+<Options id="public-dir" />
 
 ### `--timeout`
 
@@ -217,6 +221,18 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
+
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
 

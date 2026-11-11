@@ -47,7 +47,7 @@ An object with the following properties:
 
 ### `entryPoint`
 
-An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology/entry-point).
+An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/index.ts`](/docs/terminology/entry-point).
 
 ### `bucketName`
 
@@ -98,15 +98,11 @@ Passes a custom Rspack override. See [`bundle()` → `rspackOverride`](/docs/bun
 
 <Options id="bundle-cache" />
 
-#### `publicDir?`
-
-_available from v3.2.17_
+#### `publicDir?`<AvailableFrom v="3.2.17" />
 
 <Options id="public-dir" />
 
-#### `rootDir?`
-
-_available from v3.2.17_
+#### `rootDir?`<AvailableFrom v="3.2.17" />
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
@@ -114,9 +110,7 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `ignoreRegisterRootWarning?`
-
-_available from v3.3.55_
+#### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.55" />
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
@@ -132,9 +126,7 @@ Ignore an error that gets thrown if you pass an entry point file which does not 
 
 <Options id="rspack" />
 
-### `privacy?`
-
-_available from v3.3.97_
+### `privacy?`<AvailableFrom v="3.3.97" />
 
 Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
 
@@ -162,7 +154,7 @@ An object with the following values:
 
 - `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
 
-- `stats`: (_available from v3.3.7_) An object with 3 entries: `uploadedFiles`, `deletedFiles` and `untouchedFiles`. Each one is a `number`.
+- `stats`<AvailableFrom v="3.3.7" inline />: An object with 3 entries: `uploadedFiles`, `deletedFiles` and `untouchedFiles`. Each one is a `number`.
 
 ## Changelog
 

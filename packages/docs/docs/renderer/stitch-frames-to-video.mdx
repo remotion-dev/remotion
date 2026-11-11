@@ -29,7 +29,7 @@ A `number` specifying the desired output width in pixels for the video.
 
 A `number` specifying the desired output height in pixels for the video.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object_
 
@@ -95,6 +95,10 @@ The constant rate factor of the output, a parameter which controls quality. See 
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Rendering ProRes - Choosing a ProRes profile](/docs/prores#choosing-a-prores-profile) for possible options.
 
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
 ### `onProgress?`
 
 Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
@@ -150,6 +154,10 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `sampleRate?`<AvailableFrom v="4.0.448" />
+
+<Options id="sample-rate" />
 
 ### `x264Preset?`
 
@@ -207,7 +215,7 @@ An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 
-`stitchFramesToVideo()` returns a promise which resolves to nothing. If everything goes well, the output will be placed in `outputLocation`.
+`stitchFramesToVideo()` returns a promise. If [`outputLocation`](#outputlocation) is set, the output is written there and the promise resolves to `null`. Otherwise, it resolves to a `Buffer` containing the output.
 
 ## Compatibility
 

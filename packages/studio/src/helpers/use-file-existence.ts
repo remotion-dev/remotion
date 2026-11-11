@@ -5,6 +5,7 @@ import {
 	unsubscribeFromFileExistenceWatcher,
 } from '../components/RenderQueue/actions';
 import {StudioServerConnectionCtx} from './client-id';
+import {getRenderOutputSrc} from './get-asset-metadata';
 
 const requestsByClient = new Map<
 	string,
@@ -21,9 +22,22 @@ export const useFileExistence = (outName: string) => {
 		clientId: string | null;
 		exists: boolean;
 		checkFailed: boolean;
-	}>({outName, clientId, exists: false, checkFailed: false});
+		canOpenInFileExplorer: boolean;
+	}>({
+		outName,
+		clientId,
+		exists: false,
+		checkFailed: false,
+		canOpenInFileExplorer: false,
+	});
 	useEffect(() => {
-		setResult({outName, clientId, exists: false, checkFailed: false});
+		setResult({
+			outName,
+			clientId,
+			exists: false,
+			checkFailed: false,
+			canOpenInFileExplorer: false,
+		});
 		if (clientId === null) {
 			return;
 		}
@@ -38,6 +52,7 @@ export const useFileExistence = (outName: string) => {
 		let active = true;
 		let subscribed = false;
 		let receivedFileEvent = false;
+		const controller = new AbortController();
 		const listener = (event: EventSourceEvent) => {
 			if (
 				!active ||
@@ -54,6 +69,7 @@ export const useFileExistence = (outName: string) => {
 				clientId,
 				exists: event.type === 'watched-file-undeleted',
 				checkFailed: false,
+				canOpenInFileExplorer: true,
 			});
 		};
 
@@ -77,17 +93,44 @@ export const useFileExistence = (outName: string) => {
 				});
 				subscribed = true;
 				if (active && !receivedFileEvent) {
-					setResult({outName, clientId, exists, checkFailed: false});
+					setResult({
+						outName,
+						clientId,
+						exists,
+						checkFailed: false,
+						canOpenInFileExplorer: true,
+					});
 				}
 			} catch {
-				if (active) {
-					setResult({outName, clientId, exists: false, checkFailed: true});
+				if (!active) {
+					return;
+				}
+
+				let exists = false;
+				try {
+					const response = await fetch(getRenderOutputSrc(outName), {
+						method: 'HEAD',
+						cache: 'no-store',
+						signal: controller.signal,
+					});
+					exists = response.status === 200;
+				} catch {}
+
+				if (active && !receivedFileEvent) {
+					setResult({
+						outName,
+						clientId,
+						exists,
+						checkFailed: !exists,
+						canOpenInFileExplorer: false,
+					});
 				}
 			}
 		});
 
 		return () => {
 			active = false;
+			controller.abort();
 			requests.activeEffects--;
 			unsubscribeDeleted();
 			unsubscribeCreated();
@@ -111,6 +154,10 @@ export const useFileExistence = (outName: string) => {
 	}, [clientId, outName, subscribeToEvent]);
 
 	return result.outName === outName && result.clientId === clientId
-		? {exists: result.exists, checkFailed: result.checkFailed}
-		: {exists: false, checkFailed: false};
+		? {
+				exists: result.exists,
+				checkFailed: result.checkFailed,
+				canOpenInFileExplorer: result.canOpenInFileExplorer,
+			}
+		: {exists: false, checkFailed: false, canOpenInFileExplorer: false};
 };

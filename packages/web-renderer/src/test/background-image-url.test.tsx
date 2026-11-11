@@ -1,5 +1,5 @@
 import {AbsoluteFill} from 'remotion';
-import {expect, test} from 'vitest';
+import {beforeAll, expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {createPixelatedBackgroundSamplerLifetime} from './fixtures/background-image-pixelated-sampler-lifetime';
@@ -14,10 +14,26 @@ import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {
 	captureNativeReference,
+	warmUpNativeReferences,
 	compareNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 import {testImage} from './utils';
+
+beforeAll(async () => {
+	if (!navigator.userAgent.includes('Chrome')) {
+		return;
+	}
+
+	await warmUpNativeReferences([
+		backgroundImageUrl,
+		backgroundImageContain,
+		backgroundImageSpace,
+		backgroundImageRound,
+		backgroundImagePixelated,
+		backgroundImagePixelatedContexts,
+	]);
+}, 60_000);
 
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))

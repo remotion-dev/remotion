@@ -176,17 +176,21 @@ See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
 
 <Options id="video-bitrate" />
 
-### `bufferSize?`<AvailableFrom v="4.0.78" />
+### `encodingBufferSize?`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
 
-### `maxRate?`<AvailableFrom v="4.0.78" />
+### `encodingMaxRate?`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
 
 ### `proResProfile?`
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
+
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
 
 ### `x264Preset?`
 
@@ -262,6 +266,18 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 #### `gl`
 
 <Options id="gl" />
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `muted?`
 
@@ -342,7 +358,7 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 ### `licenseKey?`<AvailableFrom v="4.0.540"/>
 
-License key for reporting usage on [remotion.pro](https://www.remotion.pro). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
+License key for reporting usage. Get it from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
 
 ### `isProduction?`<AvailableFrom v="4.0.540"/>
 

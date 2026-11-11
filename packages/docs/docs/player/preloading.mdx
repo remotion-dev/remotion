@@ -17,7 +17,7 @@ This article documents 2 other, **not recommended** approaches which were develo
 Don't use this for preloading audio and video: It only works for native HTML5 tags such as `<video>` and `<audio>`, but not for Remotion's own implementations such as `<Video>` and `<Audio>`.
 :::
 
-By preloading, a `<link type='preload'>` tag is placed on the page, signaling to the browser that it may start loading the media.  
+By preloading, a `<link rel='preload'>` tag is placed on the page, signaling to the browser that it may start loading the media.  
 For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio), for images use [`preloadImage()`](/docs/preload/preload-image). Perform the preload outside a component or inside an [`useEffect()`](https://react.dev/reference/react/useEffect).
 
 ```tsx twoslash
@@ -98,7 +98,7 @@ free();
   <tr>
     <td>Mechanism</td>
     <td>
-      Inserts a <code>{"<link type='preload'>"}</code> tag
+      Inserts a <code>{"<link rel='preload'>"}</code> tag
     </td>
     <td>Fetches the asset and turns it into a URL blob or Base 64 URL</td>
   </tr>

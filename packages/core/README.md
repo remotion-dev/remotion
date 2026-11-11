@@ -73,7 +73,7 @@ Remotion is extensively documented over more than 1000 pages.
   - Follow us on [X](https://x.com/remotion), [YouTube](https://youtube.com/@remotion_dev), [Instagram](https://instagram.com/remotion), [LinkedIn](https://linkedin.com/company/remotion)
 - Commercial
   - [License](https://remotion.dev/license)
-  - [Store](https://remotion.pro/store)
+  - [Store](https://www.remotion.dev/store)
   - [About Remotion](https://remotion.dev/about)
   - [Showcase](https://remotion.dev/showcase)
 - Help

@@ -135,9 +135,25 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 <Options id="prores-profile" />
 
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
 ### `chromiumOptions?`
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `scale?`
 
@@ -249,6 +265,10 @@ See [Shared-memory capture](/docs/shared-memory-capture).
 
 <Options id="offthreadvideo-video-threads" />
 
+### `sampleRate?`<AvailableFrom v="4.0.450" />
+
+<Options id="sample-rate" />
+
 ### `licenseKey?`
 
 <Options id="license-key" />
@@ -261,7 +281,7 @@ See [Shared-memory capture](/docs/shared-memory-capture).
 
 _function_ <TsType type="RenderMediaOnVercelProgress" source="@remotion/vercel" href="/docs/vercel/types#rendermediaonvercelprogress" />
 
-A callback that receives progress updates. Every variant includes `overallProgress` (0–1).
+A callback that receives progress updates. Every variant includes `overallProgress` (0–1). Not called when [`detached`](#detached) is `true`.
 
 ```ts twoslash
 import type {RenderMediaOnVercelProgress} from '@remotion/vercel';

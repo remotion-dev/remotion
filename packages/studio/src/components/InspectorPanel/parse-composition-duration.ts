@@ -37,9 +37,8 @@ export const parseCompositionDuration = (
 			return null;
 		}
 
-		const timecodeDuration = Math.round(
-			(hours * 3600 + minutes * 60 + timecodeSeconds) * fps + frames,
-		);
+		const elapsedSeconds = hours * 3600 + minutes * 60 + timecodeSeconds;
+		const timecodeDuration = Math.round(elapsedSeconds * fps) + frames;
 		return Number.isFinite(timecodeDuration) ? timecodeDuration : null;
 	}
 

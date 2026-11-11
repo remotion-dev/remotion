@@ -12,7 +12,7 @@ In Remotion, it is not that easy because the `<div>` element in which the video 
 
 ## Measure using the `useCurrentScale()` hook
 
-From v4.0.111 on, you can use the [`useCurrentScale()`](/docs/use-current-scale) hook to correct the dimensions of the element.
+From <AvailableFrom v="4.0.111" inline /> on, you can use the [`useCurrentScale()`](/docs/use-current-scale) hook to correct the dimensions of the element.
 
 ```tsx twoslash title="MyComponent.tsx"
 import { useCallback, useEffect, useState, useRef } from "react";
@@ -49,7 +49,7 @@ export const MyComponent = () => {
 };
 ```
 
-## Versions prior to v4.0.110
+## Versions prior to v4.0.111
 
 To get an accurate measurement, you can render an additional element with a fixed width (say `10px`) and measure it too. Then, you can divide the width of the element by `10` to get the scale factor.
 
@@ -77,8 +77,8 @@ export const MyComponent = () => {
     const scale = measurerRect.width / MEASURER_SIZE;
 
     setDimensions({
-      correctedHeight: rect.height * scale,
-      correctedWidth: rect.width * scale,
+      correctedHeight: rect.height / scale,
+      correctedWidth: rect.width / scale,
     });
   }, []);
 

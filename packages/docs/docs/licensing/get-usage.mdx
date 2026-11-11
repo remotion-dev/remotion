@@ -7,7 +7,7 @@ crumb: '@remotion/licensing'
 ---
 
 Allows you to get the current usage of your Remotion license.  
-This requires your secret key that you can obtain from the remotion.pro dashboard.
+This requires your secret key, which you can obtain from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard).
 
 You should only call this API from the backend to avoid exposing your secret key to the client.
 
@@ -44,9 +44,9 @@ An object with the following properties:
 
 Type: `string`
 
-Your Remotion license key. You can get it from your Remotion.pro dashboard.
+Your Remotion license key. You can get it from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard).
 
-### `since`
+### `since?`
 
 Type: `number`
 
@@ -62,7 +62,7 @@ Use `licenseKey` instead.
 
 Type: `string`
 
-Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
+Your Remotion secret API key. You can get it from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard).
 
 ## Return value
 

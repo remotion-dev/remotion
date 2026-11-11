@@ -30,6 +30,7 @@ import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
+import {resolveCompositionImportFile} from './resolve-composition-import-file';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {
 	computeSequencePropsStatusFromContent,
@@ -42,6 +43,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
+import {validateKeyframePasteTiming} from './validate-keyframe-paste-timing';
 
 export {
 	CodemodElement,
@@ -171,6 +173,7 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 } from './update-keyframes';
 export type {
 	CodemodEnvironment,
@@ -187,6 +190,7 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	resolveCompositionImportFile,
 	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,
 	getDurationDependentKeyframesFromContent,
@@ -222,6 +226,7 @@ export const CodemodsInternals = {
 	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,
 	updateInlineCaptionPatches,
+	validateKeyframePasteTiming,
 };
 
 export {
