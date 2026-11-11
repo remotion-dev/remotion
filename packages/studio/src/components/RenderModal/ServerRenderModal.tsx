@@ -1509,7 +1509,7 @@ const RenderModal: React.FC<
 							? 'Copied command!'
 							: 'Copy command'
 						: state.type === 'submitting'
-							? 'Rendering...'
+							? 'Adding to queue...'
 							: `Render ${renderMode}`}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
