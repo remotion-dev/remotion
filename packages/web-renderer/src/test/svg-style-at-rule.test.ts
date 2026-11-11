@@ -26,6 +26,63 @@ const cases: readonly [string, string, boolean][] = [
 		false,
 	],
 	['escaped-attribute', String.raw`text[data\]note=@scope]{fill:red}`, false],
+
+	[
+		'url-bracket-close',
+		'text{background:url(data:text/plain,a];@scope)}',
+		false,
+	],
+	[
+		'url-bracket-open',
+		'text{background:url(data:text/plain,a[;@scope)}',
+		false,
+	],
+	['url-brace', 'text{background:url(data:text/plain,a};@scope)}', false],
+	['url-uppercase', 'text{background:URL(data:text/plain,a];@scope)}', false],
+	[
+		'url-escaped-name-bracket',
+		String.raw`text{background:u\72l(data:text/plain,a];@scope)}`,
+		false,
+	],
+	[
+		'url-escaped-leading-name',
+		String.raw`text{background:\75 rl(data:text/plain,a];@scope)}`,
+		false,
+	],
+	[
+		'url-escaped-close-bracket',
+		String.raw`text{background:url(data:text/plain,a\);];@scope)}`,
+		false,
+	],
+	['url-bad-quote', 'text{background:url(data:text/plain,a";];@scope)}', false],
+	[
+		'url-bad-open-paren',
+		'text{background:url(data:text/plain,a(;];@scope)}',
+		false,
+	],
+	[
+		'url-bad-whitespace',
+		'text{background:url(data:text/plain,a ;];@scope)}',
+		false,
+	],
+	['url-custom', 'text{--note:url(data:text/plain,a];@scope)}', false],
+	[
+		'url-in-function',
+		'text{background:image-set(url(data:text/plain,a];@scope) 1x)}',
+		false,
+	],
+	[
+		'scope-after-url',
+		'text{background:url(data:text/plain,a];@import)}@scope(.root){}',
+		true,
+	],
+	['scope-after-bad-url', 'text{background:url(a"x);@scope(.root){}}', true],
+	[
+		'scope-after-custom-url',
+		'text{--note:url(a];@import);@scope(.root){}}',
+		true,
+	],
+	['not-url-suffix', 'text{background:myurl(a);@scope(.root){}}', true],
 	['custom', 'text{--note:@scope}', false],
 	['custom-block', 'text{--note:{@scope (.root){color:red}}}', false],
 	['custom-list', 'text{--note:[@scope;{@import "x"}]}', false],

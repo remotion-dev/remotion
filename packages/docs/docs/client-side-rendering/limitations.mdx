@@ -104,7 +104,7 @@ Titled registered-font stylesheets use the owning document’s media-query resul
 
 SVG-local `:empty` selectors retain their authored matching for uppercase and CSS-escaped pseudo-class spellings during registered-font embedding.
 
-Mentions of `@import` or `@scope` inside comments, strings, URLs or custom-property values do not disable SVG-local selector preservation. Actual import and scope rules remain excluded from selector rewriting.
+Mentions of `@import` or `@scope` inside comments, strings, URLs or custom-property values do not disable SVG-local selector preservation. Actual import and scope rules remain excluded from selector rewriting. Unquoted CSS URL tokens retain their bracket and brace contents during this check, including escaped URL names and URL values in custom properties.
 
 ## Shadows
 
