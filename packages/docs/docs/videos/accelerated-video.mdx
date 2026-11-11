@@ -55,10 +55,10 @@ export const AcceleratedVideo: React.FC = () => {
 ```
 
 :::note
-The [media fragment hints](/docs/videos/media-fragments) are disabled from being appended to the video URL by adding `#disable` to the end of the URL.
+The code [disables the media fragment hints](/docs/videos/media-fragments) that would be appended to the video URL by adding `#disable` to the end of the URL.
 :::
 
-Note that the timeline in the Remotion Studio might move as you play the video because the sequence is repositioned over time. This is okay as long as the frame is calculated in an idempotent way.
+Note that the timeline in the Remotion Studio might move as you play the video because you reposition the sequence over time. This is okay as long as you calculate the frame in an idempotent way.
 
 ## Demo
 

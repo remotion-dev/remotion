@@ -562,20 +562,20 @@ Create a React component that renders an outline when an item isselected or hove
 Clicking on one of these elements will select the underlying item.
 
 **Scaling**: The [`<Player />`](/docs/player/player) has a CSS `scale` transform applied to it.  
-Since the coordinates of the pointer events are consumed, they need to be divided by [`useCurrentScale()`](/docs/use-current-scale) to get the correct position.
+Since you consume the coordinates of the pointer events, you need to divide them by [`useCurrentScale()`](/docs/use-current-scale) to get the correct position.
 
-The thickness of the borders will also be affected by the scale, so they need to be divided by the scale too.
+The thickness of the borders will also be affected by the scale, so you need to divide them by the scale too.
 
-**Pointer event handling**: On any `pointerdown` event, `e.stopPropagation()` is called to prevent the event from bubbling up.  
-Later, any event that bubbles up will be treated as a click on an empty space and deselect the item.
+**Pointer event handling**: On any `pointerdown` event, call `e.stopPropagation()` to prevent the event from bubbling up.  
+Later, you will treat any event that bubbles up as a click on an empty space and deselect the item.
 
-No action is taken if `e.button !== 0`. This prevents a bug where the item moves after a right click.
+Also, don't do anything if `e.button !== 0`. This prevents a bug where the item moves after a right click.
 
-`userSelect: 'none'` disables the native selection and drag behavior of the browser.
+Add `userSelect: 'none'` to disable the native selection and drag behavior of the browser.
 
-`touchAction: 'none'` disables scrolling the page on mobile while dragging.
+Also add `touchAction: 'none'` to disable scrolling the page on mobile while dragging.
 
-The `isDragging` property tracks if the item is being dragged and disables the hover effect while an item is being dragged.
+Keep track of whether the item is being dragged by using the `isDragging` property and disable the hover effect while an item is being dragged.
 
 ### <TitleStep>4</TitleStep> Sorting outlines
 
@@ -584,7 +584,7 @@ The item which gets rendered as last element [will be on top of all other items]
 
 The item that is selected should be rendered on top of all other items because it is the item that is responsive to mouse events.
 
-The selected outlines are rendered last. This ensures that the resize handles are always on top.  
+Render the selected outlines last. This ensures that the resize handles are always on top.  
 This logic only applies to the outlines, not the actual layers.
 
 ```tsx twoslash title="SortedOutlines.tsx"
@@ -619,13 +619,13 @@ Next, create a main component that renders the items and the outlines.
 // @include: Main
 ```
 
-**Z-indexing:** The layers are rendered first and then the outlines. This means the outlines get rendered on top the items.
+**Z-indexing:** Render the layers first and then the outlines. This means the outlines get rendered on top the items.
 
-**Overflow behavior**: Note that a different `overflow` behavior is applied to the layers and the outlines.  
-The overflow of the layers is hidden, but the overflow of the outlines is shown.  
+**Overflow behavior**: Note that you apply a different `overflow` behavior to the layers and the outlines.  
+Hide the overflow of the layers, but show the overflow of the outlines.  
 This is a UI behavior that is similar to Figma frames.
 
-**Click handling**: The canvas also listens to `pointerdown` events.  
+**Click handling**: Also listen to `pointerdown` events on the canvas.  
 Any event that was not stopped using `e.stopPropagation()` before will be treated as a click on an empty space and results in deselecting the item.
 
 ### <TitleStep>6</TitleStep> Rendering the Player
@@ -654,7 +654,7 @@ Omit the [`controls`](/docs/player/player#controls) prop to disable the built-in
 You can add [custom controls outside the Player](/docs/player/custom-controls).
 
 Add the [`overflowVisible`](/docs/player/player#overflowvisible) prop to make the outlines visible if they go outside the canvas.  
-Remember that the overflow of the layers is hidden because it would also not be visible in the final video.
+Remember that you've hidden the overflow of the layers itself because it would also not be visible in the final video.
 
 You've now implemented thoughtful drag and drop interactions!
 

@@ -12,7 +12,7 @@ State in the [Editor Starter](/docs/editor-starter) is managed with the built-in
   <summary>Why?</summary>
   <p>The Editor Starter was built in a way that as many different teams can adopt it as easily as possible.</p>
 
-<p>The Editor Starter uses React's native state management to keep the starter kit lightweight, minimize external dependencies, and use familiar patterns for developers already comfortable with React.</p>
+<p>We chose to use React's native state management to keep the starter kit lightweight, minimize external dependencies, and leverage familiar patterns for developers already comfortable with React.</p>
 
   <p>While the default React state management utilities are controversial for some, any React application can make use of them and developers are most familiar with them.</p>
 </details>
@@ -104,7 +104,7 @@ In [`src/editor/context-provider.tsx`](https://github.com/remotion-dev/editor-st
 
 This is intentional and achieves that when updating a portion of the state, only the components that are dependent on that portion of the state will re-render, while the rest of the components will not.
 
-For the best performance, continue to use this pattern in your own application.
+For the best performance, we recommend that you continue to use this pattern in your own application.
 
 ## Preventing state updates when nothing has changed
 

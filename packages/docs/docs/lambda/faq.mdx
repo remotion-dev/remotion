@@ -45,7 +45,7 @@ You don't need to worry about the timeout of a Lambda function because Remotion 
 
 ### Why are you not using Amazon EFS?
 
-Amazon Elastic File System (EFS) was evaluated and the speed benefits of EFS are not substantial enough to warrant the increased complexity - for EFS to be integrated, VPC and security groups need to be created which will disable public internet access. To restore public internet access, a persistent EC2 instance needs to be created for proxying the traffic, negating many benefits of Lambda.
+We have evaluated Amazon Elastic File System (EFS) and we found the speed benefits of EFS are not substantial enough to warrant the increased complexity - for EFS to be integrated, VPC and security groups need to be created which will disable public internet access. To restore public internet access, a persistent EC2 instance needs to be created for proxying the traffic, negating many benefits of Lambda.
 
 ### How much does Remotion Lambda cost?
 
@@ -73,7 +73,7 @@ If you are using the Node.JS APIs, the following APIs are useful: [`getFunctions
 
 The code that is run inside the Lambda is an executor binary that is provided by Remotion. You cannot write code to run inside the function that Remotion deploys for you, but you can make use of many configuration options and call a Remotion Lambda function from another Lambda function using APIs like [renderMediaOnLambda](/docs/lambda/rendermediaonlambda).
 
-The source code of what is run inside a Remotion Lambda function [can be found here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts) and forked if necessary. Reach out to the Remotion team first and check if a fork is really necessary.
+The source code of what is run inside a Remotion Lambda function [can be found here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/functions/index.ts) and forked if necessary. We recommend to reach out to the Remotion team first and check if a fork is really necessary.
 
 ### Can I make a site private?
 

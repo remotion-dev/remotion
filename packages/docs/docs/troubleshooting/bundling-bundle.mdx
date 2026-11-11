@@ -28,7 +28,7 @@ This occurs for example if [`bundle()`](/docs/bundle) or [`deploySite()`](/docs/
 
 To bundle the `bundle()` function, Webpack needs specific configuration, which is missing.
 
-However, calling `bundle()` at runtime is not recommended at all.
+However, we don't recommend that you call `bundle()` at runtime at all.
 
 ## What you actually want
 
@@ -40,7 +40,7 @@ See how to parametrize the [content with input props](/docs/passing-props) as we
 
 ## Recipes
 
-**If you are using a long-running server:** call `bundle()` once in a Node.js context and then reuse it for the lifetime of the server. See: [Rendering in Node.js](/docs/ssr-node)
+**If you are using a long-running server:** we recommend to call `bundle()` once in a Node.js context and then reusing it for the lifetime of the server. See: [Rendering in Node.js](/docs/ssr-node)
 
 **If you are rendering on Lambda**: Create a bundle during the build step and upload it later using [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle). You may also bundle and upload together using [`npx remotion lambda sites create`](/docs/lambda/cli/sites/create). Refer to the deployed bundle using the URL returned by the deployment.
 

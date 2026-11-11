@@ -6,7 +6,7 @@ title: Dockerizing a Remotion app
 crumb: 'Building video apps'
 ---
 
-Use the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
+We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
 FROM node:22-bookworm-slim
@@ -54,7 +54,7 @@ CMD ["node", "render.mjs"]
 ## Line-by-line
 
 <p>
-  <Step>1</Step> Specify the base image for the Dockerfile. In this case, Debian is used.
+  <Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian.
 </p>
 
 ```docker
@@ -174,7 +174,7 @@ console.log(`Rendered composition ${composition.id}.`);
 ```
 
 :::note
-Set the `enableMultiProcessOnLinux` option for this Docker image, available from v4.0.42. [Read more](/docs/miscellaneous/linux-single-process)
+We recommend setting the `enableMultiProcessOnLinux` option for this Docker image, available from v4.0.42. [Read more](/docs/miscellaneous/linux-single-process)
 :::
 
 ## Building the Docker image
@@ -217,7 +217,7 @@ RUN apt-get install fonts-noto-cjk
 
 ## Why are the packages not pinned?
 
-In Debian (and also Alpine), old packages are removed from the repositories once new versions are released. This means that pinning the versions will actually cause the Dockerfiles to break in the future. Debian is chosen as the distribution because the packages get well tested before they get released into the repository.
+In Debian (and also Alpine), old packages are removed from the repositories once new versions are released. This means that pinning the versions will actually cause the Dockerfiles to break in the future. We choose Debian as the distribution because the packages get well tested before they get released into the repository.
 
 ## Notes for older versions
 

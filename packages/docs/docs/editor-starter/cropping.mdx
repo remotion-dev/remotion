@@ -31,11 +31,11 @@ Out of the [default item types](/docs/editor-starter/tracks-items-assets#items),
 
 The `cropLeft`, `cropRight`, `cropTop` and `cropBottom` fields are ratios, whereas `0` means no crop and `1` means cropping the entire axis.
 
-Using ratios instead of pixels ensures that no precision is lost when combining resizing and cropping.
+By using ratios instead of pixels, we can ensure that we don't lose precision when combining resizing and cropping.
 
-Throughout the code, it is ensured that at least 1 pixel remains in the cropped item for each axis.
+Throughout the code, we ensure that at least 1 pixel remains in the cropped item for each axis.
 
-The 2 crop values of each axis are also kept less than 1.  
+We also ensure that the 2 crop values of each axis are less than 1.  
 For example, it should not be possible to have `cropLeft` set to `0.5` and `cropRight` set to `0.5`, because nothing would remain.
 
 ## Ways of cropping
@@ -61,6 +61,6 @@ Feature flag: [`FEATURE_CROP_BACKGROUNDS`](https://github.com/search?q=repo%3Are
 
 In Crop Mode, the user can also reposition the item on the canvas, affecting the cutout area and therefore the crop values.
 
-It is more intuitive to also allow for negative crops while dragging the item, which is why the Editor Starter does so. This is aligned with Figma's behavior.
+It is more intuitive to also allow for negative crops while dragging the item, which is why we do so. This is aligned with Figma's behavior.
 
 Once the user exits crop mode by clicking anywhere outside of the item, the crop values are clamped to be non-negative.

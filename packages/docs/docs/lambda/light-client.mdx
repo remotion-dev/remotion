@@ -49,7 +49,7 @@ These functions don't have any dependencies on the renderer and can be bundled f
 
 Importing the light client on edge frameworks (Vercel Edge, Cloudflare Workers) is currently not supported.
 
-**Don't call these functions from the browser directly, as you will leak your AWS credentials.**
+**We don't recommend calling these functions from the browser directly, as you will leak your AWS credentials.**
 
 Instead, this light client is meant to reduce the bundle size and avoid problems if you are calling Remotion Lambda APIs from another Lambda function and therefore need to bundle your function code.
 

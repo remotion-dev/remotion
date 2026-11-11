@@ -37,7 +37,7 @@ You can also [enable verbose logging](/docs/troubleshooting/debug-failed-render)
 
 ## Chunk the video
 
-Currently, `<OffthreadVideo>` needs to download the entire video to extract a frame (Remotion is working on eliminating this need in the future).
+Currently, `<OffthreadVideo>` needs to download the entire video in order to extract a frame (we work on eliminating this need in the future).
 
 If you are loading a large video, consider chunking it into smaller parts and only load part of the video at a time.
 

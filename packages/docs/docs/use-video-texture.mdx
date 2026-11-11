@@ -8,7 +8,7 @@ crumb: '@remotion/three'
 # ~~useVideoTexture()~~
 
 :::info Deprecated
-Use [`@remotion/media`](/docs/videos/as-threejs-texture) instead.
+We recommend using [`@remotion/media`](/docs/videos/as-threejs-texture) instead.
 :::
 
 Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()`.
@@ -40,7 +40,7 @@ import {useVideoTexture} from '@remotion/three';
 const texture = useVideoTexture(videoRef);
 ```
 
-The return type of it is a `THREE.VideoTexture | null` which you can assign as a `map` to for example `meshBasicMaterial`. Only render the material when the texture is not `null` to prevent bugs.
+The return type of it is a `THREE.VideoTexture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
 
 ```tsx twoslash
 import React from 'react';

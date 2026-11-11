@@ -1153,7 +1153,7 @@ The [`--audio-latency-hint`](/docs/options/audio-latency-hint) flag takes preced
 ## `setExperimentalKeepAudioContextAlive()`<AvailableFrom v="4.0.508" />
 
 <ExperimentalBadge>
-  <p>This prop is currently being tested. The functionality might be removed or the prop might be renamed to a stable name.</p>
+  <p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
 </ExperimentalBadge>
 
 <Options id="experimental-keep-audio-context-alive" />
@@ -1360,14 +1360,14 @@ The function you pass must accept an object as it's only parameter which contain
 Your function must return a modified array of strings.
 
 :::warning
-Using this feature is discouraged. Before using it, be aware of some caveats:
+Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
 
 - The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
 - Depending on the selected codec and [`setDisallowParallelEncoding()`](#setdisallowparallelencoding), Remotion may or may not use "parallel encoding" which will result in multiple FFmpeg commands being executed. Your function must be able to handle being called multiple times.
 - The FFmpeg binary provided by Remotion supports only a small subset of FFmpeg commands, therefore not every passed option will be applied.
 - This feature is not available when using Remotion Lambda.
 
-Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask if the feature you need can be implemented in a clean way - new features are often implemented quickly based on users feedback.
+Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
 ## `setPublicLicenseKey()`<AvailableFrom v="4.0.398" />

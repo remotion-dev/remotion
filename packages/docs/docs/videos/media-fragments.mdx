@@ -37,7 +37,7 @@ This instructs browsers to only load the section of 00:02 to 00:04 of the video.
 
 It improves playback performance and reduces bandwidth usage.
 
-On Safari, these hints have higher importance. Without these hints, Safari videos behave badly on mobile.
+On Safari, these hints have higher importance. We find that without these hints, Safari videos behave badly on mobile.
 
 ## How to disable media fragment hints
 
@@ -62,7 +62,7 @@ export const MyComp: React.FC = () => {
 If your `<Sequence>`'s change value over time, the media fragments will change too.  
 Anytime they change, the browser considers this a new source and re-loads the video.
 
-There are valid scenarios where disabling the media fragment hints is recommended:
+There are valid scenarios where we recommend disabling the media fragment hints:
 
 - Changing the `from` and `durationInFrames` values of a `<Sequence>` dynamically
 - Changing the `trimBefore` and `trimAfter` values of a `<Html5Video>` or `<OffthreadVideo>` dynamically

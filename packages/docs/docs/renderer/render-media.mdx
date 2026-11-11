@@ -471,13 +471,13 @@ The function you pass must accept an object as it's only parameter which contain
 Your function must return a modified array of strings.
 
 :::warning
-Using this feature is discouraged. Before using it, be aware of some caveats:
+Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
 
 - The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
 - Depending on the selected codec and [`disallowParallelEncoding`](#disallowparallelencoding), Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
 - This feature is not available when using Remotion Lambda.
 
-Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask if the team is open to implementing the feature you need in a clean way - new features are often implemented quickly based on user feedback.
+Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
 ### `disableSharedMemoryCapture?`<AvailableFrom v="4.0.534" />

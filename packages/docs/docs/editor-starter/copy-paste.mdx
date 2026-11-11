@@ -18,7 +18,7 @@ When reading the browser's [Clipboard API](https://developer.mozilla.org/en-US/d
 
 None of these are the ideal MIME types for copying items.
 
-The Editor Starter therefore uses a workaround that is used by [Figma](https://figma.com/) and [tldraw](https://tldraw.com/): The items are serialized, put into a `<div>` and then copied to the clipboard with the MIME type `text/html`. This prevents overwriting the `text/plain` slot.
+We are therefore using a workaround that is used by [Figma](https://figma.com/) and [tldraw](https://tldraw.com/): The items are serialized, put into a `<div>` and then copied to the clipboard with the MIME type `text/html`. This prevents overwriting the `text/plain` slot.
 
 ## Ways of copy-pasting
 

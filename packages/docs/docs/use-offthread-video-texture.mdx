@@ -8,7 +8,7 @@ sidebar_label: useOffthreadVideoTexture()
 # ~~useOffthreadVideoTexture()~~<AvailableFrom v="4.0.83"/>
 
 :::info Deprecated
-Use [`@remotion/media`](/docs/videos/as-threejs-texture) instead.
+We recommend using [`@remotion/media`](/docs/videos/as-threejs-texture) instead.
 :::
 
 Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()`, similar to [`useVideoTexture()`](/docs/use-video-texture), but uses [`<OffthreadVideo>`](/docs/offthreadvideo) instead.
@@ -18,7 +18,7 @@ This hook only works during rendering. In the Player and the Remotion Studio, us
 This hook was designed to combat limitations of the default `<Html5Video>` element that is used with `useVideoTexture()` hook.
 See: [Comparison of video tags](/docs/video-tags)
 
-The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. Only render the material when the texture is not `null` to prevent bugs.
+The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
 
 ## Example
 

@@ -13,7 +13,7 @@ You can authenticate with the `@remotion/lambda` package either using:
 
 Environment variables sitting in a `.env` file are automatically picked up if you use the Remotion CLI, but not if you use the Node.JS APIs. If multiple ways are provided, Remotion will use the order above and use the first credentials found.
 
-Use the environment variable variants prefixed with `REMOTION_` because:
+We recommend using the environment variable variants prefixed with `REMOTION_` because:
 
 - On some environments, the unprefixed variants may be reserved (e.g. Vercel deployments)
 - Confusing conflicts between Remotion and the AWS CLI may be caused if you use the unprefixed versions.
@@ -78,7 +78,7 @@ aws_access_key_id = YOUR_ACCESS_KEY_ID
 aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
 ```
 
-In this example, a `remotion` profile was added. Now, by setting `REMOTION_AWS_PROFILE=remotion`, you can select the profile and don't need to pass each environment variable separately anymore.
+In this example, you added a `remotion` profile. Now, by setting `REMOTION_AWS_PROFILE=remotion`, you can select the profile and don't need to pass each environment variable separately anymore.
 
 ## Skipping the credentials check<AvailableFrom v="4.0.160"/>
 

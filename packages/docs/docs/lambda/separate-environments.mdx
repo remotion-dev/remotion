@@ -27,7 +27,7 @@ You don't incur any costs for functions that are deployed but not used.
 
 ## Sites
 
-Scope the site to a specific environment using [`--site-name`](/docs/lambda/cli/sites/create#--site-name) when creating a site. For example, use `--site-name=remotion-production` and `--site-name=remotion-staging`.
+We recommend to scope the site to a specific environment using [`--site-name`](/docs/lambda/cli/sites/create#--site-name) when creating a site. For example, use `--site-name=remotion-production` and `--site-name=remotion-staging`.
 
 A site contains your React / Remotion code and might change frequently.  
 Make sure to update your site whenever you make changes to your code or upgrade Remotion, and to not use the site for other environments if they differ.
@@ -73,7 +73,7 @@ Function invocations don't conflict each other.
 Functions also don't contain any code that you write, they are binary and every Remotion Lambda user runs the exact same code.
 
 It is impossible for a bad staging deployment to affect the production function.  
-Therefore, use the same function for all environments.
+Therefore, we recommend to use the same function for all environments.
 
 ### I want to have different configurations for different functions
 

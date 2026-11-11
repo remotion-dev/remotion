@@ -45,6 +45,6 @@ It is currently **not supported** to derive the duration of a composition be fro
 - **Remotion is only aware of the current frame:**  
   Remotion does not see the component statically like developers do, instead it only renders it at a certain point in time. To reliably determine when a component stops rendering markup, Remotion would have to loop through all frames until the markup stops which could be an expensive operation.
 
-In summary, the dynamicity of React does not allow for a simple solution of deriving the duration reliably. If a heuristic is used to determine the duration and it gets it wrong, it would lead to hard to debug cases.
+In summary, the dynamicity of React does not allow for a simple solution of deriving the duration reliably. We foresee that if a heuristic is used to determine the duration and it gets it wrong, it will lead to hard to debug cases.
 
-Calculate the duration using the [dynamic duration method](/docs/dynamic-metadata) described here.
+We suggest to calculate the duration using the [dynamic duration method](/docs/dynamic-metadata) described here.

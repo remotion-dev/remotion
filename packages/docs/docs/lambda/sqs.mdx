@@ -10,7 +10,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 :::note
-This process has a flaw: The queue continues as soon as the render is triggered, not as soon as the render has finished. This means the renders do not all execute serially. An improved Lambda queueing strategy is being worked on, in the meanwhile be aware of this behavior.
+This process has a flaw: The queue continues as soon as the render is triggered, not as soon as the render has finished. This means the renders do not all execute serially. We are working on an improved version of a Lambda queueing strategy, in the meanwhile be aware of this behavior.
 :::
 
 This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) (Simple Queue Service) and Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) API.
