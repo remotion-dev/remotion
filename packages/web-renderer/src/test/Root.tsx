@@ -206,6 +206,7 @@ import {
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgExternalFontSelection,
+	svgExternalStyleSelectors,
 	svgUnconditionalMediaFixture,
 } from './fixtures/svg-external-font-selection';
 import {
@@ -340,6 +341,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			{[false, true].flatMap((registered) =>
 				svgCssEmptyCarrierModes
 					.filter((mode) =>

@@ -182,3 +182,70 @@ export const svgUnconditionalMediaFixture = ({
 		durationInFrames: 2,
 	} as const;
 };
+
+export const svgExternalStyleSelectors = ({literal}: {literal: boolean}) => {
+	const Fixture = () => {
+		const frame = useCurrentFrame();
+		const plain = '#1373ab';
+		const styled = '#9a315d';
+		const sibling = '#167547';
+		return (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<style>{`.external-font-with-local-paint {font-family:"External SVG, class font";font-size:${34 + frame * 2}px}`}</style>
+				<svg width={340} height={140}>
+					{literal ? null : (
+						<style>{`
+							@namespace svg url("http://www.w3.org/2000/svg");
+							svg|text:not([st\\79 le]) {fill:${plain}}
+							text[data-remotion-authored-style] {fill:red}
+							@media all {
+								text[style*="letter-spacing"] {fill:${styled}}
+								text[style*="font-family"] {fill:red}
+							}
+							text[style] + rect {fill:${sibling}}
+							text[data-label="[style]"] {stroke:#000;stroke-width:1}
+						`}</style>
+					)}
+					<text
+						x={12}
+						y={44}
+						className="external-font-with-local-paint"
+						fill={literal ? plain : undefined}
+						data-label="[style]"
+						stroke={literal ? '#000' : undefined}
+						strokeWidth={literal ? 1 : undefined}
+					>
+						Unstyled font
+					</text>
+					<text
+						x={12}
+						y={98}
+						className="external-font-with-local-paint"
+						style={{letterSpacing: 1}}
+						fill={literal ? styled : undefined}
+					>
+						Styled font
+					</text>
+					<rect
+						x={8}
+						y={112}
+						width={24}
+						height={16}
+						fill={literal ? sibling : undefined}
+					/>
+				</svg>
+			</AbsoluteFill>
+		);
+	};
+
+	return {
+		component: Fixture,
+		id: literal
+			? 'svg-external-style-selectors-literal'
+			: 'svg-external-style-selectors',
+		width: 340,
+		height: 140,
+		fps: 30,
+		durationInFrames: 2,
+	} as const;
+};

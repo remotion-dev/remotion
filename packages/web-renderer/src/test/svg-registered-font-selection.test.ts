@@ -12,6 +12,7 @@ import {
 	svgExternalFontReady,
 	SvgExternalFontSelection,
 	svgExternalFontSelection,
+	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
 import {
 	SvgFontFamilyLifetimeScene,
@@ -423,3 +424,40 @@ test('non-CSS style elements retain native and exported font selection', async (
 
 	expect(comparison.mismatchedPixels).toBe(0);
 });
+
+test.for([0, 1])(
+	'preserves authored SVG style selectors at frame %i',
+	async (frame, t) => {
+		await svgExternalFontReady;
+		const composition = svgExternalStyleSelectors({literal: false});
+		const control = svgExternalStyleSelectors({literal: true});
+		const options = {
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		} as const;
+		const reference = await captureNativeReference(composition, frame, {
+			omitBackground: false,
+		});
+		const nativeControl = await captureNativeReference(control, frame, {
+			omitBackground: false,
+		});
+		expect(
+			(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
+		).toBe(0);
+		const actual = await (
+			await renderStillOnWeb({...options, composition, frame})
+		).blob({format: 'png'});
+		const expected = await (
+			await renderStillOnWeb({...options, composition: control, frame})
+		).blob({format: 'png'});
+		expect((await compareNativePixels(expected, actual)).mismatchedPixels).toBe(
+			0,
+		);
+		if (t.task.file.projectName === 'chromium') {
+			expect(
+				(await compareNativePixels(reference, actual)).mismatchedPixels,
+			).toBe(0);
+		}
+	},
+);
