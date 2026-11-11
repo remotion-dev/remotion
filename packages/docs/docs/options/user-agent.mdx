@@ -41,6 +41,14 @@ The following APIs accept this option:
 - [`renderMedia()`](/docs/renderer/render-media#useragent)
 - [`renderStill()`](/docs/renderer/render-still#useragent)
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumUserAgent('Mozilla/5.0 (Remotion)');
+```
+
 ## See also
 
 - [All options](/docs/options)
