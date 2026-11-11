@@ -200,6 +200,7 @@ import {
 	svgExternalCarrierModes,
 	svgExternalEmptyCarrier,
 	svgExternalFontSelection,
+	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
 import {
 	svgFilterReference,
@@ -329,6 +330,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			{svgExternalCarrierModes.flatMap((mode) =>
 				[false, true].map((literal) => {
 					const fixture = svgExternalEmptyCarrier({mode, literal});
