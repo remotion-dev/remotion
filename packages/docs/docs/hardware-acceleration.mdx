@@ -94,7 +94,7 @@ The presence of these encoders in FFmpeg does not guarantee hardware acceleratio
 
 Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the configured FFmpeg build supports it.
 
-Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs fall back to software encoding, except ProRes with `"required"`, which throws an error on Linux and Windows.
+Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs fall back to software encoding, with these exceptions when hardware acceleration is `"required"`: `h264-mkv` and `h264-ts` throw an error on every platform, and ProRes throws an error on Linux and Windows.
 
 ## Controlling quality using `--video-bitrate`
 
