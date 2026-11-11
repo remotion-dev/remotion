@@ -21,6 +21,13 @@ const serializeSvg = (svg: SVGSVGElement) =>
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
+const isLayerBlockRule = (
+	rule: CSSRule,
+	ownerWindow: Window & typeof globalThis,
+) =>
+	typeof ownerWindow.CSSLayerBlockRule === 'function' &&
+	rule instanceof ownerWindow.CSSLayerBlockRule;
+
 const getSvgTextElements = (svg: SVGSVGElement) =>
 	Array.from(
 		svg.querySelectorAll<SVGTextContentElement>('text, tspan, textPath'),
@@ -80,11 +87,13 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView ?? window;
 	const containsSelectedFace = (cssRules: CSSRuleList): boolean =>
-		Array.from(cssRules).some((rule) =>
-			rule instanceof ownerWindow.CSSFontFaceRule
-				? fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0])
-				: 'cssRules' in rule &&
-					containsSelectedFace(rule.cssRules as CSSRuleList),
+		Array.from(cssRules).some(
+			(rule) =>
+				!isLayerBlockRule(rule, ownerWindow) &&
+				(rule instanceof ownerWindow.CSSFontFaceRule
+					? fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0])
+					: 'cssRules' in rule &&
+						containsSelectedFace(rule.cssRules as CSSRuleList)),
 		);
 	const retainFontGroup = (rule: CSSRule) => {
 		if (typeof ownerWindow.CSSStyleSheet.prototype.replaceSync !== 'function')
@@ -94,6 +103,11 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		const prune = (parent: CSSStyleSheet | CSSGroupingRule) => {
 			for (let index = parent.cssRules.length - 1; index >= 0; index--) {
 				const child = parent.cssRules[index];
+				if (isLayerBlockRule(child, ownerWindow)) {
+					parent.deleteRule(index);
+					continue;
+				}
+
 				if (child instanceof ownerWindow.CSSFontFaceRule) {
 					if (!fontFamilies.has(parseFontFamilies(child.style.fontFamily)[0]))
 						parent.deleteRule(index);
@@ -137,6 +151,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 					sheet.ownerNode !== null &&
 					svg.contains(sheet.ownerNode) &&
 					'cssRules' in rule &&
+					!isLayerBlockRule(rule, ownerWindow) &&
 					containsSelectedFace(rule.cssRules as CSSRuleList)
 				) {
 					const css = retainFontGroup(rule);
@@ -280,18 +295,72 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
+	const ownerWindow = svg.ownerDocument.defaultView ?? window;
+	const localSheets = Array.from(svg.querySelectorAll('style')).flatMap(
+		(style, index) => {
+			if (!style.sheet || style.sheet.disabled) return [];
+			try {
+				return [
+					{
+						index,
+						cssRules: style.sheet.cssRules,
+						empty: style.matches(':empty'),
+					},
+				];
+			} catch (error) {
+				if (
+					error instanceof ownerWindow.DOMException &&
+					error.name === 'SecurityError'
+				)
+					return [];
+				throw error;
+			}
+		},
+	);
+	const containsLayerFont = (rules: CSSRuleList, layered: boolean): boolean =>
+		Array.from(rules).some((rule) =>
+			rule instanceof ownerWindow.CSSFontFaceRule
+				? layered &&
+					fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0])
+				: 'cssRules' in rule &&
+					containsLayerFont(
+						rule.cssRules as CSSRuleList,
+						layered || isLayerBlockRule(rule, ownerWindow),
+					),
+		);
+	// Anonymous layers get a new identity when replayed. Keep the complete local
+	// stylesheet snapshots in their original positions instead, including CSSOM edits.
+	const localStyles = localSheets.some((sheet) =>
+		containsLayerFont(sheet.cssRules, false),
+	)
+		? localSheets.map((sheet) => ({
+				index: sheet.index,
+				css:
+					Array.from(sheet.cssRules, (rule) => rule.cssText).join('') ||
+					(sheet.empty ? '' : '/* Empty stylesheet rules. */'),
+			}))
+		: [];
+
 	const authoredStyles =
-		textStyles.some((style) => style !== null) &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes('['),
-		)
+		(textStyles.some((style) => style !== null) || localStyles.length > 0) &&
+		(localStyles.some((style) => style.css.includes('[')) ||
+			Array.from(svg.querySelectorAll('style')).some((style) =>
+				style.textContent?.includes('['),
+			))
 			? [svg, ...svg.querySelectorAll('*')].map((element) =>
 					element.getAttribute('style'),
 				)
 			: null;
+	const authoredEmpty = localStyles.length
+		? [svg, ...svg.querySelectorAll('*')].map((element) =>
+				element.matches(':empty'),
+			)
+		: null;
 	return {
 		textStyles,
 		authoredStyles,
+		authoredEmpty,
+		localStyles,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
 	};
@@ -302,8 +371,14 @@ export const turnSvgIntoDrawable = (
 	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
 ) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
-		fontSnapshot ?? getSvgFontSnapshot(svg);
+	const {
+		textStyles,
+		authoredStyles,
+		authoredEmpty,
+		localStyles,
+		cssFontRules,
+		embeddedFontStyle,
+	} = fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -396,8 +471,15 @@ export const turnSvgIntoDrawable = (
 		});
 	});
 
-	if (authoredStyles)
-		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+	const localStyleElements = svgForSerialization.querySelectorAll('style');
+	for (const local of localStyles)
+		localStyleElements[local.index].textContent = local.css;
+	if (authoredStyles || authoredEmpty)
+		preserveSvgStyleSelectors({
+			svg: svgForSerialization,
+			authoredStyles,
+			authoredEmpty,
+		});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 

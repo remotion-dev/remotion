@@ -241,6 +241,10 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {
+	svgLayerFontIdentity,
+	svgLayerFontModes,
+} from './fixtures/svg-layer-font-identity';
 import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
@@ -370,6 +374,12 @@ export const Root: React.FC = () => {
 				/>
 			))}
 			<Composition {...svgFontBeforeMutation({literal: false})} />
+			{svgLayerFontModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgLayerFontIdentity({mode, literal: false})}
+				/>
+			))}
 			{svgDefinitionModes.map((mode) => (
 				<Composition
 					key={mode}
