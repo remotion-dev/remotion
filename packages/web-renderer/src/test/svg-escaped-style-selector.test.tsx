@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest';
+import {server} from 'vitest/browser';
 import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {
@@ -39,6 +40,23 @@ test.for(
 			})
 		).blob({format: 'png'});
 		const result = await compareNativePixels(reference, actual);
+		if (mode === 'wildcard') {
+			for (const [name, blob] of [
+				['native', reference],
+				['actual', actual],
+				['diff', result.diff],
+			] as const) {
+				let binary = '';
+				for (const byte of new Uint8Array(await blob.arrayBuffer()))
+					binary += String.fromCharCode(byte);
+				await server.commands.writeFile(
+					`validation/svg-wildcard-selector/${server.browser}/${frame}-${name}.png`,
+					btoa(binary),
+					'base64',
+				);
+			}
+		}
+
 		if (result.mismatchedPixels) {
 			await savePixelEvidence(
 				reference,

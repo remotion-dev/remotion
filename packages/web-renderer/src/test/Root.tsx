@@ -248,6 +248,7 @@ import {
 } from './fixtures/svg-local-font-order';
 import {svgNoUseChart} from './fixtures/svg-no-use-chart';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgRepeatedUse} from './fixtures/svg-repeated-use';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {
 	svgTitledFontMediaCache,
@@ -611,6 +612,7 @@ export const Root: React.FC = () => {
 					))}
 			</Folder>
 			<Composition {...svgNoUseChart} />
+			<Composition {...svgRepeatedUse} />
 			{svgEmptyPredicates.map((predicate, index) => (
 				<Composition
 					key={predicate}

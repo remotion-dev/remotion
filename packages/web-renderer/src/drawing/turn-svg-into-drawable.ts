@@ -254,19 +254,36 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 
 	// Inline/presentation font selection on an instance is inherited by its
 	// referenced text, while the source definition keeps its own computed style.
+	// Cache reachability per incoming text context for this snapshot only.
+	// A negative search proves every visited state cannot reach rendered text;
+	// a positive search only proves the queried root and the matching state.
+	const renderedTextByContext = [
+		new WeakMap<Element, boolean>(),
+		new WeakMap<Element, boolean>(),
+	] as const;
 	const hasRenderedText = (root: Element) => {
+		const cachedRoot = renderedTextByContext[0].get(root);
+		if (cachedRoot !== undefined) return cachedRoot;
 		const pending: {element: Element; withinText: boolean}[] = [
 			{element: root, withinText: false},
 		];
-		const seen = new Set<Element>();
+		const seen = [new Set<Element>(), new Set<Element>()] as const;
 		for (const {element, withinText} of pending) {
+			const context = withinText ? 1 : 0;
+			const cached = renderedTextByContext[context].get(element);
+			if (cached === true) {
+				renderedTextByContext[0].set(root, true);
+				return true;
+			}
+
 			if (
-				seen.has(element) ||
+				cached === false ||
+				seen[context].has(element) ||
 				element.namespaceURI !== 'http://www.w3.org/2000/svg' ||
 				styleFor(element).display === 'none'
 			)
 				continue;
-			seen.add(element);
+			seen[context].add(element);
 			const text = withinText || element.matches('text, tspan, textPath');
 			if (
 				text &&
@@ -275,8 +292,12 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 						node.nodeType === Node.TEXT_NODE &&
 						Boolean(node.textContent?.length),
 				)
-			)
+			) {
+				renderedTextByContext[context].set(element, true);
+				renderedTextByContext[0].set(root, true);
 				return true;
+			}
+
 			if (element.localName === 'use') {
 				const use = element as SVGUseElement;
 				const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
@@ -289,6 +310,12 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 					pending.push({element: child, withinText: text});
 		}
 
+		for (const context of [0, 1] as const) {
+			for (const element of seen[context])
+				renderedTextByContext[context].set(element, false);
+		}
+
+		renderedTextByContext[0].set(root, false);
 		return false;
 	};
 

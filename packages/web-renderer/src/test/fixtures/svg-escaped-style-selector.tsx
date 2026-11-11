@@ -1,6 +1,11 @@
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 
-export const escapedStyleSelectorModes = ['hex', 'simple', 'suffix'] as const;
+export const escapedStyleSelectorModes = [
+	'hex',
+	'simple',
+	'suffix',
+	'wildcard',
+] as const;
 
 export const svgEscapedStyleSelector = ({
 	mode,
@@ -19,13 +24,20 @@ export const svgEscapedStyleSelector = ({
 			<AbsoluteFill style={{backgroundColor: 'white'}}>
 				<svg width={100} height={60}>
 					{literal ? null : (
-						<style>{`
+						<style>
+							{mode === 'wildcard'
+								? 'text:not([*|style]) + rect {fill:blue}'
+								: `
       text[style] + rect {fill:blue}
       ${mode === 'suffix' ? 'text[data-remotion-authored-style] + rect {fill:red}' : ''}
       text[${attribute}] + rect {fill:red}
-     `}</style>
+     `}
+						</style>
 					)}
-					<text style={{letterSpacing: 1}} fontSize={0}>
+					<text
+						style={mode === 'wildcard' ? undefined : {letterSpacing: 1}}
+						fontSize={0}
+					>
 						Label
 					</text>
 					<rect
