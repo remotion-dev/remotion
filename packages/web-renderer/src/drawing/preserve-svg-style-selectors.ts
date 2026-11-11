@@ -1,15 +1,17 @@
 // Match authored style and emptiness predicates, skipping quoted values and escapes.
 const attributeSelector =
-	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)style(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
+	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
 
 export const preserveSvgStyleSelectors = ({
 	svg,
 	authoredStyles,
 	authoredEmpty,
+	authoredMedia,
 }: {
 	svg: SVGSVGElement;
 	authoredStyles: (string | null)[] | null;
 	authoredEmpty: boolean[] | null;
+	authoredMedia: (string | null)[] | null;
 }) => {
 	const ownerWindow = svg.ownerDocument.defaultView ?? window;
 	if (typeof ownerWindow.CSSStyleSheet.prototype.replaceSync !== 'function')
@@ -44,6 +46,16 @@ export const preserveSvgStyleSelectors = ({
 		attribute += '-';
 	}
 
+	let mediaAttribute = 'data-remotion-authored-media';
+	while (
+		Array.from(svg.attributes).some(
+			(original) => original.localName === mediaAttribute,
+		) ||
+		svg.querySelector(`[*|${mediaAttribute}]`) ||
+		stylesheetText.includes(mediaAttribute)
+	)
+		mediaAttribute += '-';
+
 	let emptyAttribute = `${attribute}-empty`;
 	while (
 		Array.from(svg.attributes).some(
@@ -70,12 +82,19 @@ export const preserveSvgStyleSelectors = ({
 				if (rule instanceof ownerWindow.CSSStyleRule) {
 					const selector = rule.selectorText.replace(
 						attributeSelector,
-						(match, prefix: string | undefined, empty: string | undefined) =>
+						(
+							match,
+							prefix: string | undefined,
+							name: string | undefined,
+							empty: string | undefined,
+						) =>
 							empty && authoredEmpty
 								? `[${emptyAttribute}]`
-								: prefix !== undefined && authoredStyles
+								: prefix !== undefined && name === 'style' && authoredStyles
 									? `[${prefix}${attribute}`
-									: match,
+									: prefix !== undefined && name === 'media' && authoredMedia
+										? `[${prefix}${mediaAttribute}`
+										: match,
 					);
 					if (selector !== rule.selectorText) {
 						rule.selectorText = selector;
@@ -100,17 +119,22 @@ export const preserveSvgStyleSelectors = ({
 	if (!changed) return;
 	[svg, ...svg.querySelectorAll('*')].forEach((element, index) => {
 		if (authoredEmpty?.[index]) element.setAttribute(emptyAttribute, '');
-		if (!authoredStyles) return;
-		const value = authoredStyles[index];
-		if (value !== null) element.setAttribute(attribute, value);
-		for (const original of Array.from(element.attributes)) {
-			if (original.localName !== 'style' || original.namespaceURI === null)
-				continue;
-			element.setAttributeNS(
-				original.namespaceURI,
-				original.prefix ? `${original.prefix}:${attribute}` : attribute,
-				original.value,
-			);
+		for (const [name, values, alias] of [
+			['style', authoredStyles, attribute],
+			['media', authoredMedia, mediaAttribute],
+		] as const) {
+			if (!values) continue;
+			const value = values[index];
+			if (value !== null) element.setAttribute(alias, value);
+			for (const original of Array.from(element.attributes)) {
+				if (original.localName !== name || original.namespaceURI === null)
+					continue;
+				element.setAttributeNS(
+					original.namespaceURI,
+					original.prefix ? `${original.prefix}:${alias}` : alias,
+					original.value,
+				);
+			}
 		}
 	});
 };

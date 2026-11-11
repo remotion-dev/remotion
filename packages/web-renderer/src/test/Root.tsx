@@ -251,6 +251,11 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {
+	svgInactiveTitleMediaCache,
+	svgInactiveTitleModes,
+	svgInactiveTitledFont,
+} from './fixtures/svg-inactive-titled-font';
+import {
 	svgLocalConditionalFont,
 	svgLocalConditionalUrlFont,
 } from './fixtures/svg-local-conditional-font';
@@ -264,6 +269,12 @@ import {
 	svgExternalCarrierModes,
 	svgExternalEmptyCarrier,
 } from './fixtures/svg-titled-font';
+import {
+	svgTitledFontMediaCache,
+	svgTitledFontCarrier,
+	svgTitledFontModes,
+	svgTitledFontSources,
+} from './fixtures/svg-titled-font-carrier';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -368,6 +379,32 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`titled-media-${active}`}
+					{...svgTitledFontMediaCache({active})}
+				/>
+			))}
+			{svgTitledFontModes.flatMap((mode) =>
+				svgTitledFontSources.map((source) => (
+					<Composition
+						key={`titled-font-${mode}-${source}`}
+						{...svgTitledFontCarrier(mode, source, false, false)}
+					/>
+				)),
+			)}
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={`inactive-title-${mode}`}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition

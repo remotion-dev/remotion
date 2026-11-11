@@ -324,10 +324,18 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 				)
 			: null;
 
+	const authoredMedia =
+		textElements.length > 0
+			? [svg, ...svg.querySelectorAll('*')].map((element) =>
+					element.getAttribute('media'),
+				)
+			: null;
+
 	return {
 		textStyles,
 		authoredStyles,
 		authoredEmpty,
+		authoredMedia,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
 	};
@@ -342,6 +350,7 @@ export const turnSvgIntoDrawable = (
 		textStyles,
 		authoredStyles,
 		authoredEmpty,
+		authoredMedia,
 		cssFontRules,
 		embeddedFontStyle,
 	} = fontSnapshot ?? getSvgFontSnapshot(svg);
@@ -472,11 +481,11 @@ export const turnSvgIntoDrawable = (
 	const usesStylesheetSets = Boolean(
 		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
 	);
+	// Image documents may select a different titled set. Disabled paint was
+	// neutralized above, but its carrier must still provide the embedded faces.
 	const fontCarriers = usesStylesheetSets
 		? Array.from(styles, (style, index) =>
-				style.sheet && !style.sheet.disabled && !style.matches(':empty')
-					? index
-					: null,
+				style.sheet && !style.matches(':empty') ? index : null,
 			).filter((index) => index !== null)
 		: [fontStyleIndex];
 	if (cssFontRules.length === 0 && embeddedFontStyle !== null) {
@@ -520,11 +529,12 @@ export const turnSvgIntoDrawable = (
 		});
 	}
 
-	if (authoredStyles || authoredEmpty)
+	if (authoredStyles || authoredEmpty || authoredMedia)
 		preserveSvgStyleSelectors({
 			svg: svgForSerialization,
 			authoredStyles,
 			authoredEmpty,
+			authoredMedia,
 		});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
@@ -557,8 +567,13 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
+	const carrierMedia = fontCarriers.map((index) => {
+		const media = styles[index]?.getAttribute('media');
+		return !media || svg.ownerDocument.defaultView!.matchMedia(media).matches;
+	});
 	const fontStyleKey =
 		usesStylesheetSets ||
+		embeddedFontStyle ||
 		cssFontRules.length ||
 		(retargetRegisteredCarrier && fontStyleIndex !== originalFontStyleIndex)
 			? JSON.stringify([
@@ -566,8 +581,9 @@ export const turnSvgIntoDrawable = (
 					cssFontRules.map((rule) => [rule.css, rule.url]),
 					fontStyleIndex,
 					fontCarriers,
+					carrierMedia,
 				])
-			: (embeddedFontStyle?.cacheKey ?? null);
+			: null;
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
@@ -606,10 +622,8 @@ export const turnSvgIntoDrawable = (
 				let markup = serializedSvg;
 				if (fontCss) {
 					if (usesStylesheetSets && fontCarriers.length) {
-						const clonedStyles = svgForSerialization.querySelectorAll('style');
 						for (const index of fontCarriers)
-							clonedStyles[index].textContent =
-								(clonedStyles[index].textContent ?? '') + '\n' + fontCss;
+							insertFontStyleInSvg(svgForSerialization, fontCss, index);
 					} else
 						insertFontStyleInSvg(
 							svgForSerialization,
