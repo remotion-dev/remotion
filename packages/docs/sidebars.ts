@@ -1826,7 +1826,7 @@ const sidebars: SidebarsConfig = {
 				},
 				{
 					type: 'link',
-					href: 'https://remotion.dev/discord',
+					href: 'https://remotion.dev/issue',
 					label: 'GitHub Issues',
 				},
 				'support',
