@@ -218,6 +218,11 @@ import {
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
 import {
+	svgFontBeforeMutation,
+	svgGroupedFontOrder,
+	svgLocalFontGroups,
+} from './fixtures/svg-font-order-mutation';
+import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
 	svgFullSourceBlobContainFractional,
@@ -351,6 +356,13 @@ export const Root: React.FC = () => {
 			<Composition {...svgCssUrlFont} />
 			<Composition {...svgFontMediaCache({active: null})} />
 			<Composition {...svgLocalFontOrder({literal: false})} />
+			{svgLocalFontGroups.map((group) => (
+				<Composition
+					key={group}
+					{...svgGroupedFontOrder({group, literal: false})}
+				/>
+			))}
+			<Composition {...svgFontBeforeMutation({literal: false})} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />

@@ -78,3 +78,5 @@ export const svgLocalFontOrder = ({literal}: {literal: boolean}) => {
 		durationInFrames: 2,
 	} as const;
 };
+
+export {dataFonts as svgLocalFontDataReady};

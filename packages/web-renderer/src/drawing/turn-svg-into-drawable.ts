@@ -57,6 +57,39 @@ type CssFontRule = {
 const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView ?? window;
+	const containsSelectedFace = (cssRules: CSSRuleList): boolean =>
+		Array.from(cssRules).some((rule) =>
+			rule instanceof ownerWindow.CSSFontFaceRule
+				? fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0])
+				: 'cssRules' in rule &&
+					containsSelectedFace(rule.cssRules as CSSRuleList),
+		);
+	const retainFontGroup = (rule: CSSRule) => {
+		if (typeof ownerWindow.CSSStyleSheet.prototype.replaceSync !== 'function')
+			return '';
+		const snapshot = new ownerWindow.CSSStyleSheet();
+		snapshot.replaceSync(rule.cssText);
+		const prune = (parent: CSSStyleSheet | CSSGroupingRule) => {
+			for (let index = parent.cssRules.length - 1; index >= 0; index--) {
+				const child = parent.cssRules[index];
+				if (child instanceof ownerWindow.CSSFontFaceRule) {
+					if (!fontFamilies.has(parseFontFamilies(child.style.fontFamily)[0]))
+						parent.deleteRule(index);
+				} else if (
+					'cssRules' in child &&
+					containsSelectedFace(child.cssRules as CSSRuleList)
+				) {
+					if (child instanceof ownerWindow.CSSStyleRule)
+						child.style.cssText = '';
+					prune(child as CSSGroupingRule);
+				} else parent.deleteRule(index);
+			}
+		};
+
+		prune(snapshot);
+		return Array.from(snapshot.cssRules, (child) => child.cssText).join('');
+	};
+
 	for (const sheet of svg.ownerDocument.styleSheets) {
 		if (
 			sheet.disabled ||
@@ -77,7 +110,20 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		}
 
 		for (const rule of cssRules) {
-			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
+			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) {
+				if (
+					sheet.ownerNode !== null &&
+					svg.contains(sheet.ownerNode) &&
+					'cssRules' in rule &&
+					containsSelectedFace(rule.cssRules as CSSRuleList)
+				) {
+					const css = retainFontGroup(rule);
+					if (css) rules.push({css, url: null, declarations: []});
+				}
+
+				continue;
+			}
+
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
@@ -152,8 +198,7 @@ const drawableBySvg = new WeakMap<
 	}
 >();
 
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
@@ -173,11 +218,32 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
-	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
-	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
-		Boolean(style.sheet),
-	).lastIndexOf(true);
+	// Discover the families of actual text-node parents, including template text.
+	const fontFamilies = new Set<string>();
+	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
+	for (const element of textElements) {
+		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		while (walker.nextNode()) {
+			if (!walker.currentNode.textContent?.length) continue;
+			const parent = walker.currentNode.parentElement;
+			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
+				continue;
+			let style = computedStyles.get(parent);
+			if (!style) {
+				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
+					parent,
+				);
+				computedStyles.set(parent, style);
+			}
+
+			for (const family of parseFontFamilies(style.fontFamily))
+				fontFamilies.add(family);
+		}
+	}
+
+	const cssFontRules = fontFamilies.size
+		? getCssFontRules(svg, fontFamilies)
+		: [];
 
 	const authoredStyles =
 		textStyles.some((style) => style !== null) &&
@@ -188,6 +254,26 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 					element.getAttribute('style'),
 				)
 			: null;
+	return {
+		textStyles,
+		authoredStyles,
+		cssFontRules,
+		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+	};
+};
+
+export const turnSvgIntoDrawable = (
+	svg: SVGSVGElement,
+	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
+) => {
+	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
+		fontSnapshot ?? getSvgFontSnapshot(svg);
+	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
+	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+		Boolean(style.sheet),
+	).lastIndexOf(true);
+
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
 	const childOpacities =
@@ -274,32 +360,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			);
 		});
 	});
-	// Discover the families of actual text-node parents, including template text.
-	const fontFamilies = new Set<string>();
-	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
-	for (const element of textElements) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
-		while (walker.nextNode()) {
-			if (!walker.currentNode.textContent?.length) continue;
-			const parent = walker.currentNode.parentElement;
-			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
-				continue;
-			let style = computedStyles.get(parent);
-			if (!style) {
-				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
-					parent,
-				);
-				computedStyles.set(parent, style);
-			}
-
-			for (const family of parseFontFamilies(style.fontFamily))
-				fontFamilies.add(family);
-		}
-	}
-
-	const cssFontRules = fontFamilies.size
-		? getCssFontRules(svg, fontFamilies)
-		: [];
 
 	if (authoredStyles)
 		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
