@@ -37,24 +37,39 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
 	const templates = new Set<Element>();
-	const uses = Array.from(svg.querySelectorAll('use')).filter(
-		(use) => !use.closest('defs, symbol'),
-	);
-	for (const use of uses) {
+	const ownerWindow = svg.ownerDocument.defaultView ?? window;
+	const isHidden = (element: Element, root: Element | null) => {
+		let current: Element | null = element;
+		while (current) {
+			if (ownerWindow.getComputedStyle(current).display === 'none') return true;
+			if (current === root) break;
+			current = current.parentElement;
+		}
+
+		return false;
+	};
+
+	const uses: {element: SVGUseElement; root: Element | null}[] = Array.from(
+		svg.querySelectorAll('use'),
+		(element) => ({element, root: null}),
+	).filter(({element}) => !element.closest('defs, symbol'));
+	for (const {element: use, root} of uses) {
+		if (isHidden(use, root)) continue;
 		try {
 			const url = new URL(use.href.baseVal, use.baseURI);
 			const id = decodeURIComponent(url.hash.slice(1));
 			url.hash = '';
 			if (url.href !== documentUrl.href) continue;
 			const template = svg.getElementById(id);
-			if (!template || templates.has(template)) continue;
+			if (!template || templates.has(template) || isHidden(template, template))
+				continue;
 			templates.add(template);
 			for (const nested of [
 				...(template.localName === 'use' ? [template as SVGUseElement] : []),
 				...template.querySelectorAll('use'),
 			]) {
 				if (nested === template) {
-					uses.push(nested);
+					uses.push({element: nested, root: template});
 					continue;
 				}
 
@@ -65,7 +80,7 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 					!ancestor.matches('defs, symbol')
 				)
 					ancestor = ancestor.parentElement;
-				if (ancestor === template) uses.push(nested);
+				if (ancestor === template) uses.push({element: nested, root: template});
 			}
 		} catch {
 			// Invalid authored references do not instantiate a template.
@@ -281,6 +296,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			// A descendant cannot override display:none on an ancestor. Avoid
 			// fetching CSS fonts for labels that contribute no rendered text.
 			ancestor = parent;
+			let hidden = false;
 			while (ancestor) {
 				let style = computedStyles.get(ancestor);
 				if (!style) {
@@ -290,11 +306,17 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 					computedStyles.set(ancestor, style);
 				}
 
-				if (style.display === 'none') break;
+				if (style.display === 'none') {
+					hidden = true;
+					break;
+				}
+
+				// Source-only ancestors outside a referenced subtree do not hide its instance.
+				if (referencedTemplates.has(ancestor)) break;
 				ancestor = ancestor.parentElement;
 			}
 
-			if (ancestor) continue;
+			if (hidden) continue;
 			const textStyle = computedStyles.get(parent)!;
 			for (const family of parseFontFamilies(textStyle.fontFamily))
 				fontFamilies.add(family);

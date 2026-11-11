@@ -69,7 +69,9 @@ test.for(
 			mode === 'direct' ||
 			mode === 'use-target' ||
 			mode === 'nested' ||
-			mode === 'symbol';
+			mode === 'symbol' ||
+			mode === 'hidden-defs' ||
+			mode === 'hidden-source-group';
 		const fetchFont = vi.spyOn(NoReactInternals, 'fetchFontData');
 		if (used) fetchFont.mockResolvedValue(data);
 		else

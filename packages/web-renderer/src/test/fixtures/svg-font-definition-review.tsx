@@ -9,6 +9,10 @@ export const svgDefinitionModes = [
 	'nested',
 	'symbol',
 	'cycle',
+	'hidden-defs',
+	'hidden-source-group',
+	'hidden-target',
+	'hidden-target-ancestor',
 ] as const;
 export const svgDefinitionFontUrl = new URL(
 	'../../../../example/public/bangers.woff2',
@@ -44,25 +48,39 @@ export const svgDefinitionFont = ({
 			mode === 'direct' ||
 			mode === 'use-target' ||
 			mode === 'nested' ||
-			mode === 'symbol';
+			mode === 'symbol' ||
+			mode === 'hidden-defs' ||
+			mode === 'hidden-source-group';
 		return (
 			<AbsoluteFill style={{backgroundColor: 'white'}}>
 				<style>{`@font-face{font-family:"Definition review font";src:url("${fontUrl}") format("woff2")}`}</style>
 				<svg width={320} height={100}>
-					<defs>
-						<text
-							id="definition-review-text"
-							x={8}
-							y={35}
+					<defs display={mode === 'hidden-defs' ? 'none' : undefined}>
+						<g
 							style={{
-								fontFamily: '"Definition review font"',
-								fontSize: 24 + frame,
+								display: mode === 'hidden-source-group' ? 'none' : undefined,
 							}}
 						>
-							Definition font
-						</text>
+							<text
+								id="definition-review-text"
+								x={8}
+								y={35}
+								style={{
+									fontFamily: '"Definition review font"',
+									fontSize: 24 + frame,
+									display: mode === 'hidden-target' ? 'none' : undefined,
+								}}
+							>
+								Definition font
+							</text>
+						</g>
 						<use id="definition-review-use" href="#definition-review-text" />
-						<g id="definition-review-group">
+						<g
+							id="definition-review-group"
+							style={{
+								display: mode === 'hidden-target-ancestor' ? 'none' : undefined,
+							}}
+						>
 							<use href="#definition-review-text" />
 						</g>
 						<symbol id="definition-review-symbol">
@@ -85,14 +103,19 @@ export const svgDefinitionFont = ({
 							</>
 						) : null}
 					</defs>
-					{used ? (
+					{used ||
+					mode === 'hidden-target' ||
+					mode === 'hidden-target-ancestor' ? (
 						<use
 							href={
-								mode === 'direct'
+								mode === 'direct' ||
+								mode === 'hidden-defs' ||
+								mode === 'hidden-source-group' ||
+								mode === 'hidden-target'
 									? '#definition-review-text'
 									: mode === 'use-target'
 										? '#definition-review-use'
-										: mode === 'nested'
+										: mode === 'nested' || mode === 'hidden-target-ancestor'
 											? '#definition-review-group'
 											: '#definition-review-symbol'
 							}
