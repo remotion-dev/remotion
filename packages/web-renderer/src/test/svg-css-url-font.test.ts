@@ -7,6 +7,7 @@ import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
 	captureNativeReference,
 	compareNativePixels,
+	countNativePixels,
 	savePixelEvidence,
 } from './native-reference';
 
@@ -93,5 +94,91 @@ test('CSS URL font fetch restores SVG styles, deduplicates and retries', async (
 	} finally {
 		svg.remove();
 		style.remove();
+	}
+});
+
+test.for([
+	...[
+		'SVG CSS comma, family',
+		'SVG CSS "quoted" family',
+		'SVG CSS \\ family',
+		'"SVG CSS outer quotes"',
+		'SVG CSS literal \\41 escape',
+	].map((family) => ({family, context: 'document'})),
+	{family: 'SVG inherited blank origin', context: 'about:blank'},
+	{family: 'SVG inherited srcdoc origin', context: 'srcdoc'},
+])('preserves SVG URL font $family in $context', async ({family, context}) => {
+	const url = new URL('../../../example/public/bangers.woff2', import.meta.url)
+		.href;
+	const font = await (await fetch(url)).blob();
+	const dataUrl = await new Promise<string>((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(reader.result as string);
+		reader.onerror = () => reject(reader.error);
+		reader.readAsDataURL(font);
+	});
+	const escapedFamily = JSON.stringify(family);
+	const iframe =
+		context === 'document' ? null : document.createElement('iframe');
+	if (iframe) {
+		const loaded = new Promise<void>((resolve) => {
+			iframe.addEventListener('load', () => resolve(), {once: true});
+		});
+		if (context === 'srcdoc') iframe.srcdoc = '<!doctype html><body></body>';
+		document.body.appendChild(iframe);
+		await loaded;
+	}
+
+	const owner = iframe?.contentDocument ?? document;
+	const stylesheet = owner.createElement('style');
+	stylesheet.textContent = `@font-face{font-family:${escapedFamily};src:url("${url}") format("woff2")}`;
+	owner.head.appendChild(stylesheet);
+
+	const draw = async (name: string, style: string) => {
+		const svg = owner.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('width', '240');
+		svg.setAttribute('height', '60');
+		svg.innerHTML = `${style}<text x="4" y="42">Exported font</text>`;
+		const text = svg.querySelector('text')!;
+		text.style.fontFamily = name;
+		text.style.fontSize = '34px';
+		owner.body.appendChild(svg);
+		const canvas = new OffscreenCanvas(240, 60);
+		try {
+			const drawable = await turnSvgIntoDrawable(svg);
+			canvas.getContext('2d')!.drawImage(drawable, 0, 0);
+			return await canvas.convertToBlob({type: 'image/png'});
+		} finally {
+			svg.remove();
+			canvas.width = 0;
+		}
+	};
+
+	try {
+		if (iframe) {
+			expect(new URL(owner.URL).origin).toBe('null');
+			expect(iframe.contentWindow!.origin).toBe(window.origin);
+		}
+
+		const [face] = await owner.fonts.load(
+			`34px ${escapedFamily}`,
+			'Exported font',
+		);
+		expect(face?.status).toBe('loaded');
+		const actual = await draw(escapedFamily, '');
+		const expected = await draw(
+			'SVG punctuation control',
+			`<style>@font-face{font-family:"SVG punctuation control";src:url("${dataUrl}") format("woff2")}</style>`,
+		);
+		const fallback = await draw('serif', '');
+		expect(
+			(await countNativePixels(expected, fallback)).mismatchedPixels,
+		).toBeGreaterThan(0);
+		expect((await compareNativePixels(expected, actual)).mismatchedPixels).toBe(
+			0,
+		);
+	} finally {
+		stylesheet.remove();
+		iframe?.remove();
 	}
 });
