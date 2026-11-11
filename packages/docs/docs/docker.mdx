@@ -30,7 +30,7 @@ RUN apt install -y \
   libcups2
 
 # Copy the package files from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* ./
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
@@ -38,8 +38,9 @@ RUN npm i
 # Install Chrome
 RUN npx remotion browser ensure
 
-# Copy your source code
+# Copy your source code and config file
 COPY src ./src
+COPY remotion.config.* ./
 
 # If you have a public folder:
 COPY public ./public
@@ -91,10 +92,10 @@ RUN apt install -y \
 </p>
 
 ```docker
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* ./
 ```
 
-The source code is copied after installing dependencies and Chrome. That way, Docker reuses the cached dependency and Chrome layers when only your source code changes.
+The source code and the config file are copied after installing dependencies and Chrome. That way, Docker reuses the cached dependency and Chrome layers when only your source code changes.
 
 <p>
   <Step>4</Step> Install the right package manager and dependencies.
@@ -127,13 +128,16 @@ RUN npx remotion browser ensure
 ```
 
 <p>
-  <Step>6</Step> Copy the files from your project. If you have additional source files, add them here. It is assumed <code>src</code> and <code>public</code> exist in your project, but you can adjust this to your needs.
+  <Step>6</Step> Copy the files from your project. If you have additional source files, add them here. It is assumed <code>src</code>, a <code>remotion.config.ts</code> file and <code>public</code> exist in your project, but you can adjust this to your needs.
 </p>
 
 ```docker
 COPY src ./src
+COPY remotion.config.* ./
 COPY public ./public
 ```
+
+The config file is copied together with <code>src</code> because it may import files from <code>src</code>. Every <code>remotion</code> CLI command, including <code>browser ensure</code>, loads the config file.
 
 <p>
   <Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.

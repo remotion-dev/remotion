@@ -76,7 +76,7 @@ The file structure inside this folder varies by OS.
 If your network restricts outgoing traffic, allow the following hosts:
 
 - `remotion.media`: Remotion's default Chrome Headless Shell builds.
-- `storage.googleapis.com`: Chrome for Testing, custom Chrome versions, and Chrome Headless Shell on platforms without a Remotion build (Intel Macs and Linux with glibc below 2.35).
+- `storage.googleapis.com`: Chrome for Testing, custom Chrome versions, and Chrome Headless Shell on platforms without a Remotion build (Intel Macs, and Linux other than Amazon Linux 2023 if the glibc version is below 2.35 or cannot be detected, for example on Alpine).
 - `playwright.azureedge.net`: Only if you pass a numeric Playwright revision as the version on Linux ARM64.
 
 If the machine that renders has no internet access, run [`npx remotion browser ensure`](/docs/cli/browser/ensure) while building it, for example in your [Dockerfile](/docs/docker).

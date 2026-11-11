@@ -57,7 +57,7 @@ await Promise.all([
 
 ### Loading a font URL from props
 
-If the font URL comes from input props, call `loadFont()` inside the component in a `useState()` initializer, so it runs once and delays the render until the font is loaded:
+If the font URL comes from input props, call `loadFont()` inside the component in a `useState()` initializer, so it runs once per mount and delays the render until the font is loaded:
 
 ```tsx
 import { loadFont } from "@remotion/fonts";
