@@ -102,14 +102,15 @@ npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 
 When server-rendering using [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you can pass props using the [`inputProps`](/docs/renderer/render-media#inputprops) option:
 
-```tsx twoslash {3-5, 10, 18}
+```tsx twoslash {3-6, 11, 19}
 const serveUrl = '/path/to/bundle';
 const outputLocation = '/path/to/frames';
 // ---cut---
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: 'Hello World',
+  propOne: 'Hi',
+  propTwo: 10,
 };
 
 const composition = await selectComposition({
@@ -133,7 +134,7 @@ You should pass your `inputProps` to both [`selectComposition()`](/docs/renderer
 
 [See: Render using GitHub Actions](/docs/ssr#render-using-github-actions)
 
-When using GitHub Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
+When using GitHub Actions, you need to adjust your workflow file (for example `.github/workflows/render-video.yml`) to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
 
 ```yaml {3, 7}
 workflow_dispatch:

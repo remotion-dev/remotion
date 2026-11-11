@@ -62,6 +62,10 @@ The height you would like the video to have when rendered as an MP4. Use `style=
 
 Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Required if your component accepts props, otherwise optional.
 
+### `schema?`
+
+A [Zod](/docs/schemas) schema for your `inputProps`. It is only used to infer the TypeScript type of `inputProps`. The Player does not validate `inputProps` against it.
+
 ### `loop?`
 
 Whether the video should restart when it ends. Default `false`.
@@ -253,7 +257,7 @@ Render the poster when the video is paused. Although considered a paused state, 
 
 ### `showPosterWhenEnded?`<AvailableFrom v="3.2.14" />
 
-Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
+Render the poster when the video has ended. Requires [`moveToBeginningWhenEnded`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
 ### `showPosterWhenBuffering?`<AvailableFrom v="4.0.111" />
 
@@ -265,15 +269,15 @@ Render a poster when the `<Player>` is in the [buffering state](/docs/player/buf
 
 ### `inFrame?`<AvailableFrom v="3.2.15" />
 
-Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, not bigger than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
+Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, smaller than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
 
 ### `outFrame?`<AvailableFrom v="3.2.15" />
 
-Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
+Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, bigger than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
 
 ### `initiallyShowControls?`<AvailableFrom v="3.2.24" />
 
-If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true`.
 
 ### `initiallyMuted?`<AvailableFrom v="3.3.81" />
 
@@ -311,9 +315,9 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
+Since <AvailableFrom v="4.0.111" inline />, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
 
-Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
+Since <AvailableFrom v="4.0.111" inline />, you can return `null` in the callback to fall back to the default UI.
 
 ### `renderFullscreenButton?`<AvailableFrom v="3.2.32" />
 
@@ -344,7 +348,7 @@ export const App: React.FC = () => {
 
 Allows you to customize the Mute button of the controls, must return a valid React element.  
 Action is disabled, you must attach click handlers yourself using the [`PlayerRef`](#playerref).  
-If unmuting a video, we recommend setting both [`.setVolume(1)`](#setvolume) and [`.setMuted(false)`](/docs/config#setmuted).
+If unmuting a video, we recommend calling both [`.setVolume(1)`](#setvolume) and [`.unmute()`](#unmute).
 
 ```tsx twoslash
 const VolumeOnIcon: React.FC = () => null;
@@ -368,7 +372,7 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderVolumeSlider`<AvailableFrom v="4.0.188" />
+### `renderVolumeSlider?`<AvailableFrom v="4.0.188" />
 
 Allows for a custom implementation of the volume slider, must return a valid React element.  
 See the default implementation [here](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/render-volume-slider.tsx).  
@@ -417,7 +421,7 @@ You may pass an array with the available playback rates for selection, however, 
 
 Default `false`.
 
-### `posterFillMode`<AvailableFrom v="4.0.78" />
+### `posterFillMode?`<AvailableFrom v="4.0.78" />
 
 Either `player-size` (default) or `composition-size`:
 
@@ -430,7 +434,7 @@ The default [premount duration](/docs/player/premounting) in seconds for timed c
 Must be a finite, non-negative number. The duration is converted to frames using `fps` and rounded to the nearest frame.
 An explicit [`premountFor`](/docs/sequence#premountfor) prop takes precedence, including `premountFor={0}` to disable premounting for a component.
 
-### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
+### `bufferStateDelayInMilliseconds?`<AvailableFrom v="4.0.111"/>
 
 After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
 This prevents jank when the Player is only in a buffering state for a short time. Default `300`.
@@ -442,11 +446,11 @@ Note:
 
 This allows you to flexibly implement custom UI for the buffer state.
 
-### `overflowVisible`<AvailableFrom v="4.0.173"/>
+### `overflowVisible?`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
 
-### `browserMediaControlsBehavior`<AvailableFrom v="4.0.221" />
+### `browserMediaControlsBehavior?`<AvailableFrom v="4.0.221" />
 
 Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
 See [Media Keys Behavior](/docs/player/media-keys) for more information.
@@ -459,13 +463,17 @@ A HTML class name to be used in place of the default `__remotion-player`.
 
 <Options id="log" />
 
-### `noSuspense`<AvailableFrom v="4.0.271" />
+### `noSuspense?`<AvailableFrom v="4.0.271" />
 
 Disables React Suspense, which is [useful for writing tests](/docs/testing).
 
 ### `acknowledgeRemotionLicense?`<AvailableFrom v="4.0.253" />
 
 Acknowledge the [Remotion License](/docs/license) to make the console message disappear.
+
+### `audioLatencyHint?`<AvailableFrom v="4.0.303" />
+
+Sets the [`latencyHint`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext#latencyhint) of the `AudioContext` used inside the Player: `"interactive"`, `"balanced"` or `"playback"`. Default: `"playback"`.
 
 ### `volumePersistenceKey?`<AvailableFrom v="4.0.305" />
 
@@ -526,6 +534,10 @@ The value cannot be changed after the Player mounts. Doing so throws an error.
   _experimentalKeepAudioContextAlive
 />
 ```
+
+### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
+
+Prefer a backend for [effects](/docs/effects): `"auto"`, `"webgpu"`, `"webgl2"`, or `"2d"`. Default: `"auto"`, which tries WebGPU, WebGL2, then 2D. The preference is scoped to this component. If an implementation or backend is unavailable, another implementation is used. See [effect backend selection](/docs/options/preferred-effect-backend).
 
 ## `PlayerRef`
 
@@ -592,7 +604,7 @@ If you play the video from a user gesture, pass the `SyntheticEvent` in as an ar
 
 Gets the current position expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
-[Special considerations must be made](https://www.remotion.dev/docs/player/current-time) if you want to display a component that synchronizes with the time of the player.
+[Special considerations must be made](/docs/player/current-time) if you want to display a component that synchronizes with the time of the player.
 
 ### `isPlaying()`<AvailableFrom v="2.5.7" />
 
@@ -638,7 +650,7 @@ Unmutes the video.
 
 ### `getVolume()`
 
-Gets the volume of the video. The volume is a value between 0 and 1 and is initially 1.
+Gets the volume of the video. The volume is a value between 0 and 1 and is initially 1. Returns `0` while the Player is muted.
 
 ### `setVolume()`
 
@@ -650,7 +662,7 @@ Set the volume of the video. Must be a value between 0 and 1, otherwise an excep
 
 ### `isMuted()`
 
-Returns a boolean specifying whether the video is muted.
+Returns a boolean specifying whether the video is muted. Also returns `true` if the volume is `0`.
 
 ### `seekTo()`
 
@@ -668,7 +680,7 @@ _To observe the fullscreen state and react to changes, listen to the [`fullscree
 
 ### `requestFullscreen()`
 
-Requests the video to go to fullscreen. This method throws if the `allowFullscreen` prop is false or the browser doesn't support allow the player to go into fullscreen.
+Requests the video to go to fullscreen. This method throws if the `allowFullscreen` prop is false or the browser doesn't allow the player to go into fullscreen.
 
 On Safari on iOS, the Fullscreen API is not supported, so the Player cannot go into fullscreen.
 
@@ -780,7 +792,7 @@ useEffect(() => {
 
 ### `seeked`
 
-Fired when the time position is changed by the user using the playback bar or using [`seek()`](#seeked). You may get the current frame by reading it from `e.detail.frame`.
+Fired when the time position is changed by the user using the playback bar or using [`seekTo()`](#seekto). You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
 import {PlayerRef} from '@remotion/player';
@@ -867,7 +879,7 @@ Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates
 
 ### `fullscreenchange`<AvailableFrom v="3.2.0" />
 
-Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
+Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.current.isFullscreen()` you can determine if the player is currently in fullscreen or not.
 
 ```tsx twoslash
 import {PlayerRef} from '@remotion/player';

@@ -41,7 +41,7 @@ const My3DVideo = () => {
 };
 ```
 
-```tsx twoslash title="Use useVideoTexture() only during rendering"
+```tsx twoslash title="Use useOffthreadVideoTexture() only during rendering"
 import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
 import {useRef} from 'react';
 import {staticFile, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
@@ -85,7 +85,7 @@ Takes an object with the following properties:
 
 The video source. Can be a URL or a [`staticFile()`](/docs/staticfile).
 
-### `playbackRate`
+### `playbackRate?`
 
 The playback rate of the video. Defaults to `1`.
 
@@ -99,7 +99,7 @@ If set to `true`, frames will be extracted as PNG, enabling transparency but als
 
 If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
 
-### `toneMapped`<AvailableFrom v="4.0.117" />
+### `toneMapped?`<AvailableFrom v="4.0.117" />
 
 Since Remotion 4.0.117, Remotion will adjust the colors of videos in different color spaces (such as HDR) when converting to RGB, to counteract color shifts.  
 Since the browser is painting in sRGB, this is necessary to ensure that the colors are displayed correctly.  
@@ -108,11 +108,11 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
-### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.271" />
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.271" />
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
 
-### `delayRenderRetries`<AvailableFrom v="4.0.271" />
+### `delayRenderRetries?`<AvailableFrom v="4.0.271" />
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
 

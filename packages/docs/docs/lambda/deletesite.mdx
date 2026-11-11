@@ -15,7 +15,8 @@ Each project is located in the `sites/` subdirectory of your S3 bucket. Calling 
 Gets all sites and deletes them.
 
 ```ts twoslash
-import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
+import {deleteSite} from '@remotion/lambda';
+import {AwsRegion, getSites} from '@remotion/lambda/client';
 
 const region: AwsRegion = 'eu-central-1';
 

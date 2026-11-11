@@ -181,7 +181,7 @@ import type {BrowserLog} from '@remotion/renderer';
 //                ^?
 ```
 
-- `type`: The `console.*` method (`log`, `warn`, `error`, etc.)
+- `type`: The console message type (`log`, `warning`, `error`, etc.). `console.warn()` is reported as `warning`.
 - `text`: The logged message
 - `stackTrace`: The stack trace of the log
 

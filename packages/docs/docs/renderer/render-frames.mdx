@@ -52,9 +52,9 @@ const onStart = ({
 
 A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame).
 
-In `v3.0.0`, a second argument was added: `frame`, returning the frame number that was just rendered.
+In <AvailableFrom v="3.0.0" inline />, a second argument was added: `frame`, returning the frame number that was just rendered.
 
-In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
+In <AvailableFrom v="3.2.30" inline />, a third argument was added: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
 const onFrameUpdate = (framesRendered: number, frame: number, timeToRenderInMilliseconds: number) => {
@@ -111,7 +111,7 @@ renderFrames({
 
 ### `concurrency?`
 
-A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available, capped at 8.
 
 ### `scale?`<AvailableFrom v="2.6.7" />
 
@@ -148,7 +148,7 @@ await renderFrames({
 });
 ```
 
-Cannot be combined with [`frames`](#frames) or [`everyNthFrame`](#everynthframe).
+Cannot be combined with [`frames`](#frames).
 
 ### `frames?`<AvailableFrom v="4.0.502" />
 
@@ -257,13 +257,19 @@ If you passed `null` to `outputDir`, this method will be called passing a buffer
 
 From <AvailableFrom v="4.0.515" inline />, the callback may return a promise. Remotion will wait for it to resolve before reusing the renderer for another frame, allowing the callback to apply backpressure.
 
+### `onDownload?`
+
+_function_ <TsType type="RenderMediaOnDownload" source="@remotion/renderer" href="/docs/renderer/types#rendermediaondownload" />
+
+Notifies when a remote asset needs to be downloaded. See [`renderMedia()`](/docs/renderer/render-media#ondownload) for an example.
+
 ### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
-A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails](/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `everyNthFrame?`<AvailableFrom v="3.1.0" />
 
-Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+Renders only every nth frame. For example only every second frame, every third frame and so on. Commonly used to lower the frame rate of GIFs. [See here for more details.](/docs/render-as-gif)
 
 Cannot be combined with [`frames`](#frames).
 
@@ -343,7 +349,15 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="binaries-directory" />
 
-#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.127" />
+
+<Options id="for-seamless-aac-concatenation" />
+
+### `sampleRate?`<AvailableFrom v="4.0.448" />
+
+<Options id="sample-rate" />
+
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
 

@@ -47,7 +47,7 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-<Options id="public-path" />
+<Options id="public-dir" />
 
 ### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
 
@@ -183,7 +183,15 @@ npx remotion studio --number-of-shared-audio-tags=5
 npx remotion studio --experimental-keep-audio-context-alive
 ```
 
-### `--preview-sample-rate`
+### `--audio-latency-hint`<AvailableFrom v="4.0.303" />
+
+<Options id="audio-latency-hint" />
+
+```sh
+npx remotion studio --audio-latency-hint=playback
+```
+
+### `--preview-sample-rate`<AvailableFrom v="4.0.470" />
 
 <Options id="preview-sample-rate" />
 
@@ -191,7 +199,7 @@ npx remotion studio --experimental-keep-audio-context-alive
 npx remotion studio --preview-sample-rate=44100
 ```
 
-### `--cross-site-isolation`<AvailableFrom v="4.0.364" />
+### `--cross-site-isolation`<AvailableFrom v="4.0.306" />
 
 [Enable Cross-Site Isolation in the Studio](/docs/config#setenablecrosssiteisolation).
 
@@ -254,3 +262,11 @@ npx remotion studio --preserve-pitch-on-playback=false
 ### `--show-diagnostics`<AvailableFrom v="4.0.543" />
 
 <Options id="show-diagnostics" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+### `--disable-git-source`<AvailableFrom v="4.0.182" />
+
+<Options id="disable-git-source" />

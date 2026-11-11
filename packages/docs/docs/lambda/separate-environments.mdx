@@ -4,6 +4,7 @@ id: separate-environments
 title: Separating production and testing environments
 sidebar_label: Separating environments
 slug: /lambda/separate-environments
+crumb: 'Lambda'
 ---
 
 The code that is inside the Lambda function is always the same, no matter if you are calling it from a local, staging or production environment.
@@ -34,7 +35,7 @@ Make sure to update your site whenever you make changes to your code or upgrade 
 
 ## Buckets
 
-Just one bucket per region can be used for Remotion Lambda, but the resources in it can be scoped.
+We recommend using one bucket per region for Remotion Lambda and scoping the resources in it. If Remotion detects multiple buckets in a region, it throws an error unless you specify which one to use. See [Multiple buckets](/docs/lambda/multiple-buckets).
 
 A bucket contains 2 folders:
 

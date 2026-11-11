@@ -232,6 +232,16 @@ Pass [`chromiumOptions.userAgent`](/docs/options/user-agent) in rendering APIs, 
 
 Pass [`--user-agent`](/docs/options/user-agent).
 
+### Via config file
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumUserAgent('Mozilla/5.0 (Remotion)');
+```
+
 ## `--dark-mode`<AvailableFrom v="4.0.381"/>
 
 <Options id="dark-mode" />
@@ -243,6 +253,16 @@ Pass [`chromiumOptions.darkMode`](/docs/options/dark-mode) in rendering APIs, in
 ### Via CLI flag
 
 Pass [`--dark-mode`](/docs/options/dark-mode).
+
+### Via config file
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumDarkMode(true);
+```
 
 ## Need more flags?
 

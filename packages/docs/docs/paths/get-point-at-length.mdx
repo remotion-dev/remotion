@@ -18,7 +18,7 @@ const point = getPointAtLength("M 0 0 L 100 0", 50);
 console.log(point); // { x: 50, y: 0 }
 ```
 
-From <AvailableFrom v="5.0.0" inline />, the function returns `null` if the requested length is greater than the length of the path. In Remotion 4.0, it returned the end point of the path. See the [migration guide](/docs/5-0-migration).
+From <AvailableFrom v="4.0.498" inline />, the function returns `null` if the requested length is greater than the length of the path. Previously, it returned the end point of the path. See the [migration guide](/docs/5-0-migration).
 
 The function will throw if the path is invalid:
 

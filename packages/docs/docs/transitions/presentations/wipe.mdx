@@ -4,7 +4,7 @@ crumb: "@remotion/transitions - Presentations"
 title: "wipe()"
 ---
 
-A presentation where the entering slide slides over the exiting slide.
+A presentation where the entering scene slides over the exiting scene.
 
 <Demo type="wipe" />
 
@@ -58,9 +58,9 @@ const BasicTransition = () => {
 
 Takes an object with the following properties:
 
-### `direction`
+### `direction?`
 
-One of `from-left`, `from-top-left`, `from-top`, `from-top-right`, `from-right`, `from-bottom-right`, `from-bottom`, `from-bottom-left`.
+One of `from-left`, `from-top-left`, `from-top`, `from-top-right`, `from-right`, `from-bottom-right`, `from-bottom`, `from-bottom-left`. Default: `from-left`.
 
 ```tsx twoslash title="TypeScript type"
 import { WipeDirection } from "@remotion/transitions/wipe";

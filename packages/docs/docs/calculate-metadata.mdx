@@ -99,8 +99,8 @@ As argument, you get an object with the following properties:
 - `defaultProps`: Only the default props, taken from the [`defaultProps`](/docs/composition#defaultprops) prop or the Remotion Studio Data sidebar.
 - `props`: The [resolved props](/docs/props-resolution), taking input props into account.
 - `abortSignal`: An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) which you can use to abort network requests if [the default props have been changed](/docs/data-fetching#aborting-stale-requests) in the meanwhile.
-- `compositionId` (_available from v4.0.98_): The ID of the current composition
-- `isRendering` (_available from v4.0.342_): A boolean indicating whether the function is being called during rendering (`true`) or in other contexts like the Studio (`false`)
+- `compositionId`<AvailableFrom v="4.0.98" inline />: The ID of the current composition
+- `isRendering`<AvailableFrom v="4.0.342" inline />: A boolean indicating whether the function is being called during rendering (`true`) or in other contexts like the Studio (`false`)
 
 The function must return an pure JSON-serializable object, which can contain the following properties:
 
@@ -132,4 +132,4 @@ The function will get executed every time the props in the [Remotion Studio](/do
 
 - [`<Composition>`](/docs/composition)
 - [Data fetching](/docs/data-fetching)
-- [Dynamic metadata](/docs/dynamic-metadata)
+- [Variable duration and dimensions](/docs/dynamic-metadata)

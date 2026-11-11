@@ -53,7 +53,7 @@ The region in which the Lambda function is located in.
 
 The name of the function that triggered the render.
 
-### `customCredentials?`<AvailableFrom v="3.2.23" />
+### `s3OutputProvider?`<AvailableFrom v="3.2.23" />
 
 If the render is going to be saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 
@@ -103,7 +103,7 @@ Contains the following information about the render:
 - `estimatedRenderLambdaInvokations`: The estimated amount of Lambdas that will render chunks of the video.
 - `compositionId`: The ID of the composition that is being rendered.
 - `codec`: The selected codec into which the video gets encoded.
-- `dimensions`: The dimensions, with any `scale` applied, of the output video. (Available from v4.0.222)
+- `dimensions`<AvailableFrom v="4.0.222" inline />: The dimensions, with any `scale` applied, of the output video.
 
 ### `bucket`
 
@@ -190,11 +190,9 @@ The current time at which the Lambda function responded to the progress request.
 ### `renderSize`
 
 How many bytes have been saved to the S3 bucket as a result of this render.  
-From v4.0.165, this might be slightly underreported as the `progress.json` file is not factored in.
+From <AvailableFrom v="4.0.165" inline />, this might be slightly underreported as the `progress.json` file is not factored in.
 
-### `outputSizeInBytes`
-
-_available from v.3.3.9_
+### `outputSizeInBytes`<AvailableFrom v="3.3.9" />
 
 The size of the output artifact in bytes.
 
@@ -202,9 +200,7 @@ The size of the output artifact in bytes.
 
 How many lambdas that render a chunk have been invoked yet and have started rendering.
 
-### `framesRendered`
-
-_available from v3.3.8_
+### `framesRendered`<AvailableFrom v="3.3.8" />
 
 How many frames have been rendered so far, approximated to a number divisible by `5`.
 

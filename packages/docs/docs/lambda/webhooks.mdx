@@ -65,6 +65,14 @@ export type WebhookSuccessPayload = StaticWebhookPayload & {
     key: string;
     sizeInBytes: number;
   } | null;
+  outputSequence: {
+    bucketName: string;
+    keyPrefix: string;
+    manifestKey: string;
+    manifestUrl: string;
+    imageFormat: 'png' | 'jpeg';
+    frameCount: number;
+  } | null;
   timeToFinish: number | undefined;
   costs: AfterRenderCost;
 };
@@ -88,7 +96,7 @@ The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the r
 {
   "s3Location": "string",
   "explanation": "string" | null,
-  "type": "renderer" | "browser" | "stitcher",
+  "type": "renderer" | "browser" | "stitcher" | "webhook" | "artifact",
   "message": "string",
   "name": "string",
   "stack": "string",
@@ -236,7 +244,7 @@ router.listen(3000, () => {
 
 ## Example webhook endpoint (Next.JS App Router)
 
-Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from v4.0.246.
+Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from <AvailableFrom v="4.0.246" inline />.
 
 ```tsx twoslash title="app/api/webhook.ts"
 import {appRouterWebhook} from '@remotion/lambda/client';
@@ -255,7 +263,7 @@ export const OPTIONS = POST;
 
 ## Example webhook endpoint (Next.JS Pages Router)
 
-The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from v4.0.246.
+The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from <AvailableFrom v="4.0.246" inline />.
 
 ```tsx twoslash title="pages/api/webhook.ts"
 import {pagesRouterWebhook} from '@remotion/lambda/client';

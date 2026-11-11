@@ -157,7 +157,7 @@ You need to be wary of the browser's autoplay policy. In most browsers, you cann
 
 ## Programmatically control the player
 
-```tsx twoslash {1, 6-15, 18}
+```tsx twoslash {1, 6-14, 19, 26-28}
 // @filename: ./remotion/MyVideo.tsx
 // @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
@@ -180,14 +180,19 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
+    <>
+      <Player
+        ref={playerRef}
+        component={MyVideo}
+        durationInFrames={120}
+        compositionWidth={1920}
+        compositionHeight={1080}
+        fps={30}
+      />
+      <button type="button" onClick={seekToMiddle}>
+        Seek to middle
+      </button>
+    </>
   );
 };
 ```
