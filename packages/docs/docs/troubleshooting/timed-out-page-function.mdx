@@ -8,9 +8,10 @@ crumb: "Troubleshooting"
 The error message "Timed out evaluating page function"
 
 ```
-Error: Timed out evaluating page function (f, c) => {
-  window.remotion_setFrame(f, c);
-}
+Error: Timed out evaluating page function "(f, c, a, video, audio) => {
+  window.remotion_setMediaEnabled(video, audio);
+  window.remotion_setFrame(f, c, a);
+}"
 ```
 
 generally happens if the Remotion renderer is trying to send a JavaScript command to the browser, but the browser does not respond to it within the timeout (before `v4.0.73`: 5 second, from `v4.0.73`: the [`--timeout`](/docs/options/timeout) flag, by default 30 seconds).

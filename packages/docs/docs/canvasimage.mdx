@@ -37,6 +37,10 @@ Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/We
 
 An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
 
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+
 ### `width?`
 
 The canvas width in pixels.  
@@ -132,7 +136,7 @@ Passed directly to the `timeoutInMilliseconds` option of `delayRender()`.
 
 ### Inherited props
 
-`<CanvasImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<CanvasImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 ## Adding a ref
 

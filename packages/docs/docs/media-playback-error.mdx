@@ -9,13 +9,13 @@ crumb: 'Troubleshooting'
 The following error may occur in your Remotion project during development or while rendering:
 
 ```diff
-- Error: Could not play video with src [source] [object MediaError]
+- The browser threw an error while playing the video [source]: Code [code] - [message]. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.
 ```
 
 or
 
 ```diff
-- Error: Could not play audio with src [source] [object MediaError]
+- Could not play audio with src [source]: [object MediaError]. See https://remotion.dev/docs/media-playback-error for help.
 ```
 
 This error can occur with [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), or [`<Html5Audio>`](/docs/html5-audio) when the browser is unable to load and play the media. Although the browser does not report the exact error, there are several common reasons for this error.
@@ -62,10 +62,6 @@ Open the DevTools and go to the network tab to validate that this is the case.
 
 [Internet Download Manager](https://www.internetdownloadmanager.com/) is known to manipulate the network traffic causing problems for the browser to load media. Disable it if you have it.
 
-## Other unsupported codecs
-
-You might be importing a video that is not compatible with Chrome at all, e.g. FLV.
-
 ## Too many video tags
 
 The error message might contain `error creating media player`, appearing if too many video tags are created.  
@@ -96,4 +92,4 @@ You can handle this error and replace it with a different video by passing the `
 
 ## See also
 
-- [Codec support](/docs/config#setbrowserexecutable)
+- [Codec support](/docs/miscellaneous/video-formats)
