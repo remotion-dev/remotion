@@ -184,6 +184,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	});
 
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
@@ -292,6 +293,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 
 	events.length = 0;
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
@@ -521,6 +523,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 	});
 
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,

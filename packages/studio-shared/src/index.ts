@@ -156,6 +156,7 @@ export {
 	ReorderEffectResponse,
 	ReorderSequencePosition,
 	ReorderSequenceRequest,
+	TrackMoveTiming,
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,

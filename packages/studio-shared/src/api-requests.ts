@@ -778,13 +778,23 @@ export type DuplicateEffectResponse =
 
 export type ReorderSequencePosition = 'before' | 'after';
 
+export type TrackMoveTiming = {
+	from: number;
+	durationInFrames: number;
+	playbackRate: number;
+	trimBefore: number;
+	name: string;
+};
+
 export type ReorderSequenceRequest = {
 	fileName: string;
 	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
-	position: ReorderSequencePosition;
 	clientId: string;
-};
+} & (
+	| {position: ReorderSequencePosition}
+	| {position: 'inside'; timings: TrackMoveTiming[]}
+);
 
 export type ReorderSequenceResponse =
 	| {
@@ -1241,6 +1251,10 @@ export type RestorePrerenderedSceneResponse =
 
 export type InsertableCompositionElement =
 	| {
+			type: 'track';
+			position: null;
+	  }
+	| {
 			type: 'text';
 			text: string;
 			fontSize: number;
@@ -1299,6 +1313,10 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	track: {
+		targetNodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number;
+	} | null;
 };
 
 export type InsertCompositionElementResponse =
