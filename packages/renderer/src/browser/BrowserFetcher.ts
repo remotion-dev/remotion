@@ -221,6 +221,10 @@ export const downloadBrowser = async ({
 				indent,
 				logLevel,
 				abortSignal: new AbortController().signal,
+			}).catch((err) => {
+				throw new Error(
+					`Could not download ${chromeMode === 'headless-shell' ? 'Chrome Headless Shell' : 'Chrome for Testing'} from ${downloadURL}: ${(err as Error).message}\nIf the machine has no internet access at render time, run "npx remotion browser ensure" while building it (e.g. in your Dockerfile), or pass "browserExecutable". See https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell`,
+				);
 			});
 			await extractZipArchive(archivePath, outputPath);
 
