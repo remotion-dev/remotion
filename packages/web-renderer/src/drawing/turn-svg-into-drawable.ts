@@ -45,43 +45,76 @@ const getSvgFontElements = (svg: SVGSVGElement) => {
 	return [...elements];
 };
 
+const svgDefinitionElements =
+	'defs, symbol, pattern, mask, clipPath, marker, filter, linearGradient, radialGradient';
+
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
 	const templates = new Set<Element>();
-	const uses = Array.from(svg.querySelectorAll('use')).filter(
-		(use) => !use.closest('defs, symbol'),
-	);
-	for (const use of uses) {
+	const elements: Element[] = [svg];
+	const ownerWindow = svg.ownerDocument.defaultView ?? window;
+	const addReference = (
+		value: string,
+		element: Element,
+		allowed: string | null,
+	) => {
 		try {
-			const url = new URL(use.href.baseVal, use.baseURI);
+			const url = new URL(value, element.baseURI);
 			const id = decodeURIComponent(url.hash.slice(1));
 			url.hash = '';
-			if (url.href !== documentUrl.href) continue;
+			if (url.href !== documentUrl.href) return;
 			const template = svg.getElementById(id);
-			if (!template || templates.has(template)) continue;
+			if (
+				!template ||
+				templates.has(template) ||
+				(allowed !== null && !template.matches(allowed))
+			)
+				return;
 			templates.add(template);
-			for (const nested of [
-				...(template.localName === 'use' ? [template as SVGUseElement] : []),
-				...template.querySelectorAll('use'),
-			]) {
-				if (nested === template) {
-					uses.push(nested);
-					continue;
-				}
-
-				let ancestor: Element | null = nested.parentElement;
-				while (
-					ancestor &&
-					ancestor !== template &&
-					!ancestor.matches('defs, symbol')
-				)
-					ancestor = ancestor.parentElement;
-				if (ancestor === template) uses.push(nested);
-			}
+			elements.push(template);
 		} catch {
-			// Invalid authored references do not instantiate a template.
-			continue;
+			// Invalid or external authored references do not activate local resources.
+		}
+	};
+
+	for (const element of elements) {
+		if (element.namespaceURI !== 'http://www.w3.org/2000/svg') continue;
+		if (
+			element.matches('use, pattern, linearGradient, radialGradient, filter')
+		) {
+			const href =
+				element.getAttribute('href') ??
+				element.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+			if (href)
+				addReference(
+					href,
+					element,
+					element.localName === 'use' ? null : element.localName,
+				);
+		}
+
+		const style = ownerWindow.getComputedStyle(element);
+		for (const [property, allowed] of [
+			['fill', 'pattern, linearGradient, radialGradient'],
+			['stroke', 'pattern, linearGradient, radialGradient'],
+			['mask-image', 'mask'],
+			['clip-path', 'clipPath'],
+			['filter', 'filter'],
+			['marker-start', 'marker'],
+			['marker-mid', 'marker'],
+			['marker-end', 'marker'],
+		]) {
+			const value = style.getPropertyValue(property);
+			for (const match of value.matchAll(
+				/url\((?:"([^"\\]*)"|'([^'\\]*)'|([^()\\]*))\)/g,
+			)) {
+				addReference(match[1] ?? match[2] ?? match[3], element, allowed);
+			}
+		}
+
+		for (const child of element.children) {
+			if (!child.matches(svgDefinitionElements)) elements.push(child);
 		}
 	}
 
@@ -223,7 +256,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		: new Set<Element>();
 	const textStyles = textElements.map((element) => {
 		// Templates inherit font selection from each <use> instance.
-		if (element.closest('defs, symbol')) return null;
+		if (element.closest(svgDefinitionElements)) return null;
 		let ancestor: Element = element;
 		while (ancestor !== svg) {
 			if (referencedTemplates.has(ancestor)) return null;
@@ -251,7 +284,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 				ancestor !== null &&
 				ancestor !== svg &&
 				!referencedTemplates.has(ancestor) &&
-				!ancestor.matches('defs, symbol')
+				!ancestor.matches(svgDefinitionElements)
 			)
 				ancestor = ancestor.parentElement;
 			if (

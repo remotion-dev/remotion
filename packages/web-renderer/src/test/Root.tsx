@@ -250,6 +250,10 @@ import {
 	svgLocalConditionalFont,
 	svgLocalConditionalUrlFont,
 } from './fixtures/svg-local-conditional-font';
+import {
+	svgPaintFontModes,
+	svgPaintResourceFont,
+} from './fixtures/svg-paint-resource-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {
@@ -421,6 +425,9 @@ export const Root: React.FC = () => {
 			<Composition {...svgLocalConditionalFont} />
 			<Composition {...svgLocalConditionalUrlFont} />
 			<Composition {...svgCssUrlFont} />
+			{svgPaintFontModes.map((mode) => (
+				<Composition key={mode} {...svgPaintResourceFont(mode, false, false)} />
+			))}
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
