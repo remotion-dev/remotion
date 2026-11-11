@@ -182,6 +182,10 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {
+	svgAdoptedFont,
+	svgAdoptedFontGroups,
+} from './fixtures/svg-adopted-font';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {
@@ -222,6 +226,13 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {
+	svgDefinitionModes,
+	svgDefinitionFont,
+	svgDefinitionFontUrl,
+	svgWildcardStyleModes,
+	svgWildcardStyle,
+} from './fixtures/svg-font-definition-review';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
 	svgFullSourceUrlFill,
@@ -241,6 +252,10 @@ import {
 } from './fixtures/svg-local-conditional-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
+import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
+} from './fixtures/svg-titled-font';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -384,6 +399,24 @@ export const Root: React.FC = () => {
 			)}
 			<Composition {...svgCssDataFont} />
 			<Composition {...svgCssImportFont} />
+			{svgExternalCarrierModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgExternalEmptyCarrier({mode, literal: false})}
+				/>
+			))}
+			{svgAdoptedFontGroups.map((group) => (
+				<Composition key={group} {...svgAdoptedFont({group, literal: false})} />
+			))}
+			{svgDefinitionModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgDefinitionFont({mode, fontUrl: svgDefinitionFontUrl})}
+				/>
+			))}
+			{svgWildcardStyleModes.map((mode) => (
+				<Composition key={mode} {...svgWildcardStyle({mode, literal: false})} />
+			))}
 			<Composition {...svgCssConditionalFont} />
 			<Composition {...svgLocalConditionalFont} />
 			<Composition {...svgLocalConditionalUrlFont} />

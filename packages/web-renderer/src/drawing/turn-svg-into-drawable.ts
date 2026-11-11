@@ -21,18 +21,64 @@ const serializeSvg = (svg: SVGSVGElement) =>
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
+const getSvgFontElements = (svg: SVGSVGElement) => {
+	const isSvgElement = (element: Element): element is SVGElement =>
+		element.namespaceURI === 'http://www.w3.org/2000/svg';
+	const elements = new Set(
+		Array.from(svg.querySelectorAll('text, tspan, textPath')).filter(
+			isSvgElement,
+		),
+	);
+	for (const element of [...elements]) {
+		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		while (walker.nextNode()) {
+			const parent = walker.currentNode.parentElement;
+			if (
+				walker.currentNode.textContent?.length &&
+				parent &&
+				isSvgElement(parent)
+			)
+				elements.add(parent);
+		}
+	}
+
+	return [...elements];
+};
+
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
 	documentUrl.hash = '';
 	const templates = new Set<Element>();
-	for (const use of svg.querySelectorAll('use')) {
+	const uses = Array.from(svg.querySelectorAll('use')).filter(
+		(use) => !use.closest('defs, symbol'),
+	);
+	for (const use of uses) {
 		try {
 			const url = new URL(use.href.baseVal, use.baseURI);
 			const id = decodeURIComponent(url.hash.slice(1));
 			url.hash = '';
 			if (url.href !== documentUrl.href) continue;
 			const template = svg.getElementById(id);
-			if (template) templates.add(template);
+			if (!template || templates.has(template)) continue;
+			templates.add(template);
+			for (const nested of [
+				...(template.localName === 'use' ? [template as SVGUseElement] : []),
+				...template.querySelectorAll('use'),
+			]) {
+				if (nested === template) {
+					uses.push(nested);
+					continue;
+				}
+
+				let ancestor: Element | null = nested.parentElement;
+				while (
+					ancestor &&
+					ancestor !== template &&
+					!ancestor.matches('defs, symbol')
+				)
+					ancestor = ancestor.parentElement;
+				if (ancestor === template) uses.push(nested);
+			}
 		} catch {
 			// Invalid authored references do not instantiate a template.
 			continue;
@@ -152,7 +198,11 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		}
 	};
 
-	for (const sheet of svg.ownerDocument.styleSheets) visitSheet(sheet);
+	for (const sheet of [
+		...svg.ownerDocument.styleSheets,
+		...(svg.ownerDocument.adoptedStyleSheets ?? []),
+	])
+		visitSheet(sheet);
 
 	return rules;
 };
@@ -167,9 +217,7 @@ const drawableBySvg = new WeakMap<
 >();
 
 export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
-	const textElements = Array.from(
-		svg.querySelectorAll('text, tspan, textPath'),
-	);
+	const textElements = getSvgFontElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
@@ -188,13 +236,43 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		);
 	});
 
-	// Font discovery includes explicit template choices without freezing their inheritance.
-	const fontFamilies = new Set(
-		textElements.flatMap((element) =>
-			parseFontFamilies(getComputedStyle(element).fontFamily),
-		),
-	);
-	const cssFontRules = textElements.length
+	// Discover the families of actual text-node parents, including template text.
+	const fontFamilies = new Set<string>();
+	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
+	for (const element of textElements) {
+		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		while (walker.nextNode()) {
+			if (!walker.currentNode.textContent?.length) continue;
+			const parent = walker.currentNode.parentElement;
+			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
+				continue;
+			let ancestor: Element | null = parent;
+			while (
+				ancestor !== null &&
+				ancestor !== svg &&
+				!referencedTemplates.has(ancestor) &&
+				!ancestor.matches('defs, symbol')
+			)
+				ancestor = ancestor.parentElement;
+			if (
+				ancestor === null ||
+				(ancestor !== svg && !referencedTemplates.has(ancestor))
+			)
+				continue;
+			let style = computedStyles.get(parent);
+			if (!style) {
+				style = (svg.ownerDocument.defaultView ?? window).getComputedStyle(
+					parent,
+				);
+				computedStyles.set(parent, style);
+			}
+
+			for (const family of parseFontFamilies(style.fontFamily))
+				fontFamilies.add(family);
+		}
+	}
+
+	const cssFontRules = fontFamilies.size
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
@@ -207,9 +285,19 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 					element.getAttribute('style'),
 				)
 			: null;
+	const authoredEmpty =
+		textElements.length > 0 &&
+		Array.from(svg.querySelectorAll('style')).some((style) =>
+			style.textContent?.includes(':empty'),
+		)
+			? [svg, ...svg.querySelectorAll('*')].map((element) =>
+					element.matches(':empty'),
+				)
+			: null;
 	return {
 		textStyles,
 		authoredStyles,
+		authoredEmpty,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
 	};
@@ -220,8 +308,13 @@ export const turnSvgIntoDrawable = (
 	fontSnapshot: ReturnType<typeof getSvgFontSnapshot> | null = null,
 ) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const {textStyles, authoredStyles, cssFontRules, embeddedFontStyle} =
-		fontSnapshot ?? getSvgFontSnapshot(svg);
+	const {
+		textStyles,
+		authoredStyles,
+		authoredEmpty,
+		cssFontRules,
+		embeddedFontStyle,
+	} = fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
 	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
@@ -298,19 +391,17 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
-	svgForSerialization
-		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
-		.forEach((element, index) => {
-			const fontStyle = textStyles[index];
-			if (fontStyle === null) return;
-			textFontProperties.forEach((property, propertyIndex) => {
-				element.style.setProperty(
-					property,
-					fontStyle[propertyIndex],
-					'important',
-				);
-			});
+	getSvgFontElements(svgForSerialization).forEach((element, index) => {
+		const fontStyle = textStyles[index];
+		if (fontStyle === null) return;
+		textFontProperties.forEach((property, propertyIndex) => {
+			element.style.setProperty(
+				property,
+				fontStyle[propertyIndex],
+				'important',
+			);
 		});
+	});
 	const originalFontStyleIndex = fontStyleIndex;
 	const retargetRegisteredCarrier =
 		cssFontRules.length === 0 &&
@@ -348,15 +439,25 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
+	const usesStylesheetSets = Boolean(
+		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	);
+	const fontCarriers = usesStylesheetSets
+		? Array.from(styles, (style, index) =>
+				style.sheet && !style.sheet.disabled && !style.matches(':empty')
+					? index
+					: null,
+			).filter((index) => index !== null)
+		: [fontStyleIndex];
 	if (cssFontRules.length === 0 && embeddedFontStyle !== null) {
-		const style = styles[fontStyleIndex];
-		if (style?.sheet && !style.sheet.disabled && !style.matches(':empty')) {
-			// CSSOM drops an unterminated comment that would consume appended faces.
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent =
-				Array.from(style.sheet.cssRules, (rule) => rule.cssText).join('') ||
-				'/* Empty stylesheet rules. */';
+		for (const index of fontCarriers) {
+			const style = styles[index];
+			if (style?.sheet && !style.sheet.disabled && !style.matches(':empty')) {
+				// CSSOM drops an unterminated comment that would consume appended faces.
+				svgForSerialization.querySelectorAll('style')[index].textContent =
+					Array.from(style.sheet.cssRules, (rule) => rule.cssText).join('') ||
+					'/* Empty stylesheet rules. */';
+			}
 		}
 	}
 
@@ -389,8 +490,12 @@ export const turnSvgIntoDrawable = (
 		});
 	}
 
-	if (authoredStyles)
-		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+	if (authoredStyles || authoredEmpty)
+		preserveSvgStyleSelectors({
+			svg: svgForSerialization,
+			authoredStyles,
+			authoredEmpty,
+		});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 
@@ -423,12 +528,14 @@ export const turnSvgIntoDrawable = (
 	}
 
 	const fontStyleKey =
+		usesStylesheetSets ||
 		cssFontRules.length ||
 		(retargetRegisteredCarrier && fontStyleIndex !== originalFontStyleIndex)
 			? JSON.stringify([
 					embeddedFontStyle?.cacheKey ?? null,
 					cssFontRules.map((rule) => [rule.css, rule.url]),
 					fontStyleIndex,
+					fontCarriers,
 				])
 			: (embeddedFontStyle?.cacheKey ?? null);
 	const cached = drawableBySvg.get(svg);
@@ -468,7 +575,17 @@ export const turnSvgIntoDrawable = (
 				const fontCss = css + (embeddedFontStyle?.css ?? '');
 				let markup = serializedSvg;
 				if (fontCss) {
-					insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
+					if (usesStylesheetSets && fontCarriers.length) {
+						const clonedStyles = svgForSerialization.querySelectorAll('style');
+						for (const index of fontCarriers)
+							clonedStyles[index].textContent =
+								(clonedStyles[index].textContent ?? '') + '\n' + fontCss;
+					} else
+						insertFontStyleInSvg(
+							svgForSerialization,
+							fontCss,
+							usesStylesheetSets ? -1 : fontStyleIndex,
+						);
 					markup = serializeSvg(svgForSerialization);
 				}
 
