@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/chrome-compile",
-	"version": "4.0.542",
+	"version": "4.0.543",
 	"private": true,
 	"type": "module",
 	"description": "Chromium build recipes and on-demand build artifacts for Remotion.",
