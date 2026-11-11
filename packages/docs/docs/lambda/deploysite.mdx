@@ -107,12 +107,12 @@ Passes a custom Rspack override. See [`bundle()` → `rspackOverride`](/docs/bun
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
 :::note
-The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where [`bundle()`](/docs/bundle) gets called.
 :::
 
 #### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.55" />
 
-Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+Ignore an error that gets thrown if you pass an entry point file which does not contain [`registerRoot()`](/docs/register-root).
 
 #### `keyboardShortcutsEnabled?`<AvailableFrom v="4.0.407"/>
 
@@ -169,5 +169,5 @@ From `v3.3.7`, this function is incremental: It only compares the contents of th
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
 - [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
 - [CLI equivalent: `npx remotion lambda sites create`](/docs/lambda/cli/sites/create)
-- [getSites()](/docs/lambda/getsites)
-- [deleteSite()](/docs/lambda/deletesite)
+- [`getSites()`](/docs/lambda/getsites)
+- [`deleteSite()`](/docs/lambda/deletesite)
