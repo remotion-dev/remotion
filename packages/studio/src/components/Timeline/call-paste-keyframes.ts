@@ -165,10 +165,14 @@ export const callPasteKeyframes = ({
 		const flatSchema = Internals.getFlatSchemaWithAllKeys(
 			ancestor.controls.schema,
 		);
+		const isSeriesSequence =
+			ancestor.controls.componentIdentity ===
+			'dev.remotion.remotion.Series.Sequence';
 		const fields = (['from', 'trimBefore', 'playbackRate'] as const).flatMap(
 			(key) => {
 				const field = flatSchema[key];
-				if (!field) return [];
+				const isDerivedFrom = key === 'from' && isSeriesSequence;
+				if (!field && !isDerivedFrom) return [];
 				return [
 					{
 						key,
@@ -179,7 +183,10 @@ export const callPasteKeyframes = ({
 									? (ancestor.trimBefore ?? 0)
 									: ancestor.sequencePlaybackRate,
 						defaultValue:
-							'default' in field && typeof field.default === 'number'
+							!isDerivedFrom &&
+							field &&
+							'default' in field &&
+							typeof field.default === 'number'
 								? field.default
 								: null,
 					},

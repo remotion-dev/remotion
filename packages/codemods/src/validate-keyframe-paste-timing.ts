@@ -1,6 +1,9 @@
 import type {AddKeyframesRequest} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-import {computeSequencePropsStatusFromContent} from './sequence-props';
+import {
+	computeSequencePropsStatusFromContent,
+	getSeriesSequenceFromContent,
+} from './sequence-props';
 
 export const validateKeyframePasteTiming = ({
 	files,
@@ -25,6 +28,12 @@ export const validateKeyframePasteTiming = ({
 			keys: guard.fields.map(({key}) => key),
 			effects: [],
 		});
+		const seriesFrom = guard.fields.some(({key}) => key === 'from')
+			? getSeriesSequenceFromContent({
+					fileContents,
+					nodePath: guard.nodePath.nodePath,
+				})
+			: null;
 		for (const field of guard.fields) {
 			if (!Number.isFinite(field.value)) {
 				throw new Error(
@@ -32,20 +41,32 @@ export const validateKeyframePasteTiming = ({
 				);
 			}
 
-			const status = props[field.key];
-			if (status?.status !== 'static') {
-				continue;
+			let value: unknown;
+			if (field.key === 'from' && seriesFrom !== null) {
+				value =
+					seriesFrom.from === null
+						? null
+						: NoReactInternals.evaluateSourceNumericValue(
+								seriesFrom.from,
+								guard.nodePath.videoConfigValues,
+							);
+			} else {
+				const status = props[field.key];
+				if (status?.status !== 'static') {
+					continue;
+				}
+
+				value =
+					status.numericExpression !== undefined
+						? NoReactInternals.evaluateSourceNumericValue(
+								status.numericExpression,
+								guard.nodePath.videoConfigValues,
+							)
+						: status.codeValue === undefined
+							? field.defaultValue
+							: status.codeValue;
 			}
 
-			const value =
-				status.numericExpression !== undefined
-					? NoReactInternals.evaluateSourceNumericValue(
-							status.numericExpression,
-							guard.nodePath.videoConfigValues,
-						)
-					: status.codeValue === undefined
-						? field.defaultValue
-						: status.codeValue;
 			if (typeof value !== 'number' || !Number.isFinite(value)) {
 				continue;
 			}
