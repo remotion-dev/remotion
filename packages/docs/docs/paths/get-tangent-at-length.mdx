@@ -17,7 +17,7 @@ const tangent = getTangentAtLength("M 50 50 L 150 50", 50);
 console.log(tangent); // { x: 1, y: 0}
 ```
 
-From <AvailableFrom v="5.0.0" inline />, the function returns `null` if the requested length is greater than the length of the path. In Remotion 4.0, it returned the tangent at the end of the path. See the [migration guide](/docs/5-0-migration).
+From <AvailableFrom v="4.0.498" inline />, the function returns `null` if the requested length is greater than the length of the path. Previously, it returned the tangent at the end of the path. See the [migration guide](/docs/5-0-migration).
 
 The function will throw if the path is invalid:
 
