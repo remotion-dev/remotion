@@ -118,9 +118,10 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(
 		await operations.findInFile({
 			fileName: 'webpack://remotion/./src/Composition.tsx',
-			lineNumber: 1,
+			lineNumber: 11,
 			columnNumber: 1,
 			search: 'durationInFrames',
+			effectIndex: null,
 		}),
 	).toEqual({lineNumber: 14, columnNumber: 7});
 
