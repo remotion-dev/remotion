@@ -11,7 +11,7 @@ If this is not the next task, see [Remotion Best Practices](../remotion-best-pra
 
 If a project already exists, skip this.
 Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
-`create-video` also installs the dependencies.
+`create-video` also installs the dependencies. If it logs an error while installing them, run `npm i` in the project.
 
 Inspect the current folder, including hidden files, before choosing where to scaffold.
 

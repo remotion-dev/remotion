@@ -42,6 +42,7 @@ license, pass `free-license` instead:
 npx remotion render [composition-id] out/video.mp4 --license-key=$REMOTION_PRIVATE_LICENSE_KEY
 ```
 
+Only pass `--license-key` if a key is available, since an empty value is not a valid key.
 Add `--is-production=false` for test renders so that they are not billed.
 See https://www.remotion.dev/docs/telemetry.md.
 

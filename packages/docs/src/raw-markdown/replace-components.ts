@@ -256,8 +256,21 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		},
 		{
 			componentName: 'Pricing',
-			render: () =>
-				'For the license terms, see [LICENSE.md](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md), the [License FAQ](https://www.remotion.dev/docs/license/faq.md) and the [Terms and Conditions](https://www.remotion.dev/docs/terms.md).',
+			render: ({attributes}) => {
+				const toMarkdownUrl = (name: string) => {
+					const href = getStringAttribute({attributes, name});
+					if (href === null) {
+						throw new Error(`The <Pricing> component is missing ${name}`);
+					}
+
+					return href.replace(
+						/^\/docs\/(.*)$/,
+						'https://www.remotion.dev/docs/$1.md',
+					);
+				};
+
+				return `For the license terms, see [LICENSE.md](${toMarkdownUrl('licenseHref')}), the [License FAQ](${toMarkdownUrl('faqHref')}) and the [Terms and Conditions](${toMarkdownUrl('termsHref')}).`;
+			},
 			removeImport:
 				/^import\s+\{\s*Pricing\s*\}\s+from\s+['"]@remotion\/promo-pages\/dist\/homepage\/Pricing\.js['"];?\s*\n/m,
 		},
@@ -271,13 +284,46 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		},
 	];
 
+const decodeEntities = (value: string) => {
+	return value
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&apos;/g, "'")
+		.replace(/&quot;/g, '"')
+		.replace(/&amp;/g, '&');
+};
+
+const jsxTextPattern = /\{\s*(['"`])(.*?)\1\s*\}|<[^>]+>/g;
+
 const stripJsx = (value: string) => {
 	return value
 		.replace(
-			/\{\s*(['"`])(.*?)\1\s*\}|<[^>]+>/g,
-			(_, quote: string | undefined, text: string | undefined) =>
-				quote === undefined ? '' : text!.includes('<') ? `\`${text}\`` : text!,
+			/<code>([\s\S]*?)<\/code>|\{\s*(['"`])(.*?)\2\s*\}|<[^>]+>/g,
+			(
+				_,
+				code: string | undefined,
+				quote: string | undefined,
+				text: string | undefined,
+			) => {
+				if (code !== undefined) {
+					const inner = code.replace(
+						jsxTextPattern,
+						(__, q: string | undefined, t: string | undefined) =>
+							q === undefined ? '' : t!,
+					);
+					return `\`${decodeEntities(inner)}\``;
+				}
+
+				if (quote === undefined) {
+					return '';
+				}
+
+				return text!.includes('<') ? `\`${text}\`` : text!;
+			},
 		)
+		.split(/(`[^`]*`)/)
+		.map((part) => (part.startsWith('`') ? part : decodeEntities(part)))
+		.join('')
 		.replace(/\s+/g, ' ')
 		.trim();
 };
@@ -295,6 +341,12 @@ const expandTableOfContents = ({
 	for (const [importStatement, names, importPath] of Array.from(
 		raw.matchAll(/^import\s+\{([^}]*)\}\s+from\s+['"](\.[^'"]+)['"];?\s*\n/gm),
 	)) {
+		if (
+			!names.split(',').some((name) => name.trim().endsWith('TableOfContents'))
+		) {
+			continue;
+		}
+
 		const componentPath = ['.tsx', '/index.tsx', '']
 			.map((ext) => path.resolve(path.dirname(sourcePath), importPath + ext))
 			.find((p) => fs.existsSync(p) && fs.statSync(p).isFile());
@@ -329,9 +381,9 @@ const expandTableOfContents = ({
 						chunk.match(/<\/strong>\s*<div[^>]*>([\s\S]*?)<\/div>/)?.[1] ??
 						chunk.match(/\bdescription="([^"]+)"/)?.[1] ??
 						null;
-					const url = /^\/[^#?]*$/.test(link)
-						? `https://www.remotion.dev${link}.md`
-						: link;
+					const url = link
+						.replace(/^\/docs\/([^#?]*)/, 'https://www.remotion.dev/docs/$1.md')
+						.replace(/^\//, 'https://www.remotion.dev/');
 					return `- [${stripJsx(label)}](${url})${description ? ` — ${stripJsx(description)}` : ''}`;
 				});
 			const tag = new RegExp(`<${name}\\s*/>`, 'g');

@@ -14,7 +14,7 @@ export const imageSequencePatternOption = {
 		<>
 			Pattern for naming image sequence files. Supports <code>[frame]</code> for
 			the frame number and <code>[ext]</code> for the file extension. The frame
-			number is zero-padded to the number of digits of the last frame. The
+			number is zero-padded so that all file names have the same length. The
 			default is <code>element-[frame].[ext]</code>.
 		</>
 	),
