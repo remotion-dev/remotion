@@ -778,6 +778,10 @@ export const TimelineEffectItem: React.FC<{
 			selected={selection.selected}
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
+			onDoubleClick={(event) => {
+				event.stopPropagation();
+				openInEditor(null);
+			}}
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
