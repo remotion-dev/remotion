@@ -1063,7 +1063,7 @@ Shows or hides the fixed-width Audio Levels panel to the right of the timeline. 
 
 ### `get_playback_state`
 
-Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
 
 One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
@@ -1079,6 +1079,8 @@ One-frame compositions report frame `0`, duration `1`, their configured `fps`, a
   playbackStartFrame: number | null;
   fps: number | null;
   durationInFrames: number | null;
+  inFrame: number | null;
+  outFrame: number | null;
   playing: boolean | null;
   muted: boolean | null;
   volume: number | null;
@@ -1095,6 +1097,18 @@ The preview's frame rate, used to interpret `currentFrame` and `seek_to_frame`. 
 #### `durationInFrames`<AvailableFrom v="4.0.540" />
 
 The current preview's duration in its frame clock, or `null` when unavailable. A rendered video uses the length of its video track when available, with frame `0` at the first picture. While trailing audio finishes, the playhead stays on the last picture. Audio outputs and videos without track timing use the native media duration. An asset preview includes the full soundtrack, even when the audio extends past the video.
+
+The duration remains the full preview duration when in and out points are set.
+
+#### `inFrame`<AvailableFrom v="4.0.543" />
+
+The marked first included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses frame `0`.
+
+Each composition and asset keeps its own marks. These fields follow the range shown in the timeline in regular Studio, detached Studio, deployed read-only Studio and Browser Studio. Both `inFrame` and `outFrame` are `null` for render-output previews, unsupported or unready content, and one-frame compositions.
+
+#### `outFrame`<AvailableFrom v="4.0.543" />
+
+The marked last included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses `durationInFrames - 1`. For example, `inFrame: 225` and `outFrame: 374` mark 150 frames.
 
 #### `playbackStartFrame`<AvailableFrom v="4.0.540" />
 

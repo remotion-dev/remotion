@@ -49,6 +49,7 @@ import {
 	persistGuidesList,
 	type Guide,
 } from '../state/editor-guides';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {loadLoopOption, loopSetterRef, persistLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
@@ -332,6 +333,12 @@ export const WebMcp: FC = () => {
 		Internals.CompositionManager,
 	);
 	const video = Internals.useVideo();
+	const playbackRange = useTimelineInOutFramePosition();
+	const playbackRangeRef = useRef({
+		id: video?.id ?? null,
+		range: playbackRange,
+	});
+	playbackRangeRef.current = {id: video?.id ?? null, range: playbackRange};
 	const compositionManagerRef = useContext(
 		Internals.CompositionManagerRefContext,
 	);
@@ -2000,7 +2007,7 @@ export const WebMcp: FC = () => {
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
-						'Read the current frame, frame rate, duration, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. All playback fields are null for unsupported or unready content. Render outputs have no timeline zoom and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
+						'Read the current frame, frame rate, duration, marked in/out points, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. Marked points are inclusive, with null for an unset boundary. All playback fields are null for unsupported or unready content. Render outputs return null for inFrame, outFrame and timelineZoom, and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -2016,6 +2023,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: null,
 								fps: null,
 								durationInFrames: null,
+								inFrame: null,
+								outFrame: null,
 								playing: null,
 								muted: null,
 								volume: null,
@@ -2033,6 +2042,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: state.playbackStartFrame,
 								fps: state.fps,
 								durationInFrames: state.durationInFrames,
+								inFrame: null,
+								outFrame: null,
 								playing: state.playing,
 								muted: state.muted,
 								volume: state.volume,
@@ -2043,6 +2054,10 @@ export const WebMcp: FC = () => {
 						}
 
 						const {durationInFrames} = target;
+						const range =
+							playbackRangeRef.current.id === target.id
+								? playbackRangeRef.current.range
+								: null;
 						const timelineViewportWidth =
 							scrollableRef.current?.clientWidth ?? 0;
 						const minZoom = getTimelineMinZoom({
@@ -2061,6 +2076,8 @@ export const WebMcp: FC = () => {
 							playbackStartFrame: null,
 							fps: target.fps,
 							durationInFrames: target.durationInFrames,
+							inFrame: range?.inFrame ?? null,
+							outFrame: range?.outFrame ?? null,
 							playing: durationInFrames > 1 && isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
