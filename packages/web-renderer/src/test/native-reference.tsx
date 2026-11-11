@@ -22,7 +22,10 @@ type Fixture = {
 export const captureNativeReference = async (
 	fixture: Fixture,
 	frame = 0,
-	{omitBackground = true}: {omitBackground?: boolean} = {},
+	{
+		omitBackground = true,
+		screenshotTimeout,
+	}: {omitBackground?: boolean; screenshotTimeout?: number} = {},
 ) => {
 	const host = document.createElement('div');
 	host.dataset.testid = `${fixture.id}-native-${frame}`;
@@ -76,6 +79,7 @@ export const captureNativeReference = async (
 				base64: true,
 				save: false,
 				omitBackground,
+				timeout: screenshotTimeout,
 				scale: 'css',
 				style:
 					'html, body, iframe[data-vitest] { background: transparent !important; }',
@@ -100,7 +104,9 @@ export const warmUpNativeReferences = async (
 	fixtures: Parameters<typeof captureNativeReference>[0][],
 ) => {
 	for (const fixture of fixtures) {
-		await captureNativeReference(fixture, 0);
+		// The test browser's 5s action timeout would otherwise also cap this
+		// slow first screenshot, whatever the hook timeout is.
+		await captureNativeReference(fixture, 0, {screenshotTimeout: 30_000});
 	}
 };
 
