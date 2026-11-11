@@ -4,7 +4,7 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
-import {parseFontFamilies} from './parse-font-families';
+import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
 
 const textFontProperties = [
 	'font-family',
@@ -50,23 +50,28 @@ type CssFontRule = {
 // Font sources must be self-contained before the SVG is loaded as an image.
 const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
+	const ownerWindow = svg.ownerDocument.defaultView ?? window;
 	for (const sheet of svg.ownerDocument.styleSheets) {
 		if (
 			sheet.disabled ||
-			(sheet.media.mediaText && !matchMedia(sheet.media.mediaText).matches)
+			(sheet.media.mediaText &&
+				!ownerWindow.matchMedia(sheet.media.mediaText).matches)
 		)
 			continue;
 		let cssRules: CSSRuleList;
 		try {
 			cssRules = sheet.cssRules;
 		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
+			if (
+				error instanceof ownerWindow.DOMException &&
+				error.name === 'SecurityError'
+			)
 				continue;
 			throw error;
 		}
 
 		for (const rule of cssRules) {
-			if (!(rule instanceof CSSFontFaceRule)) continue;
+			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
@@ -89,14 +94,12 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 
 				// FontFace exposes no source URL. Limit this slice to a unique loaded
 				// face, so an unused or failed CSS source is not fetched for export.
-				const faces = Array.from(svg.ownerDocument.fonts).filter(
-					(face) =>
-						face.family.replace(/^(['"])(.*)\1$/, '$2').toLowerCase() ===
-						family,
+				const faces = Array.from(svg.ownerDocument.fonts).filter((face) =>
+					matchesFontFaceFamily(face.family, family),
 				);
 				if (faces.length !== 1 || faces[0].status !== 'loaded') continue;
 				if (
-					resolved.origin !== new URL(svg.ownerDocument.URL).origin ||
+					resolved.origin !== svg.ownerDocument.defaultView?.origin ||
 					!['http:', 'https:'].includes(resolved.protocol) ||
 					resolved.hash
 				)
