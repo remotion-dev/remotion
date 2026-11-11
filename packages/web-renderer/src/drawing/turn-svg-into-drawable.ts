@@ -135,7 +135,10 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		try {
 			cssRules = sheet.cssRules;
 		} catch (error) {
-			if (error instanceof DOMException && error.name === 'SecurityError')
+			if (
+				error instanceof ownerWindow.DOMException &&
+				error.name === 'SecurityError'
+			)
 				continue;
 			throw error;
 		}

@@ -131,3 +131,35 @@ test('active conditional faces invalidate an unchanged SVG drawable', async (t) 
 		style.remove();
 	}
 });
+
+test('continues past an unreadable stylesheet in the SVG document realm', async () => {
+	const iframe = document.createElement('iframe');
+	document.body.appendChild(iframe);
+	try {
+		const owner = iframe.contentDocument!;
+		const ownerWindow = iframe.contentWindow! as Window & typeof globalThis;
+		const sheet = owner.createElement('style');
+		sheet.textContent = 'body{color:black}';
+		owner.head.appendChild(sheet);
+		const securityError = new ownerWindow.DOMException(
+			'Unreadable stylesheet',
+			'SecurityError',
+		);
+		expect(securityError instanceof DOMException).toBe(false);
+		Object.defineProperty(sheet.sheet!, 'cssRules', {
+			get: () => {
+				throw securityError;
+			},
+		});
+
+		const svg = owner.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('width', '120');
+		svg.setAttribute('height', '40');
+		svg.innerHTML = '<text x="4" y="24">iframe text</text>';
+		owner.body.appendChild(svg);
+		const image = await turnSvgIntoDrawable(svg);
+		expect([image.naturalWidth, image.naturalHeight]).toEqual([120, 40]);
+	} finally {
+		iframe.remove();
+	}
+});
