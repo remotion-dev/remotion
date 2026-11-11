@@ -215,7 +215,7 @@ An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 
-`stitchFramesToVideo()` returns a promise which resolves to nothing. If everything goes well, the output will be placed in `outputLocation`.
+`stitchFramesToVideo()` returns a promise. If [`outputLocation`](#outputlocation) is set, the output is written there and the promise resolves to `null`. Otherwise, it resolves to a `Buffer` containing the output.
 
 ## Compatibility
 

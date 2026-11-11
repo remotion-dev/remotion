@@ -18,6 +18,12 @@ You can quickly deploy your Remotion project to Vercel to offload rendering to a
 
 Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure. Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
 
+In the template, rendering is done inside a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) and the render is stored in [Vercel Blob](https://vercel.com/docs/vercel-blob).
+
+:::note
+The template does not include rate limiting or caching. Implement these before making your app publicly available, and set up [Vercel Spend Management](https://vercel.com/docs/accounts/spend-management) to control costs. Sandbox snapshots, rendered videos, and other Vercel Blob data persist indefinitely – delete them when no longer needed.
+:::
+
 See the dedicated [Vercel Sandbox](/docs/vercel-sandbox) page for full documentation.
 
 ## Studio Deployment
@@ -43,8 +49,7 @@ See an example endpoint for rendering a video:
 <summary>App router example</summary>
 
 ```ts twoslash title="src/app/api/lambda/render/route.ts"
-import {AwsRegion, RenderMediaOnLambdaOutput} from '@remotion/lambda/client';
-import {renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda/client';
+import {AwsRegion, renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda/client';
 import {NextResponse} from 'next/server';
 
 const DISK = 10240;
@@ -53,7 +58,7 @@ const REGION = 'eu-central-1';
 const SITE_NAME = 'https://remotion-helloworld.vercel.app';
 const TIMEOUT = 120;
 
-export const POST = async (req: Request, res: NextResponse) => {
+export const POST = async (req: Request) => {
   if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
     throw new TypeError('Set up Remotion Lambda to render videos. See the README.md for how to do so.');
   }
@@ -80,7 +85,7 @@ export const POST = async (req: Request, res: NextResponse) => {
     },
   });
 
-  return result;
+  return NextResponse.json(result);
 };
 ```
 
@@ -100,18 +105,6 @@ Example:
 ```bash
 npx remotion render https://remotion-helloworld.vercel.app HelloWorld
 ```
-
-## Rendering on Vercel
-
-Deploy the Vercel template:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&stores=%5B%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
-
-Rendering will be done inside a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) and the render will be stored in [Vercel Blob](https://vercel.com/docs/vercel-blob).
-
-:::note
-The template does not include rate limiting or caching. Implement these before making your app publicly available, and set up [Vercel Spend Management](https://vercel.com/docs/accounts/spend-management) to control costs. Sandbox snapshots, rendered videos, and other Vercel Blob data persist indefinitely – delete them when no longer needed.
-:::
 
 ## Templates
 

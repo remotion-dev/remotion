@@ -112,7 +112,7 @@ await renderMedia({
 
 _number | string | null_ <TsType type="Concurrency" source="@remotion/renderer" href="/docs/renderer/types#concurrency" />
 
-A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available, capped at 8.
 
 ### `metadata?`<AvailableFrom v="4.0.216" />
 
@@ -388,7 +388,7 @@ const onBrowserLog = (log: BrowserLog) => {
 
 ### `timeoutInMilliseconds?`
 
-A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
@@ -440,10 +440,6 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 <Options id="chromium-blink-features" />
 
-### `chromeMode?`<AvailableFrom v="4.0.248" />
-
-<Options id="chrome-mode" />
-
 #### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
@@ -451,6 +447,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 #### `darkMode?`<AvailableFrom v="4.0.381"/>
 
 <Options id="dark-mode" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
