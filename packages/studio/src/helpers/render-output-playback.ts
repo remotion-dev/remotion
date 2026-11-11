@@ -232,11 +232,40 @@ export const registerRenderOutputPlayback = ({
 	if (current && current.element !== element) current.element.pause();
 	current = entry;
 	element.addEventListener('play', onPlay);
-	return () => {
-		element.removeEventListener('play', onPlay);
-		if (current === entry) {
-			current = null;
-			element.pause();
-		} else if (current?.element !== element) element.pause();
+	return {
+		setSource: async (src: string) => {
+			const previousSrc = element.getAttribute('src');
+			if (previousSrc === src) return;
+			if (previousSrc === null) {
+				element.src = src;
+				return;
+			}
+
+			const previousTime = element.currentTime;
+			const previousRate = element.playbackRate;
+			const resume = !element.paused && !element.ended;
+			const request = ++playRequest;
+			element.src = src;
+			// Before metadata loads, currentTime sets the native default playback start position.
+			element.currentTime = previousTime;
+			element.playbackRate = previousRate;
+			awaitingPlayEvent = resume;
+			if (!resume) return;
+			try {
+				await element.play();
+			} catch (error) {
+				if (current !== entry || request !== playRequest) return;
+				awaitingPlayEvent = false;
+				if (error instanceof Error && error.name === 'AbortError') return;
+				throw error;
+			}
+		},
+		unregister: () => {
+			element.removeEventListener('play', onPlay);
+			if (current === entry) {
+				current = null;
+				element.pause();
+			} else if (current?.element !== element) element.pause();
+		},
 	};
 };

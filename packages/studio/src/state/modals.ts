@@ -321,6 +321,7 @@ export type ModalState =
 	| {
 			type: 'precompose-refactor';
 			targets: PrecomposeRefactorTarget[];
+			failureReason: string | null;
 	  }
 	| {
 			type: 'precompose-name';

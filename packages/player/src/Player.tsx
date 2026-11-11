@@ -24,6 +24,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
+import {PlaybackRangeContext} from './playback-range-context.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef, RenderCustomControls} from './player-methods.js';
 import type {
@@ -518,6 +519,11 @@ const PlayerFn = <
 		}, [overrideInternalClassName]);
 	}
 
+	const playbackRange = useMemo(
+		() => ({inFrame: inFrame ?? null, outFrame: outFrame ?? null}),
+		[inFrame, outFrame],
+	);
+
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
 
 	const browserMediaControlsBehavior: BrowserMediaControlsBehavior =
@@ -586,8 +592,6 @@ const PlayerFn = <
 								showPosterWhenBufferingAndPaused,
 							)}
 							renderPoster={renderPoster}
-							inFrame={inFrame ?? null}
-							outFrame={outFrame ?? null}
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
@@ -614,20 +618,24 @@ const PlayerFn = <
 	);
 
 	return (
-		<Internals.DefaultPremountContext.Provider value={defaultPremountInSeconds}>
-			{onTimelineSequenceChange ? (
-				<Internals.SequenceRegistrationContext.Provider value>
-					<Internals.SequenceManagerProvider>
-						<TimelineSequenceObserverComponent
-							onTimelineSequenceChange={onTimelineSequenceChange}
-						/>
-						{player}
-					</Internals.SequenceManagerProvider>
-				</Internals.SequenceRegistrationContext.Provider>
-			) : (
-				player
-			)}
-		</Internals.DefaultPremountContext.Provider>
+		<PlaybackRangeContext.Provider value={playbackRange}>
+			<Internals.DefaultPremountContext.Provider
+				value={defaultPremountInSeconds}
+			>
+				{onTimelineSequenceChange ? (
+					<Internals.SequenceRegistrationContext.Provider value>
+						<Internals.SequenceManagerProvider>
+							<TimelineSequenceObserverComponent
+								onTimelineSequenceChange={onTimelineSequenceChange}
+							/>
+							{player}
+						</Internals.SequenceManagerProvider>
+					</Internals.SequenceRegistrationContext.Provider>
+				) : (
+					player
+				)}
+			</Internals.DefaultPremountContext.Provider>
+		</PlaybackRangeContext.Provider>
 	);
 };
 

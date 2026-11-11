@@ -49,6 +49,7 @@ import {
 	persistGuidesList,
 	type Guide,
 } from '../state/editor-guides';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {loadLoopOption, loopSetterRef, persistLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
@@ -74,6 +75,7 @@ import {
 } from './RenderQueue/context';
 import {useRenderJobRetry} from './RenderQueue/render-retry';
 import {measureOutlineTargets} from './selected-outline-measurement';
+import {SplitterImperativeContext} from './Splitter/SplitterImperativeContext';
 import {getPendingTimelineTimingEdits} from './Timeline/commit-timeline-timing-edit';
 import {deleteEffectsFromSource} from './Timeline/delete-effects-from-source';
 import {
@@ -81,6 +83,7 @@ import {
 	getPendingSequenceDuplications,
 	isSequenceDuplicationPending,
 } from './Timeline/duplicate-selected-timeline-item';
+import {createTrackLookupForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -305,6 +308,9 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const {getSplitters, setSplitterPosition} = useContext(
+		SplitterImperativeContext,
+	);
 	const {
 		visible: audioLevelsVisible,
 		setVisible: setAudioLevelsVisible,
@@ -317,7 +323,10 @@ export const WebMcp: FC = () => {
 	const revealBufferingHandle = useRevealBufferingHandle();
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
-	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const {addCaptionJob, addVideoMattingJob, captionJobs, cancelClientJob} =
+		useContext(RenderQueueContext);
+	const captionJobsRef = useRef(captionJobs);
+	captionJobsRef.current = captionJobs;
 	const renderQueueActions = useContext(RenderQueueActionsContext);
 	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
@@ -328,6 +337,12 @@ export const WebMcp: FC = () => {
 		Internals.CompositionManager,
 	);
 	const video = Internals.useVideo();
+	const playbackRange = useTimelineInOutFramePosition();
+	const playbackRangeRef = useRef({
+		id: video?.id ?? null,
+		range: playbackRange,
+	});
+	playbackRangeRef.current = {id: video?.id ?? null, range: playbackRange};
 	const compositionManagerRef = useContext(
 		Internals.CompositionManagerRefContext,
 	);
@@ -566,7 +581,7 @@ export const WebMcp: FC = () => {
 					name: 'transcribe_asset',
 					title: 'Transcribe Studio asset',
 					description:
-						'Transcribe an audio or video asset from the public folder into Remotion Caption[] JSON and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+						'Queue transcription of an audio or video asset from the public folder into Remotion Caption[] JSON. A successful response acknowledges queuing. Read get_transcription_jobs for progress and the outcome. If assetPath is omitted, the asset currently open in Studio is used.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -753,6 +768,97 @@ export const WebMcp: FC = () => {
 							topK,
 						});
 						return {jobId, outputPath, success: true};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_transcription_jobs',
+					title: 'Get Studio transcription jobs',
+					description:
+						'Read the transcription jobs in this Studio tab, including their source, output destination, status, progress, errors, caption count and cancellation availability. Includes jobs started in the UI or by transcribe_asset. Available in all Studio modes. A reload clears the tab-local queue.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							jobs: captionJobsRef.current.map((job) => ({
+								id: job.id,
+								displayName: job.displayName,
+								src: job.src,
+								output:
+									job.target === null
+										? {type: 'file', path: job.outName}
+										: {type: 'composition', fileName: job.target.fileName},
+								status: job.status,
+								canCancel: job.status === 'running',
+								progress:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.value
+										: job.status === 'done'
+											? 1
+											: job.status === 'idle'
+												? 0
+												: null,
+								progressMessage:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.message
+										: null,
+								captionCount: job.status === 'done' ? job.captionCount : null,
+								error:
+									job.status === 'failed'
+										? {
+												message: job.error.message,
+												stack: job.error.stack ?? null,
+											}
+										: null,
+							})),
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'cancel_transcription_job',
+					title: 'Cancel Studio transcription job',
+					description:
+						'Request cancellation of a running transcription using the same action as Studio. Read jobId and canCancel from get_transcription_jobs. Available in all Studio modes for jobs running in this tab. A requested result acknowledges the cancellation request. Read get_transcription_jobs for the terminal outcome.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							jobId: {
+								type: 'string',
+								minLength: 1,
+								description:
+									'The transcription job id returned by get_transcription_jobs.',
+							},
+						},
+						required: ['jobId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({jobId}) => {
+						if (typeof jobId !== 'string' || jobId.length === 0) {
+							throw new Error('jobId must be a non-empty string.');
+						}
+
+						const job = captionJobsRef.current.find(
+							(item) => item.id === jobId,
+						);
+						if (!job) {
+							return Promise.resolve({jobId, status: 'not-found'});
+						}
+
+						if (job.status !== 'running') {
+							return Promise.resolve({jobId, status: 'not-cancellable'});
+						}
+
+						cancelClientJob(job.id);
+						return Promise.resolve({jobId, status: 'requested'});
 					},
 				},
 				{signal: controller.signal},
@@ -1902,10 +2008,66 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_splitters',
+					title: 'Get Studio panel dividers',
+					description:
+						'Read the mounted, visible Studio panel dividers, their orientation, first-pane size and effective bounds in CSS pixels, and pointer-drag state. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({splitters: getSplitters()}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_splitter_position',
+					title: 'Resize Studio panel',
+					description:
+						'Set the first-pane size of a Studio panel divider in CSS pixels from the start of its container. Horizontal dividers control height and vertical dividers control width. Clamps to current bounds, saves the preference in this browser, and returns the effective divider state. Calls for unavailable or actively dragged dividers return an error. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							id: {
+								type: 'string',
+								description: 'A divider ID returned by get_splitters.',
+							},
+							positionInPixels: {
+								type: 'number',
+								description:
+									'The requested first-pane size in CSS pixels from the start of its container.',
+							},
+						},
+						required: ['id', 'positionInPixels'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({id, positionInPixels}) => {
+						if (typeof id !== 'string' || id.trim().length === 0) {
+							throw new Error('id must be a non-empty string.');
+						}
+
+						if (
+							typeof positionInPixels !== 'number' ||
+							!Number.isFinite(positionInPixels)
+						) {
+							throw new Error('positionInPixels must be a finite number.');
+						}
+
+						return Promise.resolve(setSplitterPosition(id, positionInPixels));
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
-						'Read the current frame, frame rate, duration, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. All playback fields are null for unsupported or unready content. Render outputs have no timeline zoom and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
+						'Read the current frame, frame rate, duration, marked in/out points, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. Marked points are inclusive, with null for an unset boundary. All playback fields are null for unsupported or unready content. Render outputs return null for inFrame, outFrame and timelineZoom, and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1921,6 +2083,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: null,
 								fps: null,
 								durationInFrames: null,
+								inFrame: null,
+								outFrame: null,
 								playing: null,
 								muted: null,
 								volume: null,
@@ -1938,6 +2102,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: state.playbackStartFrame,
 								fps: state.fps,
 								durationInFrames: state.durationInFrames,
+								inFrame: null,
+								outFrame: null,
 								playing: state.playing,
 								muted: state.muted,
 								volume: state.volume,
@@ -1948,6 +2114,10 @@ export const WebMcp: FC = () => {
 						}
 
 						const {durationInFrames} = target;
+						const range =
+							playbackRangeRef.current.id === target.id
+								? playbackRangeRef.current.range
+								: null;
 						const timelineViewportWidth =
 							scrollableRef.current?.clientWidth ?? 0;
 						const minZoom = getTimelineMinZoom({
@@ -1966,6 +2136,8 @@ export const WebMcp: FC = () => {
 							playbackStartFrame: null,
 							fps: target.fps,
 							durationInFrames: target.durationInFrames,
+							inFrame: range?.inFrame ?? null,
+							outFrame: range?.outFrame ?? null,
 							playing: durationInFrames > 1 && isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
@@ -1985,7 +2157,7 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame of the selected composition, asset, or render output, and the source-code context for the selected item. The frame is 0 when there is no ready playhead. The selection matches "Copy context for agents".',
+						'Read the current frame of the selected composition, asset, or render output and all selected timeline items. A single supported item also includes its source-code context from "Copy context for agents". The frame is 0 when there is no ready playhead.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1994,6 +2166,16 @@ export const WebMcp: FC = () => {
 					annotations: {readOnlyHint: true},
 					execute: () => {
 						const target = getCurrentPlaybackTarget();
+						const {selectedItems} = timelineSelectionRef.current;
+						const findTrack = createTrackLookupForNodePathInfo(
+							selectedItems.some((item) => item.type !== 'guide')
+								? calculateTimeline({
+										sequences: sequencesRef.current,
+										overrideIdsToNodePaths:
+											overrideIdToNodePathMappingsRef.current,
+									}).tracks
+								: [],
+						);
 						return Promise.resolve({
 							currentFrame:
 								target?.type === 'timeline'
@@ -2002,10 +2184,57 @@ export const WebMcp: FC = () => {
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
-								timelineSelectionRef.current.selectedItems.length === 1
-									? timelineSelectionRef.current.selectedItems[0].type
-									: null,
+								selectedItems.length === 1 ? selectedItems[0].type : null,
 							selectedSequence: selectedSequenceRef.current,
+							selectedItems: selectedItems.map((item) => {
+								if (item.type === 'guide') {
+									return {type: item.type, guideId: item.guideId};
+								}
+
+								const sequenceId =
+									findTrack(item.nodePathInfo)?.sequence.id ?? null;
+								switch (item.type) {
+									case 'sequence':
+									case 'sequence-all-effects':
+										return {type: item.type, sequenceId};
+									case 'sequence-prop':
+										return {type: item.type, sequenceId, fieldKey: item.key};
+									case 'sequence-effect':
+										return {type: item.type, sequenceId, effectIndex: item.i};
+									case 'sequence-effect-prop':
+										return {
+											type: item.type,
+											sequenceId,
+											effectIndex: item.i,
+											fieldKey: item.key,
+										};
+									default: {
+										const field = parseKeyframeFieldFromNodePath(
+											item.nodePathInfo.auxiliaryKeys,
+										);
+										const fieldKey = field?.fieldKey ?? null;
+										const effectIndex =
+											field?.type === 'effect' ? field.effectIndex : null;
+										return item.type === 'keyframe'
+											? {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													frame: item.frame,
+												}
+											: {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													fromFrame: item.fromFrame,
+													toFrame: item.toFrame,
+													segmentIndex: item.segmentIndex,
+												};
+									}
+								}
+							}),
 						});
 					},
 				},
@@ -2651,8 +2880,10 @@ export const WebMcp: FC = () => {
 		audioLevels,
 		setAudioLevelsVisible,
 		addVideoMattingJob,
+		cancelClientJob,
 		calculateTimeline,
 		compositionManagerRef,
+		getSplitters,
 		isPlaying,
 		propStatusesRef,
 		renderQueueActions,
@@ -2665,6 +2896,7 @@ export const WebMcp: FC = () => {
 		setMediaVolume,
 		setPlaybackRate,
 		setPlayerMuted,
+		setSplitterPosition,
 		setTimelineZoom,
 		timelineSelectionRef,
 	]);
