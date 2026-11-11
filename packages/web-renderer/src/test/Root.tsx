@@ -233,6 +233,10 @@ import {
 	svgInactiveTitleModes,
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
+import {
+	svgPreferredFontCarrier,
+	svgPreferredFontModes,
+} from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -340,6 +344,12 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgPreferredFontModes.map((mode) => (
+				<Composition
+					key={`preferred-font-${mode}`}
+					{...svgPreferredFontCarrier({mode, literal: false, fallback: false})}
+				/>
+			))}
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
 			{[null, true, false].map((active) => (
 				<Composition

@@ -80,15 +80,14 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
+	const authoredElements =
+		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
 	const authoredStyles =
-		textStyles.some((style) => style !== null) &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes('['),
-		)
-			? [svg, ...svg.querySelectorAll('*')].map((element) =>
-					element.getAttribute('style'),
-				)
-			: null;
+		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
+	const authoredMedia =
+		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
+	const authoredEmpty =
+		authoredElements?.map((element) => element.matches(':empty')) ?? null;
 
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
@@ -202,15 +201,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	// A titled sheet can be inactive without sheet.disabled being set. Put
 	// registered faces after local faces in every candidate when sets are used.
+	// Empty and disabled sheets can still be selected by the image document;
+	// their paint is normalized separately from font availability.
 	const usesStylesheetSets = Boolean(
 		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
 	);
 	const fontCarriers =
 		embeddedFontStyle && usesStylesheetSets
 			? Array.from(styles, (style, index) =>
-					style.sheet && !style.sheet.disabled && !style.matches(':empty')
-						? index
-						: null,
+					style.sheet ? index : null,
 				).filter((index) => index !== null)
 			: [fontStyleIndex];
 
@@ -218,11 +217,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		for (const index of fontCarriers) {
 			const carrier = styles[index];
-			if (
-				carrier?.sheet &&
-				!carrier.sheet.disabled &&
-				!carrier.matches(':empty')
-			) {
+			if (carrier?.sheet && !carrier.sheet.disabled) {
 				clonedStyles[index].textContent =
 					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
 					'/* Empty stylesheet rules. */';
@@ -230,19 +225,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	if (authoredStyles)
+	if (authoredStyles || authoredMedia || authoredEmpty)
 		preserveSvgAttributeSelectors({
 			svg: svgForSerialization,
-			authoredValues: authoredStyles,
-			attributeName: 'style',
-		});
-	if (embeddedFontStyle)
-		preserveSvgAttributeSelectors({
-			svg: svgForSerialization,
-			authoredValues: [svg, ...svg.querySelectorAll('*')].map((element) =>
-				element.getAttribute('media'),
-			),
-			attributeName: 'media',
+			authoredStyles,
+			authoredMedia,
+			authoredEmpty,
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 

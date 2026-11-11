@@ -100,7 +100,7 @@ Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser'
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported. WebKit and Firefox may render different text pixels or select a different face.
 
-Titled registered-font stylesheets use the owning document’s media-query result during export, including inactive media and SVG images with a smaller viewport. The drawable cache also updates when an earlier carrier’s media result changes. Authored `[media]` attribute values are retained for selectors in parseable local rules; selector rewriting still excludes stylesheets containing `@scope` or `@import`. Full native text pixels and titled stylesheet paint selection remain partially supported.
+Titled registered-font stylesheets use the owning document’s media-query result during export, including inactive media and SVG images with a smaller viewport. The drawable cache also updates when an earlier carrier’s media result changes. Empty sheets in a preferred titled set can carry fonts while preserving authored `:empty` predicates. SVG-local CSSOM rules and `[media]` attribute predicates retain their authored matching, including wildcard namespaces and namespaced media values. Selector rewriting still excludes stylesheets containing `@scope` or `@import`. Full native text pixels and titled stylesheet paint selection remain partially supported.
 
 ## Shadows
 
