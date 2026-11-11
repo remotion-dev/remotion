@@ -255,8 +255,8 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	// Inline/presentation font selection on an instance is inherited by its
 	// referenced text, while the source definition keeps its own computed style.
 	// Cache reachability per incoming text context for this snapshot only.
-	// A negative search proves every visited state cannot reach rendered text;
-	// a positive search only proves the queried root and the matching state.
+	// A negative search proves every visited state cannot reach rendered text.
+	// Positive searches cache the successful parent path, leaving dead branches unknown.
 	const renderedTextByContext = [
 		new WeakMap<Element, boolean>(),
 		new WeakMap<Element, boolean>(),
@@ -264,15 +264,30 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const hasRenderedText = (root: Element) => {
 		const cachedRoot = renderedTextByContext[0].get(root);
 		if (cachedRoot !== undefined) return cachedRoot;
-		const pending: {element: Element; withinText: boolean}[] = [
-			{element: root, withinText: false},
-		];
+		const pending: {
+			element: Element;
+			withinText: boolean;
+			parent: number | null;
+		}[] = [{element: root, withinText: false, parent: null}];
+		const cacheSuccessfulPath = (index: number) => {
+			let ancestor: number | null = index;
+			while (ancestor !== null) {
+				const state: (typeof pending)[number] = pending[ancestor]!;
+				renderedTextByContext[state.withinText ? 1 : 0].set(
+					state.element,
+					true,
+				);
+				ancestor = state.parent;
+			}
+		};
+
 		const seen = [new Set<Element>(), new Set<Element>()] as const;
-		for (const {element, withinText} of pending) {
+		for (let index = 0; index < pending.length; index++) {
+			const {element, withinText} = pending[index]!;
 			const context = withinText ? 1 : 0;
 			const cached = renderedTextByContext[context].get(element);
 			if (cached === true) {
-				renderedTextByContext[0].set(root, true);
+				cacheSuccessfulPath(index);
 				return true;
 			}
 
@@ -293,8 +308,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 						Boolean(node.textContent?.length),
 				)
 			) {
-				renderedTextByContext[context].set(element, true);
-				renderedTextByContext[0].set(root, true);
+				cacheSuccessfulPath(index);
 				return true;
 			}
 
@@ -302,12 +316,12 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 				const use = element as SVGUseElement;
 				const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
 				if (target && !target.matches(invalidUseTargets))
-					pending.push({element: target, withinText: text});
+					pending.push({element: target, withinText: text, parent: index});
 			}
 
 			for (const child of element.children)
 				if (!child.matches(svgDefinitionElements))
-					pending.push({element: child, withinText: text});
+					pending.push({element: child, withinText: text, parent: index});
 		}
 
 		for (const context of [0, 1] as const) {

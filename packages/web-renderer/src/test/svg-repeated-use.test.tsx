@@ -132,7 +132,7 @@ test('does not cache a positive result for a dead branch visited before text', a
 		.map((family) => `@font-face{font-family:"${family}";src:url("${data}")}`)
 		.join('');
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.innerHTML = `<defs><g id="dead"><path d="M0 0h1v1Z"/></g><g id="live"><use href="#dead"/><text>Label</text></g></defs><use href="#live" style="font-family:${primary}"/><use href="#dead" style="font-family:${geometryOnly}"/>`;
+	svg.innerHTML = `<defs><g id="live"><g id="dead"><path d="M0 0h1v1Z"/></g><text>Label</text></g></defs><use href="#live" style="font-family:${primary}"/><use href="#dead" style="font-family:${geometryOnly}"/>`;
 	document.head.appendChild(style);
 	document.body.appendChild(svg);
 	try {
@@ -144,3 +144,47 @@ test('does not cache a positive result for a dead branch visited before text', a
 		style.remove();
 	}
 });
+
+test(
+	'visits a shared text target once across a thousand distinct wrappers',
+	{timeout: 90000},
+	async () => {
+		const [data] = await svgUseFontData;
+		const family = svgUseFontFamilies[0];
+		const style = document.createElement('style');
+		style.textContent = `@font-face{font-family:"${family}";src:url("${data}")}`;
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		// This measures font discovery rather than browser painting of a million paths.
+		svg.style.visibility = 'hidden';
+		svg.innerHTML = `<defs><g id="shared-positive">${Array.from({length: 1000}, () => '<path d="M0 0h1v1Z"/>').join('')}<text font-size="0">Label</text></g>${Array.from({length: 1000}, (_, index) => `<g id="wrapper-${index}"><use href="#shared-positive"/></g>`).join('')}</defs>${Array.from({length: 1000}, (_, index) => `<use href="#wrapper-${index}" style="font-family:${family}"/>`).join('')}`;
+		document.head.appendChild(style);
+		document.body.appendChild(svg);
+		const original = Element.prototype.matches;
+		let geometryVisits = 0;
+		const spy = vi
+			.spyOn(Element.prototype, 'matches')
+			.mockImplementation(function (this: Element, selector) {
+				if (this.localName === 'path' && selector === 'text, tspan, textPath')
+					geometryVisits++;
+				return original.call(this, selector);
+			});
+		try {
+			const snapshot = getSvgFontSnapshot(svg);
+			await server.commands.writeFile(
+				`validation/svg-repeated-use/${server.browser}/positive-traversal.json`,
+				JSON.stringify({
+					geometryVisits,
+					wrappers: 1000,
+					paths: 1000,
+					snapshotCalls: 1,
+				}),
+			);
+			expect(snapshot.cssFontRules).toBe(style.sheet!.cssRules[0].cssText);
+			expect(geometryVisits).toBe(1000);
+		} finally {
+			spy.mockRestore();
+			svg.remove();
+			style.remove();
+		}
+	},
+);
