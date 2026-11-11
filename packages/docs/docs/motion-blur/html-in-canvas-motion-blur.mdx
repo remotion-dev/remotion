@@ -109,6 +109,10 @@ At `180`, samples span half a frame centered on the current frame.
 At `0`, no motion blur is applied.  
 Samples outside the composition are clamped to its first or last frame.
 
+### Premounting props
+
+[`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) are also accepted and behave like on [`<Sequence>`](/docs/sequence).
+
 ## Nested HTML-in-canvas caveat
 
 Children of `<HtmlInCanvasMotionBlur>` can contain another [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, or vice versa, in Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. Check [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) before nesting them.

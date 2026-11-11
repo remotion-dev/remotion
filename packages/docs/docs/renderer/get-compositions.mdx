@@ -44,6 +44,14 @@ Must be a JSON object.
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
 
+### `envVariables?`
+
+_object_
+
+An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object. Default: `{}`.
+
+See: [Environment variables](/docs/env-variables/)
+
 ### `puppeteerInstance?`<AvailableFrom v="3.0.0" />
 
 An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
@@ -112,7 +120,7 @@ getCompositions({
 
 ### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
-A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `port?`
 
