@@ -33,7 +33,14 @@ test.for(svgFeImageReferenceModes)(
 				loaded: face.loaded,
 			}));
 			const snapshot = getSvgFontSnapshot(svg);
-			const rendered = ['href', 'xlink', 'nested', 'cycle'].includes(mode);
+			const rendered = [
+				'href',
+				'xlink',
+				'nested',
+				'cycle',
+				'symbol',
+				'svg',
+			].includes(mode);
 			expect(snapshot.cssFontRules.includes(family)).toBe(rendered);
 			expect(svg.outerHTML).toBe(before);
 			expect(Array.from(document.fonts)).toEqual(faces.map(({face}) => face));

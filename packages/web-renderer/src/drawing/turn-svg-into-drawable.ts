@@ -110,7 +110,9 @@ const getReferencedTemplates = (
 				addResource(
 					element,
 					href,
-					element.localName === 'feImage' ? '*' : element.localName,
+					element.localName === 'feImage'
+						? `:not(${invalidUseTargets})`
+						: element.localName,
 				);
 		}
 

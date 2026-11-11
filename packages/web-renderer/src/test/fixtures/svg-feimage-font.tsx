@@ -69,6 +69,8 @@ export const svgFeImageFont = (
 };
 
 export const svgFeImageReferenceModes = [
+	'symbol',
+	'svg',
 	'href',
 	'xlink',
 	'nested',
@@ -77,21 +79,37 @@ export const svgFeImageReferenceModes = [
 	'external',
 	'unused',
 	'hidden',
+	'target-defs',
+	'target-pattern',
+	'target-mask',
+	'target-clipPath',
+	'target-marker',
+	'target-filter',
+	'target-linearGradient',
+	'target-radialGradient',
 ] as const;
 
 export const svgFeImageReferenceMarkup = (
 	mode: (typeof svgFeImageReferenceModes)[number],
 	family: string,
 ) => {
-	const reference =
-		mode === 'missing'
-			? '#absent'
-			: mode === 'external'
-				? 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E#art'
-				: mode === 'nested'
-					? '#outer'
-					: '#art';
+	const blocked = mode.startsWith('target-')
+		? mode.slice('target-'.length)
+		: null;
+	const reference = blocked
+		? '#blocked-target'
+		: mode === 'symbol' || mode === 'svg'
+			? '#viewport-target'
+			: mode === 'missing'
+				? '#absent'
+				: mode === 'external'
+					? 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E#art'
+					: mode === 'nested'
+						? '#outer'
+						: '#art';
 	return `<defs>
+  ${mode === 'symbol' || mode === 'svg' ? `<${mode} id="viewport-target" viewBox="0 0 20 20"><use href="#label" style="font-family:${family}"/></${mode}>` : ''}
+  ${blocked ? `<${blocked} id="blocked-target"><use href="#label" style="font-family:${family}"/></${blocked}>` : ''}
   <text id="label">Glyphs</text>
   <g id="art"><use href="#label" style="font-family:${family}"/>${mode === 'cycle' ? '<use href="#art"/>' : ''}</g>
   <g id="outer"><use href="#art"/></g>
