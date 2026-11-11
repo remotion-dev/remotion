@@ -5,6 +5,7 @@ import {
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
+import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -159,6 +160,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
+	const authoredStyles =
+		textStyles.some((style) => style !== null) &&
+		Array.from(svg.querySelectorAll('style')).some((style) =>
+			style.textContent?.includes('['),
+		)
+			? [svg, ...svg.querySelectorAll('*')].map((element) =>
+					element.getAttribute('style'),
+				)
+			: null;
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
 	const childOpacities =
@@ -252,6 +262,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const cssFontRules = textElements.length
 		? getCssFontRules(svg, fontFamilies)
 		: [];
+
+	if (authoredStyles)
+		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 
