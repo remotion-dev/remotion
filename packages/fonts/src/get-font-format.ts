@@ -14,9 +14,6 @@ export const getFontFormat = (url: string): FontFormat => {
 		);
 	}
 
-	// Prefer the extension of the path, ignoring query strings and hashes
-	// (e.g. signed URLs). Fall back to the end of the URL for endpoints
-	// that put the file name in the query (e.g. ?file=font.woff2).
 	const lastPathSegment = url.split(/[?#]/)[0].split('/').pop() ?? '';
 	const pathExt = lastPathSegment.includes('.')
 		? lastPathSegment.split('.').pop()?.toLowerCase()

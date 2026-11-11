@@ -95,7 +95,7 @@ RUN apt install -y \
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* ./
 ```
 
-The source code and the config file are copied after installing dependencies and Chrome. That way, Docker reuses the cached dependency and Chrome layers when only your source code changes.
+The Dockerfile copies the source code and the config file after installing dependencies and Chrome. That way, Docker reuses the cached dependency and Chrome layers when only your source code changes.
 
 <p>
   <Step>4</Step> Install the right package manager and dependencies.
@@ -128,7 +128,7 @@ RUN npx remotion browser ensure
 ```
 
 <p>
-  <Step>6</Step> Copy the files from your project. If you have additional source files, add them here. It is assumed <code>src</code>, a <code>remotion.config.ts</code> file and <code>public</code> exist in your project, but you can adjust this to your needs.
+  <Step>6</Step> Copy the files from your project. If you have additional source files, add them here. This step assumes that <code>src</code>, a <code>remotion.config.ts</code> file and <code>public</code> exist in your project. Adjust it to your needs.
 </p>
 
 ```docker
@@ -137,7 +137,7 @@ COPY remotion.config.* ./
 COPY public ./public
 ```
 
-The config file is copied together with <code>src</code> because it may import files from <code>src</code>. Every <code>remotion</code> CLI command, including <code>browser ensure</code>, loads the config file.
+Copy the config file together with <code>src</code>, because it may import files from <code>src</code>. Every <code>remotion</code> CLI command, including <code>browser ensure</code>, loads the config file.
 
 <p>
   <Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.

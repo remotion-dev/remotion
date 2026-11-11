@@ -55,7 +55,7 @@ Pass the same path to any other API that supports the `browserExecutable` option
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
 
-The function is only called if no browser with Remotion's default version is installed, so the `version` you return only takes effect when a browser gets downloaded.  
+The function is only called if no browser with Remotion's default version is installed, so the `version` you return only takes effect when Remotion downloads a browser.  
 If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, the next call deletes the custom version and downloads Remotion's default version.
 
 ```tsx twoslash title="init.ts"

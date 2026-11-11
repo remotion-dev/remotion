@@ -59,7 +59,7 @@ export const MyComp: React.FC<{
 };
 ```
 
-If `fontUrl` changes while the component stays mounted, for example when editing props in the Studio, the new font is only loaded after a reload.
+If `fontUrl` changes while the component stays mounted, for example when editing props in the Studio, Remotion loads the new font only after a reload.
 
 ## Options
 
@@ -74,7 +74,7 @@ Where to load the font from. Can be a local file using [`staticFile()`](/docs/st
 
 ### format?
 
-Defines the format of the font file. By default gets derived from the file extension of the URL. From v4.0.543, query strings and hashes are ignored.  
+Defines the format of the font file. By default, Remotion derives it from the file extension of the URL. From v4.0.543, it ignores query strings and hashes.  
 Override with one of the following values explicitly: `woff2`, `woff`, `opentype`, `truetype`.
 
 Pass this option if the URL has no file extension, for example a font served by an API endpoint.
