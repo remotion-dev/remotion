@@ -34,6 +34,8 @@ In order to avoid this error, you need to additionally explicitly pass the `forc
 - [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
 - [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
+- [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda)
+- [`getSites()`](/docs/lambda/getsites)
 
 Also you must pass a `--force-bucket-name=your-bucket-name` option to the following CLI commands:
 
@@ -47,7 +49,6 @@ Also you must pass a `--force-bucket-name=your-bucket-name` option to the follow
 Also you are unable to use the following APIs:
 
 - [`npx remotion lambda sites ls`](/docs/lambda/cli/sites/ls)
-- [`getSites()`](/docs/lambda/getsites)
 - [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket)
 
 ## Deleting extraneous buckets
@@ -55,7 +56,7 @@ Also you are unable to use the following APIs:
 If you got an error message
 
 ```
-You have multiple buckets [a,b,c] in your S3 region [us-east-1] starting with "remotionlambda-".
+You have multiple buckets (a,b,c) in your S3 region (us-east-1) starting with "remotionlambda-". Please see https://remotion.dev/docs/lambda/multiple-buckets.
 ```
 
 but you were not intending to use multiple buckets, delete the extraneous buckets in the AWS console to fix the error.

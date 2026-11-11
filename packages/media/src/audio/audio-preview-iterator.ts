@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
@@ -28,6 +29,7 @@ export const makeAudioIterator = ({
 	scheduleChunk,
 	unscheduleAudioNode,
 }: MakeAudioIteratorOptions) => {
+	Internals.playbackDiagnostics.audioIteratorsCreated++;
 	let destroyed = false;
 	const queuedAudioNodes = new Map<AudioBufferSourceNode, PreparedAudioChunk>();
 	// Seek deduplication needs the scheduling history, including ended audio and

@@ -69,6 +69,7 @@ export type WebRenderModalState = {
 };
 
 export type ServerRenderRetrySettings = {
+	chromiumOptions: RenderDefaults['chromiumOptions'];
 	jobId: string;
 	outName: string;
 	crf: number | null;
@@ -320,6 +321,7 @@ export type ModalState =
 	| {
 			type: 'precompose-refactor';
 			targets: PrecomposeRefactorTarget[];
+			failureReason: string | null;
 	  }
 	| {
 			type: 'precompose-name';

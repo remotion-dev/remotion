@@ -38,7 +38,7 @@ Rectangles must be at least 10×10 CSS pixels and entirely inside the viewport.
 
 #### `resolution?`
 
-An output bounding box in pixels, defaulting to `{width: 2560, height: 1440}`. The crop fits inside this box while preserving its aspect ratio, with scale capped at 30×. Encoded dimensions are rounded down to even numbers.
+An output bounding box in pixels, defaulting to `{width: 2560, height: 1440}`. The crop fits inside this box while preserving its aspect ratio, with scale capped at 30× and at roughly 4K output (3840 pixels on the longest side and 3840×2160 pixels in total). Encoded dimensions are rounded down to even numbers.
 For example, a square crop with a 1920×1080 bounding box produces a 1080×1080 recording.
 
 #### `format?`
@@ -75,7 +75,7 @@ Saves a completed recording. Stop recording manually and wait for finalization b
 
 #### `destination`
 
-Use `"download"` to save the original file, `"new"` to open it in [Remotion Browser Studio](https://remotion.new), or `"convert"` to inspect it in [Remotion Convert](https://www.remotion.dev/convert).
+Use `"download"` to save the original file, `"new"` to open it in [remotion.new](https://remotion.new), or `"convert"` to open it in [remotion.dev/convert](https://www.remotion.dev/convert).
 
 ## Browser support
 

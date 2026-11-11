@@ -93,13 +93,13 @@ To supplement this guide, two projects have been created:
 This configuration grants authority to `ec2-remotion-role` to assume the role of `remotion-ec2-executionrole` and provides the necessary permissions to access AWS services and resources required by Remotion for video rendering.
 :::
 
-### 6. Create the EC2 instance
+### 5. Create the EC2 instance
 
 #### Steps
 
 - From AWS Management console:<br/>
-    <Step>1</Step>Go to the EC2 dashboard by selecting EC2 from the list of services.<br/>
-<Step>2</Step>Click on the "Launch Instance" button.<br/>
+  <Step>1</Step>Go to the EC2 dashboard by selecting EC2 from the list of services.<br/>
+  <Step>2</Step>Click on the "Launch Instance" button.<br/>
 <Step>3</Step>Choose an Amazon Machine Image (AMI) that you want to use for your instance. You can select from a variety of pre-configured AMIs, or you can create your own. For this instance chose "Ubuntu AMI".<br/>
 <Step>4</Step>Select an instance type that you want to use for your instance. The instance type determines the amount of CPU, memory, storage, and networking capacity that your instance will have. The recommended operating system is Ubuntu and at least 1Gib of RAM.<br/>
 <Step>5</Step>Configure your instance details, such as the number of instances you want to launch, the VPC and subnet you want to use, and any advanced settings you want to enable.<br/>
@@ -112,7 +112,7 @@ This configuration grants authority to `ec2-remotion-role` to assume the role of
 <Step>12</Step>Launch your instance by clicking the "Launch Instances" button.<br/>
 <Step>13</Step>Wait for your instance to launch. Once it's ready, you can connect to it using SSH, RDP, or other remote access methods.<br/>
 
-### 7. Upload the code to the server and install dependencies
+### 6. Upload the code to the server and install dependencies
 
 The application requires [Node.js](https://nodejs.org/en) and [NVM](https://github.com/nvm-sh/nvm) on the server. You can follow this guide for installing Node.js. The recommended Node.js version is v18.15.0, and NVM is quite helpful in switching between Node.js versions. Install it and learn how to use it by following this [guide](https://blog.logrocket.com/how-switch-node-js-versions-nvm/).
 
@@ -138,7 +138,7 @@ cd ec2-remotion-lambda
 npm i
 ```
 
-### 8. Configure the application environment variables
+### 7. Configure the application environment variables
 
 #### Steps
 
@@ -162,7 +162,7 @@ The application is secured using `basic authentication` or username and password
 - `API_USERNAME` represents the username to use when interacting with the API.
 - `API_PASSWORD` represent the password to use when interacting with the API.
 
-### 9. Run the application from the application directory, by executing the command below
+### 8. Run the application from the application directory, by executing the command below
 
 ```bash
 npm run start
@@ -189,7 +189,7 @@ The application can be interacted with using CURL. To interact with the API, fol
 
   The `Authorization` header is a combination of word `Basic` and a space, then the `base64` encoded username and password joined together by colon, `username:password`.
 
-  From the `/render` API resource, the application will execute this piece of [code](https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-remotion-lambda/src/services/render-services.ts#L11) This codes assume the role of `ec2-remotion-role`, then provided with temporary access tokens ie `AccessKeyId`, `SecretAccessKey` and `SessionToken`. These credentials will then need to be set as environment variables on the server so that in can be used by the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) process. Setting the environment parameters route the render process in this (code)[https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-app/render_handler.ts#L14].
+  From the `/render` API resource, the application will execute this piece of [code](https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-remotion-lambda/src/services/render-services.ts#L11) This codes assume the role of `remotion-ec2-executionrole`, then provided with temporary access tokens ie `AccessKeyId`, `SecretAccessKey` and `SessionToken`. These credentials will then need to be set as environment variables on the server so that in can be used by the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) process. Setting the environment parameters route the render process in this [code](https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-remotion-lambda/src/services/render-services.ts#L23).
 
   ```bash title="API Response"
   {"message":"Video rendered.","renderId":"px60ct13fy","bucketName":"remotionlambda-apsoutheast2-qv16gcf02l"}

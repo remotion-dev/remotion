@@ -9,7 +9,7 @@ crumb: "Troubleshooting"
 If you got the following error message:
 
 ```
-staticFile() does not support remote URLs. Instead, pass the URL without wrapping it in staticFile().
+staticFile() does not support remote URLs - got "[url]". Instead, pass the URL without wrapping it in staticFile(). See: https://remotion.dev/docs/staticfile-remote-urls
 ```
 
 You have tried to pass a remote URL to `staticFile()`. You don't need to wrap the path in `staticFile`, you can pass it directly:

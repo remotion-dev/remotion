@@ -236,7 +236,7 @@ test('resolves a same-file composition component', async () => {
 	});
 
 	expect(location.source).toBe(path.join('src', 'NewVideo.tsx'));
-	expect(location.line).toBe(21);
+	expect(location.line).toBe(22);
 	expect(location.canAddSequence).toBe(true);
 });
 

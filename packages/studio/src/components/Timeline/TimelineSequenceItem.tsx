@@ -1730,6 +1730,7 @@ const TimelineSequenceItemInner: React.FC<{
 				showVisibilityToggle ? (
 					<TimelineLayerEye
 						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+						displayName={timelineDisplayName || fallbackDisplayName}
 						hidden={isItemHidden}
 						onInvoked={canToggleVisibility ? onToggleVisibility : null}
 					/>

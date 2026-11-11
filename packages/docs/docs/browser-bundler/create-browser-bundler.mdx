@@ -56,7 +56,7 @@ All options are optional. Calling `createBrowserBundler()` uses the defaults.
 
 A `Record<string, string>` mapping npm package names to versions. These values override the package's built-in dependency versions for HTTP dependency resolution.
 
-The built-in defaults are the versions used to build `@remotion/browser-bundler`. Other packages without a configured version resolve to `latest` on [esm.sh](https://esm.sh). Pin dependencies if you need reproducible resolutions.
+The built-in defaults are the versions used to build `@remotion/browser-bundler`. `@remotion/*` packages without a configured version use the `remotion` version. Other packages without a configured version resolve to `latest` on [esm.sh](https://esm.sh). Pin dependencies if you need reproducible resolutions.
 
 React, React DOM, and Remotion imports must match the host app's versions. They are shared with the host at runtime; setting a different version here does not install a separate runtime.
 
