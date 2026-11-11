@@ -3,6 +3,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import type {SourceLocationTarget} from '../../helpers/open-in-editor';
 import {BookIcon} from '../../icons/book';
 import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
@@ -84,6 +85,20 @@ export const SequenceInspectorHeader: React.FC<{
 	const sequenceDisplayName = displayName || fallbackDisplayName;
 	const {documentationLink} = track.sequence;
 	const componentName = track.sequence.controls?.componentName;
+	const sourceTarget = useMemo<SourceLocationTarget | null>(() => {
+		switch (selection?.type) {
+			case 'sequence-prop':
+				return {property: selection.key, effectIndex: null};
+			case 'sequence-all-effects':
+				return {property: 'effects', effectIndex: null};
+			case 'sequence-effect':
+				return {property: null, effectIndex: selection.i};
+			case 'sequence-effect-prop':
+				return {property: selection.key, effectIndex: selection.i};
+			default:
+				return null;
+		}
+	}, [selection]);
 	const contextForAgents = useMemo(
 		() =>
 			formatContextForAgents({
@@ -114,24 +129,7 @@ export const SequenceInspectorHeader: React.FC<{
 					<InspectorHeaderActionSlot>
 						{sourceLocation.validatedLocation ? (
 							<InspectorOpenInEditor
-								sourceTarget={
-									selection === null || selection.type === 'sequence'
-										? null
-										: {
-												property:
-													selection.type === 'sequence-all-effects'
-														? 'effects'
-														: selection.type === 'sequence-prop' ||
-															  selection.type === 'sequence-effect-prop'
-															? selection.key
-															: null,
-												effectIndex:
-													selection.type === 'sequence-effect' ||
-													selection.type === 'sequence-effect-prop'
-														? selection.i
-														: null,
-											}
-								}
+								sourceTarget={sourceTarget}
 								menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
 								annotationName={componentName ?? null}
 								contextForAgents={contextForAgents}
