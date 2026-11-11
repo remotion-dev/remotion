@@ -195,6 +195,10 @@ import {
 import {svgCssImportFont} from './fixtures/svg-css-import-font';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
+	svgCssomEmptyModes,
+	svgCssomEmptySelector,
+} from './fixtures/svg-cssom-empty-selector';
+import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
 	svgDataMimeLowercase,
@@ -425,6 +429,9 @@ export const Root: React.FC = () => {
 			<Composition {...svgLocalConditionalFont} />
 			<Composition {...svgLocalConditionalUrlFont} />
 			<Composition {...svgCssUrlFont} />
+			{svgCssomEmptyModes.map((mode) => (
+				<Composition key={mode} {...svgCssomEmptySelector(mode, false)} />
+			))}
 			{svgPaintFontModes.map((mode) => (
 				<Composition key={mode} {...svgPaintResourceFont(mode, false, false)} />
 			))}

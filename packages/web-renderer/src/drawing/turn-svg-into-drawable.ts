@@ -309,24 +309,21 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
+	// CSSOM-only selectors can depend on attributes and emptiness even when the
+	// authored style elements contain no text. Snapshot before normalizing them.
 	const authoredStyles =
-		textStyles.some((style) => style !== null) &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes('['),
-		)
+		textElements.length > 0
 			? [svg, ...svg.querySelectorAll('*')].map((element) =>
 					element.getAttribute('style'),
 				)
 			: null;
 	const authoredEmpty =
-		textElements.length > 0 &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes(':empty'),
-		)
+		textElements.length > 0
 			? [svg, ...svg.querySelectorAll('*')].map((element) =>
 					element.matches(':empty'),
 				)
 			: null;
+
 	return {
 		textStyles,
 		authoredStyles,
