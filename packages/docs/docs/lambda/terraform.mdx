@@ -289,7 +289,7 @@ resource "aws_iam_role_policy" "execution" {
 
 The function ZIP stays in Remotion's regional bucket. AWS Lambda can deploy code from another account's bucket in the [same region](https://docs.aws.amazon.com/lambda/latest/api/API_FunctionCode.html).
 
-Keep the [function naming convention](/docs/lambda/naming-convention) and tags below. The spelling of `remotion-ephemereal-storage-in-mb` is intentional. The invocation configuration disables Lambda's automatic retries because Remotion handles retries. The runtime configuration pins the runtime version for this release.
+Keep the [function naming convention](/docs/lambda/naming-convention) and tags below. The invocation configuration disables Lambda's automatic retries because Remotion handles retries. The runtime configuration pins the runtime version for this release.
 
 ```hcl title="infra/function.tf"
 resource "aws_cloudwatch_log_group" "remotion" {
@@ -318,11 +318,11 @@ resource "aws_lambda_function" "remotion" {
   }
 
   tags = {
-    "remotion-lambda"                   = "true"
-    "remotion-version"                  = var.remotion_version
-    "remotion-memory-in-mb"             = tostring(var.memory_size_mb)
-    "remotion-timeout-in-seconds"       = tostring(var.timeout_seconds)
-    "remotion-ephemereal-storage-in-mb" = tostring(var.disk_size_mb)
+    "remotion-lambda"                  = "true"
+    "remotion-version"                 = var.remotion_version
+    "remotion-memory-in-mb"            = tostring(var.memory_size_mb)
+    "remotion-timeout-in-seconds"      = tostring(var.timeout_seconds)
+    "remotion-ephemeral-storage-in-mb" = tostring(var.disk_size_mb)
   }
 
   depends_on = [aws_iam_role_policy.execution]

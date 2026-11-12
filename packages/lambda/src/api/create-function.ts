@@ -266,7 +266,7 @@ export const createFunction = async ({
 					'remotion-version': VERSION,
 					'remotion-memory-in-mb': String(memorySizeInMb),
 					'remotion-timeout-in-seconds': String(timeoutInSeconds),
-					'remotion-ephemereal-storage-in-mb': String(ephemerealStorageInMb),
+					'remotion-ephemeral-storage-in-mb': String(ephemerealStorageInMb),
 				},
 			}),
 		);
