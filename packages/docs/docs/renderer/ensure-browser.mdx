@@ -55,6 +55,9 @@ Pass the same path to any other API that supports the `browserExecutable` option
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
 
+Remotion only calls this function if the Chrome Headless Shell version that your Remotion version uses by default is not installed. If that version is already installed, the `version` you return is ignored.  
+If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, the next call deletes the custom version and downloads Remotion's default version.
+
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
 
