@@ -42,6 +42,88 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
+type TerminationSignal = 'SIGTERM' | 'SIGHUP';
+
+// Listening to a signal disables the default behavior of Node.js, which is to
+// terminate the process.
+type SignalState = {
+	ownListeners: Set<unknown>;
+	receivedSignal: {
+		signal: TerminationSignal;
+		userHandlesSignal: boolean;
+	} | null;
+	browsersLaunching: number;
+	removedUserListener: Set<TerminationSignal>;
+};
+
+const signalState: SignalState = ((
+	process as unknown as Record<symbol, SignalState>
+)[Symbol.for('remotion.signalState')] ??= (() => {
+	const state: SignalState = {
+		ownListeners: new Set(),
+		receivedSignal: null,
+		browsersLaunching: 0,
+		removedUserListener: new Set(),
+	};
+	// Node.js removes a process.once() listener before it calls it, so it is
+	// no longer in process.listeners() when a later listener runs.
+	process.on('removeListener', (event, listener) => {
+		if (
+			(event === 'SIGTERM' || event === 'SIGHUP') &&
+			!state.ownListeners.has(listener)
+		) {
+			state.removedUserListener.add(event);
+			setImmediate(() => state.removedUserListener.delete(event));
+		}
+	});
+	return state;
+})());
+
+const userHasSignalListener = (signal: TerminationSignal) => {
+	// execa listens to signals through `signal-exit` while a child process is
+	// running. It only terminates the process if it is the only listener.
+	// Each loaded copy of `signal-exit` registers one listener per signal and
+	// increments `count` on its emitter. v3 stores the emitter on `process`,
+	// v4 on `globalThis`.
+	const signalExitListeners = [
+		(process as unknown as Record<string, {count: number} | undefined>)
+			.__signal_exit_emitter__,
+		(globalThis as unknown as Record<symbol, {count: number} | undefined>)[
+			Symbol.for('signal-exit emitter')
+		],
+	].reduce((acc, e) => acc + (e?.count ?? 0), 0);
+
+	return (
+		signalState.removedUserListener.has(signal) ||
+		process.listeners(signal).filter((l) => !signalState.ownListeners.has(l))
+			.length > signalExitListeners
+	);
+};
+
+const reraiseSignalIfAllBrowsersClosed = () => {
+	if (
+		signalState.receivedSignal === null ||
+		signalState.receivedSignal.userHandlesSignal
+	) {
+		return;
+	}
+
+	const {signal} = signalState.receivedSignal;
+	if (
+		signalState.browsersLaunching > 0 ||
+		process.listeners(signal).some((l) => signalState.ownListeners.has(l))
+	) {
+		return;
+	}
+
+	try {
+		process.kill(process.pid, signal);
+	} catch {
+		// Windows cannot raise SIGHUP
+		process.exit(signal === 'SIGHUP' ? 129 : 143);
+	}
+};
+
 export const makeBrowserRunner = async ({
 	executablePath,
 	processArguments,
@@ -73,6 +155,7 @@ export const makeBrowserRunner = async ({
 		);
 	}
 
+	signalState.browsersLaunching++;
 	const proc = childProcess.spawn(launch.executablePath, launch.args, {
 		// On non-windows platforms, `detached: true` makes child process a
 		// leader of a new process group, making it possible to kill child
@@ -83,13 +166,21 @@ export const makeBrowserRunner = async ({
 		stdio,
 	});
 
-	const browserWSEndpoint = await waitForWSEndpoint({
-		browserProcess: proc,
-		timeout,
-		indent,
-		logLevel,
-	});
-	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+	let transport: NodeWebSocketTransport;
+	try {
+		const browserWSEndpoint = await waitForWSEndpoint({
+			browserProcess: proc,
+			timeout,
+			indent,
+			logLevel,
+		});
+		transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+	} catch (err) {
+		signalState.browsersLaunching--;
+		reraiseSignalIfAllBrowsersClosed();
+		throw err;
+	}
+
 	const connection = new Connection(transport);
 
 	const killProcess = (): void => {
@@ -184,6 +275,7 @@ export const makeBrowserRunner = async ({
 
 				deleteDirectory(userDataDir);
 				removeEventListeners(listeners);
+				reraiseSignalIfAllBrowsersClosed();
 			}
 		})();
 		return closePromise;
@@ -228,7 +320,9 @@ export const makeBrowserRunner = async ({
 			}
 		});
 	});
-	const listeners = [addEventListener(process, 'exit', killProcess)];
+	const listeners: Array<() => void> = [
+		addEventListener(process, 'exit', killProcess),
+	];
 	listeners.push(
 		addEventListener(process, 'SIGINT', () => {
 			killProcess();
@@ -236,8 +330,30 @@ export const makeBrowserRunner = async ({
 		}),
 	);
 
-	listeners.push(addEventListener(process, 'SIGTERM', closeProcess));
-	listeners.push(addEventListener(process, 'SIGHUP', closeProcess));
+	for (const signal of ['SIGTERM', 'SIGHUP'] as const) {
+		const onSignal = () => {
+			signalState.receivedSignal = {
+				signal,
+				userHandlesSignal: userHasSignalListener(signal),
+			};
+			closeProcess();
+		};
+
+		signalState.ownListeners.add(onSignal);
+		process.prependListener(signal, onSignal);
+		listeners.push(() => {
+			process.off(signal, onSignal);
+			signalState.ownListeners.delete(onSignal);
+		});
+	}
+
+	signalState.browsersLaunching--;
+	if (
+		signalState.receivedSignal !== null &&
+		!signalState.receivedSignal.userHandlesSignal
+	) {
+		closeProcess();
+	}
 
 	const deleteBrowserCaches = () => {
 		// We leave some data:
