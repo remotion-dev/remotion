@@ -2,19 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sidebars from './sidebars';
 
-const allowedOmissions: Record<string, string[]> = {
-	cli: ['cli/create-video'],
-	'layout-utils': ['layout-utils/best-practices', 'layout-utils/debug'],
-	media: ['media/support', 'media/fallback', 'media/cache'],
-	'motion-blur': ['motion-blur/common-mistake'],
-	paths: ['paths/get-parts'],
-	remotion: ['interactive', 'interactive-with-schema'],
-	'studio-protocol': ['studio-protocol/security'],
-	transitions: ['transitions/timings/index', 'transitions/presentations/index'],
-	'video-matting': ['video-matting/node'],
-	'whisper-webgpu': ['whisper-webgpu/node'],
-};
-
 const tocsRenderedFromData = ['effects', 'shapes'];
 
 const docsDir = path.join(__dirname, 'docs');
@@ -28,11 +15,12 @@ const walk = (dir: string): string[] =>
 const files = walk(docsDir);
 
 const docUrls = new Map<string, string>();
+const apiPages = new Set<string>();
 for (const file of files.filter((f) => /\.mdx?$/.test(f))) {
 	const rel = path.relative(docsDir, file).replace(/\.mdx?$/, '');
 	const dir = path.dirname(rel) === '.' ? '' : path.dirname(rel) + '/';
-	const frontmatter =
-		fs.readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+	const content = fs.readFileSync(file, 'utf8');
+	const frontmatter = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 	const field = (name: string) =>
 		frontmatter
 			.match(new RegExp(`^${name}:\\s*(.+)$`, 'm'))?.[1]
@@ -46,6 +34,15 @@ for (const file of files.filter((f) => /\.mdx?$/.test(f))) {
 			: '/docs/' + dir + slug
 		: '/docs/' + id;
 	docUrls.set(id, url.replace(/\/index$/, '').replace(/\/$/, ''));
+
+	const title = field('title') ?? '';
+	const isDeprecated = /:::info Deprecated|Removed in v\d/.test(content);
+	if (
+		(title.startsWith('npx remotion ') || !/\s/.test(title)) &&
+		!isDeprecated
+	) {
+		apiPages.add(id);
+	}
 }
 
 type SidebarItem =
@@ -76,18 +73,18 @@ for (const sidebar of Object.values(sidebars)) {
 	collect(sidebar as SidebarItem[]);
 }
 
-const childIds = (items: SidebarItem[]): string[] =>
+const children = (items: SidebarItem[]): {id: string; isCategory: boolean}[] =>
 	items.flatMap((item) => {
 		if (typeof item === 'string') {
-			return [item];
+			return [{id: item, isCategory: false}];
 		}
 
 		if (item.type === 'doc' && item.id) {
-			return [item.id];
+			return [{id: item.id, isCategory: false}];
 		}
 
 		if (item.type === 'category' && item.link?.type === 'doc' && item.link.id) {
-			return [item.link.id];
+			return [{id: item.link.id, isCategory: true}];
 		}
 
 		return [];
@@ -127,16 +124,26 @@ for (const toc of files.filter((f) => f.endsWith('table-of-contents.tsx'))) {
 		continue;
 	}
 
-	const links = new Set(
-		[...fs.readFileSync(toc, 'utf8').matchAll(/link=["']([^"']+)["']/g)].map(
-			(m) => m[1].replace(/\/$/, ''),
+	const tocSource = fs.readFileSync(toc, 'utf8');
+	const sources = [
+		tocSource,
+		...[...tocSource.matchAll(/from ['"](\.[^'"]+)['"]/g)].flatMap((m) => {
+			const imported = path.join(path.dirname(toc), m[1]) + '.tsx';
+			return fs.existsSync(imported) ? [fs.readFileSync(imported, 'utf8')] : [];
+		}),
+	];
+	const links = sources.flatMap((source) =>
+		[...source.matchAll(/link=["']([^"']+)["']/g)].map((m) =>
+			m[1].replace(/\/$/, ''),
 		),
 	);
-	const allowed = allowedOmissions[tocDir] ?? [];
 
-	for (const id of childIds(categories.get(categoryId) ?? [])) {
+	for (const {id, isCategory} of children(categories.get(categoryId) ?? [])) {
 		const url = docUrls.get(id) ?? '/docs/' + id;
-		if (!links.has(url) && !allowed.includes(id)) {
+		const listed = isCategory
+			? links.some((link) => link === url || link.startsWith(url + '/'))
+			: links.includes(url) || !apiPages.has(id);
+		if (!listed) {
 			problems.push(
 				`${path.relative(__dirname, toc)} does not link to ${url} (sidebar item "${id}")`,
 			);
@@ -146,12 +153,10 @@ for (const toc of files.filter((f) => f.endsWith('table-of-contents.tsx'))) {
 
 if (problems.length > 0) {
 	console.error(problems.join('\n'));
-	console.error(
-		'\nAdd a <TOCItem> for each page, or list it in allowedOmissions in check-toc-sync.ts if the table of contents leaves it out on purpose.',
-	);
+	console.error('\nAdd a <TOCItem> for each of these pages.');
 	process.exit(1);
 }
 
 console.log(
-	'All tables of contents link to every page of their sidebar category.',
+	'All tables of contents link to every API page of their sidebar category.',
 );
