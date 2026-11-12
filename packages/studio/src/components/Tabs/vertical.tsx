@@ -6,7 +6,11 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
@@ -33,6 +37,15 @@ const compactSelectorButton: React.CSSProperties = {
 	paddingRight: 4,
 };
 
+const labelStyle: React.CSSProperties = {
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
 export const VerticalTab: React.FC<{
 	readonly children: string;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -53,7 +66,6 @@ export const VerticalTab: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			boxShadow: 'none',
 			...style,
 			...(isCompact ? compactSelectorButton : null),
 		};
@@ -62,15 +74,16 @@ export const VerticalTab: React.FC<{
 	const button = (
 		<button
 			aria-label={children}
+			aria-pressed={selected}
 			autoFocus={autoFocus}
 			style={definiteStyle}
-			className={HOVERABLE_CLASS_NAME}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			type="button"
 			onClick={onClick}
 			tabIndex={tabIndex}
 		>
 			{renderIcon ? renderIcon(CURRENT_COLOR) : null}
-			{isCompact ? null : children}
+			{isCompact ? null : <span style={labelStyle}>{children}</span>}
 		</button>
 	);
 

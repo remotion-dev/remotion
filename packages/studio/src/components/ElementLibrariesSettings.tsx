@@ -3,13 +3,13 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {BookIcon} from '../icons/book';
-import {BrowseElementsIcon} from '../icons/browse-elements';
 import {LinkIcon} from '../icons/link';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
 import {callApi} from './call-api';
+import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {InlineAction} from './InlineAction';
 import {sectionHeader} from './InspectorPanel/styles';
 import {RemotionInput} from './NewComposition/RemInput';
@@ -65,12 +65,6 @@ const libraryRow: React.CSSProperties = {
 	gap: 10,
 	minHeight: 38,
 	padding: '4px 16px',
-};
-
-const libraryIcon: React.CSSProperties = {
-	flexShrink: 0,
-	height: 22,
-	width: 22,
 };
 
 const libraryDetails: React.CSSProperties = {
@@ -219,6 +213,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const discoverThirdPartyElements = useCallback(() => {
 		setSelectedModal({
 			type: 'element-library',
+			view: 'library',
 			name: 'Third-party Elements',
 			url: THIRD_PARTY_ELEMENTS_URL,
 		});
@@ -231,10 +226,10 @@ export const ElementLibrariesSettings: React.FC = () => {
 			</p>
 			<div role="list" aria-label="Element Libraries">
 				<div role="listitem" style={libraryRow}>
-					<BrowseElementsIcon
-						aria-hidden
+					<ElementLibraryIcon
+						url={REMOTION_ELEMENTS_URL}
 						color={LIGHT_TEXT}
-						style={libraryIcon}
+						size={22}
 					/>
 					<div style={libraryDetails}>
 						<div style={libraryName}>Remotion Elements</div>
@@ -256,10 +251,10 @@ export const ElementLibrariesSettings: React.FC = () => {
 				</div>
 				{libraries.map((library) => (
 					<div key={library.url} role="listitem" style={libraryRow}>
-						<BrowseElementsIcon
-							aria-hidden
+						<ElementLibraryIcon
+							url={library.url}
 							color={LIGHT_TEXT}
-							style={libraryIcon}
+							size={22}
 						/>
 						<div style={libraryDetails}>
 							<div style={libraryName}>{getElementLibraryLabel(library)}</div>

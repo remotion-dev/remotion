@@ -18,7 +18,6 @@ import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
 } from './ElementInstallConfirmation';
-import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {GenerateWithAgentModal} from './GenerateWithAgentModal';
 import {HtmlInCanvasUnavailableModal} from './HtmlInCanvasUnavailableModal';
@@ -40,7 +39,6 @@ import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
 import {ReorderCompositionModal} from './ReorderCompositionModal';
-import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
@@ -118,6 +116,7 @@ export const Modals: React.FC<{
 
 				setSelectedModal({
 					type: 'element-library',
+					view: 'library',
 					name: getElementLibraryLabel({url, displayName}),
 					url,
 				});
@@ -264,13 +263,6 @@ export const Modals: React.FC<{
 		requestElementLibraryAddition,
 	]);
 
-	const library =
-		modalContextType?.type === 'element-library'
-			? modalContextType
-			: modalContextType?.type === 'element-install'
-				? modalContextType.library
-				: null;
-
 	return (
 		<>
 			{modalContextType?.type === 'browser-studio-experimental-notice' ? (
@@ -323,14 +315,6 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'settings' ? (
-				<SettingsModal
-					key={`${modalContextType.initialTab}-${modalContextType.initialStudioPane}-${modalContextType.initialPublicLicenseKey}`}
-					initialStudioPane={modalContextType.initialStudioPane}
-					initialTab={modalContextType.initialTab}
-					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
-				/>
-			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader
 					key={
@@ -480,20 +464,10 @@ export const Modals: React.FC<{
 					state={modalContextType}
 				/>
 			) : null}
-			{library === null ? null : (
-				<ElementLibraryModal
-					name={library.name}
-					url={library.url}
-					installState={
-						modalContextType?.type === 'element-install'
-							? modalContextType
-							: null
-					}
-				/>
-			)}
-			{modalContextType?.type === 'element-install' && library === null ? (
-				<ElementInstallConfirmation state={modalContextType} />
-			) : null}
+			{modalContextType?.type === 'element-install' &&
+				modalContextType.library === null && (
+					<ElementInstallConfirmation state={modalContextType} />
+				)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
 			)}

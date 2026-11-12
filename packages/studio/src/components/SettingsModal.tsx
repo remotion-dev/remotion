@@ -25,16 +25,14 @@ import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
 import {FilmIcon} from '../icons/video';
-import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
 import {ElementLibrariesSettings} from './ElementLibrariesSettings';
+import {FullscreenPanel} from './FullscreenPanel';
 import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
-import {ModalHeader} from './ModalHeader';
 import {ModelsSettings} from './ModelsSettings';
-import {DismissableModal} from './NewComposition/DismissableModal';
 import {RenderingSettings} from './RenderingSettings';
 import {
 	horizontalLayout,
@@ -43,7 +41,6 @@ import {
 	iconContainer,
 	leftSidebar,
 	optionsPanel,
-	outerModalStyle,
 } from './RenderModal/render-modals';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
@@ -109,7 +106,6 @@ export const SettingsModal: React.FC<{
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey, initialStudioPane, initialTab}) => {
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
@@ -151,9 +147,6 @@ export const SettingsModal: React.FC<{
 	const [packagesFooterContainer, setPackagesFooterContainer] =
 		useState<HTMLDivElement | null>(null);
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
 	const selectTab = useCallback((newTab: SettingsTab) => {
 		setTab(newTab);
 		setOpenedTabs((currentOpenedTabs) => {
@@ -175,9 +168,8 @@ export const SettingsModal: React.FC<{
 	}, [initialPublicLicenseKey, setPublicLicenseKey]);
 
 	return (
-		<DismissableModal panelStyle={outerModalStyle}>
+		<FullscreenPanel ariaLabel="Settings" rightAction={null}>
 			<>
-				<ModalHeader title="Settings" onClose={dismiss} />
 				<div style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
 						{availableTabs.includes('studio') ? (
@@ -430,6 +422,6 @@ export const SettingsModal: React.FC<{
 					/>
 				)}
 			</>
-		</DismissableModal>
+		</FullscreenPanel>
 	);
 };

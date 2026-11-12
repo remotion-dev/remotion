@@ -209,6 +209,7 @@ export type ElementLibraryModalState = {
 	readonly type: 'element-library';
 	readonly name: string;
 	readonly url: string;
+	readonly view: 'library' | 'manage';
 };
 
 export type ElementInstallModalState = {
