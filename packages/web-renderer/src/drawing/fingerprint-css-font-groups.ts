@@ -62,7 +62,8 @@ export const getCssDataFontBytes = (
 		/^url\((?:"(data:[^"]*)"|'(data:[^']*)'|(data:[^)]*))\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.exec(
 			source,
 		);
-	const data = match?.[1] ?? match?.[2] ?? match?.[3];
+	// Fetching a data URL omits its fragment before percent decoding.
+	const data = (match?.[1] ?? match?.[2] ?? match?.[3])?.split('#', 1)[0];
 	if (!data) return null;
 	const comma = data.indexOf(',');
 	if (comma < 0) return null;

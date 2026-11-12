@@ -4,21 +4,27 @@ import {svgUseFontData} from './svg-use-data-font';
 export const svgPercentDataFontEncodings = [
 	'percent-binary',
 	'percent-base64',
+	'base64-fragment',
+	'percent-base64-fragment',
+	'percent-binary-fragment',
 ] as const;
 export const svgPercentDataFontUrls = (
 	encoding: (typeof svgPercentDataFontEncodings)[number],
 ) =>
 	svgUseFontData.then((urls) =>
 		urls.map((url) => {
+			const fragment = encoding.endsWith('-fragment') ? '#font' : '';
+			if (encoding === 'base64-fragment') return url + fragment;
 			const payload = url.slice(url.indexOf(',') + 1);
-			if (encoding === 'percent-base64')
+			if (encoding.startsWith('percent-base64'))
 				return (
 					url.slice(0, url.indexOf(',') + 1) +
 					payload.replace(
 						/[+/=]/g,
 						(character) =>
 							'%' + character.charCodeAt(0).toString(16).padStart(2, '0'),
-					)
+					) +
+					fragment
 				);
 			return (
 				url.slice(0, url.indexOf(',')).replace(/;base64$/i, '') +
@@ -27,7 +33,8 @@ export const svgPercentDataFontUrls = (
 					atob(payload),
 					(character) =>
 						'%' + character.charCodeAt(0).toString(16).padStart(2, '0'),
-				).join('')
+				).join('') +
+				fragment
 			);
 		}),
 	);
