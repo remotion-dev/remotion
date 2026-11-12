@@ -872,3 +872,53 @@ test('native resume remains responsive after an anchor listener starts buffering
 		harness.dispose();
 	}
 });
+
+test('a same-frame RAF anchor starts only one buffering wait', async () => {
+	const harness = renderClockedPlayer(true);
+	let subscription: {remove: () => void} | null = null;
+	try {
+		await act(async () => {
+			harness.player.current!.play();
+			harness.tick(1);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(20));
+		fireEvent.click(
+			harness.view.getByRole('button', {name: 'Seek to current frame'}),
+		);
+		let unblock: (() => void) | null = null;
+		subscription = harness.subscribeAnchor(() => {
+			subscription?.remove();
+			harness.publishBuffering(true);
+			unblock = () => harness.publishBuffering(false);
+		});
+		// A same-frame seek is anchored by the regular RAF, without a frame commit.
+		act(() => harness.tick(30));
+		expect(unblock).not.toBeNull();
+		act(() => harness.setTime(100));
+		act(() => unblock!());
+		await act(async () => {
+			harness.tick(134);
+			await Promise.resolve();
+		});
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+		act(() => harness.setTime(140));
+		act(() => {
+			harness.publishBuffering(true);
+			unblock = () => harness.publishBuffering(false);
+		});
+		act(() => harness.setTime(1000));
+		act(() => unblock!());
+		await act(async () => {
+			harness.tick(1034);
+			await Promise.resolve();
+		});
+		expect({
+			playing: harness.player.current!.isPlaying(),
+			frame: harness.player.current!.getCurrentFrame(),
+		}).toEqual({playing: true, frame: 2});
+	} finally {
+		subscription?.remove();
+		harness.dispose();
+	}
+});

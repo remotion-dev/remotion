@@ -459,7 +459,8 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
-			if (hasBeenStopped) {
+			// An anchor listener can already have entered a wait during this callback.
+			if (hasBeenStopped || waiting) {
 				return;
 			}
 
