@@ -219,6 +219,10 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {
+	registeredCdataWrappers,
+	svgRegisteredCdataFont,
+} from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
@@ -280,6 +284,16 @@ export const Root: React.FC = () => {
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
+			<Folder name="Registered-SVG-CDATA">
+				{registeredCdataWrappers.map((wrapper) => {
+					const fixture = svgRegisteredCdataFont(
+						wrapper,
+						'cdata',
+						'registered',
+					);
+					return <Composition key={fixture.id} {...fixture} />;
+				})}
+			</Folder>
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
 			<Composition {...parentTransformOrigin} />
