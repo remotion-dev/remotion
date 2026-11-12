@@ -1,30 +1,11 @@
-import {afterAll, afterEach, expect, mock, test} from 'bun:test';
+import {afterEach, expect, mock, spyOn, test} from 'bun:test';
+import assert from 'node:assert/strict';
 import type {EffectCatalogItem} from '@remotion/studio-shared';
-
-const createEffectChainState = mock(() => ({}));
-const cleanupEffectChainState = mock(() => undefined);
-const runEffectChain = mock(async (_options: unknown) => true);
-const factory = mock(() => ({}));
-
-const actual = await import('remotion');
-mock.module('remotion', () => ({
-	...actual,
-	Internals: {
-		...actual.Internals,
-		createEffectChainState,
-		cleanupEffectChainState,
-		runEffectChain,
-	},
-}));
-mock.module('../components/effect-preview-loaders', () => ({
-	effectPreviewLoaders: {
-		'@remotion/effects/blur': async () => ({blur: factory}),
-	},
-}));
-
-const {renderEffectThumbnail, getCachedEffectThumbnail} =
-	await import('../components/render-effect-thumbnail');
-afterAll(() => mock.restore());
+import {Internals} from 'remotion';
+import {
+	getCachedEffectThumbnail,
+	renderEffectThumbnail,
+} from '../components/render-effect-thumbnail';
 
 const originalDocument = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -46,7 +27,8 @@ afterEach(() => {
 			Reflect.deleteProperty(globalThis, key);
 		}
 	}
-	mock.clearAllMocks();
+
+	mock.restore();
 });
 
 const item: EffectCatalogItem = {
@@ -67,6 +49,11 @@ for (const [width, height, thumbnailWidth, thumbnailHeight] of [
 	[160, 90, 160, 90],
 ]) {
 	test(`renders effects at ${width}x${height} before resizing the thumbnail`, async () => {
+		const createEffectChainState = spyOn(Internals, 'createEffectChainState');
+		const cleanupEffectChainState = spyOn(Internals, 'cleanupEffectChainState');
+		const runEffectChain = spyOn(Internals, 'runEffectChain').mockResolvedValue(
+			true,
+		);
 		const draws: {canvas: HTMLCanvasElement; args: unknown[]}[] = [];
 		Object.defineProperty(globalThis, 'document', {
 			configurable: true,
@@ -97,22 +84,25 @@ for (const [width, height, thumbnailWidth, thumbnailHeight] of [
 			item,
 			signal: new AbortController().signal,
 		});
+		assert(thumbnail);
 		expect(createEffectChainState).toHaveBeenCalledWith(width, height);
-		expect(factory).toHaveBeenCalledWith({radius: 40});
 		expect(runEffectChain).toHaveBeenCalledWith(
 			expect.objectContaining({
 				width,
 				height,
 				source: expect.objectContaining({width, height}),
+				effects: [
+					expect.objectContaining({
+						params: expect.objectContaining({radius: 40}),
+					}),
+				],
 			}),
 		);
 		expect(thumbnail).toMatchObject({
 			width: thumbnailWidth,
 			height: thumbnailHeight,
 		});
-		const options = runEffectChain.mock.calls[0][0] as {
-			output: HTMLCanvasElement;
-		};
+		const options = runEffectChain.mock.calls[0][0];
 		expect(draws).toContainEqual({
 			canvas: thumbnail,
 			args: [options.output, 0, 0, thumbnailWidth, thumbnailHeight],
