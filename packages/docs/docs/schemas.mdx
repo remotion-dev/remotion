@@ -121,6 +121,29 @@ export const RemotionRoot: React.FC = () => {
 
 The schema determines which controls appear when you [edit props visually in the Remotion Studio](/docs/visual-editing). It overrides the controls that Remotion would otherwise [infer from `defaultProps`](/docs/default-props-inference).
 
+## Validation during rendering
+
+The schema is used by the Remotion Studio, which marks invalid props and does not apply them.  
+When rendering via the CLI, the server-side rendering APIs or Lambda, the props are not validated against the schema. Invalid input props render without an error.
+
+Input props are merged shallowly with the default props: a top-level key in the input props replaces the whole value of that key in the default props, including nested objects.
+
+To fail a render on invalid props, parse them in [`calculateMetadata()`](/docs/calculate-metadata):
+
+```tsx title="src/Root.tsx"
+<Composition
+  // ...
+  schema={myCompSchema}
+  calculateMetadata={({props}) => {
+    const result = myCompSchema.safeParse(props);
+    if (!result.success) {
+      throw new Error(`Invalid props: ${JSON.stringify(result.error.issues)}`);
+    }
+    return {props: result.data};
+  }}
+/>
+```
+
 ## Supported types
 
 All schemas that are supported by [Zod](https://zod.dev/) can be used to validate props. The visual props editor only provides controls for some of them; see [Supported controls](/docs/visual-editing#supported-controls) for the list. Other types are displayed as not editable.
