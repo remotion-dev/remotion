@@ -13,7 +13,7 @@ npx remotion render <entry-point|serve-url>? <composition-id> <output-location>
 
 You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
-If `composition-id` is not passed, Remotion will ask you to select a composition.  
+If you don't pass `composition-id`, Remotion asks you to select a composition. In a non-interactive environment (no TTY or `CI` is set), the command fails and lists the available composition IDs.  
 If `output-location` is not passed, the media will be rendered into the `out` folder.
 
 ## Flags
