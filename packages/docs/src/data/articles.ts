@@ -9093,15 +9093,6 @@ export const articles = [
 		slug: 'studio-protocol/is-inside-studio',
 	},
 	{
-		id: 'studio-protocol/report-studio-navigation',
-		title: 'reportStudioNavigation()',
-		relativePath: 'docs/studio-protocol/report-studio-navigation.mdx',
-		compId: 'articles-docs-studio-protocol-report-studio-navigation',
-		crumb: '@remotion/studio-protocol',
-		noAi: false,
-		slug: 'studio-protocol/report-studio-navigation',
-	},
-	{
 		id: 'studio-protocol/security',
 		title: 'Studio Protocol security',
 		relativePath: 'docs/studio-protocol/security.mdx',

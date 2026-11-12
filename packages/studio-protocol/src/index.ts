@@ -35,7 +35,6 @@ import {
 	parseStudioProtocolInstallRequest,
 } from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
-import {parseStudioProtocolNavigation} from './report-studio-navigation';
 import {resolveElementAssets} from './resolve-element-assets';
 import {
 	parseStudioProtocolSetLicenseKeyRequest,
@@ -127,8 +126,6 @@ export {
 
 export {isInsideStudio} from './is-inside-studio';
 
-export {reportStudioNavigation} from './report-studio-navigation';
-
 export {subscribeToCaptionStyleSelection} from './subscribe-to-caption-style-selection';
 
 export type {RenderOutputDragData} from './render-output-drag-data';
@@ -168,7 +165,6 @@ export const StudioProtocolInternals = {
 	parseStudioProtocolCaptionStyleSelection,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
-	parseStudioProtocolNavigation,
 	parseStudioProtocolSetLicenseKeyRequest,
 	resolveElementAssets,
 	setLicenseKeyInStudio,

@@ -116,15 +116,6 @@ export const ElementLibraryFrame: React.FC<{
 		// `load` can also fire for a browser error page. COEP reports may
 		// arrive afterward and must still be allowed to show the error screen.
 		const onLoad = () => {
-			try {
-				const loadedUrl = iframe.contentWindow?.location.href;
-				if (loadedUrl && loadedUrl !== 'about:blank') {
-					onUrlChange?.(loadedUrl);
-				}
-			} catch {
-				// Cross-origin frame locations cannot be read by the parent page.
-			}
-
 			if (blocked) {
 				return;
 			}
@@ -170,25 +161,11 @@ export const ElementLibraryFrame: React.FC<{
 
 		const onMessage = (event: MessageEvent) => {
 			if (
-				event.source !== iframe.contentWindow ||
-				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(event.origin)
-			) {
-				return;
-			}
-
-			const navigation = StudioProtocolInternals.parseStudioProtocolNavigation(
-				event.data,
-			);
-			if (navigation !== null) {
-				if (new URL(navigation.url).origin === event.origin) {
-					onUrlChange?.(navigation.url);
-				}
-
-				return;
-			}
-
-			if (
 				context !== 'captions' ||
+				event.source !== iframe.contentWindow ||
+				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(
+					event.origin,
+				) ||
 				!StudioProtocolInternals.isStudioProtocolCaptionStyleSubscription(
 					event.data,
 				)
