@@ -31,7 +31,7 @@ From your Remotion project, build a [Remotion Bundle](/docs/terminology/bundle):
 <TabItem value="cli" label="CLI">
 
 ```sh title="Build the site"
-bunx remotion bundle src/index.ts --out-dir=build --public-path=./
+bunx remotion bundle src/index.ts --out-dir=./sites/remotion-project --public-path=/sites/remotion-project/
 ```
 
 The [`--public-path` flag](/docs/cli/bundle#--public-path) overrides a public path set in `remotion.config.ts`.
@@ -47,8 +47,8 @@ import {bundle} from '@remotion/bundler';
 
 await bundle({
   entryPoint: path.resolve('src/index.ts'),
-  outDir: path.resolve('build'),
-  publicPath: './',
+  outDir: path.resolve('sites/remotion-project'),
+  publicPath: '/sites/remotion-project/',
 });
 ```
 
@@ -61,9 +61,11 @@ Pass any bundler overrides from your project configuration to `bundle()` as well
 </TabItem>
 </Tabs>
 
-Replace the entry point with your own. Both examples write to `build/` and use a relative public path (`./`), so JavaScript chunks and [`staticFile()`](/docs/staticfile) assets resolve under whichever `sites/<site_name>/` prefix Terraform uses.
+Replace the entry point with your own. Both examples write the local bundle to `./sites/remotion-project` and use `/sites/remotion-project/` as the public URL path. The leading slash makes asset URLs relative to the bucket origin, so JavaScript chunks and [`staticFile()`](/docs/staticfile) assets load from the deployed site's prefix.
 
-Put the following Terraform files in an `infra/` directory next to `build/`.
+Keep the public path in sync with `sites/<site_name>/`. If you change `site_name` below, rebuild the bundle with the matching public path.
+
+Put the following Terraform files in an `infra/` directory next to `sites/`.
 
 The bundle must exist before running `terraform plan`. [`fileset()`](https://developer.hashicorp.com/terraform/language/functions/fileset) reads local files while Terraform evaluates the configuration.
 
@@ -132,12 +134,12 @@ variable "timeout_seconds" {
 
 variable "bundle_dir" {
   type    = string
-  default = "../build"
+  default = "../sites/remotion-project"
 }
 
 variable "site_name" {
   type    = string
-  default = "my-video"
+  default = "remotion-project"
 
   validation {
     condition     = can(regex("^[A-Za-z0-9_-]+$", var.site_name))
@@ -475,7 +477,7 @@ terraform output -json remotion > ../remotion-deployment.json
 
 If a function or log group with the same name already exists, [import it into Terraform](https://developer.hashicorp.com/terraform/language/import) before applying. Terraform creates a new bucket and execution role for this configuration.
 
-To update your composition, rebuild `build/` and run the plan and apply steps again. Let Terraform exclusively manage this site's S3 objects.
+To update your composition, rebuild `./sites/remotion-project` and run the plan and apply steps again. Let Terraform exclusively manage this site's S3 objects.
 
 ## 4. Render
 
@@ -512,7 +514,7 @@ Keep the function, site, and Remotion packages in your application on the same v
 
 For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), keep old and new functions, execution permissions, and sites as separate Terraform resources or module instances during the transition. Deploy the new version, switch your application to its outputs, and remove the old resources once their renders have finished. `create_before_destroy` alone does not wait for your application to switch.
 
-Use a different `site_name` for each deployment you need to retain. Changing `site_name` on the same resources removes the old site's objects. A shared bucket can stay in a separate Terraform module while you replace versioned function and site resources.
+Use a different `site_name` for each deployment you need to retain, and rebuild the bundle with the matching public path. Changing `site_name` on the same resources removes the old site's objects. A shared bucket can stay in a separate Terraform module while you replace versioned function and site resources.
 
 ## See also
 
