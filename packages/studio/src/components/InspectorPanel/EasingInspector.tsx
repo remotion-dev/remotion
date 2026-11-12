@@ -23,6 +23,7 @@ import {
 	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 } from '../Timeline/get-timeline-keyframes';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -369,7 +370,11 @@ export const EasingInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div
+			style={selectedContainer}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+		>
 			<SequenceInspectorSections track={track} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}

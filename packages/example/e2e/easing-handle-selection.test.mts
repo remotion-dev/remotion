@@ -41,11 +41,18 @@ test.describe('easing editor handles', () => {
 		test.setTimeout(120_000);
 		const handle = await openEasingEditor(page);
 		await expect(handle).toHaveAttribute('r', '4.25');
+		await page.getByLabel('Bezier curve editor', {exact: true}).click({
+			position: {x: 10, y: 10},
+		});
+		await expect(handle).toHaveAttribute('r', '4.25');
 
 		await handle.click();
 		await expect(handle).toHaveAttribute('r', '6.8');
-		// Clicking elsewhere in the editor deselects the handle.
-		await page.getByText('Bezier', {exact: true}).first().click();
+		await page.getByLabel('Bezier curve editor', {exact: true}).click({
+			position: {x: 10, y: 10},
+		});
+		await expect(handle).toHaveAttribute('r', '4.25');
+		await page.getByText('Output', {exact: true}).click();
 		await expect(handle).toHaveAttribute('r', '4.25');
 
 		await handle.click();
