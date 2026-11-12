@@ -1,14 +1,17 @@
 import React, {useCallback, useContext} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {CURRENT_COLOR} from '../helpers/colors';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {GearIcon} from '../icons/gear';
+import {TrashIcon} from '../icons/trash';
 import {
 	type ElementInstallModalState,
 	type ElementLibraryModalState,
 	SetSelectedModalContext,
 } from '../state/modals';
+import {ContextMenu} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {
 	ElementLibrariesSettings,
@@ -68,7 +71,7 @@ export const ElementLibraryModal: React.FC<{
 	readonly installState: ElementInstallModalState | null;
 }> = ({name, url, view, installState}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {studioRuntimeConfig} = useSettings();
+	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canManageLibraries = canEditStudioConfig({
 		isBrowserStudio: getBrowserStudioOperations() !== null,
@@ -98,30 +101,67 @@ export const ElementLibraryModal: React.FC<{
 						{libraries.map((library) => {
 							const label = getElementLibraryLabel(library);
 							return (
-								<VerticalTab
+								<ContextMenu
 									key={library.url}
-									style={tabStyle}
-									selected={!showManagement && url === library.url}
-									onClick={() => {
-										setSelectedModal({
-											type: 'element-library',
-											name: label,
-											url: library.url,
-											view: 'library',
-										});
-									}}
-									renderIcon={(color) => (
-										<div style={iconContainer}>
-											<ElementLibraryIcon
-												url={library.url}
-												color={color}
-												size={20}
-											/>
-										</div>
-									)}
+									getItems={() =>
+										canManageLibraries && library.url !== REMOTION_ELEMENTS_URL
+											? [
+													{
+														type: 'item',
+														id: 'remove-library',
+														value: 'remove-library',
+														label: 'Remove library',
+														leftItem: (
+															<TrashIcon
+																color={CURRENT_COLOR}
+																style={{width: 16, height: 16}}
+															/>
+														),
+														keyHint: null,
+														quickSwitcherLabel: null,
+														subMenu: null,
+														onClick: () => {
+															removeElementLibrary(library.url);
+															setSelectedModal((current) =>
+																current?.type === 'element-library' &&
+																current.url === library.url
+																	? {
+																			...current,
+																			name: 'Remotion Elements',
+																			url: REMOTION_ELEMENTS_URL,
+																		}
+																	: current,
+															);
+														},
+													},
+												]
+											: false
+									}
 								>
-									{label}
-								</VerticalTab>
+									<VerticalTab
+										style={tabStyle}
+										selected={!showManagement && url === library.url}
+										onClick={() => {
+											setSelectedModal({
+												type: 'element-library',
+												name: label,
+												url: library.url,
+												view: 'library',
+											});
+										}}
+										renderIcon={(color) => (
+											<div style={iconContainer}>
+												<ElementLibraryIcon
+													url={library.url}
+													color={color}
+													size={20}
+												/>
+											</div>
+										)}
+									>
+										{label}
+									</VerticalTab>
+								</ContextMenu>
 							);
 						})}
 					</div>

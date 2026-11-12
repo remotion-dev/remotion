@@ -15,7 +15,6 @@ import {sectionHeader} from './InspectorPanel/styles';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
-import {Spinner} from './Spinner';
 
 export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
 const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
@@ -117,7 +116,7 @@ const trashIcon: React.CSSProperties = {
 
 export const ElementLibrariesSettings: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {studioRuntimeConfig} = useSettings();
+	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [url, setUrl] = useState('');
 	const [displayName, setDisplayName] = useState('');
@@ -175,37 +174,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 			setBusy(null);
 		}
 	}, [canSave, displayName, duplicate, normalizedUrl, previewServerState]);
-
-	const removeLibrary = useCallback(
-		async (libraryUrl: string) => {
-			if (previewServerState.type !== 'connected' || busy !== null) {
-				return;
-			}
-
-			setBusy(libraryUrl);
-			setError(null);
-			try {
-				const response = await callApi('/api/update-config', {
-					clientId: previewServerState.clientId,
-					updates: [
-						{
-							setter: 'addElementLibrary',
-							type: 'delete',
-							value: libraryUrl,
-						},
-					],
-				});
-				if (!response.success) {
-					setError(response.reason);
-				}
-			} catch (err) {
-				setError((err as Error).message);
-			} finally {
-				setBusy(null);
-			}
-		},
-		[busy, previewServerState],
-	);
 
 	const renderTrash = useCallback((color: string) => {
 		return <TrashIcon color={color} style={trashIcon} />;
@@ -272,24 +240,20 @@ export const ElementLibrariesSettings: React.FC = () => {
 								{library.url.replace(/^https?:\/\//, '')}
 							</a>
 						</div>
-						{busy === library.url ? (
-							<Spinner duration={0.5} size={14} />
-						) : (
-							<ActionTooltip
-								label="Remove"
-								shortcut={null}
-								delay={800}
-								dismissOnClick
-							>
-								<InlineAction
-									aria-label={`Remove ${library.displayName ?? library.url}`}
-									disabled={!canSave}
-									onClick={() => removeLibrary(library.url)}
-									renderAction={renderTrash}
-									variant={null}
-								/>
-							</ActionTooltip>
-						)}
+						<ActionTooltip
+							label="Remove"
+							shortcut={null}
+							delay={800}
+							dismissOnClick
+						>
+							<InlineAction
+								aria-label={`Remove ${library.displayName ?? library.url}`}
+								disabled={!canSave}
+								onClick={() => removeElementLibrary(library.url)}
+								renderAction={renderTrash}
+								variant={null}
+							/>
+						</ActionTooltip>
 					</div>
 				))}
 			</div>

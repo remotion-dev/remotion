@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {
 	appSelectedEvent,
 	codingAgentHistory,
@@ -42,6 +43,7 @@ type SettingsContextValue = {
 	readonly showDiagnostics: boolean;
 	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
+	readonly removeElementLibrary: (url: string) => Promise<void>;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
 	readonly upgradeSkill: (skill: string) => Promise<void>;
@@ -66,6 +68,7 @@ export const SettingsProvider: React.FC<{
 			| 'upgradeSkill'
 			| 'showDiagnostics'
 			| 'setShowDiagnostics'
+			| 'removeElementLibrary'
 		>
 	>({
 		codingAgentInfo: null,
@@ -86,6 +89,62 @@ export const SettingsProvider: React.FC<{
 	const diagnosticsSaveQueue = useRef<Promise<void>>(Promise.resolve());
 	const studioRuntimeConfigRef = useRef(settings.studioRuntimeConfig);
 	studioRuntimeConfigRef.current = settings.studioRuntimeConfig;
+	const elementLibraryRemovals = useRef(new Map<string, {saved: boolean}>());
+	const [removedElementLibraryUrls, setRemovedElementLibraryUrls] = useState<
+		string[]
+	>([]);
+	const removeElementLibrary = useCallback(
+		async (url: string) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				}) ||
+				previewServerState.type !== 'connected' ||
+				elementLibraryRemovals.current.has(url) ||
+				!studioRuntimeConfigRef.current?.elementLibraries.some(
+					(library) => library.url === url,
+				)
+			) {
+				return;
+			}
+
+			const request = {saved: false};
+			elementLibraryRemovals.current.set(url, request);
+			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
+			try {
+				const response = await callApi('/api/update-config', {
+					clientId: previewServerState.clientId,
+					updates: [{setter: 'addElementLibrary', type: 'delete', value: url}],
+				});
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryRemovals.current.get(url) !== request) return;
+				request.saved = true;
+				if (
+					!studioRuntimeConfigRef.current?.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryRemovals.current.delete(url);
+					setRemovedElementLibraryUrls([
+						...elementLibraryRemovals.current.keys(),
+					]);
+				}
+			} catch (err) {
+				if (elementLibraryRemovals.current.get(url) !== request) return;
+				elementLibraryRemovals.current.delete(url);
+				setRemovedElementLibraryUrls([
+					...elementLibraryRemovals.current.keys(),
+				]);
+				showNotification(
+					`Could not remove element library: ${(err as Error).message}`,
+					5000,
+				);
+			}
+		},
+		[previewServerState],
+	);
 	const diagnosticsSave = useRef<{
 		value: boolean;
 		saved: boolean;
@@ -256,6 +315,22 @@ export const SettingsProvider: React.FC<{
 			}
 
 			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			for (const [url, removal] of elementLibraryRemovals.current) {
+				if (
+					removal.saved &&
+					!event.studioRuntimeConfig.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryRemovals.current.delete(url);
+				}
+			}
+
+			setRemovedElementLibraryUrls((current) =>
+				current.length === elementLibraryRemovals.current.size
+					? current
+					: [...elementLibraryRemovals.current.keys()],
+			);
 			const request = diagnosticsSave.current;
 			if (
 				event.studioRuntimeConfig.showDiagnostics.source === 'cli' ||
@@ -292,6 +367,15 @@ export const SettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (elementLibraryRemovals.current.size > 0) {
+					elementLibraryRemovals.current.clear();
+					setRemovedElementLibraryUrls([]);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
 				if (diagnosticsSave.current !== null) {
 					diagnosticsSave.current = null;
 					setShowDiagnosticsPreview(null);
@@ -392,6 +476,17 @@ export const SettingsProvider: React.FC<{
 	const value = useMemo<SettingsContextValue>(() => {
 		return {
 			...settings,
+			studioRuntimeConfig:
+				settings.studioRuntimeConfig && removedElementLibraryUrls.length > 0
+					? {
+							...settings.studioRuntimeConfig,
+							elementLibraries:
+								settings.studioRuntimeConfig.elementLibraries.filter(
+									(library) => !removedElementLibraryUrls.includes(library.url),
+								),
+						}
+					: settings.studioRuntimeConfig,
+			removeElementLibrary,
 			showDiagnostics:
 				showDiagnosticsPreview ??
 				settings.studioRuntimeConfig?.showDiagnostics.value ??
@@ -410,6 +505,8 @@ export const SettingsProvider: React.FC<{
 		upgradeSkill,
 		showDiagnosticsPreview,
 		setShowDiagnostics,
+		removeElementLibrary,
+		removedElementLibraryUrls,
 	]);
 
 	return (
