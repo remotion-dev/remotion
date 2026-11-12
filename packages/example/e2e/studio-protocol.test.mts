@@ -137,7 +137,7 @@ const CloseupPlaceholder = () => {
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
-		`\nConfig.addElementLibrary({url: '${externalLibraryUrl}', displayName: 'External Elements'});\n`,
+		`\nConfig.addElementLibrary({url: 'https://www.remotion.dev/elements', displayName: 'Remotion Elements'});\nConfig.addElementLibrary({url: '${externalLibraryUrl}', displayName: 'External Elements'});\n`,
 	);
 	fs.rmSync(path.join(temporaryProject, 'node_modules'), {
 		force: true,
