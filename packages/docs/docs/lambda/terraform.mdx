@@ -156,22 +156,14 @@ variable "site_name" {
     error_message = "Use letters, numbers, hyphens, or underscores for the site name."
   }
 }
-
-variable "application_role_name" {
-  type    = string
-  default = null
-}
 ```
 
-Override defaults in `infra/terraform.tfvars`. Set `application_role_name` if your application already has an IAM role that should be allowed to render. Terraform creates a render-client policy and optionally attaches it to that role.
+Override defaults in `infra/terraform.tfvars`.
 
 ```hcl title="infra/terraform.tfvars"
 memory_size_mb  = 3008
 disk_size_mb    = 2048
 timeout_seconds = 240
-
-# Optional: attach rendering permissions to an existing application role.
-# application_role_name = "my-application-role"
 ```
 
 ### Account-level S3 public access
@@ -248,44 +240,9 @@ resource "aws_s3_bucket_policy" "site" {
 
 ### IAM permissions
 
-The execution role lets the function access this bucket, invoke itself to distribute rendering, and write logs. The render-client policy grants the application access to this function and bucket.
+The execution role lets the function access this bucket, invoke itself to distribute rendering, and write logs.
 
 ```hcl title="infra/iam.tf"
-locals {
-  storage_statements = [
-    {
-      Sid      = "ListBuckets"
-      Effect   = "Allow"
-      Action   = ["s3:ListAllMyBuckets"]
-      Resource = ["*"]
-    },
-    {
-      Sid      = "ReadBucket"
-      Effect   = "Allow"
-      Action   = ["s3:ListBucket", "s3:GetBucketLocation"]
-      Resource = [aws_s3_bucket.remotion.arn]
-    },
-    {
-      Sid    = "ReadWriteObjects"
-      Effect = "Allow"
-      Action = [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject",
-        "s3:PutObjectAcl",
-        "s3:AbortMultipartUpload",
-      ]
-      Resource = ["${aws_s3_bucket.remotion.arn}/*"]
-    },
-  ]
-  invoke_statement = {
-    Sid      = "InvokeRenderer"
-    Effect   = "Allow"
-    Action   = ["lambda:InvokeFunction"]
-    Resource = [local.function_arn]
-  }
-}
-
 resource "aws_iam_role" "remotion" {
   name_prefix = "remotion-lambda-"
   assume_role_policy = jsonencode({
@@ -303,39 +260,45 @@ resource "aws_iam_role_policy" "execution" {
   role = aws_iam_role.remotion.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = concat(local.storage_statements, [
-      local.invoke_statement,
+    Statement = [
+      {
+        Sid      = "ListBuckets"
+        Effect   = "Allow"
+        Action   = ["s3:ListAllMyBuckets"]
+        Resource = ["*"]
+      },
+      {
+        Sid      = "ReadBucket"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket", "s3:GetBucketLocation"]
+        Resource = [aws_s3_bucket.remotion.arn]
+      },
+      {
+        Sid    = "ReadWriteObjects"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:PutObjectAcl",
+          "s3:AbortMultipartUpload",
+        ]
+        Resource = ["${aws_s3_bucket.remotion.arn}/*"]
+      },
+      {
+        Sid      = "InvokeRenderer"
+        Effect   = "Allow"
+        Action   = ["lambda:InvokeFunction"]
+        Resource = [local.function_arn]
+      },
       {
         Sid      = "WriteLogs"
         Effect   = "Allow"
         Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
         Resource = ["${aws_cloudwatch_log_group.remotion.arn}:*"]
       },
-    ])
+    ]
   })
-}
-
-resource "aws_iam_policy" "render_client" {
-  name_prefix = "remotion-render-client-"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = concat(local.storage_statements, [
-      local.invoke_statement,
-      {
-        Sid      = "ReadFunction"
-        Effect   = "Allow"
-        Action   = ["lambda:GetFunction", "lambda:GetFunctionConfiguration"]
-        Resource = [local.function_arn]
-      },
-    ])
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "render_client" {
-  count = var.application_role_name == null ? 0 : 1
-
-  role       = var.application_role_name
-  policy_arn = aws_iam_policy.render_client.arn
 }
 ```
 
@@ -469,10 +432,6 @@ output "remotion" {
     serveUrl     = "https://${aws_s3_bucket.remotion.bucket_regional_domain_name}/${aws_s3_object.site_index.key}"
   }
 }
-
-output "render_client_policy_arn" {
-  value = aws_iam_policy.render_client.arn
-}
 ```
 
 ## 3. Deploy
@@ -516,7 +475,7 @@ const {renderId} = await renderMediaOnLambda({
 console.log({renderId, bucketName});
 ```
 
-Replace the composition ID with your own and configure [AWS authentication](/docs/lambda/authentication) for the script. Use the application role configured through `application_role_name`, or another AWS identity with the permissions from `render_client_policy_arn`. That policy can also be attached by your application's Terraform configuration. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
+Replace the composition ID with your own and configure [AWS authentication](/docs/lambda/authentication) with the required [user permissions](/docs/lambda/permissions#user-permissions) for the script. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
 
 ## Upgrading
 
