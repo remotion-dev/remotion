@@ -147,11 +147,6 @@ variable "timeout_seconds" {
   default = 120
 }
 
-variable "bundle_dir" {
-  type    = string
-  default = "../sites/remotion-project"
-}
-
 variable "site_name" {
   type    = string
   default = "remotion-project"
@@ -401,11 +396,11 @@ resource "aws_lambda_runtime_management_config" "remotion" {
 
 ### Site files
 
-Terraform uploads each file from the bundle and uploads `index.html` after the other assets. Add any extra file extensions your project needs to `site_content_types`. The [`source_hash`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) values detect changed files. Terraform deletes previously managed files when they are removed from the bundle.
+Terraform reads the bundle from `../sites/<site_name>/`, relative to `infra/`, and uploads `index.html` after the other assets. Add any extra file extensions your project needs to `site_content_types`. The [`source_hash`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) values detect changed files. Terraform deletes previously managed files when they are removed from the bundle.
 
 ```hcl title="infra/site.tf"
 locals {
-  site_bundle_dir = abspath(var.bundle_dir)
+  site_bundle_dir = abspath("${path.module}/../sites/${var.site_name}")
   site_prefix     = "sites/${var.site_name}"
   site_files      = fileset(local.site_bundle_dir, "**")
   site_content_types = {
@@ -529,7 +524,7 @@ Keep the function, site, and Remotion packages in your application on the same v
 
 For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), keep old and new functions, execution permissions, and sites as separate Terraform resources or module instances during the transition. Deploy the new version, switch your application to its outputs, and remove the old resources once their renders have finished. `create_before_destroy` alone does not wait for your application to switch.
 
-Use a different `site_name` for each deployment you need to retain, and rebuild the bundle with the matching public path. Changing `site_name` on the same resources removes the old site's objects. A shared bucket can stay in a separate Terraform module while you replace versioned function and site resources.
+Use a different `site_name` for each deployment you need to retain, and rebuild the bundle with the matching output directory and public path. Changing `site_name` on the same resources removes the old site's objects. A shared bucket can stay in a separate Terraform module while you replace versioned function and site resources.
 
 ## See also
 
