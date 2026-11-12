@@ -146,7 +146,7 @@ export const usePlayback = ({
 							: actualFirstFrame
 						: nextFrame;
 				if (preserveFraction && !hasEnded) {
-					const elapsedFrames = (elapsedTime * playbackRate * fps) / 1000;
+					const elapsedFrames = (elapsedTime * playbackRate) / (1000 / fps);
 					absoluteFrame += elapsedFrames - Math.trunc(elapsedFrames);
 				}
 			}
@@ -486,12 +486,16 @@ export const usePlayback = ({
 						setPlayerMuted(true);
 					}
 
-					waiting = false;
 					resumeClock(waitingSince, waitingSeekRevision);
 					if (!audioContextFailed) {
 						updateAudioAnchor(true);
 					}
 
+					if (hasBeenStopped || !isPlaying()) {
+						return;
+					}
+
+					waiting = false;
 					queueNextFrame();
 				});
 

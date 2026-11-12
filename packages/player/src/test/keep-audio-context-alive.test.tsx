@@ -794,3 +794,81 @@ test.each([0.5, 1, 2])(
 		}
 	},
 );
+
+test.each([-2, -1, -0.5, 0.5, 1, 2])(
+	'audio recovery agrees with picture rounding at a 30fps boundary at %s×',
+	(playbackRate) => {
+		const harness = renderClockedPlayer(true);
+		try {
+			act(() => harness.changeConfig({playbackRate}));
+			act(() => harness.player.current!.seekTo(100));
+			act(() => harness.player.current!.play());
+			const waitAt = 500 / Math.abs(playbackRate);
+			act(() => harness.tick(waitAt));
+			let unblock = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			const releasedAt = waitAt + 500;
+			act(() => harness.setTime(releasedAt));
+			act(() => unblock());
+			const continuousFrame = () =>
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+				playbackRate *
+				30;
+			expect(continuousFrame()).toBeCloseTo(
+				100 + Math.sign(playbackRate) * 15,
+				8,
+			);
+			act(() => harness.tick(releasedAt + 34 / Math.abs(playbackRate)));
+			expect(harness.player.current!.getCurrentFrame()).toBe(
+				100 + Math.sign(playbackRate) * 16,
+			);
+			expect(continuousFrame()).toBeCloseTo(
+				100 + Math.sign(playbackRate) * 16.02,
+				8,
+			);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test('native resume remains responsive after an anchor listener starts buffering', async () => {
+	const harness = renderClockedPlayer(false);
+	let subscription: {remove: () => void} | null = null;
+	try {
+		act(() => harness.player.current!.play());
+		let startedBuffering = false;
+		subscription = harness.subscribeAnchor(() => {
+			subscription?.remove();
+			startedBuffering = true;
+			harness.publishBuffering(true);
+		});
+		await act(async () => {
+			harness.tick(20);
+			await Promise.resolve();
+		});
+		expect(startedBuffering).toBe(true);
+		act(() => harness.setTime(100));
+		act(() => harness.publishBuffering(false));
+		await act(async () => {
+			harness.tick(120);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(140));
+		act(() => harness.publishBuffering(true));
+		act(() => harness.setTime(1000));
+		act(() => harness.publishBuffering(false));
+		await act(async () => {
+			harness.tick(1020);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(1054));
+		expect(harness.player.current!.isPlaying()).toBe(true);
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		subscription?.remove();
+		harness.dispose();
+	}
+});
