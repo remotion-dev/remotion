@@ -1,5 +1,4 @@
 import {beforeAll, expect, test} from 'vitest';
-import {server} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {
@@ -37,20 +36,6 @@ test.for([1, 2].flatMap((scale) => [0, 1].map((frame) => ({scale, frame}))))(
 		const repeat = await captureNativeReference(composition, frame, {
 			omitBackground: false,
 		});
-		for (const [name, blob] of [
-			['native', reference],
-			['actual', actual],
-			['repeat', repeat],
-		] as const) {
-			let binary = '';
-			for (const byte of new Uint8Array(await blob.arrayBuffer()))
-				binary += String.fromCharCode(byte);
-			await server.commands.writeFile(
-				`validation/background-image-missing-filter/${server.browser}/plain-${scale}-${frame}-${name}.png`,
-				btoa(binary),
-				'base64',
-			);
-		}
 
 		expect(
 			(await compareNativePixels(reference, repeat)).mismatchedPixels,
