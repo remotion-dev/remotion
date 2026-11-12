@@ -62,7 +62,7 @@ export const RemotionRoot = () => {
 
 Now, the user can edit the parameter visually in the sidebar.
 
-The schema is not enforced during rendering. Invalid input props render without an error. Input props are shallowly merged with `defaultProps`: a nested object in the input props replaces the whole default object.
+Remotion does not enforce the schema during rendering. Invalid input props render without an error. Remotion shallowly merges input props with `defaultProps`. A nested object in the input props replaces the whole default object.
 
 To fail a render on invalid props, parse them in `calculateMetadata`:
 

@@ -123,10 +123,10 @@ The schema determines which controls appear when you [edit props visually in the
 
 ## Validation during rendering
 
-The schema is used by the Remotion Studio, which marks invalid props and does not apply them.  
-When rendering via the CLI, the server-side rendering APIs or Lambda, the props are not validated against the schema. Invalid input props render without an error.
+The Remotion Studio uses the schema to mark invalid props, and does not apply them.  
+When rendering via the CLI, the server-side rendering APIs or Lambda, Remotion does not validate the props against the schema. Invalid input props render without an error.
 
-Input props are merged shallowly with the default props: a top-level key in the input props replaces the whole value of that key in the default props, including nested objects.
+Remotion merges input props shallowly with the default props. A top-level key in the input props replaces the whole value of that key in the default props, including nested objects.
 
 To fail a render on invalid props, parse them in [`calculateMetadata()`](/docs/calculate-metadata):
 
