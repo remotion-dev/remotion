@@ -1184,7 +1184,7 @@ export const launchHandler = async ({
 				delivery: Promise<void>;
 		  } = params.webhook ? {type: 'unclaimed'} : {type: 'not-configured'};
 
-	const sendTerminalWebhook = async (
+	const sendTerminalWebhook = (
 		payload: WebhookPayload<string | null>,
 		uploadLabel:
 			| 'timeoutWebhookError'
@@ -1201,7 +1201,7 @@ export const launchHandler = async ({
 
 		if (webhookState.type === 'not-configured' || !params.webhook) {
 			RenderInternals.Log.verbose(logOptions, 'No webhook specified.');
-			return;
+			return Promise.resolve();
 		}
 
 		const {webhook} = params;
