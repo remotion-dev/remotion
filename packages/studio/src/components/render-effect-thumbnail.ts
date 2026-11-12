@@ -77,12 +77,8 @@ export const renderEffectThumbnail = ({
 		let cache = thumbnails.get(snapshot);
 		if (!cache) {
 			const source = document.createElement('canvas');
-			const scale = Math.min(
-				1,
-				320 / Math.max(snapshot.width, snapshot.height),
-			);
-			source.width = Math.max(1, Math.round(snapshot.width * scale));
-			source.height = Math.max(1, Math.round(snapshot.height * scale));
+			source.width = snapshot.width;
+			source.height = snapshot.height;
 			const context = source.getContext('2d');
 			if (!context) {
 				return null;
@@ -99,7 +95,6 @@ export const renderEffectThumbnail = ({
 		const output = document.createElement('canvas');
 		output.width = width;
 		output.height = height;
-		let retained = false;
 		try {
 			const completed = await Internals.runEffectChain({
 				state,
@@ -113,15 +108,23 @@ export const renderEffectThumbnail = ({
 				return null;
 			}
 
-			cache.images.set(item.id, output);
-			retained = true;
-			return output;
+			// Pixel-based effects must run at the same resolution as hover/insertion.
+			const thumbnail = document.createElement('canvas');
+			const scale = Math.min(1, 320 / Math.max(width, height));
+			thumbnail.width = Math.max(1, Math.round(width * scale));
+			thumbnail.height = Math.max(1, Math.round(height * scale));
+			const context = thumbnail.getContext('2d');
+			if (!context) {
+				return null;
+			}
+
+			context.drawImage(output, 0, 0, thumbnail.width, thumbnail.height);
+			cache.images.set(item.id, thumbnail);
+			return thumbnail;
 		} finally {
 			Internals.cleanupEffectChainState(state);
-			if (!retained) {
-				output.width = 0;
-				output.height = 0;
-			}
+			output.width = 0;
+			output.height = 0;
 		}
 	});
 
