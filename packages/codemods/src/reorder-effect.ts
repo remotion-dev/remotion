@@ -1,10 +1,11 @@
 import type {CodemodProject} from './codemod-project';
-import {reorderEffect as reorderEffectInSource} from './effect-operations';
+import {reorderEffects as reorderEffectsInSource} from './effect-operations';
 import {type EffectReference, getEffectSource} from './effect-references';
 import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
+	type NodeReference,
 } from './node-references';
 
 export type ReorderEffectOptions<Project extends CodemodProject> = {
@@ -13,29 +14,25 @@ export type ReorderEffectOptions<Project extends CodemodProject> = {
 	toIndex: number;
 };
 
-export const reorderEffect = async <Project extends CodemodProject>({
+export const reorderEffects = async ({
 	project,
-	effect,
+	node,
+	fromIndices,
 	toIndex,
-}: ReorderEffectOptions<Project>) => {
-	const {filePath, input, length} = getEffectSource({project, node: effect});
-	if (
-		!Number.isInteger(toIndex) ||
-		toIndex < 0 ||
-		toIndex >= length ||
-		!Number.isInteger(effect.effectIndex)
-	) {
-		throw new Error('Effect index is out of range');
-	}
-
-	const {output, formatted, effectLabel, logLine} = await reorderEffectInSource(
-		{
+}: {
+	project: CodemodProject;
+	node: NodeReference;
+	fromIndices: readonly number[];
+	toIndex: number;
+}) => {
+	const {filePath, input} = getEffectSource({project, node});
+	const {output, formatted, effectLabel, logLine} =
+		await reorderEffectsInSource({
 			input,
-			sequenceNodePath: effect.nodePath,
-			fromIndex: effect.effectIndex,
+			sequenceNodePath: node.nodePath,
+			fromIndices,
 			toIndex,
-		},
-	);
+		});
 	const result = getNodeEditResult({
 		project,
 		edits: [
@@ -52,6 +49,22 @@ export const reorderEffect = async <Project extends CodemodProject>({
 	return {
 		...result,
 		editDetails: [{filePath, formatted, effectLabel, logLine}],
+	};
+};
+
+export const reorderEffect = async <Project extends CodemodProject>({
+	project,
+	effect,
+	toIndex,
+}: ReorderEffectOptions<Project>) => {
+	const result = await reorderEffects({
+		project,
+		node: effect,
+		fromIndices: [effect.effectIndex],
+		toIndex,
+	});
+	return {
+		...result,
 		updatedEffect: {
 			...getUpdatedNodeReference({project, ...result, node: effect}),
 			effectIndex: toIndex,

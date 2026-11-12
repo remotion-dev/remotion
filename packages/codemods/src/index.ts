@@ -30,6 +30,7 @@ import {
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
+import {reorderEffects} from './reorder-effect';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
 import {resolveCompositionImportFile} from './resolve-composition-import-file';
@@ -224,6 +225,7 @@ export const CodemodsInternals = {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	pasteEffects,
+	reorderEffects,
 	replaceJsxElementWithSource,
 	replaceNodeChild,
 	resolveCompositionComponent,

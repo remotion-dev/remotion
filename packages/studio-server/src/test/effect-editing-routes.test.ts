@@ -169,7 +169,7 @@ export const Comp = () => <>
 			input: {
 				fileName: filePath,
 				sequenceNodePath,
-				fromIndex: 0,
+				fromIndices: [0],
 				toIndex: 1,
 				clientId: 'effect-routes-test',
 			},
@@ -196,7 +196,7 @@ export const Comp = () => <>
 			input: {
 				fileName: filePath,
 				sequenceNodePath,
-				fromIndex: 1,
+				fromIndices: [1],
 				toIndex: 2,
 				clientId: 'effect-routes-test',
 			},
@@ -219,7 +219,7 @@ export const Comp = () => <>
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 0,
+					fromIndices: [0],
 					toIndex: 0,
 					clientId: 'effect-routes-test',
 				},
@@ -884,7 +884,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 1,
+					fromIndices: [1],
 					toIndex: 2,
 					clientId: 'effect-routes-test',
 				},

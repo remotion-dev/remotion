@@ -1,4 +1,5 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
+import {getCanvasSequenceReorderInsertionIndex} from '@remotion/sdk';
 import type {EditorPickerId} from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -57,6 +58,7 @@ import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
 	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	useCurrentTimelineSelectionStateAsRef,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -65,7 +67,7 @@ const EFFECT_REORDER_MIME_TYPE = 'application/remotion-effect-reorder';
 
 type EffectReorderDragData = {
 	readonly nodePathKey: string;
-	readonly effectIndex: number;
+	readonly effectIndices: readonly number[];
 };
 
 let currentEffectDrag: EffectReorderDragData | null = null;
@@ -184,7 +186,11 @@ const getEffectReorderDragData = (
 		const parsed = JSON.parse(value) as EffectReorderDragData;
 		if (
 			typeof parsed.nodePathKey === 'string' &&
-			typeof parsed.effectIndex === 'number'
+			Array.isArray(parsed.effectIndices) &&
+			parsed.effectIndices.length > 0 &&
+			parsed.effectIndices.every(
+				(index) => Number.isInteger(index) && index >= 0,
+			)
 		) {
 			return parsed;
 		}
@@ -193,16 +199,6 @@ const getEffectReorderDragData = (
 	}
 
 	return null;
-};
-
-const getDestinationIndex = ({
-	fromIndex,
-	insertionIndex,
-}: {
-	readonly fromIndex: number;
-	readonly insertionIndex: number;
-}) => {
-	return insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
 };
 
 export const TimelineEffectItem: React.FC<{
@@ -255,6 +251,7 @@ export const TimelineEffectItem: React.FC<{
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,
@@ -592,12 +589,13 @@ export const TimelineEffectItem: React.FC<{
 			const rect = e.currentTarget.getBoundingClientRect();
 			const before = forceBefore || e.clientY < rect.top + rect.height / 2;
 			const insertionIndex = before ? effectIndex : effectIndex + 1;
-			const toIndex = getDestinationIndex({
-				fromIndex: dragData.effectIndex,
-				insertionIndex,
+			const toIndex = getCanvasSequenceReorderInsertionIndex({
+				sourceIndexes: dragData.effectIndices,
+				targetIndex: effectIndex,
+				position: before ? 'before' : 'after',
 			});
 
-			if (toIndex === dragData.effectIndex) {
+			if (toIndex === null) {
 				return null;
 			}
 
@@ -617,7 +615,19 @@ export const TimelineEffectItem: React.FC<{
 				return;
 			}
 
-			const dragData = {nodePathKey, effectIndex};
+			const selectedIndices = currentSelection.current.selectedItems.flatMap(
+				(item) =>
+					item.type === 'sequence-effect' &&
+					Internals.makeSequencePropsSubscriptionKey(
+						item.nodePathInfo.sequenceSubscriptionKey,
+					) === nodePathKey
+						? [item.i]
+						: [],
+			);
+			const effectIndices = selectedIndices.includes(effectIndex)
+				? [...new Set(selectedIndices)].sort((a, b) => a - b)
+				: [effectIndex];
+			const dragData = {nodePathKey, effectIndices};
 			clearEffectDropIndicator();
 			currentEffectDrag = dragData;
 			e.dataTransfer.effectAllowed = 'move';
@@ -627,7 +637,7 @@ export const TimelineEffectItem: React.FC<{
 			);
 			e.stopPropagation();
 		},
-		[canReorder, effectIndex, nodePathKey],
+		[canReorder, currentSelection, effectIndex, nodePathKey],
 	);
 
 	const onDragEnd = useCallback(() => {
@@ -707,7 +717,7 @@ export const TimelineEffectItem: React.FC<{
 				const result = await reorderEffect({
 					fileName: validatedLocation.source,
 					sequenceNodePath: nodePath,
-					fromIndex: dropTarget.dragData.effectIndex,
+					fromIndices: dropTarget.dragData.effectIndices,
 					toIndex: dropTarget.toIndex,
 					clientId: previewServerState.clientId,
 				});

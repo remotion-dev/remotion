@@ -370,7 +370,7 @@ export const captureOptimisticEffectMutation = (
 				movedIds: [
 					...(byNode.get(key)?.movedIds ?? []),
 					...(change.operation.action.type === 'reorder'
-						? [change.operation.action.id]
+						? change.operation.action.ids
 						: []),
 				],
 			});
@@ -431,15 +431,20 @@ export const captureOptimisticEffectMutation = (
 			const request = body as ReorderEffectRequest;
 			const state = Internals.OptimisticEffects.get(request.sequenceNodePath);
 			if (state) {
-				const id = state.items[request.fromIndex]?.id;
-				if (!id)
-					throw new Error(
-						'This effect was removed before the edit could be saved.',
-					);
-				const remaining = state.items.filter((item) => item.id !== id);
+				const ids = request.fromIndices.map((index) => {
+					const id = state.items[index]?.id;
+					if (!id) {
+						throw new Error(
+							'This effect was removed before the edit could be saved.',
+						);
+					}
+
+					return id;
+				});
+				const remaining = state.items.filter((item) => !ids.includes(item.id));
 				reorderOperation = addChange(request.sequenceNodePath, {
 					type: 'reorder',
-					id,
+					ids,
 					beforeId: remaining[request.toIndex]?.id ?? null,
 				});
 			}
@@ -638,15 +643,16 @@ export const captureOptimisticEffectMutation = (
 			});
 			if (reorderOperation?.action.type === 'reorder') {
 				const {action, nodePath} = reorderOperation;
-				const fromIndex = resolveIndex(nodePath, action.id);
+				const fromIndices = action.ids.map((id) => resolveIndex(nodePath, id));
 				const before =
 					action.beforeId === null
 						? Internals.OptimisticEffects.get(nodePath)!.persistedItems.length
 						: resolveIndex(nodePath, action.beforeId);
 				return {
 					...(mapped as object),
-					fromIndex,
-					toIndex: before - (fromIndex < before ? 1 : 0),
+					fromIndices,
+					toIndex:
+						before - fromIndices.filter((index) => index < before).length,
 				};
 			}
 

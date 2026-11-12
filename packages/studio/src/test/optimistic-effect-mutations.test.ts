@@ -266,7 +266,7 @@ test('no-op effect responses do not add a local undo entry', async () => {
 		{
 			fileName: nodePath.absolutePath,
 			sequenceNodePath: nodePath,
-			fromIndex: 0,
+			fromIndices: [0],
 			toIndex: 0,
 			clientId: 'test',
 		},
@@ -445,7 +445,7 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 	const request = {
 		fileName: nodePath.absolutePath,
 		sequenceNodePath: nodePath,
-		fromIndex: 0,
+		fromIndices: [0],
 		toIndex: 2,
 		clientId: 'test',
 	};
@@ -458,7 +458,7 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 		'/api/reorder-effect',
 		request,
 		async (body) => {
-			expect(body).toMatchObject({fromIndex: 1, toIndex: 2});
+			expect(body).toMatchObject({fromIndices: [1], toIndex: 2});
 			return success('independent-reorder');
 		},
 	);

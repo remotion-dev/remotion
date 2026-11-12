@@ -44,7 +44,7 @@ export type OptimisticEffectAction =
 	  }
 	| {
 			readonly type: 'reorder';
-			readonly id: EffectId;
+			readonly ids: readonly EffectId[];
 			readonly beforeId: EffectId | null;
 	  };
 
@@ -103,8 +103,15 @@ const apply = (
 	if (action.type === 'restore') {
 		const fromIds = new Set(action.fromItems.map((item) => item.id));
 		const targetIds = new Set(action.items.map((item) => item.id));
+		const movedItems = new Map(
+			items
+				.filter((item) => action.movedIds.includes(item.id))
+				.map((item) => [item.id, item]),
+		);
 		const restored = items.filter(
-			(item) => !fromIds.has(item.id) || targetIds.has(item.id),
+			(item) =>
+				(!fromIds.has(item.id) || targetIds.has(item.id)) &&
+				!movedItems.has(item.id),
 		);
 		for (
 			let targetIndex = 0;
@@ -113,12 +120,10 @@ const apply = (
 		) {
 			const target = action.items[targetIndex];
 			const existingIndex = restored.findIndex((item) => item.id === target.id);
-			const isMove =
-				action.movedIds.includes(target.id) && existingIndex !== -1;
+			const isMove = movedItems.has(target.id);
 			if (!isMove && (fromIds.has(target.id) || existingIndex !== -1)) continue;
-			const restoredItem = isMove
-				? restored.splice(existingIndex, 1)[0]
-				: (entry.recipes.get(target.id) ?? target);
+			const restoredItem =
+				movedItems.get(target.id) ?? entry.recipes.get(target.id) ?? target;
 			const following = action.items
 				.slice(targetIndex + 1)
 				.find((item) => restored.some((current) => current.id === item.id));
@@ -171,17 +176,20 @@ const apply = (
 		];
 	}
 
-	const moving = items.find((candidate) => candidate.id === action.id);
-	if (!moving) return null;
-	if (action.beforeId === action.id) return items;
-	const remaining = items.filter((candidate) => candidate !== moving);
+	const moving = items.filter((candidate) => action.ids.includes(candidate.id));
+	if (moving.length !== action.ids.length) return null;
+	if (action.beforeId !== null && action.ids.includes(action.beforeId))
+		return items;
+	const remaining = items.filter(
+		(candidate) => !action.ids.includes(candidate.id),
+	);
 	const destination =
 		action.beforeId === null
 			? remaining.length
 			: remaining.findIndex((candidate) => candidate.id === action.beforeId);
 	return [
 		...remaining.slice(0, destination),
-		moving,
+		...moving,
 		...remaining.slice(destination),
 	];
 };

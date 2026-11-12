@@ -562,14 +562,14 @@ export const duplicateEffect = ({
 		logLine: logLines[0],
 	}));
 
-export const reorderEffect = ({
-	fromIndex,
+export const reorderEffects = ({
+	fromIndices,
 	input,
 	prettierConfigOverride,
 	sequenceNodePath,
 	toIndex,
 }: {
-	fromIndex: number;
+	fromIndices: readonly number[];
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	toIndex: number;
@@ -590,26 +590,46 @@ export const reorderEffect = ({
 
 		const array = getEffectsArray(attr, 'reorder');
 		const elements = enumerateEffectArrayElements(array);
-		if (fromIndex < 0 || fromIndex >= elements.length) {
+		if (
+			fromIndices.length === 0 ||
+			new Set(fromIndices).size !== fromIndices.length ||
+			fromIndices.some(
+				(index) =>
+					!Number.isInteger(index) || index < 0 || index >= elements.length,
+			)
+		) {
 			throw new Error('Cannot reorder effect: source index not-found');
 		}
 
-		if (toIndex < 0 || toIndex >= elements.length) {
+		if (
+			!Number.isInteger(toIndex) ||
+			toIndex < 0 ||
+			toIndex > elements.length - fromIndices.length
+		) {
 			throw new Error('Cannot reorder effect: target index not-found');
 		}
 
-		const target = elements[fromIndex];
-		if (target.kind !== 'call') {
-			throw new Error(
-				'Cannot reorder effect: source effect is not-call-expression',
-			);
-		}
+		const targets = [...fromIndices]
+			.sort((left, right) => left - right)
+			.map((index) => {
+				const target = elements[index];
+				if (target.kind !== 'call') {
+					throw new Error(
+						'Cannot reorder effect: source effect is not-call-expression',
+					);
+				}
+
+				return target;
+			});
 
 		trackOpeningElement({jsx, snapshots});
-		if (fromIndex !== toIndex) {
-			const [moved] = array.elements.splice(fromIndex, 1);
-			array.elements.splice(toIndex, 0, moved as never);
-		}
+		const moving = array.elements.filter((_, index) =>
+			fromIndices.includes(index),
+		);
+		array.elements = array.elements.filter(
+			(_, index) => !fromIndices.includes(index),
+		);
+		array.elements.splice(toIndex, 0, ...moving);
 
 		return {
 			output: getEffectSourceOutput({
@@ -619,9 +639,29 @@ export const reorderEffect = ({
 				snapshots,
 			}),
 			formatted: true,
-			effectLabel: `${target.callee}()`,
-			logLine: target.node.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+			effectLabel: targets.map((target) => `${target.callee}()`).join(', '),
+			logLine: targets[0].node.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 		};
+	});
+
+export const reorderEffect = ({
+	fromIndex,
+	input,
+	prettierConfigOverride,
+	sequenceNodePath,
+	toIndex,
+}: {
+	fromIndex: number;
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+	toIndex: number;
+} & EffectSourceStyleOptions) =>
+	reorderEffects({
+		fromIndices: [fromIndex],
+		input,
+		prettierConfigOverride,
+		sequenceNodePath,
+		toIndex,
 	});
 
 export const deleteEffects = ({

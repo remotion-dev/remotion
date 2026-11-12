@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {reorderEffect} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderEffectRequest,
@@ -30,7 +30,7 @@ export const reorderEffectHandler: ApiHandler<
 	input: {
 		fileName,
 		sequenceNodePath,
-		fromIndex,
+		fromIndices,
 		toIndex,
 		clientId,
 		sequenceProps,
@@ -42,7 +42,7 @@ export const reorderEffectHandler: ApiHandler<
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[reorder-effect] Received request for fileName="${fileName}" fromIndex=${fromIndex} toIndex=${toIndex}`,
+				`[reorder-effect] Received request for fileName="${fileName}" fromIndices=${fromIndices.join(',')} toIndex=${toIndex}`,
 			);
 
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -52,19 +52,23 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderEffect({
+			const result = await CodemodsInternals.reorderEffects({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				effect: {
+				node: {
 					filePath: absolutePath,
 					nodePath: sequenceNodePath.nodePath,
-					effectIndex: fromIndex,
 				},
+				fromIndices,
 				toIndex,
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
-			if (fromIndex === toIndex) {
+			if (
+				[...fromIndices]
+					.sort((a, b) => a - b)
+					.every((index, offset) => index === toIndex + offset)
+			) {
 				return {success: true, nodePathMutation: null};
 			}
 
