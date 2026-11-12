@@ -53,6 +53,27 @@ test.describe('easing editor handles', () => {
 		// The first Escape only deselects the handle; the easing stays selected.
 		await page.keyboard.press('Escape');
 		await expect(handle).toHaveAttribute('r', '4.25');
+
+		const controlPoint = page.getByLabel('Bezier control point 1', {
+			exact: true,
+		});
+		const positionBeforeDrag = await controlPoint.getAttribute('style');
+		const bounds = await controlPoint.boundingBox();
+		expect(bounds).not.toBeNull();
+		const x = bounds!.x + bounds!.width / 2;
+		const y = bounds!.y + bounds!.height / 2;
+		await page.mouse.move(x, y);
+		await page.mouse.down();
+		await page.mouse.move(x + 30, y - 20, {steps: 5});
+		await expect(controlPoint).not.toHaveAttribute(
+			'style',
+			positionBeforeDrag!,
+		);
+		await page.keyboard.press('Escape');
+		await expect(handle).toHaveAttribute('r', '4.25');
+		await expect(controlPoint).toHaveAttribute('style', positionBeforeDrag!);
+		await page.mouse.up();
+
 		// The next Escape steps back the timeline selection as before.
 		await page.keyboard.press('Escape');
 		await expect(handle).toHaveCount(0);
@@ -63,11 +84,20 @@ test.describe('easing editor handles', () => {
 	}) => {
 		test.setTimeout(120_000);
 		const handle = await openEasingEditor(page);
-		await handle.click();
-		await expect(handle).toHaveAttribute('r', '6.8');
+		for (const name of ['Spring', 'Hold', 'Apply Spring easing']) {
+			await handle.click();
+			await expect(handle).toHaveAttribute('r', '6.8');
+			await page.getByRole('button', {name, exact: true}).focus();
+			await page.keyboard.press('Enter');
+			await expect(handle).toHaveCount(0);
 
-		// Choose Spring without a pointer, so no outside click clears the handle.
-		await page.getByText('Spring', {exact: true}).first().focus();
+			await page.getByRole('button', {name: 'Bezier', exact: true}).focus();
+			await page.keyboard.press('Enter');
+			await expect(handle).toHaveAttribute('r', '4.25');
+		}
+
+		await handle.click();
+		await page.getByRole('button', {name: 'Spring', exact: true}).focus();
 		await page.keyboard.press('Enter');
 		await expect(handle).toHaveCount(0);
 

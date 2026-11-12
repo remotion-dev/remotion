@@ -765,7 +765,9 @@ const EasingEditorUnmemoized: React.FC<{
 	const [selectedHandle, setSelectedHandle] = useState<HandleIndex | null>(
 		null,
 	);
-	const [mode, setMode] = useState(() => easingToMode(state.initialEasing));
+	const [mode, setModeState] = useState(() =>
+		easingToMode(state.initialEasing),
+	);
 	const [bezier, setBezier] = useState(() =>
 		easingToBezier(state.initialEasing),
 	);
@@ -778,6 +780,13 @@ const EasingEditorUnmemoized: React.FC<{
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
 	const stopPointerSession = useRef<(() => void) | null>(null);
 
+	const setMode = useCallback((nextMode: EditorMode) => {
+		setModeState(nextMode);
+		if (nextMode !== 'bezier') {
+			setSelectedHandle(null);
+		}
+	}, []);
+
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
 		const nextSpring = easingToSpring(state.initialEasing);
@@ -786,7 +795,7 @@ const EasingEditorUnmemoized: React.FC<{
 		setMode(easingToMode(state.initialEasing));
 		setBezier(nextBezier);
 		setSpring(nextSpring);
-	}, [state.initialEasing]);
+	}, [setMode, state.initialEasing]);
 
 	const getCurrentEasingUpdates = useCallback(() => {
 		return getSelectedEasingUpdates({
@@ -1032,7 +1041,7 @@ const EasingEditorUnmemoized: React.FC<{
 			const version = applyLiveEasing(easing);
 			commitEasing(easing, version);
 		},
-		[applyLiveEasing, commitEasing, mode, previewServerState.type],
+		[applyLiveEasing, commitEasing, mode, previewServerState.type, setMode],
 	);
 
 	const applyPreset = useCallback(
@@ -1066,6 +1075,7 @@ const EasingEditorUnmemoized: React.FC<{
 			commitEasing,
 			previewServerState.type,
 			setBezierAndPreview,
+			setMode,
 			setSpringAndPreview,
 		],
 	);
@@ -1121,9 +1131,9 @@ const EasingEditorUnmemoized: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
+			stopPointerSession.current?.();
 			setSelectedHandle(handle);
 			containerRef.current?.focus({preventScroll: true});
-			stopPointerSession.current?.();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
 			stopPointerSession.current = startEscapeCancelableCapturedPointerSession({
@@ -1140,6 +1150,7 @@ const EasingEditorUnmemoized: React.FC<{
 							liveOverrideVersionRef.current,
 						);
 					} else {
+						setSelectedHandle(null);
 						clearEasingDragOverrides(pendingOverrideTargetsRef.current);
 						pendingOverrideTargetsRef.current = [];
 						bezierRef.current = bezierBeforeDrag;
@@ -1164,12 +1175,8 @@ const EasingEditorUnmemoized: React.FC<{
 		};
 	}, [clearEasingDragOverrides]);
 
-	// Handles only exist in Bezier mode. Switching modes (also via keyboard) must not
-	// leave an invisible selection behind that would swallow the next Escape.
-	const activeHandle = mode === 'bezier' ? selectedHandle : null;
-
 	useEffect(() => {
-		if (activeHandle === null) {
+		if (selectedHandle === null) {
 			return;
 		}
 
@@ -1188,20 +1195,19 @@ const EasingEditorUnmemoized: React.FC<{
 		return () => {
 			window.removeEventListener('pointerdown', onPointerDown, true);
 		};
-	}, [activeHandle]);
+	}, [selectedHandle]);
 
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
-			if (event.key !== 'Escape' || activeHandle === null) {
+			if (event.key !== 'Escape' || selectedHandle === null) {
 				return;
 			}
 
-			// Deselect the handle first; the next Escape steps back the timeline selection.
 			event.preventDefault();
 			event.stopPropagation();
 			setSelectedHandle(null);
 		},
-		[activeHandle],
+		[selectedHandle],
 	);
 
 	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
@@ -1362,7 +1368,7 @@ const EasingEditorUnmemoized: React.FC<{
 									<UvCoordinateHandle
 										x={9}
 										y={9}
-										selected={activeHandle === handle}
+										selected={selectedHandle === handle}
 										onPointerDown={
 											disabled
 												? null
