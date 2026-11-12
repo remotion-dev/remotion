@@ -157,8 +157,9 @@ test.each([
 			expect(stop).not.toHaveBeenCalled();
 
 			// A seek outside the allowance must still replace the schedule.
-			// At 0.5x, 0.95 also catches an incorrectly unscaled allowance.
-			seek(playbackRate === 0.5 ? 0.95 : 0.25);
+			// Known silence extends coverage back to the iterator start at 1s.
+			// At 0.5x, 0.9 also catches an incorrectly unscaled allowance.
+			seek(playbackRate === 0.5 ? 0.9 : 0.25);
 			expect(manager.getAudioIteratorsCreated()).toBe(2);
 			expect(stop).toHaveBeenCalledOnce();
 		} finally {

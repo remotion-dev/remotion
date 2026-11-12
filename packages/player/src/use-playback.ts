@@ -309,6 +309,7 @@ export const usePlayback = ({
 		playbackClockRef.current = clock;
 
 		let hasBeenStopped = false;
+		let waiting = false;
 		let audioContextFailed = false;
 		let reqAnimFrameCall:
 			| {
@@ -321,6 +322,21 @@ export const usePlayback = ({
 			  }
 			| null = null;
 		let unsubscribeBuffering: (() => void) | null = null;
+
+		const resumeClock = (
+			waitingSince: number,
+			waitingSeekRevision: number | null,
+		) => {
+			const now = performance.now();
+			if ((seek?.revision.current ?? null) !== waitingSeekRevision) {
+				clock.startedTime = now;
+				clock.frame = getCurrentFrame();
+				clock.seekRevision = seek?.revision.current ?? null;
+				clock.framesAdvanced = 0;
+			} else {
+				clock.startedTime += now - waitingSince;
+			}
+		};
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -343,7 +359,7 @@ export const usePlayback = ({
 
 		const callback = () => {
 			reqAnimFrameCall = null;
-			if (hasBeenStopped) {
+			if (hasBeenStopped || waiting) {
 				return;
 			}
 
@@ -436,10 +452,14 @@ export const usePlayback = ({
 				return;
 			}
 
+			// Waiting pauses the clock without discarding a partial frame.
+			const waitingSince = performance.now();
+			const waitingSeekRevision = seek?.revision.current ?? null;
 			const getIsResumingAudioContext = audioContextFailed
 				? null
 				: (sharedAudioContext?.getIsResumingAudioContext?.() ?? null);
 			if (getIsResumingAudioContext !== null && !muted) {
+				waiting = true;
 				getIsResumingAudioContext.then((result) => {
 					if (hasBeenStopped) {
 						return;
@@ -451,9 +471,8 @@ export const usePlayback = ({
 						setPlayerMuted(true);
 					}
 
-					// The audio context is being re-established; start a fresh clock.
-					clock.startedTime = performance.now();
-					clock.framesAdvanced = 0;
+					waiting = false;
+					resumeClock(waitingSince, waitingSeekRevision);
 					queueNextFrame();
 				});
 
@@ -465,6 +484,7 @@ export const usePlayback = ({
 					sharedAudioContext?.suspend?.();
 				}
 
+				waiting = true;
 				unsubscribeBuffering = subscribeBuffering((state) => {
 					if (state.buffering) {
 						return;
@@ -472,16 +492,19 @@ export const usePlayback = ({
 
 					unsubscribeBuffering?.();
 					unsubscribeBuffering = null;
-					if (hasBeenStopped) {
+					if (hasBeenStopped || !isPlaying()) {
 						return;
 					}
 
-					// The context clock may have advanced while the timeline was
-					// stalled, especially with _experimentalKeepAudioContextAlive.
-					clock.startedTime = performance.now();
-					clock.framesAdvanced = 0;
+					resumeClock(waitingSince, waitingSeekRevision);
 					updateAudioAnchor();
+					// Anchor listeners can pause playback or publish another buffer wait.
+					if (hasBeenStopped || !isPlaying()) {
+						return;
+					}
+
 					if (
+						!isBuffering() &&
 						!muted &&
 						!audioContextFailed &&
 						sharedAudioContext?._experimentalKeepAudioContextAlive
@@ -489,6 +512,7 @@ export const usePlayback = ({
 						sharedAudioContext.resume();
 					}
 
+					waiting = false;
 					queueNextFrame();
 				});
 
@@ -511,6 +535,15 @@ export const usePlayback = ({
 			clock.startedTime = performance.now();
 			clock.framesAdvanced = 0;
 		});
+		// Freeze when buffering is published, rather than on the next frame callback.
+		const unsubscribeBufferingStart = subscribeBuffering((state) => {
+			if (!state.buffering || hasBeenStopped || waiting || !isPlaying()) {
+				return;
+			}
+
+			cancelQueuedFrame();
+			queueNextFrame();
+		});
 
 		queueNextFrame();
 
@@ -528,6 +561,7 @@ export const usePlayback = ({
 		return () => {
 			window.removeEventListener('visibilitychange', onVisibilityChange);
 			unsubscribeSeek?.();
+			unsubscribeBufferingStart();
 			stop();
 		};
 	}, [

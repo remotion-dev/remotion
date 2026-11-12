@@ -310,16 +310,16 @@ export const audioIteratorManager = ({
 					return;
 				}
 
+				onAudioChunk({
+					buffer: result.value,
+					iterator,
+				});
+				// Unblocking can synchronously reanchor audio; retain this chunk first.
 				onScheduled(
 					result.value.sourceDurationInSeconds,
 					result.value.timelineTimestamp,
 				);
 				notifyNodeScheduled();
-
-				onAudioChunk({
-					buffer: result.value,
-					iterator,
-				});
 				proceedScheduling({
 					iterator,
 					nonce,
@@ -436,6 +436,7 @@ export const audioIteratorManager = ({
 			startFromSecond,
 			iterator: source,
 			unscheduleAudioNode,
+			getIsPlaying,
 			scheduleChunk: (chunk: PreparedAudioChunk) => {
 				if (muted) return null;
 				const node = sharedAudioContext.audioContext.createBufferSource();

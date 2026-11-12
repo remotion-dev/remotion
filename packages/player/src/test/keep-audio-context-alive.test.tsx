@@ -148,19 +148,8 @@ const playAndPause = async ({
 				await Promise.resolve();
 			});
 
-			const queuedFrames = [...animationFrames.values()];
-			if (queuedFrames.length === 0) {
-				throw new Error('Expected a queued animation frame');
-			}
-
-			animationFrames.clear();
-			await act(async () => {
-				for (const frame of queuedFrames) {
-					frame(performance.now());
-				}
-
-				await Promise.resolve();
-			});
+			// Buffer publication now cancels the frame immediately.
+			expect(animationFrames.size).toBe(0);
 
 			gainValues = [];
 			await act(async () => {
@@ -230,6 +219,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 	const rafs = new Map<number, FrameRequestCallback>();
 	const anchors: number[] = [];
 	let audio: ContextType<typeof Internals.SharedAudioContext> = null;
+	let publishBuffering: ((value: boolean) => void) | null = null;
 	let buffer: (() => {unblock: () => void}) | null = null;
 	const originalAudioContext = globalThis.AudioContext;
 	globalThis.AudioContext =
@@ -258,6 +248,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 		const shared = useContext(Internals.SharedAudioContext);
 		const frame = useCurrentFrame();
 		const {seek} = usePlayerMethods();
+		publishBuffering = useContext(Internals.SetTimelineContext).setBuffering;
 		buffer = useBufferState().delayPlayback;
 		audio = shared;
 		if (delayedCommit?.frame === frame) {
@@ -327,7 +318,10 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 			view.rerender(<Player ref={player} {...props} />);
 		},
 		startBuffering: () => buffer!(),
+		publishBuffering: (value: boolean) => publishBuffering!(value),
 		anchor: () => audio!.audioSyncAnchor.value,
+		subscribeAnchor: (callback: () => void) =>
+			audio!.audioSyncAnchorEmitter.subscribe(callback),
 		audioContext: () => audio!.audioContext,
 		setAudioContextState: (
 			state: AudioContextState | 'interrupted',
@@ -685,6 +679,62 @@ test.each([
 				(harness.audioContext()!.currentTime - harness.anchor()) * 20,
 			).toBeCloseTo(2, 8);
 		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+// Repeated short waits must preserve the partial picture frame.
+test('buffering freezes the clock immediately and retains fractional elapsed time', () => {
+	const harness = renderClockedPlayer(true);
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(20));
+		let unblock = () => {};
+		act(() => {
+			unblock = harness.startBuffering().unblock;
+		});
+		act(() => harness.tick(30));
+		act(() => harness.setTime(120));
+		act(() => unblock());
+		act(() => harness.tick(134));
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each(['pause', 'refill'] as const)(
+	'buffer recovery does not unmute after an anchor listener publishes %s',
+	(recovery) => {
+		const harness = renderClockedPlayer(true);
+		let subscription: {remove: () => void} | null = null;
+		try {
+			act(() => harness.player.current!.play());
+			act(() => harness.tick(20));
+			let unblock = () => {};
+			let finishRefill = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			subscription = harness.subscribeAnchor(() => {
+				subscription?.remove();
+				if (recovery === 'pause') harness.player.current!.pause();
+				else {
+					harness.publishBuffering(true);
+					finishRefill = () => harness.publishBuffering(false);
+				}
+			});
+			gainValues = [];
+			act(() => harness.setTime(100));
+			act(() => unblock());
+			expect(gainValues).not.toContain(1);
+			if (recovery === 'refill') {
+				act(() => finishRefill());
+				expect(gainValues).toContain(1);
+			}
+		} finally {
+			subscription?.remove();
 			harness.dispose();
 		}
 	},
