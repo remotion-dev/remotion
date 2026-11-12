@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {AbsoluteFill, useCurrentFrame, useDelayRender} from 'remotion';
+import {AbsoluteFill, Freeze, useCurrentFrame, useDelayRender} from 'remotion';
 import {svgUseFontData} from './svg-use-data-font';
 export const svgTitledFontGroupModes = ['local-ab', 'local-ba'] as const;
 let instance = 0;
@@ -33,6 +33,7 @@ export const svgTitledFontGroup = (
 			let active = true;
 			document.fonts
 				.load(`${size}px ${JSON.stringify(selected)}`)
+				.then(() => document.fonts.ready)
 				.then(() => {
 					if (active) continueRender(handle);
 				})
@@ -73,4 +74,37 @@ export const svgTitledFontGroup = (
 		fps: 30,
 		durationInFrames: 2,
 	} as const;
+};
+
+export const svgTitledFontCache = (literal: boolean, fallback: boolean) => {
+	const fixture = svgTitledFontGroup('local-ab', literal, fallback);
+	const Source = fixture.component;
+	const Component = () => {
+		const frame = useCurrentFrame();
+		const {delayRender, continueRender} = useDelayRender();
+		useEffect(() => {
+			const handle = delayRender('Separating cached SVG font frames');
+			const id = requestAnimationFrame(() => {
+				Promise.resolve().then(() => continueRender(handle));
+			});
+			return () => {
+				cancelAnimationFrame(id);
+				continueRender(handle);
+			};
+		}, [frame, delayRender, continueRender]);
+		return (
+			<AbsoluteFill data-svg-font-cache-frame={frame}>
+				<Freeze frame={0}>
+					<Source />
+				</Freeze>
+			</AbsoluteFill>
+		);
+	};
+
+	return {
+		...fixture,
+		id: 'svg-titled-font-cache',
+		component: Component,
+		durationInFrames: 3,
+	};
 };

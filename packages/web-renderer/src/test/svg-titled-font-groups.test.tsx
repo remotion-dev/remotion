@@ -172,6 +172,61 @@ test('collects only the preferred titled CSS font face', async (t) => {
 			});
 		};
 
+		// Exercise a genuinely cold registration failure before warming candidate data.
+		const [active, inactive] = Array.from(
+			svg.querySelectorAll('style'),
+			(style) => style.sheet!,
+		);
+
+		const addFont = document.fonts.add;
+		const registrationAttempts: {family: string; sourceFace: boolean}[] = [];
+		let injectedCount = 0;
+		document.fonts.add = (font) => {
+			const result = addFont.call(document.fonts, font);
+			const sourceFace = beforeFonts.includes(font);
+			registrationAttempts.push({family: font.family, sourceFace});
+			if (!sourceFace) {
+				injectedCount++;
+				throw new DOMException(
+					'Owned font registration rejected',
+					'SecurityError',
+				);
+			}
+
+			return result;
+		};
+
+		try {
+			expect(() => getSvgFontSnapshot(svg)).toThrow(
+				'Owned font registration rejected',
+			);
+		} finally {
+			document.fonts.add = addFont;
+			await failure.record(
+				`validation/svg-titled-font-groups/${server.browser}/registration-fault.json`,
+				JSON.stringify({registrationAttempts, injectedCount}),
+			);
+		}
+
+		expect(injectedCount).toBeGreaterThan(0);
+		expect(registrationAttempts.every(({sourceFace}) => !sourceFace)).toBe(
+			true,
+		);
+		recordImmediateState();
+		const failedProbeState = immediateStates.at(-1)!;
+		expect(failedProbeState.identitiesStable).toBe(true);
+		expect(failedProbeState.promisesStable).toBe(true);
+		expect(failedProbeState.readyStable).toBe(true);
+		expect(failedProbeState.setStatus).toBe('loaded');
+		expect(failedProbeState.statuses).toEqual(beforeStatuses);
+		expect(svg.outerHTML).toBe(beforeMarkup);
+		expect(
+			document.querySelector('[data-remotion-font-sheet-probe]'),
+		).toBeNull();
+		expect(Array.from(active.cssRules, (rule) => rule.cssText)).toEqual(
+			beforeRules[0],
+		);
+
 		const snapshot = getSvgFontSnapshot(svg);
 		recordImmediateState();
 		for (let repeat = 0; repeat < 4; repeat++) {
@@ -249,59 +304,6 @@ test('collects only the preferred titled CSS font face', async (t) => {
 		);
 		expect(snapshot.cssFontRules).toContain(urls[0]);
 		expect(snapshot.cssFontRules).not.toContain(urls[1]);
-		const [active, inactive] = Array.from(
-			svg.querySelectorAll('style'),
-			(style) => style.sheet!,
-		);
-
-		const addFont = document.fonts.add;
-		const registrationAttempts: {family: string; sourceFace: boolean}[] = [];
-		let injectedCount = 0;
-		document.fonts.add = (font) => {
-			const result = addFont.call(document.fonts, font);
-			const sourceFace = beforeFonts.includes(font);
-			registrationAttempts.push({family: font.family, sourceFace});
-			if (!sourceFace) {
-				injectedCount++;
-				throw new DOMException(
-					'Owned font registration rejected',
-					'SecurityError',
-				);
-			}
-
-			return result;
-		};
-
-		try {
-			expect(() => getSvgFontSnapshot(svg)).toThrow(
-				'Owned font registration rejected',
-			);
-		} finally {
-			document.fonts.add = addFont;
-			await failure.record(
-				`validation/svg-titled-font-groups/${server.browser}/registration-fault.json`,
-				JSON.stringify({registrationAttempts, injectedCount}),
-			);
-		}
-
-		expect(injectedCount).toBeGreaterThan(0);
-		expect(registrationAttempts.every(({sourceFace}) => !sourceFace)).toBe(
-			true,
-		);
-		recordImmediateState();
-		const failedProbeState = immediateStates.at(-1)!;
-		expect(failedProbeState.identitiesStable).toBe(true);
-		expect(failedProbeState.promisesStable).toBe(true);
-		expect(failedProbeState.readyStable).toBe(true);
-		expect(failedProbeState.setStatus).toBe('loaded');
-		expect(failedProbeState.statuses).toEqual(beforeStatuses);
-		expect(svg.outerHTML).toBe(beforeMarkup);
-		expect(
-			document.querySelector('[data-remotion-font-sheet-probe]'),
-		).toBeNull();
-		expect(Array.from(active.cssRules, (rule) => rule.cssText)).toEqual(
-			beforeRules[0],
-		);
 
 		for (let index = 0; index < 2; index++)
 			await new Promise<void>((resolve) =>

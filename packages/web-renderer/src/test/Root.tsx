@@ -266,6 +266,7 @@ import {
 	svgTitledFontSources,
 } from './fixtures/svg-titled-font-carrier';
 import {
+	svgTitledFontCache,
 	svgTitledFontGroup,
 	svgTitledFontGroupModes,
 } from './fixtures/svg-titled-font-groups';
@@ -635,6 +636,7 @@ export const Root: React.FC = () => {
 			{svgTitledFontGroupModes.map((mode) => (
 				<Composition key={mode} {...svgTitledFontGroup(mode, false, false)} />
 			))}
+			<Composition {...svgTitledFontCache(false, false)} />
 			{svgFeImageFontModes.map((mode) => (
 				<Composition key={mode} {...svgFeImageFont(mode, false, false)} />
 			))}

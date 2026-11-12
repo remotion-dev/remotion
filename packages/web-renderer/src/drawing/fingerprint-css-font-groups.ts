@@ -1,3 +1,9 @@
+import {
+	equalFontFingerprintKeys,
+	getFontFingerprintCache,
+	type FontFingerprintKey,
+	type FontRaster,
+} from './font-fingerprint-cache';
 import {parseFontFamilies} from './parse-font-families';
 
 export type CssFontGroupSample = {
@@ -206,6 +212,25 @@ export const fingerprintCssFontGroups = (
 	const originals = Array.from(ownerDocument.fonts);
 	const originalPromises = originals.map((face) => face.loaded);
 	const originalStatuses = originals.map((face) => face.status);
+	const faceDescriptors = (face: FontFace) =>
+		[
+			'family',
+			'style',
+			'weight',
+			'stretch',
+			'unicodeRange',
+			'featureSettings',
+			'variationSettings',
+			'display',
+			'ascentOverride',
+			'descentOverride',
+			'lineGapOverride',
+			'sizeAdjust',
+		].map((property) => {
+			const value = (face as unknown as Record<string, unknown>)[property];
+			return typeof value === 'string' ? value : null;
+		});
+	const originalDescriptors = originals.map(faceDescriptors);
 	const originalSetStatus = ownerDocument.fonts.status;
 	const originalReady = ownerDocument.fonts.ready;
 	const owned = new Set<FontFace>();
@@ -219,7 +244,11 @@ export const fingerprintCssFontGroups = (
 				(face, index) =>
 					face === originals[index] &&
 					face.loaded === originalPromises[index] &&
-					face.status === originalStatuses[index],
+					face.status === originalStatuses[index] &&
+					faceDescriptors(face).every(
+						(value, descriptorIndex) =>
+							value === originalDescriptors[index]![descriptorIndex],
+					),
 			) &&
 			ownerDocument.fonts.status === originalSetStatus &&
 			ownerDocument.fonts.ready === originalReady
@@ -301,6 +330,58 @@ export const fingerprintCssFontGroups = (
 		};
 	};
 
+	const cache = getFontFingerprintCache(ownerDocument);
+	const keyFor = (sources: readonly FontRaster[]): FontFingerprintKey => [
+		cache.epoch,
+		ownerWindow.devicePixelRatio,
+		ownerDocument.documentElement.lang,
+		ownerDocument.documentElement.dir,
+		ownerDocument.fonts.status,
+		cache.identity(ownerDocument.fonts.ready),
+		originals.length,
+		...originals.flatMap((face, index) => [
+			cache.identity(face),
+			cache.identity(originalPromises[index]!),
+			face.status,
+			...faceDescriptors(face),
+		]),
+		samples.length,
+		...samples.flatMap((sample, index) => [
+			sample.text,
+			sample.lang,
+			sources[index]!.width,
+			sources[index]!.height,
+			sample.style.length,
+			...Array.from(sample.style).flatMap((property) => [
+				property,
+				sample.style.getPropertyValue(property),
+			]),
+		]),
+		groups.length,
+		...groups.flatMap((group) => [
+			group.name,
+			group.rules.length,
+			...group.rules.flatMap((rule) => [cache.identity(rule), rule.cssText]),
+		]),
+	];
+	const matchesRaster = (source: FontRaster, candidate: FontRaster | null) =>
+		Boolean(
+			candidate &&
+			source.width === candidate.width &&
+			source.height === candidate.height &&
+			source.metrics.length === candidate.metrics.length &&
+			source.pixels.length === candidate.pixels.length &&
+			!source.metrics.some(
+				(metric, index) => metric !== candidate.metrics[index],
+			) &&
+			!source.pixels.some((value, index) => value !== candidate.pixels[index]),
+		);
+	let pending: {
+		key: FontFingerprintKey;
+		candidates: FontRaster[][];
+		sources: FontRaster[];
+	} | null = null;
+
 	const managedFamilies = new Set(
 		groups.flatMap((group) =>
 			group.rules.map((rule) => parseFontFamilies(rule.style.fontFamily)[0]),
@@ -313,6 +394,29 @@ export const fingerprintCssFontGroups = (
 		);
 		if (sources.some((source) => source === null))
 			return {matches: [], reason: 'Text raster exceeds qualified dimensions.'};
+		if (!stable())
+			return {
+				matches: [],
+				reason: 'Original font state changed while sampling.',
+			};
+		const qualifiedSources = sources as FontRaster[];
+		const key = keyFor(qualifiedSources);
+		const cached = cache.get(key);
+		if (cached) {
+			const cachedMatches = groups.flatMap((group, index) =>
+				qualifiedSources.every((source, sampleIndex) =>
+					matchesRaster(source, cached[index]?.[sampleIndex] ?? null),
+				)
+					? [group.name]
+					: [],
+			);
+			if (cachedMatches.length === 1 && stable())
+				return {matches: cachedMatches, reason: null};
+			cache.delete(key);
+		}
+
+		const candidates: FontRaster[][] = [];
+		let completeCandidates = true;
 		for (const group of groups) {
 			const aliases = new Map(
 				Array.from(managedFamilies, (family) => [
@@ -321,6 +425,7 @@ export const fingerprintCssFontGroups = (
 				]),
 			);
 			const groupFaces: FontFace[] = [];
+			const groupRasters: FontRaster[] = [];
 			try {
 				for (const rule of group.rules) {
 					const family = parseFontFamilies(rule.style.fontFamily)[0];
@@ -383,20 +488,13 @@ export const fingerprintCssFontGroups = (
 							matches: [],
 							reason: 'Original font state changed while sampling.',
 						};
-					if (
-						!candidate ||
-						source.metrics.some(
-							(metric, metricIndex) =>
-								metric !== candidate.metrics[metricIndex],
-						) ||
-						source.pixels.some(
-							(value, pixelIndex) => value !== candidate.pixels[pixelIndex],
-						)
-					)
-						matching = false;
+					if (candidate) groupRasters.push(candidate);
+					else completeCandidates = false;
+					if (!matchesRaster(source, candidate)) matching = false;
 				}
 
 				if (matching) matches.push(group.name);
+				candidates.push(groupRasters);
 			} finally {
 				for (const face of groupFaces) ownerDocument.fonts.delete(face);
 			}
@@ -405,6 +503,8 @@ export const fingerprintCssFontGroups = (
 				return {matches: [], reason: 'Original font state changed at cleanup.'};
 		}
 
+		if (matches.length === 1 && completeCandidates)
+			pending = {key, candidates, sources: qualifiedSources};
 		return {
 			matches,
 			reason:
@@ -416,5 +516,12 @@ export const fingerprintCssFontGroups = (
 			canvas.width = 0;
 			canvas.height = 0;
 		}
+
+		if (
+			pending &&
+			stable() &&
+			equalFontFingerprintKeys(pending.key, keyFor(pending.sources))
+		)
+			cache.put(pending.key, pending.candidates);
 	}
 };
