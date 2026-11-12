@@ -42,9 +42,9 @@ export const MyComp: React.FC = () => {
 
 ## Rules of artifacts
 
-<Step>1</Step> The asset should only be rendered for one single frame of the video. Otherwise, the asset will get emitted multiple times. <br />
+<Step>1</Step> The asset should only be rendered for one single frame of the video. Otherwise, the asset will get emitted multiple times.
 
-<Step>2</Step> It is possible to emit multiple assets, but they may not have the same filename. <br />
+<Step>2</Step> It is possible to emit multiple assets, but they may not have the same filename.
 
 <Step>3</Step> For the <code>content</code> prop it is possible to pass a <code>string</code>, or a <code>Uint8Array</code> for binary data. Passing an <code>Uint8Array</code> should not be considered faster due to it having to be serialized.
 
@@ -61,11 +61,11 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-<Step>1</Step> The [`content`](/docs/artifact#content) prop should be set to [`Artifact.Thumbnail`](/docs/artifact#artifactthumbnail). <br />
+<Step>1</Step> The [`content`](/docs/artifact#content) prop should be set to [`Artifact.Thumbnail`](/docs/artifact#artifactthumbnail).
 
-<Step>2</Step> The [`imageFormat`](/docs/options/video-image-format) setting determines the format of the image. The extension you pass is meaningless. <br />
+<Step>2</Step> The [`imageFormat`](/docs/options/video-image-format) setting determines the format of the image. The extension you pass is meaningless.
 
-<Step>3</Step> The other rules of artifacts still apply. <br />
+<Step>3</Step> The other rules of artifacts still apply.
 
 ## Receiving artifacts
 

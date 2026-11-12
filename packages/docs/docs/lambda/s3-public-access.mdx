@@ -33,8 +33,7 @@ AWS does make all buckets private by default and Remotion tries to create a publ
 
 ## Resolution
 
-<Step>1</Step> Upgrade to Remotion <code>v3.3.87</code> or later. <br />
-<br />
+<Step>1</Step> Upgrade to Remotion <code>v3.3.87</code> or later.
 
 ```bash
 npx remotion upgrade
@@ -45,8 +44,7 @@ Note: When you upgrade Remotion, you will need to deploy new functions as well.
 :::
 
 <Step>2</Step> change your policies to give your user the <code>s3:PutBucketOwnershipControls</code> and <code>s3:PutBucketPublicAccessBlock</code> permission. The easiest way
-is to copy the following user policy: <br />
-<br />
+is to copy the following user policy:
 
 <details>
   <summary>
@@ -62,10 +60,10 @@ Go to the [Users](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-
 You can verify that it worked by running `npx remotion lambda policies validate`.
 
 <Step>3</Step> Redeploy your functions. You don't need to delete your old functions
-as it might cause downtime for your application. <br />
+as it might cause downtime for your application.
 
 <Step>4</Step> As a reminder, you also need to redeploy your site when you upgrade
-to a higher Remotion version. <br />
+to a higher Remotion version.
 
 <Step>5</Step> If any values are hardcoded, update the function and site name in
 your application code.
