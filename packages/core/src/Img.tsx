@@ -176,17 +176,16 @@ const handleImageError = (
 
 	errors.current[imageRef.current?.src as string] =
 		(errors.current[imageRef.current?.src as string] ?? 0) + 1;
+	const failedMessage =
+		'Error loading image with src: ' +
+		truncateSrcForLabel(imageRef.current?.src as string) +
+		`. Failed ${maxRetries + 1} times (maxRetries: ${maxRetries}). Check that the URL is reachable and returns a valid image. During server-side rendering, the browser may have logged the failed request and its HTTP status code above.`;
 	if (
 		(onError || onImageError) &&
 		(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
 	) {
 		onError?.(e);
-		onImageError?.(
-			new Error(
-				'Error loading image with src: ' +
-					truncateSrcForLabel(imageRef.current?.src as string),
-			),
-		);
+		onImageError?.(new Error(failedMessage));
 		return;
 	}
 
@@ -206,10 +205,7 @@ const handleImageError = (
 	}
 
 	try {
-		cancelRender(
-			'Error loading image with src: ' +
-				truncateSrcForLabel(imageRef.current?.src as string),
-		);
+		cancelRender(`${failedMessage} Pass onError to handle the failure.`);
 	} catch {
 		// cancelRender() intentionally throws after storing the error in scope.
 		// In async image callbacks, we rely on the stored error for renderer propagation.
@@ -297,11 +293,10 @@ const loadImage = ({
 	current
 		.decode()
 		.then(onComplete)
-		.catch((err) => {
-			// fall back to onload event if decode() fails
-			// eslint-disable-next-line no-console
-			console.warn(err);
-
+		.catch(() => {
+			// fall back to onload event if decode() fails.
+			// Not logging the decode error: for a failed request (e.g. 404) it
+			// says "cannot be decoded", which is misleading. onError reports it.
 			// HTMLImageElement.complete is also true for broken images (e.g. 404),
 			// so only treat it as loaded if intrinsic dimensions are available.
 			if (

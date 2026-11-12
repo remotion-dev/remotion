@@ -6,6 +6,13 @@ import type {
 } from './devtools-types';
 import type {HTTPRequest} from './HTTPRequest';
 
+const sensitiveHeaders = [
+	'set-cookie',
+	'cookie',
+	'authorization',
+	'proxy-authorization',
+];
+
 export const handleFailedResource = ({
 	extraInfo,
 	logLevel,
@@ -23,16 +30,24 @@ export const handleFailedResource = ({
 
 	Log.warn(
 		{indent, logLevel},
-		`Browser failed to load ${request._url} (${event.type}): ${event.errorText}`,
+		`Browser failed to load ${request._url} (${event.type}): ${event.errorText}${
+			firstExtraInfo ? ` (HTTP status code ${firstExtraInfo.statusCode})` : ''
+		}`,
 	);
 	if (firstExtraInfo) {
-		Log.warn(
+		Log.verbose(
 			{indent, logLevel},
-			`HTTP status code: ${firstExtraInfo.statusCode}, headers:`,
-		);
-		Log.warn(
-			{indent, logLevel},
-			JSON.stringify(firstExtraInfo.headers, null, 2),
+			'Response headers:',
+			JSON.stringify(
+				Object.fromEntries(
+					Object.entries(firstExtraInfo.headers).map(([key, value]) => [
+						key,
+						sensitiveHeaders.includes(key.toLowerCase()) ? '<redacted>' : value,
+					]),
+				),
+				null,
+				2,
+			),
 		);
 	}
 
@@ -41,10 +56,6 @@ export const handleFailedResource = ({
 		event.type === 'Fetch' &&
 		request._url?.includes('/proxy')
 	) {
-		Log.warn(
-			{indent, logLevel},
-			'This could be caused by Chrome rejecting the request because the disk space is low.',
-		);
 		Log.warn(
 			{indent, logLevel},
 			'This could be caused by Chrome rejecting the request because the disk space is low.',
