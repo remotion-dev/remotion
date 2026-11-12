@@ -25,10 +25,12 @@ Use the same Remotion version for your project and Lambda function. Hosted artif
 From your Remotion project, build a [Remotion Bundle](/docs/terminology/bundle):
 
 ```sh title="Build the site"
-bunx remotion bundle src/index.ts --out-dir=build
+bunx remotion bundle src/index.ts --out-dir=build --public-path=./
 ```
 
-Replace the entry point with your own. The bundle is relocatable by default. Put the following Terraform files in an `infra/` directory next to `build/`.
+Replace the entry point with your own. [`--public-path=./`](/docs/cli/bundle#--public-path) makes asset URLs relative to the bundle, so JavaScript chunks and [`staticFile()`](/docs/staticfile) assets resolve under whichever `sites/<site_name>/` prefix Terraform uses. Passing it explicitly also overrides a public path set in `remotion.config.ts`.
+
+Put the following Terraform files in an `infra/` directory next to `build/`.
 
 The bundle must exist before running `terraform plan`. [`fileset()`](https://developer.hashicorp.com/terraform/language/functions/fileset) reads local files while Terraform evaluates the configuration.
 
