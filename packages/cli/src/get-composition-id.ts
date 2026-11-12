@@ -183,7 +183,7 @@ export const getCompositionId = async ({
 		};
 	}
 
-	if (!process.env.CI) {
+	if (process.stdin.isTTY && process.stdout.isTTY && !process.env.CI) {
 		const {compositionId, reason} = await showSingleCompositionsPicker(
 			comps,
 			logLevel,
@@ -203,6 +203,10 @@ export const getCompositionId = async ({
 	Log.error(
 		{indent: false, logLevel},
 		'Pass an extra argument <composition-id>.',
+	);
+	Log.error(
+		{indent: false, logLevel},
+		`Available compositions: ${comps.map((c) => c.id).join(', ')}`,
 	);
 	process.exit(1);
 };
