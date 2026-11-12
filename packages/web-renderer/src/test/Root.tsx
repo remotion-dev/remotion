@@ -6,6 +6,10 @@ import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {
+	backgroundImageMissingFilter,
+	missingFilterBackgroundEffects,
+} from './fixtures/background-image-missing-filter';
+import {
 	pixelatedBackgroundSampler,
 	pixelatedBackgroundSamplerControl,
 } from './fixtures/background-image-pixelated-sampler-lifetime';
@@ -536,6 +540,14 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{missingFilterBackgroundEffects.flatMap((effect) =>
+				[1, 2].map((scale) => (
+					<Composition
+						key={`${effect}-${scale}`}
+						{...backgroundImageMissingFilter(effect, scale)}
+					/>
+				)),
+			)}
 		</>
 	);
 };
