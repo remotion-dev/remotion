@@ -8,9 +8,10 @@ crumb: '@remotion/lambda'
 
 # Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.543" />
 
-You can deploy Remotion Lambda using [Terraform](https://developer.hashicorp.com/terraform) and the function ZIPs hosted by Remotion. Each release includes a regional manifest with the ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime).
+You can alternatively deploy a Remotion Lambda function using [Terraform](https://developer.hashicorp.com/terraform).  
+Each release includes a regional manifest with the ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime).
 
-This example manages the Lambda function and its CloudWatch log group. Your Remotion [site](/docs/terminology/serve-url) is deployed separately.
+This example manages the Lambda function and its CloudWatch log group. You can also deploy your Remotion [site](/docs/terminology/serve-url) with Terraform using the optional [site configuration below](#option-2-deploy-with-terraform).
 
 ## Prerequisites
 
@@ -159,34 +160,156 @@ terraform output -raw function_name
 
 If a function or log group with the same name already exists, [import it into Terraform](https://developer.hashicorp.com/terraform/language/import) before applying the configuration.
 
-## Deploy a site and render
+## Deploy a site
 
-In your Remotion project, use [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) and [`deploySite()`](/docs/lambda/deploysite) to upload your composition. The bucket and function must be in the same region.
+First, create a [Remotion Bundle](/docs/terminology/bundle) from your project:
 
-Use the function name from `terraform output -raw function_name` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). This example reads it from the `REMOTION_FUNCTION_NAME` environment variable.
+```sh title="Build the site"
+bunx remotion bundle src/index.ts --out-dir=build
+```
 
-```ts twoslash title="deploy-and-render.ts"
-import {
-  deploySite,
-  getOrCreateBucket,
-  renderMediaOnLambda,
-} from '@remotion/lambda';
+Replace the entry point with your own. The bundle is relocatable by default and can be uploaded under a site prefix in S3. Choose one of the following deployment options. The bucket and function must be in the same region.
 
-const functionName = process.env.REMOTION_FUNCTION_NAME;
-if (!functionName) {
-  throw new Error('Set REMOTION_FUNCTION_NAME to the Terraform output.');
-}
+### Option 1: Deploy with Remotion
+
+Use [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload the bundle:
+
+```ts twoslash title="deploy-site.ts"
+import {deploySiteFromBundle, getOrCreateBucket} from '@remotion/lambda';
 
 const region = 'eu-central-1';
 const {bucketName} = await getOrCreateBucket({region});
-const {serveUrl} = await deploySite({
+const {serveUrl} = await deploySiteFromBundle({
   region,
   bucketName,
-  entryPoint: 'src/index.ts',
+  bundleDir: './build',
 });
 
+console.log({serveUrl, bucketName});
+```
+
+### Option 2: Deploy with Terraform
+
+Add `site.tf` alongside `main.tf`. Use an existing Remotion bucket, which you can create using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket). Your Terraform credentials also need permission to manage objects in this bucket.
+
+The bundle must exist before running `terraform plan`. [`fileset()`](https://developer.hashicorp.com/terraform/language/functions/fileset) reads the local files while Terraform evaluates the configuration.
+
+```hcl title="site.tf"
+variable "bucket_name" {
+  type = string
+}
+
+variable "site_name" {
+  type    = string
+  default = "my-video"
+}
+
+variable "bundle_dir" {
+  type    = string
+  default = "./build"
+}
+
+locals {
+  site_bundle_dir = abspath(var.bundle_dir)
+  site_prefix     = "sites/${var.site_name}"
+  site_files      = fileset(local.site_bundle_dir, "**")
+  site_content_types = {
+    css   = "text/css"
+    gif   = "image/gif"
+    html  = "text/html"
+    jpeg  = "image/jpeg"
+    jpg   = "image/jpeg"
+    js    = "text/javascript"
+    json  = "application/json"
+    mjs   = "text/javascript"
+    mp3   = "audio/mpeg"
+    mp4   = "video/mp4"
+    otf   = "font/otf"
+    png   = "image/png"
+    svg   = "image/svg+xml"
+    ttf   = "font/ttf"
+    wasm  = "application/wasm"
+    webm  = "video/webm"
+    webp  = "image/webp"
+    woff  = "font/woff"
+    woff2 = "font/woff2"
+  }
+}
+
+resource "aws_s3_object" "site_asset" {
+  for_each = setsubtract(local.site_files, toset(["index.html"]))
+
+  bucket      = var.bucket_name
+  key         = "${local.site_prefix}/${each.value}"
+  source      = "${local.site_bundle_dir}/${each.value}"
+  source_hash = filemd5("${local.site_bundle_dir}/${each.value}")
+  acl         = "public-read"
+  content_type = try(
+    local.site_content_types[lower(regex("[^.]+$", each.value))],
+    "application/octet-stream"
+  )
+}
+
+resource "aws_s3_object" "site_index" {
+  bucket       = var.bucket_name
+  key          = "${local.site_prefix}/index.html"
+  source       = "${local.site_bundle_dir}/index.html"
+  source_hash  = filemd5("${local.site_bundle_dir}/index.html")
+  acl          = "public-read"
+  content_type = "text/html"
+
+  depends_on = [aws_s3_object.site_asset]
+}
+
+output "serve_url" {
+  value = "https://${var.bucket_name}.s3.${local.region}.amazonaws.com/${aws_s3_object.site_index.key}"
+}
+
+output "bucket_name" {
+  value = var.bucket_name
+}
+```
+
+Set the bucket name and bundle location in your existing `terraform.tfvars`. Relative bundle paths are resolved from the directory where you run Terraform. Use letters, numbers, hyphens, or underscores for `site_name`.
+
+```hcl title="terraform.tfvars (additional values)"
+bucket_name = "remotionlambda-eucentral1-example"
+site_name   = "my-video"
+bundle_dir  = "../build"
+```
+
+This example uses public-read ACLs. If your bucket disables ACLs, remove both `acl` lines and configure its [bucket policy](/docs/lambda/bucket-security) to allow public `s3:GetObject` access to `sites/*`. All site assets must be publicly readable by the Lambda browser.
+
+Add any other file extensions your project needs to `site_content_types`. The [`source_hash`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) values make Terraform upload changed files. Terraform deletes previously managed files when they are removed from the bundle. Let Terraform exclusively manage this site prefix.
+
+Apply the configuration and read the outputs:
+
+```sh title="Deploy the prebuilt site"
+terraform plan -out=tfplan
+terraform apply tfplan
+terraform output -raw serve_url
+terraform output -raw bucket_name
+```
+
+## Render
+
+Pass the deployed function name, site URL, and bucket to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). Set `REMOTION_FUNCTION_NAME` from `terraform output -raw function_name`. Set `REMOTION_SERVE_URL` and `REMOTION_BUCKET_NAME` from your deployment script or the Terraform outputs above.
+
+```ts twoslash title="render.ts"
+import {renderMediaOnLambda} from '@remotion/lambda';
+
+const functionName = process.env.REMOTION_FUNCTION_NAME;
+const serveUrl = process.env.REMOTION_SERVE_URL;
+const bucketName = process.env.REMOTION_BUCKET_NAME;
+
+if (!functionName || !serveUrl || !bucketName) {
+  throw new Error(
+    'Set REMOTION_FUNCTION_NAME, REMOTION_SERVE_URL, and REMOTION_BUCKET_NAME.',
+  );
+}
+
 const {renderId} = await renderMediaOnLambda({
-  region,
+  region: 'eu-central-1',
   functionName,
   serveUrl,
   composition: 'HelloWorld',
@@ -197,13 +320,15 @@ const {renderId} = await renderMediaOnLambda({
 console.log({renderId, bucketName});
 ```
 
-Replace the entry point and composition ID with your own, and configure [Remotion AWS authentication](/docs/lambda/authentication) for the script. Deploy the site when your composition changes; subsequent renders can reuse its `serveUrl`. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
+Replace the composition ID with your own, and configure [Remotion AWS authentication](/docs/lambda/authentication) for the script. Rebuild and deploy the site when your composition changes; subsequent renders can reuse its `serveUrl`. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
 
 ## Upgrading
 
 Keep the function, site, and Remotion packages in your application on the same version. Changing `remotion_version`, memory, disk space, or timeout changes the function name and makes Terraform replace the function.
 
 For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), manage the old and new functions as separate Terraform resources or module instances. Deploy a new site, switch your application to the new function and site, and remove the old resources once their renders have finished. `create_before_destroy` alone does not keep the old function available until your application has switched.
+
+For sites managed by Terraform, use a different `site_name` for each deployment and keep the old and new sites as separate resources or module instances during the transition. Changing `site_name` on the same resources moves the managed objects and removes the old site.
 
 ## See also
 
