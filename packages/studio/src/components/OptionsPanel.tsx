@@ -400,24 +400,9 @@ export const OptionsPanel: React.FC<{
 		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			e.stopPropagation();
-			if (
-				panel !== 'inspector' ||
-				!shouldClearSelectionOnPointerDown(e) ||
-				(e.target instanceof Element &&
-					e.target.closest(
-						'button, input, textarea, select, a, [contenteditable="true"], [role="button"], [role="tab"]',
-					))
-			) {
-				return;
-			}
-
-			currentSelection.current.stepBackSelection(true);
-		},
-		[currentSelection, panel],
-	);
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
 
 	return (
 		<div style={container} className="css-reset" onPointerDown={onPointerDown}>
