@@ -29,7 +29,8 @@ export const StudioPanels: React.FC<{
 	const library =
 		selectedModal?.type === 'element-library'
 			? selectedModal
-			: selectedModal?.type === 'element-install'
+			: selectedModal?.type === 'element-install' ||
+				  selectedModal?.type === 'confirmation-dialog'
 				? selectedModal.library
 				: null;
 	const panelOpen = selectedModal?.type === 'settings' || library !== null;
@@ -64,6 +65,11 @@ export const StudioPanels: React.FC<{
 							url={library.url}
 							installState={
 								selectedModal?.type === 'element-install' ? selectedModal : null
+							}
+							confirmationState={
+								selectedModal?.type === 'confirmation-dialog'
+									? selectedModal
+									: null
 							}
 						/>
 					)}

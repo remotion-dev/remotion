@@ -137,6 +137,7 @@ export type RenderModalState = {
 export type ConfirmationDialogState = {
 	type: 'confirmation-dialog';
 	id: string;
+	library: ElementLibraryModalState | null;
 	title: string;
 	message: React.ReactNode;
 	confirmLabel: string;

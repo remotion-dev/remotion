@@ -450,9 +450,10 @@ export const Modals: React.FC<{
 				modalContextType.library === null && (
 					<ElementInstallConfirmation state={modalContextType} />
 				)}
-			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
-				<ConfirmationDialog state={modalContextType} />
-			)}
+			{modalContextType?.type === 'confirmation-dialog' &&
+				modalContextType.library === null && (
+					<ConfirmationDialog state={modalContextType} />
+				)}
 			{modalContextType && modalContextType.type === 'svg-import-dialog' && (
 				<SvgImportDialog state={modalContextType} />
 			)}

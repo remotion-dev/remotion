@@ -7,6 +7,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {createPortal} from 'react-dom';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -22,9 +23,12 @@ import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {BrowseElementsIcon} from '../icons/browse-elements';
 import {TrashIcon} from '../icons/trash';
 import {
+	type ConfirmationDialogState,
 	type ElementInstallModalState,
 	SetSelectedModalContext,
 } from '../state/modals';
+import {useZIndex} from '../state/z-index';
+import {ConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {ElementLibraryDialog} from './ElementLibraryDialog';
@@ -33,6 +37,7 @@ import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {MenuDivider} from './Menu/MenuDivider';
+import {getPortal} from './Menu/portals';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {
 	horizontalLayout,
@@ -129,7 +134,9 @@ export const ElementLibraryModal: React.FC<{
 	readonly name: string;
 	readonly url: string;
 	readonly installState: ElementInstallModalState | null;
-}> = ({name, url, installState}) => {
+	readonly confirmationState: ConfirmationDialogState | null;
+}> = ({name, url, installState, confirmationState}) => {
+	const {currentZIndex} = useZIndex();
 	const sidebarRef = useRef<HTMLElement>(null);
 	const sidebarSize = PlayerInternals.useElementSize(sidebarRef, {
 		triggerOnWindowResize: true,
@@ -437,6 +444,12 @@ export const ElementLibraryModal: React.FC<{
 			{installState === null ? null : (
 				<ElementInstallConfirmation state={installState} />
 			)}
+			{confirmationState === null
+				? null
+				: createPortal(
+						<ConfirmationDialog state={confirmationState} />,
+						getPortal(currentZIndex),
+					)}
 		</FullscreenPanel>
 	);
 };
