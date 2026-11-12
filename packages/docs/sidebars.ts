@@ -1548,7 +1548,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
 				'lambda/terraform',
-				'lambda/sqs',
 				'lambda/supabase',
 				'lambda/r2',
 				'lambda/insights',
