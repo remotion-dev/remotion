@@ -294,9 +294,7 @@ const loadImage = ({
 		.decode()
 		.then(onComplete)
 		.catch(() => {
-			// fall back to onload event if decode() fails.
-			// Not logging the decode error: for a failed request (e.g. 404) it
-			// says "cannot be decoded", which is misleading. onError reports it.
+			// For a failed request (e.g. 404), decode() rejects with "cannot be decoded".
 			// HTMLImageElement.complete is also true for broken images (e.g. 404),
 			// so only treat it as loaded if intrinsic dimensions are available.
 			if (
