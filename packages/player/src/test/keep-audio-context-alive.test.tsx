@@ -475,8 +475,8 @@ test('Keep-alive audio still corrects drift after buffering', () => {
 		act(() => harness.tick(700));
 		expect(harness.view.getByText('Frame 2')).toBeTruthy();
 		expect(harness.anchors).toHaveLength(1);
-		// Anchor when buffering ends, before the next frame advances.
-		expect(harness.anchor()).toBeCloseTo(0.66 - 1 / 30, 8);
+		// Recovery retains the 50 ms of active time, including half a frame.
+		expect(harness.anchor()).toBeCloseTo(0.66 - 0.05, 8);
 	} finally {
 		harness.dispose();
 	}
@@ -735,6 +735,61 @@ test.each(['pause', 'refill'] as const)(
 			}
 		} finally {
 			subscription?.remove();
+			harness.dispose();
+		}
+	},
+);
+
+test('a duration update during buffering excludes the entire wait from the retained clock', () => {
+	const harness = renderClockedPlayer(true);
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(20));
+		let unblock = () => {};
+		act(() => {
+			unblock = harness.startBuffering().unblock;
+		});
+		act(() => {
+			harness.setTime(500);
+			harness.changeConfig({durationInFrames: 1001});
+		});
+		act(() => harness.setTime(1000));
+		act(() => unblock());
+		act(() => harness.tick(1014));
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each([0.5, 1, 2])(
+	'audio and picture recover at the same fractional position at %s×',
+	(playbackRate) => {
+		const harness = renderClockedPlayer(true);
+		try {
+			act(() => harness.changeConfig({fps: 10, playbackRate}));
+			act(() => harness.player.current!.play());
+			const waitAt = 90 / playbackRate;
+			act(() => harness.tick(waitAt));
+			let unblock = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			act(() => harness.setTime(1000));
+			act(() => unblock());
+			const continuousFrame =
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+				playbackRate *
+				10;
+			expect(continuousFrame).toBeCloseTo(0.9, 8);
+			act(() => harness.tick(1000 + 14 / playbackRate));
+			expect(harness.player.current!.getCurrentFrame()).toBe(1);
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+					playbackRate *
+					10,
+			).toBeCloseTo(1.04, 8);
+		} finally {
 			harness.dispose();
 		}
 	},

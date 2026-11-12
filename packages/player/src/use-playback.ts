@@ -110,69 +110,77 @@ export const usePlayback = ({
 		videoConfig: config,
 	});
 
-	const updateAudioAnchor = useCallback(() => {
-		if (!sharedAudioContext?.audioContext || fps === null || muted) {
-			return false;
-		}
+	const updateAudioAnchor = useCallback(
+		(preserveFraction = false) => {
+			if (!sharedAudioContext?.audioContext || fps === null || muted) {
+				return false;
+			}
 
-		let absoluteFrame = getCurrentFrame();
-		const clock = playbackClockRef.current;
-		if (
-			playing &&
-			clock !== null &&
-			durationInFrames !== null &&
-			clock.compositionId === compositionId &&
-			clock.fps === fps &&
-			clock.playbackRate === playbackRate
-		) {
-			const actualFirstFrame = inFrame ?? 0;
-			const actualLastFrame = outFrame ?? durationInFrames - 1;
-			const {nextFrame, hasEnded} = calculateNextFrame({
-				time: performance.now() - clock.startedTime,
-				currentFrame: clock.frame,
-				playbackSpeed: playbackRate,
-				fps,
-				actualFirstFrame,
-				actualLastFrame,
-				framesAdvanced: clock.framesAdvanced,
-				shouldLoop: loop,
+			let absoluteFrame = getCurrentFrame();
+			const clock = playbackClockRef.current;
+			if (
+				playing &&
+				clock !== null &&
+				durationInFrames !== null &&
+				clock.compositionId === compositionId &&
+				clock.fps === fps &&
+				clock.playbackRate === playbackRate
+			) {
+				const actualFirstFrame = inFrame ?? 0;
+				const actualLastFrame = outFrame ?? durationInFrames - 1;
+				const elapsedTime = performance.now() - clock.startedTime;
+				const {nextFrame, hasEnded} = calculateNextFrame({
+					time: elapsedTime,
+					currentFrame: clock.frame,
+					playbackSpeed: playbackRate,
+					fps,
+					actualFirstFrame,
+					actualLastFrame,
+					framesAdvanced: clock.framesAdvanced,
+					shouldLoop: loop,
+				});
+				absoluteFrame =
+					hasEnded && !moveToBeginningWhenEnded
+						? playbackRate > 0
+							? actualLastFrame
+							: actualFirstFrame
+						: nextFrame;
+				if (preserveFraction && !hasEnded) {
+					const elapsedFrames = (elapsedTime * playbackRate * fps) / 1000;
+					absoluteFrame += elapsedFrames - Math.trunc(elapsedFrames);
+				}
+			}
+
+			const changed = setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: absoluteFrame / fps,
+				globalPlaybackRate: playbackRate,
+				logLevel,
+				force: true,
 			});
-			absoluteFrame =
-				hasEnded && !moveToBeginningWhenEnded
-					? playbackRate > 0
-						? actualLastFrame
-						: actualFirstFrame
-					: nextFrame;
-		}
+			if (changed) {
+				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+			}
 
-		const changed = setGlobalTimeAnchor({
-			audioContext: sharedAudioContext.audioContext,
-			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-			absoluteTimeInSeconds: absoluteFrame / fps,
-			globalPlaybackRate: playbackRate,
+			return changed;
+		},
+		[
+			compositionId,
+			durationInFrames,
+			fps,
+			getCurrentFrame,
+			inFrame,
 			logLevel,
-			force: true,
-		});
-		if (changed) {
-			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
-		}
-
-		return changed;
-	}, [
-		compositionId,
-		durationInFrames,
-		fps,
-		getCurrentFrame,
-		inFrame,
-		logLevel,
-		loop,
-		moveToBeginningWhenEnded,
-		muted,
-		outFrame,
-		playbackRate,
-		playing,
-		sharedAudioContext,
-	]);
+			loop,
+			moveToBeginningWhenEnded,
+			muted,
+			outFrame,
+			playbackRate,
+			playing,
+			sharedAudioContext,
+		],
+	);
 
 	// Re-anchor only at playback boundaries. A late React commit during ordinary
 	// playback must not move the audio clock and discard already scheduled audio.
@@ -310,6 +318,8 @@ export const usePlayback = ({
 
 		let hasBeenStopped = false;
 		let waiting = false;
+		let activeWait: {startedAt: number; seekRevision: number | null} | null =
+			null;
 		let audioContextFailed = false;
 		let reqAnimFrameCall:
 			| {
@@ -328,6 +338,7 @@ export const usePlayback = ({
 			waitingSeekRevision: number | null,
 		) => {
 			const now = performance.now();
+			activeWait = null;
 			if ((seek?.revision.current ?? null) !== waitingSeekRevision) {
 				clock.startedTime = now;
 				clock.frame = getCurrentFrame();
@@ -460,6 +471,10 @@ export const usePlayback = ({
 				: (sharedAudioContext?.getIsResumingAudioContext?.() ?? null);
 			if (getIsResumingAudioContext !== null && !muted) {
 				waiting = true;
+				activeWait = {
+					startedAt: waitingSince,
+					seekRevision: waitingSeekRevision,
+				};
 				getIsResumingAudioContext.then((result) => {
 					if (hasBeenStopped) {
 						return;
@@ -473,6 +488,10 @@ export const usePlayback = ({
 
 					waiting = false;
 					resumeClock(waitingSince, waitingSeekRevision);
+					if (!audioContextFailed) {
+						updateAudioAnchor(true);
+					}
+
 					queueNextFrame();
 				});
 
@@ -485,6 +504,10 @@ export const usePlayback = ({
 				}
 
 				waiting = true;
+				activeWait = {
+					startedAt: waitingSince,
+					seekRevision: waitingSeekRevision,
+				};
 				unsubscribeBuffering = subscribeBuffering((state) => {
 					if (state.buffering) {
 						return;
@@ -497,7 +520,7 @@ export const usePlayback = ({
 					}
 
 					resumeClock(waitingSince, waitingSeekRevision);
-					updateAudioAnchor();
+					updateAudioAnchor(true);
 					// Anchor listeners can pause playback or publish another buffer wait.
 					if (hasBeenStopped || !isPlaying()) {
 						return;
@@ -562,6 +585,12 @@ export const usePlayback = ({
 			window.removeEventListener('visibilitychange', onVisibilityChange);
 			unsubscribeSeek?.();
 			unsubscribeBufferingStart();
+			// A replacement effect can retain this clock. Account for its part of
+			// the wait before handing it over, including native context resumes.
+			if (activeWait !== null) {
+				resumeClock(activeWait.startedAt, activeWait.seekRevision);
+			}
+
 			stop();
 		};
 	}, [
