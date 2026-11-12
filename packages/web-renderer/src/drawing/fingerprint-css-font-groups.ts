@@ -54,7 +54,10 @@ const replaceFamilies = (value: string, aliases: Map<string, string>) => {
 	return tokens.join(',');
 };
 
-const dataBytes = (source: string, ownerWindow: Window & typeof globalThis) => {
+export const getCssDataFontBytes = (
+	source: string,
+	ownerWindow: Pick<Window, 'atob'>,
+) => {
 	const match =
 		/^url\((?:"(data:[^"]*)"|'(data:[^']*)'|(data:[^)]*))\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.exec(
 			source,
@@ -64,9 +67,37 @@ const dataBytes = (source: string, ownerWindow: Window & typeof globalThis) => {
 	const comma = data.indexOf(',');
 	if (comma < 0) return null;
 	try {
-		const binary = /;base64$/i.test(data.slice(0, comma))
-			? ownerWindow.atob(data.slice(comma + 1))
-			: decodeURIComponent(data.slice(comma + 1));
+		const payload = data.slice(comma + 1);
+		const base64Encoded = /;base64$/i.test(data.slice(0, comma));
+		if (!payload.includes('%')) {
+			if (!base64Encoded) return new TextEncoder().encode(payload);
+			return Uint8Array.from(ownerWindow.atob(payload), (character) =>
+				character.charCodeAt(0),
+			);
+		}
+
+		// Data URL percent escapes represent bytes, including invalid UTF-8.
+		const encoded = new TextEncoder().encode(payload);
+		const decoded = new Uint8Array(encoded.length);
+		let length = 0;
+		for (let index = 0; index < encoded.length; index++) {
+			const hex =
+				encoded[index] === 0x25
+					? String.fromCharCode(encoded[index + 1], encoded[index + 2])
+					: '';
+			if (encoded[index] === 0x25 && /^[0-9a-f]{2}$/i.test(hex)) {
+				decoded[length++] = parseInt(hex, 16);
+				index += 2;
+			} else {
+				decoded[length++] = encoded[index];
+			}
+		}
+
+		if (!base64Encoded) return decoded.slice(0, length);
+		let base64 = '';
+		for (let index = 0; index < length; index++)
+			base64 += String.fromCharCode(decoded[index]);
+		const binary = ownerWindow.atob(base64);
 		return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 	} catch {
 		return null;
@@ -294,7 +325,7 @@ export const fingerprintCssFontGroups = (
 					const family = parseFontFamilies(rule.style.fontFamily)[0];
 					if (!family || genericFamilies.has(family))
 						return {matches: [], reason: 'Unqualified generic face family.'};
-					const bytes = dataBytes(
+					const bytes = getCssDataFontBytes(
 						rule.style.getPropertyValue('src'),
 						ownerWindow,
 					);

@@ -14,6 +14,7 @@ test(
 	{timeout: 90000},
 	async () => {
 		const host = document.createElement('div');
+		host.style.visibility = 'hidden';
 		document.body.appendChild(host);
 		const root = createRoot(host);
 		const Component = svgRepeatedUse.component;

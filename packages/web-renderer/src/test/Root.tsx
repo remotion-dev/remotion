@@ -1,4 +1,3 @@
-// bun run studio
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
@@ -248,6 +247,11 @@ import {
 	svgLocalFontOrderModes,
 } from './fixtures/svg-local-font-order';
 import {svgNoUseChart} from './fixtures/svg-no-use-chart';
+// bun run studio
+import {
+	svgPercentDataFont,
+	svgPercentDataFontEncodings,
+} from './fixtures/svg-percent-data-font';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgRepeatedUse} from './fixtures/svg-repeated-use';
 import {
@@ -620,6 +624,14 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{svgPercentDataFontEncodings.flatMap((encoding) =>
+				(['A', 'B'] as const).map((preferred) => (
+					<Composition
+						key={encoding + preferred}
+						{...svgPercentDataFont(encoding, preferred, null, false)}
+					/>
+				)),
+			)}
 			{svgTitledFontGroupModes.map((mode) => (
 				<Composition key={mode} {...svgTitledFontGroup(mode, false, false)} />
 			))}
