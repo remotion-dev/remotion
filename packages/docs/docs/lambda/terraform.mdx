@@ -404,7 +404,7 @@ resource "aws_s3_object" "site_index" {
 
 ### Deployment outputs
 
-Export the settings your application needs as JSON:
+If your Terraform files are the source of truth for region, function name, bucket name and site name, export them as JSON. We will use it in [step 4](#4-render) again.
 
 ```hcl title="infra/outputs.tf"
 output "remotion" {
