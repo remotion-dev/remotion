@@ -284,7 +284,8 @@ export const audioIteratorManager = ({
 				// Always finish the initial prebuffer, even for future or very slow clips.
 				// Bound further paused decoding by prepared media, not a future start time.
 				const preparedDuration = guessedNextTimestamp - startFromSecond;
-				if (getIsPlaying()) {
+				// Native resume can leave the timeline frozen while the audio clock runs.
+				if (getIsPlaying() && !sharedAudioContext.isResuming()) {
 					return scheduledTime - getAudioContextCurrentTimeMockedInTest();
 				}
 
