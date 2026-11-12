@@ -8,7 +8,7 @@ crumb: 'How To'
 
 To import assets in Remotion, create a `public/` folder in your project and use [`staticFile()`](/docs/staticfile) to import it.
 
-```txt
+```diff
 my-video/
 ├─ node_modules/
 ├─ public/
@@ -54,7 +54,7 @@ export const MyComp: React.FC = () => {
 
 If you have a series of images, for example exported from another program like After Effects or Rotato, you can interpolate the path to create a dynamic import.
 
-```txt
+```diff
 my-video/
 ├─ public/
 │  ├─ frame1.png
@@ -129,7 +129,7 @@ See the [Video and Audio guide](/docs/video-and-audio) for guidance on including
 
 Put the .css file alongside your JavaScript source files and use an `import` statement.
 
-```txt
+```diff
 my-video/
 ├─ node_modules/
 ├─ src/
