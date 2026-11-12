@@ -433,11 +433,14 @@ To update your composition, rebuild `./sites/remotion-project` and run the plan 
 
 ## 4. Render
 
-From your Remotion project, read the exported settings and call [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda):
+From your Remotion project, read the exported settings and call [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream) to stream progress and wait for the render to finish:
 
 ```ts twoslash title="render.ts"
 import {readFileSync} from 'node:fs';
-import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
+import {
+  renderMediaOnLambdaAndStream,
+  type AwsRegion,
+} from '@remotion/lambda/client';
 
 const contents = readFileSync('./remotion-deployment.json', 'utf-8');
 
@@ -450,19 +453,22 @@ const deployment: {
 
 const {region, functionName, bucketName, serveUrl} = deployment;
 
-const {renderId} = await renderMediaOnLambda({
+const result = await renderMediaOnLambdaAndStream({
   region,
   functionName,
   serveUrl,
   composition: 'HelloWorld',
   codec: 'h264',
   forceBucketName: bucketName,
+  onProgress: ({overallProgress}) => {
+    console.log(`${Math.round(overallProgress * 100)}%`);
+  },
 });
 
-console.log({renderId, bucketName});
+console.log(result.outputFile);
 ```
 
-Replace the composition ID with your own and configure [AWS authentication](/docs/lambda/authentication) with the required [user permissions](/docs/lambda/permissions#user-permissions) for the script. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
+Replace the composition ID with your own and configure [AWS authentication](/docs/lambda/authentication) with the required [user permissions](/docs/lambda/permissions#user-permissions) for the script.
 
 ## Upgrading
 
