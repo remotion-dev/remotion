@@ -9,7 +9,7 @@ import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
 import {
 	svgExternalCarrierModes,
 	svgExternalEmptyCarrier,
-} from './fixtures/svg-titled-font';
+} from './fixtures/svg-external-font-selection';
 import {captureNativeReference, countNativePixels} from './native-reference';
 
 test.for(

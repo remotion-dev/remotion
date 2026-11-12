@@ -1,11 +1,14 @@
 import {expect, test} from 'vitest';
-import {server} from 'vitest/browser';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	savePixelEvidence,
+} from './native-reference';
 
 test.for(
 	svgXmlMetadataModes.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
@@ -32,19 +35,16 @@ test.for(
 		})
 	).blob({format: 'png'});
 	const result = await compareNativePixels(reference, actual);
-	for (const [name, blob] of [
-		['native', reference],
-		['actual', actual],
-		['diff', result.diff],
-	] as const) {
-		let binary = '';
-		for (const byte of new Uint8Array(await blob.arrayBuffer()))
-			binary += String.fromCharCode(byte);
-		await server.commands.writeFile(
-			`validation/svg-xml-metadata/${server.browser}/${mode}-${frame}-${name}.png`,
-			btoa(binary),
-			'base64',
-		);
+	if (result.mismatchedPixels || mode.startsWith('registered-')) {
+		await savePixelEvidence(reference, `xml-metadata-${mode}-${frame}-native`, {
+			omitBackground: false,
+		});
+		await savePixelEvidence(actual, `xml-metadata-${mode}-${frame}-actual`, {
+			omitBackground: false,
+		});
+		await savePixelEvidence(result.diff, `xml-metadata-${mode}-${frame}-diff`, {
+			omitBackground: false,
+		});
 	}
 
 	expect(result.mismatchedPixels).toBe(0);

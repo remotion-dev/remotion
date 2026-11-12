@@ -92,27 +92,23 @@ The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</
 
 ### Web fonts inside SVG
 
-External font selection on SVG roots is preserved when CSS filters, masks, isolation or blending require intermediate rendering layers.
-
-SVG text with explicitly authored font families is supported inside locally referenced `<pattern>` and `<mask>` resources, including pattern inheritance and nested mask-to-pattern references. Unused definitions do not trigger CSS font fetching.
-
 Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from v4.0.525.
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
-External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements do not affect web-font support. Foreign-namespace XML metadata outside `foreignObject` does not add unused registered fonts or change visible SVG styling.
+External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-CSS `@font-face` at the top level or in active `@media` and `@supports` rules is supported from accessible, enabled document stylesheets with a single `data:` or same-origin HTTP(S) source. HTTP(S) families require exactly one loaded face. Adopted document stylesheets are traversed after linked and embedded stylesheets. SVG text-node parents, including SVG `<a>` elements, retain resolved font selection. Relative font URLs with a custom constructed-sheet base URL remain unsupported. Readable, unlayered CSS imports are supported, including active import media conditions. Other grouping rules, layered imports, multiple sources, CSS-escaped URLs, font collection fragments, cross-origin font URLs, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
+External SVG font selection is supported with CSS filters, masks, isolation and blending. SVG text with an explicit font family is supported inside locally referenced patterns and masks.
 
-Registered fonts are supported with titled SVG stylesheets, including an empty first preferred set and inactive media. Carriers use the owning document’s media-query result when the SVG image has a different viewport. Font definitions remain available across titled sets while disabled authored paint remains neutralized. SVG-local `:empty`, `[style]` and `[media]` selectors, including selectors added through the CSSOM, retain their authored matching during CSS font export. Selector rewriting still excludes stylesheets containing `@scope` or `@import`.
+CSS `@font-face` is supported from readable, enabled stylesheets, including adopted stylesheets, active `@media` and `@supports` rules, and unlayered imports. A face must have a single `data:` or same-origin HTTP(S) source. HTTP(S) fonts must have exactly one loaded face in their family. Other grouping rules, layered imports, unreadable stylesheets, cross-origin URLs, CSS-escaped URLs, font collection fragments and relative font URLs in constructed stylesheets are not supported. Fonts added directly through the browser's `FontFace` API and text inside `<foreignObject>` are not supported.
 
-`style[media]` selectors on SVG-local stylesheets with empty or `all` media are supported. For CSS `@font-face` sources and registered font APIs, empty trailing SVG stylesheets are preserved when an enabled, nonempty, unconditional stylesheet is available after all other SVG-local rules. `style:empty` selectors remain partially supported when all stylesheets are empty. Media-query changes on earlier font carriers invalidate cached SVG images. Full titled-set paint selection remains partially supported. WebKit and Firefox may render different text pixels or select a different face.
+SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 
-SVG-local `:empty` selectors retain their authored matching for uppercase and CSS-escaped pseudo-class spellings during registered-font embedding.
+Titled registered-font stylesheets support active and inactive media evaluated against the owning document, including after viewport changes. Empty sheets in a preferred titled set preserve `:empty` matching, and SVG-local CSSOM rules retain their selector matching. Native text pixels and titled-stylesheet paint selection may differ; WebKit and Firefox may select a different face.
 
-Mentions of `@import` or `@scope` inside comments, strings, URLs or custom-property values do not disable SVG-local selector preservation. Actual import and scope rules remain excluded from selector rewriting. Unquoted CSS URL tokens retain their bracket and brace contents during this check, including escaped URL names and URL values in custom properties.
+SVG-local selector preservation is not supported for stylesheets containing `@import` or `@scope` rules. Their names inside comments, strings, URLs or custom-property values do not impose this limitation, including escaped URL names and unquoted URLs containing brackets or braces.
 
 ## Shadows
 

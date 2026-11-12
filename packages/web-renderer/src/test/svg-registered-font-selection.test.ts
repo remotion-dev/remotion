@@ -3,12 +3,14 @@ import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
 import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
 	svgExternalFontReady,
 	SvgExternalFontSelection,
 	svgExternalFontSelection,
@@ -425,6 +427,74 @@ test('non-CSS style elements retain native and exported font selection', async (
 	expect(comparison.mismatchedPixels).toBe(0);
 });
 
+const carrierOptions = {
+	inputProps: {},
+	licenseKey: 'free-license',
+	allowHtmlInCanvas: false,
+} as const;
+
+test.for(
+	svgExternalCarrierModes
+		.filter((mode) => mode !== 'cache')
+		.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
+)(
+	'preserves external font selection with an empty $mode carrier at frame $frame',
+	async ({mode, frame}, t) => {
+		await svgExternalFontReady;
+		const fixture = svgExternalEmptyCarrier({mode, literal: false});
+		const literal = svgExternalEmptyCarrier({mode, literal: true});
+		const native = await captureNativeReference(fixture, frame, {
+			omitBackground: false,
+		});
+		const nativeLiteral = await captureNativeReference(literal, frame, {
+			omitBackground: false,
+		});
+		expect(
+			(await compareNativePixels(native, nativeLiteral)).mismatchedPixels,
+		).toBe(0);
+		const actual = await (
+			await renderStillOnWeb({...carrierOptions, composition: fixture, frame})
+		).blob({format: 'png'});
+		const exportedLiteral = await (
+			await renderStillOnWeb({...carrierOptions, composition: literal, frame})
+		).blob({format: 'png'});
+		// Compare every pixel in the complete frames. Native glyph raster gaps in
+		// Firefox/WebKit remain separate from structural selector preservation.
+		expect(
+			(await compareNativePixels(actual, exportedLiteral)).mismatchedPixels,
+		).toBe(0);
+		if (t.task.file.projectName === 'chromium') {
+			expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+				0,
+			);
+		}
+	},
+);
+
+test('keeps external font carrier batch and fresh frames consistent for CSSOM-only changes', async () => {
+	await svgExternalFontReady;
+	const fixture = svgExternalEmptyCarrier({mode: 'cache', literal: false});
+	const frames = await renderFramesOnWeb({
+		...carrierOptions,
+		composition: fixture,
+		frames: [0, 1, 2],
+	});
+	const differences = [];
+	for (let frame = 0; frame < 3; frame++) {
+		const batch = await frames[frame].blob({format: 'png'});
+		const fresh = await (
+			await renderStillOnWeb({...carrierOptions, composition: fixture, frame})
+		).blob({format: 'png'});
+		differences.push(
+			(await compareNativePixels(batch, fresh)).mismatchedPixels,
+		);
+	}
+
+	// Includes the existing conservative fallback when a later inactive rule
+	// prevents retargeting at frame 1; consistency does not imply native parity.
+	expect(differences).toEqual([0, 0, 0]);
+});
+
 test.for([0, 1])(
 	'preserves authored SVG style selectors at frame %i',
 	async (frame, t) => {
@@ -461,3 +531,37 @@ test.for([0, 1])(
 		}
 	},
 );
+
+test('serializes registered font bytes only when rebuilding an SVG drawable', async () => {
+	await svgExternalFontReady;
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('width', '160');
+	svg.setAttribute('height', '60');
+	svg.innerHTML =
+		'<text x="4" y="40" style="font-family:&quot;External SVG, class font&quot;;font-size:32px">Cached</text>';
+	document.body.appendChild(svg);
+
+	const serialize = XMLSerializer.prototype.serializeToString;
+	const embeddedSerializations: number[] = [];
+	const spy = vi
+		.spyOn(XMLSerializer.prototype, 'serializeToString')
+		.mockImplementation(function (this: XMLSerializer, node) {
+			const markup = serialize.call(this, node);
+			if (markup.includes('base64,'))
+				embeddedSerializations.push(markup.length);
+			return markup;
+		});
+	try {
+		const initial = await turnSvgIntoDrawable(svg);
+		expect(embeddedSerializations).toHaveLength(1);
+		expect(await turnSvgIntoDrawable(svg)).toBe(initial);
+		expect(embeddedSerializations).toHaveLength(1);
+
+		svg.querySelector('text')!.textContent = 'Changed';
+		expect(await turnSvgIntoDrawable(svg)).not.toBe(initial);
+		expect(embeddedSerializations).toHaveLength(2);
+	} finally {
+		spy.mockRestore();
+		svg.remove();
+	}
+});

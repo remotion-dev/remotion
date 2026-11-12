@@ -11,7 +11,7 @@ export const getSvgPaintBounds = (svg: SVGSVGElement): DOMPoint[] | null => {
 		rootStyle.backgroundImage !== 'none' ||
 		rootStyle.maskImage !== 'none' ||
 		rootStyle.filter !== 'none' ||
-		svg.querySelector('foreignObject')
+		svg.querySelector('foreignObject, use')
 	)
 		return null;
 	const points: DOMPoint[] = [];
@@ -53,6 +53,8 @@ export const getSvgPaintBounds = (svg: SVGSVGElement): DOMPoint[] | null => {
 					parseFloat(style.getPropertyValue(`border-${side}-width`)) > 0,
 			)
 		)
+			return null;
+		if (style.textShadow !== 'none' && element instanceof SVGAElement)
 			return null;
 		if (
 			style.textShadow !== 'none' &&

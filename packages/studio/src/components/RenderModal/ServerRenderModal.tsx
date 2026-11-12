@@ -1527,6 +1527,7 @@ const RenderModal: React.FC<
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
@@ -1541,6 +1542,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('data') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
@@ -1555,6 +1557,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('picture') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -1569,6 +1572,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('audio') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -1583,6 +1587,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('gif') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
@@ -1597,6 +1602,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('encoding') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'encoding'}
 							onClick={() => setTab('encoding')}
@@ -1611,6 +1617,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('environment') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'environment'}
 							onClick={() => setTab('environment')}
@@ -1625,6 +1632,7 @@ const RenderModal: React.FC<
 					) : null}
 					{shownTabs.includes('advanced') ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}

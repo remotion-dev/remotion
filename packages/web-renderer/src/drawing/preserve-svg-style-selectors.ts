@@ -1,10 +1,10 @@
 import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
 
-// Match authored style and emptiness predicates, skipping quoted values and escapes.
+// Match authored attribute and emptiness predicates, skipping quoted values and escapes.
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
 
-export const preserveSvgStyleSelectors = ({
+export const preserveSvgAttributeSelectors = ({
 	svg,
 	authoredStyles,
 	authoredEmpty,

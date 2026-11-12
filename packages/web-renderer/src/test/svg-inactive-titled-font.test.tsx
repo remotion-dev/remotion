@@ -2,7 +2,7 @@ import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {expect, test} from 'vitest';
-import {page} from 'vitest/browser';
+import {page, server} from 'vitest/browser';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
@@ -16,7 +16,6 @@ import {
 	captureNativeReference,
 	compareNativePixels,
 	countNativePixels,
-	savePixelEvidence,
 } from './native-reference';
 
 const markers = async (blob: Blob) => {
@@ -56,9 +55,37 @@ test.for(
 		const nativeControl = await captureNativeReference(control, frame, {
 			omitBackground: false,
 		});
-		expect(
-			(await countNativePixels(reference, nativeControl)).mismatchedPixels,
-		).toBe(0);
+		const nativeControlPixels = await countNativePixels(
+			reference,
+			nativeControl,
+		);
+		if (mode === 'large') {
+			const base =
+				'src/test/__screenshots__/native-pixel-failures/svg-inactive-title-large-native-readiness/' +
+				server.browser +
+				'/' +
+				frame;
+			for (const [name, blob] of [
+				['native', reference],
+				['literal-native', nativeControl],
+			] as const) {
+				let binary = '';
+				for (const byte of new Uint8Array(await blob.arrayBuffer()))
+					binary += String.fromCharCode(byte);
+				await server.commands.writeFile(
+					base + '-' + name + '.png',
+					btoa(binary),
+					'base64',
+				);
+			}
+
+			await server.commands.writeFile(
+				base + '-comparison.json',
+				JSON.stringify(nativeControlPixels, null, 2),
+			);
+		}
+
+		expect(nativeControlPixels.mismatchedPixels).toBe(0);
 		const options = {
 			frame,
 			inputProps: {},
@@ -98,22 +125,6 @@ test.for(
 			glyphs.close();
 			canvas.width = 0;
 			canvas.height = 0;
-		}
-
-		if (mode.startsWith('empty-preferred')) {
-			const result = await compareNativePixels(expected, actual);
-			for (const [label, blob] of [
-				['native', reference],
-				['expected', expected],
-				['actual', actual],
-				['diff', result.diff],
-			] as const) {
-				await savePixelEvidence(
-					blob,
-					`empty-preferred-${mode}-${frame}-${label}`,
-					{omitBackground: false},
-				);
-			}
 		}
 
 		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(

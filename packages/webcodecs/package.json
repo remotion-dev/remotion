@@ -24,7 +24,7 @@
 		"!dist/it-tests"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@remotion/media-parser": "workspace:*"
 	},

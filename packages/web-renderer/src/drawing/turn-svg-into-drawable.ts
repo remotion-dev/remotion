@@ -6,7 +6,7 @@ import {
 } from './embed-registered-fonts-in-svg';
 import {getSvgPaintBounds} from './get-svg-paint-bounds';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
-import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
+import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -31,7 +31,10 @@ const getSvgFontElements = (svg: SVGSVGElement) => {
 		),
 	);
 	for (const element of [...elements]) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			const parent = walker.currentNode.parentElement;
 			if (
@@ -173,7 +176,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			throw error;
 		}
 
-		const baseUrl = sheet.href ?? svg.baseURI;
+		const baseUrl = sheet.href ?? sheet.ownerNode?.baseURI;
 		for (const rule of getActiveCssRules(cssRules, ownerWindow)) {
 			if (rule instanceof ownerWindow.CSSImportRule) {
 				// Layer ordering remains outside this source-selection subset.
@@ -275,7 +278,10 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const fontFamilies = new Set<string>();
 	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
 	for (const element of textElements) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			if (!walker.currentNode.textContent?.length) continue;
 			const parent = walker.currentNode.parentElement;
@@ -363,7 +369,8 @@ export const turnSvgIntoDrawable = (
 		embeddedFontStyle,
 	} = fontSnapshot ?? getSvgFontSnapshot(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
-	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+	const styles = svg.querySelectorAll('style');
+	let fontStyleIndex = Array.from(styles, (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
@@ -415,7 +422,6 @@ export const turnSvgIntoDrawable = (
 	svg.style.color = color;
 	// CSSStyleSheet.disabled is runtime state and is not serialized as markup.
 	// Neutralize rules only in a clone, preserving nodes for structural selectors.
-	const styles = svg.querySelectorAll('style');
 	const hasDisabledStyles = Array.from(styles).some(
 		(style) => style.sheet?.disabled,
 	);
@@ -457,9 +463,8 @@ export const turnSvgIntoDrawable = (
 	if (cssFontRules.length || retargetRegisteredCarrier) {
 		// CSS-backed sheets are serialized below. Registered-only snapshots may
 		// move off an empty carrier only when the chosen sheet is serialized too.
-		const originalStyles = svg.querySelectorAll('style');
-		for (let index = originalStyles.length - 1; index >= 0; index--) {
-			const style = originalStyles[index];
+		for (let index = styles.length - 1; index >= 0; index--) {
+			const style = styles[index];
 			const {sheet} = style;
 			if (!sheet) continue;
 			let ruleCount: number;
@@ -501,17 +506,20 @@ export const turnSvgIntoDrawable = (
 	const fontCarriers = usesStylesheetSets
 		? Array.from(styles, (style, index) =>
 				style.sheet &&
-				(!style.matches(':empty') || index === firstTitledCarrier)
+				(cssFontRules.length === 0 ||
+					!style.matches(':empty') ||
+					index === firstTitledCarrier)
 					? index
 					: null,
 			).filter((index) => index !== null)
 		: [fontStyleIndex];
 	if (cssFontRules.length === 0 && embeddedFontStyle !== null) {
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		for (const index of fontCarriers) {
 			const style = styles[index];
-			if (style?.sheet && !style.sheet.disabled && !style.matches(':empty')) {
+			if (style?.sheet && !style.sheet.disabled) {
 				// CSSOM drops an unterminated comment that would consume appended faces.
-				svgForSerialization.querySelectorAll('style')[index].textContent =
+				clonedStyles[index].textContent =
 					Array.from(style.sheet.cssRules, (rule) => rule.cssText).join('') ||
 					'/* Empty stylesheet rules. */';
 			}
@@ -522,7 +530,7 @@ export const turnSvgIntoDrawable = (
 		const ownerWindow = svg.ownerDocument.defaultView! as Window &
 			typeof globalThis;
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
-		svg.querySelectorAll('style').forEach((style, index) => {
+		styles.forEach((style, index) => {
 			const {sheet} = style;
 			if (!sheet || sheet.disabled) return;
 			// SVG-local rules must use the same owning-window conditions as the
@@ -548,7 +556,7 @@ export const turnSvgIntoDrawable = (
 	}
 
 	if (authoredStyles || authoredEmpty || authoredMedia)
-		preserveSvgStyleSelectors({
+		preserveSvgAttributeSelectors({
 			svg: svgForSerialization,
 			authoredStyles,
 			authoredEmpty,
