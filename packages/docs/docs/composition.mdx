@@ -89,7 +89,7 @@ See: [`calculateMetadata()`](/docs/calculate-metadata)
 
 ### `schema?`
 
-Pass a top-level [`z.object()`](https://zod.dev/?id=objects) schema which your default props must satisfy. The schema validates the props in the Remotion Studio and customizes their [visual editing controls](/docs/visual-editing). Remotion does [not validate props during rendering](/docs/schemas#validation-during-rendering).
+Pass a top-level [`z.object()`](https://zod.dev/?id=objects) schema which your default props must satisfy. The schema validates the props in the Remotion Studio and [during rendering](/docs/schemas#validation-during-rendering), and customizes their [visual editing controls](/docs/visual-editing).
 
 If omitted, the Studio [infers basic controls from `defaultProps`](/docs/default-props-inference). An explicit schema takes precedence over the inferred controls. See: [Define a schema](/docs/schemas).
 

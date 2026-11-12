@@ -62,23 +62,7 @@ export const RemotionRoot = () => {
 
 Now, the user can edit the parameter visually in the sidebar.
 
-Remotion does not enforce the schema during rendering. Invalid input props render without an error. Remotion shallowly merges input props with `defaultProps`. A nested object in the input props replaces the whole default object.
-
-To fail a render on invalid props, parse them in `calculateMetadata`:
-
-```tsx title="src/Root.tsx"
-<Composition
-  // ...
-  schema={MyCompositionSchema}
-  calculateMetadata={({ props }) => {
-    const result = MyCompositionSchema.safeParse(props);
-    if (!result.success) {
-      throw new Error(`Invalid props: ${JSON.stringify(result.error.issues)}`);
-    }
-    return { props: result.data };
-  }}
-/>
-```
+When rendering, Remotion validates the props against the schema. If they are invalid, Remotion 4 logs a warning that lists each invalid field and renders anyway. Remotion 5 fails the render. Remotion shallowly merges input props with `defaultProps`. A nested object in the input props replaces the whole default object.
 
 All schemas that are supported by Zod are supported by Remotion.
 

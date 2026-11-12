@@ -41,7 +41,7 @@ In absence of data, default props can be edited in the Remotion Studio. [Basic c
 <Step>2</Step> <strong>Input props</strong> may be specified when rendering a video to override the default props.<br/>
 <ul>
 <li>
-Input props will be shallowly merged with default props, where input props have priority. Remotion does [not validate props against the schema](/docs/schemas#validation-during-rendering) during rendering.
+Input props will be shallowly merged with default props, where input props have priority. If the composition has a schema, Remotion [validates the merged props](/docs/schemas#validation-during-rendering) during rendering.
 </li>
 </ul>
 
