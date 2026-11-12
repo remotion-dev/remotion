@@ -46,14 +46,38 @@ type TerminationSignal = 'SIGTERM' | 'SIGHUP';
 
 // Listening to a signal disables the default behavior of Node.js, which is to
 // terminate the process.
-const ownSignalListeners: Set<unknown> = ((
-	process as unknown as Record<symbol, Set<unknown>>
-)[Symbol.for('remotion.signalListeners')] ??= new Set());
-let receivedSignal: {
-	signal: TerminationSignal;
-	userHandlesSignal: boolean;
-} | null = null;
-let browsersLaunching = 0;
+type SignalState = {
+	ownListeners: Set<unknown>;
+	receivedSignal: {
+		signal: TerminationSignal;
+		userHandlesSignal: boolean;
+	} | null;
+	browsersLaunching: number;
+	removedUserListener: Set<TerminationSignal>;
+};
+
+const signalState: SignalState = ((
+	process as unknown as Record<symbol, SignalState>
+)[Symbol.for('remotion.signalState')] ??= (() => {
+	const state: SignalState = {
+		ownListeners: new Set(),
+		receivedSignal: null,
+		browsersLaunching: 0,
+		removedUserListener: new Set(),
+	};
+	// Node.js removes a process.once() listener before it calls it, so it is
+	// no longer in process.listeners() when a later listener runs.
+	process.on('removeListener', (event, listener) => {
+		if (
+			(event === 'SIGTERM' || event === 'SIGHUP') &&
+			!state.ownListeners.has(listener)
+		) {
+			state.removedUserListener.add(event);
+			setImmediate(() => state.removedUserListener.delete(event));
+		}
+	});
+	return state;
+})());
 
 const userHasSignalListener = (signal: TerminationSignal) => {
 	// execa listens to signals through `signal-exit` while a child process is
@@ -70,20 +94,24 @@ const userHasSignalListener = (signal: TerminationSignal) => {
 	].reduce((acc, e) => acc + (e?.count ?? 0), 0);
 
 	return (
-		process.listeners(signal).filter((l) => !ownSignalListeners.has(l)).length >
-		signalExitListeners
+		signalState.removedUserListener.has(signal) ||
+		process.listeners(signal).filter((l) => !signalState.ownListeners.has(l))
+			.length > signalExitListeners
 	);
 };
 
 const reraiseSignalIfAllBrowsersClosed = () => {
-	if (receivedSignal === null || receivedSignal.userHandlesSignal) {
+	if (
+		signalState.receivedSignal === null ||
+		signalState.receivedSignal.userHandlesSignal
+	) {
 		return;
 	}
 
-	const {signal} = receivedSignal;
+	const {signal} = signalState.receivedSignal;
 	if (
-		browsersLaunching > 0 ||
-		process.listeners(signal).some((l) => ownSignalListeners.has(l))
+		signalState.browsersLaunching > 0 ||
+		process.listeners(signal).some((l) => signalState.ownListeners.has(l))
 	) {
 		return;
 	}
@@ -127,7 +155,7 @@ export const makeBrowserRunner = async ({
 		);
 	}
 
-	browsersLaunching++;
+	signalState.browsersLaunching++;
 	const proc = childProcess.spawn(launch.executablePath, launch.args, {
 		// On non-windows platforms, `detached: true` makes child process a
 		// leader of a new process group, making it possible to kill child
@@ -148,7 +176,7 @@ export const makeBrowserRunner = async ({
 		});
 		transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 	} catch (err) {
-		browsersLaunching--;
+		signalState.browsersLaunching--;
 		reraiseSignalIfAllBrowsersClosed();
 		throw err;
 	}
@@ -304,24 +332,26 @@ export const makeBrowserRunner = async ({
 
 	for (const signal of ['SIGTERM', 'SIGHUP'] as const) {
 		const onSignal = () => {
-			receivedSignal = {
+			signalState.receivedSignal = {
 				signal,
 				userHandlesSignal: userHasSignalListener(signal),
 			};
 			closeProcess();
 		};
 
-		ownSignalListeners.add(onSignal);
-		// Node.js removes a process.once() listener before it calls it.
+		signalState.ownListeners.add(onSignal);
 		process.prependListener(signal, onSignal);
 		listeners.push(() => {
 			process.off(signal, onSignal);
-			ownSignalListeners.delete(onSignal);
+			signalState.ownListeners.delete(onSignal);
 		});
 	}
 
-	browsersLaunching--;
-	if (receivedSignal !== null && !receivedSignal.userHandlesSignal) {
+	signalState.browsersLaunching--;
+	if (
+		signalState.receivedSignal !== null &&
+		!signalState.receivedSignal.userHandlesSignal
+	) {
 		closeProcess();
 	}
 
