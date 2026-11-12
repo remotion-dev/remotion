@@ -119,7 +119,7 @@ locals {
 }
 ```
 
-Memory and disk space are separate settings. Use whole numbers: `512`–`10240` MB for memory and disk space, and `15`–`900` seconds for the timeout.
+Configure your Terraform variables in `infra/variables.tf`: [Region](/docs/lambda/region-selection), [Remotion version](/docs/lambda/upgrading), [Memory size](/docs/lambda/deployfunction#memorysizeinmb), [Disk size](/docs/lambda/disk-size), [Function timeout](/docs/lambda/deployfunction#timeoutinseconds).
 
 ```hcl title="infra/variables.tf"
 variable "region" {
