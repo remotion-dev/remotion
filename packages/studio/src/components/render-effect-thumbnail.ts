@@ -5,12 +5,10 @@ import type {EffectPreviewFactory} from './effect-preview-loaders';
 
 const thumbnails = new WeakMap<
 	HTMLCanvasElement,
-	{
-		source: HTMLCanvasElement;
-		images: Map<string, HTMLCanvasElement>;
-	}
+	Map<string, HTMLCanvasElement>
 >();
 let renderQueue = Promise.resolve();
+let lastYield = -Infinity;
 
 export const getCachedEffectThumbnail = (
 	snapshot: HTMLCanvasElement | null,
@@ -18,7 +16,7 @@ export const getCachedEffectThumbnail = (
 ): HTMLCanvasElement | null => {
 	return snapshot === null
 		? null
-		: (thumbnails.get(snapshot)?.images.get(effectId) ?? null);
+		: (thumbnails.get(snapshot)?.get(effectId) ?? null);
 };
 
 export const renderEffectThumbnail = ({
@@ -49,9 +47,13 @@ export const renderEffectThumbnail = ({
 			return queuedCached;
 		}
 
-		await new Promise<void>((resolve) => {
-			requestAnimationFrame(() => setTimeout(resolve, 0));
-		});
+		if (performance.now() - lastYield >= 8) {
+			await new Promise<void>((resolve) => {
+				requestAnimationFrame(() => setTimeout(resolve, 0));
+			});
+			lastYield = performance.now();
+		}
+
 		if (signal.aborted) {
 			return null;
 		}
@@ -76,21 +78,12 @@ export const renderEffectThumbnail = ({
 
 		let cache = thumbnails.get(snapshot);
 		if (!cache) {
-			const source = document.createElement('canvas');
-			source.width = snapshot.width;
-			source.height = snapshot.height;
-			const context = source.getContext('2d');
-			if (!context) {
-				return null;
-			}
-
-			context.drawImage(snapshot, 0, 0, source.width, source.height);
-			cache = {source, images: new Map()};
+			cache = new Map();
 			thumbnails.set(snapshot, cache);
 		}
 
 		const effect = factory(getEffectPickerConfig(item));
-		const {width, height} = cache.source;
+		const {width, height} = snapshot;
 		const state = Internals.createEffectChainState(width, height);
 		const output = document.createElement('canvas');
 		output.width = width;
@@ -98,7 +91,7 @@ export const renderEffectThumbnail = ({
 		try {
 			const completed = await Internals.runEffectChain({
 				state,
-				source: cache.source,
+				source: snapshot,
 				effects: [{...effect, memoized: true}],
 				output,
 				width,
@@ -108,7 +101,6 @@ export const renderEffectThumbnail = ({
 				return null;
 			}
 
-			// Pixel-based effects must run at the same resolution as hover/insertion.
 			const thumbnail = document.createElement('canvas');
 			const scale = Math.min(1, 320 / Math.max(width, height));
 			thumbnail.width = Math.max(1, Math.round(width * scale));
@@ -119,7 +111,7 @@ export const renderEffectThumbnail = ({
 			}
 
 			context.drawImage(output, 0, 0, thumbnail.width, thumbnail.height);
-			cache.images.set(item.id, thumbnail);
+			cache.set(item.id, thumbnail);
 			return thumbnail;
 		} finally {
 			Internals.cleanupEffectChainState(state);
