@@ -1,7 +1,5 @@
 # Remotion Codex Plugin
 
-![Remotion](./assets/icon.png)
-
 The official [Remotion](https://www.remotion.dev/) Agent Plugin.
 
 - **Make videos agentically**: Turn your idea into a video using your agent.
