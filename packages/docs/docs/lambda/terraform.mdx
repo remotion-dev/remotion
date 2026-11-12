@@ -6,11 +6,14 @@ slug: /lambda/terraform
 crumb: '@remotion/lambda'
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.543" />
 
 You can deploy Remotion Lambda using [Terraform](https://developer.hashicorp.com/terraform). This guide provisions the function, IAM role and policies, CloudWatch log group, S3 bucket, and Remotion [site](/docs/terminology/serve-url).
 
-Remotion publishes regional manifests containing the function ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime). Terraform reads the manifest and uploads your prebuilt site. Building the bundle is the only deployment step that uses the Remotion CLI.
+Remotion publishes regional manifests containing the function ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime). Terraform reads the manifest and uploads your prebuilt site. Build the bundle using the Remotion CLI or Node.js before deploying with Terraform.
 
 ## Prerequisites
 
@@ -24,11 +27,41 @@ Use the same Remotion version for your project and Lambda function. Hosted artif
 
 From your Remotion project, build a [Remotion Bundle](/docs/terminology/bundle):
 
+<Tabs defaultValue="cli">
+<TabItem value="cli" label="CLI">
+
 ```sh title="Build the site"
 bunx remotion bundle src/index.ts --out-dir=build --public-path=./
 ```
 
-Replace the entry point with your own. [`--public-path=./`](/docs/cli/bundle#--public-path) makes asset URLs relative to the bundle, so JavaScript chunks and [`staticFile()`](/docs/staticfile) assets resolve under whichever `sites/<site_name>/` prefix Terraform uses. Passing it explicitly also overrides a public path set in `remotion.config.ts`.
+The [`--public-path` flag](/docs/cli/bundle#--public-path) overrides a public path set in `remotion.config.ts`.
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+Install `@remotion/bundler` at the same version as your other Remotion packages, then use [`bundle()`](/docs/bundle):
+
+```ts twoslash title="bundle.mjs"
+import path from 'node:path';
+import {bundle} from '@remotion/bundler';
+
+await bundle({
+  entryPoint: path.resolve('src/index.ts'),
+  outDir: path.resolve('build'),
+  publicPath: './',
+});
+```
+
+```sh title="Run the build script"
+node bundle.mjs
+```
+
+Pass any bundler overrides from your project configuration to `bundle()` as well.
+
+</TabItem>
+</Tabs>
+
+Replace the entry point with your own. Both examples write to `build/` and use a relative public path (`./`), so JavaScript chunks and [`staticFile()`](/docs/staticfile) assets resolve under whichever `sites/<site_name>/` prefix Terraform uses.
 
 Put the following Terraform files in an `infra/` directory next to `build/`.
 
