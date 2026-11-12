@@ -13,6 +13,7 @@ import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
+import {CodeChangeModal} from './CodeChangeModal';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {
 	ElementInstallConfirmation,
@@ -422,6 +423,17 @@ export const Modals: React.FC<{
 					initialSampleRate={modalContextType.initialSampleRate}
 					initialChromeMode={modalContextType.initialChromeMode}
 					renderDefaults={modalContextType.renderDefaults}
+				/>
+			) : null}
+
+			{modalContextType?.type === 'export-opentimeline' ? (
+				<CodeChangeModal
+					title="Export as OpenTimeline"
+					description="Export this composition as an OpenTimelineIO timeline, for use with DaVinci Resolve or Adobe Premiere. Unsupported elements are prerendered."
+					prompt={`/remotion-render Export "${modalContextType.compositionId}" as .otio`}
+					skillId="remotion-render"
+					sources={[]}
+					sourceStatus={null}
 				/>
 			) : null}
 
