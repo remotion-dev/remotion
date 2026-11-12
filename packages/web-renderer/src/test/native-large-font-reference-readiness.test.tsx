@@ -91,7 +91,7 @@ test('captures committed cold large-font native content before screenshotting', 
 		).mismatchedPixels;
 		const afterAll = fonts();
 		const base =
-			'validation/native-large-font-reference-readiness/' +
+			'src/test/__screenshots__/native-pixel-failures/native-large-font-reference-readiness/' +
 			server.browser +
 			'/';
 		for (const [name, image] of images) {

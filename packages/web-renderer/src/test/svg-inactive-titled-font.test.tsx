@@ -61,7 +61,7 @@ test.for(
 		);
 		if (mode === 'large') {
 			const base =
-				'validation/svg-inactive-title-large-native-readiness/' +
+				'src/test/__screenshots__/native-pixel-failures/svg-inactive-title-large-native-readiness/' +
 				server.browser +
 				'/' +
 				frame;
