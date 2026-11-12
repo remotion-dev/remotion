@@ -13,6 +13,7 @@ import {
 import * as recast from 'recast';
 import {parseAst} from '../../codemods/parse-ast';
 import {reorderElementLibraries} from '../../codemods/reorder-element-libraries';
+import {updateElementLibrary} from '../../codemods/update-element-library';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {getAvailableEditors} from '../../helpers/editor-registry';
 import type {ApiHandler} from '../api-types';
@@ -75,6 +76,25 @@ const validateUpdates = (updates: unknown): string | null => {
 		}
 
 		setters.add(setter);
+		if (type === 'update') {
+			if (
+				setter !== 'addElementLibrary' ||
+				updates.length !== 1 ||
+				normalizeHttpUrl(update.previousUrl) === null ||
+				typeof update.value !== 'object' ||
+				update.value === null ||
+				Array.isArray(update.value) ||
+				normalizeHttpUrl(update.value.url) === null ||
+				(update.value.displayName !== null &&
+					(typeof update.value.displayName !== 'string' ||
+						update.value.displayName.trim() === ''))
+			) {
+				return 'Updating an Element Library requires its previous URL, an HTTP or HTTPS URL, and a name or null.';
+			}
+
+			continue;
+		}
+
 		if (type === 'reorder') {
 			if (
 				setter !== 'addElementLibrary' ||
@@ -180,6 +200,16 @@ export const updateConfigFile = ({
 	readonly existingElementLibraryUrls: readonly string[];
 	readonly updates: ConfigUpdate[];
 }) => {
+	const edit = updates.find((update) => update.type === 'update');
+	if (edit?.type === 'update') {
+		return updateElementLibrary({
+			configContents,
+			previousUrl: edit.previousUrl,
+			...edit.value,
+			existingUrls: existingElementLibraryUrls,
+		});
+	}
+
 	const reorder = updates.find((update) => update.type === 'reorder');
 	if (reorder?.type === 'reorder') {
 		return reorderElementLibraries(configContents, reorder.value);

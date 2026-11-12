@@ -1,4 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
+import type {StudioElementLibrary} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -30,6 +31,7 @@ import {
 import {ContextMenu} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {ElementLibrariesSettings} from './ElementLibrariesSettings';
+import {ElementLibraryDialog} from './ElementLibraryDialog';
 import {ElementLibraryFrame} from './ElementLibraryFrame';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
@@ -146,6 +148,10 @@ export const ElementLibraryModal: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const [iframeUrl, setIframeUrl] = useState('');
+	const [libraryDialog, setLibraryDialog] = useState<{
+		library: StudioElementLibrary | null;
+	} | null>(null);
+	const closeLibraryDialog = useCallback(() => setLibraryDialog(null), []);
 	const draggedLibrary = useRef<string | null>(null);
 	const [dropTarget, setDropTarget] = useState<{
 		url: string;
@@ -251,7 +257,21 @@ export const ElementLibraryModal: React.FC<{
 			sidebarWidth={sidebarSize?.width ?? null}
 		>
 			<div style={horizontalLayout}>
-				<nav ref={sidebarRef} style={sidebar} aria-label="Element libraries">
+				<nav
+					ref={sidebarRef}
+					style={sidebar}
+					aria-label="Element libraries"
+					onContextMenu={(event) => {
+						if (
+							!canManageLibraries ||
+							(event.target instanceof Element &&
+								event.target.closest('button'))
+						)
+							return;
+						event.preventDefault();
+						setLibraryDialog({library: null});
+					}}
+				>
 					<VerticalTab
 						draggable={false}
 						style={tabStyle}
@@ -365,6 +385,18 @@ export const ElementLibraryModal: React.FC<{
 											return [
 												{
 													type: 'item',
+													id: 'edit-library',
+													value: 'edit-library',
+													label: 'Edit library…',
+													keyHint: null,
+													leftItem: null,
+													subMenu: null,
+													quickSwitcherLabel: null,
+													onClick: () => setLibraryDialog({library}),
+												},
+												{type: 'divider', id: 'edit-library-divider'},
+												{
+													type: 'item',
 													id: 'move-library-up',
 													value: 'move-library-up',
 													label: 'Move up',
@@ -475,6 +507,12 @@ export const ElementLibraryModal: React.FC<{
 					)}
 				</div>
 			</div>
+			{libraryDialog === null ? null : (
+				<ElementLibraryDialog
+					library={libraryDialog.library}
+					onClose={closeLibraryDialog}
+				/>
+			)}
 			{installState === null ? null : (
 				<ElementInstallConfirmation state={installState} />
 			)}

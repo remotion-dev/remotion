@@ -1597,6 +1597,12 @@ export type ConfigValue =
 export type ConfigUpdate =
 	| {
 			setter: 'addElementLibrary';
+			type: 'update';
+			previousUrl: string;
+			value: {url: string; displayName: string | null};
+	  }
+	| {
+			setter: 'addElementLibrary';
 			type: 'reorder';
 			value: string[];
 	  }

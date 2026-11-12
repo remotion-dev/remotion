@@ -4,6 +4,22 @@ export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
 export const THIRD_PARTY_ELEMENTS_URL =
 	'https://www.remotion.dev/elements/libraries';
 
+export const isElementLibraryUpdateApplied = (
+	previousUrl: string,
+	library: StudioElementLibrary,
+	libraries: readonly StudioElementLibrary[],
+): boolean => {
+	return (
+		libraries.some(
+			(current) =>
+				current.url === library.url &&
+				current.displayName === library.displayName,
+		) &&
+		(previousUrl === library.url ||
+			!libraries.some((current) => current.url === previousUrl))
+	);
+};
+
 export const isElementLibraryOrderApplied = (
 	order: readonly string[],
 	libraries: readonly StudioElementLibrary[],

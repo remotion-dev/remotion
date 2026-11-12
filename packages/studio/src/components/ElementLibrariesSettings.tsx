@@ -1,19 +1,23 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {CURRENT_COLOR, LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
 import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
 import {BookIcon} from '../icons/book';
 import {LinkIcon} from '../icons/link';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
+import {ElementLibraryDialog} from './ElementLibraryDialog';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {InlineAction} from './InlineAction';
 import {sectionHeader} from './InspectorPanel/styles';
-import {RemotionInput} from './NewComposition/RemInput';
-import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 
 const container: React.CSSProperties = {
@@ -80,7 +84,13 @@ const libraryName: React.CSSProperties = {
 };
 
 const libraryUrlStyle: React.CSSProperties = {
-	cursor: 'pointer',
+	...hoverableStyle({
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+	}),
+	cursor: 'default',
 	fontSize: 12,
 	maxWidth: '100%',
 	minWidth: 0,
@@ -91,21 +101,6 @@ const libraryUrlStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const inputRow: React.CSSProperties = {
-	display: 'flex',
-	gap: 8,
-	padding: '4px 16px',
-};
-
-const input: React.CSSProperties = {
-	flex: 1,
-	minWidth: 0,
-};
-
-const message: React.CSSProperties = {
-	padding: '4px 16px',
-};
-
 const trashIcon: React.CSSProperties = {
 	height: 14,
 	width: 14,
@@ -113,51 +108,12 @@ const trashIcon: React.CSSProperties = {
 
 export const ElementLibrariesSettings: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {studioRuntimeConfig, addElementLibrary, removeElementLibrary} =
-		useSettings();
+	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const [url, setUrl] = useState('');
-	const [displayName, setDisplayName] = useState('');
-	const [busy, setBusy] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
-	const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
 	const [isAddByUrlVisible, setIsAddByUrlVisible] = useState(false);
 	const libraries = studioRuntimeConfig?.elementLibraries ?? [];
-	let normalizedUrl: string | null = null;
-	try {
-		const parsedUrl = new URL(url.trim());
-		if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-			normalizedUrl = parsedUrl.href;
-		}
-	} catch {
-		// Keep the Add button disabled until a valid URL is entered.
-	}
-
-	const duplicate = libraries.some((library) => library.url === normalizedUrl);
-	const canSave = previewServerState.type === 'connected' && busy === null;
-	const addLibrary = useCallback(async () => {
-		if (!canSave || normalizedUrl === null || duplicate) {
-			return;
-		}
-
-		setBusy('add');
-		setError(null);
-		try {
-			const success = await addElementLibrary({
-				url: normalizedUrl,
-				displayName: displayName.trim() || null,
-				captionStylesUrl: null,
-			});
-			if (!success) return;
-
-			setUrl('');
-			setDisplayName('');
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setBusy(null);
-		}
-	}, [addElementLibrary, canSave, displayName, duplicate, normalizedUrl]);
+	const canSave = previewServerState.type === 'connected';
+	const closeAddDialog = useCallback(() => setIsAddByUrlVisible(false), []);
 
 	const renderTrash = useCallback((color: string) => {
 		return <TrashIcon color={color} style={trashIcon} />;
@@ -188,14 +144,10 @@ export const ElementLibrariesSettings: React.FC = () => {
 							<div style={libraryName}>{getElementLibraryLabel(library)}</div>
 							<a
 								href={library.url}
+								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{
-									...libraryUrlStyle,
-									color: hoveredUrl === library.url ? WHITE : LIGHT_TEXT,
-								}}
-								onMouseEnter={() => setHoveredUrl(library.url)}
-								onMouseLeave={() => setHoveredUrl(null)}
+								style={libraryUrlStyle}
 							>
 								{library.url.replace(/^https?:\/\//, '')}
 							</a>
@@ -245,51 +197,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 				</Button>
 			</div>
 			{isAddByUrlVisible ? (
-				<>
-					<div style={inputRow}>
-						<RemotionInput
-							aria-label="Element Library URL"
-							placeholder="https://example.com/elements"
-							status="ok"
-							rightAlign={false}
-							style={input}
-							value={url}
-							onChange={(event) => setUrl(event.target.value)}
-						/>
-						<RemotionInput
-							aria-label="Element Library name"
-							placeholder="Name (optional)"
-							status="ok"
-							rightAlign={false}
-							style={input}
-							value={displayName}
-							onChange={(event) => setDisplayName(event.target.value)}
-						/>
-					</div>
-					<div style={inputRow}>
-						<Button
-							disabled={!canSave || normalizedUrl === null || duplicate}
-							onClick={addLibrary}
-							size="compact"
-						>
-							{busy === 'add' ? 'Adding…' : '+ Add Element Library'}
-						</Button>
-					</div>
-					{duplicate ? (
-						<div style={message}>
-							<ValidationMessage
-								align="flex-start"
-								type="warning"
-								message="This library is already added."
-							/>
-						</div>
-					) : null}
-				</>
-			) : null}
-			{error ? (
-				<div style={message}>
-					<ValidationMessage align="flex-start" type="error" message={error} />
-				</div>
+				<ElementLibraryDialog library={null} onClose={closeAddDialog} />
 			) : null}
 		</section>
 	);
