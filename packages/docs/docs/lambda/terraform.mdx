@@ -19,7 +19,7 @@ Remotion publishes regional manifests containing the function ZIP location, chec
 
 - Install [Terraform](https://developer.hashicorp.com/terraform/install) and create a [Remotion project](/docs).
 - Configure [AWS credentials for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration). The deployment identity needs permission to manage IAM roles and policies, pass the execution role, manage Lambda functions and their runtime and invocation settings, and manage S3 buckets, objects, and CloudWatch log groups.
-- If your account blocks public S3 policies or ACLs, configure its [account-level settings with Terraform](#account-level-s3-public-access).
+- Disable [account-level S3 Block Public Access](https://docs.aws.amazon.com/AmazonS3/latest/userguide/configuring-block-public-access-account.html).
 
 Use the same Remotion version for your project and Lambda function. Hosted artifacts are available from `4.0.543` in [supported regions](/docs/lambda/region-selection), except [AWS China regions](/docs/lambda/aws-china-regions).
 
@@ -165,23 +165,6 @@ memory_size_mb  = 3008
 disk_size_mb    = 2048
 timeout_seconds = 240
 ```
-
-### Account-level S3 public access
-
-Terraform can manage these settings using [`aws_s3_account_public_access_block`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). S3 applies the most restrictive account and bucket settings, so the bucket configuration below cannot override an account-level block.
-
-If needed, apply the following in your account's Terraform configuration before deploying Remotion:
-
-```hcl title="Account-level Terraform configuration"
-resource "aws_s3_account_public_access_block" "account" {
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-```
-
-These settings affect all S3 buckets in the account. Manage this resource once per account; update the existing resource if another Terraform configuration already owns it. The Terraform identity needs `s3:GetAccountPublicAccessBlock` and `s3:PutAccountPublicAccessBlock` permissions. [Organization-level S3 policies](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html) can still enforce a public-access block.
 
 ### Bucket
 
