@@ -13,7 +13,7 @@ export const getInputProps = (
 	logLevel: LogLevel,
 ): Record<string, unknown> => {
 	const rawProps = propsOption.getValue({commandLine: parsedCli}).value;
-	if (!rawProps) {
+	if (rawProps === null) {
 		return {};
 	}
 
