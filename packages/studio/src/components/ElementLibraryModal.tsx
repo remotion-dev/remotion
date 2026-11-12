@@ -29,7 +29,7 @@ import {
 } from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {ConfirmationDialog} from './ConfirmationDialog';
-import {ContextMenu} from './ContextMenu';
+import {ContextMenu, ContextMenuForTarget} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {ElementLibraryDialog} from './ElementLibraryDialog';
 import {ElementLibraryFrame} from './ElementLibraryFrame';
@@ -239,22 +239,33 @@ export const ElementLibraryModal: React.FC<{
 			rightAction={null}
 			sidebarWidth={sidebarSize?.width ?? null}
 		>
+			<ContextMenuForTarget
+				triggerRef={sidebarRef}
+				getItems={(event): ComboboxValue[] | false => {
+					if (
+						!canManageLibraries ||
+						(event.target instanceof Element && event.target.closest('button'))
+					) {
+						return false;
+					}
+
+					return [
+						{
+							type: 'item',
+							id: 'add-library',
+							value: 'add-library',
+							label: 'Add library…',
+							keyHint: null,
+							leftItem: null,
+							subMenu: null,
+							quickSwitcherLabel: null,
+							onClick: () => setLibraryDialog({library: null}),
+						},
+					];
+				}}
+			/>
 			<div style={horizontalLayout}>
-				<nav
-					ref={sidebarRef}
-					style={sidebar}
-					aria-label="Element libraries"
-					onContextMenu={(event) => {
-						if (
-							!canManageLibraries ||
-							(event.target instanceof Element &&
-								event.target.closest('button'))
-						)
-							return;
-						event.preventDefault();
-						setLibraryDialog({library: null});
-					}}
-				>
+				<nav ref={sidebarRef} style={sidebar} aria-label="Element libraries">
 					<VerticalTab
 						draggable={false}
 						style={tabStyle}
