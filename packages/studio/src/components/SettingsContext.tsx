@@ -1,8 +1,10 @@
 import type {
+	ConfigUpdate,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 	GetRemotionSkillsInfoResponse,
 	RenderDefaults,
+	StudioElementLibrary,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import React, {
@@ -16,6 +18,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {isElementLibraryOrderApplied} from '../helpers/element-libraries';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {
 	appSelectedEvent,
@@ -43,7 +46,11 @@ type SettingsContextValue = {
 	readonly showDiagnostics: boolean;
 	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
+	readonly addElementLibrary: (
+		library: StudioElementLibrary,
+	) => Promise<boolean>;
 	readonly removeElementLibrary: (url: string) => Promise<void>;
+	readonly reorderElementLibraries: (urls: readonly string[]) => Promise<void>;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
 	readonly upgradeSkill: (skill: string) => Promise<void>;
@@ -68,7 +75,9 @@ export const SettingsProvider: React.FC<{
 			| 'upgradeSkill'
 			| 'showDiagnostics'
 			| 'setShowDiagnostics'
+			| 'addElementLibrary'
 			| 'removeElementLibrary'
+			| 'reorderElementLibraries'
 		>
 	>({
 		codingAgentInfo: null,
@@ -90,9 +99,120 @@ export const SettingsProvider: React.FC<{
 	const studioRuntimeConfigRef = useRef(settings.studioRuntimeConfig);
 	studioRuntimeConfigRef.current = settings.studioRuntimeConfig;
 	const elementLibraryRemovals = useRef(new Map<string, {saved: boolean}>());
+	const elementLibraryAdditions = useRef(
+		new Map<string, {library: StudioElementLibrary; saved: boolean}>(),
+	);
+	const [addedElementLibraries, setAddedElementLibraries] = useState<
+		StudioElementLibrary[]
+	>([]);
+	const elementLibraryOrder = useRef<{urls: string[]; saved: boolean} | null>(
+		null,
+	);
+	const [orderedElementLibraryUrls, setOrderedElementLibraryUrls] = useState<
+		string[] | null
+	>(null);
+	const elementLibrarySaveQueue = useRef<Promise<unknown>>(Promise.resolve());
+	const saveElementLibraryUpdates = useCallback(
+		(updates: ConfigUpdate[]) => {
+			if (previewServerState.type !== 'connected') {
+				return Promise.reject(new Error('Studio is disconnected.'));
+			}
+
+			const save = elementLibrarySaveQueue.current.then(() =>
+				callApi('/api/update-config', {
+					clientId: previewServerState.clientId,
+					updates,
+				}),
+			);
+			elementLibrarySaveQueue.current = save.catch(() => {});
+			return save;
+		},
+		[previewServerState],
+	);
 	const [removedElementLibraryUrls, setRemovedElementLibraryUrls] = useState<
 		string[]
 	>([]);
+	const addElementLibrary = useCallback(
+		async (library: StudioElementLibrary) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				})
+			)
+				return false;
+
+			if (
+				!elementLibraryRemovals.current.has(library.url) &&
+				(elementLibraryAdditions.current.has(library.url) ||
+					studioRuntimeConfigRef.current?.elementLibraries.some(
+						(existing) => existing.url === library.url,
+					))
+			)
+				return true;
+
+			elementLibraryRemovals.current.delete(library.url);
+			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
+			const request = {library, saved: false};
+			elementLibraryAdditions.current.set(library.url, request);
+			setAddedElementLibraries(
+				[...elementLibraryAdditions.current.values()].map(
+					(entry) => entry.library,
+				),
+			);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{
+						setter: 'addElementLibrary',
+						type: 'set',
+						value: {
+							url: library.url,
+							...(library.displayName === null
+								? {}
+								: {displayName: library.displayName}),
+							...(library.captionStylesUrl === null
+								? {}
+								: {captionStylesUrl: library.captionStylesUrl}),
+						},
+					},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryAdditions.current.get(library.url) !== request)
+					return true;
+				request.saved = true;
+				if (
+					studioRuntimeConfigRef.current?.elementLibraries.some(
+						(existing) => existing.url === library.url,
+					)
+				) {
+					elementLibraryAdditions.current.delete(library.url);
+					setAddedElementLibraries(
+						[...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+					);
+				}
+
+				return true;
+			} catch (err) {
+				if (elementLibraryAdditions.current.get(library.url) !== request)
+					return false;
+				elementLibraryAdditions.current.delete(library.url);
+				setAddedElementLibraries(
+					[...elementLibraryAdditions.current.values()].map(
+						(entry) => entry.library,
+					),
+				);
+				showNotification(
+					`Could not add element library: ${(err as Error).message}`,
+					5000,
+				);
+				return false;
+			}
+		},
+		[previewServerState.type, saveElementLibraryUpdates],
+	);
 	const removeElementLibrary = useCallback(
 		async (url: string) => {
 			if (
@@ -103,9 +223,10 @@ export const SettingsProvider: React.FC<{
 				}) ||
 				previewServerState.type !== 'connected' ||
 				elementLibraryRemovals.current.has(url) ||
-				!studioRuntimeConfigRef.current?.elementLibraries.some(
-					(library) => library.url === url,
-				)
+				(!elementLibraryAdditions.current.has(url) &&
+					!studioRuntimeConfigRef.current?.elementLibraries.some(
+						(library) => library.url === url,
+					))
 			) {
 				return;
 			}
@@ -114,10 +235,9 @@ export const SettingsProvider: React.FC<{
 			elementLibraryRemovals.current.set(url, request);
 			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
 			try {
-				const response = await callApi('/api/update-config', {
-					clientId: previewServerState.clientId,
-					updates: [{setter: 'addElementLibrary', type: 'delete', value: url}],
-				});
+				const response = await saveElementLibraryUpdates([
+					{setter: 'addElementLibrary', type: 'delete', value: url},
+				]);
 				if (!response.success) throw new Error(response.reason);
 				if (elementLibraryRemovals.current.get(url) !== request) return;
 				request.saved = true;
@@ -143,7 +263,70 @@ export const SettingsProvider: React.FC<{
 				);
 			}
 		},
-		[previewServerState],
+		[previewServerState, saveElementLibraryUpdates],
+	);
+	const reorderElementLibraries = useCallback(
+		async (urls: readonly string[]) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				})
+			)
+				return;
+
+			const currentUrls = [
+				...new Set(
+					[
+						...(studioRuntimeConfigRef.current?.elementLibraries ?? []),
+						...[...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+					]
+						.filter(
+							(library) => !elementLibraryRemovals.current.has(library.url),
+						)
+						.map((library) => library.url),
+				),
+			];
+			if (
+				urls.length !== currentUrls.length ||
+				new Set(urls).size !== urls.length ||
+				currentUrls.some((url) => !urls.includes(url))
+			)
+				return;
+
+			const request = {urls: [...urls], saved: false};
+			elementLibraryOrder.current = request;
+			setOrderedElementLibraryUrls(request.urls);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{setter: 'addElementLibrary', type: 'reorder', value: request.urls},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryOrder.current !== request) return;
+				request.saved = true;
+				if (
+					isElementLibraryOrderApplied(
+						urls,
+						studioRuntimeConfigRef.current?.elementLibraries ?? [],
+					)
+				) {
+					elementLibraryOrder.current = null;
+					setOrderedElementLibraryUrls(null);
+				}
+			} catch (err) {
+				if (elementLibraryOrder.current !== request) return;
+				elementLibraryOrder.current = null;
+				setOrderedElementLibraryUrls(null);
+				showNotification(
+					`Could not reorder element libraries: ${(err as Error).message}`,
+					5000,
+				);
+			}
+		},
+		[previewServerState.type, saveElementLibraryUpdates],
 	);
 	const diagnosticsSave = useRef<{
 		value: boolean;
@@ -315,6 +498,36 @@ export const SettingsProvider: React.FC<{
 			}
 
 			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			for (const [url, addition] of elementLibraryAdditions.current) {
+				if (
+					addition.saved &&
+					event.studioRuntimeConfig.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryAdditions.current.delete(url);
+				}
+			}
+
+			setAddedElementLibraries((current) =>
+				current.length === elementLibraryAdditions.current.size
+					? current
+					: [...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+			);
+			const order = elementLibraryOrder.current;
+			if (
+				order?.saved &&
+				isElementLibraryOrderApplied(
+					order.urls,
+					event.studioRuntimeConfig.elementLibraries,
+				)
+			) {
+				elementLibraryOrder.current = null;
+				setOrderedElementLibraryUrls(null);
+			}
+
 			for (const [url, removal] of elementLibraryRemovals.current) {
 				if (
 					removal.saved &&
@@ -367,6 +580,24 @@ export const SettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (elementLibraryAdditions.current.size > 0) {
+					elementLibraryAdditions.current.clear();
+					setAddedElementLibraries([]);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
+				if (elementLibraryOrder.current !== null) {
+					elementLibraryOrder.current = null;
+					setOrderedElementLibraryUrls(null);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
 				if (elementLibraryRemovals.current.size > 0) {
 					elementLibraryRemovals.current.clear();
 					setRemovedElementLibraryUrls([]);
@@ -474,19 +705,42 @@ export const SettingsProvider: React.FC<{
 		[changeSkill],
 	);
 	const value = useMemo<SettingsContextValue>(() => {
+		let {studioRuntimeConfig} = settings;
+		if (
+			studioRuntimeConfig &&
+			(orderedElementLibraryUrls !== null ||
+				addedElementLibraries.length > 0 ||
+				removedElementLibraryUrls.length > 0)
+		) {
+			const libraries = [
+				...new Map(
+					[
+						...studioRuntimeConfig.elementLibraries,
+						...addedElementLibraries,
+					].map((library) => [library.url, library]),
+				).values(),
+			];
+			const order = new Map(
+				orderedElementLibraryUrls?.map((url, index) => [url, index]),
+			);
+			studioRuntimeConfig = {
+				...studioRuntimeConfig,
+				elementLibraries: libraries
+					.filter((library) => !removedElementLibraryUrls.includes(library.url))
+					.sort(
+						(a, b) =>
+							(order.get(a.url) ?? order.size) -
+							(order.get(b.url) ?? order.size),
+					),
+			};
+		}
+
 		return {
 			...settings,
-			studioRuntimeConfig:
-				settings.studioRuntimeConfig && removedElementLibraryUrls.length > 0
-					? {
-							...settings.studioRuntimeConfig,
-							elementLibraries:
-								settings.studioRuntimeConfig.elementLibraries.filter(
-									(library) => !removedElementLibraryUrls.includes(library.url),
-								),
-						}
-					: settings.studioRuntimeConfig,
+			studioRuntimeConfig,
+			addElementLibrary,
 			removeElementLibrary,
+			reorderElementLibraries,
 			showDiagnostics:
 				showDiagnosticsPreview ??
 				settings.studioRuntimeConfig?.showDiagnostics.value ??
@@ -505,8 +759,12 @@ export const SettingsProvider: React.FC<{
 		upgradeSkill,
 		showDiagnosticsPreview,
 		setShowDiagnostics,
+		addElementLibrary,
+		addedElementLibraries,
 		removeElementLibrary,
 		removedElementLibraryUrls,
+		orderedElementLibraryUrls,
+		reorderElementLibraries,
 	]);
 
 	return (

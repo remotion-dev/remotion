@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {BookIcon} from '../icons/book';
 import {LinkIcon} from '../icons/link';
@@ -8,17 +9,12 @@ import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
-import {callApi} from './call-api';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {InlineAction} from './InlineAction';
 import {sectionHeader} from './InspectorPanel/styles';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
-
-export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
-export const THIRD_PARTY_ELEMENTS_URL =
-	'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
@@ -117,7 +113,8 @@ const trashIcon: React.CSSProperties = {
 
 export const ElementLibrariesSettings: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
+	const {studioRuntimeConfig, addElementLibrary, removeElementLibrary} =
+		useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [url, setUrl] = useState('');
 	const [displayName, setDisplayName] = useState('');
@@ -125,9 +122,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
 	const [isAddByUrlVisible, setIsAddByUrlVisible] = useState(false);
-	const libraries = (studioRuntimeConfig?.elementLibraries ?? []).filter(
-		(library) => library.url !== REMOTION_ELEMENTS_URL,
-	);
+	const libraries = studioRuntimeConfig?.elementLibraries ?? [];
 	let normalizedUrl: string | null = null;
 	try {
 		const parsedUrl = new URL(url.trim());
@@ -138,9 +133,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 		// Keep the Add button disabled until a valid URL is entered.
 	}
 
-	const duplicate =
-		normalizedUrl === REMOTION_ELEMENTS_URL ||
-		libraries.some((library) => library.url === normalizedUrl);
+	const duplicate = libraries.some((library) => library.url === normalizedUrl);
 	const canSave = previewServerState.type === 'connected' && busy === null;
 	const addLibrary = useCallback(async () => {
 		if (!canSave || normalizedUrl === null || duplicate) {
@@ -150,22 +143,12 @@ export const ElementLibrariesSettings: React.FC = () => {
 		setBusy('add');
 		setError(null);
 		try {
-			const response = await callApi('/api/update-config', {
-				clientId: previewServerState.clientId,
-				updates: [
-					{
-						setter: 'addElementLibrary',
-						type: 'set',
-						value: displayName.trim()
-							? {url: normalizedUrl, displayName: displayName.trim()}
-							: {url: normalizedUrl},
-					},
-				],
+			const success = await addElementLibrary({
+				url: normalizedUrl,
+				displayName: displayName.trim() || null,
+				captionStylesUrl: null,
 			});
-			if (!response.success) {
-				setError(response.reason);
-				return;
-			}
+			if (!success) return;
 
 			setUrl('');
 			setDisplayName('');
@@ -174,7 +157,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 		} finally {
 			setBusy(null);
 		}
-	}, [canSave, displayName, duplicate, normalizedUrl, previewServerState]);
+	}, [addElementLibrary, canSave, displayName, duplicate, normalizedUrl]);
 
 	const renderTrash = useCallback((color: string) => {
 		return <TrashIcon color={color} style={trashIcon} />;
@@ -194,30 +177,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 				Add libraries to browse their elements in Studio.
 			</p>
 			<div role="list" aria-label="Element Libraries">
-				<div role="listitem" style={libraryRow}>
-					<ElementLibraryIcon
-						url={REMOTION_ELEMENTS_URL}
-						color={LIGHT_TEXT}
-						size={22}
-					/>
-					<div style={libraryDetails}>
-						<div style={libraryName}>Remotion Elements</div>
-						<a
-							href={REMOTION_ELEMENTS_URL}
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{
-								...libraryUrlStyle,
-								color:
-									hoveredUrl === REMOTION_ELEMENTS_URL ? WHITE : LIGHT_TEXT,
-							}}
-							onMouseEnter={() => setHoveredUrl(REMOTION_ELEMENTS_URL)}
-							onMouseLeave={() => setHoveredUrl(null)}
-						>
-							{REMOTION_ELEMENTS_URL.replace(/^https?:\/\//, '')}
-						</a>
-					</div>
-				</div>
 				{libraries.map((library) => (
 					<div key={library.url} role="listitem" style={libraryRow}>
 						<ElementLibraryIcon

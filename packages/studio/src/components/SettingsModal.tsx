@@ -179,6 +179,7 @@ export const SettingsModal: React.FC<{
 					<div style={settingsLeftSidebar}>
 						{availableTabs.includes('studio') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'studio' && studioPane === 'general'}
 								onClick={() => {
@@ -196,6 +197,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('rendering') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'rendering'}
 								onClick={() => selectTab('rendering')}
@@ -209,6 +211,7 @@ export const SettingsModal: React.FC<{
 							</VerticalTab>
 						) : null}
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'shortcuts'}
 							onClick={() => selectTab('shortcuts')}
@@ -222,6 +225,7 @@ export const SettingsModal: React.FC<{
 						</VerticalTab>
 						{availableTabs.includes('packages') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'packages'}
 								onClick={() => selectTab('packages')}
@@ -236,6 +240,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('skills') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'skills'}
 								onClick={() => selectTab('skills')}
@@ -250,6 +255,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('studio') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'studio' && studioPane === 'elements'}
 								onClick={() => {
@@ -267,6 +273,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('models') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'models'}
 								onClick={() => selectTab('models')}
@@ -281,6 +288,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('apps') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'apps'}
 								onClick={() => selectTab('apps')}
@@ -295,6 +303,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('license') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'license'}
 								onClick={() => selectTab('license')}
@@ -309,6 +318,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('updates') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'updates'}
 								onClick={() => selectTab('updates')}

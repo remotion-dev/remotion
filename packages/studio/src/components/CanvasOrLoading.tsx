@@ -8,6 +8,7 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, WHITE} from '../helpers/colors';
 import {getRoute} from '../helpers/url-state';
+import {useBrowseElements} from '../helpers/use-browse-elements';
 import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
 import {BrowseElementsIcon} from '../icons/browse-elements';
 import {SearchIcon} from '../icons/search';
@@ -62,6 +63,7 @@ const welcomeLabel: React.CSSProperties = {
 };
 
 const WelcomeActions: React.FC = () => {
+	const browseElements = useBrowseElements();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {compositions} = useContext(Internals.CompositionManager);
@@ -177,15 +179,6 @@ const WelcomeActions: React.FC = () => {
 		},
 		[canMutateProject, importFiles],
 	);
-
-	const browseElements = useCallback(() => {
-		setSelectedModal({
-			type: 'element-library',
-			view: 'library',
-			name: 'Remotion Elements',
-			url: 'https://www.remotion.dev/elements',
-		});
-	}, [setSelectedModal]);
 
 	const openComposition = useCallback(() => {
 		setSelectedModal({

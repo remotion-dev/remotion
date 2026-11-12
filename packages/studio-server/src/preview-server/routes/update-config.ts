@@ -12,6 +12,7 @@ import {
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {parseAst} from '../../codemods/parse-ast';
+import {reorderElementLibraries} from '../../codemods/reorder-element-libraries';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {getAvailableEditors} from '../../helpers/editor-registry';
 import type {ApiHandler} from '../api-types';
@@ -74,6 +75,19 @@ const validateUpdates = (updates: unknown): string | null => {
 		}
 
 		setters.add(setter);
+		if (type === 'reorder') {
+			if (
+				setter !== 'addElementLibrary' ||
+				updates.length !== 1 ||
+				!Array.isArray(update.value) ||
+				update.value.some((url: unknown) => normalizeHttpUrl(url) === null)
+			) {
+				return 'Reordering Element Libraries requires a list of HTTP or HTTPS URLs.';
+			}
+
+			continue;
+		}
+
 		if (setter === 'addElementLibrary') {
 			if (type === 'delete') {
 				if (typeof update.value !== 'string') {
@@ -166,6 +180,11 @@ export const updateConfigFile = ({
 	readonly existingElementLibraryUrls: readonly string[];
 	readonly updates: ConfigUpdate[];
 }) => {
+	const reorder = updates.find((update) => update.type === 'reorder');
+	if (reorder?.type === 'reorder') {
+		return reorderElementLibraries(configContents, reorder.value);
+	}
+
 	const setters = new Set(updates.map(({setter}) => setter));
 	const deletedElementLibraryValue = updates.find(
 		(update) =>
@@ -260,7 +279,7 @@ export const updateConfigFile = ({
 
 	let updatedConfig = recast.print(ast, {lineTerminator: '\n'}).code;
 	for (const update of updates) {
-		if (update.type === 'delete') {
+		if (update.type !== 'set') {
 			continue;
 		}
 
@@ -333,7 +352,7 @@ export const updateConfigHandler = async ({
 	}
 
 	for (const update of input.updates) {
-		if (update.type === 'delete') {
+		if (update.type !== 'set') {
 			continue;
 		}
 

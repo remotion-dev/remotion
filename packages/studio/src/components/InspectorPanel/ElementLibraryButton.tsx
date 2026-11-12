@@ -1,7 +1,6 @@
-import React, {useCallback, useContext} from 'react';
+import React from 'react';
+import {useBrowseElements} from '../../helpers/use-browse-elements';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
-import {SetSelectedModalContext} from '../../state/modals';
-import {REMOTION_ELEMENTS_URL} from '../ElementLibrariesSettings';
 import {
 	InspectorQuickAction,
 	largeInspectorActionIconContainerStyle,
@@ -9,15 +8,7 @@ import {
 } from './common';
 
 export const ElementLibraryButton: React.FC = () => {
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const openElementsLibrary = useCallback(() => {
-		setSelectedModal({
-			type: 'element-library',
-			view: 'library',
-			name: 'Remotion Elements',
-			url: REMOTION_ELEMENTS_URL,
-		});
-	}, [setSelectedModal]);
+	const openElementsLibrary = useBrowseElements();
 
 	return (
 		<InspectorQuickAction

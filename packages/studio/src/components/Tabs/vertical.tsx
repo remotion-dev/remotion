@@ -52,8 +52,17 @@ export const VerticalTab: React.FC<{
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
+	readonly draggable: boolean;
 	readonly autoFocus?: boolean;
-}> = ({children, onClick, renderIcon, style, selected, autoFocus}) => {
+}> = ({
+	children,
+	onClick,
+	renderIcon,
+	style,
+	selected,
+	draggable,
+	autoFocus,
+}) => {
 	const {tabIndex} = useZIndex();
 	const isCompact = useBreakpoint(compactTabBreakpoint);
 
@@ -75,6 +84,7 @@ export const VerticalTab: React.FC<{
 		<button
 			aria-label={children}
 			aria-pressed={selected}
+			draggable={draggable}
 			autoFocus={autoFocus}
 			style={definiteStyle}
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}

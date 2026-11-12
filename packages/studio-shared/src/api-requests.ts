@@ -1596,6 +1596,11 @@ export type ConfigValue =
 
 export type ConfigUpdate =
 	| {
+			setter: 'addElementLibrary';
+			type: 'reorder';
+			value: string[];
+	  }
+	| {
 			setter: string;
 			type: 'delete';
 			value?: string;

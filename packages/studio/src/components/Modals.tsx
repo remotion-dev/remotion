@@ -12,7 +12,6 @@ import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
-import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {
 	ElementInstallConfirmation,
@@ -29,7 +28,6 @@ import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
-import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import {PrecomposeNameModal} from './PrecomposeNameModal';
 import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
@@ -39,6 +37,7 @@ import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
 import {ReorderCompositionModal} from './ReorderCompositionModal';
+import {useSettings} from './SettingsContext';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
@@ -55,6 +54,7 @@ export const Modals: React.FC<{
 	const canRender = previewServerState.type === 'connected';
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const confirm = useConfirmationDialog();
+	const {addElementLibrary} = useSettings();
 	const requestElementLibraryAddition = useCallback(
 		async ({
 			captionStylesUrl,
@@ -83,51 +83,20 @@ export const Modals: React.FC<{
 				return;
 			}
 
-			if (previewServerState.type !== 'connected') {
-				showNotification(
-					'Could not add Element Library: Studio disconnected',
-					4000,
-				);
-				return;
-			}
-
-			try {
-				const result = await callApi('/api/update-config', {
-					clientId: previewServerState.clientId,
-					updates: [
-						{
-							setter: 'addElementLibrary',
-							type: 'set',
-							value: {
-								url,
-								...(displayName === null ? {} : {displayName}),
-								...(captionStylesUrl === null ? {} : {captionStylesUrl}),
-							},
-						},
-					],
-				});
-				if (!result.success) {
-					showNotification(
-						`Could not add Element Library: ${result.reason}`,
-						4000,
-					);
-					return;
-				}
-
-				setSelectedModal({
-					type: 'element-library',
-					view: 'library',
-					name: getElementLibraryLabel({url, displayName}),
-					url,
-				});
-			} catch (error) {
-				showNotification(
-					`Could not add Element Library: ${(error as Error).message}`,
-					4000,
-				);
-			}
+			const success = await addElementLibrary({
+				url,
+				displayName,
+				captionStylesUrl,
+			});
+			if (!success) return;
+			setSelectedModal({
+				type: 'element-library',
+				view: 'library',
+				name: getElementLibraryLabel({url, displayName}),
+				url,
+			});
 		},
-		[confirm, previewServerState, setSelectedModal],
+		[addElementLibrary, confirm, setSelectedModal],
 	);
 
 	useEffect(() => {

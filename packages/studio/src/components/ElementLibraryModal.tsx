@@ -1,13 +1,21 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
+	TIMELINE_BLUE,
 	WHITE_ALPHA_05,
 	WHITE_ALPHA_08,
 } from '../helpers/colors';
+import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
@@ -21,16 +29,13 @@ import {
 } from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
-import {
-	ElementLibrariesSettings,
-	REMOTION_ELEMENTS_URL,
-	THIRD_PARTY_ELEMENTS_URL,
-} from './ElementLibrariesSettings';
+import {ElementLibrariesSettings} from './ElementLibrariesSettings';
 import {ElementLibraryFrame} from './ElementLibraryFrame';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {MenuDivider} from './Menu/MenuDivider';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {
 	horizontalLayout,
 	horizontalTab,
@@ -113,6 +118,22 @@ const urlText: React.CSSProperties = {
 	width: '100%',
 };
 
+const reorderRow: React.CSSProperties = {
+	position: 'relative',
+};
+
+const reorderLine: React.CSSProperties = {
+	backgroundColor: TIMELINE_BLUE,
+	height: 2,
+	left: 0,
+	pointerEvents: 'none',
+	position: 'absolute',
+	right: 0,
+	zIndex: 1,
+};
+
+const libraryReorderMimeType = 'application/remotion-element-library-reorder';
+
 export const ElementLibraryModal: React.FC<{
 	readonly name: string;
 	readonly url: string;
@@ -125,8 +146,14 @@ export const ElementLibraryModal: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const [iframeUrl, setIframeUrl] = useState('');
+	const draggedLibrary = useRef<string | null>(null);
+	const [dropTarget, setDropTarget] = useState<{
+		url: string;
+		before: boolean;
+	} | null>(null);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
+	const {studioRuntimeConfig, removeElementLibrary, reorderElementLibraries} =
+		useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canManageLibraries = canEditStudioConfig({
 		isBrowserStudio: getBrowserStudioOperations() !== null,
@@ -134,12 +161,67 @@ export const ElementLibraryModal: React.FC<{
 		readOnlyStudio: window.remotion_isReadOnlyStudio,
 	});
 	const showManagement = view === 'manage' && canManageLibraries;
-	const libraries = [
-		{url: REMOTION_ELEMENTS_URL, displayName: 'Remotion Elements'},
-		...(studioRuntimeConfig?.elementLibraries ?? []).filter(
-			(library) => library.url !== REMOTION_ELEMENTS_URL,
-		),
-	];
+	const libraries = studioRuntimeConfig?.elementLibraries ?? [];
+	useEffect(() => {
+		if (
+			studioRuntimeConfig === null ||
+			view !== 'library' ||
+			url === THIRD_PARTY_ELEMENTS_URL ||
+			studioRuntimeConfig.elementLibraries.some(
+				(library) => library.url === url,
+			)
+		)
+			return;
+		const nextLibrary = studioRuntimeConfig.elementLibraries[0];
+		setSelectedModal((current) =>
+			current?.type === 'element-library' && current.url === url
+				? {
+						...current,
+						name: nextLibrary ? getElementLibraryLabel(nextLibrary) : 'Explore',
+						url: nextLibrary?.url ?? THIRD_PARTY_ELEMENTS_URL,
+					}
+				: current,
+		);
+	}, [setSelectedModal, studioRuntimeConfig, url, view]);
+	const moveLibrary = (libraryUrl: string, toIndex: number) => {
+		const urls = libraries.map((library) => library.url);
+		const fromIndex = urls.indexOf(libraryUrl);
+		if (
+			fromIndex === -1 ||
+			fromIndex === toIndex ||
+			toIndex < 0 ||
+			toIndex >= urls.length
+		)
+			return;
+		urls.splice(fromIndex, 1);
+		urls.splice(toIndex, 0, libraryUrl);
+		reorderElementLibraries(urls);
+	};
+
+	const getDropTarget = (
+		event: React.DragEvent<HTMLDivElement>,
+		index: number,
+	) => {
+		if (
+			!canManageLibraries ||
+			!Array.from(event.dataTransfer.types).includes(libraryReorderMimeType)
+		)
+			return null;
+		const draggedUrl =
+			draggedLibrary.current ??
+			event.dataTransfer.getData(libraryReorderMimeType);
+		const fromIndex = libraries.findIndex(
+			(library) => library.url === draggedUrl,
+		);
+		if (fromIndex === -1) return null;
+		const rect = event.currentTarget.getBoundingClientRect();
+		const before = event.clientY < rect.top + rect.height / 2;
+		const insertionIndex = before ? index : index + 1;
+		const toIndex =
+			insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
+		return toIndex === fromIndex ? null : {before, toIndex};
+	};
+
 	const openElementSettings = useCallback(() => {
 		setSelectedModal((current) =>
 			current?.type === 'element-library'
@@ -171,6 +253,7 @@ export const ElementLibraryModal: React.FC<{
 			<div style={horizontalLayout}>
 				<nav ref={sidebarRef} style={sidebar} aria-label="Element libraries">
 					<VerticalTab
+						draggable={false}
 						style={tabStyle}
 						selected={!showManagement && url === THIRD_PARTY_ELEMENTS_URL}
 						onClick={() => {
@@ -193,76 +276,169 @@ export const ElementLibraryModal: React.FC<{
 						Explore
 					</VerticalTab>
 					<MenuDivider />
-					<div style={libraryList} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-						{libraries.map((library) => {
+					<div
+						style={libraryList}
+						className={VERTICAL_SCROLLBAR_CLASSNAME}
+						onDragLeave={(event) => {
+							if (
+								event.relatedTarget instanceof Node &&
+								event.currentTarget.contains(event.relatedTarget)
+							)
+								return;
+							setDropTarget(null);
+						}}
+					>
+						{libraries.map((library, index) => {
 							const label = getElementLibraryLabel(library);
 							return (
-								<ContextMenu
+								<div
 									key={library.url}
-									getItems={() =>
-										canManageLibraries && library.url !== REMOTION_ELEMENTS_URL
-											? [
-													{
-														type: 'item',
-														id: 'remove-library',
-														value: 'remove-library',
-														label: 'Remove library',
-														leftItem: (
-															<TrashIcon
-																color={CURRENT_COLOR}
-																style={{width: 16, height: 16}}
-															/>
-														),
-														keyHint: null,
-														quickSwitcherLabel: null,
-														subMenu: null,
-														onClick: () => {
-															removeElementLibrary(library.url);
-															setSelectedModal((current) =>
-																current?.type === 'element-library' &&
-																current.url === library.url
-																	? {
-																			...current,
-																			name: 'Remotion Elements',
-																			url: REMOTION_ELEMENTS_URL,
-																		}
-																	: current,
-															);
-														},
-													},
-												]
-											: false
-									}
+									style={reorderRow}
+									onDragStart={(event) => {
+										draggedLibrary.current = library.url;
+										event.dataTransfer.effectAllowed = 'move';
+										event.dataTransfer.setData(
+											libraryReorderMimeType,
+											library.url,
+										);
+										event.stopPropagation();
+									}}
+									onDragEnd={() => {
+										draggedLibrary.current = null;
+										setDropTarget(null);
+									}}
+									onDragOver={(event) => {
+										const target = getDropTarget(event, index);
+										if (target === null) {
+											setDropTarget(null);
+											return;
+										}
+
+										event.preventDefault();
+										event.stopPropagation();
+										event.dataTransfer.dropEffect = 'move';
+										setDropTarget((current) =>
+											current?.url === library.url &&
+											current.before === target.before
+												? current
+												: {url: library.url, before: target.before},
+										);
+									}}
+									onDrop={(event) => {
+										const target = getDropTarget(event, index);
+										const fromUrl =
+											draggedLibrary.current ??
+											event.dataTransfer.getData(libraryReorderMimeType);
+										draggedLibrary.current = null;
+										setDropTarget(null);
+										if (target === null || fromUrl === null) return;
+										event.preventDefault();
+										event.stopPropagation();
+										moveLibrary(fromUrl, target.toIndex);
+									}}
+									onKeyDown={(event) => {
+										if (
+											!canManageLibraries ||
+											!event.altKey ||
+											!['ArrowUp', 'ArrowDown'].includes(event.key)
+										)
+											return;
+										event.preventDefault();
+										event.stopPropagation();
+										moveLibrary(
+											library.url,
+											index + (event.key === 'ArrowUp' ? -1 : 1),
+										);
+									}}
 								>
-									<VerticalTab
-										style={tabStyle}
-										selected={!showManagement && url === library.url}
-										onClick={() => {
-											setSelectedModal({
-												type: 'element-library',
-												name: label,
-												url: library.url,
-												view: 'library',
-											});
+									{dropTarget?.url === library.url ? (
+										<div
+											style={{
+												...reorderLine,
+												...(dropTarget.before ? {top: 0} : {bottom: 0}),
+											}}
+										/>
+									) : null}
+									<ContextMenu
+										getItems={(): ComboboxValue[] | false => {
+											if (!canManageLibraries) return false;
+											return [
+												{
+													type: 'item',
+													id: 'move-library-up',
+													value: 'move-library-up',
+													label: 'Move up',
+													keyHint: 'Alt+↑',
+													disabled: index === 0,
+													leftItem: null,
+													subMenu: null,
+													quickSwitcherLabel: null,
+													onClick: () => moveLibrary(library.url, index - 1),
+												},
+												{
+													type: 'item',
+													id: 'move-library-down',
+													value: 'move-library-down',
+													label: 'Move down',
+													keyHint: 'Alt+↓',
+													disabled: index === libraries.length - 1,
+													leftItem: null,
+													subMenu: null,
+													quickSwitcherLabel: null,
+													onClick: () => moveLibrary(library.url, index + 1),
+												},
+												{type: 'divider', id: 'remove-library-divider'},
+												{
+													type: 'item',
+													id: 'remove-library',
+													value: 'remove-library',
+													label: 'Remove library',
+													leftItem: (
+														<TrashIcon
+															color={CURRENT_COLOR}
+															style={{width: 16, height: 16}}
+														/>
+													),
+													keyHint: null,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													onClick: () => removeElementLibrary(library.url),
+												},
+											];
 										}}
-										renderIcon={(color) => (
-											<div style={iconContainer}>
-												<ElementLibraryIcon
-													url={library.url}
-													color={color}
-													size={20}
-												/>
-											</div>
-										)}
 									>
-										{label}
-									</VerticalTab>
-								</ContextMenu>
+										<VerticalTab
+											draggable={canManageLibraries && libraries.length > 1}
+											style={tabStyle}
+											selected={!showManagement && url === library.url}
+											onClick={() => {
+												setSelectedModal({
+													type: 'element-library',
+													name: label,
+													url: library.url,
+													view: 'library',
+												});
+											}}
+											renderIcon={(color) => (
+												<div style={iconContainer}>
+													<ElementLibraryIcon
+														url={library.url}
+														color={color}
+														size={20}
+													/>
+												</div>
+											)}
+										>
+											{label}
+										</VerticalTab>
+									</ContextMenu>
+								</div>
 							);
 						})}
 					</div>
 					{canManageLibraries && (
 						<VerticalTab
+							draggable={false}
 							style={tabStyle}
 							selected={showManagement}
 							onClick={openElementSettings}
