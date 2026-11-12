@@ -11,6 +11,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {PreferredEffectBackend} from 'remotion';
 import type {VideoConfig} from 'remotion';
+import {cleanupBeforeQuit} from './cleanup-before-quit';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
 
@@ -208,5 +209,6 @@ export const getCompositionId = async ({
 		{indent: false, logLevel},
 		`Available compositions: ${comps.map((c) => c.id).join(', ')}`,
 	);
+	cleanupBeforeQuit({indent: false, logLevel});
 	process.exit(1);
 };

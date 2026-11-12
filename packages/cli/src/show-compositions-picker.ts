@@ -1,5 +1,6 @@
 import type {getCompositions, LogLevel} from '@remotion/renderer';
 import {chalk} from './chalk';
+import {cleanupBeforeQuit} from './cleanup-before-quit';
 import {selectAsync} from './composition-prompts';
 import {Log} from './log';
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -46,6 +47,7 @@ export const showMultiCompositionsPicker = async (
 			{indent: false, logLevel},
 			`Available compositions: ${validCompositions.map((c) => c.id).join(', ')}`,
 		);
+		cleanupBeforeQuit({indent: false, logLevel});
 		process.exit(1);
 	}
 
