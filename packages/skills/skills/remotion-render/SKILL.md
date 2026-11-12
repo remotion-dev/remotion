@@ -1,6 +1,6 @@
 ---
 name: remotion-render
-description: Export a Remotion video
+description: Export a Remotion video, still image, or editable OpenTimelineIO timeline
 version: 4.0.543
 ---
 
@@ -73,3 +73,11 @@ to change the pattern.
 ## Transparent videos
 
 See [Transparent videos](./transparent-videos.md) for rendering out a video with transparency.
+
+## OpenTimelineIO export (optional)
+
+When the user asks for an editable timeline for DaVinci Resolve, Adobe Premiere,
+or another video editor, follow [Export to OpenTimelineIO](./opentimeline.md).
+This workflow preserves editable media clips where possible and prerenders
+unsupported elements. Use it only for requested timeline exports; ordinary video
+and still renders use the commands above.
