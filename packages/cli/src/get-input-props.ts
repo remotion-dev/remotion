@@ -17,11 +17,9 @@ export const getInputProps = (
 		return {};
 	}
 
-	// minimist parses e.g. --props=123 as a number
 	const props = String(rawProps);
 
 	const jsonFile = path.resolve(process.cwd(), props);
-	let parsed: unknown;
 	try {
 		if (fs.existsSync(jsonFile)) {
 			// Windows PowerShell 5.1 and some editors save UTF-8 with a BOM,
@@ -33,22 +31,11 @@ export const getInputProps = (
 			if (onUpdate) {
 				fs.watchFile(jsonFile, {interval: 100}, () => {
 					try {
-						const newProps: unknown = JSON.parse(
-							fs.readFileSync(jsonFile, 'utf-8').replace(/^\uFEFF/, ''),
+						onUpdate(
+							JSON.parse(
+								fs.readFileSync(jsonFile, 'utf-8').replace(/^\uFEFF/, ''),
+							),
 						);
-						if (
-							typeof newProps !== 'object' ||
-							newProps === null ||
-							Array.isArray(newProps)
-						) {
-							Log.error(
-								{indent: false, logLevel},
-								`${jsonFile} must contain a JSON object. Did not apply new input props.`,
-							);
-							return;
-						}
-
-						onUpdate(newProps as Record<string, unknown>);
 						Log.info(
 							{indent: false, logLevel},
 							`Updated input props from ${jsonFile}.`,
@@ -62,10 +49,10 @@ export const getInputProps = (
 				});
 			}
 
-			parsed = JSON.parse(rawJsonData);
-		} else {
-			parsed = JSON.parse(props);
+			return JSON.parse(rawJsonData);
 		}
+
+		return JSON.parse(props);
 	} catch {
 		Log.error(
 			{indent: false, logLevel},
@@ -97,16 +84,4 @@ export const getInputProps = (
 
 		process.exit(1);
 	}
-
-	if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-		Log.error(
-			{indent: false, logLevel},
-			`--props must be a JSON object, but got ${
-				Array.isArray(parsed) ? 'an array' : JSON.stringify(parsed)
-			}. Wrap the data in an object, for example {"items": [...]}.`,
-		);
-		process.exit(1);
-	}
-
-	return parsed as Record<string, unknown>;
 };

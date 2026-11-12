@@ -18,11 +18,9 @@ describe('input props', () => {
 			firstProperty: 'firstProperty',
 			secondProperty: 'secondProperty',
 		};
-		window.remotion_inputProps = JSON.stringify(JSON.stringify(inputProps));
+		window.remotion_inputProps = JSON.stringify(inputProps);
 
-		expect(getInputProps()).toEqual(
-			JSON.stringify(inputProps) as unknown as Record<string, unknown>,
-		);
+		expect(getInputProps()).toEqual(inputProps);
 	});
 
 	test('input props in production env', () => {
