@@ -35,6 +35,7 @@ import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {ContextMenu} from '../ContextMenu';
 import {reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
@@ -320,7 +321,7 @@ export const TimelineEffectItem: React.FC<{
 		Boolean(validatedLocation.source);
 
 	const nodePathKey = useMemo(
-		() => Internals.makeSequencePropsSubscriptionKey(nodePath),
+		() => timelineSequenceNodePathToKey(nodePath),
 		[nodePath],
 	);
 
@@ -618,7 +619,7 @@ export const TimelineEffectItem: React.FC<{
 			const selectedIndices = currentSelection.current.selectedItems.flatMap(
 				(item) =>
 					item.type === 'sequence-effect' &&
-					Internals.makeSequencePropsSubscriptionKey(
+					timelineSequenceNodePathToKey(
 						item.nodePathInfo.sequenceSubscriptionKey,
 					) === nodePathKey
 						? [item.i]
