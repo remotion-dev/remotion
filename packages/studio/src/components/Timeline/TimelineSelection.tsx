@@ -1390,7 +1390,8 @@ export const TimelineSelectionProvider: React.FC<{
 					(effectOperationsAvailable &&
 						(item.type === 'sequence-effect' ||
 							item.type === 'sequence-all-effects')) ||
-					item.type === 'sequence')
+					item.type === 'sequence' ||
+					item.type === 'guide')
 			);
 		},
 		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
@@ -1887,11 +1888,9 @@ export const TimelineSelectionProvider: React.FC<{
 					<TimelineSelectionContext.Provider value={value}>
 						{children}
 						<TimelineEscapeKeybindings />
+						<TimelineDeleteKeybindings />
 						{isStudioInteractivityEnabled() ? (
-							<>
-								<TimelineClipboardKeybindings />
-								<TimelineDeleteKeybindings />
-							</>
+							<TimelineClipboardKeybindings />
 						) : null}
 					</TimelineSelectionContext.Provider>
 				</TimelineRowSelectionContext.Provider>
