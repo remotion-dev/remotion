@@ -6,8 +6,11 @@ const cleanupEffectChainState = mock(() => undefined);
 const runEffectChain = mock(async (_options: unknown) => true);
 const factory = mock(() => ({}));
 
+const actual = await import('remotion');
 mock.module('remotion', () => ({
+	...actual,
 	Internals: {
+		...actual.Internals,
 		createEffectChainState,
 		cleanupEffectChainState,
 		runEffectChain,
