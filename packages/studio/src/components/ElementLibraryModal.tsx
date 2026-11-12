@@ -14,7 +14,6 @@ import {
 	LIGHT_TEXT,
 	TIMELINE_BLUE,
 	WHITE_ALPHA_05,
-	WHITE_ALPHA_08,
 } from '../helpers/colors';
 import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
@@ -92,7 +91,7 @@ const hiddenContent: React.CSSProperties = {
 
 const urlBar: React.CSSProperties = {
 	backgroundColor: WHITE_ALPHA_05,
-	border: `1px solid ${WHITE_ALPHA_08}`,
+	border: 'none',
 	borderRadius: 4,
 	display: 'flex',
 	height: 22,
