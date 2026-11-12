@@ -297,6 +297,10 @@ export type ModalState =
 	| RenderModalState
 	| WebRenderModalState
 	| {
+			type: 'export-opentimeline';
+			compositionId: string;
+	  }
+	| {
 			type: 'render-progress';
 			jobId: string;
 	  }
