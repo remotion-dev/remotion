@@ -35,7 +35,12 @@ jobs:
       - run: node ../download.mjs buildInputs
       - name: Install deps
         run: HOMEBREW_INSTALL_FROM_API=1 brew install yasm nasm pkg-config cmake make meson ninja libtool autoconf automake
-      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - name: Install Rust
+        run: |
+          curl -sSfo "$RUNNER_TEMP/rustup-init" https://static.rust-lang.org/rustup/archive/1.29.3/aarch64-apple-darwin/rustup-init
+          echo "63752a1919a3a4793173ec70f8f212621a7ce38ba6a246095984482f4de20f9f  $RUNNER_TEMP/rustup-init" | shasum -a 256 -c -
+          chmod +x "$RUNNER_TEMP/rustup-init"
+          "$RUNNER_TEMP/rustup-init" -y
       - run: rm -f /opt/homebrew/opt/libx11/lib/libX11.6.dylib
       - run: node clean.mjs
       - run: node compile-ffmpeg.mjs
@@ -58,7 +63,12 @@ jobs:
       - run: node ../download.mjs buildInputs
       - name: Install deps
         run: HOMEBREW_INSTALL_FROM_API=1 brew install yasm nasm pkg-config cmake make meson ninja libtool autoconf automake
-      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - name: Install Rust
+        run: |
+          curl -sSfo "$RUNNER_TEMP/rustup-init" https://static.rust-lang.org/rustup/archive/1.29.3/x86_64-apple-darwin/rustup-init
+          echo "bc107f1fb0228de7fa32413c89c1b305cea9cd256e94b01150cd054128145429  $RUNNER_TEMP/rustup-init" | shasum -a 256 -c -
+          chmod +x "$RUNNER_TEMP/rustup-init"
+          "$RUNNER_TEMP/rustup-init" -y
       - run: node clean.mjs
       - run: node compile-ffmpeg.mjs
       - run: node generate-bindings.mjs
