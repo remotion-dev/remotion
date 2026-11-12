@@ -9,7 +9,7 @@ crumb: '@remotion/lambda'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.543" />
+# Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.544" />
 
 You can deploy Remotion Lambda using [Terraform](https://developer.hashicorp.com/terraform). This guide provisions the function, IAM role and policies, CloudWatch log group, S3 bucket, and Remotion [site](/docs/terminology/serve-url).
 
@@ -21,7 +21,7 @@ Remotion publishes regional manifests containing the function ZIP location, chec
 - Configure [AWS credentials for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration). The deployment identity needs permission to manage IAM roles and policies, pass the execution role, manage Lambda functions and their runtime and invocation settings, and manage S3 buckets, objects, and CloudWatch log groups.
 - Disable [account-level S3 Block Public Access](https://docs.aws.amazon.com/AmazonS3/latest/userguide/configuring-block-public-access-account.html).
 
-Use the same Remotion version for your project and Lambda function. Hosted artifacts are available from `4.0.543` in [supported regions](/docs/lambda/region-selection), except [AWS China regions](/docs/lambda/aws-china-regions).
+Use the same Remotion version for your project and Lambda function. Hosted artifacts are available from `4.0.544` in [supported regions](/docs/lambda/region-selection), except [AWS China regions](/docs/lambda/aws-china-regions).
 
 ## 1. Build your site
 
@@ -129,7 +129,7 @@ variable "region" {
 
 variable "remotion_version" {
   type    = string
-  default = "4.0.543"
+  default = "4.0.544"
 }
 
 variable "memory_size_mb" {
