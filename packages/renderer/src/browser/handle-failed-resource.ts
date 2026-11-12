@@ -27,11 +27,13 @@ export const handleFailedResource = ({
 	event: LoadingFailedEvent;
 }) => {
 	const firstExtraInfo = extraInfo[0] ?? null;
+	const statusCode =
+		firstExtraInfo?.statusCode ?? request.response()?.status() ?? null;
 
 	Log.warn(
 		{indent, logLevel},
 		`Browser failed to load ${request._url} (${event.type}): ${event.errorText}${
-			firstExtraInfo ? ` (HTTP status code ${firstExtraInfo.statusCode})` : ''
+			statusCode === null ? '' : ` (HTTP status code ${statusCode})`
 		}`,
 	);
 	if (firstExtraInfo) {
