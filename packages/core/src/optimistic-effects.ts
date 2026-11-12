@@ -30,9 +30,9 @@ export type OptimisticEffectItem = Item & {
 export type OptimisticEffectAction =
 	| {
 			readonly type: 'restore';
-			readonly fromItems: readonly OptimisticEffectItem[];
+			readonly fromItems: readonly Item[];
 			readonly movedIds: readonly EffectId[];
-			readonly items: readonly OptimisticEffectItem[];
+			readonly items: readonly Item[];
 	  }
 	| {readonly type: 'delete'; readonly ids: readonly EffectId[]}
 	| {readonly type: 'duplicate'; readonly ids: readonly EffectId[]}
@@ -56,6 +56,8 @@ export type OptimisticEffectOperation = {
 	readonly id: number;
 	readonly addedIds: readonly EffectId[];
 	readonly action: OperationAction;
+	beforeItems: readonly Item[];
+	afterItems: readonly Item[];
 	status: 'queued' | 'acknowledged' | 'settled' | 'failed' | 'cancelled';
 	mutationId: string | null;
 	nodePath: NodePath;
@@ -206,6 +208,8 @@ const update = (entry: Entry) => {
 			continue;
 		}
 
+		operation.beforeItems = items;
+		operation.afterItems = result;
 		items = result;
 		if (operation.status === 'acknowledged') {
 			persisted = apply(entry, persisted, operation) ?? persisted;
@@ -525,6 +529,8 @@ export const OptimisticEffects = {
 					: action,
 			status: 'queued',
 			mutationId: null,
+			beforeItems: entry.snapshot.items,
+			afterItems: entry.snapshot.items,
 		};
 		entry.operations.push(operation);
 		if (action.type === 'duplicate') {

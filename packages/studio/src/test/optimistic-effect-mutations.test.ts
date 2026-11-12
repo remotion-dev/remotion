@@ -432,11 +432,12 @@ test('queued property undo stays visible when the earlier save response arrives'
 	await redone;
 });
 
-test('undo rebases a reorder without replaying an earlier failed move', async () => {
-	Internals.OptimisticEffects.getItems(nodePath, [
+test('undo and redo rebase a group reorder without replaying an earlier failed move', async () => {
+	const original = Internals.OptimisticEffects.getItems(nodePath, [
 		definition('exposure'),
 		definition('duotone'),
 		definition('brightness'),
+		definition('tint'),
 	]);
 	let reject = (_error: Error) => {};
 	const held = new Promise<never>((_resolve, rejectPromise) => {
@@ -446,7 +447,7 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 		fileName: nodePath.absolutePath,
 		sequenceNodePath: nodePath,
 		fromIndices: [0],
-		toIndex: 2,
+		toIndex: 1,
 		clientId: 'test',
 	};
 	const failed = enqueueStudioSourceMutation(
@@ -456,9 +457,9 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 	);
 	const independent = enqueueStudioSourceMutation(
 		'/api/reorder-effect',
-		request,
+		{...request, fromIndices: [0, 1]},
 		async (body) => {
-			expect(body).toMatchObject({fromIndices: [1], toIndex: 2});
+			expect(body).toMatchObject({fromIndices: [1, 0], toIndex: 1});
 			return success('independent-reorder');
 		},
 	);
@@ -473,10 +474,27 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 		'fulfilled',
 	]);
 	expect(
-		Internals.OptimisticEffects.getItems(nodePath, null).map(
-			(item) => item.definition.label,
+		Internals.OptimisticEffects.getItems(nodePath, null).map((item) => item.id),
+	).toEqual(original.map((item) => item.id));
+	Internals.OptimisticEffects.settle([
+		'independent-reorder',
+		'independent-undo-reorder',
+	]);
+	const redone = enqueueStudioSourceMutation('/api/redo', {}, async () =>
+		success('independent-redo-reorder'),
+	);
+	const expected = [original[2], original[0], original[1], original[3]].map(
+		(item) => item.id,
+	);
+	expect(
+		Internals.OptimisticEffects.getItems(nodePath, null).map((item) => item.id),
+	).toEqual(expected);
+	await redone;
+	expect(
+		Internals.OptimisticEffects.get(nodePath)?.persistedItems.map(
+			(item) => item.id,
 		),
-	).toEqual(['exposure', 'duotone', 'brightness']);
+	).toEqual(expected);
 });
 
 test('external edits cancel only the affected file, including queued undo and late replies', async () => {
