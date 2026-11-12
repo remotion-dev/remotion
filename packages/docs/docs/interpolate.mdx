@@ -159,7 +159,7 @@ export const MyComposition: React.FC = () => {
 Scale values use unitless numbers.
 Translate values use length or percentage units.
 Rotate values use `deg`, `rad`, `grad`, or `turn`.
-Transform origin values may use the `left`, `center`, `right`, `top`, and `bottom` keywords from <AvailableFrom v="4.0.475" inline />.
+Transform origin values may use the `left`, `center`, `right`, `top`, and `bottom` keywords from v4.0.475.
 They are normalized to percentages before interpolation.
 The optional third transform origin component must be a length, for example `10px`.
 
@@ -244,7 +244,7 @@ Takes four arguments:
 
 `inputRange` and `outputRange` must have the same length and at least one value.
 With one value, `interpolate()` always returns the only output value.
-Single-value ranges are supported from <AvailableFrom v="4.0.469" inline />.
+Single-value ranges are supported from v4.0.469.
 
 ### extrapolateLeft?
 
@@ -274,7 +274,7 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}); // 1.5
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'}); // 1
 ```
 
-From <AvailableFrom v="4.0.539" inline />, `wrap` repeats the entire input range when there are more than two keyframes:
+From v4.0.539, `wrap` repeats the entire input range when there are more than two keyframes:
 
 ```tsx twoslash title="Looping all keyframes"
 import {interpolate} from 'remotion';

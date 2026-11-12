@@ -48,11 +48,11 @@ The shape of inputs and outputs is not currently stable.
 :::
 
 Tools that edit sequences or guides require a composition to be open.
-Playback tools work with compositions and, from <AvailableFrom v="4.0.540" inline />, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
+Playback tools work with compositions and, from v4.0.540, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
 
 Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and Browser Studio. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
 
-From <AvailableFrom v="4.0.543" inline />, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
+From v4.0.543, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
 
 ### `install_package`<AvailableFrom v="4.0.523" />
 
@@ -518,7 +518,7 @@ type CompositionTreeItem =
 
 ### `select_composition`
 
-Opens a registered composition by ID. From <AvailableFrom v="4.0.540" inline />, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
+Opens a registered composition by ID. From v4.0.540, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
 
 ```ts title="Input"
 {
@@ -1149,7 +1149,7 @@ Returns the effective divider state with the same fields as one entry in the `sp
 
 ### `get_playback_state`
 
-Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from v4.0.540.
 
 One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
@@ -1212,7 +1212,7 @@ Identifies the open canvas content. Server outputs report their path; local brow
 
 ### `get_selection`
 
-`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from <AvailableFrom v="4.0.541" inline />. A still image or a preview that is still loading returns `0`.
+`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from v4.0.541. A still image or a preview that is still loading returns `0`.
 
 Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
 

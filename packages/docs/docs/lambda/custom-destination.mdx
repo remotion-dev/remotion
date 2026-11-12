@@ -22,7 +22,7 @@ The output name must match `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
 
 To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with `bucketName` and an optional `key`.
 
-From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
+From v4.0.538, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
 
 If you specify `key`, include the extension.
 

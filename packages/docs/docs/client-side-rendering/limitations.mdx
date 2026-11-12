@@ -88,7 +88,7 @@ The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</
 
 ### Web fonts inside SVG
 
-Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
+Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from v4.0.525.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
@@ -137,7 +137,7 @@ Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter sup
 
 ## Blending
 
-The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
+The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from v4.0.540 with all blend modes.
 Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser. With `experimental3DRendering: true`, preserving groups retain their blend-isolation boundary. Depth ordering combined with blending can still differ from native Firefox and WebKit.
 
 The `background-blend-mode` property is <a style={{color: 'green'}}>supported</a> for a single linear gradient blended with the element's background color.
