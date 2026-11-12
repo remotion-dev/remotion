@@ -45,9 +45,7 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
 type TerminationSignal = 'SIGTERM' | 'SIGHUP';
 
 // Listening to a signal disables the default behavior of Node.js, which is to
-// terminate the process. Once all browsers are closed, Remotion re-raises the
-// signal, unless the user has their own listener for it.
-// Shared via the process object in case multiple copies of Remotion are loaded.
+// terminate the process.
 const ownSignalListeners: Set<unknown> = ((
 	process as unknown as Record<symbol, Set<unknown>>
 )[Symbol.for('remotion.signalListeners')] ??= new Set());
@@ -58,9 +56,8 @@ let receivedSignal: {
 let browsersLaunching = 0;
 
 const userHasSignalListener = (signal: TerminationSignal) => {
-	// execa, which is used to call FFmpeg, listens to signals through
-	// `signal-exit` while a child process is running. It only terminates the
-	// process if it is the only listener, so it does not count as a user listener.
+	// execa listens to signals through `signal-exit` while a child process is
+	// running. It only terminates the process if it is the only listener.
 	// Each loaded copy of `signal-exit` registers one listener per signal and
 	// increments `count` on its emitter. v3 stores the emitter on `process`,
 	// v4 on `globalThis`.
@@ -315,8 +312,7 @@ export const makeBrowserRunner = async ({
 		};
 
 		ownSignalListeners.add(onSignal);
-		// Prepend, so that a user listener registered with process.once()
-		// is still registered when checking for user listeners.
+		// Node.js removes a process.once() listener before it calls it.
 		process.prependListener(signal, onSignal);
 		listeners.push(() => {
 			process.off(signal, onSignal);
@@ -325,8 +321,6 @@ export const makeBrowserRunner = async ({
 	}
 
 	browsersLaunching--;
-	// The process is terminating, e.g. this browser replaces a crashed browser
-	// after a signal was received. Don't keep the process alive.
 	if (receivedSignal !== null && !receivedSignal.userHandlesSignal) {
 		closeProcess();
 	}

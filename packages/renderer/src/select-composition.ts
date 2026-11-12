@@ -228,8 +228,6 @@ export const internalSelectCompositionRaw = async (
 		preferredEffectBackend,
 	} = options;
 
-	// allSettled: if one of them fails, the other one still needs to be cleaned up.
-	// Otherwise e.g. the server leaks and keeps the process alive.
 	const [pageResult, serverResult] = await Promise.allSettled([
 		getPageAndCleanupFn({
 			passedInInstance: puppeteerInstance,
