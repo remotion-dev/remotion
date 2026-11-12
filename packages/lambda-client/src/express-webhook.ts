@@ -2,6 +2,7 @@ import type {Request, Response} from 'express';
 import type {NextWebhookArgs} from './app-router-webhook';
 import {addHeaders} from './pages-router-webhook';
 import {validateWebhookSignature} from './validate-webhook-signature';
+import type {WebhookPayload} from './webhook-types';
 
 export function expressWebhook(
 	options: NextWebhookArgs,
@@ -37,8 +38,10 @@ export function expressWebhook(
 				secret,
 			});
 
-			//  custom logic
-			const payload = req.body;
+			const payload: WebhookPayload =
+				typeof req.body === 'string' || Buffer.isBuffer(req.body)
+					? JSON.parse(req.body.toString())
+					: req.body;
 			if (payload.type === 'success' && onSuccess) {
 				await onSuccess(payload);
 			} else if (payload.type === 'error' && onError) {

@@ -190,6 +190,14 @@ jobs:
       - name: Test Browser Studio
         run: |
           bun run testbrowserstudio
+      - name: Upload Browser Studio failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-studio-e2e-results-${{ github.run_attempt }}
+          path: packages/browser-studio/dist/e2e-test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload native pixel failures
         if: failure()
         uses: actions/upload-artifact@v4

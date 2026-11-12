@@ -105,7 +105,7 @@ Controls for text-related style props:
 
 `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
 
-`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
+`style.fontFamily` is available from v4.0.486.
 
 Use it for components that accept a `style` prop and render text.
 
@@ -156,13 +156,13 @@ Use it for components that accept a `style` prop and render rounded corners.
 
 ### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components that accept SVG paint props.
 
 ### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components such as lines that do not have a paintable interior.
 
@@ -216,9 +216,9 @@ The prop type matching `Interactive.premountSchema`.
 
 Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
-From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+From v4.0.528, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
-Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from <AvailableFrom v="4.0.506" inline />.
+Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from v4.0.506.
 
 ```tsx twoslash title="Timed element"
 import {Interactive} from 'remotion';

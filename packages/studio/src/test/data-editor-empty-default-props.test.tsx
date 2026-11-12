@@ -12,7 +12,7 @@ const originalStaticBase = window.remotion_staticBase;
 const originalStaticFiles = window.remotion_staticFiles;
 
 beforeEach(() => {
-	window.remotion_inputProps = JSON.stringify(JSON.stringify({}));
+	window.remotion_inputProps = JSON.stringify({});
 	window.remotion_isStudio = true;
 	window.remotion_staticBase = '/testbed/';
 	window.remotion_staticFiles = [];

@@ -91,9 +91,9 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 <TsType type="FrameRange" source="@remotion/renderer" href="/docs/renderer/types#framerange" />
 
-Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition (from v4.0.421).
 
-Pass an array of ordered, non-overlapping ranges to concatenate multiple sections into one video. Video and audio from gaps are omitted. Ranges are inclusive, and an open-ended range may only appear last.<AvailableFrom v="4.0.502" inline />
+Pass an array of ordered, non-overlapping ranges to concatenate multiple sections into one video. Video and audio from gaps are omitted. Ranges are inclusive, and an open-ended range may only appear last (from v4.0.502).
 
 ```ts twoslash title="render.ts"
 import {renderMedia} from '@remotion/renderer';
@@ -323,7 +323,7 @@ const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encod
 ```
 
 :::note
-The `progress` attribute is available from <AvailableFrom v="3.2.17" inline />.
+The `progress` attribute is available from v3.2.17.
 :::
 
 ### `onDownload?`
@@ -371,7 +371,7 @@ _string_
 
 _function_ <TsType type="BrowserLog" source="@remotion/renderer" href="/docs/renderer/types#browserlog" />
 
-Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since <AvailableFrom v="4.0.540" inline />. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
+Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since v4.0.540. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
 
 Example:
 
@@ -501,7 +501,7 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
-From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
+From v4.0.533, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
 
 ### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
 

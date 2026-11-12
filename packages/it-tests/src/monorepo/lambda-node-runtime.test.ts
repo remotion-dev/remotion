@@ -1,18 +1,9 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {FUNCTION_DEPLOYMENT_CONFIG} from '../../../lambda/src/shared/function-deployment-config';
 
-test('Lambda create-function runtime should be matched by set-lambda-env regex', () => {
-	const createFunctionPath = path.resolve(
-		__dirname,
-		'..',
-		'..',
-		'..',
-		'lambda',
-		'src',
-		'api',
-		'create-function.ts',
-	);
+test('Lambda runtime should be matched by set-lambda-env regex', () => {
 	const setLambdaEnvPath = path.resolve(
 		__dirname,
 		'..',
@@ -25,17 +16,7 @@ test('Lambda create-function runtime should be matched by set-lambda-env regex',
 		'set-lambda-env.ts',
 	);
 
-	const createFunctionSource = readFileSync(createFunctionPath, 'utf-8');
 	const setLambdaEnvSource = readFileSync(setLambdaEnvPath, 'utf-8');
-
-	const runtimeMatch = createFunctionSource.match(
-		/Runtime:\s*'(nodejs\d+\.x)'/,
-	);
-	if (!runtimeMatch) {
-		throw new Error('Could not find Runtime string in create-function.ts');
-	}
-
-	const runtime = runtimeMatch[1];
 
 	const regexMatch = setLambdaEnvSource.match(
 		/AWS_Lambda_nodejs\(\?:([^)]+)\)/,
@@ -47,7 +28,9 @@ test('Lambda create-function runtime should be matched by set-lambda-env regex',
 	}
 
 	const allowedVersions = regexMatch[1].split('|');
-	const runtimeVersion = runtime.replace('nodejs', '').replace('.x', '');
+	const runtimeVersion = FUNCTION_DEPLOYMENT_CONFIG.runtime
+		.replace('nodejs', '')
+		.replace('.x', '');
 
 	expect(allowedVersions).toContain(runtimeVersion);
 });

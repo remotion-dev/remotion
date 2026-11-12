@@ -91,8 +91,20 @@ export const AgentPrompt: React.FC<{
 		skill?.installedInProject || skill?.installedGlobally,
 	);
 	const canInstallSkill = canUseLocalActions && remotionSkillsInfo !== null;
-	const skillName = `${getSkillPrefix()}${skillId}`;
-	const prompt = skillAvailable ? `${skillName} ${instruction}` : instruction;
+	const explicitSkillName = instruction.startsWith(`/${skillId} `)
+		? `/${skillId}`
+		: instruction.startsWith(`$${skillId} `)
+			? `$${skillId}`
+			: null;
+	const skillName = explicitSkillName ?? `${getSkillPrefix()}${skillId}`;
+	const promptInstruction =
+		explicitSkillName === null
+			? instruction
+			: instruction.slice(explicitSkillName.length + 1);
+	const includeSkillName = skillAvailable || explicitSkillName !== null;
+	const prompt = includeSkillName
+		? `${skillName} ${promptInstruction}`
+		: promptInstruction;
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
 		canUseLocalActions &&
@@ -122,10 +134,18 @@ export const AgentPrompt: React.FC<{
 	const onSendToChatGPT = useCallback(() => {
 		requestCodexAnnotation({
 			target: annotationTarget.current,
-			initialComment: prompt,
+			initialComment: includeSkillName
+				? `$${skillId} ${promptInstruction}`
+				: promptInstruction,
 			metadata: {action: actionLabel},
 		});
-	}, [actionLabel, annotationTarget, prompt]);
+	}, [
+		actionLabel,
+		annotationTarget,
+		includeSkillName,
+		promptInstruction,
+		skillId,
+	]);
 
 	return (
 		<>
@@ -199,7 +219,7 @@ export const AgentPrompt: React.FC<{
 			</div>
 			<div style={commandField}>
 				<pre style={code}>
-					{skillAvailable ? (
+					{includeSkillName ? (
 						<>
 							<SkillsIcon color={BLUE} style={skillsIcon} aria-hidden />
 							<span
@@ -215,7 +235,7 @@ export const AgentPrompt: React.FC<{
 							</span>{' '}
 						</>
 					) : null}
-					{instruction}
+					{promptInstruction}
 				</pre>
 				<InlineAction
 					onClick={() => copy(prompt, markPromptCopied)}

@@ -182,7 +182,7 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 ### `onError?`
 
-Handle an error playing the video. From <AvailableFrom v="3.3.89" inline />, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ### `playbackRate?`<AvailableFrom v="2.2.0" />
 
@@ -303,7 +303,7 @@ Useful for [video manipulation](/docs/videos/video-manipulation).
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object.  
 During preview, this is a `HTMLVideoElement` object, during rendering, it is an `HTMLImageElement`.
 
-During preview, if the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument. <AvailableFrom v="4.0.472" inline />  
+During preview, if the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument (from v4.0.472).  
 These arguments are `undefined` for the first synchronous callback, in browsers that don't support `requestVideoFrameCallback()` and during rendering.
 
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
@@ -312,7 +312,7 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
-From <AvailableFrom v="4.0.542" inline />, the default during preview is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Remote videos must allow CORS to appear in the captured canvas. For authenticated videos, see [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
+From v4.0.542, the default during preview is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Remote videos must allow CORS to appear in the captured canvas. For authenticated videos, see [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
 
 During server-side rendering, `<OffthreadVideo>` extracts frames through the render server and displays them as local images, so this prop does not apply.
 
