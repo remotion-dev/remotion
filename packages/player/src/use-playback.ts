@@ -111,7 +111,7 @@ export const usePlayback = ({
 	});
 
 	const updateAudioAnchor = useCallback(
-		(preserveFraction = false) => {
+		(preserveFraction: boolean | null) => {
 			if (!sharedAudioContext?.audioContext || fps === null || muted) {
 				return false;
 			}
@@ -215,7 +215,7 @@ export const usePlayback = ({
 			clock.seekRevision = seekRevisionAtRender;
 		}
 
-		const changed = updateAudioAnchor();
+		const changed = updateAudioAnchor(null);
 		if (
 			!changed &&
 			playing &&
@@ -265,7 +265,7 @@ export const usePlayback = ({
 			}
 
 			if (newState && shouldForceAnchorChange(newState)) {
-				updateAudioAnchor();
+				updateAudioAnchor(null);
 			}
 		};
 
@@ -399,7 +399,7 @@ export const usePlayback = ({
 				if (anchorSeekRevision.current !== seekRevision) {
 					// A same-frame seek may not cause a React commit. It still needs
 					// an exact anchor before advancing playback from that position.
-					updateAudioAnchor();
+					updateAudioAnchor(null);
 					anchorSeekRevision.current = seekRevision;
 					if (previousAudioBoundary.current !== null) {
 						previousAudioBoundary.current.seekRevision = seekRevision;
@@ -441,7 +441,7 @@ export const usePlayback = ({
 				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
 			} else if (didJump) {
 				// A jump can land on the same frame without a React commit.
-				updateAudioAnchor();
+				updateAudioAnchor(null);
 				if (previousAudioBoundary.current !== null) {
 					previousAudioBoundary.current.jumpRevision =
 						playbackJumpRevision.current;
