@@ -125,7 +125,7 @@ The schema determines which controls appear when you [edit props visually in the
 
 The Remotion Studio uses the schema to mark invalid props, and does not apply them.
 
-When you render with the CLI, the server-side rendering APIs or Lambda, Remotion validates the props against the schema before it calls [`calculateMetadata()`](/docs/calculate-metadata). Remotion validates the input props merged with the default props.
+When you render with the CLI, the server-side rendering APIs or Lambda, Remotion validates the input props, merged with the default props, against the schema before it calls [`calculateMetadata()`](/docs/calculate-metadata).
 
 If the props are invalid, Remotion 4.0 logs a warning that lists each invalid field, and renders with the props anyway. In Remotion 5.0, the render fails with an error instead. See the [v5.0 migration guide](/docs/5-0-migration#invalid-props-fail-the-render).
 
