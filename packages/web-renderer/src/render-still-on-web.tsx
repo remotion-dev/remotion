@@ -135,6 +135,7 @@ async function internalRenderImagesOnWeb<
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
 		compositionWidth: composition.width ?? null,
+		schema: schema ?? null,
 	});
 
 	const frames =
