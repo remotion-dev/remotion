@@ -168,7 +168,11 @@ export const SettingsModal: React.FC<{
 	}, [initialPublicLicenseKey, setPublicLicenseKey]);
 
 	return (
-		<FullscreenPanel ariaLabel="Settings" rightAction={null}>
+		<FullscreenPanel
+			ariaLabel="Settings"
+			headerContent={null}
+			rightAction={null}
+		>
 			<>
 				<div style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>

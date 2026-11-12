@@ -1,8 +1,14 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {CURRENT_COLOR} from '../helpers/colors';
+import {
+	CURRENT_COLOR,
+	LIGHT_TEXT,
+	WHITE_ALPHA_05,
+	WHITE_ALPHA_08,
+} from '../helpers/colors';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {GearIcon} from '../icons/gear';
 import {TrashIcon} from '../icons/trash';
@@ -64,12 +70,29 @@ const hiddenContent: React.CSSProperties = {
 	display: 'none',
 };
 
+const urlBar: React.CSSProperties = {
+	backgroundColor: WHITE_ALPHA_05,
+	border: `1px solid ${WHITE_ALPHA_08}`,
+	borderRadius: 4,
+	color: LIGHT_TEXT,
+	cursor: 'default',
+	fontFamily: 'inherit',
+	fontSize: 12,
+	height: 22,
+	maxWidth: 640,
+	minWidth: 0,
+	padding: '0 8px',
+	textOverflow: 'ellipsis',
+	width: '100%',
+};
+
 export const ElementLibraryModal: React.FC<{
 	readonly name: string;
 	readonly url: string;
 	readonly view: ElementLibraryModalState['view'];
 	readonly installState: ElementInstallModalState | null;
 }> = ({name, url, view, installState}) => {
+	const [iframeUrl, setIframeUrl] = useState('');
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -94,7 +117,22 @@ export const ElementLibraryModal: React.FC<{
 	}, [setSelectedModal]);
 
 	return (
-		<FullscreenPanel ariaLabel="Elements" rightAction={null}>
+		<FullscreenPanel
+			ariaLabel="Elements"
+			headerContent={
+				showManagement ? null : (
+					<input
+						aria-label="Element library URL"
+						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+						readOnly
+						style={urlBar}
+						type="text"
+						value={iframeUrl}
+					/>
+				)
+			}
+			rightAction={null}
+		>
 			<div style={horizontalLayout}>
 				<nav style={sidebar} aria-label="Element libraries">
 					<div style={libraryList} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -187,6 +225,7 @@ export const ElementLibraryModal: React.FC<{
 							url={url}
 							context={null}
 							captionStyleSelection={null}
+							onUrlChange={setIframeUrl}
 						/>
 					</div>
 					{showManagement && (

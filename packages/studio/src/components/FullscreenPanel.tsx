@@ -37,11 +37,17 @@ const header: React.CSSProperties = {
 const title: React.CSSProperties = {
 	color: WHITE,
 	fontSize: 13,
-	flex: 1,
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
+};
+
+const headerContentStyle: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	justifyContent: 'center',
+	minWidth: 0,
 };
 
 const backButton: React.CSSProperties = {
@@ -51,8 +57,9 @@ const backButton: React.CSSProperties = {
 export const FullscreenPanel: React.FC<{
 	readonly children: React.ReactNode;
 	readonly ariaLabel: string;
+	readonly headerContent: React.ReactNode;
 	readonly rightAction: React.ReactNode;
-}> = ({children, ariaLabel, rightAction}) => {
+}> = ({children, ariaLabel, headerContent, rightAction}) => {
 	const {currentZIndex} = useZIndex();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const goBack = useCallback(() => {
@@ -90,6 +97,7 @@ export const FullscreenPanel: React.FC<{
 					/>
 				</ActionTooltip>
 				<div style={title}>{ariaLabel}</div>
+				<div style={headerContentStyle}>{headerContent}</div>
 				{rightAction}
 			</div>
 			{children}

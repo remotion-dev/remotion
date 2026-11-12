@@ -1169,6 +1169,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								url={libraryUrl}
 								context="captions"
 								captionStyleSelection={captionStyleSelection}
+								onUrlChange={null}
 							/>
 						</div>
 					) : null}
