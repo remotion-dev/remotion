@@ -11,11 +11,11 @@ Allows you to map a range of values to another using a concise syntax.
 
 ## Example: Fade-in effect
 
-In this example, you are fading in some content by calculating the opacity for a certain point of time.
-At frame 0 (the start of the video), you want the opacity to be 0.
-At frame 20, you want the opacity to be 1.
+This example fades in some content by calculating the opacity for a certain point of time.
+At frame 0 (the start of the video), the opacity should be 0.
+At frame 20, the opacity should be 1.
 
-Using the following snippet, you can calculate the current opacity for any frame:
+The following snippet calculates the current opacity for any frame:
 
 ```ts twoslash
 import {interpolate, useCurrentFrame} from 'remotion';
@@ -26,7 +26,7 @@ const opacity = interpolate(frame, [0, 20], [0, 1]); // 0.5
 
 ## Example: Fade in and out
 
-Keep the fade in effect but add a fade out effect at the end.
+This example keeps the fade in effect and adds a fade out effect at the end.
 20 frames before the video ends, the opacity should still be 1.
 At the end, the opacity should be 0.
 
@@ -47,8 +47,8 @@ const opacity = interpolate(
 
 ## Example: interpolate a spring animation
 
-You don't necessarily have to interpolate over time - you can use any value to drive an animation.
-Assume you want to animate an object on the X axis from 0 to 200 pixels and use a spring animation for it.
+Interpolation does not have to be over time - any value can drive an animation.
+For example, an object should move on the X axis from 0 to 200 pixels with a spring animation.
 
 Create a spring:
 
@@ -69,7 +69,7 @@ const driver = spring({
 ```
 
 A [`spring()`](/docs/spring) animation with it's default settings will animate from 0 to 1.
-Given that knowledge, you can interpolate the spring value to go from 0 to 200.
+Given that, the spring value can be interpolated to go from 0 to 200.
 
 ```ts twoslash
 // @include: example-spring

@@ -25,7 +25,7 @@ In this part I will go over all the steps for creating a 3D model in Spline, if 
 
    ![Blank Workspace](../static/img/spline-guide/1_blank_workspace.png)
 
-3. Click the box in the scene, and press <kbd>Backspace</kbd>, because you don't need it. You will also delete the directional light later, but keep it for now.
+3. Click the box in the scene, and press <kbd>Backspace</kbd>, because it is not needed. The directional light gets deleted later too, but keep it for now.
 4. New shapes can be added using the **+** icon on the toolbar at the top. Click on it, scroll down and select **Torus**.
 
    ![Top Menu](../static/img/spline-guide/2_top_menu.png)
@@ -65,7 +65,7 @@ Your 3D model should look like this:
 
 ![Completed Torus](../static/img/spline-guide/10_completed_torus.png)
 
-14. Click on **Directional Light** in the left column, and press <kbd>Backspace</kbd> key because you don't need it anymore.
+14. Click on **Directional Light** in the left column, and press <kbd>Backspace</kbd> key because it is not needed anymore.
 15. Click **Export** in the top menu. Click on the first dropdown and select **Code (Experimental)**. Select **react-three-fiber** in the second dropdown. Finally, click on the Copy icon in the code section to copy the generated code.
 
 ![Export Model Code](../static/img/spline-guide/11_export_model_code.png)
@@ -83,7 +83,7 @@ Your 3D model should look like this:
    ```
 
 3. Create a new file at `src/Torus.tsx` with the code that you have copied from Spline.
-4. Remove the `OrthographicCamera` import, and the `<OrthographicCamera>` component as you will be using the `useThree` hook for the camera.
+4. Remove the `OrthographicCamera` import, and the `<OrthographicCamera>` component, since the camera comes from the `useThree` hook instead.
 
 5. In `src/Scene.tsx`, replace the default scene with:
 
