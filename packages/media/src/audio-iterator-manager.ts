@@ -436,7 +436,8 @@ export const audioIteratorManager = ({
 			startFromSecond,
 			iterator: source,
 			unscheduleAudioNode,
-			getIsPlaying,
+			// Resume can finish old nodes before the timeline reanchors.
+			getIsPlaying: () => getIsPlaying() && !sharedAudioContext.isResuming(),
 			scheduleChunk: (chunk: PreparedAudioChunk) => {
 				if (muted) return null;
 				const node = sharedAudioContext.audioContext.createBufferSource();

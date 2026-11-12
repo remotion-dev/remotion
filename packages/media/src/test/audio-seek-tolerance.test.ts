@@ -94,6 +94,7 @@ test.each([
 				[Symbol.dispose]: () => undefined,
 			}),
 			sharedAudioContext: {
+				isResuming: () => false,
 				audioContext,
 				gainNode,
 				audioSyncAnchor: {value: 0},

@@ -473,6 +473,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
 				? {
 						audioContext: sharedAudioContext.audioContext,
+						isResuming: () =>
+							sharedAudioContext.getIsResumingAudioContext() !== null,
 						gainNode: sharedAudioContext.gainNode,
 						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 						scheduleAudioNode: sharedAudioContext.scheduleAudioNode,
