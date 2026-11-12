@@ -57,14 +57,23 @@ await Promise.all([
 
 ### Loading a font URL from props
 
-If the font URL comes from input props, call `loadFont()` inside the component in a `useState()` initializer, so it runs once per mount and delays the render until the font is loaded:
+If the font URL comes from input props, call `loadFont()` in a `useEffect()` inside the component. Create a `delayRender()` handle when the component mounts, so that the render waits until the font has loaded:
 
 ```tsx
 import { loadFont } from "@remotion/fonts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDelayRender } from "remotion";
 
 export const MyComposition: React.FC<{ fontUrl: string }> = ({ fontUrl }) => {
-  useState(() => loadFont({ family: "CustomFont", url: fontUrl }));
+  const { delayRender, continueRender, cancelRender } = useDelayRender();
+  const [handle] = useState(() => delayRender(`Loading font ${fontUrl}`));
+
+  useEffect(() => {
+    loadFont({ family: "CustomFont", url: fontUrl })
+      .then(() => continueRender(handle))
+      .catch((err) => cancelRender(err));
+  }, [fontUrl, handle, continueRender, cancelRender]);
+
   return <div style={{ fontFamily: "CustomFont" }}>Hello World</div>;
 };
 ```

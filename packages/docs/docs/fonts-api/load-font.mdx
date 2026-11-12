@@ -38,18 +38,25 @@ export const GoogleFontsExample: React.FC = () => {
 
 ## Loading a font URL from input props
 
-If the font URL is passed as an [input prop](/docs/passing-props), call `loadFont()` inside the component instead of at the top level of the file.  
-Wrap it in a `useState()` initializer so it only runs once per mount:
+If the font URL comes from an [input prop](/docs/passing-props), call `loadFont()` in a `useEffect()` inside the component instead of at the top level of the file.  
+Create a [`delayRender()`](/docs/use-delay-render) handle when the component mounts, so that the render waits until the effect has loaded the font:
 
 ```tsx twoslash title="MyComp.tsx"
 import { loadFont } from "@remotion/fonts";
-import { useState } from "react";
-import { AbsoluteFill } from "remotion";
+import { useEffect, useState } from "react";
+import { AbsoluteFill, useDelayRender } from "remotion";
 
 export const MyComp: React.FC<{
   fontUrl: string;
 }> = ({ fontUrl }) => {
-  useState(() => loadFont({ family: "CustomFont", url: fontUrl }));
+  const { delayRender, continueRender, cancelRender } = useDelayRender();
+  const [handle] = useState(() => delayRender(`Loading font ${fontUrl}`));
+
+  useEffect(() => {
+    loadFont({ family: "CustomFont", url: fontUrl })
+      .then(() => continueRender(handle))
+      .catch((err) => cancelRender(err));
+  }, [fontUrl, handle, continueRender, cancelRender]);
 
   return (
     <AbsoluteFill style={{ fontFamily: "CustomFont" }}>
@@ -58,8 +65,6 @@ export const MyComp: React.FC<{
   );
 };
 ```
-
-If `fontUrl` changes while the component stays mounted, for example when editing props in the Studio, Remotion loads the new font only after a reload.
 
 ## Options
 
