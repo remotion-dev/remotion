@@ -13,7 +13,8 @@ export const useRemoveGuide = () => {
 		(guideId: string) => {
 			const state = guidesRef?.current;
 			if (!state) return;
-			const guide = state.guidesList.find((item) => item.id === guideId);
+			const previousGuides = state.guidesListRef.current;
+			const guide = previousGuides.find((item) => item.id === guideId);
 			if (!guide) return;
 
 			state.setGuidesList((guides) => {
@@ -31,7 +32,7 @@ export const useRemoveGuide = () => {
 				return;
 			}
 
-			const orderedGuides = state.guidesList
+			const orderedGuides = previousGuides
 				.filter(
 					(item) =>
 						item.compositionId === guide.compositionId &&

@@ -360,7 +360,7 @@ export const WebMcp: FC = () => {
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
 		useContext(TimelineZoomCtx);
 	const selectComposition = useSelectComposition();
-	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
+	const {editorShowGuides, guidesListRef, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -411,8 +411,6 @@ export const WebMcp: FC = () => {
 	const resolvedComposition = video?.id === currentComposition ? video : null;
 	const resolvedCompositionRef = useRef(resolvedComposition);
 	resolvedCompositionRef.current = resolvedComposition;
-	const guidesListRef = useRef(guidesList);
-	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
 	editorShowGuidesRef.current = editorShowGuides;
 	const mediaVolumeRef = useRef(mediaVolume);
@@ -2425,10 +2423,11 @@ export const WebMcp: FC = () => {
 							show: true,
 							compositionId,
 						};
-						const nextGuides = [...guidesListRef.current, guide];
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
+						setGuidesList((guides) => {
+							const nextGuides = [...guides, guide];
+							persistGuidesList(nextGuides);
+							return nextGuides;
+						});
 						editorShowGuidesRef.current = true;
 						setEditorShowGuides(() => true);
 
@@ -2546,10 +2545,6 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						guidesListRef.current = guidesListRef.current.filter(
-							(guide) =>
-								guide.id !== guideId || guide.compositionId !== compositionId,
-						);
 						removeGuide(guideId);
 
 						return Promise.resolve({
@@ -3000,6 +2995,7 @@ export const WebMcp: FC = () => {
 		calculateTimeline,
 		compositionManagerRef,
 		getSplitters,
+		guidesListRef,
 		isPlaying,
 		propStatusesRef,
 		removeGuide,
