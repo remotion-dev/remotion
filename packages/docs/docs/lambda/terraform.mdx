@@ -8,26 +8,78 @@ crumb: '@remotion/lambda'
 
 # Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.543" />
 
-You can alternatively deploy a Remotion Lambda function using [Terraform](https://developer.hashicorp.com/terraform).  
-Each release includes a regional manifest with the ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime).
+You can deploy Remotion Lambda using [Terraform](https://developer.hashicorp.com/terraform). This guide provisions the function, IAM role and policies, CloudWatch log group, S3 bucket, and Remotion [site](/docs/terminology/serve-url).
 
-This example manages the Lambda function and its CloudWatch log group. You can also deploy your Remotion [site](/docs/terminology/serve-url) with Terraform using the optional [site configuration below](#option-2-deploy-with-terraform).
+Remotion publishes regional manifests containing the function ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime). Terraform reads the manifest and uploads your prebuilt site. Building the bundle is the only deployment step that uses the Remotion CLI.
 
 ## Prerequisites
 
-- Install [Terraform](https://developer.hashicorp.com/terraform/install).
-- Create `remotion-lambda-role` with the Remotion role policy and a trust relationship for `lambda.amazonaws.com`. Follow [steps 2 and 3 of the setup guide](/docs/lambda/setup#2-create-role-policy).
-- Configure [AWS credentials for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration) for the account you want to deploy into. These credentials must be able to read and pass the role, and manage Lambda functions, tags, runtime settings, asynchronous invocation settings, and CloudWatch log groups. The [Remotion user policy](/docs/lambda/permissions#user-policies) alone may not cover all Terraform operations.
+- Install [Terraform](https://developer.hashicorp.com/terraform/install) and create a [Remotion project](/docs).
+- Configure [AWS credentials for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration). The deployment identity needs permission to manage IAM roles and policies, pass the execution role, manage Lambda functions and their runtime and invocation settings, and manage S3 buckets, objects, and CloudWatch log groups.
+- Your account's [S3 Block Public Access settings](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html) must permit public site files and public object ACLs.
 
-## Configure the function
+Use the same Remotion version for your project and Lambda function. Hosted artifacts are available from `4.0.543` in [supported regions](/docs/lambda/region-selection), except [AWS China regions](/docs/lambda/aws-china-regions).
 
-Create the following files in a Terraform directory.
+## 1. Build your site
 
-### Variables
+From your Remotion project, build a [Remotion Bundle](/docs/terminology/bundle):
 
-Memory and disk space are separate settings, even though both default to `2048` MB here. Use whole numbers: `512`–`10240` for memory and disk space, and `15`–`900` for the timeout in seconds.
+```sh title="Build the site"
+bunx remotion bundle src/index.ts --out-dir=build
+```
 
-```hcl title="variables.tf"
+Replace the entry point with your own. The bundle is relocatable by default. Put the following Terraform files in an `infra/` directory next to `build/`.
+
+The bundle must exist before running `terraform plan`. [`fileset()`](https://developer.hashicorp.com/terraform/language/functions/fileset) reads local files while Terraform evaluates the configuration.
+
+## 2. Configure Terraform
+
+### Providers and deployment settings
+
+```hcl title="infra/main.tf"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.region
+}
+
+data "aws_caller_identity" "current" {}
+
+data "http" "manifest" {
+  url = "https://remotionlambda-binaries-${var.region}.s3.${var.region}.amazonaws.com/functions/v${var.remotion_version}/manifest.json"
+}
+
+locals {
+  manifest      = jsondecode(data.http.manifest.response_body)
+  function_name = "remotion-render-${replace(var.remotion_version, ".", "-")}-mem${var.memory_size_mb}mb-disk${var.disk_size_mb}mb-${var.timeout_seconds}sec"
+  function_arn  = "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${local.function_name}"
+}
+```
+
+Memory and disk space are separate settings. Use whole numbers: `512`–`10240` MB for memory and disk space, and `15`–`900` seconds for the timeout.
+
+```hcl title="infra/variables.tf"
+variable "region" {
+  type    = string
+  default = "eu-central-1"
+}
+
+variable "remotion_version" {
+  type    = string
+  default = "4.0.543"
+}
+
 variable "memory_size_mb" {
   type    = number
   default = 2048
@@ -42,45 +94,194 @@ variable "timeout_seconds" {
   type    = number
   default = 120
 }
-```
 
-### Resources
+variable "bundle_dir" {
+  type    = string
+  default = "../build"
+}
 
-Set `region` to a [supported region](/docs/lambda/region-selection) and `remotion_version` to the exact version used by your application. Hosted artifacts are available from `4.0.543`, except in [AWS China regions](/docs/lambda/aws-china-regions).
+variable "site_name" {
+  type    = string
+  default = "my-video"
 
-```hcl title="main.tf"
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-    http = {
-      source  = "hashicorp/http"
-      version = "~> 3.0"
-    }
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_-]+$", var.site_name))
+    error_message = "Use letters, numbers, hyphens, or underscores for the site name."
   }
 }
 
+variable "application_role_name" {
+  type    = string
+  default = null
+}
+```
+
+Override defaults in `infra/terraform.tfvars`. Set `application_role_name` if your application already has an IAM role that should be allowed to render. Terraform creates a render-client policy and optionally attaches it to that role.
+
+```hcl title="infra/terraform.tfvars"
+memory_size_mb  = 3008
+disk_size_mb    = 2048
+timeout_seconds = 240
+
+# Optional: attach rendering permissions to an existing application role.
+# application_role_name = "my-application-role"
+```
+
+### Bucket
+
+Terraform creates a uniquely named bucket with the [Remotion prefix and region](/docs/lambda/bucket-naming). The bucket policy makes `sites/*` publicly readable so the Lambda browser can load your composition. Public bucket listing is not granted.
+
+Object ACLs remain enabled because Remotion writes private intermediate files and uses public-read ACLs for public render outputs. The render's [`privacy`](/docs/lambda/rendermediaonlambda#privacy) setting controls output access.
+
+```hcl title="infra/bucket.tf"
+resource "aws_s3_bucket" "remotion" {
+  bucket_prefix = "remotionlambda-${replace(var.region, "-", "")}-"
+}
+
+resource "aws_s3_bucket_ownership_controls" "remotion" {
+  bucket = aws_s3_bucket.remotion.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "remotion" {
+  bucket = aws_s3_bucket.remotion.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "remotion" {
+  bucket = aws_s3_bucket.remotion.id
+  acl    = "private"
+
+  depends_on = [
+    aws_s3_bucket_ownership_controls.remotion,
+    aws_s3_bucket_public_access_block.remotion,
+  ]
+}
+
+resource "aws_s3_bucket_policy" "site" {
+  bucket = aws_s3_bucket.remotion.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "PublicSiteFiles"
+      Effect    = "Allow"
+      Principal = "*"
+      Action    = "s3:GetObject"
+      Resource  = "${aws_s3_bucket.remotion.arn}/sites/*"
+    }]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.remotion]
+}
+```
+
+### IAM permissions
+
+The execution role lets the function access this bucket, invoke itself to distribute rendering, and write logs. The render-client policy grants the application access to this function and bucket.
+
+```hcl title="infra/iam.tf"
 locals {
-  region           = "eu-central-1"
-  remotion_version = "4.0.543"
-  function_name    = "remotion-render-${replace(local.remotion_version, ".", "-")}-mem${var.memory_size_mb}mb-disk${var.disk_size_mb}mb-${var.timeout_seconds}sec"
-  manifest         = jsondecode(data.http.manifest.response_body)
+  storage_statements = [
+    {
+      Sid      = "ListBuckets"
+      Effect   = "Allow"
+      Action   = ["s3:ListAllMyBuckets"]
+      Resource = ["*"]
+    },
+    {
+      Sid      = "ReadBucket"
+      Effect   = "Allow"
+      Action   = ["s3:ListBucket", "s3:GetBucketLocation"]
+      Resource = [aws_s3_bucket.remotion.arn]
+    },
+    {
+      Sid    = "ReadWriteObjects"
+      Effect = "Allow"
+      Action = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:PutObjectAcl",
+        "s3:AbortMultipartUpload",
+      ]
+      Resource = ["${aws_s3_bucket.remotion.arn}/*"]
+    },
+  ]
+  invoke_statement = {
+    Sid      = "InvokeRenderer"
+    Effect   = "Allow"
+    Action   = ["lambda:InvokeFunction"]
+    Resource = [local.function_arn]
+  }
 }
 
-provider "aws" {
-  region = local.region
+resource "aws_iam_role" "remotion" {
+  name_prefix = "remotion-lambda-"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
 }
 
-data "http" "manifest" {
-  url = "https://remotionlambda-binaries-${local.region}.s3.${local.region}.amazonaws.com/functions/v${local.remotion_version}/manifest.json"
+resource "aws_iam_role_policy" "execution" {
+  name = "remotion-execution"
+  role = aws_iam_role.remotion.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(local.storage_statements, [
+      local.invoke_statement,
+      {
+        Sid      = "WriteLogs"
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = ["${aws_cloudwatch_log_group.remotion.arn}:*"]
+      },
+    ])
+  })
 }
 
-data "aws_iam_role" "remotion" {
-  name = "remotion-lambda-role"
+resource "aws_iam_policy" "render_client" {
+  name_prefix = "remotion-render-client-"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(local.storage_statements, [
+      local.invoke_statement,
+      {
+        Sid      = "ReadFunction"
+        Effect   = "Allow"
+        Action   = ["lambda:GetFunction", "lambda:GetFunctionConfiguration"]
+        Resource = [local.function_arn]
+      },
+    ])
+  })
 }
 
+resource "aws_iam_role_policy_attachment" "render_client" {
+  count = var.application_role_name == null ? 0 : 1
+
+  role       = var.application_role_name
+  policy_arn = aws_iam_policy.render_client.arn
+}
+```
+
+### Lambda function
+
+The function ZIP stays in Remotion's regional bucket. AWS Lambda can deploy code from another account's bucket in the [same region](https://docs.aws.amazon.com/lambda/latest/api/API_FunctionCode.html).
+
+Keep the [function naming convention](/docs/lambda/naming-convention) and tags below. The spelling of `remotion-ephemereal-storage-in-mb` is intentional. The invocation configuration disables Lambda's automatic retries because Remotion handles retries. The runtime configuration pins the runtime version for this release.
+
+```hcl title="infra/function.tf"
 resource "aws_cloudwatch_log_group" "remotion" {
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = 14
@@ -88,7 +289,7 @@ resource "aws_cloudwatch_log_group" "remotion" {
 
 resource "aws_lambda_function" "remotion" {
   function_name = local.function_name
-  role          = data.aws_iam_role.remotion.arn
+  role          = aws_iam_role.remotion.arn
 
   s3_bucket        = local.manifest.code.s3Bucket
   s3_key           = local.manifest.code.s3Key
@@ -108,13 +309,13 @@ resource "aws_lambda_function" "remotion" {
 
   tags = {
     "remotion-lambda"                   = "true"
-    "remotion-version"                  = local.remotion_version
+    "remotion-version"                  = var.remotion_version
     "remotion-memory-in-mb"             = tostring(var.memory_size_mb)
     "remotion-timeout-in-seconds"       = tostring(var.timeout_seconds)
     "remotion-ephemereal-storage-in-mb" = tostring(var.disk_size_mb)
   }
 
-  depends_on = [aws_cloudwatch_log_group.remotion]
+  depends_on = [aws_iam_role_policy.execution]
 }
 
 resource "aws_lambda_function_event_invoke_config" "remotion" {
@@ -127,88 +328,13 @@ resource "aws_lambda_runtime_management_config" "remotion" {
   update_runtime_on   = "Manual"
   runtime_version_arn = local.manifest.runtimeVersionArn
 }
-
-output "function_name" {
-  value = aws_lambda_function.remotion.function_name
-}
 ```
 
-The ZIP remains in Remotion's regional S3 bucket. AWS Lambda can deploy code from a bucket in another account, as long as it is in the [same region as the function](https://docs.aws.amazon.com/lambda/latest/api/API_FunctionCode.html).
+### Site files
 
-Keep the [function naming convention](/docs/lambda/naming-convention) and tags shown above so Remotion can discover the function and its configuration. The spelling of `remotion-ephemereal-storage-in-mb` is intentional.
+Terraform uploads each file from the bundle and uploads `index.html` after the other assets. Add any extra file extensions your project needs to `site_content_types`. The [`source_hash`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) values detect changed files. Terraform deletes previously managed files when they are removed from the bundle.
 
-The invocation configuration disables Lambda's automatic retries because Remotion handles retries. The [runtime management configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_runtime_management_config) pins the runtime version used by that Remotion release.
-
-### Override the defaults
-
-For example, to use `3008` MB of memory and a `240` second timeout:
-
-```hcl title="terraform.tfvars"
-memory_size_mb  = 3008
-disk_size_mb    = 2048
-timeout_seconds = 240
-```
-
-## Deploy
-
-```sh title="Deploy the function"
-terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
-terraform output -raw function_name
-```
-
-If a function or log group with the same name already exists, [import it into Terraform](https://developer.hashicorp.com/terraform/language/import) before applying the configuration.
-
-## Deploy a site
-
-First, create a [Remotion Bundle](/docs/terminology/bundle) from your project:
-
-```sh title="Build the site"
-bunx remotion bundle src/index.ts --out-dir=build
-```
-
-Replace the entry point with your own. The bundle is relocatable by default and can be uploaded under a site prefix in S3. Choose one of the following deployment options. The bucket and function must be in the same region.
-
-### Option 1: Deploy with Remotion
-
-Use [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload the bundle:
-
-```ts twoslash title="deploy-site.ts"
-import {deploySiteFromBundle, getOrCreateBucket} from '@remotion/lambda';
-
-const region = 'eu-central-1';
-const {bucketName} = await getOrCreateBucket({region});
-const {serveUrl} = await deploySiteFromBundle({
-  region,
-  bucketName,
-  bundleDir: './build',
-});
-
-console.log({serveUrl, bucketName});
-```
-
-### Option 2: Deploy with Terraform
-
-Add `site.tf` alongside `main.tf`. Use an existing Remotion bucket, which you can create using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket). Your Terraform credentials also need permission to manage objects in this bucket.
-
-The bundle must exist before running `terraform plan`. [`fileset()`](https://developer.hashicorp.com/terraform/language/functions/fileset) reads the local files while Terraform evaluates the configuration.
-
-```hcl title="site.tf"
-variable "bucket_name" {
-  type = string
-}
-
-variable "site_name" {
-  type    = string
-  default = "my-video"
-}
-
-variable "bundle_dir" {
-  type    = string
-  default = "./build"
-}
-
+```hcl title="infra/site.tf"
 locals {
   site_bundle_dir = abspath(var.bundle_dir)
   site_prefix     = "sites/${var.site_name}"
@@ -239,77 +365,83 @@ locals {
 resource "aws_s3_object" "site_asset" {
   for_each = setsubtract(local.site_files, toset(["index.html"]))
 
-  bucket      = var.bucket_name
+  bucket      = aws_s3_bucket.remotion.id
   key         = "${local.site_prefix}/${each.value}"
   source      = "${local.site_bundle_dir}/${each.value}"
   source_hash = filemd5("${local.site_bundle_dir}/${each.value}")
-  acl         = "public-read"
   content_type = try(
     local.site_content_types[lower(regex("[^.]+$", each.value))],
     "application/octet-stream"
   )
+
+  depends_on = [aws_s3_bucket_policy.site, aws_s3_bucket_acl.remotion]
 }
 
 resource "aws_s3_object" "site_index" {
-  bucket       = var.bucket_name
+  bucket       = aws_s3_bucket.remotion.id
   key          = "${local.site_prefix}/index.html"
   source       = "${local.site_bundle_dir}/index.html"
   source_hash  = filemd5("${local.site_bundle_dir}/index.html")
-  acl          = "public-read"
   content_type = "text/html"
 
-  depends_on = [aws_s3_object.site_asset]
-}
-
-output "serve_url" {
-  value = "https://${var.bucket_name}.s3.${local.region}.amazonaws.com/${aws_s3_object.site_index.key}"
-}
-
-output "bucket_name" {
-  value = var.bucket_name
+  depends_on = [
+    aws_s3_object.site_asset,
+    aws_s3_bucket_policy.site,
+    aws_s3_bucket_acl.remotion,
+  ]
 }
 ```
 
-Set the bucket name and bundle location in your existing `terraform.tfvars`. Relative bundle paths are resolved from the directory where you run Terraform. Use letters, numbers, hyphens, or underscores for `site_name`.
+### Deployment outputs
 
-```hcl title="terraform.tfvars (additional values)"
-bucket_name = "remotionlambda-eucentral1-example"
-site_name   = "my-video"
-bundle_dir  = "../build"
+Export the settings your application needs as JSON:
+
+```hcl title="infra/outputs.tf"
+output "remotion" {
+  value = {
+    region       = var.region
+    functionName = aws_lambda_function.remotion.function_name
+    bucketName   = aws_s3_bucket.remotion.id
+    serveUrl     = "https://${aws_s3_bucket.remotion.bucket_regional_domain_name}/${aws_s3_object.site_index.key}"
+  }
+}
+
+output "render_client_policy_arn" {
+  value = aws_iam_policy.render_client.arn
+}
 ```
 
-This example uses public-read ACLs. If your bucket disables ACLs, remove both `acl` lines and configure its [bucket policy](/docs/lambda/bucket-security) to allow public `s3:GetObject` access to `sites/*`. All site assets must be publicly readable by the Lambda browser.
+## 3. Deploy
 
-Add any other file extensions your project needs to `site_content_types`. The [`source_hash`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) values make Terraform upload changed files. Terraform deletes previously managed files when they are removed from the bundle. Let Terraform exclusively manage this site prefix.
-
-Apply the configuration and read the outputs:
-
-```sh title="Deploy the prebuilt site"
+```sh title="Deploy the infrastructure and site"
+cd infra
+terraform init
 terraform plan -out=tfplan
 terraform apply tfplan
-terraform output -raw serve_url
-terraform output -raw bucket_name
+terraform output -json remotion > ../remotion-deployment.json
 ```
 
-## Render
+If a function or log group with the same name already exists, [import it into Terraform](https://developer.hashicorp.com/terraform/language/import) before applying. Terraform creates a new bucket and execution role for this configuration.
 
-Pass the deployed function name, site URL, and bucket to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). Set `REMOTION_FUNCTION_NAME` from `terraform output -raw function_name`. Set `REMOTION_SERVE_URL` and `REMOTION_BUCKET_NAME` from your deployment script or the Terraform outputs above.
+To update your composition, rebuild `build/` and run the plan and apply steps again. Let Terraform exclusively manage this site's S3 objects.
+
+## 4. Render
+
+From your Remotion project, read the exported settings and call [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda):
 
 ```ts twoslash title="render.ts"
-import {renderMediaOnLambda} from '@remotion/lambda';
+import {readFileSync} from 'node:fs';
+import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
 
-const functionName = process.env.REMOTION_FUNCTION_NAME;
-const serveUrl = process.env.REMOTION_SERVE_URL;
-const bucketName = process.env.REMOTION_BUCKET_NAME;
-
-if (!functionName || !serveUrl || !bucketName) {
-  throw new Error(
-    'Set REMOTION_FUNCTION_NAME, REMOTION_SERVE_URL, and REMOTION_BUCKET_NAME.',
-  );
-}
+const {region, functionName, bucketName, serveUrl}: {
+  region: AwsRegion;
+  functionName: string;
+  bucketName: string;
+  serveUrl: string;
+} = JSON.parse(readFileSync('./remotion-deployment.json', 'utf-8'));
 
 const {renderId} = await renderMediaOnLambda({
-  region: 'eu-central-1',
+  region,
   functionName,
   serveUrl,
   composition: 'HelloWorld',
@@ -320,19 +452,18 @@ const {renderId} = await renderMediaOnLambda({
 console.log({renderId, bucketName});
 ```
 
-Replace the composition ID with your own, and configure [Remotion AWS authentication](/docs/lambda/authentication) for the script. Rebuild and deploy the site when your composition changes; subsequent renders can reuse its `serveUrl`. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
+Replace the composition ID with your own and configure [AWS authentication](/docs/lambda/authentication) for the script. Use the application role configured through `application_role_name`, or another AWS identity with the permissions from `render_client_policy_arn`. That policy can also be attached by your application's Terraform configuration. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
 
 ## Upgrading
 
 Keep the function, site, and Remotion packages in your application on the same version. Changing `remotion_version`, memory, disk space, or timeout changes the function name and makes Terraform replace the function.
 
-For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), manage the old and new functions as separate Terraform resources or module instances. Deploy a new site, switch your application to the new function and site, and remove the old resources once their renders have finished. `create_before_destroy` alone does not keep the old function available until your application has switched.
+For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), keep old and new functions, execution permissions, and sites as separate Terraform resources or module instances during the transition. Deploy the new version, switch your application to its outputs, and remove the old resources once their renders have finished. `create_before_destroy` alone does not wait for your application to switch.
 
-For sites managed by Terraform, use a different `site_name` for each deployment and keep the old and new sites as separate resources or module instances during the transition. Changing `site_name` on the same resources moves the managed objects and removes the old site.
+Use a different `site_name` for each deployment you need to retain. Changing `site_name` on the same resources removes the old site's objects. A shared bucket can stay in a separate Terraform module while you replace versioned function and site resources.
 
 ## See also
 
-- [Lambda setup](/docs/lambda/setup)
 - [Permissions](/docs/lambda/permissions)
-- [`deployFunction()`](/docs/lambda/deployfunction)
+- [Bucket security](/docs/lambda/bucket-security)
 - [Upgrading Lambda](/docs/lambda/upgrading)
