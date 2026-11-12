@@ -29,10 +29,6 @@ export const LambdaCustomization: React.FC = () => {
 				<strong>Custom Layers</strong>
 				<div>Customize Chrome, fonts, and emojis</div>
 			</TOCItem>
-			<TOCItem link="/docs/lambda/separate-environments">
-				<strong>Separate environments</strong>
-				<div>Separate production and development resources</div>
-			</TOCItem>
 		</Grid>
 	);
 };
