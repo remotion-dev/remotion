@@ -151,34 +151,6 @@ if (existsSync(packagesSkillsDir)) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
 	prepareEmbeddedSkills(skillsOut);
-	const embeddedMarkupRoot = join(
-		skillsOut,
-		'remotion-best-practices',
-		'remotion-markup',
-	);
-	const duplicateMapsRoot = join(embeddedMarkupRoot, 'remotion-maps');
-	if (
-		existsSync(duplicateMapsRoot) &&
-		existsSync(join(embeddedMarkupRoot, '..', 'remotion-maps', 'REFERENCE.md'))
-	) {
-		const markupReference = join(embeddedMarkupRoot, 'REFERENCE.md');
-		writeFileSync(
-			markupReference,
-			readFileSync(markupReference, 'utf-8').replaceAll(
-				'./remotion-maps/',
-				'../remotion-maps/',
-			),
-		);
-		rmSync(duplicateMapsRoot, {recursive: true});
-	}
-
-	for (const file of new Bun.Glob('**/*.json').scanSync(skillsOut)) {
-		const jsonPath = join(skillsOut, file);
-		writeFileSync(
-			jsonPath,
-			JSON.stringify(JSON.parse(readFileSync(jsonPath, 'utf8'))),
-		);
-	}
 	if (client === 'codex') {
 		addCodexOnlyInstructions();
 	}
