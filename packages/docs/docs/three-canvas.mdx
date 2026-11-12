@@ -5,11 +5,11 @@ title: <ThreeCanvas>
 crumb: '@remotion/three'
 ---
 
-A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s `<Canvas />` which synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
+A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s `<Canvas>` which synchronizes with Remotion's [`useCurrentFrame()`](/docs/use-current-frame).
 
 Since React Three Fiber is a custom renderer, normally the React contexts that surround it don't work inside. This would normally break the usage of it in Remotion, but this component wraps the contexts so you can write your markup as expected.
 
-Instead of using React Three Fibers `useFrame` API, you can (and must) write your animations fully declaratively using Remotions `useCurrentFrame` API. This will ensure that you can scrub back and forth in the timeline and pause the animation.
+Instead of using React Three Fiber's `useFrame()` API, you can (and must) write your animations fully declaratively using Remotion's [`useCurrentFrame()`](/docs/use-current-frame) API. This will ensure that you can scrub back and forth in the timeline and pause the animation.
 
 A browser bug [would normally cause the layout to be broken](https://github.com/pmndrs/react-three-fiber/issues/1394) because we apply a `scale` transform to the canvas in the Studio. To work around this problem, the `<ThreeCanvas />` requires the `width` and `height` props to be set.
 
@@ -50,9 +50,17 @@ export default ThreeBasic;
 
 ## Props
 
+### `width`
+
+The width of the canvas in pixels. Required.
+
+### `height`
+
+The height of the canvas in pixels. Required.
+
 ### Inherited props<AvailableFrom v="4.0.528" />
 
-`<ThreeCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+`<ThreeCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 `showInTimeline` defaults to `false`, and `name` defaults to `"<ThreeCanvas>"`.
 

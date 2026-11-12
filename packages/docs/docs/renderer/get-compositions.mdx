@@ -9,9 +9,9 @@ _Part of the `@remotion/renderer` package._
 
 Gets a list of compositions defined in a Remotion project based on a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Root component](/docs/terminology/root-file).
 
-For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
+For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you only want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
-The options object signature is available from [v4.0.497](https://github.com/remotion-dev/remotion/releases/v4.0.497) and is the only signature in Remotion 5.0:
+The options object signature is available from <AvailableFrom v="4.0.497" inline /> and is the only signature in Remotion 5.0:
 
 ```ts twoslash title="Example"
 import {bundle} from '@remotion/bundler';
@@ -43,6 +43,14 @@ Optional in v4.x, required from v5.0.
 Must be a JSON object.  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+### `envVariables?`
+
+_object_
+
+An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object. Default: `{}`.
+
+See: [Environment variables](/docs/env-variables/)
 
 ### `puppeteerInstance?`<AvailableFrom v="3.0.0" />
 
@@ -112,7 +120,7 @@ getCompositions({
 
 ### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
-A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `port?`
 
@@ -137,6 +145,14 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 #### `blinkFeatures?`<AvailableFrom v="4.0.543" />
 
 <Options id="chromium-blink-features" />
+
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+#### `darkMode?`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
@@ -219,7 +235,7 @@ Returns a promise that resolves to an array of available compositions. Example v
 ];
 ```
 
-The `defaultProps` only get returned since v2.5.7.
+The `defaultProps` only get returned since <AvailableFrom v="2.5.7" inline />.
 
 ## Compatibility
 

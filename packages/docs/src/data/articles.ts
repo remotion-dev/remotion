@@ -63,15 +63,6 @@ export const articles = [
 		slug: 'accessibility/dev',
 	},
 	{
-		id: 'accessibility/pro',
-		title: 'Accessibility Statement: remotion.pro',
-		relativePath: 'docs/accessibility/pro.mdx',
-		compId: 'articles-docs-accessibility-pro',
-		crumb: 'Accessibility',
-		noAi: false,
-		slug: 'accessibility/pro',
-	},
-	{
 		id: 'acknowledgements',
 		title: 'Acknowledgements',
 		relativePath: 'docs/acknowledgements.mdx',
@@ -6959,7 +6950,7 @@ export const articles = [
 	},
 	{
 		id: 'motion-blur/common-mistake',
-		title: 'Common mistake with <MotionBlur> and <Trail>',
+		title: 'Common mistake with <CameraMotionBlur> and <Trail>',
 		relativePath: 'docs/motion-blur/common-mistake.mdx',
 		compId: 'articles-docs-motion-blur-common-mistake',
 		crumb: null,

@@ -28,7 +28,7 @@ export const DeleteStaticFileComp: React.FC = () => {
 
 ## Rules
 
-<Step>1</Step> This API can only be used while in the Remotion Studio.
+<Step>1</Step> This API can only be used while in the Remotion Studio. It throws in a read-only Studio.
 <br />
 <Step>2</Step> The file path must be relative to the <a href="/docs/terminology/public-dir">
   <code>public</code> directory
@@ -43,6 +43,24 @@ export const DeleteStaticFileComp: React.FC = () => {
 <Step>5</Step> You can, but don't have to wrap the file path in a <a href="/docs/staticfile">
   <code>staticFile()</code>
 </a> function.
+
+## Arguments
+
+### `relativePath`
+
+The path of the file to delete, relative to the [`public` directory](/docs/terminology/public-dir).
+
+## Return value
+
+A promise that resolves to an object with the following properties:
+
+### `success`
+
+Always `true` when the promise resolves.
+
+### `existed`
+
+Whether the file existed before it was deleted.
 
 ## Compatibility
 

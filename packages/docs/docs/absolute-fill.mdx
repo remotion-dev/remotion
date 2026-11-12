@@ -49,7 +49,7 @@ The layers that get rendered last appear on top - this is because of how HTML wo
 
 ### Inherited props<AvailableFrom v="4.0.501" />
 
-`<AbsoluteFill>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+`<AbsoluteFill>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
 From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
@@ -67,7 +67,7 @@ export const MyComp: React.FC = () => {
 
 ### `ref?`
 
-You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<AbsoluteFill>` (from <AvailableFrom v="3.2.13" inline />). If you use TypeScript, type it with `HTMLDivElement`:
 
 ```tsx twoslash title="MyComp.tsx"
 import {useRef} from 'react';

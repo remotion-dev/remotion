@@ -154,6 +154,7 @@ export const TimelineSequenceName: React.FC<{
 		return (
 			<input
 				ref={inputRef}
+				aria-label="Sequence name"
 				className={RENAME_INPUT_CLASS_NAME}
 				value={draftName}
 				onChange={(e) => setDraftName(e.target.value)}

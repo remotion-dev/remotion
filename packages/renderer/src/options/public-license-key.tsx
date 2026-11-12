@@ -11,8 +11,10 @@ export const publicLicenseKeyOption = {
 	description: () => (
 		<>
 			The public license key for your company license, obtained from the License
-			keys page on <a href="https://remotion.pro/dashboard">remotion.pro</a>. If
-			you are eligible for the free license, pass "free-license".
+			keys page for your project in the{' '}
+			<a href="https://www.remotion.dev/dashboard">Remotion Dashboard</a>. If
+			you are eligible for the free license, pass{' '}
+			<code>&quot;free-license&quot;</code>.
 		</>
 	),
 	ssrName: 'publicLicenseKey' as const,

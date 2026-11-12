@@ -20,6 +20,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Usage</strong>
 					<div>Component integration and state management</div>
 				</TOCItem>
+				<TOCItem link="/docs/timeline/render">
+					<strong>Render</strong>
+					<div>Render the timeline state into a video</div>
+				</TOCItem>
 				<TOCItem link="/docs/timeline/faq">
 					<strong>FAQ</strong>
 					<div>Frequently asked questions</div>

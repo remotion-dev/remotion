@@ -50,8 +50,8 @@ import type {WebRendererOutputTarget} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `'arraybuffer'`: Returns the output as a `Blob` in memory
-- `'web-fs'`: Uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) to write to a file
+- `'arraybuffer'`: Keep the output in memory as an `ArrayBuffer`
+- `'web-fs'`: Write the output to a temporary file in the [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system)
 
 ## `WebRendererPageResponsiveness`<AvailableFrom v="4.0.487" />
 
@@ -143,8 +143,13 @@ import type {RenderMediaOnWebResult} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `getBlob()`: Returns a `Promise<Blob>` containing the rendered video
-- `internalState`: Internal state object (not for public use)
+### `getBlob()`
+
+Returns a `Promise<Blob>` containing the rendered video.
+
+### `internalState`
+
+Internal state object (not for public use).
 
 ## `RenderMediaOnWebOptions`
 
@@ -181,11 +186,25 @@ import type {CanRenderMediaOnWebResult} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `canRender`: Whether the render can be performed
-- `issues`: An array of [`CanRenderIssue`](#canrenderissue) objects
-- `videoCodec`: The resolved video codec
-- `audioCodec`: The resolved audio codec
-- `outputTarget`: The resolved output target
+### `canRender`
+
+Whether the render can be performed.
+
+### `issues`
+
+An array of [`CanRenderIssue`](#canrenderissue) objects.
+
+### `resolvedVideoCodec`
+
+The resolved video codec, or `null` for audio-only containers.
+
+### `resolvedAudioCodec`
+
+The resolved audio codec, or `null`.
+
+### `resolvedOutputTarget`
+
+The resolved output target.
 
 ## `CanRenderIssue`
 
@@ -194,9 +213,17 @@ import type {CanRenderIssue} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `type`: The type of issue (e.g., `'video-codec-unsupported'`, `'webcodecs-unavailable'`)
-- `message`: A human-readable description of the issue
-- `severity`: Either `'error'` or `'warning'`
+### `type`
+
+The type of issue (e.g., `'video-codec-unsupported'`, `'webcodecs-unavailable'`).
+
+### `message`
+
+A human-readable description of the issue.
+
+### `severity`
+
+Either `'error'` or `'warning'`.
 
 ## `EmittedArtifact`
 
@@ -205,10 +232,21 @@ import type {EmittedArtifact} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `filename`: The name of the artifact file
-- `content`: The content of the artifact as a `string` or `Uint8Array`
-- `frame`: The frame number at which the artifact was emitted
-- `downloadBehavior`: How the artifact should be handled for download
+### `filename`
+
+The name of the artifact file.
+
+### `content`
+
+The content of the artifact as a `string` or `Uint8Array`.
+
+### `frame`
+
+The frame number at which the artifact was emitted.
+
+### `downloadBehavior`
+
+How the artifact should be handled for download.
 
 ## `WebRendererOnArtifact`
 

@@ -21,7 +21,7 @@ The following AWS regions are available:
 You can call [`getRegions()`](/docs/lambda/getregions) or type [`npx remotion lambda regions`](/docs/lambda/cli/regions) to get this list programmatically.
 
 :::note
-Support for regions `eu-west-3`, `eu-south-1`, `eu-north-1`, `us-west-1`, `af-south-1`, `ap-east-1`, `ap-northeast-2`, `ap-northeast-3`, `ca-central-1`, `sa-east-1` has been added in v3.3.7.
+Support for regions `eu-west-3`, `eu-south-1`, `eu-north-1`, `us-west-1`, `af-south-1`, `ap-east-1`, `ap-northeast-2`, `ap-northeast-3`, `ca-central-1`, `sa-east-1` has been added in <AvailableFrom v="3.3.7" inline />.
 :::
 
 :::note
@@ -63,11 +63,13 @@ Data may be out of date, please consult the [AWS Lambda Pricing page](https://aw
 | ap-east-1      | 0.0000183000        |
 | af-south-1     | 0.0000176800        |
 | eu-south-1     | 0.0000156138        |
+| eu-central-2   | 0.0000146667        |
 | ap-south-1     | 0.0000133334        |
 | ap-northeast-3 | 0.0000133334        |
 | ap-northeast-2 | 0.0000133334        |
 | ap-southeast-1 | 0.0000133334        |
 | ap-southeast-2 | 0.0000133334        |
+| ap-southeast-4 | 0.0000133334        |
 | ap-northeast-1 | 0.0000133334        |
 | ca-central-1   | 0.0000133334        |
 | eu-central-1   | 0.0000133334        |
@@ -80,6 +82,9 @@ Data may be out of date, please consult the [AWS Lambda Pricing page](https://aw
 | us-east-2      | 0.0000133334        |
 | us-west-1      | 0.0000133334        |
 | us-west-2      | 0.0000133334        |
+| ap-southeast-5 | 0.0000120000        |
+
+Prices for the China regions `cn-north-1` and `cn-northwest-1` are in CNY and are listed on the [AWS Lambda pricing page for China](https://www.amazonaws.cn/en/lambda/pricing/).
 
 Previously, this section mentioned differences in the amount of concurrent lambdas that can be run in a region. This is no longer the case.
 

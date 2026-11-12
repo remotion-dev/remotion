@@ -9,7 +9,7 @@ Backed by [FFmpeg](https://ffmpeg.org/), Remotion allows you to configure a vari
 
 ## Choosing a codec
 
-Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1` and `prores`. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
+The main video codecs are `h264` (_default_), `h265`, `vp8`, `vp9`, `av1` and `prores`. Remotion also supports `h264-mkv`, `h264-ts` and [`gif`](/docs/render-as-gif). While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
 
 <table>
   <tr>
@@ -41,7 +41,7 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
     <td>
       H.265 <sub>also known as HEVC</sub>
     </td>
-    <td>.mp4 or .hevc</td>
+    <td>.mp4, .mkv or .hevc</td>
     <td style={{color: 'darkorange'}}>Medium</td>
     <td style={{color: 'green'}}>Fast</td>
     <td>
@@ -56,7 +56,7 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
   </tr>
   <tr>
     <td>VP8</td>
-    <td>.webm</td>
+    <td>.webm or .mkv</td>
     <td style={{color: 'green'}}>Small</td>
     <td style={{color: 'red'}}>Slow</td>
     <td>
@@ -68,7 +68,7 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
   </tr>
   <tr>
     <td>VP9</td>
-    <td>.webm</td>
+    <td>.webm or .mkv</td>
     <td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
     <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
     <td>
@@ -79,7 +79,7 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
     <td>No</td>
   </tr>
   <tr>
-    <td>AV1*</td>
+    <td>AV1</td>
     <td>.mp4, .webm or .mkv</td>
     <td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
     <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
@@ -92,7 +92,7 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
   </tr>
   <tr>
     <td>ProRes</td>
-    <td>.mov</td>
+    <td>.mov, .mkv or .mxf</td>
     <td style={{color: 'red'}}>Large</td>
     <td style={{color: 'green'}}>Fast</td>
     <td style={{color: 'red', fontWeight: 'bold'}}>None</td>
@@ -104,13 +104,11 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-- AV1 is not available on [Remotion Lambda](/docs/lambda) or Linux ARM64 GNU.
-
-AV1 can achieve very small file sizes, but encoding is significantly slower than H.264 and H.265. Some runtimes ship only the essential codecs to stay lean, so `AV1` output is not available on Remotion Lambda or Linux ARM64 GNU.
+AV1 can achieve very small file sizes, but encoding is significantly slower than H.264 and H.265. Some runtimes ship only the essential codecs to stay lean, so `AV1` output is not available on [Remotion Lambda](/docs/lambda) or Linux ARM64 GNU.
 
 Set the [codec option](/docs/options/codec).
 
-[Hardware acceleration](/docs/hardware-acceleration) is available from Remotion 4.0.228.
+[Hardware acceleration](/docs/hardware-acceleration) is available from <AvailableFrom v="4.0.228" inline />.
 
 ## Parallel encoding
 
@@ -166,14 +164,14 @@ Be cautious: Every codec has it's own range of acceptable values and a different
 Set the [CRF option](/docs/options/crf).
 
 :::note
-If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`.
+If you set `crf` while [hardware acceleration](/docs/hardware-acceleration) is `"required"`, the render throws an error. With `"if-possible"`, setting `crf` makes Remotion fall back to software encoding.
 :::
 
 ## Controlling quality using `--video-bitrate` and `--audio-bitrate`
 
 Use the [video bitrate](/docs/options/video-bitrate) and [audio bitrate](/docs/options/audio-bitrate) options, or set them in the Studio Render Dialog.
 
-This option is incompatible with other quality options.
+The `videoBitrate` option cannot be combined with `crf`.
 
 ## Controlling quality using ProRes profile
 
@@ -193,9 +191,7 @@ You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will 
 
 You can also [render your video as a GIF](/docs/render-as-gif).
 
-## Audio codec
-
-_available from v3.3.42_
+## Audio codec<AvailableFrom v="3.3.42" />
 
 Using the [`--audio-codec`](/docs/options/audio-codec) flag, you can set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format.
 

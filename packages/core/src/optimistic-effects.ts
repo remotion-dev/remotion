@@ -536,6 +536,22 @@ export const OptimisticEffects = {
 				?.snapshot.persistedItems.findIndex((item) => item.id === id) ?? -1;
 		return index < 0 ? null : index;
 	},
+	getItemsAfterOperation: (operation: OptimisticEffectOperation) => {
+		const entry = entries.get(keyForNode(operation.nodePath));
+		if (!entry) return null;
+		let items = entry.compiled;
+		for (const pending of entry.operations) {
+			if (pending.status === 'queued' || pending.status === 'acknowledged') {
+				const next = apply(entry, items, pending);
+				if (next === null) return null;
+				items = next;
+			}
+
+			if (pending === operation) return items;
+		}
+
+		return null;
+	},
 	getOperationStatus: (operation: OptimisticEffectOperation) =>
 		operation.status,
 	setAddedDescriptor: (

@@ -71,7 +71,7 @@ export const MyComp: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo
 
 ## Adding a schema to your composition
 
-Use the [`schema`](/docs/composition#schema) prop to attach the schema to your [`<Composition>`](/docs/composition). Remotion will require you to specify matching [`defaultProps`](/docs/composition#schema).
+Use the [`schema`](/docs/composition#schema) prop to attach the schema to your [`<Composition>`](/docs/composition). Remotion will require you to specify matching [`defaultProps`](/docs/composition#defaultprops).
 
 ```tsx twoslash title="src/Root.tsx" {3,14-18}
 // @filename: MyComponent.tsx
@@ -123,7 +123,7 @@ The schema determines which controls appear when you [edit props visually in the
 
 ## Supported types
 
-All schemas that are supported by [Zod](https://zod.dev/) are supported by Remotion.
+All schemas that are supported by [Zod](https://zod.dev/) can be used to validate props. The visual props editor only provides controls for some of them; see [Supported controls](/docs/visual-editing#supported-controls) for the list. Other types are displayed as not editable.
 
 Remotion requires that the top-level type is a `z.object()`, because the collection of props of a React component is always an object.
 

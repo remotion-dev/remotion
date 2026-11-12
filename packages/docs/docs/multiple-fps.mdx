@@ -25,7 +25,7 @@ const animationProgress = interpolate(frame, [30, 60], [0, 1], {
 });
 ```
 
-It is better to make it frame-rate-dependnt:
+It is better to make it frame-rate-dependent:
 
 ```ts twoslash
 import {useVideoConfig, interpolate, useCurrentFrame} from 'remotion';
@@ -104,9 +104,9 @@ export const Root: React.FC = () => {
 ## FPS Convert is discouraged
 
 Previously, this page showed a FPS converter snippet.  
-It's usage is not recommended because it does not work with media tags ([`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), `<OffthreadVideo>`, `<Html5Video>`, etc.).
+Its usage is not recommended because it does not work with media tags ([`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), `<OffthreadVideo>`, `<Html5Video>`, etc.).
 
 ## See also
 
-- [Dynamic FPS, duration and dimensions](/docs/dynamic-metadata)
+- [Variable duration and dimensions](/docs/dynamic-metadata)
 - [`<Composition>`](/docs/composition)

@@ -734,7 +734,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'rive/index',
 			},
-			items: ['rive/index', 'rive/remotionrivecanvas'],
+			items: ['rive/remotionrivecanvas'],
 		},
 		{
 			type: 'category',
@@ -1240,13 +1240,13 @@ const sidebars: SidebarsConfig = {
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/showing-unmounted-components',
+				'studio/browse-elements',
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
 				'studio/remotion-dev-new',
-				'studio/browse-elements',
 			],
 		},
 		{
@@ -1256,7 +1256,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'elements',
 			},
-			items: ['elements', 'elements/libraries'],
+			items: ['elements/libraries'],
 		},
 		{
 			type: 'category',
@@ -1826,7 +1826,7 @@ const sidebars: SidebarsConfig = {
 				},
 				{
 					type: 'link',
-					href: 'https://remotion.dev/discord',
+					href: 'https://remotion.dev/issue',
 					label: 'GitHub Issues',
 				},
 				'support',
@@ -1889,7 +1889,7 @@ const sidebars: SidebarsConfig = {
 				id: 'accessibility',
 			},
 			collapsed: true,
-			items: ['accessibility/dev', 'accessibility/pro'],
+			items: ['accessibility/dev'],
 		},
 
 		{
@@ -2054,8 +2054,8 @@ const sidebars: SidebarsConfig = {
 				'timeline/demo',
 				'timeline/setup',
 				'timeline/usage',
-				'timeline/faq',
 				'timeline/render',
+				'timeline/faq',
 			],
 		},
 	],

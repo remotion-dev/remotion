@@ -67,6 +67,10 @@ The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
 When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
 
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
 Crops the image from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
@@ -83,7 +87,7 @@ Crops the image from the top by a ratio between `0` and `1`. See [`cropTop`](/do
 
 Crops the image from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
 
-### `onError`
+### `onError?`
 
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
 
@@ -106,7 +110,7 @@ export const MyComp: React.FC = () => {
 
 If an error occurs, the component must be unmounted or the `src` must be replaced, otherwise the render will time out.
 
-From `v3.3.82`, the image load will first be retried before `onError` is thrown.
+From <AvailableFrom v="3.3.82" inline />, the image load will first be retried before `onError` is thrown.
 
 ### `onImageError?`<AvailableFrom v="4.0.526" />
 
@@ -122,9 +126,9 @@ Unlike other native image props, `crossOrigin` also works when [`effects`](#effe
 
 From <AvailableFrom v="4.0.542" inline />, `<Img>` defaults to `crossOrigin="anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), including [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur). Remote images must allow [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) to appear in the captured canvas. An explicitly passed `crossOrigin` value takes precedence.
 
-### `maxRetries`<AvailableFrom v="3.3.82"/>
+### `maxRetries?`<AvailableFrom v="3.3.82"/>
 
-If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
+If an image fails to load, it will be retried. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.
 
 ### `pauseWhenLoading?`<AvailableFrom v="4.0.111"/>
@@ -160,7 +164,7 @@ Prefer the [`maxRetries`](#maxretries) prop over this.
 
 ### Inherited props<AvailableFrom v="4.0.465" />
 
-`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Img>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
@@ -188,9 +192,9 @@ Don't use the `<Img>` tag for GIFs, use [`@remotion/gif`](/docs/gif) instead.
 
 ## Error behavior
 
-From v4.0.0: If the image fails to load and no retries are left, then [`cancelRender`](/docs/cancel-render) will be called to throw an error, unless you handle the error using `onError()`.
+From <AvailableFrom v="4.0.0" inline />: If the image fails to load and no retries are left, then [`cancelRender`](/docs/cancel-render) will be called to throw an error, unless you handle the error using `onError()`.
 
-From v3.3.82: If an image fails to load, it will be retried up to two times.
+From <AvailableFrom v="3.3.82" inline />: If an image fails to load, it will be retried up to two times.
 
 In earlier versions, failing to load an image would lead to an error message in the console and an eventual timeout.
 

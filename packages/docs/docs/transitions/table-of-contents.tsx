@@ -20,6 +20,21 @@ export const TableOfContents: React.FC<{
 					</div>
 				</TOCItem>
 			</Grid>
+			<h3>APIs</h3>
+			<Grid>
+				<TOCItem link="/docs/transitions/use-transition-progress">
+					<strong>
+						<code>{'useTransitionProgress()'}</code>
+					</strong>
+					<div>Get the progress of the transition inside a scene</div>
+				</TOCItem>
+				<TOCItem link="/docs/transitions/make-html-in-canvas-presentation">
+					<strong>
+						<code>{'makeHtmlInCanvasPresentation()'}</code>
+					</strong>
+					<div>Create a presentation from an HTML-in-canvas shader</div>
+				</TOCItem>
+			</Grid>
 			<h3>Timings</h3>
 			<Timings apisOnly={Boolean(apisOnly)} />
 			<h3>Presentations</h3>

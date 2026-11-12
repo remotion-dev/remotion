@@ -11,7 +11,7 @@ import {AvailableFonts} from '../../components/AvailableFonts'
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
 
 Array of all available fonts available in `@remotion/google-fonts`.  
-From v3.3.64 on, the font can be loaded individually by calling `.load()` if you are loading the function using ES Modules.
+From <AvailableFrom v="3.3.64" inline /> on, the font can be loaded individually by calling `.load()` if you are loading the function using ES Modules.
 
 ## Usage
 
@@ -41,8 +41,13 @@ console.log(getAvailableFonts());
 ];
 ```
 
-- `fontFamily` is how the name should be referenced in CSS.
-- `importName` is the identifier of how the font can be imported: `@remotion/google-fonts/[import-name]`.
+### `fontFamily`
+
+How the name should be referenced in CSS.
+
+### `importName`
+
+The identifier of how the font can be imported: `@remotion/google-fonts/[import-name]`.
 
 ## Note about CommonJS
 

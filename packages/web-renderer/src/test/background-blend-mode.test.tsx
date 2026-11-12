@@ -1,9 +1,21 @@
-import {expect, test} from 'vitest';
+import {beforeAll, expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	warmUpNativeReferences,
+} from './native-reference';
+
+beforeAll(async () => {
+	if (!navigator.userAgent.includes('Chrome')) {
+		return;
+	}
+
+	await warmUpNativeReferences([backgroundBlendMode]);
+}, 60_000);
 
 // KINO-7774: compare real browser painting, including alpha, without tolerance.
 // One test per frame keeps each native capture and render within the timeout.

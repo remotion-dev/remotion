@@ -34,8 +34,9 @@ export const openInEditor = async (
 		editorId,
 		stack: {
 			originalFileName,
-			originalLineNumber,
-			originalColumnNumber,
+			originalLineNumber: originalLineNumber === null ? 1 : originalLineNumber,
+			originalColumnNumber:
+				originalColumnNumber === null ? 1 : originalColumnNumber,
 			originalFunctionName,
 			originalScriptCode,
 		},
@@ -92,23 +93,45 @@ export const openOriginalPositionInEditor = async (
 	}
 };
 
-export const findOriginalPositionInFileAtProperty = async ({
+export type SourceLocationTarget = {
+	property: string | null;
+	effectIndex: number | null;
+};
+
+export const resolveSourceLocation = async ({
 	originalPosition,
 	property,
+	effectIndex,
 }: {
 	originalPosition: CodePosition;
-	property: string;
+	property: string | null;
+	effectIndex: number | null;
 }): Promise<CodePosition> => {
+	if (property === null && effectIndex === null) return originalPosition;
+
 	const request = {
 		fileName: originalPosition.source,
 		lineNumber: originalPosition.line,
 		columnNumber: originalPosition.column,
 		search: property,
+		effectIndex,
 	};
 	const browserStudioOperations = getBrowserStudioOperations();
 	const position = browserStudioOperations
 		? await browserStudioOperations.findInFile(request)
-		: await callApi('/api/find-in-file', request);
+		: window.remotion_isReadOnlyStudio
+			? await (async () => {
+					const files = getSourceMapFilesForSource(originalPosition.source);
+					const contents = files?.[originalPosition.source];
+					if (contents === undefined)
+						return {
+							lineNumber: originalPosition.line,
+							columnNumber: originalPosition.column,
+						};
+					const {CodemodsInternals} = await import('@remotion/codemods');
+					return CodemodsInternals.findSearchPosition({...request, contents});
+				})()
+			: await callApi('/api/find-in-file', request);
 
 	return {
 		source: originalPosition.source,
@@ -117,18 +140,21 @@ export const findOriginalPositionInFileAtProperty = async ({
 	};
 };
 
-export const openOriginalPositionInEditorAtProperty = async ({
+export const openSourceInEditor = async ({
 	editorId,
 	originalPosition,
 	property,
+	effectIndex,
 }: {
 	editorId: EditorPickerId;
 	originalPosition: CodePosition;
-	property: string;
+	property: string | null;
+	effectIndex: number | null;
 }) => {
-	const position = await findOriginalPositionInFileAtProperty({
+	const position = await resolveSourceLocation({
 		originalPosition,
 		property,
+		effectIndex,
 	});
 
 	await openOriginalPositionInEditor(position, editorId);

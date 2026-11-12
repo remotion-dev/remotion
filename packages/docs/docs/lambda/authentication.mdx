@@ -7,9 +7,10 @@ crumb: "Lambda"
 
 You can authenticate with the `@remotion/lambda` package either using:
 
-- an `REMOTION_AWS_PROFILE` or `AWS_PROFILE` environment variable pointing to a file
-- `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` environment variables
-- `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables
+- a `REMOTION_AWS_PROFILE` environment variable pointing to a profile in your AWS credentials file
+- `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` environment variables, optionally with `REMOTION_AWS_SESSION_TOKEN`
+- an `AWS_PROFILE` environment variable pointing to a profile in your AWS credentials file
+- `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, optionally with `AWS_SESSION_TOKEN`
 
 Environment variables sitting in a `.env` file are automatically picked up if you use the Remotion CLI, but not if you use the Node.JS APIs. If multiple ways are provided, Remotion will use the order above and use the first credentials found.
 
@@ -62,9 +63,7 @@ const setEnvForKey = (key: number) => {
 setEnvForKey(getRandomAwsAccount());
 ```
 
-## Using an AWS profile
-
-_available from v3.3.9_
+## Using an AWS profile<AvailableFrom v="3.3.9" />
 
 If you prefer [AWS profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html), you may use them. The list of profiles is located at `~/.aws/credentials` on macOS and Linux and has the following format:
 
@@ -99,7 +98,7 @@ AWS clients are cached to save memory and speed up initialization.
 The cache key is based on the credentials and the region.
 
 If you opted out of [the credentials check](#skipping-the-credentials-check), the instance is cached for the lifetime of the process.  
-If you want to disable the cache, set the `REMOTION_SKIP_AWS_CREDENTIALS_CHECK` environment variable to any value.  
+If you want to disable the cache, set the `REMOTION_DISABLE_AWS_CLIENT_CACHE` environment variable to any value.  
 It's unlikely you need to set this value. This is only if you change the way you authenticate between API calls.
 
 ## See also

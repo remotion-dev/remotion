@@ -9,6 +9,7 @@ import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {PlaybackRangeContext} from './playback-range-context.js';
 import {Controls} from './PlayerControls.js';
 import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {useHoverState} from './use-hover-state.js';
@@ -50,6 +51,7 @@ export const PlayerInternals = {
 	useHoverState,
 	updateAllElementsSizes,
 	PlayerEmitterProvider,
+	PlaybackRangeContext,
 	BufferingIndicator,
 	PlayerControls: Controls,
 	TimelineSequenceObserverContext,

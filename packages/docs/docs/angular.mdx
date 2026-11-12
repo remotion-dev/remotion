@@ -9,8 +9,6 @@ crumb: 'Integrations'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion in Angular
-
 This guide explains how to integrate Remotion into an **Angular** project.
 
 ## Install required packages
@@ -56,7 +54,7 @@ yarn add --dev @types/react @types/react-dom
 
 ```bash title="Use Bun as the package manager and runtime"
 bun i remotion @remotion/player @remotion/cli @remotion/zod-types react react-dom zod
-bun --dev @types/react @types/react-dom
+bun add --dev @types/react @types/react-dom
 ```
 
 :::note
@@ -209,6 +207,13 @@ import {HelloWorld} from './HelloWorld';
 import {zColor} from '@remotion/zod-types';
 import {WritableSignal} from '@angular/core';
 
+export const myCompSchema = z.object({
+  titleText: z.string(),
+  titleColor: zColor(),
+  logoColor1: zColor(),
+  logoColor2: zColor(),
+});
+
 export const PlayerView: React.FC<{
   data: z.infer<typeof myCompSchema>;
   playerRefInstance: WritableSignal<PlayerRef | undefined>;
@@ -258,7 +263,7 @@ You're now able to use the [`API`](/docs/player/player) of the player via `this.
 
 - [Source code for this documentation](https://github.com/remotion-dev/angular-starter)
 - [Integration into Svelte](/docs/svelte)
-- [Integration into Vue.js](/docs/vue)
+- [Integration into Vue](/docs/vue)
 
 <Credits
   contributors={[
