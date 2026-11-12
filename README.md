@@ -14,6 +14,7 @@
   <a href="https://www.npmjs.org/package/remotion"><img alt="NPM Version" src="https://img.shields.io/npm/v/remotion.svg?style=flat&amp;color=black"></a>
   <a href="https://npmcharts.com/compare/remotion?minimal=true"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/remotion.svg?style=flat&amp;color=black&amp;label=Downloads"></a>
   <a href="https://twitter.com/remotion"><img alt="Twitter" src="https://img.shields.io/twitter/follow/remotion?label=Twitter&amp;color=black"></a>
+  <a href="https://score.getplumber.io/github.com/remotion-dev/remotion"><img alt="Plumber Score" src="https://score.getplumber.io/github.com/remotion-dev/remotion.svg"></a>
 </p>
 
 - **Make videos agentically**: Turn your idea into a video using your agent.
