@@ -234,7 +234,10 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const usedFontIndexes = new Set<number>();
 	for (const textElement of textElements) {
-		const textNodeWalker = svg.ownerDocument.createTreeWalker(textElement, 4);
+		const textNodeWalker = svg.ownerDocument.createTreeWalker(
+			textElement,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		const computedStyleByElement = new WeakMap<Element, CSSStyleDeclaration>();
 		while (textNodeWalker.nextNode()) {
 			const text = textNodeWalker.currentNode.textContent ?? '';

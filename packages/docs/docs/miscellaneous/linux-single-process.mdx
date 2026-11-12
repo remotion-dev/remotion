@@ -6,7 +6,7 @@ crumb: 'Server-side rendering'
 ---
 
 :::info
-This document is outdated. As of <AvailableFrom v="4.0.137" inline />, the default behavior is to use multi-process mode.  
+This document is outdated. As of v4.0.137, the default behavior is to use multi-process mode.  
 The setting still exists, but is `true` by default.
 :::
 
@@ -26,7 +26,7 @@ Enabled by default. To disable multi-process mode for Chromium during rendering 
 - **CLI**: Use the [`--enable-multi-process-on-linux=false`](/docs/options/enable-multiprocess-on-linux) flag.
 - **Config file**: Use the [`Config.setChromiumMultiProcessOnLinux()`](/docs/config#setchromiummultiprocessonlinux) option.
 - **Remotion Studio**: Check the toggle in the advanced settings.
-- **Cloud Run**: From <AvailableFrom v="4.0.42" inline />, this option is automatically enabled.
+- **Cloud Run**: From v4.0.42, this option is automatically enabled.
 - **Lambda**: This option is disabled with no option to enable it because on Amazon Linux, Chrome will crash if the `--single-process` flag is not used. We recommend using more Lambdas instead of more concurrency per Lambda.
 
 ## Should I enable multi-process mode?

@@ -13,6 +13,7 @@ export default {
 		'generate-option-docs.ts',
 		'option-description.ts',
 		'option-references.ts',
+		'check-toc-sync.ts',
 	],
 	rules: {
 		...config.rules,

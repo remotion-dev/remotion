@@ -117,7 +117,7 @@ One of:
 
 - `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
 - `"private"`: The rendered media is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
-- `"no-acl"`<AvailableFrom v="3.1.7" inline />: No ACL is set. Use this if you write to another bucket that does not support ACLs using [`--out-name`](#--out-name).
+- `"no-acl"` (from v3.1.7): No ACL is set. Use this if you write to another bucket that does not support ACLs using [`--out-name`](#--out-name).
 
 ### `--max-retries`
 
@@ -144,7 +144,7 @@ Specify the number of Lambda functions to use for rendering. This is an alternat
 
 The concurrency is defined as the frame count divided by the frames per Lambda. Remotion will automatically calculate the appropriate frames per Lambda based on your concurrency setting.
 
-From <AvailableFrom v="4.0.517" inline />, you can set `--concurrency=1` to render the video on the main function.
+From v4.0.517, you can set `--concurrency=1` to render the video on the main function.
 
 Maximum value: 200  
 Minimum value: 1 if rendering on main function, otherwise value must result in at least <MinimumFramesPerLambda /> frames per Lambda
@@ -348,7 +348,7 @@ Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> we
 
 Specify the name of the function which should be used to invoke and orchestrate the render. Use this if there are multiple functions to choose from or you use a [custom function name](/docs/lambda/custom-function-names).
 
-From <AvailableFrom v="4.0.540" inline />, passing this flag skips automatic function discovery.
+From v4.0.540, passing this flag skips automatic function discovery.
 
 ### `--renderer-function-name`<AvailableFrom v="3.3.38" />
 

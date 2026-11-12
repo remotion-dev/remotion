@@ -144,11 +144,20 @@ export const enqueueStudioSourceMutation = <T>(
 					result !== null &&
 					'sequenceProps' in result
 				) {
+					const sequenceProps = result.sequenceProps as Parameters<
+						typeof receiveSequencePropsFromEffectEdit
+					>[1];
+					for (const update of sequenceProps) {
+						markSourceRequestPaths(
+							update.result,
+							[...mutations, ownMutation],
+							false,
+						);
+					}
+
 					receiveSequencePropsFromEffectEdit(
 						ownMutation.mutationId,
-						result.sequenceProps as Parameters<
-							typeof receiveSequencePropsFromEffectEdit
-						>[1],
+						sequenceProps,
 					);
 				}
 

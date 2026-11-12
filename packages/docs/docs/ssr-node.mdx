@@ -79,6 +79,12 @@ This flow is customizable. Click on one of the SSR APIs to read about its option
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for improved performance.
 
+## Shutting down
+
+When the process receives `SIGINT`, Remotion closes the browsers it opened and exits the process.
+
+When the process receives `SIGTERM` or `SIGHUP`, Remotion closes the browsers it opened. From v4.0.544, Remotion then also terminates the process, unless you have added your own listener for the signal. In that case, exit the process yourself, for example after cancelling the running renders with [`makeCancelSignal()`](/docs/renderer/make-cancel-signal).
+
 ## Linux Dependencies
 
 If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed. See [Linux Dependencies](/docs/miscellaneous/linux-dependencies).

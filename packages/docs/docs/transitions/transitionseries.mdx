@@ -102,7 +102,7 @@ Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRa
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
 
-The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
+The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from v4.0.497.
 
 Also accepts an `offset?` prop, which works like [`<Series.Sequence offset>`](/docs/series#offset): a positive value delays the sequence, a negative value starts it earlier. Sequences that come after it are shifted too. Must be an integer. Default: `0`.
 
@@ -315,14 +315,10 @@ springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
 
 ## Rules
 
-<Step>1</Step> A transition must not be longer than the duration of the previous or next sequence.
-
-<Step>2</Step> Two transitions cannot be adjacent.
-
-<Step>3</Step> Two overlays cannot be adjacent.
-
-<Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.
-
+<Step>1</Step> A transition must not be longer than the duration of the previous or next sequence.<br />
+<Step>2</Step> Two transitions cannot be adjacent.<br />
+<Step>3</Step> Two overlays cannot be adjacent.<br />
+<Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.<br />
 <Step>5</Step> There must be at least one sequence before or after a transition or overlay.
 
 ## Compatibility

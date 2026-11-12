@@ -594,8 +594,8 @@ export const ShapeOptions: React.FC<{
 						,{' '}
 						<a href="/docs/sequence#trimbefore">
 							<code>trimBefore</code>
-						</a>
-						<AvailableFrom v="4.0.482" inline />,{' '}
+						</a>{' '}
+						(from v4.0.482),{' '}
 						<a href="/docs/sequence#playbackrate">
 							<code>playbackRate</code>
 						</a>
@@ -622,7 +622,7 @@ export const ShapeOptions: React.FC<{
 						from <a href="/docs/sequence">{'<Sequence>'}</a>.
 					</p>
 					<p>
-						From <AvailableFrom v="4.0.528" inline />, it also inherits{' '}
+						From v4.0.528, it also inherits{' '}
 						<a href="/docs/sequence#premountfor">
 							<code>premountFor</code>
 						</a>

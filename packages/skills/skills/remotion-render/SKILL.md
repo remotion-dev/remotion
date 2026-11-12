@@ -1,7 +1,7 @@
 ---
 name: remotion-render
-description: Export a Remotion video
-version: 4.0.542
+description: Export a Remotion video, still image, or editable OpenTimelineIO timeline
+version: 4.0.543
 ---
 
 ## General rendering strategy
@@ -15,8 +15,10 @@ unless the user explicitly requests a different browser.
 Render a video using:
 
 ```
-npx remotion render
+npx remotion render [composition-id] out/video.mp4
 ```
+
+Always pass the composition ID. Without it, Remotion shows an interactive picker, or fails in a non-interactive terminal. List the IDs with `npx remotion compositions`.
 
 Full list of options: https://www.remotion.dev/docs/cli/render.md
 
@@ -71,3 +73,11 @@ to change the pattern.
 ## Transparent videos
 
 See [Transparent videos](./transparent-videos.md) for rendering out a video with transparency.
+
+## OpenTimelineIO export (optional)
+
+When the user asks for an editable timeline for DaVinci Resolve, Adobe Premiere,
+or another video editor, follow [Export to OpenTimelineIO](./opentimeline.md).
+This workflow preserves editable media clips where possible and prerenders
+unsupported elements. Use it only for requested timeline exports; ordinary video
+and still renders use the commands above.

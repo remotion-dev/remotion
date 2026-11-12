@@ -318,6 +318,7 @@ const internalRenderMediaOnWeb = async <
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
 		compositionWidth: composition.width ?? null,
+		schema: schema ?? null,
 	});
 
 	const encodedDimensions = getEncodedDimensions({
