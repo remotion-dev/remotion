@@ -17,7 +17,8 @@ import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 
 export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
-const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
+export const THIRD_PARTY_ELEMENTS_URL =
+	'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',

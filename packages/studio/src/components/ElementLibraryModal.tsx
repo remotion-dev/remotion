@@ -10,6 +10,7 @@ import {
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
+import {BrowseElementsIcon} from '../icons/browse-elements';
 import {GearIcon} from '../icons/gear';
 import {TrashIcon} from '../icons/trash';
 import {
@@ -22,11 +23,13 @@ import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {
 	ElementLibrariesSettings,
 	REMOTION_ELEMENTS_URL,
+	THIRD_PARTY_ELEMENTS_URL,
 } from './ElementLibrariesSettings';
 import {ElementLibraryFrame} from './ElementLibraryFrame';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
+import {MenuDivider} from './Menu/MenuDivider';
 import {
 	horizontalLayout,
 	horizontalTab,
@@ -56,6 +59,15 @@ const tabStyle: React.CSSProperties = {
 	...horizontalTab,
 	cursor: 'default',
 	width: 190,
+};
+
+const exploreIconContainer: React.CSSProperties = {
+	...iconContainer,
+	flexShrink: 0,
+	height: 22,
+	marginLeft: -2,
+	marginRight: 6,
+	width: 22,
 };
 
 const content: React.CSSProperties = {
@@ -135,6 +147,29 @@ export const ElementLibraryModal: React.FC<{
 		>
 			<div style={horizontalLayout}>
 				<nav style={sidebar} aria-label="Element libraries">
+					<VerticalTab
+						style={tabStyle}
+						selected={!showManagement && url === THIRD_PARTY_ELEMENTS_URL}
+						onClick={() => {
+							setSelectedModal({
+								type: 'element-library',
+								name: 'Explore',
+								url: THIRD_PARTY_ELEMENTS_URL,
+								view: 'library',
+							});
+						}}
+						renderIcon={(color) => (
+							<div style={exploreIconContainer}>
+								<BrowseElementsIcon
+									color={color}
+									style={{width: 22, height: 22}}
+								/>
+							</div>
+						)}
+					>
+						Explore
+					</VerticalTab>
+					<MenuDivider />
 					<div style={libraryList} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 						{libraries.map((library) => {
 							const label = getElementLibraryLabel(library);
