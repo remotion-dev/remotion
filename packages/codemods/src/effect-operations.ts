@@ -644,26 +644,6 @@ export const reorderEffects = ({
 		};
 	});
 
-export const reorderEffect = ({
-	fromIndex,
-	input,
-	prettierConfigOverride,
-	sequenceNodePath,
-	toIndex,
-}: {
-	fromIndex: number;
-	input: string;
-	sequenceNodePath: SequenceNodePath;
-	toIndex: number;
-} & EffectSourceStyleOptions) =>
-	reorderEffects({
-		fromIndices: [fromIndex],
-		input,
-		prettierConfigOverride,
-		sequenceNodePath,
-		toIndex,
-	});
-
 export const deleteEffects = ({
 	effects,
 	input,

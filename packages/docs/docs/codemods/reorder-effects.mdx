@@ -1,0 +1,87 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-reorder-effects.png
+title: 'reorderEffects()'
+crumb: '@remotion/codemods'
+---
+
+# reorderEffects()<AvailableFrom v="4.0.544" />
+
+Moves one or more effects as a group within the same inline `effects` array. The moved effects keep their source order, regardless of the order passed in `effects`.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="reorder-effects.ts"
+import {reorderEffects, type CodemodProject, type EffectReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const first: EffectReference;
+declare const second: EffectReference;
+
+const result = await reorderEffects({
+  project,
+  effects: [first, second],
+  toIndex: 0,
+});
+
+console.log(result);
+```
+
+All effects must belong to the same JSX node. Effect order changes the order of application. Other effects' indices may shift.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### effects
+
+A nonempty array of [`EffectReference`](/docs/codemods#effect-references) values: `filePath`, `nodePath`, and a zero-based `effectIndex` in the node's inline `effects` array. Duplicate references are invalid.
+
+### toIndex
+
+The zero-based insertion index after removing the selected effects. It must be an integer from `0` to the number of remaining effects, inclusive. The first moved effect ends up at this index.
+
+For example, moving `B` and `D` in `[A, B, C, D]` to index `0` produces `[B, D, A, C]`. Moving them to index `2` produces `[A, C, B, D]`.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### updatedEffects
+
+The moved effect references with their new indices, in the order passed in `effects`.
+
+### editDetails
+
+The source location and combined effect label for the edit.
+
+## Migrating from `reorderEffect()`
+
+From v4.0.544, `reorderEffects()` replaces `reorderEffect()`. To move one effect, pass `effects: [effect]` and read `result.updatedEffects[0]` instead of `result.updatedEffect`.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/reorder-effects.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

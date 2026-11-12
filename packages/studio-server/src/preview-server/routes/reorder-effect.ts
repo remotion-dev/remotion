@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {reorderEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderEffectRequest,
@@ -52,13 +52,13 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await CodemodsInternals.reorderEffects({
+			const result = await reorderEffects({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				node: {
+				effects: fromIndices.map((effectIndex) => ({
 					filePath: absolutePath,
 					nodePath: sequenceNodePath.nodePath,
-				},
-				fromIndices,
+					effectIndex,
+				})),
 				toIndex,
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;

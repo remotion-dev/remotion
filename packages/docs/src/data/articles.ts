@@ -2881,13 +2881,13 @@ export const articles = [
 		slug: 'codemods/rename-folder',
 	},
 	{
-		id: 'codemods/reorder-effect',
-		title: 'reorderEffect()',
-		relativePath: 'docs/codemods/reorder-effect.mdx',
-		compId: 'articles-docs-codemods-reorder-effect',
+		id: 'codemods/reorder-effects',
+		title: 'reorderEffects()',
+		relativePath: 'docs/codemods/reorder-effects.mdx',
+		compId: 'articles-docs-codemods-reorder-effects',
 		crumb: '@remotion/codemods',
 		noAi: false,
-		slug: 'codemods/reorder-effect',
+		slug: 'codemods/reorder-effects',
 	},
 	{
 		id: 'codemods/reorder-nodes',

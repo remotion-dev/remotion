@@ -1,31 +1,41 @@
 import type {CodemodProject} from './codemod-project';
 import {reorderEffects as reorderEffectsInSource} from './effect-operations';
 import {type EffectReference, getEffectSource} from './effect-references';
+import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
-	type NodeReference,
 } from './node-references';
 
-export type ReorderEffectOptions<Project extends CodemodProject> = {
+export type ReorderEffectsOptions<Project extends CodemodProject> = {
 	project: Project;
-	effect: EffectReference;
+	effects: readonly EffectReference[];
 	toIndex: number;
 };
 
-export const reorderEffects = async ({
+export const reorderEffects = async <Project extends CodemodProject>({
 	project,
-	node,
-	fromIndices,
+	effects,
 	toIndex,
-}: {
-	project: CodemodProject;
-	node: NodeReference;
-	fromIndices: readonly number[];
-	toIndex: number;
-}) => {
+}: ReorderEffectsOptions<Project>) => {
+	if (effects.length === 0) {
+		throw new Error('Expected at least one effect to reorder');
+	}
+
+	const node = effects[0];
 	const {filePath, input} = getEffectSource({project, node});
+	if (
+		effects.some(
+			(effect) =>
+				findProjectFile({project, filePath: effect.filePath}) !== filePath ||
+				JSON.stringify(effect.nodePath) !== JSON.stringify(node.nodePath),
+		)
+	) {
+		throw new Error('Effects must belong to the same JSX node to reorder them');
+	}
+
+	const fromIndices = effects.map((effect) => effect.effectIndex);
 	const {output, formatted, effectLabel, logLine} =
 		await reorderEffectsInSource({
 			input,
@@ -49,25 +59,11 @@ export const reorderEffects = async ({
 	return {
 		...result,
 		editDetails: [{filePath, formatted, effectLabel, logLine}],
-	};
-};
-
-export const reorderEffect = async <Project extends CodemodProject>({
-	project,
-	effect,
-	toIndex,
-}: ReorderEffectOptions<Project>) => {
-	const result = await reorderEffects({
-		project,
-		node: effect,
-		fromIndices: [effect.effectIndex],
-		toIndex,
-	});
-	return {
-		...result,
-		updatedEffect: {
+		updatedEffects: effects.map((effect) => ({
 			...getUpdatedNodeReference({project, ...result, node: effect}),
-			effectIndex: toIndex,
-		},
+			effectIndex:
+				toIndex +
+				fromIndices.filter((index) => index < effect.effectIndex).length,
+		})),
 	};
 };

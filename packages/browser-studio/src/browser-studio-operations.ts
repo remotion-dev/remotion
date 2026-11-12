@@ -25,6 +25,7 @@ import {
 	moveFolder as moveFolderCodemod,
 	renameComposition as renameCompositionCodemod,
 	renameFolder as renameFolderCodemod,
+	reorderEffects as reorderEffectsCodemod,
 	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
@@ -1576,13 +1577,13 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const result = await CodemodsInternals.reorderEffects({
+				const result = await reorderEffectsCodemod({
 					project,
-					node: {
+					effects: request.fromIndices.map((effectIndex) => ({
 						filePath: absolutePath,
 						nodePath: request.sequenceNodePath.nodePath,
-					},
-					fromIndices: request.fromIndices,
+						effectIndex,
+					})),
 					toIndex: request.toIndex,
 				});
 				const nodePathMutation = controller.applyMutation({

@@ -30,7 +30,6 @@ import {
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
-import {reorderEffects} from './reorder-effect';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
 import {resolveCompositionImportFile} from './resolve-composition-import-file';
@@ -137,7 +136,7 @@ export {
 	duplicateEffects,
 	type DuplicateEffectsOptions,
 } from './duplicate-effects';
-export {reorderEffect, type ReorderEffectOptions} from './reorder-effect';
+export {reorderEffects, type ReorderEffectsOptions} from './reorder-effects';
 export {type EffectReference} from './effect-references';
 export {
 	updateNodeKeyframes,
@@ -225,7 +224,6 @@ export const CodemodsInternals = {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	pasteEffects,
-	reorderEffects,
 	replaceJsxElementWithSource,
 	replaceNodeChild,
 	resolveCompositionComponent,

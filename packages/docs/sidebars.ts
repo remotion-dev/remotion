@@ -2235,7 +2235,7 @@ const sidebars: SidebarsConfig = {
 				'codemods/move-folder',
 				'codemods/rename-composition',
 				'codemods/rename-folder',
-				'codemods/reorder-effect',
+				'codemods/reorder-effects',
 				'codemods/reorder-nodes',
 				'codemods/resolve-composition-component',
 				'codemods/set-composition-default-props',
