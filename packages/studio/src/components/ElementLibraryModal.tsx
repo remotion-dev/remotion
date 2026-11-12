@@ -20,16 +20,13 @@ import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {BrowseElementsIcon} from '../icons/browse-elements';
-import {GearIcon} from '../icons/gear';
 import {TrashIcon} from '../icons/trash';
 import {
 	type ElementInstallModalState,
-	type ElementLibraryModalState,
 	SetSelectedModalContext,
 } from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {ElementInstallConfirmation} from './ElementInstallConfirmation';
-import {ElementLibrariesSettings} from './ElementLibrariesSettings';
 import {ElementLibraryDialog} from './ElementLibraryDialog';
 import {ElementLibraryFrame} from './ElementLibraryFrame';
 import {ElementLibraryIcon} from './ElementLibraryIcon';
@@ -42,10 +39,8 @@ import {
 	horizontalTab,
 	iconContainer,
 	leftSidebar,
-	optionsPanel,
 } from './RenderModal/render-modals';
 import {useSettings} from './SettingsContext';
-import {SettingsModalFooter} from './SettingsModalFooter';
 import {VerticalTab} from './Tabs/vertical';
 
 const sidebar: React.CSSProperties = {
@@ -83,10 +78,6 @@ const content: React.CSSProperties = {
 	flexDirection: 'column',
 	minHeight: 0,
 	minWidth: 0,
-};
-
-const hiddenContent: React.CSSProperties = {
-	display: 'none',
 };
 
 const urlBar: React.CSSProperties = {
@@ -137,9 +128,8 @@ const libraryReorderMimeType = 'application/remotion-element-library-reorder';
 export const ElementLibraryModal: React.FC<{
 	readonly name: string;
 	readonly url: string;
-	readonly view: ElementLibraryModalState['view'];
 	readonly installState: ElementInstallModalState | null;
-}> = ({name, url, view, installState}) => {
+}> = ({name, url, installState}) => {
 	const sidebarRef = useRef<HTMLElement>(null);
 	const sidebarSize = PlayerInternals.useElementSize(sidebarRef, {
 		triggerOnWindowResize: true,
@@ -164,12 +154,10 @@ export const ElementLibraryModal: React.FC<{
 		previewServerConnected: previewServerState.type === 'connected',
 		readOnlyStudio: window.remotion_isReadOnlyStudio,
 	});
-	const showManagement = view === 'manage' && canManageLibraries;
 	const libraries = studioRuntimeConfig?.elementLibraries ?? [];
 	useEffect(() => {
 		if (
 			studioRuntimeConfig === null ||
-			view !== 'library' ||
 			url === THIRD_PARTY_ELEMENTS_URL ||
 			studioRuntimeConfig.elementLibraries.some(
 				(library) => library.url === url,
@@ -186,7 +174,7 @@ export const ElementLibraryModal: React.FC<{
 					}
 				: current,
 		);
-	}, [setSelectedModal, studioRuntimeConfig, url, view]);
+	}, [setSelectedModal, studioRuntimeConfig, url]);
 	const moveLibrary = (libraryUrl: string, toIndex: number) => {
 		const urls = libraries.map((library) => library.url);
 		const fromIndex = urls.indexOf(libraryUrl);
@@ -226,30 +214,20 @@ export const ElementLibraryModal: React.FC<{
 		return toIndex === fromIndex ? null : {before, toIndex};
 	};
 
-	const openElementSettings = useCallback(() => {
-		setSelectedModal((current) =>
-			current?.type === 'element-library'
-				? {...current, view: 'manage'}
-				: current,
-		);
-	}, [setSelectedModal]);
-
 	return (
 		<FullscreenPanel
 			ariaLabel="Elements"
 			headerContent={
-				showManagement ? null : (
-					<div style={urlBar}>
-						<input
-							aria-label="Element library URL"
-							className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-							readOnly
-							style={urlText}
-							type="text"
-							value={iframeUrl}
-						/>
-					</div>
-				)
+				<div style={urlBar}>
+					<input
+						aria-label="Element library URL"
+						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+						readOnly
+						style={urlText}
+						type="text"
+						value={iframeUrl}
+					/>
+				</div>
 			}
 			rightAction={null}
 			sidebarWidth={sidebarSize?.width ?? null}
@@ -273,13 +251,12 @@ export const ElementLibraryModal: React.FC<{
 					<VerticalTab
 						draggable={false}
 						style={tabStyle}
-						selected={!showManagement && url === THIRD_PARTY_ELEMENTS_URL}
+						selected={url === THIRD_PARTY_ELEMENTS_URL}
 						onClick={() => {
 							setSelectedModal({
 								type: 'element-library',
 								name: 'Explore',
 								url: THIRD_PARTY_ELEMENTS_URL,
-								view: 'library',
 							});
 						}}
 						renderIcon={(color) => (
@@ -440,13 +417,12 @@ export const ElementLibraryModal: React.FC<{
 										<VerticalTab
 											draggable={canManageLibraries && libraries.length > 1}
 											style={tabStyle}
-											selected={!showManagement && url === library.url}
+											selected={url === library.url}
 											onClick={() => {
 												setSelectedModal({
 													type: 'element-library',
 													name: label,
 													url: library.url,
-													view: 'library',
 												});
 											}}
 											renderIcon={(color) => (
@@ -466,43 +442,15 @@ export const ElementLibraryModal: React.FC<{
 							);
 						})}
 					</div>
-					{canManageLibraries && (
-						<VerticalTab
-							draggable={false}
-							style={tabStyle}
-							selected={showManagement}
-							onClick={openElementSettings}
-							renderIcon={(color) => (
-								<div style={iconContainer}>
-									<GearIcon color={color} width={18} height={18} />
-								</div>
-							)}
-						>
-							Manage libraries
-						</VerticalTab>
-					)}
 				</nav>
 				<div style={content}>
-					<div style={showManagement ? hiddenContent : content}>
-						<ElementLibraryFrame
-							name={name}
-							url={url}
-							context={null}
-							captionStyleSelection={null}
-							onUrlChange={setIframeUrl}
-						/>
-					</div>
-					{showManagement && (
-						<>
-							<div
-								style={optionsPanel}
-								className={VERTICAL_SCROLLBAR_CLASSNAME}
-							>
-								<ElementLibrariesSettings />
-							</div>
-							<SettingsModalFooter showAboutElements showLicenseFaq={false} />
-						</>
-					)}
+					<ElementLibraryFrame
+						name={name}
+						url={url}
+						context={null}
+						captionStyleSelection={null}
+						onUrlChange={setIframeUrl}
+					/>
 				</div>
 			</div>
 			{libraryDialog === null ? null : (

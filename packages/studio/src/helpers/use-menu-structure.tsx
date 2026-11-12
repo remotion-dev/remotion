@@ -541,7 +541,6 @@ const useMenuStructureBase = ({
 							closeMenu();
 							setSelectedModal({
 								type: 'settings',
-								initialStudioPane: null,
 								initialTab: studioConfigEditable ? 'studio' : 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -998,7 +997,6 @@ const useMenuStructureBase = ({
 									closeMenu();
 									setSelectedModal({
 										type: 'settings',
-										initialStudioPane: null,
 										initialTab: 'packages',
 										initialPublicLicenseKey:
 											window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -1030,7 +1028,6 @@ const useMenuStructureBase = ({
 
 							setSelectedModal({
 								type: 'settings',
-								initialStudioPane: null,
 								initialTab: 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,

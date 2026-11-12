@@ -209,7 +209,6 @@ export type ElementLibraryModalState = {
 	readonly type: 'element-library';
 	readonly name: string;
 	readonly url: string;
-	readonly view: 'library' | 'manage';
 };
 
 export type ElementInstallModalState = {
@@ -283,7 +282,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'

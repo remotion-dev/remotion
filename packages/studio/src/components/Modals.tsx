@@ -91,7 +91,6 @@ export const Modals: React.FC<{
 			if (!success) return;
 			setSelectedModal({
 				type: 'element-library',
-				view: 'library',
 				name: getElementLibraryLabel({url, displayName}),
 				url,
 			});
@@ -111,7 +110,6 @@ export const Modals: React.FC<{
 
 			setSelectedModal({
 				type: 'settings',
-				initialStudioPane: null,
 				initialTab: 'license',
 				initialPublicLicenseKey: event.licenseKey,
 			});

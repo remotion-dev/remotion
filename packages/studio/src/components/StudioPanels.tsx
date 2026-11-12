@@ -53,8 +53,7 @@ export const StudioPanels: React.FC<{
 				>
 					{selectedModal?.type === 'settings' ? (
 						<SettingsModal
-							key={`${selectedModal.initialTab}-${selectedModal.initialStudioPane}-${selectedModal.initialPublicLicenseKey}`}
-							initialStudioPane={selectedModal.initialStudioPane}
+							key={`${selectedModal.initialTab}-${selectedModal.initialPublicLicenseKey}`}
 							initialTab={selectedModal.initialTab}
 							initialPublicLicenseKey={selectedModal.initialPublicLicenseKey}
 						/>
@@ -63,7 +62,6 @@ export const StudioPanels: React.FC<{
 						<ElementLibraryModal
 							name={library.name}
 							url={library.url}
-							view={library.view}
 							installState={
 								selectedModal?.type === 'element-install' ? selectedModal : null
 							}

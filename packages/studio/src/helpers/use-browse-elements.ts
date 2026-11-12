@@ -20,7 +20,6 @@ export const useBrowseElements = () => {
 		if (library) {
 			setSelectedModal({
 				type: 'element-library',
-				view: 'library',
 				name: getElementLibraryLabel(library),
 				url: library.url,
 			});
@@ -42,7 +41,6 @@ export const useBrowseElements = () => {
 
 		setSelectedModal({
 			type: 'element-library',
-			view: 'library',
 			name: canAdd ? 'Remotion Elements' : 'Explore',
 			url: canAdd ? REMOTION_ELEMENTS_URL : THIRD_PARTY_ELEMENTS_URL,
 		});

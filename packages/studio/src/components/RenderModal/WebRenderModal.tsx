@@ -705,7 +705,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							onClick={() =>
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'license',
 									initialPublicLicenseKey: publicLicenseKey,
 								})
