@@ -335,6 +335,7 @@ const renderContent = (Root: React.FC) => {
 	}
 
 	if (bundleMode.type === 'evaluation') {
+		getInputProps();
 		const markup = (
 			<Internals.CompositionManagerProvider
 				initialCanvasContent={null}
@@ -482,6 +483,7 @@ if (typeof window !== 'undefined') {
 					inputProps: originalProps,
 					defaultProps: c.defaultProps ?? {},
 					compositionId: c.id,
+					schema: c.schema ?? null,
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -548,6 +550,7 @@ if (typeof window !== 'undefined') {
 				signal: abortController.signal,
 				defaultProps: selectedComp.defaultProps ?? {},
 				compositionId: selectedComp.id,
+				schema: selectedComp.schema ?? null,
 			}),
 		);
 		globalContinueRender(handle);

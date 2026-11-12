@@ -151,10 +151,6 @@ export const detailsBeforeInlineAction: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
-export const guideDetailsContainer: React.CSSProperties = {
-	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
-};
-
 export const detailRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',

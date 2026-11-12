@@ -8,7 +8,7 @@ crumb: 'How To'
 
 Use [Zod](https://zod.dev/) to validate the props your component accepts and to customize their controls in the Remotion Studio.
 
-You do not need to define a schema to [edit props visually](/docs/visual-editing). Since <AvailableFrom v="4.0.516" inline />, Remotion [infers basic controls from `defaultProps`](/docs/default-props-inference). See [When to define a schema](/docs/default-props-inference#when-to-define-a-schema) for cases where an explicit schema is useful.
+You do not need to define a schema to [edit props visually](/docs/visual-editing). Since v4.0.516, Remotion [infers basic controls from `defaultProps`](/docs/default-props-inference). See [When to define a schema](/docs/default-props-inference#when-to-define-a-schema) for cases where an explicit schema is useful.
 
 ## AI agent prompt
 
@@ -120,6 +120,16 @@ export const RemotionRoot: React.FC = () => {
 ## Editing props visually
 
 The schema determines which controls appear when you [edit props visually in the Remotion Studio](/docs/visual-editing). It overrides the controls that Remotion would otherwise [infer from `defaultProps`](/docs/default-props-inference).
+
+## Validation during rendering<AvailableFrom v="4.0.544" />
+
+The Remotion Studio uses the schema to mark invalid props, and does not apply them.
+
+When you render with the CLI, the server-side rendering APIs or Lambda, Remotion validates the input props, merged with the default props, against the schema before it calls [`calculateMetadata()`](/docs/calculate-metadata).
+
+If the props are invalid, Remotion 4.0 logs a warning that lists each invalid field, and renders with the props anyway. In Remotion 5.0, the render fails with an error instead. See the [v5.0 migration guide](/docs/5-0-migration#invalid-props-fail-the-render).
+
+Remotion merges input props shallowly with the default props. A top-level key in the input props replaces the whole value of that key in the default props, including nested objects.
 
 ## Supported types
 
