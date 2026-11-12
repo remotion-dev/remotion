@@ -16,6 +16,7 @@ const files = walk(docsDir);
 
 const docUrls = new Map<string, string>();
 const apiPages = new Set<string>();
+const fileIds = new Map<string, string>();
 for (const file of files.filter((f) => /\.mdx?$/.test(f))) {
 	const rel = path.relative(docsDir, file).replace(/\.mdx?$/, '');
 	const dir = path.dirname(rel) === '.' ? '' : path.dirname(rel) + '/';
@@ -33,6 +34,7 @@ for (const file of files.filter((f) => /\.mdx?$/.test(f))) {
 			? '/docs' + slug
 			: '/docs/' + dir + slug
 		: '/docs/' + id;
+	fileIds.set(file, id);
 	docUrls.set(id, url.replace(/\/index$/, '').replace(/\/$/, ''));
 
 	const title = field('title') ?? '';
@@ -111,16 +113,12 @@ for (const toc of files.filter((f) => f.endsWith('table-of-contents.tsx'))) {
 		);
 	});
 
-	const pageIds = pages.map((page) =>
-		[...docUrls.keys()].find(
-			(id) =>
-				path.join(docsDir, id) === page.replace(/\.mdx?$/, '') ||
-				docUrls.get(id) ===
-					'/docs/' + path.relative(docsDir, page).replace(/\.mdx?$/, ''),
-		),
-	);
+	const pageIds = pages.map((page) => fileIds.get(page));
 	const categoryId = pageIds.find((id) => id && categories.has(id));
 	if (!categoryId) {
+		problems.push(
+			`${path.relative(__dirname, toc)} is not imported by the index page of a sidebar category`,
+		);
 		continue;
 	}
 
