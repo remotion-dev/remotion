@@ -1,0 +1,213 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-lambda-terraform.png
+title: Deploying Remotion Lambda with Terraform
+sidebar_label: Terraform
+slug: /lambda/terraform
+crumb: '@remotion/lambda'
+---
+
+# Deploying Remotion Lambda with Terraform<AvailableFrom v="4.0.543" />
+
+You can deploy Remotion Lambda using [Terraform](https://developer.hashicorp.com/terraform) and the function ZIPs hosted by Remotion. Each release includes a regional manifest with the ZIP location, checksum, layers, and [runtime settings](/docs/lambda/runtime).
+
+This example manages the Lambda function and its CloudWatch log group. Your Remotion [site](/docs/terminology/serve-url) is deployed separately.
+
+## Prerequisites
+
+- Install [Terraform](https://developer.hashicorp.com/terraform/install).
+- Create `remotion-lambda-role` with the Remotion role policy and a trust relationship for `lambda.amazonaws.com`. Follow [steps 2 and 3 of the setup guide](/docs/lambda/setup#2-create-role-policy).
+- Configure [AWS credentials for Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration) for the account you want to deploy into. These credentials must be able to read and pass the role, and manage Lambda functions, tags, runtime settings, asynchronous invocation settings, and CloudWatch log groups. The [Remotion user policy](/docs/lambda/permissions#user-policies) alone may not cover all Terraform operations.
+
+## Configure the function
+
+Create the following files in a Terraform directory.
+
+### Variables
+
+Memory and disk space are separate settings, even though both default to `2048` MB here. Use whole numbers: `512`–`10240` for memory and disk space, and `15`–`900` for the timeout in seconds.
+
+```hcl title="variables.tf"
+variable "memory_size_mb" {
+  type    = number
+  default = 2048
+}
+
+variable "disk_size_mb" {
+  type    = number
+  default = 2048
+}
+
+variable "timeout_seconds" {
+  type    = number
+  default = 120
+}
+```
+
+### Resources
+
+Set `region` to a [supported region](/docs/lambda/region-selection) and `remotion_version` to the exact version used by your application. Hosted artifacts are available from `4.0.543`, except in [AWS China regions](/docs/lambda/aws-china-regions).
+
+```hcl title="main.tf"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "~> 3.0"
+    }
+  }
+}
+
+locals {
+  region           = "eu-central-1"
+  remotion_version = "4.0.543"
+  function_name    = "remotion-render-${replace(local.remotion_version, ".", "-")}-mem${var.memory_size_mb}mb-disk${var.disk_size_mb}mb-${var.timeout_seconds}sec"
+  manifest         = jsondecode(data.http.manifest.response_body)
+}
+
+provider "aws" {
+  region = local.region
+}
+
+data "http" "manifest" {
+  url = "https://remotionlambda-binaries-${local.region}.s3.${local.region}.amazonaws.com/functions/v${local.remotion_version}/manifest.json"
+}
+
+data "aws_iam_role" "remotion" {
+  name = "remotion-lambda-role"
+}
+
+resource "aws_cloudwatch_log_group" "remotion" {
+  name              = "/aws/lambda/${local.function_name}"
+  retention_in_days = 14
+}
+
+resource "aws_lambda_function" "remotion" {
+  function_name = local.function_name
+  role          = data.aws_iam_role.remotion.arn
+
+  s3_bucket        = local.manifest.code.s3Bucket
+  s3_key           = local.manifest.code.s3Key
+  source_code_hash = local.manifest.code.sha256Base64
+
+  handler       = local.manifest.handler
+  runtime       = local.manifest.runtime
+  architectures = [local.manifest.architecture]
+  layers        = local.manifest.layers["default"]
+
+  memory_size = var.memory_size_mb
+  timeout     = var.timeout_seconds
+
+  ephemeral_storage {
+    size = var.disk_size_mb
+  }
+
+  tags = {
+    "remotion-lambda"                   = "true"
+    "remotion-version"                  = local.remotion_version
+    "remotion-memory-in-mb"             = tostring(var.memory_size_mb)
+    "remotion-timeout-in-seconds"       = tostring(var.timeout_seconds)
+    "remotion-ephemereal-storage-in-mb" = tostring(var.disk_size_mb)
+  }
+
+  depends_on = [aws_cloudwatch_log_group.remotion]
+}
+
+resource "aws_lambda_function_event_invoke_config" "remotion" {
+  function_name          = aws_lambda_function.remotion.function_name
+  maximum_retry_attempts = local.manifest.maximumRetryAttempts
+}
+
+resource "aws_lambda_runtime_management_config" "remotion" {
+  function_name       = aws_lambda_function.remotion.function_name
+  update_runtime_on   = "Manual"
+  runtime_version_arn = local.manifest.runtimeVersionArn
+}
+
+output "function_name" {
+  value = aws_lambda_function.remotion.function_name
+}
+```
+
+The ZIP remains in Remotion's regional S3 bucket. AWS Lambda can deploy code from a bucket in another account, as long as it is in the [same region as the function](https://docs.aws.amazon.com/lambda/latest/api/API_FunctionCode.html).
+
+Keep the [function naming convention](/docs/lambda/naming-convention) and tags shown above so Remotion can discover the function and its configuration. The spelling of `remotion-ephemereal-storage-in-mb` is intentional.
+
+The invocation configuration disables Lambda's automatic retries because Remotion handles retries. The [runtime management configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_runtime_management_config) pins the runtime version used by that Remotion release.
+
+### Override the defaults
+
+For example, to use `3008` MB of memory and a `240` second timeout:
+
+```hcl title="terraform.tfvars"
+memory_size_mb  = 3008
+disk_size_mb    = 2048
+timeout_seconds = 240
+```
+
+## Deploy
+
+```sh title="Deploy the function"
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+terraform output -raw function_name
+```
+
+If a function or log group with the same name already exists, [import it into Terraform](https://developer.hashicorp.com/terraform/language/import) before applying the configuration.
+
+## Deploy a site and render
+
+In your Remotion project, use [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) and [`deploySite()`](/docs/lambda/deploysite) to upload your composition. The bucket and function must be in the same region.
+
+Use the function name from `terraform output -raw function_name` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). This example reads it from the `REMOTION_FUNCTION_NAME` environment variable.
+
+```ts twoslash title="deploy-and-render.ts"
+import {
+  deploySite,
+  getOrCreateBucket,
+  renderMediaOnLambda,
+} from '@remotion/lambda';
+
+const functionName = process.env.REMOTION_FUNCTION_NAME;
+if (!functionName) {
+  throw new Error('Set REMOTION_FUNCTION_NAME to the Terraform output.');
+}
+
+const region = 'eu-central-1';
+const {bucketName} = await getOrCreateBucket({region});
+const {serveUrl} = await deploySite({
+  region,
+  bucketName,
+  entryPoint: 'src/index.ts',
+});
+
+const {renderId} = await renderMediaOnLambda({
+  region,
+  functionName,
+  serveUrl,
+  composition: 'HelloWorld',
+  codec: 'h264',
+  forceBucketName: bucketName,
+});
+
+console.log({renderId, bucketName});
+```
+
+Replace the entry point and composition ID with your own, and configure [Remotion AWS authentication](/docs/lambda/authentication) for the script. Deploy the site when your composition changes; subsequent renders can reuse its `serveUrl`. Use [`getRenderProgress()`](/docs/lambda/getrenderprogress) to track the render.
+
+## Upgrading
+
+Keep the function, site, and Remotion packages in your application on the same version. Changing `remotion_version`, memory, disk space, or timeout changes the function name and makes Terraform replace the function.
+
+For [zero-downtime upgrades](/docs/lambda/upgrading#zero-downtime-upgrades), manage the old and new functions as separate Terraform resources or module instances. Deploy a new site, switch your application to the new function and site, and remove the old resources once their renders have finished. `create_before_destroy` alone does not keep the old function available until your application has switched.
+
+## See also
+
+- [Lambda setup](/docs/lambda/setup)
+- [Permissions](/docs/lambda/permissions)
+- [`deployFunction()`](/docs/lambda/deployfunction)
+- [Upgrading Lambda](/docs/lambda/upgrading)
