@@ -30,13 +30,13 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
           bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Build
         run: bun run build
       - name: Run agent
