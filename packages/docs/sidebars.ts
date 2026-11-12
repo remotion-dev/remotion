@@ -1558,7 +1558,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/faster-progress-polling',
 				'lambda/proxy',
 				'lambda/limits',
-				'lambda/changelog',
 				'lambda/upgrading',
 				'lambda/uninstall',
 				'lambda/s3-public-access',
