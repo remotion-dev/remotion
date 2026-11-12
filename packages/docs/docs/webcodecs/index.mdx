@@ -4,21 +4,18 @@ sidebar_label: Overview
 title: '@remotion/webcodecs'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import {TableOfContents, WebCodecsGuide} from './TableOfContents';
 
-# @remotion/webcodecs<AvailableFrom v="4.0.229" />
+# ~~@remotion/webcodecs~~<AvailableFrom v="4.0.229" />
 
-:::warning
-[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::info Deprecated
+`@remotion/webcodecs` is deprecated in favor of [Mediabunny](/docs/mediabunny) and will no longer be published starting with Remotion 5.0. Existing 4.x versions remain available.
 :::
 
 This package provides APIs for converting videos in the browser.  
 It leverages [`@remotion/media-parser`](/docs/media-parser) to parse the video and audio data, and then uses the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) to encode the video.
 
 import {LicenseDisclaimer} from './LicenseDisclaimer';
-import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 ## What can you do with this package?
 
@@ -30,7 +27,6 @@ In browsers that implement WebCodecs, you can use this package to:
 - Extract audio from a video
 - Manipulate the pixels of a video
 - [Fix videos that were recorded with `MediaRecorder`](/docs/webcodecs/fix-mediarecorder-video)
-- Soon: Compress, trim, crop videos
 
 ## Is it fast?
 
@@ -42,10 +38,6 @@ See a [comparison](https://github.com/remotion-dev/webcodecs-benchmark) here.
 ## 💼 License Disclaimer
 
 <LicenseDisclaimer />
-
-## 🚧 Unstable API Warning
-
-<UnstableDisclaimer />
 
 ## Installation
 

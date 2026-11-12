@@ -5,6 +5,7 @@ import {
 import {enumerateEffectArrayElements, pasteEffects} from './effect-operations';
 import {findSearchPosition} from './find-search-position';
 import {insertBasicCaptions} from './insert-basic-captions';
+import {insertElementIntoTrack} from './insert-element-into-track';
 import {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -22,6 +23,7 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {moveNodesIntoTrack} from './move-nodes-into-track';
 import {
 	getKeyframeSourceLocationRemappings,
 	getUnchangedStructureRemappings,
@@ -190,6 +192,8 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	insertElementIntoTrack,
+	moveNodesIntoTrack,
 	resolveCompositionImportFile,
 	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,

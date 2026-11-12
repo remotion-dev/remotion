@@ -35,7 +35,7 @@ const viewBox = "0 0 1000 1000";
 export const ViewBoxExample: React.FC = () => {
   return (
     <svg viewBox={viewBox}>
-      <path d={"0 500 1500 500"} stroke="black" strokeWidth={4} />
+      <path d={"M 0 500 L 1500 500"} stroke="black" strokeWidth={4} />
     </svg>
   );
 };
@@ -54,13 +54,13 @@ const viewBox = "0 0 1000 1000";
 export const ViewBoxExample: React.FC = () => {
   return (
     <svg style={{ scale: "2" }} viewBox={extendViewBox(viewBox, 2)}>
-      <path d={"0 500 1500 500"} stroke="black" strokeWidth={4} />
+      <path d={"M 0 500 L 1500 500"} stroke="black" strokeWidth={4} />
     </svg>
   );
 };
 ```
 
-By doing that, the each dimensions of the viewBox will be doubled, which will result in the picture being scaled down. By applying a scale transform, this can be corrected.
+By doing that, each dimension of the viewBox will be doubled, which will result in the picture being scaled down. By applying a scale transform, this can be corrected.
 
 In this example, a factor of `2` was chosen because it is enough to fix the cutoff problem. The more the SVG path goes outside the container, the higher the factor needs to be to compensate.
 

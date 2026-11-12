@@ -10,7 +10,7 @@ Extracting a single frame (thumbnail) from a video file can be done using [Media
 Here's an `extractThumbnail()` function you can copy and paste into your project:
 
 ```ts twoslash title="extract-thumbnail.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type ExtractThumbnailProps = {
   src: string;
@@ -34,6 +34,10 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
 
   const sink = new VideoSampleSink(videoTrack);
   const sample = await sink.getSample(timestampInSeconds);
+  if (signal?.aborted) {
+    sample?.close();
+    throw new Error('Aborted');
+  }
 
   if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
@@ -48,7 +52,7 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
 Here is how you can draw a thumbnail to a canvas:
 
 ```tsx twoslash
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type ExtractThumbnailProps = {
   src: string;
@@ -72,6 +76,10 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
 
   const sink = new VideoSampleSink(videoTrack);
   const sample = await sink.getSample(timestampInSeconds);
+  if (signal?.aborted) {
+    sample?.close();
+    throw new Error('Aborted');
+  }
 
   if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
@@ -111,7 +119,11 @@ sample.close();
 
 Or, you can use the [`using`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using) statement to clean up the sample when it goes out of scope.
 
-```ts
+```ts twoslash title="Cleaning up with using"
+import type {VideoSample} from 'mediabunny';
+declare function extractThumbnail(options: {src: string; timestampInSeconds: number}): Promise<VideoSample>;
+declare const ctx: CanvasRenderingContext2D;
+// ---cut---
 using sample = await extractThumbnail({
   src: 'https://example.com/video.mp4',
   timestampInSeconds: 5,
@@ -125,7 +137,7 @@ sample.draw(ctx!, 0, 0);
 Pass an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel thumbnail extraction:
 
 ```ts twoslash
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type ExtractThumbnailProps = {
   src: string;
@@ -149,6 +161,10 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
 
   const sink = new VideoSampleSink(videoTrack);
   const sample = await sink.getSample(timestampInSeconds);
+  if (signal?.aborted) {
+    sample?.close();
+    throw new Error('Aborted');
+  }
 
   if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
@@ -179,7 +195,7 @@ try {
 Here is how you can set a maximum duration for extracting a thumbnail:
 
 ```ts twoslash title="Fail if not able to extract within 5 seconds"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type ExtractThumbnailProps = {
   src: string;
@@ -203,6 +219,10 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
 
   const sink = new VideoSampleSink(videoTrack);
   const sample = await sink.getSample(timestampInSeconds);
+  if (signal?.aborted) {
+    sample?.close();
+    throw new Error('Aborted');
+  }
 
   if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);

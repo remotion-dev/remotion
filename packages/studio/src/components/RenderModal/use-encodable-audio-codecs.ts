@@ -4,7 +4,7 @@ import type {
 } from '@remotion/web-renderer';
 import {
 	getEncodableAudioCodecs,
-	getSupportedAudioCodecsForContainer,
+	WebRendererInternals,
 } from '@remotion/web-renderer';
 import {useEffect, useRef, useState} from 'react';
 
@@ -25,7 +25,8 @@ export const useEncodableAudioCodecs = (
 	>(() => {
 		// Initialize with fallback for the current container
 		return {
-			[container]: getSupportedAudioCodecsForContainer(container),
+			[container]:
+				WebRendererInternals.getSupportedAudioCodecsForContainer(container),
 		};
 	});
 
@@ -37,7 +38,8 @@ export const useEncodableAudioCodecs = (
 			return;
 		}
 
-		const supported = getSupportedAudioCodecsForContainer(container);
+		const supported =
+			WebRendererInternals.getSupportedAudioCodecsForContainer(container);
 
 		// Mark as fetching to prevent duplicate requests
 		cacheRef.current[container] = {
@@ -69,6 +71,6 @@ export const useEncodableAudioCodecs = (
 	// Return codecs for current container, or fall back to supported codecs
 	return (
 		codecsByContainer[container] ??
-		getSupportedAudioCodecsForContainer(container)
+		WebRendererInternals.getSupportedAudioCodecsForContainer(container)
 	);
 };

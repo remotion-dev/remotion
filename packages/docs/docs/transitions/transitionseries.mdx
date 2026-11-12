@@ -104,6 +104,8 @@ Transition scenes must stay absolutely positioned. Remove the `layout` prop or k
 
 The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
 
+Also accepts an `offset?` prop, which works like [`<Series.Sequence offset>`](/docs/series#offset): a positive value delays the sequence, a negative value starts it earlier. Sequences that come after it are shifted too. Must be an integer. Default: `0`.
+
 As children, put the contents of your scene.
 
 ### `<TransitionSeries.Transition>`
@@ -111,13 +113,18 @@ As children, put the contents of your scene.
 Placed between two sequences to animate from one scene to the next.  
 During the transition, both scenes are rendered simultaneously and the total duration is [shortened](#duration-of-a-transitionseries) by the transition length.
 
-Takes two props:
-
-- `timing`: A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
-- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
-
 Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
+
+Takes two props:
+
+#### `timing`
+
+A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
+
+#### `presentation?`
+
+A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 
@@ -127,10 +134,17 @@ The overlay does [not shorten](#duration-of-a-transitionseries) the timeline —
 The overlay is centered on the cut point by default: half the duration before the cut, half after.  
 Children animate independently — no progress context is provided.
 
-Takes two props:
+Takes the following props:
 
-- `durationInFrames`: How long the overlay is visible. Must be a positive integer.
-- `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+#### `durationInFrames`
+
+How long the overlay is visible. Must be a positive integer.
+
+#### `offset?`
+
+Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+
+Also inherits the [`hidden`](/docs/sequence#hidden), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) props from [`<Sequence>`](/docs/sequence).
 
 The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
 
@@ -227,12 +241,12 @@ const BasicTransition = () => {
 ```
 
 `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.
-During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
+During this time, both scenes are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
 
 <details>
-<summary>Example with 3 slides</summary>
+<summary>Example with 3 scenes</summary>
 
 ```tsx twoslash title="SlideTransition.tsx"
 import {AbsoluteFill} from 'remotion';

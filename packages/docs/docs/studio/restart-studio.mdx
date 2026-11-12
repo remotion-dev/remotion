@@ -6,6 +6,8 @@ crumb: "@remotion/studio"
 
 # restartStudio()<AvailableFrom v="4.0.162"/>
 
+Restarts the [Remotion Studio](/docs/studio) server.
+
 ```tsx twoslash title="MyComp.tsx"
 import { restartStudio } from "@remotion/studio";
 import { useCallback } from "react";
@@ -30,12 +32,7 @@ const MyComp: React.FC = () => {
 
 ## Requirements
 
-In order to use this function:
-
-<Step>1</Step> You need to be inside the Remotion Studio. <br />
-<Step>2</Step> The Studio must be running (no static deployment) <br />
-
-Otherwise, the function will throw.
+This function is only available in a writable Studio with a running server. It throws outside Studio, in Browser Studio, or in a read-only Studio.
 
 ## Return value
 

@@ -12,7 +12,14 @@ export const preservePitchOnPlaybackOption = {
 	description: () => (
 		<>
 			Preserve audio pitch when changing the Studio playback speed. Defaults to{' '}
-			<code>true</code>. Applies to <code>Audio</code> and <code>Video</code>{' '}
+			<code>true</code>. Applies to{' '}
+			<a href="/docs/media/audio">
+				<code>&lt;Audio&gt;</code>
+			</a>{' '}
+			and{' '}
+			<a href="/docs/media/video">
+				<code>&lt;Video&gt;</code>
+			</a>{' '}
 			from <code>@remotion/media</code>, independently of their clip-level{' '}
 			<code>preservePitch</code> props. Does not affect rendered output or
 			native media components, including native fallbacks. Set{' '}

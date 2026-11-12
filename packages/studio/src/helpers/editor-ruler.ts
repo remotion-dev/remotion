@@ -74,44 +74,23 @@ const drawGradient = ({
 
 const drawGuide = ({
 	guideHighlight,
-	scale,
-	startMarking,
+	originDistance,
 	context,
 	computedStyle,
 	canvasHeight,
 	canvasWidth,
 	orientation,
-	originOffset,
 }: {
 	guideHighlight: RulerGuideHighlight;
-	scale: number;
-	startMarking: number;
+	originDistance: number;
 	context: CanvasRenderingContext2D;
 	computedStyle: CSSStyleDeclaration;
 	canvasHeight: number;
 	canvasWidth: number;
 	orientation: Orientation;
-	originOffset: number;
 }) => {
 	const {guide} = guideHighlight;
 	const color = resolveStudioColor(guideHighlight.color, computedStyle);
-	const originDistance =
-		rulerValueToPosition({
-			value: guide.position,
-			startMarking,
-			scale,
-		}) +
-		originOffset -
-		startMarking * scale +
-		0.5;
-	drawGradient({
-		canvasHeight,
-		context,
-		computedStyle,
-		orientation,
-		originDistance,
-		canvasWidth,
-	});
 	context.strokeStyle = color;
 	context.lineWidth = 1;
 	context.beginPath();
@@ -156,7 +135,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps,
 	orientation,
 	rulerCanvasRef,
-	guideHighlight,
+	guideHighlights,
 	canvasHeight,
 	canvasWidth,
 }: {
@@ -167,7 +146,7 @@ export const drawMarkingOnRulerCanvas = ({
 	markingGaps: number;
 	orientation: 'horizontal' | 'vertical';
 	rulerCanvasRef: React.RefObject<HTMLCanvasElement | null>;
-	guideHighlight: RulerGuideHighlight | null;
+	guideHighlights: RulerGuideHighlight[];
 	canvasWidth: number;
 	canvasHeight: number;
 }) => {
@@ -230,17 +209,40 @@ export const drawMarkingOnRulerCanvas = ({
 		});
 	});
 
-	if (guideHighlight && orientation !== guideHighlight.guide.orientation) {
+	const highlights = guideHighlights
+		.filter((highlight) => orientation !== highlight.guide.orientation)
+		.map((guideHighlight) => ({
+			guideHighlight,
+			originDistance:
+				rulerValueToPosition({
+					value: guideHighlight.guide.position,
+					startMarking,
+					scale,
+				}) +
+				originOffset -
+				startMarking * scale +
+				0.5,
+		}));
+	for (const {originDistance} of highlights) {
+		drawGradient({
+			canvasHeight,
+			context,
+			computedStyle,
+			orientation,
+			originDistance,
+			canvasWidth,
+		});
+	}
+
+	for (const {guideHighlight, originDistance} of highlights) {
 		drawGuide({
 			computedStyle,
 			canvasHeight,
 			canvasWidth,
 			context,
 			guideHighlight,
-			originOffset,
-			scale,
+			originDistance,
 			orientation,
-			startMarking,
 		});
 	}
 };

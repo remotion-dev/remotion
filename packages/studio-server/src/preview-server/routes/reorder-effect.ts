@@ -10,6 +10,7 @@ import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-projec
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -26,7 +27,14 @@ export const reorderEffectHandler: ApiHandler<
 	ReorderEffectRequest,
 	ReorderEffectResponse
 > = ({
-	input: {fileName, sequenceNodePath, fromIndex, toIndex, clientId},
+	input: {
+		fileName,
+		sequenceNodePath,
+		fromIndex,
+		toIndex,
+		clientId,
+		sequenceProps,
+	},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -114,6 +122,7 @@ export const reorderEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(sequenceProps ?? [], remotionRoot),
 				nodePathMutation,
 			};
 		} catch (err) {

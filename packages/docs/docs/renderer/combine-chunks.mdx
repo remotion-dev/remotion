@@ -63,7 +63,7 @@ An array of absolute file paths pointing to the audio chunks to be combined. The
 
 ### `codec`
 
-_"h264" | "h265" | "av1" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
+_"h264" | "h265" | "av1" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "h264-ts" | "gif"_
 
 The codec to use for the output file. See the distributed rendering guide to see which parameter to set.
 
@@ -141,7 +141,7 @@ Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/
 
 ### `logLevel?`
 
-_"verbose" | "info" | "warn" | "error"_
+_"trace" | "verbose" | "info" | "warn" | "error"_
 
 Controls the verbosity of logging. Default is `"info"`.
 
@@ -160,6 +160,14 @@ A token that allows the combining process to be cancelled. See: [`makeCancelSign
 ### `metadata?`
 
 Metadata to add to the output file, in the format of key-value pairs.
+
+### `sampleRate?`<AvailableFrom v="4.0.448" />
+
+_number_
+
+The sample rate of the output audio. Default is `48000`.
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ## Return Value
 

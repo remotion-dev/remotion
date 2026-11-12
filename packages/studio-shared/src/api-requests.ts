@@ -535,6 +535,7 @@ export type SubscribeToSequencePropsRequest = {
 export type SubscribeToSequencePropsResponse =
 	| {
 			success: true;
+			sourceVersion?: SourceFileVersion | null;
 			status: CanUpdateSequencePropsResponseTrue;
 			nodePath: SequencePropsSubscriptionKey;
 	  }
@@ -559,6 +560,20 @@ export type UnsubscribeFromSequencePropsRequest = {
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
+};
+
+export type UpdateSequencePropsSubscriptionRequest = {
+	subscription: UnsubscribeFromSequencePropsRequest;
+	effects: string[][];
+};
+
+export type SequencePropsSubscriptionUpdate = {
+	request: UpdateSequencePropsSubscriptionRequest;
+	result: SubscribeToSequencePropsResponse;
+};
+
+export type UpdateSequencePropsSubscriptionBatchRequest = {
+	requests: UpdateSequencePropsSubscriptionRequest[];
 };
 
 export type UnsubscribeFromSequencePropsBatchRequest = {
@@ -710,6 +725,7 @@ export type SaveMultipleEffectPropsResponse = {
 };
 
 export type AddEffectRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
@@ -720,6 +736,7 @@ export type AddEffectRequest = {
 
 export type AddEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
 			insertedEffect: {
@@ -734,6 +751,7 @@ export type AddEffectResponse =
 	  };
 
 export type ReorderEffectRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	fromIndex: number;
@@ -743,6 +761,7 @@ export type ReorderEffectRequest = {
 
 export type ReorderEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
@@ -753,6 +772,7 @@ export type ReorderEffectResponse =
 	  };
 
 export type DuplicateEffectRequestItem = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
@@ -762,6 +782,7 @@ export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
 
 export type DuplicateEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
 			duplicatedEffects: {
@@ -778,13 +799,23 @@ export type DuplicateEffectResponse =
 
 export type ReorderSequencePosition = 'before' | 'after';
 
+export type TrackMoveTiming = {
+	from: number;
+	durationInFrames: number;
+	playbackRate: number;
+	trimBefore: number;
+	name: string;
+};
+
 export type ReorderSequenceRequest = {
 	fileName: string;
 	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
-	position: ReorderSequencePosition;
 	clientId: string;
-};
+} & (
+	| {position: ReorderSequencePosition}
+	| {position: 'inside'; timings: TrackMoveTiming[]}
+);
 
 export type ReorderSequenceResponse =
 	| {
@@ -983,6 +1014,7 @@ export type BatchUpdateKeyframeSettingsResponse = {
 };
 
 type BaseDeleteEffectRequestItem = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 };
@@ -1000,6 +1032,7 @@ export type DeleteEffectRequest = DeleteEffectRequestItem[];
 
 export type DeleteEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
@@ -1241,6 +1274,10 @@ export type RestorePrerenderedSceneResponse =
 
 export type InsertableCompositionElement =
 	| {
+			type: 'track';
+			position: null;
+	  }
+	| {
 			type: 'text';
 			text: string;
 			fontSize: number;
@@ -1299,6 +1336,10 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	track: {
+		targetNodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number;
+	} | null;
 };
 
 export type InsertCompositionElementResponse =
@@ -1627,9 +1668,12 @@ export type InstallPackageRequest = {
 };
 export type InstallPackageResponse = {};
 
-export type UndoRequest = {};
+export type UndoRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
+};
 export type UndoResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 			route: string | null;
@@ -1639,9 +1683,12 @@ export type UndoResponse =
 			reason: string;
 	  };
 
-export type RedoRequest = {};
+export type RedoRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
+};
 export type RedoResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 			route: string | null;
@@ -1747,6 +1794,10 @@ export const studioOperations = {
 	>({mutatesSource: false}),
 	'/api/subscribe-to-sequence-props': new StudioOperation<
 		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
+	>({mutatesSource: false}),
+	'/api/update-sequence-props-subscription': new StudioOperation<
+		UpdateSequencePropsSubscriptionBatchRequest,
 		SubscribeToSequencePropsBatchResponse
 	>({mutatesSource: false}),
 	'/api/unsubscribe-from-sequence-props': new StudioOperation<

@@ -1,13 +1,23 @@
-import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	getAssetSchemaKeys,
+	type UnsubscribeFromSequencePropsRequest,
+	type UpdateSequencePropsSubscriptionRequest,
+	type SequencePropsSubscriptionUpdate,
+} from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {SequenceSourceReadCancelledError} from '../../helpers/sequence-node-path-mutations';
+import {waitForSourceMutationQueue} from '../../helpers/source-mutation-queue';
 import {
 	subscribeToSequenceProps,
 	unsubscribeFromSequenceProps,
+	updateSequencePropsSubscription,
 } from '../sequence-props-api';
 
 type Key = string;
@@ -23,7 +33,6 @@ const makeKey = ({
 	sequenceKeys,
 	assetKeys,
 	effectKeys,
-
 	stack,
 }: {
 	fileName: string;
@@ -34,7 +43,6 @@ const makeKey = ({
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
-
 	stack: string | null;
 }): Key =>
 	`${clientId}\0${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${stack ?? ''}`;
@@ -43,16 +51,71 @@ type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
 type ApplyResult = (result: SubscribeResult) => void;
 
+type Subscriber = {applyOnce: ApplyResult; applyEach: ApplyResult};
+
+type Metadata = {effects: string[][]; sourceRevision: string | null};
+
 type Entry = {
-	refCount: number;
 	promise: Promise<SubscribeResult>;
-	fileName: string;
-	clientId: string;
-	applyOnce: ApplyResult | null;
+	subscription: Promise<UnsubscribeFromSequencePropsRequest | null>;
+	listeners: Set<Subscriber>;
+	metadataKey: string;
+	resolvedSubscription: UnsubscribeFromSequencePropsRequest | null;
+	pending: Metadata | null;
+	updating: boolean;
+	editResults: Map<string, {effects: string[][]; result: SubscribeResult}>;
+};
+
+const applyResult = (entry: Entry, result: SubscribeResult) => {
+	entry.listeners.values().next().value?.applyOnce(result);
+	for (const listener of entry.listeners) listener.applyEach(result);
 };
 
 const entries = new Map<Key, Entry>();
-type RefreshListener = (nodePath: SequenceNodePath | null) => void;
+export const getSequencePropsForEffectEdit = (
+	nodes: {nodePath: SequencePropsSubscriptionKey; effects: string[][]}[],
+): UpdateSequencePropsSubscriptionRequest[] => {
+	if (nodes.length === 0) return [];
+	const requests = [...entries.values()].map((entry) => {
+		const subscription = entry.resolvedSubscription;
+		if (!subscription || entry.listeners.size === 0) return null;
+		const node = nodes.find(
+			({nodePath}) =>
+				nodePath.absolutePath === subscription.nodePath.absolutePath &&
+				JSON.stringify(nodePath.nodePath) ===
+					JSON.stringify(subscription.nodePath.nodePath),
+		);
+		return node ? {subscription, effects: node.effects} : null;
+	});
+	return requests.filter((request) => request !== null);
+};
+
+export const receiveSequencePropsFromEffectEdit = (
+	mutationId: string,
+	updates: SequencePropsSubscriptionUpdate[],
+) => {
+	for (const entry of entries.values()) {
+		const subscription = entry.resolvedSubscription;
+		if (!subscription || entry.listeners.size === 0) continue;
+		const update = updates.find(
+			({request}) =>
+				JSON.stringify(request.subscription) === JSON.stringify(subscription),
+		);
+		if (update)
+			entry.editResults.set(mutationId, {
+				effects: update.request.effects,
+				result: update.result,
+			});
+	}
+};
+
+type SequencePropsRefresh =
+	| {type: 'source'; nodePath: SequenceNodePath | null}
+	| {type: 'effects'; mutationId: string; refreshing: boolean}
+	| {type: 'preserve-source'}
+	| {type: 'refresh-finished'}
+	| {type: 'refresh-start'; mutationId: string | null};
+type RefreshListener = (refresh: SequencePropsRefresh) => void;
 const refreshListeners = new Map<string, Set<RefreshListener>>();
 
 export const subscribeToSequencePropsRefresh = (
@@ -72,11 +135,15 @@ export const subscribeToSequencePropsRefresh = (
 };
 
 export const refreshSequencePropsSubscription = (
-	overrideId: string,
-	nodePath: SequenceNodePath | null,
+	overrideId: string | null,
+	refresh: SequencePropsRefresh,
 ): void => {
-	for (const listener of refreshListeners.get(overrideId) ?? []) {
-		listener(nodePath);
+	const listenerSets =
+		overrideId === null
+			? refreshListeners.values()
+			: [refreshListeners.get(overrideId)];
+	for (const listeners of listenerSets) {
+		for (const listener of listeners ?? []) listener(refresh);
 	}
 };
 
@@ -87,6 +154,7 @@ export const acquireSequencePropsSubscription = ({
 	schema,
 	componentIdentity,
 	effects,
+	sourceRevision,
 	nodePath,
 	clientId,
 	applyOnce,
@@ -100,13 +168,14 @@ export const acquireSequencePropsSubscription = ({
 	schema: InteractivitySchema;
 	componentIdentity: JsxComponentIdentity | null;
 	effects: InteractivitySchema[];
+	sourceRevision: string | null;
 	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
 
 	stack: string | null;
-}): {release: () => void} => {
+}): {release: () => void; updateMetadata: (metadata: Metadata) => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
 	const assetKeys = getAssetSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
@@ -119,7 +188,6 @@ export const acquireSequencePropsSubscription = ({
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
-
 		stack,
 	});
 	let entry = entries.get(key);
@@ -140,88 +208,134 @@ export const acquireSequencePropsSubscription = ({
 			stack,
 		);
 		const created: Entry = {
-			refCount: 0,
 			promise,
-			fileName,
-			clientId,
-			applyOnce,
+			subscription: promise.then((result) =>
+				result.success
+					? {
+							fileName,
+							nodePath: result.nodePath,
+							clientId,
+							sequenceKeys,
+							assetKeys,
+							effectKeys,
+						}
+					: null,
+			),
+			listeners: new Set(),
+			resolvedSubscription: null,
+			metadataKey: JSON.stringify({effects: effectKeys, sourceRevision}),
+			pending: null,
+			updating: false,
+			editResults: new Map(),
 		};
 		entries.set(key, created);
 		entry = created;
-
 		promise
 			.then((result) => {
-				const current = entries.get(key);
-				if (current !== created || !current.applyOnce) {
-					return;
-				}
-
-				const cb = current.applyOnce;
-				current.applyOnce = null;
-				cb(result);
+				if (!created.updating)
+					created.listeners.values().next().value?.applyOnce(result);
 			})
 			.catch((err) => {
-				const current = entries.get(key);
-				if (current !== created) {
-					return;
-				}
-
-				current.applyOnce = null;
+				if (entries.get(key) !== created) return;
 				entries.delete(key);
-				Internals.Log.error(err);
+				if (err instanceof SequenceSourceReadCancelledError) return;
+				Internals.Log.error({logLevel: 'error', tag: null}, err);
 			});
+		created.subscription
+			.then((value) => {
+				created.resolvedSubscription = value;
+			})
+			.catch(() => {});
 	}
 
-	entry.refCount++;
 	const acquired = entry;
+	const listener = {applyOnce, applyEach};
+	acquired.listeners.add(listener);
 	let released = false;
-
 	acquired.promise
 		.then((result) => {
-			if (!released) {
-				applyEach(result);
-			}
+			if (!released && !acquired.updating) listener.applyEach(result);
 		})
-		.catch(() => {
-			// Error already logged by the first acquirer.
-		});
+		.catch(() => {});
 
 	return {
-		release: () => {
-			if (released) {
-				return;
-			}
+		updateMetadata: (metadata) => {
+			if (released) return;
+			const metadataKey = JSON.stringify(metadata);
+			if (metadataKey === acquired.metadataKey) return;
+			acquired.metadataKey = metadataKey;
+			acquired.pending = metadata;
+			if (acquired.updating) return;
+			acquired.updating = true;
+			const update = async () => {
+				try {
+					const subscription = await acquired.subscription;
+					if (!subscription) return;
+					while (acquired.pending && acquired.listeners.size > 0) {
+						await waitForSourceMutationQueue();
+						if (acquired.listeners.size === 0) break;
+						const {pending} = acquired;
+						acquired.pending = null;
+						try {
+							const fromEdit =
+								pending.sourceRevision === null
+									? null
+									: acquired.editResults.get(pending.sourceRevision);
+							const result =
+								fromEdit &&
+								JSON.stringify(fromEdit.effects) ===
+									JSON.stringify(pending.effects)
+									? fromEdit.result
+									: await updateSequencePropsSubscription({
+											subscription,
+											effects: pending.effects,
+										});
+							if (fromEdit) {
+								for (const revision of acquired.editResults.keys()) {
+									if (revision === pending.sourceRevision) break;
+									acquired.editResults.delete(revision);
+								}
+							}
 
-			released = true;
-			acquired.refCount--;
-
-			if (acquired.refCount > 0) {
-				return;
-			}
-
-			if (entries.get(key) === acquired) {
-				entries.delete(key);
-			}
-
-			acquired.promise
-				.then((result) => {
-					if (!result.success) {
-						return;
+							if (!acquired.pending) {
+								acquired.promise = Promise.resolve(result);
+								applyResult(acquired, result);
+							}
+						} catch (err) {
+							if (!acquired.pending) acquired.metadataKey = '';
+							if (
+								err instanceof SequenceSourceReadCancelledError ||
+								acquired.listeners.size === 0
+							)
+								continue;
+							Internals.Log.error({logLevel: 'error', tag: null}, err);
+						}
 					}
+				} finally {
+					acquired.updating = false;
+				}
+			};
 
-					return unsubscribeFromSequenceProps({
-						fileName: acquired.fileName,
-						nodePath: result.nodePath,
-						clientId: acquired.clientId,
-						sequenceKeys,
-						assetKeys,
-						effectKeys,
-					});
+			update().catch((err) => {
+				if (
+					err instanceof SequenceSourceReadCancelledError ||
+					acquired.listeners.size === 0
+				)
+					return;
+				Internals.Log.error({logLevel: 'error', tag: null}, err);
+			});
+		},
+		release: () => {
+			if (released) return;
+			released = true;
+			acquired.listeners.delete(listener);
+			if (acquired.listeners.size > 0) return;
+			if (entries.get(key) === acquired) entries.delete(key);
+			acquired.subscription
+				.then((subscription) => {
+					if (subscription) return unsubscribeFromSequenceProps(subscription);
 				})
-				.catch(() => {
-					// Ignore — either the subscribe failed (nothing to clean up) or
-					// the unsubscribe failed (server-side TTL will handle it).
-				});
+				.catch(() => {});
 		},
 	};
 };

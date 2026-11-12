@@ -14,6 +14,7 @@ import {SplitterHandle} from './Splitter/SplitterHandle';
 import {SplitterImperativeProvider} from './Splitter/SplitterImperativeContext';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {Timeline} from './Timeline/Timeline';
+import {timelineViewportRef} from './Timeline/timeline-refs';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
 import {TimelineKeyframeDragStateProvider} from './Timeline/TimelineKeyframeDragState';
 import {
@@ -94,6 +95,7 @@ export const EditorContent: React.FC<{
 			<SplitterElement sticky={null} type="anti-flexer">
 				<div style={{display: 'flex', flex: 1, minHeight: 0}}>
 					<div
+						ref={timelineViewportRef}
 						role="region"
 						aria-label="Timeline"
 						style={{

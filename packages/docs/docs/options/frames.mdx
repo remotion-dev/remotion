@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Frame Range<AvailableFrom v="2.0.0" />
 
-Render a subset of a video. Pass a single number to render a still, or a range (e.g. `0-9`) to render a subset of frames. Pass `100-` to render from frame 100 to the end.
+Render a subset of a video. Pass a single number to render a still, or a range (e.g. `0-9`) to render a subset of frames. Pass `100-` to render from frame 100 to the end.<br />Since v4.0.502, you can also pass a comma-separated list of frames and ranges (e.g. `0,30-59,90-`). A list of individual frames renders them as an image sequence, while multiple ranges get concatenated into one video, omitting the frames in between.
 
 ## CLI flag
 

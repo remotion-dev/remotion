@@ -16,7 +16,7 @@ You first need to [complete the Lambda setup](/docs/lambda/setup).
 
 Before v4.0.315: Sending large input props (>200KB) was not supported.
 
-Starting from v4.0.315, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than ~194KB for video and audio renders and ~4.99MB for still renders are automatically uploaded using the same logic as the JavaScript SDK. The SDK will automatically find or create an appropriate S3 bucket following Remotion's naming conventions.
+From <AvailableFrom v="4.0.315" inline />, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than ~194KB for video and audio renders and ~4.99MB for still renders are automatically uploaded using the same logic as the JavaScript SDK. The SDK will automatically find or create an appropriate S3 bucket following Remotion's naming conventions.
 
 ## Rendering a video
 
@@ -235,7 +235,7 @@ if render_response:
     )
 ```
 
-## Large input props _available from v4.0.315_
+## Large input props<AvailableFrom v="4.0.315" />
 
 The Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits:
 

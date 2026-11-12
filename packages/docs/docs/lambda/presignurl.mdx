@@ -30,11 +30,11 @@ const url2 = await presignUrl({
   checkIfObjectExists: false,
 });
 
-console.log(url); // always a string, or exception if object doesn't exist
+console.log(url2); // always a string, even if the object doesn't exist
 ```
 
 :::note
-Preferrably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
+Preferrably import this function from `@remotion/lambda/client` (available from <AvailableFrom v="3.3.42" inline />) to avoid problems [inside serverless functions](/docs/lambda/light-client).
 :::
 
 ## Arguments
@@ -62,10 +62,9 @@ Must be an integer and `>=1` and `<=604800` (maximum of 7 days as enforced by AW
 
 Whether the function should check if the object exists in the bucket before generating the presigned url. Default `false`.
 
-If the object does not exist and `checkIfObjectExists` is:
+If `checkIfObjectExists` is `true` and the object does not exist, `null` is returned.
 
-- `true`, then `null` is returned
-- `false`, then an exception is thrown
+If `checkIfObjectExists` is `false`, no check is made and a URL is always returned, even if the object does not exist.
 
 ## Compatibility
 

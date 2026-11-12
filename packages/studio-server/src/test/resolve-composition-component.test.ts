@@ -1997,6 +1997,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 
 		const response = await insertCompositionElementHandler({
 			input: {
+				track: null,
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
 				element: {
@@ -2191,6 +2192,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 	try {
 		const response = await insertCompositionElementHandler({
 			input: {
+				track: null,
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
 				element: {

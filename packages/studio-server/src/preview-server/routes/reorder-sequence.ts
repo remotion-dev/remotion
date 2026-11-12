@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {reorderNodes} from '@remotion/codemods';
+import {CodemodsInternals, reorderNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
@@ -24,11 +24,8 @@ import {
 export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
 	ReorderSequenceResponse
-> = ({
-	input: {fileName, sourceNodePaths, targetNodePath, position, clientId},
-	remotionRoot,
-	logLevel,
-}) => {
+> = ({input, remotionRoot, logLevel}) => {
+	const {fileName, sourceNodePaths, targetNodePath, position, clientId} = input;
 	return withSourceFileWriteQueue(async () => {
 		try {
 			RenderInternals.Log.trace(
@@ -43,15 +40,34 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderNodes({
-				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				nodes: sourceNodePaths.map((sourceNodePath) => ({
-					filePath: absolutePath,
-					nodePath: sourceNodePath.nodePath,
-				})),
-				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-				position,
-			});
+			const project = {
+				files: {[absolutePath]: fileContents},
+				rootDir: remotionRoot,
+			};
+			const move =
+				input.position === 'inside'
+					? CodemodsInternals.moveNodesIntoTrack({
+							input: fileContents,
+							sourceNodePaths: sourceNodePaths.map((node) => node.nodePath),
+							targetNodePath: targetNodePath.nodePath,
+							timings: input.timings,
+						})
+					: null;
+			const result = move
+				? {
+						changes: [{nextContents: move.output}],
+						editDetails: [move],
+						nodePathRemappings: move.nodePathRemappings,
+					}
+				: await reorderNodes({
+						project,
+						nodes: sourceNodePaths.map((sourceNodePath) => ({
+							filePath: absolutePath,
+							nodePath: sourceNodePath.nodePath,
+						})),
+						target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+						position: input.position as 'before' | 'after',
+					});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {sequenceLabel, logLine} = result.editDetails[0];
 			const nodePathRemappings = result.nodePathRemappings.map(

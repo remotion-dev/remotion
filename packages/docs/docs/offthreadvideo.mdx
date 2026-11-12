@@ -182,7 +182,7 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 ### `onError?`
 
-Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+Handle an error playing the video. From <AvailableFrom v="3.3.89" inline />, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ### `playbackRate?`<AvailableFrom v="2.2.0" />
 
@@ -346,9 +346,9 @@ The props `className` and `style` are supported and get passed to the underlying
 Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.  
 If you don't care about color accuracy, you can set `toneMapped` to `false` as well to save time on color conversion.
 
-## Looping a OffthreadVideo
+## Looping an `<OffthreadVideo>` {#looping-a-offthreadvideo}
 
-Unlike [`<Html5Video>`](/docs/html5-video), `OffthreadVideo` does not implement the `loop` property.  
+Unlike [`<Html5Video>`](/docs/html5-video), `<OffthreadVideo>` does not implement the `loop` property.  
 Consider using [another video tag](/docs/video-tags) for looping.
 
 :::note
