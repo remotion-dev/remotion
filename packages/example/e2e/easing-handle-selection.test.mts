@@ -150,6 +150,33 @@ test.describe('easing editor handles', () => {
 			.getByRole('group', {name: 'levels()', exact: true});
 		await levelsEffect.getByText('levels()', {exact: true}).click();
 		await page.getByText('Input levels', {exact: true}).click();
+
+		await page.setViewportSize({width: 1280, height: 1200});
+		for (const name of ['Source', 'Controls', 'Transform', 'Actions']) {
+			const collapse = page.getByRole('button', {
+				name: `Collapse ${name}`,
+				exact: true,
+			});
+			if (await collapse.isVisible()) {
+				await collapse.click();
+			}
+		}
+
+		const background = page.locator('[data-remotion-inspector-background]');
+		const backgroundBounds = await background.boundingBox();
+		expect(backgroundBounds).not.toBeNull();
+		await background.click({
+			position: {x: 8, y: backgroundBounds!.height - 8},
+		});
+		await expect(levelsEffect).toBeVisible();
+		await page.keyboard.press('Escape');
+		await expect(
+			page.getByRole('button', {name: 'Choose width preset', exact: true}),
+		).toBeVisible();
+
+		await image.first().click();
+		await levelsEffect.getByText('levels()', {exact: true}).click();
+		await page.getByText('Input levels', {exact: true}).click();
 		await page.keyboard.press('Backspace');
 		await expect(levelsEffect).toHaveCount(0);
 		await expect(image.first()).toBeVisible();

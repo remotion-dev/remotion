@@ -60,6 +60,7 @@ import {
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
 } from './common';
+import {INSPECTOR_BACKGROUND_ATTRIBUTE} from './inspector-selection';
 import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
@@ -591,7 +592,11 @@ export const KeyframeInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div
+			style={selectedContainer}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			{...{[INSPECTOR_BACKGROUND_ATTRIBUTE]: 'true'}}
+		>
 			<SequenceInspectorSections track={track} />
 			<InspectorBackAction
 				disabled={parentSelection === null}

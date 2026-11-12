@@ -3,6 +3,9 @@ import {
 	type TimelineSelection,
 } from '../Timeline/TimelineSelection';
 
+export const INSPECTOR_BACKGROUND_ATTRIBUTE =
+	'data-remotion-inspector-background';
+
 export type SequenceSectionSelection = Extract<
 	TimelineSelection,
 	{

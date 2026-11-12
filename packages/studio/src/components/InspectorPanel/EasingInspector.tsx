@@ -39,6 +39,7 @@ import {
 	InspectorMessage,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
+import {INSPECTOR_BACKGROUND_ATTRIBUTE} from './inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
@@ -369,7 +370,11 @@ export const EasingInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div
+			style={selectedContainer}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			{...{[INSPECTOR_BACKGROUND_ATTRIBUTE]: 'true'}}
+		>
 			<SequenceInspectorSections track={track} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}

@@ -17,6 +17,7 @@ import {InlineAction} from './InlineAction';
 import {InspectorPanel} from './InspectorPanel';
 import {
 	getSameSequenceInspectorSelection,
+	INSPECTOR_BACKGROUND_ATTRIBUTE,
 	isSequenceSectionSelection,
 	type SequenceSectionSelection,
 } from './InspectorPanel/inspector-selection';
@@ -400,9 +401,20 @@ export const OptionsPanel: React.FC<{
 		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
-	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		e.stopPropagation();
-	}, []);
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			e.stopPropagation();
+			if (
+				panel === 'inspector' &&
+				shouldClearSelectionOnPointerDown(e) &&
+				e.target instanceof Element &&
+				e.target.hasAttribute(INSPECTOR_BACKGROUND_ATTRIBUTE)
+			) {
+				currentSelection.current.stepBackSelection(true);
+			}
+		},
+		[currentSelection, panel],
+	);
 
 	return (
 		<div style={container} className="css-reset" onPointerDown={onPointerDown}>
