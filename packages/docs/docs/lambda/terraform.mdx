@@ -439,12 +439,16 @@ From your Remotion project, read the exported settings and call [`renderMediaOnL
 import {readFileSync} from 'node:fs';
 import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
 
-const {region, functionName, bucketName, serveUrl}: {
+const contents = readFileSync('./remotion-deployment.json', 'utf-8');
+
+const deployment: {
   region: AwsRegion;
   functionName: string;
   bucketName: string;
   serveUrl: string;
-} = JSON.parse(readFileSync('./remotion-deployment.json', 'utf-8'));
+} = JSON.parse(contents);
+
+const {region, functionName, bucketName, serveUrl} = deployment;
 
 const {renderId} = await renderMediaOnLambda({
   region,
