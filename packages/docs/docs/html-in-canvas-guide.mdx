@@ -106,7 +106,7 @@ Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components requires Ch
 
 HTML-in-canvas [omits cross-origin content that JavaScript cannot read](https://github.com/WICG/html-in-canvas#read-back-allowed-rendering), including images and videos loaded without CORS, cross-origin iframes and tainted canvases. Content can appear in the regular page while being absent from the captured canvas.
 
-From <AvailableFrom v="4.0.542" inline />, [`<Img>`](/docs/img) and [`<Html5Video>`](/docs/html5-video) default to `crossOrigin="anonymous"` inside `<HtmlInCanvas>`, including [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur). This also applies to [`<OffthreadVideo>`](/docs/offthreadvideo) during preview. The media server must allow CORS. In earlier versions, set `crossOrigin="anonymous"` explicitly.
+From v4.0.542, [`<Img>`](/docs/img) and [`<Html5Video>`](/docs/html5-video) default to `crossOrigin="anonymous"` inside `<HtmlInCanvas>`, including [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur). This also applies to [`<OffthreadVideo>`](/docs/offthreadvideo) during preview. The media server must allow CORS. In earlier versions, set `crossOrigin="anonymous"` explicitly.
 
 If the server rejects CORS, these components report a loading error instead of silently disappearing from the canvas. Anonymous CORS omits cross-origin credentials; for authenticated media, see [`<Img>`'s `crossOrigin` prop](/docs/img#crossorigin) or [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
 
@@ -118,7 +118,7 @@ From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455
 
 We compiled a version of Chrome and made it the default, and enabled the flag for you.
 
-Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion <AvailableFrom v="4.0.534" inline />, which uses Chromium 157.0.8080.0.
+Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion v4.0.534, which uses Chromium 157.0.8080.0.
 
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 
@@ -154,7 +154,7 @@ This is opt-in. In browsers without nesting support, compositions containing [`<
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is supported in Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Unsupported browsers throw an error when components are nested. Server-side rendering supports nesting from Remotion <AvailableFrom v="4.0.534" inline />.
+Nesting `<HtmlInCanvas>` components is supported in Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Unsupported browsers throw an error when components are nested. Server-side rendering supports nesting from Remotion v4.0.534.
 
 ## See also
 

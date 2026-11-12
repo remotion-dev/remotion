@@ -71,13 +71,13 @@ One of:
 
 - `"public"`: The rendered still is publicly accessible under the S3 URL.
 - `"private"`: The rendered still is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
-- `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
+- `"no-acl"` (from v3.1.7): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame?`
 
 Which frame of the composition should be rendered. Default: `0`. Frames are zero-indexed.
 
-From <AvailableFrom v="3.2.27" inline />, negative values are allowed, with `-1` being the last frame.
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat`
 

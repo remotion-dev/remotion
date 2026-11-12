@@ -233,7 +233,7 @@ Studio adds [`remotion-studio-context=captions`](/docs/studio-protocol/add-eleme
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
-Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. From <AvailableFrom v="4.0.514" inline />, all tracks are available by default and the timeline is virtualized.
+Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. From v4.0.514, all tracks are available by default and the timeline is virtualized.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -741,7 +741,7 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
-From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
+From v4.0.533, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -825,9 +825,9 @@ import {Config} from '@remotion/cli/config';
 Config.setFrameRange([100, null]); // Render from frame 100 to the end of the composition
 ```
 
-Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
+Pass `[number, null]` to render from a frame to the end of the composition (from v4.0.421).
 
-Pass multiple ordered, non-overlapping ranges to render discontinuous sections.<AvailableFrom v="4.0.502" inline />
+Pass multiple ordered, non-overlapping ranges to render discontinuous sections (from v4.0.502).
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -961,7 +961,7 @@ Choose one of the supported codecs:
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
 - `av1` is the successor of VP9 and achieves lower file size, with longer compression time.
-- `prores` is a common codec if you want to import the output into another video editing program <AvailableFrom v="2.1.6" inline />
+- `prores` is a common codec if you want to import the output into another video editing program (from v2.1.6)
 - `mp3` will export audio only as an MP3 file _(available from v2.0)_
 - `wav` will export audio only as an WAV file _(available from v2.0)_
 - `aac` will export audio only as an AAC file _(available from v2.0)_
@@ -1598,7 +1598,7 @@ Config.overrideWebpackConfig(async (currentConfiguration) => {
 
 ## Old config file format
 
-In <AvailableFrom v="3.3.39" inline />, a new config file format was introduced which flattens the options so they can be discovered using TypeScript autocompletion.
+In v3.3.39, a new config file format was introduced which flattens the options so they can be discovered using TypeScript autocompletion.
 
 Previously, each config option was two levels deep:
 
@@ -1606,7 +1606,7 @@ Previously, each config option was two levels deep:
 Config.Bundling.setCachingEnabled(false);
 ```
 
-From <AvailableFrom v="3.3.39" inline /> on, all options can be accessed directly from the `Config` object.
+From v3.3.39 on, all options can be accessed directly from the `Config` object.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
