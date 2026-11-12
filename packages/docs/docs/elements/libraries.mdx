@@ -111,6 +111,8 @@ Create one payload and use it for both actions in the browser:
 
 When Studio embeds your library in Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
 
+Call [`reportStudioNavigation()`](/docs/studio-protocol/report-studio-navigation) on page load and after each navigation to keep Studio's URL bar in sync with your library. Include client-side route changes, back/forward navigation, and hash changes.
+
 ### Fallbacks
 
 If no Studio receives the request, `installInStudio()` resolves with `success: false` and a [`code`](/docs/studio-protocol/install-in-studio#code). Show a message that tells the user what to do, for example:

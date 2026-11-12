@@ -1,7 +1,10 @@
 import {useHistory, useLocation} from '@docusaurus/router';
 import type {WrapperProps} from '@docusaurus/types';
 import '@remotion/promo-pages/dist/tailwind.css';
-import {isInsideStudio} from '@remotion/studio-protocol';
+import {
+	isInsideStudio,
+	reportStudioNavigation,
+} from '@remotion/studio-protocol';
 import Layout from '@theme-original/Layout';
 import type LayoutType from '@theme/Layout';
 import {useCrawlChatSidePanel} from 'crawlchat-client';
@@ -51,8 +54,12 @@ const LayoutWithCrawlChat = (props: Props): ReactNode => {
 };
 
 const LayoutWrapper = (props: Props): ReactNode => {
-	const {pathname, search} = useLocation();
+	const {pathname, search, hash} = useLocation();
 	const [isStudioElementsEmbed, setIsStudioElementsEmbed] = useState(false);
+
+	useLayoutEffect(() => {
+		reportStudioNavigation();
+	}, [pathname, search, hash]);
 
 	useLayoutEffect(() => {
 		// Client-side navigation drops the iframe's ?remotion-studio=true parameter.

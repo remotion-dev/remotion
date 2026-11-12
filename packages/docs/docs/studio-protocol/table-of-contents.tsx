@@ -41,6 +41,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>isInsideStudio()</strong>
 				<div>Check whether a library is embedded in Studio</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/report-studio-navigation">
+				<strong>reportStudioNavigation()</strong>
+				<div>Update the URL shown in Studio’s Element Library header</div>
+			</TOCItem>
 		</Grid>
 	);
 };

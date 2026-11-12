@@ -889,6 +889,7 @@ const sidebars: SidebarsConfig = {
 				'studio-protocol/add-element-library-to-studio',
 				'studio-protocol/subscribe-to-caption-style-selection',
 				'studio-protocol/is-inside-studio',
+				'studio-protocol/report-studio-navigation',
 				'studio-protocol/security',
 			],
 		},

@@ -170,11 +170,25 @@ export const ElementLibraryFrame: React.FC<{
 
 		const onMessage = (event: MessageEvent) => {
 			if (
-				context !== 'captions' ||
 				event.source !== iframe.contentWindow ||
-				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(
-					event.origin,
-				) ||
+				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(event.origin)
+			) {
+				return;
+			}
+
+			const navigation = StudioProtocolInternals.parseStudioProtocolNavigation(
+				event.data,
+			);
+			if (navigation !== null) {
+				if (new URL(navigation.url).origin === event.origin) {
+					onUrlChange?.(navigation.url);
+				}
+
+				return;
+			}
+
+			if (
+				context !== 'captions' ||
 				!StudioProtocolInternals.isStudioProtocolCaptionStyleSubscription(
 					event.data,
 				)
