@@ -362,7 +362,7 @@ export const ElementLibraryModal: React.FC<{
 													type: 'item',
 													id: 'edit-library',
 													value: 'edit-library',
-													label: 'Edit library…',
+													label: 'Edit…',
 													keyHint: null,
 													leftItem: null,
 													subMenu: null,
@@ -374,7 +374,7 @@ export const ElementLibraryModal: React.FC<{
 													type: 'item',
 													id: 'remove-library',
 													value: 'remove-library',
-													label: 'Remove library',
+													label: 'Remove',
 													leftItem: (
 														<TrashIcon
 															color={CURRENT_COLOR}
