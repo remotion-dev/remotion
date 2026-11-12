@@ -1,3 +1,4 @@
+import {writeFile} from 'node:fs/promises';
 import type {Locator, Page, TestInfo} from '@playwright/test';
 
 export const captureTrackDropFailureEvidence = async ({
@@ -79,8 +80,10 @@ export const captureTrackDropFailureEvidence = async ({
 			userAgent: navigator.userAgent,
 		};
 	}, rulerBottom);
+	const geometryPath = testInfo.outputPath('track-drop-failure-geometry.json');
+	await writeFile(geometryPath, JSON.stringify(geometry, null, 2));
 	await testInfo.attach('track-drop-failure-geometry', {
-		body: JSON.stringify(geometry, null, 2),
+		path: geometryPath,
 		contentType: 'application/json',
 	});
 	const visibility = await element.evaluate((ghost) => ({
@@ -128,8 +131,10 @@ export const captureTrackDropFailureEvidence = async ({
 		await element.evaluate((ghost, value) => {
 			ghost.style.setProperty('visibility', value.value, value.priority);
 		}, visibility);
+		const phasesPath = testInfo.outputPath('track-drop-paint-phases.json');
+		await writeFile(phasesPath, JSON.stringify(phases, null, 2));
 		await testInfo.attach('track-drop-paint-phases', {
-			body: JSON.stringify(phases, null, 2),
+			path: phasesPath,
 			contentType: 'application/json',
 		});
 	}
