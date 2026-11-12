@@ -30,7 +30,7 @@ console.log(result);
 
 Copies the node's source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
 
-Since <AvailableFrom v="4.0.540" inline />, a clip directly inside a [`<Track>`](/docs/track), optionally grouped with anonymous fragments (`<>...</>`), is copied into a new sibling `<Track>` with its timing preserved. Multiple selected clips from one track share one new track. The new track preserves the original track's props except its explicit React `key` and adds `-copy` to a static `name`.
+Since v4.0.540, a clip directly inside a [`<Track>`](/docs/track), optionally grouped with anonymous fragments (`<>...</>`), is copied into a new sibling `<Track>` with its timing preserved. Multiple selected clips from one track share one new track. The new track preserves the original track's props except its explicit React `key` and adds `-copy` to a static `name`.
 
 ## Options
 

@@ -283,7 +283,7 @@ Audio streams are zero-indexed.
 
 ### `onError?`
 
-Handle an error playing the video. From <AvailableFrom v="3.3.89" inline />, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ### `pauseWhenBuffering?`<AvailableFrom v="4.0.100"/>
 
@@ -323,7 +323,7 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
-From <AvailableFrom v="4.0.542" inline />, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
+From v4.0.542, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
 
 Anonymous CORS omits cross-origin credentials. For videos that require cookies or HTTP authentication, use `crossOrigin="use-credentials"`. The server must return `Access-Control-Allow-Credentials: true` and an `Access-Control-Allow-Origin` header matching the requesting origin, rather than `*`.
 

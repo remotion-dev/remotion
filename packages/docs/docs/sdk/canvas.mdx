@@ -75,7 +75,7 @@ export const onSequencePropsChange = async (changes: readonly CanvasSequenceProp
 
 Elements can be moved when they expose a `style.translate` field in their [`controls`](/docs/sdk/create-canvas-controller#sequencecontrols) and their source node is registered with [`setSequenceNodePaths()`](/docs/sdk/create-canvas-controller#setsequencenodepaths). Without the callback, outlines can be selected but not moved.
 
-Since <AvailableFrom v="4.0.541" inline />, dragging and nudging only use pixel translations. Elements with percentage coordinates or unsupported translation syntax remain selected and unchanged; supported elements in the same selection can still move.
+Since v4.0.541, dragging and nudging only use pixel translations. Elements with percentage coordinates or unsupported translation syntax remain selected and unchanged; supported elements in the same selection can still move.
 
 ### getSequencePropStatuses?<AvailableFrom v="4.0.530" />
 

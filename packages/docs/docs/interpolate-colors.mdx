@@ -20,7 +20,7 @@ Takes three to four arguments:
 
 `inputRange` and `outputRange` must have the same length and at least one color.
 With one color, `interpolateColors()` always returns the only output color as an `rgba` string.
-Single-color ranges are supported from <AvailableFrom v="4.0.469" inline />.
+Single-color ranges are supported from v4.0.469.
 
 ### easing?<AvailableFrom v="4.0.475" />
 
@@ -138,9 +138,7 @@ const frame = useCurrentFrame(); // 10
 const color = interpolateColors(frame, [0, 20], ['red', 'yellow']); // rgba(255, 128, 0, 1)
 ```
 
-## Interpolating `oklch` colors
-
-<AvailableFrom v="4.0.439" />
+## Interpolating `oklch` colors<AvailableFrom v="4.0.439" />
 
 Support for [`oklch()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch) colors using space-separated syntax with optional alpha via `/`:
 
@@ -155,9 +153,7 @@ const color = interpolateColors(frame, [0, 20], ['oklch(0.5 0.2 240)', 'oklch(0.
 const color2 = interpolateColors(frame, [0, 20], ['oklch(0.5 0.2 240 / 1)', 'oklch(0.9 0.1 120 / 0.5)']);
 ```
 
-## Interpolating `oklab`, `lab`, `lch`, and `hwb` colors
-
-<AvailableFrom v="4.0.439" />
+## Interpolating `oklab`, `lab`, `lch`, and `hwb` colors<AvailableFrom v="4.0.439" />
 
 The following CSS Color Level 4 formats are also supported:
 
@@ -181,7 +177,7 @@ const d = interpolateColors(frame, [0, 20], ['hwb(0 0% 0%)', 'hwb(120 10% 10%)']
 
 All modern color functions support the optional `/ alpha` syntax (e.g., `oklch(0.7 0.15 180 / 0.5)`).
 
-From <AvailableFrom v="4.0.539" inline />, `oklch()`, `lch()`, and `hwb()` correctly interpret `grad` hue angles and wrap hues outside a full rotation. For example, `hwb(100grad 0% 0%)` is equivalent to `hwb(90deg 0% 0%)`, and `hwb(2turn 0% 0%)` is equivalent to `hwb(0 0% 0%)`.
+From v4.0.539, `oklch()`, `lch()`, and `hwb()` correctly interpret `grad` hue angles and wrap hues outside a full rotation. For example, `hwb(100grad 0% 0%)` is equivalent to `hwb(90deg 0% 0%)`, and `hwb(2turn 0% 0%)` is equivalent to `hwb(0 0% 0%)`.
 
 ## Compatibility
 
