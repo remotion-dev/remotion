@@ -228,7 +228,9 @@ export const internalSelectCompositionRaw = async (
 		preferredEffectBackend,
 	} = options;
 
-	const [{page, cleanupPage}, serverUsed] = await Promise.all([
+	// allSettled: if one of them fails, the other one still needs to be cleaned up.
+	// Otherwise e.g. the server leaks and keeps the process alive.
+	const [pageResult, serverResult] = await Promise.allSettled([
 		getPageAndCleanupFn({
 			passedInInstance: puppeteerInstance,
 			browserExecutable,
@@ -264,7 +266,23 @@ export const internalSelectCompositionRaw = async (
 			return result;
 		}),
 	]);
-	cleanup.push(() => cleanupPage());
+	if (pageResult.status === 'fulfilled') {
+		cleanup.push(() => pageResult.value.cleanupPage());
+	}
+
+	if (pageResult.status === 'rejected' || serverResult.status === 'rejected') {
+		cleanup.forEach((c) => {
+			c().catch((err) => {
+				Log.error({indent, logLevel}, 'Cleanup error:', err);
+			});
+		});
+		throw pageResult.status === 'rejected'
+			? pageResult.reason
+			: (serverResult as PromiseRejectedResult).reason;
+	}
+
+	const {page} = pageResult.value;
+	const serverUsed = serverResult.value;
 
 	return new Promise<InternalReturnType>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);

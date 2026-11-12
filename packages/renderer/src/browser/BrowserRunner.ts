@@ -42,6 +42,63 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
+type TerminationSignal = 'SIGTERM' | 'SIGHUP';
+
+// Listening to a signal disables the default behavior of Node.js, which is to
+// terminate the process. Once all browsers are closed, Remotion re-raises the
+// signal, unless the user has their own listener for it.
+// Shared via the process object in case multiple copies of Remotion are loaded.
+const ownSignalListeners: Set<unknown> = ((
+	process as unknown as Record<symbol, Set<unknown>>
+)[Symbol.for('remotion.signalListeners')] ??= new Set());
+let receivedSignal: {
+	signal: TerminationSignal;
+	userHandlesSignal: boolean;
+} | null = null;
+let browsersLaunching = 0;
+
+const userHasSignalListener = (signal: TerminationSignal) => {
+	// execa, which is used to call FFmpeg, listens to signals through
+	// `signal-exit` while a child process is running. It only terminates the
+	// process if it is the only listener, so it does not count as a user listener.
+	// Each loaded copy of `signal-exit` registers one listener per signal and
+	// increments `count` on its emitter. v3 stores the emitter on `process`,
+	// v4 on `globalThis`.
+	const signalExitListeners = [
+		(process as unknown as Record<string, {count: number} | undefined>)
+			.__signal_exit_emitter__,
+		(globalThis as unknown as Record<symbol, {count: number} | undefined>)[
+			Symbol.for('signal-exit emitter')
+		],
+	].reduce((acc, e) => acc + (e?.count ?? 0), 0);
+
+	return (
+		process.listeners(signal).filter((l) => !ownSignalListeners.has(l)).length >
+		signalExitListeners
+	);
+};
+
+const reraiseSignalIfAllBrowsersClosed = () => {
+	if (receivedSignal === null || receivedSignal.userHandlesSignal) {
+		return;
+	}
+
+	const {signal} = receivedSignal;
+	if (
+		browsersLaunching > 0 ||
+		process.listeners(signal).some((l) => ownSignalListeners.has(l))
+	) {
+		return;
+	}
+
+	try {
+		process.kill(process.pid, signal);
+	} catch {
+		// Windows cannot raise SIGHUP
+		process.exit(signal === 'SIGHUP' ? 129 : 143);
+	}
+};
+
 export const makeBrowserRunner = async ({
 	executablePath,
 	processArguments,
@@ -73,6 +130,7 @@ export const makeBrowserRunner = async ({
 		);
 	}
 
+	browsersLaunching++;
 	const proc = childProcess.spawn(launch.executablePath, launch.args, {
 		// On non-windows platforms, `detached: true` makes child process a
 		// leader of a new process group, making it possible to kill child
@@ -83,13 +141,21 @@ export const makeBrowserRunner = async ({
 		stdio,
 	});
 
-	const browserWSEndpoint = await waitForWSEndpoint({
-		browserProcess: proc,
-		timeout,
-		indent,
-		logLevel,
-	});
-	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+	let transport: NodeWebSocketTransport;
+	try {
+		const browserWSEndpoint = await waitForWSEndpoint({
+			browserProcess: proc,
+			timeout,
+			indent,
+			logLevel,
+		});
+		transport = await NodeWebSocketTransport.create(browserWSEndpoint);
+	} catch (err) {
+		browsersLaunching--;
+		reraiseSignalIfAllBrowsersClosed();
+		throw err;
+	}
+
 	const connection = new Connection(transport);
 
 	const killProcess = (): void => {
@@ -184,6 +250,7 @@ export const makeBrowserRunner = async ({
 
 				deleteDirectory(userDataDir);
 				removeEventListeners(listeners);
+				reraiseSignalIfAllBrowsersClosed();
 			}
 		})();
 		return closePromise;
@@ -228,7 +295,9 @@ export const makeBrowserRunner = async ({
 			}
 		});
 	});
-	const listeners = [addEventListener(process, 'exit', killProcess)];
+	const listeners: Array<() => void> = [
+		addEventListener(process, 'exit', killProcess),
+	];
 	listeners.push(
 		addEventListener(process, 'SIGINT', () => {
 			killProcess();
@@ -236,8 +305,31 @@ export const makeBrowserRunner = async ({
 		}),
 	);
 
-	listeners.push(addEventListener(process, 'SIGTERM', closeProcess));
-	listeners.push(addEventListener(process, 'SIGHUP', closeProcess));
+	for (const signal of ['SIGTERM', 'SIGHUP'] as const) {
+		const onSignal = () => {
+			receivedSignal = {
+				signal,
+				userHandlesSignal: userHasSignalListener(signal),
+			};
+			closeProcess();
+		};
+
+		ownSignalListeners.add(onSignal);
+		// Prepend, so that a user listener registered with process.once()
+		// is still registered when checking for user listeners.
+		process.prependListener(signal, onSignal);
+		listeners.push(() => {
+			process.off(signal, onSignal);
+			ownSignalListeners.delete(onSignal);
+		});
+	}
+
+	browsersLaunching--;
+	// The process is terminating, e.g. this browser replaces a crashed browser
+	// after a signal was received. Don't keep the process alive.
+	if (receivedSignal !== null && !receivedSignal.userHandlesSignal) {
+		closeProcess();
+	}
 
 	const deleteBrowserCaches = () => {
 		// We leave some data:
