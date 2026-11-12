@@ -79,6 +79,18 @@ import {filterContainingBlockReference} from './fixtures/filter-containing-block
 import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {
+	gradientMaskPixelModes,
+	gradientMaskPixelStops,
+} from './fixtures/gradient-mask-pixel-stops';
+import {
+	gradientPaintContext,
+	gradientPaintModes,
+} from './fixtures/gradient-paint-context';
+import {
+	gradientPixelModes,
+	gradientPixelStops,
+} from './fixtures/gradient-pixel-stops';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
 import {
@@ -522,6 +534,15 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{gradientMaskPixelModes.map((mode) => (
+				<Composition key={mode} {...gradientMaskPixelStops(mode, null)} />
+			))}
+			{gradientPaintModes.map((mode) => (
+				<Composition key={mode} {...gradientPaintContext(mode)} />
+			))}
+			{gradientPixelModes.map((mode) => (
+				<Composition key={mode} {...gradientPixelStops(mode)} />
+			))}
 		</>
 	);
 };
