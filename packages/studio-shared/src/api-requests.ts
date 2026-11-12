@@ -2049,6 +2049,10 @@ export const studioOperations = {
 		UpdateConfigRequest,
 		UpdateConfigResponse
 	>({mutatesSource: false}),
+	'/api/element-library-favicon': new StudioOperation<
+		{url: string},
+		{head: string; url: string} | null
+	>({mutatesSource: false}),
 	'/api/install-package': new StudioOperation<
 		InstallPackageRequest,
 		InstallPackageResponse

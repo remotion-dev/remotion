@@ -1,4 +1,7 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getElementLibraryFavicons} from '../helpers/element-library-favicons';
 import {BrowseElementsIcon} from '../icons/browse-elements';
 
 export const ElementLibraryIcon: React.FC<{
@@ -6,26 +9,41 @@ export const ElementLibraryIcon: React.FC<{
 	readonly color: string;
 	readonly size: number;
 }> = ({url, color, size}) => {
-	const parsedUrl = new URL(url);
-	const {hostname} = parsedUrl;
-	const useDirectFavicon =
-		!hostname.includes('.') ||
-		['.localhost', '.local', '.internal', '.test'].some((suffix) =>
-			hostname.endsWith(suffix),
-		) ||
-		/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) ||
-		hostname.startsWith('[');
-	const faviconUrl = useDirectFavicon
-		? new URL('/favicon.ico', parsedUrl).href
-		: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canFetchHead =
+		previewServerState.type === 'connected' &&
+		getBrowserStudioOperations() === null;
+	const [favicons, setFavicons] = useState<{
+		url: string;
+		candidates: string[];
+	} | null>(null);
+	const [failedUrls, setFailedUrls] = useState<string[]>([]);
+	useEffect(() => {
+		let cancelled = false;
+		getElementLibraryFavicons({url, canFetchHead}).then((candidates) => {
+			if (cancelled) return;
+			setFailedUrls([]);
+			setFavicons({url, candidates});
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [canFetchHead, url]);
+	const faviconUrl =
+		favicons?.url === url
+			? (favicons.candidates.find(
+					(candidate) => !failedUrls.includes(candidate),
+				) ?? null)
+			: null;
 	const [loadedUrl, setLoadedUrl] = useState<string | null>(null);
-	const loaded = loadedUrl === faviconUrl;
+	const loaded = faviconUrl !== null && loadedUrl === faviconUrl;
 	const onLoad = useCallback(() => {
 		setLoadedUrl(faviconUrl);
 	}, [faviconUrl]);
 	const onError = useCallback(() => {
-		setLoadedUrl(null);
-	}, []);
+		if (faviconUrl !== null)
+			setFailedUrls((current) => [...current, faviconUrl]);
+	}, [faviconUrl]);
 
 	return (
 		<span
@@ -38,21 +56,23 @@ export const ElementLibraryIcon: React.FC<{
 				width: size,
 			}}
 		>
-			<img
-				key={faviconUrl}
-				alt=""
-				draggable={false}
-				referrerPolicy="no-referrer"
-				src={faviconUrl}
-				onLoad={onLoad}
-				onError={onError}
-				style={{
-					height: '100%',
-					objectFit: 'contain',
-					visibility: loaded ? 'visible' : 'hidden',
-					width: '100%',
-				}}
-			/>
+			{faviconUrl === null ? null : (
+				<img
+					key={faviconUrl}
+					alt=""
+					draggable={false}
+					referrerPolicy="no-referrer"
+					src={faviconUrl}
+					onLoad={onLoad}
+					onError={onError}
+					style={{
+						height: '100%',
+						objectFit: 'contain',
+						visibility: loaded ? 'visible' : 'hidden',
+						width: '100%',
+					}}
+				/>
+			)}
 			{loaded ? null : (
 				<BrowseElementsIcon
 					color={color}
