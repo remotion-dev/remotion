@@ -426,7 +426,10 @@ export const Modals: React.FC<{
 				/>
 			) : null}
 
-			{modalContextType?.type === 'export-opentimeline' ? (
+			{modalContextType?.type === 'export-opentimeline' &&
+			!readOnlyStudio &&
+			canRender &&
+			!isBrowserStudio ? (
 				<CodeChangeModal
 					title="Export as OpenTimeline"
 					description="Export this composition as an OpenTimelineIO timeline, for use with DaVinci Resolve or Adobe Premiere. Unsupported elements are prerendered."
