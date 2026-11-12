@@ -7,7 +7,12 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {getInputProps, Internals, type VideoConfig} from 'remotion';
+import {
+	getInputProps,
+	Internals,
+	type AnyZodObject,
+	type VideoConfig,
+} from 'remotion';
 import {FastRefreshContext} from './fast-refresh-context';
 
 type VideoConfigState =
@@ -105,6 +110,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 			compositionId,
 			compositionWidth,
 			defaultProps,
+			schema,
 		}: {
 			compositionId: string;
 			calculateMetadata: unknown;
@@ -114,6 +120,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 			compositionDurationInFrames: number | null;
 			defaultProps: Record<string, unknown>;
 			combinedProps: Record<string, unknown>;
+			schema: AnyZodObject | null;
 		}) => {
 			const controller = new AbortController();
 			if (hasResolution) {
@@ -134,6 +141,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				compositionFps,
 				compositionHeight,
 				compositionWidth,
+				schema,
 			});
 			if (result.type === 'error') {
 				setResolvedConfigs((r) => ({
@@ -246,6 +254,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				compositionFps: composition.fps ?? null,
 				compositionHeight: composition.height ?? null,
 				compositionWidth: composition.width ?? null,
+				schema: composition.schema ?? null,
 			});
 
 			if (result.type === 'error') {
@@ -311,6 +320,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 						compositionHeight: composition.height ?? null,
 						compositionWidth: composition.width ?? null,
 						compositionId: composition.id,
+						schema: composition.schema ?? null,
 					});
 				},
 			};
@@ -365,6 +375,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				compositionWidth: selectedComposition.width ?? null,
 				defaultProps: currentDefaultProps,
 				compositionId: selectedComposition.id,
+				schema: selectedComposition.schema ?? null,
 			});
 
 			return () => {
@@ -381,6 +392,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 		selectedComposition?.fps,
 		selectedComposition?.height,
 		selectedComposition?.id,
+		selectedComposition?.schema,
 		selectedComposition?.width,
 		shouldIgnoreUpdate,
 	]);
@@ -403,6 +415,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				compositionWidth: renderModalComposition.width ?? null,
 				defaultProps: currentDefaultProps,
 				combinedProps,
+				schema: renderModalComposition.schema ?? null,
 			});
 
 			return () => {

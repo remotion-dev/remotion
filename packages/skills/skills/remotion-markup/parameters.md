@@ -62,6 +62,8 @@ export const RemotionRoot = () => {
 
 Now, the user can edit the parameter visually in the sidebar.
 
+When rendering, Remotion validates the props against the schema. If they are invalid, Remotion 4 logs a warning that lists each invalid field and renders anyway. Remotion 5 fails the render. Remotion shallowly merges input props with `defaultProps`. A nested object in the input props replaces the whole default object.
+
 All schemas that are supported by Zod are supported by Remotion.
 
 Remotion requires that the top-level type is a z.object(), because the collection of props of a React component is always an object.

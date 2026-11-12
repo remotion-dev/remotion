@@ -15,8 +15,10 @@ unless the user explicitly requests a different browser.
 Render a video using:
 
 ```
-npx remotion render
+npx remotion render [composition-id] out/video.mp4
 ```
+
+Always pass the composition ID. Without it, Remotion shows an interactive picker, or fails in a non-interactive terminal. List the IDs with `npx remotion compositions`.
 
 Full list of options: https://www.remotion.dev/docs/cli/render.md
 
