@@ -25,7 +25,7 @@ Agents can:
 - Play, pause and seek
 - Set timeline zoom, playback rate, looping, volume and mute state
 - Inspect and resize Studio panels
-- See, select, add and remove guides
+- See, select, add, move and remove guides
 - Install packages into the current project
 - Transcribe audio and video assets
 - Remove the background from video assets
@@ -1368,6 +1368,34 @@ Adds and shows a guide in the current composition. Positions use composition pix
     orientation: 'horizontal' | 'vertical';
     position: number;
     visible: true;
+  }
+}
+```
+
+### `update_guide`<AvailableFrom v="4.0.544" />
+
+Moves a guide from the current composition using the same position update as the Inspector. Positions are rounded to whole composition pixels and may be negative. Guides at the same position remain separate guides. Available in every Studio mode; guide positions are saved locally in the browser and do not require source editing.
+
+An unknown guide ID or a non-finite position causes an error before anything changes. The output confirms the updated position. Global guide visibility is preserved; use `set_guides_visible` to show hidden guides.
+
+```ts title="Input"
+{
+  guideId: string;
+  position: number;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guide: {
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: boolean;
   }
 }
 ```

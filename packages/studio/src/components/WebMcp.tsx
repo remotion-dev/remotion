@@ -59,6 +59,7 @@ import {
 	useRevealBufferingHandle,
 } from './buffering-diagnostics';
 import {useRemoveGuide} from './EditorGuides/use-remove-guide';
+import {useUpdateGuidePosition} from './EditorGuides/use-update-guide-position';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
@@ -333,6 +334,7 @@ export const WebMcp: FC = () => {
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
 	const removeGuide = useRemoveGuide();
+	const updateGuidePosition = useUpdateGuidePosition();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
 	const {canvasContent, compositions, folders} = useContext(
@@ -2445,6 +2447,67 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'update_guide',
+					title: 'Move Studio guide',
+					description:
+						'Move an existing guide in the current composition using the same position update as the Inspector. Position is rounded to whole composition pixels and may be negative. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: 'string', minLength: 1},
+							position: {
+								type: 'number',
+								description:
+									'The guide position in composition pixels. Vertical guides use an x-coordinate and horizontal guides use a y-coordinate.',
+							},
+						},
+						required: ['guideId', 'position'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId, position}) => {
+						if (typeof guideId !== 'string' || guideId.length === 0) {
+							throw new Error('guideId must be a non-empty string.');
+						}
+
+						if (typeof position !== 'number' || !Number.isFinite(position)) {
+							throw new Error('position must be a finite number.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						const guide = guidesListRef.current.find(
+							(candidate) =>
+								candidate.id === guideId &&
+								candidate.compositionId === compositionId,
+						);
+						if (!guide) {
+							throw new Error(
+								`Guide ${guideId} not found in the current composition.`,
+							);
+						}
+
+						flushSync(() => {
+							updateGuidePosition({guideId, position, persist: true});
+						});
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							guide: {
+								id: guideId,
+								orientation: guide.orientation,
+								position: Math.round(position),
+								visible: editorShowGuidesRef.current,
+							},
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'remove_guide',
 					title: 'Remove Studio guide',
 					description:
@@ -2953,6 +3016,7 @@ export const WebMcp: FC = () => {
 		setSplitterPosition,
 		setTimelineZoom,
 		timelineSelectionRef,
+		updateGuidePosition,
 	]);
 
 	return (

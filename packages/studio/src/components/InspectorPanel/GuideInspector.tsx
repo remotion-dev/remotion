@@ -29,6 +29,7 @@ import {
 import {ActionTooltip} from '../ActionTooltip';
 import {ContextMenuForTarget} from '../ContextMenu';
 import {useRemoveGuide} from '../EditorGuides/use-remove-guide';
+import {useUpdateGuidePosition} from '../EditorGuides/use-update-guide-position';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
@@ -57,6 +58,7 @@ const GuideInspectorRow: React.FC<{
 }> = React.memo(({guide, index, onPositionDragChange}) => {
 	const guidesRef = useContext(EditorShowGuidesRefContext);
 	const removeGuide = useRemoveGuide();
+	const updateGuidePosition = useUpdateGuidePosition();
 	const {selected, onSelect} = useTimelineGuideSelection(guide.id);
 	const rowRef = useRef<HTMLDivElement>(null);
 	const dragStartPosition = useRef<number | null>(null);
@@ -78,17 +80,9 @@ const GuideInspectorRow: React.FC<{
 
 	const updatePosition = useCallback(
 		(position: number, persist: boolean) => {
-			guidesRef?.current.setGuidesList((guides) => {
-				const next = guides.map((candidate) =>
-					candidate.id === guide.id
-						? {...candidate, position: Math.round(position), show: true}
-						: candidate,
-				);
-				if (persist) persistGuidesList(next);
-				return next;
-			});
+			updateGuidePosition({guideId: guide.id, position, persist});
 		},
-		[guide.id, guidesRef],
+		[guide.id, updateGuidePosition],
 	);
 	const onValueChange = useCallback(
 		(value: number, source: 'input' | 'drag') => {

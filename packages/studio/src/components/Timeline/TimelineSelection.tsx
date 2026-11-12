@@ -1888,11 +1888,9 @@ export const TimelineSelectionProvider: React.FC<{
 					<TimelineSelectionContext.Provider value={value}>
 						{children}
 						<TimelineEscapeKeybindings />
+						<TimelineDeleteKeybindings />
 						{isStudioInteractivityEnabled() ? (
-							<>
-								<TimelineClipboardKeybindings />
-								<TimelineDeleteKeybindings />
-							</>
+							<TimelineClipboardKeybindings />
 						) : null}
 					</TimelineSelectionContext.Provider>
 				</TimelineRowSelectionContext.Provider>

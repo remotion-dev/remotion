@@ -1,10 +1,11 @@
-import {memo, useCallback, useContext, useMemo, useRef} from 'react';
+import {memo, useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	getEditorGuideColor,
 	isGuidePointerUpAClick,
 	type GuidePointerDownPosition,
 } from '../../helpers/editor-guide-selection';
+import {observeHover} from '../../helpers/observe-hover';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
@@ -48,14 +49,24 @@ const GuideComp: React.FC<{
 	const pointerDownPositionRef = useRef<GuidePointerDownPosition | null>(null);
 	const removeGuide = useRemoveGuide();
 	const hasMovedGuideRef = useRef(false);
+	const guideRef = useRef<HTMLDivElement>(null);
 
-	const onPointerEnter = useCallback(() => {
-		setHoveredGuideId(() => guide.id);
+	useEffect(() => {
+		const element = guideRef.current;
+		if (!element) return;
+
+		const setHovered = (hovered: boolean) => {
+			setHoveredGuideId((current) =>
+				hovered ? guide.id : current === guide.id ? null : current,
+			);
+		};
+
+		const stop = observeHover({element, onHoverChange: setHovered});
+		return () => {
+			stop();
+			setHovered(false);
+		};
 	}, [guide.id, setHoveredGuideId]);
-
-	const onPointerLeave = useCallback(() => {
-		setHoveredGuideId(() => null);
-	}, [setHoveredGuideId]);
 
 	const isVerticalGuide = guide.orientation === 'vertical';
 
@@ -245,13 +256,12 @@ const GuideComp: React.FC<{
 	return (
 		<ContextMenu getItems={getContextMenuItems}>
 			<div
+				ref={guideRef}
 				style={guideStyle}
 				onPointerDown={onPointerDown}
 				onClick={onClick}
 				className="__remotion_editor_guide"
 				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
 			>
 				<div style={guideContentStyle} className={guideClassName} />
 			</div>
