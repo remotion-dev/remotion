@@ -10,18 +10,12 @@ import React, {
 import {createPortal} from 'react-dom';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	CURRENT_COLOR,
-	LIGHT_TEXT,
-	TIMELINE_BLUE,
-	WHITE_ALPHA_05,
-} from '../helpers/colors';
+import {LIGHT_TEXT, TIMELINE_BLUE, WHITE_ALPHA_05} from '../helpers/colors';
 import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {BrowseElementsIcon} from '../icons/browse-elements';
-import {TrashIcon} from '../icons/trash';
 import {
 	type ConfirmationDialogState,
 	type ElementInstallModalState,
@@ -393,12 +387,7 @@ export const ElementLibraryModal: React.FC<{
 													id: 'remove-library',
 													value: 'remove-library',
 													label: 'Remove',
-													leftItem: (
-														<TrashIcon
-															color={CURRENT_COLOR}
-															style={{width: 16, height: 16}}
-														/>
-													),
+													leftItem: null,
 													keyHint: null,
 													quickSwitcherLabel: null,
 													subMenu: null,
