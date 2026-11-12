@@ -9,7 +9,7 @@ projects, preview compositions in Remotion Studio, and export finished videos.
 
 ## Get started
 
-[Install the Remotion plugin](https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex),
+[Install the Remotion plugin](https://remotion.dev/plugins),
 then describe the video you want to make. For example, ask for an animated bar
 chart, a product announcement, or captions for an existing video.
 
