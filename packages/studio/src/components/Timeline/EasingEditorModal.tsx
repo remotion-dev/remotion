@@ -34,6 +34,7 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {UvCoordinateHandle} from '../UvCoordinateHandle';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './should-clear-selection-on-pointer-down';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
@@ -1313,7 +1314,10 @@ const EasingEditorUnmemoized: React.FC<{
 			</div>
 			{mode === 'bezier' ? (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							ref={svgRef}
 							width={SVG_WIDTH}
@@ -1481,7 +1485,10 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : mode === 'spring' ? (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1642,7 +1649,10 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}

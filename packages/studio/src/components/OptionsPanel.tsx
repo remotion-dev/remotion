@@ -17,7 +17,6 @@ import {InlineAction} from './InlineAction';
 import {InspectorPanel} from './InspectorPanel';
 import {
 	getSameSequenceInspectorSelection,
-	INSPECTOR_BACKGROUND_ATTRIBUTE,
 	isSequenceSectionSelection,
 	type SequenceSectionSelection,
 } from './InspectorPanel/inspector-selection';
@@ -46,6 +45,7 @@ import {
 type OptionsSidebarPanel = 'inspector' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
+const INSPECTOR_BACKGROUND_ATTRIBUTE = 'data-remotion-inspector-background';
 
 const getSelectedPanel = (): OptionsSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
@@ -405,13 +405,22 @@ export const OptionsPanel: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			e.stopPropagation();
 			if (
-				panel === 'inspector' &&
-				shouldClearSelectionOnPointerDown(e) &&
-				e.target instanceof Element &&
-				e.target.hasAttribute(INSPECTOR_BACKGROUND_ATTRIBUTE)
+				panel !== 'inspector' ||
+				!shouldClearSelectionOnPointerDown(e) ||
+				!(e.target instanceof Element) ||
+				!e.target.closest(`[${INSPECTOR_BACKGROUND_ATTRIBUTE}]`) ||
+				e.target.closest(
+					'button, input, textarea, select, a, label, [contenteditable="true"], [role="button"], [role="tab"], [role="slider"], [role="checkbox"], [role="radio"], [role="switch"], [role="combobox"]',
+				) ||
+				[...e.target.childNodes].some(
+					(node) =>
+						node.nodeType === Node.TEXT_NODE && node.textContent?.trim(),
+				)
 			) {
-				currentSelection.current.stepBackSelection(true);
+				return;
 			}
+
+			currentSelection.current.stepBackSelection(true);
 		},
 		[currentSelection, panel],
 	);
@@ -471,7 +480,10 @@ export const OptionsPanel: React.FC<{
 				</Tabs>
 			</div>
 			{panel === 'inspector' ? (
-				<div style={inspectorContainer}>
+				<div
+					style={inspectorContainer}
+					{...{[INSPECTOR_BACKGROUND_ATTRIBUTE]: 'true'}}
+				>
 					<InspectorPanel
 						composition={composition}
 						currentDefaultProps={currentDefaultProps}

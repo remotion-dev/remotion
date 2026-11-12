@@ -176,6 +176,23 @@ test.describe('easing editor handles', () => {
 
 		await image.first().click();
 		await levelsEffect.getByText('levels()', {exact: true}).click();
+		const cropHeader = page
+			.getByRole('button', {name: 'Expand Crop', exact: true})
+			.locator('..')
+			.locator('..');
+		const cropHeaderBounds = await cropHeader.boundingBox();
+		expect(cropHeaderBounds).not.toBeNull();
+		await cropHeader.click({
+			position: {x: cropHeaderBounds!.width - 12, y: 2},
+		});
+		await expect(levelsEffect).toBeVisible();
+		await page.keyboard.press('Escape');
+		await expect(
+			page.getByRole('button', {name: 'Choose width preset', exact: true}),
+		).toBeVisible();
+
+		await image.first().click();
+		await levelsEffect.getByText('levels()', {exact: true}).click();
 		await page.getByText('Input levels', {exact: true}).click();
 		await page.keyboard.press('Backspace');
 		await expect(levelsEffect).toHaveCount(0);

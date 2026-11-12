@@ -45,10 +45,7 @@ import {
 	largeInspectorActionIconStyle,
 } from './common';
 import {useConnectedCompositions} from './ConnectedCompositionsSection';
-import {
-	INSPECTOR_BACKGROUND_ATTRIBUTE,
-	type SequenceSectionSelection,
-} from './inspector-selection';
+import type {SequenceSectionSelection} from './inspector-selection';
 import {PrerenderedVideoActions} from './PrerenderedVideoActions';
 import {
 	SequenceInspectorSections,
@@ -471,11 +468,7 @@ const SequenceExpandedInspector: React.FC<{
 	}
 
 	return (
-		<div
-			style={selectedContainer}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
-			{...{[INSPECTOR_BACKGROUND_ATTRIBUTE]: 'true'}}
-		>
+		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<SequenceInspectorSections track={track} />
 			{validatedLocation ? (
 				<>
