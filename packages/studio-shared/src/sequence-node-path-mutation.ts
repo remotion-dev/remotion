@@ -1,6 +1,8 @@
 import type {SequenceNodePath} from 'remotion';
 
 export type SequenceNodePathRemapping = {
+	/** The edit only changes effects on a surviving JSX node. */
+	effectsOnly?: true;
 	/** `null` means the JSX node was inserted by this mutation. */
 	oldNodePath: SequenceNodePath | null;
 	/** `null` means the JSX node was deleted by this mutation. */

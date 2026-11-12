@@ -15,7 +15,7 @@ If your composition plays well there, you should have no problems elsewhere.
 
 ## Trigger the play from a user event
 
-If you autoplay audio (through a `<Video>`, `<Audio>`, `<Html5Audio>`, `<Html5Video>`, or `<OffthreadVideo>` tag) on site load, browsers will block the audio.
+If you autoplay audio (through a [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), or [`<OffthreadVideo>`](/docs/offthreadvideo) tag) on site load, browsers will block the audio.
 
 The [`autoPlay`](/docs/player/player#autoplay) prop of the [`<Player>`](/docs/player/player) is therefore discouraged if your video contains any audio.
 
@@ -126,7 +126,7 @@ export const MyComp: React.FC<{
 };
 ```
 
-In this example, the Player is simply paused.  
+In this example, the Player is paused.  
 If the user presses Play again, the video may then start playing with audio again due to it being started with user interaction.
 
 You may show a [poster](/docs/player/player/#renderposter) with a hint - for example "Tap to resume".

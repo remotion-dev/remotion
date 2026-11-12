@@ -109,6 +109,7 @@ export const CompositionInspectorHeader = () => {
 						<InspectorHeaderActionSlot>
 							{validatedLocation ? (
 								<InspectorOpenInEditor
+									sourceTarget={null}
 									menuTrigger={{
 										label: 'Composition',
 										renderIcon: renderCompositionIcon,
@@ -126,6 +127,7 @@ export const CompositionInspectorHeader = () => {
 						<InspectorHeaderActionSlot>
 							{componentLocation ? (
 								<InspectorOpenInEditor
+									sourceTarget={null}
 									menuTrigger={{
 										label: 'Component',
 										renderIcon: renderReactIcon,

@@ -10,11 +10,17 @@ export const audioBitrateOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Specify the target bitrate for the generated video. The syntax for FFmpeg
-			{"'"}s <code>-b:a</code> parameter should be used. FFmpeg may encode the
-			video in a way that will not result in the exact audio bitrate specified.
-			Example values: <code>512K</code> for 512 kbps, <code>1M</code> for 1
-			Mbps. Default: <code>320k</code>
+			Specify the target bitrate for the generated audio. For server-side
+			renders, the syntax for FFmpeg{"'"}s <code>-b:a</code> parameter should be
+			used. FFmpeg may encode the audio in a way that will not result in the
+			exact audio bitrate specified. Example values: <code>512K</code> for 512
+			kbps, <code>1M</code> for 1 Mbps. Default for server-side renders:{' '}
+			<code>320k</code>.
+			<br />
+			<a href="/docs/web-renderer/render-media-on-web#audiobitrate">
+				<code>renderMediaOnWeb()</code>
+			</a>{' '}
+			instead accepts a number in bits per second or a quality preset.
 		</>
 	),
 	ssrName: 'audioBitrate',

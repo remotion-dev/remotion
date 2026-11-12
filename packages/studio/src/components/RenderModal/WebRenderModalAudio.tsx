@@ -1,9 +1,9 @@
+import {WebRendererInternals} from '@remotion/web-renderer';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 } from '@remotion/web-renderer';
-import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
 import React, {useMemo} from 'react';
 import {
 	BORDER_INFO_BLUE,
@@ -88,7 +88,8 @@ export const WebRenderModalAudio: React.FC<{
 	effectiveAudioCodec,
 }) => {
 	const containerSupported = useMemo(
-		() => getSupportedAudioCodecsForContainer(videoContainer),
+		() =>
+			WebRendererInternals.getSupportedAudioCodecsForContainer(videoContainer),
 		[videoContainer],
 	);
 

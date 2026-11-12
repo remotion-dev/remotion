@@ -19,8 +19,6 @@ Useful for if you have a hardcoded constant that you want to quickly find the op
 Consider you have a value `rotation` that you want to find the optimal value for:
 
 ```tsx twoslash title="A simple composition"
-import {useVideoConfig} from 'remotion';
-
 const MyComp: React.FC = () => {
   const rotation = 180;
 
@@ -116,7 +114,7 @@ const idOutside = 'rotation-my-data';
 const dataOutside = visualControl(idOutside, 180);
 ```
 
-<Step>2</Step> Controls may not be automatically remove themselves when you remove them from your code.{' '}
+<Step>2</Step> Controls may not automatically remove themselves when you remove them from your code.{' '}
 
 ## Compatibility
 

@@ -81,6 +81,8 @@ Prevents a generated token sequence of this length from occurring more than once
 
 Called while a previously downloaded model is initialized. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first to download the files and receive download progress.
 
+The callback receives the same object as the [`onProgress`](/docs/whisper-webgpu/load-whisper-model#onprogress) callback of [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model).
+
 ### signal?<AvailableFrom v="4.0.528" />
 
 An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling transcription.  
@@ -107,7 +109,31 @@ const result = await transcribe({
 
 ## Return value
 
-Returns the full `text`, timestamped `words`, and selected `model`.
+An object with the following properties:
+
+### `text`
+
+The full transcription text.
+
+### `words`
+
+An array of transcribed words. Each word has the following properties:
+
+#### `text`
+
+The text of the word.
+
+#### `startInSeconds`
+
+The start time of the word in seconds.
+
+#### `endInSeconds`
+
+The end time of the word in seconds.
+
+### `model`
+
+The model that was used for transcription.
 
 Word-level timestamps are returned after transcription completes. [Transformers.js](https://huggingface.co/docs/transformers.js) does not currently stream word-aligned updates while inference is running.
 

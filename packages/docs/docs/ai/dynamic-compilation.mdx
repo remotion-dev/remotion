@@ -107,7 +107,7 @@ const wrappedSource = `const DynamicComponent = () => {\n${componentBody}\n};`;
 
 ## Complete Example
 
-In this example, a React component is compiled and rendered by the [`<Player>`](/docs/player) component.
+In this example, a React component is compiled and rendered by the [`<Player>`](/docs/player/player) component.
 
 <Tabs defaultValue="preview">
 <TabItem value="preview" label="Preview.tsx">
@@ -142,12 +142,12 @@ export const Preview: React.FC<{code: string}> = ({code}) => {
 ```
 
 </TabItem>
-<TabItem value="hook" label="use-compilation.ts" default>
+<TabItem value="hook" label="use-compilation.ts">
 
 ```tsx twoslash title="use-compilation.ts"
 import * as Babel from '@babel/standalone';
 import React, {useMemo} from 'react';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Sequence} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Easing, Sequence} from 'remotion';
 
 interface CompilationResult {
   Component: React.ComponentType | null;
@@ -178,9 +178,9 @@ export function useCompilation(code: string): CompilationResult {
       }
 
       // Create component with injected APIs
-      const createComponent = new Function('React', 'AbsoluteFill', 'useCurrentFrame', 'useVideoConfig', 'spring', 'interpolate', 'Sequence', `${transpiled.code}\nreturn DynamicComponent;`);
+      const createComponent = new Function('React', 'AbsoluteFill', 'useCurrentFrame', 'useVideoConfig', 'spring', 'interpolate', 'Easing', 'Sequence', `${transpiled.code}\nreturn DynamicComponent;`);
 
-      const Component = createComponent(React, AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Sequence);
+      const Component = createComponent(React, AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Easing, Sequence);
 
       return {Component, error: null};
     } catch (error) {

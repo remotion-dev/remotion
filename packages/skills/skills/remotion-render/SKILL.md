@@ -1,7 +1,7 @@
 ---
 name: remotion-render
 description: Export a Remotion video
-version: 4.0.542
+version: 4.0.543
 ---
 
 ## General rendering strategy
@@ -20,6 +20,32 @@ npx remotion render
 
 Full list of options: https://www.remotion.dev/docs/cli/render.md
 
+## Passing input props
+
+Pass input props as inline JSON or as a path to a JSON file:
+
+```
+npx remotion render [composition-id] out/video.mp4 --props='{"title": "Hello"}'
+npx remotion render [composition-id] out/video.mp4 --props=./props.json
+```
+
+Remotion shallow-merges input props over the `defaultProps` of the composition.
+See https://www.remotion.dev/docs/passing-props.md.
+
+## License key
+
+Companies that need a [Remotion license](../remotion-license/SKILL.md) should
+pass their license key to every render. If the user qualifies for the free
+license, pass `free-license` instead:
+
+```
+npx remotion render [composition-id] out/video.mp4 --license-key=$REMOTION_PRIVATE_LICENSE_KEY
+```
+
+Only pass `--license-key` if a key is available, since an empty value is not a valid key.
+Add `--is-production=false` for test renders so that Remotion does not bill them.
+See https://www.remotion.dev/docs/telemetry.md.
+
 Render a still using:
 
 ```
@@ -35,6 +61,12 @@ npx remotion render [composition-id] out/frames --frames=0,30,90 --image-format=
 ```
 
 See https://www.remotion.dev/docs/cli/render.md#--frames for more options.
+
+Remotion writes the frames as `element-[frame].[ext]`. It pads the frame number
+with zeros to the number of digits of the highest rendered frame, so
+`--frames=4,30` writes `element-04.png` and `element-30.png`. List the output
+folder instead of guessing the filenames, or pass `--image-sequence-pattern`
+to change the pattern.
 
 ## Transparent videos
 

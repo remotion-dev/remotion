@@ -29,8 +29,11 @@ export const proResProfileOption = {
 		<>
 			Set the ProRes profile. This option is only valid if the codec has been
 			set to <code>prores</code>. Possible values:{' '}
-			{validProResProfiles.map((p) => `"${p}"`).join(', ')}. Default:{' '}
-			<code>&quot;hq&quot;</code>. See{' '}
+			{validProResProfiles.flatMap((p, i) => [
+				i === 0 ? '' : ', ',
+				<code key={p}>&quot;{p}&quot;</code>,
+			])}
+			. Default: <code>&quot;hq&quot;</code>. See{' '}
 			<a href="https://video.stackexchange.com/a/14715">here</a> for an
 			explanation of possible values.
 		</>

@@ -19,13 +19,6 @@ Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/do
       Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can use{' '}
-      <a href="/docs/get-audio-duration-in-seconds">
-        <code>getAudioDurationInSeconds()</code>
-      </a>{' '}
-      without the audio needing CORS.
-    </li>
-    <li>
       You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
@@ -66,7 +59,7 @@ await getAudioData('https://example.com/authenticated-audio.mp3', {
 
 ## Return value
 
-_`Promise<AudioData>`_
+_`Promise<MediaUtilsAudioData>`_
 
 An object with information about the audio data:
 
@@ -157,7 +150,7 @@ Reload the page to clear the cache.
 
 ## Alternatives
 
-If you need only the duration, prefer [`getAudioDurationInSeconds()`](/docs/get-audio-duration-in-seconds) which is faster because it doesn't need to read waveform data.
+If you need only the duration, prefer [getting metadata with Mediabunny](/docs/mediabunny/metadata), which is faster because it doesn't need to decode waveform data.
 
 Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do state management yourself and to wrap the call in [`delayRender()`](/docs/delay-render).
 

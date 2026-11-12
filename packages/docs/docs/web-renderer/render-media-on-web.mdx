@@ -42,14 +42,37 @@ An object with the following properties:
 
 An object describing a composition. The object should have the following properties:
 
-- `id`: A unique identifier for the composition.
-- `component`: A React component that renders the video content.
-- `durationInFrames`: The duration of the video in frames.
-- `fps`: The frame rate of the video.
-- `width`: The width of the video in pixels.
-- `height`: The height of the video in pixels.
-- `defaultProps?`: Optional default props to pass to the component.
-- `calculateMetadata?`: Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
+#### `id`
+
+A unique identifier for the composition.
+
+#### `component`
+
+A React component that renders the video content.
+
+#### `durationInFrames`
+
+The duration of the video in frames.
+
+#### `fps`
+
+The frame rate of the video.
+
+#### `width`
+
+The width of the video in pixels.
+
+#### `height`
+
+The height of the video in pixels.
+
+#### `defaultProps?`
+
+Optional default props to pass to the component.
+
+#### `calculateMetadata?`
+
+Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
 
 ### `inputProps?`
 
@@ -75,8 +98,9 @@ _string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" hr
 Which codec should be used to encode the video.  
 Default depends on the container:
 
-- For `mp4` container: `h264`
-- For `webm` container: `vp8`
+- For `mp4`, `mkv` and `mov` containers: `"h264"`
+- For `webm` container: `"vp8"`
+- For audio-only containers (`wav`, `mp3`, `aac`, `ogg`, `flac`): no video is encoded
 
 ### `frameRange?`
 
@@ -221,8 +245,11 @@ _string_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" hr
 Which codec should be used to encode the audio.  
 Default depends on the container:
 
-- For `mp4` container: `aac`
-- For `webm` container: `opus`
+- For `mp4`, `mkv`, `mov` and `aac` containers: `"aac"`
+- For `webm` and `ogg` containers: `"opus"`
+- For `wav` container: `"pcm-s16"`
+- For `mp3` container: `"mp3"`
+- For `flac` container: `"flac"`
 
 ### `audioBitrate?`
 
@@ -359,8 +386,8 @@ _string_ <TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" 
 
 Controls how the output is stored:
 
-- `"arraybuffer"`: Store the output in memory as an ArrayBuffer
-- `"web-fs"`: Use the [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system) for better memory efficiency with large files
+- `"arraybuffer"`: Keep the output in memory as an `ArrayBuffer`
+- `"web-fs"`: Write the output to a temporary file in the [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system)
 
 By default, Remotion will automatically choose `"web-fs"` if available, otherwise `"arraybuffer"`.
 
@@ -479,6 +506,10 @@ a.href = url;
 a.download = 'video.mp4';
 a.click();
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

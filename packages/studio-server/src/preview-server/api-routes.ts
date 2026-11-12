@@ -14,7 +14,6 @@ import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
-import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
 import {deleteCompositionHandler} from './routes/delete-composition';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -88,12 +87,15 @@ import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
+import {updateSequencePropsSubscriptions} from './routes/update-sequence-props-subscription';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 import {wrapNodeHandler} from './routes/wrap-node';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
-	'/api/install-package' | '/api/update-config'
+	| '/api/install-package'
+	| '/api/update-config'
+	| '/api/copy-render-output-to-asset'
 >;
 
 export const allApiRoutes: {
@@ -105,7 +107,6 @@ export const allApiRoutes: {
 	'/api/shared-memory-capture-support': sharedMemoryCaptureSupportHandler,
 	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
-	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
 	'/api/render': handleAddRender,
@@ -137,6 +138,7 @@ export const allApiRoutes: {
 	'/api/subscribe-to-default-props': subscribeToDefaultProps,
 	'/api/unsubscribe-from-default-props': unsubscribeFromDefaultProps,
 	'/api/subscribe-to-sequence-props': subscribeToSequenceProps,
+	'/api/update-sequence-props-subscription': updateSequencePropsSubscriptions,
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,

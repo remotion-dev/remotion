@@ -10,7 +10,7 @@ crumb: 'Advanced rendering'
 It takes care of a lot of engineering work that you would have to undergo yourself otherwise:
 
 - Orchestrating the distributed render: Defining how work gets split up, keeping track of the progress, merging the chunks, saving it to cloud storage.
-- Streaming chunks and progress over one connection to enable smooth progress progress reporting
+- Streaming chunks and progress over one connection to enable smooth progress reporting
 - Bundling Chrome, Remotion binaries, necessary fonts and a custom Emoji font so they fit in a Lambda function.
 - Cleaning up all the created resources after a function invocation to avoid memory leaks when functions are reused.
 - Enabling logs, group them by renders and chunks, collect and surface errors, symbolicate stack traces to aid [debugging Lambda renders](/docs/lambda/troubleshooting/debug)
@@ -59,20 +59,20 @@ We're calling the machine which orchestrates the render the "main routine".
 - Pass the same [`inputProps`](/docs/renderer/render-media#inputprops) that you passed to [`selectComposition()`](/docs/renderer/select-composition#inputprops).
 - Set the [`numberOfGifLoops`](/docs/renderer/render-media#numberofgifloops) always to `null` for the chunk.
 - Set the [`enforceAudioTrack`](/docs/renderer/render-media#enforceaudiotrack) option always to `true`.
-- Set the [`outputLocation`](/docs/renderer/render-media#outputlocation) to a
+- Set the [`outputLocation`](/docs/renderer/render-media#outputlocation) to a unique file path for each chunk.
 - Set the [`compositionStart`](/docs/renderer/render-media#compositionstart) to the first frame of overall range of frames that are being rendered.
   - Example 1: If you are rendering a full composition, every [`renderMedia()`](/docs/renderer/render-media) invocation should have `0` as `compositionStart`.
   - Example 2: If your goal is to render a portion of a composition, say `frameRange: [100, 199]`, and you split this up into 4 chunks: `[100, 124], [125, 149], [150, 174], [175, 199]`, every chunk should have `100` as the value for `compositionStart`
 - IF you want to render with the codec `h264` (default and recommended), or you want to render a GIF, **set the codec to `h264-ts` instead of `h264`**.
 - IF you are rendering:
-  - At least 4 frames per chunk AND
-  - NOT with audio codec `aac` (which would be default and recommended),
+  - More than 4 frames per chunk AND
+  - With audio codec `aac` (which would be default and recommended),
 - Then:
-  - set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to `pcm-16` instead of the audio codec.
-  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `false`.
-- Else:
   - Set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to the same value you would pass to a regular [`renderMedia()`](/docs/renderer/render-media) call, which might be `null`.
-  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `true`.
+  - Set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `true`.
+- Else:
+  - Set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to `pcm-16` instead of the audio codec.
+  - Set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `false`.
 - If you are rendering audio, use the [`separateAudioTo`](/docs/renderer/render-media#separateaudioto) option to render the audio to a separate file.
 - Handle [artifacts](/docs/artifacts) if desired and store them somewhere, or send them to the main routine.
 - The parameters [`concurrency`](/docs/renderer/render-media#concurrency) and [`offthreadVideoThreads`](/docs/renderer/render-media#offthreadvideothreads) may be adjusted if desired, but leaving the defaults is also fine.
@@ -99,7 +99,7 @@ Collect all the audio and video chunks. Once you have all of them, you can call 
 If you have changed the defaults of a [`renderMedia()`](/docs/renderer/render-media) call, you may also have to pass additional parameters:
 
 - [`audioCodec`](/docs/renderer/combine-chunks#audiocodec): If you passed a custom `audioCodec` to the render routines, then you should also pass it here. Otherwise, should be `null`. If the default for the video codec would have been `aac` and you passed `pcm-16` to the render routine, you can now pass `null` again.
-- [`audioBitrate`](/docs/renderer/combine-chunks#audiobitrate): The bitrate that you would target. Since you might have rendered
+- [`audioBitrate`](/docs/renderer/combine-chunks#audiobitrate): If you passed a custom `audioBitrate` to the render routines, pass the same value here.
 - [`numberOfGifLoops`](/docs/renderer/combine-chunks#numberofgifloops): If you are rendering a GIF, you can now set the number of loops (remember that for each chunk it must be `null`)
 - [`everyNthFrame`](/docs/renderer/combine-chunks#everynthframe): If you passed it to each [`renderMedia()`](/docs/renderer/render-media) call, pass it here again.
 

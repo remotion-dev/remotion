@@ -1,10 +1,15 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	BLACK_ALPHA_40,
 	CURRENT_COLOR,
 	LIGHT_COLOR,
 	WHITE,
 } from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
 
 const eyeIcon: React.CSSProperties = {
@@ -42,12 +47,12 @@ let lastPaintedLayerEye: Element | null = null;
 const layerEyeActions = new WeakMap<Element, () => void>();
 const TIMELINE_LAYER_EYE_ATTR = 'data-timeline-layer-eye';
 
-const onDragStart: React.DragEventHandler<HTMLDivElement> = (e) => {
+const onDragStart: React.DragEventHandler<HTMLButtonElement> = (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 };
 
-const stopClickPropagation: React.MouseEventHandler<HTMLDivElement> = (e) => {
+const stopClickPropagation = (e: React.MouseEvent<HTMLButtonElement>) => {
 	e.stopPropagation();
 };
 
@@ -76,7 +81,7 @@ const renderLayerEyeIcon = (
 			<svg viewBox="0 0 16 16" fill="none" style={effectIcon}>
 				<path
 					d="M4.405 4.48C4.575 3.82 4.865 3.325 5.275 2.995C5.695 2.665 6.25 2.5 6.94 2.5H9.235V4.06H7.045C6.555 4.06 6.235 4.3 6.085 4.78L5.83 5.68H7.975V7.255H5.395L3.805 13H2.02L3.625 7.255H1.96V5.68H4.075L4.405 4.48ZM8.57102 9.085L6.87602 5.68H8.79602L9.86102 7.99L11.991 5.68H14.331L10.686 9.415L12.426 13H10.491L9.35102 10.585L7.02602 13H4.68602L8.57102 9.085Z"
-					fill={WHITE}
+					fill={color}
 				/>
 			</svg>
 		);
@@ -96,9 +101,36 @@ export const TimelineLayerEye: React.FC<{
 	readonly onInvoked: ((type: 'enable' | 'disable') => void) | null;
 	readonly hidden: boolean;
 	readonly type: 'eye' | 'speaker' | 'effect';
-}> = ({onInvoked, hidden, type}) => {
-	const onPointerDown: React.PointerEventHandler<HTMLDivElement> = useCallback(
+	readonly displayName: string;
+}> = ({onInvoked, hidden, type, displayName}) => {
+	const disabled = onInvoked === null;
+	const buttonStyle = useMemo((): React.CSSProperties => {
+		const idleColor = type === 'effect' ? WHITE : LIGHT_COLOR;
+		return {
+			...timelineLayerIconContainer,
+			...hoverableStyle({
+				idleBackground: BLACK_ALPHA_40,
+				hoverBackground: BLACK_ALPHA_40,
+				idleColor,
+				hoverColor: disabled ? idleColor : WHITE,
+			}),
+			appearance: 'none',
+			border: 0,
+			padding: 0,
+			cursor: 'default',
+		};
+	}, [disabled, type]);
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			e.stopPropagation();
+			if (e.detail === 0 && onInvoked !== null) {
+				onInvoked(hidden ? 'enable' : 'disable');
+			}
+		},
+		[hidden, onInvoked],
+	);
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
 			if (e.button !== 0) {
 				return;
 			}
@@ -144,7 +176,7 @@ export const TimelineLayerEye: React.FC<{
 	}, [onInvoked]);
 
 	const registerLayerEye = useCallback(
-		(element: HTMLDivElement | null) => {
+		(element: HTMLButtonElement | null) => {
 			if (element) {
 				layerEyeActions.set(element, () => {
 					if (layerPointedDown && onInvoked !== null) {
@@ -157,19 +189,24 @@ export const TimelineLayerEye: React.FC<{
 	);
 
 	return (
-		<div
+		<button
 			ref={registerLayerEye}
+			type="button"
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+			aria-label={`${type === 'eye' ? 'Show' : type === 'speaker' ? 'Show audio' : 'Enable effect'} ${displayName}`}
+			aria-pressed={!hidden}
+			disabled={disabled}
 			{...{[TIMELINE_LAYER_EYE_ATTR]: true}}
-			style={timelineLayerIconContainer}
+			style={buttonStyle}
 			draggable={false}
 			onDragStart={onDragStart}
-			onClick={stopClickPropagation}
+			onClick={onClick}
 			onDoubleClick={stopClickPropagation}
 			onPointerEnter={onInvoked === null ? undefined : onPointerEnter}
 			onPointerDown={onPointerDown}
 		>
-			{renderLayerEyeIcon(hidden, type, LIGHT_COLOR)}
-		</div>
+			{renderLayerEyeIcon(hidden, type, CURRENT_COLOR)}
+		</button>
 	);
 };
 
