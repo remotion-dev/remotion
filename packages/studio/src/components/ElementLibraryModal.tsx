@@ -95,7 +95,6 @@ const urlBar: React.CSSProperties = {
 	borderRadius: 4,
 	display: 'flex',
 	height: 22,
-	maxWidth: 640,
 	minWidth: 0,
 	padding: '0 8px',
 	width: '100%',
