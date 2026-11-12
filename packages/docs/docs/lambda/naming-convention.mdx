@@ -8,7 +8,7 @@ crumb: 'Lambda'
 
 By default, a Remotion Lambda function has the following naming convention:
 
-```
+```diff
 remotion-render-4-0-372-mem2048mb-disk2048mb-240sec
                 ^^^^^^^    ^^^^       ^^^^   ^^^
                   |         |          |      |-- Timeout in seconds
@@ -19,17 +19,17 @@ remotion-render-4-0-372-mem2048mb-disk2048mb-240sec
 
 When you deploy a function without a name override, the name is generated from its configuration. This has two benefits:
 
-<Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.<br />
-<Step>2</Step> Being able to guess the function name using
-<a href="/docs/lambda/speculatefunctionname">
+<Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.<br/>
+<Step>2</Step> Being able to guess the function name using <a href="/docs/lambda/speculatefunctionname">
   <code>speculateFunctionName()</code>
-</a>
-so you don't have to fetch a list of functions in your AWS account.
+</a> so you don't have to fetch a list of functions in your AWS account.
 
-From <AvailableFrom v="4.0.540" inline />, you can override the name. See [Custom Lambda function names](/docs/lambda/custom-function-names) for deployment, IAM permissions and function selection.
+## Overriding the convention<AvailableFrom v="4.0.540" />
+
+See [Custom Lambda function names](/docs/lambda/custom-function-names) for how to bypass the default naming convention, only recommended if you need to due to organizational requirements.
 
 ## See also
 
 - [`speculateFunctionName()`](/docs/lambda/speculatefunctionname)
 - [Custom Lambda function names](/docs/lambda/custom-function-names)
-- [/docs/lambda/separate-environments](/docs/lambda/separate-environments)
+- [Separating production and development environments](/docs/lambda/separate-environments)
