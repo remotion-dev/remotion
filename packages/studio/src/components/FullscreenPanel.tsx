@@ -28,10 +28,18 @@ const header: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	flexShrink: 0,
-	gap: 6,
 	height: MENU_TOOLBAR_HEIGHT,
-	padding: '0 6px',
+	paddingRight: 6,
 	borderBottom: BORDER_BLACK,
+};
+
+const headerLeading: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	flexShrink: 0,
+	gap: 6,
+	minWidth: 0,
+	padding: '0 6px',
 };
 
 const title: React.CSSProperties = {
@@ -46,7 +54,7 @@ const title: React.CSSProperties = {
 const headerContentStyle: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
-	justifyContent: 'center',
+	justifyContent: 'flex-start',
 	minWidth: 0,
 };
 
@@ -59,7 +67,8 @@ export const FullscreenPanel: React.FC<{
 	readonly ariaLabel: string;
 	readonly headerContent: React.ReactNode;
 	readonly rightAction: React.ReactNode;
-}> = ({children, ariaLabel, headerContent, rightAction}) => {
+	readonly sidebarWidth: number | null;
+}> = ({children, ariaLabel, headerContent, rightAction, sidebarWidth}) => {
 	const {currentZIndex} = useZIndex();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const goBack = useCallback(() => {
@@ -81,22 +90,26 @@ export const FullscreenPanel: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={header}>
-				<ActionTooltip
-					label="Back to Studio"
-					shortcut={null}
-					delay={800}
-					dismissOnClick
-				>
-					<InlineAction
-						aria-label="Back to Studio"
-						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-						onClick={goBack}
-						renderAction={renderBackIcon}
-						style={backButton}
-						variant={null}
-					/>
-				</ActionTooltip>
-				<div style={title}>{ariaLabel}</div>
+				<div style={{...headerLeading, width: sidebarWidth ?? undefined}}>
+					<ActionTooltip
+						label="Back to Studio"
+						shortcut={null}
+						delay={800}
+						dismissOnClick
+					>
+						<InlineAction
+							aria-label="Back to Studio"
+							className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+							onClick={goBack}
+							renderAction={renderBackIcon}
+							style={backButton}
+							variant={null}
+						/>
+					</ActionTooltip>
+					{sidebarWidth !== null && sidebarWidth < 100 ? null : (
+						<div style={title}>{ariaLabel}</div>
+					)}
+				</div>
 				<div style={headerContentStyle}>{headerContent}</div>
 				{rightAction}
 			</div>

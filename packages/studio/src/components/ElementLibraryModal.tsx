@@ -1,4 +1,5 @@
-import React, {useCallback, useContext, useState} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useContext, useRef, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -86,15 +87,29 @@ const urlBar: React.CSSProperties = {
 	backgroundColor: WHITE_ALPHA_05,
 	border: `1px solid ${WHITE_ALPHA_08}`,
 	borderRadius: 4,
-	color: LIGHT_TEXT,
-	cursor: 'default',
-	fontFamily: 'inherit',
-	fontSize: 12,
+	display: 'flex',
 	height: 22,
 	maxWidth: 640,
 	minWidth: 0,
 	padding: '0 8px',
-	textOverflow: 'ellipsis',
+	width: '100%',
+};
+
+const urlText: React.CSSProperties = {
+	backgroundColor: 'transparent',
+	border: 'none',
+	color: LIGHT_TEXT,
+	cursor: 'default',
+	fontFamily: 'inherit',
+	fontSize: 12,
+	height: '100%',
+	maskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
+	minWidth: 0,
+	padding: 0,
+	textOverflow: 'clip',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
 	width: '100%',
 };
 
@@ -104,6 +119,11 @@ export const ElementLibraryModal: React.FC<{
 	readonly view: ElementLibraryModalState['view'];
 	readonly installState: ElementInstallModalState | null;
 }> = ({name, url, view, installState}) => {
+	const sidebarRef = useRef<HTMLElement>(null);
+	const sidebarSize = PlayerInternals.useElementSize(sidebarRef, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
 	const [iframeUrl, setIframeUrl] = useState('');
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig, removeElementLibrary} = useSettings();
@@ -133,20 +153,23 @@ export const ElementLibraryModal: React.FC<{
 			ariaLabel="Elements"
 			headerContent={
 				showManagement ? null : (
-					<input
-						aria-label="Element library URL"
-						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-						readOnly
-						style={urlBar}
-						type="text"
-						value={iframeUrl}
-					/>
+					<div style={urlBar}>
+						<input
+							aria-label="Element library URL"
+							className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+							readOnly
+							style={urlText}
+							type="text"
+							value={iframeUrl}
+						/>
+					</div>
 				)
 			}
 			rightAction={null}
+			sidebarWidth={sidebarSize?.width ?? null}
 		>
 			<div style={horizontalLayout}>
-				<nav style={sidebar} aria-label="Element libraries">
+				<nav ref={sidebarRef} style={sidebar} aria-label="Element libraries">
 					<VerticalTab
 						style={tabStyle}
 						selected={!showManagement && url === THIRD_PARTY_ELEMENTS_URL}

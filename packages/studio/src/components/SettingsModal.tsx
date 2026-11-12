@@ -172,6 +172,7 @@ export const SettingsModal: React.FC<{
 			ariaLabel="Settings"
 			headerContent={null}
 			rightAction={null}
+			sidebarWidth={null}
 		>
 			<>
 				<div style={horizontalLayout}>
