@@ -20,6 +20,7 @@ import {stopForcingSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineGuideSelection} from '../Timeline/TimelineSelection';
+import {useRemoveGuide} from './use-remove-guide';
 
 const PADDING_FOR_EASY_DRAG = 4;
 
@@ -43,10 +44,9 @@ const GuideComp: React.FC<{
 		draggingGuideId,
 		moveGuidePointerRef,
 	} = useContext(EditorShowGuidesContext);
-	const {clearSelection, onSelect, selected} = useTimelineGuideSelection(
-		guide.id,
-	);
+	const {onSelect, selected} = useTimelineGuideSelection(guide.id);
 	const pointerDownPositionRef = useRef<GuidePointerDownPosition | null>(null);
+	const removeGuide = useRemoveGuide();
 	const hasMovedGuideRef = useRef(false);
 
 	const onPointerEnter = useCallback(() => {
@@ -123,16 +123,13 @@ const GuideComp: React.FC<{
 	const finishGuideInteraction = useCallback(() => {
 		const shouldDeleteGuide = shouldDeleteGuideRef.current;
 
-		setGuidesList((prevState) => {
-			const newGuides = shouldDeleteGuide
-				? prevState.filter((candidate) => candidate.id !== guide.id)
-				: prevState;
-			persistGuidesList(newGuides);
-			return newGuides;
-		});
-
-		if (shouldDeleteGuide && selected) {
-			clearSelection();
+		if (shouldDeleteGuide) {
+			removeGuide(guide.id);
+		} else {
+			setGuidesList((guides) => {
+				persistGuidesList(guides);
+				return guides;
+			});
 		}
 
 		shouldDeleteGuideRef.current = false;
@@ -140,9 +137,8 @@ const GuideComp: React.FC<{
 		stopForcingSpecificCursor();
 		setDraggingGuideId(() => null);
 	}, [
-		clearSelection,
 		guide.id,
-		selected,
+		removeGuide,
 		setDraggingGuideId,
 		setGuidesList,
 		shouldCreateGuideRef,
@@ -236,16 +232,7 @@ const GuideComp: React.FC<{
 				label: 'Remove guide',
 				leftItem: null,
 				onClick: () => {
-					setGuidesList((prevState) => {
-						const newGuides = prevState.filter((candidate) => {
-							return candidate.id !== guide.id;
-						});
-						persistGuidesList(newGuides);
-						return newGuides;
-					});
-					if (selected) {
-						clearSelection();
-					}
+					removeGuide(guide.id);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -253,7 +240,7 @@ const GuideComp: React.FC<{
 				value: 'remove',
 			},
 		];
-	}, [clearSelection, guide.id, selected, setGuidesList]);
+	}, [guide.id, removeGuide]);
 
 	return (
 		<ContextMenu getItems={getContextMenuItems}>

@@ -58,6 +58,7 @@ import {
 	getBufferingEvents,
 	useRevealBufferingHandle,
 } from './buffering-diagnostics';
+import {useRemoveGuide} from './EditorGuides/use-remove-guide';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
@@ -331,6 +332,7 @@ export const WebMcp: FC = () => {
 	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
+	const removeGuide = useRemoveGuide();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
 	const {canvasContent, compositions, folders} = useContext(
@@ -2269,7 +2271,68 @@ export const WebMcp: FC = () => {
 												orientation: guide.orientation,
 												position: guide.position,
 												visible: guidesAreVisible && guide.show,
+												selected:
+													timelineSelectionRef.current.selectedItems.some(
+														(item) =>
+															item.type === 'guide' &&
+															item.guideId === guide.id,
+													),
 											})),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'select_guide',
+					title: 'Select Studio guide',
+					description:
+						'Select one guide from the current composition and show all vertical and horizontal guides in the inspector. Replaces the selection; null clears it. Available wherever Studio selection is enabled.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: ['string', 'null'], minLength: 1},
+						},
+						required: ['guideId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId}) => {
+						if (
+							guideId !== null &&
+							(typeof guideId !== 'string' || guideId.length === 0)
+						) {
+							throw new Error('guideId must be a non-empty string or null.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (!timelineSelectionRef.current.canSelect) {
+							throw new Error('Studio guide selection is unavailable.');
+						}
+
+						if (
+							guideId !== null &&
+							!guidesListRef.current.some(
+								(guide) =>
+									guide.id === guideId &&
+									guide.compositionId === compositionId &&
+									guide.show,
+							)
+						) {
+							throw new Error('Guide not found in the current composition.');
+						}
+
+						timelineSelectionRef.current.selectItems(
+							guideId === null ? [] : [{type: 'guide', guideId}],
+						);
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							selectedGuideId: guideId,
 						});
 					},
 				},
@@ -2420,21 +2483,11 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const nextGuides = guidesListRef.current.filter(
+						guidesListRef.current = guidesListRef.current.filter(
 							(guide) =>
 								guide.id !== guideId || guide.compositionId !== compositionId,
 						);
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
-
-						const removedGuideWasSelected =
-							timelineSelectionRef.current.selectedItems.some(
-								(item) => item.type === 'guide' && item.guideId === guideId,
-							);
-						if (removedGuideWasSelected) {
-							timelineSelectionRef.current.clearSelection();
-						}
+						removeGuide(guideId);
 
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
@@ -2886,6 +2939,7 @@ export const WebMcp: FC = () => {
 		getSplitters,
 		isPlaying,
 		propStatusesRef,
+		removeGuide,
 		renderQueueActions,
 		renderJobRetry,
 		revealBufferingHandle,
