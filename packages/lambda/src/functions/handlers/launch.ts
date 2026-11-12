@@ -1178,8 +1178,11 @@ export const launchHandler = async ({
 	let webhookState:
 		| {type: 'not-configured'}
 		| {type: 'unclaimed'}
-		| {type: 'claimed'; payloadType: WebhookPayload<string | null>['type']} =
-		params.webhook ? {type: 'unclaimed'} : {type: 'not-configured'};
+		| {
+				type: 'claimed';
+				payloadType: WebhookPayload<string | null>['type'];
+				delivery: Promise<void>;
+		  } = params.webhook ? {type: 'unclaimed'} : {type: 'not-configured'};
 
 	const sendTerminalWebhook = async (
 		payload: WebhookPayload<string | null>,
@@ -1188,55 +1191,63 @@ export const launchHandler = async ({
 			| 'successWebhookError'
 			| 'errorWebhookError',
 	): Promise<void> => {
-		if (webhookState.type !== 'unclaimed' || !params.webhook) {
+		if (webhookState.type === 'claimed') {
 			RenderInternals.Log.verbose(
 				logOptions,
-				webhookState.type === 'claimed'
-					? `Webhook already invoked (${webhookState.payloadType}). Not invoking again.`
-					: 'No webhook specified.',
+				`Webhook already invoked (${webhookState.payloadType}). Not invoking again.`,
 			);
+			return webhookState.delivery;
+		}
+
+		if (webhookState.type === 'not-configured' || !params.webhook) {
+			RenderInternals.Log.verbose(logOptions, 'No webhook specified.');
 			return;
 		}
 
-		webhookState = {type: 'claimed', payloadType: payload.type};
+		const {webhook} = params;
+		const deliver = async () => {
+			try {
+				await invokeWebhook({
+					options: {
+						url: webhook.url,
+						secret: webhook.secret,
+						payload,
+					},
+					logLevel: params.logLevel,
+				});
+				RenderInternals.Log.verbose(
+					logOptions,
+					`Successfully invoked ${payload.type} webhook.`,
+					webhook.url,
+				);
+			} catch (webhookError) {
+				if (process.env.NODE_ENV === 'test') {
+					throw webhookError;
+				}
 
-		try {
-			await invokeWebhook({
-				options: {
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload,
-				},
-				logLevel: params.logLevel,
-			});
-			RenderInternals.Log.verbose(
-				logOptions,
-				`Successfully invoked ${payload.type} webhook.`,
-				params.webhook.url,
-			);
-		} catch (webhookError) {
-			if (process.env.NODE_ENV === 'test') {
-				throw webhookError;
+				RenderInternals.Log.error(logOptions, 'Failed to invoke webhook:');
+				RenderInternals.Log.error(logOptions, webhookError);
+
+				overallProgress.addErrorWithoutUpload({
+					type: 'webhook',
+					message: (webhookError as Error).message,
+					name: (webhookError as Error).name as string,
+					stack: (webhookError as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload(uploadLabel);
 			}
+		};
 
-			RenderInternals.Log.error(logOptions, 'Failed to invoke webhook:');
-			RenderInternals.Log.error(logOptions, webhookError);
-
-			overallProgress.addErrorWithoutUpload({
-				type: 'webhook',
-				message: (webhookError as Error).message,
-				name: (webhookError as Error).name as string,
-				stack: (webhookError as Error).stack as string,
-				tmpDir: null,
-				frame: 0,
-				chunk: 0,
-				isFatal: false,
-				attempt: 1,
-				willRetry: false,
-				totalAttempts: 1,
-			});
-			overallProgress.upload(uploadLabel);
-		}
+		const delivery = deliver();
+		webhookState = {type: 'claimed', payloadType: payload.type, delivery};
+		return delivery;
 	};
 
 	const onTimeout = async () => {

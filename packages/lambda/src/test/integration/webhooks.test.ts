@@ -190,13 +190,16 @@ test(
 		});
 
 		resetWebhookCalls();
-		fakeAws().invokeWebhook.mockImplementation((params) => {
+		const deliveredWebhooks: string[] = [];
+		fakeAws().invokeWebhook.mockImplementation(async (params) => {
 			getWebhookCalls().push(params);
-			return params.options.payload.type === 'timeout'
-				? new Promise((resolve) => {
-						setTimeout(resolve, 3000);
-					})
-				: Promise.resolve();
+			if (params.options.payload.type === 'timeout') {
+				await new Promise((resolve) => {
+					setTimeout(resolve, 3000);
+				});
+			}
+
+			deliveredWebhooks.push(params.options.payload.type);
 		});
 
 		await LambdaClientInternals.callFunctionSyncImplementation({
@@ -281,6 +284,7 @@ test(
 
 		const webhookCalls = getWebhookCalls();
 
+		expect(deliveredWebhooks).toEqual(['timeout']);
 		expect(webhookCalls.length).toBe(1);
 		expect(webhookCalls[0].options.payload).toEqual({
 			type: 'timeout',
