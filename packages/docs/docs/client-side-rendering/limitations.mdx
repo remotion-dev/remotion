@@ -99,7 +99,7 @@ External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight
 
 External CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Optional `format()` and `tech()` qualifiers are retained; technology availability and fallback follow the browser. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
 
-SVG-local top-level faces and retained unconditional `@media all` groups keep their declared face order, including multiple-source lists. External font discovery remains limited to a single data source.
+SVG-local top-level faces and retained unconditional `@media all` groups keep their declared face order, including multiple-source lists. External font discovery remains limited to a single data source. Loaded single-source CSS data fonts retain title-set font selection when the complete title group can be resolved uniquely. Selection that depends on unreadable or grouped rules, registered-face precedence, unsupported shaping, or ambiguous groups remains unsupported.
 
 An empty SVG stylesheet can remain empty when an earlier nonempty, enabled stylesheet has no media restriction or uses `all`. With CSSOM-added rules in a later stylesheet, the empty stylesheet may become nonempty during export. Empty and `all` media attributes retain their authored values.
 

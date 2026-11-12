@@ -2,6 +2,10 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
+import {
+	fingerprintCssFontGroups,
+	type CssFontGroupSample,
+} from './fingerprint-css-font-groups';
 import {parseFontFamilies} from './parse-font-families';
 import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
 
@@ -141,36 +145,65 @@ const getReferencedTemplates = (
 
 // SVG images cannot load external font resources. Self-contained data fonts from
 // accessible stylesheets can be carried into the serialized SVG without fetching.
-const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
-	const rules: string[] = [];
+const getCssDataFontRules = (
+	svg: SVGSVGElement,
+	fontFamilies: Set<string>,
+	getSamples: () => CssFontGroupSample[],
+	hasRegisteredFonts: boolean,
+) => {
+	const records: {title: string; rule: CSSFontFaceRule}[] = [];
+	const deferredGroups: CSSRuleList[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView ?? window;
-	const collectRules = (cssRules: CSSRuleList, retainedLocalSheet: boolean) => {
+	let completeModel =
+		svg.ownerDocument.defaultView !== null &&
+		svg.getRootNode() === svg.ownerDocument;
+	const relevantNestedFace = (cssRules: CSSRuleList): boolean =>
+		Array.from(cssRules).some((rule) => {
+			if (rule instanceof ownerWindow.CSSFontFaceRule)
+				return fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0]);
+			if (rule instanceof ownerWindow.CSSImportRule) return true;
+			return (
+				'cssRules' in rule &&
+				relevantNestedFace((rule as CSSGroupingRule).cssRules)
+			);
+		});
+	const collectRules = (
+		cssRules: CSSRuleList,
+		retainedLocalSheet: boolean,
+		title: string,
+	) => {
 		for (const rule of cssRules) {
-			// Unconditional local groups remain in the SVG image. Carry their faces
-			// in order so an earlier copied definition cannot override them.
 			if (
 				retainedLocalSheet &&
 				rule instanceof ownerWindow.CSSMediaRule &&
 				rule.conditionText.toLowerCase() === 'all'
 			) {
-				collectRules(rule.cssRules, retainedLocalSheet);
+				collectRules(rule.cssRules, retainedLocalSheet, title);
 				continue;
 			}
 
-			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
+			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) {
+				if (rule instanceof ownerWindow.CSSImportRule) completeModel = false;
+				else if ('cssRules' in rule) {
+					const nested = (rule as CSSGroupingRule).cssRules;
+					if (nested.length) deferredGroups.push(nested);
+				}
+
+				continue;
+			}
+
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
-			const src = rule.style.getPropertyValue('src');
-			// External discovery accepts one self-contained source. Retain local
-			// faces in order even when their sources are outside that subset.
-			if (
-				!/^url\((?:"data:[^"]*"|'data:[^']*'|data:[^)]*)\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.test(
-					src,
-				) &&
-				!retainedLocalSheet
-			)
-				continue;
-			rules.push(rule.cssText);
+			const dataSource =
+				/^url\((?:"data:[^"]*"|'data:[^']*'|data:[^)]*)\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.test(
+					rule.style.getPropertyValue('src'),
+				);
+			if (!dataSource) {
+				completeModel = false;
+				if (!retainedLocalSheet) continue;
+			}
+
+			records.push({title, rule});
 		}
 	};
 
@@ -188,18 +221,47 @@ const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			if (
 				error instanceof ownerWindow.DOMException &&
 				error.name === 'SecurityError'
-			)
+			) {
+				completeModel = false;
 				continue;
+			}
+
 			throw error;
 		}
 
 		collectRules(
 			cssRules,
 			sheet.ownerNode !== null && svg.contains(sheet.ownerNode),
+			sheet.title ?? '',
 		);
 	}
 
-	return rules.join('');
+	const legacyRules = () => records.map(({rule}) => rule.cssText).join('');
+	const titles = [...new Set(records.map(({title}) => title).filter(Boolean))];
+	// Unknown source rules and registered-face precedence require their own model.
+	// Keep the incumbent behavior until those contexts are qualified.
+	if (!completeModel || hasRegisteredFonts || !titles.length)
+		return legacyRules();
+	if (deferredGroups.some(relevantNestedFace)) return legacyRules();
+	const candidates = [null, ...titles];
+	const groups = candidates.map((title, index) => ({
+		name: String(index),
+		rules: records
+			.filter((record) => !record.title || record.title === title)
+			.map((record) => record.rule),
+	}));
+	const result = fingerprintCssFontGroups(
+		svg.ownerDocument,
+		getSamples(),
+		groups,
+	);
+	if (result.reason !== null || result.matches.length !== 1)
+		return legacyRules();
+	const selectedTitle = candidates[Number(result.matches[0])];
+	return records
+		.filter((record) => !record.title || record.title === selectedTitle)
+		.map(({rule}) => rule.cssText)
+		.join('');
 };
 
 const drawableBySvg = new WeakMap<
@@ -249,6 +311,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 
 	// Discover the families of actual text-node parents, including template text.
 	const fontFamilies = new Set<string>();
+	const fontSampleNodes = new Set<Node>();
 	for (const element of textElements) {
 		const walker = svg.ownerDocument.createTreeWalker(
 			element,
@@ -260,6 +323,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			if (!parent || parent.namespaceURI !== 'http://www.w3.org/2000/svg')
 				continue;
 			const style = styleFor(parent);
+			fontSampleNodes.add(walker.currentNode);
 
 			for (const family of parseFontFamilies(style.fontFamily))
 				fontFamilies.add(family);
@@ -355,8 +419,49 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 			fontFamilies.add(family);
 	}
 
+	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	const getSamples = (): CssFontGroupSample[] => {
+		const languageFor = (element: Element) => {
+			let ancestor: Element | null = element;
+			while (ancestor) {
+				const language =
+					ancestor.getAttribute('lang') ??
+					ancestor.getAttributeNS(
+						'http://www.w3.org/XML/1998/namespace',
+						'lang',
+					);
+				if (language !== null) return language;
+				ancestor = ancestor.parentElement;
+			}
+
+			return '';
+		};
+
+		const samples = Array.from(fontSampleNodes, (node) => ({
+			text: node.textContent!,
+			style: styleFor(node.parentElement!),
+			lang: languageFor(node.parentElement!),
+		}));
+		for (const use of renderedUses) {
+			const target = getLocalSvgReference(svg, use.href.baseVal, use.baseURI);
+			if (target?.textContent?.length && hasRenderedText(target))
+				samples.push({
+					text: target.textContent,
+					style: styleFor(use),
+					lang: languageFor(use),
+				});
+		}
+
+		return samples;
+	};
+
 	const cssFontRules = fontFamilies.size
-		? getCssDataFontRules(svg, fontFamilies)
+		? getCssDataFontRules(
+				svg,
+				fontFamilies,
+				getSamples,
+				embeddedFontStyle !== null,
+			)
 		: '';
 
 	// Snapshot authored predicates before font serialization changes inline styles,
@@ -377,7 +482,7 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		authoredMedia,
 		authoredEmpty,
 		cssFontRules,
-		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
+		embeddedFontStyle,
 	};
 };
 

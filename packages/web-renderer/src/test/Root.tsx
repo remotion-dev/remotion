@@ -261,6 +261,10 @@ import {
 	svgTitledFontModes,
 	svgTitledFontSources,
 } from './fixtures/svg-titled-font-carrier';
+import {
+	svgTitledFontGroup,
+	svgTitledFontGroupModes,
+} from './fixtures/svg-titled-font-groups';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {
 	svgUseDataFont,
@@ -616,6 +620,9 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{svgTitledFontGroupModes.map((mode) => (
+				<Composition key={mode} {...svgTitledFontGroup(mode, false, false)} />
+			))}
 			{svgFeImageFontModes.map((mode) => (
 				<Composition key={mode} {...svgFeImageFont(mode, false, false)} />
 			))}
