@@ -66,11 +66,6 @@ export const getElementLibraryFavicons = ({
 					.sort((a, b) => a.priority - b.priority)
 					.map((icon) => icon.url),
 				new URL('/favicon.ico', page?.url ?? parsedUrl).href,
-				...(isLocal
-					? []
-					: [
-							`https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`,
-						]),
 			]),
 		];
 	})();
