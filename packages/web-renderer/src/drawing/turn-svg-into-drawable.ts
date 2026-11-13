@@ -7,6 +7,7 @@ import {
 import {getSvgPaintBounds} from './get-svg-paint-bounds';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
 import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
+import {getSvgFontCssForCarrier} from './svg-font-css-for-carrier';
 
 const textFontProperties = [
 	'font-family',
@@ -127,6 +128,7 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 
 type CssFontRule = {
 	css: string;
+	localTitle: string | null;
 	url: string | null;
 	declarations: [string, string][];
 };
@@ -157,7 +159,12 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView! as Window &
 		typeof globalThis;
-	const visitSheet = (sheet: CSSStyleSheet) => {
+	const visitSheet = (sheet: CSSStyleSheet, inheritedTitle: string | null) => {
+		const localTitle =
+			sheet.ownerNode instanceof ownerWindow.SVGStyleElement &&
+			svg.contains(sheet.ownerNode)
+				? sheet.ownerNode.getAttribute('title')?.trim() || null
+				: inheritedTitle;
 		if (
 			sheet.disabled ||
 			(sheet.media.mediaText &&
@@ -184,7 +191,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 					(rule.layerName === null || rule.layerName === undefined) &&
 					rule.styleSheet !== null
 				)
-					visitSheet(rule.styleSheet);
+					visitSheet(rule.styleSheet, localTitle);
 				continue;
 			}
 
@@ -226,6 +233,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 
 			rules.push({
 				css: rule.cssText,
+				localTitle,
 				url,
 				declarations: Array.from(rule.style, (name) => [
 					name,
@@ -239,7 +247,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		...svg.ownerDocument.styleSheets,
 		...(svg.ownerDocument.adoptedStyleSheets ?? []),
 	])
-		visitSheet(sheet);
+		visitSheet(sheet, null);
 
 	return rules;
 };
@@ -500,9 +508,12 @@ export const turnSvgIntoDrawable = (
 		}
 	}
 
-	const usesStylesheetSets = Boolean(
-		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	const hasLocalTitledFaces = cssFontRules.some(
+		(rule) => rule.localTitle !== null,
 	);
+	const usesStylesheetSets =
+		hasLocalTitledFaces ||
+		Boolean(styles[fontStyleIndex]?.getAttribute('title')?.trim());
 	// Image documents may select a different titled set. Disabled paint was
 	// neutralized above, but its carrier must still provide the embedded faces.
 	// Include the first titled sheet even when empty: it selects the preferred
@@ -613,7 +624,7 @@ export const turnSvgIntoDrawable = (
 		(retargetRegisteredCarrier && fontStyleIndex !== originalFontStyleIndex)
 			? JSON.stringify([
 					embeddedFontStyle?.cacheKey ?? null,
-					cssFontRules.map((rule) => [rule.css, rule.url]),
+					cssFontRules.map((rule) => [rule.css, rule.url, rule.localTitle]),
 					fontStyleIndex,
 					fontCarriers,
 					carrierMedia,
@@ -629,12 +640,16 @@ export const turnSvgIntoDrawable = (
 
 	const cssFontStyle = Promise.all(
 		cssFontRules.map(async (rule) => {
-			if (rule.url === null) return rule.css;
+			if (rule.url === null)
+				return {css: rule.css, localTitle: rule.localTitle};
 			const fontData = await NoReactInternals.fetchFontData(rule.url);
 			const src = `url("data:application/octet-stream;base64,${getBase64(fontData)}")`;
-			return `@font-face{${rule.declarations.map(([name, value]) => `${name}:${name === 'src' ? src : value}`).join(';')}}`;
+			return {
+				css: `@font-face{${rule.declarations.map(([name, value]) => `${name}:${name === 'src' ? src : value}`).join(';')}}`,
+				localTitle: rule.localTitle,
+			};
 		}),
-	).then((rules) => rules.join(''));
+	);
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
 		let url: string | null = null;
@@ -652,21 +667,28 @@ export const turnSvgIntoDrawable = (
 
 		cssFontStyle
 			.then((css) => {
-				// Script-added faces follow CSS-connected faces in FontFaceSet order.
-				const fontCss = css + (embeddedFontStyle?.css ?? '');
-				let markup = serializedSvg;
-				if (fontCss) {
-					if (usesStylesheetSets && fontCarriers.length) {
-						for (const index of fontCarriers)
-							insertFontStyleInSvg(svgForSerialization, fontCss, index);
-					} else
-						insertFontStyleInSvg(
-							svgForSerialization,
-							fontCss,
-							usesStylesheetSets ? -1 : fontStyleIndex,
-						);
-					markup = serializeSvg(svgForSerialization);
+				const targets =
+					usesStylesheetSets && fontCarriers.length
+						? fontCarriers
+						: [usesStylesheetSets ? -1 : fontStyleIndex];
+				let inserted = false;
+				for (const index of targets) {
+					const title = styles[index]?.getAttribute('title')?.trim() || null;
+					// Retain declaration order within each authored stylesheet set.
+					// Script-loaded faces still follow all applicable CSS faces.
+					const fontCss = getSvgFontCssForCarrier({
+						rules: css,
+						title,
+						registeredCss: embeddedFontStyle?.css ?? null,
+					});
+					if (!fontCss) continue;
+					insertFontStyleInSvg(svgForSerialization, fontCss, index);
+					inserted = true;
 				}
+
+				const markup = inserted
+					? serializeSvg(svgForSerialization)
+					: serializedSvg;
 
 				const blob = new Blob([markup], {type: 'image/svg+xml;charset=utf-8'});
 				// Preserve main's origin-clean foreignObject loading after font data resolves.
