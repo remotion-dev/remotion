@@ -52,6 +52,8 @@ export const TransitionExample: React.FC = () => {
 
 ### Overlay example<AvailableFrom v="4.0.415" />
 
+This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';
 const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;

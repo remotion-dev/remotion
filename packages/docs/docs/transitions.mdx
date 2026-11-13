@@ -86,6 +86,8 @@ An [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitions
 
 This is useful for effects like [light leaks](/docs/effects/light-leak), flashes, or other visual elements that should appear over a cut without affecting timing. The overlay is centered on the cut point by default.
 
+This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';
 const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
