@@ -208,7 +208,7 @@ const CaptionsInner: React.FC<{readonly captions: Caption[]}> = ({captions}) => 
   }, [captions]);
 
   return (
-    <AbsoluteFill>
+    <>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
         const startFrame = (page.startMs / 1000) * fps;
@@ -225,7 +225,7 @@ const CaptionsInner: React.FC<{readonly captions: Caption[]}> = ({captions}) => 
           </Sequence>
         );
       })}
-    </AbsoluteFill>
+    </>
   );
 };
 
