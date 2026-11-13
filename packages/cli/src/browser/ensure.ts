@@ -5,8 +5,7 @@ import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 
-const {browserExecutableOption, chromeModeOption, versionFlagOption} =
-	BrowserSafeApis.options;
+const {browserExecutableOption, chromeModeOption} = BrowserSafeApis.options;
 
 export const ENSURE_COMMAND = 'ensure';
 
@@ -20,21 +19,16 @@ export const ensureCommand = async (logLevel: LogLevel) => {
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const version = versionFlagOption.getValue({commandLine: parsedCli}).value;
-	const onBrowserDownload = defaultBrowserDownloadProgress({
-		indent,
-		logLevel,
-		quiet: quietFlagProvided(),
-		onProgress: () => undefined,
-	});
 
 	const status = await ensureBrowser({
 		browserExecutable,
 		logLevel,
 		chromeMode,
-		onBrowserDownload: (options) => ({
-			...onBrowserDownload(options),
-			version,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent,
+			logLevel,
+			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
 		}),
 	});
 

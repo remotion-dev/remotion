@@ -19,16 +19,6 @@ npx remotion browser ensure
 
 <Options id="browser-executable" />
 
-### `--version`<AvailableFrom v="4.0.544" />
-
-Install a specific Chrome version instead of the one Remotion uses by default. Accepts the same values as the `version` returned from [`onBrowserDownload`](/docs/renderer/ensure-browser#onbrowserdownload).
-
-```
-npx remotion browser ensure --version=144.0.7559.20
-```
-
-Pass the same version through [`onBrowserDownload`](/docs/renderer/ensure-browser#onbrowserdownload) to the rendering APIs so that they use it.
-
 ### `--log`
 
 <Options id="log" cli />

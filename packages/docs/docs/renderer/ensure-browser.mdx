@@ -53,6 +53,8 @@ Pass the same path to any other API that supports the `browserExecutable` option
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
 
+We recommend returning `null` as the `version`. Remotion's default Chrome Headless Shell builds include optimizations such as [shared-memory capture](/docs/shared-memory-capture). Custom versions are stock builds from Google without them.
+
 Remotion calls this function to determine which Chrome version to use, even if that version is already installed. It is not called if [`browserExecutable`](#browserexecutable) is passed.  
 `onProgress` is only called if the returned `version` is not installed yet and needs to be downloaded. Log download messages in `onProgress` instead of in the function body.
 
