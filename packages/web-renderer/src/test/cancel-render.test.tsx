@@ -13,7 +13,7 @@ import {
 } from '../render-operations-queue';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
-import {observeFinalCancelledRelease} from './observe-final-cancelled-release';
+import {observeCancelledRelease} from './observe-cancelled-release';
 
 test('preserves the original cancellation error and its causes', async () => {
 	const decoderError = new DOMException(
@@ -227,7 +227,7 @@ test('a fatal CanvasImage context failure releases its own hold and remains canc
 			}
 
 			probe.scope = scope;
-			const restore = observeFinalCancelledRelease(scope, (error, rawStack) => {
+			const restore = observeCancelledRelease(scope, (error, rawStack) => {
 				probe.releasedError = error;
 				probe.stackAtRelease = rawStack.startsWith('Error:')
 					? rawStack

@@ -1,8 +1,8 @@
 import type {DelayRenderScope} from 'remotion';
 
 // React may decorate Error.stack after an effect throws. Observe the actual
-// final-hold release, which runs in finally before React receives that error.
-export const observeFinalCancelledRelease = (
+// first cancelled hold release, before React receives and decorates the error.
+export const observeCancelledRelease = (
 	scope: DelayRenderScope,
 	onRelease: (error: Error, rawStack: string) => void,
 ) => {
@@ -25,9 +25,10 @@ export const observeFinalCancelledRelease = (
 		enumerable: descriptor.enumerable,
 		get: () => handles,
 		set: (value: DelayRenderScope['remotion_delayRenderHandles']) => {
+			const previousLength = handles.length;
 			handles = value;
 			const error = scope.remotion_cancelledErrorObject;
-			if (!observed && value.length === 0 && error) {
+			if (!observed && value.length < previousLength && error) {
 				observed = true;
 				onRelease(error, error.stack ?? '');
 			}
