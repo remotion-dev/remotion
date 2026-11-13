@@ -1,5 +1,5 @@
-import {expect, test} from 'bun:test';
-import {getSvgFontCssForCarrier} from '../src/drawing/svg-font-css-for-carrier';
+import {expect, test} from 'vitest';
+import {getSvgFontCssForCarrier} from '../drawing/svg-font-css-for-carrier';
 
 const persistent = '@font-face{font-family:Review;src:url(persistent)}';
 const preferred = '@font-face{font-family:Review;src:url(preferred)}';
