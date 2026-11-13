@@ -164,6 +164,7 @@ import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {outline} from './fixtures/outline';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
+import {paintedPlaneBounds} from './fixtures/painted-plane-bounds';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
@@ -384,6 +385,8 @@ export const Root: React.FC = () => {
 			<Composition {...gridSamplerParent} />
 			<Composition {...threeDTransformOpacity} />
 			<Folder name="Experimental3D">
+				<Composition {...paintedPlaneBounds(true)} />
+				<Composition {...paintedPlaneBounds(false)} />
 				{[
 					'zero-flat',
 					'coplanar-delay',
