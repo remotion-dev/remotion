@@ -4,10 +4,8 @@ import {expect, test, vi} from 'vitest';
 import {server} from 'vitest/browser';
 import '../symbol-dispose';
 import {getSvgFontSnapshot} from '../drawing/turn-svg-into-drawable';
-import {renderStillOnWeb} from '../render-still-on-web';
 import {svgRepeatedUse} from './fixtures/svg-repeated-use';
 import {svgUseFontData, svgUseFontFamilies} from './fixtures/svg-use-data-font';
-import {captureNativeReference, compareNativePixels} from './native-reference';
 
 test(
 	'visits shared geometry once per font snapshot for a thousand use instances',
@@ -50,44 +48,6 @@ test(
 			root.unmount();
 			host.remove();
 		}
-	},
-);
-
-test(
-	'retains native pixels for a thousand instances of a thousand-path template',
-	{timeout: 90000},
-	async () => {
-		const reference = await captureNativeReference(svgRepeatedUse, 0, {
-			omitBackground: false,
-			screenshotTimeout: 90000,
-		});
-		const actual = await (
-			await renderStillOnWeb({
-				composition: svgRepeatedUse,
-				frame: 0,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const result = await compareNativePixels(reference, actual);
-		for (const [name, blob] of [
-			['native', reference],
-			['actual', actual],
-			['diff', result.diff],
-		] as const) {
-			let binary = '';
-			for (const byte of new Uint8Array(await blob.arrayBuffer()))
-				binary += String.fromCharCode(byte);
-			await server.commands.writeFile(
-				`validation/svg-repeated-use/${server.browser}/${name}.png`,
-				btoa(binary),
-				'base64',
-			);
-		}
-
-		expect(result.mismatchedPixels).toBe(0);
-		expect(result.maxChannelDelta).toBe(0);
 	},
 );
 

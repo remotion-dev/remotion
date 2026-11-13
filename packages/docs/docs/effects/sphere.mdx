@@ -55,6 +55,8 @@ Set [`<CanvasImage>`](/docs/canvasimage)'s `fit` to `'fill'` to preserve the ful
 
 ## API
 
+Pass an object with the following properties. You can also call `sphere()` without arguments.
+
 ### `radius?`
 
 Sphere radius in pixels. Must be greater than `0`. Defaults to `250`.
@@ -86,7 +88,7 @@ Darkening toward the sphere's silhouette, from `0` to `1`. Defaults to `0.35`. S
 
 ### `disabled?`
 
-When `true`, skips the effect. Defaults to `false`.
+When `true`, the effect is skipped. Defaults to `false`.
 
 ## Implementations
 
@@ -95,9 +97,13 @@ When `true`, skips the effect. Defaults to `false`.
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
 ## See also
 
+- [`@remotion/effects`](/docs/effects/api)
 - [`cylinder()`](/docs/effects/cylinder)
 - [`fisheye()`](/docs/effects/fisheye)
-- [`@remotion/effects`](/docs/effects/api)
-- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/sphere/index.ts)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/sphere/index.ts)

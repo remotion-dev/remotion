@@ -1,2 +1,2 @@
 import {registerPercentDataFontPixelCases} from './percent-data-font-pixel-cases';
-registerPercentDataFontPixelCases('B', false);
+registerPercentDataFontPixelCases('B');

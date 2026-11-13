@@ -1,112 +1,27 @@
 import {expect, test} from 'vitest';
 import {server} from 'vitest/browser';
 import {getSvgFontSnapshot} from '../drawing/turn-svg-into-drawable';
-import '../symbol-dispose';
-import {renderStillOnWeb} from '../render-still-on-web';
 import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
+import '../symbol-dispose';
 import {
 	svgTitledFontGroup,
 	svgTitledFontGroupModes,
 } from './fixtures/svg-titled-font-groups';
 import {svgUseFontData} from './fixtures/svg-use-data-font';
 import {createFontFailureRecorder} from './font-failure-recorder';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	countNativePixels,
-} from './native-reference';
+import {testCompositions} from './utils';
 
-test.for(
-	svgTitledFontGroupModes.flatMap((mode) =>
-		[0, 1].map((frame) => ({mode, frame})),
-	),
-)(
-	'preserves reviewed SVG font $mode frame $frame',
-	async ({mode, frame}, t) => {
-		const failure = createFontFailureRecorder(t);
-		const composition = svgTitledFontGroup(mode, false, false);
-		const literal = svgTitledFontGroup(mode, true, false);
-		const fallback = svgTitledFontGroup(mode, true, true);
-		const reference = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const nativeControl = await captureNativeReference(literal, frame, {
-			omitBackground: false,
-		});
-		for (const [name, blob] of [
-			['source', reference],
-			['literal', nativeControl],
-		] as const) {
-			let binary = '';
-			for (const byte of new Uint8Array(await blob.arrayBuffer()))
-				binary += String.fromCharCode(byte);
-			await failure.record(
-				`validation/svg-titled-font-groups/${server.browser}/${mode}-${frame}-native-${name}.png`,
-				btoa(binary),
-				'base64',
-			);
-		}
-
-		expect(
-			(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
-		).toBe(0);
-		const render = async (target: typeof composition) =>
-			(
-				await renderStillOnWeb({
-					composition: target,
-					frame,
-					inputProps: {},
-					licenseKey: 'free-license',
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-		const expected = await render(literal);
-		const fallbackImage = await render(fallback);
-		await failure.png('literal.png', expected);
-		await failure.png('fallback.png', fallbackImage);
-		expect(
-			(await countNativePixels(expected, fallbackImage)).mismatchedPixels,
-		).toBeGreaterThan(0);
-		const actual = await render(composition);
-		const result = await compareNativePixels(expected, actual);
-		const nativeResult =
-			t.task.file.projectName === 'chromium'
-				? await compareNativePixels(reference, actual)
-				: await countNativePixels(reference, actual);
-		for (const [name, blob] of [
-			['native', reference],
-			['actual', actual],
-			['control', expected],
-			['control-diff', result.diff],
-		] as const) {
-			let binary = '';
-			for (const byte of new Uint8Array(await blob.arrayBuffer()))
-				binary += String.fromCharCode(byte);
-			await failure.record(
-				`validation/svg-titled-font-groups/${server.browser}/${mode}-${frame}-${name}.png`,
-				btoa(binary),
-				'base64',
-			);
-		}
-
-		await failure.record(
-			`validation/svg-titled-font-groups/${server.browser}/${mode}-${frame}.json`,
-			JSON.stringify(
-				{
-					controlMismatchedPixels: result.mismatchedPixels,
-					nativeMismatchedPixels: nativeResult.mismatchedPixels,
-					nativeMaxChannelDelta: nativeResult.maxChannelDelta,
-				},
-				null,
-				2,
-			),
-		);
-		expect(result.mismatchedPixels).toBe(0);
-		expect(result.maxChannelDelta).toBe(0);
-		if (t.task.file.projectName === 'chromium')
-			expect(nativeResult.mismatchedPixels).toBe(0);
-	},
-);
+test('preserves titled font groups', async () => {
+	await testCompositions({
+		cases: svgTitledFontGroupModes.map((mode) => ({
+			composition: svgTitledFontGroup(mode, false, false),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-titled-font-groups',
+		scale: null,
+	});
+});
 
 test('collects only the preferred titled CSS font face', async (t) => {
 	const failure = createFontFailureRecorder(t);

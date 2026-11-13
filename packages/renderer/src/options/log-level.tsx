@@ -9,7 +9,7 @@ const cliFlag = 'log' as const;
 
 export const logLevelOption = {
 	cliFlag,
-	name: 'Log Level',
+	name: 'Log level',
 	addedIn: '2.0.1',
 	ssrName: 'logLevel',
 	description: () => (

@@ -644,7 +644,7 @@ export const useEditorActions = ({
           children: [getElement()],
         });
         return applyCodemod((project) =>
-          addElement({
+          (addElement({
             project,
             element: sequence,
             target: {
@@ -652,7 +652,7 @@ export const useEditorActions = ({
               compositionFile,
               compositionId: activeComposition.id,
             },
-          }),
+          })),
         );
       } catch (error) {
         notifyError(error);
@@ -759,7 +759,7 @@ export const useEditorActions = ({
       }
 
       const ok = await applyCodemod(
-        async (project, resolveNode) => {
+        (project, resolveNode) => {
           let current = project;
           const touched = new Set<string>();
           const remappings: NodePathRemapping[][] = [];
@@ -893,7 +893,7 @@ export const useEditorActions = ({
                 }
               }
               collect(
-                await updateNodeKeyframes({
+                updateNodeKeyframes({
                   project: current,
                   node: resolvedNode,
                   updates,

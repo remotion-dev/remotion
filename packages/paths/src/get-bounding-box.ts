@@ -25,7 +25,7 @@ function minmaxQ(A: [number, number, number]): minMax {
 
 	// check if the extremum E is min or max
 	const E = (A[0] * A[2] - A[1] * A[1]) / (A[0] - 2 * A[1] + A[2]);
-	return E < min ? [E, max] : [min, E];
+	return [Math.min(min, E), Math.max(max, E)];
 }
 
 // https://github.com/kpym/SVGPathy/blob/acd1a50c626b36d81969f6e98e8602e128ba4302/lib/box.js#L127

@@ -9,7 +9,12 @@ import {
 	type AwsRegion,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {getCurrentMemorySizeInMb} from './helpers/get-current-memory-size';
+
+type S3StatusWriterState =
+	| {type: 'running'}
+	| {type: 'terminal'; state: 'completed' | 'failed'};
 
 export const makeS3RendererOutput = ({
 	params,
@@ -31,7 +36,8 @@ export const makeS3RendererOutput = ({
 	let encodedFrames = 0;
 	let uploadedFrames = 0;
 	let uploadedSizeInBytes = 0;
-	let writeQueue = Promise.resolve();
+	let writeQueue: Promise<void> = Promise.resolve();
+	let writerState: S3StatusWriterState = {type: 'running'};
 	const artifacts: Array<{
 		key: string;
 		metadata: S3RendererArtifactMetadata;
@@ -44,23 +50,37 @@ export const makeS3RendererOutput = ({
 		attempt: params.attempt,
 	});
 
-	const writeStatus = (status: S3RendererStatus) => {
-		writeQueue = writeQueue.then(() =>
-			LambdaClientInternals.lambdaWriteFileImplementation({
-				bucketName: params.bucketName,
-				key: statusKey,
-				body: JSON.stringify(status),
-				region,
-				privacy: 'private',
-				expectedBucketOwner,
-				downloadBehavior: null,
-				customCredentials: null,
-				forcePathStyle: params.forcePathStyle,
-				storageClass: null,
-				requestHandler: null,
-			}),
-		);
-		return writeQueue;
+	const writeStatus = (status: S3RendererStatus): Promise<void> => {
+		const write = writeQueue
+			.catch(() => undefined)
+			.then(async () => {
+				if (writerState.type === 'terminal') {
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						`Ignoring ${status.state} status after ${writerState.state} status`,
+					);
+					return;
+				}
+
+				await LambdaClientInternals.lambdaWriteFileImplementation({
+					bucketName: params.bucketName,
+					key: statusKey,
+					body: JSON.stringify(status),
+					region,
+					privacy: 'private',
+					expectedBucketOwner,
+					downloadBehavior: null,
+					customCredentials: null,
+					forcePathStyle: params.forcePathStyle,
+					storageClass: null,
+					requestHandler: null,
+				});
+				if (status.state !== 'running') {
+					writerState = {type: 'terminal', state: status.state};
+				}
+			});
+		writeQueue = write;
+		return write;
 	};
 
 	const runningStatus = (): S3RendererStatus => ({
@@ -77,19 +97,31 @@ export const makeS3RendererOutput = ({
 		startedAt,
 	});
 
+	const writeProgressStatus = async () => {
+		try {
+			await writeStatus(runningStatus());
+		} catch (err) {
+			RenderInternals.Log.warn(
+				{indent: false, logLevel: params.logLevel},
+				'Could not write renderer progress status',
+				err,
+			);
+		}
+	};
+
 	const initialize = () => writeStatus(runningStatus());
 
 	const onStream: OnStream = async (message) => {
 		if (message.type === 'lambda-invoked') {
 			lambdaInvoked = true;
-			await writeStatus(runningStatus());
+			await writeProgressStatus();
 			return;
 		}
 
 		if (message.type === 'frames-rendered') {
 			renderedFrames = Math.max(renderedFrames, message.payload.rendered);
 			encodedFrames = Math.max(encodedFrames, message.payload.encoded);
-			await writeStatus(runningStatus());
+			await writeProgressStatus();
 			return;
 		}
 
@@ -99,7 +131,7 @@ export const makeS3RendererOutput = ({
 				uploadedSizeInBytes,
 				message.payload.sizeInBytes,
 			);
-			await writeStatus(runningStatus());
+			await writeProgressStatus();
 			return;
 		}
 
