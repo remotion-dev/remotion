@@ -46,7 +46,7 @@ test.each([
 		studioWindow.remotion_isStudio = true;
 		studioWindow.remotion_browserStudio = makeBrowserStudioOperations({});
 		expect(() => action()).toThrow(
-			`${name}() is not supported in Browser Studio`,
+			`${name}() is not supported in remotion.new`,
 		);
 		studioWindow.remotion_browserStudio = null;
 		studioWindow.remotion_isReadOnlyStudio = true;
