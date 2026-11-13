@@ -1,11 +1,10 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {pasteEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 } from '@remotion/studio-shared';
-import {pasteEffects} from '../../codemods/paste-effects';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -64,24 +63,21 @@ export const pasteEffectsHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabels, logLine} = await pasteEffects({
-				input: fileContents,
-				targetFileName,
-				targetSequenceNodePath: targetSequenceNodePath.nodePath,
-				type,
+			const result = await pasteEffects({
+				project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
+				node: {
+					filePath: absolutePath,
+					nodePath: targetSequenceNodePath.nodePath,
+				},
+				mode: type === 'effects-replacing' ? 'replace' : 'append',
 				effects,
 				insertAtIndices,
 			});
-
-			if (output === fileContents) {
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, effectLabels, logLine} = result.editDetails[0];
+			if (output === fileContents)
 				return {success: true, nodePathMutation: null};
-			}
-
-			const nodePathRemappings =
-				CodemodsInternals.getUnchangedStructureRemappings({
-					input: fileContents,
-					output,
-				});
+			const {nodePathRemappings} = result;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],
 				null,

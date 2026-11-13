@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
+import {addElement} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
@@ -278,24 +278,30 @@ export const insertCompositionElementHandler: ApiHandler<
 				logLine,
 				nodePathRemappings,
 			} = input.track
-				? (() => {
+				? await (async () => {
+						const track = input.track!;
+						if (from === null)
+							throw new Error('Track insertion requires a start frame');
 						const {absolutePath} = resolveFileInsideProject({
 							remotionRoot,
-							fileName: input.track.targetNodePath.absolutePath,
+							fileName: track.targetNodePath.absolutePath,
 							action: 'modify',
 						});
 						const previousContents = readFileSync(absolutePath, 'utf-8');
-						const result = CodemodsInternals.insertElementIntoTrack({
+						const result = await addElement({
 							project: {
 								rootDir: remotionRoot,
 								files: {[absolutePath]: previousContents},
 							},
-							request: {
-								...input,
-								track: {
-									...input.track,
-									targetNodePath: {...input.track.targetNodePath, absolutePath},
+							element: input.element,
+							target: {
+								type: 'track',
+								node: {
+									filePath: absolutePath,
+									nodePath: track.targetNodePath.nodePath,
 								},
+								from,
+								durationInFrames: track.durationInFrames,
 							},
 						});
 						return {

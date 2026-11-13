@@ -1,7 +1,5 @@
 import {expect, test} from 'bun:test';
 import {addElement, applyCodemodChanges, createElement} from '../index';
-import {insertJsxElementIntoProjectWithNodePathRemappings} from '../insert-jsx-element';
-import {createElementFromInsertable} from '../insertable-element';
 
 const solid = createElement({
 	component: 'Solid',
@@ -9,7 +7,7 @@ const solid = createElement({
 	props: {width: 1280, height: 720, color: 'gray'},
 });
 
-test('inserts a Solid into a component source file', () => {
+test('inserts a Solid into a component source file', async () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -20,7 +18,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
 		},
 	};
-	const result = addElement({
+	const result = await addElement({
 		project,
 		element: solid,
 		target: {
@@ -40,7 +38,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 	expect(result.insertedNode.filePath).toBe('src/index.tsx');
 });
 
-test('inserts a timeline Solid in a positioned Sequence', () => {
+test('inserts a timeline Solid in a positioned Sequence', async () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -55,7 +53,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 		importPath: 'remotion',
 		props: {from: 42, style: {position: 'absolute', translate: '120.3px 80px'}},
 	}).withChild(solid);
-	const result = addElement({
+	const result = await addElement({
 		project,
 		element: sequence,
 		target: {
@@ -81,7 +79,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 	).toHaveLength(2);
 });
 
-test('inserts a Solid as a sibling of a component root', () => {
+test('inserts a Solid as a sibling of a component root', async () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -95,7 +93,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
 		},
 	};
-	const result = addElement({
+	const result = await addElement({
 		project,
 		element: solid,
 		target: {
@@ -133,13 +131,9 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		files: {'/project/src/index.tsx': source},
 		rootDir: '/project',
 	};
-	const result = addElement({
+	const result = await addElement({
 		project,
-		element: createElementFromInsertable({
-			element: {height: 720, position: null, type: 'solid', width: 1280},
-			from: null,
-			wrapInSequence: null,
-		}),
+		element: {height: 720, position: null, type: 'solid', width: 1280},
 		target: {
 			type: 'composition',
 			compositionFile: '/project/src/index.tsx',
@@ -169,24 +163,20 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 `);
 	expect(result.insertedNode.nodePath.length).toBeGreaterThan(0);
 	await expect(
-		insertJsxElementIntoProjectWithNodePathRemappings({
+		addElement({
 			project,
-			request: {
-				track: null,
+			target: {
+				type: 'composition',
 				compositionFile: '/project/src/index.tsx',
 				compositionId: 'MyComp',
-				element: {height: 720, position: null, type: 'solid', width: 1280},
-				from: null,
 			},
-			svgMarkupToJsx: () => {
-				throw new Error('SVG conversion should not be called');
-			},
-			wrapInSequence: null,
+			element: {height: 720, position: null, type: 'solid', width: 1280},
+			from: -1,
 		}),
-	).rejects.toThrow('addElement()');
+	).rejects.toThrow('from must be a non-negative integer');
 });
 
-test('asset and component insertions also avoid the full-file formatter', () => {
+test('asset and component insertions also avoid the full-file formatter', async () => {
 	const source = `import {Composition, AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => <><AbsoluteFill /></>;
@@ -201,46 +191,40 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 		compositionFile: '/project/src/index.tsx',
 		compositionId: 'MyComp',
 	};
-	const assetResult = addElement({
+	const assetResult = await addElement({
 		project,
-		element: createElementFromInsertable({
-			element: {
-				assetType: 'image',
-				dimensions: {height: 720, width: 1280},
-				durationInFrames: null,
-				position: {x: 10, y: 20.25},
-				src: 'image.png',
-				srcType: 'static',
-				type: 'asset',
-			},
-			from: null,
-			wrapInSequence: null,
-		}),
+		element: {
+			assetType: 'image',
+			dimensions: {height: 720, width: 1280},
+			durationInFrames: null,
+			position: {x: 10, y: 20.25},
+			src: 'image.png',
+			srcType: 'static',
+			type: 'asset',
+		},
 		target,
 	});
-	const componentResult = addElement({
+	const componentResult = await addElement({
 		project,
-		element: createElementFromInsertable({
-			element: {
-				componentName: 'RevenueChart',
-				importName: 'Chart',
-				importPath: './Chart',
-				position: null,
-				props: [
-					{name: 'title', value: 'Revenue'},
-					{name: 'style', value: {position: 'relative', opacity: 0.5} as never},
-				],
-				type: 'component',
-			},
+		element: {
+			componentName: 'RevenueChart',
+			importName: 'Chart',
+			importPath: './Chart',
+			position: null,
+			props: [
+				{name: 'title', value: 'Revenue'},
+				{name: 'style', value: {position: 'relative', opacity: 0.5} as never},
+			],
+			type: 'component',
+		},
+		from: 12,
+		wrapInSequence: {
+			dimensions: {width: 400, height: 300},
+			durationInFrames: 60,
 			from: 12,
-			wrapInSequence: {
-				dimensions: {width: 400, height: 300},
-				durationInFrames: 60,
-				from: 12,
-				name: 'Chart',
-				position: {x: 1, y: 2},
-			},
-		}),
+			name: 'Chart',
+			position: {x: 1, y: 2},
+		},
 		target,
 	});
 	const assetOutput = applyCodemodChanges(project, assetResult.changes).files[

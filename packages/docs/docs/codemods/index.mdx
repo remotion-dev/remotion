@@ -51,6 +51,56 @@ export const Root = () => <Composition id="Demo" component={Video} width={1920} 
 
 Include the files needed for the edit. A prop edit needs its target file; resolving an imported composition component also needs the files along the import path. Mutations leave the input project unchanged.
 
+## File-backed sources<AvailableFrom v="4.0.544" />
+
+[`addElement()`](/docs/codemods/add-element) and [`resolveCompositionComponent()`](/docs/codemods/resolve-composition-component) can receive `environment` instead of `project`. This `CodemodEnvironment` reads source files on demand without writing them. It works with filesystem adapters and virtual stores.
+
+### rootDir
+
+The source root directory.
+
+### readFile
+
+An asynchronous function receiving an absolute filename and returning its contents.
+
+### fileExists
+
+A synchronous function indicating whether a filename refers to a source file.
+
+### dirname
+
+Returns the directory of a filename.
+
+### extname
+
+Returns a filename's extension.
+
+### isAbsolute
+
+Determines whether a path is absolute.
+
+### join
+
+Joins path segments.
+
+### relative
+
+Returns the relative path between two locations.
+
+### resolve
+
+Resolves path segments to an absolute path.
+
+These path functions follow the behavior of the corresponding Node.js `path` functions.
+
+### pathSeparator
+
+The path separator used by the environment, such as `'/'`.
+
+### svgMarkupToJsx
+
+An asynchronous function that converts SVG markup to a parsed JSX element. Used only for SVG insertion. It may throw an unsupported-operation error in environments that do not offer SVG conversion.
+
 ## Creating elements<AvailableFrom v="4.0.530" />
 
 Describe elements with [`createElement()`](/docs/codemods/create-element) and insert it with [`addElement()`](/docs/codemods/add-element). Elements are immutable descriptions: methods such as `withProp()` and `withChild()` return new elements. Imports and local names are resolved when the element is inserted.
@@ -71,7 +121,7 @@ const sequence = createElement({
   props: {from: 30},
 }).withChild(solid);
 
-const result = addElement({
+const result = await addElement({
   project,
   element: sequence,
   target: {type: 'composition', compositionFile: 'src/Root.tsx', compositionId: 'Demo'},

@@ -1,22 +1,32 @@
 import type {File, JSXElement} from '@babel/types';
+import type {InsertableCompositionElement} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {buildJsxElement} from './build-jsx-element';
-import {CodemodElement} from './codemod-element';
-import type {CodemodProject} from './codemod-project';
+import {CodemodElement, createElement} from './codemod-element';
+import type {CodemodProject, CodemodSource} from './codemod-project';
 import type {CompositionTarget} from './composition-editing';
 import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
+import {getNodes} from './get-nodes';
 import {
 	addElementToComponentRoot,
 	getComponentRootNode,
 	getDeclarationByExportName,
 	getInsertionRootSourceEdit,
 	getNullComponentRoot,
+	makeInMemoryCodemodEnvironment,
+	insertJsxElementIntoComposition,
+	resolveCompositionComponentWithFile,
 } from './insert-jsx-element';
+import type {CodemodEnvironment} from './insert-jsx-element';
+import {
+	createElementFromInsertable,
+	type InsertableSequenceWrapper,
+} from './insertable-element';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
@@ -47,15 +57,21 @@ export type AddElementTarget =
 	| ({type: 'composition'} & CompositionTarget)
 	| {type: 'component'; filePath: string; exportName: string | 'default'}
 	| {type: 'inside'; node: NodeReference}
+	| {type: 'track'; node: NodeReference; from: number; durationInFrames: number}
 	| {type: 'before'; node: NodeReference}
 	| {type: 'after'; node: NodeReference};
 
-export type AddElementOptions<Project extends CodemodProject> = {
-	project: Project;
-	element: CodemodElement;
-	target: AddElementTarget;
-	prettierConfigOverride?: Record<string, unknown> | null;
-};
+export type AddElementDescriptor = InsertableCompositionElement;
+
+export type AddElementOptions<Project extends CodemodProject> =
+	CodemodSource<Project> & {
+		element: CodemodElement | AddElementDescriptor;
+		target: AddElementTarget;
+		prettierConfigOverride?: Record<string, unknown> | null;
+		from?: number | null;
+		wrapInSequence?: InsertableSequenceWrapper | null;
+		svgMarkupToJsx?: CodemodEnvironment['svgMarkupToJsx'];
+	};
 
 const b = recast.types.builders;
 
@@ -97,7 +113,7 @@ const getNodeTargetSourceEdit = ({
 	prettierConfigOverride,
 	target,
 }: SourceEditInput & {
-	target: Extract<AddElementTarget, {node: NodeReference}>;
+	target: Extract<AddElementTarget, {type: 'inside' | 'before' | 'after'}>;
 }): SourceEdit => {
 	const targetPath = findJsxElementPathForDeletion(ast, target.node.nodePath);
 	if (!targetPath) {
@@ -246,21 +262,163 @@ const insertElementIntoFile = ({
 	};
 };
 
-export const addElement = <Project extends CodemodProject>({
-	project,
-	element,
-	target,
-	prettierConfigOverride = null,
-}: AddElementOptions<Project>): CodemodInsertionResult => {
-	if (!(element instanceof CodemodElement)) {
-		throw new Error('element must be created with createElement()');
-	}
-
-	if (target.type === 'composition') {
-		const resolved = resolveCompositionComponentInProject({
+export const addElement = async <Project extends CodemodProject>(
+	options: AddElementOptions<Project>,
+): Promise<CodemodInsertionResult> => {
+	const {
+		element: suppliedElement,
+		prettierConfigOverride = null,
+		from = null,
+		wrapInSequence = null,
+	} = options;
+	let {target} = options;
+	const project: CodemodProject = options.project ?? {
+		rootDir: options.environment!.rootDir,
+		files: {},
+	};
+	const files = {...project.files};
+	const baseEnvironment =
+		options.environment ??
+		makeInMemoryCodemodEnvironment({
 			project,
+			svgMarkupToJsx:
+				options.svgMarkupToJsx ??
+				(() =>
+					Promise.reject(
+						new Error('SVG insertion requires a svgMarkupToJsx converter'),
+					)),
+		});
+	const environment: CodemodEnvironment = {
+		...baseEnvironment,
+		readFile: async (file) => {
+			const contents = await baseEnvironment.readFile(file);
+			if (options.environment) files[file] = contents;
+			return contents;
+		},
+	};
+	if (
+		!(suppliedElement instanceof CodemodElement) &&
+		(suppliedElement.type === 'svg' || suppliedElement.type === 'composition')
+	) {
+		if (target.type !== 'composition')
+			throw new Error(
+				'SVG and composition descriptors require a composition target',
+			);
+		const result = await insertJsxElementIntoComposition({
 			compositionFile: target.compositionFile,
 			compositionId: target.compositionId,
+			element: suppliedElement,
+			environment,
+			from,
+			wrapInSequence,
+			prettierConfigOverride,
+		});
+		if (result.insertedNodePath === null)
+			throw new Error('Could not determine the inserted JSX node path');
+		const filePath = options.environment
+			? result.fileName
+			: findProjectFile({project, filePath: result.fileName});
+		return {
+			...getNodeEditResult({
+				project: {...project, files},
+				edits: [
+					{
+						filePath,
+						output: result.output,
+						nodePathRemappings: result.nodePathRemappings,
+					},
+				],
+			}),
+			insertedNode: {
+				filePath,
+				nodePath: result.insertedNodePath,
+			},
+		};
+	}
+
+	if (options.environment) {
+		if (target.type === 'composition') {
+			const resolved = await resolveCompositionComponentWithFile({
+				environment,
+				compositionFile: target.compositionFile,
+				compositionId: target.compositionId,
+			});
+			if (!resolved.canAddSequence)
+				throw new Error(
+					'Cannot insert JSX element into this composition component',
+				);
+			target = {
+				type: 'component',
+				filePath: resolved.fileName,
+				exportName: resolved.exportName,
+			};
+		} else {
+			await environment.readFile(
+				environment.resolve(
+					environment.rootDir,
+					target.type === 'component' ? target.filePath : target.node.filePath,
+				),
+			);
+		}
+	}
+
+	let element =
+		suppliedElement instanceof CodemodElement
+			? suppliedElement
+			: createElementFromInsertable({
+					element: suppliedElement,
+					from: target.type === 'track' ? null : from,
+					wrapInSequence: target.type === 'track' ? null : wrapInSequence,
+				});
+	if (target.type === 'track') {
+		if (
+			!Number.isFinite(target.from) ||
+			target.from < 0 ||
+			!Number.isFinite(target.durationInFrames) ||
+			target.durationInFrames <= 0
+		)
+			throw new Error('Invalid element insertion into a Track');
+		const trackNode = target.node;
+		const track = getNodes({
+			project: {...project, files},
+			filePath: trackNode.filePath,
+		}).find(
+			(candidate) =>
+				JSON.stringify(candidate.nodePath) ===
+				JSON.stringify(trackNode.nodePath),
+		);
+		if (track?.componentIdentity !== 'dev.remotion.remotion.Track')
+			throw new Error('The destination is no longer a Track');
+		const name =
+			suppliedElement instanceof CodemodElement
+				? suppliedElement.component
+				: suppliedElement.type === 'asset'
+					? (suppliedElement.src.split('/').pop() ?? suppliedElement.src)
+					: suppliedElement.type === 'solid'
+						? 'Solid'
+						: null;
+		element = createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {
+				from: target.from,
+				durationInFrames: target.durationInFrames,
+				...(name === null ? {} : {name}),
+				style: {position: 'absolute'},
+			},
+			children: [element],
+		});
+		target = {type: 'inside', node: target.node};
+	}
+
+	const sourceProject = {...project, files};
+	const insertionTarget = target;
+
+	if (insertionTarget.type === 'composition') {
+		const resolved = resolveCompositionComponentInProject({
+			project: sourceProject,
+			compositionFile: insertionTarget.compositionFile,
+			compositionId: insertionTarget.compositionId,
 		});
 		if (!resolved.canAddSequence) {
 			throw new Error(
@@ -270,36 +428,46 @@ export const addElement = <Project extends CodemodProject>({
 
 		return insertElementIntoFile({
 			element,
-			filePath: findProjectFile({project, filePath: resolved.filePath}),
+			filePath: findProjectFile({
+				project: sourceProject,
+				filePath: resolved.filePath,
+			}),
 			getSourceEdit: (context) =>
 				getCompositionRootSourceEdit({
 					...context,
 					exportName: resolved.exportName,
 				}),
 			prettierConfigOverride,
-			project,
+			project: sourceProject,
 		});
 	}
 
-	if (target.type === 'component') {
+	if (insertionTarget.type === 'component') {
 		return insertElementIntoFile({
 			element,
-			filePath: findProjectFile({project, filePath: target.filePath}),
+			filePath: findProjectFile({
+				project: sourceProject,
+				filePath: insertionTarget.filePath,
+			}),
 			getSourceEdit: (context) =>
 				getCompositionRootSourceEdit({
 					...context,
-					exportName: target.exportName,
+					exportName: insertionTarget.exportName,
 				}),
 			prettierConfigOverride,
-			project,
+			project: sourceProject,
 		});
 	}
 
 	return insertElementIntoFile({
 		element,
-		filePath: findProjectFile({project, filePath: target.node.filePath}),
-		getSourceEdit: (context) => getNodeTargetSourceEdit({...context, target}),
+		filePath: findProjectFile({
+			project: sourceProject,
+			filePath: insertionTarget.node.filePath,
+		}),
+		getSourceEdit: (context) =>
+			getNodeTargetSourceEdit({...context, target: insertionTarget}),
 		prettierConfigOverride,
-		project,
+		project: sourceProject,
 	});
 };

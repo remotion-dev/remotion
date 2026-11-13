@@ -7,7 +7,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
+import {insertBasicCaptions} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
@@ -476,15 +476,19 @@ export const installElement = async ({
 			} else {
 				const fileName = plan.safePaths.compositionFileName;
 				const oldContents = readFileSync(fileName, 'utf-8');
+				const result = insertBasicCaptions({
+					...captionTarget,
+					project: {rootDir: remotionRoot, files: {[fileName]: oldContents}},
+					node: {filePath: fileName, nodePath: captionTarget.nodePath},
+					importPath: plan.importPath,
+					element: {componentName: plan.componentName, initialProps},
+				});
 				inserted = {
-					...CodemodsInternals.insertBasicCaptions({
-						...captionTarget,
-						input: oldContents,
-						importPath: plan.importPath,
-						element: {componentName: plan.componentName, initialProps},
-					}),
 					fileName,
 					oldContents,
+					output: result.changes[0]?.nextContents ?? oldContents,
+					logLine: result.editDetails[0].logLine,
+					nodePathRemappings: result.nodePathRemappings,
 				};
 			}
 

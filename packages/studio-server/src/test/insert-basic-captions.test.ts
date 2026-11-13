@@ -8,7 +8,12 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
+import {
+	CodemodsInternals,
+	insertBasicCaptions as insertCaptionsCodemod,
+	type InsertBasicCaptionsOptions,
+} from '@remotion/codemods';
+import type {SequenceNodePath} from 'remotion';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -18,11 +23,27 @@ import {insertBasicCaptionsHandler} from '../preview-server/routes/insert-basic-
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
 
-const {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-	insertBasicCaptions,
-} = CodemodsInternals;
+const {basicCaptionsElementSource, getBasicCaptionsElementFile} =
+	CodemodsInternals;
+const insertBasicCaptions = ({
+	input,
+	nodePath,
+	...options
+}: Omit<
+	InsertBasicCaptionsOptions<{rootDir: string; files: Record<string, string>}>,
+	'project' | 'node'
+> & {input: string; nodePath: SequenceNodePath}) => {
+	const result = insertCaptionsCodemod({
+		...options,
+		project: {rootDir: '/', files: {'/Comp.tsx': input}},
+		node: {filePath: '/Comp.tsx', nodePath},
+	});
+	return {
+		...result,
+		output: result.changes[0]?.nextContents ?? input,
+		logLine: result.editDetails[0].logLine,
+	};
+};
 
 test('transcription inserts inline Basic captions beside selected Video and Audio tags', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-captions-'));

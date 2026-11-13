@@ -1,5 +1,30 @@
 import {expect, test} from 'bun:test';
-import {pasteEffects} from '../codemods/paste-effects';
+import {pasteEffects as pasteEffectsCodemod} from '@remotion/codemods';
+import type {PasteEffectsRequest} from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
+
+const pasteEffects = async ({
+	input,
+	targetFileName,
+	targetSequenceNodePath,
+	type,
+	...options
+}: Pick<
+	PasteEffectsRequest,
+	'targetFileName' | 'type' | 'effects' | 'insertAtIndices'
+> & {input: string; targetSequenceNodePath: SequenceNodePath}) => {
+	const result = await pasteEffectsCodemod({
+		...options,
+		project: {rootDir: '/', files: {[targetFileName]: input}},
+		node: {filePath: targetFileName, nodePath: targetSequenceNodePath},
+		mode: type === 'effects-replacing' ? 'replace' : 'append',
+	});
+	return {
+		...result.editDetails[0],
+		output: result.changes[0]?.nextContents ?? input,
+	};
+};
+
 import {lineColumnToNodePath} from './test-utils';
 
 const buildInput = (

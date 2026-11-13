@@ -13,7 +13,6 @@ import type {
 	ObjectProperty,
 } from '@babel/types';
 import type {
-	InsertCompositionElementRequest,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
 	SequenceNodePathRemapping,
@@ -1947,30 +1946,6 @@ export async function resolveCompositionComponentWithFile({
 	});
 }
 
-export const resolveCompositionComponent = async ({
-	environment,
-	compositionFile,
-	compositionId,
-}: {
-	environment: CodemodEnvironment;
-	compositionFile: string;
-	compositionId: string;
-}): Promise<ResolvedCompositionComponent> => {
-	const {source, line, column, canAddSequence} =
-		await resolveCompositionComponentWithFile({
-			environment,
-			compositionFile,
-			compositionId,
-		});
-
-	return {
-		source,
-		line,
-		column,
-		canAddSequence,
-	};
-};
-
 const ensureCompositionComponentImport = async ({
 	ast,
 	compositionFile,
@@ -2180,9 +2155,7 @@ export const insertJsxElementIntoComposition = async ({
 	insertedNodePath: SequenceNodePath | null;
 }> => {
 	if (element.type !== 'svg' && element.type !== 'composition') {
-		throw new Error(
-			`Insert ${element.type} elements with addElement() and createElementFromInsertable()`,
-		);
+		throw new Error('Expected an SVG or composition descriptor');
 	}
 
 	if (
@@ -2310,48 +2283,5 @@ export const insertJsxElementIntoComposition = async ({
 		insertedNodePath,
 		logLine,
 		nodePathRemappings,
-	};
-};
-
-export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
-	project,
-	request,
-	svgMarkupToJsx,
-	wrapInSequence,
-}: {
-	project: {files: Record<string, string>; rootDir: string};
-	request: InsertCompositionElementRequest;
-	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
-	wrapInSequence: {
-		dimensions: {width: number; height: number} | null;
-		durationInFrames: number | null;
-		from: number | null;
-		name: string | null;
-		position: InsertableCompositionElementPosition | null;
-	} | null;
-}): Promise<{
-	filePath: string;
-	insertedNodePath: SequenceNodePath | null;
-	nodePathRemappings: SequenceNodePathRemapping[];
-	output: string;
-}> => {
-	const result = await insertJsxElementIntoComposition({
-		compositionFile: request.compositionFile,
-		compositionId: request.compositionId,
-		element: request.element,
-		environment: makeInMemoryCodemodEnvironment({
-			project,
-			svgMarkupToJsx,
-		}),
-		from: request.from,
-		prettierConfigOverride: null,
-		wrapInSequence,
-	});
-
-	return {
-		filePath: result.fileName,
-		insertedNodePath: result.insertedNodePath,
-		nodePathRemappings: result.nodePathRemappings,
-		output: result.output,
 	};
 };

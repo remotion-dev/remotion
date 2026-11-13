@@ -30,17 +30,19 @@ const solid = createElement({
 	},
 });
 
-const insertSolid = (
+const insertSolid = async (
 	project: VirtualProject,
 	compositionFile = '/project/src/Composition.tsx',
 ) => {
 	return applyCodemodChanges(
 		project,
-		addElement({
-			project,
-			element: solid,
-			target: {type: 'composition', compositionFile, compositionId: 'MyComp'},
-		}).changes,
+		(
+			await addElement({
+				project,
+				element: solid,
+				target: {type: 'composition', compositionFile, compositionId: 'MyComp'},
+			})
+		).changes,
 	);
 };
 
@@ -76,9 +78,9 @@ test('consumes an initial Element payload only once', () => {
 	expect(operations.consumeInitialElement()).toBe(null);
 });
 
-test('adds a Solid to the blank Browser Studio project', () => {
+test('adds a Solid to the blank Browser Studio project', async () => {
 	const project = createBlankTemplateProject();
-	const updated = insertSolid(project);
+	const updated = await insertSolid(project);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
 	expect(composition).toContain(
@@ -91,36 +93,38 @@ test('adds a Solid to the blank Browser Studio project', () => {
 	expect(project.files['/project/src/Composition.tsx']).not.toContain('<Solid');
 });
 
-test('adds multiple Solids without duplicating the import', () => {
-	const once = insertSolid(createBlankTemplateProject());
-	const twice = insertSolid(once);
+test('adds multiple Solids without duplicating the import', async () => {
+	const once = await insertSolid(createBlankTemplateProject());
+	const twice = await insertSolid(once);
 	const composition = twice.files['/project/src/Composition.tsx'];
 
 	expect(composition.match(/\bSolid\b/g)).toHaveLength(3);
 	expect(composition.match(/<Solid\s/g)).toHaveLength(2);
 });
 
-test('adds a Solid at a timeline frame', () => {
+test('adds a Solid at a timeline frame', async () => {
 	const project = createBlankTemplateProject();
 	const updated = applyCodemodChanges(
 		project,
-		addElement({
-			project,
-			element: createElement({
-				component: 'Sequence',
-				importPath: 'remotion',
-				props: {
-					from: 42,
-					style: {position: 'absolute', translate: '100px 50px'},
+		(
+			await addElement({
+				project,
+				element: createElement({
+					component: 'Sequence',
+					importPath: 'remotion',
+					props: {
+						from: 42,
+						style: {position: 'absolute', translate: '100px 50px'},
+					},
+					children: [solid],
+				}),
+				target: {
+					type: 'composition',
+					compositionFile: '/project/src/Composition.tsx',
+					compositionId: 'MyComp',
 				},
-				children: [solid],
-			}),
-			target: {
-				type: 'composition',
-				compositionFile: '/project/src/Composition.tsx',
-				compositionId: 'MyComp',
-			},
-		}).changes,
+			})
+		).changes,
 	);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
@@ -146,7 +150,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 `,
 		},
 	};
-	const updated = insertSolid(project, 'src/index.tsx');
+	const updated = await insertSolid(project, 'src/index.tsx');
 
 	expect(updated.files['/project/src/index.tsx']).toBe(
 		project.files['/project/src/index.tsx'],
@@ -204,7 +208,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	);
 });
 
-test('inserts beside a self-closing root, aliases bindings, and remaps the root', () => {
+test('inserts beside a self-closing root, aliases bindings, and remaps the root', async () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',
@@ -219,7 +223,7 @@ registerRoot(Root);
 `,
 		},
 	};
-	const result = addElement({
+	const result = await addElement({
 		project,
 		element: solid,
 		target: {

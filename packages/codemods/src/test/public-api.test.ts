@@ -63,9 +63,9 @@ export const Video2 = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	},
 });
 
-test('addElement() immutably updates a virtual project', () => {
+test('addElement() immutably updates a virtual project', async () => {
 	const project = makeProject();
-	const result = addSolid({
+	const result = await addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
 		project,
@@ -91,13 +91,13 @@ test('addElement() immutably updates a virtual project', () => {
 
 test('deleteNodes() deletes nodes from multiple files', async () => {
 	const project = makeProject();
-	const first = addSolid({
+	const first = await addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
 		project,
 	});
 	const afterFirst = applyCodemodChanges(project, first.changes);
-	const second = addSolid({
+	const second = await addSolid({
 		compositionFile: 'src/Root2.tsx',
 		compositionId: 'Demo2',
 		project: afterFirst,
@@ -119,7 +119,7 @@ test('deleteNodes() deletes nodes from multiple files', async () => {
 
 test('deleteNodes() deletes the Sequence wrapper identified by a node path', async () => {
 	const project = makeProject();
-	const added = addSolid({
+	const added = await addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
 		from: 10,

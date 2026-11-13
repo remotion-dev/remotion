@@ -166,7 +166,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 			style: {width: 100, height: 100},
 		},
 	});
-	const media = addElement({
+	const media = await addElement({
 		project,
 		element: createElement({
 			component: 'Sequence',
@@ -193,7 +193,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		(node) => node.tagName === 'Img',
 	)!;
 	expect(imageNode.parentNodePath).toEqual(media.insertedNode.nodePath);
-	const added = addElement({
+	const added = await addElement({
 		project: afterMedia,
 		element: createElement({
 			component: 'Title',
@@ -618,14 +618,14 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 	expect(project.files).toEqual(original);
 });
 
-test('addElement returns remappings usable by public discovery and targets nodes', () => {
+test('addElement returns remappings usable by public discovery and targets nodes', async () => {
 	const project = makeProject();
 	const solid = createElement({
 		component: 'Solid',
 		importPath: 'remotion',
 		props: {width: 100, height: 100, color: 'gray'},
 	});
-	const inserted = addElement({
+	const inserted = await addElement({
 		project,
 		element: createElement({
 			component: 'Sequence',
@@ -660,7 +660,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		props: {className: 'caption', 'data-testid': 'caption'},
 		children: ['Hello {world} & friends', {component: 'br'}],
 	});
-	const inside = addElement({
+	const inside = await addElement({
 		project: afterInsert,
 		element: caption,
 		target: {type: 'inside', node: sequence},
@@ -681,7 +681,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 			)
 			.map((node) => node.tagName),
 	).toEqual(['br']);
-	const before = addElement({
+	const before = await addElement({
 		project: afterInside,
 		element: createElement({component: 'span', children: ['first']}),
 		target: {
@@ -734,7 +734,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 			'svg.tsx': `import {staticFile} from './util';\nexport const Icon = () => <svg />;\n`,
 		},
 	};
-	const escaped = addElement({
+	const escaped = await addElement({
 		project: conflicting,
 		element: createElement({
 			component: 'use',
@@ -788,7 +788,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 
 test('nested copies return root references and insertion preserves relative keys under a project root', async () => {
 	const original = {...makeProject(), rootDir: '/project'};
-	const media = addElement({
+	const media = await addElement({
 		project: original,
 		element: createElement({
 			component: 'Sequence',

@@ -3,7 +3,7 @@ import path from 'node:path';
 import {
 	addElement,
 	applyCodemodChanges,
-	CodemodsInternals,
+	resolveCompositionComponent as resolveCompositionCodemod,
 	getNodes,
 	type CodemodEnvironment,
 	type ResolvedCompositionComponent,
@@ -16,14 +16,6 @@ import type {
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import {svgMarkupToJsx} from './svg-to-jsx';
-
-const {
-	createElementFromInsertable,
-	insertJsxElementIntoComposition: insertJsxElementIntoCompositionCodemod,
-	resolveCompositionComponent: resolveCompositionComponentCodemod,
-	resolveCompositionComponentWithFile:
-		resolveCompositionComponentWithFileCodemod,
-} = CodemodsInternals;
 
 const makeCodemodEnvironment = (
 	remotionRoot: string,
@@ -54,7 +46,7 @@ export type {
 	ResolvedCompositionComponentWithFile,
 };
 
-export const resolveCompositionComponentWithFile = ({
+export const resolveCompositionComponentWithFile = async ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -62,27 +54,34 @@ export const resolveCompositionComponentWithFile = ({
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponentWithFile> =>
-	resolveCompositionComponentWithFileCodemod({
+}): Promise<ResolvedCompositionComponentWithFile> => {
+	const result = await resolveCompositionCodemod({
+		environment: makeCodemodEnvironment(remotionRoot, null),
 		compositionFile,
 		compositionId,
-		environment: makeCodemodEnvironment(remotionRoot, null),
 	});
+	return {
+		fileName: result.filePath,
+		exportName: result.exportName,
+		source: path.relative(remotionRoot, result.filePath),
+		line: result.location.line,
+		column: result.location.column,
+		canAddSequence: result.canAddContent,
+	};
+};
 
-export const resolveCompositionComponent = ({
-	remotionRoot,
-	compositionFile,
-	compositionId,
-}: {
+export const resolveCompositionComponent = async (options: {
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponent> =>
-	resolveCompositionComponentCodemod({
-		compositionFile,
-		compositionId,
-		environment: makeCodemodEnvironment(remotionRoot, null),
-	});
+}): Promise<ResolvedCompositionComponent> => {
+	const {
+		fileName: _fileName,
+		exportName: _exportName,
+		...result
+	} = await resolveCompositionComponentWithFile(options);
+	return result;
+};
 
 export const insertJsxElementIntoComposition = async ({
 	remotionRoot,
@@ -117,76 +116,40 @@ export const insertJsxElementIntoComposition = async ({
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
 }> => {
-	const environment = makeCodemodEnvironment(remotionRoot, sourceFileOverrides);
-	const sequence =
-		wrapInSequence === null
-			? null
-			: {
-					dimensions: wrapInSequence.dimensions,
-					durationInFrames: wrapInSequence.durationInFrames ?? null,
-					from: wrapInSequence.from,
-					name: wrapInSequence.name,
-					position: wrapInSequence.position,
-				};
-	// SVG markup and compositions need the file-system aware pipeline.
-	if (element.type === 'svg' || element.type === 'composition') {
-		return insertJsxElementIntoCompositionCodemod({
-			compositionFile,
-			compositionId,
-			element,
-			environment,
-			from,
-			prettierConfigOverride,
-			wrapInSequence: sequence,
-		});
-	}
-
-	const codemodElement = createElementFromInsertable({
+	const result = await addElement({
+		environment: makeCodemodEnvironment(remotionRoot, sourceFileOverrides),
 		element,
 		from,
-		wrapInSequence: sequence,
+		wrapInSequence:
+			wrapInSequence === null
+				? null
+				: {
+						...wrapInSequence,
+						durationInFrames: wrapInSequence.durationInFrames ?? null,
+					},
+		prettierConfigOverride,
+		target: {type: 'composition', compositionFile, compositionId},
 	});
-	const location = await resolveCompositionComponentWithFileCodemod({
-		compositionFile,
-		compositionId,
-		environment,
-	});
-	if (!location.canAddSequence) {
-		throw new Error(
-			'Cannot insert JSX element into this composition component',
-		);
-	}
-
-	const oldContents = await environment.readFile(location.fileName);
+	const change = result.changes.find(
+		(item) => item.filePath === result.insertedNode.filePath,
+	)!;
 	const project = {
 		rootDir: remotionRoot,
-		files: {[location.fileName]: oldContents},
+		files: {[change.filePath]: change.previousContents!},
 	};
-	const result = addElement({
-		project,
-		element: codemodElement,
-		target: {
-			type: 'component',
-			filePath: location.fileName,
-			exportName: location.exportName,
-		},
-		prettierConfigOverride,
-	});
-	const nextProject = applyCodemodChanges(project, result.changes);
 	const insertedNode = getNodes({
-		project: nextProject,
-		filePath: location.fileName,
+		project: applyCodemodChanges(project, result.changes),
+		filePath: change.filePath,
 	}).find(
 		(node) =>
 			JSON.stringify(node.nodePath) ===
 			JSON.stringify(result.insertedNode.nodePath),
 	);
-
 	return {
-		fileName: location.fileName,
-		source: location.source,
-		oldContents,
-		output: nextProject.files[location.fileName],
+		fileName: change.filePath,
+		source: path.relative(remotionRoot, change.filePath),
+		oldContents: change.previousContents!,
+		output: change.nextContents!,
 		logLine: insertedNode?.location?.line ?? 1,
 		nodePathRemappings: result.nodePathRemappings.map(
 			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),

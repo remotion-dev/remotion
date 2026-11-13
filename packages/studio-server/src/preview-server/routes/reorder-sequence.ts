@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals, reorderNodes} from '@remotion/codemods';
+import {reorderNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
@@ -44,30 +44,17 @@ export const reorderSequenceHandler: ApiHandler<
 				files: {[absolutePath]: fileContents},
 				rootDir: remotionRoot,
 			};
-			const move =
-				input.position === 'inside'
-					? CodemodsInternals.moveNodesIntoTrack({
-							input: fileContents,
-							sourceNodePaths: sourceNodePaths.map((node) => node.nodePath),
-							targetNodePath: targetNodePath.nodePath,
-							timings: input.timings,
-						})
-					: null;
-			const result = move
-				? {
-						changes: [{nextContents: move.output}],
-						editDetails: [move],
-						nodePathRemappings: move.nodePathRemappings,
-					}
-				: await reorderNodes({
-						project,
-						nodes: sourceNodePaths.map((sourceNodePath) => ({
-							filePath: absolutePath,
-							nodePath: sourceNodePath.nodePath,
-						})),
-						target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-						position: input.position as 'before' | 'after',
-					});
+			const result = await reorderNodes({
+				project,
+				nodes: sourceNodePaths.map((node) => ({
+					filePath: absolutePath,
+					nodePath: node.nodePath,
+				})),
+				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+				...(input.position === 'inside'
+					? {position: 'inside', timings: input.timings}
+					: {position: input.position}),
+			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {sequenceLabel, logLine} = result.editDetails[0];
 			const nodePathRemappings = result.nodePathRemappings.map(

@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {updateInlineCaptionPatches} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddSequenceKeyframe,
@@ -35,8 +35,6 @@ import {computeSequencePropsStatusFromContent} from './can-update-sequence-props
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
-
-const {updateInlineCaptionPatches} = CodemodsInternals;
 
 type ResolvedSequencePropEdit = {
 	index: number;
@@ -405,12 +403,15 @@ export const saveSequencePropsHandler: ApiHandler<
 
 			for (const captionPatchRequest of group.captionPatches) {
 				const result = updateInlineCaptionPatches({
-					input: output,
-					nodePath: captionPatchRequest.nodePath.nodePath,
+					project: {rootDir: remotionRoot, files: {[absolutePath]: output}},
+					node: {
+						filePath: absolutePath,
+						nodePath: captionPatchRequest.nodePath.nodePath,
+					},
 					patches: captionPatchRequest.patches,
 				});
-				output = result.output;
-				firstLogLine = Math.min(firstLogLine, result.logLine);
+				output = result.changes[0]?.nextContents ?? output;
+				firstLogLine = Math.min(firstLogLine, result.editDetails[0].logLine);
 				for (const [index, patch] of captionPatchRequest.patches.entries()) {
 					const changedFields = result.changedFields[index];
 					if (!changedFields) {
@@ -419,7 +420,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 					captionPatchLogs.push({
 						fileRelativeToRoot: group.fileRelativeToRoot,
-						line: result.logLine,
+						line: result.editDetails[0].logLine,
 						index: patch.index,
 						oldValueString: changedFields
 							.map(
@@ -460,7 +461,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 					updates,
 				});
-				output = result.output;
+				output = result.changes[0]?.nextContents ?? output;
 				firstLogLine = Math.min(firstLogLine, result.logLine);
 
 				for (const [updateIndex, update] of updates.entries()) {
@@ -511,7 +512,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 					updates,
 				});
-				output = result.output;
+				output = result.changes[0]?.nextContents ?? output;
 				firstLogLine = Math.min(firstLogLine, result.logLine);
 
 				for (const [updateIndex, update] of updates.entries()) {
@@ -567,7 +568,7 @@ export const saveSequencePropsHandler: ApiHandler<
 						firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 					updates,
 				});
-				output = result.output;
+				output = result.changes[0]?.nextContents ?? output;
 				firstLogLine = Math.min(firstLogLine, result.logLine);
 
 				for (const [updateIndex, update] of updates.entries()) {

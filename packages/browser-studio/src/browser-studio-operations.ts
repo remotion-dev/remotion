@@ -6,6 +6,8 @@ import {
 	addOpenTimelineComposition,
 	addEffect as addEffectCodemod,
 	addElement,
+	pasteEffects as pasteEffectsCodemod,
+	insertBasicCaptions as insertBasicCaptionsCodemod,
 	addFolder as addFolderCodemod,
 	createElement,
 	deleteComposition as deleteCompositionCodemod,
@@ -95,23 +97,17 @@ import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject, VirtualProjectPublicFile} from './types';
 
 const {
-	basicCaptionsElementSource,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
-	createElementFromInsertable,
 	findProjectFile,
-	getBasicCaptionsElementFile,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
 	getFolderFile,
 	getKeyframeSourceLocationRemappings,
 	getRootFileForProject,
-	insertBasicCaptions: insertBasicCaptionsCodemod,
-	insertJsxElementIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
-	pasteEffects: pasteEffectsCodemod,
 } = CodemodsInternals;
 
 /*
@@ -137,56 +133,30 @@ const insertIntoProject = async ({
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
-	if (request.track) {
-		const trackResult = CodemodsInternals.insertElementIntoTrack({
-			project,
-			request,
-		});
-		return {
-			changes: trackResult.changes,
-			filePath: trackResult.insertedNode.filePath,
-			insertedNodePath: trackResult.insertedNode.nodePath,
-			nodePathRemappings: trackResult.nodePathRemappings,
-		};
-	}
-
-	// SVG markup and compositions need the dedicated insertion pipeline.
-	if (
-		request.element.type === 'svg' ||
-		request.element.type === 'composition'
-	) {
-		const inserted = await insertJsxElementIntoProjectWithNodePathRemappings({
-			project,
-			request,
-			svgMarkupToJsx,
-			wrapInSequence,
-		});
-		return {
-			changes: [
-				{
-					filePath: inserted.filePath,
-					previousContents: project.files[inserted.filePath] ?? null,
-					nextContents: inserted.output,
-				},
-			],
-			filePath: inserted.filePath,
-			insertedNodePath: inserted.insertedNodePath,
-			nodePathRemappings: inserted.nodePathRemappings,
-		};
-	}
-
-	const result = addElement({
+	if (request.track !== null && request.from === null)
+		throw new Error('Track insertion requires a start frame');
+	const result = await addElement({
 		project,
-		element: createElementFromInsertable({
-			element: request.element,
-			from: request.from,
-			wrapInSequence,
-		}),
-		target: {
-			type: 'composition',
-			compositionFile: request.compositionFile,
-			compositionId: request.compositionId,
-		},
+		element: request.element,
+		from: request.from,
+		wrapInSequence,
+		svgMarkupToJsx,
+		target:
+			request.track === null
+				? {
+						type: 'composition',
+						compositionFile: request.compositionFile,
+						compositionId: request.compositionId,
+					}
+				: {
+						type: 'track',
+						node: {
+							filePath: request.track.targetNodePath.absolutePath,
+							nodePath: request.track.targetNodePath.nodePath,
+						},
+						from: request.from!,
+						durationInFrames: request.track.durationInFrames,
+					},
 	});
 	return {
 		changes: result.changes,
@@ -1532,37 +1502,24 @@ export const createBrowserStudioOperations = ({
 					project,
 				});
 				const result = await pasteEffectsCodemod({
+					project,
+					node: {
+						filePath: absolutePath,
+						nodePath: request.targetSequenceNodePath.nodePath,
+					},
 					effects: request.effects,
-					input: project.files[absolutePath],
 					insertAtIndices: request.insertAtIndices,
-					targetSequenceNodePath: request.targetSequenceNodePath.nodePath,
-					type: request.type,
+					mode: request.type === 'effects-replacing' ? 'replace' : 'append',
 				});
 				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
-					nodePathMutationFiles: [
-						{
-							absolutePath,
-							remappings: CodemodsInternals.getUnchangedStructureRemappings({
-								input: project.files[absolutePath],
-								output: result.output,
-							}),
-						},
-					],
+					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) =>
 						applyCodemodChanges(
 							addDependenciesToProject({dependencies, project: current}),
-							result.output === project.files[absolutePath]
-								? []
-								: [
-										{
-											filePath: absolutePath,
-											previousContents: project.files[absolutePath],
-											nextContents: result.output,
-										},
-									],
+							result.changes,
 						),
 				});
 				return {success: true, nodePathMutation};
@@ -2370,38 +2327,17 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const move =
-				request.position === 'inside'
-					? CodemodsInternals.moveNodesIntoTrack({
-							input: project.files[absolutePath],
-							sourceNodePaths: sourceNodePaths.map((node) => node.nodePath),
-							targetNodePath: targetNodePath.nodePath,
-							timings: request.timings,
-						})
-					: null;
-			const result = move
-				? {
-						changes: [
-							{
-								filePath: absolutePath,
-								previousContents: project.files[absolutePath],
-								nextContents: move.output,
-							},
-						],
-						nodePathRemappings: move.nodePathRemappings.map((mapping) => ({
-							...mapping,
-							filePath: absolutePath,
-						})),
-					}
-				: await reorderNodes({
-						project,
-						nodes: sourceNodePaths.map((sourceNodePath) => ({
-							filePath: absolutePath,
-							nodePath: sourceNodePath.nodePath,
-						})),
-						target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-						position: request.position as 'before' | 'after',
-					});
+			const result = await reorderNodes({
+				project,
+				nodes: sourceNodePaths.map((node) => ({
+					filePath: absolutePath,
+					nodePath: node.nodePath,
+				})),
+				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+				...(request.position === 'inside'
+					? {position: 'inside', timings: request.timings}
+					: {position: request.position}),
+			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
@@ -2856,38 +2792,18 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
-			const elementFile = getBasicCaptionsElementFile({
-				fileName: absolutePath,
-				readFileContents: (candidate) => project.files[candidate] ?? null,
-			});
 			const result = insertBasicCaptionsCodemod({
-				element: null,
-				input: project.files[absolutePath],
-				nodePath,
+				project,
+				node: {filePath: absolutePath, nodePath},
 				captions,
 				durationInFrames,
-				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {
-						...project.files,
-						...(elementFile.shouldWrite
-							? {[elementFile.fileName]: basicCaptionsElementSource}
-							: {}),
-						[absolutePath]: result.output,
-					},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
+				mutate: (current) => applyCodemodChanges(current, result.changes),
+				nodePathMutationFiles: getNodePathMutationFiles(result),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not insert Basic captions');
@@ -3310,18 +3226,13 @@ export const createBrowserStudioOperations = ({
 
 					const result = insertBasicCaptionsCodemod({
 						...request.captionTarget,
-						input: project.files[filePath],
+						project,
+						node: {filePath, nodePath: request.captionTarget.nodePath},
 						importPath: plan.importPath,
 						element: {componentName: plan.componentName, initialProps},
 					});
 					insertion = {
-						changes: [
-							{
-								filePath,
-								previousContents: project.files[filePath],
-								nextContents: result.output,
-							},
-						],
+						changes: result.changes,
 						filePath,
 						nodePathRemappings: result.nodePathRemappings,
 					};

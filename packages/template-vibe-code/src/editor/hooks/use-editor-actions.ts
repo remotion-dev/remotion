@@ -643,8 +643,8 @@ export const useEditorActions = ({
           props: { from: currentFrame() },
           children: [getElement()],
         });
-        return applyCodemod((project) =>
-          addElement({
+        return applyCodemod(async (project) =>
+          (await addElement({
             project,
             element: sequence,
             target: {
@@ -652,7 +652,7 @@ export const useEditorActions = ({
               compositionFile,
               compositionId: activeComposition.id,
             },
-          }),
+          })),
         );
       } catch (error) {
         notifyError(error);
