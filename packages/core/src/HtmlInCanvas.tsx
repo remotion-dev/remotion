@@ -981,12 +981,13 @@ const HtmlInCanvasContent = forwardRef<
 			paintTargetRef.current = paintTarget;
 			initializedSizeRef.current = null;
 			unmountedRef.current = false;
+			const paintReleases = pendingPaintReleases.current;
 
 			return () => {
 				paintTargetRef.current = null;
 				initializedSizeRef.current = null;
 				unmountedRef.current = true;
-				for (const release of pendingPaintReleases.current) {
+				for (const release of paintReleases) {
 					release();
 				}
 
