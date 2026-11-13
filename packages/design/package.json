@@ -1,5 +1,6 @@
 {
 	"name": "@remotion/design",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"version": "4.0.543",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

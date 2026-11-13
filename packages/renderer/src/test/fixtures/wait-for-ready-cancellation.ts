@@ -19,21 +19,21 @@ const main = async () => {
 	let transportReads = 0;
 	let terminated = 0;
 	mock.module(resolve(__dirname, '../../puppeteer-evaluate.ts'), () => ({
-		puppeteerEvaluateWithCatch: async ({
+		puppeteerEvaluateWithCatch: ({
 			pageFunction,
 		}: {
 			pageFunction: () => unknown;
-		}) => {
-			transportReads++;
-			return {
-				value: runInNewContext(`(${pageFunction.toString()})()`, {
-					window: state,
-				}),
-			};
-		},
-		puppeteerEvaluateWithCatchAndTimeout: async () => {
-			throw new Error('Unexpected timeout transport');
-		},
+		}) =>
+			Promise.resolve().then(() => {
+				transportReads++;
+				return {
+					value: runInNewContext(`(${pageFunction.toString()})()`, {
+						window: state,
+					}),
+				};
+			}),
+		puppeteerEvaluateWithCatchAndTimeout: () =>
+			Promise.reject(new Error('Unexpected timeout transport')),
 	}));
 	const {waitForReady} = await import('../../seek-to-frame');
 	const {PageEmittedEvents} = await import('../../browser/BrowserPage');
@@ -81,6 +81,7 @@ const main = async () => {
 	} catch (error) {
 		failure = error;
 	}
+
 	if (mode === 'cancelled' || mode === 'empty') {
 		if (
 			!(failure instanceof Error) ||
@@ -104,6 +105,7 @@ const main = async () => {
 		if ((await waiting) !== result)
 			throw new Error('A completed capture was retroactively cancelled');
 	}
+
 	if (
 		pageEvents.eventNames().length ||
 		browserEvents.eventNames().length ||
@@ -120,6 +122,7 @@ const main = async () => {
 	);
 	mock.restore();
 };
+
 main().catch((error: unknown) => {
 	process.stderr.write(String(error) + '\n');
 	process.exitCode = 1;

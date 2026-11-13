@@ -12,6 +12,7 @@ const Capture = ({ready}: {readonly ready: (controls: Controls) => void}) => {
 	useLayoutEffect(() => ready(controls), [ready, controls]);
 	return null;
 };
+
 const setup = () => {
 	const scope: DelayRenderScope = {
 		remotion_renderReady: true,
@@ -43,6 +44,7 @@ const setup = () => {
 	);
 	return {scope, controls};
 };
+
 afterEach(() => {
 	cleanup();
 	for (const scope of scopes.splice(0))
