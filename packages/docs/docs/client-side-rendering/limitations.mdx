@@ -226,6 +226,8 @@ Media fetches can resume after an interruption when the browser reports being of
 
 ## Single concurrency
 
+Calls to `renderStillOnWeb()` and `renderFramesOnWeb()` share a serial queue. Media renders use a separate serial queue, so a still can run while a media render is in progress. Aborting a waiting call rejects that caller without waiting for the preceding render; the cancelled call does not mount its composition or release the preceding render's turn.
+
 There is no multithreading for client-side rendering.  
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
