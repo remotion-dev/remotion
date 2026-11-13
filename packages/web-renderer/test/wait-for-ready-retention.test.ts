@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {createBackgroundKeepalive} from '../background-keepalive';
-import {waitForReady} from '../wait-for-ready';
+import {createBackgroundKeepalive} from '../src/background-keepalive';
+import {waitForReady} from '../src/wait-for-ready';
 
 const descriptors = new Map(
 	['Worker', 'requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout'].map(
