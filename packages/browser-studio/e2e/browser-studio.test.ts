@@ -14,6 +14,7 @@ import {
 import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {strFromU8, unzipSync} from 'fflate';
 import {captureTrackDropFailureEvidence} from './track-drop-failure-evidence';
+import {isTrackDropPreviewAboveRuler} from './track-drop-paint-order';
 
 const localImagePath = fileURLToPath(
 	new URL('../../agent-plugin/assets/logo.png', import.meta.url),
@@ -1080,14 +1081,7 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 	await expect
 		.poll(() => destination.boundingBox().then((box) => box?.y ?? Infinity))
 		.toBeLessThan(rulerBottom);
-	const paintsOverRuler = await preview.evaluate((element, top) => {
-		const bounds = element.getBoundingClientRect();
-		const {pointerEvents} = element.style;
-		element.style.pointerEvents = 'auto';
-		const hit = document.elementFromPoint(bounds.x + bounds.width / 2, top - 2);
-		element.style.pointerEvents = pointerEvents;
-		return hit === element;
-	}, rulerBottom);
+	const paintsOverRuler = await preview.evaluate(isTrackDropPreviewAboveRuler);
 	if (paintsOverRuler) {
 		try {
 			await captureTrackDropFailureEvidence({
