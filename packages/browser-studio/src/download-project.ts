@@ -53,13 +53,13 @@ const normalizeRootDir = (rootDir: string) => {
 		rootDir.includes('\\') ||
 		rootDir.includes('\0')
 	) {
-		throw new Error(`Invalid Browser Studio root directory: ${rootDir}`);
+		throw new Error(`Invalid remotion.new root directory: ${rootDir}`);
 	}
 
 	const normalized = rootDir.replace(/\/+$/, '');
 	if (!normalized) {
 		throw new Error(
-			'The Browser Studio root directory cannot be the filesystem root',
+			'The remotion.new root directory cannot be the filesystem root',
 		);
 	}
 

@@ -335,7 +335,7 @@ describe('Required CI result validation', () => {
 		expect(() => validateRequiredCi(planFor(), skippedResults())).not.toThrow();
 	});
 
-	test('requires both web renderer and Browser Studio jobs for either task', () => {
+	test('requires both web renderer and remotion.new jobs for either task', () => {
 		for (const task of ['testwebrenderer', 'testbrowserstudio']) {
 			const plan = planFor({tasks: [{name: task}]});
 			const results = skippedResults();
@@ -351,7 +351,7 @@ describe('Required CI result validation', () => {
 	});
 
 	test.each(['failure', 'cancelled', 'skipped', ''])(
-		'rejects selected Browser Studio when its result is %s',
+		'rejects selected remotion.new when its result is %s',
 		(result) => {
 			const plan = planFor({tasks: [{name: 'testwebrenderer'}]});
 			const results = skippedResults();
@@ -364,7 +364,7 @@ describe('Required CI result validation', () => {
 	);
 
 	test.each(['success', 'failure', 'cancelled'])(
-		'rejects unselected Browser Studio when its result is %s',
+		'rejects unselected remotion.new when its result is %s',
 		(result) => {
 			const results = skippedResults();
 			results.browser_studio = result;
@@ -414,7 +414,7 @@ describe('Required CI result validation', () => {
 	});
 });
 
-test('runs Browser Studio independently while requiring both affected jobs', () => {
+test('runs remotion.new independently while requiring both affected jobs', () => {
 	type BrowserJob = {
 		name: string;
 		'timeout-minutes': number;

@@ -12,7 +12,7 @@ const payload = createElementPayload({
 	sourceCode: 'export const LinkedElement = () => <div>Grüezi 👋</div>;',
 });
 
-test('round-trips a payload through the default Browser Studio URL', () => {
+test('round-trips a payload through the default remotion.new URL', () => {
 	const url = buildOpenInRemotionNewUrl({payload});
 	const parsedUrl = new URL(url);
 
@@ -24,7 +24,7 @@ test('round-trips a payload through the default Browser Studio URL', () => {
 	).toEqual(payload);
 });
 
-test('preserves a configured Browser Studio endpoint', () => {
+test('preserves a configured remotion.new endpoint', () => {
 	const url = StudioProtocolInternals.makeBrowserStudioUrl({
 		endpoint: 'https://studio.example.test/new?template=blank',
 		payload,
@@ -40,7 +40,7 @@ test('preserves a configured Browser Studio endpoint', () => {
 	).toEqual(payload);
 });
 
-test('rejects malformed Browser Studio fragments and endpoints', () => {
+test('rejects malformed remotion.new fragments and endpoints', () => {
 	expect(StudioProtocolInternals.parseBrowserStudioHash('')).toBe(null);
 	expect(
 		StudioProtocolInternals.parseBrowserStudioHash(
@@ -52,5 +52,5 @@ test('rejects malformed Browser Studio fragments and endpoints', () => {
 			endpoint: 'file:///tmp/studio.html',
 			payload,
 		}),
-	).toThrow('Browser Studio endpoint must use HTTP or HTTPS');
+	).toThrow('remotion.new endpoint must use HTTP or HTTPS');
 });
