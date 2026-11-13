@@ -17,11 +17,11 @@ import {countNativePixels} from './native-reference';
 import {testCompositions} from './utils';
 
 test('keeps whitespace-distinct stylesheet font titles independent', async () => {
-	const options = {title: 'A', inactiveTitle: ' A ', firstRoboto: false};
-	const render = async (literal: boolean) => {
+	const options = {title: 'A', firstRoboto: false, literal: false};
+	const render = async (inactiveTitle: string) => {
 		const result = await renderStillOnWeb({
 			licenseKey: 'free-license',
-			composition: svgExactTitleFont({...options, literal}),
+			composition: svgExactTitleFont({...options, inactiveTitle}),
 			frame: 0,
 			inputProps: {},
 			allowHtmlInCanvas: false,
@@ -29,8 +29,8 @@ test('keeps whitespace-distinct stylesheet font titles independent', async () =>
 		return result.blob({format: 'png'});
 	};
 
-	const actual = await render(false);
-	const expected = await render(true);
+	const actual = await render(' A ');
+	const expected = await render('B');
 	expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(0);
 });
 
