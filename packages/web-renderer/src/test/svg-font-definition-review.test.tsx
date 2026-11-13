@@ -1,5 +1,6 @@
 import {NoReactInternals} from 'remotion/no-react';
 import {expect, test, vi} from 'vitest';
+import {server} from 'vitest/browser';
 import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {
@@ -9,7 +10,7 @@ import {
 	svgWildcardStyleModes,
 	svgWildcardStyle,
 } from './fixtures/svg-font-definition-review';
-import {captureNativeReference, countNativePixels} from './native-reference';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 
 test.for(
 	svgWildcardStyleModes.flatMap((mode) =>
@@ -25,7 +26,7 @@ test.for(
 		omitBackground: false,
 	});
 	expect(
-		(await countNativePixels(reference, nativeControl)).mismatchedPixels,
+		(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
 	).toBe(0);
 	const actual = await (
 		await renderStillOnWeb({
@@ -36,7 +37,9 @@ test.for(
 			allowHtmlInCanvas: false,
 		})
 	).blob({format: 'png'});
-	expect((await countNativePixels(reference, actual)).mismatchedPixels).toBe(0);
+	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
+		0,
+	);
 });
 
 test.for(
@@ -63,7 +66,7 @@ test.for(
 			omitBackground: false,
 		});
 		expect(
-			(await countNativePixels(reference, nativeControl)).mismatchedPixels,
+			(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
 		).toBe(0);
 		const used =
 			mode === 'pattern' ||
@@ -92,20 +95,76 @@ test.for(
 				licenseKey: 'free-license',
 				allowHtmlInCanvas: false,
 			} as const;
-			const actual = await (
-				await renderStillOnWeb({...options, composition})
-			).blob({format: 'png'});
-			expect(fetchFont).toHaveBeenCalledTimes(used ? 1 : 0);
-			const expected = await (
-				await renderStillOnWeb({...options, composition: control})
-			).blob({format: 'png'});
-			expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
-				0,
-			);
-			if (!used || t.task.file.projectName === 'chromium')
-				expect(
-					(await countNativePixels(reference, actual)).mismatchedPixels,
-				).toBe(0);
+			const serialized: string[] = [];
+			const serialize = XMLSerializer.prototype.serializeToString;
+			const serializer = vi
+				.spyOn(XMLSerializer.prototype, 'serializeToString')
+				.mockImplementation(function (this: XMLSerializer, node) {
+					const markup = serialize.call(this, node);
+					if (mode === 'filter-image') serialized.push(markup);
+					return markup;
+				});
+			try {
+				const actual = await (
+					await renderStillOnWeb({...options, composition})
+				).blob({format: 'png'});
+				const actualSvg = serialized.at(-1) ?? null;
+				expect(fetchFont).toHaveBeenCalledTimes(used ? 1 : 0);
+				const expected = await (
+					await renderStillOnWeb({...options, composition: control})
+				).blob({format: 'png'});
+				const comparison = await compareNativePixels(expected, actual);
+				if (comparison.evidence && mode === 'filter-image') {
+					await server.commands.writeFile(
+						`${comparison.evidence}/serialized-svg.json`,
+						JSON.stringify(
+							{actualSvg, expectedSvg: serialized.at(-1) ?? null},
+							null,
+							2,
+						),
+					);
+				}
+				expect(comparison.mismatchedPixels).toBe(0);
+				if (!used || t.task.file.projectName === 'chromium')
+					expect(
+						(await compareNativePixels(reference, actual)).mismatchedPixels,
+					).toBe(0);
+			} finally {
+				serializer.mockRestore();
+			}
+		} catch (error) {
+			if (mode === 'root-mask') {
+				const evidence = `src/test/__screenshots__/native-pixel-failures/${server.browser}/svg-root-mask-${frame}-${crypto.randomUUID()}`;
+				for (const [name, blob] of [
+					['native', reference],
+					['native-control', nativeControl],
+				] as const) {
+					let binary = '';
+					for (const byte of new Uint8Array(await blob.arrayBuffer()))
+						binary += String.fromCharCode(byte);
+					await server.commands.writeFile(
+						`${evidence}/${name}.png`,
+						btoa(binary),
+						'base64',
+					);
+				}
+
+				await server.commands.writeFile(
+					`${evidence}/rejection.json`,
+					JSON.stringify({
+						mode,
+						frame,
+						browser: server.browser,
+						platform: server.platform,
+						runtime: server.version,
+						userAgent: navigator.userAgent,
+						devicePixelRatio: window.devicePixelRatio,
+						error: error instanceof Error ? error.stack : String(error),
+					}),
+				);
+			}
+
+			throw error;
 		} finally {
 			fetchFont.mockRestore();
 		}
