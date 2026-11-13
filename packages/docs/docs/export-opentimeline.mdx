@@ -1,15 +1,59 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-export-opentimeline.png
 id: export-opentimeline
-title: Export to OpenTimelineIO
-sidebar_label: Export to OpenTimelineIO
-crumb: Tooling
+title: Exporting OpenTimelineIO
+sidebar_label: Exporting
+crumb: OpenTimelineIO
 ---
 
-# Export to OpenTimelineIO<AvailableFrom v="4.0.544" />
+# Exporting OpenTimelineIO<AvailableFrom v="4.0.544" />
 
-To export a Remotion composition as an OpenTimelineIO (`.otio`) timeline, use the [`remotion-render` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/packages/skills/skills/remotion-render/SKILL.md). It preserves editable clips where possible and prerenders elements that cannot be represented in OpenTimelineIO.
+Export a Remotion [composition](/docs/terminology/composition) as an OpenTimelineIO (`.otio`) timeline to continue editing in another video editor, such as DaVinci Resolve or Adobe Premiere Pro.
 
-[Install the Remotion Agent Skills](/docs/ai/skills), then ask your agent:
+Exporting uses the [`remotion-render` Agent Skill](/docs/ai/skills#remotion-render). The agent inspects the composition, preserves editable clips where possible, and prerenders elements that OpenTimelineIO cannot represent.
+
+## From Remotion Studio
+
+<Step>1</Step> [Install the Remotion Agent Skills](/docs/ai/skills) in the project.
+
+<Step>2</Step> Open a composition in [Remotion Studio](/docs/studio). Click the dropdown next to **Render**, then **Export as OpenTimeline...**.
+
+<img src="https://remotion.media/studio/opentimeline/export-menu-0e355edad3c9.png" alt="The Render dropdown in Remotion Studio with the Export as OpenTimeline action." width={2560} height={1440} style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}} />
+
+<Step>3</Step> Copy the suggested prompt into your coding agent, or choose **Send to ChatGPT** when available.
+
+<img
+  src="https://remotion.media/studio/opentimeline/export-dialog-50813ad2e6a0.png"
+  alt="The OpenTimeline export dialog with the remotion-render skill and a prompt to export the current composition."
+  width={2560}
+  height={1440}
+  style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+## Using the skill directly
+
+With the [Agent Skills installed](/docs/ai/skills), ask your agent:
 
 <SuggestedPrompt prompt="/remotion-render Export MyComposition as an OpenTimelineIO (.otio) timeline for DaVinci Resolve." />
+
+Include the composition ID and target editor. For a [parameterized composition](/docs/parameterized-rendering), also specify the input props to export.
+
+## What gets exported
+
+The export includes an `.otio` file and the media it references, placed together in an output folder. Keep them together when handing the edit to another person or moving it to another computer.
+
+Media clips remain individually editable where possible. Text, animations, visual effects, and other elements that cannot be represented faithfully are rendered into media files. Audio processing may also be baked into separate clips or mixed stems.
+
+The agent reports which elements remain editable and which have been prerendered. A prerendered element can be trimmed or moved in the destination editor, but its original React properties are not editable there.
+
+## Open in a video editor
+
+In DaVinci Resolve, choose **File → Import → Timeline...** and select the `.otio` file. In an editor with OpenTimelineIO support, use its timeline import action.
+
+If media appears offline after moving the export folder, relink it to the media files in that folder. Check the imported picture and sound before continuing the edit.
+
+## See also
+
+- [Importing OpenTimelineIO](/docs/import-opentimeline)
+- [Agent Skills](/docs/ai/skills)
+- [`remotion-render` skill](https://github.com/remotion-dev/remotion/blob/main/packages/skills/skills/remotion-render/SKILL.md)

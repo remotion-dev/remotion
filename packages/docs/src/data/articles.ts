@@ -4520,10 +4520,10 @@ export const articles = [
 	},
 	{
 		id: 'export-opentimeline',
-		title: 'Export to OpenTimelineIO',
+		title: 'Exporting OpenTimelineIO',
 		relativePath: 'docs/export-opentimeline.mdx',
 		compId: 'articles-docs-export-opentimeline',
-		crumb: 'Tooling',
+		crumb: 'OpenTimelineIO',
 		noAi: false,
 		slug: 'export-opentimeline',
 	},
@@ -4913,6 +4913,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'img',
+	},
+	{
+		id: 'import-opentimeline',
+		title: 'Importing OpenTimelineIO',
+		relativePath: 'docs/import-opentimeline.mdx',
+		compId: 'articles-docs-import-opentimeline',
+		crumb: 'OpenTimelineIO',
+		noAi: false,
+		slug: 'import-opentimeline',
 	},
 	{
 		id: 'assets',
