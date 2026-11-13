@@ -57,6 +57,14 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 If `true`, only sites whose Remotion version matches the installed version of `@remotion/lambda` are returned. If `false` or not provided, all sites are returned.
 
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
+
 ## Return value
 
 A promise resolving to an object with the following properties:

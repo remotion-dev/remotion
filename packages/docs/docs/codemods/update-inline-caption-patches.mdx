@@ -1,0 +1,102 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-update-inline-caption-patches.png
+title: 'updateInlineCaptionPatches()'
+crumb: '@remotion/codemods'
+---
+
+# updateInlineCaptionPatches()<AvailableFrom v="4.0.544" />
+
+Changes selected fields in an inline captions array, or splits a caption, while preserving surrounding source formatting.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="update-inline-caption-patches.ts"
+import {updateInlineCaptionPatches, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = updateInlineCaptionPatches({
+  project, node,
+  patches: [{
+    index: 0,
+    before: {text: 'Hello', startMs: 0, endMs: 1000, timestampMs: 0, confidence: null, pageBreakAfter: null},
+    changes: {text: 'Hello world'},
+    insertAfter: null,
+  }],
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model).
+
+### node
+
+The target [`NodeReference`](/docs/codemods#node-references).
+
+### patches
+
+A nonempty array of `InlineCaptionPatch` objects.
+
+#### index
+
+The zero-based caption index in the current array.
+
+#### before
+
+The expected caption before editing. Contains `text`, `startMs`, `endMs`, `timestampMs`, `confidence` and `pageBreakAfter`. Use `null` for an absent page break. A stale value causes the operation to fail without changing the project.
+
+#### changes
+
+The caption fields to change. Unspecified fields keep their values.
+
+#### insertAfter
+
+A complete caption to insert after the edited caption, or `null`.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+File changes to apply with [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes). The input project is not mutated.
+
+### nodePathRemappings
+
+Mappings from the original node paths to their new paths. See [node references](/docs/codemods#node-references).
+
+### updatedNode
+
+The caption node's reference after the edit.
+
+### changedFields
+
+The changed field names for each patch, in input order.
+
+### editDetails
+
+The edited file path and line.
+
+## Errors
+
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-inline-caption-patches.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

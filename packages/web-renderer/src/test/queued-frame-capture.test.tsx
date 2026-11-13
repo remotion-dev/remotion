@@ -2,7 +2,32 @@ import {expect, test} from 'vitest';
 import '../symbol-dispose';
 import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
 import {queuedFrameCapture} from './fixtures/queued-frame-capture';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+
+const expectFrame = (
+	canvas: OffscreenCanvas,
+	frame: number,
+	background: [number, number, number],
+) => {
+	try {
+		expect([canvas.width, canvas.height]).toEqual([64, 48]);
+		const pixels = canvas.getContext('2d')!.getImageData(0, 0, 64, 48).data;
+		expect(
+			pixels.every((value, index) => {
+				const channel = index % 4;
+				if (channel === 3) return value === 255;
+				const pixel = Math.floor(index / 4);
+				const x = pixel % 64;
+				const y = Math.floor(pixel / 64);
+				const insideMarker =
+					x >= 5 + frame && x < 22 + frame && y >= 7 && y < 26;
+				return value === (insideMarker ? [242, 213, 48] : background)[channel];
+			}),
+		).toBe(true);
+	} finally {
+		canvas.width = 0;
+		canvas.height = 0;
+	}
+};
 
 const gate = () => {
 	let release!: () => void;
@@ -23,42 +48,6 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 	'preserves FIFO capture pixels and sparse frame order with queued abort=$abortQueued',
 	async ({abortQueued}) => {
 		const frames = [3, 0, 2];
-		const references = [];
-		for (const frame of [0, 2, 3]) {
-			references.push(
-				await captureNativeReference(
-					queuedFrameCapture({
-						variant: 'batch',
-						hold: null,
-						onMount: null,
-						onUnmount: null,
-					}),
-					frame,
-					{omitBackground: false},
-				),
-			);
-		}
-
-		const queuedReference = await captureNativeReference(
-			queuedFrameCapture({
-				variant: 'queued',
-				hold: null,
-				onMount: null,
-				onUnmount: null,
-			}),
-			1,
-			{omitBackground: false},
-		);
-		const stillReference = await captureNativeReference(
-			queuedFrameCapture({
-				variant: 'still',
-				hold: null,
-				onMount: null,
-				onUnmount: null,
-			}),
-			4,
-			{omitBackground: false},
-		);
 		const hold = gate();
 		const started = gate();
 		const events: string[] = [];
@@ -123,34 +112,18 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 		const results = await batch;
 		expect(results).toHaveLength(frames.length);
 		for (const [index, result] of results.entries()) {
-			const actual = await result.blob({format: 'png'});
-			expect(
-				(await compareNativePixels(references[index], actual)).mismatchedPixels,
-			).toBe(0);
+			const frame = [0, 2, 3][index];
+			expectFrame(await result.canvas(), frame, [32 + frame * 17, 80, 144]);
 		}
 
 		const queuedImage = await queuedResult;
 		if (abortQueued) expect(queuedImage).toBeNull();
 		else {
 			expect(queuedImage).not.toBeNull();
-			expect(
-				(
-					await compareNativePixels(
-						queuedReference,
-						await queuedImage!.blob({format: 'png'}),
-					)
-				).mismatchedPixels,
-			).toBe(0);
+			expectFrame(await queuedImage!.canvas(), 1, [48, 160, 67]);
 		}
 
-		expect(
-			(
-				await compareNativePixels(
-					stillReference,
-					await (await still).blob({format: 'png'}),
-				)
-			).mismatchedPixels,
-		).toBe(0);
+		expectFrame(await (await still).canvas(), 4, [176, 92, 64]);
 		expect(events).toEqual([
 			'batch mounted',
 			'batch unmounted',
@@ -162,16 +135,6 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 );
 
 test('aborting an active batch releases its turn without changing the next capture', async () => {
-	const reference = await captureNativeReference(
-		queuedFrameCapture({
-			variant: 'still',
-			hold: null,
-			onMount: null,
-			onUnmount: null,
-		}),
-		4,
-		{omitBackground: false},
-	);
 	const hold = gate();
 	const started = gate();
 	const controller = new AbortController();
@@ -207,14 +170,7 @@ test('aborting an active batch releases its turn without changing the next captu
 		expect(((await failure) as Error).message).toBe(
 			'renderFramesOnWeb() was cancelled',
 		);
-		expect(
-			(
-				await compareNativePixels(
-					reference,
-					await (await still).blob({format: 'png'}),
-				)
-			).mismatchedPixels,
-		).toBe(0);
+		expectFrame(await (await still).canvas(), 4, [176, 92, 64]);
 		expect(events).toEqual([
 			'batch unmounted',
 			'still mounted',

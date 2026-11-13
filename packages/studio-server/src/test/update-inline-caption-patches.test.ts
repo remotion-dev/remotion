@@ -1,8 +1,34 @@
 import {expect, test} from 'bun:test';
-import {CodemodsInternals} from '@remotion/codemods';
+import {
+	updateInlineCaptionPatches as updateCaptionCodemod,
+	type UpdateInlineCaptionPatchesOptions,
+} from '@remotion/codemods';
+import type {SequenceNodePath} from 'remotion';
 import {lineColumnToNodePath} from './test-utils';
 
-const {updateInlineCaptionPatches} = CodemodsInternals;
+const updateInlineCaptionPatches = ({
+	input: source,
+	nodePath,
+	patches,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+	patches: UpdateInlineCaptionPatchesOptions<{
+		rootDir: string;
+		files: Record<string, string>;
+	}>['patches'];
+}) => {
+	const result = updateCaptionCodemod({
+		project: {rootDir: '/', files: {'/Comp.tsx': source}},
+		node: {filePath: '/Comp.tsx', nodePath},
+		patches,
+	});
+	return {
+		...result,
+		output: result.changes[0]?.nextContents ?? source,
+		logLine: result.editDetails[0].logLine,
+	};
+};
 
 const input = `import {TimedCaptions} from './TimedCaptions';
 

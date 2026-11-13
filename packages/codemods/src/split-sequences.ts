@@ -17,11 +17,12 @@ export type SplitSequencesOptions<Project extends CodemodProject> = {
 	}[];
 };
 
-export const splitSequences = async <Project extends CodemodProject>({
+export const splitSequences = <Project extends CodemodProject>({
 	project,
 	splits,
-}: SplitSequencesOptions<Project>): Promise<
-	Omit<DuplicateNodesResult, 'duplicatedNodes'>
+}: SplitSequencesOptions<Project>): Omit<
+	DuplicateNodesResult,
+	'duplicatedNodes'
 > => {
 	if (splits.length === 0) {
 		throw new Error('Expected at least one sequence to split');
@@ -82,24 +83,22 @@ export const splitSequences = async <Project extends CodemodProject>({
 		groups.set(filePath, group);
 	}
 
-	const edits = await Promise.all(
-		[...groups].map(async ([filePath, group]) => ({
-			filePath,
-			...(await splitJsxSequences({
-				input: project.files[filePath],
-				splits: group.map(({node, frame, sequenceKeys, videoConfig}) => ({
-					nodePath: node.nodePath,
-					splitFrame: frame,
-					sequenceKeys: sequenceKeys ?? [
-						'from',
-						'durationInFrames',
-						'trimBefore',
-					],
-					videoConfigValues: videoConfig ?? null,
-				})),
+	const edits = [...groups].map(([filePath, group]) => ({
+		filePath,
+		...splitJsxSequences({
+			input: project.files[filePath],
+			splits: group.map(({node, frame, sequenceKeys, videoConfig}) => ({
+				nodePath: node.nodePath,
+				splitFrame: frame,
+				sequenceKeys: sequenceKeys ?? [
+					'from',
+					'durationInFrames',
+					'trimBefore',
+				],
+				videoConfigValues: videoConfig ?? null,
 			})),
-		})),
-	);
+		}),
+	}));
 	const result = getNodeEditResult({project, edits});
 	return {
 		...result,

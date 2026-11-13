@@ -13,7 +13,7 @@ export type DetachAudioOptions<Project extends CodemodProject> = {
 	node: NodeReference;
 };
 
-export const detachAudio = async <Project extends CodemodProject>({
+export const detachAudio = <Project extends CodemodProject>({
 	project,
 	node,
 }: DetachAudioOptions<Project>) => {
@@ -30,7 +30,7 @@ export const detachAudio = async <Project extends CodemodProject>({
 		throw new Error('Audio can only be detached from a Remotion video element');
 	}
 
-	const edit = await splitVideoFromAudio({
+	const edit = splitVideoFromAudio({
 		input: project.files[filePath],
 		nodePath: node.nodePath,
 	});

@@ -141,7 +141,7 @@ Run the following command to deploy your Remotion project to an S3 bucket. Pass 
 npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
-A [Serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
+A [serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
@@ -247,7 +247,7 @@ const result = await renderMediaOnLambdaAndStream({
 console.log('Render finished!', result.outputFile);
 ```
 
-Use the Serve URL from step 9. The promise resolves when the render finishes and rejects if it fails. Your video is now available in your [S3 bucket](https://s3.console.aws.amazon.com/s3/).
+Use the serve URL from step 9. The promise resolves when the render finishes and rejects if it fails. Your video is now available in your [S3 bucket](https://s3.console.aws.amazon.com/s3/).
 
 </TabItem>
 </Tabs>

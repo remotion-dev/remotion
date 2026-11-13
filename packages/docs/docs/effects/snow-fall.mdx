@@ -120,7 +120,7 @@ Random variation in wiggle frequency between flakes, from `0` to `1`. Defaults t
 
 ### `color?`
 
-CSS color of the flakes. Defaults to `"#ffffff"`.
+CSS color of the flakes. Defaults to `'#ffffff'`.
 
 The color's alpha is multiplied by `opacity`.
 
@@ -130,9 +130,9 @@ Opacity of the snow, from `0` to `1`. Defaults to `1`.
 
 ### `transferMode?`
 
-How the snow blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"composite"`.
+How the snow blends with the source. One of `'composite'` or `'lighten'`. Defaults to `'composite'`.
 
-`"composite"` places the snow over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+`'composite'` places the snow over the source. `'lighten'` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
 
 ### `compositeWithOriginal?`
 
@@ -162,6 +162,10 @@ When `true`, the effect is skipped. Defaults to `false`.
 - WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 
