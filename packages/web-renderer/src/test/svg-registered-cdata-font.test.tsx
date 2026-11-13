@@ -1,5 +1,4 @@
-import {beforeAll, expect, test} from 'vitest';
-import {server} from 'vitest/browser';
+import {expect, test} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
@@ -8,63 +7,29 @@ import {
 	registeredCdataNodes,
 	registeredCdataReady,
 	registeredCdataWrappers,
+	svgRegisteredCdataFont,
 } from './fixtures/svg-registered-cdata-font';
-import {
-	measureRegisteredCdata,
-	registeredCdataCases,
-} from './svg-registered-cdata-font-cases';
+import {testCompositions} from './utils';
 
-beforeAll(async () => {
-	await registeredCdataReady;
+test('renders registered fonts in text, CDATA and mixed nodes', async () => {
+	await testCompositions({
+		cases: registeredCdataWrappers.map((wrapper, index) => ({
+			composition: svgRegisteredCdataFont(
+				wrapper,
+				registeredCdataNodes[index],
+				'registered',
+			),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-registered-cdata-fonts',
+	});
 });
-
-test.for(registeredCdataCases)(
-	'embeds registered fonts for $wrapper CDATA frame$frame',
-	async (c) => {
-		const {images, comparisons} = await measureRegisteredCdata(c);
-		const asserted = [
-			'nativeNodes',
-			'nativeLiteral',
-			'nativeRepeat',
-			'actualNodes',
-			'actualMixed',
-			'actualLiteral',
-			'actualRepeat',
-		] as const;
-		if (
-			asserted.some((key) => comparisons[key].mismatchedPixels !== 0) ||
-			comparisons.fallbackDifference.mismatchedPixels === 0
-		) {
-			for (const [key, blob] of Object.entries(images)) {
-				let binary = '';
-				for (const byte of new Uint8Array(await blob.arrayBuffer()))
-					binary += String.fromCharCode(byte);
-				await server.commands.writeFile(
-					`src/test/__screenshots__/native-pixel-failures/svg-registered-cdata/${server.browser}/${c.wrapper}-${c.frame}-${key}.png`,
-					btoa(binary),
-					'base64',
-				);
-			}
-
-			await server.commands.writeFile(
-				`src/test/__screenshots__/native-pixel-failures/svg-registered-cdata/${server.browser}/${c.wrapper}-${c.frame}.json`,
-				JSON.stringify(comparisons, null, 2),
-			);
-		}
-
-		for (const key of asserted) {
-			const value = comparisons[key];
-			expect(value.mismatchedPixels, key).toBe(0);
-			expect(value.maxChannelDelta, key).toBe(0);
-		}
-
-		expect(comparisons.fallbackDifference.mismatchedPixels).toBeGreaterThan(0);
-	},
-);
 
 test.for(registeredCdataWrappers.map((wrapper) => ({wrapper})))(
 	'preserves source nodes styles faces and cache for $wrapper CDATA',
 	async ({wrapper}) => {
+		await registeredCdataReady;
 		const svg = (nodes: 'text' | 'cdata' | 'mixed') =>
 			new DOMParser().parseFromString(
 				registeredCdataMarkup(wrapper, nodes, 0, 'registered'),

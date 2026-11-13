@@ -1,71 +1,24 @@
-import {beforeAll, expect, test} from 'vitest';
+import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
-import {objectPosition, objectPositionMath} from './fixtures/object-position';
+import {objectPositionMath} from './fixtures/object-position';
 import '../symbol-dispose';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
 	createReplacedSamplerSibling,
 	createSvgSamplerInvariant,
 } from './fixtures/replaced-element-sampler-controls';
-import {
-	captureNativeReference,
-	warmUpNativeReferences,
-	compareNativePixels,
-	savePixelEvidence,
-} from './native-reference';
+import {compareNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-// Warm up the same fixtures the native comparisons below capture.
-beforeAll(async () => {
-	if (navigator.userAgent.includes('Firefox')) {
-		return;
-	}
-
-	await warmUpNativeReferences(
-		navigator.userAgent.includes('Chrome')
-			? [objectPosition, objectPositionMath, replacedElementPixelated]
-			: [replacedElementPixelated],
-	);
-}, 60_000);
-
-// KINO-7764: the general object-position fixtures still differ in WebKit.
-// The bounded integer pixelated fixture qualifies Chromium and WebKit.
-test
-	.skipIf(navigator.userAgent.includes('Firefox'))
-	.for(
-		[objectPosition, objectPositionMath, replacedElementPixelated].flatMap(
-			(fixture) => [0, 1].map((frame) => ({fixture, frame})),
+test('renders calculated object positions and pixelated images', async () => {
+	await testCompositions({
+		cases: [objectPositionMath, replacedElementPixelated].map(
+			(composition) => ({composition, frame: 1}),
 		),
-	)(
-	'$fixture.id matches native pixels at frame $frame',
-	async ({fixture, frame}, t) => {
-		if (
-			!navigator.userAgent.includes('Chrome') &&
-			fixture !== replacedElementPixelated
-		) {
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(fixture, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				composition: fixture,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const result = await compareNativePixels(reference, actual);
-		if (result.mismatchedPixels > 0) {
-			await savePixelEvidence(reference, `${fixture.id}-reference-${frame}`);
-			await savePixelEvidence(actual, `${fixture.id}-actual-${frame}`);
-			await savePixelEvidence(result.diff, `${fixture.id}-diff-${frame}`);
-		}
-
-		expect(result.mismatchedPixels).toBe(0);
-	},
-);
+		columns: 1,
+		testId: 'object-position-math-and-pixelated',
+	});
+});
 
 // KINO-7764: a pixelated replaced element must not change the next sibling sampler.
 test('restores sampling before the next replaced element', async () => {

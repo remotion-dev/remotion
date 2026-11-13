@@ -13,6 +13,12 @@ It uses visual snapshot testing using vitest. A test file can for example be exe
 bunx vitest src/test/video.test.tsx
 ```
 
+## Keep the suite small
+
+Prefer extending an existing fixture grid or using `testCompositions` from `utils.ts` to put related cases into one snapshot. Use a representative frame and scale instead of multiplying every case across frames, scales, opacity variants, and literal controls.
+
+Use the existing `testImage` snapshot methodology by default. Do not add native screenshot comparisons, warm-up captures, fallback renders, or success-path PNG evidence unless the user specifically requests that methodology. Keep parser and state assertions cheap and retain extra fixtures in Studio for manual investigation.
+
 ## Example
 
 Each test is powered by a fixture in `packages/web-renderer/src/test/fixtures`.
