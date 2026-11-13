@@ -1,190 +1,170 @@
 ---
 name: display-captions
-description: Displaying captions in Remotion with TikTok-style pages and word highlighting
+description: Displaying captions in Remotion using the Basic Captions element
 metadata:
-  tags: captions, subtitles, display, tiktok, highlight
+  tags: captions, subtitles, display, element
 ---
 
 # Displaying captions in Remotion
 
-This guide explains how to display captions in Remotion, assuming you already have captions in the [`Caption`](https://www.remotion.dev/docs/captions/caption) format.
+This guide explains how to display captions in Remotion, assuming you already have captions in the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) format.
 
 ## Prerequisites
 
 Read [Transcribing audio](transcribe-captions.md) for how to generate captions.
 
-First, the [`@remotion/captions`](https://www.remotion.dev/docs/captions) package needs to be installed.
+First, the [`@remotion/captions`](https://www.remotion.dev/docs/captions.md) package needs to be installed.
 If it is not installed, use the following command:
 
 ```bash
-npx remotion add @remotion/captions
+npx remotion add @remotion/captions # If project uses npm
+bunx remotion add @remotion/captions # If project uses bun
+yarn remotion add @remotion/captions # If project uses yarn
+pnpm exec remotion add @remotion/captions # If project uses pnpm
 ```
 
-## Fetching captions
+## Adding the Basic Captions element
 
-First, fetch your captions JSON file. Use [`useDelayRender()`](https://www.remotion.dev/docs/use-delay-render) to hold the render until the captions are loaded:
+Use the [Basic Captions](https://www.remotion.dev/elements/captions/basic-captions) element to display captions.
 
-```tsx
-import { useState, useEffect, useCallback } from "react";
-import { AbsoluteFill, staticFile, useDelayRender } from "remotion";
-import type { Caption } from "@remotion/captions";
+Alternatives are available at [Remotion Captions Elements](https://www.remotion.dev/elements/captions), but use Basic Captions unless there are more precise specifications.
 
-export const MyComponent: React.FC = () => {
-  const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const { delayRender, continueRender, cancelRender } = useDelayRender();
-  const [handle] = useState(() => delayRender());
+Fetch its source code from https://www.remotion.dev/elements/captions/basic-captions.md and save it as `basic-captions.element.tsx` in the project unchanged.
 
-  const fetchCaptions = useCallback(async () => {
-    try {
-      // Assuming captions.json is in the public/ folder.
-      const response = await fetch(staticFile("captions123.json"));
-      const data = await response.json();
-      setCaptions(data);
-      continueRender(handle);
-    } catch (e) {
-      cancelRender(e);
-    }
-  }, [continueRender, cancelRender, handle]);
+## One component per captioned source
 
-  useEffect(() => {
-    fetchCaptions();
-  }, [fetchCaptions]);
+For editable captioned footage, define a source-specific component with no props.
+Put the `<Video>` source and the full transcript inline inside it, with the
+transcript on `<BasicCaptions captions={[...]}>`. Export the component through
+`Interactive.create()` with `layout: 'absolute-fill'`.
 
-  if (!captions) {
-    return null;
-  }
+Keep caption timestamps relative to the original media file, including words
+outside the current edit. If the transcript was generated as JSON, copy it into
+the inner `<BasicCaptions>` node once.
+
+Reuse that exported component for every cut or repeat of the same source.
+Put `from`, `trimBefore`, `durationInFrames`, and `playbackRate` on its instances.
+The wrapper applies one clock to both video and captions, so Studio can move,
+trim, split, or retime a clip without duplicating or rewriting its transcript.
+Keep the inner video and captions free of the cut's timing props.
+
+The Caption editor writes back to the inline array on the inner `<BasicCaptions>`
+node. Editing that transcript updates all instances of the source component.
+The reusable caption renderer accepts a `captions` prop; the source-specific
+wrapper owns the data instead of taking `src` or `captions` props on every cut.
+
+For another source file, define another source-specific component with its own
+inline transcript.
+
+## Example
+
+Give the caption area a width and position it over the video. In this
+1920px-wide composition, the 900px caption area is centered by translating it
+`(1920 - 900) / 2 = 510` pixels from the left:
+
+```tsx title="src/MyComposition.tsx"
+import { Video } from "@remotion/media";
+import { Interactive, Track, staticFile, useVideoConfig } from "remotion";
+import { BasicCaptions } from "./basic-captions.element";
+
+const InterviewInner: React.FC = () => {
+  return (
+    <>
+      <Video
+        name="Interview footage"
+        src={staticFile("interview.mp4")}
+        objectFit="cover"
+        style={{ width: "100%", height: "100%" }}
+      />
+      <BasicCaptions
+        name="Interview captions"
+        width={900}
+        style={{
+          position: "absolute",
+          bottom: 120,
+          translate: "510px 0px",
+        }}
+        captions={[
+          {
+            text: "Hello",
+            startMs: 2000,
+            endMs: 3000,
+            timestampMs: 2500,
+            confidence: null,
+          },
+          {
+            text: " world",
+            startMs: 3000,
+            endMs: 4000,
+            timestampMs: 3500,
+            confidence: null,
+          },
+          {
+            text: " again",
+            startMs: 4000,
+            endMs: 5000,
+            timestampMs: 4500,
+            confidence: null,
+          },
+        ]}
+      />
+    </>
+  );
+};
+
+export const Interview = Interactive.create({
+  Component: InterviewInner,
+  layout: "absolute-fill",
+});
+
+export const MyComposition: React.FC = () => {
+  const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill>
-      {/* Render captions here */}
-    </AbsoluteFill>
+    <Track name="Interview clips">
+      <Interview
+        name="Opening"
+        trimBefore={2 * fps}
+        durationInFrames={3 * fps}
+      />
+      <Interview
+        name="Faster repeat"
+        from={3 * fps}
+        trimBefore={2 * fps}
+        durationInFrames={3 * fps}
+        playbackRate={1.5}
+      />
+    </Track>
   );
 };
 ```
 
-## Creating pages
+```tsx title="src/Root.tsx"
+import { Composition } from "remotion";
+import { MyComposition } from "./MyComposition";
 
-Use `createTikTokStyleCaptions()` to group captions into pages. The `combineTokensWithinMilliseconds` option controls how many words appear at once:
-
-```tsx
-import { useMemo } from "react";
-import { createTikTokStyleCaptions } from "@remotion/captions";
-import type { Caption } from "@remotion/captions";
-
-// How often captions should switch (in milliseconds)
-// Higher values = more words per page
-// Lower values = fewer words (more word-by-word)
-const SWITCH_CAPTIONS_EVERY_MS = 1200;
-
-const { pages } = useMemo(() => {
-  return createTikTokStyleCaptions({
-    captions,
-    combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
-  });
-}, [captions]);
+export const RemotionRoot = () => {
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComposition}
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+  );
+};
 ```
+
+The example plays source seconds 2–5 twice: three seconds at normal speed,
+then two seconds at 1.5× speed. Both instances use the same inline transcript.
+`durationInFrames` selects a range of source frames; the instance occupies
+`durationInFrames / playbackRate` frames in its parent timeline.
+Update the composition duration when changing the total timeline length.
 
 If a caption has `pageBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
 
-## Rendering with Sequences
-
-Map over the pages and render each one in a `<Sequence>`. Calculate the start frame and duration from the page timing:
-
-```tsx
-import { Sequence, useVideoConfig, AbsoluteFill } from "remotion";
-import type { TikTokPage } from "@remotion/captions";
-
-const CaptionedContent: React.FC = () => {
-  const { fps } = useVideoConfig();
-
-  return (
-    <AbsoluteFill>
-      {pages.map((page, index) => {
-        const nextPage = pages[index + 1] ?? null;
-        const startFrame = (page.startMs / 1000) * fps;
-        const endFrame = Math.min(
-          nextPage ? (nextPage.startMs / 1000) * fps : Infinity,
-          startFrame + (SWITCH_CAPTIONS_EVERY_MS / 1000) * fps,
-        );
-        const durationInFrames = endFrame - startFrame;
-
-        if (durationInFrames <= 0) {
-          return null;
-        }
-
-        return (
-          <Sequence
-            key={index}
-            from={startFrame}
-            durationInFrames={durationInFrames}
-          >
-            <CaptionPage page={page} />
-          </Sequence>
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
-```
-
 ## White-space preservation
 
-The captions are whitespace sensitive. You should include spaces in the `text` field before each word. Use `whiteSpace: "pre"` to preserve the whitespace in the captions.
-
-## Separate component for captions
-
-Put captioning logic in a separate component.  
-Make a new file for it.
-
-## Word highlighting
-
-A caption page contains `tokens` which you can use to highlight the currently spoken word:
-
-```tsx
-import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
-import type { TikTokPage } from "@remotion/captions";
-
-const HIGHLIGHT_COLOR = "#39E508";
-
-const CaptionPage: React.FC<{ page: TikTokPage }> = ({ page }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Current time relative to the start of the sequence
-  const currentTimeMs = (frame / fps) * 1000;
-  // Convert to absolute time by adding the page start
-  const absoluteTimeMs = page.startMs + currentTimeMs;
-
-  return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <div style={{ fontSize: 80, fontWeight: "bold", whiteSpace: "pre" }}>
-        {page.tokens.map((token, tokenIndex) => {
-          const isActive =
-            token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
-
-          return (
-            <span
-              key={`${token.fromMs}-${tokenIndex}`}
-              style={{ color: isActive ? HIGHLIGHT_COLOR : "white" }}
-            >
-              {token.text}
-            </span>
-          );
-        })}
-      </div>
-    </AbsoluteFill>
-  );
-};
-```
-
-## Display captions alongside video content
-
-By default, put the captions alongside the video content, so the captions are in sync.  
-For each video, make a new captions JSON file.
-
-```tsx
-<AbsoluteFill>
-  <Video src={staticFile("video.mp4")} />
-  <CaptionPage page={page} />
-</AbsoluteFill>
-```
+The captions are whitespace sensitive. You should include spaces in the `text` field before each word.
