@@ -12,29 +12,25 @@ export type DeleteNodesOptions<Project extends CodemodProject> = {
 	nodes: NodeReference[];
 };
 
-export const deleteNodes = async <Project extends CodemodProject>({
+export const deleteNodes = <Project extends CodemodProject>({
 	project,
 	nodes,
-}: DeleteNodesOptions<Project>): Promise<
-	CodemodNodeResult & {
-		editDetails: {
-			filePath: string;
-			formatted: boolean;
-			nodeLabels: string[];
-			logLines: number[];
-		}[];
-	}
-> => {
+}: DeleteNodesOptions<Project>): CodemodNodeResult & {
+	editDetails: {
+		filePath: string;
+		formatted: boolean;
+		nodeLabels: string[];
+		logLines: number[];
+	}[];
+} => {
 	const groups = groupNodeReferencesByFile({project, nodes});
-	const edits = await Promise.all(
-		[...groups].map(async ([filePath, nodePaths]) => ({
-			filePath,
-			...(await deleteJsxNodesFromSource({
-				input: project.files[filePath],
-				nodePaths,
-			})),
-		})),
-	);
+	const edits = [...groups].map(([filePath, nodePaths]) => ({
+		filePath,
+		...deleteJsxNodesFromSource({
+			input: project.files[filePath],
+			nodePaths,
+		}),
+	}));
 	return {
 		...getNodeEditResult({project, edits}),
 		editDetails: edits.map(({filePath, formatted, nodeLabels, logLines}) => ({

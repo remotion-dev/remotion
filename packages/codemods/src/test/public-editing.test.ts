@@ -76,7 +76,7 @@ const findNode = (
 	return node;
 };
 
-test('discover, inspect, edit, animate, and remove JSX through the public API', async () => {
+test('discover, inspect, edit, animate, and remove JSX through the public API', () => {
 	const project = makeProject();
 	expect(
 		resolveCompositionComponent({
@@ -102,7 +102,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 	expect(getChangedContents(changed, filePath)).toContain(
 		'const unrelated  =  {value:"keep"};',
 	);
-	const animated = await updateNodeKeyframes({
+	const animated = updateNodeKeyframes({
 		project: afterChange,
 		node: changed.updatedNode,
 		updates: [
@@ -141,7 +141,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 		afterAnimation,
 		withoutTitle.changes,
 	);
-	const deleted = await deleteNodes({
+	const deleted = deleteNodes({
 		project: afterRemoveTitle,
 		nodes: [withoutTitle.updatedNode],
 	});
@@ -156,7 +156,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 	).toBe(true);
 });
 
-test('insert media and components, reorder copies, and delete nodes across files', async () => {
+test('insert media and components, reorder copies, and delete nodes across files', () => {
 	const project = makeProject();
 	const image = createElement({
 		component: 'Img',
@@ -207,7 +207,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		'<Title text="A title" />',
 	);
 	const afterAdd = applyCodemodChanges(afterMedia, added.changes);
-	const duplicated = await duplicateNodes({
+	const duplicated = duplicateNodes({
 		project: afterAdd,
 		nodes: [added.insertedNode, findNode(afterAdd, 'div', 'src/Title.tsx')],
 	});
@@ -220,7 +220,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		(node) => node.filePath === filePath,
 	)!;
 	const afterDuplicate = applyCodemodChanges(afterAdd, duplicated.changes);
-	const reordered = await reorderNodes({
+	const reordered = reorderNodes({
 		project: afterDuplicate,
 		nodes: [copiedTitle],
 		target: added.insertedNode,
@@ -236,7 +236,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		getChangedContents(updatedCopy, filePath).indexOf('Copied title'),
 	).toBeLessThan(getChangedContents(updatedCopy, filePath).indexOf('A title'));
 	const afterUpdate = applyCodemodChanges(afterReorder, updatedCopy.changes);
-	const deleted = await deleteNodes({
+	const deleted = deleteNodes({
 		project: afterUpdate,
 		nodes: [
 			updatedCopy.updatedNode,
@@ -255,11 +255,11 @@ test('insert media and components, reorder copies, and delete nodes across files
 	expect(Object.keys(afterDelete.files)).toEqual(Object.keys(project.files));
 });
 
-test('split timeline media and detach audio', async () => {
+test('split timeline media and detach audio', () => {
 	const project = makeProject();
 	project.files[filePath] = `import {Video, Audio} from '@remotion/media';
 export const VideoComposition = () => <><Video src="video.mp4" from={10} durationInFrames={80} trimBefore={5}/><Audio src="audio.mp3" from={0} durationInFrames={90}/></>;`;
-	const split = await splitSequences({
+	const split = splitSequences({
 		project,
 		splits: [
 			{node: findNode(project, 'Video'), frame: 40},
@@ -280,7 +280,7 @@ export const VideoComposition = () => <><Video src="video.mp4" from={10} duratio
 		durationInFrames: {codeValue: 50},
 		trimBefore: {codeValue: 35},
 	});
-	const detached = await detachAudio({
+	const detached = detachAudio({
 		project: afterSplit,
 		node: secondVideo,
 	});
@@ -457,10 +457,10 @@ test('manage composition registrations and nested folders without changing compo
 	expect(original.files[compositionFile]).not.toContain('Vertical');
 });
 
-test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
+test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	const project = makeProject();
 	const node = findNode(project, 'AbsoluteFill');
-	const first = await addEffect({
+	const first = addEffect({
 		project,
 		node,
 		importName: 'blur',
@@ -468,7 +468,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		props: {radius: 1},
 	});
 	const afterFirst = applyCodemodChanges(project, first.changes);
-	const second = await addEffect({
+	const second = addEffect({
 		project: afterFirst,
 		node: first.insertedEffect,
 		importName: 'tint',
@@ -476,7 +476,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		props: {color: 'red', opacity: 1},
 	});
 	const afterSecond = applyCodemodChanges(afterFirst, second.changes);
-	const duplicate = await duplicateEffects({
+	const duplicate = duplicateEffects({
 		project: afterSecond,
 		effects: [first.insertedEffect, second.insertedEffect],
 	});
@@ -484,7 +484,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		[1, 3],
 	);
 	const afterDuplicate = applyCodemodChanges(afterSecond, duplicate.changes);
-	const reordered = await reorderEffects({
+	const reordered = reorderEffects({
 		project: afterDuplicate,
 		effects: [duplicate.insertedEffects[1], duplicate.insertedEffects[0]],
 		toIndex: 0,
@@ -493,7 +493,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		1, 0,
 	]);
 	const afterReorder = applyCodemodChanges(afterDuplicate, reordered.changes);
-	const edited = await updateEffectProps({
+	const edited = updateEffectProps({
 		project: afterReorder,
 		effect: reordered.updatedEffects[0],
 		updates: [
@@ -528,7 +528,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	expect(edited.results[2].output).toContain('opacity: 0.75');
 	expect(edited.results[2].output).toBe(getChangedContents(edited, filePath));
 	const afterEdit = applyCodemodChanges(afterReorder, edited.changes);
-	const animated = await updateEffectKeyframes({
+	const animated = updateEffectKeyframes({
 		project: afterEdit,
 		effect: edited.updatedEffect,
 		updates: [
@@ -548,7 +548,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		callee: 'tint',
 		props: {opacity: {status: 'keyframed'}},
 	});
-	const deleted = await deleteEffects({
+	const deleted = deleteEffects({
 		project: afterAnimation,
 		effects: [
 			animated.updatedEffect,
@@ -570,7 +570,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	expect(project.files[filePath]).not.toContain('effects=');
 });
 
-test('reject unsupported expressions and invalid edits atomically', async () => {
+test('reject unsupported expressions and invalid edits atomically', () => {
 	const project = makeProject();
 	project.files[filePath] =
 		'export const Video = ({timing, style}) => <div {...timing} style={style}>Hello</div>;';
@@ -601,20 +601,20 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 			metadata: {fps: -1},
 		}),
 	).toThrow('positive');
-	await expect(
+	expect(() =>
 		deleteNodes({
 			project,
 			nodes: [node, {filePath: 'missing.tsx', nodePath: []}],
 		}),
-	).rejects.toThrow();
-	await expect(
+	).toThrow();
+	expect(() =>
 		reorderNodes({
 			project,
 			nodes: [node],
 			target: findNode(project, 'Composition', compositionFile),
 			position: 'before',
 		}),
-	).rejects.toThrow('same file');
+	).toThrow('same file');
 	expect(project.files).toEqual(original);
 });
 
@@ -786,7 +786,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 	});
 });
 
-test('nested copies return root references and insertion preserves relative keys under a project root', async () => {
+test('nested copies return root references and insertion preserves relative keys under a project root', () => {
 	const original = {...makeProject(), rootDir: '/project'};
 	const media = addElement({
 		project: original,
@@ -814,7 +814,7 @@ test('nested copies return root references and insertion preserves relative keys
 	expect(media.insertedNode.filePath).toBe(filePath);
 	const afterMedia = applyCodemodChanges(original, media.changes);
 	expect(Object.keys(afterMedia.files)).toEqual(Object.keys(original.files));
-	const copy = await duplicateNodes({
+	const copy = duplicateNodes({
 		project: afterMedia,
 		nodes: [media.insertedNode],
 	});
@@ -823,13 +823,13 @@ test('nested copies return root references and insertion preserves relative keys
 		copy.nodePathRemappings.filter((entry) => entry.oldNodePath === null),
 	).toHaveLength(2);
 	const afterCopy = applyCodemodChanges(afterMedia, copy.changes);
-	const split = await splitSequences({
+	const split = splitSequences({
 		project: afterCopy,
 		splits: [{node: copy.insertedNodes[0], frame: 30}],
 	});
 	expect(split.insertedNodes).toHaveLength(1);
 	const afterSplit = applyCodemodChanges(afterCopy, split.changes);
-	const deleted = await deleteNodes({
+	const deleted = deleteNodes({
 		project: afterSplit,
 		nodes: split.insertedNodes,
 	});
@@ -841,7 +841,7 @@ test('nested copies return root references and insertion preserves relative keys
 	).toHaveLength(2);
 });
 
-test('reject ambiguous registration roots and unsupported splitting or audio detachment', async () => {
+test('reject ambiguous registration roots and unsupported splitting or audio detachment', () => {
 	const project = makeProject();
 	project.files[compositionFile] +=
 		'\nconst AnotherRoot = () => <Composition id="Other" component={Video} />;';
@@ -855,10 +855,10 @@ test('reject ambiguous registration roots and unsupported splitting or audio det
 		}),
 	).toThrow('single JSX component');
 	const node = findNode(project, 'div');
-	await expect(
-		splitSequences({project, splits: [{node, frame: 10}]}),
-	).rejects.toThrow('Only Remotion');
-	await expect(detachAudio({project, node})).rejects.toThrow('Remotion video');
+	expect(() => splitSequences({project, splits: [{node, frame: 10}]})).toThrow(
+		'Only Remotion',
+	);
+	expect(() => detachAudio({project, node})).toThrow('Remotion video');
 });
 
 test('node discovery and edits use original source locations with tabs and CRLF', () => {

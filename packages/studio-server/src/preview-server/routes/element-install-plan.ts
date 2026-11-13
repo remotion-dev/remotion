@@ -136,7 +136,7 @@ export const getElementInstallPlan = async ({
 
 	const location =
 		destination.type === 'current-composition'
-			? await resolveCompositionComponentWithFile({
+			? resolveCompositionComponentWithFile({
 					remotionRoot,
 					compositionFile: destination.compositionFile,
 					compositionId: destination.compositionId,

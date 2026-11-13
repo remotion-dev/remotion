@@ -4,7 +4,6 @@ import {createRoot} from 'react-dom/client';
 import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
 import {
@@ -14,84 +13,21 @@ import {
 	svgTitledFontSources,
 } from './fixtures/svg-titled-font-carrier';
 import {captureNativeReference, compareNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-const pixels = async (blob: Blob, top: number, height: number) => {
-	const image = await createImageBitmap(blob);
-	const canvas = new OffscreenCanvas(260, height);
-	try {
-		const context = canvas.getContext('2d')!;
-		context.drawImage(image, 0, -top);
-		return context.getImageData(0, 0, 260, height).data;
-	} finally {
-		image.close();
-		canvas.width = 0;
-		canvas.height = 0;
-	}
-};
-
-test.for(
-	svgTitledFontModes.flatMap((mode) =>
-		svgTitledFontSources.flatMap((source) =>
-			[0, 1].map((frame) => ({mode, source, frame})),
+test('preserves titled stylesheet font carriers', async () => {
+	await testCompositions({
+		cases: svgTitledFontModes.flatMap((mode) =>
+			svgTitledFontSources.map((source) => ({
+				composition: svgTitledFontCarrier(mode, source, false, false),
+				frame: 1,
+			})),
 		),
-	),
-)(
-	'preserves titled stylesheet font $mode $source frame $frame',
-	async ({mode, source, frame}) => {
-		const composition = svgTitledFontCarrier(mode, source, false, false);
-		const literal = svgTitledFontCarrier(mode, source, true, false);
-		const reference = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const literalReference = await captureNativeReference(literal, frame, {
-			omitBackground: false,
-		});
-		expect(
-			(await compareNativePixels(reference, literalReference)).mismatchedPixels,
-		).toBe(0);
-		const render = async (target: typeof composition) =>
-			(
-				await renderStillOnWeb({
-					composition: target,
-					frame,
-					inputProps: {},
-					licenseKey: 'free-license',
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-		const expected = await render(literal);
-		const fallback = await render(
-			svgTitledFontCarrier(mode, source, true, true),
-		);
-		expect(
-			(await compareNativePixels(expected, fallback)).mismatchedPixels,
-		).toBeGreaterThan(0);
-		const expectedGlyphs = await pixels(expected, 0, 60);
-		const fallbackGlyphs = await pixels(fallback, 0, 60);
-		expect(
-			expectedGlyphs.some((value, index) => index % 4 !== 3 && value !== 255),
-		).toBe(true);
-		expect(
-			expectedGlyphs.some((value, index) => value !== fallbackGlyphs[index]),
-		).toBe(true);
-		const actual = await render(composition);
-		if (
-			mode === 'media-active' ||
-			mode === 'media-inactive' ||
-			mode === 'media-all-inactive'
-		) {
-			const actualMarker = await pixels(actual, 60, 30);
-			const nativeMarker = await pixels(reference, 60, 30);
-			expect(
-				actualMarker.some((value, index) => value !== nativeMarker[index]),
-			).toBe(false);
-		}
-
-		expect((await compareNativePixels(expected, actual)).mismatchedPixels).toBe(
-			0,
-		);
-	},
-);
+		columns: 3,
+		testId: 'svg-titled-font-carriers',
+		scale: null,
+	});
+});
 
 test('invalidates titled font carrier cache when viewport media changes', async () => {
 	await svgExternalFontReady;

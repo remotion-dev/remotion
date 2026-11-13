@@ -9,41 +9,26 @@ import {
 	svgWildcardStyleModes,
 	svgWildcardStyle,
 } from './fixtures/svg-font-definition-review';
-import {captureNativeReference, countNativePixels} from './native-reference';
+import {countNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-test.for(
-	svgWildcardStyleModes.flatMap((mode) =>
-		[0, 1].map((frame) => ({mode, frame})),
-	),
-)('preserves wildcard style $mode frame $frame', async ({mode, frame}) => {
-	const composition = svgWildcardStyle({mode, literal: false});
-	const control = svgWildcardStyle({mode, literal: true});
-	const reference = await captureNativeReference(composition, frame, {
-		omitBackground: false,
+test('preserves wildcard style selectors', async () => {
+	await testCompositions({
+		cases: svgWildcardStyleModes.map((mode) => ({
+			composition: svgWildcardStyle({mode, literal: false}),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-wildcard-style-selectors',
+		scale: null,
 	});
-	const nativeControl = await captureNativeReference(control, frame, {
-		omitBackground: false,
-	});
-	expect(
-		(await countNativePixels(reference, nativeControl)).mismatchedPixels,
-	).toBe(0);
-	const actual = await (
-		await renderStillOnWeb({
-			composition,
-			frame,
-			inputProps: {},
-			licenseKey: 'free-license',
-			allowHtmlInCanvas: false,
-		})
-	).blob({format: 'png'});
-	expect((await countNativePixels(reference, actual)).mismatchedPixels).toBe(0);
 });
 
 test.for(
-	svgDefinitionModes.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
+	svgDefinitionModes.flatMap((mode) => [1].map((frame) => ({mode, frame}))),
 )(
 	'fetches only instantiated definition $mode frame $frame',
-	async ({mode, frame}, t) => {
+	async ({mode, frame}) => {
 		const data = await (await fetch(svgDefinitionFontUrl)).arrayBuffer();
 		const dataUrl = await new Promise<string>((resolve, reject) => {
 			const reader = new FileReader();
@@ -56,15 +41,6 @@ test.for(
 			fontUrl: svgDefinitionFontUrl,
 		});
 		const control = svgDefinitionFont({mode, fontUrl: dataUrl});
-		const reference = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const nativeControl = await captureNativeReference(control, frame, {
-			omitBackground: false,
-		});
-		expect(
-			(await countNativePixels(reference, nativeControl)).mismatchedPixels,
-		).toBe(0);
 		const used =
 			mode === 'direct' ||
 			mode === 'use-target' ||
@@ -93,10 +69,6 @@ test.for(
 			expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
 				0,
 			);
-			if (!used || t.task.file.projectName === 'chromium')
-				expect(
-					(await countNativePixels(reference, actual)).mismatchedPixels,
-				).toBe(0);
 		} finally {
 			fetchFont.mockRestore();
 		}

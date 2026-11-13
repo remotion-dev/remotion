@@ -8,7 +8,7 @@ crumb: 'Lambda API'
 
 # deploySiteFromBundle()<AvailableFrom v="4.0.497" />
 
-Uploads a local [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket.
+Uploads a local [Remotion bundle](/docs/terminology/bundle) to an S3 bucket.
 
 Use this API together with [`bundle()`](/docs/bundle) to separate building from deployment. This allows an artifact to be built once and deployed in a later Docker or CI stage. Before calling it, retrieve a bucket using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
 
@@ -140,7 +140,7 @@ A promise resolving to an object with the following fields:
 
 ### `serveUrl`
 
-The Serve URL of the deployed site, for example `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+The serve URL of the deployed site, for example `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
 
 Use it with [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), or the Lambda render CLI commands.
 

@@ -96,6 +96,13 @@ export const TableOfContents: React.FC = () => {
 				<strong>getNodes()</strong>
 				<div>Lists the nodes in a project file in source order.</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/insert-basic-captions">
+				<strong>insertBasicCaptions()</strong>
+				<div>
+					Inserts captions beside an audio or video node and preserves its
+					timing. Creates a reusable Basic captions component file when needed.
+				</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/move-composition">
 				<strong>moveComposition()</strong>
 				<div>
@@ -106,6 +113,13 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/codemods/move-folder">
 				<strong>moveFolder()</strong>
 				<div>Moves a folder and its contents within a registration file.</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/paste-effects">
+				<strong>pasteEffects()</strong>
+				<div>
+					Copies effect descriptions onto a node, adding their imports and
+					animation helpers.
+				</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/rename-composition">
 				<strong>renameComposition()</strong>
@@ -124,6 +138,19 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/codemods/reorder-nodes">
 				<strong>reorderNodes()</strong>
 				<div>Moves JSX siblings as one ordered group.</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/replace-jsx-element-with-source">
+				<strong>replaceJsxElementWithSource()</strong>
+				<div>
+					Replaces a JSX node with saved source and restores its imports.
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/replace-node-child">
+				<strong>replaceNodeChild()</strong>
+				<div>
+					Replaces a node&apos;s single JSX child with an element and records
+					the original source and imports for restoration.
+				</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/resolve-composition-component">
 				<strong>resolveCompositionComponent()</strong>
@@ -174,6 +201,13 @@ export const TableOfContents: React.FC = () => {
 				<strong>updateEffectProps()</strong>
 				<div>
 					Updates explicit properties in an inline effect configuration.
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/update-inline-caption-patches">
+				<strong>updateInlineCaptionPatches()</strong>
+				<div>
+					Changes selected fields in an inline captions array, or splits a
+					caption, while preserving surrounding source formatting.
 				</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/update-multiple-node-props">

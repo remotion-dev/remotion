@@ -18,7 +18,7 @@ export type {
 export const {enumerateEffectArrayElements}: typeof CodemodsInternals =
 	CodemodsInternals;
 
-export const updateEffectProps = async ({
+export const updateEffectProps = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
@@ -30,8 +30,8 @@ export const updateEffectProps = async ({
 	effectIndex: number;
 	update: EffectPropUpdate;
 	schema: InteractivitySchema;
-}): Promise<UpdateEffectPropsResult> => {
-	const result = await updateEffectPropsInProject({
+}): UpdateEffectPropsResult => {
+	const result = updateEffectPropsInProject({
 		project: {files: {'source.tsx': input}, rootDir: '/'},
 		effect: {filePath: 'source.tsx', nodePath: sequenceNodePath, effectIndex},
 		updates: [update],

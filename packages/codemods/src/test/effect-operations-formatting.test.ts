@@ -40,7 +40,7 @@ const amountSchema = {
 	amount: {type: 'number', default: 1, hiddenFromList: false},
 } satisfies InteractivitySchema;
 
-test('effect operations preserve unrelated source without calling Prettier', async () => {
+test('effect operations preserve unrelated source without calling Prettier', () => {
 	let output = `import { AbsoluteFill } from 'remotion'
 import { brightness } from '@remotion/effects/brightness'
 
@@ -52,65 +52,53 @@ export const Comp = () => (
 `;
 	const sequenceNodePath = getNodePathAtLine(output, 7);
 
-	output = (
-		await addEffect({
-			input: output,
-			sequenceNodePath,
-			effectName: 'tint',
-			effectImportPath: '@remotion/effects/tint',
-			effectConfig: {color: 'red'},
-			formatFile,
-		})
-	).output;
-	output = (
-		await duplicateEffects({
-			input: output,
-			effects: [{sequenceNodePath, effectIndex: 0}],
-			formatFile,
-		})
-	).output;
-	output = (
-		await reorderEffects({
-			input: output,
-			sequenceNodePath,
-			fromIndices: [2],
-			toIndex: 0,
-			formatFile,
-		})
-	).output;
-	output = (
-		await updateEffectProps({
-			input: output,
-			sequenceNodePath,
-			effectIndex: 1,
-			update: {key: 'amount', value: 2, defaultValue: null},
-			schema: amountSchema,
-			formatFile,
-		})
-	).output;
-	output = (
-		await pasteEffects({
-			input: output,
-			targetSequenceNodePath: sequenceNodePath,
-			type: 'effects-additive',
-			effects: [
-				{
-					callee: 'blur',
-					importPath: '@remotion/effects/blur',
-					params: {radius: {type: 'static', value: 12}},
-				},
-			],
-			insertAtIndices: null,
-			formatFile,
-		})
-	).output;
-	output = (
-		await deleteEffects({
-			input: output,
-			effects: [{type: 'single-effect', sequenceNodePath, effectIndex: 2}],
-			formatFile,
-		})
-	).output;
+	output = addEffect({
+		input: output,
+		sequenceNodePath,
+		effectName: 'tint',
+		effectImportPath: '@remotion/effects/tint',
+		effectConfig: {color: 'red'},
+		formatFile,
+	}).output;
+	output = duplicateEffects({
+		input: output,
+		effects: [{sequenceNodePath, effectIndex: 0}],
+		formatFile,
+	}).output;
+	output = reorderEffects({
+		input: output,
+		sequenceNodePath,
+		fromIndices: [2],
+		toIndex: 0,
+		formatFile,
+	}).output;
+	output = updateEffectProps({
+		input: output,
+		sequenceNodePath,
+		effectIndex: 1,
+		update: {key: 'amount', value: 2, defaultValue: null},
+		schema: amountSchema,
+		formatFile,
+	}).output;
+	output = pasteEffects({
+		input: output,
+		targetSequenceNodePath: sequenceNodePath,
+		type: 'effects-additive',
+		effects: [
+			{
+				callee: 'blur',
+				importPath: '@remotion/effects/blur',
+				params: {radius: {type: 'static', value: 12}},
+			},
+		],
+		insertAtIndices: null,
+		formatFile,
+	}).output;
+	output = deleteEffects({
+		input: output,
+		effects: [{type: 'single-effect', sequenceNodePath, effectIndex: 2}],
+		formatFile,
+	}).output;
 
 	expect(output).toBe(`import { blur } from '@remotion/effects/blur'
 import { tint } from '@remotion/effects/tint'
@@ -133,7 +121,7 @@ export const Comp = () => (
 `);
 });
 
-test('effect updates preserve blank lines in unrelated JSX object props', async () => {
+test('effect updates preserve blank lines in unrelated JSX object props', () => {
 	const input = `import { Solid } from 'remotion'
 
 export const Comp = () => (
@@ -147,7 +135,7 @@ export const Comp = () => (
 )
 `;
 
-	const {output} = await addEffect({
+	const {output} = addEffect({
 		input,
 		sequenceNodePath: getNodePathAtLine(input, 4),
 		effectName: 'brightness',
@@ -174,7 +162,7 @@ export const Comp = () => (
 `);
 });
 
-test('keyframed effect pastes preserve CRLF expression bodies and JSX comments', async () => {
+test('keyframed effect pastes preserve CRLF expression bodies and JSX comments', () => {
 	const input = `'use client'
 import { HtmlInCanvas } from '@remotion/html-in-canvas'
 
@@ -186,7 +174,7 @@ export const Comp = () => (
 )
 `.replaceAll(/\r?\n/g, '\r\n');
 
-	const {output} = await pasteEffects({
+	const {output} = pasteEffects({
 		input,
 		targetSequenceNodePath: getNodePathAtLine(input, 5),
 		type: 'effects-additive',
@@ -235,20 +223,20 @@ export const Comp = () => {
 	);
 });
 
-test('no-op effect operations leave source byte-identical', async () => {
+test('no-op effect operations leave source byte-identical', () => {
 	const input = `import { brightness } from '@remotion/effects/brightness'
 
 export const Comp = () => <div effects={[brightness()]} />
 `;
 	const sequenceNodePath = getNodePathAtLine(input, 3);
-	const reordered = await reorderEffects({
+	const reordered = reorderEffects({
 		input,
 		sequenceNodePath,
 		fromIndices: [0],
 		toIndex: 0,
 		formatFile,
 	});
-	const updated = await updateEffectProps({
+	const updated = updateEffectProps({
 		input: reordered.output,
 		sequenceNodePath,
 		effectIndex: 0,
@@ -260,7 +248,7 @@ export const Comp = () => <div effects={[brightness()]} />
 	expect(updated.output).toBe(input);
 });
 
-test('batched duplicate and delete preserve source between distinct JSX elements', async () => {
+test('batched duplicate and delete preserve source between distinct JSX elements', () => {
 	const input = `import { brightness } from '@remotion/effects/brightness'
 
 const unrelated    = {keep:"this spacing"}
@@ -276,7 +264,7 @@ export const Comp = () => (
 	const firstSequenceNodePath = getNodePathAtLine(input, 7);
 	const secondSequenceNodePath = getNodePathAtLine(input, 9);
 
-	const duplicated = await duplicateEffects({
+	const duplicated = duplicateEffects({
 		input,
 		effects: [
 			{sequenceNodePath: firstSequenceNodePath, effectIndex: 0},
@@ -299,7 +287,7 @@ export const Comp = () => (
 )
 `);
 
-	const deleted = await deleteEffects({
+	const deleted = deleteEffects({
 		input: duplicated.output,
 		effects: [
 			{
