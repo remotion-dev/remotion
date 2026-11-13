@@ -437,6 +437,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
+	{
+		title: 'Human Firewall - 30-second webinar ad for a cybersecurity brand',
+		type: 'mux_video',
+		muxId: 'DamavEX0201neKChV00oFCaASrZk7RjpzqILgRBX2F3DhY',
+		description:
+			'A 30-second 4:5 social ad for a fictional cybersecurity brand. Every scene, type animation and transition is a React component, timed to the voiceover and music, with stock and AI-generated footage layered in as video.',
+		height: 1350,
+		width: 1080,
+		submittedOn: new Date('11-13-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://aisomestories.com',
+			},
+			{
+				type: 'tutorial',
+				url: 'https://aisomestories.com/case-human-firewall',
+			},
+		],
+		author: {
+			url: 'https://aisomestories.com',
+			name: 'Szymon Karpinski-Nowak (aisomestories)',
+		},
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
