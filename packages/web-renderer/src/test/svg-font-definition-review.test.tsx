@@ -124,6 +124,7 @@ test.for(
 						),
 					);
 				}
+
 				expect(comparison.mismatchedPixels).toBe(0);
 				if (!used || t.task.file.projectName === 'chromium')
 					expect(
