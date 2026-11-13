@@ -69,6 +69,10 @@ A Google Font selection with `fontFamily`, `importName`, `style`, `weights`, and
 
 A structured static or keyframed parameter to paste. When supplied, its expression is used instead of `value`, and the required animation imports are added. Defaults to no pasted parameter.
 
+#### retimeKeyframes?
+
+When `true` and `key` is `playbackRate`, rescales the input ranges of keyframes inside the element that use a frame from outside it, so they stay aligned with the element's content. Requires statically known `from` and current `playbackRate` values; otherwise, only the playback rate is changed. Defaults to `false`.
+
 ### schema?
 
 A Remotion `InteractivitySchema` for schema-specific defaults and enum variants. By default, no schema-specific behavior is applied.

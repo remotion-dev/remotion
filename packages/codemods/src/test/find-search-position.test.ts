@@ -17,7 +17,8 @@ test('finds a property after the component location', () => {
 			contents,
 			lineNumber: 2,
 			columnNumber: 2,
-			search: 'opacity',
+			search: 'style.opacity',
+			effectIndex: null,
 		}),
 	).toEqual({lineNumber: 4, columnNumber: 4});
 });
@@ -31,6 +32,7 @@ test('starts searching at the source column', () => {
 			lineNumber: 1,
 			columnNumber: 13,
 			search: 'opacity',
+			effectIndex: null,
 		}),
 	).toEqual({lineNumber: 1, columnNumber: 23});
 });
@@ -42,6 +44,7 @@ test('keeps the component location if the property is not found', () => {
 			lineNumber: 1,
 			columnNumber: 2,
 			search: 'opacity',
+			effectIndex: null,
 		}),
 	).toEqual({lineNumber: 1, columnNumber: 2});
 });

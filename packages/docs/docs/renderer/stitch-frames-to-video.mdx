@@ -29,7 +29,7 @@ A `number` specifying the desired output width in pixels for the video.
 
 A `number` specifying the desired output height in pixels for the video.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object_
 
@@ -95,6 +95,10 @@ The constant rate factor of the output, a parameter which controls quality. See 
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Rendering ProRes - Choosing a ProRes profile](/docs/prores#choosing-a-prores-profile) for possible options.
 
+### `proResBitsPerMacroblock?`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
+
 ### `onProgress?`
 
 Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
@@ -151,6 +155,10 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 <Options id="for-seamless-aac-concatenation" />
 
+### `sampleRate?`<AvailableFrom v="4.0.448" />
+
+<Options id="sample-rate" />
+
 ### `x264Preset?`
 
 <Options id="x264-preset" />
@@ -178,8 +186,13 @@ const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. When rendering with [`renderMedia()`](/docs/renderer/render-media) and [parallel encoding is enabled](/docs/renderer/render-media#disallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
-- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+#### `type`
+
+Either `"stitcher"` or `"pre-stitcher"`. When rendering with [`renderMedia()`](/docs/renderer/render-media) and [parallel encoding is enabled](/docs/renderer/render-media#disallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+
+#### `args`
+
+An array of strings that is passed as arguments to the FFMPEG command.
 
 Your function must return a modified array of strings.
 
@@ -207,7 +220,7 @@ An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 
-`stitchFramesToVideo()` returns a promise which resolves to nothing. If everything goes well, the output will be placed in `outputLocation`.
+`stitchFramesToVideo()` returns a promise. If [`outputLocation`](#outputlocation) is set, the output is written there and the promise resolves to `null`. Otherwise, it resolves to a `Buffer` containing the output.
 
 ## Compatibility
 

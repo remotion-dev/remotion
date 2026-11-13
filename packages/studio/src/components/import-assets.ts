@@ -10,6 +10,7 @@ import {
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 	type InsertElementRequest,
+	type InsertCompositionElementRequest,
 	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
@@ -18,7 +19,10 @@ import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
-import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
+import {
+	captureInsertedElementSelectionBaseline,
+	requestInsertedElementSelection,
+} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
@@ -675,7 +679,10 @@ const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
 	}
 };
 
-const insertCompositionElement = async ({
+export type AssetInsertion = typeof insertCompositionElement;
+
+export const insertCompositionElement = async ({
+	track,
 	compositionFile,
 	compositionId,
 	element,
@@ -685,6 +692,7 @@ const insertCompositionElement = async ({
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	track: InsertCompositionElementRequest['track'];
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
 	const browserStudioOperations = getBrowserStudioOperations();
@@ -695,6 +703,7 @@ const insertCompositionElement = async ({
 	}
 
 	const request = {
+		track,
 		compositionFile,
 		compositionId,
 		element,
@@ -724,6 +733,7 @@ const downloadRemoteAsset = (
 };
 
 export const importAssets = async ({
+	insert,
 	compositionFile,
 	compositionId,
 	destinationDimensions,
@@ -734,6 +744,7 @@ export const importAssets = async ({
 	preferCompositionStart,
 	svgImportMode,
 }: {
+	insert: AssetInsertion | null;
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
@@ -790,7 +801,8 @@ export const importAssets = async ({
 			const metadata = await getFileMetadataOrNull({file, fileType});
 
 			if (isSvgFile(file) && svgImportMode === 'inline') {
-				const svgInserted = await insertCompositionElement({
+				const svgInserted = await (insert ?? insertCompositionElement)({
+					track: null,
 					compositionFile,
 					compositionId,
 					from: getFromForDrop({
@@ -850,7 +862,8 @@ export const importAssets = async ({
 					})
 				: null;
 
-			const inserted = await insertCompositionElement({
+			const inserted = await (insert ?? insertCompositionElement)({
+				track: null,
 				compositionFile,
 				compositionId,
 				from: getFromForDrop({
@@ -968,6 +981,7 @@ export const insertSvgMarkup = async ({
 		}
 
 		await insertCompositionElement({
+			track: null,
 			compositionFile,
 			compositionId,
 			from: null,
@@ -992,6 +1006,7 @@ export const insertSvgMarkup = async ({
 };
 
 export const importRemoteAsset = async ({
+	insert,
 	compositionFile,
 	compositionId,
 	destinationDimensions,
@@ -1001,6 +1016,7 @@ export const importRemoteAsset = async ({
 	preferCompositionStart,
 	url,
 }: {
+	insert: AssetInsertion | null;
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
@@ -1034,7 +1050,8 @@ export const importRemoteAsset = async ({
 					fps,
 				})
 			: null;
-		await insertCompositionElement({
+		await (insert ?? insertCompositionElement)({
+			track: null,
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1064,6 +1081,7 @@ export const importRemoteAsset = async ({
 };
 
 export const insertRemoteAudio = async ({
+	insert,
 	compositionFile,
 	compositionId,
 	fps,
@@ -1071,6 +1089,7 @@ export const insertRemoteAudio = async ({
 	preferCompositionStart,
 	url,
 }: {
+	insert: AssetInsertion | null;
 	compositionFile: string;
 	compositionId: string;
 	fps: number;
@@ -1098,7 +1117,8 @@ export const insertRemoteAudio = async ({
 			position: null,
 		};
 
-		await insertCompositionElement({
+		await (insert ?? insertCompositionElement)({
+			track: null,
 			compositionFile,
 			compositionId,
 			element,
@@ -1119,6 +1139,7 @@ export const insertRemoteAudio = async ({
 };
 
 export const insertExistingAssets = async ({
+	insert,
 	assetPaths,
 	compositionFile,
 	compositionId,
@@ -1128,6 +1149,7 @@ export const insertExistingAssets = async ({
 	from,
 	preferCompositionStart,
 }: {
+	insert: AssetInsertion | null;
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
@@ -1163,7 +1185,8 @@ export const insertExistingAssets = async ({
 						fps,
 					})
 				: null;
-			const inserted = await insertCompositionElement({
+			const inserted = await (insert ?? insertCompositionElement)({
+				track: null,
 				compositionFile,
 				compositionId,
 				from: getFromForDrop({
@@ -1216,6 +1239,7 @@ export const insertComponent = async ({
 }) => {
 	try {
 		await insertCompositionElement({
+			track: null,
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1294,6 +1318,7 @@ export const insertComposition = async ({
 			height: calculated.height,
 		};
 		await insertCompositionElement({
+			track: null,
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1337,6 +1362,7 @@ export const insertElement = async ({
 	overwriteExisting,
 	undoRedoNavigation,
 	newComposition,
+	onInstalled,
 }: {
 	installationName: string | null;
 	compositionFile: string;
@@ -1348,12 +1374,18 @@ export const insertElement = async ({
 	overwriteExisting: boolean;
 	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
+	// Runs before the inserted sequence selection is requested, so navigation
+	// to its composition happens before the Timeline looks for it.
+	onInstalled: (() => void) | null;
 }) => {
 	try {
 		if (getBrowserStudioOperations() === null) {
 			await installRequiredPackages(element.dependencies);
 		}
 
+		// Fast Refresh may commit the inserted sequence before the response
+		// arrives, so compare against the Timeline from before the request.
+		const baseline = captureInsertedElementSelectionBaseline();
 		const response = await installElement({
 			captionTarget: null,
 			installationName,
@@ -1377,10 +1409,12 @@ export const insertElement = async ({
 			return false;
 		}
 
+		onInstalled?.();
 		requestInsertedElementSelection({
 			compositionId,
 			nodePath: null,
 			notification: `Installed ${element.displayName}`,
+			baseline,
 		});
 		return true;
 	} catch (error) {

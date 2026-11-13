@@ -47,12 +47,15 @@ import type {
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveCompositionRequest,
+	CompositionMoveResponse,
 	MoveFolderRequest,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
 	RedoResponse,
+	RedoRequest,
+	UndoRequest,
 	RenameCompositionRequest,
 	RenameFolderRequest,
 	RenameStaticFileRequest,
@@ -81,6 +84,7 @@ import type {
 	SubscribeToSequencePropsResponse,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
+	UpdateSequencePropsSubscriptionRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
@@ -209,8 +213,8 @@ export type BrowserStudioOperations = {
 	) => Promise<InsertCompositionElementResponse>;
 	moveComposition: (
 		request: MoveCompositionRequest,
-	) => Promise<CompositionEditResponse>;
-	moveFolder: (request: MoveFolderRequest) => Promise<CompositionEditResponse>;
+	) => Promise<CompositionMoveResponse>;
+	moveFolder: (request: MoveFolderRequest) => Promise<CompositionMoveResponse>;
 	keyframes: BrowserStudioKeyframeOperations;
 	packageInstallation: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (
@@ -228,7 +232,7 @@ export type BrowserStudioOperations = {
 	updateCompositionMetadata: (
 		request: UpdateCompositionMetadataRequest,
 	) => Promise<CompositionEditResponse>;
-	redo: () => Promise<RedoResponse>;
+	redo: (request?: RedoRequest) => Promise<RedoResponse>;
 	renameStaticFile: (
 		request: RenameStaticFileRequest,
 	) => Promise<RenameStaticFileResponse>;
@@ -253,11 +257,14 @@ export type BrowserStudioOperations = {
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;
+	updateSequencePropsSubscription?: (
+		request: UpdateSequencePropsSubscriptionRequest,
+	) => Promise<SubscribeToSequencePropsResponse>;
 	subscribeToSequenceProps: (
 		request: SubscribeToSequencePropsRequest,
 	) => Promise<SubscribeToSequencePropsResponse>;
 	subscribeToEvent: (listener: (event: EventSourceEvent) => void) => () => void;
-	undo: () => Promise<UndoResponse>;
+	undo: (request?: UndoRequest) => Promise<UndoResponse>;
 	unsubscribeFromDefaultProps: (
 		request: UnsubscribeFromDefaultPropsRequest,
 	) => Promise<undefined>;

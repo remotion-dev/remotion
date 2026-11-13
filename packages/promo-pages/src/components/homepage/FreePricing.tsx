@@ -196,7 +196,7 @@ export const EnterpriseLicense: React.FC = () => {
 							<a
 								className="cursor-pointer no-underline text-inherit hover:text-brand"
 								target={'_blank'}
-								href="https://www.remotion.pro/contact"
+								href="https://www.remotion.dev/contact"
 							>
 								Contact us
 							</a>
@@ -360,7 +360,8 @@ export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
 					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
 						For batch rendering and automated video products, such as video
 						editors, prompt-to-video apps, and embedding the Remotion Player.
-						Developers working on automation projects do not need a Seat.
+						Developers working on automation projects do not need a Remotion for
+						Creators seat.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -428,7 +429,7 @@ export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
 					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
 						For low volume manual video creations, and building motion design
 						systems in a local environment (including using AI agents and
-						Remotion Studio). Get 1 Seat per user.
+						Remotion Studio). Get 1 seat per user.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -493,7 +494,7 @@ export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
 								<a
 									className="bluelink"
 									target="_blank"
-									href="https://www.remotion.pro/contact"
+									href="https://www.remotion.dev/contact"
 								>
 									contact us
 								</a>

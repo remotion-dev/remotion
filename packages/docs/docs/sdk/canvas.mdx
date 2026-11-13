@@ -49,7 +49,7 @@ A [`CanvasController`](/docs/sdk/create-canvas-controller) shared with your time
 
 Whether to draw hover and selection outlines over the composition. Default: `false`. When enabled, pointer events select outlines instead of reaching interactive controls inside the composition. Set it to `false` for an interaction mode that lets users operate those controls.
 
-Clicking empty canvas space or pressing Escape while the overlay is focused clears selection. Shift-click selects a range; Command-click on macOS or Ctrl-click elsewhere toggles an item.
+Clicking empty canvas space or pressing Escape while the overlay is focused clears selection. Shift-click selects a range; Command-click or Ctrl-click toggles an item.
 
 ### onSequencePropsChange?<AvailableFrom v="4.0.530" />
 
@@ -75,7 +75,7 @@ export const onSequencePropsChange = async (changes: readonly CanvasSequenceProp
 
 Elements can be moved when they expose a `style.translate` field in their [`controls`](/docs/sdk/create-canvas-controller#sequencecontrols) and their source node is registered with [`setSequenceNodePaths()`](/docs/sdk/create-canvas-controller#setsequencenodepaths). Without the callback, outlines can be selected but not moved.
 
-Since <AvailableFrom v="4.0.541" inline />, dragging and nudging only use pixel translations. Elements with percentage coordinates or unsupported translation syntax remain selected and unchanged; supported elements in the same selection can still move.
+Since v4.0.541, dragging and nudging only use pixel translations. Elements with percentage coordinates or unsupported translation syntax remain selected and unchanged; supported elements in the same selection can still move.
 
 ### getSequencePropStatuses?<AvailableFrom v="4.0.530" />
 

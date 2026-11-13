@@ -5,6 +5,7 @@ import {
 import {enumerateEffectArrayElements, pasteEffects} from './effect-operations';
 import {findSearchPosition} from './find-search-position';
 import {insertBasicCaptions} from './insert-basic-captions';
+import {insertElementIntoTrack} from './insert-element-into-track';
 import {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -22,13 +23,16 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {moveNodesIntoTrack} from './move-nodes-into-track';
 import {
 	getKeyframeSourceLocationRemappings,
 	getUnchangedStructureRemappings,
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
+import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
+import {resolveCompositionImportFile} from './resolve-composition-import-file';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {
 	computeSequencePropsStatusFromContent,
@@ -41,6 +45,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
+import {validateKeyframePasteTiming} from './validate-keyframe-paste-timing';
 
 export {
 	CodemodElement,
@@ -170,6 +175,7 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 } from './update-keyframes';
 export type {
 	CodemodEnvironment,
@@ -186,6 +192,10 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	insertElementIntoTrack,
+	moveNodesIntoTrack,
+	resolveCompositionImportFile,
+	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,
 	getDurationDependentKeyframesFromContent,
 	JsxElementIdentityMismatchError,
@@ -220,6 +230,7 @@ export const CodemodsInternals = {
 	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,
 	updateInlineCaptionPatches,
+	validateKeyframePasteTiming,
 };
 
 export {

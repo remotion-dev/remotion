@@ -4,6 +4,7 @@ id: separate-environments
 title: Separating production and testing environments
 sidebar_label: Separating environments
 slug: /lambda/separate-environments
+crumb: 'Lambda'
 ---
 
 The code that is inside the Lambda function is always the same, no matter if you are calling it from a local, staging or production environment.
@@ -34,7 +35,7 @@ Make sure to update your site whenever you make changes to your code or upgrade 
 
 ## Buckets
 
-Just one bucket per region can be used for Remotion Lambda, but the resources in it can be scoped.
+We recommend using one bucket per region for Remotion Lambda and scoping the resources in it. If Remotion detects multiple buckets in a region, it throws an error unless you specify which one to use. See [Multiple buckets](/docs/lambda/multiple-buckets).
 
 A bucket contains 2 folders:
 
@@ -52,7 +53,7 @@ The sites must be public because they are accessed via HTTP.
 
 ### Can I use a custom function name?
 
-Yes, from <AvailableFrom v="4.0.540" inline />. See [Custom Lambda function names](/docs/lambda/custom-function-names). Pass the function name explicitly when rendering. Names outside the `remotion-render-` prefix also require updated IAM permissions.
+Yes, from v4.0.540. See [Custom Lambda function names](/docs/lambda/custom-function-names). Pass the function name explicitly when rendering. Names outside the `remotion-render-` prefix also require updated IAM permissions.
 
 The default name allows automatic discovery and [`speculateFunctionName()`](/docs/lambda/speculatefunctionname). Reusing one function can also improve warm-start reuse across environments.
 

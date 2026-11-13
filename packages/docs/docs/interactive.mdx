@@ -76,6 +76,12 @@ Controls inherited from [`<Sequence>`](/docs/sequence):
 
 [`Interactive.create()`](/docs/interactive-create) includes this schema and uses it for its [`<Sequence>`](/docs/sequence).
 
+### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
+
+A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
+
+This schema fragment is headless: it does not render an element or add layout, transform, or text-style controls. Add other `Interactive` schema fragments only when the component renders and supports those props.
+
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 
 Controls for transform-related style props:
@@ -99,7 +105,7 @@ Controls for text-related style props:
 
 `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
 
-`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
+`style.fontFamily` is available from v4.0.486.
 
 Use it for components that accept a `style` prop and render text.
 
@@ -150,13 +156,13 @@ Use it for components that accept a `style` prop and render rounded corners.
 
 ### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components that accept SVG paint props.
 
 ### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components such as lines that do not have a paintable interior.
 
@@ -166,13 +172,13 @@ Controls for mounting behavior:
 
 `premountFor` and `postmountFor`.
 
-[`Interactive.create()`](/docs/interactive-create) includes this schema and uses the props for its [`<Sequence>`](/docs/sequence).
+Spread this schema into a custom component's schema to expose premounting controls in Studio. [`Interactive.create()`](/docs/interactive-create) accepts these props and uses them for its [`<Sequence>`](/docs/sequence), but does not include this schema by default.
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.borderRadiusSchema`.
 
 ### `Interactive.create()`<AvailableFrom v="4.0.536" />
 
@@ -208,11 +214,11 @@ The prop type matching `Interactive.premountSchema`.
 
 ### Inherited props
 
-Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
-From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+From v4.0.528, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
-Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from <AvailableFrom v="4.0.506" inline />.
+Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from v4.0.506.
 
 ```tsx twoslash title="Timed element"
 import {Interactive} from 'remotion';

@@ -14,7 +14,6 @@ import {
 	MINIMAL_BUILD_MATRIX,
 	validateCiPlan,
 	validateRequiredCi,
-	type CiPlan,
 	type RequiredCiResults,
 } from './ci';
 
@@ -59,6 +58,8 @@ const skippedResults = (): RequiredCiResults => ({
 	nextjs: 'skipped',
 	browser: 'skipped',
 	webrenderer: 'skipped',
+	browser_studio: 'skipped',
+	webrenderer_flake_test: 'skipped',
 	ssr: 'skipped',
 	monorepo: 'skipped',
 	templates: 'skipped',
@@ -129,7 +130,7 @@ describe('CI plan generation', () => {
 	);
 
 	test('rejects a missing boolean output', () => {
-		const plan = planFor() as CiPlan & {lambda?: boolean};
+		const plan: Record<string, unknown> = {...planFor()};
 		delete plan.lambda;
 		expect(() => validateCiPlan(plan)).toThrow(
 			'CI plan value lambda must be a boolean',
@@ -334,6 +335,45 @@ describe('Required CI result validation', () => {
 		expect(() => validateRequiredCi(planFor(), skippedResults())).not.toThrow();
 	});
 
+	test('requires both web renderer and Browser Studio jobs for either task', () => {
+		for (const task of ['testwebrenderer', 'testbrowserstudio']) {
+			const plan = planFor({tasks: [{name: task}]});
+			const results = skippedResults();
+			results.webrenderer = 'success';
+			results.browser_studio = 'success';
+			expect(() => validateRequiredCi(plan, results)).not.toThrow();
+
+			results.webrenderer = 'cancelled';
+			expect(() => validateRequiredCi(plan, results)).toThrow(
+				'Selected suite webrenderer concluded with cancelled',
+			);
+		}
+	});
+
+	test.each(['failure', 'cancelled', 'skipped', ''])(
+		'rejects selected Browser Studio when its result is %s',
+		(result) => {
+			const plan = planFor({tasks: [{name: 'testwebrenderer'}]});
+			const results = skippedResults();
+			results.webrenderer = 'success';
+			results.browser_studio = result;
+			expect(() => validateRequiredCi(plan, results)).toThrow(
+				`Selected suite browser_studio concluded with ${result}`,
+			);
+		},
+	);
+
+	test.each(['success', 'failure', 'cancelled'])(
+		'rejects unselected Browser Studio when its result is %s',
+		(result) => {
+			const results = skippedResults();
+			results.browser_studio = result;
+			expect(() => validateRequiredCi(planFor(), results)).toThrow(
+				`Unselected suite browser_studio concluded with ${result}`,
+			);
+		},
+	);
+
 	test.each(['success', 'failure', 'cancelled'])(
 		'rejects an unselected job that concludes with %s',
 		(result) => {
@@ -372,4 +412,48 @@ describe('Required CI result validation', () => {
 			'Unselected suite build_job concluded with success',
 		);
 	});
+});
+
+test('runs Browser Studio independently while requiring both affected jobs', () => {
+	type BrowserJob = {
+		needs: string | string[];
+		if: string;
+		steps: Array<Record<string, unknown>>;
+	};
+	const workflow = Bun.YAML.parse(
+		readFileSync(new URL('../workflows/push.yml', import.meta.url), 'utf8'),
+	) as {
+		jobs: {
+			'webrenderer-tests': BrowserJob;
+			'browser-studio-tests': BrowserJob;
+			'required-ci': {needs: string[]; steps: Array<Record<string, unknown>>};
+		};
+	};
+	const renderer = workflow.jobs['webrenderer-tests'];
+	const studio = workflow.jobs['browser-studio-tests'];
+	expect(studio).toBeDefined();
+	expect(studio.needs).toEqual(renderer.needs);
+	expect(studio.if).toBe(renderer.if);
+	expect(
+		renderer.steps.filter((step) =>
+			String(step.run).includes('testbrowserstudio'),
+		),
+	).toHaveLength(0);
+	expect(
+		studio.steps.filter((step) => step.run === 'bun run testbrowserstudio\n'),
+	).toHaveLength(1);
+	expect(
+		renderer.steps.filter(
+			(step) => step.run === 'bun run testwebrenderer --log-order=stream\n',
+		),
+	).toHaveLength(1);
+	const required = workflow.jobs['required-ci'];
+	expect(required.needs).toContain('webrenderer-tests');
+	expect(required.needs).toContain('browser-studio-tests');
+	const validate = required.steps.find(
+		(step) => step.name === 'Validate required CI results',
+	)!;
+	expect((validate.env as Record<string, string>).CI_RESULTS).toContain(
+		'"browser_studio":"${{ needs.browser-studio-tests.result }}"',
+	);
 });

@@ -1,11 +1,11 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {parseFontFamilies} from './parse-font-families';
 
 type RegisteredFontFace = ReturnType<
 	typeof NoReactInternals.getRegisteredFontFaces
 >[number];
 
 export type EmbeddedFontStyle = {
-	blob: Blob;
 	cacheKey: string;
 	css: string;
 };
@@ -32,6 +32,12 @@ const getBase64 = (data: ArrayBuffer): string => {
 	base64ByData.set(data, base64);
 	return base64;
 };
+
+const normalizeFamily = (family: string) =>
+	family
+		.trim()
+		.replace(/^(['"])(.*)\1$/, '$2')
+		.toLowerCase();
 
 const normalizeWeight = (value: string): number | null => {
 	if (value === 'normal') {
@@ -203,11 +209,19 @@ const getFontFaceRule = (font: RegisteredFontFace): string => {
 export const getEmbeddedFontStyleForSvg = (
 	svg: SVGSVGElement,
 ): EmbeddedFontStyle | null => {
-	const textElements = svg.querySelectorAll('text');
+	const textElements = Array.from(svg.querySelectorAll('text')).filter(
+		(element) =>
+			element.namespaceURI === 'http://www.w3.org/2000/svg' ||
+			element.closest('foreignObject')?.namespaceURI ===
+				'http://www.w3.org/2000/svg',
+	);
 	if (textElements.length === 0) {
 		return null;
 	}
 
+	const availableFamilies = new Set(
+		Array.from(svg.ownerDocument.fonts, (face) => normalizeFamily(face.family)),
+	);
 	const registeredFonts = NoReactInternals.getRegisteredFontFaces();
 	for (let index = indexedFontCount; index < registeredFonts.length; index++) {
 		const family = registeredFonts[index]!.fontFamily.toLowerCase();
@@ -220,7 +234,10 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const usedFontIndexes = new Set<number>();
 	for (const textElement of textElements) {
-		const textNodeWalker = svg.ownerDocument.createTreeWalker(textElement, 4);
+		const textNodeWalker = svg.ownerDocument.createTreeWalker(
+			textElement,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		const computedStyleByElement = new WeakMap<Element, CSSStyleDeclaration>();
 		while (textNodeWalker.nextNode()) {
 			const text = textNodeWalker.currentNode.textContent ?? '';
@@ -236,11 +253,10 @@ export const getEmbeddedFontStyleForSvg = (
 					parentElement,
 				);
 			computedStyleByElement.set(parentElement, computedStyle);
-			for (const family of computedStyle.fontFamily.split(',')) {
-				const normalizedFamily = family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase();
+			for (const normalizedFamily of parseFontFamilies(
+				computedStyle.fontFamily,
+			)) {
+				if (!availableFamilies.has(normalizedFamily)) continue;
 				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
 				const matchingIndexes = familyIndexes.filter((index) =>
 					descriptorsMatch(registeredFonts[index]!, computedStyle),
@@ -272,14 +288,46 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const css = sortedIndexes
 		.map((index) => getFontFaceRule(registeredFonts[index]!))
-		.join('')
-		.replace(/]]>/g, ']]]]><![CDATA[>');
-	const style = `<style type="text/css"><![CDATA[${css}]]></style>`;
+		.join('');
 	const embeddedStyle = {
-		blob: new Blob([style]),
 		cacheKey,
 		css,
 	};
 	styleByFontFaceSet.set(cacheKey, embeddedStyle);
 	return embeddedStyle;
+};
+
+// Reuse an authored CSS stylesheet when carrying font definitions.
+export const insertFontStyleInSvg = (
+	svg: SVGSVGElement,
+	css: string,
+	styleIndex: number,
+) => {
+	// Keep the ordered face snapshot after every retained local font definition.
+	const styles = svg.querySelectorAll<SVGStyleElement | HTMLStyleElement>(
+		'style',
+	);
+	let style = styles[styleIndex];
+	if (!style) {
+		style = svg.ownerDocument.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'style',
+		);
+		svg.prepend(style);
+	}
+
+	// Carried fonts must not inherit an unrelated authored media restriction.
+	const media = style
+		.getAttribute('media')
+		?.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+	if (media && media.toLowerCase() !== 'all') {
+		if (!svg.ownerDocument.defaultView!.matchMedia(media).matches) {
+			style.textContent = '';
+		}
+
+		style.removeAttribute('media');
+	}
+
+	// Keep authored @namespace/@import preambles ahead of carried rules.
+	style.textContent = (style.textContent ?? '') + '\n' + css;
 };

@@ -2,6 +2,7 @@ import {
 	studioOperations,
 	type ApiRoutes,
 	type SubscribeToSequencePropsBatchRequest,
+	type UpdateSequencePropsSubscriptionBatchRequest,
 	type SourceMutationGuard,
 } from '@remotion/studio-shared';
 import {enqueueStudioSourceMutation} from '../helpers/enqueue-studio-source-mutation';
@@ -51,7 +52,14 @@ const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 				),
 				run,
 			)
-		: run();
+		: endpoint === '/api/update-sequence-props-subscription'
+			? withSequenceSourceRead(
+					(body as UpdateSequencePropsSubscriptionBatchRequest).requests.map(
+						(request) => request.subscription.fileName,
+					),
+					run,
+				)
+			: run();
 };
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(

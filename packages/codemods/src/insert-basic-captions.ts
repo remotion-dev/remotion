@@ -16,6 +16,7 @@ import {
 	ensureOfficialNamedImport,
 	getImportedName,
 } from './sequence-props/imports';
+import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 import {parseAst} from './sequence-props/parse-ast';
 import {
 	applySourceEdits,
@@ -98,6 +99,38 @@ export const insertBasicCaptions = ({
 	);
 	if (!importedMedia) {
 		throw new Error('The selected element is not a Remotion Video or Audio');
+	}
+
+	let owningTrackTag: string | null = null;
+	let ancestor = mediaPath.parentPath;
+	while (ancestor) {
+		if (recast.types.namedTypes.Function.check(ancestor.node)) {
+			break;
+		}
+
+		if (ancestor.node.type === 'JSXElement') {
+			const {openingElement} = ancestor.node;
+			const {name} = openingElement;
+			if (name.type !== 'JSXIdentifier' || !/^[a-z]/.test(name.name)) {
+				let root = name;
+				while (root.type === 'JSXMemberExpression') {
+					root = root.object;
+				}
+
+				if (
+					root.type === 'JSXIdentifier' &&
+					ancestor.scope.lookup(root.name)?.path.node === ast.program &&
+					getJsxComponentIdentity({ast, jsxElement: openingElement}) ===
+						'dev.remotion.remotion.Track'
+				) {
+					owningTrackTag = recast.print(name).code;
+				}
+
+				break;
+			}
+		}
+
+		ancestor = ancestor.parentPath;
 	}
 
 	const timingProps = [
@@ -257,6 +290,18 @@ export const insertBasicCaptions = ({
 			prettierConfigOverride,
 			compactLiteralProps: true,
 		});
+	}
+
+	if (owningTrackTag !== null) {
+		const {endOfLine, indentationUnit} = getSourceFormattingConfig({
+			input,
+			prettierConfigOverride,
+		});
+		elementSource = [
+			`<${owningTrackTag} name="Captions">`,
+			indentInsertedJsx({indent: indentationUnit, insertion: elementSource}),
+			`</${owningTrackTag}>`,
+		].join(endOfLine);
 	}
 
 	const parsedElement = parseAst(`const element = (${elementSource});`).program

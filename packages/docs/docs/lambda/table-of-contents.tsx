@@ -2,6 +2,37 @@ import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
+export const LambdaCustomization: React.FC = () => {
+	return (
+		<Grid>
+			<TOCItem link="/docs/lambda/naming-convention">
+				<strong>Function naming convention</strong>
+				<div>Understand the default function names</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-function-names">
+				<strong>Custom function names</strong>
+				<div>Deploy functions with your own names</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/bucket-naming">
+				<strong>Bucket naming</strong>
+				<div>Use a custom S3 bucket name</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/multiple-buckets">
+				<strong>Multiple buckets</strong>
+				<div>Use more than one bucket per region</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-destination">
+				<strong>Custom destination</strong>
+				<div>Save renders to another bucket or cloud</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-layers">
+				<strong>Custom Layers</strong>
+				<div>Customize Chrome, fonts, and emojis</div>
+			</TOCItem>
+		</Grid>
+	);
+};
+
 export const TableOfContents: React.FC = () => {
 	return (
 		<div>
@@ -62,6 +93,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>cancelRenderOnLambda()</strong>
 					<div>Cancel an in-progress render</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/deleterender">
+					<strong>deleteRender()</strong>
+					<div>Delete a render and its metadata from S3</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/getuserpolicy">
 					<strong>getUserPolicy()</strong>
 					<div>Get the policy JSON for your AWS user</div>
@@ -82,9 +117,21 @@ export const TableOfContents: React.FC = () => {
 					<strong>presignUrl()</strong>
 					<div>Make a private file public to those with the link</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/renderframesonlambda">
+					<strong>renderFramesOnLambda()</strong>
+					<div>Trigger an image sequence render</div>
+				</TOCItem>
+				<TOCItem link="/docs/lambda/renderframesonlambdaandstream">
+					<strong>renderFramesOnLambdaAndStream()</strong>
+					<div>Render an image sequence and stream progress</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/rendermediaonlambda">
 					<strong>renderMediaOnLambda()</strong>
 					<div>Trigger a video or audio render</div>
+				</TOCItem>
+				<TOCItem link="/docs/lambda/rendermediaonlambdaandstream">
+					<strong>renderMediaOnLambdaAndStream()</strong>
+					<div>Render a video or audio and stream progress</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/renderstillonlambda">
 					<strong>renderStillOnLambda()</strong>

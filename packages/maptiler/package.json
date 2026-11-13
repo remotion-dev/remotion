@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/maptiler",
-	"version": "4.0.542",
+	"version": "4.0.543",
 	"description": "MapTiler components for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
-	"license": "Remotion License",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

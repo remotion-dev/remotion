@@ -1,3 +1,4 @@
+import {getSharedWebGpuResources} from './shared-webgpu-resources.js';
 import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
 export const WEBGPU_MULTIPASS_BINDINGS = /* wgsl */ `
@@ -91,23 +92,34 @@ export const applyWebGpuMultipass = ({
 	if (!state.resources) {
 		const format = navigator.gpu.getPreferredCanvasFormat();
 		state.context.configure({device, format, alphaMode: 'premultiplied'});
-		const layout = device.createBindGroupLayout({
-			entries: [
-				{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
-				{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
-				{
-					binding: 2,
-					visibility: GPUShaderStage.FRAGMENT,
-					buffer: {type: 'uniform'},
-				},
-				{binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {}},
-			],
+		const shared = getSharedWebGpuResources({
+			device,
+			key: 'multipass-layout',
+			create: () => {
+				const layout = device.createBindGroupLayout({
+					entries: [
+						{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
+						{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
+						{
+							binding: 2,
+							visibility: GPUShaderStage.FRAGMENT,
+							buffer: {type: 'uniform'},
+						},
+						{binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {}},
+					],
+				});
+				const sampler = device.createSampler({
+					magFilter: 'linear',
+					minFilter: 'linear',
+				});
+				return {layout, sampler};
+			},
 		});
 		state.resources = {
 			device,
 			format,
-			layout,
-			sampler: device.createSampler({magFilter: 'linear', minFilter: 'linear'}),
+			layout: shared.layout,
+			sampler: shared.sampler,
 			passes: [],
 			textures: [],
 			source: null,
@@ -249,21 +261,28 @@ export const applyWebGpuMultipass = ({
 			resources.format !== format
 		) {
 			resources?.uniforms.destroy();
-			const module = device.createShaderModule({
-				code: pass.shader,
-				label: state.label,
+			const pipeline = getSharedWebGpuResources({
+				device,
+				key: JSON.stringify(['multipass-pipeline', pass.shader, format]),
+				create: () => {
+					const module = device.createShaderModule({
+						code: pass.shader,
+						label: state.label,
+					});
+					return device.createRenderPipeline({
+						label: state.label,
+						layout: device.createPipelineLayout({bindGroupLayouts: [r.layout]}),
+						vertex: {module, entryPoint: 'vertex'},
+						fragment: {module, entryPoint: 'fragment', targets: [{format}]},
+						primitive: {topology: 'triangle-list'},
+					});
+				},
 			});
 			resources = {
 				shader: pass.shader,
 				size,
 				format,
-				pipeline: device.createRenderPipeline({
-					label: state.label,
-					layout: device.createPipelineLayout({bindGroupLayouts: [r.layout]}),
-					vertex: {module, entryPoint: 'vertex'},
-					fragment: {module, entryPoint: 'fragment', targets: [{format}]},
-					primitive: {topology: 'triangle-list'},
-				}),
+				pipeline,
 				uniforms: device.createBuffer({
 					size,
 					usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,

@@ -7,7 +7,7 @@ crumb: '@remotion/renderer'
 
 # selectComposition()<AvailableFrom v="4.0.0"/>
 
-Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Remotion Root](/docs/terminology/remotion-root) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology/composition).
+Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology/bundle) by evaluating the [Root component](/docs/terminology/root-file) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology/composition).
 
 If you want to get a list of all compositions, use [`getCompositions()`](/docs/renderer/get-compositions).
 
@@ -63,9 +63,29 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 See: [Chromium Flags](/docs/chromium-flags)
 
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
+#### `userAgent?`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+#### `darkMode?`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
+
 ### `timeoutInMilliseconds?`
 
-A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+A number describing how long each [`delayRender()`](/docs/delay-render) call may remain unresolved before the [render times out and fails](/docs/timeout). The timeout applies to each call separately, not to the whole render. Default: `30000`
 
 ### `browserExecutable?`
 
@@ -73,7 +93,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 ### `onBrowserLog?`
 
-Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since <AvailableFrom v="4.0.540" inline />. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
+Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since v4.0.540. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
 
 ### `puppeteerInstance?`
 

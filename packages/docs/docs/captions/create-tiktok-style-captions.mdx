@@ -14,7 +14,7 @@ A high value for `combineTokensWithinMilliseconds` will fit many words on 1 page
 This function is safe to use in the browser, Node.js and Bun.
 
 :::note
-This API expects the whitespace to be included in the `text` field **before each word. Spaces are used as delimiters, and omitting them will cause the entire text to merge into a single line or page, resulting in poorly formatted captions.**.
+This API expects the whitespace to be included in the `text` field **before each word**. Spaces are used as delimiters, and omitting them will cause the entire text to merge into a single line or page, resulting in poorly formatted captions.
 :::
 
 ```tsx twoslash title="Create pages from captions"
@@ -58,9 +58,9 @@ const {pages} = createTikTokStyleCaptions({
 
 /* pages: [
   {
-    text: "Using Remotion's",
+    text: "Using Remotion's TikTok",
     startMs: 40,
-    durationMs: 860,
+    durationMs: 1220,
     tokens: [
       {
         text: 'Using',
@@ -72,25 +72,25 @@ const {pages} = createTikTokStyleCaptions({
         fromMs: 300,
         toMs: 900,
       },
-    ],
-  },
-  {
-    text: 'TikTok template,',
-    startMs: 900,
-    durationMs: 1050,
-    tokens: [
       {
-        text: 'TikTok',
+        text: ' TikTok',
         fromMs: 900,
         toMs: 1260,
       },
+    ],
+  },
+  {
+    text: 'template,',
+    startMs: 1260,
+    durationMs: 690,
+    tokens: [
       {
-        text: ' template,',
+        text: 'template,',
         fromMs: 1260,
         toMs: 1950,
       },
     ],
-  }
+  },
 ] */
 ```
 
@@ -126,18 +126,41 @@ An object with the following properties:
 
 An array of `TikTokPage` objects.
 
+If a [`Caption`](/docs/captions/caption) has `pageBreakAfter: true`, the current page ends after the corresponding token and the next caption starts a new page. The token preserves the marker, while the page's `text` does not include a trailing newline.
+
 A page consists of:
 
-- `text`: The text of the page.
-- `startMs`: The start time of the page in milliseconds.
-- `durationMs`: The duration of the page in milliseconds (_from v4.0.261_).
-- `tokens`: An array of objects, if you want to animate word-per-word:
-  - `text`: The text of the token.
-  - `fromMs`: The absolute start time of the token in milliseconds.
-  - `toMs`: The absolute end time of the token in milliseconds.
-  - `pageBreakAfter`: Whether the source caption forced the page to end after this token (_from v4.0.517_).
+#### `text`
 
-If a [`Caption`](/docs/captions/caption) has `pageBreakAfter: true`, the current page ends after the corresponding token and the next caption starts a new page. The token preserves the marker, while the page's `text` does not include a trailing newline.
+The text of the page.
+
+#### `startMs`
+
+The start time of the page in milliseconds.
+
+#### `durationMs`<AvailableFrom v="4.0.261" />
+
+The duration of the page in milliseconds.
+
+#### `tokens`
+
+An array of objects, if you want to animate word-per-word:
+
+##### `text`
+
+The text of the token.
+
+##### `fromMs`
+
+The absolute start time of the token in milliseconds.
+
+##### `toMs`
+
+The absolute end time of the token in milliseconds.
+
+##### `pageBreakAfter?`<AvailableFrom v="4.0.517" />
+
+Whether the source caption forced the page to end after this token.
 
 ## Whitespace sensitivity
 

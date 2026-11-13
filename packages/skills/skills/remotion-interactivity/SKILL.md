@@ -1,8 +1,12 @@
 ---
 name: remotion-interactivity
-description: Structure Remotion markup for interactivity
-version: 4.0.542
+description: Structures Remotion markup so layers, timing and styles are editable in Remotion Studio. Use when writing a new composition or restructuring existing markup.
+version: 4.0.543
 ---
+
+Make markup editable in Studio by default. Keep a part programmatic only if it is
+generated from external data or computed per frame, and tell the user it won't be
+editable. Text you write yourself is not external data.
 
 Studio edits the JSX nodes that create timeline items. Structure the code around
 what the user should be able to select, move, trim, or style independently.
@@ -183,7 +187,6 @@ const {fps, durationInFrames} = useVideoConfig();
       ['0px 0px', '0px 120px'],
       {
         easing: Easing.spring({damping: 200}),
-        output: 'perceptual-scale',
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp'
       }
@@ -212,7 +215,10 @@ Use `<Interactive.Path>` from `remotion` instead of `<path>` inside an SVG to ma
 Install `@remotion/paths` for path interpolation and Studio path keyframes:
 
 ```sh
-bunx remotion add @remotion/paths
+npx remotion add @remotion/paths # If project uses npm
+bunx remotion add @remotion/paths # If project uses bun
+yarn remotion add @remotion/paths # If project uses yarn
+pnpm exec remotion add @remotion/paths # If project uses pnpm
 ```
 
 If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant.
@@ -283,11 +289,14 @@ When scaffolding a composition, use a JSX string literal for `id`, keep `width`,
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or `<Still>`.
 
 ```tsx
+import {Composition, type CalculateMetadataFunction} from 'remotion';
+import {MyComponent, type Props} from './MyComponent';
+
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
-const calculateMetadata = useMemo(async () => {
+const calculateMetadata: CalculateMetadataFunction<Props> = async () => {
   const dimensions = await getDimensions(); // just an example
   return {width: dimensions.width, height: dimensions.height};
-});
+};
 
 <Composition
   id="my-video"
@@ -301,10 +310,10 @@ const calculateMetadata = useMemo(async () => {
 
 ```tsx title="Negative examples"
 const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
-const calculateMetadata = useMemo(() => {
+const calculateMetadata: CalculateMetadataFunction<Props> = () => {
   // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
-});
+};
 
 <Composition
   id="my-video"

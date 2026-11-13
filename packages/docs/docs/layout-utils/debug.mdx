@@ -6,13 +6,13 @@ crumb: '@remotion/layout-utils'
 no_ai: true
 ---
 
-When you find that the measurements that you are getting from [`measureText()`](/docs/layout-utils/measure-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box) or [`fitText()`](/docs/layout-utils/fit-text) are off and are causing layout issues, follow the debugging instructions on this page.
+When you find that the measurements that you are getting from [`measureText()`](/docs/layout-utils/measure-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box), [`fitText()`](/docs/layout-utils/fit-text) or [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) are off and are causing layout issues, follow the debugging instructions on this page.
 
 <Step>1</Step> Open your project in the Remotion Studio and select the
 composition in which you observe the issue.<br/>
 <Step>2</Step> Set the zoom to 100% to rule out any issues that arise from the
 zoom level.<br/>
-<Step>3</Step>Render at the bottom of your component a `<div>` that contains the string and all the properties that you passed to [`measureText()`](/docs/layout-utils/measure-text).
+<Step>3</Step> Render at the bottom of your component a `<div>` that contains the string and all the properties that you passed to [`measureText()`](/docs/layout-utils/measure-text).
 
 ```tsx twoslash title="Sample markup"
 
@@ -50,7 +50,7 @@ const MyComp: React.FC = () => {
 <Step>4</Step> Open the Chrome DevTools and select the `<div id="remotion-measurer">` node in the "Elements" tab.<br/>
 <Step>5</Step> The node lights up, and you can see its measurements. See if there are any unexpected deviations.<br/>
 <Step>6</Step> Use the "Computed" tabs and go through all properties that may affect the layout, and compare them with the node in your composition that is causing issue. If the measurements are different, there will be at least 1 computed property that has a different value.<br/>
-<Step>7</Step> Align your markup so that it has the same computed properties as the node in your composition.<br/>
+<Step>7</Step> Align your markup so that it has the same computed properties as the node in your composition.
 
 ## Remember
 

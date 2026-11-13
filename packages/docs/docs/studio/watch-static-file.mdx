@@ -14,7 +14,7 @@ Prefer this API over the old one.
 :::
 
 :::note
-This feature is only available within the Remotion Studio environment. In the Player, events will never fire.
+This feature is only available within the Remotion Studio environment. Outside the Studio, and in a read-only Studio other than Browser Studio, it logs a warning and returns a no-op `cancel()` function.
 :::
 
 ## Example
@@ -40,15 +40,15 @@ cancel();
 
 ## Arguments
 
-Takes two arguments and returns a function that can be used to `cancel` the event listener.
+Takes two arguments and returns an object with a `cancel()` function that removes the event listener.
 
-### `filename`
+### `fileName`
 
 A name of the file in `/public` folder to watch for changes.
 
 ### `callback`
 
-A callback function that will be called when the file is modified. As an argument, a [`StaticFile`](/docs/getstaticfiles#api) or `null` is passed.
+A callback function that will be called when the file is modified. As an argument, a [`StaticFile`](/docs/studio/get-static-files#api) or `null` is passed.
 
 ## Compatibility
 

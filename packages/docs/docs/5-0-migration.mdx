@@ -42,7 +42,7 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 Previously, we had no idea how many renders our company license customers are making, leading to a lack of accountability.  
 If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.
 
-**Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config). If you are eligible for the free license, pass `"free-license"` as the license key.
+**Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config#setpubliclicensekey). If you are eligible for the free license, pass `"free-license"` as the license key.
 
 ## WebGL and WebGPU during rendering are now enabled by default
 
@@ -59,6 +59,15 @@ Lambda and Cloud Run continue to use `swangle` by default, because they have no 
 A common footgun was the render was not working as intended because the input props were not passed.
 
 **Required action**: Pass an empty object `{}` if you don't have any input props.
+
+## Invalid props fail the render
+
+If a [`<Composition>`](/docs/composition) has a [`schema`](/docs/schemas), Remotion validates the props against it during rendering, before it calls [`calculateMetadata()`](/docs/calculate-metadata).
+
+In Remotion 4.0, invalid props log a warning that lists each invalid field, and the render continues.  
+In Remotion 5.0, invalid props throw an error and the render fails.
+
+**Required action**: Fix the props that the warning lists, or update the schema so it accepts them.
 
 ## `bundle()` and `getCompositions()` now take an options object
 
@@ -83,20 +92,20 @@ The return value of `bundle()` remains the output directory as a string.
 
 ## TransitionSeries does not support `layout="none"` anymore
 
-Having a [TransitionSeries](/docs/transitions/transitionseries) with `layout="none"` is not supported anymore.  
+Having a [`<TransitionSeries>`](/docs/transitions/transitionseries) with `layout="none"` is not supported anymore.  
 It never made sense to have this prop as transitioned elements need to be positioned absolutely.
 
 **Required action**: Remove the `layout` prop.
 
 ## `measureSpring()` does not accept `from` and `to` options anymore
 
-The values passed in there did not influence the calculation at all. Therefore we removed those options.
+The values passed to [`measureSpring()`](/docs/measure-spring) did not influence the calculation at all. Therefore we removed those options.
 
 **Required action**: Remove the `from` and `to` options from your code.
 
 ## Path sampling returns `null` beyond the end of a path
 
-[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length).
+[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length). This change already shipped in v4.0.498.
 Previously, they returned the point or tangent at the end of the path.
 
 **Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.
@@ -122,8 +131,9 @@ The default [`x264Preset`](/docs/lambda/rendermediaonlambda#x264preset) for H.26
 
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
-The `shouldDumpIo` option has been be removed in 5.0.  
-Use `logLevel: "verbose"` instead.
+The `shouldDumpIo` option of [`openBrowser()`](/docs/renderer/open-browser) has been removed in 5.0.
+
+**Required action**: Replace `shouldDumpIo: true` with `logLevel: "verbose"`.
 
 ## `getVideoMetadata()` has been removed from `@remotion/renderer`
 
@@ -139,11 +149,11 @@ This will add a minuscule cost to your renders technically, but will lead to mor
 **Required actions**:
 
 - If you want to keep the old behavior, set `diskSizeInMb: 2048`, explicitly.
-- If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use `speculateFunctionName()` to get the correct name.
+- If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) to get the correct name.
 
 ## Some APIs should be imported from `@remotion/lambda/client`
 
-`renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
+[`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`getRenderProgress()`](/docs/lambda/getrenderprogress), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`presignUrl()`](/docs/lambda/presignurl), [`getSites()`](/docs/lambda/getsites) have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
 
 ## Cloud Run services use a lower maximum instance count
@@ -162,7 +172,7 @@ The `"default"` option has been removed.
 
 ## `@remotion/google-fonts` requires specifying weights and subsets
 
-When using `loadFonts()` from `@remotion/google-fonts`, you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
+When using [`loadFont()`](/docs/google-fonts/load-font) from [`@remotion/google-fonts`](/docs/google-fonts), you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
 
 **Required action**: Explicitly specify the weights and subsets you need:
 

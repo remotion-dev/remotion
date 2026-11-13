@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {beforeAll, expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
 import '../symbol-dispose';
@@ -9,9 +9,23 @@ import {
 } from './fixtures/replaced-element-sampler-controls';
 import {
 	captureNativeReference,
+	warmUpNativeReferences,
 	compareNativePixels,
 	savePixelEvidence,
 } from './native-reference';
+
+// Warm up the same fixtures the native comparisons below capture.
+beforeAll(async () => {
+	if (navigator.userAgent.includes('Firefox')) {
+		return;
+	}
+
+	await warmUpNativeReferences(
+		navigator.userAgent.includes('Chrome')
+			? [objectPosition, objectPositionMath, replacedElementPixelated]
+			: [replacedElementPixelated],
+	);
+}, 60_000);
 
 // KINO-7764: the general object-position fixtures still differ in WebKit.
 // The bounded integer pixelated fixture qualifies Chromium and WebKit.

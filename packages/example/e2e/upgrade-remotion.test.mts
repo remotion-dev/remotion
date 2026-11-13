@@ -1,5 +1,4 @@
 import {spawn} from 'node:child_process';
-import {createServer} from 'node:net';
 import {expect, test} from '@playwright/test';
 import {e2eEntryPoint, exampleDir, remotionBin} from './constants.mts';
 
@@ -7,21 +6,18 @@ test('upgrade progress survives closing settings and offers a restart', async ({
 	page,
 }) => {
 	test.setTimeout(120_000);
-	const portServer = createServer();
-	await new Promise<void>((resolve) =>
-		portServer.listen(0, '127.0.0.1', resolve),
-	);
-	const address = portServer.address();
-	if (!address || typeof address === 'string') throw new Error('No test port');
-	await new Promise<void>((resolve) => portServer.close(() => resolve()));
-	const studioUrl = `http://localhost:${address.port}`;
+	// A fixed port below the ephemeral range (macOS/Windows: 49152+, Linux: 32768+).
+	// Probing a free ephemeral port on 127.0.0.1 is not enough: Studio also checks
+	// ::1, :: and 0.0.0.0, and outbound IPv6 loopback connections can hold it there.
+	const studioPort = 3125;
+	const studioUrl = `http://localhost:${studioPort}`;
 	const studio = spawn(
 		remotionBin,
 		[
 			'studio',
 			e2eEntryPoint,
 			'--port',
-			String(address.port),
+			String(studioPort),
 			'--no-open',
 			'--force-new',
 		],

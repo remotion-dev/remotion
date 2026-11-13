@@ -6,18 +6,18 @@ import {normalizeHttpUrl} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
-import {callApi} from './call-api';
+import {CodeChangeModal} from './CodeChangeModal';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
 } from './ElementInstallConfirmation';
-import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {GenerateWithAgentModal} from './GenerateWithAgentModal';
 import {HtmlInCanvasUnavailableModal} from './HtmlInCanvasUnavailableModal';
@@ -29,7 +29,6 @@ import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
-import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import {PrecomposeNameModal} from './PrecomposeNameModal';
 import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
@@ -38,7 +37,8 @@ import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
-import {SettingsModal} from './SettingsModal';
+import {ReorderCompositionModal} from './ReorderCompositionModal';
+import {useSettings} from './SettingsContext';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
@@ -55,6 +55,7 @@ export const Modals: React.FC<{
 	const canRender = previewServerState.type === 'connected';
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const confirm = useConfirmationDialog();
+	const {addElementLibrary} = useSettings();
 	const requestElementLibraryAddition = useCallback(
 		async ({
 			captionStylesUrl,
@@ -83,52 +84,19 @@ export const Modals: React.FC<{
 				return;
 			}
 
-			if (previewServerState.type !== 'connected') {
-				showNotification(
-					'Could not add Element Library: Studio disconnected',
-					4000,
-				);
-				return;
-			}
-
-			try {
-				const result = await callApi('/api/update-config', {
-					clientId: previewServerState.clientId,
-					updates: [
-						{
-							setter: 'addElementLibrary',
-							type: 'set',
-							value: {
-								url,
-								...(displayName === null ? {} : {displayName}),
-								...(captionStylesUrl === null ? {} : {captionStylesUrl}),
-							},
-						},
-					],
-				});
-				if (!result.success) {
-					showNotification(
-						`Could not add Element Library: ${result.reason}`,
-						4000,
-					);
-					return;
-				}
-
-				const parsedUrl = new URL(url);
-				const pathname = parsedUrl.pathname.replace(/\/$/, '');
-				setSelectedModal({
-					type: 'element-library',
-					name: displayName ?? `${parsedUrl.host}${pathname}`,
-					url,
-				});
-			} catch (error) {
-				showNotification(
-					`Could not add Element Library: ${(error as Error).message}`,
-					4000,
-				);
-			}
+			const success = await addElementLibrary({
+				url,
+				displayName,
+				captionStylesUrl,
+			});
+			if (!success) return;
+			setSelectedModal({
+				type: 'element-library',
+				name: getElementLibraryLabel({url, displayName}),
+				url,
+			});
 		},
-		[confirm, previewServerState, setSelectedModal],
+		[addElementLibrary, confirm, setSelectedModal],
 	);
 
 	useEffect(() => {
@@ -143,7 +111,6 @@ export const Modals: React.FC<{
 
 			setSelectedModal({
 				type: 'settings',
-				initialStudioPane: null,
 				initialTab: 'license',
 				initialPublicLicenseKey: event.licenseKey,
 			});
@@ -264,13 +231,6 @@ export const Modals: React.FC<{
 		requestElementLibraryAddition,
 	]);
 
-	const library =
-		modalContextType?.type === 'element-library'
-			? modalContextType
-			: modalContextType?.type === 'element-install'
-				? modalContextType.library
-				: null;
-
 	return (
 		<>
 			{modalContextType?.type === 'browser-studio-experimental-notice' ? (
@@ -323,14 +283,6 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'settings' ? (
-				<SettingsModal
-					key={`${modalContextType.initialTab}-${modalContextType.initialStudioPane}-${modalContextType.initialPublicLicenseKey}`}
-					initialStudioPane={modalContextType.initialStudioPane}
-					initialTab={modalContextType.initialTab}
-					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
-				/>
-			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader
 					key={
@@ -425,6 +377,20 @@ export const Modals: React.FC<{
 				/>
 			) : null}
 
+			{modalContextType?.type === 'export-opentimeline' &&
+			!readOnlyStudio &&
+			canRender &&
+			!isBrowserStudio ? (
+				<CodeChangeModal
+					title="Export as OpenTimeline"
+					description="Export this composition as an OpenTimelineIO timeline, for use with DaVinci Resolve or Adobe Premiere. Unsupported elements are prerendered."
+					prompt={`/remotion-render Export "${modalContextType.compositionId}" as .otio`}
+					skillId="remotion-render"
+					sources={[]}
+					sourceStatus={null}
+				/>
+			) : null}
+
 			{modalContextType && modalContextType.type === 'render-progress' && (
 				<RenderStatusModal jobId={modalContextType.jobId} />
 			)}
@@ -453,6 +419,9 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
 			) : null}
+			{modalContextType && modalContextType.type === 'reorder-composition' ? (
+				<ReorderCompositionModal state={modalContextType} />
+			) : null}
 			{modalContextType &&
 			(modalContextType.type === 'wrap-refactor' ||
 				modalContextType.type === 'unwrap-refactor') ? (
@@ -477,23 +446,14 @@ export const Modals: React.FC<{
 					state={modalContextType}
 				/>
 			) : null}
-			{library === null ? null : (
-				<ElementLibraryModal
-					name={library.name}
-					url={library.url}
-					installState={
-						modalContextType?.type === 'element-install'
-							? modalContextType
-							: null
-					}
-				/>
-			)}
-			{modalContextType?.type === 'element-install' && library === null ? (
-				<ElementInstallConfirmation state={modalContextType} />
-			) : null}
-			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
-				<ConfirmationDialog state={modalContextType} />
-			)}
+			{modalContextType?.type === 'element-install' &&
+				modalContextType.library === null && (
+					<ElementInstallConfirmation state={modalContextType} />
+				)}
+			{modalContextType?.type === 'confirmation-dialog' &&
+				modalContextType.library === null && (
+					<ConfirmationDialog state={modalContextType} />
+				)}
 			{modalContextType && modalContextType.type === 'svg-import-dialog' && (
 				<SvgImportDialog state={modalContextType} />
 			)}

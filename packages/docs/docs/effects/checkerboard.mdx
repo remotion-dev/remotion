@@ -60,11 +60,11 @@ Defaults to `['#dff4ff', '#7cc6ff']`.
 
 ### `cellSize?`
 
-Size of each square cell in pixels. Defaults to `80`.
+Size of each square cell in pixels. Defaults to `80`. Must be greater than `0`.
 
 ### `gap?`
 
-Transparent gap in pixels between cells. Defaults to `0`.
+Transparent gap in pixels between cells. Defaults to `0`. Must be at least `0`.
 
 With `gap: 0` (the default), cells are packed solid with no gap between them.
 With `gap > 0`, the source content shows through between cells.
@@ -97,7 +97,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Implementations
 
-- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGPU (from v4.0.540)
 - WebGL2
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).

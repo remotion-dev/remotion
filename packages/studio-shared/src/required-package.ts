@@ -27,6 +27,7 @@ export const getRequiredPackageForInsertableElement = (
 	element: InsertableCompositionElement,
 ): string | null => {
 	if (
+		element.type === 'track' ||
 		element.type === 'solid' ||
 		element.type === 'svg' ||
 		element.type === 'text'

@@ -13,7 +13,7 @@ npx remotion render <entry-point|serve-url>? <composition-id> <output-location>
 
 You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
-If `composition-id` is not passed, Remotion will ask you to select a composition.  
+If you don't pass `composition-id`, Remotion asks you to select a composition. In a non-interactive environment (no TTY or `CI` is set), the command fails and lists the available composition IDs.  
 If `output-location` is not passed, the media will be rendered into the `out` folder.
 
 ## Flags
@@ -90,7 +90,7 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 ### `--codec`<AvailableFrom v="1.4.0" />
 
-[`h264` or `h265` or `av1` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder.
+[`h264` or `h265` or `av1` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv` or `h264-ts` or `gif`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder.
 
 If you are rendering on Linux ARM64 GNU, `av1` is not available.
 
@@ -117,6 +117,10 @@ If you are rendering on Linux ARM64 GNU, `av1` is not available.
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
 <Options id="prores-profile" />
+
+### `--prores-bits-per-macroblock`<AvailableFrom v="4.0.543" />
+
+<Options id="prores-bits-per-macroblock" />
 
 ### `--x264-preset`<AvailableFrom v="4.0.22" />
 
@@ -150,9 +154,9 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 <Options id="frames" />
 
-Use a comma-separated list of frame numbers, for example `--frames=0,30,60`, to render specific frames as an image sequence. This automatically enables [`--sequence`](#--sequence).<AvailableFrom v="4.0.502" inline />
+Use a comma-separated list of frame numbers, for example `--frames=0,30,60`, to render specific frames as an image sequence. This automatically enables [`--sequence`](#--sequence) (from v4.0.502).
 
-Use a comma-separated list of ranges, for example `--frames=0-99,150-199`, to concatenate the selected ranges into one video. Frames between the ranges are omitted. Ranges are inclusive. Add [`--sequence`](#--sequence) to output the selected ranges as images instead. Individual frames and ranges can be combined, for example `--frames=0,30-59,90-`.<AvailableFrom v="4.0.502" inline />
+Use a comma-separated list of ranges, for example `--frames=0-99,150-199`, to concatenate the selected ranges into one video. Frames between the ranges are omitted. Ranges are inclusive. Add [`--sequence`](#--sequence) to output the selected ranges as images instead. Individual frames and ranges can be combined, for example `--frames=0,30-59,90-` (from v4.0.502).
 
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 
@@ -180,7 +184,7 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
-From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this flag if the machine runs out of memory while rendering.
+From v4.0.533, parallel encoding is no longer disabled automatically based on the available memory. Set this flag if the machine runs out of memory while rendering.
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
@@ -208,7 +212,7 @@ From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabl
 
 ### `--public-dir`<AvailableFrom v="3.2.13" />
 
-<Options id="public-path" />
+<Options id="public-dir" />
 
 ### `--timeout`
 
@@ -217,6 +221,18 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 :::info
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
+
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
 

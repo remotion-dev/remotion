@@ -13,6 +13,8 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	CanvasCaptureData,
+	CompositionDestination,
+	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
@@ -30,7 +32,7 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {PreferredEffectBackend} from 'remotion';
+import type {PreferredEffectBackend, ResolvedStackLocation} from 'remotion';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
@@ -67,6 +69,7 @@ export type WebRenderModalState = {
 };
 
 export type ServerRenderRetrySettings = {
+	chromiumOptions: RenderDefaults['chromiumOptions'];
 	jobId: string;
 	outName: string;
 	crf: number | null;
@@ -134,6 +137,7 @@ export type RenderModalState = {
 export type ConfirmationDialogState = {
 	type: 'confirmation-dialog';
 	id: string;
+	library: ElementLibraryModalState | null;
 	title: string;
 	message: React.ReactNode;
 	confirmLabel: string;
@@ -279,7 +283,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -294,6 +297,10 @@ export type ModalState =
 	  }
 	| RenderModalState
 	| WebRenderModalState
+	| {
+			type: 'export-opentimeline';
+			compositionId: string;
+	  }
 	| {
 			type: 'render-progress';
 			jobId: string;
@@ -318,6 +325,7 @@ export type ModalState =
 	| {
 			type: 'precompose-refactor';
 			targets: PrecomposeRefactorTarget[];
+			failureReason: string | null;
 	  }
 	| {
 			type: 'precompose-name';
@@ -331,6 +339,14 @@ export type ModalState =
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'reorder-composition';
+			item: CompositionOrFolder;
+			destination: CompositionDestination;
+			sourceFile: string | null;
+			destinationFile: string | null;
+			sourceLocations: ResolvedStackLocation[];
 	  }
 	| {
 			type: 'wrap-refactor';

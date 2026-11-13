@@ -16,7 +16,7 @@ Read this document for guidance on building a video editor with the following ch
 ## Get the `<Timeline>` component
 
 We offer a copy-pasteable `<Timeline>` component that follows Remotion's best practices and also already handles zoom.  
-If you want to save time and get a head start, you can [purchase it in the Remotion Store](https://www.remotion.pro/timeline).
+If you want to save time and get a head start, you can [purchase it in the Remotion Store](https://www.remotion.dev/store/timeline).
 
 You can also build your own timeline component.  
 The following steps will use the same approach we used to build our Timeline component.
@@ -155,7 +155,7 @@ export const Main: React.FC<{
 In CSS, the elements that are rendered at the bottom appear at the top. See: [Layers](/docs/layers)
 :::
 
-<Step>3</Step> Keep a state of tracks each containing an array of items.{' '}
+<Step>3</Step> Keep a state of tracks each containing an array of items.
 
 Render
 a [`<Player />`](/docs/player/player) component and pass the `tracks` as [`inputProps`](/docs/player/player#inputprops).
@@ -168,7 +168,7 @@ type BaseItem = {
 };
 
 export type SolidItem = BaseItem & {
-  type: 'shape';
+  type: 'solid';
   color: string;
 };
 
@@ -235,9 +235,9 @@ export const Editor = () => {
 
 We do not currently provide samples how to build a timeline component, since everybody has different needs and styling preferences.
 
-An opinionated sample implementation is [available for purchase in the Remotion Store](https://www.remotion.pro/timeline).
+An opinionated sample implementation is [available for purchase in the Remotion Store](https://www.remotion.dev/store/timeline).
 
-```tsx twoslash title="remotion/Timeline.tsx" {23}
+```tsx twoslash title="Editor.tsx" {16}
 type Item = {};
 type Track = {};
 const inputProps = {};

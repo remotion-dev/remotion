@@ -50,6 +50,7 @@ type OptionalRenderImagesOnWebOptions<Schema extends $ZodObject> = {
 	scale: number;
 	isProduction: boolean;
 	allowHtmlInCanvas: boolean;
+	transparent: boolean;
 };
 
 type InternalRenderImagesOnWebOptions<
@@ -98,6 +99,7 @@ async function internalRenderImagesOnWeb<
 		scale,
 		isProduction,
 		allowHtmlInCanvas,
+		transparent,
 	}: InternalRenderImagesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ) {
@@ -130,6 +132,7 @@ async function internalRenderImagesOnWeb<
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
 		compositionWidth: composition.width ?? null,
+		schema: schema ?? null,
 	});
 
 	const frames =
@@ -237,6 +240,7 @@ async function internalRenderImagesOnWeb<
 
 			const capturedFrame = await createLayer({
 				element: div,
+				transparent,
 				scale,
 				logLevel,
 				internalState,
@@ -314,6 +318,7 @@ const renderImagesOnWeb = <
 					scale: options.scale ?? 1,
 					isProduction: options.isProduction ?? true,
 					allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+					transparent: options.transparent ?? true,
 				},
 				apiName,
 			),

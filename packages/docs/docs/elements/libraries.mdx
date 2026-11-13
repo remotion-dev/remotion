@@ -30,7 +30,7 @@ Append [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string) to an i
 ```tsx title="LowerThirdGalleryItem.tsx"
 import {Player} from '@remotion/player';
 import {InstallActions} from './InstallActions';
-import LowerThirdElement, {lowerThirdElementDefinition} from './LowerThirdElement';
+import {LowerThirdElement, lowerThirdElementDefinition} from './LowerThirdElement';
 import lowerThirdSourceCode from './LowerThirdElement.tsx?raw';
 
 export const LowerThirdGalleryItem = () => {
@@ -116,7 +116,7 @@ When Studio embeds your library in Browse Elements, use [`isInsideStudio()`](/do
 If no Studio receives the request, `installInStudio()` resolves with `success: false` and a [`code`](/docs/studio-protocol/install-in-studio#code). Show a message that tells the user what to do, for example:
 
 - `no-compatible-studio`: Start Remotion Studio.
-- `no-installable-target`: Open a video in Studio.
+- `no-installable-target`: Focus the Remotion Studio tab to install into, then try again.
 - `studio-upgrade-required`: [Upgrade Remotion](/docs/upgrading).
 
 Also offer a way around the failure:
@@ -146,10 +146,8 @@ The script must be in the HTML that your server sends. Render the page on the se
 
 ## 5. Test the integration
 
-<Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.
-<br />
-<Step>2</Step> Check that the Element's assets and dependencies are in the project.
-<br />
+<Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.<br />
+<Step>2</Step> Check that the Element's assets and dependencies are in the project.<br />
 <Step>3</Step> Run [`npx remotion elements use`](/docs/cli/elements/use) with the URL of an Element page.
 
 In production, serve your website over HTTPS. HTTP works only on `localhost` and `127.0.0.1`.
@@ -157,7 +155,7 @@ In production, serve your website over HTTPS. HTTP works only on `localhost` and
 ## See also
 
 - [Third-party Element Libraries](/elements/libraries)
-- [Element guidelines](/docs/elements)
+- [Creating Elements](/docs/elements)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
 - [`staticFileRef()`](/docs/studio-protocol/static-file-ref)

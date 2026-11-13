@@ -94,6 +94,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -115,6 +116,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		writeFileSync(filePath, input);
 
 		await addKeyframes({
+			paste: null,
 			sequenceKeyframes: [
 				{
 					fileName,
@@ -178,6 +180,7 @@ test('first keyframe in a concise-arrow component remaps its JSX node path for t
 	);
 	const events: EventSourceEvent[] = [];
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -237,6 +240,7 @@ export const Target = () => (
 		const first = await addKeyframesHandler({
 			...handlerContext,
 			input: {
+				paste: null,
 				clientId: 'test-client',
 				effectKeyframes: [],
 				sequenceKeyframes: [
@@ -281,6 +285,7 @@ export const Target = () => (
 		const second = await addKeyframesHandler({
 			...handlerContext,
 			input: {
+				paste: null,
 				clientId: 'test-client',
 				effectKeyframes: [],
 				sequenceKeyframes: [
@@ -313,6 +318,7 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -334,6 +340,7 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 		writeFileSync(filePath, linearProgressiveBlurInput);
 
 		await addKeyframes({
+			paste: null,
 			sequenceKeyframes: [],
 			effectKeyframes: [
 				{

@@ -39,9 +39,8 @@ import {
 	type CodemodFileChange,
 	type CodemodNodeResult,
 	type CompositionDestination,
-	type EffectKeyframeUpdate,
 	type InsertableSequenceWrapper,
-	type SequenceKeyframeUpdate,
+	type SourceKeyframeUpdate,
 } from '@remotion/codemods';
 import {
 	StudioProtocolInternals,
@@ -58,6 +57,7 @@ import {
 	type BrowserStudioOperations,
 	type BrowserStudioPackageInstallationOperations,
 	type CompositionEditResponse,
+	type CompositionMoveResponse,
 	type CompositionDestination as StudioCompositionDestination,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
@@ -70,7 +70,9 @@ import {
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
 	type UnsubscribeFromSequencePropsRequest,
+	type UpdateSequencePropsSubscriptionRequest,
 	type UndoRedoNavigation,
+	withRequiredAuxiliaryPackages,
 } from '@remotion/studio-shared';
 import type {KeyframeMutationResult} from '@remotion/studio-shared';
 import type {
@@ -135,6 +137,19 @@ const insertIntoProject = async ({
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
+	if (request.track) {
+		const trackResult = CodemodsInternals.insertElementIntoTrack({
+			project,
+			request,
+		});
+		return {
+			changes: trackResult.changes,
+			filePath: trackResult.insertedNode.filePath,
+			insertedNodePath: trackResult.insertedNode.nodePath,
+			nodePathRemappings: trackResult.nodePathRemappings,
+		};
+	}
+
 	// SVG markup and compositions need the dedicated insertion pipeline.
 	if (
 		request.element.type === 'svg' ||
@@ -198,12 +213,15 @@ const getNodePathMutationFiles = (result: CodemodNodeResult) =>
 		absolutePath,
 		remappings: result.nodePathRemappings
 			.filter(({filePath}) => filePath === absolutePath)
-			.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
-				oldNodePath,
-				newNodePath,
-				oldJsxName,
-				newJsxName,
-			})),
+			.map(
+				({oldNodePath, newNodePath, oldJsxName, newJsxName, effectsOnly}) => ({
+					...(effectsOnly ? {effectsOnly} : {}),
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
+			),
 	}));
 
 const getStructuredError = (error: unknown) => ({
@@ -214,11 +232,18 @@ const getStructuredError = (error: unknown) => ({
 
 const runBrowserCompositionEdit = (
 	edit: () => CompositionEditResponse,
-): Promise<CompositionEditResponse> => {
+): Promise<CompositionMoveResponse> => {
 	try {
-		return Promise.resolve(edit());
+		const result = edit();
+		return Promise.resolve(
+			result.success ? result : {...result, canRefactor: false},
+		);
 	} catch (error) {
-		return Promise.resolve(getStructuredError(error));
+		return Promise.resolve({
+			...getStructuredError(error),
+			canRefactor:
+				error instanceof CodemodsInternals.RegistrationRequiresRefactorError,
+		});
 	}
 };
 
@@ -250,7 +275,7 @@ type SequenceKeyframeMutation = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
 	schema: InteractivitySchema;
-	updates: SequenceKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 };
 
 type EffectKeyframeMutation = {
@@ -258,7 +283,7 @@ type EffectKeyframeMutation = {
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	schema: InteractivitySchema;
-	updates: EffectKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 };
 
 type AppliedSequenceKeyframeMutation = SequenceKeyframeMutation & {
@@ -846,7 +871,7 @@ export const createBrowserStudioOperations = ({
 		const {getProject: getEditedProject, currentPath, applyEdit} = source;
 		const project = getEditedProject();
 
-		const mergeUpdates = <T extends SequenceKeyframeUpdate>(updates: T[]) => {
+		const mergeUpdates = <T extends SourceKeyframeUpdate>(updates: T[]) => {
 			const merged: T[] = [];
 			for (const update of updates) {
 				const existingMove = merged.find(
@@ -1295,6 +1320,60 @@ export const createBrowserStudioOperations = ({
 		);
 	};
 
+	const updateSequencePropsSubscription = ({
+		subscription: initial,
+		effects,
+	}: UpdateSequencePropsSubscriptionRequest): SubscribeToSequencePropsResponse => {
+		const subscription = sequencePropsSubscriptions.get(
+			makeSequencePropsSubscriptionKey(initial),
+		);
+		if (!subscription)
+			return {
+				success: false,
+				status: {canUpdate: false, reason: 'not-found'},
+			};
+		const project = getProject();
+		const request = {
+			...subscription.request,
+			nodePath: subscription.result.nodePath.nodePath,
+			effects,
+		};
+		const {absolutePath} = subscription.result.nodePath;
+		const result: SuccessfulSequencePropsSubscription = {
+			success: true,
+			sourceVersion: captureSourceVersions(project).get(absolutePath) ?? null,
+			nodePath: {...subscription.result.nodePath, effectKeys: effects},
+			status: computeSequencePropsStatusFromContent({
+				fileContents: project.files[absolutePath],
+				includeSourceLocation: true,
+				nodePath: request.nodePath,
+				componentIdentity: request.componentIdentity,
+				keys: request.keys,
+				assetKeys: request.assetKeys,
+				effects,
+			}),
+		};
+		subscription.request = request;
+		subscription.result = result;
+		subscription.effectChain = getEffectChain(result);
+		subscription.fileContents = project.files[absolutePath];
+		subscription.sourceVersion =
+			captureSourceVersions(project).get(absolutePath) ?? null;
+		return result;
+	};
+
+	const updateSequencePropsForEffectEdit = (
+		requests: UpdateSequencePropsSubscriptionRequest[],
+	) =>
+		requests.length === 0
+			? {}
+			: {
+					sequenceProps: requests.map((request) => ({
+						request,
+						result: updateSequencePropsSubscription(request),
+					})),
+				};
+
 	const effectOperations: BrowserStudioEffectOperations = {
 		addEffect: async (request) => {
 			try {
@@ -1342,6 +1421,7 @@ export const createBrowserStudioOperations = ({
 
 				return {
 					success: true,
+					...updateSequencePropsForEffectEdit(request.sequenceProps ?? []),
 					nodePathMutation,
 					insertedEffect: {
 						effectIndex: result.insertedEffect.effectIndex,
@@ -1375,7 +1455,13 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true, nodePathMutation};
+				return {
+					success: true,
+					nodePathMutation,
+					...updateSequencePropsForEffectEdit(
+						request.flatMap((item) => item.sequenceProps ?? []),
+					),
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -1408,6 +1494,9 @@ export const createBrowserStudioOperations = ({
 
 				return {
 					success: true,
+					...updateSequencePropsForEffectEdit(
+						request.flatMap((item) => item.sequenceProps ?? []),
+					),
 					nodePathMutation,
 					duplicatedEffects: result.insertedEffects.map(
 						({filePath, nodePath, effectIndex}) => ({
@@ -1504,7 +1593,11 @@ export const createBrowserStudioOperations = ({
 					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true, nodePathMutation};
+				return {
+					success: true,
+					nodePathMutation,
+					...updateSequencePropsForEffectEdit(request.sequenceProps ?? []),
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -2267,27 +2360,48 @@ export const createBrowserStudioOperations = ({
 		});
 	};
 
-	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
-		fileName,
-		sourceNodePaths,
-		targetNodePath,
-		position,
-	}) => {
+	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async (
+		request,
+	) => {
+		const {fileName, sourceNodePaths, targetNodePath} = request;
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNodes({
-				project,
-				nodes: sourceNodePaths.map((sourceNodePath) => ({
-					filePath: absolutePath,
-					nodePath: sourceNodePath.nodePath,
-				})),
-				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-				position,
-			});
+			const move =
+				request.position === 'inside'
+					? CodemodsInternals.moveNodesIntoTrack({
+							input: project.files[absolutePath],
+							sourceNodePaths: sourceNodePaths.map((node) => node.nodePath),
+							targetNodePath: targetNodePath.nodePath,
+							timings: request.timings,
+						})
+					: null;
+			const result = move
+				? {
+						changes: [
+							{
+								filePath: absolutePath,
+								previousContents: project.files[absolutePath],
+								nextContents: move.output,
+							},
+						],
+						nodePathRemappings: move.nodePathRemappings.map((mapping) => ({
+							...mapping,
+							filePath: absolutePath,
+						})),
+					}
+				: await reorderNodes({
+						project,
+						nodes: sourceNodePaths.map((sourceNodePath) => ({
+							filePath: absolutePath,
+							nodePath: sourceNodePath.nodePath,
+						})),
+						target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+						position: request.position as 'before' | 'after',
+					});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
@@ -2371,43 +2485,104 @@ export const createBrowserStudioOperations = ({
 
 			return getEffectKeyframeResponse({mutation, project: result.project});
 		},
-		addKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
-			await commitKeyframeMutations({
-				includeChangedProps: false,
-				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
-				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
-					fileName: keyframe.fileName,
-					nodePath: keyframe.nodePath,
-					schema: keyframe.schema,
-					updates: [
+		addKeyframes: async ({
+			sequenceKeyframes,
+			effectKeyframes,
+			paste = null,
+		}) => {
+			if (paste !== null) {
+				const targets = new Set([
+					...sequenceKeyframes.map((point) =>
+						JSON.stringify([
+							point.fileName,
+							point.nodePath.nodePath,
+							null,
+							point.key,
+						]),
+					),
+					...effectKeyframes.map((point) =>
+						JSON.stringify([
+							point.fileName,
+							point.sequenceNodePath.nodePath,
+							point.effectIndex,
+							point.key,
+						]),
+					),
+				]);
+				if (targets.size !== 1)
+					throw new Error('Paste must target exactly one keyframe property');
+				CodemodsInternals.validateKeyframePasteTiming({
+					files: getProject().files,
+					timingGuards: paste.timingGuards,
+				});
+			}
+
+			const getUpdates = (
+				points: readonly {key: string; frame: number; value: string}[],
+			): SourceKeyframeUpdate[] => {
+				if (paste !== null) {
+					return [
 						{
-							key: keyframe.key,
+							key: points[0].key,
 							operation: {
-								type: 'add',
-								frame: keyframe.frame,
-								value: JSON.parse(keyframe.value),
+								type: 'paste',
+								...paste,
+								keyframes: points.map((point) => ({
+									displayFrame: point.frame,
+									value: JSON.parse(point.value),
+								})),
 							},
 						},
-					],
+					];
+				}
+
+				return points.map((point) => ({
+					key: point.key,
+					operation: {
+						type: 'add',
+						frame: point.frame,
+						value: JSON.parse(point.value),
+					},
+				}));
+			};
+
+			const sequences =
+				paste === null
+					? sequenceKeyframes.map((point) => [point])
+					: sequenceKeyframes.length > 0
+						? [sequenceKeyframes]
+						: [];
+			const effects =
+				paste === null
+					? effectKeyframes.map((point) => [point])
+					: effectKeyframes.length > 0
+						? [effectKeyframes]
+						: [];
+			const result = await commitKeyframeMutations({
+				includeChangedProps: true,
+				label:
+					paste === null
+						? `${sequenceKeyframes.length + effectKeyframes.length} keyframes`
+						: 'Paste keyframes',
+				sequenceMutations: sequences.map((points) => ({
+					fileName: points[0].fileName,
+					nodePath: points[0].nodePath,
+					schema: points[0].schema,
+					updates: getUpdates(points),
 				})),
-				effectMutations: effectKeyframes.map((keyframe) => ({
-					fileName: keyframe.fileName,
-					sequenceNodePath: keyframe.sequenceNodePath,
-					effectIndex: keyframe.effectIndex,
-					schema: keyframe.schema,
-					updates: [
-						{
-							key: keyframe.key,
-							operation: {
-								type: 'add',
-								frame: keyframe.frame,
-								value: JSON.parse(keyframe.value),
-							},
-						},
-					],
+				effectMutations: effects.map((points) => ({
+					fileName: points[0].fileName,
+					sequenceNodePath: points[0].sequenceNodePath,
+					effectIndex: points[0].effectIndex,
+					schema: points[0].schema,
+					updates: getUpdates(points),
 				})),
 			});
-			return {success: true, nodePathMutation: null};
+			return {
+				success: true,
+				nodePathMutation: null,
+				results: result.keyframeResults,
+			};
 		},
 		deleteKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
 			const result = await commitKeyframeMutations({
@@ -3071,7 +3246,7 @@ export const createBrowserStudioOperations = ({
 				}
 
 				const installedDependencies = await resolveElementDependencies(
-					request.element.dependencies,
+					withRequiredAuxiliaryPackages(request.element.dependencies),
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
 				let insertion: {
@@ -3083,6 +3258,7 @@ export const createBrowserStudioOperations = ({
 					insertion = await insertIntoProject({
 						project,
 						request: {
+							track: null,
 							compositionFile: request.compositionFile,
 							compositionId: request.compositionId,
 							element: {
@@ -3232,7 +3408,15 @@ export const createBrowserStudioOperations = ({
 		},
 		renameComposition: renameCompositionOperation,
 		renameFolder: renameFolderOperation,
-		redo: controller.redo,
+		redo: async (request) => {
+			const result = await controller.redo();
+			return result.success
+				? {
+						...result,
+						...updateSequencePropsForEffectEdit(request?.sequenceProps ?? []),
+					}
+				: result;
+		},
 		renameStaticFile: controller.renameStaticFile,
 		reorderSequence,
 		saveSequenceProps: async (request) => {
@@ -3407,6 +3591,9 @@ export const createBrowserStudioOperations = ({
 			const existing = sequencePropsSubscriptions.get(key);
 			if (existing) {
 				existing.refCount++;
+				existing.request = request;
+				existing.result = result;
+				existing.effectChain = getEffectChain(result);
 				existing.fileContents = fileContents;
 				existing.sourceVersion = sourceVersion;
 				return Promise.resolve(result);
@@ -3422,7 +3609,17 @@ export const createBrowserStudioOperations = ({
 			});
 			return Promise.resolve(result);
 		},
-		undo: controller.undo,
+		updateSequencePropsSubscription: (request) =>
+			Promise.resolve(updateSequencePropsSubscription(request)),
+		undo: async (request) => {
+			const result = await controller.undo();
+			return result.success
+				? {
+						...result,
+						...updateSequencePropsForEffectEdit(request?.sequenceProps ?? []),
+					}
+				: result;
+		},
 		unsubscribeFromDefaultProps: ({clientId, compositionId}) => {
 			const clients = defaultPropsSubscriptions.get(compositionId);
 			clients?.delete(clientId);

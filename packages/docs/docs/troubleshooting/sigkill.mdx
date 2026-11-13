@@ -23,7 +23,7 @@ Most likely this is due to it taking too much memory.
 ## Memory management in Remotion
 
 Remotion opens a cache for extracting video frames, which by default allows itself to fill up to 50% of the available memory used at the begin of the render.  
-If Remotion realizes that the system is short on memory, it will halfen the cache size and free up memory.
+If Remotion realizes that the system is short on memory, it will halve the cache size and free up memory.
 
 However, if other processes are filling up memory, the Remotion process can be killed as soon as it allocates any memory.  
 The same goes for the FFmpeg process.

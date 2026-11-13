@@ -1,5 +1,4 @@
-import {StudioInternals} from '@remotion/studio';
-import {CalculateMetadataFunction, Html5Audio} from 'remotion';
+import {CalculateMetadataFunction, Composition, Html5Audio} from 'remotion';
 import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
@@ -24,11 +23,15 @@ const Component = () => {
 	);
 };
 
-export const MultiChannelAudio = StudioInternals.createComposition({
-	component: Component,
-	id: 'MultiChannelAudio',
-	calculateMetadata: calculateMetadataFn,
-	fps,
-	width: 100,
-	height: 100,
-});
+export const MultiChannelAudio = () => {
+	return (
+		<Composition
+			component={Component}
+			id="MultiChannelAudio"
+			calculateMetadata={calculateMetadataFn}
+			fps={fps}
+			width={100}
+			height={100}
+		/>
+	);
+};

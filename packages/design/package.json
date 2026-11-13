@@ -1,6 +1,7 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.542",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"version": "4.0.543",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

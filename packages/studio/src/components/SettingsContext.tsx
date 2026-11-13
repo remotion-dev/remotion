@@ -1,8 +1,10 @@
 import type {
+	ConfigUpdate,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 	GetRemotionSkillsInfoResponse,
 	RenderDefaults,
+	StudioElementLibrary,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import React, {
@@ -11,10 +13,16 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {
+	isElementLibraryOrderApplied,
+	isElementLibraryUpdateApplied,
+} from '../helpers/element-libraries';
+import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {
 	appSelectedEvent,
 	codingAgentHistory,
@@ -38,7 +46,18 @@ type SettingsContextValue = {
 	readonly renderDefaults: RenderDefaults | null;
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
+	readonly showDiagnostics: boolean;
+	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
+	readonly addElementLibrary: (
+		library: StudioElementLibrary,
+	) => Promise<boolean>;
+	readonly removeElementLibrary: (url: string) => Promise<void>;
+	readonly updateElementLibrary: (
+		previousUrl: string,
+		library: StudioElementLibrary,
+	) => Promise<boolean>;
+	readonly reorderElementLibraries: (urls: readonly string[]) => Promise<void>;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
 	readonly upgradeSkill: (skill: string) => Promise<void>;
@@ -57,7 +76,16 @@ export const SettingsProvider: React.FC<{
 	const [settings, setSettings] = useState<
 		Omit<
 			SettingsContextValue,
-			'setPublicLicenseKey' | 'installSkill' | 'removeSkill' | 'upgradeSkill'
+			| 'setPublicLicenseKey'
+			| 'installSkill'
+			| 'removeSkill'
+			| 'upgradeSkill'
+			| 'showDiagnostics'
+			| 'setShowDiagnostics'
+			| 'addElementLibrary'
+			| 'updateElementLibrary'
+			| 'removeElementLibrary'
+			| 'reorderElementLibraries'
 		>
 	>({
 		codingAgentInfo: null,
@@ -72,6 +100,384 @@ export const SettingsProvider: React.FC<{
 		skillActionError: null,
 	});
 	const [skillsRevision, setSkillsRevision] = useState(0);
+	const [showDiagnosticsPreview, setShowDiagnosticsPreview] = useState<
+		boolean | null
+	>(null);
+	const diagnosticsSaveQueue = useRef<Promise<void>>(Promise.resolve());
+	const studioRuntimeConfigRef = useRef(settings.studioRuntimeConfig);
+	studioRuntimeConfigRef.current = settings.studioRuntimeConfig;
+	const elementLibraryRemovals = useRef(new Map<string, {saved: boolean}>());
+	const elementLibraryEdits = useRef(
+		new Map<string, {library: StudioElementLibrary; saved: boolean}>(),
+	);
+	const [editedElementLibraries, setEditedElementLibraries] = useState<
+		{previousUrl: string; library: StudioElementLibrary}[]
+	>([]);
+	const elementLibraryAdditions = useRef(
+		new Map<string, {library: StudioElementLibrary; saved: boolean}>(),
+	);
+	const [addedElementLibraries, setAddedElementLibraries] = useState<
+		StudioElementLibrary[]
+	>([]);
+	const elementLibraryOrder = useRef<{urls: string[]; saved: boolean} | null>(
+		null,
+	);
+	const [orderedElementLibraryUrls, setOrderedElementLibraryUrls] = useState<
+		string[] | null
+	>(null);
+	const elementLibrarySaveQueue = useRef<Promise<unknown>>(Promise.resolve());
+	const saveElementLibraryUpdates = useCallback(
+		(updates: ConfigUpdate[]) => {
+			if (previewServerState.type !== 'connected') {
+				return Promise.reject(new Error('Studio is disconnected.'));
+			}
+
+			const save = elementLibrarySaveQueue.current.then(() =>
+				callApi('/api/update-config', {
+					clientId: previewServerState.clientId,
+					updates,
+				}),
+			);
+			elementLibrarySaveQueue.current = save.catch(() => {});
+			return save;
+		},
+		[previewServerState],
+	);
+	const [removedElementLibraryUrls, setRemovedElementLibraryUrls] = useState<
+		string[]
+	>([]);
+	const addElementLibrary = useCallback(
+		async (library: StudioElementLibrary) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				})
+			)
+				return false;
+
+			if (
+				!elementLibraryRemovals.current.has(library.url) &&
+				(elementLibraryAdditions.current.has(library.url) ||
+					studioRuntimeConfigRef.current?.elementLibraries.some(
+						(existing) => existing.url === library.url,
+					))
+			)
+				return true;
+
+			elementLibraryRemovals.current.delete(library.url);
+			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
+			const request = {library, saved: false};
+			elementLibraryAdditions.current.set(library.url, request);
+			setAddedElementLibraries(
+				[...elementLibraryAdditions.current.values()].map(
+					(entry) => entry.library,
+				),
+			);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{
+						setter: 'addElementLibrary',
+						type: 'set',
+						value: {
+							url: library.url,
+							...(library.displayName === null
+								? {}
+								: {displayName: library.displayName}),
+							...(library.captionStylesUrl === null
+								? {}
+								: {captionStylesUrl: library.captionStylesUrl}),
+						},
+					},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryAdditions.current.get(library.url) !== request)
+					return true;
+				request.saved = true;
+				if (
+					studioRuntimeConfigRef.current?.elementLibraries.some(
+						(existing) => existing.url === library.url,
+					)
+				) {
+					elementLibraryAdditions.current.delete(library.url);
+					setAddedElementLibraries(
+						[...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+					);
+				}
+
+				return true;
+			} catch (err) {
+				if (elementLibraryAdditions.current.get(library.url) !== request)
+					return false;
+				elementLibraryAdditions.current.delete(library.url);
+				setAddedElementLibraries(
+					[...elementLibraryAdditions.current.values()].map(
+						(entry) => entry.library,
+					),
+				);
+				showNotification(
+					`Could not add element library: ${(err as Error).message}`,
+					5000,
+				);
+				return false;
+			}
+		},
+		[previewServerState.type, saveElementLibraryUpdates],
+	);
+	const updateElementLibrary = useCallback(
+		async (previousUrl: string, library: StudioElementLibrary) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				})
+			)
+				return false;
+			const previousEdit = [...elementLibraryEdits.current].find(
+				([, edit]) => edit.library.url === previousUrl,
+			);
+			const originalUrl = previousEdit?.[0] ?? previousUrl;
+			const request = {library, saved: false};
+			elementLibraryEdits.current.set(originalUrl, request);
+			setEditedElementLibraries(
+				[...elementLibraryEdits.current].map(([url, edit]) => ({
+					previousUrl: url,
+					library: edit.library,
+				})),
+			);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{
+						setter: 'addElementLibrary',
+						type: 'update',
+						previousUrl,
+						value: {url: library.url, displayName: library.displayName},
+					},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryEdits.current.get(originalUrl) !== request)
+					return true;
+				request.saved = true;
+				if (
+					isElementLibraryUpdateApplied(
+						originalUrl,
+						library,
+						studioRuntimeConfigRef.current?.elementLibraries ?? [],
+					)
+				) {
+					elementLibraryEdits.current.delete(originalUrl);
+					setEditedElementLibraries(
+						[...elementLibraryEdits.current].map(([url, edit]) => ({
+							previousUrl: url,
+							library: edit.library,
+						})),
+					);
+				}
+
+				return true;
+			} catch (err) {
+				if (elementLibraryEdits.current.get(originalUrl) !== request)
+					return false;
+				elementLibraryEdits.current.delete(originalUrl);
+				setEditedElementLibraries(
+					[...elementLibraryEdits.current].map(([url, edit]) => ({
+						previousUrl: url,
+						library: edit.library,
+					})),
+				);
+				showNotification(
+					`Could not update element library: ${(err as Error).message}`,
+					5000,
+				);
+				return false;
+			}
+		},
+		[previewServerState.type, saveElementLibraryUpdates],
+	);
+	const removeElementLibrary = useCallback(
+		async (url: string) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				}) ||
+				previewServerState.type !== 'connected' ||
+				elementLibraryRemovals.current.has(url) ||
+				(![...elementLibraryEdits.current.values()].some(
+					(edit) => edit.library.url === url,
+				) &&
+					!elementLibraryAdditions.current.has(url) &&
+					!studioRuntimeConfigRef.current?.elementLibraries.some(
+						(library) => library.url === url,
+					))
+			) {
+				return;
+			}
+
+			const request = {saved: false};
+			elementLibraryRemovals.current.set(url, request);
+			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{setter: 'addElementLibrary', type: 'delete', value: url},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryRemovals.current.get(url) !== request) return;
+				request.saved = true;
+				if (
+					!studioRuntimeConfigRef.current?.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryRemovals.current.delete(url);
+					setRemovedElementLibraryUrls([
+						...elementLibraryRemovals.current.keys(),
+					]);
+				}
+			} catch (err) {
+				if (elementLibraryRemovals.current.get(url) !== request) return;
+				elementLibraryRemovals.current.delete(url);
+				setRemovedElementLibraryUrls([
+					...elementLibraryRemovals.current.keys(),
+				]);
+				showNotification(
+					`Could not remove element library: ${(err as Error).message}`,
+					5000,
+				);
+			}
+		},
+		[previewServerState, saveElementLibraryUpdates],
+	);
+	const reorderElementLibraries = useCallback(
+		async (urls: readonly string[]) => {
+			if (
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: previewServerState.type === 'connected',
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				})
+			)
+				return;
+
+			const currentUrls = [
+				...new Set(
+					[
+						...(studioRuntimeConfigRef.current?.elementLibraries ?? []),
+						...[...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+					]
+						.map(
+							(library) =>
+								elementLibraryEdits.current.get(library.url)?.library ??
+								library,
+						)
+						.filter(
+							(library) => !elementLibraryRemovals.current.has(library.url),
+						)
+						.map((library) => library.url),
+				),
+			];
+			if (
+				urls.length !== currentUrls.length ||
+				new Set(urls).size !== urls.length ||
+				currentUrls.some((url) => !urls.includes(url))
+			)
+				return;
+
+			const request = {urls: [...urls], saved: false};
+			elementLibraryOrder.current = request;
+			setOrderedElementLibraryUrls(request.urls);
+			try {
+				const response = await saveElementLibraryUpdates([
+					{setter: 'addElementLibrary', type: 'reorder', value: request.urls},
+				]);
+				if (!response.success) throw new Error(response.reason);
+				if (elementLibraryOrder.current !== request) return;
+				request.saved = true;
+				if (
+					isElementLibraryOrderApplied(
+						urls,
+						studioRuntimeConfigRef.current?.elementLibraries ?? [],
+					)
+				) {
+					elementLibraryOrder.current = null;
+					setOrderedElementLibraryUrls(null);
+				}
+			} catch (err) {
+				if (elementLibraryOrder.current !== request) return;
+				elementLibraryOrder.current = null;
+				setOrderedElementLibraryUrls(null);
+				showNotification(
+					`Could not reorder element libraries: ${(err as Error).message}`,
+					5000,
+				);
+			}
+		},
+		[previewServerState.type, saveElementLibraryUpdates],
+	);
+	const diagnosticsSave = useRef<{
+		value: boolean;
+		saved: boolean;
+		initialRuntimeConfig: StudioRuntimeConfig | null;
+	} | null>(null);
+	const setShowDiagnostics = useCallback(
+		(visible: boolean) => {
+			if (
+				previewServerState.type !== 'connected' ||
+				studioRuntimeConfigRef.current?.showDiagnostics.source === 'cli'
+			) {
+				return;
+			}
+
+			const request = {
+				value: visible,
+				saved: false,
+				initialRuntimeConfig: studioRuntimeConfigRef.current,
+			};
+			diagnosticsSave.current = request;
+			setShowDiagnosticsPreview(visible);
+			setSettings((current) => ({...current, error: null}));
+			diagnosticsSaveQueue.current = diagnosticsSaveQueue.current
+				.then(() =>
+					callApi('/api/update-config', {
+						clientId: previewServerState.clientId,
+						updates: [
+							{setter: 'setShowDiagnostics', type: 'set', value: visible},
+						],
+					}),
+				)
+				.then((response) => {
+					if (!response.success) throw new Error(response.reason);
+					if (diagnosticsSave.current !== request) return;
+					request.saved = true;
+					const runtimeConfig = studioRuntimeConfigRef.current;
+					if (
+						runtimeConfig !== request.initialRuntimeConfig &&
+						runtimeConfig?.showDiagnostics.value === request.value
+					) {
+						diagnosticsSave.current = null;
+						setShowDiagnosticsPreview(null);
+					}
+				})
+				.catch((err: Error) => {
+					if (diagnosticsSave.current !== request) return;
+					diagnosticsSave.current = null;
+					setShowDiagnosticsPreview(null);
+					setSettings((current) => ({...current, error: err.message}));
+					showNotification(
+						`Could not save diagnostics setting: ${err.message}`,
+						5000,
+					);
+				});
+		},
+		[previewServerState],
+	);
 
 	useEffect(() => {
 		if (
@@ -184,6 +590,83 @@ export const SettingsProvider: React.FC<{
 				return;
 			}
 
+			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			for (const [url, edit] of elementLibraryEdits.current) {
+				if (
+					edit.saved &&
+					isElementLibraryUpdateApplied(
+						url,
+						edit.library,
+						event.studioRuntimeConfig.elementLibraries,
+					)
+				)
+					elementLibraryEdits.current.delete(url);
+			}
+
+			setEditedElementLibraries((current) =>
+				current.length === elementLibraryEdits.current.size
+					? current
+					: [...elementLibraryEdits.current].map(([url, edit]) => ({
+							previousUrl: url,
+							library: edit.library,
+						})),
+			);
+			for (const [url, addition] of elementLibraryAdditions.current) {
+				if (
+					addition.saved &&
+					event.studioRuntimeConfig.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryAdditions.current.delete(url);
+				}
+			}
+
+			setAddedElementLibraries((current) =>
+				current.length === elementLibraryAdditions.current.size
+					? current
+					: [...elementLibraryAdditions.current.values()].map(
+							(entry) => entry.library,
+						),
+			);
+			const order = elementLibraryOrder.current;
+			if (
+				order?.saved &&
+				isElementLibraryOrderApplied(
+					order.urls,
+					event.studioRuntimeConfig.elementLibraries,
+				)
+			) {
+				elementLibraryOrder.current = null;
+				setOrderedElementLibraryUrls(null);
+			}
+
+			for (const [url, removal] of elementLibraryRemovals.current) {
+				if (
+					removal.saved &&
+					!event.studioRuntimeConfig.elementLibraries.some(
+						(library) => library.url === url,
+					)
+				) {
+					elementLibraryRemovals.current.delete(url);
+				}
+			}
+
+			setRemovedElementLibraryUrls((current) =>
+				current.length === elementLibraryRemovals.current.size
+					? current
+					: [...elementLibraryRemovals.current.keys()],
+			);
+			const request = diagnosticsSave.current;
+			if (
+				event.studioRuntimeConfig.showDiagnostics.source === 'cli' ||
+				(request?.saved &&
+					event.studioRuntimeConfig.showDiagnostics.value === request.value)
+			) {
+				diagnosticsSave.current = null;
+				setShowDiagnosticsPreview(null);
+			}
+
 			setSettings((currentSettings) => ({
 				...currentSettings,
 				codingAgentInfo: currentSettings.codingAgentInfo
@@ -210,6 +693,47 @@ export const SettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (elementLibraryEdits.current.size > 0) {
+					elementLibraryEdits.current.clear();
+					setEditedElementLibraries([]);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
+				if (elementLibraryAdditions.current.size > 0) {
+					elementLibraryAdditions.current.clear();
+					setAddedElementLibraries([]);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
+				if (elementLibraryOrder.current !== null) {
+					elementLibraryOrder.current = null;
+					setOrderedElementLibraryUrls(null);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
+				if (elementLibraryRemovals.current.size > 0) {
+					elementLibraryRemovals.current.clear();
+					setRemovedElementLibraryUrls([]);
+					showNotification(
+						`Could not reload element libraries: ${event.errorMessage}`,
+						5000,
+					);
+				}
+
+				if (diagnosticsSave.current !== null) {
+					diagnosticsSave.current = null;
+					setShowDiagnosticsPreview(null);
+				}
+
 				setSettings((current) => ({
 					...current,
 					error: event.errorMessage,
@@ -303,14 +827,78 @@ export const SettingsProvider: React.FC<{
 		[changeSkill],
 	);
 	const value = useMemo<SettingsContextValue>(() => {
+		let {studioRuntimeConfig} = settings;
+		if (
+			studioRuntimeConfig &&
+			(orderedElementLibraryUrls !== null ||
+				editedElementLibraries.length > 0 ||
+				addedElementLibraries.length > 0 ||
+				removedElementLibraryUrls.length > 0)
+		) {
+			const libraries = [
+				...new Map(
+					[
+						...studioRuntimeConfig.elementLibraries,
+						...addedElementLibraries,
+					].map((library) => [library.url, library]),
+				).values(),
+			];
+			const edits = new Map(
+				editedElementLibraries.map((edit) => [edit.previousUrl, edit.library]),
+			);
+			const order = new Map(
+				orderedElementLibraryUrls?.map((url, index) => [
+					edits.get(url)?.url ?? url,
+					index,
+				]),
+			);
+			studioRuntimeConfig = {
+				...studioRuntimeConfig,
+				elementLibraries: libraries
+					.map((library) => edits.get(library.url) ?? library)
+					.filter((library) => !removedElementLibraryUrls.includes(library.url))
+					.sort(
+						(a, b) =>
+							(order.get(a.url) ?? order.size) -
+							(order.get(b.url) ?? order.size),
+					),
+			};
+		}
+
 		return {
 			...settings,
+			studioRuntimeConfig,
+			addElementLibrary,
+			updateElementLibrary,
+			removeElementLibrary,
+			reorderElementLibraries,
+			showDiagnostics:
+				showDiagnosticsPreview ??
+				settings.studioRuntimeConfig?.showDiagnostics.value ??
+				false,
+			setShowDiagnostics,
 			setPublicLicenseKey,
 			installSkill,
 			removeSkill,
 			upgradeSkill,
 		};
-	}, [installSkill, removeSkill, setPublicLicenseKey, settings, upgradeSkill]);
+	}, [
+		installSkill,
+		removeSkill,
+		setPublicLicenseKey,
+		settings,
+		upgradeSkill,
+		showDiagnosticsPreview,
+		setShowDiagnostics,
+		addElementLibrary,
+		addedElementLibraries,
+		updateElementLibrary,
+		editedElementLibraries,
+		removeElementLibrary,
+		removedElementLibraryUrls,
+		orderedElementLibraryUrls,
+		reorderElementLibraries,
+	]);
 
 	return (
 		<SettingsContext.Provider value={value}>

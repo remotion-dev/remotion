@@ -20,8 +20,14 @@ export const forSeamlessAacConcatenationOption = {
 			required for seamless concatenation of AAC files. This is a requirement if
 			you later want to combine multiple video snippets seamlessly.
 			<br />
-			<br /> This option is used internally. There is currently no documentation
-			yet for to concatenate the audio chunks.
+			<br /> See <a href="/docs/distributed-rendering">
+				Distributed rendering
+			</a>{' '}
+			and{' '}
+			<a href="/docs/renderer/combine-chunks">
+				<code>combineChunks()</code>
+			</a>{' '}
+			for how to concatenate the chunks.
 		</>
 	),
 	docLink:

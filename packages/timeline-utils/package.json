@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/timeline-utils"
 	},
 	"name": "@remotion/timeline-utils",
-	"version": "4.0.542",
+	"version": "4.0.543",
 	"description": "Internal utilities for rendering Remotion timelines",
 	"main": "dist/index.js",
 	"scripts": {
@@ -27,6 +27,7 @@
 	"devDependencies": {
 		"@mediabunny/server": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/example-videos": "workspace:*",
 		"eslint": "catalog:",
 		"typescript": "catalog:"
 	},

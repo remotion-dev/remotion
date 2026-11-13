@@ -69,7 +69,7 @@ export const Templates: React.FC = () => {
 				<h3>Paid templates</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[15px]">
 					<Button
-						href="https://www.remotion.pro/editor-starter"
+						href="https://www.remotion.dev/store/editor-starter"
 						depth={0.5}
 						className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] h-full w-full items-start"
 					>
@@ -87,7 +87,7 @@ export const Templates: React.FC = () => {
 					</Button>
 
 					<Button
-						href="https://www.remotion.pro/watercolor-map"
+						href="https://www.remotion.dev/store/watercolor-map"
 						depth={0.5}
 						className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] h-full w-full items-start"
 					>
@@ -104,7 +104,7 @@ export const Templates: React.FC = () => {
 						</Item>
 					</Button>
 					<Button
-						href="https://www.remotion.pro/timeline"
+						href="https://www.remotion.dev/store/timeline"
 						depth={0.5}
 						className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] h-full w-full items-start"
 					>

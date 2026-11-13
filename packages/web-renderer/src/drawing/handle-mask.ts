@@ -1,9 +1,11 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
+import {createCssMask} from './css-mask';
 import type {MaskImageInfo} from './mask-image';
 import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
+import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -26,6 +28,34 @@ export const handleMask = async ({
 	scale: number;
 	internalState: InternalState;
 }) => {
+	if (maskImageInfo.type === 'layers') {
+		const groupImage = await createCssMask({
+			maskImageInfo,
+			maskRect,
+			precomposeRect,
+			width: tempContext.canvas.width,
+			height: tempContext.canvas.height,
+			internalState,
+		});
+		const mask = new OffscreenCanvas(
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		).getContext('2d', {willReadFrequently: true});
+		if (!mask) throw new Error('Could not create mask group context');
+		try {
+			// Rasterize the native mask group before applying it to the content. The
+			// readback context preserves fractional alpha at this SVG drawable seam.
+			mask.drawImage(groupImage, 0, 0);
+			tempContext.globalCompositeOperation = 'destination-in';
+			tempContext.drawImage(mask.canvas, 0, 0);
+		} finally {
+			mask.canvas.width = 0;
+			mask.canvas.height = 0;
+		}
+
+		return;
+	}
+
 	const rectToFill = new DOMRect(
 		(maskRect.left - precomposeRect.left) * scale,
 		(maskRect.top - precomposeRect.top) * scale,
@@ -150,4 +180,33 @@ export const handleMask = async ({
 		tempContext.canvas.height,
 	);
 	tempContext.restore();
+};
+
+// Use the existing group layer and SVG drawable rather than combining contours
+// whose reflected winding is interpreted differently by native engines.
+export const handleSvgClip = async ({
+	resource,
+	maskRect,
+	precomposeRect,
+	element,
+	tempContext,
+}: {
+	resource: SVGClipPathElement;
+	element: HTMLElement | SVGElement;
+	maskRect: DOMRect;
+	precomposeRect: DOMRect;
+	tempContext: OffscreenCanvasRenderingContext2D;
+}) => {
+	const image = await createSvgClipMask({
+		resource,
+		maskRect,
+		precomposeRect,
+		// Descendant filters contribute to the native HTML clipping reference in
+		// Firefox. The clipped element's own filter and outline padding do not.
+		referenceRect: getBiggestBoundingClientRect(element, false, true),
+		width: tempContext.canvas.width,
+		height: tempContext.canvas.height,
+	});
+	tempContext.globalCompositeOperation = 'destination-in';
+	tempContext.drawImage(image, 0, 0);
 };

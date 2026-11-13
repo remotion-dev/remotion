@@ -43,15 +43,23 @@ import {
 	projectEffectSequence,
 } from '../helpers/optimistic-effect-projection';
 import {getRenderOutputPlaybackTarget} from '../helpers/render-output-playback';
+import {AudioLevelsContext} from '../state/audio-levels';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
 	type Guide,
 } from '../state/editor-guides';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {loadLoopOption, loopSetterRef, persistLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
+import {
+	getBufferingEvents,
+	useRevealBufferingHandle,
+} from './buffering-diagnostics';
+import {useRemoveGuide} from './EditorGuides/use-remove-guide';
+import {useUpdateGuidePosition} from './EditorGuides/use-update-guide-position';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
@@ -69,6 +77,7 @@ import {
 } from './RenderQueue/context';
 import {useRenderJobRetry} from './RenderQueue/render-retry';
 import {measureOutlineTargets} from './selected-outline-measurement';
+import {SplitterImperativeContext} from './Splitter/SplitterImperativeContext';
 import {getPendingTimelineTimingEdits} from './Timeline/commit-timeline-timing-edit';
 import {deleteEffectsFromSource} from './Timeline/delete-effects-from-source';
 import {
@@ -76,6 +85,7 @@ import {
 	getPendingSequenceDuplications,
 	isSequenceDuplicationPending,
 } from './Timeline/duplicate-selected-timeline-item';
+import {createTrackLookupForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -300,21 +310,43 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const {getSplitters, setSplitterPosition} = useContext(
+		SplitterImperativeContext,
+	);
+	const {
+		visible: audioLevelsVisible,
+		setVisible: setAudioLevelsVisible,
+		levels: audioLevels,
+	} = useContext(AudioLevelsContext);
+	const audioLevelsVisibleRef = useRef(audioLevelsVisible);
+	audioLevelsVisibleRef.current = audioLevelsVisible;
 	const calculateTimeline = useTimelineCalculator();
 	const compactSeries = useCompactSeries();
+	const revealBufferingHandle = useRevealBufferingHandle();
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
-	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const {addCaptionJob, addVideoMattingJob, captionJobs, cancelClientJob} =
+		useContext(RenderQueueContext);
+	const captionJobsRef = useRef(captionJobs);
+	captionJobsRef.current = captionJobs;
 	const renderQueueActions = useContext(RenderQueueActionsContext);
 	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
+	const removeGuide = useRemoveGuide();
+	const updateGuidePosition = useUpdateGuidePosition();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
 	const {canvasContent, compositions, folders} = useContext(
 		Internals.CompositionManager,
 	);
 	const video = Internals.useVideo();
+	const playbackRange = useTimelineInOutFramePosition();
+	const playbackRangeRef = useRef({
+		id: video?.id ?? null,
+		range: playbackRange,
+	});
+	playbackRangeRef.current = {id: video?.id ?? null, range: playbackRange};
 	const compositionManagerRef = useContext(
 		Internals.CompositionManagerRefContext,
 	);
@@ -328,7 +360,7 @@ export const WebMcp: FC = () => {
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
 		useContext(TimelineZoomCtx);
 	const selectComposition = useSelectComposition();
-	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
+	const {editorShowGuides, guidesListRef, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -379,8 +411,6 @@ export const WebMcp: FC = () => {
 	const resolvedComposition = video?.id === currentComposition ? video : null;
 	const resolvedCompositionRef = useRef(resolvedComposition);
 	resolvedCompositionRef.current = resolvedComposition;
-	const guidesListRef = useRef(guidesList);
-	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
 	editorShowGuidesRef.current = editorShowGuides;
 	const mediaVolumeRef = useRef(mediaVolume);
@@ -553,7 +583,7 @@ export const WebMcp: FC = () => {
 					name: 'transcribe_asset',
 					title: 'Transcribe Studio asset',
 					description:
-						'Transcribe an audio or video asset from the public folder into Remotion Caption[] JSON and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+						'Queue transcription of an audio or video asset from the public folder into Remotion Caption[] JSON. A successful response acknowledges queuing. Read get_transcription_jobs for progress and the outcome. If assetPath is omitted, the asset currently open in Studio is used.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -740,6 +770,97 @@ export const WebMcp: FC = () => {
 							topK,
 						});
 						return {jobId, outputPath, success: true};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_transcription_jobs',
+					title: 'Get Studio transcription jobs',
+					description:
+						'Read the transcription jobs in this Studio tab, including their source, output destination, status, progress, errors, caption count and cancellation availability. Includes jobs started in the UI or by transcribe_asset. Available in all Studio modes. A reload clears the tab-local queue.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							jobs: captionJobsRef.current.map((job) => ({
+								id: job.id,
+								displayName: job.displayName,
+								src: job.src,
+								output:
+									job.target === null
+										? {type: 'file', path: job.outName}
+										: {type: 'composition', fileName: job.target.fileName},
+								status: job.status,
+								canCancel: job.status === 'running',
+								progress:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.value
+										: job.status === 'done'
+											? 1
+											: job.status === 'idle'
+												? 0
+												: null,
+								progressMessage:
+									job.status === 'running' || job.status === 'saving'
+										? job.progress.message
+										: null,
+								captionCount: job.status === 'done' ? job.captionCount : null,
+								error:
+									job.status === 'failed'
+										? {
+												message: job.error.message,
+												stack: job.error.stack ?? null,
+											}
+										: null,
+							})),
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'cancel_transcription_job',
+					title: 'Cancel Studio transcription job',
+					description:
+						'Request cancellation of a running transcription using the same action as Studio. Read jobId and canCancel from get_transcription_jobs. Available in all Studio modes for jobs running in this tab. A requested result acknowledges the cancellation request. Read get_transcription_jobs for the terminal outcome.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							jobId: {
+								type: 'string',
+								minLength: 1,
+								description:
+									'The transcription job id returned by get_transcription_jobs.',
+							},
+						},
+						required: ['jobId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({jobId}) => {
+						if (typeof jobId !== 'string' || jobId.length === 0) {
+							throw new Error('jobId must be a non-empty string.');
+						}
+
+						const job = captionJobsRef.current.find(
+							(item) => item.id === jobId,
+						);
+						if (!job) {
+							return Promise.resolve({jobId, status: 'not-found'});
+						}
+
+						if (job.status !== 'running') {
+							return Promise.resolve({jobId, status: 'not-cancellable'});
+						}
+
+						cancelClientJob(job.id);
+						return Promise.resolve({jobId, status: 'requested'});
 					},
 				},
 				{signal: controller.signal},
@@ -1680,10 +1801,275 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_diagnostics',
+					title: 'Get Studio diagnostics',
+					description:
+						'Read cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({...Internals.playbackDiagnostics}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'reset_buffering_handles_created',
+					title: 'Reset buffering handle count',
+					description:
+						'Reset the buffering handles created counter to zero without changing active buffering handles or other diagnostics counters. Available in every Studio mode, even when the diagnostics window is hidden.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => {
+						Internals.playbackDiagnostics.bufferingHandlesCreated = 0;
+						return Promise.resolve({...Internals.playbackDiagnostics});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_buffering_tracing',
+					title: 'Set buffering tracing',
+					description:
+						'Enable or disable detailed buffering tracing requested through WebMCP. The Diagnostics panel also enables tracing while visible. Enable before reproducing a stall to capture future handles, their owning layers, and creation stacks. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {enabled: {type: 'boolean'}},
+						required: ['enabled'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({enabled}) => {
+						if (typeof enabled !== 'boolean') {
+							throw new Error('enabled must be a boolean.');
+						}
+
+						Internals.bufferingDiagnostics.setEnabled('webmcp', enabled);
+						return getBufferingEvents({limit: 20, afterId: null});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_buffering_events',
+					title: 'Get buffering events',
+					description:
+						'Read recorded buffering episodes, contributing handles, owning layers, source locations, and creation stacks. Requires tracing enabled before reproduction through the Diagnostics panel or set_buffering_tracing. Returns up to 100 events, newest last. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							limit: {type: 'integer', minimum: 1, maximum: 100, default: 20},
+							afterId: {
+								type: 'integer',
+								minimum: 0,
+								description:
+									'Only return events with a greater ID. Omit to include updates to existing events.',
+							},
+						},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: ({limit = 20, afterId = null}) => {
+						if (
+							typeof limit !== 'number' ||
+							!Number.isInteger(limit) ||
+							limit < 1 ||
+							limit > 100
+						) {
+							throw new Error('limit must be an integer between 1 and 100.');
+						}
+
+						if (
+							afterId !== null &&
+							(typeof afterId !== 'number' ||
+								!Number.isInteger(afterId) ||
+								afterId < 0)
+						) {
+							throw new Error('afterId must be a non-negative integer.');
+						}
+
+						return getBufferingEvents({limit, afterId});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'clear_buffering_events',
+					title: 'Clear completed buffering events',
+					description:
+						'Clear completed buffering episodes and the dropped-event count, preserving active episodes and all diagnostics counters. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: () => {
+						Internals.bufferingDiagnostics.clear();
+						return getBufferingEvents({limit: 20, afterId: null});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'reveal_buffering_handle',
+					title: 'Reveal buffering handle',
+					description:
+						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and Browser Studio. Errors if the recorded composition or layer can no longer be found.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							eventId: {type: 'integer', minimum: 1},
+							handleId: {type: 'integer', minimum: 1},
+						},
+						required: ['eventId', 'handleId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({eventId, handleId}) => {
+						if (
+							typeof eventId !== 'number' ||
+							!Number.isInteger(eventId) ||
+							eventId < 1 ||
+							typeof handleId !== 'number' ||
+							!Number.isInteger(handleId) ||
+							handleId < 1
+						) {
+							throw new Error(
+								'eventId and handleId must be positive integers.',
+							);
+						}
+
+						return revealBufferingHandle(eventId, handleId);
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_audio_levels',
+					title: 'Get Studio audio levels',
+					description:
+						'Read whether the Audio Levels panel is visible and the current left and right sample peaks in dBFS. Levels are null while the panel is hidden or audio is unavailable.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () =>
+						Promise.resolve({
+							visible: audioLevelsVisibleRef.current,
+							levels: audioLevels.current,
+						}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_audio_levels_visible',
+					title: 'Set Studio audio levels visibility',
+					description:
+						'Show or hide the Audio Levels panel to the right of the timeline. Saves the preference in this browser and works in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							visible: {
+								type: 'boolean',
+								description:
+									'Whether the Audio Levels panel should be visible.',
+							},
+						},
+						required: ['visible'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({visible}) => {
+						if (typeof visible !== 'boolean') {
+							throw new Error('visible must be a boolean.');
+						}
+
+						audioLevelsVisibleRef.current = visible;
+						setAudioLevelsVisible(() => visible);
+
+						return Promise.resolve({visible});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'get_splitters',
+					title: 'Get Studio panel dividers',
+					description:
+						'Read the mounted, visible Studio panel dividers, their orientation, first-pane size and effective bounds in CSS pixels, and pointer-drag state. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => Promise.resolve({splitters: getSplitters()}),
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'set_splitter_position',
+					title: 'Resize Studio panel',
+					description:
+						'Set the first-pane size of a Studio panel divider in CSS pixels from the start of its container. Horizontal dividers control height and vertical dividers control width. Clamps to current bounds, saves the preference in this browser, and returns the effective divider state. Calls for unavailable or actively dragged dividers return an error. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							id: {
+								type: 'string',
+								description: 'A divider ID returned by get_splitters.',
+							},
+							positionInPixels: {
+								type: 'number',
+								description:
+									'The requested first-pane size in CSS pixels from the start of its container.',
+							},
+						},
+						required: ['id', 'positionInPixels'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({id, positionInPixels}) => {
+						if (typeof id !== 'string' || id.trim().length === 0) {
+							throw new Error('id must be a non-empty string.');
+						}
+
+						if (
+							typeof positionInPixels !== 'number' ||
+							!Number.isFinite(positionInPixels)
+						) {
+							throw new Error('positionInPixels must be a finite number.');
+						}
+
+						return Promise.resolve(setSplitterPosition(id, positionInPixels));
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
-						'Read the current frame, frame rate, duration, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. All playback fields are null for unsupported or unready content. Render outputs have no timeline zoom and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
+						'Read the current frame, frame rate, duration, marked in/out points, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. Marked points are inclusive, with null for an unset boundary. All playback fields are null for unsupported or unready content. Render outputs return null for inFrame, outFrame and timelineZoom, and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1699,6 +2085,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: null,
 								fps: null,
 								durationInFrames: null,
+								inFrame: null,
+								outFrame: null,
 								playing: null,
 								muted: null,
 								volume: null,
@@ -1716,6 +2104,8 @@ export const WebMcp: FC = () => {
 								playbackStartFrame: state.playbackStartFrame,
 								fps: state.fps,
 								durationInFrames: state.durationInFrames,
+								inFrame: null,
+								outFrame: null,
 								playing: state.playing,
 								muted: state.muted,
 								volume: state.volume,
@@ -1726,6 +2116,10 @@ export const WebMcp: FC = () => {
 						}
 
 						const {durationInFrames} = target;
+						const range =
+							playbackRangeRef.current.id === target.id
+								? playbackRangeRef.current.range
+								: null;
 						const timelineViewportWidth =
 							scrollableRef.current?.clientWidth ?? 0;
 						const minZoom = getTimelineMinZoom({
@@ -1744,6 +2138,8 @@ export const WebMcp: FC = () => {
 							playbackStartFrame: null,
 							fps: target.fps,
 							durationInFrames: target.durationInFrames,
+							inFrame: range?.inFrame ?? null,
+							outFrame: range?.outFrame ?? null,
 							playing: durationInFrames > 1 && isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
@@ -1763,7 +2159,7 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame of the selected composition, asset, or render output, and the source-code context for the selected item. The frame is 0 when there is no ready playhead. The selection matches "Copy context for agents".',
+						'Read the current frame of the selected composition, asset, or render output and all selected timeline items. A single supported item also includes its source-code context from "Copy context for agents". The frame is 0 when there is no ready playhead.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1772,6 +2168,16 @@ export const WebMcp: FC = () => {
 					annotations: {readOnlyHint: true},
 					execute: () => {
 						const target = getCurrentPlaybackTarget();
+						const {selectedItems} = timelineSelectionRef.current;
+						const findTrack = createTrackLookupForNodePathInfo(
+							selectedItems.some((item) => item.type !== 'guide')
+								? calculateTimeline({
+										sequences: sequencesRef.current,
+										overrideIdsToNodePaths:
+											overrideIdToNodePathMappingsRef.current,
+									}).tracks
+								: [],
+						);
 						return Promise.resolve({
 							currentFrame:
 								target?.type === 'timeline'
@@ -1780,10 +2186,57 @@ export const WebMcp: FC = () => {
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
-								timelineSelectionRef.current.selectedItems.length === 1
-									? timelineSelectionRef.current.selectedItems[0].type
-									: null,
+								selectedItems.length === 1 ? selectedItems[0].type : null,
 							selectedSequence: selectedSequenceRef.current,
+							selectedItems: selectedItems.map((item) => {
+								if (item.type === 'guide') {
+									return {type: item.type, guideId: item.guideId};
+								}
+
+								const sequenceId =
+									findTrack(item.nodePathInfo)?.sequence.id ?? null;
+								switch (item.type) {
+									case 'sequence':
+									case 'sequence-all-effects':
+										return {type: item.type, sequenceId};
+									case 'sequence-prop':
+										return {type: item.type, sequenceId, fieldKey: item.key};
+									case 'sequence-effect':
+										return {type: item.type, sequenceId, effectIndex: item.i};
+									case 'sequence-effect-prop':
+										return {
+											type: item.type,
+											sequenceId,
+											effectIndex: item.i,
+											fieldKey: item.key,
+										};
+									default: {
+										const field = parseKeyframeFieldFromNodePath(
+											item.nodePathInfo.auxiliaryKeys,
+										);
+										const fieldKey = field?.fieldKey ?? null;
+										const effectIndex =
+											field?.type === 'effect' ? field.effectIndex : null;
+										return item.type === 'keyframe'
+											? {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													frame: item.frame,
+												}
+											: {
+													type: item.type,
+													sequenceId,
+													fieldKey,
+													effectIndex,
+													fromFrame: item.fromFrame,
+													toFrame: item.toFrame,
+													segmentIndex: item.segmentIndex,
+												};
+									}
+								}
+							}),
 						});
 					},
 				},
@@ -1818,7 +2271,68 @@ export const WebMcp: FC = () => {
 												orientation: guide.orientation,
 												position: guide.position,
 												visible: guidesAreVisible && guide.show,
+												selected:
+													timelineSelectionRef.current.selectedItems.some(
+														(item) =>
+															item.type === 'guide' &&
+															item.guideId === guide.id,
+													),
 											})),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'select_guide',
+					title: 'Select Studio guide',
+					description:
+						'Select one guide from the current composition and show all vertical and horizontal guides in the inspector. Replaces the selection; null clears it. Available wherever Studio selection is enabled.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: ['string', 'null'], minLength: 1},
+						},
+						required: ['guideId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId}) => {
+						if (
+							guideId !== null &&
+							(typeof guideId !== 'string' || guideId.length === 0)
+						) {
+							throw new Error('guideId must be a non-empty string or null.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (!timelineSelectionRef.current.canSelect) {
+							throw new Error('Studio guide selection is unavailable.');
+						}
+
+						if (
+							guideId !== null &&
+							!guidesListRef.current.some(
+								(guide) =>
+									guide.id === guideId &&
+									guide.compositionId === compositionId &&
+									guide.show,
+							)
+						) {
+							throw new Error('Guide not found in the current composition.');
+						}
+
+						timelineSelectionRef.current.selectItems(
+							guideId === null ? [] : [{type: 'guide', guideId}],
+						);
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							selectedGuideId: guideId,
 						});
 					},
 				},
@@ -1909,10 +2423,11 @@ export const WebMcp: FC = () => {
 							show: true,
 							compositionId,
 						};
-						const nextGuides = [...guidesListRef.current, guide];
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
+						setGuidesList((guides) => {
+							const nextGuides = [...guides, guide];
+							persistGuidesList(nextGuides);
+							return nextGuides;
+						});
 						editorShowGuidesRef.current = true;
 						setEditorShowGuides(() => true);
 
@@ -1923,6 +2438,67 @@ export const WebMcp: FC = () => {
 								orientation: guide.orientation,
 								position: guide.position,
 								visible: true,
+							},
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'update_guide',
+					title: 'Move Studio guide',
+					description:
+						'Move an existing guide in the current composition using the same position update as the Inspector. Position is rounded to whole composition pixels and may be negative. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: 'string', minLength: 1},
+							position: {
+								type: 'number',
+								description:
+									'The guide position in composition pixels. Vertical guides use an x-coordinate and horizontal guides use a y-coordinate.',
+							},
+						},
+						required: ['guideId', 'position'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId, position}) => {
+						if (typeof guideId !== 'string' || guideId.length === 0) {
+							throw new Error('guideId must be a non-empty string.');
+						}
+
+						if (typeof position !== 'number' || !Number.isFinite(position)) {
+							throw new Error('position must be a finite number.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						const guide = guidesListRef.current.find(
+							(candidate) =>
+								candidate.id === guideId &&
+								candidate.compositionId === compositionId,
+						);
+						if (!guide) {
+							throw new Error(
+								`Guide ${guideId} not found in the current composition.`,
+							);
+						}
+
+						flushSync(() => {
+							updateGuidePosition({guideId, position, persist: true});
+						});
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							guide: {
+								id: guideId,
+								orientation: guide.orientation,
+								position: Math.round(position),
+								visible: editorShowGuidesRef.current,
 							},
 						});
 					},
@@ -1969,21 +2545,7 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const nextGuides = guidesListRef.current.filter(
-							(guide) =>
-								guide.id !== guideId || guide.compositionId !== compositionId,
-						);
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
-
-						const removedGuideWasSelected =
-							timelineSelectionRef.current.selectedItems.some(
-								(item) => item.type === 'guide' && item.guideId === guideId,
-							);
-						if (removedGuideWasSelected) {
-							timelineSelectionRef.current.clearSelection();
-						}
+						removeGuide(guideId);
 
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
@@ -2248,6 +2810,7 @@ export const WebMcp: FC = () => {
 						setTimelineZoom(id, () => timelineZoom, {
 							anchorFrame: null,
 							anchorContentX: null,
+							anchorViewportX: null,
 						});
 
 						return Promise.resolve({
@@ -2425,13 +2988,20 @@ export const WebMcp: FC = () => {
 		};
 	}, [
 		addCaptionJob,
+		audioLevels,
+		setAudioLevelsVisible,
 		addVideoMattingJob,
+		cancelClientJob,
 		calculateTimeline,
 		compositionManagerRef,
+		getSplitters,
+		guidesListRef,
 		isPlaying,
 		propStatusesRef,
+		removeGuide,
 		renderQueueActions,
 		renderJobRetry,
+		revealBufferingHandle,
 		selectComposition,
 		sequencesRef,
 		setEditorShowGuides,
@@ -2439,8 +3009,10 @@ export const WebMcp: FC = () => {
 		setMediaVolume,
 		setPlaybackRate,
 		setPlayerMuted,
+		setSplitterPosition,
 		setTimelineZoom,
 		timelineSelectionRef,
+		updateGuidePosition,
 	]);
 
 	return (

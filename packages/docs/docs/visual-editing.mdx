@@ -19,9 +19,9 @@ icon in the top right corner of the Remotion Studio to open the right sidebar. A
 
 ## Editing default props
 
-Use the controls in the props editor to live-update the default props of your composition. If you have changes, an undo ↩️ button will appear which you can use to revert to your changes in the code.
+Use the controls in the props editor to live-update the default props of your composition. If you have changes, an undo ↩️ button will appear which you can use to revert to the values in your code.
 
-When editing a `<Sequence>` visually in the timeline, the visual style controls include offset, scale, rotation, transform origin, and opacity. Select the transform origin row or one of its keyframes to drag the pivot handle in the canvas.
+To edit the position, scale, rotation, transform origin and opacity of a `<Sequence>` visually, see [Interactivity](/docs/studio/interactivity).
 
 ## Supported controls
 
@@ -44,6 +44,9 @@ Controls are implemented for:
 - `z.union()` (only unions of two types, one of them being `z.null()` or `z.undefined()`)
 - `z.optional()`
 - `z.nullable()`
+- `z.discriminatedUnion()`
+- `z.tuple()`
+- `.default()`
 - `z.enum()`
 - [`zColor()`](/docs/zod-types/z-color) (from `@remotion/zod-types`)
 - [`zTextarea()`](/docs/zod-types/z-textarea) (from `@remotion/zod-types`)
@@ -110,5 +113,5 @@ If you would like to render a video based on your input in the controls, then yo
 ## Changing input props visually
 
 In the Props editor, you can only edit the [default props](/docs/props-resolution) visually. You then have the chance to override them using the [`calculateMetadata()`](/docs/calculate-metadata) function.  
-In the [Render dialog](/docs/studio), you have the chance to change the input props.\_\_
+In the [Render dialog](/docs/studio), you have the chance to change the input props.  
 They can also be overridden using [`calculateMetadata()`](/docs/calculate-metadata).

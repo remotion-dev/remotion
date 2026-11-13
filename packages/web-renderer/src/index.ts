@@ -1,4 +1,12 @@
 import './symbol-dispose';
+import {
+	getDefaultAudioCodecForContainer as internalGetDefaultAudioCodecForContainer,
+	getDefaultContainerForCodec as internalGetDefaultContainerForCodec,
+	getDefaultVideoCodecForContainer as internalGetDefaultVideoCodecForContainer,
+	getSupportedAudioCodecsForContainer as internalGetSupportedAudioCodecsForContainer,
+	getSupportedVideoCodecsForContainer as internalGetSupportedVideoCodecsForContainer,
+	isAudioOnlyContainer as internalIsAudioOnlyContainer,
+} from './mediabunny-mappings';
 
 export type {EmittedArtifact, WebRendererOnArtifact} from './artifact';
 export {canRenderMediaOnWeb} from './can-render-media-on-web';
@@ -14,14 +22,6 @@ export {
 	type GetEncodableAudioCodecsOptions,
 	type GetEncodableVideoCodecsOptions,
 } from './get-encodable-codecs';
-export {
-	getDefaultAudioCodecForContainer,
-	getDefaultContainerForCodec,
-	getDefaultVideoCodecForContainer,
-	getSupportedAudioCodecsForContainer,
-	getSupportedVideoCodecsForContainer,
-	isAudioOnlyContainer,
-} from './mediabunny-mappings';
 export type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
@@ -48,3 +48,48 @@ export type {
 } from './render-still-on-web';
 export type {HtmlInCanvasLayerOutcome} from './take-screenshot';
 export type {OnFrameCallback} from './validate-video-frame';
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const getDefaultAudioCodecForContainer =
+	internalGetDefaultAudioCodecForContainer;
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const getDefaultContainerForCodec = internalGetDefaultContainerForCodec;
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const getDefaultVideoCodecForContainer =
+	internalGetDefaultVideoCodecForContainer;
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const getSupportedAudioCodecsForContainer =
+	internalGetSupportedAudioCodecsForContainer;
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const getSupportedVideoCodecsForContainer =
+	internalGetSupportedVideoCodecsForContainer;
+
+/**
+ * @deprecated Internal API that will be removed from the public exports.
+ */
+export const isAudioOnlyContainer = internalIsAudioOnlyContainer;
+
+export const WebRendererInternals = {
+	getDefaultAudioCodecForContainer: internalGetDefaultAudioCodecForContainer,
+	getDefaultContainerForCodec: internalGetDefaultContainerForCodec,
+	getDefaultVideoCodecForContainer: internalGetDefaultVideoCodecForContainer,
+	getSupportedAudioCodecsForContainer:
+		internalGetSupportedAudioCodecsForContainer,
+	getSupportedVideoCodecsForContainer:
+		internalGetSupportedVideoCodecsForContainer,
+	isAudioOnlyContainer: internalIsAudioOnlyContainer,
+};

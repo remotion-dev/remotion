@@ -39,7 +39,10 @@ export const addEffect = async <Project extends CodemodProject>({
 			{
 				filePath,
 				output,
-				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
+				nodePathRemappings: getUnchangedStructureRemappings({
+					input,
+					output,
+				}).map((remapping) => ({...remapping, effectsOnly: true as const})),
 			},
 		],
 	});

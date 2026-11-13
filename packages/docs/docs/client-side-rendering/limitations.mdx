@@ -23,15 +23,18 @@ Properties such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex
 
 The `overflow` property is <a style={{color: 'green'}}>supported</a>.  
 The `object-fit` property is <a style={{color: 'green'}}>supported</a>.  
-The `object-position` property is <a style={{color: 'red'}}>not supported</a> and content is always centered within its container.
+The `object-position` property is <a style={{color: 'green'}}>supported</a>.  
+The `image-rendering: pixelated` value is <a style={{color: 'green'}}>supported</a> for images, canvases and raster backgrounds.
 
 The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>partially supported</a> for sibling stacking contexts. See [Z-indexing](#z-indexing).
 
 ### Transformations
 
+Inline transform and transition priorities are <a style={{color: 'green'}}>supported</a>. Variable-based `transition` shorthands combined with individual transition overrides are <a style={{color: 'green'}}>partially supported</a>: unresolved values may be lost.
+
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
-The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
+The `opacity` property is <a style={{color: 'green'}}>supported</a>, including root SVG elements.<br />
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
 The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
 The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
@@ -41,15 +44,14 @@ The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
 ### Backgrounds
 
 The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
-`background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
-The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
+`background-image` with a linear gradient, a centered radial gradient or a single raster `url()` (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a>.  
+The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a>.
+
+`image-rendering: pixelated` is <a style={{color: 'green'}}>supported</a> for raster URL backgrounds, including CSS scaling. Backgrounds requiring opacity or filter compositing can still differ from native output.
+
+The `background-repeat` property is <a style={{color: 'green'}}>supported</a> for raster `url()` backgrounds.  
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
-`background-repeat: space` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background, including `space no-repeat` and `no-repeat space`. Native-sized opaque tiles and the one-tile positioning fallback are qualified against native Chromium. Text-clipped backgrounds accumulate the tiles before applying the glyph mask; exact glyph antialiasing and arbitrary resampling remain unqualified.
-`background-repeat: round` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background. It includes both-axis round repetition, mixed `round repeat` / `repeat round`, and preservation of the source aspect ratio when the other size is `auto`. The opaque test cases match native Chromium; fractional positioning, arbitrary source interpolation and other image types require further pixel-parity qualification.
-
-`image-rendering: pixelated` is partially supported for a single raster URL background, including inherited values. Opaque integer-scale repeats and no-repeat images use nearest-neighbor sampling; tested odd-sized no-repeat tiles also retain the native local paint context for identity and integer-translation transforms. Fractional translation, arbitrary ratios, translucent assets and effected groups may still differ from native painting.
-
-Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
+Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
@@ -67,27 +69,44 @@ The `font-size` property is <a style={{color: 'green'}}>supported</a>.
 The `font-style` property is <a style={{color: 'green'}}>supported</a>.  
 The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
 The `line-height` property is <a style={{color: 'green'}}>supported</a>.  
-The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.
-The `word-spacing` property is <a style={{color: 'green'}}>supported</a>.
-The `text-transform` property is <a style={{color: 'green'}}>supported</a>.
-The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.
-The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.
-The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.
-The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.
-The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.
-The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
-The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.
-`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.
-The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
+The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `word-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.  
+The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.  
+The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.  
+`text-decoration-thickness` supports percentages and CSS math expressions. Font-derived thickness and minimum device-pixel thickness may differ from native output.  
+`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.  
+The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.  
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
+
+Text pixels may differ on transparent output, including LCD text on Linux Chromium. Opaque output against black is supported with `transparent: false` in [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#transparent), [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#transparent).
+
+### Inline SVG stylesheet state
+
+The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</a> for inline SVG stylesheets.
 
 ### Web fonts inside SVG
 
-Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
+Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from v4.0.525.
 
-The font selection must be part of the SVG markup, for example through an inline `style`, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
+Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
-Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser's `FontFace` API are not embedded. Text inside `<foreignObject>` is not detected as SVG text and does not receive embedded fonts.
+Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
+
+External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
+
+Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+
+SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
+
+Titled registered-font stylesheets support active and inactive media evaluated against the owning document, including after viewport changes. Empty sheets in a preferred titled set preserve `:empty` matching, and SVG-local CSSOM rules retain their selector matching. Native text pixels and titled-stylesheet paint selection may differ; WebKit and Firefox may select a different face.
+
+SVG-local selector preservation is not supported for stylesheets containing `@import` or `@scope` rules. Their names inside comments, strings, URLs or custom-property values do not impose this limitation, including escaped URL names and unquoted URLs containing brackets or braces.
 
 ## Shadows
 
@@ -99,11 +118,12 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with pixel, percentage, keyword, and computed `calc()`/`min()`/`max()`/`clamp()` positioning and `border-box` origin/clip. Edge-offset positions are supported when the browser resolves them to two computed coordinates. Fractional raster-mask sampling can still differ from native output; the exact-position coverage uses native-sized tiles with integral resolved positions.
+`mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> for alpha masks.  
+The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Browser-supported CSS math expressions in `mask-size` are supported. Fractional raster-mask sampling can differ from native output.
 
-`mask-size` accepts `px`, `%`, `auto`, `contain`, and `cover`. `mask-repeat` accepts `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and two-axis `repeat` / `no-repeat` combinations.
+The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`/`none` layers. Legacy composite keywords that the browser does not normalize to these values are <a style={{color: 'red'}}>not supported</a>.
 
-Cross-origin URLs, SVG, multiple layers, luminance, edge offsets that are not normalized to two computed coordinates, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
+`image-set()` masks, cross-origin URLs, SVG masks, mixed or multiple gradient layers, luminance masks and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>. Unsupported `mask-image` functions cause an export error.
 
 ## Filters
 
@@ -119,8 +139,9 @@ The `filter` property is <a style={{color: 'green'}}>supported</a> with the foll
 - `opacity()` is <a style={{color: 'green'}}>supported</a>.
 - `saturate()` is <a style={{color: 'green'}}>supported</a>.
 - `sepia()` is <a style={{color: 'green'}}>supported</a>.
+- Filter-established containing blocks for absolutely and fixed-positioned descendants are supported.
 - Multiple combined filters are <a style={{color: 'green'}}>supported</a>.
-- `url()` referencing inline SVG filters is <a style={{color: 'red'}}>not supported</a>.
+- `url()` can reference a same-document SVG `<filter>` using `feColorMatrix`, `feGaussianBlur`, and `feOffset` with `primitiveUnits="userSpaceOnUse"`. Expanded filter regions, `userSpaceOnUse` and `objectBoundingBox` filter units, and render scaling are supported in Chrome. Color-only filter functions such as `brightness()` can follow the URL effect. External filter documents, inherited filters, other primitives, and percentage primitive subregions are not supported.
 
 :::warning
 Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
@@ -128,10 +149,10 @@ Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter sup
 
 ## Blending
 
-The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
+The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from v4.0.540 with all blend modes.
 Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
 
-The `background-blend-mode` property is supported for a single linear gradient blended with the element's background color. Multiple background layers are not supported.
+The `background-blend-mode` property is <a style={{color: 'green'}}>supported</a> for a single linear gradient blended with the element's background color.
 
 ## Supported elements
 
@@ -140,11 +161,7 @@ The following Remotion components are supported:
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
-
-SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
-
-`image-rendering: pixelated` is partially supported for raster images and `<canvas>` elements, including inherited values. Opaque integer-sized `object-fit: fill`, `cover`, and `contain` cases are qualified against native Chromium and WebKit. Raster sampling does not change the SVG vector path. Fractional sampling, arbitrary ratios, transparency, video and transformed/effected groups require further pixel-parity qualification.
-
+SVG blob URLs preserve file-source content for uncropped `object-fit: fill` and `contain` images. Cropped SVG blob URLs and exact native SVG pixel parity remain limited.
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
@@ -165,12 +182,12 @@ SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and tr
 
 The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 
-- `clip-path: polygon()` (including the `evenodd` and `nonzero` fill rules) is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: polygon()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: path()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` referencing SVG `<clipPath>` elements is <a style={{color: 'red'}}>not supported</a>.
+- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, or multiple non-rounded rectangles. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, mixed multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
 
 ## Unsupported styles
 
@@ -185,9 +202,7 @@ See how you can [contribute](/docs/contributing/web-renderer) to add more suppor
 
 ## Z-indexing
 
-The CSS property `z-index` is partially supported when all direct siblings form stacking contexts inside a 2D stacking context. These siblings are painted by their stacking level, with flex/grid `order` breaking ties before DOM order.
-
-Other cases still use DOM order, including mixed normal-flow content and positioned elements, descendants participating in an ancestor's stacking context, and 3D depth ordering.
+`z-index` and flex/grid `order` are <a style={{color: 'green'}}>partially supported</a> when all direct siblings form stacking contexts inside a 2D stacking context. Mixed normal-flow and positioned elements, descendants in an ancestor's stacking context, and 3D depth ordering are not supported.
 
 To control the order of the elements, [order your elements from back to front](/docs/layers).
 
@@ -206,6 +221,8 @@ const MyComp = () => (
 ## Video and media constraints
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+Media fetches can resume after an interruption when the browser reports being offline. Failed reads of an existing response are not recovered. Renders can still be canceled while offline.
 
 ## Single concurrency
 

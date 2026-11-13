@@ -46,7 +46,10 @@ export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 			});
 
 			// If code reaches this path, the webhook is authentic.
-			const payload = req.body as WebhookPayload;
+			const payload: WebhookPayload =
+				typeof req.body === 'string' || Buffer.isBuffer(req.body)
+					? JSON.parse(req.body.toString())
+					: req.body;
 			if (payload.type === 'success' && onSuccess) {
 				await onSuccess(payload);
 			} else if (payload.type === 'timeout' && onTimeout) {

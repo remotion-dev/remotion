@@ -50,7 +50,7 @@ Output
 
 ## How it works
 
-This function works by splitting SVG instructions into many smaller SVG instructions and then remapping the coordinates of each instruction. This will result in the output being a much SVG path than the input.
+This function works by splitting SVG instructions into many smaller SVG instructions and then remapping the coordinates of each instruction. This will result in the output being a much longer SVG path than the input.
 
 ## Arguments
 
@@ -71,9 +71,9 @@ const fn: WarpPathFn = ({ x, y }) => ({
 });
 ```
 
-### `options`
+### `options?`
 
-#### `interpolationThreshold`
+#### `interpolationThreshold?`
 
 The [interpolation algorithm](/docs/paths/warp-path#how-it-works) will split the SVG path recursively into smaller SVG paths. This option allows you to specify the distance of a segment at which the algorithm should stop dividing the path into smaller segments.
 

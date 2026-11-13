@@ -162,7 +162,8 @@ export type FindInFileRequest = {
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-	search: string;
+	search: string | null;
+	effectIndex: number | null;
 };
 
 export type FindInFileResponse = {
@@ -457,6 +458,12 @@ export type CompositionEditResponse =
 			stack: string;
 	  };
 
+export type CompositionMoveResponse =
+	| Extract<CompositionEditResponse, {success: true}>
+	| (Extract<CompositionEditResponse, {success: false}> & {
+			canRefactor: boolean;
+	  });
+
 export type DeleteStaticFileRequest = {
 	relativePath: string;
 };
@@ -528,6 +535,7 @@ export type SubscribeToSequencePropsRequest = {
 export type SubscribeToSequencePropsResponse =
 	| {
 			success: true;
+			sourceVersion?: SourceFileVersion | null;
 			status: CanUpdateSequencePropsResponseTrue;
 			nodePath: SequencePropsSubscriptionKey;
 	  }
@@ -552,6 +560,20 @@ export type UnsubscribeFromSequencePropsRequest = {
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
+};
+
+export type UpdateSequencePropsSubscriptionRequest = {
+	subscription: UnsubscribeFromSequencePropsRequest;
+	effects: string[][];
+};
+
+export type SequencePropsSubscriptionUpdate = {
+	request: UpdateSequencePropsSubscriptionRequest;
+	result: SubscribeToSequencePropsResponse;
+};
+
+export type UpdateSequencePropsSubscriptionBatchRequest = {
+	requests: UpdateSequencePropsSubscriptionRequest[];
 };
 
 export type UnsubscribeFromSequencePropsBatchRequest = {
@@ -703,6 +725,7 @@ export type SaveMultipleEffectPropsResponse = {
 };
 
 export type AddEffectRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
@@ -713,6 +736,7 @@ export type AddEffectRequest = {
 
 export type AddEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
 			insertedEffect: {
@@ -727,6 +751,7 @@ export type AddEffectResponse =
 	  };
 
 export type ReorderEffectRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	fromIndex: number;
@@ -736,6 +761,7 @@ export type ReorderEffectRequest = {
 
 export type ReorderEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
@@ -746,6 +772,7 @@ export type ReorderEffectResponse =
 	  };
 
 export type DuplicateEffectRequestItem = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
@@ -755,6 +782,7 @@ export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
 
 export type DuplicateEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
 			duplicatedEffects: {
@@ -771,13 +799,23 @@ export type DuplicateEffectResponse =
 
 export type ReorderSequencePosition = 'before' | 'after';
 
+export type TrackMoveTiming = {
+	from: number;
+	durationInFrames: number;
+	playbackRate: number;
+	trimBefore: number;
+	name: string;
+};
+
 export type ReorderSequenceRequest = {
 	fileName: string;
 	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
-	position: ReorderSequencePosition;
 	clientId: string;
-};
+} & (
+	| {position: ReorderSequencePosition}
+	| {position: 'inside'; timings: TrackMoveTiming[]}
+);
 
 export type ReorderSequenceResponse =
 	| {
@@ -889,12 +927,29 @@ export type AddEffectKeyframe = Omit<AddEffectKeyframeRequest, 'clientId'>;
 export type AddKeyframesRequest = {
 	sequenceKeyframes: AddSequenceKeyframe[];
 	effectKeyframes: AddEffectKeyframe[];
+	paste: {
+		keyframeDisplayOffset: number;
+		keyframePlaybackRate: number;
+		easing: KeyframeEasing[];
+		timingGuards:
+			| readonly {
+					fileName: string;
+					nodePath: SequencePropsSubscriptionKey;
+					fields: readonly {
+						key: 'from' | 'trimBefore' | 'playbackRate';
+						value: number;
+						defaultValue: number | null;
+					}[];
+			  }[]
+			| null;
+	} | null;
 	clientId: string;
 };
 
 export type AddKeyframesResponse = {
 	success: true;
 	nodePathMutation: SequenceNodePathMutation | null;
+	results: KeyframeMutationResult[];
 };
 
 export type KeyframeSettings =
@@ -959,6 +1014,7 @@ export type BatchUpdateKeyframeSettingsResponse = {
 };
 
 type BaseDeleteEffectRequestItem = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 };
@@ -976,6 +1032,7 @@ export type DeleteEffectRequest = DeleteEffectRequestItem[];
 
 export type DeleteEffectResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
@@ -1217,6 +1274,10 @@ export type RestorePrerenderedSceneResponse =
 
 export type InsertableCompositionElement =
 	| {
+			type: 'track';
+			position: null;
+	  }
+	| {
 			type: 'text';
 			text: string;
 			fontSize: number;
@@ -1275,6 +1336,10 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	track: {
+		targetNodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number;
+	} | null;
 };
 
 export type InsertCompositionElementResponse =
@@ -1531,6 +1596,17 @@ export type ConfigValue =
 
 export type ConfigUpdate =
 	| {
+			setter: 'addElementLibrary';
+			type: 'update';
+			previousUrl: string;
+			value: {url: string; displayName: string | null};
+	  }
+	| {
+			setter: 'addElementLibrary';
+			type: 'reorder';
+			value: string[];
+	  }
+	| {
 			setter: string;
 			type: 'delete';
 			value?: string;
@@ -1603,9 +1679,12 @@ export type InstallPackageRequest = {
 };
 export type InstallPackageResponse = {};
 
-export type UndoRequest = {};
+export type UndoRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
+};
 export type UndoResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 			route: string | null;
@@ -1615,9 +1694,12 @@ export type UndoResponse =
 			reason: string;
 	  };
 
-export type RedoRequest = {};
+export type RedoRequest = {
+	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
+};
 export type RedoResponse =
 	| {
+			sequenceProps?: SequencePropsSubscriptionUpdate[];
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
 			route: string | null;
@@ -1723,6 +1805,10 @@ export const studioOperations = {
 	>({mutatesSource: false}),
 	'/api/subscribe-to-sequence-props': new StudioOperation<
 		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
+	>({mutatesSource: false}),
+	'/api/update-sequence-props-subscription': new StudioOperation<
+		UpdateSequencePropsSubscriptionBatchRequest,
 		SubscribeToSequencePropsBatchResponse
 	>({mutatesSource: false}),
 	'/api/unsubscribe-from-sequence-props': new StudioOperation<
@@ -1921,7 +2007,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-composition': new StudioOperation<
 		MoveCompositionRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/add-folder': new StudioOperation<
 		AddFolderRequest,
@@ -1937,7 +2023,7 @@ export const studioOperations = {
 	>({mutatesSource: true}),
 	'/api/move-folder': new StudioOperation<
 		MoveFolderRequest,
-		CompositionEditResponse
+		CompositionMoveResponse
 	>({mutatesSource: true}),
 	'/api/project-info': new StudioOperation<
 		ProjectInfoRequest,
@@ -1968,6 +2054,10 @@ export const studioOperations = {
 	'/api/update-config': new StudioOperation<
 		UpdateConfigRequest,
 		UpdateConfigResponse
+	>({mutatesSource: false}),
+	'/api/element-library-favicon': new StudioOperation<
+		{url: string},
+		{head: string; url: string} | null
 	>({mutatesSource: false}),
 	'/api/install-package': new StudioOperation<
 		InstallPackageRequest,
