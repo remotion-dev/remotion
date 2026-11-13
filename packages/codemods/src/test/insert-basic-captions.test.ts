@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {insertBasicCaptions} from '../insert-basic-captions';
+import {insertBasicCaptions} from '../insert-basic-captions-in-source';
 import {parseAst} from '../sequence-props/parse-ast';
 import {lineContainingToNodePath} from './node-path-test-utils';
 

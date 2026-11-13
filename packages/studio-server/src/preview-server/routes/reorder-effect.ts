@@ -38,7 +38,7 @@ export const reorderEffectHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -52,7 +52,7 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderEffects({
+			const result = reorderEffects({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				effects: fromIndices.map((effectIndex) => ({
 					filePath: absolutePath,
