@@ -88,7 +88,11 @@ export const renderFrameAndRetryTargetClose = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	makeBrowser: () => Promise<HeadlessBrowser>;
-	makeNewPage: (frame: number, pageIndex: number) => Promise<Page>;
+	makeNewPage: (
+		frame: number,
+		pageIndex: number,
+		attempt: number,
+	) => Promise<Page>;
 	browserReplacer: BrowserReplacer;
 	concurrencyOrFramesToRender: number;
 	lastFrame: number;
@@ -212,7 +216,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				}
 			}
 
-			const newPage = await makeNewPage(frame, freePage.pageIndex);
+			const newPage = await makeNewPage(frame, freePage.pageIndex, attempt + 1);
 			pool.release(newPage);
 			Log.warn(
 				{indent, logLevel},
@@ -274,7 +278,7 @@ export const renderFrameAndRetryTargetClose = async ({
 		await browserReplacer.replaceBrowser(makeBrowser, async () => {
 			const pages = new Array(concurrencyOrFramesToRender)
 				.fill(true)
-				.map((_, i) => makeNewPage(frame, i));
+				.map((_, i) => makeNewPage(frame, i, attempt + 1));
 			const puppeteerPages = await Promise.all(pages);
 			const pool = await poolPromise;
 			pool.resources = pool.resources.filter((p) => !p.closed);
