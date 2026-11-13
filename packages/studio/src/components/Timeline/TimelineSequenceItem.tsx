@@ -1496,7 +1496,6 @@ const TimelineSequenceItemInner: React.FC<{
 						? () => {
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'apps',
 									initialPublicLicenseKey:
 										window.remotion_renderDefaults?.publicLicenseKey ?? null,
