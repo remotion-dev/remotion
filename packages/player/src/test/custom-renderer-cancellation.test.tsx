@@ -141,3 +141,55 @@ test.each(['Player', 'Thumbnail'] as const)(
 		}
 	},
 );
+
+test('a bridged renderer without a Player owner retains fatal scoped cancellation', () => {
+	const scope: DelayRenderScope = {
+		remotion_renderReady: true,
+		remotion_delayRenderHandles: [],
+		remotion_delayRenderTimeouts: {},
+		remotion_puppeteerTimeout: 30000,
+		remotion_attempt: 1,
+	};
+	const previousError = window.remotion_cancelledError;
+	const previousErrorObject = window.remotion_cancelledErrorObject;
+	let contexts!: Contexts;
+	let controls!: Controls;
+	let handle!: number;
+	const view = render(
+		<Internals.DelayRenderContextType.Provider value={scope}>
+			<CaptureContexts
+				ready={(value) => {
+					contexts = value;
+				}}
+			/>
+		</Internals.DelayRenderContextType.Provider>,
+	);
+	const bridge = render(
+		<Internals.RemotionContextProvider contexts={contexts}>
+			<CustomRendererChild
+				ready={(value, allocated) => {
+					controls = value;
+					handle = allocated;
+				}}
+			/>
+		</Internals.RemotionContextProvider>,
+	);
+	try {
+		expect(contexts.cancelRenderContext).toBeNull();
+		expect(contexts.delayRenderContext).toBe(scope);
+		expect(scope.remotion_delayRenderHandles).toEqual([handle]);
+		const error = new Error('fatal custom renderer');
+		expect(() => controls.cancelRender(error)).toThrow(error);
+		expect(scope.remotion_cancelledErrorObject).toBe(error);
+		expect(scope.remotion_cancelledError).toBeDefined();
+		expect(window.remotion_cancelledError).toBe(previousError);
+		expect(window.remotion_cancelledErrorObject).toBe(previousErrorObject);
+		bridge.unmount();
+		expect(scope.remotion_delayRenderHandles).toEqual([]);
+		// Releasing a hold must not revive a fatally cancelled render.
+		expect(scope.remotion_renderReady).toBe(false);
+	} finally {
+		bridge.unmount();
+		view.unmount();
+	}
+});
