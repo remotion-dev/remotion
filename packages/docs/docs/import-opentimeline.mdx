@@ -76,33 +76,42 @@ Install [`@remotion/codemods`](/docs/codemods) at the same version as the other 
 
 <Installation pkg="@remotion/codemods" />
 
-[`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition) converts a timeline into TSX:
+[`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition) creates a component and registers it in the [root file](/docs/terminology/root-file):
 
 ```ts twoslash title="import-timeline.ts"
 import {readFileSync, writeFileSync} from 'node:fs';
-import {generateOpenTimelineComposition} from '@remotion/codemods';
+import {addOpenTimelineComposition} from '@remotion/codemods';
 
-const result = generateOpenTimelineComposition({
+const result = addOpenTimelineComposition({
+  project: {
+    rootDir: process.cwd(),
+    files: {
+      'src/Root.tsx': readFileSync('src/Root.tsx', 'utf8'),
+    },
+  },
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyEdit',
+  component: {
+    filePath: 'src/MyEdit.tsx',
+    importName: 'MyEdit',
+    importPath: './MyEdit',
+  },
   timeline: readFileSync('my-edit.otio', 'utf8'),
-  componentName: 'MyEdit',
   width: 1920,
   height: 1080,
   fps: 30,
 });
 
-if (result.source === null) {
-  throw new Error(JSON.stringify(result.diagnostics));
+for (const change of result.changes) {
+  if (change.nextContents !== null) {
+    writeFileSync(change.filePath, change.nextContents);
+  }
 }
-
-writeFileSync('src/MyEdit.tsx', result.source);
-console.log(result.metadata, result.diagnostics);
 ```
 
-Register the generated component as a [`<Composition>`](/docs/composition) using the returned metadata. To generate the component and its registration together, use [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition).
+The function returns file changes, which the example writes to disk. It does not copy media or install dependencies. The generated component uses `remotion` and, when needed, `@remotion/media`. Put local media in the public folder, or map its references to browser-accessible URLs.
 
-The APIs operate in memory. They do not copy media or install dependencies. The generated component uses `remotion` and, when needed, `@remotion/media`. Put local media in the public folder, or map its references to browser-accessible URLs.
-
-Remote URLs and public-relative paths work by default. For absolute paths, `file:` URLs, or missing media, provide a [`resolveMedia()` callback](/docs/codemods/generate-open-timeline-composition#resolvemedia). When source timecode does not start at zero, provide the media's `available_range` in the timeline; Studio and the CLI can probe local media automatically.
+Remote URLs and public-relative paths work by default. For absolute paths, `file:` URLs, or missing media, provide a [`resolveMedia()` callback](/docs/codemods/add-open-timeline-composition#resolvemedia). When source timecode does not start at zero, provide the media's `available_range` in the timeline; Studio and the CLI can probe local media automatically.
 
 ## Supported features and limitations
 
