@@ -68,6 +68,7 @@ test.each(['Player', 'Thumbnail'] as const)(
 		const ready = (value: Contexts) => {
 			contexts = value;
 		};
+
 		const owner =
 			actor === 'Player' ? (
 				<Player
