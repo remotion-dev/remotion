@@ -38,6 +38,7 @@ import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {clipPathShapes, clipPathReferences} from './fixtures/clip-path';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {
 	clipPathDescendantFilter,
@@ -572,6 +573,8 @@ export const Root: React.FC = () => {
 				<Composition {...pr11215SvgFontRepro} />
 			</Folder>
 			<Folder name="clip-path">
+				<Composition {...clipPathShapes} />
+				<Composition {...clipPathReferences} />
 				<Composition {...clipPathPolygon} />
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
