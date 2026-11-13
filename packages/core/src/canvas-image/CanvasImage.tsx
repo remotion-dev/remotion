@@ -439,6 +439,7 @@ const CanvasImageContent = forwardRef<
 				} finally {
 					continueRenderOnce();
 				}
+
 				return () => {
 					continueRenderOnce();
 				};
