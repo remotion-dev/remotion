@@ -13,6 +13,7 @@ const config = {
 	durationInFrames: 30,
 	fps: 30,
 };
+
 const fallback = ({error}: {error: Error}) => (
 	<div role="alert">{error.message}</div>
 );
@@ -30,6 +31,7 @@ test('a queued failure cannot prevent a batched owner replacement', async () => 
 		}, []);
 		return <span>retained content</span>;
 	};
+
 	const Parent = () => {
 		const [owner, setOwner] = useState<object>({});
 		replace = () => setOwner({});
@@ -44,6 +46,7 @@ test('a queued failure cannot prevent a batched owner replacement', async () => 
 			</ErrorBoundary>
 		);
 	};
+
 	const view = render(<Parent />);
 	const original = view.getByText('retained content');
 	const old = controls;
@@ -61,6 +64,7 @@ test('a queued failure cannot prevent a batched owner replacement', async () => 
 	const current = new Error('current owner');
 	await act(async () => {
 		expect(() => controls.cancelRender(current)).toThrow(current);
+		await Promise.resolve();
 	});
 	expect(view.getByRole('alert').textContent).toBe(current.message);
 	expect(errors).toEqual([current]);
@@ -69,19 +73,21 @@ test('a queued failure cannot prevent a batched owner replacement', async () => 
 for (const actor of ['Player', 'Thumbnail'] as const) {
 	for (const noSuspense of [false, true]) {
 		test(`${actor} retires every old-component callback across replacement (noSuspense=${noSuspense})`, async () => {
-			const retired: Controls[] = [];
+			const retired: Controls['cancelRender'][] = [];
 			let current!: Controls;
 			const A = () => {
-				const controls = useDelayRender();
+				const {cancelRender} = useDelayRender();
 				useLayoutEffect(() => {
-					retired.push(controls);
-				}, [controls.cancelRender]);
+					retired.push(cancelRender);
+				}, [cancelRender]);
 				return <span>old composition</span>;
 			};
+
 			const B = () => {
 				current = useDelayRender();
 				return <span>healthy replacement</span>;
 			};
+
 			const element = (component: typeof A) =>
 				actor === 'Player' ? (
 					<Player
@@ -104,16 +110,18 @@ for (const actor of ['Player', 'Thumbnail'] as const) {
 			const replacement = view.getByText('healthy replacement');
 			expect(retired.length).toBeGreaterThan(0);
 			await act(async () => {
-				for (const controls of retired) {
-					const error = new Error('retired composition work');
-					expect(() => controls.cancelRender(error)).toThrow(error);
+				for (const cancelRender of retired) {
+					const staleFailure = new Error('retired composition work');
+					expect(() => cancelRender(staleFailure)).toThrow(staleFailure);
 				}
+				await Promise.resolve();
 			});
 			expect(view.queryByRole('alert')).toBeNull();
 			expect(view.getByText('healthy replacement')).toBe(replacement);
 			const error = new Error('active replacement failure');
 			await act(async () => {
 				expect(() => current.cancelRender(error)).toThrow(error);
+				await Promise.resolve();
 			});
 			expect(view.getByRole('alert').textContent).toBe(error.message);
 		});
@@ -128,6 +136,7 @@ for (const actor of ['Player', 'Thumbnail'] as const) {
 			old = useDelayRender();
 			return <span>retiring composition</span>;
 		};
+
 		const B = () => <span>batched replacement</span>;
 		const Parent = () => {
 			const [replacement, setReplacement] = useState(false);
@@ -144,6 +153,7 @@ for (const actor of ['Player', 'Thumbnail'] as const) {
 				/>
 			);
 		};
+
 		const view = render(<Parent />);
 		await act(async () => {
 			const error = new Error('queued retired failure');
