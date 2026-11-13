@@ -105,11 +105,23 @@ for (const toc of files.filter((f) => f.endsWith('table-of-contents.tsx'))) {
 			return false;
 		}
 
-		const imports = fs
-			.readFileSync(file, 'utf8')
-			.matchAll(/from ['"]([^'"]*table-of-contents)['"]/g);
+		const content = fs.readFileSync(file, 'utf8');
+		const imports = content.matchAll(
+			/import\s*\{([^}]+)\}\s*from\s*['"]([^'"]*table-of-contents)['"]/g,
+		);
 		return [...imports].some(
-			(m) => path.join(path.dirname(file), m[1]) === toc.replace(/\.tsx$/, ''),
+			(m) =>
+				path.join(path.dirname(file), m[2]) === toc.replace(/\.tsx$/, '') &&
+				// Shared files can also export subsets, such as LambdaCustomization.
+				// Those importers do not identify the main API table's category.
+				m[1].split(',').some((specifier) => {
+					const imported = specifier
+						.trim()
+						.match(/^TableOfContents(?:\s+as\s+(\w+))?$/);
+					if (!imported) return false;
+					const component = imported[1] ?? 'TableOfContents';
+					return new RegExp(`<${component}(?:\\s|/|>)`).test(content);
+				}),
 		);
 	});
 
