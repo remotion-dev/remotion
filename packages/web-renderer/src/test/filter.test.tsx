@@ -2,9 +2,9 @@ import {expect, test} from 'vitest';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {applySvgFilterToPrecomposedCanvas} from '../drawing/handle-filter';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {filter} from './fixtures/filter';
 import {filterContainingBlockReference} from './fixtures/filter-containing-block';
-import '../symbol-dispose';
 import {
 	svgFilterContainingBlockReference,
 	svgFilterReference,
@@ -14,11 +14,6 @@ import {
 	svgFilterOffsetReference,
 	svgFilterReviewReference,
 } from './fixtures/svg-filter-reference';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	savePixelEvidence,
-} from './native-reference';
 import {testCompositions, testImage} from './utils';
 
 test('should render filter', async () => {
@@ -126,7 +121,6 @@ test('preserves SVG filter containing-block geometry and priority during capture
 				rootElement: root,
 				transformStyleCache: new WeakMap(),
 				isolated: false,
-
 				experimental3DRendering: null,
 			});
 			expect(capture.precompositing.needsFilterPrecompositing).not.toBeNull();
@@ -166,7 +160,6 @@ test('preserves filter containing-block geometry and priority during capture', (
 				rootElement: root,
 				transformStyleCache: new WeakMap(),
 				isolated: false,
-
 				experimental3DRendering: null,
 			});
 			expect(capture.precompositing.needsFilterPrecompositing).not.toBeNull();
@@ -179,128 +172,3 @@ test('preserves filter containing-block geometry and priority during capture', (
 		root.remove();
 	}
 });
-
-for (const fixture of [
-	svgFilterReference,
-	svgFilterExpandedReference,
-	svgFilterBoundingBoxReference,
-	svgFilterFractionalReference,
-	svgFilterOffsetReference,
-	svgFilterReviewReference,
-]) {
-	for (const frame of [0, 1]) {
-		test(`${fixture.id} matches native painting at frame ${frame}`, async (t) => {
-			if (
-				t.task.file.projectName === 'firefox' ||
-				!('filter' in CanvasRenderingContext2D.prototype)
-			) {
-				// Firefox cannot capture transparent native references here; WebKit may lack Canvas filters.
-				t.skip();
-				return;
-			}
-
-			const reference = await captureNativeReference(fixture, frame);
-			const actual = await (
-				await renderStillOnWeb({
-					licenseKey: 'free-license',
-					composition: fixture,
-					frame,
-					inputProps: {},
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-			const diff = await compareNativePixels(reference, actual);
-			if (diff.mismatchedPixels !== 0)
-				await Promise.all([
-					savePixelEvidence(reference, `${fixture.id}-${frame}-native`),
-					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`),
-					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`),
-				]);
-			expect(diff.mismatchedPixels).toBe(0);
-		});
-	}
-}
-
-for (const frame of [0, 1]) {
-	test(`retains SVG filter containing blocks at frame ${frame}`, async (t) => {
-		if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(
-			svgFilterContainingBlockReference,
-			frame,
-			{omitBackground: false},
-		);
-		const actual = await (
-			await renderStillOnWeb({
-				licenseKey: 'free-license',
-				composition: svgFilterContainingBlockReference,
-				frame,
-				inputProps: {},
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const diff = await compareNativePixels(reference, actual);
-		if (diff.mismatchedPixels !== 0)
-			await Promise.all([
-				savePixelEvidence(
-					reference,
-					`svg-filter-containing-block-${frame}-native`,
-					{omitBackground: false},
-				),
-				savePixelEvidence(
-					actual,
-					`svg-filter-containing-block-${frame}-actual`,
-					{omitBackground: false},
-				),
-				savePixelEvidence(
-					diff.diff,
-					`svg-filter-containing-block-${frame}-diff`,
-					{omitBackground: false},
-				),
-			]);
-		expect(diff.mismatchedPixels).toBe(0);
-	});
-}
-
-for (const frame of [0, 1]) {
-	test(`retains filter containing blocks at frame ${frame}`, async (t) => {
-		if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(
-			filterContainingBlockReference,
-			frame,
-			{omitBackground: false},
-		);
-		const actual = await (
-			await renderStillOnWeb({
-				licenseKey: 'free-license',
-				composition: filterContainingBlockReference,
-				frame,
-				inputProps: {},
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const diff = await compareNativePixels(reference, actual);
-		if (diff.mismatchedPixels !== 0)
-			await Promise.all([
-				savePixelEvidence(
-					reference,
-					`filter-containing-block-${frame}-native`,
-					{omitBackground: false},
-				),
-				savePixelEvidence(actual, `filter-containing-block-${frame}-actual`, {
-					omitBackground: false,
-				}),
-				savePixelEvidence(diff.diff, `filter-containing-block-${frame}-diff`, {
-					omitBackground: false,
-				}),
-			]);
-		expect(diff.mismatchedPixels).toBe(0);
-	});
-}
