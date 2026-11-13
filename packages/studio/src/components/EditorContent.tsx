@@ -7,11 +7,11 @@ import {AudioLevels} from './AudioLevels';
 import {Diagnostics} from './Diagnostics';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
-import {MenuToolbar} from './MenuToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {SplitterImperativeProvider} from './Splitter/SplitterImperativeContext';
+import {StudioPanels} from './StudioPanels';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {Timeline} from './Timeline/Timeline';
 import {timelineViewportRef} from './Timeline/timeline-refs';
@@ -125,11 +125,12 @@ export const EditorContent: React.FC<{
 					<Transform3DModeStateProvider>
 						<StudioClearSelectionArea>
 							<InitialCompositionLoader />
-							<MenuToolbar readOnlyStudio={readOnlyStudio} />
 							<GlobalKeybindings />
-							<TimelineKeyframeDragStateProvider>
-								{content}
-							</TimelineKeyframeDragStateProvider>
+							<StudioPanels readOnlyStudio={readOnlyStudio}>
+								<TimelineKeyframeDragStateProvider>
+									{content}
+								</TimelineKeyframeDragStateProvider>
+							</StudioPanels>
 						</StudioClearSelectionArea>
 					</Transform3DModeStateProvider>
 				</SplitterImperativeProvider>

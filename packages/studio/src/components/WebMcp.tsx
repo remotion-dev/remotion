@@ -1270,13 +1270,12 @@ export const WebMcp: FC = () => {
 										status: operation.status,
 										effectIds:
 											operation.action.type === 'delete' ||
-											operation.action.type === 'duplicate'
+											operation.action.type === 'duplicate' ||
+											operation.action.type === 'reorder'
 												? operation.action.ids
-												: operation.action.type === 'reorder'
-													? [operation.action.id]
-													: operation.action.type === 'restore'
-														? operation.action.items.map((item) => item.id)
-														: operation.addedIds,
+												: operation.action.type === 'restore'
+													? operation.action.items.map((item) => item.id)
+													: operation.addedIds,
 									})),
 							);
 						const pendingEffectDeletions =

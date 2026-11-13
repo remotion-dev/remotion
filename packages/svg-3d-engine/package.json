@@ -1,5 +1,6 @@
 {
 	"name": "@remotion/svg-3d-engine",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@remotion/paths": "workspace:*"
 	},

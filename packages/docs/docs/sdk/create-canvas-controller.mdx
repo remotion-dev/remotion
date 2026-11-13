@@ -89,7 +89,7 @@ declare const nodes: NodeReference[];
 declare const compile: (project: CodemodProject) => void;
 // ---cut---
 export const removeNodes = async () => {
-  const result = await deleteNodes({project, nodes});
+  const result = deleteNodes({project, nodes});
   controller.queueSequenceNodePathRemappings(result.nodePathRemappings);
   compile(applyCodemodChanges(project, result.changes));
 };

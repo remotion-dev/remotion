@@ -20,7 +20,7 @@ import {detachAudio, type CodemodProject, type NodeReference} from '@remotion/co
 declare const project: CodemodProject;
 declare const node: NodeReference;
 
-const result = await detachAudio({
+const result = detachAudio({
   project,
   node,
 });
@@ -29,6 +29,8 @@ console.log(result);
 ```
 
 Supports recognized Remotion video imports. The audio element uses the same source and copies supported playback and timing props. This edits source code; it does not extract or write an audio file.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -42,7 +44,7 @@ A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/co
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -62,7 +64,7 @@ The muted video element reference.
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

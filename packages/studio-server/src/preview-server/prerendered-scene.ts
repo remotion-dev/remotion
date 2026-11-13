@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import {
-	CodemodsInternals,
+	replaceNodeChild,
 	createElement,
 	staticFileValue,
 } from '@remotion/codemods';
@@ -100,7 +100,7 @@ export const replaceWithPrerenderedVideo = async ({
 		fileName,
 		nodePath,
 		codemod: ({project, node}) =>
-			CodemodsInternals.replaceNodeChild({
+			replaceNodeChild({
 				project,
 				node,
 				element: createElement({

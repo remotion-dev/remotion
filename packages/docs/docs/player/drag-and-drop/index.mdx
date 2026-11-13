@@ -507,7 +507,7 @@ The following features have been defined as goals:
 
 Create a TypeScript type that describes the shape of your item.
 
-In this example we store an identifier `id`, start and end frame `from` and
+In this example, the item stores an identifier `id`, start and end frame `from` and
 `durationInFrames`, the position `left`, `top`, `width` and `height`, a
 background `color` as well as a boolean `isDragging` to fine-tune the behavior while dragging.
 
@@ -562,29 +562,29 @@ Create a React component that renders an outline when an item is selected or hov
 Clicking on one of these elements will select the underlying item.
 
 **Scaling**: The [`<Player />`](/docs/player/player) has a CSS `scale` transform applied to it.  
-Since we consume the coordinates of the pointer events, we need to divide them by [`useCurrentScale()`](/docs/use-current-scale) to get the correct position.
+The coordinates of the pointer events are affected by the scale, so the component divides them by [`useCurrentScale()`](/docs/use-current-scale) to get the correct position.
 
-The thickness of the borders will also be affected by the scale, so we need to divide them by the scale too.
+The thickness of the borders is also affected by the scale, so it is divided by the scale too.
 
-**Pointer event handling**: On any `pointerdown` event, we call `e.stopPropagation()` to prevent the event from bubbling up.  
-Later, we treat any event that bubbles up as a click on an empty space and deselect the item.
+**Pointer event handling**: On any `pointerdown` event, the outline calls `e.stopPropagation()` to prevent the event from bubbling up.  
+Later, any event that bubbles up is treated as a click on an empty space and deselects the item.
 
-We also don't do any action if `e.button !== 0`. This prevents a bug where the item moves after a right click.
+Events where `e.button !== 0` are ignored. This prevents a bug where the item moves after a right click.
 
-We add `userSelect: 'none'` to disable the native selection and drag behavior of the browser.
+`userSelect: 'none'` disables the native selection and drag behavior of the browser.
 
-We also add `touchAction: 'none'` to disable scrolling the page on mobile while dragging.
+`touchAction: 'none'` disables scrolling the page on mobile while dragging.
 
-We keep track if the item is being dragged by using the `isDragging` property and disable the hover effect while an item is being dragged.
+The `isDragging` property tracks whether the item is being dragged. The hover effect is disabled while an item is being dragged.
 
 ### <TitleStep>4</TitleStep> Sorting outlines
 
-Let's create a component that renders all outlines.  
+Create a component that renders all outlines.  
 The item which gets rendered as last element [will be on top of all other items](/docs/layers).
 
 The item that is selected should be rendered on top of all other items because it is the item that is responsive to mouse events.
 
-We render the selected outlines last. This ensures that the resize handles are always on top.  
+The selected outlines are rendered last. This ensures that the resize handles are always on top.  
 This logic only applies to the outlines, not the actual layers.
 
 ```tsx twoslash title="SortedOutlines.tsx"
@@ -601,7 +601,7 @@ This logic only applies to the outlines, not the actual layers.
 
 ### <TitleStep>5</TitleStep> Putting it together
 
-Next, we create a main component that renders the items and the outlines.
+Next, create a main component that renders the items and the outlines.
 
 ```tsx twoslash title="Main.tsx"
 // @filename: item.ts
@@ -619,18 +619,18 @@ Next, we create a main component that renders the items and the outlines.
 // @include: Main
 ```
 
-**Z-indexing:** We render the layers first and then the outlines. This means the outlines get rendered on top the items.
+**Z-indexing:** The layers are rendered first and then the outlines. This means the outlines get rendered on top the items.
 
-**Overflow behavior**: Note that we apply a different `overflow` behavior to the layers and the outlines.  
-We hide the overflow of the layers, but show the overflow of the outlines.  
+**Overflow behavior**: The layers and the outlines use a different `overflow` behavior.  
+The overflow of the layers is hidden, but the overflow of the outlines is visible.  
 This is a UI behavior that is similar to Figma frames.
 
-**Click handling**: We also listen to `pointerdown` events on the canvas.  
+**Click handling**: The canvas also listens to `pointerdown` events.  
 Any event that was not stopped using `e.stopPropagation()` before will be treated as a click on an empty space and results in deselecting the item.
 
 ### <TitleStep>6</TitleStep> Rendering the Player
 
-We can now render the Main component that we created in the Remotion Player.
+Now render the Main component in the Remotion Player.
 
 ```tsx twoslash title="Demo.tsx"
 // @filename: item.ts
@@ -650,13 +650,11 @@ We can now render the Main component that we created in the Remotion Player.
 // @include: Demo
 ```
 
-We omit the [`controls`](/docs/player/player#controls) prop to disable the built-in controls.  
+The [`controls`](/docs/player/player#controls) prop is omitted to disable the built-in controls.  
 You can add [custom controls outside the Player](/docs/player/custom-controls).
 
-We add the [`overflowVisible`](/docs/player/player#overflowvisible) prop to make the outlines visible if they go outside the canvas.  
-Remember that we've hidden the overflow of the layers itself because it would also not be visible in the final video.
-
-We've now implemented thoughtful drag and drop interactions!
+The [`overflowVisible`](/docs/player/player#overflowvisible) prop makes the outlines visible if they go outside the canvas.  
+The overflow of the layers itself stays hidden because it would also not be visible in the final video.
 
 ## See also
 

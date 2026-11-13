@@ -115,6 +115,25 @@ Read [studio-css-reset](../studio-css-reset/SKILL.md) and
 
 ## Performance must not regress
 
+### Keep provider trees stable
+
+Do not conditionally add or remove a context provider around children that must
+stay mounted. Keep the provider at the same position and change its value or an
+explicit enabled/disabled prop instead. Preserve any inherited context value
+when the local override is inactive.
+
+Adding or removing a provider changes the React tree and remounts its descendants,
+resetting state, focus, effects, and media decoders. Check ternaries, early returns,
+and conditional wrapper components, especially when toggling playback features,
+sample counts, selection, or optional callbacks. For example, changing motion blur
+from one sample to four and back must preserve the surviving sample's subtree.
+
+Verify descendant identity and state across the toggle and compare buffering or
+effect cleanup where relevant. Conditional mounting remains appropriate when the
+whole subtree is intentionally created or removed, such as opening a modal.
+
+### Measure runtime performance
+
 Read [studio-perf](../studio-perf/SKILL.md). Prefer consuming context through an
 existing stable ref or imperative getter when the value is needed only during
 an action. Copying a reactive context value into a ref after subscribing does

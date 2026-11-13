@@ -5,7 +5,7 @@ const cliFlag = 'public-path' as const;
 let currentPublicPath: string | null = null;
 
 export const publicPathOption = {
-	name: 'Public Path',
+	name: 'Public path',
 	addedIn: '4.0.127',
 	cliFlag,
 	description: () => {

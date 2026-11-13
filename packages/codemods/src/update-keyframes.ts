@@ -412,7 +412,7 @@ const validateSourceKeyframeUpdates = (updates: SourceKeyframeUpdate[]) => {
 export type FormatKeyframesFile = (input: {
 	contents: string;
 	prettierConfigOverride: Record<string, unknown> | null;
-}) => Promise<{output: string; formatted: boolean}>;
+}) => {output: string; formatted: boolean};
 
 type WritableProp = {
 	expression: Expression;
@@ -2477,38 +2477,37 @@ export const updateSequenceKeyframes = ({
 	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
 	newValueStrings: string[];
 	logLine: number;
 	updatedNodePath: SequenceNodePath;
-}> =>
-	Promise.resolve().then(() => {
-		const {
-			serialized,
-			oldValueStrings,
-			newValueStrings,
-			logLine,
-			updatedNodePath,
-		} = updateSequenceKeyframesAst({
-			input,
-			nodePath,
-			updates,
-			schema,
-			prettierConfigOverride,
-			videoConfigValues,
-		});
-		return {
-			output: serialized,
-			formatted: true,
-			oldValueStrings,
-			newValueStrings,
-			logLine,
-			updatedNodePath,
-		};
+} => {
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	} = updateSequenceKeyframesAst({
+		input,
+		nodePath,
+		updates,
+		schema,
+		prettierConfigOverride,
+		videoConfigValues,
 	});
+	return {
+		output: serialized,
+		formatted: true,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		updatedNodePath,
+	};
+};
 
 export const updateEffectKeyframesAst = ({
 	input,
@@ -2685,7 +2684,7 @@ export const updateEffectKeyframes = ({
 	formatFile?: FormatKeyframesFile;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
@@ -2693,31 +2692,30 @@ export const updateEffectKeyframes = ({
 	logLine: number;
 	effectCallee: string;
 	updatedSequenceNodePath: SequenceNodePath;
-}> =>
-	Promise.resolve().then(() => {
-		const {
-			serialized,
-			oldValueStrings,
-			newValueStrings,
-			logLine,
-			effectCallee,
-			updatedSequenceNodePath,
-		} = updateEffectKeyframesAst({
-			input,
-			sequenceNodePath,
-			effectIndex,
-			updates,
-			schema,
-			prettierConfigOverride,
-			videoConfigValues,
-		});
-		return {
-			output: serialized,
-			formatted: true,
-			oldValueStrings,
-			newValueStrings,
-			logLine,
-			effectCallee,
-			updatedSequenceNodePath,
-		};
+} => {
+	const {
+		serialized,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+		updatedSequenceNodePath,
+	} = updateEffectKeyframesAst({
+		input,
+		sequenceNodePath,
+		effectIndex,
+		updates,
+		schema,
+		prettierConfigOverride,
+		videoConfigValues,
 	});
+	return {
+		output: serialized,
+		formatted: true,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+		updatedSequenceNodePath,
+	};
+};
