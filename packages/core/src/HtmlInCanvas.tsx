@@ -623,6 +623,7 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedSizeRef = useRef<string | null>(null);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const pendingPaintReleases = useRef(new Set<() => void>());
 		const effectScratchCanvasesRef = useRef<{
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
@@ -676,6 +677,17 @@ const HtmlInCanvasContent = forwardRef<
 				: null;
 			let canReleasePaint = false;
 			let handle: number | null = null;
+			// Retain the allocating scope's continuation until this paint finishes
+			// or its subtree is removed after a handled failure.
+			const releasePaint = () => {
+				if (handle !== null) {
+					continueRender(handle);
+					handle = null;
+				}
+
+				pendingPaintReleases.current.delete(releasePaint);
+			};
+
 			try {
 				const placeholderCanvas = canvas2dRef.current;
 				if (!placeholderCanvas) {
@@ -684,6 +696,7 @@ const HtmlInCanvasContent = forwardRef<
 
 				const outputCanvas = outputCanvasRef.current;
 				handle = delayRender('onPaint');
+				pendingPaintReleases.current.add(releasePaint);
 				if (initializedSizeRef.current !== canvasSizeKey) {
 					onInitCleanupRef.current?.();
 					onInitCleanupRef.current = null;
@@ -706,7 +719,7 @@ const HtmlInCanvasContent = forwardRef<
 								// The web renderer explicitly drives additional paint cycles, so a
 								// transient missing record can be retried without failing the render.
 								canReleasePaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
@@ -748,7 +761,7 @@ const HtmlInCanvasContent = forwardRef<
 								}
 
 								painting.repaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
@@ -768,7 +781,7 @@ const HtmlInCanvasContent = forwardRef<
 					// Skip this paint cycle — the canvas retains its last state.
 					if (isMissingPaintRecordError(error) && canRetryMissingPaintRecord) {
 						canReleasePaint = true;
-						continueRender(handle);
+						releasePaint();
 						return;
 					}
 
@@ -801,7 +814,7 @@ const HtmlInCanvasContent = forwardRef<
 
 						if (committedCanvasSizeRef.current !== canvasSizeKey) {
 							painting.repaint = true;
-							continueRender(handle);
+							releasePaint();
 							return;
 						}
 					} else if (
@@ -898,10 +911,10 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				canReleasePaint = true;
-				continueRender(handle);
+				releasePaint();
 			} catch (error) {
 				if (unmountedRef.current || paintTargetRef.current !== paintTarget) {
-					if (handle !== null) continueRender(handle);
+					releasePaint();
 				} else {
 					reportRenderError(error);
 				}
@@ -973,6 +986,10 @@ const HtmlInCanvasContent = forwardRef<
 				paintTargetRef.current = null;
 				initializedSizeRef.current = null;
 				unmountedRef.current = true;
+				for (const release of pendingPaintReleases.current) {
+					release();
+				}
+
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};

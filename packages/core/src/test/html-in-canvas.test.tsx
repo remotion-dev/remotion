@@ -11,6 +11,7 @@ import {
 	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {
 	ObserveSequenceRegistrations,
 	WrapSequenceContext,
@@ -939,6 +940,18 @@ for (const behavior of [
 			}),
 		});
 		try {
+			let siblingControls!: ReturnType<typeof useDelayRender>;
+			const Sibling = () => {
+				siblingControls = useDelayRender();
+				return null;
+			};
+
+			const sibling = render(
+				<Internals.DelayRenderContextType.Provider value={scope}>
+					<Sibling />
+				</Internals.DelayRenderContextType.Provider>,
+			);
+			const siblingHandle = siblingControls.delayRender('unrelated sibling');
 			const scene = (width: number) => (
 				<Internals.DelayRenderContextType.Provider value={scope}>
 					<Internals.CancelRenderContext.Provider
@@ -1002,8 +1015,12 @@ for (const behavior of [
 			}
 
 			if (behavior === 'success')
-				expect(scope.remotion_delayRenderHandles).toEqual([]);
+				expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			view.unmount();
+			expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
+			expect(scope.remotion_renderReady).toBe(false);
+			siblingControls.continueRender(siblingHandle);
+			sibling.unmount();
 			expect(scope.remotion_delayRenderHandles).toEqual([]);
 			expect(scope.remotion_renderReady).toBe(behavior !== 'unowned');
 		} finally {
