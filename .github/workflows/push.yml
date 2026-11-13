@@ -167,7 +167,11 @@ jobs:
     if: ${{ needs.affected.outputs.webrenderer == 'true' }}
     runs-on: macos-latest
     timeout-minutes: 30
-    name: Web renderer tests
+    name: Web renderer tests (${{ matrix.shard }}/2)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -186,12 +190,20 @@ jobs:
         uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test web renderer
         run: |
-          bun run testwebrenderer
+          bun run testwebrenderer --log-order=stream -- --shard=${{ matrix.shard }}/2 --reporter=default --reporter=json --outputFile=./test/__results__/browser-tests.json
+      - name: Upload web renderer results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-renderer-results-${{ matrix.shard }}-${{ github.run_attempt }}
+          path: packages/web-renderer/test/__results__/browser-tests.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload native pixel failures
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: native-pixel-failures-${{ github.run_attempt }}
+          name: native-pixel-failures-${{ matrix.shard }}-${{ github.run_attempt }}
           path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
           if-no-files-found: ignore
           retention-days: 7
