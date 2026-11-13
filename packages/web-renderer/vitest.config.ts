@@ -23,6 +23,8 @@ export default defineConfig({
 					provider: playwright({
 						launchOptions: {
 							channel: 'chrome',
+							// Match Canvas2D rendering locally and on virtual macOS runners.
+							args: ['--skia-graphite-dawn-backend=swiftshader'],
 						},
 						actionTimeout: 5_000,
 					}),

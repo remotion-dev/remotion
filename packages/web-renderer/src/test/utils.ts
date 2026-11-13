@@ -110,6 +110,10 @@ export const testCompositions = async ({
 			}
 		}
 
+		await page.viewport(
+			Math.max(1280, sheet.width),
+			Math.max(720, sheet.height),
+		);
 		await testImage({
 			blob: await sheet.convertToBlob({type: 'image/png'}),
 			testId,

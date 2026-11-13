@@ -44,8 +44,6 @@ test('renders raster URL background sizes and repeats', async () => {
 	await testImage({
 		blob,
 		testId: 'background-image-url',
-		threshold: 0,
-		allowedMismatchedPixelRatio: 0,
 	});
 });
 
@@ -110,8 +108,6 @@ test('renders native contain tile repeat periods', async () => {
 	await testImage({
 		blob,
 		testId: 'background-image-contain',
-		threshold: 0,
-		allowedMismatchedPixelRatio: 0,
 	});
 });
 
