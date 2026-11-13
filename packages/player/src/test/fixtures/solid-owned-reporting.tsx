@@ -129,9 +129,9 @@ const main = async () => {
 			) : (
 				<Player
 					{...config}
+					ref={onError}
 					component={Content}
 					inputProps={{color: 'lime'}}
-					ref={onError}
 					errorFallback={fallback}
 				/>
 			);
