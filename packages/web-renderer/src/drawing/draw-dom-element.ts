@@ -1,3 +1,4 @@
+import {awaitSvgDrawable} from './await-svg-drawable';
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
@@ -209,6 +210,7 @@ const drawReplacedElement = ({
 export const drawDomElement = (
 	node: HTMLElement | SVGElement,
 	svgFontSnapshots: SvgFontSnapshots,
+	signal: AbortSignal | null,
 ) => {
 	// Recursive precomposition re-enters this SVG while transform overrides are
 	// still mounted. Reuse the capture's first snapshot of its authored font state.
@@ -225,7 +227,10 @@ export const drawDomElement = (
 	}) => {
 		// Handle SVG elements separately - they use "contain" behavior by default
 		if (node instanceof SVGSVGElement) {
-			const drawable = await turnSvgIntoDrawable(node, svgFonts);
+			const drawable = await awaitSvgDrawable(
+				turnSvgIntoDrawable(node, svgFonts),
+				signal,
+			);
 			drawSvg({drawable, dimensions, contextToDraw});
 			return;
 		}

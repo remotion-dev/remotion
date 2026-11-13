@@ -38,7 +38,11 @@ export const walkOverNode = ({
 		return processNode({
 			element: node,
 			context,
-			draw: drawDomElement(node, svgFontSnapshots),
+			draw: drawDomElement(
+				node,
+				svgFontSnapshots,
+				internalState.rasterImageLoaderState.signal,
+			),
 			logLevel,
 			parentRect,
 			internalState,
