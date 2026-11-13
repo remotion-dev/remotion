@@ -222,6 +222,10 @@ test('a fatal CanvasImage context failure releases its own hold and remains canc
 	const Component = () => {
 		const scope = useContext(Internals.DelayRenderContextType);
 		useLayoutEffect(() => {
+			if (!scope) {
+				throw new Error('Fatal CanvasImage probe requires a render scope');
+			}
+
 			probe.scope = scope;
 			const restore = observeFinalCancelledRelease(scope, (error, rawStack) => {
 				probe.releasedError = error;
