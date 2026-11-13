@@ -28,6 +28,7 @@ import {
 	getKeyframeSourceLocationRemappings,
 	getUnchangedStructureRemappings,
 } from './node-references';
+import {resolveOpenTimelineMedia} from './open-timeline/generate';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
@@ -229,6 +230,7 @@ export const CodemodsInternals = {
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,
+	resolveOpenTimelineMedia,
 	updateInlineCaptionPatches,
 	validateKeyframePasteTiming,
 };

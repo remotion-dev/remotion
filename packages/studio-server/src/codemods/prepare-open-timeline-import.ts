@@ -11,6 +11,7 @@ import {
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
+	CodemodsInternals,
 	generateOpenTimelineComposition,
 	type OpenTimelineMediaResolver,
 } from '@remotion/codemods';
@@ -294,16 +295,21 @@ export const prepareOpenTimelineImport = async ({
 		timeline = request.contents;
 	}
 
-	const generate = () =>
-		generateOpenTimelineComposition({
+	const getImportResult = () => {
+		const options = {
 			timeline,
 			componentName: request.componentName,
 			fps: request.fps,
-			width: width ?? 1,
-			height: height ?? 1,
 			resolveMedia,
-		});
-	let result = generate();
+		};
+		if (width === null || height === null) {
+			return CodemodsInternals.resolveOpenTimelineMedia(options);
+		}
+
+		return generateOpenTimelineComposition({...options, width, height});
+	};
+
+	let result = getImportResult();
 	const ranges = new Map<
 		object,
 		Awaited<ReturnType<typeof getOpenTimelineMediaRange>>
@@ -339,10 +345,13 @@ export const prepareOpenTimelineImport = async ({
 				return range ? {...value, available_range: range} : value;
 			}),
 		);
-		result = generate();
+		result = getImportResult();
 	}
 
-	if ((width === null || height === null) && result.source !== null) {
+	if (
+		(width === null || height === null) &&
+		!result.diagnostics.some((diagnostic) => diagnostic.severity === 'error')
+	) {
 		if (firstVisualSource === null) {
 			throw new Error(
 				'Cannot infer dimensions without a video or image clip. Pass --width and --height.',
@@ -362,7 +371,7 @@ export const prepareOpenTimelineImport = async ({
 			);
 		}
 
-		result = generate();
+		result = getImportResult();
 	}
 
 	return {
