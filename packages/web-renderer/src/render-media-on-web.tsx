@@ -450,15 +450,18 @@ const internalRenderMediaOnWeb = async <
 		fps: resolved.fps,
 		logLevel,
 	});
-	const waitForRenderReady = async () => {
-		await waitForReady({
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-			scope: delayRenderScope,
-			signal,
-			apiName: 'renderMediaOnWeb',
-			internalState,
-			keepalive,
-		});
+	const waitForRenderReady = async (captureRoot: HTMLElement | null = null) => {
+		await waitForReady(
+			{
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+				scope: delayRenderScope,
+				signal,
+				apiName: 'renderMediaOnWeb',
+				internalState,
+				keepalive,
+			},
+			captureRoot,
+		);
 		checkForError(errorHolder);
 	};
 
@@ -624,7 +627,7 @@ const internalRenderMediaOnWeb = async <
 
 			timeUpdater.current?.update(frame);
 
-			await waitForRenderReady();
+			await waitForRenderReady(videoEnabled ? div : null);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');

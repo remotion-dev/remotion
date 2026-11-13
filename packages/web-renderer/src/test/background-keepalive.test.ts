@@ -80,14 +80,17 @@ test.for(['ready', 'abort'] as const)(
 		const controller = new AbortController();
 		let result: 'pending' | 'ready' | string = 'pending';
 		try {
-			const waiting = waitForReady({
-				timeoutInMilliseconds: 30000,
-				scope,
-				signal: controller.signal,
-				apiName: 'renderMediaOnWeb',
-				internalState: null,
-				keepalive,
-			}).then(
+			const waiting = waitForReady(
+				{
+					timeoutInMilliseconds: 30000,
+					scope,
+					signal: controller.signal,
+					apiName: 'renderMediaOnWeb',
+					internalState: null,
+					keepalive,
+				},
+				null,
+			).then(
 				() => {
 					result = 'ready';
 				},
