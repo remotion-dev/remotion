@@ -23,6 +23,69 @@ import {
 	testImage,
 } from './visual-utils.js';
 
+test.each([false, true])(
+	'initial WebGL allocation failure recovers or stays bounded (persistent: %s)',
+	async (persistent) => {
+		const source = document.createElement('canvas');
+		source.width = 4;
+		source.height = 4;
+		const context = source.getContext('2d')!;
+		context.fillStyle = '#ff0000';
+		context.fillRect(0, 0, 4, 2);
+		context.fillStyle = '#0000ff';
+		context.fillRect(0, 2, 4, 2);
+
+		const original = HTMLCanvasElement.prototype.getContext;
+		const disabledWebGpu = window.remotion_disableWebGpuEffects;
+		window.remotion_disableWebGpuEffects = true;
+		let failures = 0;
+		HTMLCanvasElement.prototype.getContext = function (
+			this: HTMLCanvasElement,
+			contextId: string,
+			...args: unknown[]
+		) {
+			if (contextId === 'webgl2' && (persistent || failures === 0)) {
+				failures++;
+				return null;
+			}
+
+			return Reflect.apply(original, this, [contextId, ...args]);
+		} as typeof original;
+		try {
+			const rendering = renderEffectChainToCanvas({
+				source,
+				width: 4,
+				height: 4,
+				effects: descriptorsToMemoizedEffects([colorCorrection({exposure: 0})]),
+			});
+			if (persistent) {
+				await expect(rendering).rejects.toMatchObject({
+					message: expect.stringContaining('Recovery failed after two retries'),
+					cause: expect.objectContaining({
+						message: expect.stringContaining(
+							'Failed to acquire WebGL2 context',
+						),
+					}),
+				});
+				expect(failures).toBe(3);
+			} else {
+				const output = await rendering;
+				const pixels = output.getContext('2d')!;
+				expect([...pixels.getImageData(1, 0, 1, 1).data]).toEqual([
+					255, 0, 0, 255,
+				]);
+				expect([...pixels.getImageData(1, 3, 1, 1).data]).toEqual([
+					0, 0, 255, 255,
+				]);
+				expect(failures).toBe(1);
+			}
+		} finally {
+			HTMLCanvasElement.prototype.getContext = original;
+			window.remotion_disableWebGpuEffects = disabledWebGpu;
+		}
+	},
+);
+
 test('stacks repeated WebGL effects without blanking or flipping the image', async () => {
 	const blob = await renderEffectChainToBlob({
 		effects: descriptorsToMemoizedEffects([
