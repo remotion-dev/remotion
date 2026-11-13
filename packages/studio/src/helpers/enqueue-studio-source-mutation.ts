@@ -1,9 +1,12 @@
 import type {
 	ApiRoutes,
 	DeleteNodesRequest,
+	PrecomposeJsxNodesRequest,
 	SaveSequencePropsRequest,
 	SequenceNodePathMutation,
 	SourceMutationGuard,
+	UnwrapNodeRequest,
+	WrapNodeRequest,
 } from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {
@@ -25,6 +28,7 @@ import {loadGoogleFontForPreview} from './load-google-font-for-preview';
 import {captureOptimisticEffectMutation} from './optimistic-effect-mutations';
 import {
 	captureSourceRequest,
+	getSourceRequestFiles,
 	markSourceRequestPaths,
 	normalizeSourceFileName,
 	rebaseSourceRequest,
@@ -173,7 +177,10 @@ export const enqueueStudioSourceMutation = <T>(
 
 				if (
 					('success' in result && result.success === false) ||
-					('canUpdate' in result && result.canUpdate === false)
+					('canUpdate' in result && result.canUpdate === false) ||
+					('canPrecompose' in result && result.canPrecompose === false) ||
+					('canUnwrap' in result && result.canUnwrap === false) ||
+					('canWrap' in result && result.canWrap === false)
 				) {
 					effectMutation?.rollback();
 					Internals.OptimisticSequenceDeletion.rollbackRevision(
@@ -248,12 +255,21 @@ export const enqueueStudioSourceMutation = <T>(
 			try {
 				capturedBody = captureSourceRequest(body, initialMutations);
 				rebasedBody = capturedBody;
-				effectMutation = captureOptimisticEffectMutation(endpoint, body);
-				sourceGuard = captureExternalSourceRevision(effectMutation.files);
+				const isReadOnlyRequest =
+					(endpoint === '/api/precompose-jsx-nodes' &&
+						(body as PrecomposeJsxNodesRequest).dryRun === true) ||
+					(endpoint === '/api/unwrap-node' &&
+						(body as UnwrapNodeRequest).dryRun === true) ||
+					(endpoint === '/api/wrap-node' &&
+						(body as WrapNodeRequest).wrapper === null);
+				effectMutation = isReadOnlyRequest
+					? null
+					: captureOptimisticEffectMutation(endpoint, body);
+				const requestFiles =
+					effectMutation?.files ?? getSourceRequestFiles(body);
+				sourceGuard = captureExternalSourceRevision(requestFiles);
 				const files = new Set(
-					effectMutation.files.map((file) =>
-						normalizeSourceFileName(file, root),
-					),
+					requestFiles.map((file) => normalizeSourceFileName(file, root)),
 				);
 				unsubscribeFromExternalChanges = subscribeToExternalSourceChanges(
 					(file) => {
