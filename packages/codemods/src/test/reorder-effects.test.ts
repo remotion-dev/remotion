@@ -18,11 +18,11 @@ export const Comp = () => {
 };
 `;
 
-test('reorderEffects moves effects forward', async () => {
+test('reorderEffects moves effects forward', () => {
 	const input = buildInput(
 		'[blur({amount: 1}), brightness({amount: 2}), tint({color: "red"})]',
 	);
-	const {output, effectLabel} = await reorderEffects({
+	const {output, effectLabel} = reorderEffects({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 8),
 		fromIndices: [1, 0],
@@ -34,11 +34,11 @@ test('reorderEffects moves effects forward', async () => {
 	expect(output.indexOf('blur({')).toBeLessThan(output.indexOf('brightness({'));
 });
 
-test('reorderEffects moves effects backward', async () => {
+test('reorderEffects moves effects backward', () => {
 	const input = buildInput(
 		'[blur({amount: 1}), brightness({amount: 2}), tint({color: "red"})]',
 	);
-	const {output, effectLabel} = await reorderEffects({
+	const {output, effectLabel} = reorderEffects({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 8),
 		fromIndices: [2, 1],
@@ -50,26 +50,26 @@ test('reorderEffects moves effects backward', async () => {
 	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('blur({'));
 });
 
-test('reorderEffects throws when source index is out of range', async () => {
+test('reorderEffects throws when source index is out of range', () => {
 	const input = buildInput('[tint({color: "red"})]');
-	await expect(
+	expect(() =>
 		reorderEffects({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
 			fromIndices: [4],
 			toIndex: 0,
 		}),
-	).rejects.toThrow(/source index not-found/);
+	).toThrow(/source index not-found/);
 });
 
-test('reorderEffects throws when effects are not an inline array', async () => {
+test('reorderEffects throws when effects are not an inline array', () => {
 	const input = buildInput('effects');
-	await expect(
+	expect(() =>
 		reorderEffects({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
 			fromIndices: [0],
 			toIndex: 0,
 		}),
-	).rejects.toThrow(/not an array/);
+	).toThrow(/not an array/);
 });

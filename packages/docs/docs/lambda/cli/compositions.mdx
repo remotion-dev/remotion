@@ -15,7 +15,7 @@ Print list of composition IDs from a serve URL, fetched from inside a Lambda fun
 npx remotion lambda compositions <serve-url>
 ```
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
+- Obtain a [serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 <details>
   <summary>Show output</summary>
@@ -58,7 +58,7 @@ npx remotion lambda compositions <serve-url>
 ## `remotion lambda compositions` vs. `remotion compositions`
 
 You can also get the compositions of a site that is hosted on S3 locally using [`npx remotion compositions`](/docs/cli/compositions).  
-Vice versa, you can also get the compositions from a [Serve URL](/docs/terminology/serve-url) that is not hosted on AWS Lambda using `npx remotion lambda compositions`.
+Vice versa, you can also get the compositions from a [serve URL](/docs/terminology/serve-url) that is not hosted on AWS Lambda using `npx remotion lambda compositions`.
 
 You should use `npx remotion lambda compositions` if you cannot use [`npx remotion compositions`](/docs/cli/compositions) because the machine cannot run Chrome.
 

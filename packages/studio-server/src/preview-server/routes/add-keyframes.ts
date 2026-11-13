@@ -140,7 +140,7 @@ const getBatchDescription = ({
 	};
 };
 
-export const addKeyframes = async ({
+export const addKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	paste = null,
@@ -150,7 +150,7 @@ export const addKeyframes = async ({
 }: AddKeyframesRequest & {
 	readonly remotionRoot: string;
 	readonly logLevel: LogLevel;
-}): Promise<AddKeyframesResponse> => {
+}): AddKeyframesResponse => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for adding');
@@ -289,7 +289,7 @@ export const addKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateSequenceKeyframes({
+			const result = updateSequenceKeyframes({
 				input: output,
 				nodePath: currentPathFor(firstSequenceKeyframe.nodePath.nodePath),
 				schema: firstSequenceKeyframe.schema,
@@ -331,7 +331,7 @@ export const addKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				input: output,
 				sequenceNodePath: currentPathFor(
 					firstEffectKeyframe.sequenceNodePath.nodePath,

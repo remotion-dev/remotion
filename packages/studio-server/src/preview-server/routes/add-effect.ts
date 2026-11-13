@@ -27,7 +27,7 @@ export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
 > = ({input: request, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			const {
 				fileName,
@@ -49,7 +49,7 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await addEffect({
+			const result = addEffect({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
 				importName: effectName,

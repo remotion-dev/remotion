@@ -21,7 +21,7 @@ declare const project: CodemodProject;
 declare const first: EffectReference;
 declare const second: EffectReference;
 
-const result = await reorderEffects({
+const result = reorderEffects({
   project,
   effects: [first, second],
   toIndex: 0,
@@ -31,6 +31,8 @@ console.log(result);
 ```
 
 All effects must belong to the same JSX node. Effect order changes the order of application. Other effects' indices may shift.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -50,7 +52,7 @@ For example, moving `B` and `D` in `[A, B, C, D]` to index `0` produces `[B, D, 
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -74,7 +76,7 @@ From v4.0.544, `reorderEffects()` replaces `reorderEffect()`. To move one effect
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 
