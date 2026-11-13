@@ -50,7 +50,8 @@ test.each([
 				const originalOn = server.on.bind(server);
 				const onSpy = spyOn(server, 'on').mockImplementation(
 					(event, listener) => {
-						if (event === 'connection') captured.listener = listener;
+						if (event === 'connection')
+							captured.listener = listener as (socket: Socket) => void;
 						return originalOn(event, listener);
 					},
 				);
