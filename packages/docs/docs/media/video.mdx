@@ -350,13 +350,13 @@ The CSS property `object-fit` is not supported.
 
 ### `maxCanvasSinkFrameSize?`<AvailableFrom v="4.0.530" />
 
-Sets the maximum size of frames output by [Mediabunny](/docs/mediabunny) in Studio and Player previews. Pass a `width`, a `height`, or both, in pixels. Mediabunny keeps the video's aspect ratio and does not upscale it, so the actual frame size can be smaller than these limits.
+Sets the maximum size of preview frames in Studio and Player. Pass a `width`, a `height`, or both, in pixels. The preview keeps the video's aspect ratio and does not upscale it, so the actual frame size can be smaller than these limits.
 
-For example, `{width: 960}` produces 960 × 540 frames from a 1920 × 1080 video. A 640 × 360 video stays at 640 × 360. Without this prop, Mediabunny outputs frames at the video's original size.
+For example, `{width: 960}` produces 960 × 540 frames from a 1920 × 1080 video. A 640 × 360 video stays at 640 × 360. Without this prop, preview frames use the video's original size.
 
-The `<canvas>` keeps its original dimensions and scales the frames up when drawing them. [`effects`](#effects) run at the canvas dimensions, while [`onVideoFrame`](#onvideoframe) receives the frames output by Mediabunny.
+The `<canvas>` keeps its original dimensions and scales the frames up when drawing them. [`effects`](#effects) run at the canvas dimensions, while [`onVideoFrame`](#onvideoframe) receives the size-limited frames.
 
-Smaller frames use less memory when a large video is shown small. The video is still decoded at full size, and rendering is not affected.
+Smaller frames reduce canvas memory when a large video is shown small. The decoder retains a short lookahead of full-size source samples so changing this prop can redraw the current frame without restarting playback, including while paused. Rendering is not affected.
 
 For example, use [`useCurrentScale()`](/docs/use-current-scale) to pick a size:
 

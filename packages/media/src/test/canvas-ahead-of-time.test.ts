@@ -132,3 +132,31 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 		await iterator.closeIterator();
 	}
 });
+
+test('rerasterizes a retained sample when its live size grows, without losing source pixels', async () => {
+	const {canvas, context} = makeCanvas();
+	context.fillStyle = 'red';
+	context.fillRect(0, 0, 1, 2);
+	context.fillStyle = 'blue';
+	context.fillRect(1, 0, 1, 2);
+	const sample = new VideoSample(canvas, {timestamp: 0, duration: 1});
+	const sink = {
+		async *samples() {
+			yield sample;
+		},
+	} as unknown as VideoSampleSink;
+	let size = {width: 1};
+	const iterator = canvasesAheadOfTime(sink, 0, () => size);
+	const frame = await waitForFrame(iterator.next());
+	try {
+		expect(frame!.canvas.width).toBe(1);
+		size = {width: 2};
+		expect(frame!.canvas.width).toBe(2);
+		expect(getPixel(frame!.canvas as OffscreenCanvas)).toEqual([
+			255, 0, 0, 255,
+		]);
+	} finally {
+		releaseStableFrame(frame);
+		await iterator.closeIterator();
+	}
+});

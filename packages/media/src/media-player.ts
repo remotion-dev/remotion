@@ -101,7 +101,10 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
-	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	private maxCanvasSinkFrameSize:
+		| MaxCanvasSinkFrameSize
+		| null
+		| (() => MaxCanvasSinkFrameSize | null);
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -167,7 +170,10 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
-		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+		maxCanvasSinkFrameSize:
+			| MaxCanvasSinkFrameSize
+			| null
+			| (() => MaxCanvasSinkFrameSize | null);
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
