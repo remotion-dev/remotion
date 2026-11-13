@@ -18,7 +18,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('does not send Studio errors to the server from Browser Studio', () => {
+test('does not send Studio errors to the server from remotion.new', () => {
 	const fetchCalls: string[] = [];
 	globalThis.fetch = ((input) => {
 		fetchCalls.push(String(input));
@@ -32,7 +32,7 @@ test('does not send Studio errors to the server from Browser Studio', () => {
 	});
 
 	logStudioErrorData({
-		message: 'Browser Studio error',
+		message: 'remotion.new error',
 		name: 'Error',
 		stack: 'stack',
 		symbolicatedStackFrames: null,

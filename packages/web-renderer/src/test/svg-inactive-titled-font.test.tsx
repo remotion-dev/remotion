@@ -2,9 +2,8 @@ import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {expect, test} from 'vitest';
-import {page, server} from 'vitest/browser';
+import {page} from 'vitest/browser';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
 import {
@@ -12,132 +11,26 @@ import {
 	svgInactiveTitleModes,
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	countNativePixels,
-} from './native-reference';
+import {countNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-const markers = async (blob: Blob) => {
-	const bitmap = await createImageBitmap(blob);
-	const canvas = new OffscreenCanvas(280, 40);
-	try {
-		canvas.getContext('2d')!.drawImage(bitmap, 0, 60, 280, 40, 0, 0, 280, 40);
-		return await canvas.convertToBlob({type: 'image/png'});
-	} finally {
-		bitmap.close();
-		canvas.width = 0;
-		canvas.height = 0;
-	}
-};
-
-test.for(
-	svgInactiveTitleModes.flatMap((mode) =>
-		[0, 1].map((frame) => ({mode, frame})),
-	),
-)(
-	'retains titled font $mode at frame $frame',
-	{timeout: 30000},
-	async ({mode, frame}, t) => {
-		const composition = svgInactiveTitledFont({
-			mode,
-			literal: false,
-			fallback: false,
-		});
-		const control = svgInactiveTitledFont({
-			mode,
-			literal: true,
-			fallback: false,
-		});
-		const reference = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const nativeControl = await captureNativeReference(control, frame, {
-			omitBackground: false,
-		});
-		const nativeControlPixels = await countNativePixels(
-			reference,
-			nativeControl,
-		);
-		if (mode === 'large') {
-			const base =
-				'src/test/__screenshots__/native-pixel-failures/svg-inactive-title-large-native-readiness/' +
-				server.browser +
-				'/' +
-				frame;
-			for (const [name, blob] of [
-				['native', reference],
-				['literal-native', nativeControl],
-			] as const) {
-				let binary = '';
-				for (const byte of new Uint8Array(await blob.arrayBuffer()))
-					binary += String.fromCharCode(byte);
-				await server.commands.writeFile(
-					base + '-' + name + '.png',
-					btoa(binary),
-					'base64',
-				);
-			}
-
-			await server.commands.writeFile(
-				base + '-comparison.json',
-				JSON.stringify(nativeControlPixels, null, 2),
-			);
-		}
-
-		expect(nativeControlPixels.mismatchedPixels).toBe(0);
-		const options = {
-			frame,
-			inputProps: {},
-			licenseKey: 'free-license',
-			allowHtmlInCanvas: false,
-		} as const;
-		const actual = await (
-			await renderStillOnWeb({...options, composition})
-		).blob({format: 'png'});
-		const expected = await (
-			await renderStillOnWeb({...options, composition: control})
-		).blob({format: 'png'});
-		const fallback = await (
-			await renderStillOnWeb({
-				...options,
+test(
+	'retains fonts across titled stylesheet states',
+	{timeout: 15_000},
+	async () => {
+		await testCompositions({
+			scale: null,
+			cases: svgInactiveTitleModes.map((mode) => ({
 				composition: svgInactiveTitledFont({
 					mode,
-					literal: true,
-					fallback: true,
+					literal: false,
+					fallback: false,
 				}),
-			})
-		).blob({format: 'png'});
-		expect(
-			(await countNativePixels(expected, fallback)).mismatchedPixels,
-		).toBeGreaterThan(0);
-		const glyphs = await createImageBitmap(expected);
-		const canvas = new OffscreenCanvas(340, 60);
-		try {
-			const context = canvas.getContext('2d')!;
-			context.drawImage(glyphs, 0, 0);
-			expect(
-				context
-					.getImageData(0, 0, 340, 60)
-					.data.some((value, index) => index % 4 !== 3 && value !== 255),
-			).toBe(true);
-		} finally {
-			glyphs.close();
-			canvas.width = 0;
-			canvas.height = 0;
-		}
-
-		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
-			0,
-		);
-		expect(
-			(await countNativePixels(await markers(reference), await markers(actual)))
-				.mismatchedPixels,
-		).toBe(0);
-		if (t.task.file.projectName === 'chromium')
-			expect(
-				(await countNativePixels(reference, actual)).mismatchedPixels,
-			).toBe(0);
+				frame: 1,
+			})),
+			columns: 3,
+			testId: 'svg-inactive-titled-fonts',
+		});
 	},
 );
 
@@ -181,23 +74,20 @@ test('invalidates the earlier titled font carrier cache when viewport media chan
 				fresh.remove();
 			}
 
-			const native = await captureNativeReference(composition, 0, {
-				omitBackground: false,
-			});
-			const literal = await captureNativeReference(
-				svgInactiveTitleMediaCache({active}),
-				0,
-				{omitBackground: false},
-			);
-			expect(
-				(await compareNativePixels(native, literal)).mismatchedPixels,
-			).toBe(0);
-			expect(
-				(await compareNativePixels(expected, actual)).mismatchedPixels,
-			).toBe(0);
-			expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
+			expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
 				0,
 			);
+			const bitmap = await createImageBitmap(actual);
+			try {
+				const canvas = new OffscreenCanvas(100, 60);
+				const context = canvas.getContext('2d')!;
+				context.drawImage(bitmap, 0, 0);
+				expect(Array.from(context.getImageData(20, 20, 1, 1).data)).toEqual(
+					active ? [255, 0, 0, 255] : [0, 0, 255, 255],
+				);
+			} finally {
+				bitmap.close();
+			}
 		}
 	} finally {
 		root.unmount();

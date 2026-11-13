@@ -26,7 +26,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes effect mutations through the explicit Browser Studio capability', async () => {
+test('routes effect mutations through the explicit remotion.new capability', async () => {
 	const calls: string[] = [];
 	const effects: BrowserStudioEffectOperations = {
 		addEffect: (request) => {

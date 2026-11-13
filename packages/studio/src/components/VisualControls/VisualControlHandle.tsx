@@ -53,11 +53,11 @@ export const VisualControlHandle: React.FC<{
 			}
 
 			// Saving visual control changes goes through
-			// /api/apply-visual-control-change, which Browser Studio does not
+			// /api/apply-visual-control-change, which remotion.new does not
 			// support.
 			if (getBrowserStudioOperations()) {
 				showNotification(
-					'Saving visual control changes is not supported in Browser Studio',
+					'Saving visual control changes is not supported in remotion.new',
 					4000,
 				);
 				return;
