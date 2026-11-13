@@ -35,7 +35,7 @@ recording. Do not modify the composition just to obtain a trace.
 
 See the [WebMCP tool schemas](../../../packages/docs/docs/ai/webmcp.mdx) for exact
 inputs, outputs, and availability. These tools work in regular, detached, deployed,
-and Browser Studio. Reveal requires a selectable composition timeline; it reports
+and remotion.new. Reveal requires a selectable composition timeline; it reports
 an error if a record, composition, or matching layer no longer exists.
 
 ## Interpret the evidence

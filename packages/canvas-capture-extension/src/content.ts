@@ -1528,7 +1528,7 @@ export const startContent = () => {
 			try {
 				completedRecording = await currentCapture.stop();
 				setStatus(
-					`${getContainerLabel(recordingFormat)} ready. Open it in Browser Studio, Convert, or download it.`,
+					`${getContainerLabel(recordingFormat)} ready. Open it in remotion.new, Convert, or download it.`,
 				);
 			} catch (error) {
 				// eslint-disable-next-line no-console -- Surface stop failures in the page DevTools console.
@@ -1564,7 +1564,7 @@ export const startContent = () => {
 				if (destination !== 'download') {
 					setStatus(
 						destination === 'new'
-							? 'Opening recording in Remotion Browser Studio…'
+							? 'Opening recording in remotion.new…'
 							: 'Opening recording in Remotion Convert…',
 					);
 					await openCaptureInRemotion(file, destination);

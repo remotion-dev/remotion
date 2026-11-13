@@ -863,4 +863,31 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'michael-aubry',
+		name: 'Michael Aubry',
+		image: '/img/freelancers/michael.png',
+		website: 'https://mja.sh',
+		x: 'michaelaubry',
+		github: 'bluematter',
+		linkedin: 'in/michael--aubry/',
+		email: 'michael@basedlabs.ai',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-11-13').getTime(),
+		description: (
+			<div>
+				Co-founder and CTO of{' '}
+				<a target={'_blank'} href="https://wireflow.ai">
+					Wireflow
+				</a>
+				, an AI video platform whose editor is built on Remotion and renders on
+				Remotion Lambda. I build timeline editors over a scene graph, template
+				and motion block systems, Lambda rendering pipelines, still-frame
+				preview loops so an agent or a person can check a cut before a full
+				render, and AI video pipelines that assemble generated clips, voice,
+				captions and word timing into one render. Available for contract work.
+			</div>
+		),
+	},
 ];

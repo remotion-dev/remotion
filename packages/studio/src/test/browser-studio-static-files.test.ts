@@ -18,7 +18,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes static-file mutations through Browser Studio operations', async () => {
+test('routes static-file mutations through remotion.new operations', async () => {
 	const calls: string[] = [];
 	const operations = makeBrowserStudioOperations({
 		deleteStaticFile: ({relativePath}) => {

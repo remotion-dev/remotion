@@ -123,7 +123,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					};
 					const replaceSource = browserStudioOperations?.replaceVideoSource;
 					if (browserStudioOperations && !replaceSource) {
-						throw new Error('Browser Studio cannot replace the video source.');
+						throw new Error('remotion.new cannot replace the video source.');
 					}
 
 					const response = replaceSource
