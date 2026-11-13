@@ -26,6 +26,7 @@ export const paintedPlaneBounds = (preserving: boolean) => {
 			</AbsoluteFill>
 		);
 	};
+
 	return {
 		component: Component,
 		id: `painted-plane-bounds-${preserving ? 'preserving' : 'flat'}`,

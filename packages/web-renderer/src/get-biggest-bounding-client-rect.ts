@@ -50,8 +50,8 @@ const getTextOverflowForLineHeight = (
 
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
-	includePaintOutsets = true,
-	includeDescendantFilters = false,
+	includePaintOutsets: boolean,
+	includeDescendantFilters: boolean,
 	{
 		onlyOwnPlane,
 		experimental3DRendering,
