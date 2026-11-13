@@ -13,6 +13,7 @@ import {
 } from '../render-operations-queue';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {observeFinalCancelledRelease} from './observe-final-cancelled-release';
 
 test('preserves the original cancellation error and its causes', async () => {
 	const decoderError = new DOMException(
@@ -180,7 +181,14 @@ test('a fatal CanvasImage context failure releases its own hold and remains canc
 	const probe: {
 		scope: DelayRenderScope | null;
 		failedCanvas: HTMLCanvasElement | null;
-	} = {scope: null, failedCanvas: null};
+		releasedError: Error | null;
+		stackAtRelease: string | null;
+	} = {
+		scope: null,
+		failedCanvas: null,
+		releasedError: null,
+		stackAtRelease: null,
+	};
 	const source =
 		'data:image/svg+xml,' +
 		encodeURIComponent(
@@ -215,9 +223,16 @@ test('a fatal CanvasImage context failure releases its own hold and remains canc
 		const scope = useContext(Internals.DelayRenderContextType);
 		useLayoutEffect(() => {
 			probe.scope = scope;
+			const restore = observeFinalCancelledRelease(scope, (error, rawStack) => {
+				probe.releasedError = error;
+				probe.stackAtRelease = rawStack.startsWith('Error:')
+					? rawStack
+					: `${error.message}\n${rawStack}`;
+			});
 			HTMLCanvasElement.prototype.getContext = getContext as typeof original;
 			return () => {
 				HTMLCanvasElement.prototype.getContext = original;
+				restore();
 			};
 		}, [scope]);
 		return <CanvasImage src={source} width={16} height={16} />;
@@ -251,7 +266,9 @@ test('a fatal CanvasImage context failure releases its own hold and remains canc
 		if (!probe.scope)
 			throw new Error('The actual render scope was not observed');
 		expect(probe.scope.remotion_cancelledErrorObject).toBe(failure);
-		expect(probe.scope.remotion_cancelledError).toBe((failure as Error).stack);
+		expect(probe.releasedError).toBe(failure);
+		expect(probe.stackAtRelease).not.toBeNull();
+		expect(probe.scope.remotion_cancelledError).toBe(probe.stackAtRelease);
 		expect(probe.scope.remotion_delayRenderHandles).toEqual([]);
 		expect(Object.keys(probe.scope.remotion_delayRenderTimeouts)).toEqual([]);
 		expect(probe.scope.remotion_renderReady).toBe(false);
