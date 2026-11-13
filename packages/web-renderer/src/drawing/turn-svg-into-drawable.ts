@@ -658,11 +658,9 @@ export const turnSvgIntoDrawable = (
 	if (hasFontCss) {
 		for (const index of fontCarriers) {
 			const carrier = styles[index];
-			if (
-				carrier?.sheet &&
-				!carrier.sheet.disabled &&
-				!carrier.matches(':empty')
-			) {
+			if (carrier?.sheet && !carrier.sheet.disabled) {
+				// CSSOM rules can exist while the authored style still matches :empty.
+				// Snapshot them before preserving the authored selector predicates.
 				// End malformed comments before appending carried faces.
 				svgForSerialization.querySelectorAll('style')[index].textContent =
 					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
