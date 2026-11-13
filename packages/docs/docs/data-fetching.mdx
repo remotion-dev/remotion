@@ -5,7 +5,7 @@ title: Data fetching
 crumb: "How to"
 ---
 
-In Remotion, you may fetch data from an API to use it in your video. On this page, we document recipes and best practices.
+In Remotion, you may fetch data from an API to use it in your video. This page documents recipes and best practices.
 
 ## Fetching data before the render<AvailableFrom v="4.0.0"/>
 
@@ -447,7 +447,7 @@ This means that if you are fetching data inside your component, the data fetchin
 <Step>1</Step> Prefer fetching the data before rendering if possible. <br/>
 <Step>2</Step> Ensure you are entitled to a high request rate without running into a rate limit.<br/>
 <Step>3</Step> The data returned by the API must be the same on all threads, otherwise <a href="/docs/flickering">flickering</a> may occur. <br/>
-<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br/>
+<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits.
 
 ## See also
 

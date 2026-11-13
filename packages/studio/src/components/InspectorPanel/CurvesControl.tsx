@@ -5,6 +5,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {UvCoordinateHandle} from '../UvCoordinateHandle';
 
 export type CurvePoints = readonly (readonly [number, number])[];
@@ -194,6 +195,7 @@ export const CurvesControl: React.FC<{
 				tabIndex={-1}
 				role="group"
 				aria-label="Curves graph"
+				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 				style={{
 					position: 'relative',
 					aspectRatio: '1',

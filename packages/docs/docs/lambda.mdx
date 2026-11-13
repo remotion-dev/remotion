@@ -16,11 +16,12 @@ Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is 
 You only pay while you are rendering, making it very cost-effective.
 
 import {LambdaRegionList} from '../components/lambda/regions.tsx';
+import {LambdaCustomization} from './lambda/table-of-contents';
 
 ## When should I use it?
 
 - Your videos fit within the [maximum video length](/docs/lambda/disk-size#approximate-maximum-video-length) allowed by the disk size of your function, and render within the 15-minute AWS Lambda timeout.
-- You stay within the ([AWS Lambda Concurrency Limit](/docs/lambda/troubleshooting/rate-limit)) or you are requesting an [increase from AWS](/docs/lambda/troubleshooting/rate-limit).
+- You stay within the [AWS Lambda Concurrency Limit](/docs/lambda/troubleshooting/rate-limit) or you are requesting an [increase from AWS](/docs/lambda/troubleshooting/rate-limit).
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 
 If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr) or consider using [Cloud Run](/docs/cloudrun).  
@@ -56,6 +57,10 @@ The following regions are available for Remotion Lambda:
 
 [**See here for configurations and considerations.**](/docs/lambda/region-selection)
 
+## Customization
+
+<LambdaCustomization />
+
 ## Limitations
 
 - A Lambda function has between 512MB and 10240MB of disk space. The default is 2048MB before Remotion 5.0 and 10240MB from Remotion 5.0. This must be sufficient for both the separated chunks and the concatenated output, which limits the maximum video length to approximately 32 minutes of Full HD video at 2048MB and approximately 2 hours 40 minutes at 10240MB. See [Disk size](/docs/lambda/disk-size#approximate-maximum-video-length).
@@ -64,7 +69,7 @@ The following regions are available for Remotion Lambda:
 
 ## Cost
 
-Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video, parallelization and other parameters. For each render, we estimate a cost and display it to you. You might also need a Remotion license (see below).
+Most users render multiple minutes of video for a few pennies. The exact cost is dependent on the region, assigned memory, type of video, parallelization and other parameters. For each render, Remotion estimates a cost and displays it to you. You might also need a Remotion license (see below).
 
 ## AWS permissions
 

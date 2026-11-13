@@ -426,15 +426,18 @@ const CanvasImageContent = forwardRef<
 				const error = new Error(
 					'Could not get 2D context for <CanvasImage> source canvas',
 				);
-				if (onErrorRef.current) {
-					onErrorRef.current(error);
-					dispatchLoad({type: 'presented'});
-					releasePendingLoadDelay();
-				} else {
-					cancelRender(error);
+				try {
+					if (onErrorRef.current) {
+						onErrorRef.current(error);
+						dispatchLoad({type: 'presented'});
+						releasePendingLoadDelay();
+					} else {
+						cancelRender(error);
+					}
+				} finally {
+					continueRenderOnce();
 				}
 
-				continueRenderOnce();
 				return () => {
 					continueRenderOnce();
 				};

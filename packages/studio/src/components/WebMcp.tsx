@@ -58,6 +58,8 @@ import {
 	getBufferingEvents,
 	useRevealBufferingHandle,
 } from './buffering-diagnostics';
+import {useRemoveGuide} from './EditorGuides/use-remove-guide';
+import {useUpdateGuidePosition} from './EditorGuides/use-update-guide-position';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
@@ -331,6 +333,8 @@ export const WebMcp: FC = () => {
 	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
+	const removeGuide = useRemoveGuide();
+	const updateGuidePosition = useUpdateGuidePosition();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
 	const {canvasContent, compositions, folders} = useContext(
@@ -356,7 +360,7 @@ export const WebMcp: FC = () => {
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
 		useContext(TimelineZoomCtx);
 	const selectComposition = useSelectComposition();
-	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
+	const {editorShowGuides, guidesListRef, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -407,8 +411,6 @@ export const WebMcp: FC = () => {
 	const resolvedComposition = video?.id === currentComposition ? video : null;
 	const resolvedCompositionRef = useRef(resolvedComposition);
 	resolvedCompositionRef.current = resolvedComposition;
-	const guidesListRef = useRef(guidesList);
-	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
 	editorShowGuidesRef.current = editorShowGuides;
 	const mediaVolumeRef = useRef(mediaVolume);
@@ -2269,7 +2271,68 @@ export const WebMcp: FC = () => {
 												orientation: guide.orientation,
 												position: guide.position,
 												visible: guidesAreVisible && guide.show,
+												selected:
+													timelineSelectionRef.current.selectedItems.some(
+														(item) =>
+															item.type === 'guide' &&
+															item.guideId === guide.id,
+													),
 											})),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'select_guide',
+					title: 'Select Studio guide',
+					description:
+						'Select one guide from the current composition and show all vertical and horizontal guides in the inspector. Replaces the selection; null clears it. Available wherever Studio selection is enabled.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: ['string', 'null'], minLength: 1},
+						},
+						required: ['guideId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId}) => {
+						if (
+							guideId !== null &&
+							(typeof guideId !== 'string' || guideId.length === 0)
+						) {
+							throw new Error('guideId must be a non-empty string or null.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (!timelineSelectionRef.current.canSelect) {
+							throw new Error('Studio guide selection is unavailable.');
+						}
+
+						if (
+							guideId !== null &&
+							!guidesListRef.current.some(
+								(guide) =>
+									guide.id === guideId &&
+									guide.compositionId === compositionId &&
+									guide.show,
+							)
+						) {
+							throw new Error('Guide not found in the current composition.');
+						}
+
+						timelineSelectionRef.current.selectItems(
+							guideId === null ? [] : [{type: 'guide', guideId}],
+						);
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							selectedGuideId: guideId,
 						});
 					},
 				},
@@ -2360,10 +2423,11 @@ export const WebMcp: FC = () => {
 							show: true,
 							compositionId,
 						};
-						const nextGuides = [...guidesListRef.current, guide];
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
+						setGuidesList((guides) => {
+							const nextGuides = [...guides, guide];
+							persistGuidesList(nextGuides);
+							return nextGuides;
+						});
 						editorShowGuidesRef.current = true;
 						setEditorShowGuides(() => true);
 
@@ -2374,6 +2438,67 @@ export const WebMcp: FC = () => {
 								orientation: guide.orientation,
 								position: guide.position,
 								visible: true,
+							},
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'update_guide',
+					title: 'Move Studio guide',
+					description:
+						'Move an existing guide in the current composition using the same position update as the Inspector. Position is rounded to whole composition pixels and may be negative. Available in every Studio mode.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							guideId: {type: 'string', minLength: 1},
+							position: {
+								type: 'number',
+								description:
+									'The guide position in composition pixels. Vertical guides use an x-coordinate and horizontal guides use a y-coordinate.',
+							},
+						},
+						required: ['guideId', 'position'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({guideId, position}) => {
+						if (typeof guideId !== 'string' || guideId.length === 0) {
+							throw new Error('guideId must be a non-empty string.');
+						}
+
+						if (typeof position !== 'number' || !Number.isFinite(position)) {
+							throw new Error('position must be a finite number.');
+						}
+
+						const compositionId = currentCompositionRef.current;
+						if (compositionId === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						const guide = guidesListRef.current.find(
+							(candidate) =>
+								candidate.id === guideId &&
+								candidate.compositionId === compositionId,
+						);
+						if (!guide) {
+							throw new Error(
+								`Guide ${guideId} not found in the current composition.`,
+							);
+						}
+
+						flushSync(() => {
+							updateGuidePosition({guideId, position, persist: true});
+						});
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							guide: {
+								id: guideId,
+								orientation: guide.orientation,
+								position: Math.round(position),
+								visible: editorShowGuidesRef.current,
 							},
 						});
 					},
@@ -2420,21 +2545,7 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const nextGuides = guidesListRef.current.filter(
-							(guide) =>
-								guide.id !== guideId || guide.compositionId !== compositionId,
-						);
-						guidesListRef.current = nextGuides;
-						setGuidesList(() => nextGuides);
-						persistGuidesList(nextGuides);
-
-						const removedGuideWasSelected =
-							timelineSelectionRef.current.selectedItems.some(
-								(item) => item.type === 'guide' && item.guideId === guideId,
-							);
-						if (removedGuideWasSelected) {
-							timelineSelectionRef.current.clearSelection();
-						}
+						removeGuide(guideId);
 
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
@@ -2884,8 +2995,10 @@ export const WebMcp: FC = () => {
 		calculateTimeline,
 		compositionManagerRef,
 		getSplitters,
+		guidesListRef,
 		isPlaying,
 		propStatusesRef,
+		removeGuide,
 		renderQueueActions,
 		renderJobRetry,
 		revealBufferingHandle,
@@ -2899,6 +3012,7 @@ export const WebMcp: FC = () => {
 		setSplitterPosition,
 		setTimelineZoom,
 		timelineSelectionRef,
+		updateGuidePosition,
 	]);
 
 	return (

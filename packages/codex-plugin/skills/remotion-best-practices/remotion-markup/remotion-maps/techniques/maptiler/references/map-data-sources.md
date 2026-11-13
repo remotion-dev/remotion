@@ -36,14 +36,10 @@ Common layer categories include `waterway`, `water`, `transportation`, `boundary
 import {addMapTilerVectorElement, setVectorElementPaint} from "./MapTilerVectorElement";
 
 addMapTilerVectorElement(map, process.env.REMOTION_MAPTILER_KEY!, {
-  id: "story-river",
-  sourceLayer: "waterway",
+  id: "story-roads",
+  sourceLayer: "transportation",
   type: "line",
-  filter: [
-    "all",
-    ["==", ["get", "class"], "river"],
-    ["==", ["coalesce", ["get", "name_en"], ["get", "name"]], "Yarlung Tsangpo"],
-  ],
+  filter: ["==", ["get", "class"], "motorway"],
   layout: {"line-cap": "round", "line-join": "round"},
   paint: {
     "line-color": "#E8F7FF",
@@ -52,7 +48,7 @@ addMapTilerVectorElement(map, process.env.REMOTION_MAPTILER_KEY!, {
   },
 });
 
-setVectorElementPaint(map, "story-river", {
+setVectorElementPaint(map, "story-roads", {
   "line-opacity": reveal,
   "line-width": 2 + reveal * 2,
 });
@@ -68,9 +64,8 @@ extract and verify the complete feature, order it once, save it as GeoJSON, and 
 
 ## Custom geodata mode
 
-Use the bundled `../assets/RiverReveal.tsx` and `../scripts/prep-geo.mjs` pattern for custom GeoJSON. This mode owns
-the exact geometry and can slice it by distance, calculate entry triggers, draw complete borders, and
-produce deterministic sequences.
+Load verified GeoJSON into a map source and update it from the Remotion frame. Preprocess geometry
+into an ordered path when the animation needs distance-based slicing or deterministic sequencing.
 
 Custom mode is mandatory when:
 

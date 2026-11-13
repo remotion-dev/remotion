@@ -25,7 +25,7 @@ Props are a React concept and take the shape of a JavaScript object.
 
 To determine the data which gets passed to the video, the following steps are taken:
 
-<Step>1</Step> <strong>Default props</strong> are defined statically, so that the video can be designed in the Studio without any data. <br/>
+<Step>1</Step> <strong>Default props</strong> are defined statically, so that the video can be designed in the Studio without any data.
 
 <ul>
 <li>
@@ -38,14 +38,14 @@ A schema can be defined and validated.
 In absence of data, default props can be edited in the Remotion Studio. [Basic controls are inferred from their values](/docs/default-props-inference).
 </li>
 </ul>
-<Step>2</Step> <strong>Input props</strong> may be specified when rendering a video to override the default props.<br/>
+<Step>2</Step> <strong>Input props</strong> may be specified when rendering a video to override the default props.
 <ul>
 <li>
-Input props will be merged together with default props, where input props have priority.
+Remotion shallowly merges input props with default props, and input props take priority. If the composition has a schema, Remotion [validates the merged props](/docs/schemas#validation-during-rendering) during rendering.
 </li>
 </ul>
 
-<Step>3</Step> <strong>Using <a href="/docs/calculate-metadata"><code>calculateMetadata()</code></a></strong>, postprocessing of the props may be performed and metadata be dynamically calculated.<br/>
+<Step>3</Step> <strong>Using <a href="/docs/calculate-metadata"><code>calculateMetadata()</code></a></strong>, postprocessing of the props may be performed and metadata be dynamically calculated.
 
 <ul>
 <li>

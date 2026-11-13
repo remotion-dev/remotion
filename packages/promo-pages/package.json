@@ -1,6 +1,7 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.542",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"version": "4.0.543",
 	"publishConfig": {
 		"access": "public"
 	},

@@ -25,6 +25,12 @@ The easiest way, especially for Vercel customers is to use [Vercel Sandbox](/doc
 We provide a set of APIs to render videos using Node.js and Bun.  
 See an [example](/docs/ssr-node) or the [API reference](/docs/renderer) for more information.
 
+For an Express.js server that starts, tracks and cancels renders, use the [Render Server](/templates/render-server) template:
+
+```bash
+npx create-video@latest --render-server
+```
+
 ## Render using GitHub Actions
 
 You can render a video on GitHub actions. The following workflow assumes a composition ID of `MyComp`
@@ -51,7 +57,7 @@ jobs:
 ### With input props
 
 If you have props, you can ask for them using the GitHub Actions input fields.  
-Here we assume a shape of `{titleText: string; titleColor: string}`.
+This example assumes a shape of `{titleText: string; titleColor: string}`.
 
 ```yaml
 name: Render video
@@ -89,7 +95,7 @@ jobs:
 <Step>3</Step> Select the <code>Render video</code> workflow on the left.<br />
 <Step>4</Step> A <code>Run workflow</code> button should appear. Click it.<br />
 <Step>5</Step> Fill in the props of the root component and click <code>Run workflow</code>.<br />
-<Step>6</Step> After the rendering is finished, you can download the video under <code>Artifacts</code>.<br />
+<Step>6</Step> After the rendering is finished, you can download the video under <code>Artifacts</code>.
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 

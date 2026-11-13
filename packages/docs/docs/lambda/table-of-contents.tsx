@@ -2,6 +2,37 @@ import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
+export const LambdaCustomization: React.FC = () => {
+	return (
+		<Grid>
+			<TOCItem link="/docs/lambda/naming-convention">
+				<strong>Function naming convention</strong>
+				<div>Understand the default function names</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-function-names">
+				<strong>Custom function names</strong>
+				<div>Deploy functions with your own names</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/bucket-naming">
+				<strong>Bucket naming</strong>
+				<div>Use a custom S3 bucket name</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/multiple-buckets">
+				<strong>Multiple buckets</strong>
+				<div>Use more than one bucket per region</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-destination">
+				<strong>Custom destination</strong>
+				<div>Save renders to another bucket or cloud</div>
+			</TOCItem>
+			<TOCItem link="/docs/lambda/custom-layers">
+				<strong>Custom Layers</strong>
+				<div>Customize Chrome, fonts, and emojis</div>
+			</TOCItem>
+		</Grid>
+	);
+};
+
 export const TableOfContents: React.FC = () => {
 	return (
 		<div>
