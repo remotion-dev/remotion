@@ -3,6 +3,7 @@ import {
 	mkdtempSync,
 	mkdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	writeFileSync,
 } from 'node:fs';
@@ -12,7 +13,9 @@ import path from 'node:path';
 for (const overviewFirst of [true, false]) {
 	for (const alias of [null, 'ApiContents']) {
 		test(`shared TOC category ignores subset importers: overviewFirst=${overviewFirst}, alias=${alias}`, () => {
-			const root = mkdtempSync(path.join(tmpdir(), 'remotion-toc-'));
+			const root = realpathSync(
+				mkdtempSync(path.join(tmpdir(), 'remotion-toc-')),
+			);
 			try {
 				mkdirSync(path.join(root, 'docs'));
 				writeFileSync(
@@ -42,11 +45,36 @@ for (const overviewFirst of [true, false]) {
 				);
 				const toc = path.join(root, 'docs', 'table-of-contents.tsx');
 				writeFileSync(toc, '<TOCItem link="/docs/method" />');
+				const inventory = [
+					...(overviewFirst ? [overview, api] : [api, overview]).map(
+						(name) => name + '.mdx',
+					),
+					'guide.mdx',
+					'method.mdx',
+					'table-of-contents.tsx',
+				];
+				const entry = path.join(root, 'inventory.ts');
+				writeFileSync(
+					entry,
+					`import {checkTocSync} from './check-toc-sync';
+import path from 'node:path';
+const order = ${JSON.stringify(inventory)};
+const files = order.map(name => path.join(import.meta.dir, 'docs', name));
+console.log('inventory:' + JSON.stringify(files.map(file => path.basename(file))));
+checkTocSync(files);`,
+				);
 				const run = () =>
 					Bun.spawnSync({
-						cmd: [process.execPath, path.join(root, 'check-toc-sync.ts')],
+						cmd: [process.execPath, entry],
 					});
-				expect(run().exitCode).toBe(0);
+				const complete = run();
+				expect(complete.stdout.toString()).toContain(
+					'inventory:' + JSON.stringify(inventory),
+				);
+				expect({
+					exitCode: complete.exitCode,
+					stderr: complete.stderr.toString(),
+				}).toEqual({exitCode: 0, stderr: ''});
 
 				// A genuine missing API entry must still fail the same checker.
 				writeFileSync(toc, '<TOCItem link="/docs/guide" />');
