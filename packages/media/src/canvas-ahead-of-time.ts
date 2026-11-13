@@ -69,6 +69,13 @@ const makeStableFramePool = (
 		let sampleReleased = false;
 		let effectCanvas: OffscreenCanvas | null = null;
 		let retainedSource: CanvasImageSource | null = null;
+		const isSizeLimited = () => {
+			const size = getMaxCanvasSinkFrameSize?.();
+			return (
+				(size?.width ?? Infinity) < frame.displayWidth ||
+				(size?.height ?? Infinity) < frame.displayHeight
+			);
+		};
 		const sampleFrame: StableWrappedCanvas = {
 			timestamp: frame.timestamp,
 			duration: frame.duration,
@@ -102,21 +109,73 @@ const makeStableFramePool = (
 						sampleCanvas.width,
 						sampleCanvas.height,
 					);
-					frame.draw(
-						sampleContext,
-						0,
-						0,
-						sampleCanvas.width,
-						sampleCanvas.height,
-					);
+					// Match transform()'s multi-step filtering without discarding the
+					// original sample. A smoothing-quality hint alone can alias.
+					const levels =
+						2 * width < frame.displayWidth && 2 * height < frame.displayHeight
+							? Math.floor(
+									Math.log2(
+										Math.min(
+											frame.displayWidth / width,
+											frame.displayHeight / height,
+										),
+									),
+								)
+							: 0;
+					if (levels === 0) {
+						frame.draw(sampleContext, 0, 0, width, height);
+					} else {
+						const mipWidth = width * 2 ** levels;
+						const mipHeight = height * 2 ** levels;
+						const mipCanvas =
+							availableCanvases.pop() ??
+							new OffscreenCanvas(mipWidth, mipHeight);
+						if (mipCanvas.width !== mipWidth) mipCanvas.width = mipWidth;
+						if (mipCanvas.height !== mipHeight) mipCanvas.height = mipHeight;
+						const mipContext = mipCanvas.getContext('2d');
+						if (!mipContext) throw new Error('Could not create canvas context');
+						try {
+							mipContext.imageSmoothingQuality = 'high';
+							mipContext.clearRect(0, 0, mipWidth, mipHeight);
+							frame.draw(mipContext, 0, 0, mipWidth, mipHeight);
+							mipContext.globalCompositeOperation = 'copy';
+							for (let level = levels; level > 1; level--) {
+								const levelWidth = width * 2 ** level;
+								const levelHeight = height * 2 ** level;
+								mipContext.drawImage(
+									mipCanvas,
+									0,
+									0,
+									levelWidth,
+									levelHeight,
+									0,
+									0,
+									levelWidth / 2,
+									levelHeight / 2,
+								);
+							}
+							sampleContext.drawImage(
+								mipCanvas,
+								0,
+								0,
+								width * 2,
+								height * 2,
+								0,
+								0,
+								width,
+								height,
+							);
+						} finally {
+							mipContext.globalCompositeOperation = 'source-over';
+							availableCanvases.push(mipCanvas);
+						}
+					}
 				}
 
 				return sampleCanvas;
 			},
 			[effectSource]: ({width, height, allowDirectSource}) => {
-				const cappedSource = getMaxCanvasSinkFrameSize?.()
-					? sampleFrame.canvas
-					: null;
+				const cappedSource = isSizeLimited() ? sampleFrame.canvas : null;
 				if (
 					width !== (cappedSource?.width ?? frame.displayWidth) ||
 					height !== (cappedSource?.height ?? frame.displayHeight)
@@ -156,7 +215,7 @@ const makeStableFramePool = (
 				return retainedSource;
 			},
 			[drawSample]: (sampleContext, width, height) => {
-				if (getMaxCanvasSinkFrameSize?.())
+				if (isSizeLimited())
 					sampleContext.drawImage(sampleFrame.canvas, 0, 0, width, height);
 				else frame.draw(sampleContext, 0, 0, width, height);
 			},

@@ -165,7 +165,7 @@ test('does not reinitialize MediaPlayer when onError or maxCanvasSinkFrameSize i
 		// New numbers take effect. Frames are never upscaled.
 		setMaxWidth(4000);
 		await waitFor(() => lastFrameSize === '1280x720');
-		expect(initSpy.mock.calls.length).toBe(2);
+		expect(initSpy.mock.calls.length).toBe(1);
 	} finally {
 		root.unmount();
 		container.remove();

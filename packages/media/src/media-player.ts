@@ -1006,7 +1006,13 @@ export class MediaPlayer {
 	}
 
 	public async redrawVideoEffects(): Promise<void> {
-		await this.videoIteratorManager?.redrawCurrentFrame();
+		// A replacement frame may still be painting effects and has not been
+		// published yet. Reuse the seek queue so this redraw cannot be lost.
+		const redraw = this.seekPromiseChain.then(() =>
+			this.videoIteratorManager?.redrawCurrentFrame(),
+		);
+		this.seekPromiseChain = redraw.catch(() => {});
+		await redraw;
 	}
 
 	private drawDebugOverlay = () => {
