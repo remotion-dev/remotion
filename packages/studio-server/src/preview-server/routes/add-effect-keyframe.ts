@@ -61,7 +61,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 			logLine,
 			effectCallee,
 			updatedSequenceNodePath,
-		} = await updateEffectKeyframes({
+		} = updateEffectKeyframes({
 			input: fileContents,
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,

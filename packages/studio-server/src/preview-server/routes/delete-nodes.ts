@@ -67,7 +67,7 @@ export const deleteNodesHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const result = await deleteNodes({
+					const result = deleteNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

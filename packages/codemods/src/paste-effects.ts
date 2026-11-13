@@ -20,7 +20,7 @@ export type PasteEffectsOptions<Project extends CodemodProject> = {
 	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
-export const pasteEffects = async <Project extends CodemodProject>({
+export const pasteEffects = <Project extends CodemodProject>({
 	project,
 	node,
 	effects,
@@ -30,16 +30,14 @@ export const pasteEffects = async <Project extends CodemodProject>({
 }: PasteEffectsOptions<Project>) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const {output, formatted, effectLabels, logLine} = await pasteEffectsInSource(
-		{
-			input,
-			effects: [...effects],
-			type: mode === 'replace' ? 'effects-replacing' : 'effects-additive',
-			targetSequenceNodePath: node.nodePath,
-			insertAtIndices: insertAtIndices === null ? null : [...insertAtIndices],
-			prettierConfigOverride,
-		},
-	);
+	const {output, formatted, effectLabels, logLine} = pasteEffectsInSource({
+		input,
+		effects: [...effects],
+		type: mode === 'replace' ? 'effects-replacing' : 'effects-additive',
+		targetSequenceNodePath: node.nodePath,
+		insertAtIndices: insertAtIndices === null ? null : [...insertAtIndices],
+		prettierConfigOverride,
+	});
 	const result = getNodeEditResult({
 		project,
 		edits: [

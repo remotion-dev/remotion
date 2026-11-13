@@ -14,7 +14,7 @@ export type ReorderEffectsOptions<Project extends CodemodProject> = {
 	toIndex: number;
 };
 
-export const reorderEffects = async <Project extends CodemodProject>({
+export const reorderEffects = <Project extends CodemodProject>({
 	project,
 	effects,
 	toIndex,
@@ -36,13 +36,12 @@ export const reorderEffects = async <Project extends CodemodProject>({
 	}
 
 	const fromIndices = effects.map((effect) => effect.effectIndex);
-	const {output, formatted, effectLabel, logLine} =
-		await reorderEffectsInSource({
-			input,
-			sequenceNodePath: node.nodePath,
-			fromIndices,
-			toIndex,
-		});
+	const {output, formatted, effectLabel, logLine} = reorderEffectsInSource({
+		input,
+		sequenceNodePath: node.nodePath,
+		fromIndices,
+		toIndex,
+	});
 	const result = getNodeEditResult({
 		project,
 		edits: [

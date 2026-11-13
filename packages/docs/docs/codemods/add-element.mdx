@@ -19,7 +19,7 @@ import {addElement, createElement, type CodemodProject} from '@remotion/codemods
 
 declare const project: CodemodProject;
 
-const result = await addElement({
+const result = addElement({
   project,
   element: createElement({
     component: 'Solid',
@@ -50,7 +50,7 @@ const video = createElement({
   props: {src: 'https://example.com/video.mp4'},
 });
 
-const result = await addElement({
+const result = addElement({
   project,
   element: createElement({
     component: 'Sequence',
@@ -68,7 +68,7 @@ const result = await addElement({
 
 Media files are not copied or downloaded, metadata is not probed, and packages are not installed. The project must already contain the dependencies needed by the generated imports.
 
-From v4.0.544 this function returns a promise. Await the result before reading `changes` or `insertedNode`.
+From v4.0.544, all supported insertion paths are synchronous, including SVG conversion and file-backed insertion.
 
 ## Options
 
@@ -86,7 +86,7 @@ Descriptors support `solid`, `text`, `asset`, `component`, `track`, `svg`, and `
 import {addElement, type CodemodProject} from '@remotion/codemods';
 declare const project: CodemodProject;
 // ---cut---
-const result = await addElement({
+const result = addElement({
   project,
   element: {
     type: 'asset', assetType: 'image', src: 'logo.png', srcType: 'static',
@@ -229,7 +229,7 @@ Formatting options for generated source, such as `singleQuote`, `useTabs`, `tabW
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 

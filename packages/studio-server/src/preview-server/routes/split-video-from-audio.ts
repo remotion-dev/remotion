@@ -39,7 +39,7 @@ export const splitVideoFromAudioHandler: ApiHandler<
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-			const result = await detachAudio({
+			const result = detachAudio({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
 			});

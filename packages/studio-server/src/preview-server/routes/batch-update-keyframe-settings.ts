@@ -146,7 +146,7 @@ export const batchUpdateKeyframeSettings = async ({
 			JSON.stringify(update.nodePath.nodePath),
 		)) {
 			const firstUpdate = updates[0];
-			const result = await updateSequenceKeyframes({
+			const result = updateSequenceKeyframes({
 				input: output,
 				nodePath: firstUpdate.nodePath.nodePath,
 				schema: firstUpdate.schema,
@@ -179,7 +179,7 @@ export const batchUpdateKeyframeSettings = async ({
 				}`,
 		)) {
 			const firstUpdate = updates[0];
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				input: output,
 				sequenceNodePath: firstUpdate.sequenceNodePath.nodePath,
 				effectIndex: firstUpdate.effectIndex,

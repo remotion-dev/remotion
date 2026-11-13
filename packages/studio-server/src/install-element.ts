@@ -467,7 +467,7 @@ export const installElement = async ({
 				nodePathRemappings: SequenceNodePathRemapping[];
 			};
 			if (captionTarget === null) {
-				inserted = await insertJsxElementIntoComposition({
+				inserted = insertJsxElementIntoComposition({
 					...insertionInput,
 					compositionFile,
 					compositionId,

@@ -62,7 +62,7 @@ export const duplicateEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await duplicateEffects({
+					const result = duplicateEffects({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

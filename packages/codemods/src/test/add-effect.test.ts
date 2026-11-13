@@ -11,7 +11,7 @@ export const Comp = () => {
 
 test('addEffect adds an effects prop and import', async () => {
 	const input = buildInput('<Solid width={100} height={100} />');
-	const {output, effectLabel, nodeLabel} = await addEffect({
+	const {output, effectLabel, nodeLabel} = addEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 4),
 		effectName: 'brightness',
@@ -40,7 +40,7 @@ export const Comp = () => {
 \treturn <Solid width={100} height={100} effects={[tint({color: "red"})]} />;
 };
 `;
-	const {output} = await addEffect({
+	const {output} = addEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 5),
 		effectName: 'contrast',
@@ -65,7 +65,7 @@ export const Comp = () => {
 \treturn <Solid width={100} height={100} />;
 };
 `;
-	const {output} = await addEffect({
+	const {output} = addEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectName: 'brightness',
@@ -82,7 +82,7 @@ export const Comp = () => {
 test('addEffect keeps nodePath stable when a new import gets inserted', async () => {
 	const input = buildInput('<Solid width={100} height={100} />');
 	const nodePath = lineColumnToNodePath(input, 4);
-	const firstPass = await addEffect({
+	const firstPass = addEffect({
 		input,
 		sequenceNodePath: nodePath,
 		effectName: 'brightness',
@@ -90,7 +90,7 @@ test('addEffect keeps nodePath stable when a new import gets inserted', async ()
 		effectConfig: {amount: 0.5},
 	});
 
-	const secondPass = await addEffect({
+	const secondPass = addEffect({
 		input: firstPass.output,
 		sequenceNodePath: nodePath,
 		effectName: 'contrast',
@@ -111,7 +111,7 @@ test('addEffect keeps nodePath stable when a new import gets inserted', async ()
 test('addEffect rejects non-Remotion effect imports', async () => {
 	const input = buildInput('<Solid width={100} height={100} />');
 
-	await expect(
+	expect(() =>
 		addEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 4),
@@ -119,7 +119,7 @@ test('addEffect rejects non-Remotion effect imports', async () => {
 			effectImportPath: 'third-party-effect',
 			effectConfig: {},
 		}),
-	).rejects.toThrow(/Unsupported effect import/);
+	).toThrow(/Unsupported effect import/);
 });
 
 test('addEffect does not duplicate an existing effect import', async () => {
@@ -130,7 +130,7 @@ export const Comp = () => {
 \treturn <Solid width={100} height={100} />;
 };
 `;
-	const {output} = await addEffect({
+	const {output} = addEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 5),
 		effectName: 'brightness',

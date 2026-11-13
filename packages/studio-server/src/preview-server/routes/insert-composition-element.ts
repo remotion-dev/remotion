@@ -288,7 +288,7 @@ export const insertCompositionElementHandler: ApiHandler<
 							action: 'modify',
 						});
 						const previousContents = readFileSync(absolutePath, 'utf-8');
-						const result = await addElement({
+						const result = addElement({
 							project: {
 								rootDir: remotionRoot,
 								files: {[absolutePath]: previousContents},
@@ -314,7 +314,7 @@ export const insertCompositionElementHandler: ApiHandler<
 							nodePathRemappings: result.nodePathRemappings,
 						};
 					})()
-				: await insertJsxElementIntoComposition({
+				: insertJsxElementIntoComposition({
 						remotionRoot,
 						compositionFile,
 						compositionId,

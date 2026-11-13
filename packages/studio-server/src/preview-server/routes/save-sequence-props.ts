@@ -454,7 +454,7 @@ export const saveSequencePropsHandler: ApiHandler<
 						value: JSON.parse(keyframe.value),
 					},
 				}));
-				const result = await updateSequenceKeyframes({
+				const result = updateSequenceKeyframes({
 					input: output,
 					nodePath: firstSequenceKeyframe.nodePath.nodePath,
 					schema: firstSequenceKeyframe.schema,
@@ -505,7 +505,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					},
 				);
 
-				const result = await updateSequenceKeyframes({
+				const result = updateSequenceKeyframes({
 					input: output,
 					nodePath: firstSequenceKeyframe.nodePath.nodePath,
 					schema: firstSequenceKeyframe.schema,
@@ -559,7 +559,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					},
 				);
 
-				const result = await updateEffectKeyframes({
+				const result = updateEffectKeyframes({
 					input: output,
 					sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 					effectIndex: firstEffectKeyframe.effectIndex,

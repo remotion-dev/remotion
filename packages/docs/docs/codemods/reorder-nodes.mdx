@@ -22,7 +22,7 @@ declare const first: NodeReference;
 declare const second: NodeReference;
 declare const target: NodeReference;
 
-const result = await reorderNodes({
+const result = reorderNodes({
   project,
   nodes: [first, second],
   target,
@@ -33,6 +33,8 @@ console.log(result.changes);
 ```
 
 For before/after moves, all moved nodes and the target must be direct JSX siblings in the same file. A target in the moved group is invalid. The edit is atomic, so an invalid node leaves the input project unchanged.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -78,7 +80,7 @@ The name for the inserted Sequence wrapper.
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -98,7 +100,7 @@ The source location and label for the edit.
 
 ## Errors
 
-Throws or rejects when a reference cannot be resolved, the nodes and target are not direct siblings in the same file, or the nodes are already in the requested position. Failed edits leave the input project unchanged.
+Throws when a reference cannot be resolved, the nodes and target are not direct siblings in the same file, or the nodes are already in the requested position. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

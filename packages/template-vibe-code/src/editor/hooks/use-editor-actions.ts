@@ -643,8 +643,8 @@ export const useEditorActions = ({
           props: { from: currentFrame() },
           children: [getElement()],
         });
-        return applyCodemod(async (project) =>
-          (await addElement({
+        return applyCodemod((project) =>
+          (addElement({
             project,
             element: sequence,
             target: {
@@ -893,7 +893,7 @@ export const useEditorActions = ({
                 }
               }
               collect(
-                await updateNodeKeyframes({
+                updateNodeKeyframes({
                   project: current,
                   node: resolvedNode,
                   updates,

@@ -20,7 +20,7 @@ export type ReorderNodesOptions<Project extends CodemodProject> = {
 	| {position: 'inside'; timings: readonly NodeMoveTiming[]}
 );
 
-export const reorderNodes = async <Project extends CodemodProject>(
+export const reorderNodes = <Project extends CodemodProject>(
 	options: ReorderNodesOptions<Project>,
 ) => {
 	const {project, nodes, target, position} = options;
@@ -48,7 +48,7 @@ export const reorderNodes = async <Project extends CodemodProject>(
 					targetNodePath: target.nodePath,
 					timings: options.timings,
 				})
-			: await reorderSequences({
+			: reorderSequences({
 					input: project.files[filePath],
 					sourceNodePaths: nodes.map((node) => node.nodePath),
 					targetNodePath: target.nodePath,

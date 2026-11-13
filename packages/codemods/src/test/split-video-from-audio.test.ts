@@ -18,7 +18,7 @@ export const Comp = () => {
 
 const split = async (element: string, imports?: string) => {
 	const input = wrap(element, imports);
-	const {output} = await splitVideoFromAudio({
+	const {output} = splitVideoFromAudio({
 		input,
 		nodePath: lineContainingToNodePath(input, element),
 	});
@@ -58,7 +58,7 @@ export const Comp=()=>(
 )
 `;
 	let formatCalls = 0;
-	const {formatted, nodePathRemappings, output} = await splitVideoFromAudio({
+	const {formatted, nodePathRemappings, output} = splitVideoFromAudio({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		formatFile: () => {
@@ -120,7 +120,7 @@ test('splitVideoFromAudio wraps a root video in a fragment', async () => {
 
 export const Comp = () => <Video src="video.mp4" />;
 `;
-	const {output} = await splitVideoFromAudio({
+	const {output} = splitVideoFromAudio({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 	});
@@ -142,7 +142,7 @@ export const Comp = () => (
     <Video src="video.mp4" /></div>
 );
 `;
-	const {output} = await splitVideoFromAudio({
+	const {output} = splitVideoFromAudio({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 	});
@@ -172,7 +172,7 @@ test('splitVideoFromAudio preserves CRLF and tab indentation', async () => {
 		'};',
 		'',
 	].join('\r\n');
-	const {output} = await splitVideoFromAudio({
+	const {output} = splitVideoFromAudio({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 	});

@@ -13,7 +13,7 @@ const pasteEffects = async ({
 	PasteEffectsRequest,
 	'targetFileName' | 'type' | 'effects' | 'insertAtIndices'
 > & {input: string; targetSequenceNodePath: SequenceNodePath}) => {
-	const result = await pasteEffectsCodemod({
+	const result = pasteEffectsCodemod({
 		...options,
 		project: {rootDir: '/', files: {[targetFileName]: input}},
 		node: {filePath: targetFileName, nodePath: targetSequenceNodePath},

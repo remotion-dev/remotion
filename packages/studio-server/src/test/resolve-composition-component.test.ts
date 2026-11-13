@@ -13,7 +13,7 @@ import {lineContainingToNodePath} from './test-utils';
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
 
 test('resolves a statically imported composition component', async () => {
-	const location = await resolveCompositionComponent({
+	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/E2eTestRoot.tsx',
 		compositionId: 'schema-test',
@@ -25,7 +25,7 @@ test('resolves a statically imported composition component', async () => {
 });
 
 test('resolves a lazy imported composition component', async () => {
-	const location = await resolveCompositionComponent({
+	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'looped',
@@ -71,7 +71,7 @@ test('resolves recursively through re-exported composition components', async ()
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -213,7 +213,7 @@ test('resolves through fallback re-export branch after cycle', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -229,7 +229,7 @@ test('resolves through fallback re-export branch after cycle', async () => {
 });
 
 test('resolves a same-file composition component', async () => {
-	const location = await resolveCompositionComponent({
+	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/NewVideo.tsx',
 		compositionId: 'NewVideo',
@@ -264,7 +264,7 @@ test('bails out if component has no JSX return', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -300,7 +300,7 @@ test('supports adding a sequence to fragment return', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -336,7 +336,7 @@ test('supports adding a sequence to JSX element return', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -374,7 +374,7 @@ test('canAddSequence=true for default-exported function component', async () => 
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -410,7 +410,7 @@ test('canAddSequence=true for self-closing root JSX return', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -447,7 +447,7 @@ test('inserts a Solid next to a self-closing root without wrapping it', async ()
 		].join('\n');
 		await fs.writeFile(path.join(tempDir, 'MyComp.tsx'), componentInput);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -517,7 +517,7 @@ test('inserts an asset as a sibling of a connected composition', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -574,7 +574,7 @@ test('inserts beside a parenthesized self-closing root without wrapping it', asy
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -629,7 +629,7 @@ test('canAddSequence=false for ThreeCanvas root element', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -667,7 +667,7 @@ test('canAddSequence=false for RiveCanvas root element', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -705,7 +705,7 @@ test('canAddSequence=false for SkiaCanvas root element', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -741,7 +741,7 @@ test('canAddSequence=false for plain canvas root element', async () => {
 			].join('\n'),
 		);
 
-		const location = await resolveCompositionComponent({
+		const location = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -779,7 +779,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -834,7 +834,7 @@ test('inserts a Solid with a translate style', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -885,7 +885,7 @@ test('rounds the translate style to one decimal place', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -938,7 +938,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -984,7 +984,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 			['export const MyComp: React.FC = () => null;', ''].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1010,14 +1010,14 @@ test('inserts a Solid into an empty component returning null', async () => {
 
 		await fs.writeFile(path.join(tempDir, 'MyComp.tsx'), result.output);
 
-		const afterFirstInsert = await resolveCompositionComponent({
+		const afterFirstInsert = resolveCompositionComponent({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
 		});
 		expect(afterFirstInsert.canAddSequence).toBe(true);
 
-		const secondInsert = await insertJsxElementIntoComposition({
+		const secondInsert = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1063,7 +1063,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1124,7 +1124,7 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1188,7 +1188,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1249,7 +1249,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1313,7 +1313,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1379,7 +1379,7 @@ test('aliases an inserted Video asset when Video is already defined', async () =
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1435,7 +1435,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1500,7 +1500,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1559,7 +1559,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1617,7 +1617,7 @@ test('aliases an inserted Audio asset when Audio is already defined', async () =
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1673,7 +1673,7 @@ test('inserts a component into the resolved composition component', async () => 
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1739,7 +1739,7 @@ test('adds value imports without reusing or colliding with type-only component i
 				].join('\n'),
 			);
 
-			const aliasedResult = await insertJsxElementIntoComposition({
+			const aliasedResult = insertJsxElementIntoComposition({
 				remotionRoot: tempDir,
 				compositionFile: 'Root.tsx',
 				compositionId: 'test',
@@ -1772,7 +1772,7 @@ test('adds value imports without reusing or colliding with type-only component i
 				'',
 			].join('\n'),
 		);
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1823,7 +1823,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
@@ -1905,7 +1905,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',
@@ -2086,7 +2086,7 @@ test('inserts a default-exported composition next to an existing namespace impor
 			].join('\n'),
 		);
 
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',
@@ -2159,7 +2159,7 @@ test('rejects array payloads for resolved composition props', async () => {
 			].join('\n'),
 		);
 
-		await expect(
+		expect(() =>
 			insertJsxElementIntoComposition({
 				remotionRoot: tempDir,
 				compositionFile: 'Root.tsx',
@@ -2181,7 +2181,7 @@ test('rejects array payloads for resolved composition props', async () => {
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 				sourceFileOverrides: null,
 			}),
-		).rejects.toThrow('Resolved composition props must be an object');
+		).toThrow('Resolved composition props must be an object');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

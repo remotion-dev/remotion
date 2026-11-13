@@ -20,7 +20,7 @@ import {pasteEffects, type CodemodProject, type NodeReference} from '@remotion/c
 declare const project: CodemodProject;
 declare const node: NodeReference;
 
-const result = await pasteEffects({
+const result = pasteEffects({
   project, node,
   effects: [{callee: 'blur', importPath: '@remotion/effects/blur', params: {radius: {type: 'static', value: 12}}}],
   mode: 'append',
@@ -69,7 +69,7 @@ Formatting options for generated source. Defaults to `null`, which follows the e
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -93,7 +93,7 @@ The file path, formatting status, effect labels and source line.
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

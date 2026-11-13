@@ -62,7 +62,7 @@ export const deleteEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await deleteEffects({
+					const result = deleteEffects({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

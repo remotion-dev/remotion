@@ -6,7 +6,7 @@ import {
 	staticFileValue,
 } from '../index';
 
-const insertIntoComposition = async ({
+const insertIntoComposition = ({
 	element,
 	input,
 	prettierConfigOverride,
@@ -16,7 +16,7 @@ const insertIntoComposition = async ({
 	prettierConfigOverride: Record<string, unknown>;
 }) => {
 	const project = {rootDir: '/', files: {'src/Root.tsx': input}};
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element,
 		target: {
@@ -30,7 +30,7 @@ const insertIntoComposition = async ({
 };
 
 test('wraps an extended import that exceeds printWidth like Prettier', async () => {
-	const output = await insertIntoComposition({
+	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',
 			importPath: 'remotion',
@@ -109,7 +109,7 @@ export const RemotionRoot: React.FC = () => {
 });
 
 test('adds specifiers to an already wrapped import on their own lines', async () => {
-	const output = await insertIntoComposition({
+	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',
 			importPath: 'remotion',
@@ -173,7 +173,7 @@ export const RemotionRoot: React.FC = () => {
 });
 
 test('counts a trailing block comment towards printWidth like Prettier', async () => {
-	const output = await insertIntoComposition({
+	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',
 			importPath: 'remotion',

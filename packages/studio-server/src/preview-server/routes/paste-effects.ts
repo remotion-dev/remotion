@@ -63,7 +63,7 @@ export const pasteEffectsHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await pasteEffects({
+			const result = pasteEffects({
 				project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
 				node: {
 					filePath: absolutePath,

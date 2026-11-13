@@ -43,7 +43,7 @@ export const Example = () => {
 	)
 }
 `;
-	const {formatted, output} = await updateSequenceKeyframes({
+	const {formatted, output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 10),
 		updates: [
@@ -100,7 +100,7 @@ export const Example = () => {
   );
 };
 `;
-	const {formatted, output} = await updateEffectKeyframes({
+	const {formatted, output} = updateEffectKeyframes({
 		input,
 		sequenceNodePath: getNodePathAtLine(input, 9),
 		effectIndex: 0,
@@ -159,7 +159,7 @@ export const Example = () => {
   );
 };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 12),
 		updates: [
@@ -190,7 +190,7 @@ export const Example = () => (
   <div style={{opacity:0.5}} />
 )
 `.replaceAll(/\r?\n/g, '\r\n');
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 6),
 		updates: [
@@ -235,7 +235,7 @@ export const Example = () => {
   );
 };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 7),
 		updates: [
@@ -277,7 +277,7 @@ export const Example = () => {/* Explain the return. */
   );
 };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 5),
 		updates: [
@@ -312,7 +312,7 @@ export const Example = () => {
 test('frame hooks reformat compact function blocks', async () => {
 	const input = `export const C = () => { return <div style={{opacity: 1}} /> }
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 1),
 		updates: [
@@ -344,7 +344,7 @@ test('existing keyframes get source-aware indentation in compact blocks', async 
 	const input = `import {interpolate, useCurrentFrame} from 'remotion';
 export const C = () => { const frame = useCurrentFrame(); return <div style={{opacity: interpolate(frame, [0], [0.5])}} /> }
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 2),
 		updates: [
@@ -377,7 +377,7 @@ export const Example = () => {
 	return <div title="&quot;" opacity={interpolate(frame, [0], [0.5])} />;
 };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 5),
 		updates: [
@@ -402,7 +402,7 @@ test('keyframe hook expansion preserves trailing block comments', async () => {
   /* Keep this comment. */
 );
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 2),
 		updates: [
@@ -437,7 +437,7 @@ test('keyframe hook expansion preserves trailing line comments', async () => {
   <div style={{opacity: 1}} /> // Keep this comment.
 );
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 2),
 		updates: [
@@ -470,7 +470,7 @@ export const C = () => {
 test('keyframe hook expansion preserves leading expression comments', async () => {
 	const input = `export const C = () => /* Keep this comment. */ <div style={{opacity: 1}} />;
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 1),
 		updates: [
@@ -502,7 +502,7 @@ export const C = () => {
 test('compact block reprints preserve leading comments', async () => {
 	const input = `export const C = () => /* Keep this comment. */ { return <div style={{opacity: 1}} />; };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 1),
 		updates: [
@@ -535,7 +535,7 @@ test('new keyframe imports stay after inline directive comments', async () => {
 	const input = `'use client'; // Keep this on the directive.
 export const C = () => <div style={{opacity: 1}} />;
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 2),
 		updates: [
@@ -556,7 +556,7 @@ test('new keyframe imports stay after file pragmas', async () => {
 	const input = `// @ts-nocheck
 export const C = () => <div style={{opacity: 1}} />;
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 2),
 		updates: [
@@ -574,7 +574,7 @@ export const C = () => <div style={{opacity: 1}} />;
 test('new keyframe imports separate same-line block pragmas', async () => {
 	const input = `/* @ts-nocheck */ export const C = () => <div style={{opacity: 1}} />;
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 1),
 		updates: [
@@ -609,7 +609,7 @@ test('new keyframe imports stay after shebangs and file pragmas', async () => {
 // @ts-nocheck
 export const C = () => <div style={{opacity: 1}} />;
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 3),
 		updates: [
@@ -630,7 +630,7 @@ test('frame hooks stay after inline function directive comments', async () => {
   return <div style={{opacity: 1}} />;
 };
 `;
-	const {output} = await updateSequenceKeyframes({
+	const {output} = updateSequenceKeyframes({
 		input,
 		nodePath: getNodePathAtLine(input, 3),
 		updates: [

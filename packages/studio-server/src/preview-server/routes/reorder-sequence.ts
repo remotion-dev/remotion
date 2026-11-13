@@ -44,7 +44,7 @@ export const reorderSequenceHandler: ApiHandler<
 				files: {[absolutePath]: fileContents},
 				rootDir: remotionRoot,
 			};
-			const result = await reorderNodes({
+			const result = reorderNodes({
 				project,
 				nodes: sourceNodePaths.map((node) => ({
 					filePath: absolutePath,

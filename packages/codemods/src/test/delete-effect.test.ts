@@ -18,7 +18,7 @@ export const Comp = () => {
 
 test('deleteEffect removes the only effect and the effects prop', async () => {
 	const input = buildInput('[tint({color: "red"})]');
-	const {output, effectLabel} = await deleteEffect({
+	const {output, effectLabel} = deleteEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
@@ -34,7 +34,7 @@ test('deleteEffect removes the targeted effect by index', async () => {
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
-	const {output} = await deleteEffect({
+	const {output} = deleteEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 1,
@@ -50,7 +50,7 @@ test('deleteEffects removes multiple targeted effects in one pass', async () => 
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
-	const {output, effectLabels} = await deleteEffects({
+	const {output, effectLabels} = deleteEffects({
 		input,
 		effects: [
 			{
@@ -77,7 +77,7 @@ test('deleteEffects removes all effects from the target sequence', async () => {
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
-	const {output, effectLabels} = await deleteEffects({
+	const {output, effectLabels} = deleteEffects({
 		input,
 		effects: [
 			{
@@ -95,7 +95,7 @@ test('deleteEffects removes all effects from the target sequence', async () => {
 
 test('deleteEffect keeps the effects prop when other effects remain', async () => {
 	const input = buildInput('[tint({color: "red"}), tint({color: "green"})]');
-	const {output} = await deleteEffect({
+	const {output} = deleteEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 1,
@@ -108,33 +108,33 @@ test('deleteEffect keeps the effects prop when other effects remain', async () =
 
 test('deleteEffect throws when effect index is out of range', async () => {
 	const input = buildInput('[tint({color: "red"})]');
-	await expect(
+	expect(() =>
 		deleteEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 5,
 		}),
-	).rejects.toThrow(/not-found/);
+	).toThrow(/not-found/);
 });
 
 test('deleteEffect throws when effects are not an inline array', async () => {
 	const input = buildInput('effects');
-	await expect(
+	expect(() =>
 		deleteEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 0,
 		}),
-	).rejects.toThrow(/not an array/);
+	).toThrow(/not an array/);
 });
 
 test('deleteEffect throws when the target effect is unsupported', async () => {
 	const input = buildInput('[tint({color: "red"}), ...effects]');
-	await expect(
+	expect(() =>
 		deleteEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 1,
 		}),
-	).rejects.toThrow(/not-call-expression/);
+	).toThrow(/not-call-expression/);
 });

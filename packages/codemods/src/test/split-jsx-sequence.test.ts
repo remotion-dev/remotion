@@ -20,7 +20,7 @@ test('splits fractional timing without persisting arithmetic noise', async () =>
 		},
 	});
 	if (!nodePath) throw new Error('Could not find Sequence');
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
@@ -55,7 +55,7 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 			return this.traverse(path);
 		},
 	});
-	const {output, nodePathRemappings} = await splitJsxSequences({
+	const {output, nodePathRemappings} = splitJsxSequences({
 		input,
 		splits: nodePaths.map((nodePath) => ({
 			nodePath,
@@ -94,7 +94,7 @@ test('splitting a sped-up sequence preserves its child clock across a fractional
 		},
 	});
 	if (!nodePath) throw new Error('Could not find Sequence');
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore', 'playbackRate'],
@@ -132,7 +132,7 @@ const split = async (
 	sequenceKeys = sequenceTimingKeys,
 ) => {
 	const input = wrap(sequence);
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath: lineColumnToNodePath(input, sequenceLine),
 		sequenceKeys,
@@ -154,7 +154,7 @@ test('splitJsxSequence remaps wrapped clips and preserves following JSX siblings
 	const input = wrap(
 		'<Sequence name="split" from={0} durationInFrames={50} />\n\t\t\t<Sequence name="following" />',
 	);
-	const {output, nodePathRemappings} = await splitJsxSequence({
+	const {output, nodePathRemappings} = splitJsxSequence({
 		input,
 		nodePath: lineContainingToNodePath(input, 'name="split"'),
 		sequenceKeys: sequenceTimingKeys,
@@ -210,7 +210,7 @@ test('splitJsxSequence keeps missing left from omitted', async () => {
 test('splitJsxSequence splits finite duration and trimBefore', async () => {
 	const input = `import {Sequence, Track as TimelineTrack} from 'remotion';
 export const Comp = () => <TimelineTrack name="Existing"><Sequence from={10} durationInFrames={50} trimBefore={5} /></TimelineTrack>;`;
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
@@ -246,7 +246,7 @@ export const Comp = () => {
   )
 }
 `;
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
@@ -270,7 +270,7 @@ test('splitJsxSequence formats a split component root as a named track', async (
 
 const keep = { value : true }
 `;
-	const {output} = await splitJsxSequence({
+	const {output} = splitJsxSequence({
 		input,
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,

@@ -52,7 +52,7 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderEffects({
+			const result = reorderEffects({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				effects: fromIndices.map((effectIndex) => ({
 					filePath: absolutePath,

@@ -58,7 +58,7 @@ export const Video = () => {
 			const afterRepeat = applyCodemodChanges(afterChange, repeated.changes);
 			expect(afterRepeat.files[filePath]).toBe(expected);
 
-			const animated = await updateNodeKeyframes({
+			const animated = updateNodeKeyframes({
 				project: afterRepeat,
 				node: repeated.updatedNode,
 				updates: [

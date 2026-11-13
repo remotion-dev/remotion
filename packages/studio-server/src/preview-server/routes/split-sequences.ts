@@ -50,7 +50,7 @@ export const splitSequencesHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await splitSequences({
+					const result = splitSequences({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

@@ -48,7 +48,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			formatted,
 			logLine,
 			updatedNodePath,
-		} = await updateSequenceKeyframes({
+		} = updateSequenceKeyframes({
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,

@@ -61,7 +61,7 @@ The source root directory.
 
 ### readFile
 
-An asynchronous function receiving an absolute filename and returning its contents.
+A synchronous function receiving an absolute filename and returning its contents.
 
 ### fileExists
 
@@ -99,7 +99,7 @@ The path separator used by the environment, such as `'/'`.
 
 ### svgMarkupToJsx
 
-An asynchronous function that converts SVG markup to a parsed JSX element. Used only for SVG insertion. It may throw an unsupported-operation error in environments that do not offer SVG conversion.
+A synchronous function that converts SVG markup to a parsed JSX element. Used only for SVG insertion. It may throw an unsupported-operation error in environments that do not offer SVG conversion.
 
 ## Creating elements<AvailableFrom v="4.0.530" />
 
@@ -121,7 +121,7 @@ const sequence = createElement({
   props: {from: 30},
 }).withChild(solid);
 
-const result = await addElement({
+const result = addElement({
   project,
   element: sequence,
   target: {type: 'composition', compositionFile: 'src/Root.tsx', compositionId: 'Demo'},
@@ -187,7 +187,7 @@ Adding, deleting, duplicating, or reordering effects can shift effect indices. N
 
 ## Mutation results
 
-Every mutation returns a `CodemodResult`, synchronously or through a promise as documented on its page.
+Every mutation synchronously returns a `CodemodResult`. From v4.0.544, node, effect, and keyframe mutations that previously returned promises return their results directly and throw errors immediately.
 
 ### changes
 

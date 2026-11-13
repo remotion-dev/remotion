@@ -38,7 +38,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### environment?<AvailableFrom v="4.0.544" />
 
-A [file-backed source environment](/docs/codemods#file-backed-sources), used instead of `project`. With this source mode, the function returns a promise and follows imports by reading files on demand.
+A [file-backed source environment](/docs/codemods#file-backed-sources), used instead of `project`. It follows imports by reading files synchronously on demand.
 
 ### compositionFile
 
@@ -50,7 +50,7 @@ The static ID of the composition to resolve.
 
 ## Return value
 
-Returns an object with the following properties for `project`, or a promise resolving to that object for `environment`.
+Returns an object with the following properties for both source modes.
 
 ### filePath
 

@@ -50,7 +50,7 @@ export const duplicateNodesHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await duplicateNodes({
+					const result = duplicateNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

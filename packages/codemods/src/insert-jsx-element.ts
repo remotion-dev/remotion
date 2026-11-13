@@ -57,10 +57,10 @@ export type CodemodEnvironment = {
 	isAbsolute: (fileName: string) => boolean;
 	join: (...parts: string[]) => string;
 	pathSeparator: string;
-	readFile: (fileName: string) => Promise<string>;
+	readFile: (fileName: string) => string;
 	relative: (from: string, to: string) => string;
 	resolve: (...parts: string[]) => string;
-	svgMarkupToJsx: (markup: string) => Promise<namedTypes.JSXElement>;
+	svgMarkupToJsx: (markup: string) => namedTypes.JSXElement;
 };
 
 const normalizeVirtualPath = (input: string) => {
@@ -157,7 +157,7 @@ export const makeInMemoryCodemodEnvironment = ({
 				throw new Error(`Could not read source file "${fileName}"`);
 			}
 
-			return Promise.resolve(contents);
+			return contents;
 		},
 		relative: relativeVirtualPath,
 		resolve: resolveVirtualPath,
@@ -949,7 +949,7 @@ const createSequenceWrappedElement = ({
 	);
 };
 
-const createSvgElement = async ({
+const createSvgElement = ({
 	environment,
 	from,
 	interactiveLocalName,
@@ -961,8 +961,8 @@ const createSvgElement = async ({
 	interactiveLocalName: string;
 	markup: string;
 	position: InsertableCompositionElementPosition | null;
-}): Promise<namedTypes.JSXElement> => {
-	const svgElement = await environment.svgMarkupToJsx(markup);
+}): namedTypes.JSXElement => {
+	const svgElement = environment.svgMarkupToJsx(markup);
 	const attributes = svgElement.openingElement.attributes ?? [];
 	svgElement.openingElement.attributes = attributes;
 	if (from !== null) {
@@ -1747,7 +1747,7 @@ const canAddSequenceToComponent = ({
 	}
 };
 
-const getComponentLocationInFile = async ({
+const getComponentLocationInFile = ({
 	environment,
 	fileName,
 	exportName,
@@ -1757,9 +1757,8 @@ const getComponentLocationInFile = async ({
 	fileName: string;
 	exportName: string | 'default';
 	ast?: File;
-}): Promise<ResolvedCompositionComponentWithFile> => {
-	const ast =
-		providedAst ?? parseAst(await readSourceFile({environment, fileName}));
+}): ResolvedCompositionComponentWithFile => {
+	const ast = providedAst ?? parseAst(readSourceFile({environment, fileName}));
 	const declaration = getDeclarationByExportName({ast, exportName});
 	const location =
 		(declaration ? locationFromNode(declaration) : null) ??
@@ -1781,7 +1780,7 @@ const getComponentLocationInFile = async ({
 	};
 };
 
-const getComponentLocationRecursively = async ({
+const getComponentLocationRecursively = ({
 	environment,
 	fileName,
 	exportName,
@@ -1791,7 +1790,7 @@ const getComponentLocationRecursively = async ({
 	fileName: string;
 	exportName: string | 'default';
 	visited: Set<string>;
-}): Promise<ResolvedCompositionComponentWithFile> => {
+}): ResolvedCompositionComponentWithFile => {
 	const key = `${fileName}:${exportName}`;
 	if (visited.has(key)) {
 		throw new Error(
@@ -1801,7 +1800,7 @@ const getComponentLocationRecursively = async ({
 
 	visited.add(key);
 	try {
-		const input = await readSourceFile({environment, fileName});
+		const input = readSourceFile({environment, fileName});
 		const ast = parseAst(input);
 		const localDeclaration = getDeclarationByExportName({
 			ast,
@@ -1817,7 +1816,7 @@ const getComponentLocationRecursively = async ({
 					? findImportTarget({ast, componentName: component.name})
 					: null;
 			if (imported) {
-				return await getComponentLocationRecursively({
+				return getComponentLocationRecursively({
 					environment,
 					fileName: resolveImportPath({
 						environment,
@@ -1829,7 +1828,7 @@ const getComponentLocationRecursively = async ({
 				});
 			}
 
-			return await getComponentLocationInFile({
+			return getComponentLocationInFile({
 				environment,
 				fileName,
 				exportName,
@@ -1849,7 +1848,7 @@ const getComponentLocationRecursively = async ({
 					fromFile: fileName,
 				});
 
-				return await getComponentLocationRecursively({
+				return getComponentLocationRecursively({
 					environment,
 					fileName: resolvedImportPath,
 					exportName: target.exportName,
@@ -1866,7 +1865,7 @@ const getComponentLocationRecursively = async ({
 			);
 		}
 
-		return await getComponentLocationInFile({
+		return getComponentLocationInFile({
 			environment,
 			fileName,
 			exportName,
@@ -1877,7 +1876,7 @@ const getComponentLocationRecursively = async ({
 	}
 };
 
-export async function resolveCompositionComponentWithFile({
+export function resolveCompositionComponentWithFile({
 	environment,
 	compositionFile,
 	compositionId,
@@ -1885,12 +1884,12 @@ export async function resolveCompositionComponentWithFile({
 	environment: CodemodEnvironment;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponentWithFile> {
+}): ResolvedCompositionComponentWithFile {
 	const compositionFileName = environment.resolve(
 		environment.rootDir,
 		compositionFile,
 	);
-	const input = await readSourceFile({
+	const input = readSourceFile({
 		environment,
 		fileName: compositionFileName,
 	});
@@ -1946,7 +1945,7 @@ export async function resolveCompositionComponentWithFile({
 	});
 }
 
-const ensureCompositionComponentImport = async ({
+const ensureCompositionComponentImport = ({
 	ast,
 	compositionFile,
 	compositionId,
@@ -1959,7 +1958,7 @@ const ensureCompositionComponentImport = async ({
 	destinationFileName: string;
 	environment: CodemodEnvironment;
 }) => {
-	const sourceLocation = await resolveCompositionComponentWithFile({
+	const sourceLocation = resolveCompositionComponentWithFile({
 		environment,
 		compositionFile,
 		compositionId,
@@ -1982,7 +1981,7 @@ const ensureCompositionComponentImport = async ({
 	}
 
 	const sourceAst = parseAstForReadOnly(
-		await readSourceFile({
+		readSourceFile({
 			environment,
 			fileName: sourceLocation.fileName,
 		}),
@@ -2094,7 +2093,7 @@ const createInsertableJsxElement = ({
 	element: PipelineInsertableElement;
 	environment: CodemodEnvironment;
 	from: number | null;
-}): Promise<namedTypes.JSXElement> => {
+}): namedTypes.JSXElement => {
 	if (element.type === 'svg') {
 		return createSvgElement({
 			environment,
@@ -2105,25 +2104,21 @@ const createInsertableJsxElement = ({
 		});
 	}
 
-	return ensureCompositionComponentImport({
+	const localName = ensureCompositionComponentImport({
 		ast,
 		compositionFile: element.compositionFile,
 		compositionId: element.compositionId,
 		destinationFileName,
 		environment,
-	}).then((localName) => {
-		const props = parseSerializedCompositionProps(
-			element.serializedResolvedPropsWithCustomSchema,
-		);
-		if (containsFileToken(props)) {
-			ensureStaticFileBinding(ast);
-		}
-
-		return createCompositionComponentElement({localName, props});
 	});
+	const props = parseSerializedCompositionProps(
+		element.serializedResolvedPropsWithCustomSchema,
+	);
+	if (containsFileToken(props)) ensureStaticFileBinding(ast);
+	return createCompositionComponentElement({localName, props});
 };
 
-export const insertJsxElementIntoComposition = async ({
+export const insertJsxElementIntoComposition = ({
 	compositionFile,
 	compositionId,
 	element,
@@ -2145,7 +2140,7 @@ export const insertJsxElementIntoComposition = async ({
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;
 	} | null;
-}): Promise<{
+}): {
 	fileName: string;
 	source: string;
 	oldContents: string;
@@ -2153,7 +2148,7 @@ export const insertJsxElementIntoComposition = async ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
-}> => {
+} => {
 	if (element.type !== 'svg' && element.type !== 'composition') {
 		throw new Error('Expected an SVG or composition descriptor');
 	}
@@ -2173,7 +2168,7 @@ export const insertJsxElementIntoComposition = async ({
 		throw new Error('Position must be finite');
 	}
 
-	const location = await resolveCompositionComponentWithFile({
+	const location = resolveCompositionComponentWithFile({
 		environment,
 		compositionFile,
 		compositionId,
@@ -2184,7 +2179,7 @@ export const insertJsxElementIntoComposition = async ({
 		);
 	}
 
-	const input = await readSourceFile({
+	const input = readSourceFile({
 		environment,
 		fileName: location.fileName,
 	});
@@ -2218,7 +2213,7 @@ export const insertJsxElementIntoComposition = async ({
 					from,
 				}
 			: wrapInSequence;
-	const elementToInsert = await createInsertableJsxElement({
+	const elementToInsert = createInsertableJsxElement({
 		ast,
 		destinationFileName: location.fileName,
 		element,

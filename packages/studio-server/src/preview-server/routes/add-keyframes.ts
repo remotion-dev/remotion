@@ -289,7 +289,7 @@ export const addKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateSequenceKeyframes({
+			const result = updateSequenceKeyframes({
 				input: output,
 				nodePath: currentPathFor(firstSequenceKeyframe.nodePath.nodePath),
 				schema: firstSequenceKeyframe.schema,
@@ -331,7 +331,7 @@ export const addKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				input: output,
 				sequenceNodePath: currentPathFor(
 					firstEffectKeyframe.sequenceNodePath.nodePath,

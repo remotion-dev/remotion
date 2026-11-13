@@ -167,7 +167,7 @@ export const deleteKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateSequenceKeyframes({
+			const result = updateSequenceKeyframes({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
@@ -216,7 +216,7 @@ export const deleteKeyframes = async ({
 				continue;
 			}
 
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,

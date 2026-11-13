@@ -66,7 +66,7 @@ test('converts a mask-free node from the Figma clipboard fixture', () => {
 
 test('converts the generated Figma SVG through the inline SVG pipeline', async () => {
 	const {svg} = convertFigmaClipboardToSvg(maskFreeFixture);
-	const jsx = recast.print(await svgMarkupToJsx(svg)).code;
+	const jsx = recast.print(svgMarkupToJsx(svg)).code;
 	expect(jsx).toStartWith('<svg');
 	expect(jsx).not.toContain('<mask');
 	expect(jsx).toContain('strokeWidth={44.8018}');
@@ -116,7 +116,7 @@ test('renders a full Figma ellipse as an SVG ellipse', async () => {
 	expect(result.svg).toContain(
 		'<ellipse cx="60" cy="40" rx="60" ry="40" fill="#ff0000" />',
 	);
-	const jsx = recast.print(await svgMarkupToJsx(result.svg)).code;
+	const jsx = recast.print(svgMarkupToJsx(result.svg)).code;
 	expect(jsx).toContain(
 		'<ellipse cx={60} cy={40} rx={60} ry={40} fill="#ff0000" />',
 	);
@@ -200,7 +200,7 @@ test('renders a Figma rounded rectangle as an SVG rectangle', async () => {
 	expect(result.svg).toContain(
 		'<rect x="0" y="0" width="120" height="80" rx="20" fill="#ff8000" />',
 	);
-	const jsx = recast.print(await svgMarkupToJsx(result.svg)).code;
+	const jsx = recast.print(svgMarkupToJsx(result.svg)).code;
 	expect(jsx).toContain(
 		'<rect x={0} y={0} width={120} height={80} rx={20} fill="#ff8000" />',
 	);

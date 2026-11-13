@@ -18,7 +18,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
 		},
 	};
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element: solid,
 		target: {
@@ -53,7 +53,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 		importPath: 'remotion',
 		props: {from: 42, style: {position: 'absolute', translate: '120.3px 80px'}},
 	}).withChild(solid);
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element: sequence,
 		target: {
@@ -93,7 +93,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
 		},
 	};
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element: solid,
 		target: {
@@ -131,7 +131,7 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		files: {'/project/src/index.tsx': source},
 		rootDir: '/project',
 	};
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element: {height: 720, position: null, type: 'solid', width: 1280},
 		target: {
@@ -162,7 +162,7 @@ export const MyComposition = () => {
 export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
 `);
 	expect(result.insertedNode.nodePath.length).toBeGreaterThan(0);
-	await expect(
+	expect(() =>
 		addElement({
 			project,
 			target: {
@@ -173,7 +173,7 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 			element: {height: 720, position: null, type: 'solid', width: 1280},
 			from: -1,
 		}),
-	).rejects.toThrow('from must be a non-negative integer');
+	).toThrow('from must be a non-negative integer');
 });
 
 test('asset and component insertions also avoid the full-file formatter', async () => {
@@ -191,7 +191,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 		compositionFile: '/project/src/index.tsx',
 		compositionId: 'MyComp',
 	};
-	const assetResult = await addElement({
+	const assetResult = addElement({
 		project,
 		element: {
 			assetType: 'image',
@@ -204,7 +204,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 		},
 		target,
 	});
-	const componentResult = await addElement({
+	const componentResult = addElement({
 		project,
 		element: {
 			componentName: 'RevenueChart',

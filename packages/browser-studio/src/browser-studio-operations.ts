@@ -114,12 +114,11 @@ const {
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
  * Browser Studio deliberately reports the unsupported operation instead.
  */
-const svgMarkupToJsx = (): Promise<never> =>
-	Promise.reject(
-		new Error('Importing SVG markup is not supported in Browser Studio'),
-	);
+const svgMarkupToJsx = (): never => {
+	throw new Error('Importing SVG markup is not supported in Browser Studio');
+};
 
-const insertIntoProject = async ({
+const insertIntoProject = ({
 	project,
 	request,
 	wrapInSequence,
@@ -127,15 +126,15 @@ const insertIntoProject = async ({
 	project: VirtualProject;
 	request: InsertCompositionElementRequest;
 	wrapInSequence: InsertableSequenceWrapper | null;
-}): Promise<{
+}): {
 	changes: CodemodFileChange[];
 	filePath: string;
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
 	if (request.track !== null && request.from === null)
 		throw new Error('Track insertion requires a start frame');
-	const result = await addElement({
+	const result = addElement({
 		project,
 		element: request.element,
 		from: request.from,
@@ -903,7 +902,7 @@ export const createBrowserStudioOperations = ({
 		}));
 
 		for (const mutation of mergedSequenceMutations) {
-			const result = await updateNodeKeyframes({
+			const result = updateNodeKeyframes({
 				project: getEditedProject(),
 				node: {
 					filePath: mutation.absolutePath,
@@ -920,7 +919,7 @@ export const createBrowserStudioOperations = ({
 		}
 
 		for (const mutation of mergedEffectMutations) {
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				project: getEditedProject(),
 				effect: {
 					filePath: mutation.absolutePath,
@@ -1364,7 +1363,7 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const result = await addEffectCodemod({
+				const result = addEffectCodemod({
 					project,
 					props: request.effectConfig,
 					importPath: request.effectImportPath,
@@ -1409,7 +1408,7 @@ export const createBrowserStudioOperations = ({
 				}
 
 				const project = getProject();
-				const result = await deleteEffectsCodemod({
+				const result = deleteEffectsCodemod({
 					project,
 					effects: request.map((item) => ({
 						filePath: item.fileName,
@@ -1443,7 +1442,7 @@ export const createBrowserStudioOperations = ({
 				}
 
 				const project = getProject();
-				const result = await duplicateEffectsCodemod({
+				const result = duplicateEffectsCodemod({
 					project,
 					effects: request.map((item) => ({
 						filePath: item.fileName,
@@ -1501,7 +1500,7 @@ export const createBrowserStudioOperations = ({
 					filePath: request.targetFileName,
 					project,
 				});
-				const result = await pasteEffectsCodemod({
+				const result = pasteEffectsCodemod({
 					project,
 					node: {
 						filePath: absolutePath,
@@ -1534,7 +1533,7 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const result = await reorderEffectsCodemod({
+				const result = reorderEffectsCodemod({
 					project,
 					effects: request.fromIndices.map((effectIndex) => ({
 						filePath: absolutePath,
@@ -1565,7 +1564,7 @@ export const createBrowserStudioOperations = ({
 				filePath: request.fileName,
 				project,
 			});
-			const result = await updateEffectPropsCodemod({
+			const result = updateEffectPropsCodemod({
 				project,
 				effect: {
 					filePath: absolutePath,
@@ -1621,7 +1620,7 @@ export const createBrowserStudioOperations = ({
 					filePath: edit.fileName,
 					project,
 				});
-				const result = await updateEffectPropsCodemod({
+				const result = updateEffectPropsCodemod({
 					project: nextProject,
 					effect: {
 						filePath: absolutePath,
@@ -1725,7 +1724,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await deleteNodesCodemod({
+			const result = deleteNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -1762,7 +1761,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await duplicateNodesCodemod({
+			const result = duplicateNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -2008,7 +2007,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await splitSequencesCodemod({
+			const result = splitSequencesCodemod({
 				project,
 				splits: sequences.map((sequence) => ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
@@ -2327,7 +2326,7 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNodes({
+			const result = reorderNodes({
 				project,
 				nodes: sourceNodePaths.map((node) => ({
 					filePath: absolutePath,
@@ -2728,7 +2727,7 @@ export const createBrowserStudioOperations = ({
 					filePath: compositionFile,
 					project,
 				});
-				const result = await setCompositionDefaultProps({
+				const result = setCompositionDefaultProps({
 					project,
 					compositionFile: absolutePath,
 					compositionId,
@@ -2758,7 +2757,7 @@ export const createBrowserStudioOperations = ({
 			try {
 				const project = getProject();
 				const absolutePath = findProjectFile({filePath: fileName, project});
-				const result = await detachAudio({
+				const result = detachAudio({
 					project,
 					node: {filePath: absolutePath, nodePath},
 				});
@@ -2875,7 +2874,7 @@ export const createBrowserStudioOperations = ({
 					dependencies: installedDependencies,
 					project: getProject(),
 				});
-				const result = await insertIntoProject({
+				const result = insertIntoProject({
 					project,
 					request,
 					wrapInSequence: null,
@@ -3171,7 +3170,7 @@ export const createBrowserStudioOperations = ({
 					nodePathRemappings: SequenceNodePathRemapping[];
 				};
 				if (request.captionTarget === null) {
-					insertion = await insertIntoProject({
+					insertion = insertIntoProject({
 						project,
 						request: {
 							track: null,

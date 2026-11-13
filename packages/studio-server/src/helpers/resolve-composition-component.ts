@@ -32,8 +32,8 @@ const makeCodemodEnvironment = (
 	readFile: (fileName) => {
 		const override = sourceFileOverrides?.get(path.resolve(fileName));
 		return override === undefined
-			? fs.promises.readFile(fileName, 'utf-8')
-			: Promise.resolve(override);
+			? fs.readFileSync(fileName, 'utf-8')
+			: override;
 	},
 	relative: path.relative,
 	resolve: path.resolve,
@@ -46,7 +46,7 @@ export type {
 	ResolvedCompositionComponentWithFile,
 };
 
-export const resolveCompositionComponentWithFile = async ({
+export const resolveCompositionComponentWithFile = ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -54,8 +54,8 @@ export const resolveCompositionComponentWithFile = async ({
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponentWithFile> => {
-	const result = await resolveCompositionCodemod({
+}): ResolvedCompositionComponentWithFile => {
+	const result = resolveCompositionCodemod({
 		environment: makeCodemodEnvironment(remotionRoot, null),
 		compositionFile,
 		compositionId,
@@ -70,20 +70,20 @@ export const resolveCompositionComponentWithFile = async ({
 	};
 };
 
-export const resolveCompositionComponent = async (options: {
+export const resolveCompositionComponent = (options: {
 	remotionRoot: string;
 	compositionFile: string;
 	compositionId: string;
-}): Promise<ResolvedCompositionComponent> => {
+}): ResolvedCompositionComponent => {
 	const {
 		fileName: _fileName,
 		exportName: _exportName,
 		...result
-	} = await resolveCompositionComponentWithFile(options);
+	} = resolveCompositionComponentWithFile(options);
 	return result;
 };
 
-export const insertJsxElementIntoComposition = async ({
+export const insertJsxElementIntoComposition = ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -107,7 +107,7 @@ export const insertJsxElementIntoComposition = async ({
 		position: InsertableCompositionElementPosition | null;
 	} | null;
 	sourceFileOverrides: ReadonlyMap<string, string> | null;
-}): Promise<{
+}): {
 	fileName: string;
 	source: string;
 	oldContents: string;
@@ -115,8 +115,8 @@ export const insertJsxElementIntoComposition = async ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
-}> => {
-	const result = await addElement({
+} => {
+	const result = addElement({
 		environment: makeCodemodEnvironment(remotionRoot, sourceFileOverrides),
 		element,
 		from,

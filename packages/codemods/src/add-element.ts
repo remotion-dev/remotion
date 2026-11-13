@@ -262,9 +262,9 @@ const insertElementIntoFile = ({
 	};
 };
 
-export const addElement = async <Project extends CodemodProject>(
+export const addElement = <Project extends CodemodProject>(
 	options: AddElementOptions<Project>,
-): Promise<CodemodInsertionResult> => {
+): CodemodInsertionResult => {
 	const {
 		element: suppliedElement,
 		prettierConfigOverride = null,
@@ -283,15 +283,14 @@ export const addElement = async <Project extends CodemodProject>(
 			project,
 			svgMarkupToJsx:
 				options.svgMarkupToJsx ??
-				(() =>
-					Promise.reject(
-						new Error('SVG insertion requires a svgMarkupToJsx converter'),
-					)),
+				(() => {
+					throw new Error('SVG insertion requires a svgMarkupToJsx converter');
+				}),
 		});
 	const environment: CodemodEnvironment = {
 		...baseEnvironment,
-		readFile: async (file) => {
-			const contents = await baseEnvironment.readFile(file);
+		readFile: (file) => {
+			const contents = baseEnvironment.readFile(file);
 			if (options.environment) files[file] = contents;
 			return contents;
 		},
@@ -304,7 +303,7 @@ export const addElement = async <Project extends CodemodProject>(
 			throw new Error(
 				'SVG and composition descriptors require a composition target',
 			);
-		const result = await insertJsxElementIntoComposition({
+		const result = insertJsxElementIntoComposition({
 			compositionFile: target.compositionFile,
 			compositionId: target.compositionId,
 			element: suppliedElement,
@@ -338,7 +337,7 @@ export const addElement = async <Project extends CodemodProject>(
 
 	if (options.environment) {
 		if (target.type === 'composition') {
-			const resolved = await resolveCompositionComponentWithFile({
+			const resolved = resolveCompositionComponentWithFile({
 				environment,
 				compositionFile: target.compositionFile,
 				compositionId: target.compositionId,
@@ -353,7 +352,7 @@ export const addElement = async <Project extends CodemodProject>(
 				exportName: resolved.exportName,
 			};
 		} else {
-			await environment.readFile(
+			environment.readFile(
 				environment.resolve(
 					environment.rootDir,
 					target.type === 'component' ? target.filePath : target.node.filePath,
