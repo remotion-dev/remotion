@@ -180,7 +180,7 @@ export const Second = () => {
 									...target,
 									clientId,
 									sequenceProps,
-									fromIndex: 0,
+									fromIndices: [0],
 									toIndex: 1,
 								},
 							})

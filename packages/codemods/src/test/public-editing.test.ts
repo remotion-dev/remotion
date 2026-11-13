@@ -19,7 +19,7 @@ import {
 	moveFolder,
 	renameComposition,
 	renameFolder,
-	reorderEffect,
+	reorderEffects,
 	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
@@ -484,15 +484,18 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		[1, 3],
 	);
 	const afterDuplicate = applyCodemodChanges(afterSecond, duplicate.changes);
-	const reordered = await reorderEffect({
+	const reordered = await reorderEffects({
 		project: afterDuplicate,
-		effect: duplicate.insertedEffects[1],
+		effects: [duplicate.insertedEffects[1], duplicate.insertedEffects[0]],
 		toIndex: 0,
 	});
+	expect(reordered.updatedEffects.map((effect) => effect.effectIndex)).toEqual([
+		1, 0,
+	]);
 	const afterReorder = applyCodemodChanges(afterDuplicate, reordered.changes);
 	const edited = await updateEffectProps({
 		project: afterReorder,
-		effect: reordered.updatedEffect,
+		effect: reordered.updatedEffects[0],
 		updates: [
 			{key: 'opacity', value: 0.5, defaultValue: 1},
 			{key: 'color', value: 'blue', defaultValue: 'black'},
@@ -538,9 +541,9 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		project: afterAnimation,
 		node: animated.updatedEffect,
 		keys: [],
-		effectKeys: [['opacity'], ['radius'], ['radius'], ['opacity']],
+		effectKeys: [['radius'], ['opacity'], ['radius'], ['opacity']],
 	}).effects;
-	expect(status[0]).toMatchObject({
+	expect(status[1]).toMatchObject({
 		canUpdate: true,
 		callee: 'tint',
 		props: {opacity: {status: 'keyframed'}},

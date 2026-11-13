@@ -6,7 +6,7 @@ import {
 	deleteEffects,
 	duplicateEffects,
 	pasteEffects,
-	reorderEffect,
+	reorderEffects,
 	updateEffectProps,
 } from '../effect-operations';
 import {getNodePathForRecastPath} from '../sequence-props';
@@ -70,10 +70,10 @@ export const Comp = () => (
 		})
 	).output;
 	output = (
-		await reorderEffect({
+		await reorderEffects({
 			input: output,
 			sequenceNodePath,
-			fromIndex: 2,
+			fromIndices: [2],
 			toIndex: 0,
 			formatFile,
 		})
@@ -241,10 +241,10 @@ test('no-op effect operations leave source byte-identical', async () => {
 export const Comp = () => <div effects={[brightness()]} />
 `;
 	const sequenceNodePath = getNodePathAtLine(input, 3);
-	const reordered = await reorderEffect({
+	const reordered = await reorderEffects({
 		input,
 		sequenceNodePath,
-		fromIndex: 0,
+		fromIndices: [0],
 		toIndex: 0,
 		formatFile,
 	});

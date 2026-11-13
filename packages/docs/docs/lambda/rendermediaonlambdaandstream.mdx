@@ -8,10 +8,10 @@ crumb: 'Lambda API'
 # renderMediaOnLambdaAndStream()<AvailableFrom v="4.0.542" />
 
 Starts a media render on AWS Lambda, streams progress, and waits for the render to finish.
-Requires a [deployed function](/docs/lambda/deployfunction) and [site or Serve URL](/docs/lambda/deploysite) using the same Remotion version as the client.
+Requires a [deployed function](/docs/lambda/deployfunction) and [site or Serve URL](/docs/lambda/deploysitefrombundle) using the same Remotion version as the client.
 
 ```ts twoslash title="render.ts"
-import {renderMediaOnLambdaAndStream} from '@remotion/lambda-client';
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda/client';
 
 const result = await renderMediaOnLambdaAndStream({
   region: 'eu-central-1',
@@ -51,14 +51,14 @@ Save this identity to observe the render later with [`getRenderProgress()`](/doc
 
 ### `onProgress?`
 
-Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#response). Defaults to no callback.
+Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#return-value). Defaults to no callback.
 Updates are coalesced; the callback does not run for every frame.
 
 Both callbacks may return a promise and are awaited in order. Throwing or rejecting stops observation and rejects `renderMediaOnLambdaAndStream()`. It does not cancel the render.
 
 ## Return value
 
-Resolves with the final [progress object](/docs/lambda/getrenderprogress#response). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
+Resolves with the final [progress object](/docs/lambda/getrenderprogress#return-value). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
 
 The promise rejects if the render fails to start, or on a fatal render error, timeout, callback failure, or observation failure. A `RenderMediaOnLambdaAndStreamError` retains these diagnostic properties:
 
@@ -99,7 +99,7 @@ The [Lambda render CLI](/docs/lambda/cli/render) uses this lifecycle for media a
 
 ## Compatibility
 
-<CompatibilityTable nodejs bun serverlessFunctions chrome={false} firefox={false} safari={false} clientSideRendering={false} serverSideRendering player={false} studio={false} />
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering player="" studio="" hideBrowsers />
 
 ## See also
 
