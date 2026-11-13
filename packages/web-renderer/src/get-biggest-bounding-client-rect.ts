@@ -53,15 +53,17 @@ export const getBiggestBoundingClientRect = (
 	includePaintOutsets = true,
 	includeDescendantFilters = false,
 	{
-		onlyOwnPlane = false,
-		experimental3DRendering = false,
-		includeCapturePadding = true,
+		onlyOwnPlane,
+		experimental3DRendering,
+		includeCapturePadding,
 	}: {
-		onlyOwnPlane?: boolean;
-		experimental3DRendering?: boolean;
-		includeCapturePadding?: boolean;
-	} = {},
+		onlyOwnPlane: boolean | null;
+		experimental3DRendering: boolean | null;
+		includeCapturePadding: boolean | null;
+	},
 ) => {
+	const capturePadding =
+		includeCapturePadding === null ? true : includeCapturePadding;
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT,
@@ -77,7 +79,7 @@ export const getBiggestBoundingClientRect = (
 		// request painted bounds without changing those raster surfaces.
 		const hasOutline =
 			includePaintOutsets &&
-			(includeCapturePadding ||
+			(capturePadding ||
 				(computedStyle.outlineStyle !== 'none' &&
 					computedStyle.outlineStyle !== 'hidden'));
 		const outlineWidth = hasOutline
@@ -86,10 +88,10 @@ export const getBiggestBoundingClientRect = (
 		const outlineOffset = hasOutline
 			? parseOutlineOffset(computedStyle.outlineOffset)
 			: 0;
-		const boundsOutlineWidth = includeCapturePadding
+		const boundsOutlineWidth = capturePadding
 			? outlineWidth
 			: Math.max(0, outlineWidth + outlineOffset);
-		const boundsOutlineOffset = includeCapturePadding ? outlineOffset : 0;
+		const boundsOutlineOffset = capturePadding ? outlineOffset : 0;
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1

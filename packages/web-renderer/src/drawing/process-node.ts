@@ -140,7 +140,11 @@ export const processNode = async ({
 					element,
 					true,
 					internalState.experimental3DRendering,
-					{experimental3DRendering: internalState.experimental3DRendering},
+					{
+						onlyOwnPlane: null,
+						experimental3DRendering: internalState.experimental3DRendering,
+						includeCapturePadding: null,
+					},
 				),
 			);
 		}
@@ -200,7 +204,11 @@ export const processNode = async ({
 						true,
 						precompositing.needsSvgClip !== null ||
 							internalState.experimental3DRendering,
-						{experimental3DRendering: internalState.experimental3DRendering},
+						{
+							onlyOwnPlane: null,
+							experimental3DRendering: internalState.experimental3DRendering,
+							includeCapturePadding: null,
+						},
 					),
 				}),
 			);

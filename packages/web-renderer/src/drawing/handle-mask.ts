@@ -11,7 +11,11 @@ import {getRasterImage} from './raster-image-loader';
 import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
-	const boundingRect = getBiggestBoundingClientRect(element);
+	const boundingRect = getBiggestBoundingClientRect(element, true, false, {
+		onlyOwnPlane: null,
+		experimental3DRendering: null,
+		includeCapturePadding: null,
+	});
 
 	return boundingRect;
 };
@@ -236,7 +240,11 @@ export const handleSvgClip = async ({
 		precomposeRect,
 		// Descendant filters contribute to the native HTML clipping reference in
 		// Firefox. The clipped element's own filter and outline padding do not.
-		referenceRect: getBiggestBoundingClientRect(element, false, true),
+		referenceRect: getBiggestBoundingClientRect(element, false, true, {
+			onlyOwnPlane: null,
+			experimental3DRendering: null,
+			includeCapturePadding: null,
+		}),
 		width: tempContext.canvas.width,
 		height: tempContext.canvas.height,
 	});

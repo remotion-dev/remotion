@@ -42,7 +42,11 @@ test.for([
 		document.body.appendChild(element);
 		try {
 			const border = element.getBoundingClientRect();
-			const boundsOptions = {onlyOwnPlane: true, includeCapturePadding: false};
+			const boundsOptions = {
+				onlyOwnPlane: true,
+				experimental3DRendering: null,
+				includeCapturePadding: false,
+			};
 			const bounds = getBiggestBoundingClientRect(
 				element,
 				true,
@@ -55,7 +59,11 @@ test.for([
 				border.right + expected,
 				border.bottom + expected,
 			]);
-			const layout = getBiggestBoundingClientRect(element, false);
+			const layout = getBiggestBoundingClientRect(element, false, false, {
+				onlyOwnPlane: null,
+				experimental3DRendering: null,
+				includeCapturePadding: null,
+			});
 			expect(layout.toJSON()).toEqual(border.toJSON());
 		} finally {
 			element.remove();
