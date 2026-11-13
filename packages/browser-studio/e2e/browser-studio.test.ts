@@ -13,6 +13,7 @@ import {
 } from '@remotion/studio-protocol';
 import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {strFromU8, unzipSync} from 'fflate';
+import {captureTrackDropFailureEvidence} from './track-drop-failure-evidence';
 
 const localImagePath = fileURLToPath(
 	new URL('../../agent-plugin/assets/logo.png', import.meta.url),
@@ -1087,6 +1088,25 @@ test('drops assets onto canvas and Tracks and moves clips with undo and redo', a
 		element.style.pointerEvents = pointerEvents;
 		return hit === element;
 	}, rulerBottom);
+	if (paintsOverRuler) {
+		try {
+			await captureTrackDropFailureEvidence({
+				page,
+				preview,
+				rulerBottom,
+				testInfo: test.info(),
+			});
+		} catch (error) {
+			await test
+				.info()
+				.attach('track-drop-evidence-error', {
+					body: String(error),
+					contentType: 'text/plain',
+				})
+				.catch(() => undefined);
+		}
+	}
+
 	expect(paintsOverRuler).toBe(false);
 	await page.screenshot({
 		path: test.info().outputPath('track-drop-clipped.png'),

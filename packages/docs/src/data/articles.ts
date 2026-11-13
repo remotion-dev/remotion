@@ -5869,6 +5869,15 @@ export const articles = [
 		slug: 'lambda/supabase',
 	},
 	{
+		id: 'lambda/terraform',
+		title: 'Deploying Remotion Lambda with Terraform',
+		relativePath: 'docs/lambda/terraform.mdx',
+		compId: 'articles-docs-lambda-terraform',
+		crumb: '@remotion/lambda',
+		noAi: false,
+		slug: 'lambda/terraform',
+	},
+	{
 		id: 'bucket-disallows-acl',
 		title: 'The bucket does not allow ACLs',
 		relativePath: 'docs/lambda/troubleshooting/bucket-disallows-acl.mdx',

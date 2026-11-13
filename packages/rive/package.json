@@ -20,7 +20,7 @@
 	},
 	"keywords": [],
 	"author": "Caleb Ojo, Jonny Burger",
-	"license": "See LICENSE.md",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@rive-app/canvas-advanced": "2.31.5",
 		"remotion": "workspace:*"

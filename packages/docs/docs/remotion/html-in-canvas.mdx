@@ -48,7 +48,7 @@ Return value: _boolean_
 
 Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
 
-From Remotion <AvailableFrom v="4.0.534" inline />, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
+From Remotion v4.0.534, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
 
 ## Premounting<AvailableFrom v="4.0.537" />
 
@@ -160,9 +160,9 @@ Crops the canvas from the bottom by a ratio between 0 and 1. See [`cropBottom`](
 
 ### Inherited props
 
-`<HtmlInCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`playbackRate`](/docs/sequence#playbackrate)<AvailableFrom v="4.0.528" inline />, [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`style`](/docs/sequence#style) from [`<Sequence>`](/docs/sequence).
+`<HtmlInCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore) (from v4.0.482), [`playbackRate`](/docs/sequence#playbackrate) (from v4.0.528), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`style`](/docs/sequence#style) from [`<Sequence>`](/docs/sequence).
 
-From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+From v4.0.528, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 ### `ref?`
 
@@ -860,7 +860,7 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
 
 You can nest `<HtmlInCanvas>` components in Chrome 157.0.8080.0 or newer when HTML-in-canvas is enabled. Check [`HtmlInCanvas.isNestingSupported()`](#htmlincanvasisnestingsupported) before rendering nested components. Unsupported browsers throw an error when components are nested.
 
-Server-side rendering supports nested compositions from Remotion <AvailableFrom v="4.0.534" inline />, which uses Chromium 157.0.8080.0.
+Server-side rendering supports nested compositions from Remotion v4.0.534, which uses Chromium 157.0.8080.0.
 
 ## Compatibility
 

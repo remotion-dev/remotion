@@ -55,15 +55,7 @@ export const getEditorGuideColor = ({
 	return active ? SELECTED_GUIDE : UNSELECTED_GUIDE;
 };
 
-const findGuide = (guidesList: readonly Guide[], guideId: string | null) => {
-	if (guideId === null) {
-		return null;
-	}
-
-	return guidesList.find((guide) => guide.id === guideId && guide.show) ?? null;
-};
-
-export const getRulerGuideHighlight = ({
+export const getRulerGuideHighlights = ({
 	guidesList,
 	selectedItems,
 	hoveredGuideId,
@@ -73,34 +65,17 @@ export const getRulerGuideHighlight = ({
 	readonly selectedItems: readonly SelectedTimelineItem[];
 	readonly hoveredGuideId: string | null;
 	readonly draggingGuideId: string | null;
-}): RulerGuideHighlight | null => {
-	const selectedGuideId =
-		selectedItems.length === 1 && selectedItems[0]?.type === 'guide'
-			? (selectedItems[0].guideId ?? null)
-			: null;
-	const selectedGuide = findGuide(guidesList, selectedGuideId);
-	if (selectedGuide) {
-		return {
-			guide: selectedGuide,
-			color: BLUE,
-		};
-	}
-
-	const draggingGuide = findGuide(guidesList, draggingGuideId);
-	if (draggingGuide) {
-		return {
-			guide: draggingGuide,
-			color: SELECTED_GUIDE,
-		};
-	}
-
-	const hoveredGuide = findGuide(guidesList, hoveredGuideId);
-	if (hoveredGuide) {
-		return {
-			guide: hoveredGuide,
-			color: SELECTED_GUIDE,
-		};
-	}
-
-	return null;
+}): RulerGuideHighlight[] => {
+	const selectedGuideIds = new Set(
+		selectedItems.flatMap((item) =>
+			item.type === 'guide' && item.guideId ? [item.guideId] : [],
+		),
+	);
+	return guidesList.flatMap((guide): RulerGuideHighlight[] => {
+		if (!guide.show) return [];
+		if (selectedGuideIds.has(guide.id)) return [{guide, color: BLUE}];
+		if (guide.id === draggingGuideId || guide.id === hoveredGuideId)
+			return [{guide, color: SELECTED_GUIDE}];
+		return [];
+	});
 };

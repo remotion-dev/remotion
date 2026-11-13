@@ -4,6 +4,7 @@
 	},
 	"version": "4.0.543",
 	"name": "@remotion/compositor-linux-x64-gnu",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"os": [
 		"linux"
 	],

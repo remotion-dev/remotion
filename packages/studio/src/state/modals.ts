@@ -137,6 +137,7 @@ export type RenderModalState = {
 export type ConfirmationDialogState = {
 	type: 'confirmation-dialog';
 	id: string;
+	library: ElementLibraryModalState | null;
 	title: string;
 	message: React.ReactNode;
 	confirmLabel: string;
@@ -282,7 +283,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -297,6 +297,10 @@ export type ModalState =
 	  }
 	| RenderModalState
 	| WebRenderModalState
+	| {
+			type: 'export-opentimeline';
+			compositionId: string;
+	  }
 	| {
 			type: 'render-progress';
 			jobId: string;

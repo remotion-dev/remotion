@@ -66,6 +66,13 @@ test.for(
 			(await countNativePixels(reference, nativeControl)).mismatchedPixels,
 		).toBe(0);
 		const used =
+			mode === 'pattern' ||
+			mode === 'mask' ||
+			mode === 'clip-path' ||
+			mode === 'pattern-chain' ||
+			mode === 'root-mask' ||
+			mode === 'root-clip-path' ||
+			mode === 'filter-image' ||
 			mode === 'direct' ||
 			mode === 'use-target' ||
 			mode === 'nested' ||

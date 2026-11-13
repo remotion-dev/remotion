@@ -6,6 +6,10 @@ import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {
+	backgroundImageMissingFilter,
+	missingFilterBackgroundEffects,
+} from './fixtures/background-image-missing-filter';
+import {
 	pixelatedBackgroundSampler,
 	pixelatedBackgroundSamplerControl,
 } from './fixtures/background-image-pixelated-sampler-lifetime';
@@ -182,6 +186,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
@@ -198,11 +203,17 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {
+	svgEmptyPredicate,
+	svgEmptyPredicates,
+} from './fixtures/svg-empty-predicate';
+import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
 	svgExternalFontSelection,
 	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
@@ -246,11 +257,24 @@ import {
 	svgHiddenCssFont,
 } from './fixtures/svg-hidden-css-font';
 import {
+	svgInactiveTitleMediaCache,
+	svgInactiveTitleModes,
+	svgInactiveTitledFont,
+} from './fixtures/svg-inactive-titled-font';
+import {
 	svgLayerFontIdentity,
 	svgLayerFontModes,
 } from './fixtures/svg-layer-font-identity';
 import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
+import {
+	svgPreferredFontCarrier,
+	svgPreferredFontModes,
+} from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {
+	registeredCdataWrappers,
+	svgRegisteredCdataFont,
+} from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
@@ -313,6 +337,16 @@ export const Root: React.FC = () => {
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
+			<Folder name="Registered-SVG-CDATA">
+				{registeredCdataWrappers.map((wrapper) => {
+					const fixture = svgRegisteredCdataFont(
+						wrapper,
+						'cdata',
+						'registered',
+					);
+					return <Composition key={fixture.id} {...fixture} />;
+				})}
+			</Folder>
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
 			<Composition {...parentTransformOrigin} />
@@ -357,7 +391,39 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			{svgAtRuleTextModes.flatMap((mode) =>
+				[false, true].map((positive) => (
+					<Composition
+						key={`at-rule-${mode}-${positive}`}
+						{...svgAtRuleText({mode, positive, literal: false})}
+					/>
+				)),
+			)}
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={`empty-predicate-${predicate}`}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
+			{svgPreferredFontModes.map((mode) => (
+				<Composition
+					key={`preferred-font-${mode}`}
+					{...svgPreferredFontCarrier({mode, literal: false, fallback: false})}
+				/>
+			))}
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition
 					key={mode}
@@ -396,6 +462,12 @@ export const Root: React.FC = () => {
 			{svgWildcardStyleModes.map((mode) => (
 				<Composition key={mode} {...svgWildcardStyle({mode, literal: false})} />
 			))}
+			{svgExternalCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const fixture = svgExternalEmptyCarrier({mode, literal});
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
+			)}
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
@@ -595,6 +667,14 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{missingFilterBackgroundEffects.flatMap((effect) =>
+				[1, 2].map((scale) => (
+					<Composition
+						key={`${effect}-${scale}`}
+						{...backgroundImageMissingFilter(effect, scale)}
+					/>
+				)),
+			)}
 		</>
 	);
 };

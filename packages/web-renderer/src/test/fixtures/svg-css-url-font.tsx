@@ -52,7 +52,10 @@ const Component = () => {
 					</text>
 				</g>
 				<text className="svg-css-ttf" x={12} y={174}>
-					TrueType URL <tspan>nested selection</tspan>
+					TrueType URL{' '}
+					<a className="svg-css-woff2">
+						anchor <tspan>selection</tspan>
+					</a>
 				</text>
 			</svg>
 		</AbsoluteFill>

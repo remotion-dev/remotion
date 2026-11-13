@@ -60,6 +60,15 @@ A common footgun was the render was not working as intended because the input pr
 
 **Required action**: Pass an empty object `{}` if you don't have any input props.
 
+## Invalid props fail the render
+
+If a [`<Composition>`](/docs/composition) has a [`schema`](/docs/schemas), Remotion validates the props against it during rendering, before it calls [`calculateMetadata()`](/docs/calculate-metadata).
+
+In Remotion 4.0, invalid props log a warning that lists each invalid field, and the render continues.  
+In Remotion 5.0, invalid props throw an error and the render fails.
+
+**Required action**: Fix the props that the warning lists, or update the schema so it accepts them.
+
 ## `bundle()` and `getCompositions()` now take an options object
 
 The legacy positional signatures of [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) have been removed.

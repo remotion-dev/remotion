@@ -25,7 +25,7 @@ Agents can:
 - Play, pause and seek
 - Set timeline zoom, playback rate, looping, volume and mute state
 - Inspect and resize Studio panels
-- See, add and remove guides
+- See, select, add, move and remove guides
 - Install packages into the current project
 - Transcribe audio and video assets
 - Remove the background from video assets
@@ -48,11 +48,11 @@ The shape of inputs and outputs is not currently stable.
 :::
 
 Tools that edit sequences or guides require a composition to be open.
-Playback tools work with compositions and, from <AvailableFrom v="4.0.540" inline />, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
+Playback tools work with compositions and, from v4.0.540, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
 
 Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and Browser Studio. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
 
-From <AvailableFrom v="4.0.543" inline />, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
+From v4.0.543, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
 
 ### `install_package`<AvailableFrom v="4.0.523" />
 
@@ -130,7 +130,8 @@ Call `install_package` with the returned package name and retry. Studio also ins
 Returns the transcription jobs shown in this Studio tab, including jobs started through the UI and `transcribe_asset`. Available in all four Studio modes, including with a detached server. A reload clears the tab-local queue.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -139,9 +140,7 @@ Returns the transcription jobs shown in this Studio tab, including jobs started 
     id: string;
     displayName: string;
     src: string;
-    output:
-      | {type: 'file'; path: string}
-      | {type: 'composition'; fileName: string};
+    output: {type: 'file'; path: string} | {type: 'composition'; fileName: string};
     status: 'idle' | 'running' | 'saving' | 'done' | 'failed' | 'cancelled';
     canCancel: boolean;
     progress: number | null;
@@ -309,7 +308,8 @@ The output acknowledges the shutdown request; the connection closes as Studio sh
 Returns the server and browser render jobs shown in Studio, including pending cancellation and availability of saved render settings. Transcription and background removal jobs are excluded. Available in all Studio modes; no composition needs to be open.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -518,7 +518,7 @@ type CompositionTreeItem =
 
 ### `select_composition`
 
-Opens a registered composition by ID. From <AvailableFrom v="4.0.540" inline />, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
+Opens a registered composition by ID. From v4.0.540, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
 
 ```ts title="Input"
 {
@@ -919,7 +919,8 @@ Returns cumulative audio iterator and buffering handle creation counts, the numb
 `bufferingStatesTriggered` counts each transition into the internal buffering state, including states too short to show the loading indicator. Overlapping handles count as one buffering state. Handles created and cleared within the same React batch do not trigger a buffering state.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -936,7 +937,8 @@ Returns cumulative audio iterator and buffering handle creation counts, the numb
 Resets the buffering handle creation count to zero. Active buffering handles and the other diagnostics counters are unchanged. New buffering handles start counting from zero. Available in every Studio mode, including when the diagnostics window is hidden.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 Returns the same fields as `get_diagnostics` with `bufferingHandlesCreated` set to `0`.
@@ -946,7 +948,9 @@ Returns the same fields as `get_diagnostics` with `bufferingHandlesCreated` set 
 Enables or disables detailed buffering tracing through WebMCP. The [Diagnostics window](/docs/options/show-diagnostics) also enables tracing while visible. Tracing remains enabled while either requests it. Enable tracing before reproducing a stall; handles created earlier have no captured source information. Available in every Studio mode.
 
 ```ts title="Input"
-{enabled: boolean}
+{
+  enabled: boolean;
+}
 ```
 
 Returns the same output as `get_buffering_events`. Disabling tracing preserves recorded events. Reloading the page clears them and disables tracing requested through WebMCP.
@@ -1012,7 +1016,8 @@ History is limited to 100 events with 50 handles per event. `droppedEvents` coun
 Clears completed buffering events and resets `droppedEvents`. Active events and diagnostics counters are preserved. Available in every Studio mode.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 Returns the same output as `get_buffering_events`.
@@ -1022,11 +1027,18 @@ Returns the same output as `get_buffering_events`.
 Pauses playback, selects the recorded composition, seeks to the frame where the buffering episode began, and reveals the handle's owning layer in the timeline and Inspector. Use IDs from `get_buffering_events`. Available when composition timeline selection is supported, including detached, deployed, and Browser Studio.
 
 ```ts title="Input"
-{eventId: number; handleId: number}
+{
+  eventId: number;
+  handleId: number;
+}
 ```
 
 ```ts title="Output"
-{compositionId: string; frame: number; sequenceId: string}
+{
+  compositionId: string;
+  frame: number;
+  sequenceId: string;
+}
 ```
 
 If the nearest layer is unavailable, an available ancestor is selected. Returns an error if the record was cleared or the composition or layer can no longer be found. Captured source information remains readable after the original layer unmounts.
@@ -1036,7 +1048,8 @@ If the nearest layer is unavailable, an available ancestor is selected. Returns 
 Returns the Audio Levels panel's visibility and the current left and right sample peaks in dBFS from Studio's shared Web Audio context. Silence is reported as `-60`. Levels are `null` when the panel is hidden or audio is unavailable. Media that bypasses this context is not measured. Available in every Studio mode.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -1067,7 +1080,8 @@ Shows or hides the fixed-width Audio Levels panel to the right of the timeline. 
 Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and Browser Studio.
 
 ```ts title="Input"
-{}
+{
+}
 ```
 
 ```ts title="Output"
@@ -1135,7 +1149,7 @@ Returns the effective divider state with the same fields as one entry in the `sp
 
 ### `get_playback_state`
 
-Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from v4.0.540.
 
 One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
@@ -1198,7 +1212,7 @@ Identifies the open canvas content. Server outputs report their path; local brow
 
 ### `get_selection`
 
-`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from <AvailableFrom v="4.0.541" inline />. A still image or a preview that is still loading returns `0`.
+`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from v4.0.541. A still image or a preview that is still loading returns `0`.
 
 Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
 
@@ -1287,7 +1301,28 @@ Returns guides for the current composition. Vertical positions are x-coordinates
     orientation: 'horizontal' | 'vertical';
     position: number;
     visible: boolean;
+    selected: boolean;
   }>;
+}
+```
+
+### `select_guide`<AvailableFrom v="4.0.544" />
+
+Selects one guide from the current composition, highlights it on the canvas, and opens the inspector with all vertical guides followed by all horizontal guides. Replaces the current selection; `null` clears it. Available in regular, read-only deployed, and Browser Studio when selection is enabled. A detached regular Studio cannot change selection. An unknown or hidden guide ID causes an error before the selection changes. Read [`get_selection`](#get_selection) or [`get_guides`](#get_guides) to inspect the result.
+
+```ts title="Input"
+{
+  guideId: string | null;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  selectedGuideId: string | null;
 }
 ```
 
@@ -1337,9 +1372,38 @@ Adds and shows a guide in the current composition. Positions use composition pix
 }
 ```
 
+### `update_guide`<AvailableFrom v="4.0.544" />
+
+Moves a guide from the current composition using the same position update as the Inspector. Positions are rounded to whole composition pixels and may be negative. Guides at the same position remain separate guides. Available in every Studio mode; guide positions are saved locally in the browser and do not require source editing.
+
+An unknown guide ID or a non-finite position causes an error before anything changes. The output confirms the updated position. Global guide visibility is preserved; use `set_guides_visible` to show hidden guides.
+
+```ts title="Input"
+{
+  guideId: string;
+  position: number;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guide: {
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: boolean;
+  }
+}
+```
+
 ### `remove_guide`
 
 Removes a guide using an ID returned by `get_guides` or `add_guide`.
+If the guide is selected, selection moves to the next guide in the same orientation, then the previous one. If none remain, selection clears.
 
 ```ts title="Input"
 {
