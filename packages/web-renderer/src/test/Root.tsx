@@ -225,6 +225,7 @@ import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
+import {svgExactTitleFont} from './fixtures/svg-exact-title-font';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgExternalCarrierModes,
@@ -507,6 +508,14 @@ export const Root: React.FC = () => {
 					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
 				/>
 			))}
+			<Composition
+				{...svgExactTitleFont({
+					title: 'A',
+					inactiveTitle: ' A ',
+					firstRoboto: false,
+					literal: false,
+				})}
+			/>
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition
 					key={mode}

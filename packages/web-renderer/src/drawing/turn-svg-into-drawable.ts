@@ -175,7 +175,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		const localTitle =
 			sheet.ownerNode instanceof ownerWindow.SVGStyleElement &&
 			svg.contains(sheet.ownerNode)
-				? sheet.ownerNode.getAttribute('title')?.trim() || null
+				? sheet.ownerNode.getAttribute('title') || null
 				: inheritedTitle;
 		if (
 			sheet.disabled ||
@@ -522,14 +522,14 @@ export const turnSvgIntoDrawable = (
 	);
 	const usesStylesheetSets =
 		hasLocalTitledFaces ||
-		Boolean(styles[fontStyleIndex]?.getAttribute('title')?.trim());
+		Boolean(styles[fontStyleIndex]?.getAttribute('title'));
 	// Image documents may select a different titled set. Disabled paint was
 	// neutralized above, but its carrier must still provide the embedded faces.
 	// Include the first titled sheet even when empty: it selects the preferred
 	// set. Other empty sheets need no duplicate font payload.
 	const firstTitledCarrier = usesStylesheetSets
 		? Array.from(styles).findIndex(
-				(style) => style.sheet && Boolean(style.getAttribute('title')?.trim()),
+				(style) => style.sheet && Boolean(style.getAttribute('title')),
 			)
 		: -1;
 	const fontCarriers = usesStylesheetSets
@@ -692,7 +692,7 @@ export const turnSvgIntoDrawable = (
 						: [usesStylesheetSets ? -1 : fontStyleIndex];
 				let inserted = false;
 				for (const index of targets) {
-					const title = styles[index]?.getAttribute('title')?.trim() || null;
+					const title = styles[index]?.getAttribute('title') || null;
 					// Retain declaration order within each authored stylesheet set.
 					// Script-loaded faces still follow all applicable CSS faces.
 					const fontCss = getSvgFontCssForCarrier({

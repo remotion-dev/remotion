@@ -4,7 +4,9 @@ import {createRoot} from 'react-dom/client';
 import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
+import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {svgExactTitleFont} from './fixtures/svg-exact-title-font';
 import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
 import {
 	svgInactiveTitleMediaCache,
@@ -13,6 +15,24 @@ import {
 } from './fixtures/svg-inactive-titled-font';
 import {countNativePixels} from './native-reference';
 import {testCompositions} from './utils';
+
+test('keeps whitespace-distinct stylesheet font titles independent', async () => {
+	const options = {title: 'A', inactiveTitle: ' A ', firstRoboto: false};
+	const render = async (literal: boolean) => {
+		const result = await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: svgExactTitleFont({...options, literal}),
+			frame: 0,
+			inputProps: {},
+			allowHtmlInCanvas: false,
+		});
+		return result.blob({format: 'png'});
+	};
+
+	const actual = await render(false);
+	const expected = await render(true);
+	expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(0);
+});
 
 test(
 	'retains fonts across titled stylesheet states',
