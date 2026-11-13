@@ -174,6 +174,7 @@ export const useCompositionActions = () => {
 		try {
 			const {compositionFile, videoConfig} = await resolveInsertionTarget();
 			const request: InsertCompositionElementRequest = {
+				track: null,
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -245,6 +246,7 @@ export const useCompositionActions = () => {
 
 			const scale = previewRect.width / videoConfig.width;
 			const request: InsertCompositionElementRequest = {
+				track: null,
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -295,6 +297,7 @@ export const useCompositionActions = () => {
 				}
 
 				await importAssets({
+					insert: null,
 					files,
 					fps: videoConfig.fps,
 					compositionFile,
@@ -324,6 +327,7 @@ export const useCompositionActions = () => {
 			try {
 				const {compositionFile, videoConfig} = await resolveInsertionTarget();
 				await insertExistingAssets({
+					insert: null,
 					assetPaths: [asset.name],
 					fps: videoConfig.fps,
 					compositionFile,

@@ -4,7 +4,7 @@ id: misconceptions
 title: Clearing up WebCodecs misconceptions
 sidebar_label: Misconceptions
 slug: /webcodecs/misconceptions
-crumb: 'WebCodecs'
+crumb: '@remotion/webcodecs'
 ---
 
 :::warning
@@ -45,7 +45,7 @@ GPU acceleration for video is implemented on a very low level.
 On macOS, it is built into the operating system and the silicon has been designed specifically to enable fast multimedia routines. On Nvidia cards, the hardware encoder is already built into the chip itself.
 
 So, fortunately we don’t have to use WebGPU to make our own decoders and encoders!  
-Rather, we just need an interface to make use of the already existing ones, and that interface is WebCodecs.
+Rather, an interface is needed to make use of the already existing ones, and that interface is WebCodecs.
 
 <details>
   <summary>Bonus confusion: The GPU is used less often than you think</summary>

@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {createElement, staticFileValue} from '../codemod-element';
-import {CodemodsInternals} from '../index';
+import {replaceJsxElementWithSource} from '../index';
 import {replaceNodeChild} from '../replace-node-child';
 import {lineContainingToNodePath} from './node-path-test-utils';
 
@@ -110,7 +110,7 @@ export const Main = () => (
 	const swapped = replaced.changes[0].nextContents ?? '';
 	expect(swapped).not.toContain('./scenes/Catalog');
 
-	const restored = CodemodsInternals.replaceJsxElementWithSource({
+	const restored = replaceJsxElementWithSource({
 		project: {rootDir: '/', files: {'/test.tsx': swapped}},
 		node: {
 			filePath: '/test.tsx',
@@ -148,7 +148,7 @@ export const Main = () => (
 	const swapped = replaced.changes[0].nextContents ?? '';
 	expect(swapped).toContain("import Foo from './pkg';");
 
-	const restored = CodemodsInternals.replaceJsxElementWithSource({
+	const restored = replaceJsxElementWithSource({
 		project: {rootDir: '/', files: {'/test.tsx': swapped}},
 		node: {
 			filePath: '/test.tsx',
@@ -185,7 +185,7 @@ export const Main = () => (
 	</Sequence>
 );
 `;
-	const restored = CodemodsInternals.replaceJsxElementWithSource({
+	const restored = replaceJsxElementWithSource({
 		project: {rootDir: '/', files: {'/test.tsx': input}},
 		node: {
 			filePath: '/test.tsx',

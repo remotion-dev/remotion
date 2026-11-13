@@ -4,7 +4,7 @@ import type {ComponentType} from 'react';
 import {useContext} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
-import {Internals} from 'remotion';
+import {Internals, type DelayRenderScope} from 'remotion';
 import {expect} from 'vitest';
 import {page, server} from 'vitest/browser';
 
@@ -33,7 +33,45 @@ export const captureNativeReference = async (
 	});
 	document.body.appendChild(host);
 	const root = createRoot(host);
+	const delayRenderScope: DelayRenderScope = {
+		remotion_renderReady: true,
+		remotion_delayRenderTimeouts: {},
+		remotion_puppeteerTimeout: 10000,
+		remotion_attempt: 0,
+		remotion_delayRenderHandles: [],
+	};
+	let renderError: Error | null = null;
+	const deadline = performance.now() + 10000;
+	const checkReadyError = () => {
+		if (renderError) throw renderError;
+		if (delayRenderScope.remotion_cancelledErrorObject)
+			throw delayRenderScope.remotion_cancelledErrorObject;
+		if (delayRenderScope.remotion_cancelledError !== undefined) {
+			const error = new Error(
+				delayRenderScope.remotion_cancelledError
+					.split('\n')[0]
+					.replace(/^Error: /, ''),
+			);
+			error.stack = delayRenderScope.remotion_cancelledError;
+			throw error;
+		}
+
+		if (performance.now() > deadline)
+			throw new Error('Native reference remained pending or buffering');
+	};
+
 	let readBuffering: () => boolean;
+	const isPending = () =>
+		!delayRenderScope.remotion_renderReady ||
+		delayRenderScope.remotion_delayRenderHandles.length > 0 ||
+		readBuffering!();
+	const nextReadyFrame = async () => {
+		await new Promise<void>((resolve) =>
+			requestAnimationFrame(() => resolve()),
+		);
+		checkReadyError();
+	};
+
 	const Component = fixture.component;
 	const Reference = () => {
 		readBuffering = useContext(Internals.SetTimelineContext).isBuffering;
@@ -43,30 +81,52 @@ export const captureNativeReference = async (
 	try {
 		flushSync(() => {
 			root.render(
-				<Player
-					component={Reference}
-					compositionWidth={fixture.width}
-					compositionHeight={fixture.height}
-					fps={fixture.fps}
-					durationInFrames={fixture.durationInFrames}
-					initialFrame={frame}
-					style={{width: fixture.width, height: fixture.height}}
-					acknowledgeRemotionLicense
-				/>,
+				<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+					<Player
+						component={Reference}
+						compositionWidth={fixture.width}
+						compositionHeight={fixture.height}
+						fps={fixture.fps}
+						durationInFrames={fixture.durationInFrames}
+						initialFrame={frame}
+						style={{width: fixture.width, height: fixture.height}}
+						acknowledgeRemotionLicense
+						errorFallback={({error}) => {
+							renderError = error;
+							return null;
+						}}
+					/>
+				</Internals.DelayRenderContextType.Provider>,
 			);
 		});
-		await document.fonts.ready;
-		await Promise.all(
-			Array.from(host.querySelectorAll('img'), (img) => img.decode()),
-		);
-		const deadline = performance.now() + 10000;
+
+		// Delay-render handles and Player playback buffering are independent stores.
+		// The local scope completes only after asynchronous fixture DOM has committed.
 		do {
-			await new Promise<void>((resolve) =>
-				requestAnimationFrame(() => resolve()),
+			do {
+				await nextReadyFrame();
+			} while (isPending());
+
+			host.getBoundingClientRect();
+			const resources = {ready: false, error: null as unknown};
+			Promise.all([
+				document.fonts.ready,
+				...Array.from(host.querySelectorAll('img'), (img) => img.decode()),
+			]).then(
+				() => {
+					resources.ready = true;
+				},
+				(error: unknown) => {
+					resources.error = error;
+					resources.ready = true;
+				},
 			);
-			if (performance.now() > deadline)
-				throw new Error('Native reference remained buffering');
-		} while (readBuffering!());
+			do {
+				await nextReadyFrame();
+			} while (!resources.ready);
+
+			if (resources.error !== null) throw resources.error;
+		} while (isPending());
 
 		// `save: false` skips writing the PNG to disk. Vitest 5.0.3 then resolves
 		// to the base64 string even though its types still declare {path, base64}.
@@ -87,8 +147,18 @@ export const captureNativeReference = async (
 			{type: 'image/png'},
 		);
 	} finally {
-		root.unmount();
-		host.remove();
+		try {
+			root.unmount();
+		} finally {
+			for (const pending of Object.values(
+				delayRenderScope.remotion_delayRenderTimeouts,
+			))
+				clearTimeout(pending.timeout);
+			delayRenderScope.remotion_delayRenderTimeouts = {};
+			delayRenderScope.remotion_delayRenderHandles = [];
+			delayRenderScope.remotion_renderReady = true;
+			host.remove();
+		}
 	}
 };
 
@@ -107,11 +177,15 @@ const decodePixels = async (blob: Blob) => {
 };
 
 // No perceptual threshold, antialias exclusion, or alpha-channel exception.
-const comparePixelData = (
-	expected: ImageData,
-	received: ImageData,
+const compareNativePixelData = async (
+	reference: Blob,
+	actual: Blob,
 	createDiff: boolean,
 ) => {
+	const [expected, received] = await Promise.all([
+		decodePixels(reference),
+		decodePixels(actual),
+	]);
 	if (
 		expected.width !== received.width ||
 		expected.height !== received.height
@@ -150,27 +224,6 @@ const comparePixelData = (
 		width: expected.width,
 		height: expected.height,
 	};
-};
-
-const compareNativePixelData = async (
-	reference: Blob,
-	actual: Blob,
-	createDiff: boolean,
-) => {
-	const [expected, received] = await Promise.all([
-		decodePixels(reference),
-		decodePixels(actual),
-	]);
-	return comparePixelData(expected, received, createDiff);
-};
-
-export const countRgbaPixels = (reference: ImageData, actual: ImageData) => {
-	const {mismatchedPixels, maxChannelDelta} = comparePixelData(
-		reference,
-		actual,
-		false,
-	);
-	return {mismatchedPixels, maxChannelDelta};
 };
 
 // A matching comparison has an all-transparent diff, so encode it once per size.

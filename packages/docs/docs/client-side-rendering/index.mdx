@@ -7,7 +7,7 @@ title: Client-side rendering
 
 Client-side rendering is a Remotion capability that allows you to render videos, images, and audio directly in the browser, without requiring server-side infrastructure.
 
-It is available through the [`@remotion/web-renderer`](/docs/web-renderer) package and is stable from <AvailableFrom v="4.0.491" inline />.
+It is available through the [`@remotion/web-renderer`](/docs/web-renderer) package and is stable from v4.0.491.
 
 ## Key differences from server-side rendering
 
@@ -30,7 +30,7 @@ Client-side rendering requires the [WebCodecs API](https://developer.mozilla.org
 
 ## APIs
 
-The package provides APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+The package provides APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web), [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 Here is an example of how to use it:
 
@@ -61,7 +61,7 @@ const {getBlob} = await renderMediaOnWeb({
 
 ## Remotion Studio
 
-Client-side rendering is always enabled in the Remotion Studio from <AvailableFrom v="4.0.491" inline />. Use the "Render in browser" button to start a render.
+Client-side rendering is always enabled in the Remotion Studio from v4.0.491. Use the "Render in browser" button to start a render.
 
 ## Telemetry
 

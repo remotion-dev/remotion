@@ -25,6 +25,10 @@ export const ExpertsGraphic: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
 	const rotation = (frame / durationInFrames) * Math.PI * 2;
+	const groupCount = Math.ceil(experts.length / visibleAvatarCount);
+	const framesPerGroup = durationInFrames / groupCount;
+	const groupIndex = Math.floor(frame / framesPerGroup);
+	const frameInGroup = frame % framesPerGroup;
 
 	return (
 		<AbsoluteFill style={{overflow: 'hidden'}}>
@@ -38,57 +42,27 @@ export const ExpertsGraphic: React.FC = () => {
 				}}
 			>
 				{Array.from({length: visibleAvatarCount}, (_, slotIndex) => {
-					const loopProgress = frame / durationInFrames;
-					const firstFlipCenter = (slotIndex + 0.5) / (visibleAvatarCount * 2);
-					const secondFlipCenter = firstFlipCenter + 0.5;
-					const halfFlipWindow = flipDurationInFrames / durationInFrames / 2;
-					const originalExpert = experts[slotIndex % experts.length];
-					const alternateExpert =
-						experts[(slotIndex + visibleAvatarCount) % experts.length];
-					const isFirstFlip =
-						loopProgress >= firstFlipCenter - halfFlipWindow &&
-						loopProgress <= firstFlipCenter + halfFlipWindow;
-					const isSecondFlip =
-						loopProgress >= secondFlipCenter - halfFlipWindow &&
-						loopProgress <= secondFlipCenter + halfFlipWindow;
-					const flipProgress = isFirstFlip
-						? interpolate(
-								loopProgress,
-								[
-									firstFlipCenter - halfFlipWindow,
-									firstFlipCenter + halfFlipWindow,
-								],
-								[0, 1],
-								{
-									easing: Easing.inOut(Easing.cubic),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							)
-						: isSecondFlip
-							? interpolate(
-									loopProgress,
-									[
-										secondFlipCenter - halfFlipWindow,
-										secondFlipCenter + halfFlipWindow,
-									],
-									[0, 1],
-									{
-										easing: Easing.inOut(Easing.cubic),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								)
-							: 0;
-					const currentExpert =
-						loopProgress < firstFlipCenter - halfFlipWindow || isFirstFlip
-							? originalExpert
-							: loopProgress > secondFlipCenter + halfFlipWindow
-								? originalExpert
-								: alternateExpert;
-					const nextExpert = isSecondFlip ? originalExpert : alternateExpert;
+					const flipCenter =
+						((slotIndex + 0.5) / visibleAvatarCount) * framesPerGroup;
+					const flipProgress = interpolate(
+						frameInGroup,
+						[
+							flipCenter - flipDurationInFrames / 2,
+							flipCenter + flipDurationInFrames / 2,
+						],
+						[0, 1],
+						{
+							easing: Easing.inOut(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					);
+					const displayedGroup =
+						(flipProgress < 0.5 ? groupIndex : groupIndex + 1) % groupCount;
 					const displayedExpert =
-						flipProgress < 0.5 ? currentExpert : nextExpert;
+						experts[
+							(displayedGroup * visibleAvatarCount + slotIndex) % experts.length
+						];
 					const flipAngle =
 						flipProgress < 0.5
 							? interpolate(flipProgress, [0, 0.5], [0, 90])
@@ -126,7 +100,10 @@ export const ExpertsGraphic: React.FC = () => {
 						>
 							<Img
 								alt={displayedExpert.name}
-								src={`https://www.remotion.dev${displayedExpert.image}`}
+								src={new URL(
+									`../../../promo-pages/public/img/freelancers/${displayedExpert.image.replace('/img/freelancers/', '')}`,
+									import.meta.url,
+								).toString()}
 								style={{
 									height: '100%',
 									objectFit: 'cover',

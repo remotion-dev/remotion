@@ -34,7 +34,7 @@ Also be aware of the following:
 - You cannot use `@remotion/bundler` inside an API route, because it includes Webpack, and it's not possible to bundle Webpack with Webpack.  
   Instead, use `@remotion/bundler` to create a bundle outside the API route and then use the resulting folder in your API route.
 
-- The `@remotion/renderer` package requires an FFmpeg binary from `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure the `remotion` binary is being included in it.
+- The `@remotion/renderer` package requires the FFmpeg and `remotion` binaries from a platform-specific `@remotion/compositor-*` package in `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure these binaries are included in it.
 
 ## See also
 

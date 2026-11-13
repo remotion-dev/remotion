@@ -17,9 +17,9 @@ const EvaluateRemotionSection: React.FC = () => {
 	});
 	const expertsVideoSrc = useTransparentVideoSource({
 		fallbackVideoSrc:
-			'https://remotion.media/homepage/experts-graphic-b3ade07a9cff.mp4',
+			'https://remotion.media/homepage/experts-graphic-af6d85c1b1a4.mp4',
 		videoSrc:
-			'https://remotion.media/homepage/experts-graphic-6bb9224f5680.webm',
+			'https://remotion.media/homepage/experts-graphic-202e39fd85ed.webm',
 	});
 
 	return (

@@ -20,7 +20,7 @@ import {updateEffectKeyframes, type CodemodProject, type EffectReference} from '
 declare const project: CodemodProject;
 declare const effect: EffectReference;
 
-const result = await updateEffectKeyframes({
+const result = updateEffectKeyframes({
   project,
   effect,
   updates: [
@@ -35,6 +35,8 @@ console.log(result);
 The effect must be a call in an inline effects array with a supported configuration. Required interpolation imports and frame hooks are added. Frame coordinates belong to the interpolation expression's local frame clock.
 
 Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static effect prop edits outside functions remain supported by [`updateEffectProps()`](/docs/codemods/update-effect-props).
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -62,9 +64,13 @@ A Remotion `InteractivitySchema` for schema-specific defaults and enum variants.
 
 The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
 
+### prettierConfigOverride?
+
+Formatting options for generated source. Defaults to `null`, which follows the existing source style.
+
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -80,7 +86,7 @@ The effect reference in the updated project. The node path may change when a fra
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

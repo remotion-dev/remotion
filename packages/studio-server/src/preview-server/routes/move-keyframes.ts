@@ -102,7 +102,7 @@ const getBatchDescription = ({
 	};
 };
 
-export const moveKeyframes = async ({
+export const moveKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	clientId,
@@ -111,7 +111,7 @@ export const moveKeyframes = async ({
 }: MoveKeyframesRequest & {
 	remotionRoot: string;
 	logLevel: LogLevel;
-}): Promise<KeyframeMutationResult[]> => {
+}): KeyframeMutationResult[] => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for moving');
@@ -201,7 +201,7 @@ export const moveKeyframes = async ({
 				},
 			);
 
-			const result = await updateSequenceKeyframes({
+			const result = updateSequenceKeyframes({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
@@ -264,7 +264,7 @@ export const moveKeyframes = async ({
 				},
 			);
 
-			const result = await updateEffectKeyframes({
+			const result = updateEffectKeyframes({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
@@ -394,7 +394,7 @@ export const moveKeyframesHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[move-keyframes] Received request to move ${
@@ -402,7 +402,7 @@ export const moveKeyframesHandler: ApiHandler<
 			} keyframe(s)`,
 		);
 
-		const results = await moveKeyframes({
+		const results = moveKeyframes({
 			sequenceKeyframes,
 			effectKeyframes,
 			clientId,

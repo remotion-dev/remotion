@@ -1,5 +1,6 @@
 {
 	"name": "@remotion/svg-3d-engine",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@remotion/paths": "workspace:*"
 	},
@@ -24,7 +25,7 @@
 			"require": "./dist/cjs/index.js"
 		}
 	},
-	"version": "4.0.542",
+	"version": "4.0.543",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/svg-3d-engine"
 	},

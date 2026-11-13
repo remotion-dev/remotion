@@ -1,4 +1,5 @@
 import {parseColorRgba, type ParsedColorRgba} from '../color-utils.js';
+import {getSharedWebGpuResources} from '../shared-webgpu-resources.js';
 import type {WeatherRenderParams} from './runtime.js';
 import {WEATHER_WEBGPU_SHADER} from './webgpu-shader.js';
 
@@ -81,48 +82,55 @@ export const drawWeatherWebGpu = ({
 	if (!state.resources) {
 		const format = navigator.gpu.getPreferredCanvasFormat();
 		state.context.configure({device, format, alphaMode: 'premultiplied'});
-		const module = device.createShaderModule({
-			code: WEATHER_WEBGPU_SHADER,
-			label: 'weather',
-		});
-		const particles = device.createRenderPipeline({
-			layout: 'auto',
-			vertex: {module, entryPoint: 'particleVertex'},
-			fragment: {
-				module,
-				entryPoint: 'particleFragment',
-				targets: [
-					{
-						format: 'rgba16float',
-						blend: {
-							color: {srcFactor: 'one', dstFactor: 'one-minus-src-alpha'},
-							alpha: {srcFactor: 'one', dstFactor: 'one-minus-src-alpha'},
-						},
+		const shared = getSharedWebGpuResources({
+			device,
+			key: JSON.stringify(['weather', format]),
+			create: () => {
+				const module = device.createShaderModule({
+					code: WEATHER_WEBGPU_SHADER,
+					label: 'weather',
+				});
+				const particles = device.createRenderPipeline({
+					layout: 'auto',
+					vertex: {module, entryPoint: 'particleVertex'},
+					fragment: {
+						module,
+						entryPoint: 'particleFragment',
+						targets: [
+							{
+								format: 'rgba16float',
+								blend: {
+									color: {srcFactor: 'one', dstFactor: 'one-minus-src-alpha'},
+									alpha: {srcFactor: 'one', dstFactor: 'one-minus-src-alpha'},
+								},
+							},
+						],
 					},
-				],
+					primitive: {topology: 'triangle-strip'},
+				});
+				const composite = device.createRenderPipeline({
+					layout: 'auto',
+					vertex: {module, entryPoint: 'vertex'},
+					fragment: {module, entryPoint: 'fragment', targets: [{format}]},
+					primitive: {topology: 'triangle-list'},
+				});
+				const sampler = device.createSampler({
+					minFilter: 'linear',
+					magFilter: 'linear',
+				});
+				return {particles, composite, sampler};
 			},
-			primitive: {topology: 'triangle-strip'},
-		});
-		const composite = device.createRenderPipeline({
-			layout: 'auto',
-			vertex: {module, entryPoint: 'vertex'},
-			fragment: {module, entryPoint: 'fragment', targets: [{format}]},
-			primitive: {topology: 'triangle-list'},
 		});
 		const uniforms = device.createBuffer({
 			size: 112,
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
-		const sampler = device.createSampler({
-			minFilter: 'linear',
-			magFilter: 'linear',
-		});
 		state.resources = {
 			device,
-			particles,
-			composite,
+			particles: shared.particles,
+			composite: shared.composite,
 			uniforms,
-			sampler,
+			sampler: shared.sampler,
 			textures: null,
 		};
 	}

@@ -69,7 +69,8 @@ export const ElementLibraryFrame: React.FC<{
 	readonly url: string;
 	readonly context: 'captions' | null;
 	readonly captionStyleSelection: StudioCaptionStyleSelection;
-}> = ({name, url, context, captionStyleSelection}) => {
+	readonly onUrlChange: ((url: string) => void) | null;
+}> = ({name, url, context, captionStyleSelection, onUrlChange}) => {
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const selectionPortRef = useRef<MessagePort | null>(null);
 	const selectionMessageRef = useRef({
@@ -199,6 +200,7 @@ export const ElementLibraryFrame: React.FC<{
 		// compatible Cross-Origin-Embedder-Policy itself.
 		iframe.setAttribute('credentialless', '');
 		iframe.src = iframeUrl.toString();
+		onUrlChange?.(iframe.src);
 
 		return () => {
 			disposed = true;
@@ -209,7 +211,7 @@ export const ElementLibraryFrame: React.FC<{
 			selectionPortRef.current?.close();
 			selectionPortRef.current = null;
 		};
-	}, [attempt, context, url]);
+	}, [attempt, context, onUrlChange, url]);
 
 	useLayoutEffect(() => {
 		selectionPortRef.current?.postMessage(selectionMessageRef.current);

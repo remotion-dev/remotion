@@ -94,7 +94,7 @@ Unlike `windVariation`, this also spreads drops when `wind` is `0`.
 
 ### `color?`
 
-CSS color of the drops. Defaults to `"#cccccc"`.
+CSS color of the drops. Defaults to `'#cccccc'`.
 
 The color's alpha is multiplied by `opacity`. With `appearance: "refracting"`, the drops also sample the source behind them.
 
@@ -104,9 +104,9 @@ Opacity of the rain, from `0` to `1`. Defaults to `0.25`.
 
 ### `transferMode?`
 
-How the rain blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"lighten"`.
+How the rain blends with the source. One of `'composite'` or `'lighten'`. Defaults to `'lighten'`.
 
-`"composite"` places the rain over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+`'composite'` places the rain over the source. `'lighten'` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
 
 ### `compositeWithOriginal?`
 
@@ -116,9 +116,9 @@ Set to `false` to output only the rain on a transparent background.
 
 ### `appearance?`
 
-Appearance of the drops. One of `"refracting"` or `"soft-solid"`. Defaults to `"refracting"`.
+Appearance of the drops. One of `'refracting'` or `'soft-solid'`. Defaults to `'refracting'`.
 
-`"refracting"` uses a brightened, offset sample of the source to color each drop. `"soft-solid"` uses the chosen `color`.
+`'refracting'` uses a brightened, offset sample of the source to color each drop. `'soft-solid'` uses the chosen `color`.
 
 ### `offset?`
 
@@ -139,9 +139,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

@@ -3,48 +3,50 @@ image: https://remotion.media/docs/generated/articles-docs-dpia.png
 title: DPIA Statement
 sidebar_label: DPIA Statement
 crumb: 'Legal'
-description: Statement documenting why Remotion's licensing platform and telemetry are not likely to result in a high risk to individuals, and why a formal Data Protection Impact Assessment is not required.
+description: Statement documenting why the account, billing, store, license-management, and usage-telemetry processing within Remotion's online services is not likely to result in a high risk to individuals, and why a formal Data Protection Impact Assessment is not required.
 ---
 
 [Download PDF](/docs/dpia.pdf)
 
 :::info Transparency statement
-Although published in the Remotion documentation, this assessment concerns the [Remotion licensing platform](https://www.remotion.pro/) and its licensing telemetry.
+This assessment concerns the account, billing, store, and license-management features of Remotion's [online services](https://www.remotion.dev/), together with their usage telemetry.
 
 It explains why that processing is not likely to result in a high risk to individuals, and why a formal Data Protection Impact Assessment is not required. It is provided for transparency and is not a contract or legal advice.
 :::
 
 **Version 1.0. Effective July 6, 2026**
 
-This DPIA Statement explains how **Remotion AG**, Neunbrunnenstrasse 38, 8050 Zürich, Switzerland ("**Remotion**", "**we**", "**us**") has assessed whether the personal data processing carried out by the Remotion licensing platform and its usage telemetry is likely to result in a "high risk" to individuals, and therefore whether a formal Data Protection Impact Assessment ("**DPIA**") is required.
+This DPIA Statement explains how **Remotion AG**, Neunbrunnenstrasse 38, 8050 Zürich, Switzerland ("**Remotion**", "**we**", "**us**") has assessed whether the personal data processing carried out for these online services and their usage telemetry is likely to result in a "high risk" to individuals, and therefore whether a formal Data Protection Impact Assessment ("**DPIA**") is required.
 
-The conclusion of this assessment is that, in its current form, the Remotion licensing platform and its telemetry do **not** trigger a mandatory DPIA under GDPR Article 35 or Swiss nFADP Article 22. This statement documents that conclusion and the reasoning behind it, in line with the accountability principle.
+The conclusion of this assessment is that, in its current form, the processing described here does **not** trigger a mandatory DPIA under GDPR Article 35 or Swiss nFADP Article 22. This statement documents that conclusion and the reasoning behind it, in line with the accountability principle.
 
 This statement is provided for transparency. It is not a contract and does not create rights or obligations beyond those set out in the [Terms and Conditions](/docs/terms) ("**Main Agreement**") and the [Privacy Policy](/docs/privacy). It complements the [DPA Statement](/docs/dpa), which explains Remotion's role as an Independent Controller. Where there is any conflict, the Main Agreement and Privacy Policy prevail. This statement is not legal advice.
 
 ## 1. Summary of findings {#Summary}
 
-A DPIA is only mandatory where a processing operation is "likely to result in a high risk to the rights and freedoms of natural persons" (GDPR Article 35(1); Swiss nFADP Article 22(1)). After assessing the licensing platform and telemetry against the criteria used by European and Swiss regulators, Remotion has concluded that this threshold is **not** met. A formal DPIA is therefore not legally required for the platform in its current form.
+A DPIA is only mandatory where a processing operation is "likely to result in a high risk to the rights and freedoms of natural persons" (GDPR Article 35(1); Swiss nFADP Article 22(1)). After assessing the processing described below against the criteria used by European and Swiss regulators, Remotion has concluded that this threshold is **not** met. A formal DPIA is therefore not legally required for the assessed processing in its current form.
 
 The key reasons are:
 
-- The personal data Remotion processes (account, billing, store, support, license verification, and telemetry data) is limited operational and commercial metadata, not sensitive data.
+- The personal data assessed here (account, billing, store, support, license verification, and telemetry data) is limited operational and commercial metadata, not sensitive data.
 - Telemetry counts rendering activity for licensing and billing. It does not profile, score, or monitor the behaviour of individuals over time.
-- Remotion has no access to the media, source code, or end-user content that customers render. That content stays in the customer's own environment.
+- Rendering in the customer's own infrastructure or browser does not send media, source code, or end-user content to Remotion through its account, billing, and license-management services.
 - The processing does not target children or other vulnerable groups, and does not combine datasets to build profiles.
 
 Remotion keeps this assessment under review and will carry out a DPIA if it later introduces processing that is likely to result in a high risk.
 
 ## 2. Scope of this assessment {#Scope}
 
-This assessment distinguishes between the Remotion software and the Remotion licensing platform, because the data protection responsibilities are different for each.
+This assessment distinguishes between the Remotion Software and Remotion's online services, because the data protection responsibilities are different for each.
 
-- **The Remotion software (client-side / self-hosted execution):** Remotion is distributed as source-available and commercial packages that run entirely within the customer's own infrastructure or in the end user's browser. When a customer renders a video that contains personal data, the customer determines why and how that data is processed and acts as the Controller. Remotion has no access to, or visibility of, that content. If a customer's own use case involves high-risk processing (for example, biometrics, large-scale profiling, or employee monitoring), it is the customer's responsibility to assess whether a DPIA is required for that use case.
-- **The Remotion licensing platform and telemetry:** Remotion acts as an Independent Controller for its website, user accounts, billing profiles, license verification, and the lightweight telemetry it receives to verify commercial licensing tiers and support usage-based billing. This is the processing assessed below.
+- **The Remotion Software (client-side / self-hosted execution):** Remotion is distributed as source-available and commercial packages that run entirely within the customer's own infrastructure or in the end user's browser. When a customer renders a video that contains personal data, the customer determines why and how that data is processed and acts as the Controller. Using the software does not itself send that content to Remotion. If a customer's own use case involves high-risk processing (for example, biometrics, large-scale profiling, or employee monitoring), it is the customer's responsibility to assess whether a DPIA is required for that use case.
+- **Remotion's online services and telemetry:** Remotion acts as an Independent Controller for its website, user accounts, billing profiles, store purchases, license verification, and the lightweight telemetry it receives to verify commercial licensing tiers and support usage-based billing. This is the processing assessed below.
 
-## 3. What the platform processes {#What-Telemetry-Collects}
+This assessment covers the operational and commercial metadata described below. It does not assess the content of files that a customer chooses to submit separately, for example through a support upload.
 
-For the licensing platform, Remotion processes standard business and account identifiers (such as names, business email addresses, billing details, and license keys) as described in the [Privacy Policy](/docs/privacy).
+## 3. What the online services process {#What-Telemetry-Collects}
+
+For its online services, Remotion processes standard business and account identifiers (such as names, business email addresses, billing details, and license keys) as described in the [Privacy Policy](/docs/privacy).
 
 Telemetry is limited to the operational and license metadata described in the [Telemetry section of the Terms](/docs/terms#Telemetry):
 
@@ -57,7 +59,7 @@ The telemetry system is decoupled from the rendering logic by design. It does **
 
 ## 4. High-risk assessment against regulatory criteria {#Risk-Assessment}
 
-European and Swiss regulators (the European Data Protection Board, building on the Article 29 Working Party guidelines) identify nine criteria that indicate potentially high-risk processing. As a rule of thumb, processing that meets **two or more** of these criteria is likely to require a DPIA. Remotion's licensing platform and telemetry meet **none** of them.
+European and Swiss regulators (the European Data Protection Board, building on the Article 29 Working Party guidelines) identify nine criteria that indicate potentially high-risk processing. As a rule of thumb, processing that meets **two or more** of these criteria is likely to require a DPIA. The processing assessed here meets **none** of them.
 
 | Criterion                                                  | What it covers                                                               | Remotion's processing                                                                                                  | Met? |
 | :--------------------------------------------------------- | :--------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :--- |
@@ -83,7 +85,7 @@ To support its obligations under both regimes, Remotion maintains a record of it
 
 ## 6. Data flows and the dual role of payment processors {#Data-Flows}
 
-To operate the licensing platform, Remotion relies on a set of service providers. A current, itemized list of those providers, including their location and high-level purpose, is published in the [Service providers section of the DPA Statement](/docs/dpa#Service-Providers). At a high level, the personal data Remotion handles for the licensing platform flows to the categories of provider below.
+To operate its online services, Remotion relies on a set of service providers. A current, itemized list of those providers, including their location and high-level purpose, is published in the [Service providers section of the DPA Statement](/docs/dpa#Service-Providers). At a high level, the personal data assessed here flows to the categories of provider below.
 
 | Provider category                            | Jurisdiction     | Role                                                                   |
 | :------------------------------------------- | :--------------- | :--------------------------------------------------------------------- |
@@ -93,7 +95,7 @@ To operate the licensing platform, Remotion relies on a set of service providers
 | Transactional email, newsletter, and support | US / EU          | Processor (on Remotion's instructions)                                 |
 | Compliance assessment                        | CH / EU          | Processor (on Remotion's instructions)                                 |
 
-These transfers keep the platform's processing low-risk: the data shared with each provider is limited to what that provider needs, and providers acting on Remotion's behalf are bound by data processing agreements and appropriate transfer safeguards.
+These transfers keep the assessed processing low-risk: the data shared with each provider is limited to what that provider needs, and providers acting on Remotion's behalf are bound by data processing agreements and appropriate transfer safeguards.
 
 ### The dual role of payment processors
 
@@ -117,7 +119,7 @@ Even though a DPIA is not required, Remotion applies privacy-by-design measures 
 
 ## 8. Decision and review {#Decision}
 
-Based on the assessment above, Remotion concludes that the Remotion licensing platform and its telemetry, in their current form, are **not** likely to result in a high risk to individuals, and that a formal DPIA is **not** required under GDPR Article 35 or Swiss nFADP Article 22.
+Based on the assessment above, Remotion concludes that the processing assessed here, in its current form, is **not** likely to result in a high risk to individuals, and that a formal DPIA is **not** required under GDPR Article 35 or Swiss nFADP Article 22.
 
 Remotion will revisit this decision and carry out a DPIA if it materially changes how it processes personal data, for example by introducing a hosted rendering service, profiling, or other high-risk processing.
 

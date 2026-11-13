@@ -9,13 +9,13 @@ crumb: 'Lambda API'
 
 Starts a distributed image sequence render on AWS Lambda.
 
-Requires a [deployed function](/docs/lambda/deployfunction) and a [site or Serve URL](/docs/lambda/deploysite).  
+Requires a [deployed function](/docs/lambda/deployfunction) and a [site or serve URL](/docs/lambda/deploysitefrombundle).  
 The function, site, and client package must use matching Remotion versions.
 
 ## Example
 
 ```ts twoslash title="render-sequence.ts"
-import {renderFramesOnLambda, getRenderProgress} from '@remotion/lambda-client';
+import {renderFramesOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const region = 'eu-central-1';
 const functionName = 'remotion-render-4-0-535-mem2048mb-disk2048mb-120sec';
@@ -53,7 +53,7 @@ The name of the deployed Lambda function.
 
 ### `serveUrl`
 
-The [Serve URL](/docs/terminology/serve-url) or deployed site name.
+The [serve URL](/docs/terminology/serve-url) or deployed site name.
 
 ### `composition`
 

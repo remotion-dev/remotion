@@ -29,18 +29,21 @@ RUN apt install -y \
   libcairo2 \
   libcups2
 
-# Copy everything from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
-COPY src ./src
-
-# If you have a public folder:
-COPY public ./public
+# Copy the package files from your project to the Docker image. Adjust if needed.
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* ./
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
 
 # Install Chrome
 RUN npx remotion browser ensure
+
+# Copy your source code and config file
+COPY src ./src
+COPY remotion.config.* ./
+
+# If you have a public folder:
+COPY public ./public
 
 # Run your application
 COPY render.mjs render.mjs
@@ -79,19 +82,20 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libatk-bridge2.0-0 \
+  libpango-1.0-0 \
+  libcairo2 \
   libcups2
 ```
 
 <p>
-  <Step>3</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them. The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and{' '}
-  <code>public</code> exist in your project, but you can adjust this to your needs.
+  <Step>3</Step> Copy the package files from your project. If some files do not exist, remove them. The <code>COPY</code> syntax allows multiple files, but at least one file must exist.
 </p>
 
 ```docker
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
-COPY src ./src
-COPY public ./public
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* ./
 ```
+
+The Dockerfile copies the source code and the config file after installing dependencies and Chrome. That way, Docker reuses the cached dependency and Chrome layers when only your source code changes.
 
 <p>
   <Step>4</Step> Install the right package manager and dependencies.
@@ -103,7 +107,7 @@ COPY public ./public
   RUN npm i
   ```
 
-- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 3. Then put following in your Dockerfile:
+- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line above. Then put following in your Dockerfile:
 
   ```docker title="If you use PNPM"
   RUN corepack enable
@@ -124,7 +128,19 @@ RUN npx remotion browser ensure
 ```
 
 <p>
-  <Step>6</Step> Run your code. It can be a CLI command or a Node.JS app.
+  <Step>6</Step> Copy the files from your project. If you have additional source files, add them here. This step assumes that <code>src</code>, a <code>remotion.config.ts</code> file and <code>public</code> exist in your project. Adjust it to your needs.
+</p>
+
+```docker
+COPY src ./src
+COPY remotion.config.* ./
+COPY public ./public
+```
+
+Copy the config file together with <code>src</code>, because it may import files from <code>src</code>. Every <code>remotion</code> CLI command, including <code>browser ensure</code>, loads the config file.
+
+<p>
+  <Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -174,8 +190,19 @@ console.log(`Rendered composition ${composition.id}.`);
 ```
 
 :::note
-We recommend setting the `enableMultiProcessOnLinux` option for this Docker image, available from v4.0.42. [Read more](/docs/miscellaneous/linux-single-process)
+From v4.0.137, [`enableMultiProcessOnLinux`](/docs/miscellaneous/linux-single-process) is enabled by default. On versions v4.0.42 to v4.0.136, set it explicitly for this Docker image as shown above.
 :::
+
+## Bundling ahead of time
+
+The example script above calls [`bundle()`](/docs/bundle) every time the container starts.  
+For a long-running render server, create the bundle while building the image instead. Add this line after copying `src` and `public`:
+
+```docker
+RUN npx remotion bundle --out-dir=build
+```
+
+Then pass the path of the `build` folder as `serveUrl` to [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media) instead of calling `bundle()`.
 
 ## Building the Docker image
 
@@ -194,10 +221,17 @@ docker run remotion-app
 
 ## Giving access to the CPUs
 
-By default, Docker containers are not allowed to use all memory CPUs . Consider:
+By default, Docker containers are not allowed to use all CPUs. Consider:
 
 - Changing the resource settings in Docker Desktop settings
 - Using the `--cpus` and `--cpuset-cpus` flags with the `docker run` command. Example: `--cpus=16 --cpuset-cpus=0-15`
+
+## Fonts
+
+Chrome Headless Shell uses the fonts installed on the system. In the Dockerfile above, `libpango-1.0-0` and `libcairo2` install a basic font as a dependency.  
+If you change the list of packages or use a different base image, make sure at least one font is installed, for example by adding `fonts-dejavu-core` to the `apt install` list.
+
+If no font is installed, text renders invisibly without an error.
 
 ## Emojis
 
@@ -243,6 +277,7 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 ## Changelog
 
 **November 6th, 2024**: Use node:22-bookworm-slim over node:20-bookworm to update to LTS and get a much smaller image.
+
 **October 11th, 2023**: Used the node:20-bookworm, which is faster to deploy and also Debian.
 
 **September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.

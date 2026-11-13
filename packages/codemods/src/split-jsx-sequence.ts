@@ -434,13 +434,13 @@ export const splitJsxSequences = ({
 	input: string;
 	splits: SplitJsxSequenceItem[];
 	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	nodeLabels: string[];
 	logLines: number[];
 	insertedNodePaths: SequenceNodePath[];
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
 	if (splits.length === 0) {
 		throw new Error('No JSX sequences were specified for splitting');
 	}
@@ -718,7 +718,7 @@ export const splitJsxSequences = ({
 		output,
 	});
 
-	return Promise.resolve({
+	return {
 		output,
 		nodeLabels,
 		logLines,
@@ -731,10 +731,10 @@ export const splitJsxSequences = ({
 			return nodePath;
 		}),
 		nodePathRemappings,
-	});
+	};
 };
 
-export const splitJsxSequence = async ({
+export const splitJsxSequence = ({
 	input,
 	nodePath,
 	sequenceKeys,
@@ -748,18 +748,17 @@ export const splitJsxSequence = async ({
 	splitFrame: number;
 	videoConfigValues: VideoConfigValues | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	nodeLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
-	const {output, nodeLabels, logLines, nodePathRemappings} =
-		await splitJsxSequences({
-			input,
-			prettierConfigOverride,
-			splits: [{nodePath, sequenceKeys, splitFrame, videoConfigValues}],
-		});
+} => {
+	const {output, nodeLabels, logLines, nodePathRemappings} = splitJsxSequences({
+		input,
+		prettierConfigOverride,
+		splits: [{nodePath, sequenceKeys, splitFrame, videoConfigValues}],
+	});
 
 	return {
 		output,

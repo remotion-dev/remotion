@@ -74,13 +74,19 @@ const installForWindows = async ({
 	const filePath = path.join(process.cwd(), 'whisper-bin-x64.zip');
 	const fileStream = fs.createWriteStream(filePath);
 
-	await downloadFile({
-		fileStream,
-		printOutput,
-		url,
-		onProgress: undefined,
-		signal,
-	});
+	try {
+		await downloadFile({
+			fileStream,
+			printOutput,
+			url,
+			onProgress: undefined,
+			signal,
+		});
+	} catch (e) {
+		// A partial archive would be expanded on a retry and fail with a confusing error.
+		rmSync(filePath, {force: true});
+		throw e;
+	}
 
 	await execute({
 		env: {
