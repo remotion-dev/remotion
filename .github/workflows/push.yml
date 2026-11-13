@@ -186,7 +186,7 @@ jobs:
         uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test web renderer
         run: |
-          bun run testwebrenderer
+          bun run testwebrenderer --log-order=stream
       - name: Upload native pixel failures
         if: failure()
         uses: actions/upload-artifact@v4
