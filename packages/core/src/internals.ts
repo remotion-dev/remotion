@@ -293,6 +293,7 @@ import {
 import {
 	CancelRenderContext,
 	DelayRenderContextType,
+	useReportRenderError,
 } from './use-delay-render.js';
 import {
 	useLazyComponent,
@@ -569,6 +570,7 @@ export const Internals = {
 	useTimelineSeek,
 	DelayRenderContextType,
 	CancelRenderContext,
+	useReportRenderError,
 	TimelineContext,
 	usePlaying,
 	PlaybackPitchContext,
