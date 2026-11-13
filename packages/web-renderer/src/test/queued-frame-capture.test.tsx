@@ -24,11 +24,12 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 	async ({abortQueued}) => {
 		const frames = [3, 0, 2];
 		const references = [];
-		for (const frame of frames) {
+		for (const frame of [0, 2, 3]) {
 			references.push(
 				await captureNativeReference(
 					queuedFrameCapture({variant: 'batch'}),
 					frame,
+					{omitBackground: false},
 				),
 			);
 		}
@@ -36,10 +37,12 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 		const queuedReference = await captureNativeReference(
 			queuedFrameCapture({variant: 'queued'}),
 			1,
+			{omitBackground: false},
 		);
 		const stillReference = await captureNativeReference(
 			queuedFrameCapture({variant: 'still'}),
 			4,
+			{omitBackground: false},
 		);
 		const hold = gate();
 		const started = gate();
@@ -145,6 +148,7 @@ test('aborting an active batch releases its turn without changing the next captu
 	const reference = await captureNativeReference(
 		queuedFrameCapture({variant: 'still'}),
 		4,
+		{omitBackground: false},
 	);
 	const hold = gate();
 	const started = gate();
