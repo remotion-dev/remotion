@@ -277,6 +277,10 @@ import {
 	svgPaintResourceFont,
 } from './fixtures/svg-paint-resource-font';
 import {
+	persistentOrderModes,
+	svgTitledPersistentOrder,
+} from './fixtures/svg-persistent-font-order';
+import {
 	svgPrecomposeFont,
 	svgPrecomposeFontSources,
 	svgPrecomposeFontEffects,
@@ -786,6 +790,19 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			<Folder name="SVG-persistent-font-order">
+				{[false, true]
+					.flatMap((firstRoboto) =>
+						[false, true].flatMap((literal) =>
+							persistentOrderModes.map((mode) =>
+								svgTitledPersistentOrder(mode, firstRoboto, literal),
+							),
+						),
+					)
+					.map((fixture) => (
+						<Composition key={fixture.id} {...fixture} />
+					))}
+			</Folder>
 		</>
 	);
 };

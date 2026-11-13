@@ -130,6 +130,7 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 type CssFontRule = {
 	css: string;
 	localTitle: string | null;
+	localStyleIndex: number | null;
 	url: string | null;
 	declarations: [string, string][];
 };
@@ -158,9 +159,19 @@ const getActiveCssRules = (
 // Font sources must be self-contained before the SVG is loaded as an image.
 const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
+	const localStyles = Array.from(svg.querySelectorAll('style'));
 	const ownerWindow = svg.ownerDocument.defaultView! as Window &
 		typeof globalThis;
-	const visitSheet = (sheet: CSSStyleSheet, inheritedTitle: string | null) => {
+	const visitSheet = (
+		sheet: CSSStyleSheet,
+		inheritedTitle: string | null,
+		inheritedStyleIndex: number | null,
+	) => {
+		const ownStyleIndex = localStyles.findIndex(
+			(style) => style === sheet.ownerNode,
+		);
+		const localStyleIndex =
+			ownStyleIndex === -1 ? inheritedStyleIndex : ownStyleIndex;
 		const localTitle =
 			sheet.ownerNode instanceof ownerWindow.SVGStyleElement &&
 			svg.contains(sheet.ownerNode)
@@ -192,7 +203,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 					(rule.layerName === null || rule.layerName === undefined) &&
 					rule.styleSheet !== null
 				)
-					visitSheet(rule.styleSheet, localTitle);
+					visitSheet(rule.styleSheet, localTitle, localStyleIndex);
 				continue;
 			}
 
@@ -231,6 +242,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			rules.push({
 				css: rule.cssText,
 				localTitle,
+				localStyleIndex,
 				url,
 				declarations: Array.from(rule.style, (name) => [
 					name,
@@ -244,7 +256,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 		...svg.ownerDocument.styleSheets,
 		...(svg.ownerDocument.adoptedStyleSheets ?? []),
 	])
-		visitSheet(sheet, null);
+		visitSheet(sheet, null, null);
 
 	return rules;
 };
@@ -621,7 +633,12 @@ export const turnSvgIntoDrawable = (
 		(retargetRegisteredCarrier && fontStyleIndex !== originalFontStyleIndex)
 			? JSON.stringify([
 					embeddedFontStyle?.cacheKey ?? null,
-					cssFontRules.map((rule) => [rule.css, rule.url, rule.localTitle]),
+					cssFontRules.map((rule) => [
+						rule.css,
+						rule.url,
+						rule.localTitle,
+						rule.localStyleIndex,
+					]),
 					fontStyleIndex,
 					fontCarriers,
 					carrierMedia,
@@ -638,12 +655,17 @@ export const turnSvgIntoDrawable = (
 	const cssFontStyle = Promise.all(
 		cssFontRules.map(async (rule) => {
 			if (rule.url === null)
-				return {css: rule.css, localTitle: rule.localTitle};
+				return {
+					css: rule.css,
+					localTitle: rule.localTitle,
+					localStyleIndex: rule.localStyleIndex,
+				};
 			const fontData = await NoReactInternals.fetchFontData(rule.url);
 			const src = `url("data:application/octet-stream;base64,${getBase64(fontData)}")`;
 			return {
 				css: `@font-face{${rule.declarations.map(([name, value]) => `${name}:${name === 'src' ? src : value}`).join(';')}}`,
 				localTitle: rule.localTitle,
+				localStyleIndex: rule.localStyleIndex,
 			};
 		}),
 	);
@@ -676,6 +698,7 @@ export const turnSvgIntoDrawable = (
 					const fontCss = getSvgFontCssForCarrier({
 						rules: css,
 						title,
+						index,
 						registeredCss: embeddedFontStyle?.css ?? null,
 					});
 					if (!fontCss) continue;
