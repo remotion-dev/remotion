@@ -136,7 +136,7 @@ export {
 	duplicateEffects,
 	type DuplicateEffectsOptions,
 } from './duplicate-effects';
-export {reorderEffect, type ReorderEffectOptions} from './reorder-effect';
+export {reorderEffects, type ReorderEffectsOptions} from './reorder-effects';
 export {type EffectReference} from './effect-references';
 export {
 	updateNodeKeyframes,

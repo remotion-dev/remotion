@@ -131,7 +131,7 @@ Editors that keep mounted sequences attached to their source nodes, such as [`<C
 
 ## Effect references<AvailableFrom v="4.0.528" />
 
-An `EffectReference` extends a node reference with `effectIndex`, the zero-based position in its inline `effects` array. [`getNodeProps()`](/docs/codemods/get-node-props) inspects effects, and effect mutations return `insertedEffect`, `insertedEffects`, or `updatedEffect` where applicable.
+An `EffectReference` extends a node reference with `effectIndex`, the zero-based position in its inline `effects` array. [`getNodeProps()`](/docs/codemods/get-node-props) inspects effects, and effect mutations return `insertedEffect`, `insertedEffects`, `updatedEffect`, or `updatedEffects` where applicable.
 
 Adding, deleting, duplicating, or reordering effects can shift effect indices. Node-path remappings do not remap effect indices. Inspect the updated effects before reusing other effect references.
 
