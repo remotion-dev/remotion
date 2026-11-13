@@ -885,6 +885,8 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 for (const behavior of [
 	'owned',
 	'resized',
+	'replaced-paint',
+	'replaced-init',
 	'unmounted',
 	'unowned',
 	'success',
@@ -952,19 +954,37 @@ for (const behavior of [
 				</Internals.DelayRenderContextType.Provider>,
 			);
 			const siblingHandle = siblingControls.delayRender('unrelated sibling');
+			let owner = 0;
+			const originalOwner = (error: Error) => {
+				if (owner === 0) reported.push(error);
+			};
+
+			const replacementOwner = (error: Error) => reported.push(error);
 			const scene = (width: number) => (
 				<Internals.DelayRenderContextType.Provider value={scope}>
 					<Internals.CancelRenderContext.Provider
 						value={
 							behavior === 'unowned'
 								? null
-								: (error) => {
-										reported.push(error);
-									}
+								: owner === 0
+									? originalOwner
+									: replacementOwner
 						}
 					>
 						<SequenceTestWrapper onRegisterSequence={() => undefined}>
-							<HtmlInCanvas width={width} height={50} onPaint={() => paint}>
+							<HtmlInCanvas
+								width={width}
+								height={50}
+								onInit={
+									behavior === 'replaced-init'
+										? async () => {
+												if (owner === 0) await paint;
+												return () => undefined;
+											}
+										: undefined
+								}
+								onPaint={() => (owner === 0 ? paint : undefined)}
+							>
 								<div>paint</div>
 							</HtmlInCanvas>
 						</SequenceTestWrapper>
@@ -988,6 +1008,23 @@ for (const behavior of [
 				listener.call(canvas, new Event('paint'));
 			if (behavior === 'unmounted') view.unmount();
 			if (behavior === 'resized') view.rerender(scene(51));
+			const replaced =
+				behavior === 'replaced-paint' || behavior === 'replaced-init';
+			if (replaced) {
+				expect(scope.remotion_delayRenderHandles.length).toBeGreaterThan(1);
+				const transfers = transferControlToOffscreenCalls;
+				const retiredHandles = scope.remotion_delayRenderHandles.filter(
+					(handle) => handle !== siblingHandle,
+				);
+				owner = 1;
+				view.rerender(scene(50));
+				expect(view.container.querySelector('canvas')).toBe(canvas);
+				expect(transferControlToOffscreenCalls).toBe(transfers);
+				for (const handle of retiredHandles)
+					expect(scope.remotion_delayRenderHandles).not.toContain(handle);
+				expect(scope.remotion_delayRenderHandles).toContain(siblingHandle);
+			}
+
 			const pendingHandles = scope.remotion_delayRenderHandles.length;
 			if (behavior === 'success') resolvePaint!();
 			else rejectPaint!(failure);
@@ -1014,7 +1051,16 @@ for (const behavior of [
 				expect(scope.remotion_renderReady).toBe(false);
 			}
 
-			if (behavior === 'success')
+			if (replaced) {
+				// The replacement may allocate its own initial-paint hold. Complete
+				// that healthy paint without releasing another component's hold.
+				canvas.dispatchEvent(new Event('paint'));
+				await waitFor(() =>
+					expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]),
+				);
+			}
+
+			if (behavior === 'success' || replaced)
 				expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			view.unmount();
 			expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);

@@ -624,6 +624,14 @@ const HtmlInCanvasContent = forwardRef<
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
 		const pendingPaintReleases = useRef(new Set<() => void>());
+		useLayoutEffect(() => {
+			const paintReleases = pendingPaintReleases.current;
+			return () => {
+				// Content may stay mounted when its cancellation owner is replaced.
+				// Retire only this component's holds in their allocating scope.
+				for (const release of paintReleases) release();
+			};
+		}, [reportRenderError]);
 		const effectScratchCanvasesRef = useRef<{
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
