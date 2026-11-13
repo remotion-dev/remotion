@@ -76,6 +76,7 @@ const makeStableFramePool = (
 				(size?.height ?? Infinity) < frame.displayHeight
 			);
 		};
+
 		const sampleFrame: StableWrappedCanvas = {
 			timestamp: frame.timestamp,
 			duration: frame.duration,
@@ -154,6 +155,7 @@ const makeStableFramePool = (
 									levelHeight / 2,
 								);
 							}
+
 							sampleContext.drawImage(
 								mipCanvas,
 								0,

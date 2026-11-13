@@ -139,6 +139,7 @@ test('keeps a paused resize that arrives while the replacement frame is painting
 				bitmapBlocked = true;
 				await gate;
 			}
+
 			return bitmap;
 		});
 	const effect = createEffect<{refresh: number}, null>({
@@ -175,6 +176,7 @@ test('keeps a paused resize that arrives while the replacement frame is painting
 			/>
 		);
 	};
+
 	const render = (width: number, refresh = 0) =>
 		flushSync(() =>
 			root.render(
