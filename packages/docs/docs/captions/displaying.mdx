@@ -9,42 +9,13 @@ crumb: Captions
 
 This guide explains how to display captions in Remotion, assuming you already have captions in the [`Caption`](/docs/captions/caption) format - see [Transcribing audio](/docs/captions/transcribing) for how to generate them.
 
-## Fetching captions
+## Keep video and captions together
 
-First, fetch your captions JSON file. Use [`useDelayRender()`](/docs/use-delay-render) to hold the render until the captions are loaded:
+Make a component with [`Interactive.create()`](/docs/interactive-create) and `layout: 'absolute-fill'` that contains the video source and its full inline transcript. Reuse that component for every cut or repeat of the source.
 
-```tsx twoslash title="Fetching captions"
-import {useState, useEffect, useCallback} from 'react';
-import {staticFile, useDelayRender} from 'remotion';
-import type {Caption} from '@remotion/captions';
+Its [timing props](/docs/timing) make it possible to trim, split, speed up, or slow down the video and captions together. These operations also work interactively in Studio. Splitting a clip reuses the same transcript, and the captions remain editable.
 
-export const MyComponent: React.FC = () => {
-  const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const {delayRender, continueRender, cancelRender} = useDelayRender();
-  const [handle] = useState(() => delayRender());
-
-  const fetchCaptions = useCallback(async () => {
-    try {
-      const response = await fetch(staticFile('captions.json'));
-      const data = await response.json();
-      setCaptions(data);
-      continueRender(handle);
-    } catch (e) {
-      cancelRender(e);
-    }
-  }, [continueRender, cancelRender, handle]);
-
-  useEffect(() => {
-    fetchCaptions();
-  }, [fetchCaptions]);
-
-  if (!captions) {
-    return null;
-  }
-
-  return <>{/* Render captions here */}</>;
-};
-```
+Keep caption timestamps relative to the original media file. If the transcript is in a JSON file, copy its contents into the caption component's `captions` prop, as shown in the [full example](#full-example).
 
 ## Creating pages
 
@@ -176,9 +147,10 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 <details>
 <summary>Show full example</summary>
 
-```tsx twoslash title="Full captioned video example"
-import {useState, useEffect, useCallback, useMemo} from 'react';
-import {AbsoluteFill, Sequence, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
+```tsx twoslash title="CaptionedVideo.tsx"
+import {useMemo} from 'react';
+import {AbsoluteFill, Interactive, Sequence, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Video} from '@remotion/media';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import type {Caption, TikTokPage} from '@remotion/captions';
 
@@ -225,36 +197,18 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
   );
 };
 
-export const CaptionedVideo: React.FC = () => {
-  const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const {delayRender, continueRender, cancelRender} = useDelayRender();
-  const [handle] = useState(() => delayRender());
+const CaptionsInner: React.FC<{readonly captions: Caption[]}> = ({captions}) => {
   const {fps} = useVideoConfig();
-
-  const fetchCaptions = useCallback(async () => {
-    try {
-      const response = await fetch(staticFile('captions.json'));
-      const data = await response.json();
-      setCaptions(data);
-      continueRender(handle);
-    } catch (e) {
-      cancelRender(e);
-    }
-  }, [continueRender, cancelRender, handle]);
-
-  useEffect(() => {
-    fetchCaptions();
-  }, [fetchCaptions]);
 
   const {pages} = useMemo(() => {
     return createTikTokStyleCaptions({
-      captions: captions ?? [],
+      captions,
       combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
     });
   }, [captions]);
 
   return (
-    <AbsoluteFill style={{backgroundColor: 'black'}}>
+    <AbsoluteFill>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
         const startFrame = (page.startMs / 1000) * fps;
@@ -274,9 +228,72 @@ export const CaptionedVideo: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+const Captions = Interactive.create({
+  Component: CaptionsInner,
+  layout: 'absolute-fill',
+  schema: Interactive.captionsSchema,
+});
+
+const CaptionedVideoInner: React.FC = () => {
+  return (
+    <>
+      <Video name="Footage" src={staticFile('video.mp4')} />
+      <Captions
+        name="Captions"
+        captions={[
+          {
+            text: 'Hello',
+            startMs: 2000,
+            endMs: 3000,
+            timestampMs: 2500,
+            confidence: null,
+          },
+          {
+            text: ' world',
+            startMs: 3000,
+            endMs: 4000,
+            timestampMs: 3500,
+            confidence: null,
+          },
+          {
+            text: ' again',
+            startMs: 4000,
+            endMs: 5000,
+            timestampMs: 4500,
+            confidence: null,
+          },
+        ]}
+      />
+    </>
+  );
+};
+
+export const CaptionedVideo = Interactive.create({
+  Component: CaptionedVideoInner,
+  layout: 'absolute-fill',
+});
+
+export const MyComposition: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <>
+      <CaptionedVideo trimBefore={2 * fps} durationInFrames={3 * fps} />
+      <CaptionedVideo
+        from={3 * fps}
+        trimBefore={2 * fps}
+        durationInFrames={3 * fps}
+        playbackRate={1.5}
+      />
+    </>
+  );
+};
 ```
 
 </details>
+
+Both clips use the same inline transcript. [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema) makes it editable on the inner `<Captions>` component, so edits apply to every use of the source.
 
 ## Next steps
 
@@ -302,4 +319,6 @@ You can customize the appearance of your captions:
 - [Transcribing audio](/docs/captions/transcribing) - Generate captions from audio
 - [`Caption`](/docs/captions/caption) - The caption data structure
 - [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions) - API reference
+- [`Interactive.create()`](/docs/interactive-create) - Reusable components with timing props
+- [Timing props](/docs/timing) - Trim, split, and change playback speed
 - [`<Sequence>`](/docs/sequence) - Sequence component reference
