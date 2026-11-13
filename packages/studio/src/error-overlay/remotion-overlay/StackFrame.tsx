@@ -86,7 +86,7 @@ export const StackElement: React.FC<{
 	const locationRef = useRef<HTMLDivElement>(null);
 	const [locationOverflows, setLocationOverflows] = useState(false);
 	const fileLocation = s.originalFileName
-		? `${formatLocation(s.originalFileName)}:${s.originalLineNumber}`
+		? `${formatLocation(s.originalFileName)}${s.originalLineNumber === null ? '' : `:${s.originalLineNumber}`}`
 		: null;
 	useLayoutEffect(() => {
 		const element = locationRef.current;

@@ -267,6 +267,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
+	const parentLoop = useContext(LoopContext);
 	const activityRequested = useContext(SequenceActivityContext);
 	const parentDormant = useContext(SequenceActivityDormantContext);
 	const activitySuspended = useContext(SequenceActivitySuspensionContext);
@@ -864,10 +865,8 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			<Freeze frame={freeze}>{content}</Freeze>
 		);
 	const loopedContent =
-		frozenContent === null || loopContextValue === null ? (
-			frozenContent
-		) : (
-			<LoopContext.Provider value={loopContextValue}>
+		frozenContent === null ? null : (
+			<LoopContext.Provider value={loopContextValue ?? parentLoop}>
 				{frozenContent}
 			</LoopContext.Provider>
 		);

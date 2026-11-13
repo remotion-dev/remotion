@@ -67,6 +67,7 @@ export const MenuBuildIndicator: React.FC<{
 			<Spacing x={0.5} />
 			<div style={openInEditor}>
 				<InspectorOpenInEditor
+					sourceTarget={null}
 					menuTrigger={null}
 					annotationName={null}
 					location={folderLocation}

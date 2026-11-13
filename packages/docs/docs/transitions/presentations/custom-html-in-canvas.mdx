@@ -129,7 +129,7 @@ To port one to a Remotion HTML-in-canvas presentation:
 
 <Step>1</Step> Replace `getFromColor(uv)` with `texture(u_prev, uv)` and `getToColor(uv)` with `texture(u_next, uv)`.<br />
 <Step>2</Step> Map `progress` to Remotion's reversed convention with `float progress = 1.0 - u_time;` at the top of `main()`.<br />
-<Step>3</Step> Wrap the `transition()` body inside `void main() { outColor = transition(v_uv); }` (with `out vec4 outColor;` declared).<br />
+<Step>3</Step> Wrap the `transition()` body inside `void main() { outColor = transition(v_uv); }` (with `out vec4 outColor;` declared).
 
 ## Example implementations
 
@@ -145,6 +145,6 @@ See the following example implementations:
 ## See also
 
 - [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation) — API reference
-- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [HTML-in-canvas](/docs/html-in-canvas)
 - [Custom presentations](/docs/transitions/presentations/custom) — the CSS-based path
 - [Contributing a new presentation](/docs/contributing/presentation)

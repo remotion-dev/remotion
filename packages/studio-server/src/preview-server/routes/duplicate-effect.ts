@@ -10,6 +10,7 @@ import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-projec
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
@@ -34,7 +35,7 @@ export const duplicateEffectHandler: ApiHandler<
 	DuplicateEffectRequest,
 	DuplicateEffectResponse
 > = ({input: effects, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0) {
 				throw new Error('No effects were specified for duplication');
@@ -52,8 +53,8 @@ export const duplicateEffectHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const updates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const updates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -61,7 +62,7 @@ export const duplicateEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await duplicateEffects({
+					const result = duplicateEffects({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,
@@ -92,7 +93,7 @@ export const duplicateEffectHandler: ApiHandler<
 						effectLabels,
 						logLine: Math.min(...logLines),
 					};
-				}),
+				},
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
@@ -160,6 +161,10 @@ export const duplicateEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(
+					effects.flatMap((item) => item.sequenceProps ?? []),
+					remotionRoot,
+				),
 				nodePathMutation,
 				duplicatedEffects: updates.flatMap(
 					(update) => update.duplicatedEffects,

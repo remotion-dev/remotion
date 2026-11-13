@@ -58,6 +58,8 @@ The effect uses the same color math as the corresponding standalone effects, whi
 
 ## API
 
+Pass an object with the following properties. You can also call `colorCorrection()` without arguments.
+
 ### `exposure?`
 
 The exposure adjustment in stops, from `-5` to `5`. Defaults to `0`.
@@ -109,7 +111,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU <AvailableFrom v="4.0.540" />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 

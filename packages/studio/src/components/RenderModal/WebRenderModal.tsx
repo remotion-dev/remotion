@@ -1,5 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
+import {WebRendererInternals} from '@remotion/web-renderer';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -8,12 +9,6 @@ import type {
 	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
-} from '@remotion/web-renderer';
-import {
-	getDefaultAudioCodecForContainer,
-	getDefaultContainerForCodec,
-	getDefaultVideoCodecForContainer,
-	isAudioOnlyContainer,
 } from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import type {PreferredEffectBackend} from 'remotion';
@@ -216,7 +211,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [renderMode, setRenderMode] = useState<RenderType>(
 		initialRenderType === 'still'
 			? 'still'
-			: initialContainer && isAudioOnlyContainer(initialContainer)
+			: initialContainer &&
+				  WebRendererInternals.isAudioOnlyContainer(initialContainer)
 				? 'audio'
 				: (initialRenderType ?? (isVideo ? 'video' : 'still')),
 	);
@@ -360,12 +356,15 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const setContainerFormat = useCallback(
 		(newContainer: WebRendererContainer) => {
 			setContainer(newContainer);
-			const defaultVideoCodec = getDefaultVideoCodecForContainer(newContainer);
+			const defaultVideoCodec =
+				WebRendererInternals.getDefaultVideoCodecForContainer(newContainer);
 			if (defaultVideoCodec) {
 				setCodec(defaultVideoCodec);
 			}
 
-			setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
+			setAudioCodec(
+				WebRendererInternals.getDefaultAudioCodecForContainer(newContainer),
+			);
 			updateOutNameExtension(newContainer);
 		},
 		[updateOutNameExtension],
@@ -374,9 +373,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const setCodecWithContainer = useCallback(
 		(newCodec: WebRendererVideoCodec) => {
 			setCodec(newCodec);
-			const newContainer = getDefaultContainerForCodec(newCodec);
+			const newContainer =
+				WebRendererInternals.getDefaultContainerForCodec(newCodec);
 			setContainer(newContainer);
-			setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
+			setAudioCodec(
+				WebRendererInternals.getDefaultAudioCodecForContainer(newContainer),
+			);
 			updateOutNameExtension(newContainer);
 		},
 		[updateOutNameExtension],
@@ -386,17 +388,23 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		(newMode: RenderType) => {
 			setRenderMode(newMode);
 			if (newMode === 'video') {
-				const newContainer = isAudioOnlyContainer(container)
+				const newContainer = WebRendererInternals.isAudioOnlyContainer(
+					container,
+				)
 					? 'mp4'
 					: container;
 				setContainer(newContainer);
-				setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
+				setAudioCodec(
+					WebRendererInternals.getDefaultAudioCodecForContainer(newContainer),
+				);
 				updateOutNameExtension(newContainer);
 			} else if (newMode === 'audio') {
 				const newContainer: WebRendererContainer = 'wav';
 				setContainer(newContainer);
 				setMuted(false);
-				setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
+				setAudioCodec(
+					WebRendererInternals.getDefaultAudioCodecForContainer(newContainer),
+				);
 				updateOutNameExtension(newContainer);
 				setTab((prev) => (prev === 'picture' ? 'general' : prev));
 			} else if (newMode === 'still') {
@@ -532,7 +540,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					compositionId: resolvedComposition.id,
 					outName,
 					container,
-					videoCodec: isAudioOnlyContainer(container)
+					videoCodec: WebRendererInternals.isAudioOnlyContainer(container)
 						? null
 						: effectiveVideoCodec,
 					audioCodec: effectiveAudioCodec,
@@ -621,6 +629,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
@@ -633,6 +642,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						General
 					</VerticalTab>
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
@@ -646,6 +656,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -660,6 +671,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					) : null}
 					{renderMode === 'video' || renderMode === 'audio' ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -673,6 +685,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</VerticalTab>
 					) : null}
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
@@ -686,12 +699,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					</VerticalTab>
 					{canEditConfig ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={false}
 							onClick={() =>
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'license',
 									initialPublicLicenseKey: publicLicenseKey,
 								})

@@ -23,6 +23,10 @@ import {LOG_GROUP_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import {
+	FUNCTION_DEPLOYMENT_CONFIG,
+	getRuntimeVersionArn,
+} from '../shared/function-deployment-config';
 import {getLayers} from '../shared/get-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
@@ -229,14 +233,14 @@ export const createFunction = async ({
 					ZipFile: new Uint8Array(readFileSync(zipFile)),
 				},
 				FunctionName: functionName,
-				Handler: 'index.handler',
+				Handler: FUNCTION_DEPLOYMENT_CONFIG.handler,
 				Role: customRoleArn ?? defaultRoleName,
-				Runtime: 'nodejs24.x',
+				Runtime: FUNCTION_DEPLOYMENT_CONFIG.runtime,
 				Description: 'Renders a Remotion video.',
 				MemorySize: memorySizeInMb,
 				Timeout: timeoutInSeconds,
 				Layers: layers,
-				Architectures: ['arm64'],
+				Architectures: [FUNCTION_DEPLOYMENT_CONFIG.architecture],
 				EphemeralStorage: {
 					Size: ephemerealStorageInMb,
 				},
@@ -262,7 +266,7 @@ export const createFunction = async ({
 					'remotion-version': VERSION,
 					'remotion-memory-in-mb': String(memorySizeInMb),
 					'remotion-timeout-in-seconds': String(timeoutInSeconds),
-					'remotion-ephemereal-storage-in-mb': String(ephemerealStorageInMb),
+					'remotion-ephemeral-storage-in-mb': String(ephemerealStorageInMb),
 				},
 			}),
 		);
@@ -288,7 +292,7 @@ export const createFunction = async ({
 		requestHandler,
 	).send(
 		new PutFunctionEventInvokeConfigCommand({
-			MaximumRetryAttempts: 0,
+			MaximumRetryAttempts: FUNCTION_DEPLOYMENT_CONFIG.maximumRetryAttempts,
 			FunctionName,
 		}),
 	);
@@ -335,7 +339,7 @@ export const createFunction = async ({
 	const runtimeVersionArn =
 		partition === 'aws-cn'
 			? currentRuntimeVersionArn
-			: `arn:aws:lambda:${region}::runtime:58a37e8413ed69058c4ac3b1df642118591f17d40def93d6101f867c72cd03c2`;
+			: getRuntimeVersionArn(region);
 
 	try {
 		if (!runtimeVersionArn) {

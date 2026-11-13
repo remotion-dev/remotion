@@ -9,7 +9,7 @@ crumb: 'Video'
 
 [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) supports HLS / `.m3u8` files natively via [Mediabunny](https://mediabunny.dev).
 
-Simply pass an `.m3u8` URL as the `src` prop:
+Pass an `.m3u8` URL as the `src` prop:
 
 ```tsx twoslash
 import {Video} from '@remotion/media';
@@ -28,19 +28,14 @@ When a master playlist with multiple quality variants is used, Remotion will aut
 
 ## Track selection
 
-Is currently not implemented by Remotion.  
-Currently, the highest-quality video track and its accompanying audio are selected automatically.
+Remotion does not support selecting a track yet.  
+The highest-quality video track and its accompanying audio are selected automatically.
 
 ## Live streams
 
-Are not supported by Remotion.  
-Any live HLS videos will be rejected.
+Only VOD (Video on Demand) HLS playlists are supported.  
+Live HLS streams are rejected.  
 See: [Can Remotion be used for live streaming?](/docs/miscellaneous/live-streaming).
-
-:::note
-Only VOD (Video on Demand) HLS playlists are supported.
-Live HLS streams are not supported.
-:::
 
 ## See also
 

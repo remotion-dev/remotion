@@ -14,7 +14,7 @@ The main setting to control the quality of the video is the [Constant Rate Facto
 All ways to render a video in Remotion allow passing a CRF value. Allowed values depend on the codec.
 
 :::note
-If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](/docs/options/video-bitrate) option instead.
+If you set `crf` while [hardware acceleration](/docs/hardware-acceleration) is `"required"`, the render throws an error. With `"if-possible"`, setting `crf` makes Remotion fall back to software encoding. To keep hardware acceleration, use the [`--video-bitrate`](/docs/options/video-bitrate) option instead.
 :::
 
 ## Resolution (Unsharp text)

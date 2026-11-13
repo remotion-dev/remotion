@@ -3,11 +3,18 @@ import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
+import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
+	svgExternalFontReady,
+	svgExternalFontSelection,
+	svgExternalStyleSelectors,
+} from './fixtures/svg-external-font-selection';
 import {
 	SvgFontFamilyLifetimeScene,
 	svgFontFamilyLifetime,
@@ -16,6 +23,7 @@ import {
 	svgFontFamilyLifetimeUrl,
 } from './fixtures/svg-font-family-lifetime';
 import {compareNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
 test('embeds only the font faces needed by SVG text', async () => {
 	const family = 'Registered SVG font selection test';
@@ -154,11 +162,6 @@ const withLifetimeCanvas = async <T>(
 	}
 };
 
-const lifetimePng = (svg: SVGSVGElement) =>
-	withLifetimeCanvas(svg, (canvas) =>
-		canvas.convertToBlob({type: 'image/png'}),
-	);
-
 const lifetimePixels = (svg: SVGSVGElement) =>
 	withLifetimeCanvas(svg, (_canvas, context) =>
 		context.getImageData(0, 0, 680, 100),
@@ -295,33 +298,88 @@ test('font-family snapshots follow removal, re-addition and the owning document 
 	}
 });
 
-test.for([0, 1, 2])(
-	'preview fixture exports the selected font family at frame %i (KINO-7769)',
-	async (frame) => {
-		await svgFontFamilyLifetimeReady;
-		const releaseReference = await loadLifetimeReference();
-		const reference = mountLifetimeScene(
-			document,
-			frame === 1 ? null : referenceFamily,
+test('renders registered font families, carriers and authored selectors', async () => {
+	await Promise.all([svgFontFamilyLifetimeReady, svgExternalFontReady]);
+	await testCompositions({
+		scale: null,
+		cases: [
+			...[0, 1, 2].map((frame) => ({
+				composition: svgFontFamilyLifetime,
+				frame,
+			})),
+			...[
+				svgExternalFontSelection,
+				svgExternalStyleSelectors({literal: false}),
+				...svgExternalCarrierModes
+					.filter((mode) => mode !== 'cache')
+					.map((mode) => svgExternalEmptyCarrier({mode, literal: false})),
+			].map((composition) => ({composition, frame: 1})),
+		],
+		columns: 3,
+		testId: 'svg-registered-font-selection',
+	});
+});
+
+const carrierOptions = {
+	inputProps: {},
+	licenseKey: 'free-license',
+	allowHtmlInCanvas: false,
+} as const;
+
+test('keeps external font carrier batch and fresh frames consistent for CSSOM-only changes', async () => {
+	await svgExternalFontReady;
+	const fixture = svgExternalEmptyCarrier({mode: 'cache', literal: false});
+	const frames = await renderFramesOnWeb({
+		...carrierOptions,
+		composition: fixture,
+		frames: [0, 1, 2],
+	});
+	const differences = [];
+	for (let frame = 0; frame < 3; frame++) {
+		const batch = await frames[frame].blob({format: 'png'});
+		const fresh = await (
+			await renderStillOnWeb({...carrierOptions, composition: fixture, frame})
+		).blob({format: 'png'});
+		differences.push(
+			(await compareNativePixels(batch, fresh)).mismatchedPixels,
 		);
-		try {
-			const actual = await (
-				await renderStillOnWeb({
-					composition: svgFontFamilyLifetime,
-					frame,
-					inputProps: {},
-					licenseKey: 'free-license',
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-			const result = await compareNativePixels(
-				await lifetimePng(reference.svg),
-				actual,
-			);
-			expect(result.mismatchedPixels).toBe(0);
-		} finally {
-			reference.dispose();
-			releaseReference();
-		}
-	},
-);
+	}
+
+	// Includes the existing conservative fallback when a later inactive rule
+	// prevents retargeting at frame 1; consistency does not imply native parity.
+	expect(differences).toEqual([0, 0, 0]);
+});
+
+test('serializes registered font bytes only when rebuilding an SVG drawable', async () => {
+	await svgExternalFontReady;
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('width', '160');
+	svg.setAttribute('height', '60');
+	svg.innerHTML =
+		'<text x="4" y="40" style="font-family:&quot;External SVG, class font&quot;;font-size:32px">Cached</text>';
+	document.body.appendChild(svg);
+
+	const serialize = XMLSerializer.prototype.serializeToString;
+	const embeddedSerializations: number[] = [];
+	const spy = vi
+		.spyOn(XMLSerializer.prototype, 'serializeToString')
+		.mockImplementation(function (this: XMLSerializer, node) {
+			const markup = serialize.call(this, node);
+			if (markup.includes('base64,'))
+				embeddedSerializations.push(markup.length);
+			return markup;
+		});
+	try {
+		const initial = await turnSvgIntoDrawable(svg);
+		expect(embeddedSerializations).toHaveLength(1);
+		expect(await turnSvgIntoDrawable(svg)).toBe(initial);
+		expect(embeddedSerializations).toHaveLength(1);
+
+		svg.querySelector('text')!.textContent = 'Changed';
+		expect(await turnSvgIntoDrawable(svg)).not.toBe(initial);
+		expect(embeddedSerializations).toHaveLength(2);
+	} finally {
+		spy.mockRestore();
+		svg.remove();
+	}
+});

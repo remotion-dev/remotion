@@ -5,7 +5,7 @@ const cliFlag = 'webpack-poll' as const;
 let webpackPolling: number | null = null;
 
 export const webpackPollOption = {
-	name: 'Webpack Polling',
+	name: 'Webpack polling',
 	addedIn: '3.3.11',
 	cliFlag,
 	description: () => (

@@ -59,7 +59,7 @@ Selects this many source frames starting at `trimBefore`. The video occupies `du
 
 Will remove a portion of the video at the beginning (left side).
 
-In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+The following example assumes that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
 By passing `durationInFrames={60}`, the video plays for 60 source frames.
@@ -303,7 +303,7 @@ Useful for [video manipulation](/docs/videos/video-manipulation).
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object.  
 During preview, this is a `HTMLVideoElement` object, during rendering, it is an `HTMLImageElement`.
 
-During preview, if the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument. <AvailableFrom v="4.0.472" inline />  
+During preview, if the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument (from v4.0.472).  
 These arguments are `undefined` for the first synchronous callback, in browsers that don't support `requestVideoFrameCallback()` and during rendering.
 
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
@@ -312,7 +312,7 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
-From <AvailableFrom v="4.0.542" inline />, the default during preview is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Remote videos must allow CORS to appear in the captured canvas. For authenticated videos, see [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
+From v4.0.542, the default during preview is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Remote videos must allow CORS to appear in the captured canvas. For authenticated videos, see [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
 
 During server-side rendering, `<OffthreadVideo>` extracts frames through the render server and displays them as local images, so this prop does not apply.
 
@@ -346,9 +346,9 @@ The props `className` and `style` are supported and get passed to the underlying
 Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.  
 If you don't care about color accuracy, you can set `toneMapped` to `false` as well to save time on color conversion.
 
-## Looping a OffthreadVideo
+## Looping an `<OffthreadVideo>` {#looping-a-offthreadvideo}
 
-Unlike [`<Html5Video>`](/docs/html5-video), `OffthreadVideo` does not implement the `loop` property.  
+Unlike [`<Html5Video>`](/docs/html5-video), `<OffthreadVideo>` does not implement the `loop` property.  
 Consider using [another video tag](/docs/video-tags) for looping.
 
 :::note

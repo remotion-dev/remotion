@@ -22,7 +22,7 @@ Env `REMOTION_MAPTILER_KEY` (unrestricted). Init the map once (ref guard); updat
 When constructing MapLibre/MapTiler layer objects, omit optional properties that are absent.  
 In particular, use `...(layer.filter ? {filter: layer.filter} : {})`; do not pass `filter: undefined`. An undefined filter can suppress the layer while separately created halo or border layers continue rendering, producing missing country fills and dark marker halos with no coloured cores.
 
-Drive animation from `useCurrentFrame()` rather than CSS transitions or browser timers.  
+Drive animation from `useCurrentFrame()` rather than CSS transitions or browser timers.
 
 ## Choose the source for each map element
 
@@ -51,14 +51,6 @@ For the implementation, read **`references/render-stability.md`** before buildin
 - Keep pitch and bearing constant for a fixed plate. This technique does not implement a genuine changing 3D camera.
 - Verify the moving preview and a short rendered MP4 before approving a beat. If any basemap detail wavers, switch to the fixed-plate pattern; do not try to solve it with tile retries or camera easing.
 
-## Drawing rivers
-
-Use `turf.lineSliceAlong(line, 0, lineKm*reveal)` to draw rivers.
-
-## Source selection
-
-Use MapTiler vector layers for suitable provider features and custom GeoJSON for story-specific or ordered geometry. If the beat needs country-entry triggers or a progressive line draw, run `scripts/prep-geo.mjs` to bake `country-meta.json`, `borders.geojson`, and the ordered line. Details → `references/map-data-sources.md` and `references/map-geo-prep.md`.
-
 ## Keep it minmal
 
 Strip clutter on `load`: remove `symbol` layers (place labels) and `/other border/i` (admin-1 inner borders); hide the logo via CSS. Keep country + disputed borders.
@@ -67,14 +59,6 @@ Strip clutter on `load`: remove `symbol` layers (place labels) and `/other borde
 
 Use as reference:
 
-- `assets/RiverReveal.tsx` — the main component.
 - `assets/MapTilerVectorElement.ts` — filtered MapTiler Planet elements.
-- `assets/CountryLabel.tsx` — reusable example label.
-- `assets/tokens.ts` — example palette and durations.
-- `assets/example-Root.tsx` — minimal composition scaffold.
-- `assets/sample-data/` — example route and generated country metadata.
-- `scripts/prep-geo.mjs` — geo pipeline.
-- `references/map-explainer-architecture.md` — timing model and implementation.
 - `references/map-data-sources.md` — provider vector versus custom GeoJSON selection.
-- `references/map-geo-prep.md` — basemap stripping and geo preparation.
 - `references/render-stability.md` — camera motion and stable headless renders.

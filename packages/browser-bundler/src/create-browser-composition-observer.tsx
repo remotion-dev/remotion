@@ -131,6 +131,7 @@ const ObserveMetadata: React.FC<{
 				defaultProps,
 				inputProps: {...defaultProps, ...inputProps},
 				signal: controller.signal,
+				schema: composition.schema ?? null,
 			});
 			Promise.resolve(config).then(
 				(videoConfig) => {

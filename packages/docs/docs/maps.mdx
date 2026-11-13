@@ -206,7 +206,7 @@ For a visually straight line on the map, use a regular GeoJSON `LineString` betw
 
 ## Animating the camera
 
-Use `calculateCameraOptionsFromTo()` to move the camera while looking at a target point. A good pattern is to keep the target route and camera route separate, then use Turf to find the current point on each route.
+Use [`calculateCameraOptionsFromTo()`](https://docs.mapbox.com/mapbox-gl-js/api/map/#map#calculatecameraoptionsfromto) to move the camera while looking at a target point. A good pattern is to keep the target route and camera route separate, then use Turf to find the current point on each route.
 
 ```tsx twoslash
 import {useEffect} from 'react';

@@ -68,6 +68,8 @@ const result = addElement({
 
 Media files are not copied or downloaded, metadata is not probed, and packages are not installed. The project must already contain the dependencies needed by the generated imports.
 
+From v4.0.544, all supported insertion paths are synchronous, including SVG conversion and file-backed insertion.
+
 ## Options
 
 ### project
@@ -76,7 +78,104 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### element
 
-The element to insert, created with [`createElement()`](/docs/codemods/create-element).
+The element to insert, created with [`createElement()`](/docs/codemods/create-element), or an `AddElementDescriptor` (from v4.0.544).
+
+Descriptors support `solid`, `text`, `asset`, `component`, `track`, `svg`, and `composition` types. SVG and composition descriptors require a `composition` target.
+
+```ts twoslash title="add-asset.ts"
+import {addElement, type CodemodProject} from '@remotion/codemods';
+declare const project: CodemodProject;
+// ---cut---
+const result = addElement({
+  project,
+  element: {
+    type: 'asset', assetType: 'image', src: 'logo.png', srcType: 'static',
+    dimensions: {width: 320, height: 180}, durationInFrames: null, position: null,
+  },
+  from: 30,
+  target: {type: 'composition', compositionFile: 'src/Root.tsx', compositionId: 'MyComposition'},
+});
+```
+
+#### type
+
+The descriptor kind. Use `'asset'` for media, `'component'` for a named component import, `'solid'` for a gray rectangle, `'text'` for editable text, or `'track'` for an empty Track. `'svg'` converts SVG markup; `'composition'` inserts another registered composition.
+
+#### position
+
+An `{x, y}` canvas position, or `null`. Empty Track descriptors require `null`.
+
+#### assetType
+
+For assets: `'image'`, `'video'`, `'audio'`, `'gif'`, or `'animated-image'`.
+
+#### src
+
+The asset path or URL.
+
+#### srcType
+
+`'static'` for a public-folder path or `'remote'` for a URL.
+
+#### dimensions
+
+Asset dimensions as `{width, height}`, or `null`.
+
+#### durationInFrames
+
+The asset duration, or `null`. Composition descriptors require a duration.
+
+#### width
+
+The Solid or composition width.
+
+#### height
+
+The Solid or composition height.
+
+#### text
+
+The text content for a text descriptor.
+
+#### fontSize
+
+The font size for a text descriptor.
+
+#### color
+
+The CSS text color.
+
+#### componentName
+
+The JSX name for a component descriptor.
+
+#### importName
+
+The exported component name.
+
+#### importPath
+
+The module exporting the component.
+
+#### props
+
+An array of `{name, value}` props for the component.
+
+#### markup
+
+SVG descriptors contain the SVG source string.
+
+#### compositionFile
+
+The file registering the composition to insert.
+
+#### compositionId
+
+The ID of the composition to insert.
+
+#### serializedResolvedPropsWithCustomSchema
+
+Serialized resolved props for the composition. Composition descriptors also require `durationInFrames`, `width`, and `height`.
 
 ### target
 
@@ -103,6 +202,26 @@ Inserts the element before `node`. If the node has no parent element, for exampl
 Inserts the element after `node`, following the same rules as `before`.
 
 Obtain a `node` from [`getNodes()`](/docs/codemods/get-nodes) or a previous result. See [node references](/docs/codemods#node-references).
+
+#### `{type: 'track', node, from, durationInFrames}`<AvailableFrom v="4.0.544" />
+
+Inserts the element into a Track, wrapped in a Sequence with the specified start and duration. `node` must refer to a Track. `from` must be finite and nonnegative; `durationInFrames` must be finite and positive.
+
+### environment?<AvailableFrom v="4.0.544" />
+
+A [file-backed source environment](/docs/codemods#file-backed-sources) to use instead of `project`. Reads only the source files needed for the operation. Both source modes return file changes without writing them.
+
+### from?<AvailableFrom v="4.0.544" />
+
+Start frame for an element descriptor. Must be a nonnegative integer. Defaults to `null`. A Solid gets a Sequence wrapper; other descriptors receive their timing through their supported props.
+
+### wrapInSequence?<AvailableFrom v="4.0.544" />
+
+Wraps an element descriptor in a Sequence. Defaults to `null`. Accepts `from`, `durationInFrames`, `name`, `dimensions`, and `position`, each nullable. Track targets provide their own wrapper.
+
+### svgMarkupToJsx?<AvailableFrom v="4.0.544" />
+
+Converts SVG markup to a parsed JSX element for an SVG descriptor with an in-memory `project`. With `environment`, its `svgMarkupToJsx` callback is used instead. The callback is not invoked for other descriptor types.
 
 ### prettierConfigOverride?
 

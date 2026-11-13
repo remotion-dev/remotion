@@ -13,6 +13,7 @@ import {
 	makeConfigFileFingerprints,
 	type ConfigFileFingerprints,
 } from './config-file-change';
+import {watchConfigFileForReloads} from './config-reload';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {parseRemotionSkillVersion} from './detect-outdated-remotion-skills';
 import {findEntryPoint} from './entry-point';
@@ -311,7 +312,6 @@ export const studioCommand = async (
 
 	const startupConfigCode = getLoadedConfigFileCode();
 	if (configFile && startupConfigCode !== null) {
-		let isReloadingConfig = false;
 		let startupConfigFingerprints: ConfigFileFingerprints | null = null;
 		const sendConfigFileReloadError = (errorMessage: string) => {
 			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
@@ -322,74 +322,62 @@ export const studioCommand = async (
 			});
 		};
 
-		StudioServerInternals.installFileWatcher({
-			file: configFile,
-			existenceOnly: false,
-			onChange: async (event) => {
-				if (isReloadingConfig) {
+		const runReload = async (originatorClientId: string | null) => {
+			try {
+				const reloadResult = await reloadConfig({
+					resetConfigOptions: ConfigInternals.resetConfigOptions,
+					getConfigSnapshot: async (currentConfigCode) => {
+						startupConfigFingerprints ??=
+							makeConfigFileFingerprints(startupConfigCode);
+						const configFileChangeType = classifyConfigFileChange({
+							currentCode: currentConfigCode,
+							startupFingerprints: startupConfigFingerprints,
+						});
+
+						return {
+							changeType: configFileChangeType,
+							renderDefaults: getRenderDefaults(logLevel),
+							studioRuntimeConfig: getStudioRuntimeConfig(),
+							editorName: await StudioServerInternals.getEditorName({
+								getDefaultEditor,
+								logLevel,
+							}),
+						};
+					},
+				});
+				if (reloadResult.type === 'no-config') {
 					return;
 				}
 
-				isReloadingConfig = true;
-				try {
-					const reloadResult = await reloadConfig({
-						resetConfigOptions: ConfigInternals.resetConfigOptions,
-						getConfigSnapshot: async (currentConfigCode) => {
-							startupConfigFingerprints ??=
-								makeConfigFileFingerprints(startupConfigCode);
-							const configFileChangeType = classifyConfigFileChange({
-								currentCode: currentConfigCode,
-								startupFingerprints: startupConfigFingerprints,
-							});
-
-							return {
-								changeType: configFileChangeType,
-								renderDefaults: getRenderDefaults(logLevel),
-								studioRuntimeConfig: getStudioRuntimeConfig(),
-								editorName: await StudioServerInternals.getEditorName({
-									getDefaultEditor,
-									logLevel,
-								}),
-							};
-						},
-					});
-					if (reloadResult.type === 'no-config') {
-						return;
-					}
-
-					if (reloadResult.type === 'error') {
-						sendConfigFileReloadError(reloadResult.errorMessage);
-						return;
-					}
-
-					const {changeType, renderDefaults, studioRuntimeConfig, editorName} =
-						reloadResult.value;
-					const message = getConfigFileChangeMessage(changeType);
-
-					Log.info({indent: false, logLevel}, chalk.blue(message));
-					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
-						listener.sendEventToClient({
-							type: 'config-file-changed',
-							changeType,
-							originatorClientId:
-								event.type === 'deleted'
-									? null
-									: (event.originatorClientId ?? null),
-							renderDefaults,
-							studioRuntimeConfig,
-							editorName,
-						});
-					});
-				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : String(error);
-					Log.error({indent: false, logLevel: 'error'}, errorMessage);
-					sendConfigFileReloadError(errorMessage);
-				} finally {
-					isReloadingConfig = false;
+				if (reloadResult.type === 'error') {
+					sendConfigFileReloadError(reloadResult.errorMessage);
+					return;
 				}
-			},
-		});
+
+				const {changeType, renderDefaults, studioRuntimeConfig, editorName} =
+					reloadResult.value;
+				const message = getConfigFileChangeMessage(changeType);
+
+				Log.info({indent: false, logLevel}, chalk.blue(message));
+				StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClient({
+						type: 'config-file-changed',
+						changeType,
+						originatorClientId,
+						renderDefaults,
+						studioRuntimeConfig,
+						editorName,
+					});
+				});
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
+				Log.error({indent: false, logLevel: 'error'}, errorMessage);
+				sendConfigFileReloadError(errorMessage);
+			}
+		};
+
+		watchConfigFileForReloads({configFile, reload: runReload});
 	}
 
 	const result = await StudioServerInternals.startStudio({

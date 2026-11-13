@@ -45,7 +45,10 @@ The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
 
 The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
 `background-image` with a linear gradient, a centered radial gradient or a single raster `url()` (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a>.  
-The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a>.  
+The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a>.
+
+`image-rendering: pixelated` is <a style={{color: 'green'}}>supported</a> for raster URL backgrounds, including CSS scaling. Backgrounds requiring opacity or filter compositing can still differ from native output.
+
 The `background-repeat` property is <a style={{color: 'green'}}>supported</a> for raster `url()` backgrounds.  
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
 Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
@@ -89,13 +92,21 @@ The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</
 
 ### Web fonts inside SVG
 
-Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
+Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from v4.0.525.
+
+Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
-The font selection must be part of the SVG markup, for example through an inline `style`, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
+External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser's `FontFace` API are not embedded. Text inside `<foreignObject>` is not detected as SVG text and does not receive embedded fonts.
+Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+
+SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
+
+Titled registered-font stylesheets support active and inactive media evaluated against the owning document, including after viewport changes. Empty sheets in a preferred titled set preserve `:empty` matching, and SVG-local CSSOM rules retain their selector matching. Native text pixels and titled-stylesheet paint selection may differ; WebKit and Firefox may select a different face.
+
+SVG-local selector preservation is not supported for stylesheets containing `@import` or `@scope` rules. Their names inside comments, strings, URLs or custom-property values do not impose this limitation, including escaped URL names and unquoted URLs containing brackets or braces.
 
 ## Shadows
 
@@ -137,7 +148,7 @@ Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter sup
 
 ## Blending
 
-The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
+The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from v4.0.540 with all blend modes.
 Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
 
 The `background-blend-mode` property is <a style={{color: 'green'}}>supported</a> for a single linear gradient blended with the element's background color.

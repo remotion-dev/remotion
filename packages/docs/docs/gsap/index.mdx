@@ -14,6 +14,8 @@ Use [GSAP](https://gsap.com/) timelines in Remotion.
 
 GSAP normally advances animations on its own ticker, which runs on the wall clock. Remotion requires every frame to be a pure function of [`useCurrentFrame()`](/docs/use-current-frame). This package builds a paused GSAP timeline and seeks it to the current frame, so previews, scrubbing and renders are deterministic.
 
+## Installation
+
 <Installation pkg="@remotion/gsap" />
 
 Also install `gsap` itself, which is a peer dependency:
