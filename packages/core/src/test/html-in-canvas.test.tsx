@@ -5,6 +5,10 @@ import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {
+	HtmlInCanvasAncestorContext,
+	type HtmlInCanvasPaintState,
+} from '../HtmlInCanvasAncestorContext.js';
 import {Internals} from '../internals.js';
 import {
 	SequenceManagerProvider,
@@ -901,6 +905,10 @@ for (const behavior of [
 			remotion_puppeteerTimeout: 30000,
 			remotion_attempt: 1,
 		};
+		const originalUserAgent = Object.getOwnPropertyDescriptor(
+			navigator,
+			'userAgent',
+		);
 		const failure = new Error('controlled HtmlInCanvas paint failure');
 		const reported: Error[] = [];
 		const paintListeners: EventListener[] = [];
@@ -963,6 +971,28 @@ for (const behavior of [
 			const initializationCleanups: number[] = [];
 			const initialization = behavior.startsWith('replaced-init');
 			const lateInitialization = behavior.startsWith('replaced-init-late');
+			if (lateInitialization)
+				Object.defineProperty(navigator, 'userAgent', {
+					configurable: true,
+					value: 'Chrome/157.0.0.0',
+				});
+			const ancestor: HtmlInCanvasPaintState = {
+				pendingChildren: 0,
+				generation: 0,
+				release: null,
+				blockPaint: () => {
+					ancestor.pendingChildren++;
+					ancestor.generation++;
+					let released = false;
+					return () => {
+						if (!released) {
+							released = true;
+							ancestor.pendingChildren--;
+						}
+					};
+				},
+			};
+			const releaseSiblingAncestor = ancestor.blockPaint();
 			let releaseReplacementPaint!: () => void;
 			const replacementPaint = new Promise<void>((resolve) => {
 				releaseReplacementPaint = resolve;
@@ -983,37 +1013,45 @@ for (const behavior of [
 									: replacementOwner
 						}
 					>
-						<SequenceTestWrapper onRegisterSequence={() => undefined}>
-							<HtmlInCanvas
-								width={width}
-								height={50}
-								onInit={
-									initialization
-										? async () => {
-												const initializingOwner = owner;
-												initializationCalls++;
-												if (initializingOwner === 0) await paint;
-												resources.add(initializingOwner);
-												return () => {
-													initializationCleanups.push(initializingOwner);
-													resources.delete(initializingOwner);
-												};
-											}
-										: undefined
-								}
-								onPaint={() => {
-									if (initialization && owner === 1)
-										expect(resources.has(1)).toBe(true);
-									if (lateInitialization && owner === 1) {
-										replacementPaintCalls++;
-										return replacementPaint;
-									}
-
-									return owner === 0 ? paint : undefined;
-								}}
+						<SequenceTestWrapper
+							isRendering={lateInitialization}
+							isClientSideRendering={lateInitialization}
+							onRegisterSequence={() => undefined}
+						>
+							<HtmlInCanvasAncestorContext.Provider
+								value={lateInitialization ? ancestor : null}
 							>
-								<div>paint</div>
-							</HtmlInCanvas>
+								<HtmlInCanvas
+									width={width}
+									height={50}
+									onInit={
+										initialization
+											? async () => {
+													const initializingOwner = owner;
+													initializationCalls++;
+													if (initializingOwner === 0) await paint;
+													resources.add(initializingOwner);
+													return () => {
+														initializationCleanups.push(initializingOwner);
+														resources.delete(initializingOwner);
+													};
+												}
+											: undefined
+									}
+									onPaint={() => {
+										if (initialization && owner === 1)
+											expect(resources.has(1)).toBe(true);
+										if (lateInitialization && owner === 1) {
+											replacementPaintCalls++;
+											return replacementPaint;
+										}
+
+										return owner === 0 ? paint : undefined;
+									}}
+								>
+									<div>paint</div>
+								</HtmlInCanvas>
+							</HtmlInCanvasAncestorContext.Provider>
 						</SequenceTestWrapper>
 					</Internals.CancelRenderContext.Provider>
 				</Internals.DelayRenderContextType.Provider>
@@ -1055,6 +1093,7 @@ for (const behavior of [
 				canvas.dispatchEvent(new Event('paint'));
 				await waitFor(() => expect(initializationCalls).toBe(2));
 				await waitFor(() => expect(replacementPaintCalls).toBe(1));
+				expect(ancestor.pendingChildren).toBe(2);
 				expect(resources.has(1)).toBe(true);
 			}
 
@@ -1086,6 +1125,7 @@ for (const behavior of [
 			}
 
 			if (lateInitialization) {
+				expect(ancestor.pendingChildren).toBe(2);
 				expect(resources.has(1)).toBe(true);
 				expect(resources.has(0)).toBe(false);
 				expect(initializationCleanups).toEqual(
@@ -1106,6 +1146,8 @@ for (const behavior of [
 				);
 			}
 
+			if (lateInitialization) expect(ancestor.pendingChildren).toBe(1);
+
 			if (behavior === 'success' || replaced)
 				expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			view.unmount();
@@ -1118,12 +1160,18 @@ for (const behavior of [
 
 			expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			expect(scope.remotion_renderReady).toBe(false);
+			expect(ancestor.pendingChildren).toBe(1);
+			releaseSiblingAncestor();
+			expect(ancestor.pendingChildren).toBe(0);
 			siblingControls.continueRender(siblingHandle);
 			sibling.unmount();
 			expect(scope.remotion_delayRenderHandles).toEqual([]);
 			expect(scope.remotion_renderReady).toBe(behavior !== 'unowned');
 		} finally {
 			cleanup();
+			if (originalUserAgent)
+				Object.defineProperty(navigator, 'userAgent', originalUserAgent);
+			else Reflect.deleteProperty(navigator, 'userAgent');
 			if (previousAdd)
 				Object.defineProperty(
 					HTMLCanvasElement.prototype,

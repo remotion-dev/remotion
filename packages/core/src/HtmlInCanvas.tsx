@@ -716,6 +716,9 @@ const HtmlInCanvasContent = forwardRef<
 					handle = null;
 				}
 
+				// Ancestor barriers belong to this paint too; retirement must not
+				// leave its replacement waiting for an obsolete promise.
+				releaseAncestor?.();
 				pendingPaintReleases.current.delete(releasePaint);
 			};
 
