@@ -6,7 +6,7 @@ let headlessMode = DEFAULT;
 const cliFlag = 'disable-headless' as const;
 
 export const headlessOption = {
-	name: 'Disable Headless Mode',
+	name: 'Disable headless mode',
 	addedIn: '2.6.5',
 	cliFlag,
 	description: () => (

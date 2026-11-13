@@ -6,7 +6,7 @@ let currentDuration: number | null = null;
 const cliFlag = 'duration' as const;
 
 export const overrideDurationOption = {
-	name: 'Override Duration',
+	name: 'Override duration',
 	addedIn: '4.0.424',
 	cliFlag,
 	description: () => <>Overrides the duration in frames of the composition.</>,
