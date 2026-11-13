@@ -208,38 +208,40 @@ const SolidInner: React.FC<
 			};
 		}
 
-		const ctx = sourceCanvas.getContext('2d', {colorSpace: 'srgb'});
-		if (!ctx) {
-			cancelRender(
-				new Error('Failed to acquire 2D context for <Solid> source'),
-			);
-			return;
-		}
-
 		let cancelled = false;
+		try {
+			const ctx = sourceCanvas.getContext('2d', {colorSpace: 'srgb'});
+			if (!ctx) {
+				throw new Error('Failed to acquire 2D context for <Solid> source');
+			}
 
-		ctx.clearRect(0, 0, 1, 1);
-		if (color !== undefined) {
-			ctx.fillStyle = color;
-			ctx.fillRect(0, 0, 1, 1);
-		}
+			ctx.clearRect(0, 0, 1, 1);
+			if (color !== undefined) {
+				ctx.fillStyle = color;
+				ctx.fillRect(0, 0, 1, 1);
+			}
 
-		runEffectChain({
-			state: chainState.get(canvasWidth, canvasHeight)!,
-			source: sourceCanvas,
-			effects: memoizedEffects,
-			output: outputCanvas,
-			width: canvasWidth,
-			height: canvasHeight,
-		})
-			.then((completed) => {
-				if (completed && !cancelled) {
-					continueRender(handle);
-				}
+			runEffectChain({
+				state: chainState.get(canvasWidth, canvasHeight)!,
+				source: sourceCanvas,
+				effects: memoizedEffects,
+				output: outputCanvas,
+				width: canvasWidth,
+				height: canvasHeight,
 			})
-			.catch((err) => {
-				if (!cancelled) reportRenderError(err);
-			});
+				.then((completed) => {
+					if (completed && !cancelled) {
+						continueRender(handle);
+					}
+				})
+				.catch((err) => {
+					if (!cancelled) reportRenderError(err);
+				});
+		} catch (error) {
+			// A synchronous setup failure happens before React can register cleanup.
+			continueRender(handle);
+			cancelRender(error);
+		}
 
 		return () => {
 			cancelled = true;
