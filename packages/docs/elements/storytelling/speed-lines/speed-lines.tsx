@@ -15,7 +15,12 @@ type SpeedLinesProps = {
 
 const SpeedLinesInner: React.FC<SpeedLinesProps> = ({color = '#ffffff'}) => {
 	const frame = useCurrentFrame();
-	const {width, height, durationInFrames} = useVideoConfig();
+	const {
+		width,
+		height,
+		durationInFrames: sequenceDurationInFrames,
+	} = useVideoConfig();
+	const durationInFrames = Math.max(sequenceDurationInFrames, 9);
 	const seed = Math.floor(frame / 2);
 	const cx = width / 2;
 	const cy = height / 2;

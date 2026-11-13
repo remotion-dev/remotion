@@ -22,7 +22,8 @@ type ProductCardProps = {
 
 const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames: cardDurationInFrames} = useVideoConfig();
+	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
+	const cardDurationInFrames = Math.max(sequenceDurationInFrames, 53);
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
 		frame,
@@ -152,7 +153,8 @@ const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 
 const ProductCollectionInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
+	const durationInFrames = Math.max(sequenceDurationInFrames, 25);
 
 	return (
 		<Interactive.Div
