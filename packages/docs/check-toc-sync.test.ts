@@ -59,7 +59,7 @@ for (const overviewFirst of [true, false]) {
 					`import {checkTocSync} from './check-toc-sync';
 import path from 'node:path';
 const order = ${JSON.stringify(inventory)};
-const files = order.map(name => path.join(${JSON.stringify(path.join(root, 'docs'))}, name));
+const files = order.map(name => path.join(import.meta.dir, 'docs', name));
 console.log('inventory:' + JSON.stringify(files.map(file => path.basename(file))));
 checkTocSync(files);`,
 				);
@@ -71,7 +71,10 @@ checkTocSync(files);`,
 				expect(complete.stdout.toString()).toContain(
 					'inventory:' + JSON.stringify(inventory),
 				);
-				expect(complete.exitCode).toBe(0);
+				expect({
+					exitCode: complete.exitCode,
+					stderr: complete.stderr.toString(),
+				}).toEqual({exitCode: 0, stderr: ''});
 
 				// A genuine missing API entry must still fail the same checker.
 				writeFileSync(toc, '<TOCItem link="/docs/guide" />');
