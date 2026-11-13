@@ -29,11 +29,11 @@ bun sub.ts
 ```
 
 Note that the names of the files you want to transcribe need to start with the prefix `webcam`, all other files will be ignored.
-The JSON files containing the captions will be generated and saved under `public/<composition-id>/sub[timestamp].json`.
+The JSON files containing the captions will be generated and saved under `public/<composition-id>/subs[timestamp].json`.
 
 ## Non-english languages
 
 If you do not record in English, edit the `config/whisper.ts` file.
 
-Set the language to a [supported value](/docs/install-whisper-cpp/transcribe#language) change change the `model` to a [supported value](/docs/install-whisper-cpp/download-whisper-model#model) that does not end in `.en`.  
+Set `TRANSCRIPTION_LANGUAGE` to a [supported value](/docs/install-whisper-cpp/transcribe#language) and change `WHISPER_MODEL` to a [supported value](/docs/install-whisper-cpp/download-whisper-model#model) that does not end in `.en`.  
 It is advised to choose a larger model if you are transcribing in a non-english language.

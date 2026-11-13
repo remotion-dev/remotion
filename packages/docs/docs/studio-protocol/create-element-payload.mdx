@@ -89,7 +89,7 @@ Assets use Element payload version 2. Asset-free payloads continue to use versio
 
 ### dimensions
 
-The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive numbers of at most 100,000.
+The preferred width and height, or `null` for an Element without fixed dimensions. `createElementPayload()` does not validate them, but Studio rejects the payload unless both values are positive numbers of at most 100,000.
 
 Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
 
@@ -133,7 +133,7 @@ Invalid input throws a `TypeError`.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

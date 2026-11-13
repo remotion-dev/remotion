@@ -7,7 +7,7 @@ crumb: "Knowledge Base"
 
 A common need in Remotion is to import assets from dynamic paths. This means that sometimes you don't know the exact path of an asset that should be imported upfront and you want to calculate it during runtime.
 
-This can become an unexpected hurdle in Webpack. On this page we collect some tips how to handle dynamic assets.
+This can become an unexpected hurdle in Webpack. This page collects some tips on how to handle dynamic assets.
 
 Take this scenario for an example:
 
@@ -55,7 +55,7 @@ Please read [the Webpack documentation page](https://webpack.js.org/api/module-m
 
 ## Import assets at runtime
 
-Let's imagine a scenario where the asset that should be imported is completely unknown and will be read at runtime, for example through an [input prop](/docs/get-input-props):
+Imagine a scenario where the asset that should be imported is completely unknown and will be read at runtime, for example through an [input prop](/docs/get-input-props):
 
 ```tsx twoslash
 import { getInputProps, Img } from "remotion";

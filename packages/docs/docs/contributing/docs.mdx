@@ -19,10 +19,8 @@ At the bottom of each page, the `Improve this page` button is the easiest way to
 <Step>1</Step> Set up the Remotion repository <a href="/docs/contributing">according to the instructions here</a>. <br />
 <Step>2</Step> Create a new <code>.mdx</code> document in the <code>packages/docs/docs</code> folder. <br />
 <Step>3</Step> Add the document to <code>packages/docs/sidebars.ts</code>.<br />
-<Step>4</Step> Write what you have to say!
-<br />
+<Step>4</Step> Write what you have to say!<br />
 <Step>5</Step> Run <code>bun render-cards.ts</code> in <code>packages/docs</code> to generate preview cards that will show up if the documentation page is shared on social media.
-<br />
 
 ## Language guidelines
 
@@ -77,14 +75,14 @@ console.log('Hello World');
 Use `<Step>` to create lists:
 
 ```md
-- <Step>1</Step> Step 1
-- <Step>2</Step> Step 2
+<Step>1</Step> Step 1<br />
+<Step>2</Step> Step 2
 ```
 
-- <Step>1</Step> Step 1
-- <Step>2</Step> Step 2
+<Step>1</Step> Step 1<br />
+<Step>2</Step> Step 2
 
-The formatting around `<Step>` is delicate. Keep one step per line, add a space after `</Step>`, and preserve an explicit line break (`<br/>` or `<br />`) when the steps are written as a compact inline list.
+Keep one step per line and add a space after `</Step>`. Put `<br />` at the end of each consecutive step except the last one. Do not put blank lines or standalone `<br />` tags between consecutive steps, since both add paragraph spacing. Do not wrap steps in Markdown bullets, which add a second marker beside each number.
 
 ### AvailableFrom
 
@@ -99,6 +97,8 @@ For section headings:
 ```md
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
 ```
+
+Only use `<AvailableFrom>` in headings. In sentences, list items and table cells, write the version as plain text instead, for example "From v4.0.540, ...".
 
 ### CompatibilityTable
 

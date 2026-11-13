@@ -225,6 +225,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		const insertResponse = await insertCompositionElementHandler({
 			...handlerContext,
 			input: {
+				track: null,
 				compositionFile: fileName,
 				compositionId: 'insert',
 				element: {

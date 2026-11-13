@@ -6,7 +6,7 @@ let configuredKeyboardShortcutsEnabled: boolean | null = null;
 const cliFlag = 'disable-keyboard-shortcuts' as const;
 
 export const keyboardShortcutsOption = {
-	name: 'Disable or Enable keyboard shortcuts',
+	name: 'Disable or enable keyboard shortcuts',
 	addedIn: '3.2.11',
 	cliFlag,
 	description: () => (

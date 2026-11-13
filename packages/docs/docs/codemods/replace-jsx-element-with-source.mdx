@@ -1,0 +1,78 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-replace-jsx-element-with-source.png
+title: 'replaceJsxElementWithSource()'
+crumb: '@remotion/codemods'
+---
+
+# replaceJsxElementWithSource()<AvailableFrom v="4.0.544" />
+
+Replaces a JSX node with saved source and restores its imports.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="replace-jsx-element-with-source.ts"
+import {replaceJsxElementWithSource, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = replaceJsxElementWithSource({
+  project, node,
+  source: '<Scene />',
+  importStatements: ["import {Scene} from './Scene';"],
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model).
+
+### node
+
+The target [`NodeReference`](/docs/codemods#node-references).
+
+### source
+
+Source containing one JSX element.
+
+### importStatements
+
+Import declarations required by the replacement. Missing bindings are merged into compatible existing imports. Unused imports from the replaced node are removed.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+File changes to apply with [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes). The input project is not mutated.
+
+### nodePathRemappings
+
+Mappings from the original node paths to their new paths. See [node references](/docs/codemods#node-references).
+
+### logLine
+
+The replaced node's source line.
+
+## Errors
+
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/replace-jsx-element-with-source.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

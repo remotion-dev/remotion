@@ -78,6 +78,15 @@ Install all Remotion [agent skills](/docs/ai/skills) without showing the skills 
 
 Without `--skills`, interactive setup asks which skills to install, while `--yes` skips skill installation.
 
+With `--skills`, the following command is run in the project directory:
+
+```bash
+npx -y --loglevel=error skills@1.7.0 add remotion-dev/skills --agent universal --skill '*' --yes
+```
+
+This installs the skills to `.agents/skills`. Afterwards, `.claude/skills` is symlinked to `.agents/skills` so Claude Code finds them as well.  
+If you choose individual skills in the interactive prompt, the same command runs without `--skill '*' --yes`, so you can pick skills.
+
 ```bash title="Create a project with agent skills"
 npx create-video --yes --blank --skills my-video
 ```
@@ -117,7 +126,7 @@ npx create-video --yes --blank my-video
 When using `--yes`:
 
 - TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates.
-- [Agent skills](/docs/ai/skills) are installed only with [`--skills`](#--skills). You can also add them afterwards by running [`npx skills add remotion-dev/skills`](/docs/cli/skills) in the project directory.
+- [Agent skills](/docs/ai/skills) are installed only with [`--skills`](#--skills). You can also add them afterwards by running [`npx remotion skills add`](/docs/cli/skills) in the project directory.
 - The editor is not opened after scaffolding.
 - The command fails if you are already inside a Git repository.
 

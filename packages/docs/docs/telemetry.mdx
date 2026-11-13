@@ -13,7 +13,7 @@ Telemetry never blocks or fails a render - even if the telemetry request fails, 
 
 ## Why Remotion has telemetry
 
-Remotion is [free for individuals and small companies](/docs/license) but requires a [paid license](https://remotion.pro) for bigger companies.
+Remotion is [free for individuals and small companies](/docs/license) but requires a [paid license](/docs/license/pricing) for bigger companies.
 The price depends on the amount of renders.
 
 Telemetry makes it easier to track renders and ensure accountability.  
@@ -27,7 +27,7 @@ Server-side rendering only sends telemetry when a license key is set, and only f
 - [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey)
 - [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream), and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
 - [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey)
-- [`@remotion/cloudrun`](/docs/cloudrun): [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey), from <AvailableFrom v="4.0.540" inline />
+- [`@remotion/cloudrun`](/docs/cloudrun): [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey), from v4.0.540
 
 Image-sequence renders from the CLI and the Lambda APIs send one event per render. [`remotion benchmark`](/docs/cli/benchmark) does not send telemetry.
 
@@ -46,7 +46,7 @@ If the render is aborted, no event is sent.
 
 Pass `isProduction: false` to a rendering API, or `--is-production=false` to the CLI, to classify a development render as non-billable. The default is `true`.
 
-[`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#isproduction) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#isproduction) accept `isProduction` from <AvailableFrom v="4.0.540" inline />. Cloud Run accepts both `licenseKey` and `isProduction` from the same version.
+[`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#isproduction) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#isproduction) accept `isProduction` from v4.0.540. Cloud Run accepts both `licenseKey` and `isProduction` from the same version.
 
 ## Custom rendering workflows
 
@@ -102,7 +102,7 @@ If you utilize client-side rendering, the end user's IP address is transmitted t
 If you [qualify for the free license](/docs/license), pass `"free-license"` to `licenseKey` to declare your eligibility for the free license.  
 For client-side rendering, this also disables the warning in the console.
 
-If you have a Remotion Company License or Enterprise License, go to [remotion.pro](https://remotion.pro) and get your license key from the License keys page.
+If you have a Remotion Company License or Enterprise License, open the [Remotion Dashboard](https://www.remotion.dev/dashboard), select your project, and get your license key from the **License keys** page.
 
 <Tabs
 defaultValue="server-side-rendering"

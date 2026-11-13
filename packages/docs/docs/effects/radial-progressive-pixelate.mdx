@@ -54,7 +54,9 @@ Pass an object with the following properties. You can also call `radialProgressi
 
 Center of the ellipse in UV coordinates. Defaults to `[0.5, 0.5]`.
 
-Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right. Values outside that range place the center outside the visible area.
+Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right.
+
+The accepted range in the visual editor is `[-1, 2]` for each coordinate. Values outside `[0, 1]` place the center outside the visible area.
 
 ### `width?`
 
@@ -70,9 +72,9 @@ Ellipse rotation in degrees. Defaults to `0`.
 
 ### `start?`
 
-Normalized ellipse progress where interpolation starts. Defaults to `0`.
+Normalized ellipse progress where `startBlockSize` is reached. Defaults to `0`.
 
-`0` is the center. `1` is the outer ellipse defined by `width`, `height`, and `rotation`.
+`0` is the center. `1` is the outer ellipse line defined by `width`, `height`, and `rotation`.
 
 ### `startBlockSize?`
 
@@ -97,9 +99,13 @@ Swap the block sizes to pixelate the center and keep the outside clear.
 ## Implementations
 
 - WebGL2
-- WebGPU <AvailableFrom v="4.0.540" />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

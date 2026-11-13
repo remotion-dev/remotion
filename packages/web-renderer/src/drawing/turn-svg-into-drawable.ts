@@ -2,6 +2,7 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
+import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -10,6 +11,17 @@ const textFontProperties = [
 	'font-weight',
 	'font-stretch',
 ] as const;
+
+const serializeSvg = (svg: SVGSVGElement) =>
+	new XMLSerializer()
+		.serializeToString(svg)
+		// eslint-disable-next-line no-control-regex
+		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+
+const getSvgTextElements = (svg: SVGSVGElement) =>
+	Array.from(
+		svg.querySelectorAll<SVGTextContentElement>('text, tspan, textPath'),
+	).filter((element) => element.namespaceURI === 'http://www.w3.org/2000/svg');
 
 const getReferencedTemplates = (svg: SVGSVGElement) => {
 	const documentUrl = new URL(svg.ownerDocument.URL);
@@ -43,9 +55,7 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
-	const textElements = Array.from(
-		svg.querySelectorAll('text, tspan, textPath'),
-	);
+	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
@@ -66,9 +76,18 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
-	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+	let fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
+
+	const authoredElements =
+		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
+	const authoredStyles =
+		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
+	const authoredMedia =
+		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
+	const authoredEmpty =
+		authoredElements?.map((element) => element.matches(':empty')) ?? null;
 
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
@@ -141,29 +160,79 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	svgForSerialization
-		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
-		.forEach((element, index) => {
-			const fontStyle = textStyles[index];
-			if (fontStyle === null) return;
-			textFontProperties.forEach((property, propertyIndex) => {
-				element.style.setProperty(
-					property,
-					fontStyle[propertyIndex],
-					'important',
-				);
-			});
+	getSvgTextElements(svgForSerialization).forEach((element, index) => {
+		const fontStyle = textStyles[index];
+		if (fontStyle === null) return;
+		textFontProperties.forEach((property, propertyIndex) => {
+			element.style.setProperty(
+				property,
+				fontStyle[propertyIndex],
+				'important',
+			);
 		});
-	if (embeddedFontStyle)
-		insertFontStyleInSvg(
-			svgForSerialization,
-			embeddedFontStyle.css,
-			fontStyleIndex,
-		);
-	const serializedSvg = new XMLSerializer()
-		.serializeToString(svgForSerialization)
-		// eslint-disable-next-line no-control-regex
-		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+	});
+	if (embeddedFontStyle && styles[fontStyleIndex]?.matches(':empty')) {
+		// Keep an authored empty sheet empty when an earlier active carrier can
+		// retain font order. A later CSSOM rule remains an ordering boundary.
+		for (let index = styles.length - 1; index >= 0; index--) {
+			const style = styles[index];
+			const {sheet} = style;
+			if (!sheet) continue;
+			let ruleCount: number;
+			try {
+				ruleCount = sheet.cssRules.length;
+			} catch {
+				break;
+			}
+
+			const media = sheet.media.mediaText;
+			if (
+				!sheet.disabled &&
+				(!media || media.toLowerCase() === 'all') &&
+				!style.matches(':empty')
+			) {
+				fontStyleIndex = index;
+				break;
+			}
+
+			if (ruleCount !== 0) break;
+		}
+	}
+
+	// A titled sheet can be inactive without sheet.disabled being set. Put
+	// registered faces after local faces in every candidate when sets are used.
+	// Empty and disabled sheets can still be selected by the image document;
+	// their paint is normalized separately from font availability.
+	const usesStylesheetSets = Boolean(
+		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	);
+	const fontCarriers =
+		embeddedFontStyle && usesStylesheetSets
+			? Array.from(styles, (style, index) =>
+					style.sheet ? index : null,
+				).filter((index) => index !== null)
+			: [fontStyleIndex];
+
+	if (embeddedFontStyle) {
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
+		for (const index of fontCarriers) {
+			const carrier = styles[index];
+			if (carrier?.sheet && !carrier.sheet.disabled) {
+				clonedStyles[index].textContent =
+					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+					'/* Empty stylesheet rules. */';
+			}
+		}
+	}
+
+	if (authoredStyles || authoredMedia || authoredEmpty)
+		preserveSvgAttributeSelectors({
+			svg: svgForSerialization,
+			authoredStyles,
+			authoredMedia,
+			authoredEmpty,
+		});
+	const serializedSvg = serializeSvg(svgForSerialization);
 
 	for (const child of childOpacities) {
 		if (child.style === null) {
@@ -193,7 +262,22 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const fontStyleKey = embeddedFontStyle?.cacheKey ?? null;
+	const carrierMedia = embeddedFontStyle
+		? fontCarriers.map((index) => {
+				const media = styles[index]?.getAttribute('media');
+				return (
+					!media || svg.ownerDocument.defaultView!.matchMedia(media).matches
+				);
+			})
+		: null;
+	const fontStyleKey = embeddedFontStyle
+		? JSON.stringify([
+				embeddedFontStyle.cacheKey,
+				fontStyleIndex,
+				fontCarriers,
+				carrierMedia,
+			])
+		: null;
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
@@ -204,7 +288,28 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 
 	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
-		const blob = new Blob([serializedSvg], {
+
+		let markup = serializedSvg;
+		if (embeddedFontStyle) {
+			if (usesStylesheetSets && fontCarriers.length) {
+				for (const index of fontCarriers)
+					insertFontStyleInSvg(
+						svgForSerialization,
+						embeddedFontStyle.css,
+						index,
+					);
+			} else {
+				insertFontStyleInSvg(
+					svgForSerialization,
+					embeddedFontStyle.css,
+					usesStylesheetSets ? -1 : fontStyleIndex,
+				);
+			}
+
+			markup = serializeSvg(svgForSerialization);
+		}
+
+		const blob = new Blob([markup], {
 			type: 'image/svg+xml;charset=utf-8',
 		});
 		// Chromium taints canvases drawn from blob SVGs containing foreignObject.
@@ -227,8 +332,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		} else {
 			blob
 				.text()
-				.then((markup) => {
-					image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
+				.then((svgMarkup) => {
+					image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
 				})
 				.catch(reject);
 		}

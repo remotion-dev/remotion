@@ -93,7 +93,10 @@ export const LicenseExplanation: React.FC = () => {
 				</div>
 				<p style={description}>
 					If used in an organization with 4+ people, you need a{' '}
-					<a style={descriptionLink} href="https://remotion.pro/license">
+					<a
+						style={descriptionLink}
+						href="https://www.remotion.dev/docs/license/pricing"
+					>
 						Company License
 					</a>
 					.

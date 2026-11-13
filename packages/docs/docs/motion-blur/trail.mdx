@@ -16,7 +16,7 @@ const BlueSquare: React.FC = () => <div></div>
 
 _Previously called `<MotionBlur>`._
 
-The `<Trail>` component duplicates it's children and adds a time offset to each layer in order to create a trail effect.
+The `<Trail>` component duplicates its children and adds a time offset to each layer to create a trail effect.
 
 For this technique to work, the children must be absolutely positioned so many layers can be created without influencing the layout.  
 You can use the [`<AbsoluteFill>`](/docs/absolute-fill) component to absolutely position content.
@@ -27,17 +27,17 @@ Wrap your content in `<Trail>` and add the following props in addition.
 
 ### `layers`
 
-How many layers are added below the content. Must be an integer
+How many layers are added below the content. Must be an integer.
 
 ### `lagInFrames`
 
-How many frames each layer is lagging behind the last one. Can also a floating point number.
+How many frames each layer is lagging behind the last one. Can also be a floating point number.
 
 ### `trailOpacity`
 
 _previously called `blurOpacity`_
 
-The highest opacity of a layer. The lowest opacity is 0 and layers intbetween get interpolated.
+The highest opacity of a layer. The lowest opacity is 0 and layers in between get interpolated.
 
 ## Example usage
 

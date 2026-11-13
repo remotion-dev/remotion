@@ -60,6 +60,8 @@ The content must contain the cube of `LUT_3D_SIZE` color rows. 1D LUTs are not s
 
 ## API
 
+Pass an object with the following properties.
+
 ### `content`
 
 The complete `.cube` file as a string. Inline the content in your source code or import it as text using your bundler.
@@ -70,8 +72,8 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Implementations
 
-- WebGPU<AvailableFrom v="4.0.540" inline />
 - WebGL2
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 

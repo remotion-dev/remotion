@@ -5,7 +5,7 @@ const cliFlag = 'sequence' as const;
 let imageSequence = false;
 
 export const imageSequenceOption = {
-	name: 'Image Sequence',
+	name: 'Image sequence',
 	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (

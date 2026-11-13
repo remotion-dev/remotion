@@ -7,14 +7,17 @@ let currentStillImageFormat: StillImageFormat | null = null;
 const cliFlag = 'image-format' as const;
 
 export const stillImageFormatOption = {
-	name: 'Still Image Format',
+	name: 'Still image format',
 	addedIn: '2.3.0',
 	cliFlag,
 	description: () => (
 		<>
 			The image format to use when rendering a still. Must be one of{' '}
-			{validStillImageFormats.map((f) => `"${f}"`).join(', ')}. Default:{' '}
-			<code>&quot;png&quot;</code>.
+			{validStillImageFormats.flatMap((f, i) => [
+				i === 0 ? '' : ', ',
+				<code key={f}>&quot;{f}&quot;</code>,
+			])}
+			. Default: <code>&quot;png&quot;</code>.
 		</>
 	),
 	ssrName: 'imageFormat' as const,

@@ -9,6 +9,22 @@ _Part of the `@remotion/media-utils`_ package of helper functions.
 
 This function takes points, usually generated from [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform) or [`visualizeAudio()`](/docs/visualize-audio), and adds SVG `C` (curve) statements inbetween them to create a smooth path.
 
+## Arguments
+
+An object with the following properties:
+
+### `points`
+
+_`{x: number; y: number}[]`_
+
+The points that the path should go through.
+
+## Return value
+
+_`string`_
+
+An SVG path string that can be passed to the `d` attribute of a `<path>` element.
+
 ## Example
 
 ```tsx twoslash

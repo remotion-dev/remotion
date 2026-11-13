@@ -1496,7 +1496,6 @@ const TimelineSequenceItemInner: React.FC<{
 						? () => {
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'apps',
 									initialPublicLicenseKey:
 										window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -1730,6 +1729,7 @@ const TimelineSequenceItemInner: React.FC<{
 				showVisibilityToggle ? (
 					<TimelineLayerEye
 						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+						displayName={timelineDisplayName || fallbackDisplayName}
 						hidden={isItemHidden}
 						onInvoked={canToggleVisibility ? onToggleVisibility : null}
 					/>

@@ -19,7 +19,7 @@ let myValue = false; // module-level default state
 const cliFlag = 'my-flag' as const;
 
 export const myFlagOption = {
-  name: 'Human-readable Name',
+  name: 'Human-readable name',
   cliFlag,
   id: cliFlag,
   description: () => <>Description shown in docs.</>,

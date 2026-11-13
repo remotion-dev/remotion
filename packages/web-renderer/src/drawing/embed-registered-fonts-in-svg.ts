@@ -209,7 +209,14 @@ const getFontFaceRule = (font: RegisteredFontFace): string => {
 export const getEmbeddedFontStyleForSvg = (
 	svg: SVGSVGElement,
 ): EmbeddedFontStyle | null => {
-	const textElements = svg.querySelectorAll('text, foreignObject');
+	const textElements = Array.from(
+		svg.querySelectorAll('text, foreignObject'),
+	).filter(
+		(element) =>
+			element.namespaceURI === 'http://www.w3.org/2000/svg' ||
+			element.closest('foreignObject')?.namespaceURI ===
+				'http://www.w3.org/2000/svg',
+	);
 	if (textElements.length === 0) {
 		return null;
 	}
@@ -229,7 +236,10 @@ export const getEmbeddedFontStyleForSvg = (
 
 	const usedFontIndexes = new Set<number>();
 	for (const textElement of textElements) {
-		const textNodeWalker = svg.ownerDocument.createTreeWalker(textElement, 4);
+		const textNodeWalker = svg.ownerDocument.createTreeWalker(
+			textElement,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		const computedStyleByElement = new WeakMap<Element, CSSStyleDeclaration>();
 		while (textNodeWalker.nextNode()) {
 			const text = textNodeWalker.currentNode.textContent ?? '';
@@ -309,12 +319,16 @@ export const insertFontStyleInSvg = (
 	}
 
 	// Carried fonts must not inherit an unrelated authored media restriction.
-	const media = style.getAttribute('media');
-	if (media && !svg.ownerDocument.defaultView!.matchMedia(media).matches) {
-		style.textContent = '';
-	}
+	const media = style
+		.getAttribute('media')
+		?.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+	if (media && media.toLowerCase() !== 'all') {
+		if (!svg.ownerDocument.defaultView!.matchMedia(media).matches) {
+			style.textContent = '';
+		}
 
-	style.removeAttribute('media');
+		style.removeAttribute('media');
+	}
 
 	// Keep authored @namespace/@import preambles ahead of carried rules.
 	style.textContent = (style.textContent ?? '') + '\n' + css;

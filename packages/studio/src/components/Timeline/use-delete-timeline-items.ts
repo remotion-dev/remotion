@@ -3,11 +3,8 @@ import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {
-	EditorShowGuidesContext,
-	persistGuidesList,
-} from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {useRemoveGuide} from '../EditorGuides/use-remove-guide';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useDeleteKeyframes} from './call-delete-keyframe';
 import {
@@ -37,17 +34,12 @@ export const useDeleteTimelineItems = () => {
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const deleteKeyframes = useDeleteKeyframes({notifyOnError: true});
-	const {setGuidesList} = useContext(EditorShowGuidesContext);
+	const removeGuide = useRemoveGuide();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 
 	return useCallback(
 		(selectedItemsOverride: readonly TimelineSelection[] | null) => {
-			if (previewServerState.type !== 'connected') {
-				return;
-			}
-
-			const {clientId} = previewServerState;
 			const {
 				selectedItems: currentSelectedItems,
 				clearSelection,
@@ -62,16 +54,15 @@ export const useDeleteTimelineItems = () => {
 
 			const selectedGuide = selectedItems.find((item) => item.type === 'guide');
 			if (selectedGuide) {
-				setGuidesList((prevGuides) => {
-					const newGuides = prevGuides.filter(
-						(guide) => guide.id !== selectedGuide.guideId,
-					);
-					persistGuidesList(newGuides);
-					return newGuides;
-				});
-				clearSelection();
+				removeGuide(selectedGuide.guideId);
 				return;
 			}
+
+			if (previewServerState.type !== 'connected') {
+				return;
+			}
+
+			const {clientId} = previewServerState;
 
 			const {tracks} = calculateTimeline({
 				sequences: sequencesRef.current,
@@ -167,7 +158,7 @@ export const useDeleteTimelineItems = () => {
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,
-			setGuidesList,
+			removeGuide,
 			setPropStatuses,
 		],
 	);

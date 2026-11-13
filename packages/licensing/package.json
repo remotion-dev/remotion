@@ -3,8 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.542",
-	"description": "Manage your Remotion.pro license",
+	"version": "4.0.543",
+	"description": "Manage your Remotion license",
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",

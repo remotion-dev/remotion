@@ -14,7 +14,7 @@ You can render a video as a GIF by:
 
 ## Reducing frame rate
 
-Commonly a GIF has a lower frame rate than a video. For this, we support a parameter `everyNthFrame` that works as follows:
+Commonly a GIF has a lower frame rate than a video. For this, Remotion supports a parameter `everyNthFrame` that works as follows:
 
 - By default, `everyNthFrame` is set to `1`: Frames `0`, `1`, `2`, `3`, `4` and so on are rendered.
 - Assuming `everyNthFrame` is `2`, only every 2nd frame is rendered: `0`, `2`, `4`, `6` and so on. A 30FPS video would now become a 15FPS GIF.
@@ -52,7 +52,7 @@ Wondering how to import other GIFs into a Remotion project? [See here.](/docs/gi
 
 ## Transparent GIFs
 
-To render a transparent GIF, the [`imageFormat`](/docs/renderer/render-media) option must be set to `"png"`. In the Remotion Studio, this can be set in the "Picture" tab.
+To render a transparent GIF, the [`imageFormat`](/docs/options/video-image-format) option must be set to `"png"`. In the Remotion Studio, this can be set in the "Picture" tab.
 
 ## See also
 

@@ -7,7 +7,7 @@ let multiProcessOnLinux = DEFAULT_VALUE;
 const cliFlag = 'enable-multiprocess-on-linux' as const;
 
 export const enableMultiprocessOnLinuxOption = {
-	name: 'Enable Multiprocess on Linux',
+	name: 'Enable multiprocess on Linux',
 	addedIn: '4.0.42',
 	cliFlag,
 	description: () => (

@@ -7,7 +7,7 @@ title: '<TransitionSeries>'
 
 import {TransitionsDuration} from '../../components/TransitionsDuration';
 
-# &lt;TransitionSeries&gt;<AvailableFrom v="4.0.59" />
+# &lt;TransitionSeries&gt;<AvailableFrom v="4.0.53" />
 
 The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for [`<TransitionSeries.Transition>`](#transitionseriestransition) and [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) components to be rendered between [`<TransitionSeries.Sequence>`](#transitionseriessequence) components.
 
@@ -16,7 +16,7 @@ Between any two sequences, you can place either a transition or an overlay:
 - A [`<TransitionSeries.Transition>`](#transitionseriestransition) crossfades, slides, or otherwise animates between two scenes.  
   It [shortens](#duration-of-a-transitionseries) the total duration because both scenes overlap during the transition.
 - A [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) renders children on top of the cut point without affecting timing.  
-  The sequences remain at full length — useful for effects like [light leaks](/docs/light-leaks/light-leak) or flashes.
+  The sequences remain at full length. This is useful for effects like [light leaks](/docs/effects/light-leak) or flashes.
 
 ### Transition example
 
@@ -52,13 +52,36 @@ export const TransitionExample: React.FC = () => {
 
 ### Overlay example<AvailableFrom v="4.0.415" />
 
+This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';
 const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
 
 // ---cut---
-import {LightLeak} from '@remotion/light-leaks';
+import {lightLeak} from '@remotion/effects/light-leak';
 import {TransitionSeries} from '@remotion/transitions';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const LightLeakOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      effects={[
+        lightLeak({
+          progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        }),
+      ]}
+    />
+  );
+};
 
 export const OverlayExample: React.FC = () => {
   return (
@@ -67,7 +90,7 @@ export const OverlayExample: React.FC = () => {
         <Fill color="blue" />
       </TransitionSeries.Sequence>
       <TransitionSeries.Overlay durationInFrames={20}>
-        <LightLeak />
+        <LightLeakOverlay />
       </TransitionSeries.Overlay>
       <TransitionSeries.Sequence durationInFrames={60}>
         <Fill color="black" />
@@ -83,7 +106,7 @@ export const OverlayExample: React.FC = () => {
 
 ### `<TransitionSeries>`
 
-Inherits the [`from`](/docs/sequence#from), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
 
 The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>`, `<TransitionSeries.Transition>`, and `<TransitionSeries.Overlay>` components.  
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
@@ -97,12 +120,14 @@ By default, the wrapper lasts until the end of its parent sequence or compositio
 
 ### `<TransitionSeries.Sequence>`
 
-Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`hidden`](/docs/sequence#hidden), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
 
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
 
-The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
+The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from v4.0.497.
+
+Also accepts an `offset?` prop, which works like [`<Series.Sequence offset>`](/docs/series#offset): a positive value delays the sequence, a negative value starts it earlier. Sequences that come after it are shifted too. Must be an integer. Default: `0`.
 
 As children, put the contents of your scene.
 
@@ -111,13 +136,18 @@ As children, put the contents of your scene.
 Placed between two sequences to animate from one scene to the next.  
 During the transition, both scenes are rendered simultaneously and the total duration is [shortened](#duration-of-a-transitionseries) by the transition length.
 
-Takes two props:
-
-- `timing`: A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
-- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
-
 Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
+
+Takes two props:
+
+#### `timing`
+
+A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
+
+#### `presentation?`
+
+A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 
@@ -127,10 +157,17 @@ The overlay does [not shorten](#duration-of-a-transitionseries) the timeline —
 The overlay is centered on the cut point by default: half the duration before the cut, half after.  
 Children animate independently — no progress context is provided.
 
-Takes two props:
+Takes the following props:
 
-- `durationInFrames`: How long the overlay is visible. Must be a positive integer.
-- `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+#### `durationInFrames`
+
+How long the overlay is visible. Must be a positive integer.
+
+#### `offset?`
+
+Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+
+Also inherits the [`hidden`](/docs/sequence#hidden), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) props from [`<Sequence>`](/docs/sequence).
 
 The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
 
@@ -227,12 +264,12 @@ const BasicTransition = () => {
 ```
 
 `A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.
-During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
+During this time, both scenes are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
 
 <details>
-<summary>Example with 3 slides</summary>
+<summary>Example with 3 scenes</summary>
 
 ```tsx twoslash title="SlideTransition.tsx"
 import {AbsoluteFill} from 'remotion';
@@ -291,24 +328,14 @@ const BasicTransition = () => {
 
 ## Getting the duration of a transition
 
-You can get the duration of a transition by calling `getDurationInFrames()` on the timing:
-
-```tsx twoslash title="Assuming a framerate of 30fps"
-import {springTiming} from '@remotion/transitions';
-
-springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
-```
+Call `getDurationInFrames({fps})` on the timing. See [Getting the duration of a timing](/docs/transitions/timings#getting-the-duration-of-a-timing).
 
 ## Rules
 
-<Step>1</Step> A transition must not be longer than the duration of the previous or next sequence.
-
-<Step>2</Step> Two transitions cannot be adjacent.
-
-<Step>3</Step> Two overlays cannot be adjacent.
-
-<Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.
-
+<Step>1</Step> A transition must not be longer than the duration of the previous or next sequence.<br />
+<Step>2</Step> Two transitions cannot be adjacent.<br />
+<Step>3</Step> Two overlays cannot be adjacent.<br />
+<Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.<br />
 <Step>5</Step> There must be at least one sequence before or after a transition or overlay.
 
 ## Compatibility

@@ -31,19 +31,19 @@ export const colorSpaceOption = {
 	description: () => (
 		<>
 			Color space to use for the video. Acceptable values:{' '}
-			<code>
-				{'"'}
-				{DEFAULT_COLOR_SPACE}
-				{'"'}
-			</code>
-			(default since 5.0),{' '}
 			{NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? (
-				<code>
-					{'"'}bt601{'"'}
-					{', '}
-				</code>
+				<>
+					<code>
+						{'"'}bt601{'"'}
+					</code>
+					,{' '}
+				</>
 			) : (
 				<>
+					<code>
+						{'"'}default{'"'}
+					</code>
+					,{' '}
 					<code>
 						{'"'}bt601{'"'}
 					</code>{' '}
@@ -52,20 +52,34 @@ export const colorSpaceOption = {
 						{'"'}default{'"'}
 					</code>
 					, since v4.0.424),{' '}
-					<code>
-						{'"'}bt709{'"'}
-					</code>{' '}
-					(since v4.0.28),{' '}
 				</>
 			)}
 			<code>
+				{'"'}bt709{'"'}
+			</code>{' '}
+			(since v4.0.28),{' '}
+			<code>
 				{'"'}bt2020-ncl{'"'}
 			</code>{' '}
-			(since v4.0.88),{' '}
+			(since v4.0.88).
+			<br />
+			Default:{' '}
 			<code>
-				{'"'}bt2020-cl{'"'}
-			</code>{' '}
-			(since v4.0.88), .<br />
+				{'"'}
+				{DEFAULT_COLOR_SPACE}
+				{'"'}
+			</code>
+			{NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? null : (
+				<>
+					{' '}
+					(
+					<code>
+						{'"'}bt709{'"'}
+					</code>{' '}
+					from Remotion 5.0)
+				</>
+			)}
+			.<br />
 			For best color accuracy, it is recommended to also use{' '}
 			<code>
 				{'"'}png{'"'}

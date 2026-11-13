@@ -6,14 +6,17 @@ let configuredEnableCrossSiteIsolation: boolean | null = null;
 const cliFlag = 'cross-site-isolation' as const;
 
 export const enableCrossSiteIsolationOption = {
-	name: 'Enable Cross-Site Isolation',
+	name: 'Enable cross-site isolation',
 	addedIn: '4.0.306',
 	cliFlag,
 	description: () => (
 		<>
 			Enable Cross-Site Isolation in the Studio (sets Cross-Origin-Opener-Policy
 			and Cross-Origin-Embedder-Policy HTTP headers, required for{' '}
-			<code>@remotion/whisper-web</code>).
+			<a href="/docs/whisper-web">
+				<code>@remotion/whisper-web</code>
+			</a>
+			).
 		</>
 	),
 	ssrName: null,

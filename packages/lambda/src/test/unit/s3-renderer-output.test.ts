@@ -144,3 +144,78 @@ test('S3 renderer output publishes media and artifacts before completion', async
 		await rm(directory, {recursive: true, force: true});
 	}
 });
+
+test('S3 renderer output still publishes completion after a progress write fails', async () => {
+	const memory = spyOn(
+		currentMemorySize,
+		'getCurrentMemorySizeInMb',
+	).mockReturnValue(4096);
+	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-output-'));
+	const statusWrites: Array<Record<string, unknown>> = [];
+	let statusAttempts = 0;
+	const write = spyOn(
+		writeFileModule,
+		'lambdaWriteFileImplementation',
+	).mockImplementation(async ({key, body}) => {
+		const bytes = await bodyToBytes(body as string | Uint8Array | Readable);
+		if (!key.endsWith('/status.json')) {
+			return;
+		}
+
+		statusAttempts++;
+		if (statusAttempts === 2) {
+			throw new Error('SlowDown: Please reduce your request rate.');
+		}
+
+		statusWrites.push(
+			JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>,
+		);
+	});
+	try {
+		const video = join(directory, 'video');
+		await writeFile(video, 'video-content');
+
+		const output = makeS3RendererOutput({
+			params: {
+				type: 'renderer',
+				output: {type: 'media'},
+				bucketName: 'bucket',
+				renderId: 'render-id',
+				chunk: 0,
+				attempt: 1,
+				forcePathStyle: false,
+				logLevel: 'error',
+			} as never,
+			expectedBucketOwner: 'owner',
+			region: 'eu-central-1',
+		});
+
+		await output.initialize();
+		await output.onStream({
+			type: 'frames-rendered',
+			payload: {rendered: 10, encoded: 10},
+		});
+		await output.onStream({
+			type: 'frames-rendered',
+			payload: {rendered: 20, encoded: 20},
+		});
+		await output.uploadMediaAndComplete({
+			videoOutputLocation: video,
+			audioOutputLocation: null,
+			isAudioOnly: false,
+			completedAt: 200,
+		});
+
+		expect(
+			statusWrites.map((status) => [status.state, status.renderedFrames]),
+		).toEqual([
+			['running', 0],
+			['running', 20],
+			['completed', 20],
+		]);
+	} finally {
+		write.mockRestore();
+		memory.mockRestore();
+		await rm(directory, {recursive: true, force: true});
+	}
+});

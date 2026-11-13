@@ -1,3 +1,5 @@
+import {getSharedWebGpuResources} from './shared-webgpu-resources.js';
+
 export type WebGpuSinglePassState = {
 	readonly context: GPUCanvasContext;
 	readonly label: string;
@@ -138,56 +140,70 @@ export const applyWebGpuSinglePass = (
 	if (!state.resources) {
 		const format = navigator.gpu.getPreferredCanvasFormat();
 		state.context.configure({device, format, alphaMode: 'premultiplied'});
-		const module = device.createShaderModule({
-			code: shader,
-			label: state.label,
-		});
-		// Keep the same binding contract even if a shader uses textureLoad or
-		// generates its pixels without sampling the source.
-		const bindGroupLayout = device.createBindGroupLayout({
-			entries: [
-				...(auxiliaryTexture
-					? [
-							{
-								binding: 3,
-								visibility: GPUShaderStage.FRAGMENT,
-								texture: {
-									sampleType:
-										auxiliaryTexture.format === 'rgba32float'
-											? ('unfilterable-float' as const)
-											: ('float' as const),
-								},
-							},
-						]
-					: []),
-				{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
-				{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
-				{
-					binding: 2,
-					visibility: GPUShaderStage.FRAGMENT,
-					buffer: {type: 'uniform'},
-				},
-			],
-		});
-		const pipeline = device.createRenderPipeline({
-			label: state.label,
-			layout: device.createPipelineLayout({
-				bindGroupLayouts: [bindGroupLayout],
-			}),
-			vertex: {module, entryPoint: 'vertex'},
-			fragment: {module, entryPoint: 'fragment', targets: [{format}]},
-			primitive: {topology: 'triangle-list'},
+		const shared = getSharedWebGpuResources({
+			device,
+			key: JSON.stringify([
+				'single-pass',
+				shader,
+				format,
+				sourceFilter,
+				auxiliaryTexture?.format ?? null,
+			]),
+			create: () => {
+				const module = device.createShaderModule({
+					code: shader,
+					label: state.label,
+				});
+				// Keep the same binding contract even if a shader uses textureLoad or
+				// generates its pixels without sampling the source.
+				const bindGroupLayout = device.createBindGroupLayout({
+					entries: [
+						...(auxiliaryTexture
+							? [
+									{
+										binding: 3,
+										visibility: GPUShaderStage.FRAGMENT,
+										texture: {
+											sampleType:
+												auxiliaryTexture.format === 'rgba32float'
+													? ('unfilterable-float' as const)
+													: ('float' as const),
+										},
+									},
+								]
+							: []),
+						{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
+						{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
+						{
+							binding: 2,
+							visibility: GPUShaderStage.FRAGMENT,
+							buffer: {type: 'uniform'},
+						},
+					],
+				});
+				const pipeline = device.createRenderPipeline({
+					label: state.label,
+					layout: device.createPipelineLayout({
+						bindGroupLayouts: [bindGroupLayout],
+					}),
+					vertex: {module, entryPoint: 'vertex'},
+					fragment: {module, entryPoint: 'fragment', targets: [{format}]},
+					primitive: {topology: 'triangle-list'},
+				});
+				const sampler = device.createSampler({
+					addressModeU: 'clamp-to-edge',
+					addressModeV: 'clamp-to-edge',
+					magFilter: sourceFilter,
+					minFilter: sourceFilter,
+				});
+				return {pipeline, sampler, bindGroupLayout};
+			},
 		});
 		const uniforms = device.createBuffer({
 			size: uniformBufferSize,
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
-		const sampler = device.createSampler({
-			addressModeU: 'clamp-to-edge',
-			addressModeV: 'clamp-to-edge',
-			magFilter: sourceFilter,
-			minFilter: sourceFilter,
-		});
+
 		const auxiliary = auxiliaryTexture
 			? {
 					texture: device.createTexture({
@@ -207,10 +223,10 @@ export const applyWebGpuSinglePass = (
 			uniformBufferSize,
 			sourceFilter,
 			auxiliary,
-			pipeline,
+			pipeline: shared.pipeline,
 			uniforms,
-			sampler,
-			bindGroupLayout,
+			sampler: shared.sampler,
+			bindGroupLayout: shared.bindGroupLayout,
 			source: null,
 		};
 	}

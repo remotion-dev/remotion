@@ -5,7 +5,7 @@ title: Calculating the duration of a composition automatically
 crumb: 'FAQ'
 ---
 
-It is currently **not supported** to derive the duration of a composition be from the content. The reason for it are the following:
+It is currently **not supported** to derive the duration of a composition from the content, for the following reasons:
 
 - **Not all compositions are finite:**  
   Here is an example of a component of which it is impossible to calculate the duration of:
@@ -43,7 +43,7 @@ It is currently **not supported** to derive the duration of a composition be fro
   A practical usecase of this is [to change the speed of a video over time](/docs/videos/accelerated-video).
 
 - **Remotion is only aware of the current frame:**  
-  Remotion does not see the component statically like we do as developers, instead it only renders it at a certain point in time. To reliably determine when a component stops rendering markup, Remotion would have to loop through all frames until the markup stops which could be an expensive operation.
+  Remotion does not see the component statically like developers do, instead it only renders it at a certain point in time. To reliably determine when a component stops rendering markup, Remotion would have to loop through all frames until the markup stops which could be an expensive operation.
 
 In summary, the dynamicity of React does not allow for a simple solution of deriving the duration reliably. We foresee that if a heuristic is used to determine the duration and it gets it wrong, it will lead to hard to debug cases.
 
