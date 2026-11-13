@@ -115,9 +115,11 @@ export const TableOfContents: React.FC = () => {
 				<strong>renameFolder()</strong>
 				<div>Renames a folder while keeping its contents.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/reorder-effect">
-				<strong>reorderEffect()</strong>
-				<div>Moves an effect to another index in the same effects array.</div>
+			<TOCItem link="/docs/codemods/reorder-effects">
+				<strong>reorderEffects()</strong>
+				<div>
+					Moves effects as one ordered group within the same effects array.
+				</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/reorder-nodes">
 				<strong>reorderNodes()</strong>
