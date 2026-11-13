@@ -2180,7 +2180,7 @@ export const Comp = () => (
 		],
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
-		fromIndex: 3,
+		fromIndices: [3],
 		toIndex: 0,
 		clientId: 'browser-studio',
 	});
@@ -2232,7 +2232,7 @@ export const Comp = () => (
 		await effects.reorderEffect({
 			fileName: 'src/Comp.tsx',
 			sequenceNodePath,
-			fromIndex: 0,
+			fromIndices: [0],
 			toIndex: 0,
 			clientId: 'browser-studio',
 		}),

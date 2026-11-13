@@ -14,11 +14,7 @@ import {
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import {AvailableFrom} from '../../src/components/AvailableFrom';
-import {
-	DebugOption,
-	RectEdgeRoundness,
-	TriangleEdgeRoundness,
-} from './edge-roundness';
+import {RectEdgeRoundness, TriangleEdgeRoundness} from './edge-roundness';
 
 type Param = {
 	name: string;
@@ -501,6 +497,12 @@ const globalParams: Param[] = [
 		),
 	},
 	{
+		name: 'debug',
+		type: 'boolean',
+		description:
+			'If enabled, draws the lines for Bézier curves. This is meant for debugging, note that the visuals may change in any version.',
+	},
+	{
 		name: 'effects',
 		type: 'EffectsProp',
 		description: (
@@ -570,12 +572,6 @@ export const ShapeOptions: React.FC<{
 			})}
 			{shapeComponent.shape === 'Rect' ? <RectEdgeRoundness /> : null}
 			{shapeComponent.shape === 'Triangle' ? <TriangleEdgeRoundness /> : null}
-			{all &&
-			(shapeComponent.shape === 'Rect' ||
-				shapeComponent.shape === 'Callout' ||
-				shapeComponent.shape === 'Triangle') ? (
-				<DebugOption />
-			) : null}
 			{all ? (
 				<>
 					<h3>
@@ -661,8 +657,7 @@ export const ShapeOptions: React.FC<{
 
 export const MakeShapeReturnType: React.FC<{
 	readonly shape: string;
-	readonly includeComponentLink?: boolean;
-}> = ({shape, includeComponentLink = true}) => {
+}> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
 	);
@@ -709,23 +704,15 @@ export const MakeShapeReturnType: React.FC<{
 				A string representing the point of origin if a shape should be rotated
 				around itself.
 			</p>
-			{includeComponentLink ? (
-				<p>
-					If you want to rotate the shape around its center, use the{' '}
-					<code>transform-origin</code> CSS property and pass this value, and
-					also add <code>transform-box: fill-box</code>. This is the default for{' '}
-					<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
-						<code>{`<${shapeComponent.shape} />`}</code>
-					</a>
-					.
-				</p>
-			) : (
-				<p>
-					If you want to rotate the shape around its center, use the{' '}
-					<code>transform-origin</code> CSS property and pass this value, and
-					also add <code>transform-box: fill-box</code>.
-				</p>
-			)}
+			<p>
+				If you want to rotate the shape around its center, use the{' '}
+				<code>transform-origin</code> CSS property and pass this value, and also
+				add <code>transform-box: fill-box</code>. This is the default for{' '}
+				<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
+					<code>{`<${shapeComponent.shape} />`}</code>
+				</a>
+				.
+			</p>
 		</div>
 	);
 };

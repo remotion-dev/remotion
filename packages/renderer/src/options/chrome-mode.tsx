@@ -13,7 +13,7 @@ let configSelection: ChromeMode | null = null;
 
 export const chromeModeOption = {
 	cliFlag,
-	name: 'Chrome Mode',
+	name: 'Chrome mode',
 	addedIn: '4.0.248',
 	ssrName: 'chromeMode',
 	description: () => {

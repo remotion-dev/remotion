@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {reorderEffect} from '../effect-operations';
+import {reorderEffects} from '../effect-operations';
 import {lineColumnToNodePath} from './node-path-test-utils';
 
 const buildInput = (
@@ -18,58 +18,58 @@ export const Comp = () => {
 };
 `;
 
-test('reorderEffect moves an effect forward', async () => {
+test('reorderEffects moves effects forward', () => {
 	const input = buildInput(
 		'[blur({amount: 1}), brightness({amount: 2}), tint({color: "red"})]',
 	);
-	const {output, effectLabel} = await reorderEffect({
+	const {output, effectLabel} = reorderEffects({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 8),
-		fromIndex: 0,
-		toIndex: 2,
+		fromIndices: [1, 0],
+		toIndex: 1,
 	});
 
-	expect(effectLabel).toBe('blur()');
-	expect(output.indexOf('brightness({')).toBeLessThan(output.indexOf('tint({'));
-	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('blur({'));
-});
-
-test('reorderEffect moves an effect backward', async () => {
-	const input = buildInput(
-		'[blur({amount: 1}), brightness({amount: 2}), tint({color: "red"})]',
-	);
-	const {output, effectLabel} = await reorderEffect({
-		input,
-		sequenceNodePath: lineColumnToNodePath(input, 8),
-		fromIndex: 2,
-		toIndex: 0,
-	});
-
-	expect(effectLabel).toBe('tint()');
+	expect(effectLabel).toBe('blur(), brightness()');
 	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('blur({'));
 	expect(output.indexOf('blur({')).toBeLessThan(output.indexOf('brightness({'));
 });
 
-test('reorderEffect throws when source index is out of range', async () => {
-	const input = buildInput('[tint({color: "red"})]');
-	await expect(
-		reorderEffect({
-			input,
-			sequenceNodePath: lineColumnToNodePath(input, 8),
-			fromIndex: 4,
-			toIndex: 0,
-		}),
-	).rejects.toThrow(/source index not-found/);
+test('reorderEffects moves effects backward', () => {
+	const input = buildInput(
+		'[blur({amount: 1}), brightness({amount: 2}), tint({color: "red"})]',
+	);
+	const {output, effectLabel} = reorderEffects({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, 8),
+		fromIndices: [2, 1],
+		toIndex: 0,
+	});
+
+	expect(effectLabel).toBe('brightness(), tint()');
+	expect(output.indexOf('brightness({')).toBeLessThan(output.indexOf('tint({'));
+	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('blur({'));
 });
 
-test('reorderEffect throws when effects are not an inline array', async () => {
-	const input = buildInput('effects');
-	await expect(
-		reorderEffect({
+test('reorderEffects throws when source index is out of range', () => {
+	const input = buildInput('[tint({color: "red"})]');
+	expect(() =>
+		reorderEffects({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
-			fromIndex: 0,
+			fromIndices: [4],
 			toIndex: 0,
 		}),
-	).rejects.toThrow(/not an array/);
+	).toThrow(/source index not-found/);
+});
+
+test('reorderEffects throws when effects are not an inline array', () => {
+	const input = buildInput('effects');
+	expect(() =>
+		reorderEffects({
+			input,
+			sequenceNodePath: lineColumnToNodePath(input, 8),
+			fromIndices: [0],
+			toIndex: 0,
+		}),
+	).toThrow(/not an array/);
 });

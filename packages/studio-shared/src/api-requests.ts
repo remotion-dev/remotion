@@ -754,7 +754,7 @@ export type ReorderEffectRequest = {
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
-	fromIndex: number;
+	fromIndices: readonly number[];
 	toIndex: number;
 	clientId: string;
 };
