@@ -22,12 +22,8 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
 
   return (
     <AbsoluteFill>
-      <AbsoluteFill>
-        <Word stroke enterProgress={enter} text={text} />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <Word enterProgress={enter} text={text} stroke={false} />
-      </AbsoluteFill>
+      <Word stroke enterProgress={enter} text={text} />
+      <Word enterProgress={enter} text={text} stroke={false} />
     </AbsoluteFill>
   );
 };
