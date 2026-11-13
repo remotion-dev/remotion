@@ -27,7 +27,12 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 		for (const frame of [0, 2, 3]) {
 			references.push(
 				await captureNativeReference(
-					queuedFrameCapture({variant: 'batch'}),
+					queuedFrameCapture({
+						variant: 'batch',
+						hold: null,
+						onMount: null,
+						onUnmount: null,
+					}),
 					frame,
 					{omitBackground: false},
 				),
@@ -35,12 +40,22 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 		}
 
 		const queuedReference = await captureNativeReference(
-			queuedFrameCapture({variant: 'queued'}),
+			queuedFrameCapture({
+				variant: 'queued',
+				hold: null,
+				onMount: null,
+				onUnmount: null,
+			}),
 			1,
 			{omitBackground: false},
 		);
 		const stillReference = await captureNativeReference(
-			queuedFrameCapture({variant: 'still'}),
+			queuedFrameCapture({
+				variant: 'still',
+				hold: null,
+				onMount: null,
+				onUnmount: null,
+			}),
 			4,
 			{omitBackground: false},
 		);
@@ -67,6 +82,7 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 			signal: controller.signal,
 			composition: queuedFrameCapture({
 				variant: 'queued',
+				hold: null,
 				onMount: () => events.push('queued mounted'),
 				onUnmount: () => events.push('queued unmounted'),
 			}),
@@ -82,6 +98,7 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 			frame: 4,
 			composition: queuedFrameCapture({
 				variant: 'still',
+				hold: null,
 				onMount: () => events.push('still mounted'),
 				onUnmount: () => events.push('still unmounted'),
 			}),
@@ -146,7 +163,12 @@ test.for([{abortQueued: false}, {abortQueued: true}])(
 
 test('aborting an active batch releases its turn without changing the next capture', async () => {
 	const reference = await captureNativeReference(
-		queuedFrameCapture({variant: 'still'}),
+		queuedFrameCapture({
+			variant: 'still',
+			hold: null,
+			onMount: null,
+			onUnmount: null,
+		}),
 		4,
 		{omitBackground: false},
 	);
@@ -161,6 +183,7 @@ test('aborting an active batch releases its turn without changing the next captu
 		composition: queuedFrameCapture({
 			variant: 'batch',
 			hold: {frame: 3, promise: hold.promise, onStarted: started.release},
+			onMount: null,
 			onUnmount: () => events.push('batch unmounted'),
 		}),
 	});
@@ -172,6 +195,7 @@ test('aborting an active batch releases its turn without changing the next captu
 		frame: 4,
 		composition: queuedFrameCapture({
 			variant: 'still',
+			hold: null,
 			onMount: () => events.push('still mounted'),
 			onUnmount: () => events.push('still unmounted'),
 		}),

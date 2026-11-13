@@ -8,9 +8,9 @@ export const queuedFrameCapture = ({
 	onUnmount,
 }: {
 	variant: 'batch' | 'still' | 'queued';
-	hold?: {frame: number; promise: Promise<void>; onStarted: () => void};
-	onMount?: () => void;
-	onUnmount?: () => void;
+	hold: {frame: number; promise: Promise<void>; onStarted: () => void} | null;
+	onMount: (() => void) | null;
+	onUnmount: (() => void) | null;
 }) => {
 	const Component = () => {
 		const frame = useCurrentFrame();
@@ -64,4 +64,9 @@ export const queuedFrameCapture = ({
 	} as const;
 };
 
-export const queuedFrameCapturePreview = queuedFrameCapture({variant: 'batch'});
+export const queuedFrameCapturePreview = queuedFrameCapture({
+	variant: 'batch',
+	hold: null,
+	onMount: null,
+	onUnmount: null,
+});
