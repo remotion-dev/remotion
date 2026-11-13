@@ -96,8 +96,8 @@ export const getExpectedVersion = ({
 
 	// Remotion-patched builds get their own cache marker so an existing stock or
 	// older patched download of the same Chromium version is replaced once.
-	// Remotion builds include the v3 shared-memory patch; Google's CDN builds
-	// are stock Chromium.
+	// Amazon Linux still uses v3 until its binaries are published. Other Remotion
+	// builds include the v4 capture patch; Google's CDN builds are stock Chromium.
 	const downloadUrl = getChromeDownloadUrl({
 		platform,
 		version: null,
@@ -107,7 +107,8 @@ export const getExpectedVersion = ({
 		chromeMode === 'headless-shell' &&
 		downloadUrl.startsWith('https://remotion.media/')
 	) {
-		return `${TESTED_VERSION}-remotion-v3`;
+		const patchVersion = downloadUrl.endsWith('-v4.zip?clear') ? 'v4' : 'v3';
+		return `${TESTED_VERSION}-remotion-${patchVersion}`;
 	}
 
 	return TESTED_VERSION;

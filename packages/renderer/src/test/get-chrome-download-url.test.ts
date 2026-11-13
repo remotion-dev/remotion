@@ -15,7 +15,7 @@ test('downloads the Remotion Chromium fork by default on Apple Silicon', () => {
 			chromeMode: 'headless-shell',
 		}),
 	).toBe(
-		`https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`,
+		`https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}-v4.zip?clear`,
 	);
 });
 
@@ -50,7 +50,7 @@ test('uses a distinct cache marker for the Remotion Apple Silicon build', () => 
 			version: null,
 			chromeMode: 'headless-shell',
 		}),
-	).toBe(`${TESTED_VERSION}-remotion-v3`);
+	).toBe(`${TESTED_VERSION}-remotion-v4`);
 	expect(
 		getExpectedVersion({
 			platform: 'mac-arm64',
@@ -65,8 +65,10 @@ test('uses a distinct cache marker for the Remotion Apple Silicon build', () => 
 			chromeMode: 'headless-shell',
 		}),
 	).toBe(
-		canUseRemotionMediaBinaries() || isAmazonLinux2023()
+		isAmazonLinux2023()
 			? `${TESTED_VERSION}-remotion-v3`
-			: TESTED_VERSION,
+			: canUseRemotionMediaBinaries()
+				? `${TESTED_VERSION}-remotion-v4`
+				: TESTED_VERSION,
 	);
 });
