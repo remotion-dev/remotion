@@ -79,6 +79,7 @@ test.each(['Player', 'Thumbnail'] as const)(
 			) : (
 				<Thumbnail
 					{...config}
+					frameToDisplay={0}
 					component={CaptureContexts}
 					inputProps={{ready}}
 					errorFallback={fallback}
