@@ -65,9 +65,10 @@ test.for(
 		const nativeControl = await captureNativeReference(control, frame, {
 			omitBackground: false,
 		});
-		expect(
-			(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
-		).toBe(0);
+		const nativeComparison = await compareNativePixels(
+			reference,
+			nativeControl,
+		);
 		const used =
 			mode === 'pattern' ||
 			mode === 'mask' ||
@@ -114,17 +115,38 @@ test.for(
 					await renderStillOnWeb({...options, composition: control})
 				).blob({format: 'png'});
 				const comparison = await compareNativePixels(expected, actual);
-				if (comparison.evidence && mode === 'filter-image') {
+				const evidence = comparison.evidence ?? nativeComparison.evidence;
+				if (evidence && mode === 'filter-image') {
+					for (const [name, blob] of [
+						['renderer-url', actual],
+						['renderer-data', expected],
+					] as const) {
+						let binary = '';
+						for (const byte of new Uint8Array(await blob.arrayBuffer()))
+							binary += String.fromCharCode(byte);
+						await server.commands.writeFile(
+							`${evidence}/${name}.png`,
+							btoa(binary),
+							'base64',
+						);
+					}
+
 					await server.commands.writeFile(
-						`${comparison.evidence}/serialized-svg.json`,
+						`${evidence}/serialized-svg.json`,
 						JSON.stringify(
-							{actualSvg, expectedSvg: serialized.at(-1) ?? null},
+							{
+								actualSvg,
+								expectedSvg: serialized.at(-1) ?? null,
+								nativeMismatchedPixels: nativeComparison.mismatchedPixels,
+								rendererMismatchedPixels: comparison.mismatchedPixels,
+							},
 							null,
 							2,
 						),
 					);
 				}
 
+				expect(nativeComparison.mismatchedPixels).toBe(0);
 				expect(comparison.mismatchedPixels).toBe(0);
 				if (!used || t.task.file.projectName === 'chromium')
 					expect(
