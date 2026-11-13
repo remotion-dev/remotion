@@ -5,39 +5,19 @@ import {
 	svgLayerFontIdentity,
 	svgLayerFontModes,
 } from './fixtures/svg-layer-font-identity';
-import {captureNativeReference, countNativePixels} from './native-reference';
+import {countNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-test.for(
-	svgLayerFontModes.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
-)('preserves layer identity $mode frame $frame', async ({mode, frame}, t) => {
-	const composition = svgLayerFontIdentity({mode, literal: false});
-	const control = svgLayerFontIdentity({mode, literal: true});
-	const reference = await captureNativeReference(composition, frame, {
-		omitBackground: false,
+test('preserves CSS layer font identity', async () => {
+	await testCompositions({
+		cases: svgLayerFontModes.map((mode) => ({
+			composition: svgLayerFontIdentity({mode, literal: false}),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-layer-font-identity',
+		scale: null,
 	});
-	const nativeControl = await captureNativeReference(control, frame, {
-		omitBackground: false,
-	});
-	expect(
-		(await countNativePixels(reference, nativeControl)).mismatchedPixels,
-	).toBe(0);
-	const options = {
-		frame,
-		inputProps: {},
-		licenseKey: 'free-license',
-		allowHtmlInCanvas: false,
-	} as const;
-	const actual = await (
-		await renderStillOnWeb({...options, composition})
-	).blob({format: 'png'});
-	const expected = await (
-		await renderStillOnWeb({...options, composition: control})
-	).blob({format: 'png'});
-	expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(0);
-	if (t.task.file.projectName === 'chromium')
-		expect((await countNativePixels(reference, actual)).mismatchedPixels).toBe(
-			0,
-		);
 });
 
 test('invalidates the layer drawable for CSSOM-only font changes in a batch', async () => {

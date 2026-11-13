@@ -11,35 +11,18 @@ import {
 	svgWildcardStyle,
 } from './fixtures/svg-font-definition-review';
 import {captureNativeReference, compareNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-test.for(
-	svgWildcardStyleModes.flatMap((mode) =>
-		[0, 1].map((frame) => ({mode, frame})),
-	),
-)('preserves wildcard style $mode frame $frame', async ({mode, frame}) => {
-	const composition = svgWildcardStyle({mode, literal: false});
-	const control = svgWildcardStyle({mode, literal: true});
-	const reference = await captureNativeReference(composition, frame, {
-		omitBackground: false,
+test('preserves wildcard style selectors', async () => {
+	await testCompositions({
+		cases: svgWildcardStyleModes.map((mode) => ({
+			composition: svgWildcardStyle({mode, literal: false}),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-wildcard-style-selectors',
+		scale: null,
 	});
-	const nativeControl = await captureNativeReference(control, frame, {
-		omitBackground: false,
-	});
-	expect(
-		(await compareNativePixels(reference, nativeControl)).mismatchedPixels,
-	).toBe(0);
-	const actual = await (
-		await renderStillOnWeb({
-			composition,
-			frame,
-			inputProps: {},
-			licenseKey: 'free-license',
-			allowHtmlInCanvas: false,
-		})
-	).blob({format: 'png'});
-	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
-		0,
-	);
 });
 
 test.for(

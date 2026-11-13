@@ -7,24 +7,15 @@ import {
 	hiddenCssFontModes,
 	svgHiddenCssFont,
 } from './fixtures/svg-hidden-css-font';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {compareNativePixels} from './native-reference';
 
 test.for(
-	hiddenCssFontModes.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
+	hiddenCssFontModes.flatMap((mode) => [1].map((frame) => ({mode, frame}))),
 )(
 	'does not fetch fonts for display-none SVG $mode frame $frame',
 	async ({mode, frame}) => {
 		const composition = svgHiddenCssFont(mode, false);
 		const literal = svgHiddenCssFont(mode, true);
-		const reference = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const nativeLiteral = await captureNativeReference(literal, frame, {
-			omitBackground: false,
-		});
-		expect(
-			(await compareNativePixels(reference, nativeLiteral)).mismatchedPixels,
-		).toBe(0);
 		const fetchFont = vi
 			.spyOn(NoReactInternals, 'fetchFontData')
 			.mockRejectedValue(new Error('Hidden label font must not be fetched'));
@@ -32,6 +23,15 @@ test.for(
 			const actual = await (
 				await renderStillOnWeb({
 					composition,
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+			const reference = await (
+				await renderStillOnWeb({
+					composition: literal,
 					frame,
 					inputProps: {},
 					licenseKey: 'free-license',

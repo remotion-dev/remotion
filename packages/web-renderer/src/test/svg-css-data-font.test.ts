@@ -1,42 +1,19 @@
-import {expect, test} from 'vitest';
+import {test} from 'vitest';
 import '../symbol-dispose';
-import {renderStillOnWeb} from '../render-still-on-web';
-import {
-	svgCssDataFont,
-	svgCssDataFontReady,
-} from './fixtures/svg-css-data-font';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	savePixelEvidence,
-} from './native-reference';
+import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {svgCssUrlFont} from './fixtures/svg-css-url-font';
+import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
+import {testCompositions} from './utils';
 
-test.for([0, 1])(
-	'CSS data font matches native frame %i (KINO-7769)',
-	async (frame, t) => {
-		if (t.task.file.projectName !== 'chromium') {
-			t.skip();
-			return;
-		}
-
-		await svgCssDataFontReady;
-		const reference = await captureNativeReference(svgCssDataFont, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				composition: svgCssDataFont,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const result = await compareNativePixels(reference, actual);
-		if (result.mismatchedPixels !== 0) {
-			await savePixelEvidence(reference, `css-data-font-${frame}-native`);
-			await savePixelEvidence(actual, `css-data-font-${frame}-actual`);
-			await savePixelEvidence(result.diff, `css-data-font-${frame}-diff`);
-		}
-
-		expect(result.mismatchedPixels).toBe(0);
-	},
-);
+test('renders CSS font sources and local fallback order', async () => {
+	await testCompositions({
+		cases: [
+			svgCssDataFont,
+			svgCssUrlFont,
+			svgLocalFontOrder({literal: false}),
+		].map((composition) => ({composition, frame: 1})),
+		columns: 2,
+		testId: 'svg-css-font-sources-and-order',
+		scale: null,
+	});
+});

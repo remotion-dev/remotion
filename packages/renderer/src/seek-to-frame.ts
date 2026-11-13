@@ -69,7 +69,7 @@ export const waitForReady = ({
 			browser: page.browser,
 			// Increase timeout so the delayRender() timeout fires earlier
 			timeout: timeoutInMilliseconds + 3000,
-			pageFunction: `window.remotion_renderReady === true ? "${readyToken}" : window.remotion_cancelledError !== undefined ? "${cancelledToken}" : false`,
+			pageFunction: `window.remotion_cancelledError !== undefined ? "${cancelledToken}" : window.remotion_renderReady === true ? "${readyToken}" : false`,
 			title:
 				frame === null
 					? 'the page to render the React component'
