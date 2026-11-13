@@ -17,6 +17,7 @@ test('easing segments connect adjacent display keyframes', () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 
 	expect(getKeyframeSegments(getTimelineKeyframes(status, 30))).toEqual([

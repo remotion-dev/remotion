@@ -20,6 +20,7 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 	const computedStatus: CanUpdateSequencePropStatus = {status: 'computed'};
 
@@ -75,6 +76,7 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 	const computedStatus: CanUpdateSequencePropStatus = {status: 'computed'};
 

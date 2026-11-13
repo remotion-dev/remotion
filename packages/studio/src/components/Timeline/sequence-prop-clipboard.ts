@@ -44,6 +44,7 @@ export const propStatusToClipboardParam = (
 		...(prop.output === undefined || prop.output === 'linear'
 			? {}
 			: {output: prop.output}),
+		...(prop.overlap === 'compress' ? {overlap: 'compress' as const} : {}),
 		...(prop.posterize === undefined ? {} : {posterize: prop.posterize}),
 	};
 };

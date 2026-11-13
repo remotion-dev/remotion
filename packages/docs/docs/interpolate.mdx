@@ -348,6 +348,41 @@ Accepts `'font-weight'`, `'scale'`, `'translate'`, `'rotate'`, or `'transform-or
 Font weight keywords are only supported when this option is set to `'font-weight'`.
 Translate, rotate, and transform origin output ranges must use strings with the appropriate CSS units.
 
+### overlap?<AvailableFrom v="4.0.544" />
+
+_Default_: `'throw'`
+
+Controls what happens when the `inputRange` is not strictly increasing.
+
+With `'throw'`, `interpolate()` throws an error.
+
+With `'compress'`, the first and last values of the `inputRange` stay in place.
+Every segment that moves forward is shortened by the same factor so that all of them fit between the first and last value.
+Segments that move backward or have zero length are collapsed.
+
+This is useful for an input range that combines values measured from the start and values measured from the end of the sequence.
+If the sequence is shorter than the enter and exit animations, the animations play faster instead of throwing an error.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const frame = useCurrentFrame();
+const {durationInFrames} = useVideoConfig();
+const opacity = interpolate(
+  frame,
+  [0, 48, durationInFrames - 49, durationInFrames - 1],
+  [0, 1, 1, 0],
+  {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    overlap: 'compress',
+  },
+);
+```
+
+For a sequence with 60 frames, the `inputRange` is `[0, 48, 11, 59]`.
+It is resolved to approximately `[0, 29.5, 29.5, 59]`: the fade in and fade out both play, and the hold between them is skipped.
+
 ### posterize?<AvailableFrom v="4.0.470" />
 
 _Default_: no posterization

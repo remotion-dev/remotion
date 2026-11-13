@@ -1,3 +1,4 @@
+import {resolveInterpolateInputRange} from './interpolate.js';
 import type {
 	CanUpdateSequencePropSource,
 	CanUpdateSequencePropStatus,
@@ -113,9 +114,15 @@ export const evaluateSourcePropStatuses = (
 					];
 				}
 
-				const keyframes = status.keyframes.map((keyframe) => ({
+				const evaluatedFrames = resolveInterpolateInputRange(
+					status.keyframes.map((keyframe) =>
+						evaluateSourceNumericValue(keyframe.frame, config),
+					),
+					status.overlap ?? undefined,
+				);
+				const keyframes = status.keyframes.map((keyframe, index) => ({
 					...keyframe,
-					frame: evaluateSourceNumericValue(keyframe.frame, config),
+					frame: evaluatedFrames[index],
 				}));
 				if (
 					keyframes.some(

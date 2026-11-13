@@ -46,6 +46,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 						],
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						overlap: 'compress',
 					},
 				)}
 				name="Name bar"
@@ -80,6 +81,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 						],
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						overlap: 'compress',
 					},
 				)}
 				name="Title bar"

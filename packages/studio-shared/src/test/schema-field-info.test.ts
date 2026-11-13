@@ -108,6 +108,7 @@ const getBorderRadiusFields = (
 				clamping: {left: 'extend'; right: 'extend'};
 				posterize: undefined;
 				output: undefined;
+				overlap: null;
 		  }
 	>,
 ) =>
@@ -502,6 +503,7 @@ test('getFieldsToShow selects one border radius representation', () => {
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 				output: undefined,
+				overlap: null,
 			},
 		}),
 	).toEqual(['style.borderRadius']);
