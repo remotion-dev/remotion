@@ -45,9 +45,23 @@ crumb: '@remotion/my-package'
 - **Do not bold terms**: Write terms as plain text, code spans, or links as appropriate. Do not use bold formatting to introduce a term.
 - **Avoid emotions**: Remove filler like "Great! Let's move on..." - it adds no information.
 - **Separate into paragraphs**: Break up long sections.
-- **Address as "you"**: Not "we".
 - **Don't blame the user**: Say "The input is invalid" not "You provided wrong input".
 - **Don't assume it's easy**: Avoid "simply" and "just" - beginners may struggle.
+
+## Voice: "we" and "you"
+
+A reader of a guide or an example hasn't decided to do anything yet. Don't assign them an intent, an action or knowledge with "you".
+
+- **Describe examples and code by what they do.** Make the example, the code or the value the subject.
+  - Bad: "In this example, you are interpolating colors. At frame 0, you want the color to be red."
+  - Good: "This example interpolates colors. At frame 0, the color should be red."
+  - Bad: "Add `userSelect: 'none'` to disable selection." (explaining code that is already shown)
+  - Good: "`userSelect: 'none'` disables selection."
+- **Use the imperative for steps the reader is actively following**, such as "Click **Render**" or "Run `npx remotion lambda sites create`".
+- **Use "you" for the reader's real options, choices and situation**: "Allows you to…", "If you want to…", "You can use any web framework…", "your project".
+- **Don't tell the reader what they want, need or know**: write "it is not needed" or "requires some code", not "you don't need it" or "you need to write some code".
+- **Use "we" for the Remotion team**: recommendations ("We recommend…"), plans, hopes, and what the team does to the product ("As we test it, we might change the API"). Prefer this over passive voice ("This issue is hoped to be fixed soon") or "Remotion recommends".
+- **Use "Let's" only to open a guided walkthrough**, such as "Let's build the demo above.", not as filler.
 
 ## Code snippets
 
