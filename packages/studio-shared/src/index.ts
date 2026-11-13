@@ -3,6 +3,7 @@ export type {
 	SourceMutationGuard,
 } from './source-file-version';
 export {getConflictingOutputPaths} from './get-conflicting-output-paths';
+export {getOpenTimelineFrameRate} from './get-open-timeline-frame-rate';
 export {
 	getPortableDownloadFilename,
 	validateStudioArtifactFilename,

@@ -18,6 +18,7 @@ import {
 	detectFileType,
 	type PrepareOpenTimelineImportRequest,
 } from '@remotion/studio-shared';
+import {getOpenTimelineMediaDimensions} from './get-open-timeline-media-dimensions';
 import {getOpenTimelineMediaRange} from './get-open-timeline-media-range';
 
 export const prepareOpenTimelineImport = async ({
@@ -26,12 +27,17 @@ export const prepareOpenTimelineImport = async ({
 	remotionRoot,
 	binariesDirectory,
 }: {
-	request: PrepareOpenTimelineImportRequest;
+	request: Omit<PrepareOpenTimelineImportRequest, 'width' | 'height'> & {
+		width: number | null;
+		height: number | null;
+	};
 	publicDir: string;
 	remotionRoot: string;
 	binariesDirectory: string | null;
 }) => {
 	const copies = new Map<string, {source: string; destination: string}>();
+	let {width, height} = request;
+	let firstVisualSource: string | null = null;
 	const resolved = new Map<string, ReturnType<OpenTimelineMediaResolver>>();
 	const sequences = new Map<string, string>();
 	const mediaToProbe = new Map<
@@ -132,8 +138,12 @@ export const prepareOpenTimelineImport = async ({
 		const cached = resolved.get(options.path);
 		if (cached !== undefined) return cached;
 		const {reference, targetUrl, trackKind} = options;
-		if (targetUrl === null || /^(https?:|data:|blob:)/i.test(targetUrl))
+		if (targetUrl === null) return null;
+		if (/^(https?:|data:|blob:)/i.test(targetUrl)) {
+			if (trackKind === 'Video') firstVisualSource ??= targetUrl;
 			return null;
+		}
+
 		if (
 			!['ExternalReference.1', 'ImageSequenceReference.1'].includes(
 				String(reference.OTIO_SCHEMA),
@@ -224,6 +234,7 @@ export const prepareOpenTimelineImport = async ({
 				const file = realpathSync(path.join(source, name));
 				if (inspectFile(file) !== 'image')
 					throw new Error(`Image sequence frame is not a still image: ${file}`);
+				if (trackKind === 'Video') firstVisualSource ??= file;
 				if (publicPathFor(source) === null) {
 					const output = path.join(publicDir, sequenceDestination, name);
 					copies.set(output, {source: file, destination: output});
@@ -235,6 +246,7 @@ export const prepareOpenTimelineImport = async ({
 		}
 
 		const kind = inspectFile(source);
+		if (trackKind === 'Video' && kind !== 'audio') firstVisualSource ??= source;
 		const existing = [...copies.values()].find(
 			(copy) => copy.source === source,
 		);
@@ -287,8 +299,8 @@ export const prepareOpenTimelineImport = async ({
 			timeline,
 			componentName: request.componentName,
 			fps: request.fps,
-			width: request.width,
-			height: request.height,
+			width: width ?? 1,
+			height: height ?? 1,
 			resolveMedia,
 		});
 	let result = generate();
@@ -327,6 +339,29 @@ export const prepareOpenTimelineImport = async ({
 				return range ? {...value, available_range: range} : value;
 			}),
 		);
+		result = generate();
+	}
+
+	if ((width === null || height === null) && result.source !== null) {
+		if (firstVisualSource === null) {
+			throw new Error(
+				'Cannot infer dimensions without a video or image clip. Pass --width and --height.',
+			);
+		}
+
+		try {
+			const dimensions = await getOpenTimelineMediaDimensions({
+				src: firstVisualSource,
+				binariesDirectory,
+			});
+			width ??= dimensions.width;
+			height ??= dimensions.height;
+		} catch (error) {
+			throw new Error(
+				`Could not infer timeline dimensions: ${(error as Error).message}. Pass --width and --height.`,
+			);
+		}
+
 		result = generate();
 	}
 
