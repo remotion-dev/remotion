@@ -42,11 +42,43 @@ for (const overviewFirst of [true, false]) {
 				);
 				const toc = path.join(root, 'docs', 'table-of-contents.tsx');
 				writeFileSync(toc, '<TOCItem link="/docs/method" />');
+				const inventory = [
+					...(overviewFirst ? [overview, api] : [api, overview]).map(
+						(name) => name + '.mdx',
+					),
+					'guide.mdx',
+					'method.mdx',
+					'table-of-contents.tsx',
+				];
+				const preload = path.join(root, 'inventory.ts');
+				writeFileSync(
+					preload,
+					`import fs from 'node:fs';
+const read = fs.readdirSync;
+const order = ${JSON.stringify(inventory)};
+fs.readdirSync = (directory, options) => {
+ const entries = read(directory, options);
+ if (fs.realpathSync(String(directory)) === fs.realpathSync(${JSON.stringify(path.join(root, 'docs'))})) {
+  entries.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+  console.log('inventory:' + JSON.stringify(entries.map(entry => entry.name)));
+ }
+ return entries;
+};`,
+				);
 				const run = () =>
 					Bun.spawnSync({
-						cmd: [process.execPath, path.join(root, 'check-toc-sync.ts')],
+						cmd: [
+							process.execPath,
+							'--preload',
+							preload,
+							path.join(root, 'check-toc-sync.ts'),
+						],
 					});
-				expect(run().exitCode).toBe(0);
+				const complete = run();
+				expect(complete.stdout.toString()).toContain(
+					'inventory:' + JSON.stringify(inventory),
+				);
+				expect(complete.exitCode).toBe(0);
 
 				// A genuine missing API entry must still fail the same checker.
 				writeFileSync(toc, '<TOCItem link="/docs/guide" />');
