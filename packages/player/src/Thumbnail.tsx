@@ -137,11 +137,18 @@ const ThumbnailFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
-	const Component = Internals.useLazyComponent({
+	const {
+		component: resolvedComponent,
+		renderingOwner,
+		isReplacingComponent,
+	} = Internals.useLazyComponentWithOwner({
 		compProps: componentProps,
 		componentName: 'Thumbnail',
 		noSuspense: Boolean(noSuspense),
-	}) as LazyExoticComponent<ComponentType<unknown>>;
+	});
+	const Component = resolvedComponent as LazyExoticComponent<
+		ComponentType<unknown>
+	>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 
@@ -176,11 +183,8 @@ const ThumbnailFn = <
 							ref={rootRef}
 							className={className}
 							errorFallback={errorFallback}
-							renderingOwner={
-								('component' in componentProps
-									? componentProps.component
-									: componentProps.lazyComponent) ?? null
-							}
+							renderingOwner={renderingOwner}
+							isReplacingComponent={isReplacingComponent}
 							inputProps={passedInputProps}
 							renderLoading={renderLoading}
 							style={style}

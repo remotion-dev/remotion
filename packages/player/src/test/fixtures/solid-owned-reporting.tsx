@@ -239,6 +239,7 @@ const main = async () => {
 				<React.StrictMode>
 					<React.Activity mode={hidden ? 'hidden' : 'visible'}>
 						<ErrorBoundary
+							isReplacingComponent={false}
 							renderingOwner={owner}
 							onError={(error: Error) => reports.push(error)}
 							errorFallback={fallback}
@@ -326,6 +327,7 @@ const main = async () => {
 				const secondOwner = {};
 				const scene = (fail: boolean, owner: object) => (
 					<ErrorBoundary
+						isReplacingComponent={false}
 						onError={(error: Error) => reports.push(error)}
 						renderingOwner={owner}
 						errorFallback={fallback}

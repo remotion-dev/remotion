@@ -33,7 +33,7 @@ const createComponentWrapper = <Props>(
 };
 
 // Expected, it can be any component props
-export const useLazyComponent = <Props>({
+const useLazyComponentWithStore = <Props>({
 	compProps,
 	componentName,
 	noSuspense,
@@ -41,7 +41,7 @@ export const useLazyComponent = <Props>({
 	compProps: CompProps<Props>;
 	componentName: string;
 	noSuspense: boolean;
-}): LazyExoticComponent<ComponentType<Props>> | ComponentType<Props> => {
+}) => {
 	// Why a store + stable wrapper instead of returning compProps.component directly?
 	//
 	// When a user edits their component and saves, React Fast Refresh re-executes
@@ -135,8 +135,54 @@ export const useLazyComponent = <Props>({
 		'component' in compProps &&
 		(typeof document === 'undefined' || noSuspense)
 	) {
-		return compProps.component as ComponentType<Props>;
+		return {
+			component: compProps.component as ComponentType<Props>,
+			componentStore,
+			usesCommittedComponent: false,
+			renderingOwner: compProps.component ?? null,
+		};
 	}
 
-	return lazy;
+	return {
+		component: lazy,
+		componentStore,
+		usesCommittedComponent: 'component' in compProps,
+		renderingOwner: lazyComponentFromProps ?? null,
+	};
+};
+
+type LazyComponentOptions<Props> = {
+	compProps: CompProps<Props>;
+	componentName: string;
+	noSuspense: boolean;
+};
+
+export const useLazyComponent = <Props>(
+	options: LazyComponentOptions<Props>,
+): LazyExoticComponent<ComponentType<Props>> | ComponentType<Props> => {
+	return useLazyComponentWithStore(options).component;
+};
+
+// Player cancellation must rotate with the implementation the stable wrapper
+// actually renders, rather than the requested prop before commit publication.
+export const useLazyComponentWithOwner = <Props>(
+	options: LazyComponentOptions<Props>,
+) => {
+	const result = useLazyComponentWithStore(options);
+	const committedComponent = useSyncExternalStore(
+		result.componentStore.subscribe,
+		result.componentStore.getSnapshot,
+		result.componentStore.getSnapshot,
+	);
+	const renderingOwner = result.usesCommittedComponent
+		? committedComponent
+		: result.renderingOwner;
+	return {
+		component: result.component,
+		renderingOwner,
+		isReplacingComponent:
+			result.usesCommittedComponent &&
+			'component' in options.compProps &&
+			!Object.is(committedComponent, options.compProps.component),
+	};
 };

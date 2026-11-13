@@ -25,9 +25,11 @@ type CancellationOwner = {
 const AsyncRenderErrorScope = ({
 	children,
 	renderingOwner,
+	isReplacingComponent,
 }: {
 	readonly children: React.ReactNode;
 	readonly renderingOwner: object | null;
+	readonly isReplacingComponent: boolean;
 }) => {
 	const [failure, setFailure] = useState<{
 		owner: CancellationOwner;
@@ -79,7 +81,12 @@ const AsyncRenderErrorScope = ({
 		setOwner(createOwner());
 	}
 
-	if (failure?.owner === owner && failure.generation === owner.generation)
+	if (
+		!isReplacingComponent &&
+		Object.is(owner.renderingOwner, renderingOwner) &&
+		failure?.owner === owner &&
+		failure.generation === owner.generation
+	)
 		throw failure.error;
 	return (
 		<Internals.CancelRenderContext.Provider value={owner.onCancel}>
@@ -92,6 +99,7 @@ export class ErrorBoundary extends React.Component<
 	{
 		onError: (error: Error) => void;
 		renderingOwner: object | null;
+		isReplacingComponent: boolean;
 		children: React.ReactNode;
 		errorFallback: (info: {error: Error}) => React.ReactNode;
 	},
@@ -120,7 +128,10 @@ export class ErrorBoundary extends React.Component<
 		}
 
 		return (
-			<AsyncRenderErrorScope renderingOwner={this.props.renderingOwner}>
+			<AsyncRenderErrorScope
+				renderingOwner={this.props.renderingOwner}
+				isReplacingComponent={this.props.isReplacingComponent}
+			>
 				{this.props.children}
 			</AsyncRenderErrorScope>
 		);

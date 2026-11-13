@@ -294,7 +294,10 @@ import {
 	CancelRenderContext,
 	DelayRenderContextType,
 } from './use-delay-render.js';
-import {useLazyComponent} from './use-lazy-component.js';
+import {
+	useLazyComponent,
+	useLazyComponentWithOwner,
+} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
@@ -471,6 +474,7 @@ export const Internals = {
 	usePlayerMutedState,
 	useMediaInTimeline,
 	useLazyComponent,
+	useLazyComponentWithOwner,
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,

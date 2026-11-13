@@ -206,6 +206,7 @@ test('owner replacement preserves mounted content while expiring old cancellatio
 	const onError = (error: Error) => reported.push(error);
 	const view = render(
 		<ErrorBoundary
+			isReplacingComponent={false}
 			renderingOwner={{}}
 			onError={onError}
 			errorFallback={fallback}
@@ -217,6 +218,7 @@ test('owner replacement preserves mounted content while expiring old cancellatio
 	const element = view.getByText('retained composition');
 	view.rerender(
 		<ErrorBoundary
+			isReplacingComponent={false}
 			renderingOwner={{}}
 			onError={onError}
 			errorFallback={fallback}
@@ -252,6 +254,7 @@ test('multiple cancellations reject individually while the owner reports its fir
 	const second = new Error('second failure');
 	const view = render(
 		<ErrorBoundary
+			isReplacingComponent={false}
 			renderingOwner={null}
 			onError={(error) => reported.push(error)}
 			errorFallback={fallback}

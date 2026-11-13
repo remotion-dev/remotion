@@ -35,6 +35,7 @@ test('a queued failure cannot prevent a batched owner replacement', async () => 
 		replace = () => setOwner({});
 		return (
 			<ErrorBoundary
+				isReplacingComponent={false}
 				renderingOwner={owner}
 				onError={(error) => errors.push(error)}
 				errorFallback={fallback}
@@ -117,4 +118,40 @@ for (const actor of ['Player', 'Thumbnail'] as const) {
 			expect(view.getByRole('alert').textContent).toBe(error.message);
 		});
 	}
+}
+
+for (const actor of ['Player', 'Thumbnail'] as const) {
+	test(`${actor} commits a replacement when the old error notification is already queued`, async () => {
+		let old!: Controls;
+		let replace!: () => void;
+		const A = () => {
+			old = useDelayRender();
+			return <span>retiring composition</span>;
+		};
+		const B = () => <span>batched replacement</span>;
+		const Parent = () => {
+			const [replacement, setReplacement] = useState(false);
+			replace = () => setReplacement(true);
+			const component = replacement ? B : A;
+			return actor === 'Player' ? (
+				<Player {...config} component={component} errorFallback={fallback} />
+			) : (
+				<Thumbnail
+					{...config}
+					component={component}
+					frameToDisplay={0}
+					errorFallback={fallback}
+				/>
+			);
+		};
+		const view = render(<Parent />);
+		await act(async () => {
+			const error = new Error('queued retired failure');
+			expect(() => old.cancelRender(error)).toThrow(error);
+			await Promise.resolve();
+			replace();
+		});
+		expect(view.queryByRole('alert')).toBeNull();
+		expect(view.getByText('batched replacement')).toBeTruthy();
+	});
 }

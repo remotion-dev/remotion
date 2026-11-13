@@ -82,6 +82,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly spaceKeyToPlayOrPause: boolean;
 		readonly errorFallback: ErrorFallback;
 		readonly renderingOwner: object | null;
+		readonly isReplacingComponent: boolean;
 		readonly playbackRate: number;
 		readonly renderLoading: RenderLoading | undefined;
 		readonly renderPoster: RenderPoster | undefined;
@@ -122,6 +123,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		renderingOwner,
+		isReplacingComponent,
 		playbackRate,
 		renderLoading,
 		renderPoster,
@@ -688,6 +690,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 							onError={onError}
 							errorFallback={errorFallback}
 							renderingOwner={renderingOwner}
+							isReplacingComponent={isReplacingComponent}
 						>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
 								<CanvasOverlayContext.Provider value={null}>

@@ -39,6 +39,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		readonly style?: React.CSSProperties;
 		readonly errorFallback: ErrorFallback;
 		readonly renderingOwner: object | null;
+		readonly isReplacingComponent: boolean;
 		readonly renderLoading: RenderLoading | undefined;
 		readonly className: string | undefined;
 		readonly overflowVisible: boolean;
@@ -51,6 +52,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		inputProps,
 		errorFallback,
 		renderingOwner,
+		isReplacingComponent,
 		renderLoading,
 		className,
 		overflowVisible,
@@ -158,6 +160,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 						onError={onError}
 						errorFallback={errorFallback}
 						renderingOwner={renderingOwner}
+						isReplacingComponent={isReplacingComponent}
 					>
 						<Internals.CurrentScaleContext.Provider value={currentScaleContext}>
 							<VideoComponent
