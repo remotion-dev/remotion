@@ -43,7 +43,7 @@ const fixture = () => {
 	const fonts = Object.assign(new EventTarget(), {
 		status: 'loaded',
 		ready: Promise.resolve(),
-		check: () => true,
+		check: (): boolean => true,
 		[Symbol.iterator]: () => faces[Symbol.iterator](),
 		add: (face: FontFace) => {
 			faces.add(face);
@@ -373,12 +373,35 @@ test('invalidates sample order and never caches unresolved or ambiguous data', (
 	f.clean();
 });
 
-test('does not cache unsettled or changing source font state', () => {
+test('selects loaded source queries while unrelated fonts are loading', () => {
 	const f = fixture();
 	f.owner.fonts.status = 'loading';
-	expect(f.run().reason).toBe('Source font set is not settled.');
-	expect(f.counts()).toEqual({constructors: 0, readbacks: 0});
+	const {ready} = f.owner.fonts;
+	expect(f.run()).toEqual({matches: ['1'], reason: null});
+	expect(f.owner.fonts.status).toBe('loading');
+	expect(f.owner.fonts.ready).toBe(ready);
+	f.clean();
+	const before = f.counts();
 	f.owner.fonts.status = 'loaded';
+	expect(f.run()).toEqual({matches: ['1'], reason: null});
+	expect(f.counts()).toEqual({
+		constructors: before.constructors + 2,
+		readbacks: before.readbacks + 3,
+	});
+	f.clean();
+});
+
+test('does not probe an unloaded source query while other fonts are loading', () => {
+	const f = fixture();
+	f.owner.fonts.status = 'loading';
+	f.owner.fonts.check = () => false;
+	expect(f.run().reason).toContain('Source font query is not loaded');
+	expect(f.counts()).toEqual({constructors: 0, readbacks: 0});
+	f.clean();
+});
+
+test('does not cache changing source font state', () => {
+	const f = fixture();
 	f.reenter(() => {
 		f.original.weight = '500';
 	});

@@ -163,8 +163,8 @@ export const fingerprintCssFontGroups = (
 	groups: Group[],
 ): Result => {
 	const ownerWindow = ownerDocument.defaultView;
-	if (!ownerWindow || ownerDocument.fonts.status !== 'loaded')
-		return {matches: [], reason: 'Source font set is not settled.'};
+	if (!ownerWindow)
+		return {matches: [], reason: 'Source document has no window.'};
 	if (!samples.length || samples.some((sample) => !sample.text.trim()))
 		return {matches: [], reason: 'No distinguishing rendered text.'};
 	for (const sample of samples) {
