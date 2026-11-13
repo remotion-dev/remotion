@@ -33,6 +33,7 @@ for (const mode of [
 			expect(result.stderr).toContain('authored CanvasImage onError throw');
 			return;
 		}
+
 		if (result.status !== 0)
 			throw new Error(
 				`Isolated ${mode} failed: ${result.stderr}\n${result.stdout}`,

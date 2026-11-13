@@ -17,6 +17,7 @@ const main = async () => {
 		constructor() {
 			images.push(this);
 		}
+
 		decode() {
 			return Promise.resolve();
 		}
@@ -65,6 +66,7 @@ const main = async () => {
 			throw authoredError;
 		}
 	};
+
 	const Content = ({src}: {readonly src: string}) => (
 		<CanvasImage
 			src={src}
@@ -92,9 +94,9 @@ const main = async () => {
 	);
 	const scene = (src: string) => (
 		<Player
+			ref={listen}
 			{...config}
 			component={Content}
-			ref={listen}
 			inputProps={{src}}
 			errorFallback={fallback}
 		/>
@@ -103,6 +105,7 @@ const main = async () => {
 		await Promise.resolve();
 		await new Promise<void>((resolveTick) => setTimeout(resolveTick, 0));
 	};
+
 	try {
 		const view = render(scene(firstSrc));
 		await act(flush);
@@ -182,6 +185,7 @@ const main = async () => {
 				throw new Error('Unknown CanvasImage mode');
 			view.unmount();
 		}
+
 		if (
 			(window.remotion_delayRenderHandles ?? []).length !== 0 ||
 			window.remotion_cancelledErrorObject !== undefined
@@ -206,6 +210,7 @@ const main = async () => {
 		mock.restore();
 	}
 };
+
 main().catch((error: unknown) => {
 	process.stderr.write(String(error) + '\n');
 	process.exitCode = 1;
