@@ -887,6 +887,8 @@ for (const behavior of [
 	'resized',
 	'replaced-paint',
 	'replaced-init',
+	'replaced-init-late-success',
+	'replaced-init-late-reject',
 	'unmounted',
 	'unowned',
 	'success',
@@ -955,6 +957,16 @@ for (const behavior of [
 			);
 			const siblingHandle = siblingControls.delayRender('unrelated sibling');
 			let owner = 0;
+			let initializationCalls = 0;
+			let replacementPaintCalls = 0;
+			const resources = new Set<number>();
+			const initializationCleanups: number[] = [];
+			const initialization = behavior.startsWith('replaced-init');
+			const lateInitialization = behavior.startsWith('replaced-init-late');
+			let releaseReplacementPaint!: () => void;
+			const replacementPaint = new Promise<void>((resolve) => {
+				releaseReplacementPaint = resolve;
+			});
 			const originalOwner = (error: Error) => {
 				if (owner === 0) reported.push(error);
 			};
@@ -976,14 +988,29 @@ for (const behavior of [
 								width={width}
 								height={50}
 								onInit={
-									behavior === 'replaced-init'
+									initialization
 										? async () => {
-												if (owner === 0) await paint;
-												return () => undefined;
+												const initializingOwner = owner;
+												initializationCalls++;
+												if (initializingOwner === 0) await paint;
+												resources.add(initializingOwner);
+												return () => {
+													initializationCleanups.push(initializingOwner);
+													resources.delete(initializingOwner);
+												};
 											}
 										: undefined
 								}
-								onPaint={() => (owner === 0 ? paint : undefined)}
+								onPaint={() => {
+									if (initialization && owner === 1)
+										expect(resources.has(1)).toBe(true);
+									if (lateInitialization && owner === 1) {
+										replacementPaintCalls++;
+										return replacementPaint;
+									}
+
+									return owner === 0 ? paint : undefined;
+								}}
 							>
 								<div>paint</div>
 							</HtmlInCanvas>
@@ -1008,8 +1035,7 @@ for (const behavior of [
 				listener.call(canvas, new Event('paint'));
 			if (behavior === 'unmounted') view.unmount();
 			if (behavior === 'resized') view.rerender(scene(51));
-			const replaced =
-				behavior === 'replaced-paint' || behavior === 'replaced-init';
+			const replaced = behavior === 'replaced-paint' || initialization;
 			if (replaced) {
 				expect(scope.remotion_delayRenderHandles.length).toBeGreaterThan(1);
 				const transfers = transferControlToOffscreenCalls;
@@ -1025,11 +1051,19 @@ for (const behavior of [
 				expect(scope.remotion_delayRenderHandles).toContain(siblingHandle);
 			}
 
+			if (lateInitialization) {
+				canvas.dispatchEvent(new Event('paint'));
+				await waitFor(() => expect(initializationCalls).toBe(2));
+				await waitFor(() => expect(replacementPaintCalls).toBe(1));
+				expect(resources.has(1)).toBe(true);
+			}
+
 			const pendingHandles = scope.remotion_delayRenderHandles.length;
-			if (behavior === 'success') resolvePaint!();
+			if (behavior === 'success' || behavior === 'replaced-init-late-success')
+				resolvePaint!();
 			else rejectPaint!(failure);
 			const rejection = await pending;
-			expect(closes).toBe(1);
+			expect(closes).toBe(lateInitialization ? 2 : 1);
 			if (behavior === 'unowned') {
 				expect(rejection).toBe(failure);
 				expect(scope.remotion_cancelledErrorObject).toBe(failure);
@@ -1051,10 +1085,22 @@ for (const behavior of [
 				expect(scope.remotion_renderReady).toBe(false);
 			}
 
+			if (lateInitialization) {
+				expect(resources.has(1)).toBe(true);
+				expect(resources.has(0)).toBe(false);
+				expect(initializationCleanups).toEqual(
+					behavior === 'replaced-init-late-success' ? [0] : [],
+				);
+				expect(scope.remotion_delayRenderHandles.length).toBe(pendingHandles);
+				canvas.dispatchEvent(new Event('paint'));
+				expect(replacementPaintCalls).toBe(1);
+				releaseReplacementPaint();
+			}
+
 			if (replaced) {
 				// The replacement may allocate its own initial-paint hold. Complete
 				// that healthy paint without releasing another component's hold.
-				canvas.dispatchEvent(new Event('paint'));
+				if (!lateInitialization) canvas.dispatchEvent(new Event('paint'));
 				await waitFor(() =>
 					expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]),
 				);
@@ -1063,6 +1109,13 @@ for (const behavior of [
 			if (behavior === 'success' || replaced)
 				expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			view.unmount();
+			if (initialization) {
+				expect(initializationCalls).toBe(2);
+				expect(initializationCleanups).toEqual(
+					behavior === 'replaced-init-late-success' ? [0, 1] : [1],
+				);
+			}
+
 			expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
 			expect(scope.remotion_renderReady).toBe(false);
 			siblingControls.continueRender(siblingHandle);

@@ -624,24 +624,47 @@ const HtmlInCanvasContent = forwardRef<
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
 		const pendingPaintReleases = useRef(new Set<() => void>());
-		useLayoutEffect(() => {
-			const paintReleases = pendingPaintReleases.current;
-			return () => {
-				// Content may stay mounted when its cancellation owner is replaced.
-				// Retire only this component's holds in their allocating scope.
-				for (const release of paintReleases) release();
-			};
-		}, [reportRenderError]);
+		const paintOwnerRef = useRef({reportRenderError, retired: false});
+		const initializingOwnerRef = useRef<typeof paintOwnerRef.current | null>(
+			null,
+		);
 		const effectScratchCanvasesRef = useRef<{
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
 		} | null>(null);
 		const resizeSnapshotRef = useRef<HTMLCanvasElement | null>(null);
 		const paintingTargets = useRef(
-			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
+			new WeakMap<
+				HtmlInCanvasPaintTarget,
+				{repaint: boolean; owner: typeof paintOwnerRef.current}
+			>(),
 		);
 
+		useLayoutEffect(() => {
+			const owner = {reportRenderError, retired: false};
+			paintOwnerRef.current = owner;
+			const paintReleases = pendingPaintReleases.current;
+			const paintTargets = paintingTargets.current;
+			return () => {
+				owner.retired = true;
+				if (initializingOwnerRef.current === owner) {
+					initializingOwnerRef.current = null;
+					initializedSizeRef.current = null;
+				}
+
+				for (const release of paintReleases) release();
+				const target = paintTargetRef.current;
+				if (target && paintTargets.get(target)?.owner === owner)
+					paintTargets.delete(target);
+			};
+		}, [reportRenderError]);
+
 		const onPaintCb = useCallback(async () => {
+			const owner = paintOwnerRef.current;
+			if (owner.retired || owner.reportRenderError !== reportRenderError)
+				return;
+			const isCurrentOwner = () =>
+				paintOwnerRef.current === owner && !owner.retired;
 			if (isRendering && paintState.pendingChildren > 0) {
 				return;
 			}
@@ -669,7 +692,7 @@ const HtmlInCanvasContent = forwardRef<
 				return;
 			}
 
-			const painting = {repaint: false};
+			const painting = {repaint: false, owner};
 			if (serializePaint) {
 				paintingTargets.current.set(paintTarget, painting);
 			}
@@ -746,6 +769,7 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
+							initializingOwnerRef.current = owner;
 							const cleanup = await currentOnInit({
 								canvas: paintTarget,
 								element,
@@ -759,12 +783,17 @@ const HtmlInCanvasContent = forwardRef<
 							}
 
 							if (
+								!isCurrentOwner() ||
 								unmountedRef.current ||
 								paintTargetRef.current !== paintTarget ||
 								committedCanvasSizeRef.current !== canvasSizeKey
 							) {
 								cleanup();
-								if (paintTargetRef.current === paintTarget) {
+								if (
+									initializingOwnerRef.current === owner &&
+									paintTargetRef.current === paintTarget
+								) {
+									initializingOwnerRef.current = null;
 									initializedSizeRef.current = null;
 								}
 
@@ -773,6 +802,7 @@ const HtmlInCanvasContent = forwardRef<
 								return;
 							}
 
+							initializingOwnerRef.current = null;
 							onInitCleanupRef.current = cleanup;
 						} finally {
 							initImage.close();
@@ -820,7 +850,10 @@ const HtmlInCanvasContent = forwardRef<
 							await paintResult;
 						}
 
-						if (committedCanvasSizeRef.current !== canvasSizeKey) {
+						if (
+							!isCurrentOwner() ||
+							committedCanvasSizeRef.current !== canvasSizeKey
+						) {
 							painting.repaint = true;
 							releasePaint();
 							return;
@@ -899,6 +932,11 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				if (!isCurrentOwner()) {
+					releasePaint();
+					return;
+				}
+
 				if (
 					paintTargetMode === 'copied' &&
 					paintTargetRef.current === paintTarget &&
@@ -921,7 +959,11 @@ const HtmlInCanvasContent = forwardRef<
 				canReleasePaint = true;
 				releasePaint();
 			} catch (error) {
-				if (unmountedRef.current || paintTargetRef.current !== paintTarget) {
+				if (
+					!isCurrentOwner() ||
+					unmountedRef.current ||
+					paintTargetRef.current !== paintTarget
+				) {
 					releasePaint();
 				} else {
 					reportRenderError(error);
@@ -929,6 +971,7 @@ const HtmlInCanvasContent = forwardRef<
 			} finally {
 				if (
 					canReleasePaint &&
+					isCurrentOwner() &&
 					paintState.pendingChildren === 0 &&
 					paintState.generation === childrenGeneration
 				) {
@@ -938,8 +981,13 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				releaseAncestor?.();
-				paintingTargets.current.delete(paintTarget);
-				if (painting.repaint && paintTargetRef.current === paintTarget) {
+				if (paintingTargets.current.get(paintTarget) === painting)
+					paintingTargets.current.delete(paintTarget);
+				if (
+					isCurrentOwner() &&
+					painting.repaint &&
+					paintTargetRef.current === paintTarget
+				) {
 					canvas2dRef.current?.requestPaint?.();
 				}
 			}
