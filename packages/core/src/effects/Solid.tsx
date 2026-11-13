@@ -33,7 +33,7 @@ import type {RuntimeValueStore} from '../runtime-value-store.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
-import {useDelayRender} from '../use-delay-render.js';
+import {useDelayRender, useReportRenderError} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import type {VideoConfigValues} from '../video-config.js';
@@ -150,6 +150,7 @@ const SolidInner: React.FC<
 	canvasProps,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const reportRenderError = useReportRenderError();
 
 	const resolvedPixelDensity = resolveSolidPixelDensity(pixelDensity);
 	const canvasWidth = Math.ceil(width * resolvedPixelDensity);
@@ -215,6 +216,8 @@ const SolidInner: React.FC<
 			return;
 		}
 
+		let cancelled = false;
+
 		ctx.clearRect(0, 0, 1, 1);
 		if (color !== undefined) {
 			ctx.fillStyle = color;
@@ -230,15 +233,16 @@ const SolidInner: React.FC<
 			height: canvasHeight,
 		})
 			.then((completed) => {
-				if (completed) {
+				if (completed && !cancelled) {
 					continueRender(handle);
 				}
 			})
 			.catch((err) => {
-				cancelRender(err);
+				if (!cancelled) reportRenderError(err);
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(handle);
 		};
 	}, [
@@ -251,6 +255,7 @@ const SolidInner: React.FC<
 		delayRender,
 		continueRender,
 		cancelRender,
+		reportRenderError,
 		memoizedEffects,
 	]);
 

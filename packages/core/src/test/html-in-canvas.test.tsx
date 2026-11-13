@@ -880,3 +880,155 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 		w.remotion_cancelledError = undefined;
 	}
 });
+
+for (const behavior of [
+	'owned',
+	'resized',
+	'unmounted',
+	'unowned',
+	'success',
+] as const) {
+	test(`<HtmlInCanvas> terminal paint reporting: ${behavior}`, async () => {
+		const scope: DelayRenderScope = {
+			remotion_renderReady: true,
+			remotion_delayRenderHandles: [],
+			remotion_delayRenderTimeouts: {},
+			remotion_puppeteerTimeout: 30000,
+			remotion_attempt: 1,
+		};
+		const failure = new Error('controlled HtmlInCanvas paint failure');
+		const reported: Error[] = [];
+		const paintListeners: EventListener[] = [];
+		const previousAdd = Object.getOwnPropertyDescriptor(
+			HTMLCanvasElement.prototype,
+			'addEventListener',
+		);
+		const previousCapture = Object.getOwnPropertyDescriptor(
+			HTMLCanvasElement.prototype,
+			'captureElementImage',
+		);
+		const originalAdd = HTMLCanvasElement.prototype.addEventListener;
+		let closes = 0;
+		let rejectPaint: ((error: Error) => void) | null = null;
+		let resolvePaint: (() => void) | null = null;
+		const paint = new Promise<void>((resolve, reject) => {
+			resolvePaint = resolve;
+			rejectPaint = reject;
+		});
+		Object.defineProperty(HTMLCanvasElement.prototype, 'addEventListener', {
+			configurable: true,
+			value(
+				this: HTMLCanvasElement,
+				type: string,
+				listener: EventListenerOrEventListenerObject,
+				options?: boolean | AddEventListenerOptions,
+			) {
+				if (type === 'paint' && typeof listener === 'function')
+					paintListeners.push(listener);
+				return originalAdd.call(this, type, listener, options);
+			},
+		});
+		Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+			configurable: true,
+			value: () => ({
+				width: 1,
+				height: 1,
+				close: () => {
+					closes++;
+				},
+			}),
+		});
+		try {
+			const scene = (width: number) => (
+				<Internals.DelayRenderContextType.Provider value={scope}>
+					<Internals.CancelRenderContext.Provider
+						value={
+							behavior === 'unowned'
+								? null
+								: (error) => {
+										reported.push(error);
+									}
+						}
+					>
+						<SequenceTestWrapper onRegisterSequence={() => undefined}>
+							<HtmlInCanvas width={width} height={50} onPaint={() => paint}>
+								<div>paint</div>
+							</HtmlInCanvas>
+						</SequenceTestWrapper>
+					</Internals.CancelRenderContext.Provider>
+				</Internals.DelayRenderContextType.Provider>
+			);
+			const view = render(scene(50));
+			const canvas = view.container.querySelector('canvas')!;
+			expect(paintListeners.length).toBeGreaterThanOrEqual(2);
+			// Await the actual registered async paint callback; DOM dispatch does not expose its Promise.
+			const pending = (
+				paintListeners[0]!.call(
+					canvas,
+					new Event('paint'),
+				) as unknown as Promise<void>
+			).then(
+				() => null,
+				(error: unknown) => error,
+			);
+			for (const listener of paintListeners.slice(1))
+				listener.call(canvas, new Event('paint'));
+			if (behavior === 'unmounted') view.unmount();
+			if (behavior === 'resized') view.rerender(scene(51));
+			const pendingHandles = scope.remotion_delayRenderHandles.length;
+			if (behavior === 'success') resolvePaint!();
+			else rejectPaint!(failure);
+			const rejection = await pending;
+			expect(closes).toBe(1);
+			if (behavior === 'unowned') {
+				expect(rejection).toBe(failure);
+				expect(scope.remotion_cancelledErrorObject).toBe(failure);
+				expect(scope.remotion_cancelledError).toContain(failure.message);
+			} else {
+				expect(rejection).toBeNull();
+				expect(reported).toEqual(
+					behavior === 'owned' || behavior === 'resized' ? [failure] : [],
+				);
+				expect(scope.remotion_cancelledError).toBeUndefined();
+			}
+
+			if (
+				behavior === 'owned' ||
+				behavior === 'resized' ||
+				behavior === 'unowned'
+			) {
+				expect(scope.remotion_delayRenderHandles.length).toBe(pendingHandles);
+				expect(scope.remotion_renderReady).toBe(false);
+			}
+
+			if (behavior === 'success')
+				expect(scope.remotion_delayRenderHandles).toEqual([]);
+			view.unmount();
+			if (behavior === 'success' || behavior === 'unmounted')
+				expect(scope.remotion_delayRenderHandles).toEqual([]);
+		} finally {
+			cleanup();
+			if (previousAdd)
+				Object.defineProperty(
+					HTMLCanvasElement.prototype,
+					'addEventListener',
+					previousAdd,
+				);
+			else
+				Reflect.deleteProperty(HTMLCanvasElement.prototype, 'addEventListener');
+			if (previousCapture)
+				Object.defineProperty(
+					HTMLCanvasElement.prototype,
+					'captureElementImage',
+					previousCapture,
+				);
+			else
+				Reflect.deleteProperty(
+					HTMLCanvasElement.prototype,
+					'captureElementImage',
+				);
+			for (const item of Object.values(scope.remotion_delayRenderTimeouts))
+				clearTimeout(item.timeout);
+		}
+	});
+}

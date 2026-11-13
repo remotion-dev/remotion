@@ -171,7 +171,7 @@ export const delayRenderInternal = ({
 				scope.remotion_cancelledErrorObject = error;
 				scope.remotion_cancelledError = getErrorStackWithMessage(error);
 			} else {
-				cancelRenderInternal(scope, Error(message));
+				cancelRenderInternal(scope, Error(message), null);
 			}
 		};
 
@@ -287,7 +287,10 @@ export const continueRenderInternal = ({
 		(h) => h !== handle,
 	);
 
-	if (scope.remotion_delayRenderHandles.length === 0) {
+	if (
+		scope.remotion_delayRenderHandles.length === 0 &&
+		scope.remotion_cancelledError === undefined
+	) {
 		scope.remotion_renderReady = true;
 	}
 };

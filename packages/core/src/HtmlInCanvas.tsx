@@ -40,7 +40,7 @@ import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {useDelayRender} from './use-delay-render.js';
+import {useDelayRender, useReportRenderError} from './use-delay-render.js';
 import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -528,6 +528,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasSizeKey = `${canvasWidth}x${canvasHeight}@${resolvedPixelDensity}`;
 		const committedCanvasSizeRef = useRef(canvasSizeKey);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const reportRenderError = useReportRenderError();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -674,6 +675,7 @@ const HtmlInCanvasContent = forwardRef<
 				? ancestorPaintState?.blockPaint()
 				: null;
 			let canReleasePaint = false;
+			let handle: number | null = null;
 			try {
 				const placeholderCanvas = canvas2dRef.current;
 				if (!placeholderCanvas) {
@@ -681,7 +683,7 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				const outputCanvas = outputCanvasRef.current;
-				const handle = delayRender('onPaint');
+				handle = delayRender('onPaint');
 				if (initializedSizeRef.current !== canvasSizeKey) {
 					onInitCleanupRef.current?.();
 					onInitCleanupRef.current = null;
@@ -898,7 +900,11 @@ const HtmlInCanvasContent = forwardRef<
 				canReleasePaint = true;
 				continueRender(handle);
 			} catch (error) {
-				cancelRender(error);
+				if (unmountedRef.current || paintTargetRef.current !== paintTarget) {
+					if (handle !== null) continueRender(handle);
+				} else {
+					reportRenderError(error);
+				}
 			} finally {
 				if (
 					canReleasePaint &&
@@ -922,7 +928,7 @@ const HtmlInCanvasContent = forwardRef<
 			canvasSizeKey,
 			chainState,
 			continueRender,
-			cancelRender,
+			reportRenderError,
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
