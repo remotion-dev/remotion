@@ -3,6 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/animation-utils"
 	},
 	"name": "@remotion/animation-utils",
+	"license": "MIT",
 	"author": {
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"

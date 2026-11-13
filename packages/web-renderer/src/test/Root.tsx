@@ -38,6 +38,7 @@ import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {clipPathShapes, clipPathReferences} from './fixtures/clip-path';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {
 	clipPathDescendantFilter,
@@ -198,6 +199,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -211,7 +213,21 @@ import {
 	svgDisabledStyles,
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
+import {
+	svgEmptyPredicate,
+	svgEmptyPredicates,
+} from './fixtures/svg-empty-predicate';
+import {
+	escapedStyleSelectorModes,
+	svgEscapedStyleSelector,
+} from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
+	svgExternalFontSelection,
+	svgExternalStyleSelectors,
+} from './fixtures/svg-external-font-selection';
 import {
 	svgFilterReference,
 	svgFilterExpandedReference,
@@ -234,6 +250,15 @@ import {
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
+import {
+	svgInactiveTitleMediaCache,
+	svgInactiveTitleModes,
+	svgInactiveTitledFont,
+} from './fixtures/svg-inactive-titled-font';
+import {
+	svgPreferredFontCarrier,
+	svgPreferredFontModes,
+} from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {
 	registeredCdataWrappers,
@@ -241,6 +266,7 @@ import {
 } from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
+import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -353,6 +379,55 @@ export const Root: React.FC = () => {
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
+			<Composition {...svgExternalFontSelection} />
+			{svgAtRuleTextModes.flatMap((mode) =>
+				[false, true].map((positive) => (
+					<Composition
+						key={`at-rule-${mode}-${positive}`}
+						{...svgAtRuleText({mode, positive, literal: false})}
+					/>
+				)),
+			)}
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={`empty-predicate-${predicate}`}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
+			{svgPreferredFontModes.map((mode) => (
+				<Composition
+					key={`preferred-font-${mode}`}
+					{...svgPreferredFontCarrier({mode, literal: false, fallback: false})}
+				/>
+			))}
+			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
+			{escapedStyleSelectorModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgEscapedStyleSelector({mode, literal: false})}
+				/>
+			))}
+			{svgXmlMetadataModes.map((mode) => (
+				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
+			))}
+			{svgExternalCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const fixture = svgExternalEmptyCarrier({mode, literal});
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
+			)}
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
@@ -510,6 +585,8 @@ export const Root: React.FC = () => {
 				<Composition {...pr11215SvgFontRepro} />
 			</Folder>
 			<Folder name="clip-path">
+				<Composition {...clipPathShapes} />
+				<Composition {...clipPathReferences} />
 				<Composition {...clipPathPolygon} />
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />

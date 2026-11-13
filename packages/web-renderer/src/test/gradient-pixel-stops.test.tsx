@@ -1,33 +1,29 @@
-import {expect, test} from 'vitest';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {test} from 'vitest';
 import '../symbol-dispose';
+import {
+	gradientPaintContext,
+	gradientPaintModes,
+} from './fixtures/gradient-paint-context';
 import {
 	gradientPixelModes,
 	gradientPixelStops,
 } from './fixtures/gradient-pixel-stops';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {testCompositions} from './utils';
 
-test.for(
-	gradientPixelModes.flatMap((mode) => [0, 1].map((frame) => ({mode, frame}))),
-)(
-	'matches native pixel gradient stops for $mode frame $frame',
-	async ({mode, frame}) => {
-		const composition = gradientPixelStops(mode);
-		const native = await captureNativeReference(composition, frame, {
-			omitBackground: false,
-		});
-		const actual = await (
-			await renderStillOnWeb({
-				composition,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-
-		expect((await compareNativePixels(native, actual)).mismatchedPixels).toBe(
-			0,
-		);
-	},
-);
+test('preserves gradient stops and paint context', async () => {
+	await testCompositions({
+		cases: [
+			...gradientPixelModes.map((mode) => ({
+				composition: gradientPixelStops(mode),
+				frame: 1,
+			})),
+			...gradientPaintModes.map((mode) => ({
+				composition: gradientPaintContext(mode),
+				frame: 1,
+			})),
+		],
+		columns: 3,
+		testId: 'gradient-pixel-stops-and-context',
+		scale: null,
+	});
+});

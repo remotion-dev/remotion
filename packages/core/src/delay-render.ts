@@ -287,7 +287,10 @@ export const continueRenderInternal = ({
 		(h) => h !== handle,
 	);
 
-	if (scope.remotion_delayRenderHandles.length === 0) {
+	if (
+		scope.remotion_delayRenderHandles.length === 0 &&
+		scope.remotion_cancelledError === undefined
+	) {
 		scope.remotion_renderReady = true;
 	}
 };

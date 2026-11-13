@@ -4,6 +4,7 @@
 	},
 	"version": "4.0.543",
 	"name": "@remotion/compositor-darwin-x64",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"os": [
 		"darwin"
 	],

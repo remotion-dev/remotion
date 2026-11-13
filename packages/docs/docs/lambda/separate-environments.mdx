@@ -64,7 +64,7 @@ A function is not tied to a project.
 Each function is a binary that contains the same code.  
 Every Remotion Lambda user runs the exact same code in their function.
 
-The React code you write is not contained in the function, it is hosted on the Serve URL.
+The React code you write is not contained in the function, it is hosted on the serve URL.
 
 Each function invocation is isolated and they cannot conflict each other. There is a [concurrency limit](/docs/lambda/troubleshooting/rate-limit#default-concurrency-limits), but it is per region, not per function.
 
@@ -92,7 +92,7 @@ You can pass [`--function-name`](/docs/lambda/cli/render#--function-name) to [`n
 
 ### I want to deploy multiple projects
 
-It is possible deploy multiple sites under different [Serve URLs](/docs/terminology/serve-url).  
+It is possible deploy multiple sites under different [serve URLs](/docs/terminology/serve-url).  
 This convention only applies to functions, which do not contain any code that you write.
 
 ### I want to deploy multiple functions to load-balance between them
