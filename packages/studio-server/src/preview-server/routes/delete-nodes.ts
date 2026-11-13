@@ -33,7 +33,7 @@ export const deleteNodesHandler: ApiHandler<
 	DeleteNodesRequest,
 	DeleteNodesResponse
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			logHmrTiming({
 				detail: null,
@@ -57,8 +57,8 @@ export const deleteNodesHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const updates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const updates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -97,7 +97,7 @@ export const deleteNodesHandler: ApiHandler<
 						nodePathRemappings,
 						logLine: Math.min(...logLines),
 					};
-				}),
+				},
 			);
 			logHmrTiming({
 				detail: `files=${updates.length}`,

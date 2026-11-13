@@ -17,7 +17,7 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteNodes removes a JSX child from a parent element', async () => {
+test('deleteNodes removes a JSX child from a parent element', () => {
 	const {output} = deleteNodes({
 		input: sample,
 		nodePaths: [lineColumnToNodePath(sample, 7)],
@@ -34,7 +34,7 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteNodes replaces sole return JSX with null', async () => {
+test('deleteNodes replaces sole return JSX with null', () => {
 	const {output} = deleteNodes({
 		input: onlyReturn,
 		nodePaths: [lineColumnToNodePath(onlyReturn, 4)],
@@ -51,7 +51,7 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteNodes turns conditional JSX into null', async () => {
+test('deleteNodes turns conditional JSX into null', () => {
 	const {output} = deleteNodes({
 		input: conditional,
 		nodePaths: [lineColumnToNodePath(conditional, 4)],
@@ -68,7 +68,7 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteNodes replaces JSX in ternary consequent with null', async () => {
+test('deleteNodes replaces JSX in ternary consequent with null', () => {
 	const {output} = deleteNodes({
 		input: ternary,
 		nodePaths: [lineColumnToNodePath(ternary, 4)],
@@ -91,7 +91,7 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteNodes replaces JSX inside map callback', async () => {
+test('deleteNodes replaces JSX inside map callback', () => {
 	const {output} = deleteNodes({
 		input: mapCase,
 		nodePaths: [lineColumnToNodePath(mapCase, 7)],
@@ -115,7 +115,7 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteNodes removes multiple JSX children in one transform', async () => {
+test('deleteNodes removes multiple JSX children in one transform', () => {
 	const {output, nodeLabels, logLines} = deleteNodes({
 		input: multipleSiblings,
 		nodePaths: [
@@ -131,7 +131,7 @@ test('deleteNodes removes multiple JSX children in one transform', async () => {
 	expect(logLines).toEqual([7, 8]);
 });
 
-test('deleteNodes preserves source formatting and removes standalone JSX lines', async () => {
+test('deleteNodes preserves source formatting and removes standalone JSX lines', () => {
 	const cases = [
 		{
 			input: `export const Comp = () => {
@@ -315,7 +315,7 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteNodes removes the following overlay with a TransitionSeries sequence', async () => {
+test('deleteNodes removes the following overlay with a TransitionSeries sequence', () => {
 	const {output, nodeLabels} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -334,7 +334,7 @@ test('deleteNodes removes the following overlay with a TransitionSeries sequence
 	]);
 });
 
-test('deleteNodes removes the preceding overlay with the last TransitionSeries sequence', async () => {
+test('deleteNodes removes the preceding overlay with the last TransitionSeries sequence', () => {
 	const {output} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -348,7 +348,7 @@ test('deleteNodes removes the preceding overlay with the last TransitionSeries s
 	expect(output).toContain('two');
 });
 
-test('deleteNodes removes the following overlay with the first TransitionSeries sequence', async () => {
+test('deleteNodes removes the following overlay with the first TransitionSeries sequence', () => {
 	const {output} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -363,7 +363,7 @@ test('deleteNodes removes the following overlay with the first TransitionSeries 
 	expect(output).toContain('three');
 });
 
-test('deleteNodes removes the following transition with a TransitionSeries sequence', async () => {
+test('deleteNodes removes the following transition with a TransitionSeries sequence', () => {
 	const input = transitionSeries.replaceAll(
 		'TransitionSeries.Overlay',
 		'TransitionSeries.Transition',
@@ -379,7 +379,7 @@ test('deleteNodes removes the following transition with a TransitionSeries seque
 	expect(output).toContain('two');
 });
 
-test('deleteNodes does not remove a connector twice when it is selected too', async () => {
+test('deleteNodes does not remove a connector twice when it is selected too', () => {
 	const {output, nodeLabels} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -394,7 +394,7 @@ test('deleteNodes does not remove a connector twice when it is selected too', as
 	expect(nodeLabels).toHaveLength(2);
 });
 
-test('deleteNodes keeps the other overlay when the preceding one is selected with the sequence', async () => {
+test('deleteNodes keeps the other overlay when the preceding one is selected with the sequence', () => {
 	const {output, nodeLabels} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -411,7 +411,7 @@ test('deleteNodes keeps the other overlay when the preceding one is selected wit
 	expect(nodeLabels).toHaveLength(2);
 });
 
-test('deleteNodes removes both overlays when the last two TransitionSeries sequences are deleted', async () => {
+test('deleteNodes removes both overlays when the last two TransitionSeries sequences are deleted', () => {
 	const {output} = deleteNodes({
 		input: transitionSeries,
 		nodePaths: [
@@ -427,7 +427,7 @@ test('deleteNodes removes both overlays when the last two TransitionSeries seque
 	expect(output).not.toContain('three');
 });
 
-test('deleteNodes keeps the preceding overlay when a plain sequence follows the deleted one', async () => {
+test('deleteNodes keeps the preceding overlay when a plain sequence follows the deleted one', () => {
 	const input = transitionSeries.replace(
 		`			<TransitionSeries.Overlay durationInFrames={30}>
 				<div>second overlay</div>
@@ -446,7 +446,7 @@ test('deleteNodes keeps the preceding overlay when a plain sequence follows the 
 	expect(output).toContain('three');
 });
 
-test('deleteNodes looks past a comment between a TransitionSeries sequence and its overlay', async () => {
+test('deleteNodes looks past a comment between a TransitionSeries sequence and its overlay', () => {
 	const input = transitionSeries.replace(
 		'			<TransitionSeries.Overlay durationInFrames={30}>',
 		'			{/* fade to the last scene */}\n			<TransitionSeries.Overlay durationInFrames={30}>',
@@ -461,7 +461,7 @@ test('deleteNodes looks past a comment between a TransitionSeries sequence and i
 	expect(output).toContain('first overlay');
 });
 
-test('deleteNodes removes an exit transition when its only sequence is deleted', async () => {
+test('deleteNodes removes an exit transition when its only sequence is deleted', () => {
 	const input = `import React from 'react';
 import {TransitionSeries} from '@remotion/transitions';
 
@@ -487,7 +487,7 @@ export const X: React.FC = () => {
 	expect(nodeLabels).toHaveLength(3);
 });
 
-test('deleteNodes handles an aliased TransitionSeries import', async () => {
+test('deleteNodes handles an aliased TransitionSeries import', () => {
 	const input = transitionSeries
 		.replace(
 			"import {TransitionSeries} from '@remotion/transitions';",
@@ -507,7 +507,7 @@ test('deleteNodes handles an aliased TransitionSeries import', async () => {
 	expect(nodeLabels).toEqual(['<TS.Sequence>', '<TS.Overlay>']);
 });
 
-test('deleteNodes handles a namespaced TransitionSeries import', async () => {
+test('deleteNodes handles a namespaced TransitionSeries import', () => {
 	const input = transitionSeries
 		.replace(
 			"import {TransitionSeries} from '@remotion/transitions';",

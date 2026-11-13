@@ -38,7 +38,7 @@ export const updateEffectKeyframeSettingsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[update-effect-keyframe-settings] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,

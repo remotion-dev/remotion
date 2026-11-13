@@ -63,7 +63,7 @@ export const Video2 = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	},
 });
 
-test('addElement() immutably updates a virtual project', async () => {
+test('addElement() immutably updates a virtual project', () => {
 	const project = makeProject();
 	const result = addSolid({
 		compositionFile: 'src/Root.tsx',
@@ -89,7 +89,7 @@ test('addElement() immutably updates a virtual project', async () => {
 	]);
 });
 
-test('deleteNodes() deletes nodes from multiple files', async () => {
+test('deleteNodes() deletes nodes from multiple files', () => {
 	const project = makeProject();
 	const first = addSolid({
 		compositionFile: 'src/Root.tsx',
@@ -117,7 +117,7 @@ test('deleteNodes() deletes nodes from multiple files', async () => {
 	]);
 });
 
-test('deleteNodes() deletes the Sequence wrapper identified by a node path', async () => {
+test('deleteNodes() deletes the Sequence wrapper identified by a node path', () => {
 	const project = makeProject();
 	const added = addSolid({
 		compositionFile: 'src/Root.tsx',

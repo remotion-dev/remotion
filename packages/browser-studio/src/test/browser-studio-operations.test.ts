@@ -76,7 +76,7 @@ test('consumes an initial Element payload only once', () => {
 	expect(operations.consumeInitialElement()).toBe(null);
 });
 
-test('adds a Solid to the blank Browser Studio project', async () => {
+test('adds a Solid to the blank Browser Studio project', () => {
 	const project = createBlankTemplateProject();
 	const updated = insertSolid(project);
 	const composition = updated.files['/project/src/Composition.tsx'];
@@ -91,7 +91,7 @@ test('adds a Solid to the blank Browser Studio project', async () => {
 	expect(project.files['/project/src/Composition.tsx']).not.toContain('<Solid');
 });
 
-test('adds multiple Solids without duplicating the import', async () => {
+test('adds multiple Solids without duplicating the import', () => {
 	const once = insertSolid(createBlankTemplateProject());
 	const twice = insertSolid(once);
 	const composition = twice.files['/project/src/Composition.tsx'];
@@ -100,7 +100,7 @@ test('adds multiple Solids without duplicating the import', async () => {
 	expect(composition.match(/<Solid\s/g)).toHaveLength(2);
 });
 
-test('adds a Solid at a timeline frame', async () => {
+test('adds a Solid at a timeline frame', () => {
 	const project = createBlankTemplateProject();
 	const updated = applyCodemodChanges(
 		project,
@@ -204,7 +204,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	);
 });
 
-test('inserts beside a self-closing root, aliases bindings, and remaps the root', async () => {
+test('inserts beside a self-closing root, aliases bindings, and remaps the root', () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',

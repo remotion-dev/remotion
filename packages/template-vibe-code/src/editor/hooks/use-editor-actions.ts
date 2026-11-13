@@ -759,7 +759,7 @@ export const useEditorActions = ({
       }
 
       const ok = await applyCodemod(
-        async (project, resolveNode) => {
+        (project, resolveNode) => {
           let current = project;
           const touched = new Set<string>();
           const remappings: NodePathRemapping[][] = [];

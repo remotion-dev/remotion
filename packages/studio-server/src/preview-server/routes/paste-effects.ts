@@ -45,7 +45,7 @@ export const pasteEffectsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0 && type !== 'effects-replacing') {
 				throw new Error('No effects were specified for pasting');

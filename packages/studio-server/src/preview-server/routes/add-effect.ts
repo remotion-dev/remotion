@@ -27,7 +27,7 @@ export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
 > = ({input: request, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			const {
 				fileName,

@@ -16,7 +16,7 @@ export const Comp = () => {
 };
 `;
 
-const split = async (element: string, imports?: string) => {
+const split = (element: string, imports?: string) => {
 	const input = wrap(element, imports);
 	const {output} = splitVideoFromAudio({
 		input,
@@ -26,8 +26,8 @@ const split = async (element: string, imports?: string) => {
 	return output;
 };
 
-test('splitVideoFromAudio mutes the video and adds an Audio with the same timing', async () => {
-	const output = await split(
+test('splitVideoFromAudio mutes the video and adds an Audio with the same timing', () => {
+	const output = split(
 		'<Video src="video.mp4" from={10} durationInFrames={50} trimBefore={5} playbackRate={2} volume={0.5} style={{opacity: 0.5}} />',
 	);
 
@@ -42,7 +42,7 @@ test('splitVideoFromAudio mutes the video and adds an Audio with the same timing
 	);
 });
 
-test('splitVideoFromAudio preserves unrelated source formatting without calling the formatter', async () => {
+test('splitVideoFromAudio preserves unrelated source formatting without calling the formatter', () => {
 	const input = `import{Video}from"@remotion/media"
 
 const untouched  = {keep : "spacing"}
@@ -107,15 +107,15 @@ export const Comp=()=>(
 	]);
 });
 
-test('splitVideoFromAudio does not copy non-audio props', async () => {
-	const output = await split(
+test('splitVideoFromAudio does not copy non-audio props', () => {
+	const output = split(
 		'<Video src="video.mp4" name="my video" freeze={20} crop={{x: 0, y: 0, width: 100, height: 100}} />',
 	);
 
 	expect(output).toContain('<Audio src="video.mp4" />');
 });
 
-test('splitVideoFromAudio wraps a root video in a fragment', async () => {
+test('splitVideoFromAudio wraps a root video in a fragment', () => {
 	const input = `import {Video} from '@remotion/media';
 
 export const Comp = () => <Video src="video.mp4" />;
@@ -134,7 +134,7 @@ export const Comp = () => <>
 `);
 });
 
-test('splitVideoFromAudio separates siblings with one space on a shared line', async () => {
+test('splitVideoFromAudio separates siblings with one space on a shared line', () => {
 	const input = `import {Video} from '@remotion/media';
 
 export const Comp = () => (
@@ -156,7 +156,7 @@ export const Comp = () => (
 `);
 });
 
-test('splitVideoFromAudio preserves CRLF and tab indentation', async () => {
+test('splitVideoFromAudio preserves CRLF and tab indentation', () => {
 	const input = [
 		`import {Video} from '@remotion/media';`,
 		'',
@@ -198,15 +198,15 @@ test('splitVideoFromAudio preserves CRLF and tab indentation', async () => {
 	);
 });
 
-test('splitVideoFromAudio replaces an existing muted prop', async () => {
-	const output = await split('<Video src="video.mp4" muted={false} />');
+test('splitVideoFromAudio replaces an existing muted prop', () => {
+	const output = split('<Video src="video.mp4" muted={false} />');
 
 	expect(output).toContain('<Video src="video.mp4" muted />');
 	expect(output).not.toContain('muted={false}');
 });
 
-test('splitVideoFromAudio reuses an existing Audio import', async () => {
-	const output = await split(
+test('splitVideoFromAudio reuses an existing Audio import', () => {
+	const output = split(
 		'<Video src="video.mp4" />',
 		`import {Audio, Video} from '@remotion/media';`,
 	);
@@ -215,8 +215,8 @@ test('splitVideoFromAudio reuses an existing Audio import', async () => {
 	expect(output.match(/from '@remotion\/media'/g)?.length).toBe(1);
 });
 
-test('splitVideoFromAudio uses an aliased Audio import', async () => {
-	const output = await split(
+test('splitVideoFromAudio uses an aliased Audio import', () => {
+	const output = split(
 		'<Video src="video.mp4" />',
 		`import {Audio as Sound, Video} from '@remotion/media';`,
 	);
@@ -227,8 +227,8 @@ test('splitVideoFromAudio uses an aliased Audio import', async () => {
 	expect(output).toContain('<Sound src="video.mp4" />');
 });
 
-test('splitVideoFromAudio imports Audio from the same module as the tag', async () => {
-	const output = await split(
+test('splitVideoFromAudio imports Audio from the same module as the tag', () => {
+	const output = split(
 		'<OffthreadVideo src="video.mp4" from={5} />',
 		`import {OffthreadVideo} from 'remotion';`,
 	);
@@ -238,8 +238,8 @@ test('splitVideoFromAudio imports Audio from the same module as the tag', async 
 	expect(output).toContain('<Audio src="video.mp4" from={5} />');
 });
 
-test('splitVideoFromAudio follows import aliases', async () => {
-	const output = await split(
+test('splitVideoFromAudio follows import aliases', () => {
+	const output = split(
 		'<V src="video.mp4" />',
 		`import {Video as V} from '@remotion/media';`,
 	);
@@ -250,23 +250,23 @@ test('splitVideoFromAudio follows import aliases', async () => {
 	expect(output).toContain('<Audio src="video.mp4" />');
 });
 
-test('splitVideoFromAudio rejects elements without a src attribute', async () => {
-	await expect(split('<Video from={0} />')).rejects.toThrow(
+test('splitVideoFromAudio rejects elements without a src attribute', () => {
+	expect(() => split('<Video from={0} />')).toThrow(
 		'<Video> has no src attribute',
 	);
 });
 
-test('splitVideoFromAudio rejects unimported tags', async () => {
-	await expect(split('<video src="video.mp4" />')).rejects.toThrow(
+test('splitVideoFromAudio rejects unimported tags', () => {
+	expect(() => split('<video src="video.mp4" />')).toThrow(
 		'Could not find the import of <video>',
 	);
 });
 
-test('splitVideoFromAudio rejects an Audio import from another module', async () => {
-	await expect(
+test('splitVideoFromAudio rejects an Audio import from another module', () => {
+	expect(() =>
 		split(
 			'<Video src="video.mp4" />',
 			`import {Video} from '@remotion/media';\nimport {Audio} from 'remotion';`,
 		),
-	).rejects.toThrow('Audio is already imported from "remotion"');
+	).toThrow('Audio is already imported from "remotion"');
 });

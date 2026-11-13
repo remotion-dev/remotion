@@ -29,7 +29,7 @@ const insertIntoComposition = ({
 	return applyCodemodChanges(project, result.changes).files['src/Root.tsx'];
 };
 
-test('wraps an extended import that exceeds printWidth like Prettier', async () => {
+test('wraps an extended import that exceeds printWidth like Prettier', () => {
 	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',
@@ -108,7 +108,7 @@ export const RemotionRoot: React.FC = () => {
 `);
 });
 
-test('adds specifiers to an already wrapped import on their own lines', async () => {
+test('adds specifiers to an already wrapped import on their own lines', () => {
 	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',
@@ -172,7 +172,7 @@ export const RemotionRoot: React.FC = () => {
 `);
 });
 
-test('counts a trailing block comment towards printWidth like Prettier', async () => {
+test('counts a trailing block comment towards printWidth like Prettier', () => {
 	const output = insertIntoComposition({
 		element: createElement({
 			component: 'Sequence',

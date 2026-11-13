@@ -40,7 +40,7 @@ const amountSchema = {
 	amount: {type: 'number', default: 1, hiddenFromList: false},
 } satisfies InteractivitySchema;
 
-test('effect operations preserve unrelated source without calling Prettier', async () => {
+test('effect operations preserve unrelated source without calling Prettier', () => {
 	let output = `import { AbsoluteFill } from 'remotion'
 import { brightness } from '@remotion/effects/brightness'
 
@@ -121,7 +121,7 @@ export const Comp = () => (
 `);
 });
 
-test('effect updates preserve blank lines in unrelated JSX object props', async () => {
+test('effect updates preserve blank lines in unrelated JSX object props', () => {
 	const input = `import { Solid } from 'remotion'
 
 export const Comp = () => (
@@ -162,7 +162,7 @@ export const Comp = () => (
 `);
 });
 
-test('keyframed effect pastes preserve CRLF expression bodies and JSX comments', async () => {
+test('keyframed effect pastes preserve CRLF expression bodies and JSX comments', () => {
 	const input = `'use client'
 import { HtmlInCanvas } from '@remotion/html-in-canvas'
 
@@ -223,7 +223,7 @@ export const Comp = () => {
 	);
 });
 
-test('no-op effect operations leave source byte-identical', async () => {
+test('no-op effect operations leave source byte-identical', () => {
 	const input = `import { brightness } from '@remotion/effects/brightness'
 
 export const Comp = () => <div effects={[brightness()]} />
@@ -248,7 +248,7 @@ export const Comp = () => <div effects={[brightness()]} />
 	expect(updated.output).toBe(input);
 });
 
-test('batched duplicate and delete preserve source between distinct JSX elements', async () => {
+test('batched duplicate and delete preserve source between distinct JSX elements', () => {
 	const input = `import { brightness } from '@remotion/effects/brightness'
 
 const unrelated    = {keep:"this spacing"}

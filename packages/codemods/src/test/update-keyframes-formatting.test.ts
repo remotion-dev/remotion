@@ -28,7 +28,7 @@ const getNodePathAtLine = (input: string, line: number): SequenceNodePath => {
 	return nodePath;
 };
 
-test('sequence keyframes preserve source style without calling Prettier', async () => {
+test('sequence keyframes preserve source style without calling Prettier', () => {
 	const input = `import {AbsoluteFill} from 'remotion'
 
 // Keep this deliberately non-Prettier code untouched.
@@ -85,7 +85,7 @@ export const Example = () => {
 `);
 });
 
-test('effect keyframes only format the edited opening element', async () => {
+test('effect keyframes only format the edited opening element', () => {
 	const input = `import {AbsoluteFill,interpolate,useCurrentFrame} from "remotion";
 import {blur} from "@remotion/effects/blur";
 
@@ -138,7 +138,7 @@ export const Example = () => {
 `);
 });
 
-test('sequence keyframes preserve blank lines in unrelated objects', async () => {
+test('sequence keyframes preserve blank lines in unrelated objects', () => {
 	const input = `import {interpolate, useCurrentFrame} from 'remotion';
 
 const unrelated = {
@@ -181,7 +181,7 @@ export const Example = () => {
 	);
 });
 
-test('new keyframe imports stay after directives with CRLF', async () => {
+test('new keyframe imports stay after directives with CRLF', () => {
 	const input = `'use client'
 
 const unrelated    = true
@@ -224,7 +224,7 @@ export const Example = () => {
 	);
 });
 
-test('frame hooks stay before comments attached to the first statement', async () => {
+test('frame hooks stay before comments attached to the first statement', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 
 export const Example = () => {
@@ -268,7 +268,7 @@ export const Example = () => {
 `);
 });
 
-test('frame hooks separate comments immediately after the opening brace', async () => {
+test('frame hooks separate comments immediately after the opening brace', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 
 export const Example = () => {/* Explain the return. */
@@ -309,7 +309,7 @@ export const Example = () => {
 `);
 });
 
-test('frame hooks reformat compact function blocks', async () => {
+test('frame hooks reformat compact function blocks', () => {
 	const input = `export const C = () => { return <div style={{opacity: 1}} /> }
 `;
 	const {output} = updateSequenceKeyframes({
@@ -340,7 +340,7 @@ export const C = () => {
 `);
 });
 
-test('existing keyframes get source-aware indentation in compact blocks', async () => {
+test('existing keyframes get source-aware indentation in compact blocks', () => {
 	const input = `import {interpolate, useCurrentFrame} from 'remotion';
 export const C = () => { const frame = useCurrentFrame(); return <div style={{opacity: interpolate(frame, [0], [0.5])}} /> }
 `;
@@ -369,7 +369,7 @@ export const C = () => {
 `);
 });
 
-test('keyframe mutations preserve JSX string attribute values', async () => {
+test('keyframe mutations preserve JSX string attribute values', () => {
 	const input = `import {interpolate, useCurrentFrame} from 'remotion';
 
 export const Example = () => {
@@ -396,7 +396,7 @@ export const Example = () => {
 	expect(() => parseAst(output)).not.toThrow();
 });
 
-test('keyframe hook expansion preserves trailing block comments', async () => {
+test('keyframe hook expansion preserves trailing block comments', () => {
 	const input = `export const C = () => (
   <div style={{opacity: 1}} />
   /* Keep this comment. */
@@ -432,7 +432,7 @@ export const C = () => {
 `);
 });
 
-test('keyframe hook expansion preserves trailing line comments', async () => {
+test('keyframe hook expansion preserves trailing line comments', () => {
 	const input = `export const C = () => (
   <div style={{opacity: 1}} /> // Keep this comment.
 );
@@ -467,7 +467,7 @@ export const C = () => {
 `);
 });
 
-test('keyframe hook expansion preserves leading expression comments', async () => {
+test('keyframe hook expansion preserves leading expression comments', () => {
 	const input = `export const C = () => /* Keep this comment. */ <div style={{opacity: 1}} />;
 `;
 	const {output} = updateSequenceKeyframes({
@@ -499,7 +499,7 @@ export const C = () => {
 `);
 });
 
-test('compact block reprints preserve leading comments', async () => {
+test('compact block reprints preserve leading comments', () => {
 	const input = `export const C = () => /* Keep this comment. */ { return <div style={{opacity: 1}} />; };
 `;
 	const {output} = updateSequenceKeyframes({
@@ -531,7 +531,7 @@ export const C = () => /* Keep this comment. */ {
 `);
 });
 
-test('new keyframe imports stay after inline directive comments', async () => {
+test('new keyframe imports stay after inline directive comments', () => {
 	const input = `'use client'; // Keep this on the directive.
 export const C = () => <div style={{opacity: 1}} />;
 `;
@@ -552,7 +552,7 @@ export const C = () => <div style={{opacity: 1}} />;
 	);
 });
 
-test('new keyframe imports stay after file pragmas', async () => {
+test('new keyframe imports stay after file pragmas', () => {
 	const input = `// @ts-nocheck
 export const C = () => <div style={{opacity: 1}} />;
 `;
@@ -571,7 +571,7 @@ export const C = () => <div style={{opacity: 1}} />;
 	expect(output).toStartWith('// @ts-nocheck\nimport ');
 });
 
-test('new keyframe imports separate same-line block pragmas', async () => {
+test('new keyframe imports separate same-line block pragmas', () => {
 	const input = `/* @ts-nocheck */ export const C = () => <div style={{opacity: 1}} />;
 `;
 	const {output} = updateSequenceKeyframes({
@@ -604,7 +604,7 @@ export const C = () => {
 `);
 });
 
-test('new keyframe imports stay after shebangs and file pragmas', async () => {
+test('new keyframe imports stay after shebangs and file pragmas', () => {
 	const input = `#!/usr/bin/env bun
 // @ts-nocheck
 export const C = () => <div style={{opacity: 1}} />;
@@ -624,7 +624,7 @@ export const C = () => <div style={{opacity: 1}} />;
 	expect(output).toStartWith('#!/usr/bin/env bun\n// @ts-nocheck\nimport ');
 });
 
-test('frame hooks stay after inline function directive comments', async () => {
+test('frame hooks stay after inline function directive comments', () => {
 	const input = `export const C = () => {
   'use strict'; // Keep this on the directive.
   return <div style={{opacity: 1}} />;

@@ -824,7 +824,7 @@ export const createBrowserStudioOperations = ({
 		};
 	};
 
-	const mutateKeyframesInProject = async ({
+	const mutateKeyframesInProject = ({
 		source,
 		sequenceMutations,
 		effectMutations,
@@ -959,7 +959,7 @@ export const createBrowserStudioOperations = ({
 		project,
 		appliedSequenceMutations,
 		appliedEffectMutations,
-	}: Awaited<ReturnType<typeof mutateKeyframesInProject>>): Omit<
+	}: ReturnType<typeof mutateKeyframesInProject>): Omit<
 		KeyframeMutationResult,
 		'sourceVersion'
 	>[] => {
@@ -1005,7 +1005,7 @@ export const createBrowserStudioOperations = ({
 		});
 	};
 
-	const commitKeyframeMutations = async ({
+	const commitKeyframeMutations = ({
 		includeChangedProps,
 		label,
 		sequenceMutations,
@@ -1017,7 +1017,7 @@ export const createBrowserStudioOperations = ({
 		effectMutations: EffectKeyframeMutation[];
 	}) => {
 		const project = getProject();
-		const result = await mutateKeyframesInProject({
+		const result = mutateKeyframesInProject({
 			source: createSequenceSourceEdit(project, null),
 			sequenceMutations,
 			effectMutations,
@@ -2360,7 +2360,7 @@ export const createBrowserStudioOperations = ({
 
 	const keyframes: BrowserStudioKeyframeOperations = {
 		addSequenceKeyframe: async (request) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: false,
 				label: `${request.key} keyframe`,
 				sequenceMutations: [
@@ -2390,7 +2390,7 @@ export const createBrowserStudioOperations = ({
 			return getSequenceKeyframeResponse({mutation, project: result.project});
 		},
 		addEffectKeyframe: async (request) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: false,
 				label: `${request.key} effect keyframe`,
 				sequenceMutations: [],
@@ -2493,7 +2493,7 @@ export const createBrowserStudioOperations = ({
 					: effectKeyframes.length > 0
 						? [effectKeyframes]
 						: [];
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: true,
 				label:
 					paste === null
@@ -2520,7 +2520,7 @@ export const createBrowserStudioOperations = ({
 			};
 		},
 		deleteKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: true,
 				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
 				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
@@ -2560,7 +2560,7 @@ export const createBrowserStudioOperations = ({
 			return {success: true, results: result.keyframeResults};
 		},
 		moveKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: true,
 				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframes`,
 				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
@@ -2606,7 +2606,7 @@ export const createBrowserStudioOperations = ({
 			return {success: true, results: result.keyframeResults};
 		},
 		updateSequenceKeyframeSettings: async (request) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: false,
 				label: `${request.key} keyframe settings`,
 				sequenceMutations: [
@@ -2627,7 +2627,7 @@ export const createBrowserStudioOperations = ({
 			return getSequenceKeyframeResponse({mutation, project: result.project});
 		},
 		updateEffectKeyframeSettings: async (request) => {
-			const result = await commitKeyframeMutations({
+			const result = commitKeyframeMutations({
 				includeChangedProps: false,
 				label: `${request.key} effect keyframe settings`,
 				sequenceMutations: [],
@@ -2652,7 +2652,7 @@ export const createBrowserStudioOperations = ({
 			sequenceKeyframes,
 			effectKeyframes,
 		}) => {
-			await commitKeyframeMutations({
+			commitKeyframeMutations({
 				includeChangedProps: false,
 				label: `${sequenceKeyframes.length + effectKeyframes.length} keyframe settings`,
 				sequenceMutations: sequenceKeyframes.map((keyframe) => ({
@@ -3404,7 +3404,7 @@ export const createBrowserStudioOperations = ({
 
 			const source = createSequenceSourceEdit(project, propResult);
 			const result = hasKeyframes
-				? await mutateKeyframesInProject({
+				? mutateKeyframesInProject({
 						source,
 						sequenceMutations,
 						effectMutations,

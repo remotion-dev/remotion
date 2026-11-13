@@ -12,7 +12,7 @@ import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
 
-test('resolves a statically imported composition component', async () => {
+test('resolves a statically imported composition component', () => {
 	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/E2eTestRoot.tsx',
@@ -24,7 +24,7 @@ test('resolves a statically imported composition component', async () => {
 	expect(location.canAddSequence).toBe(true);
 });
 
-test('resolves a lazy imported composition component', async () => {
+test('resolves a lazy imported composition component', () => {
 	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/Root.tsx',
@@ -228,7 +228,7 @@ test('resolves through fallback re-export branch after cycle', async () => {
 	}
 });
 
-test('resolves a same-file composition component', async () => {
+test('resolves a same-file composition component', () => {
 	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile: 'src/NewVideo.tsx',

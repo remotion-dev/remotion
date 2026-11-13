@@ -35,7 +35,7 @@ export const deleteEffectHandler: ApiHandler<
 	DeleteEffectRequest,
 	DeleteEffectResponse
 > = ({input: effects, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0) {
 				throw new Error('No effects were specified for deletion');
@@ -53,8 +53,8 @@ export const deleteEffectHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const preparedUpdates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const preparedUpdates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -87,7 +87,7 @@ export const deleteEffectHandler: ApiHandler<
 						effectLabels,
 						logLine: Math.min(...logLines),
 					};
-				}),
+				},
 			);
 
 			const updates = preparedUpdates.filter(

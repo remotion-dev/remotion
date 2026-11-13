@@ -18,7 +18,7 @@ export const Comp = () => {
 };
 `;
 
-test('duplicateEffect clones the targeted effect after itself', async () => {
+test('duplicateEffect clones the targeted effect after itself', () => {
 	const input = buildInput(
 		'[blur({radius: 5}), tint({color: "red"}), brightness({amount: 2})]',
 	);
@@ -38,7 +38,7 @@ test('duplicateEffect clones the targeted effect after itself', async () => {
 	);
 });
 
-test('duplicateEffects clones multiple targeted effects in one pass', async () => {
+test('duplicateEffects clones multiple targeted effects in one pass', () => {
 	const input = buildInput(
 		'[blur({radius: 5}), tint({color: "red"}), brightness({amount: 2})]',
 	);
@@ -63,7 +63,7 @@ test('duplicateEffects clones multiple targeted effects in one pass', async () =
 	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('brightness({'));
 });
 
-test('duplicateEffect throws when effect index is out of range', async () => {
+test('duplicateEffect throws when effect index is out of range', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	expect(() =>
 		duplicateEffect({
@@ -74,7 +74,7 @@ test('duplicateEffect throws when effect index is out of range', async () => {
 	).toThrow(/not-found/);
 });
 
-test('duplicateEffect throws when effects are not an inline array', async () => {
+test('duplicateEffect throws when effects are not an inline array', () => {
 	const input = buildInput('effects');
 	expect(() =>
 		duplicateEffect({
@@ -85,7 +85,7 @@ test('duplicateEffect throws when effects are not an inline array', async () => 
 	).toThrow(/not an array/);
 });
 
-test('duplicateEffect throws when the target effect is unsupported', async () => {
+test('duplicateEffect throws when the target effect is unsupported', () => {
 	const input = buildInput('[tint({color: "red"}), ...effects]');
 	expect(() =>
 		duplicateEffect({

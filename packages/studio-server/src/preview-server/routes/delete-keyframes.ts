@@ -97,7 +97,7 @@ const getBatchDescription = ({
 	};
 };
 
-export const deleteKeyframes = async ({
+export const deleteKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	clientId,
@@ -109,7 +109,7 @@ export const deleteKeyframes = async ({
 	clientId: string;
 	remotionRoot: string;
 	logLevel: LogLevel;
-}): Promise<KeyframeMutationResult[]> => {
+}): KeyframeMutationResult[] => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for deletion');
@@ -354,7 +354,7 @@ export const deleteKeyframesHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[delete-keyframes] Received request to delete ${
@@ -362,7 +362,7 @@ export const deleteKeyframesHandler: ApiHandler<
 			} keyframe(s)`,
 		);
 
-		const results = await deleteKeyframes({
+		const results = deleteKeyframes({
 			sequenceKeyframes,
 			effectKeyframes,
 			clientId,

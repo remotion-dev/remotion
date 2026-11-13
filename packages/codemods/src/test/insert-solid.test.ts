@@ -7,7 +7,7 @@ const solid = createElement({
 	props: {width: 1280, height: 720, color: 'gray'},
 });
 
-test('inserts a Solid into a component source file', async () => {
+test('inserts a Solid into a component source file', () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -38,7 +38,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 	expect(result.insertedNode.filePath).toBe('src/index.tsx');
 });
 
-test('inserts a timeline Solid in a positioned Sequence', async () => {
+test('inserts a timeline Solid in a positioned Sequence', () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -79,7 +79,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 	).toHaveLength(2);
 });
 
-test('inserts a Solid as a sibling of a component root', async () => {
+test('inserts a Solid as a sibling of a component root', () => {
 	const project = {
 		rootDir: '/',
 		files: {
@@ -113,7 +113,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 	expect(solidStart).toBeGreaterThan(rootEnd);
 });
 
-test('the Add Solid insertion preserves source formatting without calling Prettier', async () => {
+test('the Add Solid insertion preserves source formatting without calling Prettier', () => {
 	const source = `import {Composition, AbsoluteFill} from 'remotion';
 
 // Keep the deliberately non-Prettier formatting in this file.
@@ -176,7 +176,7 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 	).toThrow('from must be a non-negative integer');
 });
 
-test('asset and component insertions also avoid the full-file formatter', async () => {
+test('asset and component insertions also avoid the full-file formatter', () => {
 	const source = `import {Composition, AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => <><AbsoluteFill /></>;

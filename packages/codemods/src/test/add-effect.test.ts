@@ -9,7 +9,7 @@ export const Comp = () => {
 };
 `;
 
-test('addEffect adds an effects prop and import', async () => {
+test('addEffect adds an effects prop and import', () => {
 	const input = buildInput('<Solid width={100} height={100} />');
 	const {output, effectLabel, nodeLabel} = addEffect({
 		input,
@@ -32,7 +32,7 @@ test('addEffect adds an effects prop and import', async () => {
 	expect(output).toContain('amount: 1.2');
 });
 
-test('addEffect appends to an existing effects array', async () => {
+test('addEffect appends to an existing effects array', () => {
 	const input = `import {Solid} from 'remotion';
 import {tint} from '@remotion/effects/tint';
 
@@ -56,7 +56,7 @@ export const Comp = () => {
 	expect(output).toContain('amount: 0.8');
 });
 
-test('addEffect aliases imports when the effect name is already bound', async () => {
+test('addEffect aliases imports when the effect name is already bound', () => {
 	const input = `import {Solid} from 'remotion';
 
 const brightness = 1;
@@ -79,7 +79,7 @@ export const Comp = () => {
 	expect(output).toContain('brightnessEffect({');
 });
 
-test('addEffect keeps nodePath stable when a new import gets inserted', async () => {
+test('addEffect keeps nodePath stable when a new import gets inserted', () => {
 	const input = buildInput('<Solid width={100} height={100} />');
 	const nodePath = lineColumnToNodePath(input, 4);
 	const firstPass = addEffect({
@@ -108,7 +108,7 @@ test('addEffect keeps nodePath stable when a new import gets inserted', async ()
 	);
 });
 
-test('addEffect rejects non-Remotion effect imports', async () => {
+test('addEffect rejects non-Remotion effect imports', () => {
 	const input = buildInput('<Solid width={100} height={100} />');
 
 	expect(() =>
@@ -122,7 +122,7 @@ test('addEffect rejects non-Remotion effect imports', async () => {
 	).toThrow(/Unsupported effect import/);
 });
 
-test('addEffect does not duplicate an existing effect import', async () => {
+test('addEffect does not duplicate an existing effect import', () => {
 	const input = `import {Solid} from 'remotion';
 import {brightness} from '@remotion/effects/brightness';
 

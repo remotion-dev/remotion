@@ -64,7 +64,7 @@ test('converts a mask-free node from the Figma clipboard fixture', () => {
 	expect(result.svg).not.toMatch(/<defs|<mask|<script|<foreignObject|\shref=/);
 });
 
-test('converts the generated Figma SVG through the inline SVG pipeline', async () => {
+test('converts the generated Figma SVG through the inline SVG pipeline', () => {
 	const {svg} = convertFigmaClipboardToSvg(maskFreeFixture);
 	const jsx = recast.print(svgMarkupToJsx(svg)).code;
 	expect(jsx).toStartWith('<svg');
@@ -96,7 +96,7 @@ test('rejects a selected Figma mask node', () => {
 	);
 });
 
-test('renders a full Figma ellipse as an SVG ellipse', async () => {
+test('renders a full Figma ellipse as an SVG ellipse', () => {
 	const result = renderFigmaMessageToSvg({
 		message: {
 			blobs: [],
@@ -179,7 +179,7 @@ test('clips inside-aligned Figma ellipse strokes', () => {
 	);
 });
 
-test('renders a Figma rounded rectangle as an SVG rectangle', async () => {
+test('renders a Figma rounded rectangle as an SVG rectangle', () => {
 	const result = renderFigmaMessageToSvg({
 		message: {
 			blobs: [],

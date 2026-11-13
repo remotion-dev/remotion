@@ -39,7 +39,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[add-effect-keyframe] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}" frame=${frame}`,

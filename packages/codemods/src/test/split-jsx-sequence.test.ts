@@ -8,7 +8,7 @@ import {
 	lineContainingToNodePath,
 } from './node-path-test-utils';
 
-test('splits fractional timing without persisting arithmetic noise', async () => {
+test('splits fractional timing without persisting arithmetic noise', () => {
 	const input =
 		'export const Comp = () => <Sequence from={0.1} durationInFrames={1.2} trimBefore={0.2} />;';
 	const ast = parseAst(input);
@@ -32,7 +32,7 @@ test('splits fractional timing without persisting arithmetic noise', async () =>
 	expect(output).toContain('trimBefore={1.1}');
 });
 
-test('splits multiple sibling sequences from the same source snapshot', async () => {
+test('splits multiple sibling sequences from the same source snapshot', () => {
 	const input = `export const Comp = () => (
 	<>
 		<Sequence name="video" from={0} durationInFrames={50} />
@@ -82,7 +82,7 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 	).toHaveLength(4);
 });
 
-test('splitting a sped-up sequence preserves its child clock across a fractional parent frame', async () => {
+test('splitting a sped-up sequence preserves its child clock across a fractional parent frame', () => {
 	const input =
 		'export const Comp = () => <Sequence from={10} durationInFrames={50} trimBefore={5} playbackRate={2} />;';
 	const ast = parseAst(input);
@@ -126,7 +126,7 @@ export const Comp = () => {
 const sequenceLine = 7;
 const sequenceTimingKeys = ['from', 'durationInFrames', 'trimBefore'];
 
-const split = async (
+const split = (
 	sequence: string,
 	splitFrame: number,
 	sequenceKeys = sequenceTimingKeys,
@@ -143,14 +143,14 @@ const split = async (
 	return output;
 };
 
-test('splitJsxSequence splits a sequence with no duration', async () => {
-	const output = await split('<Sequence from={0} />', 30);
+test('splitJsxSequence splits a sequence with no duration', () => {
+	const output = split('<Sequence from={0} />', 30);
 
 	expect(output).toContain('<Sequence from={0} durationInFrames={30} />');
 	expect(output).toContain('<Sequence from={30} trimBefore={30} />');
 });
 
-test('splitJsxSequence remaps wrapped clips and preserves following JSX siblings', async () => {
+test('splitJsxSequence remaps wrapped clips and preserves following JSX siblings', () => {
 	const input = wrap(
 		'<Sequence name="split" from={0} durationInFrames={50} />\n\t\t\t<Sequence name="following" />',
 	);
@@ -187,19 +187,16 @@ test('splitJsxSequence remaps wrapped clips and preserves following JSX siblings
 	]);
 });
 
-test('splitJsxSequence omits right Infinity duration', async () => {
-	const output = await split(
-		'<Sequence from={0} durationInFrames={Infinity} />',
-		30,
-	);
+test('splitJsxSequence omits right Infinity duration', () => {
+	const output = split('<Sequence from={0} durationInFrames={Infinity} />', 30);
 
 	expect(output).toContain('<Sequence from={0} durationInFrames={30} />');
 	expect(output).toContain('<Sequence from={30} trimBefore={30} />');
 	expect(output).not.toContain('durationInFrames={Infinity}');
 });
 
-test('splitJsxSequence keeps missing left from omitted', async () => {
-	const output = await split('<Sequence durationInFrames={50} />', 30);
+test('splitJsxSequence keeps missing left from omitted', () => {
+	const output = split('<Sequence durationInFrames={50} />', 30);
 
 	expect(output).toContain('<Sequence durationInFrames={30} />');
 	expect(output).toContain(
@@ -207,7 +204,7 @@ test('splitJsxSequence keeps missing left from omitted', async () => {
 	);
 });
 
-test('splitJsxSequence splits finite duration and trimBefore', async () => {
+test('splitJsxSequence splits finite duration and trimBefore', () => {
 	const input = `import {Sequence, Track as TimelineTrack} from 'remotion';
 export const Comp = () => <TimelineTrack name="Existing"><Sequence from={10} durationInFrames={50} trimBefore={5} /></TimelineTrack>;`;
 	const {output} = splitJsxSequence({
@@ -228,7 +225,7 @@ export const Comp = () => <TimelineTrack name="Existing"><Sequence from={10} dur
 	);
 });
 
-test('splitJsxSequence preserves surrounding formatting without calling Prettier', async () => {
+test('splitJsxSequence preserves surrounding formatting without calling Prettier', () => {
 	const input = `const deliberatelyUnformatted = {value : true}
 
 export const Comp = () => {
@@ -265,7 +262,7 @@ export const Comp = () => {
 	expect(output).toEndWith('  )\n}\n');
 });
 
-test('splitJsxSequence formats a split component root as a named track', async () => {
+test('splitJsxSequence formats a split component root as a named track', () => {
 	const input = `export const Comp = () => <Sequence from={0} durationInFrames={50}><span>Hi</span></Sequence>;
 
 const keep = { value : true }
@@ -288,8 +285,8 @@ const keep = { value : true }
 `);
 });
 
-test('splitJsxSequence splits a video with a negative from', async () => {
-	const output = await split(
+test('splitJsxSequence splits a video with a negative from', () => {
+	const output = split(
 		'<Video src="video.mov" from={-2644} trimBefore={272} />',
 		100,
 	);
@@ -303,30 +300,30 @@ test('splitJsxSequence splits a video with a negative from', async () => {
 	);
 });
 
-test('splitJsxSequence splits from-only sequence', async () => {
-	const output = await split('<Sequence from={10} />', 30);
+test('splitJsxSequence splits from-only sequence', () => {
+	const output = split('<Sequence from={10} />', 30);
 
 	expect(output).toContain('<Sequence from={10} durationInFrames={20} />');
 	expect(output).toContain('<Sequence from={30} trimBefore={20} />');
 });
 
-test('splitJsxSequence splits sequence-backed components', async () => {
+test('splitJsxSequence splits sequence-backed components', () => {
 	expect(
-		await split('<AbsoluteFill from={0} durationInFrames={50} />', 30),
+		split('<AbsoluteFill from={0} durationInFrames={50} />', 30),
 	).toContain(
 		'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
 	);
 	expect(
-		await split('<Img src="image.png" from={0} durationInFrames={50} />', 30),
+		split('<Img src="image.png" from={0} durationInFrames={50} />', 30),
 	).toContain(
 		'<Img src="image.png" from={30} durationInFrames={20} trimBefore={30} />',
 	);
 	expect(
-		await split('<Gif src="anim.gif" from={0} durationInFrames={50} />', 30),
+		split('<Gif src="anim.gif" from={0} durationInFrames={50} />', 30),
 	).toContain(
 		'<Gif src="anim.gif" from={30} durationInFrames={20} trimBefore={30} />',
 	);
-	const solidOutput = await split(
+	const solidOutput = split(
 		'<Solid width={100} height={100} from={0} durationInFrames={50} />',
 		30,
 	);
@@ -337,47 +334,44 @@ test('splitJsxSequence splits sequence-backed components', async () => {
 	expect(solidOutput).toContain('durationInFrames={20}');
 	expect(solidOutput).toContain('trimBefore={30}');
 	expect(
-		await split('<Interactive.Div from={0} durationInFrames={50} />', 30),
+		split('<Interactive.Div from={0} durationInFrames={50} />', 30),
 	).toContain(
 		'<Interactive.Div from={30} durationInFrames={20} trimBefore={30} />',
 	);
 });
 
-test('splitJsxSequence allows fractional splits and rejects invalid positions', async () => {
-	const output = await split(
-		'<Sequence from={10} durationInFrames={20} />',
-		10.5,
-	);
+test('splitJsxSequence allows fractional splits and rejects invalid positions', () => {
+	const output = split('<Sequence from={10} durationInFrames={20} />', 10.5);
 	expect(output).toContain('<Sequence from={10} durationInFrames={0.5} />');
 	expect(output).toContain(
 		'<Sequence from={10.5} durationInFrames={19.5} trimBefore={0.5} />',
 	);
 
-	await expect(
+	expect(() =>
 		split('<Sequence from={10} durationInFrames={20} />', 10),
-	).rejects.toThrow(/sequence start/);
-	await expect(
+	).toThrow(/sequence start/);
+	expect(() =>
 		split('<Sequence from={10} durationInFrames={20} />', 30),
-	).rejects.toThrow(/sequence end/);
-	await expect(
+	).toThrow(/sequence end/);
+	expect(() =>
 		split('<Sequence from={10} durationInFrames={20} />', 8),
-	).rejects.toThrow(/sequence start/);
-	await expect(
+	).toThrow(/sequence start/);
+	expect(() =>
 		split('<Sequence from={start} durationInFrames={20} />', 15),
-	).rejects.toThrow(/dynamic from/);
+	).toThrow(/dynamic from/);
 });
 
-test('splitJsxSequence rejects Series.Sequence', async () => {
-	await expect(
+test('splitJsxSequence rejects Series.Sequence', () => {
+	expect(() =>
 		split('<Series.Sequence durationInFrames={50} />', 30, [
 			'durationInFrames',
 			'trimBefore',
 		]),
-	).rejects.toThrow('<Series.Sequence> cannot be split');
+	).toThrow('<Series.Sequence> cannot be split');
 });
 
-test('splitJsxSequence rejects regular DOM elements', async () => {
-	await expect(
-		split('<div from={0} durationInFrames={50} />', 30, []),
-	).rejects.toThrow('<div> cannot be split');
+test('splitJsxSequence rejects regular DOM elements', () => {
+	expect(() => split('<div from={0} durationInFrames={50} />', 30, [])).toThrow(
+		'<div> cannot be split',
+	);
 });

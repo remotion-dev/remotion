@@ -26,7 +26,7 @@ export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceResponse
 > = ({input, remotionRoot, logLevel}) => {
 	const {fileName, sourceNodePaths, targetNodePath, position, clientId} = input;
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},

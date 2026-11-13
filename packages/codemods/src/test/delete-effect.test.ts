@@ -16,7 +16,7 @@ export const Comp = () => {
 };
 `;
 
-test('deleteEffect removes the only effect and the effects prop', async () => {
+test('deleteEffect removes the only effect and the effects prop', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	const {output, effectLabel} = deleteEffect({
 		input,
@@ -30,7 +30,7 @@ test('deleteEffect removes the only effect and the effects prop', async () => {
 	expect(output).toContain('<HtmlInCanvas>');
 });
 
-test('deleteEffect removes the targeted effect by index', async () => {
+test('deleteEffect removes the targeted effect by index', () => {
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
@@ -46,7 +46,7 @@ test('deleteEffect removes the targeted effect by index', async () => {
 	expect(output).toContain('effects={[');
 });
 
-test('deleteEffects removes multiple targeted effects in one pass', async () => {
+test('deleteEffects removes multiple targeted effects in one pass', () => {
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
@@ -73,7 +73,7 @@ test('deleteEffects removes multiple targeted effects in one pass', async () => 
 	expect(output).toContain('effects={[');
 });
 
-test('deleteEffects removes all effects from the target sequence', async () => {
+test('deleteEffects removes all effects from the target sequence', () => {
 	const input = buildInput(
 		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
@@ -93,7 +93,7 @@ test('deleteEffects removes all effects from the target sequence', async () => {
 	expect(output).toContain('<HtmlInCanvas>');
 });
 
-test('deleteEffect keeps the effects prop when other effects remain', async () => {
+test('deleteEffect keeps the effects prop when other effects remain', () => {
 	const input = buildInput('[tint({color: "red"}), tint({color: "green"})]');
 	const {output} = deleteEffect({
 		input,
@@ -106,7 +106,7 @@ test('deleteEffect keeps the effects prop when other effects remain', async () =
 	expect(output).not.toMatch(/color: ['"]green['"]/);
 });
 
-test('deleteEffect throws when effect index is out of range', async () => {
+test('deleteEffect throws when effect index is out of range', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	expect(() =>
 		deleteEffect({
@@ -117,7 +117,7 @@ test('deleteEffect throws when effect index is out of range', async () => {
 	).toThrow(/not-found/);
 });
 
-test('deleteEffect throws when effects are not an inline array', async () => {
+test('deleteEffect throws when effects are not an inline array', () => {
 	const input = buildInput('effects');
 	expect(() =>
 		deleteEffect({
@@ -128,7 +128,7 @@ test('deleteEffect throws when effects are not an inline array', async () => {
 	).toThrow(/not an array/);
 });
 
-test('deleteEffect throws when the target effect is unsupported', async () => {
+test('deleteEffect throws when the target effect is unsupported', () => {
 	const input = buildInput('[tint({color: "red"}), ...effects]');
 	expect(() =>
 		deleteEffect({

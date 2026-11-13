@@ -24,7 +24,7 @@ export const duplicateNodesHandler: ApiHandler<
 	DuplicateNodesRequest,
 	DuplicateNodesResponse
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (nodes.length === 0) {
 				throw new Error('No JSX nodes were specified for duplication');
@@ -42,8 +42,8 @@ export const duplicateNodesHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const updates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const updates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -83,7 +83,7 @@ export const duplicateNodesHandler: ApiHandler<
 						),
 						output,
 					};
-				}),
+				},
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({

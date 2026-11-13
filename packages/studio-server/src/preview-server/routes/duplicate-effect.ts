@@ -35,7 +35,7 @@ export const duplicateEffectHandler: ApiHandler<
 	DuplicateEffectRequest,
 	DuplicateEffectResponse
 > = ({input: effects, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0) {
 				throw new Error('No effects were specified for duplication');
@@ -53,8 +53,8 @@ export const duplicateEffectHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const updates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const updates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -93,7 +93,7 @@ export const duplicateEffectHandler: ApiHandler<
 						effectLabels,
 						logLine: Math.min(...logLines),
 					};
-				}),
+				},
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({

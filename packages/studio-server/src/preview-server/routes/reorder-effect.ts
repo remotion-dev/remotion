@@ -38,7 +38,7 @@ export const reorderEffectHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},

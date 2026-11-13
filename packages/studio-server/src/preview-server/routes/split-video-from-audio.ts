@@ -25,7 +25,7 @@ export const splitVideoFromAudioHandler: ApiHandler<
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse
 > = ({input: {fileName, nodePath}, remotionRoot, logLevel}) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},

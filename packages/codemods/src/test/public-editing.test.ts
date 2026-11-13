@@ -76,7 +76,7 @@ const findNode = (
 	return node;
 };
 
-test('discover, inspect, edit, animate, and remove JSX through the public API', async () => {
+test('discover, inspect, edit, animate, and remove JSX through the public API', () => {
 	const project = makeProject();
 	expect(
 		resolveCompositionComponent({
@@ -156,7 +156,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 	).toBe(true);
 });
 
-test('insert media and components, reorder copies, and delete nodes across files', async () => {
+test('insert media and components, reorder copies, and delete nodes across files', () => {
 	const project = makeProject();
 	const image = createElement({
 		component: 'Img',
@@ -255,7 +255,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 	expect(Object.keys(afterDelete.files)).toEqual(Object.keys(project.files));
 });
 
-test('split timeline media and detach audio', async () => {
+test('split timeline media and detach audio', () => {
 	const project = makeProject();
 	project.files[filePath] = `import {Video, Audio} from '@remotion/media';
 export const VideoComposition = () => <><Video src="video.mp4" from={10} durationInFrames={80} trimBefore={5}/><Audio src="audio.mp3" from={0} durationInFrames={90}/></>;`;
@@ -457,7 +457,7 @@ test('manage composition registrations and nested folders without changing compo
 	expect(original.files[compositionFile]).not.toContain('Vertical');
 });
 
-test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
+test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	const project = makeProject();
 	const node = findNode(project, 'AbsoluteFill');
 	const first = addEffect({
@@ -570,7 +570,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	expect(project.files[filePath]).not.toContain('effects=');
 });
 
-test('reject unsupported expressions and invalid edits atomically', async () => {
+test('reject unsupported expressions and invalid edits atomically', () => {
 	const project = makeProject();
 	project.files[filePath] =
 		'export const Video = ({timing, style}) => <div {...timing} style={style}>Hello</div>;';
@@ -618,7 +618,7 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 	expect(project.files).toEqual(original);
 });
 
-test('addElement returns remappings usable by public discovery and targets nodes', async () => {
+test('addElement returns remappings usable by public discovery and targets nodes', () => {
 	const project = makeProject();
 	const solid = createElement({
 		component: 'Solid',
@@ -786,7 +786,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 	});
 });
 
-test('nested copies return root references and insertion preserves relative keys under a project root', async () => {
+test('nested copies return root references and insertion preserves relative keys under a project root', () => {
 	const original = {...makeProject(), rootDir: '/project'};
 	const media = addElement({
 		project: original,
@@ -841,7 +841,7 @@ test('nested copies return root references and insertion preserves relative keys
 	).toHaveLength(2);
 });
 
-test('reject ambiguous registration roots and unsupported splitting or audio detachment', async () => {
+test('reject ambiguous registration roots and unsupported splitting or audio detachment', () => {
 	const project = makeProject();
 	project.files[compositionFile] +=
 		'\nconst AnotherRoot = () => <Composition id="Other" component={Video} />;';

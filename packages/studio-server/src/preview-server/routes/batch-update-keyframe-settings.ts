@@ -90,7 +90,7 @@ const toOperation = (settings: KeyframeSettings) =>
 				easing: settings.easing,
 			};
 
-export const batchUpdateKeyframeSettings = async ({
+export const batchUpdateKeyframeSettings = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	clientId,
@@ -99,7 +99,7 @@ export const batchUpdateKeyframeSettings = async ({
 }: BatchUpdateKeyframeSettingsRequest & {
 	remotionRoot: string;
 	logLevel: LogLevel;
-}): Promise<void> => {
+}): void => {
 	const totalUpdates = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalUpdates === 0) {
 		throw new Error('No keyframe settings updates were specified');
@@ -274,13 +274,13 @@ export const batchUpdateKeyframeSettingsHandler: ApiHandler<
 	BatchUpdateKeyframeSettingsRequest,
 	BatchUpdateKeyframeSettingsResponse
 > = ({input, remotionRoot, logLevel}) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[batch-update-keyframe-settings] Received ${input.sequenceKeyframes.length + input.effectKeyframes.length} update(s)`,
 		);
 
-		await batchUpdateKeyframeSettings({
+		batchUpdateKeyframeSettings({
 			...input,
 			remotionRoot,
 			logLevel,

@@ -250,7 +250,7 @@ export const insertCompositionElementHandler: ApiHandler<
 	InsertCompositionElementResponse
 > = ({input, remotionRoot, logLevel}) => {
 	const {compositionFile, compositionId, element, from} = input;
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			validateElement(element, remotionRoot);
 			if (
@@ -278,7 +278,7 @@ export const insertCompositionElementHandler: ApiHandler<
 				logLine,
 				nodePathRemappings,
 			} = input.track
-				? await (async () => {
+				? (() => {
 						const track = input.track!;
 						if (from === null)
 							throw new Error('Track insertion requires a start frame');

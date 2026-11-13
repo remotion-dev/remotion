@@ -25,7 +25,7 @@ export const splitSequencesHandler: ApiHandler<
 	SplitSequencesRequest,
 	SplitSequencesResponse
 > = ({input: {sequences}, remotionRoot, logLevel}) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		try {
 			if (sequences.length === 0) {
 				throw new Error('No JSX sequences were specified for splitting');
@@ -42,8 +42,8 @@ export const splitSequencesHandler: ApiHandler<
 				sequencesByFileName.set(sequence.fileName, fileSequences);
 			}
 
-			const updates = await Promise.all(
-				[...sequencesByFileName].map(async ([fileName, fileSequences]) => {
+			const updates = [...sequencesByFileName].map(
+				([fileName, fileSequences]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -88,7 +88,7 @@ export const splitSequencesHandler: ApiHandler<
 							nodePath,
 						})),
 					};
-				}),
+				},
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({

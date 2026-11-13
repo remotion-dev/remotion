@@ -9,7 +9,7 @@ import {getChangedContents} from './get-changed-contents';
 
 for (const indentation of ['\t', '  ', '    ']) {
 	for (const endOfLine of ['\n', '\r\n']) {
-		test(`prop and keyframe edits preserve formatting with ${JSON.stringify({indentation, endOfLine})}`, async () => {
+		test(`prop and keyframe edits preserve formatting with ${JSON.stringify({indentation, endOfLine})}`, () => {
 			const format = (source: string) =>
 				source.replaceAll('\t', indentation).replaceAll('\n', endOfLine);
 			const input = format(`/**

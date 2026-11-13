@@ -27,7 +27,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) =>
-	withSourceFileWriteQueue(async () => {
+	withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[update-sequence-keyframe-settings] Received request for fileName="${fileName}" key="${key}"`,
