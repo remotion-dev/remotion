@@ -1,7 +1,7 @@
 import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -17,21 +17,39 @@ import {countNativePixels} from './native-reference';
 import {testCompositions} from './utils';
 
 test('keeps whitespace-distinct stylesheet font titles independent', async () => {
-	const options = {title: 'A', firstRoboto: false, literal: false};
-	const render = async (inactiveTitle: string) => {
-		const result = await renderStillOnWeb({
+	const svgBlobs: Blob[] = [];
+	const createObjectURL = URL.createObjectURL.bind(URL);
+	const spy = vi.spyOn(URL, 'createObjectURL').mockImplementation((value) => {
+		if (value instanceof Blob && value.type.startsWith('image/svg+xml')) {
+			svgBlobs.push(value);
+		}
+
+		return createObjectURL(value);
+	});
+	try {
+		await renderStillOnWeb({
 			licenseKey: 'free-license',
-			composition: svgExactTitleFont({...options, inactiveTitle}),
+			composition: svgExactTitleFont({title: 'A', inactiveTitle: ' A ', firstRoboto: false, literal: false}),
 			frame: 0,
 			inputProps: {},
 			allowHtmlInCanvas: false,
 		});
-		return result.blob({format: 'png'});
-	};
+	} finally {
+		spy.mockRestore();
+	}
 
-	const actual = await render(' A ');
-	const expected = await render('B');
-	expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(0);
+	expect(svgBlobs).toHaveLength(1);
+	const svg = new DOMParser().parseFromString(await svgBlobs[0].text(), 'image/svg+xml');
+	const sources = (title: string) => {
+		const style = Array.from(svg.querySelectorAll('style')).find((element) => element.getAttribute('title') === title);
+		expect(style).toBeDefined();
+		return new Set(Array.from(style!.textContent!.matchAll(/url\(["']?([^"')]+)["']?\)/g), (match) => match[1]));
+	};
+	const active = sources('A');
+	const inactive = sources(' A ');
+	expect(active.size).toBe(1);
+	expect(inactive.size).toBe(1);
+	expect([...active][0]).not.toBe([...inactive][0]);
 });
 
 test(
