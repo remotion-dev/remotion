@@ -3,7 +3,7 @@ import {createElement} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
