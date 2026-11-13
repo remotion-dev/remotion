@@ -21,9 +21,9 @@ export const onBrowserDownloadOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Gets called when no compatible local browser is detected on the system and
-			this API needs to download a browser. Return a callback to observe
-			progress.{' '}
+			Gets called to determine which Chrome version to use. Return a{' '}
+			<code>version</code> to pin one, and an <code>onProgress</code> callback
+			that gets called if that version needs to be downloaded.{' '}
 			<a href="/docs/renderer/ensure-browser#onbrowserdownload">
 				See here for how to use this option.
 			</a>

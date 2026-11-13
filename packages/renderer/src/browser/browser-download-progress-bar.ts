@@ -14,25 +14,32 @@ export const defaultBrowserDownloadProgress =
 		api: string;
 	}): OnBrowserDownload =>
 	({chromeMode}) => {
-		if (chromeMode === 'chrome-for-testing') {
-			Log.info(
-				{indent, logLevel},
-				'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
-			);
-		} else {
-			Log.info(
-				{indent, logLevel},
-				'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
-			);
-		}
-		Log.info(
-			{indent, logLevel},
-			`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
-		);
-
+		// onBrowserDownload() is also called when the browser is already
+		// installed, so only log once a download starts.
+		let started = false;
 		let lastProgress = 0;
 		return {
 			onProgress: (progress) => {
+				if (!started) {
+					started = true;
+					if (chromeMode === 'chrome-for-testing') {
+						Log.info(
+							{indent, logLevel},
+							'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
+						);
+					} else {
+						Log.info(
+							{indent, logLevel},
+							'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+						);
+					}
+
+					Log.info(
+						{indent, logLevel},
+						`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
+					);
+				}
+
 				if (
 					progress.downloadedBytes > lastProgress + 10_000_000 ||
 					progress.percent === 1

@@ -54,7 +54,7 @@ In order to use Chrome for testing instead:
 Chrome Headless Shell will download to this folder:
 
 ```
-node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[platform]
+node_modules/.remotion/chrome-headless-shell/[version]/[platform]/chrome-headless-shell-[platform]
 ```
 
 <hr />
@@ -62,7 +62,7 @@ node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[p
 Chrome for Testing will download to this folder:
 
 ```
-node_modules/.remotion/chrome-for-testing/[platform]
+node_modules/.remotion/chrome-for-testing/[version]/[platform]
 ```
 
 The file structure inside this folder varies by OS.
@@ -70,6 +70,8 @@ The file structure inside this folder varies by OS.
 <hr />
 
 `platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
+
+Before v4.0.544, the `[version]` folder did not exist and only one version could be installed at a time.
 
 ## Download hosts
 
@@ -83,16 +85,18 @@ If the machine that renders has no internet access, run [`npx remotion browser e
 
 ## Version tracking<AvailableFrom v="4.0.415" />
 
-Remotion writes a `VERSION` file to the download folder to track which Chrome version is installed:
+Remotion writes a `VERSION` file into the folder of each installed Chrome version once the download is complete:
 
 ```
-node_modules/.remotion/chrome-headless-shell/VERSION
-node_modules/.remotion/chrome-for-testing/VERSION
+node_modules/.remotion/chrome-headless-shell/[version]/VERSION
+node_modules/.remotion/chrome-for-testing/[version]/VERSION
 ```
 
 The file contains the Chrome version string, e.g. `158.0.8127.2-remotion-v3` for builds from `remotion.media` or `158.0.8127.2` for builds from `storage.googleapis.com`.
 
-If the `VERSION` file is missing (e.g. when upgrading from an older version of Remotion) or does not match the expected version, Remotion will delete the existing browser and download the correct version.
+If a different version is requested, Remotion downloads it into its own folder. Other installed versions are not deleted. To free up disk space, delete the folders of versions you no longer use.
+
+Browsers installed before v4.0.544 are moved into the new folder structure if their version is requested, so they don't need to be downloaded again.
 
 ## Bring your own binary
 
@@ -176,7 +180,8 @@ See [Shared-memory capture](/docs/shared-memory-capture) for activation conditio
 
 On Lambda, it is not possible to change the Chrome version.
 
-If you use the [server-side rendering APIs](/docs/ssr), use the callback in [`ensureBrowser()`](/docs/renderer/ensure-browser#onbrowserdownload) to change the Chrome version.
+If you use the [server-side rendering APIs](/docs/ssr), use the callback in [`ensureBrowser()`](/docs/renderer/ensure-browser#onbrowserdownload) to change the Chrome version.  
+To install a specific version ahead of time, for example in a Dockerfile, use [`npx remotion browser ensure --version`](/docs/cli/browser/ensure#--version).
 
 ## On Lambda and Cloud Run
 

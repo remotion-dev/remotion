@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Browser download callback function<AvailableFrom v="4.0.137" />
 
-Gets called when no compatible local browser is detected on the system and this API needs to download a browser. Return a callback to observe progress. [See here for how to use this option.](/docs/renderer/ensure-browser#onbrowserdownload)
+Gets called to determine which Chrome version to use. Return a `version` to pin one, and an `onProgress` callback that gets called if that version needs to be downloaded. [See here for how to use this option.](/docs/renderer/ensure-browser#onbrowserdownload)
 
 ## APIs that have this option
 

@@ -48,19 +48,29 @@ export const defaultBrowserDownloadProgress = ({
 	onProgress: (progress: BrowserDownloadState) => void;
 }): OnBrowserDownload => {
 	return ({chromeMode}) => {
-		if (chromeMode === 'chrome-for-testing') {
-			Log.info(
-				{indent, logLevel},
-				'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
-			);
-		} else {
-			Log.info(
-				{indent, logLevel},
-				chalk.gray(
-					'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
-				),
-			);
-		}
+		// onBrowserDownload() is also called when the browser is already
+		// installed, so only log once a download starts.
+		let started = false;
+		const logStart = () => {
+			if (started) {
+				return;
+			}
+
+			started = true;
+			if (chromeMode === 'chrome-for-testing') {
+				Log.info(
+					{indent, logLevel},
+					'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
+				);
+			} else {
+				Log.info(
+					{indent, logLevel},
+					chalk.gray(
+						'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+					),
+				);
+			}
+		};
 
 		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
@@ -78,6 +88,7 @@ export const defaultBrowserDownloadProgress = ({
 			alreadyAvailable: boolean;
 			percent: number;
 		}) => {
+			logStart();
 			if (progress.percent === 1) {
 				doneIn = Date.now() - startedAt;
 			}

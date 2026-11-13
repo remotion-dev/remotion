@@ -67,7 +67,7 @@ export const getPlatform = (): Platform => {
 	}
 };
 
-const getDownloadsFolder = (chromeMode: ChromeMode) => {
+const getChromeModeFolder = (chromeMode: ChromeMode) => {
 	const destination =
 		chromeMode === 'headless-shell'
 			? 'chrome-headless-shell'
@@ -76,9 +76,23 @@ const getDownloadsFolder = (chromeMode: ChromeMode) => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
-const getVersionFilePath = (chromeMode: ChromeMode): string => {
-	const downloadsFolder = getDownloadsFolder(chromeMode);
-	return path.join(downloadsFolder, 'VERSION');
+// Each version gets its own folder so that installing one version never
+// removes another one.
+const getVersionFolder = (
+	chromeMode: ChromeMode,
+	expectedVersion: string,
+): string => {
+	if (
+		expectedVersion === '.' ||
+		expectedVersion === '..' ||
+		/[/\\]/.test(expectedVersion)
+	) {
+		throw new Error(
+			`Invalid Chrome version "${expectedVersion}" returned from onBrowserDownload().`,
+		);
+	}
+
+	return path.join(getChromeModeFolder(chromeMode), expectedVersion);
 };
 
 export const getExpectedVersion = ({
@@ -113,18 +127,41 @@ export const getExpectedVersion = ({
 	return TESTED_VERSION;
 };
 
-export const readVersionFile = (chromeMode: ChromeMode): string | null => {
-	const versionFilePath = getVersionFilePath(chromeMode);
+// Before browsers were stored per version, a single browser was stored in
+// <chrome-mode>/<platform> next to a VERSION file. Adopt it if it is the
+// requested version, so upgrading does not cause a re-download.
+const adoptLegacyInstall = (
+	chromeMode: ChromeMode,
+	expectedVersion: string,
+): void => {
+	const chromeModeFolder = getChromeModeFolder(chromeMode);
+	const legacyVersionFile = path.join(chromeModeFolder, 'VERSION');
+	let legacyVersion: string;
 	try {
-		return fs.readFileSync(versionFilePath, 'utf-8').trim();
+		legacyVersion = fs.readFileSync(legacyVersionFile, 'utf-8').trim();
 	} catch {
-		return null;
+		return;
 	}
-};
 
-const writeVersionFile = (chromeMode: ChromeMode, version: string): void => {
-	const versionFilePath = getVersionFilePath(chromeMode);
-	fs.writeFileSync(versionFilePath, version);
+	if (legacyVersion !== expectedVersion) {
+		return;
+	}
+
+	const platform = getPlatform();
+	const legacyFolder = getFolderPath(chromeModeFolder, platform);
+	const versionFolder = getVersionFolder(chromeMode, expectedVersion);
+	const targetFolder = getFolderPath(versionFolder, platform);
+	if (!fs.existsSync(legacyFolder) || fs.existsSync(targetFolder)) {
+		return;
+	}
+
+	try {
+		fs.mkdirSync(versionFolder, {recursive: true});
+		fs.renameSync(legacyFolder, targetFolder);
+		fs.renameSync(legacyVersionFile, path.join(versionFolder, 'VERSION'));
+	} catch {
+		// Another process may have adopted it at the same time.
+	}
 };
 
 export const downloadBrowser = async ({
@@ -149,19 +186,15 @@ export const downloadBrowser = async ({
 		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
 	}
 
-	const downloadsFolder = getDownloadsFolder(chromeMode);
+	const expectedVersion = getExpectedVersion({version, chromeMode, platform});
+	const downloadsFolder = getVersionFolder(chromeMode, expectedVersion);
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
-	const expectedVersion = getExpectedVersion({version, chromeMode, platform});
+	const versionFilePath = path.join(downloadsFolder, 'VERSION');
 
-	if (await existsAsync(outputPath)) {
-		const installedVersion = readVersionFile(chromeMode);
-		if (
-			installedVersion === expectedVersion &&
-			(await existsAsync(getRevisionInfo(chromeMode).executablePath))
-		) {
-			return getRevisionInfo(chromeMode);
-		}
+	const existing = getRevisionInfo({chromeMode, version});
+	if (existing.local) {
+		return existing;
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -187,17 +220,13 @@ export const downloadBrowser = async ({
 	);
 
 	try {
-		if (await existsAsync(outputPath)) {
-			const installedVersion = readVersionFile(chromeMode);
-			if (
-				installedVersion === expectedVersion &&
-				(await existsAsync(getRevisionInfo(chromeMode).executablePath))
-			) {
-				return getRevisionInfo(chromeMode);
-			}
+		const installedMeanwhile = getRevisionInfo({chromeMode, version});
+		if (installedMeanwhile.local) {
+			return installedMeanwhile;
 		}
 
-		fs.rmSync(getVersionFilePath(chromeMode), {force: true});
+		// Only removes a partial download of this same version.
+		fs.rmSync(versionFilePath, {force: true});
 		fs.rmSync(outputPath, {recursive: true, force: true});
 
 		logDownloadUrl({url: downloadURL, logLevel, indent});
@@ -270,11 +299,12 @@ export const downloadBrowser = async ({
 			}
 		}
 
-		const revisionInfo = getRevisionInfo(chromeMode);
-		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
-		writeVersionFile(chromeMode, expectedVersion);
+		const {executablePath} = getRevisionInfo({chromeMode, version});
+		makeFileExecutableIfItIsNot(executablePath);
+		// Written last: marks the download as complete.
+		fs.writeFileSync(versionFilePath, expectedVersion);
 
-		return revisionInfo;
+		return getRevisionInfo({chromeMode, version});
 	} finally {
 		await releaseLock();
 	}
@@ -284,10 +314,8 @@ const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
 	return path.resolve(downloadsFolder, platform);
 };
 
-const getExecutablePath = (chromeMode: ChromeMode) => {
-	const downloadsFolder = getDownloadsFolder(chromeMode);
+const getExecutablePath = (chromeMode: ChromeMode, folderPath: string) => {
 	const platform = getPlatform();
-	const folderPath = getFolderPath(downloadsFolder, platform);
 
 	if (chromeMode === 'chrome-for-testing') {
 		if (platform === 'mac-arm64' || platform === 'mac-x64') {
@@ -327,16 +355,25 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 	throw new Error('unsupported chrome mode' + (chromeMode satisfies never));
 };
 
-export const getRevisionInfo = (
-	chromeMode: ChromeMode,
-): BrowserFetcherRevisionInfo => {
-	const executablePath = getExecutablePath(chromeMode);
-	const downloadsFolder = getDownloadsFolder(chromeMode);
+export const getRevisionInfo = ({
+	chromeMode,
+	version,
+}: {
+	chromeMode: ChromeMode;
+	version: string | null;
+}): BrowserFetcherRevisionInfo => {
 	const platform = getPlatform();
-	const folderPath = getFolderPath(downloadsFolder, platform);
+	const expectedVersion = getExpectedVersion({version, chromeMode, platform});
+	adoptLegacyInstall(chromeMode, expectedVersion);
 
-	const url = getChromeDownloadUrl({platform, version: null, chromeMode});
-	const local = fs.existsSync(folderPath);
+	const versionFolder = getVersionFolder(chromeMode, expectedVersion);
+	const folderPath = getFolderPath(versionFolder, platform);
+	const executablePath = getExecutablePath(chromeMode, folderPath);
+
+	const url = getChromeDownloadUrl({platform, version, chromeMode});
+	const local =
+		fs.existsSync(path.join(versionFolder, 'VERSION')) &&
+		fs.existsSync(executablePath);
 
 	return {
 		executablePath,
