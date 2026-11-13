@@ -3,6 +3,7 @@ import {
 	mkdtempSync,
 	mkdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	writeFileSync,
 } from 'node:fs';
@@ -12,7 +13,9 @@ import path from 'node:path';
 for (const overviewFirst of [true, false]) {
 	for (const alias of [null, 'ApiContents']) {
 		test(`shared TOC category ignores subset importers: overviewFirst=${overviewFirst}, alias=${alias}`, () => {
-			const root = mkdtempSync(path.join(tmpdir(), 'remotion-toc-'));
+			const root = realpathSync(
+				mkdtempSync(path.join(tmpdir(), 'remotion-toc-')),
+			);
 			try {
 				mkdirSync(path.join(root, 'docs'));
 				writeFileSync(
@@ -50,29 +53,19 @@ for (const overviewFirst of [true, false]) {
 					'method.mdx',
 					'table-of-contents.tsx',
 				];
-				const preload = path.join(root, 'inventory.ts');
+				const entry = path.join(root, 'inventory.ts');
 				writeFileSync(
-					preload,
-					`import fs from 'node:fs';
-const read = fs.readdirSync;
+					entry,
+					`import {checkTocSync} from './check-toc-sync';
+import path from 'node:path';
 const order = ${JSON.stringify(inventory)};
-fs.readdirSync = (directory, options) => {
- const entries = read(directory, options);
- if (fs.realpathSync(String(directory)) === fs.realpathSync(${JSON.stringify(path.join(root, 'docs'))})) {
-  entries.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
-  console.log('inventory:' + JSON.stringify(entries.map(entry => entry.name)));
- }
- return entries;
-};`,
+const files = order.map(name => path.join(${JSON.stringify(path.join(root, 'docs'))}, name));
+console.log('inventory:' + JSON.stringify(files.map(file => path.basename(file))));
+checkTocSync(files);`,
 				);
 				const run = () =>
 					Bun.spawnSync({
-						cmd: [
-							process.execPath,
-							'--preload',
-							preload,
-							path.join(root, 'check-toc-sync.ts'),
-						],
+						cmd: [process.execPath, entry],
 					});
 				const complete = run();
 				expect(complete.stdout.toString()).toContain(
