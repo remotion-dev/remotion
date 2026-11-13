@@ -114,6 +114,7 @@ for (const actor of ['Player', 'Thumbnail'] as const) {
 					const staleFailure = new Error('retired composition work');
 					expect(() => cancelRender(staleFailure)).toThrow(staleFailure);
 				}
+
 				await Promise.resolve();
 			});
 			expect(view.queryByRole('alert')).toBeNull();
