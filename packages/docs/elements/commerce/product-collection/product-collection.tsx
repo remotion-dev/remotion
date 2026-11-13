@@ -153,8 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 
 const ProductCollectionInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	const durationInFrames = Math.max(sequenceDurationInFrames, 25);
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div

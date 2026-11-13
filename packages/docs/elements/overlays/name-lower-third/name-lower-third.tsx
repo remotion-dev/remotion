@@ -16,8 +16,7 @@ loadFont('normal', {
 
 const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	const durationInFrames = Math.max(sequenceDurationInFrames, 53);
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div

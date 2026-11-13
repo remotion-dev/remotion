@@ -17,8 +17,7 @@ loadFont('normal', {
 
 const PolaroidPicturesInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
-	const durationInFrames = Math.max(sequenceDurationInFrames, 91);
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<AbsoluteFill
