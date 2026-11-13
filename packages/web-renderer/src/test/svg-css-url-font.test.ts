@@ -51,7 +51,7 @@ test('CSS URL font fetch restores SVG styles, deduplicates and retries', async (
 		.href;
 	const fontData = await (await fetch(url)).arrayBuffer();
 	const style = document.createElement('style');
-	style.textContent = `@font-face{font-family:"CSS URL async guard";src:url("${url}") format("woff2")}`;
+	style.textContent = `@font-face{font-family:"CSS URL async guard";src:url("${url}") format("woff2") tech(variations)}`;
 	document.head.appendChild(style);
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute(

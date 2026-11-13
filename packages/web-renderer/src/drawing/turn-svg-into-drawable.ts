@@ -6,6 +6,7 @@ import {
 } from './embed-registered-fonts-in-svg';
 import {getSvgPaintBounds} from './get-svg-paint-bounds';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
+import {parseSingleSourceFontUrl} from './parse-single-source-font-url';
 import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 import {getSvgFontCssForCarrier} from './svg-font-css-for-carrier';
 
@@ -200,12 +201,8 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
 			// Multiple sources and CSS-escaped URLs need separate source selection.
-			const source =
-				/^url\((?:"([^"\\]*)"|'([^'\\]*)'|([^()\\]*))\)(?:\s+format\([^)]*\))?$/i.exec(
-					src,
-				);
-			if (!source) continue;
-			const sourceUrl = source[1] ?? source[2] ?? source[3];
+			const sourceUrl = parseSingleSourceFontUrl(src);
+			if (sourceUrl === null) continue;
 			let url: string | null = null;
 			if (!/^data:/i.test(sourceUrl)) {
 				let resolved: URL;
