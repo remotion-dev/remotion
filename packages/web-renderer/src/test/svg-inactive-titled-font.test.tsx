@@ -29,7 +29,12 @@ test('keeps whitespace-distinct stylesheet font titles independent', async () =>
 	try {
 		await renderStillOnWeb({
 			licenseKey: 'free-license',
-			composition: svgExactTitleFont({title: 'A', inactiveTitle: ' A ', firstRoboto: false, literal: false}),
+			composition: svgExactTitleFont({
+				title: 'A',
+				inactiveTitle: ' A ',
+				firstRoboto: false,
+				literal: false,
+			}),
 			frame: 0,
 			inputProps: {},
 			allowHtmlInCanvas: false,
@@ -39,12 +44,23 @@ test('keeps whitespace-distinct stylesheet font titles independent', async () =>
 	}
 
 	expect(svgBlobs).toHaveLength(1);
-	const svg = new DOMParser().parseFromString(await svgBlobs[0].text(), 'image/svg+xml');
+	const svg = new DOMParser().parseFromString(
+		await svgBlobs[0].text(),
+		'image/svg+xml',
+	);
 	const sources = (title: string) => {
-		const style = Array.from(svg.querySelectorAll('style')).find((element) => element.getAttribute('title') === title);
+		const style = Array.from(svg.querySelectorAll('style')).find(
+			(element) => element.getAttribute('title') === title,
+		);
 		expect(style).toBeDefined();
-		return new Set(Array.from(style!.textContent!.matchAll(/url\(["']?([^"')]+)["']?\)/g), (match) => match[1]));
+		return new Set(
+			Array.from(
+				style!.textContent!.matchAll(/url\(["']?([^"')]+)["']?\)/g),
+				(match) => match[1],
+			),
+		);
 	};
+
 	const active = sources('A');
 	const inactive = sources(' A ');
 	expect(active.size).toBe(1);
