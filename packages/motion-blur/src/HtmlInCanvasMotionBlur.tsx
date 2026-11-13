@@ -81,7 +81,6 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
-	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
 	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
@@ -104,13 +103,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			{isRepresentativeSample ? (
-				content
-			) : (
-				<Internals.DisableSequenceRegistrationProvider>
-					{content}
-				</Internals.DisableSequenceRegistrationProvider>
-			)}
+			<Internals.DisableSequenceRegistrationProvider
+				disabled={!isRepresentativeSample}
+			>
+				<Freeze frame={sampleFrame}>{children}</Freeze>
+			</Internals.DisableSequenceRegistrationProvider>
 		</div>
 	);
 };

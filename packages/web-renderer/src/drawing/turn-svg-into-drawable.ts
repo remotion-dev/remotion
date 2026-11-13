@@ -5,7 +5,7 @@ import {
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {matchesFontFaceFamily, parseFontFamilies} from './parse-font-families';
-import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
+import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -231,29 +231,32 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		? getCssFontRules(svg, fontFamilies)
 		: [];
 
+	const authoredElements =
+		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
 	const authoredStyles =
-		textStyles.some((style) => style !== null) &&
-		Array.from(svg.querySelectorAll('style')).some((style) =>
-			style.textContent?.includes('['),
-		)
-			? [svg, ...svg.querySelectorAll('*')].map((element) =>
-					element.getAttribute('style'),
-				)
-			: null;
-	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
+	const authoredMedia =
+		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
+	const authoredEmpty =
+		authoredElements?.map((element) => element.matches(':empty')) ?? null;
+	const styles = svg.querySelectorAll('style');
+	const fontStyleIndex = Array.from(styles, (style) =>
 		Boolean(style.sheet),
 	).lastIndexOf(true);
-	const media = svg
-		.querySelectorAll('style')
-		[fontStyleIndex]?.getAttribute('media');
-	const carrierMediaMatches =
-		!media ||
-		(svg.ownerDocument.defaultView ?? window).matchMedia(media).matches;
+	const carrierMediaMatches = Array.from(styles, (style) => {
+		const media = style.getAttribute('media');
+		return (
+			!media ||
+			(svg.ownerDocument.defaultView ?? window).matchMedia(media).matches
+		);
+	});
 	return {
 		fontStyleIndex,
 		carrierMediaMatches,
 		textStyles,
 		authoredStyles,
+		authoredMedia,
+		authoredEmpty,
 		cssFontRules,
 		embeddedFontStyle: getEmbeddedFontStyleForSvg(svg),
 	};
@@ -267,11 +270,14 @@ export const turnSvgIntoDrawable = (
 	const {
 		textStyles,
 		authoredStyles,
+		authoredMedia,
+		authoredEmpty,
 		cssFontRules,
 		embeddedFontStyle,
-		fontStyleIndex,
+		fontStyleIndex: originalFontStyleIndex,
 		carrierMediaMatches,
 	} = fontSnapshot ?? getSvgFontSnapshot(svg);
+	let fontStyleIndex = originalFontStyleIndex;
 
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
@@ -356,6 +362,48 @@ export const turnSvgIntoDrawable = (
 		});
 	});
 
+	if (embeddedFontStyle && styles[fontStyleIndex]?.matches(':empty')) {
+		// Keep an authored empty sheet empty when an earlier active carrier can
+		// retain font order. A later CSSOM rule remains an ordering boundary.
+		for (let index = styles.length - 1; index >= 0; index--) {
+			const style = styles[index];
+			const {sheet} = style;
+			if (!sheet) continue;
+			let ruleCount: number;
+			try {
+				ruleCount = sheet.cssRules.length;
+			} catch {
+				break;
+			}
+
+			const media = sheet.media.mediaText;
+			if (
+				!sheet.disabled &&
+				(!media || media.toLowerCase() === 'all') &&
+				!style.matches(':empty')
+			) {
+				fontStyleIndex = index;
+				break;
+			}
+
+			if (ruleCount !== 0) break;
+		}
+	}
+
+	// A titled sheet can be inactive without sheet.disabled being set. Put
+	// registered faces after local faces in every candidate when sets are used.
+	// Empty and disabled sheets can still be selected by the image document;
+	// their paint is normalized separately from font availability.
+	const usesStylesheetSets = Boolean(
+		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
+	);
+	const fontCarriers =
+		embeddedFontStyle && usesStylesheetSets
+			? Array.from(styles, (style, index) =>
+					style.sheet ? index : null,
+				).filter((index) => index !== null)
+			: [fontStyleIndex];
+
 	if (cssFontRules.length) {
 		const ownerWindow = svg.ownerDocument.defaultView! as Window &
 			typeof globalThis;
@@ -378,23 +426,25 @@ export const turnSvgIntoDrawable = (
 		});
 	}
 
-	if (embeddedFontStyle !== null && cssFontRules.length === 0) {
-		const carrier = styles[fontStyleIndex];
-		if (
-			carrier?.sheet &&
-			!carrier.sheet.disabled &&
-			!carrier.matches(':empty')
-		) {
-			svgForSerialization.querySelectorAll('style')[
-				fontStyleIndex
-			].textContent =
-				Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
-				'/* Empty stylesheet rules. */';
+	if (embeddedFontStyle && cssFontRules.length === 0) {
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
+		for (const index of fontCarriers) {
+			const carrier = styles[index];
+			if (carrier?.sheet && !carrier.sheet.disabled) {
+				clonedStyles[index].textContent =
+					Array.from(carrier.sheet.cssRules, (rule) => rule.cssText).join('') ||
+					'/* Empty stylesheet rules. */';
+			}
 		}
 	}
 
-	if (authoredStyles)
-		preserveSvgStyleSelectors({svg: svgForSerialization, authoredStyles});
+	if (authoredStyles || authoredMedia || authoredEmpty)
+		preserveSvgAttributeSelectors({
+			svg: svgForSerialization,
+			authoredStyles,
+			authoredMedia,
+			authoredEmpty,
+		});
 
 	const serializedSvg = serializeSvg(svgForSerialization);
 
@@ -432,6 +482,7 @@ export const turnSvgIntoDrawable = (
 					embeddedFontStyle?.cacheKey ?? null,
 					cssFontRules.map((rule) => [rule.css, rule.url]),
 					fontStyleIndex,
+					fontCarriers,
 					carrierMediaMatches,
 				])
 			: null;
@@ -472,12 +523,17 @@ export const turnSvgIntoDrawable = (
 				const fontCss = css + (embeddedFontStyle?.css ?? '');
 				let markup = serializedSvg;
 				if (fontCss) {
-					insertFontStyleInSvg(
-						svgForSerialization,
-						fontCss,
-						fontStyleIndex,
-						carrierMediaMatches,
-					);
+					for (const index of usesStylesheetSets && fontCarriers.length
+						? fontCarriers
+						: [usesStylesheetSets ? -1 : fontStyleIndex]) {
+						insertFontStyleInSvg(
+							svgForSerialization,
+							fontCss,
+							index,
+							carrierMediaMatches[index] ?? true,
+						);
+					}
+
 					markup = serializeSvg(svgForSerialization);
 				}
 

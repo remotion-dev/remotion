@@ -1,7 +1,7 @@
 ---
 name: remotion-render
-description: Export a Remotion video
-version: 4.0.542
+description: Export a Remotion video, still image, or editable OpenTimelineIO timeline
+version: 4.0.543
 ---
 
 ## General rendering strategy
@@ -15,10 +15,38 @@ unless the user explicitly requests a different browser.
 Render a video using:
 
 ```
-npx remotion render
+npx remotion render [composition-id] out/video.mp4
 ```
 
+Always pass the composition ID. Without it, Remotion shows an interactive picker, or fails in a non-interactive terminal. List the IDs with `npx remotion compositions`.
+
 Full list of options: https://www.remotion.dev/docs/cli/render.md
+
+## Passing input props
+
+Pass input props as inline JSON or as a path to a JSON file:
+
+```
+npx remotion render [composition-id] out/video.mp4 --props='{"title": "Hello"}'
+npx remotion render [composition-id] out/video.mp4 --props=./props.json
+```
+
+Remotion shallow-merges input props over the `defaultProps` of the composition.
+See https://www.remotion.dev/docs/passing-props.md.
+
+## License key
+
+Companies that need a [Remotion license](../remotion-license/SKILL.md) should
+pass their license key to every render. If the user qualifies for the free
+license, pass `free-license` instead:
+
+```
+npx remotion render [composition-id] out/video.mp4 --license-key=$REMOTION_PRIVATE_LICENSE_KEY
+```
+
+Only pass `--license-key` if a key is available, since an empty value is not a valid key.
+Add `--is-production=false` for test renders so that Remotion does not bill them.
+See https://www.remotion.dev/docs/telemetry.md.
 
 Render a still using:
 
@@ -36,6 +64,20 @@ npx remotion render [composition-id] out/frames --frames=0,30,90 --image-format=
 
 See https://www.remotion.dev/docs/cli/render.md#--frames for more options.
 
+Remotion writes the frames as `element-[frame].[ext]`. It pads the frame number
+with zeros to the number of digits of the highest rendered frame, so
+`--frames=4,30` writes `element-04.png` and `element-30.png`. List the output
+folder instead of guessing the filenames, or pass `--image-sequence-pattern`
+to change the pattern.
+
 ## Transparent videos
 
 See [Transparent videos](./transparent-videos.md) for rendering out a video with transparency.
+
+## OpenTimelineIO export (optional)
+
+When the user asks for an editable timeline for DaVinci Resolve, Adobe Premiere,
+or another video editor, follow [Export to OpenTimelineIO](./opentimeline.md).
+This workflow preserves editable media clips where possible and prerenders
+unsupported elements. Use it only for requested timeline exports; ordinary video
+and still renders use the commands above.

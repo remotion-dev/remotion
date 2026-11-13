@@ -42,3 +42,9 @@ test('getBoundingBox() includes the end of a curve that starts with a flat tange
 	expect(smoothQuadratic.x2).toBeCloseTo(20);
 	expect(smoothQuadratic.y2).toBeCloseTo(10);
 });
+
+test('getBoundingBox() includes a smooth quadratic curve after an arc', () => {
+	const box = getBoundingBox('M 0 0 A 10 10 0 0 0 10 0 T 100 100');
+	expect(box.x2).toBeCloseTo(100);
+	expect(box.y2).toBeCloseTo(100);
+});

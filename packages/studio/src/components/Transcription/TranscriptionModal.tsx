@@ -966,6 +966,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 				<div style={transcriptionLayout}>
 					<div style={leftSidebar}>
 						<VerticalTab
+							draggable={false}
 							autoFocus
 							style={horizontalTab}
 							selected={tab === 'transcribe'}
@@ -980,6 +981,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						</VerticalTab>
 						{target === null ? null : (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'styles'}
 								onClick={() => setTab('styles')}
@@ -993,6 +995,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							</VerticalTab>
 						)}
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'models'}
 							onClick={() => setTab('models')}
@@ -1005,6 +1008,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							Models
 						</VerticalTab>
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
@@ -1169,6 +1173,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								url={libraryUrl}
 								context="captions"
 								captionStyleSelection={captionStyleSelection}
+								onUrlChange={null}
 							/>
 						</div>
 					) : null}

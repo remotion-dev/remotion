@@ -6,6 +6,10 @@ import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {
+	backgroundImageMissingFilter,
+	missingFilterBackgroundEffects,
+} from './fixtures/background-image-missing-filter';
+import {
 	pixelatedBackgroundSampler,
 	pixelatedBackgroundSamplerControl,
 } from './fixtures/background-image-pixelated-sampler-lifetime';
@@ -34,6 +38,7 @@ import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {clipPathShapes, clipPathReferences} from './fixtures/clip-path';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {
 	clipPathDescendantFilter,
@@ -182,6 +187,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
@@ -199,11 +205,17 @@ import {
 	svgDisabledStylesOpaque,
 } from './fixtures/svg-disabled-styles';
 import {
+	svgEmptyPredicate,
+	svgEmptyPredicates,
+} from './fixtures/svg-empty-predicate';
+import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
 	svgExternalFontSelection,
 	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
@@ -232,10 +244,23 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {
+	svgInactiveTitleMediaCache,
+	svgInactiveTitleModes,
+	svgInactiveTitledFont,
+} from './fixtures/svg-inactive-titled-font';
+import {
 	svgLocalConditionalFont,
 	svgLocalConditionalUrlFont,
 } from './fixtures/svg-local-conditional-font';
+import {
+	svgPreferredFontCarrier,
+	svgPreferredFontModes,
+} from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {
+	registeredCdataWrappers,
+	svgRegisteredCdataFont,
+} from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
@@ -298,6 +323,16 @@ export const Root: React.FC = () => {
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
+			<Folder name="Registered-SVG-CDATA">
+				{registeredCdataWrappers.map((wrapper) => {
+					const fixture = svgRegisteredCdataFont(
+						wrapper,
+						'cdata',
+						'registered',
+					);
+					return <Composition key={fixture.id} {...fixture} />;
+				})}
+			</Folder>
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
 			<Composition {...parentTransformOrigin} />
@@ -342,7 +377,47 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgCssConditionalFont} />
+			<Composition {...svgCssDataFont} />
+			<Composition {...svgCssUrlFont} />
+			<Composition {...svgLocalConditionalFont} />
+			<Composition {...svgLocalConditionalUrlFont} />
+			<Composition {...svgFontMediaCache({active: null})} />
+			<Composition {...svgFontReviewCarrier({literal: false})} />
+
+			{svgAtRuleTextModes.flatMap((mode) =>
+				[false, true].map((positive) => (
+					<Composition
+						key={`at-rule-${mode}-${positive}`}
+						{...svgAtRuleText({mode, positive, literal: false})}
+					/>
+				)),
+			)}
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={`empty-predicate-${predicate}`}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
+			{svgPreferredFontModes.map((mode) => (
+				<Composition
+					key={`preferred-font-${mode}`}
+					{...svgPreferredFontCarrier({mode, literal: false, fallback: false})}
+				/>
+			))}
 			<Composition {...svgExternalStyleSelectors({literal: false})} />
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgInactiveTitleModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
+				/>
+			))}
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition
 					key={mode}
@@ -352,13 +427,12 @@ export const Root: React.FC = () => {
 			{svgXmlMetadataModes.map((mode) => (
 				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
 			))}
-			<Composition {...svgFontMediaCache({active: null})} />
-			<Composition {...svgCssDataFont} />
-			<Composition {...svgCssConditionalFont} />
-			<Composition {...svgFontReviewCarrier({literal: false})} />
-			<Composition {...svgLocalConditionalFont} />
-			<Composition {...svgLocalConditionalUrlFont} />
-			<Composition {...svgCssUrlFont} />
+			{svgExternalCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const fixture = svgExternalEmptyCarrier({mode, literal});
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
+			)}
 			<Composition {...svgDataUri} />
 			<Composition {...svgFontFamilyLifetime} />
 			<Composition {...svgUrlNonzeroViewbox} />
@@ -516,6 +590,8 @@ export const Root: React.FC = () => {
 				<Composition {...pr11215SvgFontRepro} />
 			</Folder>
 			<Folder name="clip-path">
+				<Composition {...clipPathShapes} />
+				<Composition {...clipPathReferences} />
 				<Composition {...clipPathPolygon} />
 				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
@@ -558,6 +634,14 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{missingFilterBackgroundEffects.flatMap((effect) =>
+				[1, 2].map((scale) => (
+					<Composition
+						key={`${effect}-${scale}`}
+						{...backgroundImageMissingFilter(effect, scale)}
+					/>
+				)),
+			)}
 		</>
 	);
 };

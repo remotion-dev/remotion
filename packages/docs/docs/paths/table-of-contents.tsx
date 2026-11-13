@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>cutPath()</strong>
 					<div>Cut an SVG path at a specified length</div>
 				</TOCItem>
+				<TOCItem link="/docs/paths/get-instruction-index-at-length">
+					<strong>getInstructionIndexAtLength()</strong>
+					<div>Get the instruction at a certain length of an SVG path</div>
+				</TOCItem>
 				<TOCItem link="/docs/paths/get-point-at-length">
 					<strong>getPointAtLength()</strong>
 					<div>Get coordinates at a certain point of an SVG path</div>

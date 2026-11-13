@@ -28,6 +28,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 					inputProps: {},
 					defaultProps: {},
 					signal: new AbortController().signal,
+					schema: null,
 				}),
 
 			/The "width" prop of the "<Composition \/>" component with the id "id" must be a number, but you passed a value of type undefined/,
@@ -47,6 +48,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 
 				/The "height" prop of the "<Composition \/>" component with the id "id" must be positive, but got -100./,
@@ -65,6 +67,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "height" prop of the "<Composition \/>" component with the id "id" must be positive, but got 0./,
 			);
@@ -83,6 +86,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "height" prop of the "<Composition \/>" component with the id "id" must be a number, but you passed a value of type string/,
 			);
@@ -100,6 +104,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "height" prop of the "<Composition \/>" component with the id "id" must be an integer, but is 100.01./,
 			);
@@ -119,6 +124,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "width" prop of the "<Composition \/>" component with the id "id" must be positive, but got -100./,
 			);
@@ -136,6 +142,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "width" prop of the "<Composition \/>" component with the id "id" must be positive, but got 0./,
 			);
@@ -154,6 +161,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "width" prop of the "<Composition \/>" component with the id "id" must be a number, but you passed a value of type string/,
 			);
@@ -173,6 +181,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "durationInFrames" prop of the "<Composition \/>" component with the id "id" must be positive, but got -100./,
 			);
@@ -190,6 +199,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "durationInFrames" prop of the "<Composition \/>" component with the id "id" must be positive, but got 0./,
 			);
@@ -207,6 +217,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "durationInFrames" prop of the "<Composition \/>" component with the id "id" must be an integer, but got 0.11./,
 			);
@@ -225,6 +236,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/The "durationInFrames" prop of the "<Composition \/>" component with the id "id" must be a number, but you passed a value of type string/,
 			);
@@ -244,6 +256,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/"fps" must be positive, but got -30./,
 			);
@@ -261,6 +274,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						inputProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/"fps" must be positive, but got 0./,
 			);
@@ -280,6 +294,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 						defaultProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
+						schema: null,
 					}),
 				/"fps" must be a number, but you passed a value of type string/,
 			);
@@ -409,6 +424,7 @@ test('should resolve props correctly with no calculateMetadata()', async () => {
 			c: 'd',
 		},
 		signal: new AbortController().signal,
+		schema: null,
 		defaultProps: {
 			a: 'b',
 		},
@@ -430,6 +446,7 @@ test('should track which metadata was returned by calculateMetadata()', async ()
 		compositionWidth: 1920,
 		inputProps: {},
 		signal: new AbortController().signal,
+		schema: null,
 		defaultProps: {},
 	});
 

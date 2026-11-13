@@ -4,9 +4,15 @@
 
 Remotion maintains a list of [Agent Skills](https://agentskills.io/home) that define best practices for working in Remotion projects.
 
-These skills are useful for AI agents like Claude Code, Codex, Kimi Code or Cursor.
+These skills are useful for AI agents like Claude Code, Codex, Cursor, Kimi Code and OpenCode. See the [list of supported agents](https://github.com/vercel-labs/skills#supported-agents).
 
-You can install them by running:
+In a Remotion project, install them by running:
+
+```bash
+npx remotion skills add
+```
+
+If Remotion is not installed in your project, use the [`skills`](https://github.com/vercel-labs/skills) CLI instead:
 
 ```bash
 npx skills add remotion-dev/skills
@@ -18,10 +24,12 @@ Or install them with the GitHub CLI:
 gh skill install remotion-dev/skills
 ```
 
-You are also offered the option to add skills when you create a new Remotion project:
+When you create a new Remotion project, you are offered the option to add skills.
+
+Pass [`--skills`](https://www.remotion.dev/docs/cli/create-video#--skills) to install all skills without a prompt:
 
 ```bash
-bun create video
+npx create-video@latest --skills
 ```
 
 For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).

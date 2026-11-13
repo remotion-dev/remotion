@@ -14,7 +14,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
-import {scrollableRef} from './timeline-refs';
+import {scrollableRef, timelineRulerRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
@@ -420,7 +420,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 	}, [windowWidth]);
 
 	return (
-		<div style={style}>
+		<div ref={timelineRulerRef} data-timeline-ruler style={style}>
 			<canvas ref={canvasRef} style={{position: 'absolute', top: 0, left: 0}} />
 		</div>
 	);

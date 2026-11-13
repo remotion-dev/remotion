@@ -162,6 +162,7 @@ const TopPanelInner: React.FC<{
 						) : null}
 						{actualStateLeft === 'expanded' && !leftSidebarOverlayOpen ? (
 							<SplitterHandle
+								label="Left sidebar width"
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
 								onCollapseDuringDrag={setSidebarCollapsedDuringDrag}
@@ -190,6 +191,7 @@ const TopPanelInner: React.FC<{
 								</SplitterElement>
 								{actualStateRight === 'expanded' ? (
 									<SplitterHandle
+										label="Preview area width"
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
 										onCollapseDuringDrag={setSidebarCollapsedDuringDrag}

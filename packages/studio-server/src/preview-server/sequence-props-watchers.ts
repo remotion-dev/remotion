@@ -4,6 +4,8 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
+	type SourceFileVersion,
+	type UpdateSequencePropsSubscriptionRequest,
 } from '@remotion/studio-shared';
 import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
@@ -18,6 +20,11 @@ import {
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
+	sourceVersion: SourceFileVersion | null;
+	componentIdentity: JsxComponentIdentity | null;
+	assetKeys: string[];
+	effects: string[][];
+	effectChain: string;
 	unwatch: () => void;
 	refCount: number;
 	currentNodePath: Extract<
@@ -266,10 +273,22 @@ export const subscribeToSequencePropsWatchers = ({
 	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
 	if (existingWatcher) {
 		existingWatcher.refCount++;
+		existingWatcher.effects = effects;
+		existingWatcher.currentNodePath = nodePath;
+		existingWatcher.effectChain = initialResult.status.effects
+			.map((effect) => effect.canUpdate && effect.callee)
+			.join(',');
 		return initialResult;
 	}
 
 	const watcherInfo: WatcherInfo = {
+		sourceVersion: null,
+		componentIdentity,
+		assetKeys,
+		effects,
+		effectChain: initialResult.status.effects
+			.map((effect) => effect.canUpdate && effect.callee)
+			.join(','),
 		unwatch: () => undefined,
 		refCount: 1,
 		currentNodePath: nodePath,
@@ -281,6 +300,8 @@ export const subscribeToSequencePropsWatchers = ({
 			if (event.type === 'deleted') {
 				return;
 			}
+
+			watcherInfo.sourceVersion = event.sourceVersion;
 
 			// Even the editing client needs the saved expression: its optimistic
 			// numeric value only describes the instance that initiated the edit.
@@ -297,17 +318,12 @@ export const subscribeToSequencePropsWatchers = ({
 					componentIdentity,
 					keys,
 					assetKeys,
-					effects,
+					effects: watcherInfo.effects,
 				});
-				const previousEffectChain = result.effects.map(
-					(effect) => effect.canUpdate && effect.callee,
-				);
-				const newEffectChain =
-					initialResult.success &&
-					initialResult.status.effects.map(
-						(effect) => effect.canUpdate && effect.callee,
-					);
-				if (previousEffectChain.join(',') !== newEffectChain.join(',')) {
+				const effectChain = result.effects
+					.map((effect) => effect.canUpdate && effect.callee)
+					.join(',');
+				if (effectChain !== watcherInfo.effectChain) {
 					RenderInternals.Log.verbose(
 						{indent: false, logLevel},
 						'Effect chain changed, not sending "sequence-props-updated" event',
@@ -354,6 +370,64 @@ export const subscribeToSequencePropsWatchers = ({
 	sequencePropsWatchers[clientId][watcherKey] = watcherInfo;
 
 	return initialResult;
+};
+
+export const updateSequencePropsSubscription = ({
+	request: {subscription, effects},
+	remotionRoot,
+	fileContentsCache,
+}: {
+	request: UpdateSequencePropsSubscriptionRequest;
+	remotionRoot: string;
+	fileContentsCache: Map<string, string>;
+}): SubscribeToSequencePropsResponse => {
+	const watcher =
+		sequencePropsWatchers[subscription.clientId]?.[
+			getWatcherKey(subscription.nodePath, subscription.assetKeys)
+		];
+	if (!watcher) {
+		return {success: false, status: {canUpdate: false, reason: 'not-found'}};
+	}
+
+	const status = computeSequencePropsStatus({
+		fileName: subscription.fileName,
+		nodePath: watcher.currentNodePath.nodePath,
+		componentIdentity: watcher.componentIdentity,
+		keys: watcher.currentNodePath.sequenceKeys,
+		assetKeys: watcher.assetKeys,
+		effects,
+		remotionRoot,
+		fileContentsCache,
+	});
+	watcher.effects = effects;
+	watcher.effectChain = status.effects
+		.map((effect) => effect.canUpdate && effect.callee)
+		.join(',');
+	watcher.currentNodePath = {...watcher.currentNodePath, effectKeys: effects};
+	return {
+		success: true,
+		nodePath: watcher.currentNodePath,
+		status,
+		sourceVersion: watcher.sourceVersion,
+	};
+};
+
+export const updateSequencePropsForEffectEdit = (
+	requests: UpdateSequencePropsSubscriptionRequest[],
+	remotionRoot: string,
+) => {
+	if (requests.length === 0) return {};
+	const fileContentsCache = new Map<string, string>();
+	return {
+		sequenceProps: requests.map((request) => ({
+			request,
+			result: updateSequencePropsSubscription({
+				request,
+				remotionRoot,
+				fileContentsCache,
+			}),
+		})),
+	};
 };
 
 export const unsubscribeFromSequencePropsWatchers = ({

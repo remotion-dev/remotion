@@ -3,6 +3,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import type {SourceLocationTarget} from '../../helpers/open-in-editor';
 import {BookIcon} from '../../icons/book';
 import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
@@ -21,6 +22,7 @@ import {
 	ConnectedCompositionsSection,
 	useConnectedCompositions,
 } from './ConnectedCompositionsSection';
+import type {SequenceSectionSelection} from './inspector-selection';
 
 const renderReactIcon = (color: string) => (
 	<ReactIcon color={color} style={{...inspectorHeaderIconStyle, width: 20}} />
@@ -66,7 +68,8 @@ export const useSequenceInspectorSourceLocation = (
 export const SequenceInspectorHeader: React.FC<{
 	readonly sourceLocation: SequenceInspectorSourceLocation;
 	readonly track: TimelineTrackData;
-}> = ({sourceLocation, track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({sourceLocation, track, selection}) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canRename, displayName, fallbackDisplayName, saveName} =
@@ -82,6 +85,20 @@ export const SequenceInspectorHeader: React.FC<{
 	const sequenceDisplayName = displayName || fallbackDisplayName;
 	const {documentationLink} = track.sequence;
 	const componentName = track.sequence.controls?.componentName;
+	const sourceTarget = useMemo<SourceLocationTarget | null>(() => {
+		switch (selection?.type) {
+			case 'sequence-prop':
+				return {property: selection.key, effectIndex: null};
+			case 'sequence-all-effects':
+				return {property: 'effects', effectIndex: null};
+			case 'sequence-effect':
+				return {property: null, effectIndex: selection.i};
+			case 'sequence-effect-prop':
+				return {property: selection.key, effectIndex: selection.i};
+			default:
+				return null;
+		}
+	}, [selection]);
 	const contextForAgents = useMemo(
 		() =>
 			formatContextForAgents({
@@ -112,6 +129,7 @@ export const SequenceInspectorHeader: React.FC<{
 					<InspectorHeaderActionSlot>
 						{sourceLocation.validatedLocation ? (
 							<InspectorOpenInEditor
+								sourceTarget={sourceTarget}
 								menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
 								annotationName={componentName ?? null}
 								contextForAgents={contextForAgents}
@@ -183,13 +201,18 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 export const SequenceInspectorSections: React.FC<{
 	readonly track: TimelineTrackData;
-}> = ({track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({track, selection}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
-			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorHeader
+				selection={selection}
+				sourceLocation={sourceLocation}
+				track={track}
+			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<ConnectedCompositionsSection

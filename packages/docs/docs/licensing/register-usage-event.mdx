@@ -28,7 +28,7 @@ An object with the following properties:
 
 Type: `string`
 
-Your Remotion public API key. You can get it from your Remotion.pro dashboard.
+Your Remotion public API key. You can get it from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard).
 
 ### ~~`apiKey`~~
 
@@ -69,9 +69,9 @@ Whether the output is a still image. Defaults to `false`.
 
 Pass `false` for a development render so it is classified as non-billable. Defaults to `true`.
 
-### `idempotencyKey`<AvailableFrom v="4.0.533"/>
+### `idempotencyKey?`<AvailableFrom v="4.0.533"/>
 
-Optional, type: `string` (1–255 characters).
+Type: `string` (1–255 characters).
 
 A key is generated automatically for each call and reused across network retries to prevent duplicate usage points. You do not need to supply one.
 

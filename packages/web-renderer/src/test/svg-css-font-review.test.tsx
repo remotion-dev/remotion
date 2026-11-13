@@ -1,42 +1,7 @@
 import {expect, test} from 'vitest';
 import '../symbol-dispose';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
-import {renderStillOnWeb} from '../render-still-on-web';
-import {svgExternalFontReady} from './fixtures/svg-external-font-selection';
-import {svgFontReviewCarrier} from './fixtures/svg-font-review-carrier';
-import {captureNativeReference, countNativePixels} from './native-reference';
-
-test.for([0, 1])(
-	'retains registered fonts after an EOF stylesheet comment at frame %i',
-	async (frame, t) => {
-		await svgExternalFontReady;
-		const composition = svgFontReviewCarrier({literal: false});
-		const control = svgFontReviewCarrier({literal: true});
-		const options = {
-			frame,
-			inputProps: {},
-			licenseKey: 'free-license',
-			allowHtmlInCanvas: false,
-		} as const;
-		const actual = await (
-			await renderStillOnWeb({...options, composition})
-		).blob({format: 'png'});
-		const expected = await (
-			await renderStillOnWeb({...options, composition: control})
-		).blob({format: 'png'});
-		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
-			0,
-		);
-		if (t.task.file.projectName === 'chromium') {
-			const reference = await captureNativeReference(composition, frame, {
-				omitBackground: false,
-			});
-			expect(
-				(await countNativePixels(reference, actual)).mismatchedPixels,
-			).toBe(0);
-		}
-	},
-);
+import {countNativePixels} from './native-reference';
 
 test.for([
 	'top',

@@ -5,7 +5,9 @@ import type {
 } from './Composition.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
+import {Log} from './log.js';
 import type {InferProps} from './props-if-has-props.js';
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {validateCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
@@ -97,7 +99,15 @@ type ResolveVideoConfigParams = {
 	signal: AbortSignal;
 	defaultProps: Record<string, unknown>;
 	inputProps: Record<string, unknown>;
+	schema: AnyZodObject | null;
 };
+
+type SchemaSafeParseResult =
+	| {success: true}
+	| {
+			success: false;
+			error: {issues: {path: PropertyKey[]; message: string}[]};
+	  };
 
 export type VideoConfigMetadataSource = {
 	readonly durationInFrames: 'calculate-metadata' | 'composition';
@@ -122,7 +132,7 @@ const makeVideoConfigWithMetadata = ({
 	originalProps,
 }: Omit<
 	ResolveVideoConfigParams,
-	'calculateMetadata' | 'signal' | 'inputProps'
+	'calculateMetadata' | 'signal' | 'inputProps' | 'schema'
 > & {
 	readonly calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
 	readonly originalProps: Record<string, unknown>;
@@ -175,9 +185,37 @@ export const resolveVideoConfigWithMetadata = ({
 	compositionFps,
 	compositionHeight,
 	compositionWidth,
+	schema,
 }: ResolveVideoConfigParams):
 	| VideoConfigWithMetadata
 	| Promise<VideoConfigWithMetadata> => {
+	if (schema && getRemotionEnvironment().isRendering) {
+		const parseResult = (
+			schema as {safeParse: (data: unknown) => SchemaSafeParseResult}
+		).safeParse(originalProps);
+		if (!parseResult.success) {
+			const issues = parseResult.error.issues
+				.map((issue) => {
+					const path =
+						issue.path.length === 0
+							? '(root)'
+							: issue.path.map(String).join('.');
+					return `  - ${path}: ${issue.message}`;
+				})
+				.join('\n');
+			const message = `The props of the composition "${compositionId}" do not match its schema:\n${issues}`;
+
+			if (ENABLE_V5_BREAKING_CHANGES) {
+				throw new Error(message);
+			}
+
+			Log.warn(
+				{logLevel: window.remotion_logLevel ?? 'info', tag: null},
+				`${message}\nRendering continues with these props. In Remotion 5.0, this will be an error.`,
+			);
+		}
+	}
+
 	const calculatedProm = calculateMetadata
 		? calculateMetadata({
 				defaultProps,

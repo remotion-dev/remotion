@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, SHADOW_BLACK} from '../../helpers/colors';
-import {getRulerGuideHighlight} from '../../helpers/editor-guide-selection';
+import {getRulerGuideHighlights} from '../../helpers/editor-guide-selection';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {getRulerCanvasSize} from '../../helpers/ruler-canvas-size';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
@@ -73,9 +73,9 @@ const Ruler: React.FC<RulerProps> = ({
 	const guideCursor = isVerticalRuler ? 'ew-resize' : 'ns-resize';
 	const cursor = canCreateGuides ? guideCursor : 'default';
 
-	const guideHighlight = useMemo(
+	const guideHighlights = useMemo(
 		() =>
-			getRulerGuideHighlight({
+			getRulerGuideHighlights({
 				guidesList,
 				selectedItems,
 				hoveredGuideId,
@@ -99,7 +99,7 @@ const Ruler: React.FC<RulerProps> = ({
 			markingGaps,
 			orientation,
 			rulerCanvasRef,
-			guideHighlight,
+			guideHighlights,
 			canvasHeight: rulerHeight * pixelRatio,
 			canvasWidth: rulerWidth * pixelRatio,
 		});
@@ -110,7 +110,7 @@ const Ruler: React.FC<RulerProps> = ({
 		originOffset,
 		markingGaps,
 		orientation,
-		guideHighlight,
+		guideHighlights,
 		size,
 		rulerHeight,
 		rulerWidth,

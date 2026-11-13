@@ -72,6 +72,7 @@ const ALL_LANGS: BundledLanguage[] = [
 	'diff',
 	'yaml',
 	'toml',
+	'hcl',
 	'docker',
 	'python',
 	'ruby',

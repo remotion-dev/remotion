@@ -16,13 +16,13 @@ To customize the output filename, pass `outName: "my-filename.mp4"` to [`renderM
 
 On the CLI, use the [`--out-name`](/docs/lambda/cli/render#--out-name) flag.
 
-The output name must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
+The output name must match `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
 
 ## Customizing the output bucket
 
 To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with `bucketName` and an optional `key`.
 
-From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
+From v4.0.538, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
 
 If you specify `key`, include the extension.
 
@@ -53,7 +53,7 @@ If you like to use this feature:
 - If you set `privacy` to `"public"` or `"private"`, also grant `s3:PutObjectAcl` on the destination bucket's objects.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
-- If provided, the `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
+- If provided, the `key` must match `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
 This feature is not supported from the CLI.
@@ -76,7 +76,7 @@ You can upload the file to another S3-compatible provider.
   - ✅ DigitalOcean Spaces
   - ✅ Google Cloud Storage  
     Notes about Google Cloud Storage:
-    - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
+    - GCP does support allowing underscores for bucket names, but Remotion validates against it. Do not use underscores in your bucket name.
     - The bucket needs to have uniform access control and NOT fine-grained access.
     - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
 

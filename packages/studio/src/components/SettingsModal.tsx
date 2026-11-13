@@ -16,7 +16,6 @@ import {
 	type SettingsTab,
 } from '../helpers/settings-tab-availability';
 import {AppsIcon} from '../icons/apps';
-import {BrowseElementsIcon} from '../icons/browse-elements';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
@@ -25,16 +24,13 @@ import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
 import {FilmIcon} from '../icons/video';
-import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
-import {ElementLibrariesSettings} from './ElementLibrariesSettings';
+import {FullscreenPanel} from './FullscreenPanel';
 import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
-import {ModalHeader} from './ModalHeader';
 import {ModelsSettings} from './ModelsSettings';
-import {DismissableModal} from './NewComposition/DismissableModal';
 import {RenderingSettings} from './RenderingSettings';
 import {
 	horizontalLayout,
@@ -43,7 +39,6 @@ import {
 	iconContainer,
 	leftSidebar,
 	optionsPanel,
-	outerModalStyle,
 } from './RenderModal/render-modals';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
@@ -88,28 +83,10 @@ const keyboardIcon: React.CSSProperties = {
 	width: 16,
 };
 
-const elementsIcon: React.CSSProperties = {
-	...icon,
-	flexShrink: 0,
-	height: 22,
-	width: 22,
-};
-
-const elementsIconContainer: React.CSSProperties = {
-	...iconContainer,
-	flexShrink: 0,
-	height: 22,
-	marginLeft: -2,
-	marginRight: 6,
-	width: 22,
-};
-
 export const SettingsModal: React.FC<{
-	readonly initialStudioPane: 'elements' | 'general' | null;
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
-}> = ({initialPublicLicenseKey, initialStudioPane, initialTab}) => {
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+}> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setPublicLicenseKey} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
@@ -144,16 +121,10 @@ export const SettingsModal: React.FC<{
 	);
 	const safeInitialTab = getSafeSettingsTab(initialTab, availableTabs);
 	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
-	const [studioPane, setStudioPane] = useState<'general' | 'elements'>(
-		initialStudioPane ?? 'general',
-	);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([safeInitialTab]);
 	const [packagesFooterContainer, setPackagesFooterContainer] =
 		useState<HTMLDivElement | null>(null);
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
 	const selectTab = useCallback((newTab: SettingsTab) => {
 		setTab(newTab);
 		setOpenedTabs((currentOpenedTabs) => {
@@ -175,19 +146,21 @@ export const SettingsModal: React.FC<{
 	}, [initialPublicLicenseKey, setPublicLicenseKey]);
 
 	return (
-		<DismissableModal panelStyle={outerModalStyle}>
+		<FullscreenPanel
+			ariaLabel="Settings"
+			headerContent={null}
+			rightAction={null}
+			sidebarWidth={null}
+		>
 			<>
-				<ModalHeader title="Settings" onClose={dismiss} />
 				<div style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
 						{availableTabs.includes('studio') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
-								selected={tab === 'studio' && studioPane === 'general'}
-								onClick={() => {
-									selectTab('studio');
-									setStudioPane('general');
-								}}
+								selected={tab === 'studio'}
+								onClick={() => selectTab('studio')}
 								renderIcon={(color) => (
 									<div style={iconContainer}>
 										<RemotionTriangleIcon color={color} style={icon} />
@@ -199,6 +172,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('rendering') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'rendering'}
 								onClick={() => selectTab('rendering')}
@@ -212,6 +186,7 @@ export const SettingsModal: React.FC<{
 							</VerticalTab>
 						) : null}
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'shortcuts'}
 							onClick={() => selectTab('shortcuts')}
@@ -225,6 +200,7 @@ export const SettingsModal: React.FC<{
 						</VerticalTab>
 						{availableTabs.includes('packages') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'packages'}
 								onClick={() => selectTab('packages')}
@@ -239,6 +215,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('skills') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'skills'}
 								onClick={() => selectTab('skills')}
@@ -251,25 +228,9 @@ export const SettingsModal: React.FC<{
 								Skills
 							</VerticalTab>
 						) : null}
-						{availableTabs.includes('studio') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'studio' && studioPane === 'elements'}
-								onClick={() => {
-									selectTab('studio');
-									setStudioPane('elements');
-								}}
-								renderIcon={(color) => (
-									<div style={elementsIconContainer}>
-										<BrowseElementsIcon color={color} style={elementsIcon} />
-									</div>
-								)}
-							>
-								Elements
-							</VerticalTab>
-						) : null}
 						{availableTabs.includes('models') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'models'}
 								onClick={() => selectTab('models')}
@@ -284,6 +245,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('apps') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'apps'}
 								onClick={() => selectTab('apps')}
@@ -298,6 +260,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('license') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'license'}
 								onClick={() => selectTab('license')}
@@ -312,6 +275,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						{availableTabs.includes('updates') ? (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'updates'}
 								onClick={() => selectTab('updates')}
@@ -386,26 +350,10 @@ export const SettingsModal: React.FC<{
 					) : null}
 					{availableTabs.includes('studio') && openedTabs.includes('studio') ? (
 						<div
-							style={
-								tab === 'studio' && studioPane === 'general'
-									? settingsOptionsPanel
-									: hiddenPanel
-							}
+							style={tab === 'studio' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<StudioSettings />
-						</div>
-					) : null}
-					{availableTabs.includes('studio') && openedTabs.includes('studio') ? (
-						<div
-							style={
-								tab === 'studio' && studioPane === 'elements'
-									? settingsOptionsPanel
-									: hiddenPanel
-							}
-							className={VERTICAL_SCROLLBAR_CLASSNAME}
-						>
-							<ElementLibrariesSettings />
 						</div>
 					) : null}
 					{availableTabs.includes('updates') &&
@@ -424,12 +372,9 @@ export const SettingsModal: React.FC<{
 				  tab === 'models' ||
 				  tab === 'updates' ||
 				  tab === 'skills' ? null : (
-					<SettingsModalFooter
-						showAboutElements={tab === 'studio' && studioPane === 'elements'}
-						showLicenseFaq={tab === 'license'}
-					/>
+					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>
-		</DismissableModal>
+		</FullscreenPanel>
 	);
 };

@@ -11,6 +11,11 @@ export const apiKeyOption = {
 	description: () => (
 		<>
 			API key for sending a usage event using <code>@remotion/licensing</code>.
+			<br />
+			Deprecated: use the <a href="/docs/options/license-key">
+				license key
+			</a>{' '}
+			option instead.
 		</>
 	),
 	ssrName: 'apiKey' as const,

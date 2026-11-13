@@ -11,11 +11,11 @@ Allows you to map a range of values to another using a concise syntax.
 
 ## Example: Fade-in effect
 
-In this example, we are fading in some content by calculating the opacity for a certain point of time.
-At frame 0 (the start of the video), we want the opacity to be 0.
-At frame 20, we want the opacity to be 1.
+This example fades in some content by calculating the opacity for a certain point of time.
+At frame 0 (the start of the video), the opacity should be 0.
+At frame 20, the opacity should be 1.
 
-Using the following snippet, we can calculate the current opacity for any frame:
+The following snippet calculates the current opacity for any frame:
 
 ```ts twoslash
 import {interpolate, useCurrentFrame} from 'remotion';
@@ -26,11 +26,11 @@ const opacity = interpolate(frame, [0, 20], [0, 1]); // 0.5
 
 ## Example: Fade in and out
 
-We keep our fade in effect but add a fade out effect at the end.
+This example keeps the fade in effect and adds a fade out effect at the end.
 20 frames before the video ends, the opacity should still be 1.
 At the end, the opacity should be 0.
 
-We can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
+You can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
 
 ```ts twoslash
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
@@ -47,10 +47,10 @@ const opacity = interpolate(
 
 ## Example: interpolate a spring animation
 
-We don't necessarily have to interpolate over time - we can use any value to drive an animation.
-Let's assume we want to animate an object on the X axis from 0 to 200 pixels and use a spring animation for it.
+Interpolation does not have to be over time - any value can drive an animation.
+For example, an object should move on the X axis from 0 to 200 pixels with a spring animation.
 
-Let's create a spring:
+Create a spring:
 
 ```twoslash include example
 import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
@@ -69,7 +69,7 @@ const driver = spring({
 ```
 
 A [`spring()`](/docs/spring) animation with it's default settings will animate from 0 to 1.
-Given that knowledge, we can interpolate the spring value to go from 0 to 200.
+Given that, the spring value can be interpolated to go from 0 to 200.
 
 ```ts twoslash
 // @include: example-spring
@@ -77,7 +77,7 @@ Given that knowledge, we can interpolate the spring value to go from 0 to 200.
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 ```
 
-We can then apply it to an HTML element.
+You can then apply it to an HTML element.
 
 ```tsx twoslash {1}
 // @include: example-spring
@@ -98,7 +98,7 @@ const scale = interpolate(frame, [0, 20], [0, 1]);
 ```
 
 This works, but after 20 frames, the value keeps growing. For example, at frame 40, the scale will be `2`.
-To prevent this, we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
+To prevent this, use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
 
 ```tsx twoslash
 import {interpolate, useCurrentFrame} from 'remotion';
@@ -159,7 +159,7 @@ export const MyComposition: React.FC = () => {
 Scale values use unitless numbers.
 Translate values use length or percentage units.
 Rotate values use `deg`, `rad`, `grad`, or `turn`.
-Transform origin values may use the `left`, `center`, `right`, `top`, and `bottom` keywords from <AvailableFrom v="4.0.475" inline />.
+Transform origin values may use the `left`, `center`, `right`, `top`, and `bottom` keywords from v4.0.475.
 They are normalized to percentages before interpolation.
 The optional third transform origin component must be a length, for example `10px`.
 
@@ -244,7 +244,7 @@ Takes four arguments:
 
 `inputRange` and `outputRange` must have the same length and at least one value.
 With one value, `interpolate()` always returns the only output value.
-Single-value ranges are supported from <AvailableFrom v="4.0.469" inline />.
+Single-value ranges are supported from v4.0.469.
 
 ### extrapolateLeft?
 
@@ -274,7 +274,7 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}); // 1.5
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'}); // 1
 ```
 
-From <AvailableFrom v="4.0.539" inline />, `wrap` repeats the entire input range when there are more than two keyframes:
+From v4.0.539, `wrap` repeats the entire input range when there are more than two keyframes:
 
 ```tsx twoslash title="Looping all keyframes"
 import {interpolate} from 'remotion';
@@ -348,7 +348,7 @@ Accepts `'font-weight'`, `'scale'`, `'translate'`, `'rotate'`, or `'transform-or
 Font weight keywords are only supported when this option is set to `'font-weight'`.
 Translate, rotate, and transform origin output ranges must use strings with the appropriate CSS units.
 
-### posterize<AvailableFrom v="4.0.470" />
+### posterize?<AvailableFrom v="4.0.470" />
 
 _Default_: no posterization
 

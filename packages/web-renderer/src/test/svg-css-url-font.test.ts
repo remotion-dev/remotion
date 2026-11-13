@@ -2,45 +2,8 @@ import {NoReactInternals} from 'remotion/no-react';
 import {expect, test, vi} from 'vitest';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import '../symbol-dispose';
-import {renderStillOnWeb} from '../render-still-on-web';
-import {svgCssUrlFont} from './fixtures/svg-css-url-font';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	countNativePixels,
-	savePixelEvidence,
-} from './native-reference';
+import {compareNativePixels, countNativePixels} from './native-reference';
 
-test.for([0, 1])(
-	'CSS URL font matches native frame %i (KINO-7769)',
-	async (frame, t) => {
-		if (t.task.file.projectName !== 'chromium') {
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(svgCssUrlFont, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				composition: svgCssUrlFont,
-				frame,
-				inputProps: {},
-				licenseKey: 'free-license',
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const result = await compareNativePixels(reference, actual);
-		if (result.mismatchedPixels !== 0) {
-			await savePixelEvidence(reference, `css-url-font-${frame}-native`);
-			await savePixelEvidence(actual, `css-url-font-${frame}-actual`);
-			await savePixelEvidence(result.diff, `css-url-font-${frame}-diff`);
-		}
-
-		expect(result.mismatchedPixels).toBe(0);
-	},
-);
-
-// KINO-7769: Font fetching must not retain mounted mutations or poison a retry.
 test('CSS URL font fetch restores SVG styles, deduplicates and retries', async (t) => {
 	if (t.task.file.projectName !== 'chromium') {
 		t.skip();

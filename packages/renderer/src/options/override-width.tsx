@@ -6,7 +6,7 @@ let currentWidth: number | null = null;
 const cliFlag = 'width' as const;
 
 export const overrideWidthOption = {
-	name: 'Override Width',
+	name: 'Override width',
 	addedIn: '3.2.40',
 	cliFlag,
 	description: () => <>Overrides the width of the composition.</>,
