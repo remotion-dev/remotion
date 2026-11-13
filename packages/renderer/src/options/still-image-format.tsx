@@ -7,7 +7,7 @@ let currentStillImageFormat: StillImageFormat | null = null;
 const cliFlag = 'image-format' as const;
 
 export const stillImageFormatOption = {
-	name: 'Still Image Format',
+	name: 'Still image format',
 	addedIn: '2.3.0',
 	cliFlag,
 	description: () => (

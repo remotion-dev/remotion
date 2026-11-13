@@ -3,7 +3,7 @@ import type {AnyRemotionOption} from './option';
 const cliFlag = 'skip-skills' as const;
 
 export const skipSkillsOption = {
-	name: 'Skip Skills',
+	name: 'Skip skills',
 	addedIn: '4.0.503',
 	cliFlag,
 	description: () => (

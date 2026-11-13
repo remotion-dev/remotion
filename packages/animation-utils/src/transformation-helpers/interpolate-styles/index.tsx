@@ -311,7 +311,17 @@ export const interpolateStyles = (
 			? input
 			: Math.floor(input / options.posterize) * options.posterize;
 
-	let startIndex = inputRange.findIndex((step) => posterizedInput < step) - 1;
+	// Wrap before choosing a segment so the entire keyframe range repeats.
+	const inputMin = inputRange[0];
+	const inputMax = inputRange[inputRange.length - 1];
+	const range = inputMax - inputMin;
+	const resolvedInput =
+		(posterizedInput < inputMin && options?.extrapolateLeft === 'wrap') ||
+		(posterizedInput > inputMax && options?.extrapolateRight === 'wrap')
+			? ((((posterizedInput - inputMin) % range) + range) % range) + inputMin
+			: posterizedInput;
+
+	let startIndex = inputRange.findIndex((step) => resolvedInput < step) - 1;
 	if (startIndex === -1) {
 		startIndex = 0;
 	}
@@ -341,7 +351,7 @@ export const interpolateStyles = (
 		options?.extrapolateRight ?? 'extend';
 
 	return interpolateStylesFunction({
-		inputValue: posterizedInput,
+		inputValue: resolvedInput,
 		inputRange: [startingValue, endingValue],
 		initialStyle,
 		finalStyle,
