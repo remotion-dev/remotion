@@ -33,34 +33,17 @@ Fetch its source code from https://www.remotion.dev/elements/captions/basic-capt
 
 ## One component per captioned source
 
-For editable captioned footage, define a source-specific component with no props.
-Put the `<Video>` source and the full transcript inline inside it, with the
-transcript on `<BasicCaptions captions={[...]}>`. Export the component through
-`Interactive.create()` with `layout: 'absolute-fill'`.
-
-Keep caption timestamps relative to the original media file, including words
-outside the current edit. If the transcript was generated as JSON, copy it into
-the inner `<BasicCaptions>` node once.
+To link captions together with a video source, make a new component with `Interactive.create()` and `layout: 'absolute-fill'`.
 
 Reuse that exported component for every cut or repeat of the same source.
-Put `from`, `trimBefore`, `durationInFrames`, and `playbackRate` on its instances.
-The wrapper applies one clock to both video and captions, so Studio can move,
-trim, split, or retime a clip without duplicating or rewriting its transcript.
-Keep the inner video and captions free of the cut's timing props.
 
-The Caption editor writes back to the inline array on the inner `<BasicCaptions>`
-node. Editing that transcript updates all instances of the source component.
-The reusable caption renderer accepts a `captions` prop; the source-specific
-wrapper owns the data instead of taking `src` or `captions` props on every cut.
+Then, cuts, speed-up, slow-downs, and trims can be achieved using by putting `from`, `trimBefore`, `durationInFrames`, and `playbackRate` on its instances.
 
-For another source file, define another source-specific component with its own
-inline transcript.
+Captions have only one source of truth, we don't need to duplicate if a clip is split.
 
-## Example
+And Captions remain editable in the Studio.
 
-Give the caption area a width and position it over the video. In this
-1920px-wide composition, the 900px caption area is centered by translating it
-`(1920 - 900) / 2 = 510` pixels from the left:
+Example:
 
 ```tsx title="src/MyComposition.tsx"
 import { Video } from "@remotion/media";
@@ -73,7 +56,6 @@ const InterviewInner: React.FC = () => {
       <Video
         name="Interview footage"
         src={staticFile("interview.mp4")}
-        objectFit="cover"
         style={{ width: "100%", height: "100%" }}
       />
       <BasicCaptions
@@ -157,13 +139,7 @@ export const RemotionRoot = () => {
 };
 ```
 
-The example plays source seconds 2–5 twice: three seconds at normal speed,
-then two seconds at 1.5× speed. Both instances use the same inline transcript.
-`durationInFrames` selects a range of source frames; the instance occupies
-`durationInFrames / playbackRate` frames in its parent timeline.
-Update the composition duration when changing the total timeline length.
-
-If a caption has `pageBreakAfter: true`, the current page ends after that caption and the next caption starts a new page.
+See also: [Timing props](../remotion-markup/timing-props.md)
 
 ## White-space preservation
 
