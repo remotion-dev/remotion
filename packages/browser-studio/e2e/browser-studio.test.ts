@@ -35,7 +35,7 @@ const dropLocalFile = async ({
 	await target.scrollIntoViewIfNeeded();
 	const box = await target.boundingBox();
 	if (box === null) {
-		throw new Error('Browser Studio drop target has no bounding box');
+		throw new Error('remotion.new drop target has no bounding box');
 	}
 
 	const client = await page.context().newCDPSession(page);
@@ -124,7 +124,7 @@ test('selects a composition inserted from the Add composition dialog', async ({
 	await expect(insertedComposition).toHaveCSS('opacity', '1');
 });
 
-test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
+test('loads remotion.new, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
@@ -514,7 +514,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	expect(studioApiRequests).toEqual([]);
 });
 
-test('loads Browser Studio from one immutable release artifact set', async ({
+test('loads remotion.new from one immutable release artifact set', async ({
 	page,
 }) => {
 	const releasePackageRequests: string[] = [];
@@ -650,7 +650,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 
 	const studioFrame = page.frames().find((frame) => frame !== page.mainFrame());
 	if (!studioFrame) {
-		throw new Error('Could not find the Browser Studio frame');
+		throw new Error('Could not find the remotion.new frame');
 	}
 
 	const rangeResult = await studioFrame.evaluate(async () => {
@@ -728,7 +728,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 				page.evaluate(async () => {
 					const storage = window.__browserStudioProject.publicFileStorage;
 					if (!storage) {
-						throw new Error('Expected Browser Studio project storage');
+						throw new Error('Expected remotion.new project storage');
 					}
 
 					const root = await navigator.storage.getDirectory();
@@ -1217,7 +1217,7 @@ test('previews effects and chains edits while browser persistence is delayed', a
 		};
 		const {effects: effectOperations} = studioWindow.remotion_browserStudio;
 		if (!effectOperations)
-			throw new Error('Browser Studio effect editing is unavailable');
+			throw new Error('remotion.new effect editing is unavailable');
 		const {duplicateEffects: duplicate} = effectOperations;
 		let first = true;
 		const gate = new Promise<void>((resolve) => {
@@ -1559,7 +1559,7 @@ test('drops and imports an Element payload with the deployment Remotion version'
 	await expect(canvas).toBeVisible();
 	const box = await canvas.boundingBox();
 	if (box === null) {
-		throw new Error('Browser Studio canvas has no bounding box');
+		throw new Error('remotion.new canvas has no bounding box');
 	}
 
 	const dataTransfer = await canvas.evaluateHandle(() => new DataTransfer());
@@ -1714,9 +1714,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 		'📦 Install Linked Element - Remotion Studio',
 		{timeout: 5000},
 	);
-	await expect(
-		studio.getByText('Unverified Browser Studio link'),
-	).toBeVisible();
+	await expect(studio.getByText('Unverified remotion.new link')).toBeVisible();
 	await expect(studio.getByText('Linked Element')).toBeVisible();
 	await expect
 		.poll(() =>
@@ -1818,10 +1816,9 @@ test('reports inline SVG imports as unsupported without changing the project', a
 	await studio.getByRole('button', {name: /Import as inline/}).click();
 
 	await expect(
-		studio.getByText(
-			'Importing SVG markup is not supported in Browser Studio',
-			{exact: true},
-		),
+		studio.getByText('Importing SVG markup is not supported in remotion.new', {
+			exact: true,
+		}),
 	).toBeVisible();
 	const compositionAfter = await page.evaluate(() => {
 		const browserWindow = window as typeof window & {

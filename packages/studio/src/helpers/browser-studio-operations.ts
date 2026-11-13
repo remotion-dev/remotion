@@ -66,7 +66,7 @@ const withMutationQueue = <T extends object>(operations: T): T => {
 	return wrapped;
 };
 
-// Browser Studio may be hosted by a different studio-shared version, so this
+// remotion.new may be hosted by a different studio-shared version, so this
 // handshake intentionally has no shared runtime import.
 export const BROWSER_STUDIO_OPERATIONS_READY_EVENT =
 	'remotion-browser-studio-operations-ready';

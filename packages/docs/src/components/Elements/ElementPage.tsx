@@ -330,7 +330,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							) : null}
 							{showOpenInBrowserStudio ? (
 								<button
-									aria-label="Try this Element in Browser Studio in a new tab"
+									aria-label="Try this Element in remotion.new in a new tab"
 									className={styles.secondaryAction}
 									onClick={openInBrowserStudio}
 									type="button"
