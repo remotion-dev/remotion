@@ -343,7 +343,6 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'settings',
-					initialStudioPane: null,
 					initialTab: 'shortcuts',
 					initialPublicLicenseKey:
 						window.remotion_renderDefaults?.publicLicenseKey ?? null,

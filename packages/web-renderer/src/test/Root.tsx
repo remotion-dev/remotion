@@ -215,6 +215,8 @@ import {
 } from './fixtures/svg-escaped-style-selector';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
+	svgExternalCarrierModes,
+	svgExternalEmptyCarrier,
 	svgExternalFontSelection,
 	svgExternalStyleSelectors,
 } from './fixtures/svg-external-font-selection';
@@ -243,9 +245,15 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {
+	svgInactiveTitleMediaCache,
 	svgInactiveTitledFont,
 	svgInactiveTitleModes,
 } from './fixtures/svg-inactive-titled-font';
+import {
+	svgLocalConditionalFont,
+	svgLocalConditionalFontGroups,
+	svgLocalConditionalFontOrders,
+} from './fixtures/svg-local-conditional-font';
 import {
 	svgLocalFontOrder,
 	svgLocalFontOrderModes,
@@ -256,6 +264,10 @@ import {
 	svgPercentDataFont,
 	svgPercentDataFontEncodings,
 } from './fixtures/svg-percent-data-font';
+import {
+	svgPreferredFontCarrier,
+	svgPreferredFontModes,
+} from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {
 	registeredCdataWrappers,
@@ -643,6 +655,14 @@ export const Root: React.FC = () => {
 						<Composition key={fixture.id} {...fixture} />
 					))}
 			</Folder>
+			{svgLocalConditionalFontGroups.flatMap((group) =>
+				svgLocalConditionalFontOrders.map((order) => (
+					<Composition
+						key={group.name + order}
+						{...svgLocalConditionalFont(group, order, null)}
+					/>
+				)),
+			)}
 			{svgPercentDataFontEncodings.flatMap((encoding) =>
 				(['A', 'B'] as const).map((preferred) => (
 					<Composition
@@ -675,6 +695,25 @@ export const Root: React.FC = () => {
 					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
 				/>
 			))}
+
+			{svgPreferredFontModes.map((mode) => (
+				<Composition
+					key={`preferred-font-${mode}`}
+					{...svgPreferredFontCarrier({mode, literal: false, fallback: false})}
+				/>
+			))}
+			{[null, true, false].map((active) => (
+				<Composition
+					key={`inactive-media-${active}`}
+					{...svgInactiveTitleMediaCache({active})}
+				/>
+			))}
+			{svgExternalCarrierModes.flatMap((mode) =>
+				[false, true].map((literal) => {
+					const fixture = svgExternalEmptyCarrier({mode, literal});
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
+			)}
 			{missingFilterBackgroundEffects.flatMap((effect) =>
 				[1, 2].map((scale) => (
 					<Composition

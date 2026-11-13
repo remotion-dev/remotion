@@ -629,6 +629,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
@@ -641,6 +642,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						General
 					</VerticalTab>
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
@@ -654,6 +656,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -668,6 +671,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					) : null}
 					{renderMode === 'video' || renderMode === 'audio' ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -681,6 +685,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</VerticalTab>
 					) : null}
 					<VerticalTab
+						draggable={false}
 						style={horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
@@ -694,12 +699,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					</VerticalTab>
 					{canEditConfig ? (
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={false}
 							onClick={() =>
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'license',
 									initialPublicLicenseKey: publicLicenseKey,
 								})

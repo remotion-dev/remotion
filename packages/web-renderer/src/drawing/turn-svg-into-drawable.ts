@@ -7,7 +7,7 @@ import {
 	type CssFontGroupSample,
 } from './fingerprint-css-font-groups';
 import {parseFontFamilies} from './parse-font-families';
-import {preserveSvgStyleSelectors} from './preserve-svg-style-selectors';
+import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -173,10 +173,30 @@ const getCssDataFontRules = (
 		title: string,
 	) => {
 		for (const rule of cssRules) {
+			// Retained local groups already remain in the serialized stylesheet.
+			// Carry their active faces in the same order, so appending the snapshot
+			// cannot move an earlier top-level face after a later grouped face.
+			if (retainedLocalSheet && rule instanceof ownerWindow.CSSMediaRule) {
+				if (ownerWindow.matchMedia(rule.conditionText).matches)
+					collectRules(rule.cssRules, retainedLocalSheet, title);
+				continue;
+			}
+
+			if (retainedLocalSheet && rule instanceof ownerWindow.CSSSupportsRule) {
+				if (ownerWindow.CSS.supports(rule.conditionText))
+					collectRules(rule.cssRules, retainedLocalSheet, title);
+				continue;
+			}
+
+			// Font definitions in container and scope groups are global: neither
+			// container-query matching nor a scope selector limits their activation.
+			// Keep layer groups intact because their face precedence is layer-based.
 			if (
 				retainedLocalSheet &&
-				rule instanceof ownerWindow.CSSMediaRule &&
-				rule.conditionText.toLowerCase() === 'all'
+				(('CSSContainerRule' in ownerWindow &&
+					rule instanceof ownerWindow.CSSContainerRule) ||
+					('CSSScopeRule' in ownerWindow &&
+						rule instanceof ownerWindow.CSSScopeRule))
 			) {
 				collectRules(rule.cssRules, retainedLocalSheet, title);
 				continue;
@@ -652,7 +672,7 @@ export const turnSvgIntoDrawable = (
 	}
 
 	if (authoredStyles || authoredEmpty || authoredMedia)
-		preserveSvgStyleSelectors({
+		preserveSvgAttributeSelectors({
 			svg: svgForSerialization,
 			authoredStyles,
 			authoredEmpty,

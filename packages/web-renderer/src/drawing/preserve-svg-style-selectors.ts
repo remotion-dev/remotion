@@ -4,7 +4,7 @@ import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
 
-export const preserveSvgStyleSelectors = ({
+export const preserveSvgAttributeSelectors = ({
 	svg,
 	authoredStyles,
 	authoredEmpty,

@@ -830,4 +830,37 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'trung-nguyen',
+		name: 'Trung Nguyen',
+		image: '/img/freelancers/trung-nguyen.jpg',
+		website: 'https://www.upwork.com/freelancers/~010b8f923d3203cc29',
+		x: null,
+		github: 'devil131313',
+		linkedin: 'in/trungnguyen-video/',
+		email: 'misereremeideus1313@gmail.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-11-12').getTime(),
+		description: (
+			<div>
+				I edit short-form videos with Remotion and Claude Code. One command
+				turns a podcast or talking-head video into captioned 9:16 Shorts:
+				transcription, cuts of retakes and silences, face-tracked reframing, a
+				camera that follows the active speaker, and word-level captions. A QC
+				step checks every frame and listens back to each cut before delivery.{' '}
+				<a target={'_blank'} href="https://youtu.be/tY0ZGlVn9_s">
+					See my process
+				</a>
+				. My caption layer is open source:{' '}
+				<a
+					target={'_blank'}
+					href="https://github.com/devil131313/remotion-phrase-captions"
+				>
+					remotion-phrase-captions
+				</a>
+				. I also build motion graphics for product launches and ads.
+			</div>
+		),
+	},
 ];

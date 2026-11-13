@@ -62,20 +62,28 @@ const replaceFamilies = (value: string, aliases: Map<string, string>) => {
 
 export const getCssDataFontBytes = (
 	source: string,
-	ownerWindow: Pick<Window, 'atob'>,
+	ownerWindow: Pick<Window & typeof globalThis, 'atob' | 'Request'>,
 ) => {
 	const match =
 		/^url\((?:"(data:[^"]*)"|'(data:[^']*)'|(data:[^)]*))\)(?:\s+format\([^)]*\))?(?:\s+tech\([^)]*\))?$/i.exec(
 			source,
 		);
-	// Fetching a data URL omits its fragment before percent decoding.
-	const data = (match?.[1] ?? match?.[2] ?? match?.[3])?.split('#', 1)[0];
-	if (!data) return null;
-	const comma = data.indexOf(',');
-	if (comma < 0) return null;
+	const input = match?.[1] ?? match?.[2] ?? match?.[3];
+	if (!input) return null;
 	try {
+		// This ASCII-only ordinary base64 form has no URL normalization-sensitive
+		// characters. Other data URLs use the owning runtime's Request serialization.
+		const serialized =
+			/^data:[a-z\d.+-]+\/[a-z\d.+-]+;base64,[a-z\d+/=]*$/i.test(input)
+				? input
+				: new ownerWindow.Request(input).url;
+		// Exclude the fragment after Request serialization.
+		const data = serialized.split('#', 1)[0];
+		const comma = data.indexOf(',');
+		if (comma < 0) return null;
 		const payload = data.slice(comma + 1);
-		const base64Encoded = /;base64$/i.test(data.slice(0, comma));
+		// A serialized MIME header permits spaces around the terminal base64 marker.
+		const base64Encoded = /; *base64 *$/i.test(data.slice(0, comma));
 		if (!payload.includes('%')) {
 			if (!base64Encoded) return new TextEncoder().encode(payload);
 			return Uint8Array.from(ownerWindow.atob(payload), (character) =>

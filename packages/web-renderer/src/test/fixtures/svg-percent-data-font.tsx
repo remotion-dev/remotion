@@ -7,6 +7,10 @@ export const svgPercentDataFontEncodings = [
 	'base64-fragment',
 	'percent-base64-fragment',
 	'percent-binary-fragment',
+	'base64-mime-leading-space',
+	'base64-mime-trailing-space',
+	'base64-mime-spaces-fragment',
+	'percent-base64-mime-spaces-fragment',
 ] as const;
 export const svgPercentDataFontUrls = (
 	encoding: (typeof svgPercentDataFontEncodings)[number],
@@ -15,10 +19,20 @@ export const svgPercentDataFontUrls = (
 		urls.map((url) => {
 			const fragment = encoding.endsWith('-fragment') ? '#font' : '';
 			if (encoding === 'base64-fragment') return url + fragment;
+			if (encoding === 'base64-mime-leading-space')
+				return url.replace(';base64,', '; base64,');
+			if (encoding === 'base64-mime-trailing-space')
+				return url.replace(';base64,', ';base64 ,');
+			if (encoding === 'base64-mime-spaces-fragment')
+				return url.replace(';base64,', ';   bAsE64   ,') + fragment;
 			const payload = url.slice(url.indexOf(',') + 1);
+			const header =
+				encoding === 'percent-base64-mime-spaces-fragment'
+					? url.slice(0, url.indexOf(',') + 1).replace(';base64,', '; base64 ,')
+					: url.slice(0, url.indexOf(',') + 1);
 			if (encoding.startsWith('percent-base64'))
 				return (
-					url.slice(0, url.indexOf(',') + 1) +
+					header +
 					payload.replace(
 						/[+/=]/g,
 						(character) =>
