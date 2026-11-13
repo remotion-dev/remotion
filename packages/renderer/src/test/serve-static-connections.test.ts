@@ -13,13 +13,16 @@ class Connection extends EventEmitter {
 	) {
 		super();
 	}
+
 	get remoteAddress() {
 		if (this.metadata === 'throws') throw new Error('Address is unavailable');
 		return this.metadata === 'missing' ? undefined : '127.0.0.1';
 	}
+
 	get remotePort() {
 		return this.metadata === 'missing' ? undefined : this.port;
 	}
+
 	destroy() {
 		this.destroyed = true;
 		this.emit('close');
