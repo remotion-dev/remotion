@@ -21,7 +21,7 @@ The template shows a packaged-render flow that works with Electron Forge and Vit
 - Keep the Remotion project in `remotion/`
 - Trigger renders from the renderer over IPC
 - Run [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media) in the Electron main process
-- Build the Remotion Bundle during packaging, not at packaged runtime
+- Build the Remotion bundle during packaging, not at packaged runtime
 
 The exact packaging setup may differ in your app.
 
@@ -35,7 +35,7 @@ Expose a small API from `preload.ts`, then let the Electron main process perform
 
 In development, it is common to call [`bundle()`](/docs/bundle) on demand so composition changes are picked up immediately.
 
-In packaged apps, do not call [`bundle()`](/docs/bundle) at runtime. Build the Remotion Bundle during the package step and load that prebuilt directory from the app.
+In packaged apps, do not call [`bundle()`](/docs/bundle) at runtime. Build the Remotion bundle during the package step and load that prebuilt directory from the app.
 
 ## Compositor binaries
 

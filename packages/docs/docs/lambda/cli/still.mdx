@@ -15,7 +15,7 @@ The command has the following structure:
 npx remotion lambda still <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
+- Obtain a [serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 - The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the still is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -27,14 +27,14 @@ Rendering a still:
 npx remotion lambda still https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html my-comp
 ```
 
-Rendering using the Serve URL shorthand:
+Rendering using the serve URL shorthand:
 
 ```
 npx remotion lambda still testbed my-comp
 ```
 
 :::info
-If you are using the shorthand Serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete Serve URL is passed.
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
 :::
 
 Rendering the 10th frame of a composition:

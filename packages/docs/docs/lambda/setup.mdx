@@ -122,7 +122,7 @@ The function name is returned which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-The function consists of necessary binaries and JavaScript code that can take a [Serve URL](/docs/terminology/serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
+The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
 
 ## 9. Deploy a site
 
@@ -141,7 +141,7 @@ Run the following command to deploy your Remotion project to an S3 bucket. Pass 
 npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
-A [Serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
+A [serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
 When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
@@ -207,7 +207,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the step 9 - your "Serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
+Take the URL you received from the step 9 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
 npx remotion lambda render <serve-url> <composition-id>
@@ -247,7 +247,7 @@ const result = await renderMediaOnLambdaAndStream({
 console.log('Render finished!', result.outputFile);
 ```
 
-Use the Serve URL from step 9. The promise resolves when the render finishes and rejects if it fails. Your video is now available in your [S3 bucket](https://s3.console.aws.amazon.com/s3/).
+Use the serve URL from step 9. The promise resolves when the render finishes and rejects if it fails. Your video is now available in your [S3 bucket](https://s3.console.aws.amazon.com/s3/).
 
 </TabItem>
 </Tabs>

@@ -9,7 +9,7 @@ crumb: 'API'
 
 Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr) parameter if you are using the Node.JS APIs ([`renderMedia()`](/docs/renderer/render-media), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)).
 
-This method is useful if you want to retrieve the input props in the [Root component](/docs/terminology/root-file).
+This method is useful if you want to retrieve the input props in the [root component](/docs/terminology/root-file).
 
 This method is not available when inside a [`<Player>`](/docs/player) or [when client-side rendering](/docs/miscellaneous/render-in-browser). Instead, get the props as React props from the component you passed as the `component` prop to the player.
 
@@ -18,7 +18,7 @@ This method is not available when inside a [`<Player>`](/docs/player) or [when c
 Prefer the following ways of getting your input props:
 
 - A component that was rendered as a [composition](/docs/composition) will retrieve the input props as regular props.
-- In the [Root component](/docs/terminology/root-file), you can get the input props by using the [`calculateMetadata()`](/docs/calculate-metadata) function.
+- In the [root component](/docs/terminology/root-file), you can get the input props by using the [`calculateMetadata()`](/docs/calculate-metadata) function.
 
 In both cases, you can type the props, which is better than using this API which returns a non-typesafe object.
 
