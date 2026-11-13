@@ -12,6 +12,7 @@ import {
 	type RenderMetadata,
 	type RendererOutput,
 	type ServerlessPayload,
+	type WebhookPayload,
 } from '@remotion/lambda-client';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {LogOptions} from '@remotion/renderer';
@@ -1174,6 +1175,81 @@ export const launchHandler = async ({
 		return cancellationSignal;
 	};
 
+	let webhookState:
+		| {type: 'not-configured'}
+		| {type: 'unclaimed'}
+		| {
+				type: 'claimed';
+				payloadType: WebhookPayload<string | null>['type'];
+				delivery: Promise<void>;
+		  } = params.webhook ? {type: 'unclaimed'} : {type: 'not-configured'};
+
+	const sendTerminalWebhook = (
+		payload: WebhookPayload<string | null>,
+		uploadLabel:
+			| 'timeoutWebhookError'
+			| 'successWebhookError'
+			| 'errorWebhookError',
+	): Promise<void> => {
+		if (webhookState.type === 'claimed') {
+			RenderInternals.Log.verbose(
+				logOptions,
+				`Webhook already invoked (${webhookState.payloadType}). Not invoking again.`,
+			);
+			return webhookState.delivery;
+		}
+
+		if (webhookState.type === 'not-configured' || !params.webhook) {
+			RenderInternals.Log.verbose(logOptions, 'No webhook specified.');
+			return Promise.resolve();
+		}
+
+		const {webhook} = params;
+		const deliver = async () => {
+			try {
+				await invokeWebhook({
+					options: {
+						url: webhook.url,
+						secret: webhook.secret,
+						payload,
+					},
+					logLevel: params.logLevel,
+				});
+				RenderInternals.Log.verbose(
+					logOptions,
+					`Successfully invoked ${payload.type} webhook.`,
+					webhook.url,
+				);
+			} catch (webhookError) {
+				if (process.env.NODE_ENV === 'test') {
+					throw webhookError;
+				}
+
+				RenderInternals.Log.error(logOptions, 'Failed to invoke webhook:');
+				RenderInternals.Log.error(logOptions, webhookError);
+
+				overallProgress.addErrorWithoutUpload({
+					type: 'webhook',
+					message: (webhookError as Error).message,
+					name: (webhookError as Error).name as string,
+					stack: (webhookError as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload(uploadLabel);
+			}
+		};
+
+		const delivery = deliver();
+		webhookState = {type: 'claimed', payloadType: payload.type, delivery};
+		return delivery;
+	};
+
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
@@ -1220,84 +1296,18 @@ export const launchHandler = async ({
 		runCleanupTasks();
 		await cancelOtherRenderers();
 
-		if (!params.webhook) {
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'No webhook specified.',
-			);
-			return;
-		}
-
-		if (webhookInvoked) {
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'Webhook already invoked. Not invoking again.',
-			);
-			return;
-		}
-
-		try {
-			await invokeWebhook({
-				options: {
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'timeout',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-					},
-				},
-				logLevel: params.logLevel,
-			});
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'Successfully invoked timeout webhook.',
-				params.webhook.url,
-			);
-			webhookInvoked = true;
-		} catch (err) {
-			if (process.env.NODE_ENV === 'test') {
-				throw err;
-			}
-
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				'Failed to invoke webhook:',
-			);
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				err,
-			);
-
-			overallProgress.addErrorWithoutUpload({
-				type: 'webhook',
-				message: (err as Error).message,
-				name: (err as Error).name as string,
-				stack: (err as Error).stack as string,
-				tmpDir: null,
-				frame: 0,
-				chunk: 0,
-				isFatal: false,
-				attempt: 1,
-				willRetry: false,
-				totalAttempts: 1,
-			});
-			overallProgress.upload('timeoutWebhookError');
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'timeout',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+			},
+			'timeoutWebhookError',
+		);
 	};
 
-	let webhookInvoked = false;
 	const webhookDueToTimeout = setTimeout(
 		onTimeout,
 		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
@@ -1401,62 +1411,23 @@ export const launchHandler = async ({
 			idempotencyKey: `cloud-render:${params.bucketName}:${params.renderId}`,
 		});
 
-		if (!params.webhook || webhookInvoked) {
-			return;
-		}
-
-		try {
-			await invokeWebhook({
-				options: {
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'success',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-						outputUrl: postRenderData.outputFile ?? undefined,
-						lambdaErrors: postRenderData.errors,
-						outputFile: postRenderData.outputFile ?? undefined,
-						separateAudio: postRenderData.separateAudio,
-						outputSequence: postRenderData.outputSequence,
-						timeToFinish: postRenderData.timeToFinish,
-						costs: postRenderData.cost,
-					},
-				},
-				logLevel: params.logLevel,
-			});
-			webhookInvoked = true;
-		} catch (err) {
-			if (process.env.NODE_ENV === 'test') {
-				throw err;
-			}
-
-			overallProgress.addErrorWithoutUpload({
-				type: 'webhook',
-				message: (err as Error).message,
-				name: (err as Error).name as string,
-				stack: (err as Error).stack as string,
-				tmpDir: null,
-				frame: 0,
-				chunk: 0,
-				isFatal: false,
-				attempt: 1,
-				willRetry: false,
-				totalAttempts: 1,
-			});
-			overallProgress.upload('successWebhookError');
-
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				'Failed to invoke webhook:',
-			);
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				err,
-			);
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'success',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+				outputUrl: postRenderData.outputFile ?? undefined,
+				lambdaErrors: postRenderData.errors,
+				outputFile: postRenderData.outputFile ?? undefined,
+				separateAudio: postRenderData.separateAudio,
+				outputSequence: postRenderData.outputSequence,
+				timeToFinish: postRenderData.timeToFinish,
+				costs: postRenderData.cost,
+			},
+			'successWebhookError',
+		);
 
 		runCleanupTasks();
 	} catch (err) {
@@ -1507,54 +1478,21 @@ export const launchHandler = async ({
 		);
 		clearTimeout(webhookDueToTimeout);
 
-		if (params.webhook && !webhookInvoked) {
-			try {
-				await invokeWebhook({
-					options: {
-						url: params.webhook.url,
-						secret: params.webhook.secret,
-						payload: {
-							type: 'error',
-							renderId: params.renderId,
-							expectedBucketOwner: options.expectedBucketOwner,
-							bucketName: params.bucketName,
-							customData: params.webhook.customData ?? null,
-							errors: [err as Error].map((e) => ({
-								message: e.message,
-								name: e.name as string,
-								stack: e.stack as string,
-							})),
-						},
-					},
-					logLevel: params.logLevel,
-				});
-				webhookInvoked = true;
-			} catch (error) {
-				overallProgress.addErrorWithoutUpload({
-					type: 'webhook',
-					message: (err as Error).message,
-					name: (err as Error).name as string,
-					stack: (err as Error).stack as string,
-					tmpDir: null,
-					frame: 0,
-					chunk: 0,
-					isFatal: false,
-					attempt: 1,
-					willRetry: false,
-					totalAttempts: 1,
-				});
-				overallProgress.upload('errorWebhookError');
-
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					'Failed to invoke webhook:',
-				);
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					error,
-				);
-			}
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'error',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+				errors: [err as Error].map((e) => ({
+					message: e.message,
+					name: e.name as string,
+					stack: e.stack as string,
+				})),
+			},
+			'errorWebhookError',
+		);
 
 		if (persistenceError !== null) {
 			throw persistenceError;

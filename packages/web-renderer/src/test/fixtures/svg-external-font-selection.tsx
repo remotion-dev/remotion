@@ -85,7 +85,7 @@ export const SvgExternalFontSelection: React.FC<{styleType: string | null}> = ({
 					href="#external-svg-visible-template"
 					x={270}
 					y={0}
-					style={{fontFamily: 'monospace', fontSize: 30}}
+					style={{fontFamily: '"External SVG, class font"', fontSize: 30}}
 				/>
 				<style type={styleType ?? (frame === 0 ? 'text/css' : 'text/plain')}>
 					{'/* Non-CSS style elements cannot carry font definitions. */'}

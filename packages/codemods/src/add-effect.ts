@@ -17,7 +17,7 @@ export type AddEffectOptions<Project extends CodemodProject> = {
 	props?: Record<string, CodemodValue>;
 };
 
-export const addEffect = async <Project extends CodemodProject>({
+export const addEffect = <Project extends CodemodProject>({
 	project,
 	node,
 	importName,
@@ -26,7 +26,7 @@ export const addEffect = async <Project extends CodemodProject>({
 }: AddEffectOptions<Project>) => {
 	const {filePath, input, length} = getEffectSource({project, node});
 	const {output, formatted, effectLabel, nodeLabel, logLine} =
-		await addEffectInSource({
+		addEffectInSource({
 			input,
 			sequenceNodePath: node.nodePath,
 			effectName: importName,

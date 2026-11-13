@@ -215,7 +215,10 @@ Use `<Interactive.Path>` from `remotion` instead of `<path>` inside an SVG to ma
 Install `@remotion/paths` for path interpolation and Studio path keyframes:
 
 ```sh
-bunx remotion add @remotion/paths
+npx remotion add @remotion/paths # If project uses npm
+bunx remotion add @remotion/paths # If project uses bun
+yarn remotion add @remotion/paths # If project uses yarn
+pnpm exec remotion add @remotion/paths # If project uses pnpm
 ```
 
 If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant.
