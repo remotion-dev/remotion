@@ -21,20 +21,21 @@ Get `fps` from `useVideoConfig()` for seconds-to-frames expressions, and keep
 them on the JSX node, such as `trimBefore={4 * fps}`. Literal frame counts are
 appropriate when the edit is already specified in frames.
 
-## One component per captioned source
+## Keep synchronized layers on one clock
 
-Make a component with `Interactive.create()` and `layout: 'absolute-fill'` for
-each captioned source. Inline the video source and full caption array inside it.
-The inner component takes no props.
+Put a source's video and full inline transcript in a component created with
+`Interactive.create()`. Keep source-synchronized overlays in that component too.
+Apply `trimBefore`, `durationInFrames`, and `playbackRate` to the shared timing
+boundary once. For an independently placed group, also set its `from`.
 
-Reuse the exported component for every cut or repeat. Put `from`, `trimBefore`,
-`durationInFrames`, and `playbackRate` on its instances. The video and captions
-share the same clock, and splitting a clip does not duplicate its transcript.
-Keep caption timestamps relative to the original media file.
+Moving, trimming, retiming, or deleting the group in Studio affects all its layers.
+For consecutive shots, reuse the source component inside the existing
+`TransitionSeries.Sequence`:
 
-```tsx title="Interview.tsx"
+```tsx
 import {Video} from '@remotion/media';
-import {Interactive, Track, staticFile, useVideoConfig} from 'remotion';
+import {TransitionSeries} from '@remotion/transitions';
+import {Interactive, staticFile, useVideoConfig} from 'remotion';
 import {BasicCaptions} from './basic-captions.element';
 
 const InterviewSourceInner = () => {
@@ -81,38 +82,31 @@ export const InterviewSource = Interactive.create({
 export const Interview = () => {
   const {fps} = useVideoConfig();
   return (
-    <Track name="Interview shots">
-      <InterviewSource
+    <TransitionSeries name="Interview shots">
+      <TransitionSeries.Sequence
         name="Opening"
         trimBefore={4 * fps}
         durationInFrames={3 * fps}
-      />
-      <InterviewSource
+      >
+        <InterviewSource />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
         name="Next shot"
-        from={3 * fps}
         trimBefore={10 * fps}
         durationInFrames={2 * fps}
-      />
-      <InterviewSource
-        name="Faster repeat"
-        from={5 * fps}
-        trimBefore={4 * fps}
-        durationInFrames={3 * fps}
-        playbackRate={1.5}
-      />
-    </Track>
+      >
+        <InterviewSource />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
   );
 };
 ```
 
-All three clips use the same transcript, which remains editable in Studio.
-See [displaying captions](../remotion-captions/display-captions.md#one-component-per-captioned-source)
+Both cuts use one inline transcript, with timestamps relative to the original
+media file. Splitting a clip reuses the source component instead of duplicating
+its transcript, and the captions remain editable in Studio. See
+[displaying captions](../remotion-captions/display-captions.md#one-component-per-captioned-source)
 for the caption component and setup.
-
-For consecutive clips, put the same source component inside each
-`TransitionSeries.Sequence`. Apply the cut's duration, trim, and speed to the
-sequence and leave the source component's timing props unset. This preserves
-ripple editing and transitions while keeping one transcript per source.
 
 ## Place overlays at the scope they span
 
