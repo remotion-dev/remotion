@@ -65,7 +65,7 @@ const containsPreserve3DDepth = (element: HTMLElement | SVGElement) => {
 
 export const createLayer = async ({
 	element,
-	onlyOwnPlane = false,
+	onlyOwnPlane: onlyOwnPlaneOption,
 	scale,
 	logLevel,
 	internalState,
@@ -77,7 +77,7 @@ export const createLayer = async ({
 	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
-	onlyOwnPlane?: boolean;
+	onlyOwnPlane: boolean | null;
 	scale: number;
 	logLevel: LogLevel;
 	internalState: InternalState;
@@ -88,6 +88,7 @@ export const createLayer = async ({
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
+	const onlyOwnPlane = onlyOwnPlaneOption === null ? false : onlyOwnPlaneOption;
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
 

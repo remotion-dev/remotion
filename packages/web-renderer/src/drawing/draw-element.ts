@@ -78,6 +78,8 @@ export const drawElement = async ({
 		borderRadius,
 		logLevel,
 		experimental3DRendering: internalState.experimental3DRendering,
+
+		inset: null,
 	});
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,

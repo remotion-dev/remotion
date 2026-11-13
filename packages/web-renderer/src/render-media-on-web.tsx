@@ -657,6 +657,8 @@ const internalRenderMediaOnWeb = async <
 							? onHtmlInCanvasLayerOutcome
 							: undefined,
 						waitForPageResponsiveness,
+
+						onlyOwnPlane: null,
 					});
 					internalState.addCreateFrameTime(
 						performance.now() - createFrameStart,

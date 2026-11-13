@@ -328,7 +328,7 @@ const planPreserve3DPlanes = ({
 
 export const compose = async ({
 	element,
-	onlyOwnPlane = false,
+	onlyOwnPlane: onlyOwnPlaneOption,
 	context,
 	logLevel,
 	parentRect,
@@ -338,7 +338,7 @@ export const compose = async ({
 	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
-	onlyOwnPlane?: boolean;
+	onlyOwnPlane: boolean | null;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
@@ -347,6 +347,7 @@ export const compose = async ({
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
+	const onlyOwnPlane = onlyOwnPlaneOption === null ? false : onlyOwnPlaneOption;
 	const treeWalker = document.createTreeWalker(
 		element,
 		onlyBackgroundClipText
@@ -435,6 +436,8 @@ export const compose = async ({
 				waitForPageResponsiveness,
 				transformStyleCache,
 				isolatedElements,
+
+				forceSubtreePrecompositing: null,
 			});
 		}
 

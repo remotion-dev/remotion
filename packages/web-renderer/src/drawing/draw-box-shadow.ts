@@ -37,17 +37,22 @@ export const drawBorderRadius = ({
 	borderRadius,
 	computedStyle,
 	logLevel,
-	inset = false,
-	experimental3DRendering = false,
+	inset: insetOption,
+	experimental3DRendering: experimental3DRenderingOption,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
 	logLevel: LogLevel;
-	inset?: boolean;
-	experimental3DRendering?: boolean;
+	inset: boolean | null;
+	experimental3DRendering: boolean | null;
 }) => {
+	const inset = insetOption === null ? false : insetOption;
+	const experimental3DRendering =
+		experimental3DRenderingOption === null
+			? false
+			: experimental3DRenderingOption;
 	const shadows = parseBoxShadow(computedStyle.boxShadow);
 	if (shadows.length === 0 || (inset && !experimental3DRendering)) {
 		return;
@@ -269,6 +274,8 @@ export const drawBorderRadius = ({
 					width: shadowRect.width,
 					height: shadowRect.height,
 					borderRadius: shadowRadius,
+
+					appendToPath: null,
 				});
 				ctx.fill();
 			} finally {
@@ -310,6 +317,8 @@ export const drawBorderRadius = ({
 			width: rect.width,
 			height: rect.height,
 			borderRadius,
+
+			appendToPath: null,
 		});
 		newCtx.fill();
 		newCtx.shadowColor = 'transparent';
@@ -321,6 +330,8 @@ export const drawBorderRadius = ({
 			width: rect.width,
 			height: rect.height,
 			borderRadius,
+
+			appendToPath: null,
 		});
 		newCtx.fill();
 		ctx.drawImage(newCanvas, rect.left - leftOffset, rect.top - topOffset);

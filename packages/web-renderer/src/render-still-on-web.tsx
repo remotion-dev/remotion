@@ -255,6 +255,8 @@ async function internalRenderImagesOnWeb<
 					? onHtmlInCanvasLayerOutcome
 					: undefined,
 				waitForPageResponsiveness: null,
+
+				onlyOwnPlane: null,
 			});
 
 			const {canvas} = capturedFrame;

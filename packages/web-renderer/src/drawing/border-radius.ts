@@ -235,6 +235,8 @@ export function setBorderRadius({
 		width: boundingRect.width,
 		height: boundingRect.height,
 		borderRadius: actualBorderRadius,
+
+		appendToPath: null,
 	});
 	ctx.clip();
 

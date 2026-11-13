@@ -53,7 +53,7 @@ export const processNode = async ({
 	waitForPageResponsiveness,
 	transformStyleCache,
 	isolatedElements,
-	forceSubtreePrecompositing = false,
+	forceSubtreePrecompositing: forceSubtreePrecompositingOption,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -66,8 +66,12 @@ export const processNode = async ({
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
-	forceSubtreePrecompositing?: boolean;
+	forceSubtreePrecompositing: boolean | null;
 }): Promise<ProcessNodeReturnValue> => {
+	const forceSubtreePrecompositing =
+		forceSubtreePrecompositingOption === null
+			? false
+			: forceSubtreePrecompositingOption;
 	using transforms = calculateTransforms({
 		element,
 		rootElement,

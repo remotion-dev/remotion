@@ -338,6 +338,8 @@ test('preserves native transform precision across cached reads', (t) => {
 					rootElement: element,
 					transformStyleCache: cache,
 					isolated: false,
+
+					experimental3DRendering: null,
 				});
 				expect(
 					Array.from(plan.totalMatrix.toFloat64Array(), (n) =>
@@ -412,6 +414,8 @@ test.for([null, ''])(
 					rootElement: host,
 					transformStyleCache: cache,
 					isolated: false,
+
+					experimental3DRendering: null,
 				});
 				plan[Symbol.dispose]();
 				observations.push([
@@ -458,6 +462,8 @@ test('restores transform measurement style ownership including priorities', () =
 			rootElement: host,
 			transformStyleCache: new WeakMap(),
 			isolated: false,
+
+			experimental3DRendering: null,
 		});
 		plan[Symbol.dispose]();
 		expect(
@@ -511,6 +517,8 @@ for (const {name, transition, priority} of [
 					rootElement: host,
 					transformStyleCache: cache,
 					isolated: false,
+
+					experimental3DRendering: null,
 				});
 				element.style.setProperty('--duration', '3s', 'important');
 				plan[Symbol.dispose]();
@@ -540,6 +548,8 @@ test('restores transform measurement style ownership without erasing unrelated a
 			rootElement: host,
 			transformStyleCache: new WeakMap(),
 			isolated: false,
+
+			experimental3DRendering: null,
 		});
 		element.style.setProperty('color', 'rgb(1, 2, 3)', 'important');
 		element.style.setProperty('--authored-update', 'kept', 'important');

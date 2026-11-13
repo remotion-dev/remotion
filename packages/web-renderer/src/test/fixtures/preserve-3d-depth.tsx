@@ -2,7 +2,7 @@ import React from 'react';
 import {useCurrentFrame} from 'remotion';
 const plane = (
 	style: React.CSSProperties,
-	children?: React.ReactNode,
+	children: React.ReactNode | null,
 ): React.ReactElement =>
 	React.createElement(
 		'div',
@@ -51,14 +51,17 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 			{...size, background: 'white'},
 			plane(
 				{width: 300, height: 300, perspective: 100},
-				plane({
-					left: 50,
-					top: 50,
-					width: 200,
-					height: 200,
-					background: 'lime',
-					transform: 'translateZ(50px) rotateY(45deg) rotateX(75deg)',
-				}),
+				plane(
+					{
+						left: 50,
+						top: 50,
+						width: 200,
+						height: 200,
+						background: 'lime',
+						transform: 'translateZ(50px) rotateY(45deg) rotateX(75deg)',
+					},
+					null,
+				),
 			),
 		);
 	if (kind === 'review-descendant-blur')
@@ -66,12 +69,15 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 			{...size, background: 'white'},
 			plane(
 				{left: 100, top: 100, width: 100, height: 100, opacity: 0.4},
-				plane({
-					width: 100,
-					height: 100,
-					background: 'red',
-					filter: 'blur(10px)',
-				}),
+				plane(
+					{
+						width: 100,
+						height: 100,
+						background: 'red',
+						filter: 'blur(10px)',
+					},
+					null,
+				),
 			),
 		);
 	if (
@@ -88,14 +94,17 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 					perspective:
 						kind === 'review-offscreen-filter-perspective' ? 700 : undefined,
 				},
-				plane({
-					left: -100,
-					top: 100,
-					width: 50,
-					height: 50,
-					background: 'red',
-					filter: `drop-shadow(${shadowOffset}px 0 0 blue)`,
-				}),
+				plane(
+					{
+						left: -100,
+						top: 100,
+						width: 50,
+						height: 50,
+						background: 'red',
+						filter: `drop-shadow(${shadowOffset}px 0 0 blue)`,
+					},
+					null,
+				),
 			),
 		);
 	if (kind.startsWith('review-')) {
@@ -127,14 +136,17 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 		const reviewContent = plane(
 			style,
 			kind === 'review-blend-inherit' || kind === 'review-blend-explicit'
-				? plane({
-						left: 20,
-						top: 20,
-						width: 60,
-						height: 60,
-						background: 'blue',
-						opacity: kind === 'review-blend-explicit' ? 0.5 : 'inherit',
-					})
+				? plane(
+						{
+							left: 20,
+							top: 20,
+							width: 60,
+							height: 60,
+							background: 'blue',
+							opacity: kind === 'review-blend-explicit' ? 0.5 : 'inherit',
+						},
+						null,
+					)
 				: undefined,
 		);
 		return plane(
@@ -156,38 +168,50 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 			transformStyle: 'preserve-3d',
 		},
 		[
-			plane({
-				left: 30,
-				top: 40,
-				width: 160,
-				height: 120,
-				background: '#22dd44',
-				transform: 'translateZ(100px)',
-			}),
-			plane({
-				left: 100,
-				top: 60,
-				width: 160,
-				height: 120,
-				background: '#2244dd',
-			}),
-			plane({
-				left: 200,
-				top: 30,
-				width: 70,
-				height: 70,
-				background: '#dddd22',
-				transform: 'translateZ(-60px)',
-			}),
+			plane(
+				{
+					left: 30,
+					top: 40,
+					width: 160,
+					height: 120,
+					background: '#22dd44',
+					transform: 'translateZ(100px)',
+				},
+				null,
+			),
+			plane(
+				{
+					left: 100,
+					top: 60,
+					width: 160,
+					height: 120,
+					background: '#2244dd',
+				},
+				null,
+			),
+			plane(
+				{
+					left: 200,
+					top: 30,
+					width: 70,
+					height: 70,
+					background: '#dddd22',
+					transform: 'translateZ(-60px)',
+				},
+				null,
+			),
 			// An invisible sibling must not disable depth ordering of visible planes.
 			kind === 'depth'
-				? plane({
-						left: 5000,
-						top: 0,
-						width: 100,
-						height: 100,
-						background: '#ffffff',
-					})
+				? plane(
+						{
+							left: 5000,
+							top: 0,
+							width: 100,
+							height: 100,
+							background: '#ffffff',
+						},
+						null,
+					)
 				: null,
 		],
 	);
@@ -199,13 +223,16 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 				{...size, transformStyle: 'preserve-3d', transform: 'rotateY(12deg)'},
 				plane(
 					{left: 0, top: 0, width: 0, height: 0, overflow: 'visible'},
-					plane({
-						left: 120,
-						top: 100,
-						width: 300,
-						height: 200,
-						background: '#22dd44',
-					}),
+					plane(
+						{
+							left: 120,
+							top: 100,
+							width: 300,
+							height: 200,
+							background: '#22dd44',
+						},
+						null,
+					),
 				),
 			),
 		);
@@ -213,29 +240,38 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 		content = plane(
 			{...size, perspective: 700},
 			plane({...size, transformStyle: 'preserve-3d'}, [
-				plane({
-					left: 100,
-					top: 100,
-					width: 200,
-					height: 200,
-					background: '#dd2222',
-					transform: 'translateZ(20px)',
-				}),
-				plane({
-					left: 220,
-					top: 100,
-					width: 200,
-					height: 200,
-					background: '#22dd44',
-					transform: 'translateZ(20px)',
-				}),
-				plane({
-					left: 80,
-					top: 100,
-					width: 80,
-					height: 200,
-					background: '#2244dd',
-				}),
+				plane(
+					{
+						left: 100,
+						top: 100,
+						width: 200,
+						height: 200,
+						background: '#dd2222',
+						transform: 'translateZ(20px)',
+					},
+					null,
+				),
+				plane(
+					{
+						left: 220,
+						top: 100,
+						width: 200,
+						height: 200,
+						background: '#22dd44',
+						transform: 'translateZ(20px)',
+					},
+					null,
+				),
+				plane(
+					{
+						left: 80,
+						top: 100,
+						width: 80,
+						height: 200,
+						background: '#2244dd',
+					},
+					null,
+				),
 			]),
 		);
 	if (kind === 'magnified-mask')
@@ -280,20 +316,26 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 						background: '#dd2222',
 					},
 					[
-						plane({
-							left: 20,
-							top: 20,
-							width: 200,
-							height: 180,
-							background: '#22dd44',
-						}),
-						plane({
-							left: 80,
-							top: 70,
-							width: 200,
-							height: 180,
-							background: '#2244dd',
-						}),
+						plane(
+							{
+								left: 20,
+								top: 20,
+								width: 200,
+								height: 180,
+								background: '#22dd44',
+							},
+							null,
+						),
+						plane(
+							{
+								left: 80,
+								top: 70,
+								width: 200,
+								height: 180,
+								background: '#2244dd',
+							},
+							null,
+						),
 					],
 				),
 			),
@@ -325,29 +367,38 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 						transformStyle: 'preserve-3d',
 					},
 					[
-						plane({
-							left: 30,
-							top: 40,
-							width: 170,
-							height: 130,
-							background: '#22dd44',
-							transform: 'translateZ(100px)',
-						}),
-						plane({
-							left: 110,
-							top: 70,
-							width: 170,
-							height: 130,
-							background: '#2244dd',
-						}),
-						plane({
-							left: 210,
-							top: 20,
-							width: 80,
-							height: 70,
-							background: '#dddd22',
-							transform: 'translateZ(-30px)',
-						}),
+						plane(
+							{
+								left: 30,
+								top: 40,
+								width: 170,
+								height: 130,
+								background: '#22dd44',
+								transform: 'translateZ(100px)',
+							},
+							null,
+						),
+						plane(
+							{
+								left: 110,
+								top: 70,
+								width: 170,
+								height: 130,
+								background: '#2244dd',
+							},
+							null,
+						),
+						plane(
+							{
+								left: 210,
+								top: 20,
+								width: 80,
+								height: 70,
+								background: '#dddd22',
+								transform: 'translateZ(-30px)',
+							},
+							null,
+						),
 						plane(
 							{
 								left: 20,
@@ -356,13 +407,16 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 								height: 30,
 								background: '#2244dd',
 							},
-							plane({
-								left: 10,
-								top: 7,
-								width: 140,
-								height: 16,
-								background: '#dddd22',
-							}),
+							plane(
+								{
+									left: 10,
+									top: 7,
+									width: 140,
+									height: 16,
+									background: '#dddd22',
+								},
+								null,
+							),
 						),
 					],
 				),
@@ -389,21 +443,27 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 						overflow: 'hidden',
 						background: '#22dd44',
 					},
-					plane({
-						left: 30,
-						top: 20,
-						width: 60,
-						height: 60,
-						background: '#2244dd',
-					}),
+					plane(
+						{
+							left: 30,
+							top: 20,
+							width: 60,
+							height: 60,
+							background: '#2244dd',
+						},
+						null,
+					),
 				),
-				plane({
-					left: 180,
-					top: 20,
-					width: 90,
-					height: 100,
-					background: '#22dd44',
-				}),
+				plane(
+					{
+						left: 180,
+						top: 20,
+						width: 90,
+						height: 100,
+						background: '#22dd44',
+					},
+					null,
+				),
 			],
 		);
 	if (kind === 'oversized-opacity')
@@ -417,20 +477,26 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 				background: '#dd2222',
 			},
 			[
-				plane({
-					left: 50080,
-					top: 20,
-					width: 250,
-					height: 160,
-					background: '#22dd44',
-				}),
-				plane({
-					left: 50200,
-					top: 60,
-					width: 180,
-					height: 100,
-					background: '#2244dd',
-				}),
+				plane(
+					{
+						left: 50080,
+						top: 20,
+						width: 250,
+						height: 160,
+						background: '#22dd44',
+					},
+					null,
+				),
+				plane(
+					{
+						left: 50200,
+						top: 60,
+						width: 180,
+						height: 100,
+						background: '#2244dd',
+					},
+					null,
+				),
 			],
 		);
 	if (kind === 'implicit-gradient-stop')
@@ -440,12 +506,18 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 				background:
 					'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 70%)',
 			},
-			plane({left: 10, top: 10, width: 60, height: 60, background: '#22dd44'}),
+			plane(
+				{left: 10, top: 10, width: 60, height: 60, background: '#22dd44'},
+				null,
+			),
 		);
 	if (kind === 'trailing-gradient-stop')
 		content = plane(
 			{...size, background: 'linear-gradient(90deg, #104060 30%, #60a0c0)'},
-			plane({left: 10, top: 10, width: 60, height: 60, background: '#22dd44'}),
+			plane(
+				{left: 10, top: 10, width: 60, height: 60, background: '#22dd44'},
+				null,
+			),
 		);
 	if (kind === 'soft-inset')
 		content = plane(
@@ -458,26 +530,32 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 				borderRadius: 35,
 				boxShadow: 'inset 8px -5px 24px 12px rgba(0,0,0,.8)',
 			},
-			plane({
-				left: 120,
-				top: 80,
-				width: 160,
-				height: 80,
-				background: '#2244dd',
-			}),
+			plane(
+				{
+					left: 120,
+					top: 80,
+					width: 160,
+					height: 80,
+					background: '#2244dd',
+				},
+				null,
+			),
 		);
 	if (kind === 'offscreen')
 		content = plane(
 			{...size, perspective: 700},
-			plane({
-				left: 160,
-				top: 1000,
-				width: 300,
-				height: 180,
-				background: '#22dd44',
-				transform: 'translateY(-850px) rotateY(25deg)',
-				transformStyle: 'preserve-3d',
-			}),
+			plane(
+				{
+					left: 160,
+					top: 1000,
+					width: 300,
+					height: 180,
+					background: '#22dd44',
+					transform: 'translateY(-850px) rotateY(25deg)',
+					transformStyle: 'preserve-3d',
+				},
+				null,
+			),
 		);
 	return plane({...size, background: '#101820'}, content);
 }
@@ -526,12 +604,15 @@ const GridSamplerParent = () => {
 						perspective: 700,
 						transformStyle: 'preserve-3d',
 					},
-					plane({
-						width: 50,
-						height: 42,
-						background: '#2060c0',
-						filter: 'drop-shadow(8px 0 0 red)',
-					}),
+					plane(
+						{
+							width: 50,
+							height: 42,
+							background: '#2060c0',
+							filter: 'drop-shadow(8px 0 0 red)',
+						},
+						null,
+					),
 				),
 			),
 		),

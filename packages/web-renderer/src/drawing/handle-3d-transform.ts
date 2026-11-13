@@ -12,17 +12,22 @@ export const getPrecomposeRectFor3DTransform = ({
 	element,
 	parentRect,
 	matrix,
-	onlyOwnPlane = false,
-	experimental3DRendering = false,
+	onlyOwnPlane: onlyOwnPlaneOption,
+	experimental3DRendering: experimental3DRenderingOption,
 	sourceRect,
 }: {
 	element: HTMLElement | SVGElement;
 	parentRect: DOMRect;
 	matrix: DOMMatrix;
-	onlyOwnPlane?: boolean;
-	experimental3DRendering?: boolean;
+	onlyOwnPlane: boolean | null;
+	experimental3DRendering: boolean | null;
 	sourceRect: DOMRect | null;
 }) => {
+	const onlyOwnPlane = onlyOwnPlaneOption === null ? false : onlyOwnPlaneOption;
+	const experimental3DRendering =
+		experimental3DRenderingOption === null
+			? false
+			: experimental3DRenderingOption;
 	const unclampedBiggestBoundingClientRect =
 		sourceRect ??
 		getBiggestBoundingClientRect(element, true, experimental3DRendering, {

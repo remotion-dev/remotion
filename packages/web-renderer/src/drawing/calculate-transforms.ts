@@ -244,14 +244,18 @@ export const calculateTransforms = ({
 	rootElement,
 	transformStyleCache,
 	isolated,
-	experimental3DRendering = false,
+	experimental3DRendering: experimental3DRenderingOption,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
 	transformStyleCache: TransformStyleCache;
 	isolated: boolean;
-	experimental3DRendering?: boolean;
+	experimental3DRendering: boolean | null;
 }) => {
+	const experimental3DRendering =
+		experimental3DRenderingOption === null
+			? false
+			: experimental3DRenderingOption;
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
 	const transforms: Transform[] = [];
