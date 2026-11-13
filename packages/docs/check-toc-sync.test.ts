@@ -59,7 +59,7 @@ for (const overviewFirst of [true, false]) {
 					`import {checkTocSync} from './check-toc-sync';
 import path from 'node:path';
 const order = ${JSON.stringify(inventory)};
-const files = order.map(name => path.join(${JSON.stringify(path.join(root, 'docs'))}, name));
+const files = order.map(name => path.join(import.meta.dir, 'docs', name));
 console.log('inventory:' + JSON.stringify(files.map(file => path.basename(file))));
 checkTocSync(files);`,
 				);
