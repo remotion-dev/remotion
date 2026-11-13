@@ -8,6 +8,7 @@ import {testCompositions} from './utils';
 
 test('preserves empty stylesheet predicates', async () => {
 	await testCompositions({
+		scale: null,
 		cases: svgEmptyPredicates.map((_, index) => ({
 			composition: svgEmptyPredicate({index, literal: false}),
 			frame: 1,

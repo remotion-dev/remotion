@@ -328,6 +328,7 @@ test(
 	{timeout: 15_000},
 	async () => {
 		await testCompositions({
+			scale: null,
 			cases: [
 				maskImageUrlCalcPosition,
 				createMaskImageLayersGridFixture(false),

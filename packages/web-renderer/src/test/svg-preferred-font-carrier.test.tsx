@@ -11,6 +11,7 @@ test(
 	{timeout: 15_000},
 	async () => {
 		await testCompositions({
+			scale: null,
 			cases: svgPreferredFontModes.map((mode) => ({
 				composition: svgPreferredFontCarrier({
 					mode,

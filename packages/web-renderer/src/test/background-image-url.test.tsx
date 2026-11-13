@@ -19,6 +19,7 @@ test.skipIf(!navigator.userAgent.includes('Chrome'))(
 	'renders spaced, rounded and pixelated backgrounds',
 	async () => {
 		await testCompositions({
+			scale: null,
 			cases: [
 				backgroundImageSpace,
 				backgroundImageRound,

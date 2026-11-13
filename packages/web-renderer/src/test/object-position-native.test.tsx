@@ -12,6 +12,7 @@ import {testCompositions} from './utils';
 
 test('renders calculated object positions and pixelated images', async () => {
 	await testCompositions({
+		scale: null,
 		cases: [objectPositionMath, replacedElementPixelated].map(
 			(composition) => ({composition, frame: 1}),
 		),

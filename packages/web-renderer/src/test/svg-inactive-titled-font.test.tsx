@@ -19,6 +19,7 @@ test(
 	{timeout: 15_000},
 	async () => {
 		await testCompositions({
+			scale: null,
 			cases: svgInactiveTitleModes.map((mode) => ({
 				composition: svgInactiveTitledFont({
 					mode,

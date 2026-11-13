@@ -13,6 +13,7 @@ import {testCompositions} from './utils';
 
 test('renders registered fonts in text, CDATA and mixed nodes', async () => {
 	await testCompositions({
+		scale: null,
 		cases: registeredCdataWrappers.map((wrapper, index) => ({
 			composition: svgRegisteredCdataFont(
 				wrapper,

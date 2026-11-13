@@ -36,6 +36,7 @@ test('preserves descendant filter paint through referenced clips', async (t) => 
 	}
 
 	await testCompositions({
+		scale: null,
 		cases: [
 			clipPathDescendantFilterObjectBox,
 			clipPathRectangleDescendantFilter,

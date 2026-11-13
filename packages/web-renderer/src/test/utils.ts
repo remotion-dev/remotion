@@ -49,6 +49,7 @@ export const testCompositions = async ({
 	cases,
 	columns,
 	testId,
+	scale,
 }: {
 	cases: {
 		composition: {
@@ -63,23 +64,24 @@ export const testCompositions = async ({
 	}[];
 	columns: number;
 	testId: string;
+	scale: number | null;
 }) => {
-	const cellWidth = Math.max(
-		...cases.map(({composition}) => composition.width),
-	);
-	const cellHeight = Math.max(
+	const renderScale = scale ?? 1;
+	const width = Math.max(...cases.map(({composition}) => composition.width));
+	const maxHeight = Math.max(
 		...cases.map(({composition}) => composition.height),
 	);
+	const cellWidth = Math.ceil(width * renderScale);
 	const rowHeights = Array.from(
 		{length: Math.ceil(cases.length / columns)},
 		(_, row) =>
 			Math.max(
 				...cases
 					.slice(row * columns, (row + 1) * columns)
-					.map(({composition}) => composition.height),
+					.map(({composition}) => Math.ceil(composition.height * renderScale)),
 			),
 	);
-	await page.viewport(Math.max(1280, cellWidth), Math.max(720, cellHeight));
+	await page.viewport(Math.max(1280, width), Math.max(720, maxHeight));
 	const sheet = new OffscreenCanvas(
 		cellWidth * columns,
 		rowHeights.reduce((sum, height) => sum + height, 0),
@@ -94,6 +96,7 @@ export const testCompositions = async ({
 				inputProps: {},
 				licenseKey: 'free-license',
 				allowHtmlInCanvas: false,
+				scale: renderScale,
 			});
 			const canvas = await still.canvas();
 			try {

@@ -8,6 +8,7 @@ import {testCompositions} from './utils';
 
 test('preserves escaped SVG selectors', async () => {
 	await testCompositions({
+		scale: null,
 		cases: escapedStyleSelectorModes.map((mode) => ({
 			composition: svgEscapedStyleSelector({mode, literal: false}),
 			frame: 1,

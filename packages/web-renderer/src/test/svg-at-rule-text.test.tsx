@@ -5,6 +5,7 @@ import {testCompositions} from './utils';
 
 test('preserves SVG style predicates around comments, strings and URL tokens', async () => {
 	await testCompositions({
+		scale: null,
 		cases: (
 			[
 				{mode: 'comment-import', positive: false, frame: 0},

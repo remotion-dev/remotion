@@ -8,6 +8,7 @@ import {testCompositions} from './utils';
 test('renders SVG text alongside XML metadata', async () => {
 	await svgExternalFontReady;
 	await testCompositions({
+		scale: null,
 		cases: svgXmlMetadataModes.map((mode) => ({
 			composition: svgXmlMetadata({mode, literal: false}),
 			frame: 1,

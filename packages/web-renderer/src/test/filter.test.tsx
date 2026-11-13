@@ -39,6 +39,7 @@ test('renders SVG filter regions, offsets and fractional bounds', async (t) => {
 	}
 
 	await testCompositions({
+		scale: null,
 		cases: [
 			svgFilterReference,
 			svgFilterExpandedReference,
@@ -84,6 +85,7 @@ test('retains CSS and SVG filter containing blocks', async (t) => {
 	}
 
 	await testCompositions({
+		scale: null,
 		cases: [
 			svgFilterContainingBlockReference,
 			filterContainingBlockReference,
