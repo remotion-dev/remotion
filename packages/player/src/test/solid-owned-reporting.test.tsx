@@ -3,6 +3,10 @@ import {spawnSync} from 'node:child_process';
 import {join} from 'node:path';
 
 for (const mode of [
+	'source-context-player-null',
+	'source-context-player-throw',
+	'source-context-thumbnail-null',
+	'source-context-thumbnail-throw',
 	'active',
 	'stale',
 	'first-and-public',

@@ -1,5 +1,6 @@
 import {mock} from 'bun:test';
 import {resolve} from 'node:path';
+import type {DelayRenderScope} from 'remotion';
 import type {PlayerRef} from '../../player-methods.js';
 
 const main = async () => {
@@ -40,6 +41,7 @@ const main = async () => {
 	const {act, cleanup, render} = await import('@testing-library/react');
 	const {Solid, useDelayRender} = await import('remotion');
 	const {Player} = await import('../../Player.js');
+	const {Thumbnail} = await import('../../Thumbnail.js');
 	const React = await import('react');
 	const {flushSync} = await import('react-dom');
 	const {ErrorBoundary} = await import('../../error-boundary.js');
@@ -47,12 +49,24 @@ const main = async () => {
 		resolve(__dirname, '../../../../core/dist/cjs/use-delay-render.js')
 	);
 	const mode = process.argv[2];
+	const sourceContextFailure = new Error(
+		'controlled Solid source context failure',
+	);
 	const originalContext = HTMLCanvasElement.prototype.getContext;
 	HTMLCanvasElement.prototype.getContext = function (
 		this: HTMLCanvasElement,
 		kind: string,
 	) {
 		if (kind !== '2d') return null;
+		if (
+			mode?.startsWith('source-context-') &&
+			this.width === 1 &&
+			this.height === 1
+		) {
+			if (mode.endsWith('-throw')) throw sourceContextFailure;
+			return null;
+		}
+
 		return {
 			canvas: this,
 			clearRect: () => undefined,
@@ -95,7 +109,74 @@ const main = async () => {
 
 	let facts: Record<string, unknown> = {mode};
 	try {
-		if (mode === 'active' || mode === 'stale') {
+		if (mode?.startsWith('source-context-')) {
+			const scope: DelayRenderScope = {
+				remotion_renderReady: true,
+				remotion_delayRenderHandles: [],
+				remotion_delayRenderTimeouts: {},
+				remotion_puppeteerTimeout: 30000,
+				remotion_attempt: 1,
+			};
+			const Healthy = () => <span>healthy Solid sibling</span>;
+			const actor = mode.includes('-thumbnail-') ? (
+				<Thumbnail
+					{...config}
+					component={Content}
+					inputProps={{color: 'lime'}}
+					frameToDisplay={0}
+					errorFallback={fallback}
+				/>
+			) : (
+				<Player
+					{...config}
+					component={Content}
+					inputProps={{color: 'lime'}}
+					ref={onError}
+					errorFallback={fallback}
+				/>
+			);
+			const view = render(
+				<core.Internals.DelayRenderContextType.Provider value={scope}>
+					{actor}
+					<Player {...config} component={Healthy} errorFallback={fallback} />
+				</core.Internals.DelayRenderContextType.Provider>,
+			);
+			await act(flush);
+			const expected = mode.endsWith('-throw')
+				? sourceContextFailure.message
+				: 'Failed to acquire 2D context for <Solid> source';
+			if (view.getByRole('alert').textContent !== expected)
+				throw new Error('Solid did not reach its context-failure fallback');
+			view.getByText('healthy Solid sibling');
+			if (
+				scope.remotion_cancelledError !== undefined ||
+				scope.remotion_cancelledErrorObject !== undefined
+			)
+				throw new Error(
+					'Owned Solid context failure cancelled the inherited scope',
+				);
+			if (
+				scope.remotion_delayRenderHandles.length !== 0 ||
+				!scope.remotion_renderReady
+			)
+				throw new Error(
+					'Solid context acquisition leaked a readiness hold before cleanup registration',
+				);
+			if (pending.length !== 0)
+				throw new Error('Failed context entered the effect runner');
+			view.unmount();
+			if (
+				scope.remotion_delayRenderHandles.length !== 0 ||
+				!scope.remotion_renderReady
+			)
+				throw new Error('Solid context hold survived unmount');
+			facts = {
+				mode,
+				fallback: expected,
+				handles: scope.remotion_delayRenderHandles,
+				ready: scope.remotion_renderReady,
+			};
+		} else if (mode === 'active' || mode === 'stale') {
 			const view = render(
 				<Player
 					{...config}
