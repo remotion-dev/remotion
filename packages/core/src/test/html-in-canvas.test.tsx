@@ -1004,8 +1004,8 @@ for (const behavior of [
 			if (behavior === 'success')
 				expect(scope.remotion_delayRenderHandles).toEqual([]);
 			view.unmount();
-			if (behavior === 'success' || behavior === 'unmounted')
-				expect(scope.remotion_delayRenderHandles).toEqual([]);
+			expect(scope.remotion_delayRenderHandles).toEqual([]);
+			expect(scope.remotion_renderReady).toBe(behavior !== 'unowned');
 		} finally {
 			cleanup();
 			if (previousAdd)
