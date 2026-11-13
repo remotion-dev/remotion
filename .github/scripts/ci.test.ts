@@ -443,7 +443,9 @@ test('runs Browser Studio independently while requiring both affected jobs', () 
 		studio.steps.filter((step) => step.run === 'bun run testbrowserstudio\n'),
 	).toHaveLength(1);
 	expect(
-		renderer.steps.filter((step) => step.run === 'bun run testwebrenderer\n'),
+		renderer.steps.filter(
+			(step) => step.run === 'bun run testwebrenderer --log-order=stream\n',
+		),
 	).toHaveLength(1);
 	const required = workflow.jobs['required-ci'];
 	expect(required.needs).toContain('webrenderer-tests');
