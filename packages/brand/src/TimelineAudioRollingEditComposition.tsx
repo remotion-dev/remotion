@@ -801,7 +801,7 @@ const AudioRollingCursorMotionBlur = () => {
 				{sample === Math.floor(samples / 2) ? (
 					<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 				) : (
-					<Internals.DisableSequenceRegistrationProvider>
+					<Internals.DisableSequenceRegistrationProvider disabled>
 						<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 					</Internals.DisableSequenceRegistrationProvider>
 				)}
