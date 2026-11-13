@@ -17,13 +17,31 @@ const isSelectionClearBlocked = (target: EventTarget | null | undefined) => {
 	);
 };
 
+let pointerDownClaimed = false;
+
+export const claimSelectionPointerDown = () => {
+	if (pointerDownClaimed) {
+		return;
+	}
+
+	pointerDownClaimed = true;
+	setTimeout(() => {
+		pointerDownClaimed = false;
+	});
+};
+
 export const shouldClearSelectionOnPointerDown = (event: {
 	readonly button: number;
 	readonly ctrlKey: boolean | null;
 	readonly metaKey: boolean | null;
 	readonly target?: EventTarget | null;
 }) => {
-	if (event.button !== 0 || event.metaKey === true || event.ctrlKey === true) {
+	if (
+		pointerDownClaimed ||
+		event.button !== 0 ||
+		event.metaKey === true ||
+		event.ctrlKey === true
+	) {
 		return false;
 	}
 

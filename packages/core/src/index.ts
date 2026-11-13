@@ -183,6 +183,7 @@ export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
 export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
+export type {InteractiveEditor} from './interactive-editor.js';
 export {
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
 	getHtmlInCanvasUnsupportedMessage,

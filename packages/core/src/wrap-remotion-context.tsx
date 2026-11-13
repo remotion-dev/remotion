@@ -15,6 +15,7 @@ import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
+import {InteractiveEditorContext} from './interactive-editor.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -73,6 +74,7 @@ export function useRemotionContexts() {
 	const bufferManagerContext = React.useContext(BufferingContextReact);
 	const logLevelContext = React.useContext(LogLevelContext);
 	const effectPreviewContext = React.useContext(EffectPreviewContext);
+	const interactiveEditorContext = React.useContext(InteractiveEditorContext);
 
 	return useMemo(
 		() => ({
@@ -99,6 +101,7 @@ export function useRemotionContexts() {
 			bufferManagerContext,
 			logLevelContext,
 			effectPreviewContext,
+			interactiveEditorContext,
 		}),
 		[
 			mediaEnabledContext,
@@ -124,6 +127,7 @@ export function useRemotionContexts() {
 			bufferManagerContext,
 			logLevelContext,
 			effectPreviewContext,
+			interactiveEditorContext,
 		],
 	);
 }
@@ -309,12 +313,18 @@ export const RemotionContextProvider = (
 																								contexts.effectPreviewContext
 																							}
 																						>
-																							{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																							<SequenceActivityContext.Provider
-																								value={false}
+																							<InteractiveEditorContext.Provider
+																								value={
+																									contexts.interactiveEditorContext
+																								}
 																							>
-																								{children}
-																							</SequenceActivityContext.Provider>
+																								{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																								<SequenceActivityContext.Provider
+																									value={false}
+																								>
+																									{children}
+																								</SequenceActivityContext.Provider>
+																							</InteractiveEditorContext.Provider>
 																						</EffectPreviewContext.Provider>
 																					</MediaEnabledContext.Provider>
 																				</VideoContext.Provider>

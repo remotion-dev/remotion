@@ -186,6 +186,7 @@ import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
+import {ThreeEditor} from './ThreeEditor';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
@@ -1968,6 +1969,14 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />
+				<Composition
+					id="three-editor"
+					component={ThreeEditor}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
 				<Composition
 					id="three-basic"
 					component={ThreeBasic}
