@@ -260,11 +260,20 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
 	const textStyles = textElements.map((element) => {
-		// Templates inherit font selection from each <use> instance.
-		if (element.closest(svgDefinitionElements)) return null;
+		// Use templates inherit from each instance. Referenced paint resources
+		// instead retain the font selection of their authored resource subtree.
 		let ancestor: Element = element;
 		while (ancestor !== svg) {
-			if (referencedTemplates.has(ancestor)) return null;
+			if (
+				ancestor.matches('pattern, mask, clipPath, marker, filter') &&
+				referencedTemplates.has(ancestor)
+			)
+				break;
+			if (
+				ancestor.matches(svgDefinitionElements) ||
+				referencedTemplates.has(ancestor)
+			)
+				return null;
 			ancestor = ancestor.parentElement!;
 		}
 

@@ -244,6 +244,7 @@ import {
 } from './fixtures/svg-filter-reference';
 import {
 	svgDefinitionModes,
+	svgPaintResourceFontSize,
 	svgDefinitionFont,
 	svgDefinitionFontUrl,
 	svgWildcardStyleModes,
@@ -543,6 +544,14 @@ export const Root: React.FC = () => {
 			{svgAdoptedFontGroups.map((group) => (
 				<Composition key={group} {...svgAdoptedFont({group, literal: false})} />
 			))}
+			{(['pattern', 'mask'] as const).flatMap((kind) =>
+				[false, true].flatMap((inDefs) =>
+					[false, true].map((literal) => {
+						const fixture = svgPaintResourceFontSize({kind, inDefs, literal});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+				),
+			)}
 			{svgDefinitionModes.map((mode) => (
 				<Composition
 					key={mode}

@@ -100,7 +100,7 @@ Removing and re-adding script-loaded SVG font families is supported. Removing or
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-External SVG font selection is supported with CSS filters, masks, isolation and blending. SVG text with an explicit font family is supported inside locally referenced patterns and masks.
+External SVG font selection is supported with CSS filters, masks, isolation and blending. SVG text with an explicit font family is supported inside locally referenced patterns and masks. Computed font properties are preserved for text in these paint resources, including resources inside `<defs>`.
 
 CSS `@font-face` is supported from readable, enabled stylesheets, including adopted stylesheets, active `@media` and `@supports` rules, and unlayered imports. A face must have a single `data:` or same-origin HTTP(S) source. HTTP(S) fonts must have exactly one loaded face in their family. Other grouping rules, layered imports, unreadable stylesheets, cross-origin URLs, CSS-escaped URLs, font collection fragments and relative font URLs in constructed stylesheets are not supported. Fonts added directly through the browser's `FontFace` API and text inside `<foreignObject>` are not supported.
 

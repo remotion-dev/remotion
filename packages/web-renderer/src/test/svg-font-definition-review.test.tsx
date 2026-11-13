@@ -1,6 +1,7 @@
 import {NoReactInternals} from 'remotion/no-react';
 import {expect, test, vi} from 'vitest';
 import '../symbol-dispose';
+import {getSvgFontSnapshot} from '../drawing/turn-svg-into-drawable';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {
 	svgDefinitionModes,
@@ -71,6 +72,28 @@ test.for(
 			);
 		} finally {
 			fetchFont.mockRestore();
+		}
+	},
+);
+
+test.for(
+	(['pattern', 'mask'] as const).flatMap((kind) =>
+		[false, true].map((inDefs) => ({kind, inDefs})),
+	),
+)(
+	'preserves computed fonts in $kind resources, defs=$inDefs',
+	({kind, inDefs}) => {
+		const container = document.createElement('div');
+		const resource = `<${kind} id="resource-font-review"><text class="resource-font-review-label" font-family="serif">Label</text></${kind}>`;
+		container.innerHTML = `<style>.resource-font-review-label {font-size:32px}</style><svg width="160" height="70">${inDefs ? `<defs>${resource}</defs>` : resource}<rect width="160" height="70" ${kind === 'pattern' ? 'fill' : 'mask'}="url(#resource-font-review)" /></svg>`;
+		document.body.appendChild(container);
+		try {
+			const svg = container.querySelector('svg')!;
+			const snapshot = getSvgFontSnapshot(svg);
+			expect(snapshot.textStyles[0]?.[0]).toBe('serif');
+			expect(snapshot.textStyles[0]?.[1]).toBe('32px');
+		} finally {
+			container.remove();
 		}
 	},
 );

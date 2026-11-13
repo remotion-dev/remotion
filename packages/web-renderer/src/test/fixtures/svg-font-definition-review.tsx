@@ -172,3 +172,73 @@ export const svgWildcardStyle = ({
 		durationInFrames: 2,
 	} as const;
 };
+
+export const svgPaintResourceFontSize = ({
+	kind,
+	inDefs,
+	literal,
+}: {
+	kind: 'pattern' | 'mask';
+	inDefs: boolean;
+	literal: boolean;
+}) => {
+	const Component = () => {
+		const text = (
+			<text
+				x={8}
+				y={45}
+				className="paint-resource-font-label"
+				fontFamily="serif"
+				fill={kind === 'mask' ? 'white' : 'black'}
+				style={literal ? {fontSize: 32} : {}}
+			>
+				Resource
+			</text>
+		);
+		const resource =
+			kind === 'pattern' ? (
+				<pattern
+					id="paint-resource-font"
+					patternUnits="userSpaceOnUse"
+					width={160}
+					height={70}
+				>
+					{text}
+				</pattern>
+			) : (
+				<mask
+					id="paint-resource-font"
+					maskUnits="userSpaceOnUse"
+					x={0}
+					y={0}
+					width={160}
+					height={70}
+				>
+					{text}
+				</mask>
+			);
+		return (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<style>{'.paint-resource-font-label {font-size:32px}'}</style>
+				<svg width={160} height={70}>
+					{inDefs ? <defs>{resource}</defs> : resource}
+					<rect
+						width={160}
+						height={70}
+						fill={kind === 'pattern' ? 'url(#paint-resource-font)' : 'red'}
+						mask={kind === 'mask' ? 'url(#paint-resource-font)' : undefined}
+					/>
+				</svg>
+			</AbsoluteFill>
+		);
+	};
+
+	return {
+		component: Component,
+		id: `svg-paint-resource-font-${kind}-${inDefs ? 'defs' : 'root'}-${literal ? 'literal' : 'external'}`,
+		width: 160,
+		height: 70,
+		fps: 30,
+		durationInFrames: 1,
+	} as const;
+};
