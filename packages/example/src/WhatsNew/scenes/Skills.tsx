@@ -16,7 +16,9 @@ import {WaveBars} from '../components/fx';
 import {BarsIcon, LayersIcon, MicIcon, ScissorsIcon} from '../components/icons';
 import {RemotionLogo} from '../components/Logo';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -311,104 +313,438 @@ const SkillGrid: React.FC = () => {
 	);
 };
 
-const SkillsSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const SkillsSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent={accents.skills} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={[
+					'voiceovers',
+					'elevenlabs,',
+					'ffmpeg',
+					'silence',
+					'visualization',
+					'transparent',
+					'smoother.',
+				]}
+				captions={[
+					// @captions whats5
+					{
+						text: 'New',
+						startMs: 3041,
+						endMs: 3318,
+						timestampMs: 3180,
+						confidence: null,
+					},
+					{
+						text: ' skills.',
+						startMs: 3318,
+						endMs: 3886,
+						timestampMs: 3602,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' We',
+						startMs: 4588.666666,
+						endMs: 4786.666666,
+						timestampMs: 4687.666666,
+						confidence: null,
+					},
+					{
+						text: ' looked',
+						startMs: 4786.666666,
+						endMs: 5033.666666,
+						timestampMs: 4910.666666,
+						confidence: null,
+					},
+					{
+						text: ' at',
+						startMs: 5033.666666,
+						endMs: 5198.666666,
+						timestampMs: 5116.666666,
+						confidence: null,
+					},
+					{
+						text: ' what',
+						startMs: 5198.666666,
+						endMs: 5297.666666,
+						timestampMs: 5248.666666,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 5297.666666,
+						endMs: 5429.666666,
+						timestampMs: 5363.666666,
+						confidence: null,
+					},
+					{
+						text: ' not',
+						startMs: 5429.666666,
+						endMs: 5693.666666,
+						timestampMs: 5561.666666,
+						confidence: null,
+					},
+					{
+						text: ' working',
+						startMs: 5693.666666,
+						endMs: 5923.666666,
+						timestampMs: 5808.666666,
+						confidence: null,
+					},
+					{
+						text: ' so',
+						startMs: 5923.666666,
+						endMs: 6171.666666,
+						timestampMs: 6047.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' well',
+						startMs: 6171.666666,
+						endMs: 6550.666666,
+						timestampMs: 6361.666666,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 6550.666666,
+						endMs: 6698.666666,
+						timestampMs: 6624.666666,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 6698.666666,
+						endMs: 6929.666666,
+						timestampMs: 6814.666666,
+						confidence: null,
+					},
+					{
+						text: ' wrote',
+						startMs: 6929.666666,
+						endMs: 7192.666666,
+						timestampMs: 7061.666666,
+						confidence: null,
+					},
+					{
+						text: ' new',
+						startMs: 7192.666666,
+						endMs: 7473.666666,
+						timestampMs: 7333.666666,
+						confidence: null,
+					},
+					{
+						text: ' skills',
+						startMs: 7473.666666,
+						endMs: 7885.666666,
+						timestampMs: 7679.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' for',
+						startMs: 7885.666666,
+						endMs: 8709.666666,
+						timestampMs: 8297.666666,
+						confidence: null,
+					},
+					{
+						text: ' generating',
+						startMs: 9254.333333,
+						endMs: 9596.333333,
+						timestampMs: 9425.333333,
+						confidence: null,
+					},
+					{
+						text: ' voiceovers',
+						startMs: 9596.333333,
+						endMs: 10433.333333,
+						timestampMs: 10015.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' with',
+						startMs: 10433.333333,
+						endMs: 10870.333333,
+						timestampMs: 10652.333333,
+						confidence: null,
+					},
+					{
+						text: ' ElevenLabs,',
+						startMs: 10870.333333,
+						endMs: 11877.333333,
+						timestampMs: 11374.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' doing',
+						startMs: 12470.666666,
+						endMs: 13022.666666,
+						timestampMs: 12746.666666,
+						confidence: null,
+					},
+					{
+						text: ' tasks',
+						startMs: 13022.666666,
+						endMs: 13329.666666,
+						timestampMs: 13176.666666,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 13329.666666,
+						endMs: 13758.666666,
+						timestampMs: 13544.666666,
+						confidence: null,
+					},
+					{
+						text: ' FFmpeg',
+						startMs: 13758.666666,
+						endMs: 14351.666666,
+						timestampMs: 14055.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' such',
+						startMs: 14351.666666,
+						endMs: 14596.666666,
+						timestampMs: 14474.666666,
+						confidence: null,
+					},
+					{
+						text: ' as',
+						startMs: 14807.666666,
+						endMs: 15062.666666,
+						timestampMs: 14935.666666,
+						confidence: null,
+					},
+					{
+						text: ' silence',
+						startMs: 15062.666666,
+						endMs: 15445.666666,
+						timestampMs: 15254.666666,
+						confidence: null,
+					},
+					{
+						text: ' detection,',
+						startMs: 15445.666666,
+						endMs: 16014.666666,
+						timestampMs: 15730.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' doing',
+						startMs: 16842.333333,
+						endMs: 17199.333333,
+						timestampMs: 17021.333333,
+						confidence: null,
+					},
+					{
+						text: ' audio',
+						startMs: 17199.333333,
+						endMs: 17893.333333,
+						timestampMs: 17546.333333,
+						confidence: null,
+					},
+					{
+						text: ' visualization',
+						startMs: 17893.333333,
+						endMs: 18794.333333,
+						timestampMs: 18344.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 19145.333333,
+						endMs: 19721.333333,
+						timestampMs: 19433.333333,
+						confidence: null,
+					},
+					{
+						text: ' exporting',
+						startMs: 19721.333333,
+						endMs: 20462.333333,
+						timestampMs: 20092.333333,
+						confidence: null,
+					},
+					{
+						text: ' transparent',
+						startMs: 20462.333333,
+						endMs: 21071.333333,
+						timestampMs: 20767.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' videos.',
+						startMs: 21071.333333,
+						endMs: 21400.333333,
+						timestampMs: 21236.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' All',
+						startMs: 22186.666666,
+						endMs: 22358.666666,
+						timestampMs: 22272.666666,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 22358.666666,
+						endMs: 22530.666666,
+						timestampMs: 22444.666666,
+						confidence: null,
+					},
+					{
+						text: ' these',
+						startMs: 22530.666666,
+						endMs: 22925.666666,
+						timestampMs: 22728.666666,
+						confidence: null,
+					},
+					{
+						text: ' tasks',
+						startMs: 22925.666666,
+						endMs: 23165.666666,
+						timestampMs: 23045.666666,
+						confidence: null,
+					},
+					{
+						text: ' should',
+						startMs: 23165.666666,
+						endMs: 23526.666666,
+						timestampMs: 23346.666666,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 23526.666666,
+						endMs: 24041.666666,
+						timestampMs: 23784.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' work',
+						startMs: 24041.666666,
+						endMs: 24334.666666,
+						timestampMs: 24188.666666,
+						confidence: null,
+					},
+					{
+						text: ' much',
+						startMs: 24334.666666,
+						endMs: 24729.666666,
+						timestampMs: 24532.666666,
+						confidence: null,
+					},
+					{
+						text: ' smoother.',
+						startMs: 24729.666666,
+						endMs: 25313.666666,
+						timestampMs: 25021.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const SkillsSource = Interactive.create({
+	Component: SkillsSourceInner,
+	layout: 'absolute-fill',
+});
+
+const SkillsSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent={accents.skills} />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="New skills"
 						durationInFrames={34}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={87}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<SkillsSource trimBefore={87} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="What did not work"
 						durationInFrames={129}
 						premountFor={30}
 					>
-						<Punch zoom={1.14}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={135}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.14}>
+							<SkillsSource trimBefore={135} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Voiceovers"
 						durationInFrames={84}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={275}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<SkillsSource trimBefore={275} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="FFmpeg"
 						durationInFrames={111}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={372}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<SkillsSource trimBefore={372} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Visualization and transparency"
 						durationInFrames={144}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={503}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<SkillsSource trimBefore={503} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Much smoother"
 						durationInFrames={106}
 						premountFor={30}
 					>
-						<Punch zoom={1.18}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats5.mp4'
-								}
-								trimBefore={663}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.18}>
+							<SkillsSource trimBefore={663} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={2} durationInFrames={96}>
 				<ChapterSticker index="04" title="New skills" accent={accents.skills} />
@@ -430,344 +766,6 @@ const SkillsSceneInner: React.FC = () => {
 					</Stamp>
 				</div>
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={[
-					'voiceovers',
-					'elevenlabs,',
-					'ffmpeg',
-					'silence',
-					'visualization',
-					'transparent',
-					'smoother.',
-				]}
-				captions={[
-					// @captions whats5
-					{
-						text: 'New',
-						startMs: 141,
-						endMs: 418,
-						timestampMs: 280,
-						confidence: null,
-					},
-					{
-						text: ' skills.',
-						startMs: 418,
-						endMs: 986,
-						timestampMs: 702,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' We',
-						startMs: 1222,
-						endMs: 1420,
-						timestampMs: 1321,
-						confidence: null,
-					},
-					{
-						text: ' looked',
-						startMs: 1420,
-						endMs: 1667,
-						timestampMs: 1544,
-						confidence: null,
-					},
-					{
-						text: ' at',
-						startMs: 1667,
-						endMs: 1832,
-						timestampMs: 1750,
-						confidence: null,
-					},
-					{
-						text: ' what',
-						startMs: 1832,
-						endMs: 1931,
-						timestampMs: 1882,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 1931,
-						endMs: 2063,
-						timestampMs: 1997,
-						confidence: null,
-					},
-					{
-						text: ' not',
-						startMs: 2063,
-						endMs: 2327,
-						timestampMs: 2195,
-						confidence: null,
-					},
-					{
-						text: ' working',
-						startMs: 2327,
-						endMs: 2557,
-						timestampMs: 2442,
-						confidence: null,
-					},
-					{
-						text: ' so',
-						startMs: 2557,
-						endMs: 2805,
-						timestampMs: 2681,
-						confidence: null,
-					},
-					{
-						text: ' well',
-						startMs: 2805,
-						endMs: 3184,
-						timestampMs: 2995,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 3184,
-						endMs: 3332,
-						timestampMs: 3258,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 3332,
-						endMs: 3563,
-						timestampMs: 3448,
-						confidence: null,
-					},
-					{
-						text: ' wrote',
-						startMs: 3563,
-						endMs: 3826,
-						timestampMs: 3695,
-						confidence: null,
-					},
-					{
-						text: ' new',
-						startMs: 3826,
-						endMs: 4107,
-						timestampMs: 3967,
-						confidence: null,
-					},
-					{
-						text: ' skills',
-						startMs: 4107,
-						endMs: 4519,
-						timestampMs: 4313,
-						confidence: null,
-					},
-					{
-						text: ' for',
-						startMs: 4519,
-						endMs: 5343,
-						timestampMs: 4931,
-						confidence: null,
-					},
-					{
-						text: ' generating',
-						startMs: 5521,
-						endMs: 5863,
-						timestampMs: 5692,
-						confidence: null,
-					},
-					{
-						text: ' voiceovers',
-						startMs: 5863,
-						endMs: 6700,
-						timestampMs: 6282,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 6700,
-						endMs: 7137,
-						timestampMs: 6919,
-						confidence: null,
-					},
-					{
-						text: ' ElevenLabs,',
-						startMs: 7137,
-						endMs: 8144,
-						timestampMs: 7641,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' doing',
-						startMs: 8304,
-						endMs: 8856,
-						timestampMs: 8580,
-						confidence: null,
-					},
-					{
-						text: ' tasks',
-						startMs: 8856,
-						endMs: 9163,
-						timestampMs: 9010,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 9163,
-						endMs: 9592,
-						timestampMs: 9378,
-						confidence: null,
-					},
-					{
-						text: ' FFmpeg',
-						startMs: 9592,
-						endMs: 10185,
-						timestampMs: 9889,
-						confidence: null,
-					},
-					{
-						text: ' such',
-						startMs: 10185,
-						endMs: 10430,
-						timestampMs: 10308,
-						confidence: null,
-					},
-					{
-						text: ' as',
-						startMs: 10641,
-						endMs: 10896,
-						timestampMs: 10769,
-						confidence: null,
-					},
-					{
-						text: ' silence',
-						startMs: 10896,
-						endMs: 11279,
-						timestampMs: 11088,
-						confidence: null,
-					},
-					{
-						text: ' detection,',
-						startMs: 11279,
-						endMs: 11848,
-						timestampMs: 11564,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' doing',
-						startMs: 12009,
-						endMs: 12366,
-						timestampMs: 12188,
-						confidence: null,
-					},
-					{
-						text: ' audio',
-						startMs: 12366,
-						endMs: 13060,
-						timestampMs: 12713,
-						confidence: null,
-					},
-					{
-						text: ' visualization',
-						startMs: 13060,
-						endMs: 13961,
-						timestampMs: 13511,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 14312,
-						endMs: 14888,
-						timestampMs: 14600,
-						confidence: null,
-					},
-					{
-						text: ' exporting',
-						startMs: 14888,
-						endMs: 15629,
-						timestampMs: 15259,
-						confidence: null,
-					},
-					{
-						text: ' transparent',
-						startMs: 15629,
-						endMs: 16238,
-						timestampMs: 15934,
-						confidence: null,
-					},
-					{
-						text: ' videos.',
-						startMs: 16238,
-						endMs: 16567,
-						timestampMs: 16403,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' All',
-						startMs: 16820,
-						endMs: 16992,
-						timestampMs: 16906,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 16992,
-						endMs: 17164,
-						timestampMs: 17078,
-						confidence: null,
-					},
-					{
-						text: ' these',
-						startMs: 17164,
-						endMs: 17559,
-						timestampMs: 17362,
-						confidence: null,
-					},
-					{
-						text: ' tasks',
-						startMs: 17559,
-						endMs: 17799,
-						timestampMs: 17679,
-						confidence: null,
-					},
-					{
-						text: ' should',
-						startMs: 17799,
-						endMs: 18160,
-						timestampMs: 17980,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 18160,
-						endMs: 18675,
-						timestampMs: 18418,
-						confidence: null,
-					},
-					{
-						text: ' work',
-						startMs: 18675,
-						endMs: 18968,
-						timestampMs: 18822,
-						confidence: null,
-					},
-					{
-						text: ' much',
-						startMs: 18968,
-						endMs: 19363,
-						timestampMs: 19166,
-						confidence: null,
-					},
-					{
-						text: ' smoother.',
-						startMs: 19363,
-						endMs: 19947,
-						timestampMs: 19655,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

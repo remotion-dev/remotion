@@ -14,7 +14,9 @@ import {PunchyCaptions} from '../components/Captions';
 import {Burst} from '../components/fx';
 import {ChatIcon, CheckIcon} from '../components/icons';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -414,104 +416,720 @@ const LetUsKnow: React.FC = () => (
 	</div>
 );
 
-const AgentsSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const AgentsSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent={accents.agents} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={[
+					'agents.',
+					'claude code',
+					'rough',
+					'edges',
+					'lockfile',
+					'gone',
+					'zod 4.',
+				]}
+				captions={[
+					// @captions whats7
+					{
+						text: 'Make',
+						startMs: 4210.666666,
+						endMs: 4705.666666,
+						timestampMs: 4458.666666,
+						confidence: null,
+					},
+					{
+						text: ' Remotion',
+						startMs: 4705.666666,
+						endMs: 5389.666666,
+						timestampMs: 5047.666666,
+						confidence: null,
+					},
+					{
+						text: ' work',
+						startMs: 5389.666666,
+						endMs: 5884.666666,
+						timestampMs: 5637.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' better',
+						startMs: 5884.666666,
+						endMs: 6402.666666,
+						timestampMs: 6143.666666,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 6402.666666,
+						endMs: 7039.666666,
+						timestampMs: 6721.666666,
+						confidence: null,
+					},
+					{
+						text: ' agents.',
+						startMs: 7039.666666,
+						endMs: 7099.666666,
+						timestampMs: 7069.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' If',
+						startMs: 7856.333333,
+						endMs: 8059.333333,
+						timestampMs: 7958.333333,
+						confidence: null,
+					},
+					{
+						text: ' you',
+						startMs: 8059.333333,
+						endMs: 8375.333333,
+						timestampMs: 8217.333333,
+						confidence: null,
+					},
+					{
+						text: ' use',
+						startMs: 8375.333333,
+						endMs: 8804.333333,
+						timestampMs: 8590.333333,
+						confidence: null,
+					},
+					{
+						text: ' Claude Code',
+						startMs: 8804.333333,
+						endMs: 9346.333333,
+						timestampMs: 9075.333333,
+						confidence: null,
+					},
+					{
+						text: ' or',
+						startMs: 9346.333333,
+						endMs: 9752.333333,
+						timestampMs: 9549.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' similar',
+						startMs: 9752.333333,
+						endMs: 10271.333333,
+						timestampMs: 10012.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 10271.333333,
+						endMs: 10722.333333,
+						timestampMs: 10497.333333,
+						confidence: null,
+					},
+					{
+						text: ' vibe',
+						startMs: 10722.333333,
+						endMs: 10993.333333,
+						timestampMs: 10858.333333,
+						confidence: null,
+					},
+					{
+						text: ' code',
+						startMs: 10993.333333,
+						endMs: 11219.333333,
+						timestampMs: 11106.333333,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 11219.333333,
+						endMs: 11580.333333,
+						timestampMs: 11400.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' video',
+						startMs: 11580.333333,
+						endMs: 11941.333333,
+						timestampMs: 11761.333333,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 11941.333333,
+						endMs: 12325.333333,
+						timestampMs: 12133.333333,
+						confidence: null,
+					},
+					{
+						text: ' Remotion,',
+						startMs: 12325.333333,
+						endMs: 12385.333333,
+						timestampMs: 12355.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' there',
+						startMs: 12779.333333,
+						endMs: 13032.333333,
+						timestampMs: 12906.333333,
+						confidence: null,
+					},
+					{
+						text: ' just',
+						startMs: 13032.333333,
+						endMs: 13351.333333,
+						timestampMs: 13192.333333,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 13351.333333,
+						endMs: 13553.333333,
+						timestampMs: 13452.333333,
+						confidence: null,
+					},
+					{
+						text: ' some',
+						startMs: 13553.333333,
+						endMs: 13789.333333,
+						timestampMs: 13671.333333,
+						confidence: null,
+					},
+					{
+						text: ' rough',
+						startMs: 13789.333333,
+						endMs: 14176.333333,
+						timestampMs: 13983.333333,
+						confidence: null,
+					},
+					{
+						text: ' edges',
+						startMs: 14176.333333,
+						endMs: 14597.333333,
+						timestampMs: 14387.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 14798.333333,
+						endMs: 15067.333333,
+						timestampMs: 14933.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 15431.333333,
+						endMs: 15536.333333,
+						timestampMs: 15484.333333,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 15536.333333,
+						endMs: 15746.333333,
+						timestampMs: 15641.333333,
+						confidence: null,
+					},
+					{
+						text: ' trying',
+						startMs: 15746.333333,
+						endMs: 16062.333333,
+						timestampMs: 15904.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 16062.333333,
+						endMs: 16393.333333,
+						timestampMs: 16228.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' fix',
+						startMs: 16671.333333,
+						endMs: 16781.333333,
+						timestampMs: 16726.333333,
+						confidence: null,
+					},
+					{
+						text: ' them.',
+						startMs: 16964.333333,
+						endMs: 17208.333333,
+						timestampMs: 17086.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' For',
+						startMs: 17968.666666,
+						endMs: 18355.666666,
+						timestampMs: 18162.666666,
+						confidence: null,
+					},
+					{
+						text: ' example,',
+						startMs: 18355.666666,
+						endMs: 18415.666666,
+						timestampMs: 18385.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' if',
+						startMs: 18599.666666,
+						endMs: 18741.666666,
+						timestampMs: 18670.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 18741.666666,
+						endMs: 18925.666666,
+						timestampMs: 18833.666666,
+						confidence: null,
+					},
+					{
+						text: ' Remotion',
+						startMs: 18925.666666,
+						endMs: 19413.666666,
+						timestampMs: 19169.666666,
+						confidence: null,
+					},
+					{
+						text: ' Studio',
+						startMs: 19413.666666,
+						endMs: 19617.666666,
+						timestampMs: 19515.666666,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 19617.666666,
+						endMs: 19943.666666,
+						timestampMs: 19780.666666,
+						confidence: null,
+					},
+					{
+						text: ' already',
+						startMs: 19943.666666,
+						endMs: 20003.666666,
+						timestampMs: 19973.666666,
+						confidence: null,
+					},
+					{
+						text: ' running',
+						startMs: 20309.666666,
+						endMs: 20369.666666,
+						timestampMs: 20339.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 20594.666666,
+						endMs: 20818.666666,
+						timestampMs: 20706.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 20818.666666,
+						endMs: 21062.666666,
+						timestampMs: 20940.666666,
+						confidence: null,
+					},
+					{
+						text: ' AI',
+						startMs: 21062.666666,
+						endMs: 21347.666666,
+						timestampMs: 21205.666666,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 21347.666666,
+						endMs: 21612.666666,
+						timestampMs: 21480.666666,
+						confidence: null,
+					},
+					{
+						text: ' trying',
+						startMs: 21612.666666,
+						endMs: 21917.666666,
+						timestampMs: 21765.666666,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 21917.666666,
+						endMs: 22304.666666,
+						timestampMs: 22111.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' start',
+						startMs: 22304.666666,
+						endMs: 22650.666666,
+						timestampMs: 22477.666666,
+						confidence: null,
+					},
+					{
+						text: ' another',
+						startMs: 22650.666666,
+						endMs: 22997.666666,
+						timestampMs: 22824.666666,
+						confidence: null,
+					},
+					{
+						text: ' instance,',
+						startMs: 23220.666666,
+						endMs: 23280.666666,
+						timestampMs: 23250.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' we',
+						startMs: 23794.333333,
+						endMs: 23992.333333,
+						timestampMs: 23893.333333,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 23992.333333,
+						endMs: 24290.333333,
+						timestampMs: 24141.333333,
+						confidence: null,
+					},
+					{
+						text: ' prevent',
+						startMs: 24290.333333,
+						endMs: 24659.333333,
+						timestampMs: 24475.333333,
+						confidence: null,
+					},
+					{
+						text: ' that.',
+						startMs: 24659.333333,
+						endMs: 25112.333333,
+						timestampMs: 24886.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' The',
+						startMs: 25966.666666,
+						endMs: 26428.666666,
+						timestampMs: 26197.666666,
+						confidence: null,
+					},
+					{
+						text: ' daunting',
+						startMs: 26428.666666,
+						endMs: 27018.666666,
+						timestampMs: 26723.666666,
+						confidence: null,
+					},
+					{
+						text: ' multiple',
+						startMs: 27337.666666,
+						endMs: 27609.666666,
+						timestampMs: 27473.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' lockfile',
+						startMs: 27609.666666,
+						endMs: 28192.666666,
+						timestampMs: 27901.666666,
+						confidence: null,
+					},
+					{
+						text: ' error',
+						startMs: 28192.666666,
+						endMs: 28678.666666,
+						timestampMs: 28435.666666,
+						confidence: null,
+					},
+					{
+						text: ' message',
+						startMs: 28678.666666,
+						endMs: 29125.666666,
+						timestampMs: 28902.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' is',
+						startMs: 29125.666666,
+						endMs: 29533.666666,
+						timestampMs: 29329.666666,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 29533.666666,
+						endMs: 30097.666666,
+						timestampMs: 29815.666666,
+						confidence: null,
+					},
+					{
+						text: ' gone',
+						startMs: 30322.666666,
+						endMs: 30730.666666,
+						timestampMs: 30526.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 31187.666666,
+						endMs: 31463.666666,
+						timestampMs: 31325.666666,
+						confidence: null,
+					},
+					{
+						text: ' also',
+						startMs: 31463.666666,
+						endMs: 31722.666666,
+						timestampMs: 31593.666666,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 31722.666666,
+						endMs: 32120.666666,
+						timestampMs: 31921.666666,
+						confidence: null,
+					},
+					{
+						text: ' removed',
+						startMs: 32120.666666,
+						endMs: 32258.666666,
+						timestampMs: 32189.666666,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 32258.666666,
+						endMs: 32361.666666,
+						timestampMs: 32310.666666,
+						confidence: null,
+					},
+					{
+						text: ' lot',
+						startMs: 32361.666666,
+						endMs: 32430.666666,
+						timestampMs: 32396.666666,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 32465.666666,
+						endMs: 32525.666666,
+						timestampMs: 32495.666666,
+						confidence: null,
+					},
+					{
+						text: ' friction',
+						startMs: 32793.666666,
+						endMs: 33035.666666,
+						timestampMs: 32914.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' by',
+						startMs: 33035.666666,
+						endMs: 33398.666666,
+						timestampMs: 33217.666666,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 33398.666666,
+						endMs: 33760.666666,
+						timestampMs: 33579.666666,
+						confidence: null,
+					},
+					{
+						text: ' finally',
+						startMs: 33760.666666,
+						endMs: 34434.666666,
+						timestampMs: 34097.666666,
+						confidence: null,
+					},
+					{
+						text: ' supporting',
+						startMs: 34434.666666,
+						endMs: 35038.666666,
+						timestampMs: 34736.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Zod 4.',
+						startMs: 35411.666666,
+						endMs: 36199.666666,
+						timestampMs: 35805.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' What',
+						startMs: 37122.333333,
+						endMs: 37293.333333,
+						timestampMs: 37208.333333,
+						confidence: null,
+					},
+					{
+						text: ' else',
+						startMs: 37293.333333,
+						endMs: 37483.333333,
+						timestampMs: 37388.333333,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 37483.333333,
+						endMs: 37616.333333,
+						timestampMs: 37550.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 37616.333333,
+						endMs: 37997.333333,
+						timestampMs: 37807.333333,
+						confidence: null,
+					},
+					{
+						text: ' improve?',
+						startMs: 37997.333333,
+						endMs: 38149.333333,
+						timestampMs: 38073.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Let',
+						startMs: 38400.333333,
+						endMs: 38460.333333,
+						timestampMs: 38430.333333,
+						confidence: null,
+					},
+					{
+						text: ' us',
+						startMs: 38457.333333,
+						endMs: 38571.333333,
+						timestampMs: 38514.333333,
+						confidence: null,
+					},
+					{
+						text: ' know.',
+						startMs: 38571.333333,
+						endMs: 39006.333333,
+						timestampMs: 38789.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const AgentsSource = Interactive.create({
+	Component: AgentsSourceInner,
+	layout: 'absolute-fill',
+});
+
+const AgentsSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent={accents.agents} />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="Better with agents"
 						durationInFrames={94}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={122}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<AgentsSource trimBefore={122} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Rough edges"
 						durationInFrames={288}
 						premountFor={30}
 					>
-						<Punch zoom={1.12}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={233}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.12}>
+							<AgentsSource trimBefore={233} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Studio already running"
 						durationInFrames={163}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={537}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<AgentsSource trimBefore={537} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="We prevent that"
 						durationInFrames={47}
 						premountFor={30}
 					>
-						<Punch zoom={1.18}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={711}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.18}>
+							<AgentsSource trimBefore={711} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Lockfiles and Zod"
 						durationInFrames={314}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={777}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<AgentsSource trimBefore={777} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Let us know"
 						durationInFrames={70}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats7.mp4'
-								}
-								trimBefore={1111}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<AgentsSource trimBefore={1111} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={3} durationInFrames={96}>
 				<ChapterSticker
@@ -535,621 +1153,6 @@ const AgentsSceneInner: React.FC = () => {
 			<Sequence name="Let us know" from={908} durationInFrames={68}>
 				<LetUsKnow />
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={[
-					'agents.',
-					'claude code',
-					'rough',
-					'edges',
-					'lockfile',
-					'gone',
-					'zod 4.',
-				]}
-				captions={[
-					// @captions whats7
-					{
-						text: 'Make',
-						startMs: 144,
-						endMs: 639,
-						timestampMs: 392,
-						confidence: null,
-					},
-					{
-						text: ' Remotion',
-						startMs: 639,
-						endMs: 1323,
-						timestampMs: 981,
-						confidence: null,
-					},
-					{
-						text: ' work',
-						startMs: 1323,
-						endMs: 1818,
-						timestampMs: 1571,
-						confidence: null,
-					},
-					{
-						text: ' better',
-						startMs: 1818,
-						endMs: 2336,
-						timestampMs: 2077,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2336,
-						endMs: 2973,
-						timestampMs: 2655,
-						confidence: null,
-					},
-					{
-						text: ' agents.',
-						startMs: 2973,
-						endMs: 3033,
-						timestampMs: 3003,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' If',
-						startMs: 3223,
-						endMs: 3426,
-						timestampMs: 3325,
-						confidence: null,
-					},
-					{
-						text: ' you',
-						startMs: 3426,
-						endMs: 3742,
-						timestampMs: 3584,
-						confidence: null,
-					},
-					{
-						text: ' use',
-						startMs: 3742,
-						endMs: 4171,
-						timestampMs: 3957,
-						confidence: null,
-					},
-					{
-						text: ' Claude Code',
-						startMs: 4171,
-						endMs: 4713,
-						timestampMs: 4442,
-						confidence: null,
-					},
-					{
-						text: ' or',
-						startMs: 4713,
-						endMs: 5119,
-						timestampMs: 4916,
-						confidence: null,
-					},
-					{
-						text: ' similar',
-						startMs: 5119,
-						endMs: 5638,
-						timestampMs: 5379,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 5638,
-						endMs: 6089,
-						timestampMs: 5864,
-						confidence: null,
-					},
-					{
-						text: ' vibe',
-						startMs: 6089,
-						endMs: 6360,
-						timestampMs: 6225,
-						confidence: null,
-					},
-					{
-						text: ' code',
-						startMs: 6360,
-						endMs: 6586,
-						timestampMs: 6473,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 6586,
-						endMs: 6947,
-						timestampMs: 6767,
-						confidence: null,
-					},
-					{
-						text: ' video',
-						startMs: 6947,
-						endMs: 7308,
-						timestampMs: 7128,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 7308,
-						endMs: 7692,
-						timestampMs: 7500,
-						confidence: null,
-					},
-					{
-						text: ' Remotion,',
-						startMs: 7692,
-						endMs: 7752,
-						timestampMs: 7722,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' there',
-						startMs: 8146,
-						endMs: 8399,
-						timestampMs: 8273,
-						confidence: null,
-					},
-					{
-						text: ' just',
-						startMs: 8399,
-						endMs: 8718,
-						timestampMs: 8559,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 8718,
-						endMs: 8920,
-						timestampMs: 8819,
-						confidence: null,
-					},
-					{
-						text: ' some',
-						startMs: 8920,
-						endMs: 9156,
-						timestampMs: 9038,
-						confidence: null,
-					},
-					{
-						text: ' rough',
-						startMs: 9156,
-						endMs: 9543,
-						timestampMs: 9350,
-						confidence: null,
-					},
-					{
-						text: ' edges',
-						startMs: 9543,
-						endMs: 9964,
-						timestampMs: 9754,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 10165,
-						endMs: 10434,
-						timestampMs: 10300,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 10798,
-						endMs: 10903,
-						timestampMs: 10851,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 10903,
-						endMs: 11113,
-						timestampMs: 11008,
-						confidence: null,
-					},
-					{
-						text: ' trying',
-						startMs: 11113,
-						endMs: 11429,
-						timestampMs: 11271,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 11429,
-						endMs: 11760,
-						timestampMs: 11595,
-						confidence: null,
-					},
-					{
-						text: ' fix',
-						startMs: 12038,
-						endMs: 12148,
-						timestampMs: 12093,
-						confidence: null,
-					},
-					{
-						text: ' them.',
-						startMs: 12331,
-						endMs: 12575,
-						timestampMs: 12453,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' For',
-						startMs: 12802,
-						endMs: 13189,
-						timestampMs: 12996,
-						confidence: null,
-					},
-					{
-						text: ' example,',
-						startMs: 13189,
-						endMs: 13249,
-						timestampMs: 13219,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' if',
-						startMs: 13433,
-						endMs: 13575,
-						timestampMs: 13504,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 13575,
-						endMs: 13759,
-						timestampMs: 13667,
-						confidence: null,
-					},
-					{
-						text: ' Remotion',
-						startMs: 13759,
-						endMs: 14247,
-						timestampMs: 14003,
-						confidence: null,
-					},
-					{
-						text: ' Studio',
-						startMs: 14247,
-						endMs: 14451,
-						timestampMs: 14349,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 14451,
-						endMs: 14777,
-						timestampMs: 14614,
-						confidence: null,
-					},
-					{
-						text: ' already',
-						startMs: 14777,
-						endMs: 14837,
-						timestampMs: 14807,
-						confidence: null,
-					},
-					{
-						text: ' running',
-						startMs: 15143,
-						endMs: 15203,
-						timestampMs: 15173,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 15428,
-						endMs: 15652,
-						timestampMs: 15540,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 15652,
-						endMs: 15896,
-						timestampMs: 15774,
-						confidence: null,
-					},
-					{
-						text: ' AI',
-						startMs: 15896,
-						endMs: 16181,
-						timestampMs: 16039,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 16181,
-						endMs: 16446,
-						timestampMs: 16314,
-						confidence: null,
-					},
-					{
-						text: ' trying',
-						startMs: 16446,
-						endMs: 16751,
-						timestampMs: 16599,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 16751,
-						endMs: 17138,
-						timestampMs: 16945,
-						confidence: null,
-					},
-					{
-						text: ' start',
-						startMs: 17138,
-						endMs: 17484,
-						timestampMs: 17311,
-						confidence: null,
-					},
-					{
-						text: ' another',
-						startMs: 17484,
-						endMs: 17831,
-						timestampMs: 17658,
-						confidence: null,
-					},
-					{
-						text: ' instance,',
-						startMs: 18054,
-						endMs: 18114,
-						timestampMs: 18084,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' we',
-						startMs: 18261,
-						endMs: 18459,
-						timestampMs: 18360,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 18459,
-						endMs: 18757,
-						timestampMs: 18608,
-						confidence: null,
-					},
-					{
-						text: ' prevent',
-						startMs: 18757,
-						endMs: 19126,
-						timestampMs: 18942,
-						confidence: null,
-					},
-					{
-						text: ' that.',
-						startMs: 19126,
-						endMs: 19579,
-						timestampMs: 19353,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' The',
-						startMs: 19800,
-						endMs: 20262,
-						timestampMs: 20031,
-						confidence: null,
-					},
-					{
-						text: ' daunting',
-						startMs: 20262,
-						endMs: 20852,
-						timestampMs: 20557,
-						confidence: null,
-					},
-					{
-						text: ' multiple',
-						startMs: 21171,
-						endMs: 21443,
-						timestampMs: 21307,
-						confidence: null,
-					},
-					{
-						text: ' lockfile',
-						startMs: 21443,
-						endMs: 22026,
-						timestampMs: 21735,
-						confidence: null,
-					},
-					{
-						text: ' error',
-						startMs: 22026,
-						endMs: 22512,
-						timestampMs: 22269,
-						confidence: null,
-					},
-					{
-						text: ' message',
-						startMs: 22512,
-						endMs: 22959,
-						timestampMs: 22736,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 22959,
-						endMs: 23367,
-						timestampMs: 23163,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 23367,
-						endMs: 23931,
-						timestampMs: 23649,
-						confidence: null,
-					},
-					{
-						text: ' gone',
-						startMs: 24156,
-						endMs: 24564,
-						timestampMs: 24360,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 25021,
-						endMs: 25297,
-						timestampMs: 25159,
-						confidence: null,
-					},
-					{
-						text: ' also',
-						startMs: 25297,
-						endMs: 25556,
-						timestampMs: 25427,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 25556,
-						endMs: 25954,
-						timestampMs: 25755,
-						confidence: null,
-					},
-					{
-						text: ' removed',
-						startMs: 25954,
-						endMs: 26092,
-						timestampMs: 26023,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 26092,
-						endMs: 26195,
-						timestampMs: 26144,
-						confidence: null,
-					},
-					{
-						text: ' lot',
-						startMs: 26195,
-						endMs: 26264,
-						timestampMs: 26230,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 26299,
-						endMs: 26359,
-						timestampMs: 26329,
-						confidence: null,
-					},
-					{
-						text: ' friction',
-						startMs: 26627,
-						endMs: 26869,
-						timestampMs: 26748,
-						confidence: null,
-					},
-					{
-						text: ' by',
-						startMs: 26869,
-						endMs: 27232,
-						timestampMs: 27051,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 27232,
-						endMs: 27594,
-						timestampMs: 27413,
-						confidence: null,
-					},
-					{
-						text: ' finally',
-						startMs: 27594,
-						endMs: 28268,
-						timestampMs: 27931,
-						confidence: null,
-					},
-					{
-						text: ' supporting',
-						startMs: 28268,
-						endMs: 28872,
-						timestampMs: 28570,
-						confidence: null,
-					},
-					{
-						text: ' Zod 4.',
-						startMs: 29245,
-						endMs: 30033,
-						timestampMs: 29639,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' What',
-						startMs: 30289,
-						endMs: 30460,
-						timestampMs: 30375,
-						confidence: null,
-					},
-					{
-						text: ' else',
-						startMs: 30460,
-						endMs: 30650,
-						timestampMs: 30555,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 30650,
-						endMs: 30783,
-						timestampMs: 30717,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 30783,
-						endMs: 31164,
-						timestampMs: 30974,
-						confidence: null,
-					},
-					{
-						text: ' improve?',
-						startMs: 31164,
-						endMs: 31316,
-						timestampMs: 31240,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' Let',
-						startMs: 31567,
-						endMs: 31627,
-						timestampMs: 31597,
-						confidence: null,
-					},
-					{
-						text: ' us',
-						startMs: 31624,
-						endMs: 31738,
-						timestampMs: 31681,
-						confidence: null,
-					},
-					{
-						text: ' know.',
-						startMs: 31738,
-						endMs: 32173,
-						timestampMs: 31956,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

@@ -11,13 +11,7 @@ import {RollerSkiCommute} from './RollerSkiCommute';
 import {Arrival} from './scenes/Arrival';
 import {CommuteAward} from './scenes/BestCommute';
 import {BestCommute} from './scenes/BestCommute';
-import {
-	TechBrosShot,
-	BestCommuteShot,
-	SceneryShot,
-	RollerSkisShot,
-	CommuteWinnerShot,
-} from './scenes/BestCommuteShots';
+import {BestCommuteSource} from './scenes/BestCommuteShots';
 import {EndCard} from './scenes/EndCard';
 import {GearUp} from './scenes/GearUp';
 import {Intro} from './scenes/Intro';
@@ -123,7 +117,7 @@ export const RemotionRoot: React.FC = () => {
 			<Folder name="Best-commute-shots">
 				<Composition
 					id="TechBrosShot-new"
-					component={TechBrosShot}
+					component={BestCommuteSource}
 					durationInFrames={87}
 					fps={30}
 					width={1920}
@@ -132,7 +126,7 @@ export const RemotionRoot: React.FC = () => {
 				/>
 				<Composition
 					id="BestCommuteShot-new"
-					component={BestCommuteShot}
+					component={BestCommuteSource}
 					durationInFrames={112}
 					fps={30}
 					width={1920}
@@ -141,7 +135,7 @@ export const RemotionRoot: React.FC = () => {
 				/>
 				<Composition
 					id="SceneryShot-new"
-					component={SceneryShot}
+					component={BestCommuteSource}
 					durationInFrames={154}
 					fps={30}
 					width={1920}
@@ -150,7 +144,7 @@ export const RemotionRoot: React.FC = () => {
 				/>
 				<Composition
 					id="RollerSkisShot-new"
-					component={RollerSkisShot}
+					component={BestCommuteSource}
 					durationInFrames={65}
 					fps={30}
 					width={1920}
@@ -159,7 +153,7 @@ export const RemotionRoot: React.FC = () => {
 				/>
 				<Composition
 					id="CommuteWinnerShot-new"
-					component={CommuteWinnerShot}
+					component={BestCommuteSource}
 					durationInFrames={94}
 					fps={30}
 					width={1920}

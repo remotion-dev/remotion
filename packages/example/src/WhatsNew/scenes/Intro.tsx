@@ -22,7 +22,9 @@ import {
 	TriangleIcon,
 } from '../components/icons';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -209,10 +211,8 @@ const TopicBoardInner: React.FC = () => {
 	);
 };
 
-const IntroSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const IntroSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
 			<Stage
@@ -220,119 +220,135 @@ const IntroSceneInner: React.FC = () => {
 				keyframes={layout}
 				showInTimeline={false}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats1.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={['improved', 'remotion']}
+				captions={[
+					// @captions whats1
+					{
+						text: 'Here',
+						startMs: 1324.666666,
+						endMs: 1506.666666,
+						timestampMs: 1415.666666,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 1506.666666,
+						endMs: 1689.666666,
+						timestampMs: 1598.666666,
+						confidence: null,
+					},
+					{
+						text: ' some',
+						startMs: 1689.666666,
+						endMs: 1816.666666,
+						timestampMs: 1753.666666,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 1816.666666,
+						endMs: 1944.666666,
+						timestampMs: 1880.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 1944.666666,
+						endMs: 2126.666666,
+						timestampMs: 2035.666666,
+						confidence: null,
+					},
+					{
+						text: ' things',
+						startMs: 2126.666666,
+						endMs: 2308.666666,
+						timestampMs: 2217.666666,
+						confidence: null,
+					},
+					{
+						text: ' that',
+						startMs: 2308.666666,
+						endMs: 2454.666666,
+						timestampMs: 2381.666666,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 2454.666666,
+						endMs: 2873.666666,
+						timestampMs: 2664.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' recently',
+						startMs: 2873.666666,
+						endMs: 3347.666666,
+						timestampMs: 3110.666666,
+						confidence: null,
+					},
+					{
+						text: ' improved',
+						startMs: 3347.666666,
+						endMs: 3584.666666,
+						timestampMs: 3466.666666,
+						confidence: null,
+					},
+					{
+						text: ' in',
+						startMs: 3584.666666,
+						endMs: 3803.666666,
+						timestampMs: 3694.666666,
+						confidence: null,
+					},
+					{
+						text: ' Remotion.',
+						startMs: 3803.666666,
+						endMs: 4568.666666,
+						timestampMs: 4186.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const IntroSource = Interactive.create({
+	Component: IntroSourceInner,
+	layout: 'absolute-fill',
+});
+
+const IntroSceneInner: React.FC = () => {
+	return (
+		<>
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="Opening line"
 						durationInFrames={208}
 						premountFor={30}
 					>
-						<Punch zoom={1.1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats1.mp4'
-								}
-								trimBefore={35}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.1}>
+							<IntroSource trimBefore={35} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				durationInFrames={208}
-				keywords={['improved', 'remotion']}
-				captions={[
-					// @captions whats1
-					{
-						text: 'Here',
-						startMs: 158,
-						endMs: 340,
-						timestampMs: 249,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 340,
-						endMs: 523,
-						timestampMs: 432,
-						confidence: null,
-					},
-					{
-						text: ' some',
-						startMs: 523,
-						endMs: 650,
-						timestampMs: 587,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 650,
-						endMs: 778,
-						timestampMs: 714,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 778,
-						endMs: 960,
-						timestampMs: 869,
-						confidence: null,
-					},
-					{
-						text: ' things',
-						startMs: 960,
-						endMs: 1142,
-						timestampMs: 1051,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 1142,
-						endMs: 1288,
-						timestampMs: 1215,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 1288,
-						endMs: 1707,
-						timestampMs: 1498,
-						confidence: null,
-					},
-					{
-						text: ' recently',
-						startMs: 1707,
-						endMs: 2181,
-						timestampMs: 1944,
-						confidence: null,
-					},
-					{
-						text: ' improved',
-						startMs: 2181,
-						endMs: 2418,
-						timestampMs: 2300,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 2418,
-						endMs: 2637,
-						timestampMs: 2528,
-						confidence: null,
-					},
-					{
-						text: ' Remotion.',
-						startMs: 2637,
-						endMs: 3402,
-						timestampMs: 3020,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
+			</StageLayout>
 
 			<TopicBoard
 				name="Topic board"

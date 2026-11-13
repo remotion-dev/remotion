@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {createContext, useContext} from 'react';
 import {
 	Interactive,
 	type InteractiveTransformProps,
@@ -15,6 +15,46 @@ export type LayoutKeyframe = {
 	readonly layout: LayoutName;
 	// Transition length in frames. 1 makes it a hard cut.
 	readonly duration?: number;
+};
+
+const StageLayoutContext = createContext<{
+	frame: number;
+	keyframes: readonly LayoutKeyframe[];
+} | null>(null);
+
+const ShotFramingContext = createContext<{
+	frame: number;
+	zoom: number;
+} | null>(null);
+
+export const StageLayout = ({
+	keyframes,
+	children,
+}: {
+	readonly keyframes: readonly LayoutKeyframe[];
+	readonly children: React.ReactNode;
+}) => {
+	const frame = useCurrentFrame();
+	return (
+		<StageLayoutContext.Provider value={{frame, keyframes}}>
+			{children}
+		</StageLayoutContext.Provider>
+	);
+};
+
+export const ShotFraming = ({
+	zoom,
+	children,
+}: {
+	readonly zoom: number;
+	readonly children: React.ReactNode;
+}) => {
+	const frame = useCurrentFrame();
+	return (
+		<ShotFramingContext.Provider value={{frame, zoom}}>
+			{children}
+		</ShotFramingContext.Provider>
+	);
 };
 
 type LayoutState = {
@@ -118,12 +158,22 @@ export const getCaptionPlacement = (
 	};
 };
 
+export const useCaptionPlacement = (keyframes: readonly LayoutKeyframe[]) => {
+	const frame = useCurrentFrame();
+	const layout = useContext(StageLayoutContext);
+	return getCaptionPlacement(
+		layout?.frame ?? frame,
+		layout?.keyframes ?? keyframes,
+	);
+};
+
 const StageInner: React.FC<{
 	readonly keyframes: readonly LayoutKeyframe[];
 	readonly children: React.ReactNode;
 }> = ({keyframes, children}) => {
 	const frame = useCurrentFrame();
-	const l = getLayout(frame, keyframes);
+	const layout = useContext(StageLayoutContext);
+	const l = getLayout(layout?.frame ?? frame, keyframes);
 
 	return (
 		<>
@@ -198,6 +248,7 @@ const PunchInner: React.FC<
 	} & InteractiveTransformProps
 > = ({zoom = 1, children, style}) => {
 	const frame = useCurrentFrame();
+	const framing = useContext(ShotFramingContext);
 	return (
 		<div
 			style={{
@@ -210,7 +261,8 @@ const PunchInner: React.FC<
 				height: '100%',
 				display: 'flex',
 				flexDirection: 'column',
-				scale: zoom * (1 + frame * 0.00012),
+				scale:
+					(framing?.zoom ?? zoom) * (1 + (framing?.frame ?? frame) * 0.00012),
 				transformOrigin: `${FACE.x}px ${FACE.y}px`,
 				...style,
 			}}
