@@ -11,6 +11,7 @@ import {waitFor} from './player-frame-accuracy-utils';
 
 test.each([false, true])(
 	'resizes playing and paused video without replacing the media player (Studio: %s)',
+	{repeats: 4},
 	async (isStudio) => {
 		const response = await fetch('/video.mp4');
 		const src = URL.createObjectURL(await response.blob());
