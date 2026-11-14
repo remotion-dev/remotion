@@ -15,6 +15,7 @@ test.for([
 	'cdata',
 	'titled',
 	'titled-cdata',
+	'document-title',
 ])('retains CSS font source and text selection from $0', async (mode) => {
 	const url = new URL('../../../example/public/bangers.woff2', import.meta.url)
 		.href;
@@ -25,10 +26,11 @@ test.for([
 		reader.onerror = () => reject(reader.error);
 		reader.readAsDataURL(blob);
 	});
+	const documentTitle = mode === 'document-title';
 	const cdata = mode.includes('cdata');
 	const linked = mode === 'link' || cdata;
 	const iframe =
-		mode === 'iframe' || mode.startsWith('titled')
+		mode === 'iframe' || mode.startsWith('titled') || documentTitle
 			? document.createElement('iframe')
 			: null;
 	if (iframe) document.body.appendChild(iframe);
@@ -48,7 +50,7 @@ test.for([
 						? `@media not all{${face}}`
 						: face;
 	const sheet = new ownerWindow.CSSStyleSheet();
-	sheet.replaceSync(group + selector);
+	sheet.replaceSync((documentTitle ? '' : group) + selector);
 	const adopted = [...owner.adoptedStyleSheets];
 	const ordinary = mode === 'link' ? owner.createElement('style') : null;
 	if (ordinary) {
@@ -58,6 +60,31 @@ test.for([
 		owner.adoptedStyleSheets = [...adopted, sheet];
 		sheet.disabled = mode === 'disabled';
 		expect(sheet.disabled).toBe(mode === 'disabled');
+	}
+
+	const titledSheets: HTMLStyleElement[] = [];
+	if (documentTitle) {
+		const otherUrl = new URL(
+			'../../../example/public/Roboto-Medium.ttf',
+			import.meta.url,
+		).href;
+		const otherBlob = await (await fetch(otherUrl)).blob();
+		const otherData = await new Promise<string>((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = () => reject(reader.error);
+			reader.readAsDataURL(otherBlob);
+		});
+		for (const [title, source, format] of [
+			['a', data, 'woff2'],
+			['b', otherData, 'truetype'],
+		]) {
+			const style = owner.createElement('style');
+			style.title = title;
+			style.textContent = `@font-face{font-family:"${family}";src:url("${source}") format("${format}")}`;
+			owner.head.appendChild(style);
+			titledSheets.push(style);
+		}
 	}
 
 	const active = mode !== 'inactive' && mode !== 'disabled';
@@ -142,6 +169,17 @@ test.for([
 		const control = makeSvg(true, !active);
 		nodes.push(control);
 		const expected = await draw(control);
+		if (documentTitle) {
+			await owner.fonts.load('34px "SVG review literal"');
+			expect(svg.querySelector('text')!.getComputedTextLength()).toBe(
+				control.querySelector('text')!.getComputedTextLength(),
+			);
+			expect(titledSheets.map((style) => style.sheet!.title)).toEqual([
+				'a',
+				'b',
+			]);
+		}
+
 		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
 			0,
 		);
@@ -156,6 +194,7 @@ test.for([
 	} finally {
 		nodes.forEach((n) => n.remove());
 		ordinary?.remove();
+		titledSheets.forEach((style) => style.remove());
 		owner.adoptedStyleSheets = adopted;
 		iframe?.remove();
 	}
