@@ -1,5 +1,11 @@
 import {afterEach, expect, test} from 'bun:test';
-import {Activity, useLayoutEffect} from 'react';
+import {
+	Activity,
+	StrictMode,
+	Suspense,
+	useCallback,
+	useLayoutEffect,
+} from 'react';
 import {Internals, useDelayRender, type DelayRenderScope} from 'remotion';
 import {ErrorBoundary} from '../error-boundary.js';
 import type {PlayerRef} from '../player-methods.js';
@@ -341,3 +347,117 @@ test('hidden Activity ignores async notification while cancellation still reject
 	});
 	expect(view.getByRole('alert').textContent).toBe(visibleFailure.message);
 });
+
+for (const actor of ['player', 'thumbnail', 'boundary'] as const) {
+	for (const phase of ['render', 'layout'] as const) {
+		for (const strict of [false, true]) {
+			test(`caught initial ${phase} cancellation reaches ${actor} (strict=${strict})`, async () => {
+				const error = new Error('initial cancellation');
+				const caught: unknown[] = [];
+				const Content = () => {
+					const {cancelRender} = useDelayRender();
+					const cancel = useCallback(() => {
+						try {
+							cancelRender(error);
+						} catch (thrown) {
+							caught.push(thrown);
+						}
+					}, [cancelRender]);
+					useLayoutEffect(() => {
+						if (phase === 'layout') cancel();
+					}, [cancel]);
+					if (phase === 'render') cancel();
+					return <div>initial content</div>;
+				};
+
+				const reported: Error[] = [];
+				const subscribe = (ref: PlayerRef | null) =>
+					ref?.addEventListener('error', (event) =>
+						reported.push(event.detail.error),
+					);
+				const subject =
+					actor === 'boundary' ? (
+						<ErrorBoundary
+							renderingOwner={Content}
+							isReplacingComponent={false}
+							onError={(failure) => reported.push(failure)}
+							errorFallback={fallback}
+						>
+							<Content />
+						</ErrorBoundary>
+					) : actor === 'player' ? (
+						<Player
+							{...config}
+							ref={subscribe}
+							component={Content}
+							errorFallback={fallback}
+						/>
+					) : (
+						<Thumbnail
+							{...config}
+							frameToDisplay={0}
+							component={Content}
+							errorFallback={fallback}
+						/>
+					);
+				const view = render(
+					<>
+						{strict ? <StrictMode>{subject}</StrictMode> : subject}
+						<div>healthy sibling</div>
+					</>,
+				);
+				const sibling = view.getByText('healthy sibling');
+				await act(async () => {});
+				expect(caught.length).toBeGreaterThan(0);
+				expect(caught.every((thrown) => thrown === error)).toBe(true);
+				expect(view.getByRole('alert').textContent).toBe(error.message);
+				expect(view.getByText('healthy sibling')).toBe(sibling);
+				expect(window.remotion_cancelledErrorObject).toBeUndefined();
+				if (actor !== 'thumbnail') expect(reported).toEqual([error]);
+			});
+		}
+	}
+}
+
+for (const strict of [false, true]) {
+	test(`an abandoned initial cancellation cannot reach a healthy replacement (strict=${strict})`, async () => {
+		const reported: Error[] = [];
+		const error = new Error('abandoned render');
+		const Content = () => {
+			const {cancelRender} = useDelayRender();
+			try {
+				cancelRender(error);
+			} catch (thrown) {
+				expect(thrown).toBe(error);
+			}
+
+			throw new Promise<void>(() => {});
+		};
+
+		const boundary = (owner: object, children: React.ReactNode) => (
+			<ErrorBoundary
+				renderingOwner={owner}
+				isReplacingComponent={false}
+				onError={(failure) => reported.push(failure)}
+				errorFallback={fallback}
+			>
+				{children}
+			</ErrorBoundary>
+		);
+		const pending = (
+			<Suspense fallback={<div>pending initial render</div>}>
+				{boundary(Content, <Content />)}
+			</Suspense>
+		);
+		const view = render(strict ? <StrictMode>{pending}</StrictMode> : pending);
+		await act(async () => {});
+		expect(view.queryByRole('alert')).toBeNull();
+		expect(reported).toEqual([]);
+		view.rerender(boundary({}, <div>healthy replacement</div>));
+		await act(async () => {});
+		expect(view.getByText('healthy replacement')).toBeTruthy();
+		expect(view.queryByRole('alert')).toBeNull();
+		expect(reported).toEqual([]);
+		expect(window.remotion_cancelledErrorObject).toBeUndefined();
+	});
+}

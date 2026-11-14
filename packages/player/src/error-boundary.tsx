@@ -44,21 +44,29 @@ const AsyncRenderErrorScope = ({
 			firstError: null,
 			generation: 0,
 			onCancel: (error) => {
-				if (!createdOwner.active || createdOwner.firstError !== null) return;
+				// Descendant render/layout work can report before this owner commits.
+				const beforeFirstCommit =
+					!createdOwner.active && createdOwner.generation === 0;
+				if (
+					(!createdOwner.active && !beforeFirstCommit) ||
+					createdOwner.firstError !== null
+				)
+					return;
 				createdOwner.firstError = error;
 				const {generation} = createdOwner;
 				queueMicrotask(() => {
 					if (
 						!createdOwner.active ||
 						currentOwner.current !== createdOwner ||
-						generation !== createdOwner.generation
+						(!beforeFirstCommit && generation !== createdOwner.generation)
 					)
 						return;
+					const committedGeneration = createdOwner.generation;
 					setFailure((previous) =>
 						previous?.owner === createdOwner &&
-						previous.generation === generation
+						previous.generation === committedGeneration
 							? previous
-							: {owner: createdOwner, generation, error},
+							: {owner: createdOwner, generation: committedGeneration, error},
 					);
 				});
 			},
