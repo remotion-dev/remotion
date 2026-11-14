@@ -1,7 +1,7 @@
 import type {BrowserStudioOperations} from '@remotion/studio-shared';
 
 const unusedOperation = (name: keyof BrowserStudioOperations): never => {
-	throw new Error(`Unexpected Browser Studio operation: ${name}`);
+	throw new Error(`Unexpected remotion.new operation: ${name}`);
 };
 
 export const makeBrowserStudioOperations = (

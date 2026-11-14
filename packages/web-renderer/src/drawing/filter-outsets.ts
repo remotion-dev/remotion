@@ -1,28 +1,23 @@
+import {splitAtTopLevel} from './background-image-rect';
+
 export const parseFilterOutsets = (
 	filter: string,
 ): {left: number; right: number; top: number; bottom: number} => {
 	const expansion = {left: 0, right: 0, top: 0, bottom: 0};
 
 	// Match drop-shadow function with support for nested parentheses (e.g., rgba() inside drop-shadow())
-	// getComputedStyle returns colors as rgb()/rgba(), so we need to handle one level of nesting
+	// Computed colors can retain modern color functions inside drop-shadow().
 	const dropShadowRegex = /drop-shadow\(((?:[^()]+|\([^()]*\))+)\)/gi;
 	let match;
 
 	while ((match = dropShadowRegex.exec(filter)) !== null) {
 		const params = match[1].trim();
 
-		// Extract numeric values (offsets and blur)
-		// The values can be in pixels, and we need to handle negative values
-		const numbers: number[] = [];
-		const numberRegex = /([+-]?\d*\.?\d+)(?:px)?/g;
-		let numMatch;
-		while ((numMatch = numberRegex.exec(params)) !== null) {
-			// Skip if this is part of a color (like rgb values)
-			const beforeMatch = params.slice(0, numMatch.index);
-			if (!/(?:rgba?|hsla?)\([^)]*$/i.test(beforeMatch)) {
-				numbers.push(parseFloat(numMatch[1]));
-			}
-		}
+		// Color functions own their channel numbers. Only top-level length
+		// tokens contribute shadow offsets and blur.
+		const numbers = splitAtTopLevel(params, ' ')
+			.map((value) => parseFloat(value))
+			.filter(Number.isFinite);
 
 		// drop-shadow takes: offset-x, offset-y, [blur-radius]
 		// Standard order is: offset-x offset-y blur color

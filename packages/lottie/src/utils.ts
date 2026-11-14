@@ -16,7 +16,7 @@ export const getLottieFrame = ({
 		: Math.min(currentFrame, totalFrames - 1);
 
 	if (direction === 'backward') {
-		return totalFrames - nextFrame;
+		return totalFrames - 1 - nextFrame;
 	}
 
 	return nextFrame;
