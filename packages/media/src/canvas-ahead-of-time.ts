@@ -1,5 +1,6 @@
-import type {VideoSampleTransformOptions, WrappedCanvas} from 'mediabunny';
+import type {WrappedCanvas} from 'mediabunny';
 import type {VideoSample, VideoSampleSink} from 'mediabunny';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type CanvasAheadOfTimeNext =
 	| {type: 'ready'; frame: WrappedCanvas | null}
@@ -58,7 +59,9 @@ export const getStableEffectSource = (
 	);
 };
 
-const makeStableFramePool = () => {
+const makeStableFramePool = (
+	getMaxCanvasSinkFrameSize: (() => MaxCanvasSinkFrameSize | null) | null,
+) => {
 	const availableCanvases: OffscreenCanvas[] = [];
 
 	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
@@ -66,42 +69,119 @@ const makeStableFramePool = () => {
 		let sampleReleased = false;
 		let effectCanvas: OffscreenCanvas | null = null;
 		let retainedSource: CanvasImageSource | null = null;
+		const isSizeLimited = () => {
+			const size = getMaxCanvasSinkFrameSize?.();
+			return (
+				(size?.width ?? Infinity) < frame.displayWidth ||
+				(size?.height ?? Infinity) < frame.displayHeight
+			);
+		};
+
 		const sampleFrame: StableWrappedCanvas = {
 			timestamp: frame.timestamp,
 			duration: frame.duration,
 			// Rotation and onVideoFrame can still request an owned canvas. Ordinary
 			// playback can draw the retained sample without allocating one.
 			get canvas() {
-				if (!sampleCanvas) {
-					sampleCanvas =
-						availableCanvases.pop() ??
-						new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
-					if (sampleCanvas.width !== frame.displayWidth)
-						sampleCanvas.width = frame.displayWidth;
-					if (sampleCanvas.height !== frame.displayHeight)
-						sampleCanvas.height = frame.displayHeight;
+				const size = getMaxCanvasSinkFrameSize?.();
+				const scale = Math.min(
+					1,
+					(size?.width ?? Infinity) / frame.displayWidth,
+					(size?.height ?? Infinity) / frame.displayHeight,
+				);
+				const width = Math.max(1, Math.round(frame.displayWidth * scale));
+				const height = Math.max(1, Math.round(frame.displayHeight * scale));
+				if (
+					!sampleCanvas ||
+					sampleCanvas.width !== width ||
+					sampleCanvas.height !== height
+				) {
+					sampleCanvas ??=
+						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
+					if (sampleCanvas.width !== width) sampleCanvas.width = width;
+					if (sampleCanvas.height !== height) sampleCanvas.height = height;
 					const sampleContext = sampleCanvas.getContext('2d');
 					if (!sampleContext)
 						throw new Error('Could not create canvas context');
+					sampleContext.imageSmoothingQuality = 'high';
 					sampleContext.clearRect(
 						0,
 						0,
 						sampleCanvas.width,
 						sampleCanvas.height,
 					);
-					frame.draw(
-						sampleContext,
-						0,
-						0,
-						sampleCanvas.width,
-						sampleCanvas.height,
-					);
+					// Match transform()'s multi-step filtering without discarding the
+					// original sample. A smoothing-quality hint alone can alias.
+					const levels =
+						2 * width < frame.displayWidth && 2 * height < frame.displayHeight
+							? Math.floor(
+									Math.log2(
+										Math.min(
+											frame.displayWidth / width,
+											frame.displayHeight / height,
+										),
+									),
+								)
+							: 0;
+					if (levels === 0) {
+						frame.draw(sampleContext, 0, 0, width, height);
+					} else {
+						const mipWidth = width * 2 ** levels;
+						const mipHeight = height * 2 ** levels;
+						const mipCanvas =
+							availableCanvases.pop() ??
+							new OffscreenCanvas(mipWidth, mipHeight);
+						if (mipCanvas.width !== mipWidth) mipCanvas.width = mipWidth;
+						if (mipCanvas.height !== mipHeight) mipCanvas.height = mipHeight;
+						const mipContext = mipCanvas.getContext('2d');
+						if (!mipContext) throw new Error('Could not create canvas context');
+						try {
+							mipContext.imageSmoothingQuality = 'high';
+							mipContext.clearRect(0, 0, mipWidth, mipHeight);
+							frame.draw(mipContext, 0, 0, mipWidth, mipHeight);
+							mipContext.globalCompositeOperation = 'copy';
+							for (let level = levels; level > 1; level--) {
+								const levelWidth = width * 2 ** level;
+								const levelHeight = height * 2 ** level;
+								mipContext.drawImage(
+									mipCanvas,
+									0,
+									0,
+									levelWidth,
+									levelHeight,
+									0,
+									0,
+									levelWidth / 2,
+									levelHeight / 2,
+								);
+							}
+
+							sampleContext.drawImage(
+								mipCanvas,
+								0,
+								0,
+								width * 2,
+								height * 2,
+								0,
+								0,
+								width,
+								height,
+							);
+						} finally {
+							mipContext.globalCompositeOperation = 'source-over';
+							availableCanvases.push(mipCanvas);
+						}
+					}
 				}
 
 				return sampleCanvas;
 			},
 			[effectSource]: ({width, height, allowDirectSource}) => {
-				if (width !== frame.displayWidth || height !== frame.displayHeight) {
+				const cappedSource = isSizeLimited() ? sampleFrame.canvas : null;
+				if (
+					width !== (cappedSource?.width ?? frame.displayWidth) ||
+					height !== (cappedSource?.height ?? frame.displayHeight)
+				) {
 					effectCanvas ??=
 						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
 					if (effectCanvas.width !== width) effectCanvas.width = width;
@@ -110,9 +190,13 @@ const makeStableFramePool = () => {
 					if (!effectContext)
 						throw new Error('Could not create canvas context');
 					effectContext.clearRect(0, 0, width, height);
-					frame.draw(effectContext, 0, 0, width, height);
+					if (cappedSource)
+						effectContext.drawImage(cappedSource, 0, 0, width, height);
+					else frame.draw(effectContext, 0, 0, width, height);
 					return effectCanvas;
 				}
+
+				if (cappedSource) return cappedSource;
 
 				// GPU uploads do not always match Canvas2D's color/orientation conversion.
 				if (
@@ -133,7 +217,9 @@ const makeStableFramePool = () => {
 				return retainedSource;
 			},
 			[drawSample]: (sampleContext, width, height) => {
-				frame.draw(sampleContext, 0, 0, width, height);
+				if (isSizeLimited())
+					sampleContext.drawImage(sampleFrame.canvas, 0, 0, width, height);
+				else frame.draw(sampleContext, 0, 0, width, height);
 			},
 			[releaseCanvas]: () => {
 				if (sampleReleased) return;
@@ -162,7 +248,9 @@ type Slot = {
 export const canvasesAheadOfTime = (
 	videoSink: VideoSampleSink,
 	startTimestamp?: number,
-	resize: VideoSampleTransformOptions | null = null,
+	getMaxCanvasSinkFrameSize:
+		| (() => MaxCanvasSinkFrameSize | null)
+		| null = null,
 ) => {
 	const iterator = videoSink.samples(startTimestamp);
 
@@ -171,7 +259,7 @@ export const canvasesAheadOfTime = (
 	let reachedEnd = false;
 	let closed = false;
 	let inFlight: Promise<void> | null = null;
-	const stableFramePool = makeStableFramePool();
+	const stableFramePool = makeStableFramePool(getMaxCanvasSinkFrameSize);
 	const unclaimedFrames = new Set<WrappedCanvas>();
 
 	const takeFrame = (frame: VideoSample): WrappedCanvas => {
@@ -202,22 +290,7 @@ export const canvasesAheadOfTime = (
 		if (buffer.length >= BUFFER_SIZE) return;
 
 		chaining = true;
-		const nextSample = iterator.next();
-		const promise = resize
-			? nextSample.then(async (result) => {
-					if (result.done || closed) return result;
-					try {
-						// transform() uses Mediabunny's pooled, quality-preserving resampling.
-						// The returned sample owns its pixels independently of that scratch canvas.
-						return {
-							done: false as const,
-							value: await result.value.transform(resize),
-						};
-					} finally {
-						result.value.close();
-					}
-				})
-			: nextSample;
+		const promise = iterator.next();
 		const slot: Slot = {promise, resolved: null};
 		buffer.push(slot);
 		inFlight = slot.promise.then(

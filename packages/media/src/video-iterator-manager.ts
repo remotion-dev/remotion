@@ -77,7 +77,10 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
-	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	maxCanvasSinkFrameSize:
+		| MaxCanvasSinkFrameSize
+		| null
+		| (() => MaxCanvasSinkFrameSize | null);
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -117,24 +120,25 @@ export const videoIteratorManager = async ({
 		}
 	}
 
-	const maxWidth = maxCanvasSinkFrameSize?.width ?? Infinity;
-	const maxHeight = maxCanvasSinkFrameSize?.height ?? Infinity;
-	// Only pass the side that limits the size, Mediabunny derives the other one
-	// from the aspect ratio. Never upscale. 'fill' stretches over the rounding of
-	// the derived side instead of leaving a semi-transparent edge.
-	const frameSize =
-		maxWidth / displayWidth < Math.min(1, maxHeight / displayHeight)
-			? {width: maxWidth, fit: 'fill' as const}
-			: maxHeight < displayHeight
-				? {height: maxHeight, fit: 'fill' as const}
-				: {};
+	// Keep source samples in the existing bounded lookahead. Apply a live size
+	// limit only when drawing, so enlargement can reuse the decoder and samples.
+	const getMaxCanvasSinkFrameSize =
+		typeof maxCanvasSinkFrameSize === 'function'
+			? maxCanvasSinkFrameSize
+			: () => maxCanvasSinkFrameSize;
+	let lastMaxWidth: number | undefined;
+	let lastMaxHeight: number | undefined;
+	const hasSizeChanged = () => {
+		const size = getMaxCanvasSinkFrameSize();
+		return size?.width !== lastMaxWidth || size?.height !== lastMaxHeight;
+	};
 
 	const videoSink = new VideoSampleSink(videoTrack);
 
 	const prewarmedVideoIteratorCache = makePrewarmedVideoIteratorCache(
 		videoSink,
 		await videoTrack.getTimeResolution(),
-		Object.keys(frameSize).length === 0 ? null : frameSize,
+		getMaxCanvasSinkFrameSize,
 	);
 
 	const releaseSink = Internals.registerMediabunnySink(videoTrack.input);
@@ -151,6 +155,10 @@ export const videoIteratorManager = async ({
 			lastPlainFrameTime = null;
 			const effects = getEffects();
 			lastPaintedEffects = effects;
+			if (hasSizeChanged()) lastCompletedEffectPaint = null;
+			const size = getMaxCanvasSinkFrameSize();
+			lastMaxWidth = size?.width;
+			lastMaxHeight = size?.height;
 			const chainState = getEffectChainState(canvas.width, canvas.height);
 			lastPaintedEffectChainState = chainState;
 			if (
@@ -246,6 +254,7 @@ export const videoIteratorManager = async ({
 			const effects = getEffects();
 			const chainState = getEffectChainState(canvas.width, canvas.height);
 			if (
+				!hasSizeChanged() &&
 				effects === lastPaintedEffects &&
 				chainState === lastPaintedEffectChainState &&
 				(effects.length === 0 ||
@@ -384,9 +393,10 @@ export const videoIteratorManager = async ({
 				? getEffectChainState(canvas.width, canvas.height)
 				: null;
 			if (
-				(effects !== lastPaintedEffects ||
+				hasSizeChanged() ||
+				((effects !== lastPaintedEffects ||
 					chainState !== lastPaintedEffectChainState) &&
-				(effects.length > 0 || lastPaintedEffects.length > 0)
+					(effects.length > 0 || lastPaintedEffects.length > 0))
 			) {
 				await redrawCurrentFrame();
 			}
@@ -525,7 +535,12 @@ export const videoIteratorManager = async ({
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
 		getPlainFrameTime: (copiedFrameTime: number | null) => {
-			if (destroyed || pendingEffectRun || lastCompletedEffectPaint) {
+			if (
+				destroyed ||
+				pendingEffectRun ||
+				lastCompletedEffectPaint ||
+				hasSizeChanged()
+			) {
 				return null;
 			}
 

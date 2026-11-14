@@ -1,12 +1,15 @@
-import type {VideoSampleSink, VideoSampleTransformOptions} from 'mediabunny';
+import type {VideoSampleSink} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
 import {canvasesAheadOfTime} from './canvas-ahead-of-time';
 import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export const makePrewarmedVideoIteratorCache = (
 	videoSink: VideoSampleSink,
 	timeResolution: number,
-	resize: VideoSampleTransformOptions | null = null,
+	getMaxCanvasSinkFrameSize:
+		| (() => MaxCanvasSinkFrameSize | null)
+		| null = null,
 ) => {
 	const prewarmedVideoIterators: Map<number, CanvasAheadOfTimeIterator> =
 		new Map();
@@ -25,7 +28,7 @@ export const makePrewarmedVideoIteratorCache = (
 		if (!prewarmedVideoIterators.has(snapped)) {
 			prewarmedVideoIterators.set(
 				snapped,
-				canvasesAheadOfTime(videoSink, snapped, resize),
+				canvasesAheadOfTime(videoSink, snapped, getMaxCanvasSinkFrameSize),
 			);
 		}
 	};
@@ -38,7 +41,7 @@ export const makePrewarmedVideoIteratorCache = (
 			return prewarmedIterator;
 		}
 
-		return canvasesAheadOfTime(videoSink, snapped, resize);
+		return canvasesAheadOfTime(videoSink, snapped, getMaxCanvasSinkFrameSize);
 	};
 
 	const destroy = () => {

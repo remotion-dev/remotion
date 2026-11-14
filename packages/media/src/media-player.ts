@@ -101,7 +101,10 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
-	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	private maxCanvasSinkFrameSize:
+		| MaxCanvasSinkFrameSize
+		| null
+		| (() => MaxCanvasSinkFrameSize | null);
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -167,7 +170,10 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
-		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+		maxCanvasSinkFrameSize:
+			| MaxCanvasSinkFrameSize
+			| null
+			| (() => MaxCanvasSinkFrameSize | null);
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -1000,7 +1006,13 @@ export class MediaPlayer {
 	}
 
 	public async redrawVideoEffects(): Promise<void> {
-		await this.videoIteratorManager?.redrawCurrentFrame();
+		// A replacement frame may still be painting effects and has not been
+		// published yet. Reuse the seek queue so this redraw cannot be lost.
+		const redraw = this.seekPromiseChain.then(() =>
+			this.videoIteratorManager?.redrawCurrentFrame(),
+		);
+		this.seekPromiseChain = redraw.catch(() => {});
+		await redraw;
 	}
 
 	private drawDebugOverlay = () => {

@@ -351,6 +351,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 			preloadedSrc,
 		],
 	);
+	const studioSourceKeyRef = useRef(studioSourceKey);
+	studioSourceKeyRef.current = studioSourceKey;
 	const copiedFrameRef = useRef<{
 		canvas: HTMLCanvasElement;
 		sourceKey: string;
@@ -509,7 +511,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
-				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
+				maxCanvasSinkFrameSize: () => maxCanvasSinkFrameSizeRef.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -526,11 +528,22 @@ const VideoForPreviewAssertedShowing: React.FC<
 				},
 			});
 
-			if (canvas && studioSourceKey) {
+			if (canvas && studioSourceKeyRef.current) {
 				const copied = copiedFrameRef.current;
 				copiedFrameRef.current = null;
+				const registeredInputKey = getSharedInputCacheKey({
+					src: preloadedSrc,
+					credentials,
+					requestInit: initialRequestInit,
+				});
 				studioVideoCanvases.set(canvas, {
-					sourceKey: studioSourceKey,
+					get sourceKey() {
+						return JSON.stringify([
+							registeredInputKey,
+							maxCanvasSinkFrameSizeRef.current?.width,
+							maxCanvasSinkFrameSizeRef.current?.height,
+						]);
+					},
 					getPlainFrameTime: () => {
 						if (!canSharePausedFrameRef.current) {
 							return null;
@@ -538,7 +551,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 						const copiedTime =
 							copied?.canvas === canvas &&
-							copied.sourceKey === studioSourceKey &&
+							copied.sourceKey === studioSourceKeyRef.current &&
 							copied.mediaTime === mediaTimeRef.current &&
 							copied.width === canvas.width &&
 							copied.height === canvas.height
@@ -670,7 +683,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 
 		return () => {
-			if (canvas && studioSourceKey) {
+			if (canvas) {
 				studioVideoCanvases.delete(canvas);
 			}
 
@@ -700,11 +713,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
-		studioSourceKey,
-		// Compare the numbers, so that a new object with the same size does not
-		// recreate the player.
-		maxCanvasSinkFrameSize?.width,
-		maxCanvasSinkFrameSize?.height,
+		isStudio,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -775,6 +784,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effects,
 		effectsOutputSize?.width,
 		effectsOutputSize?.height,
+		maxCanvasSinkFrameSize?.width,
+		maxCanvasSinkFrameSize?.height,
 		mediaPlayerReady,
 		mediaPlayerRef,
 	]);
