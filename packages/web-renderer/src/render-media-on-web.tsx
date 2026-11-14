@@ -48,7 +48,10 @@ import {
 	type WebRendererPageResponsiveness,
 } from './page-responsiveness';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
-import {onlyOneMediaRenderAtATimeQueue} from './render-operations-queue';
+import {
+	onlyOneMediaRenderAtATimeQueue,
+	runWithRenderQueue,
+} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
@@ -874,9 +877,12 @@ export const renderMediaOnWeb = <
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
 
-	const render = onlyOneMediaRenderAtATimeQueue.ref
-		.catch(() => Promise.resolve())
-		.then(() =>
+	return runWithRenderQueue({
+		queue: onlyOneMediaRenderAtATimeQueue,
+		signal: options.signal ?? null,
+		createCancellationError: () =>
+			new Error('renderMediaOnWeb() was cancelled'),
+		render: () =>
 			internalRenderMediaOnWeb<Schema, Props>({
 				...options,
 				delayRenderTimeoutInMilliseconds:
@@ -909,13 +915,5 @@ export const renderMediaOnWeb = <
 				sampleRate: options.sampleRate ?? 48000,
 				metadata: options.metadata ?? null,
 			}),
-		);
-
-	// The queue only owns completion; callers own the result or rejection reason.
-	onlyOneMediaRenderAtATimeQueue.ref = render.then(
-		() => {},
-		() => {},
-	);
-
-	return render;
+	});
 };
