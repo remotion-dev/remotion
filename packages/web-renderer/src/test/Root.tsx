@@ -118,7 +118,7 @@ import {
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
-import {maskImage} from './fixtures/mask-image';
+import {maskImage, maskImageTransformedVisibility} from './fixtures/mask-image';
 import {
 	maskImageLayers,
 	maskImageLayersTransparent,
@@ -458,6 +458,7 @@ export const Root: React.FC = () => {
 			<Composition {...stackingContextSiblings} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...maskImageTransformedVisibility} />
 				<Composition {...mixBlendModeAllModes} />
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />

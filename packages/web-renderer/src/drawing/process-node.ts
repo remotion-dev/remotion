@@ -159,7 +159,10 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		if (!doRectsIntersect(precomposeRect, parentRect)) {
+		const visibleRect = totalMatrix.is2D
+			? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
+			: precomposeRect;
+		if (!doRectsIntersect(visibleRect, parentRect)) {
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 

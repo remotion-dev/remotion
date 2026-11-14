@@ -127,3 +127,47 @@ export const maskImage = {
 	fps: 25,
 	durationInFrames: 1,
 } as const;
+
+const TransformedVisibility = () => (
+	<AbsoluteFill style={{backgroundColor: 'white'}}>
+		{[
+			'matrix(1, 0, 0, 1, -110, 0)',
+			'matrix(-1, 0, 0, 1, 150, 0)',
+			'matrix(0, -1, 1, 0, 0, 150)',
+		].map((transform, index) => (
+			<div
+				key={transform}
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: index * 35,
+					width: 60,
+					height: 40,
+					transform,
+					transformOrigin: '0 0',
+				}}
+			>
+				<div
+					style={{
+						position: 'absolute',
+						left: 120,
+						top: 10,
+						width: 20,
+						height: 20,
+						backgroundColor: 'red',
+						maskImage: 'linear-gradient(black, black)',
+					}}
+				/>
+			</div>
+		))}
+	</AbsoluteFill>
+);
+
+export const maskImageTransformedVisibility = {
+	component: TransformedVisibility,
+	id: 'mask-image-transformed-visibility',
+	width: 60,
+	height: 110,
+	fps: 30,
+	durationInFrames: 1,
+} as const;
