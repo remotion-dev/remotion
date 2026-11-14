@@ -171,7 +171,7 @@ export const delayRenderInternal = ({
 				scope.remotion_cancelledErrorObject = error;
 				scope.remotion_cancelledError = getErrorStackWithMessage(error);
 			} else {
-				cancelRenderInternal(scope, Error(message));
+				cancelRenderInternal(scope, Error(message), null);
 			}
 		};
 

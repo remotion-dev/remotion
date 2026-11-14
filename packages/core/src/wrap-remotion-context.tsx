@@ -34,10 +34,16 @@ import {
 } from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {
+	CancelRenderContext,
+	DelayRenderContextType,
+} from './use-delay-render.js';
 import {MediaEnabledContext} from './use-media-enabled.js';
 import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
+	const cancelRenderContext = React.useContext(CancelRenderContext);
+	const delayRenderContext = React.useContext(DelayRenderContextType);
 	const mediaEnabledContext = React.useContext(MediaEnabledContext);
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const videoContext = React.useContext(VideoContext);
@@ -76,6 +82,8 @@ export function useRemotionContexts() {
 
 	return useMemo(
 		() => ({
+			cancelRenderContext,
+			delayRenderContext,
 			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
@@ -101,6 +109,8 @@ export function useRemotionContexts() {
 			effectPreviewContext,
 		}),
 		[
+			cancelRenderContext,
+			delayRenderContext,
 			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
@@ -252,89 +262,99 @@ export const RemotionContextProvider = (
 ) => {
 	const {children, contexts} = props;
 	return (
-		<LogLevelContext.Provider value={contexts.logLevelContext}>
-			<CanUseRemotionHooks.Provider value={contexts.canUseRemotionHooksContext}>
-				<PreloadContext.Provider value={contexts.preloadContext}>
-					<CompositionManager.Provider value={contexts.compositionManagerCtx}>
-						<SequenceManagerRefContext.Provider
-							value={contexts.sequenceManagerRefContext}
-						>
-							<RemotionEnvironmentContext.Provider
-								value={contexts.remotionEnvironmentContext}
+		<CancelRenderContext.Provider value={contexts.cancelRenderContext}>
+			<DelayRenderContextType.Provider value={contexts.delayRenderContext}>
+				<LogLevelContext.Provider value={contexts.logLevelContext}>
+					<CanUseRemotionHooks.Provider
+						value={contexts.canUseRemotionHooksContext}
+					>
+						<PreloadContext.Provider value={contexts.preloadContext}>
+							<CompositionManager.Provider
+								value={contexts.compositionManagerCtx}
 							>
-								<SequenceRegistrationContext.Provider
-									value={contexts.sequenceRegistrationContext}
+								<SequenceManagerRefContext.Provider
+									value={contexts.sequenceManagerRefContext}
 								>
-									<DisableSequenceRegistrationContext.Provider
-										value={contexts.disableSequenceRegistrationContext}
+									<RemotionEnvironmentContext.Provider
+										value={contexts.remotionEnvironmentContext}
 									>
-										<ForwardedSequenceRegistry contexts={contexts}>
-											<VisualModePropStatusesRefContext.Provider
-												value={contexts.visualModePropStatusesRefContext}
+										<SequenceRegistrationContext.Provider
+											value={contexts.sequenceRegistrationContext}
+										>
+											<DisableSequenceRegistrationContext.Provider
+												value={contexts.disableSequenceRegistrationContext}
 											>
-												<RenderAssetManager.Provider
-													value={contexts.renderAssetManagerContext}
-												>
-													<ResolveCompositionContext.Provider
-														value={contexts.resolveCompositionContext}
+												<ForwardedSequenceRegistry contexts={contexts}>
+													<VisualModePropStatusesRefContext.Provider
+														value={contexts.visualModePropStatusesRefContext}
 													>
-														<TimelineContext.Provider
-															value={contexts.timelineContext}
+														<RenderAssetManager.Provider
+															value={contexts.renderAssetManagerContext}
 														>
-															<SetTimelineContext.Provider
-																value={contexts.setTimelineContext}
+															<ResolveCompositionContext.Provider
+																value={contexts.resolveCompositionContext}
 															>
-																<SequenceContext.Provider
-																	value={contexts.sequenceContext}
+																<TimelineContext.Provider
+																	value={contexts.timelineContext}
 																>
-																	<BufferingContextReact.Provider
-																		value={contexts.bufferManagerContext}
+																	<SetTimelineContext.Provider
+																		value={contexts.setTimelineContext}
 																	>
-																		<TimelineTrackContext.Provider
-																			value={contexts.timelineTrackContext}
+																		<SequenceContext.Provider
+																			value={contexts.sequenceContext}
 																		>
-																			<DefaultPremountContext.Provider
-																				value={
-																					contexts.defaultPremountInSeconds
-																				}
+																			<BufferingContextReact.Provider
+																				value={contexts.bufferManagerContext}
 																			>
-																				<VideoContext.Provider
-																					value={contexts.videoContext}
+																				<TimelineTrackContext.Provider
+																					value={contexts.timelineTrackContext}
 																				>
-																					<MediaEnabledContext.Provider
-																						value={contexts.mediaEnabledContext}
+																					<DefaultPremountContext.Provider
+																						value={
+																							contexts.defaultPremountInSeconds
+																						}
 																					>
-																						<EffectPreviewContext.Provider
-																							value={
-																								contexts.effectPreviewContext
-																							}
+																						<VideoContext.Provider
+																							value={contexts.videoContext}
 																						>
-																							{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																							<SequenceActivityContext.Provider
-																								value={false}
+																							<MediaEnabledContext.Provider
+																								value={
+																									contexts.mediaEnabledContext
+																								}
 																							>
-																								{children}
-																							</SequenceActivityContext.Provider>
-																						</EffectPreviewContext.Provider>
-																					</MediaEnabledContext.Provider>
-																				</VideoContext.Provider>
-																			</DefaultPremountContext.Provider>
-																		</TimelineTrackContext.Provider>
-																	</BufferingContextReact.Provider>
-																</SequenceContext.Provider>
-															</SetTimelineContext.Provider>
-														</TimelineContext.Provider>
-													</ResolveCompositionContext.Provider>
-												</RenderAssetManager.Provider>
-											</VisualModePropStatusesRefContext.Provider>
-										</ForwardedSequenceRegistry>
-									</DisableSequenceRegistrationContext.Provider>
-								</SequenceRegistrationContext.Provider>
-							</RemotionEnvironmentContext.Provider>
-						</SequenceManagerRefContext.Provider>
-					</CompositionManager.Provider>
-				</PreloadContext.Provider>
-			</CanUseRemotionHooks.Provider>
-		</LogLevelContext.Provider>
+																								<EffectPreviewContext.Provider
+																									value={
+																										contexts.effectPreviewContext
+																									}
+																								>
+																									{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																									<SequenceActivityContext.Provider
+																										value={false}
+																									>
+																										{children}
+																									</SequenceActivityContext.Provider>
+																								</EffectPreviewContext.Provider>
+																							</MediaEnabledContext.Provider>
+																						</VideoContext.Provider>
+																					</DefaultPremountContext.Provider>
+																				</TimelineTrackContext.Provider>
+																			</BufferingContextReact.Provider>
+																		</SequenceContext.Provider>
+																	</SetTimelineContext.Provider>
+																</TimelineContext.Provider>
+															</ResolveCompositionContext.Provider>
+														</RenderAssetManager.Provider>
+													</VisualModePropStatusesRefContext.Provider>
+												</ForwardedSequenceRegistry>
+											</DisableSequenceRegistrationContext.Provider>
+										</SequenceRegistrationContext.Provider>
+									</RemotionEnvironmentContext.Provider>
+								</SequenceManagerRefContext.Provider>
+							</CompositionManager.Provider>
+						</PreloadContext.Provider>
+					</CanUseRemotionHooks.Provider>
+				</LogLevelContext.Provider>
+			</DelayRenderContextType.Provider>
+		</CancelRenderContext.Provider>
 	);
 };

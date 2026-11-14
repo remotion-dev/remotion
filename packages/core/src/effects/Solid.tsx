@@ -33,7 +33,7 @@ import type {RuntimeValueStore} from '../runtime-value-store.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
-import {useDelayRender} from '../use-delay-render.js';
+import {useDelayRender, useReportRenderError} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import type {VideoConfigValues} from '../video-config.js';
@@ -150,6 +150,7 @@ const SolidInner: React.FC<
 	canvasProps,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const reportRenderError = useReportRenderError();
 
 	const resolvedPixelDensity = resolveSolidPixelDensity(pixelDensity);
 	const canvasWidth = Math.ceil(width * resolvedPixelDensity);
@@ -207,38 +208,43 @@ const SolidInner: React.FC<
 			};
 		}
 
-		const ctx = sourceCanvas.getContext('2d', {colorSpace: 'srgb'});
-		if (!ctx) {
-			cancelRender(
-				new Error('Failed to acquire 2D context for <Solid> source'),
-			);
-			return;
-		}
+		let cancelled = false;
+		try {
+			const ctx = sourceCanvas.getContext('2d', {colorSpace: 'srgb'});
+			if (!ctx) {
+				throw new Error('Failed to acquire 2D context for <Solid> source');
+			}
 
-		ctx.clearRect(0, 0, 1, 1);
-		if (color !== undefined) {
-			ctx.fillStyle = color;
-			ctx.fillRect(0, 0, 1, 1);
-		}
+			ctx.clearRect(0, 0, 1, 1);
+			if (color !== undefined) {
+				ctx.fillStyle = color;
+				ctx.fillRect(0, 0, 1, 1);
+			}
 
-		runEffectChain({
-			state: chainState.get(canvasWidth, canvasHeight)!,
-			source: sourceCanvas,
-			effects: memoizedEffects,
-			output: outputCanvas,
-			width: canvasWidth,
-			height: canvasHeight,
-		})
-			.then((completed) => {
-				if (completed) {
-					continueRender(handle);
-				}
+			runEffectChain({
+				state: chainState.get(canvasWidth, canvasHeight)!,
+				source: sourceCanvas,
+				effects: memoizedEffects,
+				output: outputCanvas,
+				width: canvasWidth,
+				height: canvasHeight,
 			})
-			.catch((err) => {
-				cancelRender(err);
-			});
+				.then((completed) => {
+					if (completed && !cancelled) {
+						continueRender(handle);
+					}
+				})
+				.catch((err) => {
+					if (!cancelled) reportRenderError(err);
+				});
+		} catch (error) {
+			// A synchronous setup failure happens before React can register cleanup.
+			continueRender(handle);
+			cancelRender(error);
+		}
 
 		return () => {
+			cancelled = true;
 			continueRender(handle);
 		};
 	}, [
@@ -251,6 +257,7 @@ const SolidInner: React.FC<
 		delayRender,
 		continueRender,
 		cancelRender,
+		reportRenderError,
 		memoizedEffects,
 	]);
 

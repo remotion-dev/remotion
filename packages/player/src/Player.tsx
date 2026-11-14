@@ -258,11 +258,18 @@ const PlayerFn = <
 		),
 	);
 
-	const component = Internals.useLazyComponent({
+	const {
+		component: resolvedComponent,
+		renderingOwner,
+		isReplacingComponent,
+	} = Internals.useLazyComponentWithOwner({
 		compProps: componentProps,
 		componentName: 'Player',
 		noSuspense: Boolean(noSuspense),
-	}) as LazyExoticComponent<ComponentType<unknown>>;
+	});
+	const component = resolvedComponent as LazyExoticComponent<
+		ComponentType<unknown>
+	>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
@@ -570,6 +577,8 @@ const PlayerFn = <
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							errorFallback={errorFallback}
+							renderingOwner={renderingOwner}
+							isReplacingComponent={isReplacingComponent}
 							style={style}
 							inputProps={actualInputProps}
 							allowFullscreen={Boolean(allowFullscreen)}

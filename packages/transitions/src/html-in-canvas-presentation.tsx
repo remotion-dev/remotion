@@ -124,7 +124,15 @@ const HtmlInCanvasPresentationWithSupport = <
 	}, [passThrough, shader, shaderCanvas]);
 
 	const chainState = Internals.useEffectChainState(effectsOutputSize);
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {delayRender, continueRender} = useDelayRender();
+	const reportRenderError = Internals.useReportRenderError();
+	const pendingDrawReleases = useRef(new Set<() => void>());
+	useLayoutEffect(() => {
+		const releases = pendingDrawReleases.current;
+		return () => {
+			for (const release of Array.from(releases)) release();
+		};
+	}, [continueRender, delayRender, reportRenderError]);
 	const {isRendering} = useRemotionEnvironment();
 	const frame = useCurrentFrame();
 	// Like <HtmlInCanvas>, wait for a paint on every frame only while rendering.
@@ -142,7 +150,17 @@ const HtmlInCanvasPresentationWithSupport = <
 				throw new Error('Canvas not found');
 			}
 
-			const handle = delayRender('onPaint');
+			let handle: number | null = delayRender('onPaint');
+			const releaseDraw = () => {
+				if (handle !== null) {
+					continueRender(handle);
+					handle = null;
+				}
+
+				pendingDrawReleases.current.delete(releaseDraw);
+			};
+
+			pendingDrawReleases.current.add(releaseDraw);
 			try {
 				const clearOutput = () => {
 					const context = outputCanvas.getContext('2d');
@@ -156,7 +174,6 @@ const HtmlInCanvasPresentationWithSupport = <
 				if (!prevImage && !nextImage) {
 					instance.clear();
 					clearOutput();
-					continueRender(handle);
 					return;
 				}
 
@@ -166,7 +183,6 @@ const HtmlInCanvasPresentationWithSupport = <
 				if (width === 0 || height === 0) {
 					instance.clear();
 					clearOutput();
-					continueRender(handle);
 					return;
 				}
 
@@ -190,12 +206,13 @@ const HtmlInCanvasPresentationWithSupport = <
 					height,
 					output: outputCanvas,
 				});
-				continueRender(handle);
 			} catch (error) {
-				cancelRender(error);
+				reportRenderError(error);
+			} finally {
+				releaseDraw();
 			}
 		},
-		[cancelRender, chainState, continueRender, delayRender, shaderCanvas],
+		[reportRenderError, chainState, continueRender, delayRender, shaderCanvas],
 	);
 
 	useLayoutEffect(() => {
