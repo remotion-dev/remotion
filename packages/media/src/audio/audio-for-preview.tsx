@@ -244,6 +244,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: {
 					audioContext,
+					isResuming: () =>
+						sharedAudioContext.getIsResumingAudioContext() !== null,
 					gainNode,
 					audioSyncAnchor,
 					scheduleAudioNode,

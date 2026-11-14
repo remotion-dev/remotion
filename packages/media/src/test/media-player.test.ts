@@ -39,6 +39,7 @@ const makeSharedAudioContext = (): SharedAudioContextForMediaPlayer => {
 			type: 'started',
 			scheduledTime: 0,
 		}),
+		isResuming: () => false,
 		unscheduleAudioNode: () => {},
 	};
 };
@@ -197,6 +198,7 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 			type: 'started',
 			scheduledTime: 0,
 		}),
+		isResuming: () => false,
 		unscheduleAudioNode: () => {},
 	};
 

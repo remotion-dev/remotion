@@ -117,6 +117,7 @@ test('same goes for audio', async () => {
 		sharedAudioContext: (() => {
 			const audioContext = new AudioContext();
 			return {
+				isResuming: () => false,
 				audioContext,
 				gainNode: audioContext.createGain(),
 				audioSyncAnchor: {value: 0},

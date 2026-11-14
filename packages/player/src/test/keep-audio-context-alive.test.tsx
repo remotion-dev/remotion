@@ -148,19 +148,8 @@ const playAndPause = async ({
 				await Promise.resolve();
 			});
 
-			const queuedFrames = [...animationFrames.values()];
-			if (queuedFrames.length === 0) {
-				throw new Error('Expected a queued animation frame');
-			}
-
-			animationFrames.clear();
-			await act(async () => {
-				for (const frame of queuedFrames) {
-					frame(performance.now());
-				}
-
-				await Promise.resolve();
-			});
+			// Buffer publication now cancels the frame immediately.
+			expect(animationFrames.size).toBe(0);
 
 			gainValues = [];
 			await act(async () => {
@@ -230,6 +219,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 	const rafs = new Map<number, FrameRequestCallback>();
 	const anchors: number[] = [];
 	let audio: ContextType<typeof Internals.SharedAudioContext> = null;
+	let publishBuffering: ((value: boolean) => void) | null = null;
 	let buffer: (() => {unblock: () => void}) | null = null;
 	const originalAudioContext = globalThis.AudioContext;
 	globalThis.AudioContext =
@@ -258,6 +248,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 		const shared = useContext(Internals.SharedAudioContext);
 		const frame = useCurrentFrame();
 		const {seek} = usePlayerMethods();
+		publishBuffering = useContext(Internals.SetTimelineContext).setBuffering;
 		buffer = useBufferState().delayPlayback;
 		audio = shared;
 		if (delayedCommit?.frame === frame) {
@@ -327,7 +318,10 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 			view.rerender(<Player ref={player} {...props} />);
 		},
 		startBuffering: () => buffer!(),
+		publishBuffering: (value: boolean) => publishBuffering!(value),
 		anchor: () => audio!.audioSyncAnchor.value,
+		subscribeAnchor: (callback: () => void) =>
+			audio!.audioSyncAnchorEmitter.subscribe(callback),
 		audioContext: () => audio!.audioContext,
 		setAudioContextState: (
 			state: AudioContextState | 'interrupted',
@@ -481,8 +475,8 @@ test('Keep-alive audio still corrects drift after buffering', () => {
 		act(() => harness.tick(700));
 		expect(harness.view.getByText('Frame 2')).toBeTruthy();
 		expect(harness.anchors).toHaveLength(1);
-		// Anchor when buffering ends, before the next frame advances.
-		expect(harness.anchor()).toBeCloseTo(0.66 - 1 / 30, 8);
+		// Recovery retains the 50 ms of active time, including half a frame.
+		expect(harness.anchor()).toBeCloseTo(0.66 - 0.05, 8);
 	} finally {
 		harness.dispose();
 	}
@@ -689,3 +683,242 @@ test.each([
 		}
 	},
 );
+
+// Repeated short waits must preserve the partial picture frame.
+test('buffering freezes the clock immediately and retains fractional elapsed time', () => {
+	const harness = renderClockedPlayer(true);
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(20));
+		let unblock = () => {};
+		act(() => {
+			unblock = harness.startBuffering().unblock;
+		});
+		act(() => harness.tick(30));
+		act(() => harness.setTime(120));
+		act(() => unblock());
+		act(() => harness.tick(134));
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each(['pause', 'refill'] as const)(
+	'buffer recovery does not unmute after an anchor listener publishes %s',
+	(recovery) => {
+		const harness = renderClockedPlayer(true);
+		let subscription: {remove: () => void} | null = null;
+		try {
+			act(() => harness.player.current!.play());
+			act(() => harness.tick(20));
+			let unblock = () => {};
+			let finishRefill = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			subscription = harness.subscribeAnchor(() => {
+				subscription?.remove();
+				if (recovery === 'pause') harness.player.current!.pause();
+				else {
+					harness.publishBuffering(true);
+					finishRefill = () => harness.publishBuffering(false);
+				}
+			});
+			gainValues = [];
+			act(() => harness.setTime(100));
+			act(() => unblock());
+			expect(gainValues).not.toContain(1);
+			if (recovery === 'refill') {
+				act(() => finishRefill());
+				expect(gainValues).toContain(1);
+			}
+		} finally {
+			subscription?.remove();
+			harness.dispose();
+		}
+	},
+);
+
+test('a duration update during buffering excludes the entire wait from the retained clock', () => {
+	const harness = renderClockedPlayer(true);
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(20));
+		let unblock = () => {};
+		act(() => {
+			unblock = harness.startBuffering().unblock;
+		});
+		act(() => {
+			harness.setTime(500);
+			harness.changeConfig({durationInFrames: 1001});
+		});
+		act(() => harness.setTime(1000));
+		act(() => unblock());
+		act(() => harness.tick(1014));
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each([0.5, 1, 2])(
+	'audio and picture recover at the same fractional position at %s×',
+	(playbackRate) => {
+		const harness = renderClockedPlayer(true);
+		try {
+			act(() => harness.changeConfig({fps: 10, playbackRate}));
+			act(() => harness.player.current!.play());
+			const waitAt = 90 / playbackRate;
+			act(() => harness.tick(waitAt));
+			let unblock = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			act(() => harness.setTime(1000));
+			act(() => unblock());
+			const continuousFrame =
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+				playbackRate *
+				10;
+			expect(continuousFrame).toBeCloseTo(0.9, 8);
+			act(() => harness.tick(1000 + 14 / playbackRate));
+			expect(harness.player.current!.getCurrentFrame()).toBe(1);
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+					playbackRate *
+					10,
+			).toBeCloseTo(1.04, 8);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([-2, -1, -0.5, 0.5, 1, 2])(
+	'audio recovery agrees with picture rounding at a 30fps boundary at %s×',
+	(playbackRate) => {
+		const harness = renderClockedPlayer(true);
+		try {
+			act(() => harness.changeConfig({playbackRate}));
+			act(() => harness.player.current!.seekTo(100));
+			act(() => harness.player.current!.play());
+			const waitAt = 500 / Math.abs(playbackRate);
+			act(() => harness.tick(waitAt));
+			let unblock = () => {};
+			act(() => {
+				unblock = harness.startBuffering().unblock;
+			});
+			const releasedAt = waitAt + 500;
+			act(() => harness.setTime(releasedAt));
+			act(() => unblock());
+			const continuousFrame = () =>
+				(harness.audioContext()!.currentTime - harness.anchor()) *
+				playbackRate *
+				30;
+			expect(continuousFrame()).toBeCloseTo(
+				100 + Math.sign(playbackRate) * 15,
+				8,
+			);
+			act(() => harness.tick(releasedAt + 34 / Math.abs(playbackRate)));
+			expect(harness.player.current!.getCurrentFrame()).toBe(
+				100 + Math.sign(playbackRate) * 16,
+			);
+			expect(continuousFrame()).toBeCloseTo(
+				100 + Math.sign(playbackRate) * 16.02,
+				8,
+			);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test('native resume remains responsive after an anchor listener starts buffering', async () => {
+	const harness = renderClockedPlayer(false);
+	let subscription: {remove: () => void} | null = null;
+	try {
+		act(() => harness.player.current!.play());
+		let startedBuffering = false;
+		subscription = harness.subscribeAnchor(() => {
+			subscription?.remove();
+			startedBuffering = true;
+			harness.publishBuffering(true);
+		});
+		await act(async () => {
+			harness.tick(20);
+			await Promise.resolve();
+		});
+		expect(startedBuffering).toBe(true);
+		act(() => harness.setTime(100));
+		act(() => harness.publishBuffering(false));
+		await act(async () => {
+			harness.tick(120);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(140));
+		act(() => harness.publishBuffering(true));
+		act(() => harness.setTime(1000));
+		act(() => harness.publishBuffering(false));
+		await act(async () => {
+			harness.tick(1020);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(1054));
+		expect(harness.player.current!.isPlaying()).toBe(true);
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+	} finally {
+		subscription?.remove();
+		harness.dispose();
+	}
+});
+
+test('a same-frame RAF anchor starts only one buffering wait', async () => {
+	const harness = renderClockedPlayer(true);
+	let subscription: {remove: () => void} | null = null;
+	try {
+		await act(async () => {
+			harness.player.current!.play();
+			harness.tick(1);
+			await Promise.resolve();
+		});
+		act(() => harness.tick(20));
+		fireEvent.click(
+			harness.view.getByRole('button', {name: 'Seek to current frame'}),
+		);
+		let unblock: (() => void) | null = null;
+		subscription = harness.subscribeAnchor(() => {
+			subscription?.remove();
+			harness.publishBuffering(true);
+			unblock = () => harness.publishBuffering(false);
+		});
+		// A same-frame seek is anchored by the regular RAF, without a frame commit.
+		act(() => harness.tick(30));
+		expect(unblock).not.toBeNull();
+		act(() => harness.setTime(100));
+		act(() => unblock!());
+		await act(async () => {
+			harness.tick(134);
+			await Promise.resolve();
+		});
+		expect(harness.player.current!.getCurrentFrame()).toBe(1);
+		act(() => harness.setTime(140));
+		act(() => {
+			harness.publishBuffering(true);
+			unblock = () => harness.publishBuffering(false);
+		});
+		act(() => harness.setTime(1000));
+		act(() => unblock!());
+		await act(async () => {
+			harness.tick(1034);
+			await Promise.resolve();
+		});
+		expect({
+			playing: harness.player.current!.isPlaying(),
+			frame: harness.player.current!.getCurrentFrame(),
+		}).toEqual({playing: true, frame: 2});
+	} finally {
+		subscription?.remove();
+		harness.dispose();
+	}
+});

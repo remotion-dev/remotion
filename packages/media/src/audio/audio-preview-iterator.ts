@@ -18,6 +18,7 @@ export type QueuedPeriod = {
 
 export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
+	getIsPlaying: () => boolean;
 	iterator: AsyncGenerator<AudioBufferSlice, void, unknown>;
 	scheduleChunk: (chunk: PreparedAudioChunk) => AudioBufferSourceNode | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
@@ -28,17 +29,24 @@ export const makeAudioIterator = ({
 	iterator,
 	scheduleChunk,
 	unscheduleAudioNode,
+	getIsPlaying,
 }: MakeAudioIteratorOptions) => {
 	Internals.playbackDiagnostics.audioIteratorsCreated++;
 	let destroyed = false;
 	const queuedAudioNodes = new Map<AudioBufferSourceNode, PreparedAudioChunk>();
+	const preparedStarts = new WeakMap<PreparedAudioChunk, number>();
+	let preparedUntil = startFromSecond;
 	// Seek deduplication needs the scheduling history, including ended audio and
 	// silent gaps. Keep its bounds without retaining the historical nodes.
 	let queuedFrom = Infinity;
 	let queuedUntil = -Infinity;
 	const onEnded = (event: Event) => {
 		const node = event.currentTarget as AudioBufferSourceNode;
-		queuedAudioNodes.delete(node);
+		// Keep prepared PCM while the timeline is paused but the audio clock runs.
+		if (getIsPlaying()) {
+			queuedAudioNodes.delete(node);
+		}
+
 		node.disconnect();
 	};
 
@@ -69,10 +77,19 @@ export const makeAudioIterator = ({
 
 	const scheduleAudio = (chunk: PreparedAudioChunk) => {
 		if (destroyed) return;
+		// Consecutive decoder output also proves the intervening source silence.
+		if (!preparedStarts.has(chunk)) {
+			preparedStarts.set(chunk, Math.min(preparedUntil, chunk.timestamp));
+			preparedUntil = Math.max(
+				preparedUntil,
+				chunk.timestamp + chunk.sourceDurationInSeconds,
+			);
+		}
+
 		waitingForFirstChunk = false;
 		const node = scheduleChunk(chunk);
 		if (!node) return;
-		queuedFrom = Math.min(queuedFrom, chunk.timestamp);
+		queuedFrom = Math.min(queuedFrom, preparedStarts.get(chunk)!);
 		queuedUntil = Math.max(
 			queuedUntil,
 			chunk.timestamp + chunk.sourceDurationInSeconds,
@@ -113,7 +130,9 @@ export const makeAudioIterator = ({
 		// Keep the decoder and its in-flight read. WebAudio nodes are one-shot,
 		// so replace only their scheduling after the shared clock moves.
 		rescheduleAudio: (time: number) => {
-			const queued = [...queuedAudioNodes.values()];
+			const queued = [...queuedAudioNodes.values()].filter(
+				(chunk) => chunk.timestamp + chunk.sourceDurationInSeconds > time,
+			);
 			const canKeepPendingRead =
 				waitingForFirstChunk && time === startFromSecond;
 			if (
@@ -121,7 +140,7 @@ export const makeAudioIterator = ({
 				(!canKeepPendingRead &&
 					!queued.some(
 						(item) =>
-							time >= item.timestamp &&
+							time >= preparedStarts.get(item)! &&
 							time < item.timestamp + item.sourceDurationInSeconds,
 					))
 			) {

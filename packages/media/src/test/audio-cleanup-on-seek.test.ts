@@ -38,6 +38,7 @@ test('destroy stops started nodes and unschedules pending nodes after an audio a
 	const pendingStop = vi.spyOn(pending, 'stop');
 	const unschedule = vi.fn((node: AudioBufferSourceNode) => node === pending);
 	const iterator = makeAudioIterator({
+		getIsPlaying: () => true,
 		startFromSecond: 0,
 		iterator: makeEmptySource(),
 		unscheduleAudioNode: unschedule,
@@ -63,6 +64,7 @@ test('ended audio buffers are collectible while the iterator keeps its schedulin
 		const nodes: WeakRef<AudioBufferSourceNode>[] = [];
 		let ended = 0;
 		const iterator = makeAudioIterator({
+			getIsPlaying: () => true,
 			startFromSecond: 0,
 			iterator: makeEmptySource(),
 			unscheduleAudioNode: () => {},
@@ -115,6 +117,7 @@ test('destroy removes the ended listener even when a pending node never starts',
 		const node = context.createBufferSource();
 		const source = makeEmptySource();
 		const iterator = makeAudioIterator({
+			getIsPlaying: () => true,
 			startFromSecond: 0,
 			iterator: source,
 			unscheduleAudioNode: () => true,
@@ -143,6 +146,7 @@ test('re-anchoring preserves audio samples and offsets without double playback',
 	for (let i = 0; i < samples.length; i++) samples[i] = i / 48000;
 	let targetTime = 0.1;
 	const iterator = makeAudioIterator({
+		getIsPlaying: () => true,
 		startFromSecond: 0.5,
 		iterator: makeEmptySource(),
 		unscheduleAudioNode: () => false,
@@ -207,6 +211,7 @@ test('re-anchoring keeps a pending read and disposal returns its generator', asy
 
 	const stops: ReturnType<typeof vi.spyOn>[] = [];
 	const iterator = makeAudioIterator({
+		getIsPlaying: () => true,
 		startFromSecond: 0,
 		iterator: source(),
 		unscheduleAudioNode: () => false,
@@ -236,6 +241,40 @@ test('re-anchoring keeps a pending read and disposal returns its generator', asy
 		expect(iterator.rescheduleAudio(0)).toBe(false);
 	} finally {
 		release();
+		iterator.destroy();
+	}
+});
+
+// A running keep-alive clock can finish PCM while pictures are frozen.
+test('paused audio retains ended PCM and known silence for repeated anchor recovery', () => {
+	const context = new OfflineAudioContext(1, 4800, 48000);
+	let playing = false;
+	const nodes: AudioBufferSourceNode[] = [];
+	const iterator = makeAudioIterator({
+		getIsPlaying: () => playing,
+		startFromSecond: 0,
+		iterator: makeEmptySource(),
+		unscheduleAudioNode: () => true,
+		scheduleChunk: (chunk) => {
+			const node = context.createBufferSource();
+			node.buffer = chunk.buffer;
+			nodes.push(node);
+			return node;
+		},
+	});
+	try {
+		iterator.scheduleAudio(makeChunk(context, 0, 0.1));
+		iterator.scheduleAudio(makeChunk(context, 0.5, 0.1));
+		for (const node of [...nodes]) node.dispatchEvent(new Event('ended'));
+		for (let i = 0; i < 3; i++) expect(iterator.rescheduleAudio(0)).toBe(true);
+		expect(iterator.rescheduleAudio(0.3)).toBe(true);
+		expect(iterator.getQueuedPeriod()?.from).toBeCloseTo(0.1);
+		// Known silence must not make already expired PCM reusable.
+		expect(iterator.rescheduleAudio(0)).toBe(false);
+		playing = true;
+		nodes.at(-1)!.dispatchEvent(new Event('ended'));
+		expect(iterator.rescheduleAudio(0.3)).toBe(false);
+	} finally {
 		iterator.destroy();
 	}
 });

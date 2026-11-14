@@ -284,7 +284,8 @@ export const audioIteratorManager = ({
 				// Always finish the initial prebuffer, even for future or very slow clips.
 				// Bound further paused decoding by prepared media, not a future start time.
 				const preparedDuration = guessedNextTimestamp - startFromSecond;
-				if (getIsPlaying()) {
+				// Native resume can leave the timeline frozen while the audio clock runs.
+				if (getIsPlaying() && !sharedAudioContext.isResuming()) {
 					return scheduledTime - getAudioContextCurrentTimeMockedInTest();
 				}
 
@@ -310,16 +311,16 @@ export const audioIteratorManager = ({
 					return;
 				}
 
+				onAudioChunk({
+					buffer: result.value,
+					iterator,
+				});
+				// Unblocking can synchronously reanchor audio; retain this chunk first.
 				onScheduled(
 					result.value.sourceDurationInSeconds,
 					result.value.timelineTimestamp,
 				);
 				notifyNodeScheduled();
-
-				onAudioChunk({
-					buffer: result.value,
-					iterator,
-				});
 				proceedScheduling({
 					iterator,
 					nonce,
@@ -436,6 +437,8 @@ export const audioIteratorManager = ({
 			startFromSecond,
 			iterator: source,
 			unscheduleAudioNode,
+			// Resume can finish old nodes before the timeline reanchors.
+			getIsPlaying: () => getIsPlaying() && !sharedAudioContext.isResuming(),
 			scheduleChunk: (chunk: PreparedAudioChunk) => {
 				if (muted) return null;
 				const node = sharedAudioContext.audioContext.createBufferSource();

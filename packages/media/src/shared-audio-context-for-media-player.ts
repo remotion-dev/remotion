@@ -2,6 +2,7 @@ import type {ScheduleAudioNodeOptions, ScheduleAudioNodeResult} from 'remotion';
 
 export type SharedAudioContextForMediaPlayer = {
 	audioContext: AudioContext;
+	isResuming: () => boolean;
 	gainNode: GainNode;
 	audioSyncAnchor: {value: number};
 	scheduleAudioNode: (
