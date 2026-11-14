@@ -59,7 +59,7 @@ test('Should throw on invalid artifact', async () => {
 	try {
 		await getAssetsForMarkup(Markup, basicConfig);
 	} catch (err) {
-		expect(err).toMatch(/The "filename" must match/);
+		expect((err as Error).message).toMatch(/The `filename` must match/);
 	}
 });
 
@@ -71,7 +71,7 @@ test('Should throw on when missing content', async () => {
 			<div>
 				{frame === 1 ? (
 					<Artifact
-						filename="backslash\\hithere.com"
+						filename="hithere.com"
 						// @ts-expect-error
 						content={undefined}
 					></Artifact>

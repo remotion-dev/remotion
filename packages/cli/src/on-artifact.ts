@@ -1,4 +1,10 @@
-import {existsSync, mkdirSync, writeFileSync} from 'fs';
+import {
+	existsSync,
+	lstatSync,
+	mkdirSync,
+	realpathSync,
+	writeFileSync,
+} from 'fs';
 import path from 'path';
 import type {OnArtifact} from '@remotion/renderer';
 import type {ArtifactProgress} from '@remotion/studio-shared';
@@ -24,10 +30,52 @@ export const handleOnArtifact = ({
 		);
 		const defaultOutName = path.join(process.cwd(), relativeOutputDestination);
 
+		const outputDirectory = path.join(process.cwd(), 'out', compositionId);
+		const relativeToOutputDirectory = path.relative(
+			outputDirectory,
+			defaultOutName,
+		);
+		if (
+			relativeToOutputDirectory === '..' ||
+			relativeToOutputDirectory.startsWith(`..${path.sep}`) ||
+			path.isAbsolute(relativeToOutputDirectory)
+		) {
+			throw new Error(
+				`The artifact filename "${artifact.filename}" points outside of the output directory.`,
+			);
+		}
+
 		if (!existsSync(path.dirname(defaultOutName))) {
 			mkdirSync(path.dirname(defaultOutName), {
 				recursive: true,
 			});
+		}
+
+		if (
+			existsSync(defaultOutName) &&
+			lstatSync(defaultOutName).isSymbolicLink()
+		) {
+			throw new Error(
+				`The artifact filename "${artifact.filename}" points at a symbolic link.`,
+			);
+		}
+
+		const resolvedOutputDirectory = realpathSync(outputDirectory);
+		const resolvedDestinationDirectory = realpathSync(
+			path.dirname(defaultOutName),
+		);
+		const relativeResolvedDestination = path.relative(
+			resolvedOutputDirectory,
+			resolvedDestinationDirectory,
+		);
+		if (
+			relativeResolvedDestination === '..' ||
+			relativeResolvedDestination.startsWith(`..${path.sep}`) ||
+			path.isAbsolute(relativeResolvedDestination)
+		) {
+			throw new Error(
+				`The artifact filename "${artifact.filename}" resolves outside of the output directory.`,
+			);
 		}
 
 		const alreadyExisted = existsSync(defaultOutName);
