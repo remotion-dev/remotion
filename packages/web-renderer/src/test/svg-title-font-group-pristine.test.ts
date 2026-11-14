@@ -14,12 +14,18 @@ for (const preferredTitle of ['A', 'B'] as const) {
 		'title-only',
 		'no-operation',
 		'unsupported-feature',
+		'unsupported-feature-no-operation',
 		'ambiguous',
 	] as const)(
 		'preserves pristine original fonts for ' +
 			preferredTitle +
 			' complete groups: %s',
 		async (mode, t) => {
+			const noOperation =
+				mode === 'no-operation' || mode === 'unsupported-feature-no-operation';
+			const unsupportedFeature =
+				mode === 'unsupported-feature' ||
+				mode === 'unsupported-feature-no-operation';
 			const failure = createFontFailureRecorder(t);
 			const urls = await svgUseFontData;
 			const frame = document.createElement('iframe');
@@ -118,7 +124,7 @@ for (const preferredTitle of ['A', 'B'] as const) {
 				'</style><text x="20" y="75" style="font-family:' +
 				sampleFamilies +
 				';font-size:36px;' +
-				(mode === 'unsupported-feature'
+				(unsupportedFeature
 					? 'font-feature-settings:&quot;liga&quot; 0;'
 					: '') +
 				'">Review 123 AV fi</text>' +
@@ -273,27 +279,26 @@ for (const preferredTitle of ['A', 'B'] as const) {
 					for (const type of ['loading', 'loadingdone', 'loadingerror'])
 						set.addEventListener(type, onEvent);
 				eventPhase = 'operation';
-				const result =
-					mode === 'no-operation'
-						? {matches: [], reason: 'No operation control.'}
-						: fingerprintCssFontGroups(
-								ownerDocument,
-								sampleTexts.map((text) => ({
-									text: text.textContent!,
-									style: ownerWindow.getComputedStyle(text),
-									lang: 'en',
-								})),
-								[
-									{
-										name: 'A',
-										rules: groupRules(styles[0].sheet!),
-									},
-									{
-										name: 'B',
-										rules: groupRules(styles[1].sheet!),
-									},
-								],
-							);
+				const result = noOperation
+					? {matches: [], reason: 'No operation control.'}
+					: fingerprintCssFontGroups(
+							ownerDocument,
+							sampleTexts.map((text) => ({
+								text: text.textContent!,
+								style: ownerWindow.getComputedStyle(text),
+								lang: 'en',
+							})),
+							[
+								{
+									name: 'A',
+									rules: groupRules(styles[0].sheet!),
+								},
+								{
+									name: 'B',
+									rules: groupRules(styles[1].sheet!),
+								},
+							],
+						);
 				const immediate = capture();
 				eventPhase = 'settling';
 				for (let index = 0; index < 2; index++)
@@ -352,7 +357,7 @@ for (const preferredTitle of ['A', 'B'] as const) {
 						Array.from(style.sheet!.cssRules, (rule) => rule.cssText),
 					),
 				).toEqual(beforeRules);
-				if (mode === 'no-operation')
+				if (noOperation)
 					expect(result).toEqual({
 						matches: [],
 						reason: 'No operation control.',
