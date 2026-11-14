@@ -12,6 +12,9 @@ test.for([
 	'disabled',
 	'iframe',
 	'link',
+	'cdata',
+	'titled',
+	'titled-cdata',
 ])('retains CSS font source and text selection from $0', async (mode) => {
 	const url = new URL('../../../example/public/bangers.woff2', import.meta.url)
 		.href;
@@ -22,7 +25,12 @@ test.for([
 		reader.onerror = () => reject(reader.error);
 		reader.readAsDataURL(blob);
 	});
-	const iframe = mode === 'iframe' ? document.createElement('iframe') : null;
+	const cdata = mode.includes('cdata');
+	const linked = mode === 'link' || cdata;
+	const iframe =
+		mode === 'iframe' || mode.startsWith('titled')
+			? document.createElement('iframe')
+			: null;
 	if (iframe) document.body.appendChild(iframe);
 	const owner = iframe?.contentDocument ?? document;
 	const ownerWindow = owner.defaultView! as Window & typeof globalThis;
@@ -57,15 +65,12 @@ test.for([
 		const svg = owner.createElementNS('http://www.w3.org/2000/svg', 'svg');
 		svg.setAttribute('width', '300');
 		svg.setAttribute('height', '70');
-		const text =
-			mode === 'link'
-				? '<text x="8" y="48"><a class="font-review-label">Linked font</a></text>'
-				: '<text x="8" y="48" class="font-review-label">Adopted font</text>';
+		const text = linked
+			? '<text x="8" y="48"><a class="font-review-label">Linked font</a></text>'
+			: '<text x="8" y="48" class="font-review-label">Adopted font</text>';
 		svg.innerHTML = '<rect width="300" height="70" fill="white"/>' + text;
 		if (literal) {
-			const label = svg.querySelector<SVGElement>(
-				mode === 'link' ? 'a' : 'text',
-			)!;
+			const label = svg.querySelector<SVGElement>(linked ? 'a' : 'text')!;
 			label.removeAttribute('class');
 			label.style.fontFamily = fallback ? 'serif' : '"SVG review literal"';
 			label.style.fontSize = '34px';
@@ -79,10 +84,33 @@ test.for([
 			}
 		}
 
-		if (!literal && mode !== 'link') {
+		if (!literal && !linked) {
 			const label = svg.querySelector<SVGElement>('text')!;
 			label.style.fontFamily = JSON.stringify(family);
 			label.style.fontSize = '34px';
+		}
+
+		if (cdata) {
+			const label = svg.querySelector('a')!;
+			const xml = new ownerWindow.DOMParser().parseFromString(
+				'<svg xmlns="http://www.w3.org/2000/svg"><text><![CDATA[Linked font]]></text></svg>',
+				'image/svg+xml',
+			);
+			label.replaceChildren(
+				owner.importNode(xml.querySelector('text')!.firstChild!, true),
+			);
+			expect(label.firstChild!.nodeType).toBe(Node.CDATA_SECTION_NODE);
+		}
+		if (!literal && mode.startsWith('titled')) {
+			for (const title of ['a', 'b']) {
+				const carrier = owner.createElementNS(
+					'http://www.w3.org/2000/svg',
+					'style',
+				);
+				carrier.setAttribute('title', title);
+				carrier.textContent = '/* Preferred stylesheet carrier. */';
+				svg.append(carrier);
+			}
 		}
 
 		owner.body.appendChild(svg);
