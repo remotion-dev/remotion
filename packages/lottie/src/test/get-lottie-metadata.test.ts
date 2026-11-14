@@ -21,3 +21,15 @@ test('Should return null if invalid Lottie file', () => {
 	// @ts-expect-error
 	expect(getLottieMetadata({})).toEqual(null);
 });
+
+test('Should not count the frames before the in point', () => {
+	expect(
+		getLottieMetadata({fr: 30, ip: 30, op: 120, w: 1920, h: 1080}),
+	).toEqual({
+		durationInFrames: 90,
+		durationInSeconds: 3,
+		fps: 30,
+		height: 1080,
+		width: 1920,
+	});
+});
