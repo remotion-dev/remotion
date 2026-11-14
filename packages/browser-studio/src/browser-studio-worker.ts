@@ -475,7 +475,7 @@ const updateProject = (
 	request: Exclude<BrowserStudioWorkerCompileRequest, {type: 'init'}>,
 ) => {
 	if (!compilerSession) {
-		throw new Error('Cannot update Browser Studio before initializing it');
+		throw new Error('Cannot update remotion.new before initializing it');
 	}
 
 	if (request.type === 'update-project') {

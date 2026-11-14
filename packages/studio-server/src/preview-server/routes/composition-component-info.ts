@@ -17,7 +17,7 @@ export const compositionComponentInfoHandler: ApiHandler<
 		throw new TypeError('Need to pass compositionId');
 	}
 
-	const location = await resolveCompositionComponent({
+	const location = resolveCompositionComponent({
 		remotionRoot,
 		compositionFile,
 		compositionId,

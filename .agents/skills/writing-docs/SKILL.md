@@ -43,6 +43,7 @@ crumb: '@remotion/my-package'
 - **Keep it brief**: Developers don't like to read. Extra words cause information loss.
 - **Link to terminology**: Use [terminology](/docs/terminology) page for Remotion-specific terms.
 - **Do not bold terms**: Write terms as plain text, code spans, or links as appropriate. Do not use bold formatting to introduce a term.
+- **Use sentence case**: Page titles, headings and option names capitalize only the first word, as in "Audio codec", not "Audio Codec". Proper nouns and product names keep their capitalization, as in "Enable Lambda Insights" or "Override FPS".
 - **Avoid emotions**: Remove filler like "Great! Let's move on..." - it adds no information.
 - **Separate into paragraphs**: Break up long sections.
 - **Don't blame the user**: Say "The input is invalid" not "You provided wrong input".

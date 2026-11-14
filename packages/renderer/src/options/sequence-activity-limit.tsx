@@ -5,7 +5,7 @@ let configuredLimit: number | null = null;
 const cliFlag = 'sequence-activity-limit' as const;
 
 export const sequenceActivityLimitOption = {
-	name: 'Sequence Activity limit',
+	name: 'Sequence activity limit',
 	addedIn: '4.0.536',
 	cliFlag,
 	id: cliFlag,

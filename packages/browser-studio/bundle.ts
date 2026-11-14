@@ -38,7 +38,7 @@ const vendorEntryOutput = vendorOutput.outputs.find(
 	(file) => path.basename(file.path) === 'browser-studio-vendor-entry.mjs',
 );
 if (!vendorEntryOutput) {
-	throw new Error('Browser Studio vendor entry was not generated');
+	throw new Error('remotion.new vendor entry was not generated');
 }
 const transformersOutput = await build({
 	entrypoints: ['src/browser-studio-transformers-entry.ts'],
@@ -105,7 +105,7 @@ for (const file of [
 		(str.includes('onnxruntime-web') || str.includes('transformers.web.js'))
 	) {
 		throw new Error(
-			'The Browser Studio bootstrap must not bundle Transformers.js. Keep it in the lazy Transformers entry.',
+			'The remotion.new bootstrap must not bundle Transformers.js. Keep it in the lazy Transformers entry.',
 		);
 	}
 
@@ -114,7 +114,7 @@ for (const file of [
 		externalVersionSensitiveImport.test(str)
 	) {
 		throw new Error(
-			'Browser Studio must bundle version-sensitive workspace packages into its vendor entry so it cannot link against an incompatible published version.',
+			'remotion.new must bundle version-sensitive workspace packages into its vendor entry so it cannot link against an incompatible published version.',
 		);
 	}
 

@@ -36,6 +36,10 @@ The component must return supported JSX. Dynamic component expressions and unres
 
 An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
 
+### environment?<AvailableFrom v="4.0.544" />
+
+A [file-backed source environment](/docs/codemods#file-backed-sources), used instead of `project`. It follows imports by reading files synchronously on demand.
+
 ### compositionFile
 
 The file registering the composition.
@@ -46,7 +50,7 @@ The static ID of the composition to resolve.
 
 ## Return value
 
-Returns an object with the following properties.
+Returns an object with the following properties for both source modes.
 
 ### filePath
 

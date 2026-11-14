@@ -133,5 +133,5 @@ const html = `<!DOCTYPE html>
 await Bun.write(path.join(import.meta.dir, 'build', 'new', 'index.html'), html);
 
 process.stdout.write(
-	`Built standalone Browser Studio at /new with ${output.outputs.length + 5} assets.\n`,
+	`Built standalone remotion.new at /new with ${output.outputs.length + 5} assets.\n`,
 );

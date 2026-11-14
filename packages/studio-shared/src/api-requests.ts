@@ -754,7 +754,7 @@ export type ReorderEffectRequest = {
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
-	fromIndex: number;
+	fromIndices: readonly number[];
 	toIndex: number;
 	clientId: string;
 };
@@ -1717,7 +1717,7 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
-// When adding a route, also update the Browser Studio parity checklist:
+// When adding a route, also update the remotion.new parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export const studioOperations = {
 	'/api/shared-memory-capture-support': new StudioOperation<
