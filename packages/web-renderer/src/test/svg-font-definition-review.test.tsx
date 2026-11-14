@@ -85,7 +85,8 @@ test.for(
 				.spyOn(XMLSerializer.prototype, 'serializeToString')
 				.mockImplementation(function (this: XMLSerializer, node) {
 					const markup = serialize.call(this, node);
-					if (mode === 'filter-image') serialized.push(markup);
+					if (mode === 'filter-image' || mode === 'root-mask')
+						serialized.push(markup);
 					return markup;
 				});
 			try {
@@ -129,9 +130,42 @@ test.for(
 					);
 				}
 
+				if (mode === 'root-mask') {
+					const rootMaskEvidence = `src/test/__screenshots__/native-pixel-failures/${server.browser}/svg-root-mask-${frame}`;
+					for (const [name, blob] of [
+						['native', reference],
+						['native-control', nativeControl],
+						['renderer-url', actual],
+						['renderer-data', expected],
+					] as const) {
+						let binary = '';
+						for (const byte of new Uint8Array(await blob.arrayBuffer()))
+							binary += String.fromCharCode(byte);
+						await server.commands.writeFile(
+							`${rootMaskEvidence}/${name}.png`,
+							btoa(binary),
+							'base64',
+						);
+					}
+
+					await server.commands.writeFile(
+						`${rootMaskEvidence}/serialized-svg.json`,
+						JSON.stringify({
+							mode,
+							frame,
+							actualSvg,
+							expectedSvg: serialized.at(-1) ?? null,
+						}),
+					);
+				}
+
 				expect(nativeComparison.mismatchedPixels).toBe(0);
 				expect(comparison.mismatchedPixels).toBe(0);
-				if (!used || t.task.file.projectName === 'chromium')
+				if (
+					!used ||
+					t.task.file.projectName === 'chromium' ||
+					mode === 'root-mask'
+				)
 					expect(
 						(await compareNativePixels(reference, actual)).mismatchedPixels,
 					).toBe(0);
@@ -140,7 +174,7 @@ test.for(
 			}
 		} catch (error) {
 			if (mode === 'root-mask') {
-				const evidence = `src/test/__screenshots__/native-pixel-failures/${server.browser}/svg-root-mask-${frame}-${crypto.randomUUID()}`;
+				const evidence = `src/test/__screenshots__/native-pixel-failures/${server.browser}/svg-root-mask-${frame}`;
 				for (const [name, blob] of [
 					['native', reference],
 					['native-control', nativeControl],
