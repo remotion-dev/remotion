@@ -138,6 +138,41 @@ test.each([false, true])(
 			}
 
 			expect(waiting, JSON.stringify(waitingEvents)).toBe(0);
+		} catch (error) {
+			if (waiting === 0 || !playerRef.current) throw error;
+			const resizeWaiting = [...waitingEvents];
+			const control: {events: typeof waitingEvents; error: string | null} = {
+				events: [],
+				error: null,
+			};
+			try {
+				phase = 'stable-size control startup';
+				const beforeControl = frames.length;
+				flushSync(() => {
+					playerRef.current!.pause();
+					playerRef.current!.seekTo(0);
+				});
+				render({width: 256});
+				await waitFor(() => frames.length > beforeControl);
+				const warmup = frames.length;
+				playerRef.current!.play();
+				await waitFor(() => frames.length >= warmup + 10);
+				waitingEvents.length = 0;
+				phase = 'stable-size control';
+				await waitFor(() => playerRef.current!.getCurrentFrame() >= 45);
+				control.events = [...waitingEvents];
+			} catch (controlError) {
+				control.error =
+					controlError instanceof Error
+						? controlError.message
+						: String(controlError);
+			}
+
+			if (error instanceof Error) {
+				error.message += `\nResize failure and stable-size control: ${JSON.stringify({isStudio, resizeWaiting, control})}`;
+			}
+
+			throw error;
 		} finally {
 			root.unmount();
 			dispose.mockRestore();
