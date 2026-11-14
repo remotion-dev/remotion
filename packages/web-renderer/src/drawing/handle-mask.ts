@@ -2,8 +2,8 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
 import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
 import {createCssMask} from './css-mask';
+import {getLinearGradientFill} from './get-linear-gradient-fill';
 import type {MaskImageInfo} from './mask-image';
-import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 import {createSvgClipMask} from './svg-clip-mask';
 
@@ -64,22 +64,39 @@ export const handleMask = async ({
 	);
 
 	if (maskImageInfo.type === 'linear-gradient') {
-		const gradient = createCanvasGradient({
-			ctx: tempContext,
-			rect: rectToFill,
-			gradientInfo: maskImageInfo.gradientInfo,
-			offsetLeft: 0,
-			offsetTop: 0,
-		});
-
-		tempContext.globalCompositeOperation = 'destination-in';
-		tempContext.fillStyle = gradient;
-		tempContext.fillRect(
-			rectToFill.left,
-			rectToFill.top,
-			rectToFill.width,
-			rectToFill.height,
+		// Resolve stops and geometry in CSS pixels, keeping the export transform
+		// active through painting so fractional hard edges match native masks.
+		const cssRect = new DOMRect(
+			rectToFill.left / scale,
+			rectToFill.top / scale,
+			rectToFill.width / scale,
+			rectToFill.height / scale,
 		);
+		tempContext.save();
+		try {
+			tempContext.scale(scale, scale);
+			const fill = getLinearGradientFill({
+				contextToDraw: tempContext,
+				rect: cssRect,
+				gradientInfo: maskImageInfo.gradientInfo,
+				offsetLeft: 0,
+				offsetTop: 0,
+				internalState,
+			});
+			if (!fill) throw new Error('Could not create linear mask fill');
+
+			tempContext.globalCompositeOperation = 'destination-in';
+			tempContext.fillStyle = fill;
+			tempContext.fillRect(
+				cssRect.left,
+				cssRect.top,
+				cssRect.width,
+				cssRect.height,
+			);
+		} finally {
+			tempContext.restore();
+		}
+
 		return;
 	}
 

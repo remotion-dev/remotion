@@ -37,6 +37,9 @@ export const makeInternalState = ({
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
 	};
+	const canvasContextState: {willReadFrequently: boolean | null} = {
+		willReadFrequently: null,
+	};
 	const rasterImageLoaderState = makeRasterImageLoaderState({
 		signal,
 		timeoutInMilliseconds: maskImageTimeoutInMilliseconds,
@@ -56,6 +59,7 @@ export const makeInternalState = ({
 			precomposedTextures++;
 		},
 		helperCanvasState,
+		canvasContextState,
 		rasterImageLoaderState,
 		[Symbol.dispose]: () => {
 			if (helperCanvasState.current) {

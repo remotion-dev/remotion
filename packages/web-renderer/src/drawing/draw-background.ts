@@ -163,7 +163,8 @@ export const drawBackground = async ({
 			return;
 		}
 
-		const previous = target.fillStyle;
+		target.save();
+		using _restoreFill = {[Symbol.dispose]: () => target.restore()};
 		target.fillStyle = fill;
 		target.fillRect(
 			boundingRect.left - originX,
@@ -171,7 +172,6 @@ export const drawBackground = async ({
 			boundingRect.width,
 			boundingRect.height,
 		);
-		target.fillStyle = previous;
 	};
 
 	const blendMode = getBlendMode(computedStyle.backgroundBlendMode);
@@ -188,6 +188,12 @@ export const drawBackground = async ({
 			Math.ceil(boundingRect.width * scale),
 			Math.ceil(boundingRect.height * scale),
 		);
+		using _backgroundCanvas = {
+			[Symbol.dispose]: () => {
+				backgroundCanvas.width = 0;
+				backgroundCanvas.height = 0;
+			},
+		};
 		const backgroundContext = backgroundCanvas.getContext('2d');
 		if (!backgroundContext)
 			throw new Error('Could not create background compositing context');
@@ -213,13 +219,38 @@ export const drawBackground = async ({
 			boundingRect.left,
 			boundingRect.top,
 		);
-		contextToDraw.drawImage(
-			backgroundCanvas,
-			boundingRect.left - offsetLeft,
-			boundingRect.top - offsetTop,
-			backgroundCanvas.width / scale,
-			backgroundCanvas.height / scale,
+		if (blendMode) {
+			contextToDraw.drawImage(
+				backgroundCanvas,
+				boundingRect.left - offsetLeft,
+				boundingRect.top - offsetTop,
+				backgroundCanvas.width / scale,
+				backgroundCanvas.height / scale,
+			);
+			return;
+		}
+
+		const pattern = contextToDraw.createPattern(backgroundCanvas, 'no-repeat');
+		if (!pattern)
+			throw new Error('Could not create background compositing pattern');
+		pattern.setTransform(
+			new DOMMatrix()
+				.translate(boundingRect.left - offsetLeft, boundingRect.top - offsetTop)
+				.scale(1 / scale),
 		);
+		const previousFill = contextToDraw.fillStyle;
+		try {
+			contextToDraw.fillStyle = pattern;
+			contextToDraw.fillRect(
+				boundingRect.left - offsetLeft,
+				boundingRect.top - offsetTop,
+				backgroundCanvas.width / scale,
+				backgroundCanvas.height / scale,
+			);
+		} finally {
+			contextToDraw.fillStyle = previousFill;
+		}
+
 		return;
 	}
 

@@ -17,6 +17,7 @@ export interface ColorStop {
 export interface LinearGradientInfo {
 	angle: number; // Degrees, 0 = to top, 90 = to right, 180 = to bottom, 270 = to left
 	colorStops: ColorStop[];
+	colorStopsSource: string;
 }
 
 const parseDirection = (directionStr: string): number => {
@@ -134,132 +135,85 @@ const resolveTransparentStops = (stops: ColorStop[]): void => {
 	}
 };
 
-const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
-	// Split by comma, but respect parentheses in rgba(), rgb(), hsl(), hsla()
+const parseColorStops = (
+	colorStopsStr: string,
+	gradientLength: number | null,
+): ColorStop[] | null => {
 	const parts = colorStopsStr.split(/,(?![^(]*\))/);
-
-	const stops: ColorStop[] = [];
-
+	const stops: {color: string; position: number | null}[] = [];
 	for (const part of parts) {
 		const trimmed = part.trim();
 		if (!trimmed) continue;
-
-		// Extract color: can be rgb(), rgba(), hsl(), hsla(), hex, or named color
 		const colorMatch = trimmed.match(
 			/(rgba?\([^)]+\)|hsla?\([^)]+\)|#[0-9a-f]{3,8}|[a-z]+)/i,
 		);
-
-		if (!colorMatch) {
-			continue;
-		}
-
-		const colorStr = colorMatch[0];
-
-		// Validate that this is actually a valid CSS color
-		if (!isValidColor(colorStr)) {
-			continue;
-		}
-
+		if (!colorMatch || !isValidColor(colorMatch[0])) continue;
+		const color = colorMatch[0];
 		const remaining = trimmed
-			.substring(colorMatch.index! + colorStr.length)
+			.substring(colorMatch.index! + color.length)
 			.trim();
-
-		// Canvas API supports CSS colors directly, so we can use the color string as-is
-		const normalizedColor = colorStr;
-
-		// Parse position if provided
-		let position: number | null = null;
-		if (remaining) {
-			const posMatch = remaining.match(/(-?\d+\.?\d*)(%|px)?/);
-			if (posMatch) {
-				const value = parseFloat(posMatch[1]);
-				const unit = posMatch[2];
-
-				if (unit === '%') {
-					position = value / 100;
-				} else if (unit === 'px') {
-					// px values need element dimensions, which we don't have here
-					// We'll handle this as a percentage for now (not fully CSS-compliant but good enough)
-					position = null;
-				} else {
-					position = value / 100; // Assume percentage if no unit
-				}
-			}
+		// Computed CSS resolves supported length stops to pixels. Keep two-position
+		// stops distinct, and defer their conversion until the paint box is known.
+		const positions = remaining ? remaining.split(/\s+/) : [''];
+		const numeric = positions.every((position) =>
+			/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:%|px)?$/.test(position),
+		);
+		if (remaining && !numeric) {
+			const legacy = remaining.match(/(-?\d+\.?\d*)(%|px)?/);
+			stops.push({
+				color,
+				position: legacy && legacy[2] !== 'px' ? Number(legacy[1]) / 100 : null,
+			});
+			continue;
 		}
 
-		stops.push({
-			color: normalizedColor,
-			position: position !== null ? position : -1, // -1 means needs to be calculated
-		});
-	}
-
-	if (stops.length === 0) {
-		return null;
-	}
-
-	// Distribute positions evenly for stops that don't have explicit positions
-	let lastExplicitIndex = -1;
-	let lastExplicitPosition = 0;
-
-	for (let i = 0; i < stops.length; i++) {
-		if (stops[i].position !== -1) {
-			// Found an explicit position
-			if (lastExplicitIndex >= 0) {
-				// Interpolate between last explicit and current explicit
-				const numImplicit = i - lastExplicitIndex - 1;
-				if (numImplicit > 0) {
-					const step =
-						(stops[i].position - lastExplicitPosition) / (numImplicit + 1);
-					for (let j = lastExplicitIndex + 1; j < i; j++) {
-						stops[j].position =
-							lastExplicitPosition + step * (j - lastExplicitIndex);
-					}
-				}
-			} else {
-				// Backfill from start to first explicit
-				const numImplicit = i;
-				if (numImplicit > 0) {
-					const step = stops[i].position / (numImplicit + 1);
-					for (let j = 0; j < i; j++) {
-						stops[j].position = step * (j + 1);
-					}
-				}
-			}
-
-			lastExplicitIndex = i;
-			lastExplicitPosition = stops[i].position;
+		for (const position of numeric ? positions : ['']) {
+			const match = position.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+))(%|px)?$/);
+			const value = match ? Number(match[1]) : null;
+			stops.push({
+				color,
+				position:
+					value === null
+						? null
+						: match![2] === 'px'
+							? gradientLength
+								? value / gradientLength
+								: null
+							: value / 100,
+			});
 		}
 	}
 
-	// If no explicit positions were provided at all, distribute evenly
-	// Check this BEFORE handling trailing stops
-	if (stops.every((s) => s.position === -1)) {
-		if (stops.length === 1) {
-			stops[0].position = 0.5;
-		} else {
-			for (let i = 0; i < stops.length; i++) {
-				stops[i].position = i / (stops.length - 1);
-			}
-		}
-	} else if (lastExplicitIndex < stops.length - 1) {
-		const numImplicit = stops.length - 1 - lastExplicitIndex;
-		const step = (1 - lastExplicitPosition) / (numImplicit + 1);
-		for (let i = lastExplicitIndex + 1; i < stops.length; i++) {
-			stops[i].position = lastExplicitPosition + step * (i - lastExplicitIndex);
-		}
-	}
-
-	// Clamp positions to 0-1
+	if (stops.length === 0) return null;
+	if (stops[0].position === null) stops[0].position = 0;
+	if (stops[stops.length - 1].position === null)
+		stops[stops.length - 1].position = 1;
+	// CSS stop fixup clamps decreasing explicit positions before distributing
+	// unspecified runs. Explicit negative and outside stops remain meaningful.
+	let previous = -Infinity;
 	for (const stop of stops) {
-		stop.position = Math.max(0, Math.min(1, stop.position));
+		if (stop.position === null) continue;
+		stop.position = Math.max(previous, stop.position);
+		previous = stop.position;
 	}
 
-	// CSS Color Level 4: `transparent` should interpolate as the same hue
-	// with zero alpha, not as rgba(0,0,0,0). Replace `transparent` stops
-	// with the RGB of the nearest non-transparent neighbor at alpha 0.
-	resolveTransparentStops(stops);
+	for (let start = 0; start < stops.length - 1; ) {
+		let end = start + 1;
+		while (stops[end].position === null) end++;
+		const from = stops[start].position!;
+		const step = (stops[end].position! - from) / (end - start);
+		for (let i = start + 1; i < end; i++)
+			stops[i].position = from + step * (i - start);
+		start = end;
+	}
 
-	return stops;
+	const resolved = stops.map(({color, position}) => ({
+		color,
+		position:
+			gradientLength === null ? Math.max(0, Math.min(1, position!)) : position!,
+	}));
+	resolveTransparentStops(resolved);
+	return resolved;
 };
 
 const extractGradientContent = (backgroundImage: string): string | null => {
@@ -327,7 +281,7 @@ export const parseLinearGradient = (
 
 	// Parse color stops
 	const colorStopsStr = parts.slice(colorStopsStart).join(',');
-	const colorStops = parseColorStops(colorStopsStr);
+	const colorStops = parseColorStops(colorStopsStr, null);
 
 	if (!colorStops || colorStops.length === 0) {
 		return null;
@@ -336,6 +290,7 @@ export const parseLinearGradient = (
 	return {
 		angle,
 		colorStops,
+		colorStopsSource: colorStopsStr,
 	};
 };
 
@@ -351,7 +306,7 @@ export const createCanvasGradient = ({
 	gradientInfo: LinearGradientInfo;
 	offsetLeft: number;
 	offsetTop: number;
-}): CanvasGradient => {
+}): {gradient: CanvasGradient; hasInterpolation: boolean} => {
 	// Convert angle to radians
 	// CSS angles: 0deg = to top, 90deg = to right, 180deg = to bottom, 270deg = to left
 	// We need to calculate the gradient line that spans the rectangle at the given angle
@@ -378,17 +333,24 @@ export const createCanvasGradient = ({
 		length = Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
 	}
 
-	const x0 = centerX - cos * length;
-	const y0 = centerY - sin * length;
-	const x1 = centerX + cos * length;
-	const y1 = centerY + sin * length;
-
+	const stops = parseColorStops(gradientInfo.colorStopsSource, length * 2)!;
+	const first = Math.min(0, stops[0].position);
+	const last = Math.max(1, stops[stops.length - 1].position);
+	const x0 = centerX + cos * length * (first * 2 - 1);
+	const y0 = centerY + sin * length * (first * 2 - 1);
+	const x1 = centerX + cos * length * (last * 2 - 1);
+	const y1 = centerY + sin * length * (last * 2 - 1);
 	const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+	for (const stop of stops)
+		gradient.addColorStop((stop.position - first) / (last - first), stop.color);
 
-	// Add color stops
-	for (const stop of gradientInfo.colorStops) {
-		gradient.addColorStop(stop.position, stop.color);
-	}
-
-	return gradient;
+	return {
+		gradient,
+		hasInterpolation: stops.some(
+			(stop, index) =>
+				index > 0 &&
+				stop.position > stops[index - 1].position &&
+				stop.color !== stops[index - 1].color,
+		),
+	};
 };

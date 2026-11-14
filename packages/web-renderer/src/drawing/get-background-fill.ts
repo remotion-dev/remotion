@@ -1,10 +1,8 @@
 import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
+import {getLinearGradientFill} from './get-linear-gradient-fill';
 import {parseUrlFunction} from './mask-image';
-import {
-	createCanvasGradient,
-	parseLinearGradient,
-} from './parse-linear-gradient';
+import {parseLinearGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 
 export const isColorTransparent = (color: string) => {
@@ -231,15 +229,14 @@ export const getBackgroundFill = async ({
 				positioningArea: boundingRect,
 				intrinsicSize: null,
 			});
-			const gradient = createCanvasGradient({
-				ctx: contextToDraw,
+			return getLinearGradientFill({
+				contextToDraw,
 				rect: backgroundImageRect,
 				gradientInfo,
 				offsetLeft,
 				offsetTop,
+				internalState,
 			});
-
-			return gradient;
 		}
 	}
 
