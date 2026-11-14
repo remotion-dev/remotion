@@ -14,7 +14,7 @@ export const restartStudio = (): Promise<RestartStudioResponse> => {
 	}
 
 	if (getBrowserStudioOperations() !== null) {
-		throw new Error('restartStudio() is not supported in Browser Studio');
+		throw new Error('restartStudio() is not supported in remotion.new');
 	}
 
 	if (window.remotion_isReadOnlyStudio) {

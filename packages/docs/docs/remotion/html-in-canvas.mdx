@@ -52,7 +52,9 @@ From Remotion v4.0.534, the bundled server-side browser is Chromium 157.0.8080.0
 
 ## Premounting<AvailableFrom v="4.0.537" />
 
-To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, we from v4.0.537 default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds). We plan to lift this in the future when the Chromium fixes the bug.
+To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, from v4.0.537 we default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds).
+
+From v4.0.544, `<HtmlInCanvas>` inherits `defaultPremountInSeconds` when the browser's user agent reports Chromium 158.0.8127.2 or newer. If Chrome hides its build number as `158.0.0.0`, automatic premounting stays disabled; Chrome 159 and newer do not need the full build number.
 
 You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
 
