@@ -3,12 +3,19 @@ import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
 import {createCssMask} from './css-mask';
 import type {MaskImageInfo} from './mask-image';
-import {createCanvasGradient} from './parse-linear-gradient';
+import {
+	createCanvasGradient,
+	createRadialGradientFill,
+} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
-	const boundingRect = getBiggestBoundingClientRect(element);
+	const boundingRect = getBiggestBoundingClientRect(element, true, false, {
+		onlyOwnPlane: null,
+		experimental3DRendering: null,
+		includeCapturePadding: null,
+	});
 
 	return boundingRect;
 };
@@ -74,6 +81,36 @@ export const handleMask = async ({
 
 		tempContext.globalCompositeOperation = 'destination-in';
 		tempContext.fillStyle = gradient;
+		tempContext.fillRect(
+			rectToFill.left,
+			rectToFill.top,
+			rectToFill.width,
+			rectToFill.height,
+		);
+		return;
+	}
+
+	if (maskImageInfo.type === 'radial-gradient') {
+		const fill = createRadialGradientFill({
+			gradientInfo: maskImageInfo.gradientInfo,
+			experimental3DRendering: internalState.experimental3DRendering,
+			contextToDraw: tempContext,
+			rect: rectToFill,
+			offsetLeft: 0,
+			offsetTop: 0,
+		});
+		if (!fill) {
+			tempContext.clearRect(
+				0,
+				0,
+				tempContext.canvas.width,
+				tempContext.canvas.height,
+			);
+			return;
+		}
+
+		tempContext.globalCompositeOperation = 'destination-in';
+		tempContext.fillStyle = fill;
 		tempContext.fillRect(
 			rectToFill.left,
 			rectToFill.top,
@@ -203,7 +240,11 @@ export const handleSvgClip = async ({
 		precomposeRect,
 		// Descendant filters contribute to the native HTML clipping reference in
 		// Firefox. The clipped element's own filter and outline padding do not.
-		referenceRect: getBiggestBoundingClientRect(element, false, true),
+		referenceRect: getBiggestBoundingClientRect(element, false, true, {
+			onlyOwnPlane: null,
+			experimental3DRendering: null,
+			includeCapturePadding: null,
+		}),
 		width: tempContext.canvas.width,
 		height: tempContext.canvas.height,
 	});

@@ -3,7 +3,7 @@
 // > You're rotating around the X-axis by ~89.96°, which means the Y-axis gets compressed to ⁠cos(89.96°) ≈ 0.000691 of its original size in the viewport.
 const MAX_SCALE_FACTOR = 100;
 
-const isScaleTooBig = (matrix: DOMMatrix) => {
+export const isScaleTooBig = (matrix: DOMMatrix) => {
 	const origin = new DOMPoint(0, 0).matrixTransform(matrix);
 	const unitX = new DOMPoint(1, 0).matrixTransform(matrix);
 	const unitY = new DOMPoint(0, 1).matrixTransform(matrix);
@@ -24,6 +24,106 @@ const isScaleTooBig = (matrix: DOMMatrix) => {
 	}
 
 	return false;
+};
+
+// Clip the finite source plane against output viewport half-planes before
+// dividing by w. Inverting only the four viewport corners is unsafe when
+// the inverse viewport crosses the projective horizon.
+export const clipPolygonToHalfPlanes = <T extends Record<string, number>>(
+	polygon: T[],
+	distances: ((point: T) => number)[],
+) => {
+	for (const distance of distances) {
+		const input = polygon;
+		polygon = [];
+		for (let i = 0; i < input.length; i++) {
+			const a = input[i];
+			const b = input[(i + 1) % input.length];
+			const da = distance(a);
+			const db = distance(b);
+			if (da >= 0) polygon.push(a);
+			if (da >= 0 !== db >= 0) {
+				const t = da / (da - db);
+				polygon.push(
+					Object.fromEntries(
+						Object.keys(a).map((key) => [key, a[key] + t * (b[key] - a[key])]),
+					) as T,
+				);
+			}
+		}
+
+		if (!polygon.length) break;
+	}
+
+	return polygon;
+};
+
+const clippedSourcePolygon = (
+	rect: DOMRect,
+	matrix: DOMMatrix,
+	viewport: DOMRect,
+) => {
+	let polygon = [
+		{x: rect.left, y: rect.top},
+		{x: rect.right, y: rect.top},
+		{x: rect.right, y: rect.bottom},
+		{x: rect.left, y: rect.bottom},
+	];
+	const x = (p: {x: number; y: number}) =>
+		matrix.m11 * p.x + matrix.m21 * p.y + matrix.m41;
+	const y = (p: {x: number; y: number}) =>
+		matrix.m12 * p.x + matrix.m22 * p.y + matrix.m42;
+	const w = (p: {x: number; y: number}) =>
+		matrix.m14 * p.x + matrix.m24 * p.y + matrix.m44;
+	const distances: ((p: {x: number; y: number}) => number)[] = [
+		(p) => w(p) - 1e-7,
+		(p) => x(p) - viewport.left * w(p),
+		(p) => viewport.right * w(p) - x(p),
+		(p) => y(p) - viewport.top * w(p),
+		(p) => viewport.bottom * w(p) - y(p),
+	];
+	polygon = clipPolygonToHalfPlanes(polygon, distances);
+	if (!polygon.length) return null;
+	return polygon;
+};
+
+export const clipSourceRectToViewport = (
+	rect: DOMRect,
+	matrix: DOMMatrix,
+	viewport: DOMRect,
+) => {
+	const polygon = clippedSourcePolygon(rect, matrix, viewport);
+	if (!polygon) return null;
+	const xs = polygon.map((point) => point.x);
+	const ys = polygon.map((point) => point.y);
+	return new DOMRect(
+		Math.min(...xs),
+		Math.min(...ys),
+		Math.max(...xs) - Math.min(...xs),
+		Math.max(...ys) - Math.min(...ys),
+	);
+};
+
+// Destination bounds must use the valid clipped polygon, not the four corners
+// of its source bounding rectangle, which can reintroduce negative-w corners.
+export const projectSourceRectToViewport = (
+	rect: DOMRect,
+	matrix: DOMMatrix,
+	viewport: DOMRect,
+) => {
+	const polygon = clippedSourcePolygon(rect, matrix, viewport);
+	if (!polygon) return null;
+	const projected = polygon.map((point) =>
+		new DOMPoint(point.x, point.y).matrixTransform(matrix),
+	);
+	const xs = projected.map((point) => point.x / point.w);
+	const ys = projected.map((point) => point.y / point.w);
+	return new DOMRect(
+		Math.min(...xs),
+		Math.min(...ys),
+		Math.max(...xs) - Math.min(...xs),
+		Math.max(...ys) - Math.min(...ys),
+	);
 };
 
 // Invert a single point through a projective transform

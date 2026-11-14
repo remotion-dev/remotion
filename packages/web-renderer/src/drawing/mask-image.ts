@@ -1,6 +1,12 @@
 import {parseLengthPercentage, splitAtTopLevel} from './background-image-rect';
-import type {LinearGradientInfo} from './parse-linear-gradient';
-import {parseLinearGradient} from './parse-linear-gradient';
+import type {
+	LinearGradientInfo,
+	RadialGradientInfo,
+} from './parse-linear-gradient';
+import {
+	parseLinearGradient,
+	parseRadialGradient,
+} from './parse-linear-gradient';
 
 type LinearGradientMaskImageInfo = {
 	type: 'linear-gradient';
@@ -15,7 +21,10 @@ export type UrlMaskImageInfo = {
 	maskPosition: string;
 };
 
-type SingleMaskImageInfo = LinearGradientMaskImageInfo | UrlMaskImageInfo;
+type SingleMaskImageInfo =
+	| LinearGradientMaskImageInfo
+	| UrlMaskImageInfo
+	| {type: 'radial-gradient'; gradientInfo: RadialGradientInfo};
 type MaskLayerStyle = Pick<
 	CSSStyleDeclaration,
 	| 'maskComposite'
@@ -232,6 +241,7 @@ const parseSingleMaskImage = (
 	maskImageValue: string,
 	computedStyle: CSSStyleDeclaration,
 	layer: number,
+	experimental3DRendering: boolean,
 ): SingleMaskImageInfo => {
 	const url = parseUrlFunction(maskImageValue);
 	if (url !== null) {
@@ -247,11 +257,17 @@ const parseSingleMaskImage = (
 	}
 
 	const gradientInfo = /^\s*linear-gradient\(/i.test(maskImageValue)
-		? parseLinearGradient(maskImageValue)
+		? parseLinearGradient(maskImageValue, experimental3DRendering)
 		: null;
 	if (gradientInfo) {
 		return {type: 'linear-gradient', gradientInfo};
 	}
+
+	const radialGradientInfo = experimental3DRendering
+		? parseRadialGradient(maskImageValue, experimental3DRendering)
+		: null;
+	if (radialGradientInfo)
+		return {type: 'radial-gradient', gradientInfo: radialGradientInfo};
 
 	if (maskImageValue.trim().toLowerCase().startsWith('url(')) {
 		throw new Error(
@@ -265,9 +281,16 @@ const parseSingleMaskImage = (
 export const parseMaskImage = (
 	value: string,
 	computedStyle: CSSStyleDeclaration,
+	experimental3DRendering = false,
 ): MaskImageInfo | null => {
 	const images = splitAtTopLevel(value, ',');
-	if (images.length === 1) return parseSingleMaskImage(value, computedStyle, 0);
+	if (images.length === 1)
+		return parseSingleMaskImage(
+			value,
+			computedStyle,
+			0,
+			experimental3DRendering,
+		);
 	if (!CSS.supports('mask-composite', computedStyle.maskComposite)) {
 		throw new Error(
 			`Unsupported mask-composite value: ${computedStyle.maskComposite}. Use add, subtract, intersect, or exclude.`,
@@ -287,7 +310,12 @@ export const parseMaskImage = (
 		},
 		layers: images.map((image, index) => {
 			if (image === 'none') return null;
-			const parsed = parseSingleMaskImage(image, computedStyle, index);
+			const parsed = parseSingleMaskImage(
+				image,
+				computedStyle,
+				index,
+				experimental3DRendering,
+			);
 			if (parsed.type !== 'url')
 				throw new Error(
 					'Multiple mask-image layers require raster URL or none sources',

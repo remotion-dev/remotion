@@ -78,7 +78,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 type MockSignature = typeof renderStillOnWeb;
 const mockFn: MockSignature = () => {
 	const canvas = new OffscreenCanvas(1, 1);
-	const internalState = makeInternalState();
+	const internalState = makeInternalState({experimental3DRendering: null});
 	const stub: RenderStillOnWebResult = {
 		internalState,
 		canvas: async () => canvas,

@@ -113,6 +113,7 @@ test('restores inline group properties and important priorities after clipping',
 			rootElement: element,
 			transformStyleCache: new WeakMap(),
 			isolated: true,
+			experimental3DRendering: null,
 		});
 		try {
 			const style = getComputedStyle(element);
@@ -165,6 +166,7 @@ test('restores multi-rectangle clip group properties and important priorities (K
 			rootElement: element,
 			transformStyleCache: new WeakMap(),
 			isolated: true,
+			experimental3DRendering: null,
 		});
 		try {
 			const style = getComputedStyle(element);

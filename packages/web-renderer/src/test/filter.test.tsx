@@ -121,6 +121,7 @@ test('preserves SVG filter containing-block geometry and priority during capture
 				rootElement: root,
 				transformStyleCache: new WeakMap(),
 				isolated: false,
+				experimental3DRendering: null,
 			});
 			expect(capture.precompositing.needsFilterPrecompositing).not.toBeNull();
 			expect(child.getBoundingClientRect().toJSON()).toEqual(before);
@@ -159,6 +160,7 @@ test('preserves filter containing-block geometry and priority during capture', (
 				rootElement: root,
 				transformStyleCache: new WeakMap(),
 				isolated: false,
+				experimental3DRendering: null,
 			});
 			expect(capture.precompositing.needsFilterPrecompositing).not.toBeNull();
 			expect(child.getBoundingClientRect().toJSON()).toEqual(before);

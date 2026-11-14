@@ -610,6 +610,8 @@ test('does not create a nested HTML-in-canvas capture before Chrome 157', async 
 	const internalState = makeInternalState({
 		signal: null,
 		maskImageTimeoutInMilliseconds: 30_000,
+
+		experimental3DRendering: null,
 	});
 
 	try {
@@ -632,6 +634,8 @@ test('does not create a nested HTML-in-canvas capture before Chrome 157', async 
 			onlyBackgroundClipText: false,
 			scale: 1,
 			waitForPageResponsiveness: null,
+
+			onlyOwnPlane: null,
 		});
 
 		expect(drawElementImage).not.toHaveBeenCalled();

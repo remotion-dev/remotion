@@ -1,6 +1,11 @@
 import type {LogLevel} from 'remotion';
 import {HtmlInCanvas, Internals} from 'remotion';
 import {compose} from './compose';
+import {
+	canApplyCssTransforms,
+	preserves3DChildren,
+} from './drawing/calculate-transforms';
+import {makeDOMMatrix} from './drawing/make-dom-matrix';
 import {containsUrlMaskImage} from './drawing/mask-image';
 import type {HtmlInCanvasContext} from './html-in-canvas';
 import {
@@ -13,8 +18,54 @@ export type HtmlInCanvasLayerOutcome =
 	| {native: true}
 	| {native: false; reason: string; shouldWarn: boolean};
 
+const containsPreserve3DDepth = (element: HTMLElement | SVGElement) => {
+	const styles = new WeakMap<Element, CSSStyleDeclaration>();
+	const readStyle = (node: Element) => {
+		if (!styles.has(node)) styles.set(node, getComputedStyle(node));
+		return styles.get(node)!;
+	};
+
+	for (const node of [element, ...element.querySelectorAll('*')]) {
+		if (!(node instanceof HTMLElement || node instanceof SVGElement)) continue;
+		const style = readStyle(node);
+		if (
+			!style.transform ||
+			style.transform === 'none' ||
+			!canApplyCssTransforms({element: node, computedStyle: style}) ||
+			makeDOMMatrix(style.transform).is2D
+		)
+			continue;
+		let visible = true;
+		for (
+			let ancestor: Element | null = node;
+			ancestor;
+			ancestor = ancestor.parentElement
+		) {
+			if (readStyle(ancestor).display === 'none') {
+				visible = false;
+				break;
+			}
+
+			if (ancestor === element) break;
+		}
+
+		if (!visible) continue;
+		const parent = node.parentElement;
+		if (
+			preserves3DChildren(style) ||
+			(parent &&
+				element.contains(parent) &&
+				preserves3DChildren(readStyle(parent)))
+		)
+			return true;
+	}
+
+	return false;
+};
+
 export const createLayer = async ({
 	element,
+	onlyOwnPlane: onlyOwnPlaneOption,
 	scale,
 	logLevel,
 	internalState,
@@ -26,6 +77,7 @@ export const createLayer = async ({
 	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
+	onlyOwnPlane: boolean | null;
 	scale: number;
 	logLevel: LogLevel;
 	internalState: InternalState;
@@ -36,6 +88,7 @@ export const createLayer = async ({
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
+	const onlyOwnPlane = onlyOwnPlaneOption === null ? false : onlyOwnPlaneOption;
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
 
@@ -45,7 +98,17 @@ export const createLayer = async ({
 		htmlInCanvasContext &&
 		onHtmlInCanvasLayerOutcome
 	) {
-		if (containsUrlMaskImage(element)) {
+		if (
+			internalState.experimental3DRendering &&
+			containsPreserve3DDepth(element)
+		) {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'The composition contains a 3D transform in a preserve-3d context. The built-in DOM composer is used to preserve perspective and plane depth.',
+				shouldWarn: true,
+			});
+		} else if (containsUrlMaskImage(element)) {
 			onHtmlInCanvasLayerOutcome({
 				native: false,
 				reason:
@@ -109,6 +172,7 @@ export const createLayer = async ({
 
 	await compose({
 		element,
+		onlyOwnPlane,
 		context,
 		logLevel,
 		parentRect: cutout,

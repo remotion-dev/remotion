@@ -118,6 +118,8 @@ export const drawOutline = ({
 		width: outlineW,
 		height: outlineH,
 		borderRadius: adjustedBorderRadius,
+
+		appendToPath: null,
 	});
 	ctx.stroke();
 

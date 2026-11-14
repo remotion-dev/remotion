@@ -18,6 +18,7 @@ export const walkOverNode = ({
 	waitForPageResponsiveness,
 	transformStyleCache,
 	isolatedElements,
+	forceSubtreePrecompositing: forceSubtreePrecompositingOption,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -30,7 +31,12 @@ export const walkOverNode = ({
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
+	forceSubtreePrecompositing: boolean | null;
 }): Promise<ProcessNodeReturnValue> => {
+	const forceSubtreePrecompositing =
+		forceSubtreePrecompositingOption === null
+			? false
+			: forceSubtreePrecompositingOption;
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
 			element: node,
@@ -44,6 +50,7 @@ export const walkOverNode = ({
 			waitForPageResponsiveness,
 			transformStyleCache,
 			isolatedElements,
+			forceSubtreePrecompositing,
 		});
 	}
 

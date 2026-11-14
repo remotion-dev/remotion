@@ -16,7 +16,11 @@ export const getPrecomposeRectForFilter = ({
 	filter: string;
 }): DOMRect => {
 	// Use getBiggestBoundingClientRect to include all children that may overflow
-	const elementRect = getBiggestBoundingClientRect(element);
+	const elementRect = getBiggestBoundingClientRect(element, true, false, {
+		onlyOwnPlane: null,
+		experimental3DRendering: null,
+		includeCapturePadding: null,
+	});
 	const expansion = parseFilterOutsets(filter);
 	const bounds = element.getBoundingClientRect();
 	const geometry = getSvgFilterGeometry({

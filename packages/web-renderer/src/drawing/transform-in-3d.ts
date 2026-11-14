@@ -6,7 +6,11 @@ const vsSource = `
     uniform mat4 uTransform;
     uniform vec2 uResolution;
     uniform vec2 uOffset;
-    varying vec2 vTexCoord;
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    varying highp vec2 vTexCoord;
+    #else
+    varying mediump vec2 vTexCoord;
+    #endif
 
     void main() {
         vec4 pos = uTransform * vec4(aPosition, 0.0, 1.0);
@@ -26,9 +30,17 @@ const vsSource = `
 
 // Fragment shader - samples from texture and unpremultiplies alpha
 const fsSource = `
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+		precision highp float;
+		#else
 		precision mediump float;
+		#endif
 		uniform sampler2D uTexture;
-		varying vec2 vTexCoord;
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+		varying highp vec2 vTexCoord;
+		#else
+		varying mediump vec2 vTexCoord;
+		#endif
 
 		void main() {
 				gl_FragColor = texture2D(uTexture, vTexCoord);
@@ -141,11 +153,38 @@ const createHelperCanvas = ({
 	return helperCanvasState.current;
 };
 
+// Products of two Float32 inputs are exact in JS doubles. Check every subset
+// sum so reassociation cannot expose a rounded intermediate or cancellation.
+const exactFloat32Sum = (
+	terms: readonly [number, number, number, number],
+): number | null => {
+	const sums = [0];
+	for (const term of terms) {
+		if (Math.fround(term) !== term) return null;
+		const count = sums.length;
+		for (let index = 0; index < count; index++) {
+			const previous = sums[index];
+			const sum = previous + term;
+			// Reversibility also catches an exponent-gap term lost by JS double addition.
+			if (
+				Math.fround(sum) !== sum ||
+				sum - previous !== term ||
+				sum - term !== previous
+			)
+				return null;
+			sums.push(sum);
+		}
+	}
+
+	return sums[sums.length - 1];
+};
+
 export const transformIn3d = ({
 	matrix,
 	sourceCanvas,
 	sourceRect,
 	destRect,
+	parentCopyPixelAligned,
 	internalState,
 	scale,
 }: {
@@ -153,6 +192,7 @@ export const transformIn3d = ({
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 	destRect: DOMRect;
+	parentCopyPixelAligned: boolean;
 	internalState: InternalState;
 	scale: number;
 }) => {
@@ -216,8 +256,95 @@ export const transformIn3d = ({
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	const actualMatrix =
+		scale !== 1 ? new DOMMatrix().scale(scale, scale).multiply(matrix) : matrix;
+	const transformMatrix = actualMatrix.toFloat32Array();
+	let filter: number = gl.LINEAR;
+	if (
+		internalState.experimental3DRendering &&
+		parentCopyPixelAligned &&
+		// The later parent copy must also remain on the destination pixel grid.
+		Number.isInteger(destRect.x) &&
+		Number.isInteger(destRect.y) &&
+		// Fractional extents are truncated by allocation but not by the uniform.
+		Number.isInteger(destRect.width) &&
+		Number.isInteger(destRect.height) &&
+		canvas.width === Math.fround(destRect.width) &&
+		canvas.height === Math.fround(destRect.height) &&
+		gl.drawingBufferWidth === Math.fround(destRect.width) &&
+		gl.drawingBufferHeight === Math.fround(destRect.height) &&
+		matrix.m14 === 0 &&
+		matrix.m24 === 0 &&
+		matrix.m44 > 0 &&
+		transformMatrix[3] === 0 &&
+		transformMatrix[7] === 0 &&
+		transformMatrix[15] > 0
+	) {
+		const w = transformMatrix[15];
+		let arithmeticExact = true;
+		for (let index = 0; index < positions.length; index += 2) {
+			const x = exactFloat32Sum([
+				transformMatrix[0] * positions[index],
+				transformMatrix[4] * positions[index + 1],
+				transformMatrix[12],
+				Math.fround(-destRect.x) * w,
+			]);
+			const y = exactFloat32Sum([
+				transformMatrix[1] * positions[index],
+				transformMatrix[5] * positions[index + 1],
+				transformMatrix[13],
+				Math.fround(-destRect.y) * w,
+			]);
+			if (
+				x === null ||
+				y === null ||
+				Math.fround(x / w) !== x / w ||
+				Math.fround(y / w) !== y / w ||
+				(x / w) * w !== x ||
+				(y / w) * w !== y
+			) {
+				arithmeticExact = false;
+				break;
+			}
+		}
+
+		const left =
+			(transformMatrix[0] * positions[0] +
+				transformMatrix[4] * positions[1] +
+				transformMatrix[12]) /
+				w +
+			Math.fround(-destRect.x);
+		const top =
+			(transformMatrix[1] * positions[0] +
+				transformMatrix[5] * positions[1] +
+				transformMatrix[13]) /
+				w +
+			Math.fround(-destRect.y);
+		const a =
+			(transformMatrix[0] * (positions[2] - positions[0])) /
+			(w * sourceCanvas.width);
+		const b =
+			(transformMatrix[1] * (positions[2] - positions[0])) /
+			(w * sourceCanvas.width);
+		const c =
+			(transformMatrix[4] * (positions[5] - positions[1])) /
+			(w * sourceCanvas.height);
+		const d =
+			(transformMatrix[5] * (positions[5] - positions[1])) /
+			(w * sourceCanvas.height);
+		if (
+			arithmeticExact &&
+			Number.isInteger(left) &&
+			Number.isInteger(top) &&
+			((Math.abs(a) === 1 && b === 0 && c === 0 && Math.abs(d) === 1) ||
+				(a === 0 && Math.abs(b) === 1 && Math.abs(c) === 1 && d === 0))
+		) {
+			filter = gl.NEAREST;
+		}
+	}
+
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
 
 	gl.texImage2D(
 		gl.TEXTURE_2D,
@@ -227,10 +354,6 @@ export const transformIn3d = ({
 		gl.UNSIGNED_BYTE,
 		sourceCanvas,
 	);
-
-	const actualMatrix =
-		scale !== 1 ? new DOMMatrix().scale(scale, scale).multiply(matrix) : matrix;
-	const transformMatrix = actualMatrix.toFloat32Array();
 
 	gl.uniformMatrix4fv(locations.uTransform, false, transformMatrix);
 	gl.uniform2f(locations.uResolution, destRect.width, destRect.height);
