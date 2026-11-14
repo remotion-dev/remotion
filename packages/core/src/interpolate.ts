@@ -5,6 +5,7 @@ import {normalizeNumber} from './normalize-number.js';
 
 export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 export type InterpolateOutputOption = 'linear' | 'perceptual-scale';
+export type InterpolateOverlapOption = 'throw' | 'compress';
 export type InterpolateOutputType =
 	| 'font-weight'
 	| 'scale'
@@ -27,6 +28,7 @@ export type InterpolateOptions = Partial<{
 	extrapolateRight: ExtrapolateType;
 	output: InterpolateOutputOption;
 	outputType: InterpolateOutputType;
+	overlap: InterpolateOverlapOption;
 	posterize: number;
 }>;
 
@@ -1172,6 +1174,47 @@ function checkValidInputRange(arr: readonly number[]) {
 	}
 }
 
+const COLLAPSED_SEGMENT_LENGTH = 1e-6;
+
+export const resolveInterpolateInputRange = (
+	inputRange: readonly number[],
+	overlap: InterpolateOverlapOption | undefined,
+): readonly number[] => {
+	if (
+		overlap !== 'compress' ||
+		inputRange.every((value, i) => i === 0 || value > inputRange[i - 1])
+	) {
+		return inputRange;
+	}
+
+	const segments = inputRange.slice(1).map((value, i) => value - inputRange[i]);
+	const forwardLength = segments.reduce(
+		(sum, segment) => sum + Math.max(0, segment),
+		0,
+	);
+	const collapsedCount = segments.filter((segment) => segment <= 0).length;
+	const span = Math.max(
+		inputRange[inputRange.length - 1] - inputRange[0],
+		COLLAPSED_SEGMENT_LENGTH * segments.length,
+	);
+	const factor =
+		(span - COLLAPSED_SEGMENT_LENGTH * collapsedCount) / forwardLength;
+
+	let position = inputRange[0];
+	return [
+		position,
+		...segments.map((segment) => {
+			position +=
+				forwardLength === 0
+					? span / segments.length
+					: segment > 0
+						? segment * factor
+						: COLLAPSED_SEGMENT_LENGTH;
+			return position;
+		}),
+	];
+};
+
 function checkInfiniteRange(name: string, arr: readonly number[]) {
 	if (arr.length < 1) {
 		throw new Error(name + ' must have at least 1 element');
@@ -1250,6 +1293,18 @@ function assertValidInterpolateOutputOption(
 	);
 }
 
+function assertValidInterpolateOverlapOption(
+	overlap: InterpolateOptions['overlap'],
+) {
+	if (overlap === undefined || overlap === 'throw' || overlap === 'compress') {
+		return;
+	}
+
+	throw new Error(
+		`overlap must be "throw" or "compress", but got ${String(overlap)}`,
+	);
+}
+
 function assertValidInterpolateOutputType(
 	outputType: InterpolateOptions['outputType'],
 ) {
@@ -1318,7 +1373,7 @@ export function interpolate(
 ): number | string | boolean | readonly number[];
 export function interpolate(
 	input: number,
-	inputRange: readonly number[],
+	rawInputRange: readonly number[],
 	outputRange: readonly InterpolateOutputValue[],
 	options?: InterpolateOptions,
 ): number | string | boolean | readonly number[] {
@@ -1326,7 +1381,7 @@ export function interpolate(
 		throw new Error('input can not be undefined');
 	}
 
-	if (typeof inputRange === 'undefined') {
+	if (typeof rawInputRange === 'undefined') {
 		throw new Error('inputRange can not be undefined');
 	}
 
@@ -1334,17 +1389,22 @@ export function interpolate(
 		throw new Error('outputRange can not be undefined');
 	}
 
-	if (inputRange.length !== outputRange.length) {
+	if (rawInputRange.length !== outputRange.length) {
 		throw new Error(
 			'inputRange (' +
-				inputRange.length +
+				rawInputRange.length +
 				') and outputRange (' +
 				outputRange.length +
 				') must have the same length',
 		);
 	}
 
-	checkInfiniteRange('inputRange', inputRange);
+	checkInfiniteRange('inputRange', rawInputRange);
+	assertValidInterpolateOverlapOption(options?.overlap);
+	const inputRange = resolveInterpolateInputRange(
+		rawInputRange,
+		options?.overlap,
+	);
 	checkValidInputRange(inputRange);
 
 	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
@@ -1479,6 +1539,15 @@ export const prepareNumericInterpolation = ({
 	// Validate the fixed inputs once, using the same checks as interpolate().
 	interpolate(inputRange[0], inputRange, outputRange, options);
 
+	const resolvedInputRange = resolveInterpolateInputRange(
+		inputRange,
+		options.overlap,
+	);
 	return (input) =>
-		interpolateNumber({input, inputRange, outputRange, options});
+		interpolateNumber({
+			input,
+			inputRange: resolvedInputRange,
+			outputRange,
+			options,
+		});
 };

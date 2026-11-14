@@ -230,6 +230,7 @@ test('unequal, keyframed, and computed radii cannot be converted', () => {
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
 				output: undefined,
+				overlap: null,
 			},
 		}),
 	).toBe(null);

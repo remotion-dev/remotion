@@ -18,6 +18,7 @@ test('interpolates linear numeric keyframes', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe(50);
@@ -36,6 +37,7 @@ test('holds the previous keyframe value until the segment ends', () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 
 	expect(
@@ -67,6 +69,7 @@ test('holds non-numeric string keyframes until the segment ends', () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 
 	expect(
@@ -101,6 +104,7 @@ test('interpolates numeric keyframes with perceptual-scale output', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: 'perceptual-scale',
+			overlap: null,
 		},
 	});
 	expect(result).toBeCloseTo(Math.SQRT1_2);
@@ -122,6 +126,7 @@ test('interpolates linear tuple keyframes', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toEqual([0.5, 0.5]);
@@ -144,6 +149,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe(75);
@@ -165,6 +171,7 @@ test('clamps when extrapolation is clamp', () => {
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe(100);
@@ -186,6 +193,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: 3,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe(25);
@@ -204,6 +212,7 @@ test('returns single keyframe value', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe(7);
@@ -225,6 +234,7 @@ test('interpolates colors', () => {
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(typeof result).toBe('string');
@@ -247,6 +257,7 @@ test('interpolates color keyframes with easing', () => {
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('rgba(80, 80, 80, 1)');
@@ -268,6 +279,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: 3,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('rgba(64, 64, 64, 1)');
@@ -289,6 +301,7 @@ test('interpolates translate keyframes', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('60px 30px');
@@ -332,6 +345,7 @@ test('can force spring allowTail off for timeline value previews', () => {
 		clamping: {left: 'clamp', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 
 	const preserved = interpolateKeyframedStatus({
@@ -374,6 +388,7 @@ test('interpolates rotate keyframes', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('60deg');
@@ -395,6 +410,7 @@ test('uses bezier easing', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBeGreaterThan(0);
@@ -417,6 +433,7 @@ test('interpolates scale strings component-wise', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('3 5 2');
@@ -438,6 +455,7 @@ test('interpolates 3D rotation keyframes as one property', () => {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	});
 	expect(result).toBe('1 0 0 45deg');

@@ -964,6 +964,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1090,6 +1091,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 2,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1137,6 +1139,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1174,6 +1177,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1498,6 +1502,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1563,6 +1568,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1766,6 +1772,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1822,6 +1829,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1871,6 +1879,7 @@ export const Example: React.FC = () => {
 		},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1909,6 +1918,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: 3,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1947,6 +1957,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: 'perceptual-scale',
+		overlap: null,
 	});
 });
 
@@ -1985,6 +1996,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -2139,6 +2151,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 

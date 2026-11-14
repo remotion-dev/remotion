@@ -33,6 +33,7 @@ export type {
 	InterpolateOptions,
 	InterpolateOutputOption,
 	InterpolateOutputType,
+	InterpolateOverlapOption,
 } from './interpolate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';

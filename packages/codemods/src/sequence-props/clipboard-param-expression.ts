@@ -195,6 +195,15 @@ const makeOptionsExpression = ({
 		);
 	}
 
+	if (param.overlap !== undefined) {
+		properties.push(
+			b.objectProperty(
+				b.identifier('overlap'),
+				b.stringLiteral(param.overlap),
+			) as ObjectProperty,
+		);
+	}
+
 	if (param.posterize !== undefined) {
 		properties.push(
 			b.objectProperty(

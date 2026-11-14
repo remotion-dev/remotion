@@ -41,6 +41,7 @@ export type EffectClipboardKeyframedParam = {
 	readonly easing: EffectClipboardEasing[];
 	readonly clamping: EffectClipboardClamping;
 	readonly output?: EffectClipboardOutput;
+	readonly overlap?: 'compress';
 	readonly posterize?: number;
 };
 
@@ -206,6 +207,7 @@ export const isEffectClipboardParam = (
 
 	const {posterize} = value;
 	const {output} = value;
+	const {overlap} = value;
 	const easingLength =
 		Array.isArray(value.keyframes) && value.keyframes.length > 0
 			? value.keyframes.length - 1
@@ -224,6 +226,9 @@ export const isEffectClipboardParam = (
 			(value.interpolationFunction === 'interpolate' &&
 				typeof output === 'string' &&
 				outputOptions.has(output))) &&
+		(overlap === undefined ||
+			(value.interpolationFunction === 'interpolate' &&
+				overlap === 'compress')) &&
 		(posterize === undefined || (isFiniteNumber(posterize) && posterize > 0))
 	);
 };
