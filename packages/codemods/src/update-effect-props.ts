@@ -22,7 +22,7 @@ export type UpdateEffectPropsOptions<Project extends CodemodProject> = {
 	| {updates: EffectPropUpdate[]; props?: never}
 );
 
-export const updateEffectProps = async <Project extends CodemodProject>({
+export const updateEffectProps = <Project extends CodemodProject>({
 	project,
 	effect,
 	props,
@@ -73,7 +73,7 @@ export const updateEffectProps = async <Project extends CodemodProject>({
 		}
 	}
 
-	const results = await batchUpdateEffectProps({
+	const results = batchUpdateEffectProps({
 		input,
 		sequenceNodePath: effect.nodePath,
 		effectIndex: effect.effectIndex,

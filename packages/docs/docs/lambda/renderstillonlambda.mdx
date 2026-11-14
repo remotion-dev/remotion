@@ -71,13 +71,13 @@ One of:
 
 - `"public"`: The rendered still is publicly accessible under the S3 URL.
 - `"private"`: The rendered still is not publicly available, but signed links can be created using [`presignUrl()`](/docs/lambda/presignurl).
-- `"no-acl"`<AvailableFrom v="3.1.7" inline />: The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
+- `"no-acl"` (from v3.1.7): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
 ### `frame?`
 
 Which frame of the composition should be rendered. Default: `0`. Frames are zero-indexed.
 
-From <AvailableFrom v="3.2.27" inline />, negative values are allowed, with `-1` being the last frame.
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat`
 
@@ -267,7 +267,11 @@ Logs can be read through the CloudWatch URL that this function returns.
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ### `storageClass?`<AvailableFrom v="4.0.305"/>
 

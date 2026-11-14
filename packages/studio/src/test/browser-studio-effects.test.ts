@@ -26,7 +26,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes effect mutations through the explicit Browser Studio capability', async () => {
+test('routes effect mutations through the explicit remotion.new capability', async () => {
 	const calls: string[] = [];
 	const effects: BrowserStudioEffectOperations = {
 		addEffect: (request) => {
@@ -69,7 +69,7 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 			return Promise.resolve({success: true, nodePathMutation: null});
 		},
 		reorderEffect: (request) => {
-			calls.push(`reorder:${request.fromIndex}:${request.toIndex}`);
+			calls.push(`reorder:${request.fromIndices.join(',')}:${request.toIndex}`);
 			return Promise.resolve({success: true, nodePathMutation: null});
 		},
 		saveEffectProps: (request) => {
@@ -124,7 +124,7 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 	await reorderEffect({
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath: nodePath,
-		fromIndex: 0,
+		fromIndices: [0],
 		toIndex: 1,
 		clientId: 'browser-studio',
 	});

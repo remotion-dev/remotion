@@ -54,6 +54,8 @@ export const MyComp: React.FC = () => {
 
 ## API
 
+Pass an object with the following properties. You can also call `pageTurn()` without arguments.
+
 ### `foldPosition?`
 
 A point on the fold line, as `[x, y]` fractions of the canvas dimensions. Defaults to `[0.7, 0.7]`. Values outside `0`–`1` let the page start flat or disappear completely.
@@ -84,24 +86,28 @@ CSS color used for the back of the page. Defaults to `'#ffffff'`. A transparent 
 
 ### `disabled?`
 
-When `true`, skips the effect. Defaults to `false`.
+When `true`, the effect is skipped. Defaults to `false`.
 
 ## Limitations
 
-HTML content inside [`<HtmlInCanvas>`](/docs/html-in-canvas) requires HTML-in-canvas support.
+HTML content inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) requires HTML-in-canvas support.
 
 The curl stays within the canvas bounds. Leave space around the page if you need the curled edge to extend beyond the original page rectangle. The back reuses the source image; a separate back image is not supported.
 
 ## Implementations
 
+- WebGL2 (from v4.0.540)
 - WebGPU
-- WebGL2 <AvailableFrom v="4.0.540" />
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
 ## See also
 
+- [`@remotion/effects`](/docs/effects/api)
 - [`cylinder()`](/docs/effects/cylinder)
 - [`cornerPin()`](/docs/effects/corner-pin)
-- [`@remotion/effects`](/docs/effects/api)
-- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/page-turn/index.ts)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/page-turn/index.ts)

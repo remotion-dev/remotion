@@ -48,11 +48,11 @@ The shape of inputs and outputs is not currently stable.
 :::
 
 Tools that edit sequences or guides require a composition to be open.
-Playback tools work with compositions and, from <AvailableFrom v="4.0.540" inline />, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
+Playback tools work with compositions and, from v4.0.540, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
 
-Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and Browser Studio. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
+Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and remotion.new. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
 
-From <AvailableFrom v="4.0.543" inline />, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
+From v4.0.543, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
 
 ### `install_package`<AvailableFrom v="4.0.523" />
 
@@ -427,7 +427,7 @@ The reason the dialog could not be opened, present for every result except `open
 
 Requests cancellation using the same action as Studio's Cancel render control. Pending cancellation appears immediately in `get_render_jobs`, and repeated requests do not start another cancellation. A failed request clears its pending state and shows the same error notification as the UI.
 
-Server render cancellation requires a connected interactive Studio. It is unavailable when the server is detached or in a read-only deployed Studio or Browser Studio. Queued or running browser render jobs can be cancelled locally in all four modes. Queued jobs are cancelled without starting their render. No composition needs to be open.
+Server render cancellation requires a connected interactive Studio. It is unavailable when the server is detached or in a read-only deployed Studio or remotion.new. Queued or running browser render jobs can be cancelled locally in all four modes. Queued jobs are cancelled without starting their render. No composition needs to be open.
 
 ```ts title="Input"
 {
@@ -518,7 +518,7 @@ type CompositionTreeItem =
 
 ### `select_composition`
 
-Opens a registered composition by ID. From <AvailableFrom v="4.0.540" inline />, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
+Opens a registered composition by ID. From v4.0.540, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
 
 ```ts title="Input"
 {
@@ -720,7 +720,7 @@ The zero-based effect indices in the last compiled chain. Newly added copies tha
 
 Deletes an effect using the same action as the Studio interface. The preview updates optimistically; a failed deletion restores the effect.
 
-Requires a composition to be open and editable effect source in a connected interactive Studio or Browser Studio. Unavailable when the preview server is detached or the Studio is deployed as read-only. Deleting an effect edits the source and affects every runtime instance of that JSX node.
+Requires a composition to be open and editable effect source in a connected interactive Studio or remotion.new. Unavailable when the preview server is detached or the Studio is deployed as read-only. Deleting an effect edits the source and affects every runtime instance of that JSX node.
 
 ```ts title="Input"
 {
@@ -762,7 +762,7 @@ Studio selects the copied sequence roots once they are available in the preview.
 
 A clip directly inside a [`<Track>`](/docs/track), including through anonymous fragments, is copied into a separate sibling track with its timing preserved. If an intervening element or expression prevents this, duplicate the enclosing track instead.
 
-Requires a composition to be open and source editing to be available in a connected interactive Studio or Browser Studio. Unavailable when the preview server is detached or the Studio is deployed as read-only. Transitions and sequences whose source is unavailable cannot be duplicated.
+Requires a composition to be open and source editing to be available in a connected interactive Studio or remotion.new. Unavailable when the preview server is detached or the Studio is deployed as read-only. Transitions and sequences whose source is unavailable cannot be duplicated.
 
 ```ts title="Input"
 {
@@ -1024,7 +1024,7 @@ Returns the same output as `get_buffering_events`.
 
 ### `reveal_buffering_handle`<AvailableFrom v="4.0.543" />
 
-Pauses playback, selects the recorded composition, seeks to the frame where the buffering episode began, and reveals the handle's owning layer in the timeline and Inspector. Use IDs from `get_buffering_events`. Available when composition timeline selection is supported, including detached, deployed, and Browser Studio.
+Pauses playback, selects the recorded composition, seeks to the frame where the buffering episode began, and reveals the handle's owning layer in the timeline and Inspector. Use IDs from `get_buffering_events`. Available when composition timeline selection is supported, including detached, deployed, and remotion.new.
 
 ```ts title="Input"
 {
@@ -1077,7 +1077,7 @@ Shows or hides the fixed-width Audio Levels panel to the right of the timeline. 
 
 ### `get_splitters`<AvailableFrom v="4.0.543" />
 
-Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and Browser Studio.
+Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and remotion.new.
 
 ```ts title="Input"
 {
@@ -1149,7 +1149,7 @@ Returns the effective divider state with the same fields as one entry in the `sp
 
 ### `get_playback_state`
 
-Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from v4.0.540.
 
 One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
@@ -1190,7 +1190,7 @@ The duration remains the full preview duration when in and out points are set.
 
 The marked first included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses frame `0`.
 
-Each composition and asset keeps its own marks. These fields follow the range shown in the timeline in regular Studio, detached Studio, deployed read-only Studio and Browser Studio. Both `inFrame` and `outFrame` are `null` for render-output previews, unsupported or unready content, and one-frame compositions.
+Each composition and asset keeps its own marks. These fields follow the range shown in the timeline in regular Studio, detached Studio, deployed read-only Studio and remotion.new. Both `inFrame` and `outFrame` are `null` for render-output previews, unsupported or unready content, and one-frame compositions.
 
 #### `outFrame`<AvailableFrom v="4.0.543" />
 
@@ -1212,7 +1212,7 @@ Identifies the open canvas content. Server outputs report their path; local brow
 
 ### `get_selection`
 
-`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from <AvailableFrom v="4.0.541" inline />. A still image or a preview that is still loading returns `0`.
+`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from v4.0.541. A still image or a preview that is still loading returns `0`.
 
 Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
 
@@ -1254,7 +1254,7 @@ Returns source-code context when exactly one supported timeline item is selected
 
 #### `selectedItems`<AvailableFrom v="4.0.543" />
 
-Lists every selected timeline item, including multi-selections. The field is available in regular, detached, read-only deployed and Browser Studio. An empty array means nothing is selected. Match `sequenceId` against [`get_sequences`](#get_sequences) and `guideId` against [`get_guides`](#get_guides). If the owning sequence is unavailable, its ID is `null`.
+Lists every selected timeline item, including multi-selections. The field is available in regular, detached, read-only deployed and remotion.new. An empty array means nothing is selected. Match `sequenceId` against [`get_sequences`](#get_sequences) and `guideId` against [`get_guides`](#get_guides). If the owning sequence is unavailable, its ID is `null`.
 
 ```ts
 type SelectedTimelineItem =
@@ -1308,7 +1308,7 @@ Returns guides for the current composition. Vertical positions are x-coordinates
 
 ### `select_guide`<AvailableFrom v="4.0.544" />
 
-Selects one guide from the current composition, highlights it on the canvas, and opens the inspector with all vertical guides followed by all horizontal guides. Replaces the current selection; `null` clears it. Available in regular, read-only deployed, and Browser Studio when selection is enabled. A detached regular Studio cannot change selection. An unknown or hidden guide ID causes an error before the selection changes. Read [`get_selection`](#get_selection) or [`get_guides`](#get_guides) to inspect the result.
+Selects one guide from the current composition, highlights it on the canvas, and opens the inspector with all vertical guides followed by all horizontal guides. Replaces the current selection; `null` clears it. Available in regular, read-only deployed, and remotion.new when selection is enabled. A detached regular Studio cannot change selection. An unknown or hidden guide ID causes an error before the selection changes. Read [`get_selection`](#get_selection) or [`get_guides`](#get_guides) to inspect the result.
 
 ```ts title="Input"
 {

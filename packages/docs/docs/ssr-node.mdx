@@ -13,7 +13,7 @@ Rendering a video takes three steps:
 
 <div>
   <div>
-    <Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion Bundle</a>
+    <Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion bundle</a>
   </div>
   <div>
     <Step>2</Step> Select the composition to render and calculate its metadata
@@ -83,7 +83,7 @@ This flow is customizable. Click on one of the SSR APIs to read about its option
 
 When the process receives `SIGINT`, Remotion closes the browsers it opened and exits the process.
 
-When the process receives `SIGTERM` or `SIGHUP`, Remotion closes the browsers it opened. From <AvailableFrom v="4.0.544" inline />, Remotion then also terminates the process, unless you have added your own listener for the signal. In that case, exit the process yourself, for example after cancelling the running renders with [`makeCancelSignal()`](/docs/renderer/make-cancel-signal).
+When the process receives `SIGTERM` or `SIGHUP`, Remotion closes the browsers it opened. From v4.0.544, Remotion then also terminates the process, unless you have added your own listener for the signal. In that case, exit the process yourself, for example after cancelling the running renders with [`makeCancelSignal()`](/docs/renderer/make-cancel-signal).
 
 ## Linux Dependencies
 

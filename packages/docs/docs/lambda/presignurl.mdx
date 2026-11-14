@@ -34,7 +34,7 @@ console.log(url2); // always a string, even if the object doesn't exist
 ```
 
 :::note
-Preferrably import this function from `@remotion/lambda/client` (available from <AvailableFrom v="3.3.42" inline />) to avoid problems [inside serverless functions](/docs/lambda/light-client).
+Preferrably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
 :::
 
 ## Arguments
@@ -65,6 +65,14 @@ Whether the function should check if the object exists in the bucket before gene
 If `checkIfObjectExists` is `true` and the object does not exist, `null` is returned.
 
 If `checkIfObjectExists` is `false`, no check is made and a URL is always returned, even if the object does not exist.
+
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ## Compatibility
 

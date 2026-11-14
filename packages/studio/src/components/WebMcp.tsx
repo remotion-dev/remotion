@@ -1270,13 +1270,12 @@ export const WebMcp: FC = () => {
 										status: operation.status,
 										effectIds:
 											operation.action.type === 'delete' ||
-											operation.action.type === 'duplicate'
+											operation.action.type === 'duplicate' ||
+											operation.action.type === 'reorder'
 												? operation.action.ids
-												: operation.action.type === 'reorder'
-													? [operation.action.id]
-													: operation.action.type === 'restore'
-														? operation.action.items.map((item) => item.id)
-														: operation.addedIds,
+												: operation.action.type === 'restore'
+													? operation.action.items.map((item) => item.id)
+													: operation.addedIds,
 									})),
 							);
 						const pendingEffectDeletions =
@@ -1926,7 +1925,7 @@ export const WebMcp: FC = () => {
 					name: 'reveal_buffering_handle',
 					title: 'Reveal buffering handle',
 					description:
-						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and Browser Studio. Errors if the recorded composition or layer can no longer be found.',
+						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and remotion.new. Errors if the recorded composition or layer can no longer be found.',
 					inputSchema: {
 						type: 'object',
 						properties: {

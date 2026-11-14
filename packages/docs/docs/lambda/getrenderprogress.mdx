@@ -33,7 +33,7 @@ Preferrably import this function from `@remotion/lambda/client` to avoid problem
 You don't need to call this function while rendering a [still](/docs/still). Once you have obtained the [`renderId`](/docs/lambda/renderstillonlambda#renderid) from [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), the render should already be done!
 :::
 
-## API
+## Arguments
 
 Call the function by passing an object with the following properties:
 
@@ -59,14 +59,22 @@ If the render is going to be saved to a [different cloud](/docs/lambda/custom-de
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `logLevel?`
+
+<Options id="log" />
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ### `skipLambdaInvocation?`<AvailableFrom v="4.0.218" />
 
 Instead of calling a Lambda function which will get the progress from S3, make the S3 call directly.  
 This is cheaper and faster, but requires additional permissions. Default: `false`. See [Faster progress polling](/docs/lambda/faster-progress-polling) for the requirements.
 
-## Response
+## Return value
 
 Returns a promise resolving to an object with the following properties:
 
@@ -213,7 +221,7 @@ The current time at which the Lambda function responded to the progress request.
 ### `renderSize`
 
 How many bytes have been saved to the S3 bucket as a result of this render.  
-From <AvailableFrom v="4.0.165" inline />, this might be slightly underreported as the `progress.json` file is not factored in.
+From v4.0.165, this might be slightly underreported as the `progress.json` file is not factored in.
 
 ### `outputSizeInBytes`<AvailableFrom v="3.3.9" />
 

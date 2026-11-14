@@ -830,4 +830,64 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'trung-nguyen',
+		name: 'Trung Nguyen',
+		image: '/img/freelancers/trung-nguyen.jpg',
+		website: 'https://www.upwork.com/freelancers/~010b8f923d3203cc29',
+		x: null,
+		github: 'devil131313',
+		linkedin: 'in/trungnguyen-video/',
+		email: 'misereremeideus1313@gmail.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-11-12').getTime(),
+		description: (
+			<div>
+				I edit short-form videos with Remotion and Claude Code. One command
+				turns a podcast or talking-head video into captioned 9:16 Shorts:
+				transcription, cuts of retakes and silences, face-tracked reframing, a
+				camera that follows the active speaker, and word-level captions. A QC
+				step checks every frame and listens back to each cut before delivery.{' '}
+				<a target={'_blank'} href="https://youtu.be/tY0ZGlVn9_s">
+					See my process
+				</a>
+				. My caption layer is open source:{' '}
+				<a
+					target={'_blank'}
+					href="https://github.com/devil131313/remotion-phrase-captions"
+				>
+					remotion-phrase-captions
+				</a>
+				. I also build motion graphics for product launches and ads.
+			</div>
+		),
+	},
+	{
+		slug: 'michael-aubry',
+		name: 'Michael Aubry',
+		image: '/img/freelancers/michael.png',
+		website: 'https://mja.sh',
+		x: 'michaelaubry',
+		github: 'bluematter',
+		linkedin: 'in/michael--aubry/',
+		email: 'michael@basedlabs.ai',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-11-13').getTime(),
+		description: (
+			<div>
+				Co-founder and CTO of{' '}
+				<a target={'_blank'} href="https://wireflow.ai">
+					Wireflow
+				</a>
+				, an AI video platform whose editor is built on Remotion and renders on
+				Remotion Lambda. I build timeline editors over a scene graph, template
+				and motion block systems, Lambda rendering pipelines, still-frame
+				preview loops so an agent or a person can check a cut before a full
+				render, and AI video pipelines that assemble generated clips, voice,
+				captions and word timing into one render. Available for contract work.
+			</div>
+		),
+	},
 ];

@@ -27,7 +27,7 @@ There are three exceptions when it is possible to deploy multiple functions:
 It depends on the [concurrency limit](/docs/lambda/limits) of your AWS account.  
 Normally, a render uses a launch invocation, renderer invocations, and short progress invocations. The number of renderer invocations depends on the [concurrency](/docs/lambda/concurrency) of the render.
 
-From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function. A progress request may briefly use another invocation.
+From v4.0.517, you can set `concurrency` to `1` to render the video on the main function. A progress request may briefly use another invocation.
 
 If you exceed the concurrency limit, you will get a `TooManyRequestsException` error from AWS Lambda.
 
@@ -49,7 +49,7 @@ We have evaluated Amazon Elastic File System (EFS) and we found the speed benefi
 
 ### How much does Remotion Lambda cost?
 
-There are two cost components: The Remotion licensing fee (see [pricing](/docs/license/pricing), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. We estimate the Lambda costs for you and report it in the API response.
+There are two cost components: The Remotion licensing fee (see [pricing](/docs/license/pricing), only applies if you are a company) and the AWS costs. AWS cost is dependant on the amount of memory that you assign to your lambda function. Remotion estimates the Lambda costs for you and reports them in the API response.
 
 ### How can I upgrade/redeploy a Lambda function?
 
@@ -77,7 +77,7 @@ The source code of what is run inside a Remotion Lambda function [can be found h
 
 ### Can I make a site private?
 
-When you render a video on Lambda, you specify a [Serve URL](/docs/terminology/serve-url) pointing to a Webpack bundle of Remotion code.  
+When you render a video on Lambda, you specify a [serve URL](/docs/terminology/serve-url) pointing to a Webpack bundle of Remotion code.  
 This is a URL that, if known, can be publicly accessed by anyone.
 
 The Lambda function needs to spawn a headless browser and visit this URL in order to render the video.  
@@ -87,7 +87,7 @@ Make sure to not hardcode sensitive data in your code, such as API keys, or user
 Instead, use the [`inputProps`](/docs/lambda/rendermediaonlambda#inputprops) and [`envVariables`](/docs/lambda/rendermediaonlambda#envvariables) options of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to pass data during the render.  
 Those values will never be publicly accessible.
 
-By making your site available under a Serve URL, you may expose your minified React code.  
+By making your site available under a serve URL, you may expose your minified React code.  
 This is normally not a problem, because any website will expose their minified frontend code.
 
 If you would like to make your site more private, you can:
@@ -97,7 +97,7 @@ If you would like to make your site more private, you can:
 
 #### Only you can trigger renders on your account
 
-Making the site accessible via a Serve URL will not allow anyone to trigger a Lambda render on your account.  
+Making the site accessible via a serve URL will not allow anyone to trigger a Lambda render on your account.  
 The URL only serves HTML, JavaScript and assets, but does expose access to invoking any computation on your AWS account.
 
 ### Do I have to deploy a new site for every render?

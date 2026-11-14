@@ -93,6 +93,7 @@ const innerSelectComposition = async ({
 		page,
 		serveUrl,
 		initialFrame: 0,
+		attempt: 1,
 		timeoutInMilliseconds,
 		proxyPort: port,
 		retriesRemaining: 2,

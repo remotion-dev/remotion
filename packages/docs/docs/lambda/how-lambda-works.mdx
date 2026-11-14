@@ -14,7 +14,7 @@ Previously, Lambda functions did not use Response Streaming, and instead saved c
 
 <Step>1</Step> A single Lambda function is invoked using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), or the [CLI](/docs/lambda/cli/render). This invocation is called the main function.<br />
 <Step>2</Step> The main function visits the <a href="/docs/terminology/serve-url">
-  Serve URL
+  serve URL
 </a> that it is being passed in a headless browser. <br />
 <Step>3</Step> The main function finds the composition based on the composition ID
 that was passed and runs the <a href="/docs/props-resolution">
@@ -23,13 +23,13 @@ that was passed and runs the <a href="/docs/props-resolution">
 as the metadata (such as the duration in frames).<br />
 <Step>4</Step> Based on the determined duration of the video and the <a href="/docs/lambda/concurrency">
   concurrency
-</a>, the video is split into chunks. Normally, a <strong>renderer function</strong> is invoked for each chunk. From <AvailableFrom v="4.0.517" inline />, if you set <code>concurrency</code> to <code>1</code> and don't pass <a href="/docs/lambda/rendermediaonlambda#rendererfunctionname"><code>rendererFunctionName</code></a>, the video is rendered on the main function instead of in a separate renderer function.<br />
+</a>, the video is split into chunks. Normally, a <strong>renderer function</strong> is invoked for each chunk. From v4.0.517, if you set <code>concurrency</code> to <code>1</code> and don't pass <a href="/docs/lambda/rendermediaonlambda#rendererfunctionname"><code>rendererFunctionName</code></a>, the video is rendered on the main function instead of in a separate renderer function.<br />
 <Step>5</Step> Separate renderer functions use <a href="https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/">
   AWS Lambda Response Streaming
 </a> to report progress and send the binary video chunks to the main function. This streaming step is skipped when the main function renders directly.<br />
 <Step>6</Step> The main function concatenates the progress reports into a
 concise <code>progress.json</code> file and periodically uploads it to S3.<br />
-<Step>7</Step> From <AvailableFrom v="4.0.542" inline />, [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream) and the CLI receive progress updates streamed from the main function. [`getRenderProgress()`](/docs/lambda/getrenderprogress) remains available to check a render started separately.<br />
+<Step>7</Step> From v4.0.542, [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream) and the CLI receive progress updates streamed from the main function. [`getRenderProgress()`](/docs/lambda/getrenderprogress) remains available to check a render started separately.<br />
 <Step>8</Step> As soon as all chunks have arrived in the main function, they
 get <a href="/blog/faster-lambda">seamlessly concatenated</a>. The concatenation
 algorithm is not a public API at the moment.<br />

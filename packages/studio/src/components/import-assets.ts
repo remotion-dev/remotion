@@ -915,10 +915,10 @@ export const importFigmaClipboard = async ({
 	html: string;
 }) => {
 	// Figma clipboard conversion requires the SVGR-based pipeline in
-	// @remotion/studio-server, which Browser Studio does not support.
+	// @remotion/studio-server, which remotion.new does not support.
 	if (getBrowserStudioOperations()) {
 		showNotification(
-			'Importing Figma clipboard data is not supported in Browser Studio',
+			'Importing Figma clipboard data is not supported in remotion.new',
 			4000,
 		);
 		return;

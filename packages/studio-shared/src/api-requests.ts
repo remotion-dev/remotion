@@ -754,7 +754,7 @@ export type ReorderEffectRequest = {
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
-	fromIndex: number;
+	fromIndices: readonly number[];
 	toIndex: number;
 	clientId: string;
 };
@@ -1596,6 +1596,17 @@ export type ConfigValue =
 
 export type ConfigUpdate =
 	| {
+			setter: 'addElementLibrary';
+			type: 'update';
+			previousUrl: string;
+			value: {url: string; displayName: string | null};
+	  }
+	| {
+			setter: 'addElementLibrary';
+			type: 'reorder';
+			value: string[];
+	  }
+	| {
 			setter: string;
 			type: 'delete';
 			value?: string;
@@ -1706,7 +1717,7 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
-// When adding a route, also update the Browser Studio parity checklist:
+// When adding a route, also update the remotion.new parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export const studioOperations = {
 	'/api/shared-memory-capture-support': new StudioOperation<
@@ -2043,6 +2054,10 @@ export const studioOperations = {
 	'/api/update-config': new StudioOperation<
 		UpdateConfigRequest,
 		UpdateConfigResponse
+	>({mutatesSource: false}),
+	'/api/element-library-favicon': new StudioOperation<
+		{url: string},
+		{head: string; url: string} | null
 	>({mutatesSource: false}),
 	'/api/install-package': new StudioOperation<
 		InstallPackageRequest,

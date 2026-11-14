@@ -63,7 +63,7 @@ export const observeHover = ({
 			options,
 		);
 		ownerWindow?.addEventListener('blur', onLeave, options);
-		// Browser Studio forwards iframe exits when the inner leave is lost.
+		// remotion.new forwards iframe exits when the inner leave is lost.
 		ownerWindow?.addEventListener(
 			'remotion-browser-studio-pointerleave',
 			onLeave,

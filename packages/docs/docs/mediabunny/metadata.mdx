@@ -52,9 +52,9 @@ export const getMediaMetadata = async (src: string) => {
 
 <details>
   <summary>Explanation</summary>
-  <p>We load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
-  <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
-  <p>We compute the duration, dimensions, and frame rate. If the media file is an audio file, we return `null` for the dimensions and frame rate.</p>
+  <p>Load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
+  <p>Any format is fine, so load all parsers using `ALL_FORMATS`.</p>
+  <p>Compute the duration, dimensions, and frame rate. If the media file is an audio file, return `null` for the dimensions and frame rate.</p>
 </details>
 
 ```tsx twoslash title="Usage example"
