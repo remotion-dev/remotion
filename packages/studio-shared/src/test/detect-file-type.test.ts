@@ -115,6 +115,20 @@ test('detects audio file signatures', () => {
 	expect(detectFileType(flac)).toEqual({type: 'flac'});
 });
 
+test('detects MP3 and AAC frames of every MPEG version, with and without CRC', () => {
+	for (const secondByte of [0xfb, 0xfa, 0xf3, 0xf2, 0xe3, 0xe2]) {
+		expect(
+			detectFileType(new Uint8Array([0xff, secondByte, 0x18, 0xc4])),
+		).toEqual({type: 'mp3'});
+	}
+
+	for (const secondByte of [0xf1, 0xf0, 0xf9, 0xf8]) {
+		expect(
+			detectFileType(new Uint8Array([0xff, secondByte, 0x50, 0x40])),
+		).toEqual({type: 'aac'});
+	}
+});
+
 test('returns unknown for unsupported signatures', () => {
 	expect(detectFileType(new Uint8Array([1, 2, 3, 4]))).toEqual({
 		type: 'unknown',
