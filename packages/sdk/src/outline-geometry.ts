@@ -1,3 +1,7 @@
+import type {_InternalTypes} from 'remotion';
+
+export type CanvasCustomOutline = _InternalTypes['CustomSequenceOutline'];
+
 export type CanvasOutlinePoint = {
 	readonly x: number;
 	readonly y: number;
@@ -286,7 +290,7 @@ export type CanvasOutlineCrop = {
 
 export type CanvasOutlineTarget = {
 	readonly key: string;
-	readonly ref: React.RefObject<Element | null>;
+	readonly ref: React.RefObject<Element | CanvasCustomOutline | null>;
 	readonly crop: CanvasOutlineCrop;
 	readonly includeOutsideContainer: boolean;
 };

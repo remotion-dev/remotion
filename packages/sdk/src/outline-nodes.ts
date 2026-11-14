@@ -1,11 +1,18 @@
 import type {RefObject} from 'react';
 import {Internals} from 'remotion';
+import type {CanvasCustomOutline} from './outline-geometry';
 
 /** Resolve boxless DOM roots without adding a wrapper to the composition. */
-export const getCanvasOutlineNodes = (
-	ref: RefObject<Element | null>,
-): readonly (Element | Text)[] => {
-	const automaticNodes = Internals.SequenceOutlineInternals.getNodes(ref);
+export const getCanvasOutlineNodes: (
+	ref: RefObject<Element | CanvasCustomOutline | null>,
+) => readonly (Element | Text)[] = (ref) => {
+	if (ref.current !== null && !(ref.current instanceof Element)) {
+		return [];
+	}
+
+	const automaticNodes = Internals.SequenceOutlineInternals.getNodes(
+		ref as RefObject<Element | null>,
+	);
 	if (automaticNodes === null) {
 		return ref.current === null ? [] : [ref.current];
 	}
