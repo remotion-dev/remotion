@@ -184,6 +184,40 @@ func TestRenderPayloadNumberOfGifLoops(t *testing.T) {
 	}
 }
 
+func TestRenderPayloadForwardsStorageClassAndIsProduction(t *testing.T) {
+	isProduction := true
+
+	payload, err := constructRenderInternals(&RemotionOptions{
+		Region:       "us-east-1",
+		Composition:  "react-svg",
+		FunctionName: "remotion-render",
+		ServeUrl:     "testbed",
+		StorageClass: "STANDARD_IA",
+		IsProduction: &isProduction,
+	})
+	if err != nil {
+		t.Fatalf("could not construct render payload: %v", err)
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("could not marshal render payload: %v", err)
+	}
+
+	var serializedPayload map[string]interface{}
+	if err := json.Unmarshal(jsonData, &serializedPayload); err != nil {
+		t.Fatalf("could not unmarshal render payload: %v", err)
+	}
+
+	if serializedPayload["storageClass"] != "STANDARD_IA" {
+		t.Fatalf("storageClass = %v, want STANDARD_IA", serializedPayload["storageClass"])
+	}
+
+	if serializedPayload["isProduction"] != true {
+		t.Fatalf("isProduction = %v, want true", serializedPayload["isProduction"])
+	}
+}
+
 func TestSerializeNilInputProps(t *testing.T) {
 	result, err := serializeInputProps(nil, "us-east-1", "video-or-audio", "", false)
 	if err != nil {

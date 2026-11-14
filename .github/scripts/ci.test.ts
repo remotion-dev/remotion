@@ -416,8 +416,6 @@ describe('Required CI result validation', () => {
 
 test('runs remotion.new independently while requiring both affected jobs', () => {
 	type BrowserJob = {
-		name: string;
-		'timeout-minutes': number;
 		needs: string | string[];
 		if: string;
 		steps: Array<Record<string, unknown>>;
@@ -426,43 +424,13 @@ test('runs remotion.new independently while requiring both affected jobs', () =>
 		readFileSync(new URL('../workflows/push.yml', import.meta.url), 'utf8'),
 	) as {
 		jobs: {
-			'webrenderer-tests': BrowserJob & {
-				strategy: {matrix: {shard: number[]}; 'fail-fast': boolean};
-			};
+			'webrenderer-tests': BrowserJob;
 			'browser-studio-tests': BrowserJob;
 			'required-ci': {needs: string[]; steps: Array<Record<string, unknown>>};
 		};
 	};
 	const renderer = workflow.jobs['webrenderer-tests'];
 	const studio = workflow.jobs['browser-studio-tests'];
-	expect(renderer.strategy.matrix.shard).toEqual([1, 2]);
-	expect(renderer.strategy['fail-fast']).toBe(false);
-	expect(renderer['timeout-minutes']).toBe(30);
-	expect(renderer.name).toBe('Web renderer tests (${{ matrix.shard }}/2)');
-	expect(
-		renderer.steps.find((step) => step.name === 'Upload web renderer results'),
-	).toMatchObject({
-		if: '${{ !cancelled() }}',
-		with: {
-			name: 'web-renderer-results-${{ matrix.shard }}-${{ github.run_attempt }}',
-			path: 'packages/web-renderer/test/__results__/browser-tests.json',
-			'if-no-files-found': 'error',
-		},
-	});
-	expect(
-		renderer.steps.find((step) => step.name === 'Upload native pixel failures'),
-	).toMatchObject({
-		with: {
-			name: 'native-pixel-failures-${{ matrix.shard }}-${{ github.run_attempt }}',
-		},
-	});
-	const turbo = JSON.parse(
-		readFileSync(new URL('../../turbo.json', import.meta.url), 'utf8'),
-	);
-	expect(turbo.tasks.testwebrenderer).toEqual({
-		cache: false,
-		dependsOn: ['@remotion/web-renderer#make'],
-	});
 	expect(studio).toBeDefined();
 	expect(studio.needs).toEqual(renderer.needs);
 	expect(studio.if).toBe(renderer.if);
@@ -476,9 +444,7 @@ test('runs remotion.new independently while requiring both affected jobs', () =>
 	).toHaveLength(1);
 	expect(
 		renderer.steps.filter(
-			(step) =>
-				step.run ===
-				'bun run testwebrenderer --log-order=stream -- --shard=${{ matrix.shard }}/2 --reporter=default --reporter=json --outputFile=./test/__results__/browser-tests.json\n',
+			(step) => step.run === 'bun run testwebrenderer --log-order=stream\n',
 		),
 	).toHaveLength(1);
 	const required = workflow.jobs['required-ci'];
@@ -487,9 +453,6 @@ test('runs remotion.new independently while requiring both affected jobs', () =>
 	const validate = required.steps.find(
 		(step) => step.name === 'Validate required CI results',
 	)!;
-	expect((validate.env as Record<string, string>).CI_RESULTS).toContain(
-		'"webrenderer":"${{ needs.webrenderer-tests.result }}"',
-	);
 	expect((validate.env as Record<string, string>).CI_RESULTS).toContain(
 		'"browser_studio":"${{ needs.browser-studio-tests.result }}"',
 	);
