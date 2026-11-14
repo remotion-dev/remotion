@@ -292,6 +292,7 @@ const innerRenderStill = async ({
 		page,
 		serveUrl,
 		initialFrame: stillFrame,
+		attempt: 1,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,

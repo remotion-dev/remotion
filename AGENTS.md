@@ -30,6 +30,10 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 
 When adding or reviewing TypeScript parameters, React props, or type/interface members, make new internal inputs preferably nullable (`T | null`), not optional (`?:`). Public exported APIs are exempt when requiring the input would be breaking.
 
+## Pull requests
+
+Use the `$pr` skill to create or update pull requests.
+
 ## Key services
 
 - **Remotion Studio** (dev testbed): `cd packages/example && bun run dev` — starts at `http://localhost:3000`. This is the main dev UI for previewing video compositions.

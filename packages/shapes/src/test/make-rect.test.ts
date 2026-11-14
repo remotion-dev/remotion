@@ -30,3 +30,12 @@ test('Should handle rectangle path with radius', () => {
 		instructions: expect.any(Array),
 	});
 });
+
+test('Should limit cornerRadius to half of the shorter side, like CSS border-radius', () => {
+	expect(makeRect({width: 200, height: 50, cornerRadius: 1000})).toEqual(
+		makeRect({width: 200, height: 50, cornerRadius: 25}),
+	);
+	expect(makeRect({width: 100, height: 100, cornerRadius: 100})).toEqual(
+		makeRect({width: 100, height: 100, cornerRadius: 50}),
+	);
+});
