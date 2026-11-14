@@ -46,3 +46,55 @@ export const svgCssFontTextNodes = {
 	fps: 30,
 	durationInFrames: 2,
 } as const;
+
+const DocumentTitles = () => {
+	const frame = useCurrentFrame();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [handle] = useState(() => delayRender('Loading document titled font'));
+	useEffect(() => {
+		let active = true;
+		document.fonts
+			.load('34px "Document titled font preview"')
+			.then(() => {
+				if (active) continueRender(handle);
+			})
+			.catch((error) => {
+				if (active) cancelRender(error);
+			});
+		return () => {
+			active = false;
+			continueRender(handle);
+		};
+	}, [cancelRender, continueRender, handle]);
+	const otherUrl = new URL(
+		'../../../../example/public/Roboto-Medium.ttf',
+		import.meta.url,
+	).href;
+	return (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<style title="a">{`@font-face{font-family:"Document titled font preview";src:url("${fontUrl}") format("woff2")}`}</style>
+			<style title="b">{`@font-face{font-family:"Document titled font preview";src:url("${otherUrl}") format("truetype")}`}</style>
+			<svg width={360} height={140}>
+				<text
+					x={12}
+					y={54}
+					style={{
+						fontFamily: '"Document titled font preview"',
+						fontSize: 34 + frame,
+					}}
+				>
+					Selected document font
+				</text>
+			</svg>
+		</AbsoluteFill>
+	);
+};
+
+export const svgCssDocumentTitledFonts = {
+	component: DocumentTitles,
+	id: 'svg-css-document-titled-fonts',
+	width: 360,
+	height: 140,
+	fps: 30,
+	durationInFrames: 2,
+} as const;

@@ -16,6 +16,9 @@ test.for([
 	'titled',
 	'titled-cdata',
 	'document-title',
+	'document-title-nonce',
+	'document-title-reordered',
+	'document-title-meta',
 ])('retains CSS font source and text selection from $0', async (mode) => {
 	const url = new URL('../../../example/public/bangers.woff2', import.meta.url)
 		.href;
@@ -26,7 +29,7 @@ test.for([
 		reader.onerror = () => reject(reader.error);
 		reader.readAsDataURL(blob);
 	});
-	const documentTitle = mode === 'document-title';
+	const documentTitle = mode.startsWith('document-title');
 	const cdata = mode.includes('cdata');
 	const linked = mode === 'link' || cdata;
 	const iframe =
@@ -36,6 +39,22 @@ test.for([
 	if (iframe) document.body.appendChild(iframe);
 	const owner = iframe?.contentDocument ?? document;
 	const ownerWindow = owner.defaultView! as Window & typeof globalThis;
+	const nonce =
+		mode === 'document-title-nonce' ? 'remotion-font-selection-test' : null;
+	if (nonce) {
+		const policy = owner.createElement('meta');
+		policy.httpEquiv = 'Content-Security-Policy';
+		policy.content = `style-src 'nonce-${nonce}'`;
+		owner.head.appendChild(policy);
+	}
+
+	if (mode === 'document-title-meta') {
+		const preference = owner.createElement('meta');
+		preference.httpEquiv = 'default-style';
+		preference.content = 'b';
+		owner.head.appendChild(preference);
+	}
+
 	const family = `SVG review ${mode}`;
 	const face = `@font-face{font-family:"${family}";src:url("${data}") format("woff2")}`;
 	const selector = `.font-review-label{font-family:"${family}";font-size:34px}`;
@@ -63,6 +82,8 @@ test.for([
 	}
 
 	const titledSheets: HTMLStyleElement[] = [];
+	let expectedData = data;
+	let expectedFormat = 'woff2';
 	if (documentTitle) {
 		const otherUrl = new URL(
 			'../../../example/public/Roboto-Medium.ttf',
@@ -81,10 +102,21 @@ test.for([
 		]) {
 			const style = owner.createElement('style');
 			style.title = title;
-			style.textContent = `@font-face{font-family:"${family}";src:url("${source}") format("${format}")}`;
+			style.nonce = nonce ?? '';
+			style.textContent = `:root{--svg-font-selected-title:${title}} @font-face{font-family:"${family}";src:url("${source}") format("${format}")}`;
 			owner.head.appendChild(style);
 			titledSheets.push(style);
 		}
+
+		if (mode === 'document-title-reordered')
+			owner.head.insertBefore(titledSheets[1], titledSheets[0]);
+		const selectedTitle = ownerWindow
+			.getComputedStyle(owner.documentElement)
+			.getPropertyValue('--svg-font-selected-title')
+			.trim();
+		expect(['a', 'b']).toContain(selectedTitle);
+		expectedData = selectedTitle === 'b' ? otherData : data;
+		expectedFormat = selectedTitle === 'b' ? 'truetype' : 'woff2';
 	}
 
 	const active = mode !== 'inactive' && mode !== 'disabled';
@@ -106,7 +138,8 @@ test.for([
 					'http://www.w3.org/2000/svg',
 					'style',
 				);
-				style.textContent = `@font-face{font-family:"SVG review literal";src:url("${data}") format("woff2")}`;
+				if (nonce) style.setAttribute('nonce', nonce);
+				style.textContent = `@font-face{font-family:"SVG review literal";src:url("${expectedData}") format("${expectedFormat}")}`;
 				svg.prepend(style);
 			}
 		}
@@ -165,7 +198,28 @@ test.for([
 
 		const svg = makeSvg(false, false);
 		nodes.push(svg);
+		const domBefore = documentTitle
+			? new ownerWindow.XMLSerializer().serializeToString(owner.documentElement)
+			: null;
+		const sheetsBefore = documentTitle ? Array.from(owner.styleSheets) : null;
+		const facesBefore = documentTitle ? Array.from(owner.fonts) : null;
+		const statusesBefore = facesBefore?.map((font) => font.status) ?? null;
 		const actual = await draw(svg);
+		if (facesBefore) {
+			const facesAfter = Array.from(owner.fonts);
+			expect(facesAfter.length).toBe(facesBefore.length);
+			facesBefore.forEach((font, index) =>
+				expect(facesAfter[index]).toBe(font),
+			);
+			expect(facesAfter.map((font) => font.status)).toEqual(statusesBefore);
+			expect(Array.from(owner.styleSheets)).toEqual(sheetsBefore);
+			expect(
+				new ownerWindow.XMLSerializer().serializeToString(
+					owner.documentElement,
+				),
+			).toBe(domBefore);
+		}
+
 		const control = makeSvg(true, !active);
 		nodes.push(control);
 		const expected = await draw(control);

@@ -101,8 +101,8 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 	const rules: CssFontRule[] = [];
 	const ownerWindow = svg.ownerDocument.defaultView! as Window &
 		typeof globalThis;
-	const visitRules = (cssRules: CSSRuleList, baseUrl: string) => {
-		for (const rule of getActiveCssRules(cssRules, ownerWindow)) {
+	const visitRules = (cssRules: CSSRule[], baseUrl: string) => {
+		for (const rule of cssRules) {
 			if (!(rule instanceof ownerWindow.CSSFontFaceRule)) continue;
 			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
@@ -172,7 +172,38 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 			throw error;
 		}
 
-		visitRules(cssRules, sheet.href ?? svg.baseURI);
+		const activeRules = getActiveCssRules(cssRules, ownerWindow);
+		const owner = sheet.ownerNode;
+		if (
+			sheet.title &&
+			owner instanceof ownerWindow.HTMLStyleElement &&
+			activeRules.some(
+				(rule) =>
+					rule instanceof ownerWindow.CSSFontFaceRule &&
+					fontFamilies.has(parseFontFamilies(rule.style.fontFamily)[0]),
+			)
+		) {
+			const key = `--remotion-font-sheet-${Math.random().toString(36).slice(2)}`;
+			const probe = svg.ownerDocument.createElement('style');
+			probe.title = sheet.title;
+			probe.nonce = owner.nonce;
+			probe.textContent = `*|*:root { ${key}: 1 !important; }`;
+			owner.parentNode!.appendChild(probe);
+			try {
+				if (
+					probe.sheet &&
+					ownerWindow
+						.getComputedStyle(svg.ownerDocument.documentElement)
+						.getPropertyValue(key)
+						.trim() !== '1'
+				)
+					continue;
+			} finally {
+				probe.remove();
+			}
+		}
+
+		visitRules(activeRules, sheet.href ?? svg.baseURI);
 	}
 
 	return rules;

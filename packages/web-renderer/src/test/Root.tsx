@@ -195,7 +195,10 @@ import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
 import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
 import {svgCssDataFont} from './fixtures/svg-css-data-font';
-import {svgCssFontTextNodes} from './fixtures/svg-css-font-text-nodes';
+import {
+	svgCssFontTextNodes,
+	svgCssDocumentTitledFonts,
+} from './fixtures/svg-css-font-text-nodes';
 import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
 	svgDataMimeWhitespace,
@@ -391,6 +394,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgFontMediaCache({active: null})} />
 			<Composition {...svgFontReviewCarrier({literal: false})} />
 			<Composition {...svgCssFontTextNodes} />
+			<Composition {...svgCssDocumentTitledFonts} />
 
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
