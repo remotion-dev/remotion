@@ -74,7 +74,7 @@ for (const [entryPath, entry] of entries) {
 		for (const input of Object.keys(output.inputs)) {
 			if (input.replace(/\\/g, '/').split('/').includes('codemods')) {
 				throw new Error(
-					`Studio entry ${entry.entryPoint} eagerly bundles ${input}. Load @remotion/codemods with a dynamic import only in Browser Studio.`,
+					`Studio entry ${entry.entryPoint} eagerly bundles ${input}. Load @remotion/codemods with a dynamic import only in remotion.new.`,
 				);
 			}
 		}
@@ -85,7 +85,7 @@ for (const [entryPath, entry] of entries) {
 				imported.path.startsWith('@remotion/codemods/')
 			) {
 				throw new Error(
-					`Studio entry ${entry.entryPoint} eagerly imports ${imported.path}. Load @remotion/codemods with a dynamic import only in Browser Studio.`,
+					`Studio entry ${entry.entryPoint} eagerly imports ${imported.path}. Load @remotion/codemods with a dynamic import only in remotion.new.`,
 				);
 			}
 			if (outputs[imported.path]) pending.push(imported.path);

@@ -151,7 +151,7 @@ export const enableHotMiddleware = () => {
 		processMessage(hmrEvent);
 	};
 
-	// Connect immediately so HMR works before React mounts. Browser Studio and
+	// Connect immediately so HMR works before React mounts. remotion.new and
 	// the preview server share the same transport-neutral event subscription.
 	if (typeof window !== 'undefined') {
 		if (!unsubscribeFromPreviewServerEvents) {

@@ -37,6 +37,12 @@ import type {
 	LocalRenderOutput,
 	RestoredClientRenderJob,
 } from './client-side-render-types';
+import {
+	canApplyLocalJobEvent,
+	isLocalJobActive,
+	isLocalJobBusy,
+	transitionLocalJobs,
+} from './local-job-machine';
 import {createRenderCancellationStore} from './render-cancellation';
 import type {
 	AddVideoMattingJobParams,
@@ -201,28 +207,12 @@ export const RenderQueueContextProvider: React.FC<{
 	const [videoMattingJobs, setVideoMattingJobs] = useState<VideoMattingJob[]>(
 		[],
 	);
-	const hasActiveLocalJob =
-		clientJobs.some(
-			(job) =>
-				job.status === 'idle' ||
-				job.status === 'running' ||
-				job.status === 'saving',
-		) ||
-		captionJobs.some(
-			(job) =>
-				job.status === 'idle' ||
-				job.status === 'running' ||
-				job.status === 'saving',
-		) ||
-		videoMattingJobs.some(
-			(job) =>
-				job.status === 'idle' ||
-				job.status === 'running' ||
-				job.status === 'saving',
-		);
-	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
-		null,
+	const localJobs = [...clientJobs, ...captionJobs, ...videoMattingJobs];
+	const hasActiveLocalJob = localJobs.some((job) =>
+		isLocalJobActive(job.status),
 	);
+	const currentlyProcessing =
+		localJobs.find((job) => isLocalJobBusy(job.status))?.id ?? null;
 	const lastLocalJobStartedAt = useRef(
 		clientJobs.reduce((latest, job) => Math.max(latest, job.startedAt), 0),
 	);
@@ -276,20 +266,15 @@ export const RenderQueueContextProvider: React.FC<{
 				return;
 			}
 
-			setCurrentlyProcessing(nextJob.id);
 			setCaptionJobs((prev) =>
-				prev.map((job) =>
-					job.id === nextJob.id
-						? {
-								...job,
-								status: 'running',
-								progress: {
-									message: 'Starting transcription...',
-									value: 0,
-								},
-							}
-						: job,
-				),
+				transitionLocalJobs(prev, nextJob.id, 'start', (job) => ({
+					...job,
+					status: 'running',
+					progress: {
+						message: 'Starting transcription...',
+						value: 0,
+					},
+				})),
 			);
 			processCaptionJobCallbackRef.current(nextJob);
 			return;
@@ -300,24 +285,19 @@ export const RenderQueueContextProvider: React.FC<{
 				return;
 			}
 
-			setCurrentlyProcessing(nextJob.id);
 			setVideoMattingJobs((prev) =>
-				prev.map((job) =>
-					job.id === nextJob.id
-						? {
-								...job,
-								status: 'running',
-								progress: {
-									detail: null,
-									message:
-										'outName' in job
-											? 'Starting background removal...'
-											: 'Starting video matting...',
-									value: 0,
-								},
-							}
-						: job,
-				),
+				transitionLocalJobs(prev, nextJob.id, 'start', (job) => ({
+					...job,
+					status: 'running',
+					progress: {
+						detail: null,
+						message:
+							'outName' in job
+								? 'Starting background removal...'
+								: 'Starting video matting...',
+						value: 0,
+					},
+				})),
 			);
 			processVideoMattingJobCallbackRef.current(nextJob);
 			return;
@@ -327,22 +307,23 @@ export const RenderQueueContextProvider: React.FC<{
 			return;
 		}
 
-		setCurrentlyProcessing(nextJob.id);
 		setClientJobs((prev) =>
-			prev.map((job) =>
-				job.id === nextJob.id
-					? ({
-							...job,
-							status: 'running',
-							progress: {
-								encodedFrames: 0,
-								totalFrames: 0,
-								doneIn: null,
-								renderEstimatedTime: 0,
-								progress: 0,
-							},
-						} as ClientRenderJob)
-					: job,
+			transitionLocalJobs(
+				prev,
+				nextJob.id,
+				'start',
+				(job) =>
+					({
+						...job,
+						status: 'running',
+						progress: {
+							encodedFrames: 0,
+							totalFrames: 0,
+							doneIn: null,
+							renderEstimatedTime: 0,
+							progress: 0,
+						},
+					}) as ClientRenderJob,
 			),
 		);
 		processJobCallbackRef.current(nextJob);
@@ -399,10 +380,8 @@ export const RenderQueueContextProvider: React.FC<{
 	const updateClientJobProgress = useCallback(
 		(jobId: string, progress: ClientRenderJobProgress): void => {
 			setClientJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId
-						? ({...job, status: 'running', progress} as ClientRenderJob)
-						: job,
+				transitionLocalJobs(prev, jobId, 'progress', (job) =>
+					job.status === 'running' ? {...job, progress} : job,
 				),
 			);
 		},
@@ -411,10 +390,11 @@ export const RenderQueueContextProvider: React.FC<{
 
 	const markClientJobSaving = useCallback((jobId: string): void => {
 		setClientJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId
-					? ({...job, status: 'saving'} as ClientRenderJob)
-					: job,
+			transitionLocalJobs(
+				prev,
+				jobId,
+				'saving',
+				(job) => ({...job, status: 'saving'}) as ClientRenderJob,
 			),
 		);
 	}, []);
@@ -429,13 +409,19 @@ export const RenderQueueContextProvider: React.FC<{
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId && job.status !== 'done'
-						? {...job, status: 'done', metadata, localOutput}
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'done',
+					(job) =>
+						({
+							...job,
+							status: 'done',
+							metadata,
+							localOutput,
+						}) as ClientRenderJob,
 				),
 			);
-			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -446,17 +432,18 @@ export const RenderQueueContextProvider: React.FC<{
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId
-						? ({
-								...job,
-								status: 'failed',
-								error: {message: error.message, stack: error.stack},
-							} as ClientRenderJob)
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'failed',
+					(job) =>
+						({
+							...job,
+							status: 'failed',
+							error: {message: error.message, stack: error.stack},
+						}) as ClientRenderJob,
 				),
 			);
-			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -466,22 +453,19 @@ export const RenderQueueContextProvider: React.FC<{
 		cleanupCompositionForJob(jobId);
 
 		setClientJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId
-					? ({
-							...job,
-							status: 'cancelled',
-						} as ClientRenderJob)
-					: job,
+			transitionLocalJobs(
+				prev,
+				jobId,
+				'cancelled',
+				(job) => ({...job, status: 'cancelled'}) as ClientRenderJob,
 			),
 		);
-		setCurrentlyProcessing((current) => (current === jobId ? null : current));
 	}, []);
 
 	const removeClientJob = useCallback((jobId: string): void => {
 		setClientJobs((prev) => {
 			const jobToRemove = prev.find((j) => j.id === jobId);
-			if (jobToRemove?.status === 'running') {
+			if (jobToRemove && !canApplyLocalJobEvent(jobToRemove.status, 'remove')) {
 				return prev;
 			}
 
@@ -525,11 +509,11 @@ export const RenderQueueContextProvider: React.FC<{
 	const updateCaptionJobProgress = useCallback(
 		(jobId: string, progress: CaptionJobProgress): void => {
 			setCaptionJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId &&
-					(job.status === 'running' || job.status === 'saving')
-						? ({...job, progress} as CaptionJob)
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'progress',
+					(job) => ({...job, progress}) as CaptionJob,
 				),
 			);
 		},
@@ -540,13 +524,13 @@ export const RenderQueueContextProvider: React.FC<{
 		(jobId: string, captionCount: number): void => {
 			deleteAbortController(jobId);
 			setCaptionJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId
-						? ({...job, status: 'done', captionCount} as CaptionJob)
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'done',
+					(job) => ({...job, status: 'done', captionCount}) as CaptionJob,
 				),
 			);
-			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -555,17 +539,18 @@ export const RenderQueueContextProvider: React.FC<{
 		(jobId: string, error: Error): void => {
 			deleteAbortController(jobId);
 			setCaptionJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId
-						? ({
-								...job,
-								status: 'failed',
-								error: {message: error.message, stack: error.stack},
-							} as CaptionJob)
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'failed',
+					(job) =>
+						({
+							...job,
+							status: 'failed',
+							error: {message: error.message, stack: error.stack},
+						}) as CaptionJob,
 				),
 			);
-			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -573,19 +558,20 @@ export const RenderQueueContextProvider: React.FC<{
 	const markCaptionJobCancelled = useCallback((jobId: string): void => {
 		deleteAbortController(jobId);
 		setCaptionJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId ? {...job, status: 'cancelled'} : job,
-			),
+			transitionLocalJobs(prev, jobId, 'cancelled', (job) => ({
+				...job,
+				status: 'cancelled',
+			})),
 		);
-		setCurrentlyProcessing((current) => (current === jobId ? null : current));
 	}, []);
 
 	const markCaptionJobSaving = useCallback((jobId: string): void => {
 		setCaptionJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId && job.status === 'running'
-					? {...job, status: 'saving'}
-					: job,
+			transitionLocalJobs(
+				prev,
+				jobId,
+				'saving',
+				(job) => ({...job, status: 'saving'}) as CaptionJob,
 			),
 		);
 	}, []);
@@ -593,10 +579,7 @@ export const RenderQueueContextProvider: React.FC<{
 	const removeCaptionJob = useCallback((jobId: string): void => {
 		setCaptionJobs((prev) => {
 			const jobToRemove = prev.find((job) => job.id === jobId);
-			if (
-				jobToRemove?.status === 'running' ||
-				jobToRemove?.status === 'saving'
-			) {
+			if (jobToRemove && !canApplyLocalJobEvent(jobToRemove.status, 'remove')) {
 				return prev;
 			}
 
@@ -636,11 +619,11 @@ export const RenderQueueContextProvider: React.FC<{
 	const updateVideoMattingJobProgress = useCallback(
 		(jobId: string, progress: VideoMattingJobProgress): void => {
 			setVideoMattingJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId &&
-					(job.status === 'running' || job.status === 'saving')
-						? {...job, progress}
-						: job,
+				transitionLocalJobs(
+					prev,
+					jobId,
+					'progress',
+					(job) => ({...job, progress}) as VideoMattingJob,
 				),
 			);
 		},
@@ -650,26 +633,23 @@ export const RenderQueueContextProvider: React.FC<{
 	const markVideoMattingJobDone = useCallback((jobId: string): void => {
 		deleteAbortController(jobId);
 		setVideoMattingJobs((prev) =>
-			prev.map((job) => (job.id === jobId ? {...job, status: 'done'} : job)),
+			transitionLocalJobs(prev, jobId, 'done', (job) => ({
+				...job,
+				status: 'done',
+			})),
 		);
-		setCurrentlyProcessing((current) => (current === jobId ? null : current));
 	}, []);
 
 	const markVideoMattingJobFailed = useCallback(
 		(jobId: string, error: Error): void => {
 			deleteAbortController(jobId);
 			setVideoMattingJobs((prev) =>
-				prev.map((job) =>
-					job.id === jobId
-						? {
-								...job,
-								status: 'failed',
-								error: {message: error.message, stack: error.stack},
-							}
-						: job,
-				),
+				transitionLocalJobs(prev, jobId, 'failed', (job) => ({
+					...job,
+					status: 'failed',
+					error: {message: error.message, stack: error.stack},
+				})),
 			);
-			setCurrentlyProcessing((current) => (current === jobId ? null : current));
 		},
 		[],
 	);
@@ -677,19 +657,20 @@ export const RenderQueueContextProvider: React.FC<{
 	const markVideoMattingJobCancelled = useCallback((jobId: string): void => {
 		deleteAbortController(jobId);
 		setVideoMattingJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId ? {...job, status: 'cancelled'} : job,
-			),
+			transitionLocalJobs(prev, jobId, 'cancelled', (job) => ({
+				...job,
+				status: 'cancelled',
+			})),
 		);
-		setCurrentlyProcessing((current) => (current === jobId ? null : current));
 	}, []);
 
 	const markVideoMattingJobSaving = useCallback((jobId: string): void => {
 		setVideoMattingJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId && job.status === 'running'
-					? {...job, status: 'saving'}
-					: job,
+			transitionLocalJobs(
+				prev,
+				jobId,
+				'saving',
+				(job) => ({...job, status: 'saving'}) as VideoMattingJob,
 			),
 		);
 	}, []);
@@ -697,10 +678,7 @@ export const RenderQueueContextProvider: React.FC<{
 	const removeVideoMattingJob = useCallback((jobId: string): void => {
 		setVideoMattingJobs((prev) => {
 			const jobToRemove = prev.find((job) => job.id === jobId);
-			if (
-				jobToRemove?.status === 'running' ||
-				jobToRemove?.status === 'saving'
-			) {
+			if (jobToRemove && !canApplyLocalJobEvent(jobToRemove.status, 'remove')) {
 				return prev;
 			}
 

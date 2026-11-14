@@ -76,7 +76,7 @@ test('consumes an initial Element payload only once', () => {
 	expect(operations.consumeInitialElement()).toBe(null);
 });
 
-test('adds a Solid to the blank Browser Studio project', () => {
+test('adds a Solid to the blank remotion.new project', () => {
 	const project = createBlankTemplateProject();
 	const updated = insertSolid(project);
 	const composition = updated.files['/project/src/Composition.tsx'];
@@ -1483,7 +1483,7 @@ test('renames a composition by resolving the file from the composition id', asyn
 	);
 });
 
-test('updates composition metadata in Browser Studio', async () => {
+test('updates composition metadata in remotion.new', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
@@ -1652,7 +1652,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 	);
 });
 
-test('creates, renames and deletes a folder in Browser Studio', async () => {
+test('creates, renames and deletes a folder in remotion.new', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
