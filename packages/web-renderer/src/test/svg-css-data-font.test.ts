@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import '../symbol-dispose';
 import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
 import {
@@ -106,3 +106,35 @@ test('keeps CSS data carrier batch and fresh frames consistent for CSSOM-only ch
 	// Consistency does not establish native parity for that fallback.
 	expect(differences).toEqual([0, 0, 0]);
 });
+
+test.for(['media-empty', 'media-all', 'media-whitespace-all'] as const)(
+	'carries CSS data fonts in the active authored %s stylesheet',
+	async (mode) => {
+		await svgCssDataFontReady;
+		const urls = vi.spyOn(URL, 'createObjectURL');
+		try {
+			await renderStillOnWeb({
+				...carrierOptions,
+				composition: svgCssDataEmptyCarrier({mode, literal: false}),
+				frame: 1,
+			});
+			const serialized = await Promise.all(
+				urls.mock.calls.flatMap(([blob]) =>
+					blob instanceof Blob && blob.type.startsWith('image/svg+xml')
+						? [blob.text()]
+						: [],
+				),
+			);
+			expect(serialized.length).toBeGreaterThan(0);
+			for (const markup of serialized) {
+				const svg = new DOMParser().parseFromString(markup, 'image/svg+xml');
+				const styles = svg.querySelectorAll('style');
+				expect(styles).toHaveLength(2);
+				expect(styles[0].textContent).toContain('@font-face');
+				expect(styles[1].textContent).not.toContain('@font-face');
+			}
+		} finally {
+			urls.mockRestore();
+		}
+	},
+);
