@@ -80,6 +80,10 @@ import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
 import {filter} from './fixtures/filter';
+import {
+	filterColorSpaceModes,
+	filterColorSpaceShadow,
+} from './fixtures/filter-color-space-shadow';
 import {filterContainingBlockReference} from './fixtures/filter-containing-block';
 import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
@@ -184,6 +188,7 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {queuedFrameCapturePreview} from './fixtures/queued-frame-capture';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
 	replacedSamplerPixelated,
@@ -506,6 +511,13 @@ export const Root: React.FC = () => {
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />
+				{filterColorSpaceModes.flatMap((mode) =>
+					[false, true].map((literal) => {
+						const composition = filterColorSpaceShadow(mode, literal);
+						return <Composition key={composition.id} {...composition} />;
+					}),
+				)}
+
 				<Composition {...svgFilterReference} />
 				<Composition {...svgFilterExpandedReference} />
 				<Composition {...svgFilterBoundingBoxReference} />
@@ -646,6 +658,7 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);
 };

@@ -25,16 +25,17 @@ export const makeRect = ({
 	cornerRadius = 0,
 }: MakeRectOptions): ShapeInfo => {
 	const transformOrigin: [number, number] = [width / 2, height / 2];
+	const radius = Math.min(cornerRadius, width / 2, height / 2);
 	const instructions: Instruction[] = [
 		...joinPoints(
 			[
-				[cornerRadius, 0],
+				[radius, 0],
 				[width, 0],
 				[width, height],
 				[0, height],
 				[0, 0],
 			],
-			{edgeRoundness, cornerRadius, roundCornerStrategy: 'arc'},
+			{edgeRoundness, cornerRadius: radius, roundCornerStrategy: 'arc'},
 		),
 		{
 			type: 'Z',
