@@ -346,3 +346,132 @@ test('keeps a paused resize that arrives while the replacement frame is painting
 		container.remove();
 	}
 });
+
+test('does not share a paused frame across source replacement', async () => {
+	const response = await fetch('/video.mp4');
+	const blob = await response.blob();
+	const sourceA = URL.createObjectURL(blob);
+	const sourceB = URL.createObjectURL(blob);
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	const drawImage = vi.spyOn(CanvasRenderingContext2D.prototype, 'drawImage');
+	const environment = {
+		isRendering: false,
+		isClientSideRendering: false,
+		isPlayer: false,
+		isStudio: true,
+		isReadOnlyStudio: false,
+	};
+	const Composition = ({
+		src,
+		duplicate,
+	}: {
+		readonly src: string;
+		readonly duplicate: boolean;
+	}) => (
+		<Internals.RemotionEnvironmentContext.Provider value={environment}>
+			<Internals.SequenceManagerProvider>
+				<Internals.SequenceRegistrationContext.Provider value>
+					<div data-source-slot="original">
+						<Video
+							src={src}
+							muted
+							maxCanvasSinkFrameSize={{width: 256}}
+							disallowFallbackToOffthreadVideo
+						/>
+					</div>
+					{duplicate ? (
+						<div data-source-slot="duplicate">
+							<Video
+								src={src}
+								muted
+								maxCanvasSinkFrameSize={{width: 256}}
+								disallowFallbackToOffthreadVideo
+							/>
+						</div>
+					) : null}
+				</Internals.SequenceRegistrationContext.Provider>
+			</Internals.SequenceManagerProvider>
+		</Internals.RemotionEnvironmentContext.Provider>
+	);
+	const render = (src: string, duplicate: boolean) => {
+		flushSync(() =>
+			root.render(
+				<Player
+					component={Composition}
+					inputProps={{src, duplicate}}
+					compositionWidth={1920}
+					compositionHeight={1080}
+					durationInFrames={300}
+					fps={30}
+					initiallyMuted
+					acknowledgeRemotionLicense
+					style={{width: 640}}
+				/>,
+			),
+		);
+	};
+
+	try {
+		render(sourceA, false);
+		const original = container.querySelector<HTMLCanvasElement>(
+			'[data-source-slot="original"] canvas',
+		)!;
+		expect(original).not.toBeNull();
+		await waitFor(() => {
+			const pixels = original
+				.getContext('2d')!
+				.getImageData(0, 0, original.width, original.height).data;
+			return pixels.some((channel, index) => index % 4 === 3 && channel > 0);
+		});
+		drawImage.mockClear();
+		render(sourceA, true);
+		const sameSource = container.querySelector<HTMLCanvasElement>(
+			'[data-source-slot="duplicate"] canvas',
+		)!;
+		expect(
+			drawImage.mock.calls.some(
+				(args, index) =>
+					args[0] === original &&
+					drawImage.mock.contexts[index] instanceof CanvasRenderingContext2D &&
+					(drawImage.mock.contexts[index] as CanvasRenderingContext2D)
+						.canvas === sameSource,
+			),
+		).toBe(true);
+		expect(
+			sameSource
+				.getContext('2d')!
+				.getImageData(0, 0, sameSource.width, sameSource.height).data,
+		).toEqual(
+			original
+				.getContext('2d')!
+				.getImageData(0, 0, original.width, original.height).data,
+		);
+
+		render(sourceA, false);
+		drawImage.mockClear();
+		render(sourceB, true);
+		const replacement = container.querySelector<HTMLCanvasElement>(
+			'[data-source-slot="duplicate"] canvas',
+		)!;
+		expect(
+			container.querySelector('[data-source-slot="original"] canvas'),
+		).toBe(original);
+		expect(
+			drawImage.mock.calls.some(
+				(args, index) =>
+					args[0] === original &&
+					drawImage.mock.contexts[index] instanceof CanvasRenderingContext2D &&
+					(drawImage.mock.contexts[index] as CanvasRenderingContext2D)
+						.canvas === replacement,
+			),
+		).toBe(false);
+	} finally {
+		root.unmount();
+		drawImage.mockRestore();
+		container.remove();
+		URL.revokeObjectURL(sourceA);
+		URL.revokeObjectURL(sourceB);
+	}
+});
