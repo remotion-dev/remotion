@@ -98,15 +98,23 @@ Registered fonts are also embedded for SVG CDATA, including content inside `<a>`
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
-External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
+Literal inline and presentation-attribute `font-family` selection on local `<use>` instances is supported for CSS data fonts, including SVG ancestors, nested instances, patterns and masks. Text with its own font family keeps that selection. Same-document `<feImage>` references preserve this inheritance through their local artwork. Native glyph pixels and local filter rendering remain browser dependent.
 
-Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text, including text in patterns and masks and XML CDATA text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements do not affect web-font support. Foreign-namespace XML metadata outside `foreignObject` does not add unused registered fonts or change visible SVG styling.
 
-SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
+External CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Optional `format()` and `tech()` qualifiers are retained; technology availability and fallback follow the browser. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
 
-Titled registered-font stylesheets support active and inactive media evaluated against the owning document, including after viewport changes. Empty sheets in a preferred titled set preserve `:empty` matching, and SVG-local CSSOM rules retain their selector matching. Native text pixels and titled-stylesheet paint selection may differ; WebKit and Firefox may select a different face.
+SVG-local top-level faces and active `@media` and `@supports` groups keep their declared face order, including nested conditions and multiple-source lists. Font definitions inside local `@container` and `@scope` groups remain global; container-query and scope-selector matching do not disable them. Retained `@layer` groups keep their layer precedence. Inactive media and supports faces are not carried as active definitions. Native glyph rasterization can still differ between the document and SVG image. External font discovery remains limited to a single data source. Font-group matching requires the rendered text’s font queries to be loaded; the document’s font set may still be loading other faces. Loaded single-source CSS data fonts, including percent-encoded binary, base64 data with MIME-header spaces, and data URLs with fragments, retain title-set font selection when the complete title group can be resolved uniquely. Title-set selection that depends on unreadable or unmodelled grouped rules, registered-face precedence, unsupported shaping, or ambiguous groups remains unsupported.
 
-SVG-local selector preservation is not supported for stylesheets containing `@import` or `@scope` rules. Their names inside comments, strings, URLs or custom-property values do not impose this limitation, including escaped URL names and unquoted URLs containing brackets or braces.
+An empty SVG stylesheet can remain empty when an earlier nonempty, enabled stylesheet has no media restriction or uses `all`. With CSSOM-added rules in a later stylesheet, the empty stylesheet may become nonempty during export. Empty and `all` media attributes retain their authored values.
+
+Authored SVG-local `:empty`, `[style]` and `[media]` selectors retain their matching during font embedding, including uppercase and CSS-escaped `:empty` spellings, wildcard and namespaced media attributes, and nested `:not()` and `:is()` predicates. WebKit and Firefox may render different text pixels or select a different face.
+
+Registered fonts remain available when the first preferred titled SVG stylesheet is empty, including inactive media and disabled authored paint. Titled font stylesheets use the owning document’s media-query result during export, including when the SVG image has a smaller viewport or every titled sheet has inactive media. Titled stylesheet sets may still select different paint rules after export.
+
+Repeated static frames in a batch preserve the titled SVG font selection of independent frame captures.
+
+Mentions of `@import` or `@scope` inside comments, strings, URLs (including escaped URL names and unquoted URLs containing brackets or braces), or custom-property values do not disable SVG-local selector preservation. Actual import and scope rules remain excluded from selector rewriting.
 
 ## Shadows
 

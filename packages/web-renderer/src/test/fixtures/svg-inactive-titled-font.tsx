@@ -4,6 +4,10 @@ import {AbsoluteFill, useCurrentFrame, useDelayRender} from 'remotion';
 import {svgExternalFontReady} from './svg-external-font-selection';
 
 export const svgInactiveTitleModes = [
+	'empty-preferred',
+	'empty-preferred-inactive',
+	'empty-preferred-disabled',
+	'empty-preferred-multiple',
 	'inactive',
 	'multiple-inactive',
 	'preferred-inactive',
@@ -85,6 +89,7 @@ export const svgInactiveTitledFont = ({
 }) => {
 	const Fixture = () => {
 		const frame = useCurrentFrame();
+		const emptyPreferred = mode.startsWith('empty-preferred');
 		const first = useRef<HTMLStyleElement>(null);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const [handle] = useState(() =>
@@ -118,7 +123,11 @@ export const svgInactiveTitledFont = ({
 		}, [data, handle, continueRender]);
 		useLayoutEffect(() => {
 			const sheet = first.current?.sheet;
-			if (mode !== 'disabled' || !sheet) return;
+			if (
+				(mode !== 'disabled' && mode !== 'empty-preferred-disabled') ||
+				!sheet
+			)
+				return;
 			sheet.disabled = true;
 			return () => {
 				sheet.disabled = false;
@@ -138,7 +147,8 @@ export const svgInactiveTitledFont = ({
 					? '(max-width: 500px)'
 					: mode === 'active-preferred' ||
 						  mode === 'disabled' ||
-						  mode === 'empty'
+						  mode === 'empty' ||
+						  (emptyPreferred && mode !== 'empty-preferred-inactive')
 						? 'all'
 						: 'not all';
 		const firstPaint =
@@ -171,18 +181,26 @@ export const svgInactiveTitledFont = ({
 						title={titled ? 'a' : undefined}
 						media={firstMedia}
 					>
-						{mode === 'empty' ? '' : firstPaint}
+						{mode === 'empty' || emptyPreferred ? '' : firstPaint}
 					</style>
-					{mode === 'multiple-inactive' ||
+					{mode === 'empty-preferred-multiple'
+						? Array.from({length: 32}, (_, index) => (
+								<style key={index} title={titled ? 'a' : undefined} />
+							))
+						: null}
+					{emptyPreferred ||
+					mode === 'multiple-inactive' ||
 					mode === 'preferred-inactive' ||
 					mode === 'active-preferred' ? (
 						<style
 							title={titled ? 'b' : undefined}
 							media={
-								mode === 'preferred-inactive' && !literal ? 'all' : 'not all'
+								emptyPreferred || (mode === 'preferred-inactive' && !literal)
+									? 'all'
+									: 'not all'
 							}
 						>
-							{'rect{fill:red}'}
+							{emptyPreferred ? '/* Other titled set. */' : 'rect{fill:red}'}
 						</style>
 					) : null}
 					<text

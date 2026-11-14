@@ -64,6 +64,7 @@
 			"dependsOn": ["^make", "template-vibe-code#make"]
 		},
 		"testwebrenderer": {
+			"cache": false,
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
 		"testbrowserstudio": {

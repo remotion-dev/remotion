@@ -1,0 +1,41 @@
+const decoded = [0, 127, 128, 255];
+const ascii = [65, 72, 43, 65, 47, 119, 61, 61];
+export const mimeDataFontByteCases: [string, number[] | null][] = [
+	['data:font/woff2;base64,AH+A/w==', decoded],
+	['data:font/woff2; base64,AH+A/w==', decoded],
+	['data:font/woff2;base64 ,AH+A/w==', decoded],
+	['data:font/woff2;   base64   ,AH+A/w==', decoded],
+	['data:font/woff2;  bAsE64 ,AH+A/w==', decoded],
+	['data:font/woff2;charset=utf-8; base64 ,AH+A/w==', decoded],
+	['data: font/woff2; base64 ,AH+A/w==', decoded],
+	['data:; base64 ,AH+A/w==', decoded],
+	['data:font/woff2; base64 ,', []],
+	['data:font/woff2; base64 ,AH%2BA%2Fw%3D%3D#font', decoded],
+	['data:font/woff2;ba se64,AH+A/w==', ascii],
+	['data:font/woff2;base 64,AH+A/w==', ascii],
+	['data:font/woff2; base64;parameter=x,AH+A/w==', ascii],
+	['data:font/woff2; %62ase64,AH+A/w==', ascii],
+	['data:font/woff2;base64%20,AH+A/w==', ascii],
+	['data:font/woff2;base64\f,AH+A/w==', ascii],
+	['data:font/woff2;\fbase64,AH+A/w==', ascii],
+	['data:font/woff2;base64\u00a0,AH+A/w==', ascii],
+	['data:font/woff2; base64 ,A', null],
+	['data:font/woff2; not-base64,%80%ff#font', [128, 255]],
+	['data:font/woff2; base64 ,AA%23#font', null],
+];
+
+export const mimeDataFontRuntimeInputs = [
+	...mimeDataFontByteCases.map(([input]) => input),
+	'data:font/woff2;\tbase64,AH+A/w==',
+	'data:font/woff2;ba\tse64,AH+A/w==',
+	'data:font/woff2;\r\nbase64 ,AH+A/w==',
+	'data:font/woff2,a\tb\nc\rd',
+	'data:font/woff2,%09%0A%0D#font',
+	'data:font/woff2,a%09b\tc',
+	'data:font/woff2; base64 ,AH+\tA/\r\nw==#font',
+	'data:font/woff2,a ',
+	'data:font/woff2,a #font',
+	'data:font/woff2,a%20',
+	'data:font/woff2,a\f',
+	'data:font/woff2,a\f#font',
+];
