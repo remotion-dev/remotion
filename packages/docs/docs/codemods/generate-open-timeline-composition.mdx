@@ -152,17 +152,7 @@ Video tracks render visuals with embedded audio muted. Include an audio track to
 
 ## Importing in Studio
 
-In a connected [Remotion Studio](/docs/studio) or remotion.new, choose File → Import OpenTimeline... and select an `.otio` file. Local Studio uses a native file picker on macOS and Windows; remotion.new uses the browser's picker. Choose the composition name, dimensions, and destination folder, then add the composition. Duration comes from the imported timeline.
-
-Studio preserves the rate of `global_start_time` when present, or the common rate of the timeline's time ranges. The detected FPS and calculated duration are shown as non-editable values. If no single rate can be determined, choose the FPS before importing.
-
-The dialog checks the timeline and its media before importing. In a connected local Studio, referenced local media is copied into the [public folder](/docs/assets) and the generated component uses `staticFile()` paths. Shared media is copied once per import; existing public assets and browser-accessible URLs are reused. Image sequences keep their filenames and numbering.
-
-If a local media reference has no `available_range`, Studio reads its duration and embedded video timecode to calculate file-relative trims. Explicit `available_range` values take precedence. When using the codemod directly, provide `available_range` for media whose source timecode does not start at zero.
-
-Absolute paths and `file:` URLs are resolved on the Studio server. The native picker provides the timeline's folder, which is used to resolve relative media paths. Use Locate media... if the referenced files are stored elsewhere. The browser file picker does not provide the original file's folder.
-
-remotion.new can use URLs and existing public assets, but cannot read files from your computer through a Studio server. The action is unavailable in read-only or disconnected Studios.
+See [Importing OpenTimelineIO](/docs/import-opentimeline#in-remotion-studio) for the workflow in Remotion Studio and [remotion.new](/docs/studio/remotion-dev-new), media handling, and the CLI alternative.
 
 ## Compatibility
 

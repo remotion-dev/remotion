@@ -65,14 +65,19 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 type Fade = {start: OpenTimelineTime; end: OpenTimelineTime};
 
 /** Pure, synchronous compilation. No filesystem access, media probing or downloads. */
-export const generateOpenTimelineComposition = ({
+const prepareOpenTimeline = ({
 	timeline,
 	componentName,
 	fps,
 	width,
 	height,
 	resolveMedia,
-}: GenerateOpenTimelineCompositionOptions): GenerateOpenTimelineCompositionResult => {
+	generateSource,
+}: Omit<GenerateOpenTimelineCompositionOptions, 'width' | 'height'> & {
+	width: number | null;
+	height: number | null;
+	generateSource: boolean;
+}): GenerateOpenTimelineCompositionResult => {
 	const normalized = normalizeOpenTimeline(timeline);
 	const {diagnostics, annotations, globalStartTime} = normalized;
 	const assets: OpenTimelineAsset[] = [];
@@ -95,8 +100,12 @@ export const generateOpenTimelineComposition = ({
 		);
 	}
 
-	for (const [key, value] of Object.entries({fps, width, height})) {
+	for (const [key, value] of Object.entries({
+		fps,
+		...(generateSource ? {width, height} : {}),
+	})) {
 		if (
+			value === null ||
 			!Number.isFinite(value) ||
 			value <= 0 ||
 			(key !== 'fps' && !Number.isSafeInteger(value))
@@ -661,13 +670,17 @@ export const generateOpenTimelineComposition = ({
 		} else if (
 			!diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 		) {
-			metadata = {width, height, fps, durationInFrames};
+			if (width !== null && height !== null) {
+				metadata = {width, height, fps, durationInFrames};
+			}
+
 			body = render(normalized.root, ZERO_TIME, 'frame');
 		}
 	}
 
 	const result = {diagnostics, assets, annotations, globalStartTime, metadata};
 	if (
+		!generateSource ||
 		!normalized.root ||
 		diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 	) {
@@ -763,3 +776,18 @@ ${usesFps ? '\tconst {fps} = useVideoConfig();\n' : ''}${usesFrame ? '\tconst fr
 		source: applySourceEdits({input: source, edits}),
 	};
 };
+
+export const generateOpenTimelineComposition = (
+	options: GenerateOpenTimelineCompositionOptions,
+): GenerateOpenTimelineCompositionResult =>
+	prepareOpenTimeline({...options, generateSource: true});
+
+export const resolveOpenTimelineMedia = (
+	options: Omit<GenerateOpenTimelineCompositionOptions, 'width' | 'height'>,
+): GenerateOpenTimelineCompositionResult =>
+	prepareOpenTimeline({
+		...options,
+		width: null,
+		height: null,
+		generateSource: false,
+	});

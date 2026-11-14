@@ -1291,6 +1291,11 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'OpenTimelineIO',
+			items: ['import-opentimeline', 'export-opentimeline'],
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1697,7 +1702,6 @@ const sidebars: SidebarsConfig = {
 				'testing',
 				'figma',
 				'after-effects',
-				'export-opentimeline',
 			],
 		},
 		'resources',
