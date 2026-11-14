@@ -21,6 +21,7 @@ test.each([false, true])(
 		const playerRef = React.createRef<PlayerRef>();
 		const frames: {width: number; height: number}[] = [];
 		let waiting = 0;
+		let pausedAtFrame: number | null = null;
 		let phase = 'initial playback';
 		let requestedSize: MaxCanvasSinkFrameSize | null = null;
 		let resizeStartedAt = performance.now();
@@ -122,6 +123,7 @@ test.each([false, true])(
 				if (paused) flushSync(() => playerRef.current!.pause());
 				if (paused) phase = 'paused resize';
 				const frame = playerRef.current!.getCurrentFrame();
+				if (paused) pausedAtFrame = frame;
 				for (const size of sizes) {
 					const count = frames.length;
 					render(size.size);
@@ -141,9 +143,16 @@ test.each([false, true])(
 		} catch (error) {
 			if (waiting === 0 || !playerRef.current) throw error;
 			const resizeWaiting = [...waitingEvents];
-			const control: {events: typeof waitingEvents; error: string | null} = {
+			const control: {
+				events: typeof waitingEvents;
+				error: string | null;
+				targetPauseFrame: number | null;
+				pausedAtFrame: number | null;
+			} = {
 				events: [],
 				error: null,
+				targetPauseFrame: pausedAtFrame,
+				pausedAtFrame: null,
 			};
 			try {
 				phase = 'stable-size control startup';
@@ -159,7 +168,30 @@ test.each([false, true])(
 				await waitFor(() => frames.length >= warmup + 10);
 				waitingEvents.length = 0;
 				phase = 'stable-size control';
-				await waitFor(() => playerRef.current!.getCurrentFrame() >= 45);
+				const pauseTarget = pausedAtFrame;
+				if (pauseTarget === null) {
+					await waitFor(() => playerRef.current!.getCurrentFrame() >= 45);
+				} else {
+					const player = playerRef.current!;
+					const pauseAtTarget = ({detail}: {detail: {frame: number}}) => {
+						if (detail.frame < pauseTarget) return;
+						phase = 'stable-size control pause';
+						control.pausedAtFrame = detail.frame;
+						player.pause();
+						player.removeEventListener('frameupdate', pauseAtTarget);
+					};
+
+					player.addEventListener('frameupdate', pauseAtTarget);
+					try {
+						await waitFor(() => control.pausedAtFrame !== null);
+					} finally {
+						player.removeEventListener('frameupdate', pauseAtTarget);
+					}
+
+					render({width: 256});
+					await new Promise((resolve) => setTimeout(resolve, 200));
+				}
+
 				control.events = [...waitingEvents];
 			} catch (controlError) {
 				control.error =
