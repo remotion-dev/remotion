@@ -21,7 +21,21 @@ test.each([false, true])(
 		const playerRef = React.createRef<PlayerRef>();
 		const frames: {width: number; height: number}[] = [];
 		let waiting = 0;
+		let phase = 'initial playback';
+		let requestedSize: MaxCanvasSinkFrameSize | null = null;
+		let resizeStartedAt = performance.now();
+		let lastFrameAt: number | null = null;
+		const waitingEvents: {
+			phase: string;
+			requestedSize: MaxCanvasSinkFrameSize | null;
+			frame: number | null;
+			disposals: number;
+			lastFrameSize: {width: number; height: number} | null;
+			millisecondsSinceFrame: number | null;
+			millisecondsSinceResize: number;
+		}[] = [];
 		const onFrame = (frame: CanvasImageSource) => {
+			lastFrameAt = performance.now();
 			const canvas = frame as OffscreenCanvas;
 			frames.push({
 				width: canvas.width,
@@ -54,7 +68,9 @@ test.each([false, true])(
 				</Internals.SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext.Provider>
 		);
-		const render = (size: MaxCanvasSinkFrameSize | null) =>
+		const render = (size: MaxCanvasSinkFrameSize | null) => {
+			requestedSize = size;
+			resizeStartedAt = performance.now();
 			flushSync(() =>
 				root.render(
 					<Player
@@ -71,14 +87,30 @@ test.each([false, true])(
 					/>,
 				),
 			);
+		};
+
 		try {
 			render({width: 256});
 			await waitFor(() => frames.length > 0 && playerRef.current !== null);
-			playerRef.current!.addEventListener('waiting', () => waiting++);
+			playerRef.current!.addEventListener('waiting', () => {
+				waiting++;
+				const now = performance.now();
+				waitingEvents.push({
+					phase,
+					requestedSize,
+					frame: playerRef.current?.getCurrentFrame() ?? null,
+					disposals: dispose.mock.calls.length,
+					lastFrameSize: frames.at(-1) ?? null,
+					millisecondsSinceFrame:
+						lastFrameAt === null ? null : now - lastFrameAt,
+					millisecondsSinceResize: now - resizeStartedAt,
+				});
+			});
 			playerRef.current!.play();
 			await waitFor(() => frames.length > 10);
 			const initialDisposals = dispose.mock.calls.length;
 			waiting = 0;
+			waitingEvents.length = 0;
 			const sizes = [
 				{size: {width: 512}, width: 512, height: 288},
 				{size: {height: 144}, width: 256, height: 144},
@@ -86,7 +118,9 @@ test.each([false, true])(
 				{size: null, width: 1920, height: 1080},
 			];
 			for (const paused of [false, true]) {
+				phase = paused ? 'pausing before resize' : 'playing resize';
 				if (paused) flushSync(() => playerRef.current!.pause());
+				if (paused) phase = 'paused resize';
 				const frame = playerRef.current!.getCurrentFrame();
 				for (const size of sizes) {
 					const count = frames.length;
@@ -103,7 +137,7 @@ test.each([false, true])(
 				expect(dispose.mock.calls.length).toBe(initialDisposals);
 			}
 
-			expect(waiting).toBe(0);
+			expect(waiting, JSON.stringify(waitingEvents)).toBe(0);
 		} finally {
 			root.unmount();
 			dispose.mockRestore();
