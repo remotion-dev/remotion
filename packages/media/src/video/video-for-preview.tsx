@@ -531,9 +531,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 			if (canvas && studioSourceKeyRef.current) {
 				const copied = copiedFrameRef.current;
 				copiedFrameRef.current = null;
+				const registeredInputKey = getSharedInputCacheKey({
+					src: preloadedSrc,
+					credentials,
+					requestInit: initialRequestInit,
+				});
 				studioVideoCanvases.set(canvas, {
 					get sourceKey() {
-						return studioSourceKeyRef.current!;
+						return JSON.stringify([
+							registeredInputKey,
+							maxCanvasSinkFrameSizeRef.current?.width,
+							maxCanvasSinkFrameSizeRef.current?.height,
+						]);
 					},
 					getPlainFrameTime: () => {
 						if (!canSharePausedFrameRef.current) {
