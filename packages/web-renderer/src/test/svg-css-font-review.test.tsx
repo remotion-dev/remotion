@@ -101,6 +101,7 @@ test.for([
 			);
 			expect(label.firstChild!.nodeType).toBe(Node.CDATA_SECTION_NODE);
 		}
+
 		if (!literal && mode.startsWith('titled')) {
 			for (const title of ['a', 'b']) {
 				const carrier = owner.createElementNS(
