@@ -14,7 +14,9 @@ import {PunchyCaptions} from '../components/Captions';
 import {WaveBars} from '../components/fx';
 import {ChatIcon, CheckIcon, SpeakerIcon, XIcon} from '../components/icons';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -527,118 +529,863 @@ const CallForSources: React.FC = () => (
 	</Panel>
 );
 
-const SoundEffectsSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const SoundEffectsSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent={accents.soundEffects} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={[
+					'free',
+					'attribution',
+					'hotlink',
+					'loudness',
+					'seven',
+					'anybody',
+				]}
+				captions={[
+					// @captions whats3
+					{
+						text: 'Sound',
+						startMs: 3273.333333,
+						endMs: 3449.333333,
+						timestampMs: 3361.333333,
+						confidence: null,
+					},
+					{
+						text: ' effects.',
+						startMs: 3449.333333,
+						endMs: 4161.333333,
+						timestampMs: 3805.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Unfortunately,',
+						startMs: 4443.333333,
+						endMs: 4807.333333,
+						timestampMs: 4625.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' AI',
+						startMs: 5148.333333,
+						endMs: 5558.333333,
+						timestampMs: 5353.333333,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 5558.333333,
+						endMs: 5831.333333,
+						timestampMs: 5695.333333,
+						confidence: null,
+					},
+					{
+						text: ' pretty',
+						startMs: 5831.333333,
+						endMs: 6127.333333,
+						timestampMs: 5979.333333,
+						confidence: null,
+					},
+					{
+						text: ' bad',
+						startMs: 6127.333333,
+						endMs: 6378.333333,
+						timestampMs: 6253.333333,
+						confidence: null,
+					},
+					{
+						text: ' at',
+						startMs: 6378.333333,
+						endMs: 6810.333333,
+						timestampMs: 6594.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' finding',
+						startMs: 6810.333333,
+						endMs: 7174.333333,
+						timestampMs: 6992.333333,
+						confidence: null,
+					},
+					{
+						text: ' them',
+						startMs: 7174.333333,
+						endMs: 7675.333333,
+						timestampMs: 7425.333333,
+						confidence: null,
+					},
+					{
+						text: ' online,',
+						startMs: 7675.333333,
+						endMs: 8153.333333,
+						timestampMs: 7914.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' so',
+						startMs: 8622,
+						endMs: 9022,
+						timestampMs: 8822,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 9321,
+						endMs: 9425,
+						timestampMs: 9373,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 9425,
+						endMs: 9736,
+						timestampMs: 9581,
+						confidence: null,
+					},
+					{
+						text: ' making',
+						startMs: 9736,
+						endMs: 10012,
+						timestampMs: 9874,
+						confidence: null,
+					},
+					{
+						text: ' our',
+						startMs: 10012,
+						endMs: 10443,
+						timestampMs: 10228,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' own',
+						startMs: 10443,
+						endMs: 10892,
+						timestampMs: 10668,
+						confidence: null,
+					},
+					{
+						text: ' library',
+						startMs: 10892,
+						endMs: 11168,
+						timestampMs: 11030,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 11168,
+						endMs: 11392,
+						timestampMs: 11280,
+						confidence: null,
+					},
+					{
+						text: ' sound',
+						startMs: 11392,
+						endMs: 11720,
+						timestampMs: 11556,
+						confidence: null,
+					},
+					{
+						text: ' effects',
+						startMs: 11720,
+						endMs: 12203,
+						timestampMs: 11962,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' that',
+						startMs: 12618,
+						endMs: 12752,
+						timestampMs: 12685,
+						confidence: null,
+					},
+					{
+						text: ' anybody',
+						startMs: 12959,
+						endMs: 13238,
+						timestampMs: 13099,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 13238,
+						endMs: 13556,
+						timestampMs: 13397,
+						confidence: null,
+					},
+					{
+						text: ' use',
+						startMs: 13556,
+						endMs: 13914,
+						timestampMs: 13735,
+						confidence: null,
+					},
+					{
+						text: ' for',
+						startMs: 14177,
+						endMs: 14538,
+						timestampMs: 14358,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' free',
+						startMs: 14538,
+						endMs: 14839,
+						timestampMs: 14689,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 14839,
+						endMs: 15180,
+						timestampMs: 15010,
+						confidence: null,
+					},
+					{
+						text: ' no',
+						startMs: 15180,
+						endMs: 15963,
+						timestampMs: 15572,
+						confidence: null,
+					},
+					{
+						text: ' attribution',
+						startMs: 15963,
+						endMs: 16726,
+						timestampMs: 16345,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' required.',
+						startMs: 16726,
+						endMs: 16906,
+						timestampMs: 16816,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' We',
+						startMs: 17860,
+						endMs: 18034,
+						timestampMs: 17947,
+						confidence: null,
+					},
+					{
+						text: ' host',
+						startMs: 18034,
+						endMs: 18174,
+						timestampMs: 18104,
+						confidence: null,
+					},
+					{
+						text: ' them',
+						startMs: 18174,
+						endMs: 18331,
+						timestampMs: 18253,
+						confidence: null,
+					},
+					{
+						text: ' on',
+						startMs: 18331,
+						endMs: 18716,
+						timestampMs: 18524,
+						confidence: null,
+					},
+					{
+						text: ' our',
+						startMs: 18716,
+						endMs: 19048,
+						timestampMs: 18882,
+						confidence: null,
+					},
+					{
+						text: ' domain,',
+						startMs: 19048,
+						endMs: 19240,
+						timestampMs: 19144,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' you',
+						startMs: 19432,
+						endMs: 19572,
+						timestampMs: 19502,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 19572,
+						endMs: 19747,
+						timestampMs: 19660,
+						confidence: null,
+					},
+					{
+						text: ' just',
+						startMs: 19747,
+						endMs: 20061,
+						timestampMs: 19904,
+						confidence: null,
+					},
+					{
+						text: ' hotlink',
+						startMs: 20061,
+						endMs: 20376,
+						timestampMs: 20219,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 20376,
+						endMs: 20551,
+						timestampMs: 20464,
+						confidence: null,
+					},
+					{
+						text: ' sound',
+						startMs: 20551,
+						endMs: 20918,
+						timestampMs: 20735,
+						confidence: null,
+					},
+					{
+						text: ' effects',
+						startMs: 20918,
+						endMs: 21477,
+						timestampMs: 21198,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 22011.666666,
+						endMs: 22136.666666,
+						timestampMs: 22074.666666,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 22136.666666,
+						endMs: 22458.666666,
+						timestampMs: 22297.666666,
+						confidence: null,
+					},
+					{
+						text: ' also',
+						startMs: 22458.666666,
+						endMs: 22708.666666,
+						timestampMs: 22583.666666,
+						confidence: null,
+					},
+					{
+						text: ' make',
+						startMs: 22708.666666,
+						endMs: 22994.666666,
+						timestampMs: 22851.666666,
+						confidence: null,
+					},
+					{
+						text: ' sure',
+						startMs: 22994.666666,
+						endMs: 23458.666666,
+						timestampMs: 23226.666666,
+						confidence: null,
+					},
+					{
+						text: ' that',
+						startMs: 23458.666666,
+						endMs: 23780.666666,
+						timestampMs: 23619.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' all',
+						startMs: 23780.666666,
+						endMs: 23922.666666,
+						timestampMs: 23851.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 23922.666666,
+						endMs: 24065.666666,
+						timestampMs: 23994.666666,
+						confidence: null,
+					},
+					{
+						text: ' sound',
+						startMs: 24065.666666,
+						endMs: 24315.666666,
+						timestampMs: 24190.666666,
+						confidence: null,
+					},
+					{
+						text: ' effects',
+						startMs: 24315.666666,
+						endMs: 24512.666666,
+						timestampMs: 24414.666666,
+						confidence: null,
+					},
+					{
+						text: ' have',
+						startMs: 24512.666666,
+						endMs: 24637.666666,
+						timestampMs: 24575.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 24690.666666,
+						endMs: 24750.666666,
+						timestampMs: 24720.666666,
+						confidence: null,
+					},
+					{
+						text: ' same',
+						startMs: 25101.666666,
+						endMs: 25548.666666,
+						timestampMs: 25325.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' loudness',
+						startMs: 25548.666666,
+						endMs: 26369.666666,
+						timestampMs: 25959.666666,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 26929.333333,
+						endMs: 27053.333333,
+						timestampMs: 26991.333333,
+						confidence: null,
+					},
+					{
+						text: ' get',
+						startMs: 27053.333333,
+						endMs: 27186.333333,
+						timestampMs: 27120.333333,
+						confidence: null,
+					},
+					{
+						text: ' that',
+						startMs: 27186.333333,
+						endMs: 27461.333333,
+						timestampMs: 27324.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' standardized',
+						startMs: 27702.333333,
+						endMs: 28113.333333,
+						timestampMs: 27908.333333,
+						confidence: null,
+					},
+					{
+						text: ' as',
+						startMs: 28113.333333,
+						endMs: 28341.333333,
+						timestampMs: 28227.333333,
+						confidence: null,
+					},
+					{
+						text: ' well.',
+						startMs: 28341.333333,
+						endMs: 28935.333333,
+						timestampMs: 28638.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' For',
+						startMs: 29878.333333,
+						endMs: 30150.333333,
+						timestampMs: 30014.333333,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 30150.333333,
+						endMs: 30385.333333,
+						timestampMs: 30268.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 30385.333333,
+						endMs: 30621.333333,
+						timestampMs: 30503.333333,
+						confidence: null,
+					},
+					{
+						text: ' start',
+						startMs: 30621.333333,
+						endMs: 30802.333333,
+						timestampMs: 30712.333333,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 30802.333333,
+						endMs: 31164.333333,
+						timestampMs: 30983.333333,
+						confidence: null,
+					},
+					{
+						text: ' only',
+						startMs: 31164.333333,
+						endMs: 31544.333333,
+						timestampMs: 31354.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' seven',
+						startMs: 31544.333333,
+						endMs: 31604.333333,
+						timestampMs: 31574.333333,
+						confidence: null,
+					},
+					{
+						text: ' sound',
+						startMs: 31798.333333,
+						endMs: 32070.333333,
+						timestampMs: 31934.333333,
+						confidence: null,
+					},
+					{
+						text: ' effects',
+						startMs: 32070.333333,
+						endMs: 32323.333333,
+						timestampMs: 32197.333333,
+						confidence: null,
+					},
+					{
+						text: ' but',
+						startMs: 32323.333333,
+						endMs: 32486.333333,
+						timestampMs: 32405.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 32486.333333,
+						endMs: 32686.333333,
+						timestampMs: 32586.333333,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 32686.333333,
+						endMs: 32976.333333,
+						timestampMs: 32831.333333,
+						confidence: null,
+					},
+					{
+						text: ' looking',
+						startMs: 32976.333333,
+						endMs: 33229.333333,
+						timestampMs: 33103.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' to',
+						startMs: 33229.333333,
+						endMs: 33573.333333,
+						timestampMs: 33401.333333,
+						confidence: null,
+					},
+					{
+						text: ' add',
+						startMs: 33573.333333,
+						endMs: 33917.333333,
+						timestampMs: 33745.333333,
+						confidence: null,
+					},
+					{
+						text: ' more',
+						startMs: 33917.333333,
+						endMs: 34461.333333,
+						timestampMs: 34189.333333,
+						confidence: null,
+					},
+					{
+						text: ' so',
+						startMs: 34907.333333,
+						endMs: 35101.333333,
+						timestampMs: 35004.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' if',
+						startMs: 35301.333333,
+						endMs: 35640.333333,
+						timestampMs: 35471.333333,
+						confidence: null,
+					},
+					{
+						text: ' you',
+						startMs: 35640.333333,
+						endMs: 36234.333333,
+						timestampMs: 35937.333333,
+						confidence: null,
+					},
+					{
+						text: ' know',
+						startMs: 36234.333333,
+						endMs: 36539.333333,
+						timestampMs: 36387.333333,
+						confidence: null,
+					},
+					{
+						text: ' how',
+						startMs: 36539.333333,
+						endMs: 36760.333333,
+						timestampMs: 36650.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 36760.333333,
+						endMs: 37014.333333,
+						timestampMs: 36887.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' source',
+						startMs: 37014.333333,
+						endMs: 37489.333333,
+						timestampMs: 37252.333333,
+						confidence: null,
+					},
+					{
+						text: ' good',
+						startMs: 37984.333333,
+						endMs: 38230.333333,
+						timestampMs: 38107.333333,
+						confidence: null,
+					},
+					{
+						text: ' sound',
+						startMs: 38476.333333,
+						endMs: 38860.333333,
+						timestampMs: 38668.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' effects',
+						startMs: 38860.333333,
+						endMs: 39367.333333,
+						timestampMs: 39114.333333,
+						confidence: null,
+					},
+					{
+						text: ' that',
+						startMs: 39830.333333,
+						endMs: 39977.333333,
+						timestampMs: 39904.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 39977.333333,
+						endMs: 40124.333333,
+						timestampMs: 40051.333333,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 40124.333333,
+						endMs: 40304.333333,
+						timestampMs: 40214.333333,
+						confidence: null,
+					},
+					{
+						text: ' make',
+						startMs: 40304.333333,
+						endMs: 40598.333333,
+						timestampMs: 40451.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' freely',
+						startMs: 40598.333333,
+						endMs: 41006.333333,
+						timestampMs: 40802.333333,
+						confidence: null,
+					},
+					{
+						text: ' available',
+						startMs: 41006.333333,
+						endMs: 41202.333333,
+						timestampMs: 41104.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 41202.333333,
+						endMs: 41545.333333,
+						timestampMs: 41374.333333,
+						confidence: null,
+					},
+					{
+						text: ' anybody',
+						startMs: 41545.333333,
+						endMs: 42150.333333,
+						timestampMs: 41848.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' then',
+						startMs: 42702.333333,
+						endMs: 42848.333333,
+						timestampMs: 42775.333333,
+						confidence: null,
+					},
+					{
+						text: ' please',
+						startMs: 42848.333333,
+						endMs: 42994.333333,
+						timestampMs: 42921.333333,
+						confidence: null,
+					},
+					{
+						text: ' let',
+						startMs: 42994.333333,
+						endMs: 43054.333333,
+						timestampMs: 43024.333333,
+						confidence: null,
+					},
+					{
+						text: ' us',
+						startMs: 43045.333333,
+						endMs: 43148.333333,
+						timestampMs: 43097.333333,
+						confidence: null,
+					},
+					{
+						text: ' know.',
+						startMs: 43148.333333,
+						endMs: 43871.333333,
+						timestampMs: 43510.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const SoundEffectsSource = Interactive.create({
+	Component: SoundEffectsSourceInner,
+	layout: 'absolute-fill',
+});
+
+const SoundEffectsSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent={accents.soundEffects} />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="AI is bad at finding them"
 						durationInFrames={154}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={94}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<SoundEffectsSource trimBefore={94} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Our own library"
 						durationInFrames={256}
 						premountFor={30}
 					>
-						<Punch zoom={1.14}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={256}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.14}>
+							<SoundEffectsSource trimBefore={256} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Hotlink"
 						durationInFrames={114}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={533}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<SoundEffectsSource trimBefore={533} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Same loudness"
 						durationInFrames={136}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={658}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<SoundEffectsSource trimBefore={658} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Standardized"
 						durationInFrames={68}
 						premountFor={30}
 					>
-						<Punch zoom={1.04}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={805}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.04}>
+							<SoundEffectsSource trimBefore={805} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Seven to start"
 						durationInFrames={373}
 						premountFor={30}
 					>
-						<Punch zoom={1.2}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={894}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.2}>
+							<SoundEffectsSource trimBefore={894} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Let us know"
 						durationInFrames={51}
 						premountFor={30}
 					>
-						<Punch zoom={1.04}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats3.mp4'
-								}
-								trimBefore={1279}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.04}>
+							<SoundEffectsSource trimBefore={1279} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={2} durationInFrames={52}>
 				<ChapterSticker
@@ -668,751 +1415,6 @@ const SoundEffectsSceneInner: React.FC = () => {
 			<Sequence name="Call for sources" from={884} durationInFrames={268}>
 				<CallForSources />
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={[
-					'free',
-					'attribution',
-					'hotlink',
-					'loudness',
-					'seven',
-					'anybody',
-				]}
-				captions={[
-					// @captions whats3
-					{
-						text: 'Sound',
-						startMs: 140,
-						endMs: 316,
-						timestampMs: 228,
-						confidence: null,
-					},
-					{
-						text: ' effects.',
-						startMs: 316,
-						endMs: 1028,
-						timestampMs: 672,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' Unfortunately,',
-						startMs: 1310,
-						endMs: 1674,
-						timestampMs: 1492,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' AI',
-						startMs: 2015,
-						endMs: 2425,
-						timestampMs: 2220,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 2425,
-						endMs: 2698,
-						timestampMs: 2562,
-						confidence: null,
-					},
-					{
-						text: ' pretty',
-						startMs: 2698,
-						endMs: 2994,
-						timestampMs: 2846,
-						confidence: null,
-					},
-					{
-						text: ' bad',
-						startMs: 2994,
-						endMs: 3245,
-						timestampMs: 3120,
-						confidence: null,
-					},
-					{
-						text: ' at',
-						startMs: 3245,
-						endMs: 3677,
-						timestampMs: 3461,
-						confidence: null,
-					},
-					{
-						text: ' finding',
-						startMs: 3677,
-						endMs: 4041,
-						timestampMs: 3859,
-						confidence: null,
-					},
-					{
-						text: ' them',
-						startMs: 4041,
-						endMs: 4542,
-						timestampMs: 4292,
-						confidence: null,
-					},
-					{
-						text: ' online,',
-						startMs: 4542,
-						endMs: 5020,
-						timestampMs: 4781,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' so',
-						startMs: 5222,
-						endMs: 5622,
-						timestampMs: 5422,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 5921,
-						endMs: 6025,
-						timestampMs: 5973,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 6025,
-						endMs: 6336,
-						timestampMs: 6181,
-						confidence: null,
-					},
-					{
-						text: ' making',
-						startMs: 6336,
-						endMs: 6612,
-						timestampMs: 6474,
-						confidence: null,
-					},
-					{
-						text: ' our',
-						startMs: 6612,
-						endMs: 7043,
-						timestampMs: 6828,
-						confidence: null,
-					},
-					{
-						text: ' own',
-						startMs: 7043,
-						endMs: 7492,
-						timestampMs: 7268,
-						confidence: null,
-					},
-					{
-						text: ' library',
-						startMs: 7492,
-						endMs: 7768,
-						timestampMs: 7630,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 7768,
-						endMs: 7992,
-						timestampMs: 7880,
-						confidence: null,
-					},
-					{
-						text: ' sound',
-						startMs: 7992,
-						endMs: 8320,
-						timestampMs: 8156,
-						confidence: null,
-					},
-					{
-						text: ' effects',
-						startMs: 8320,
-						endMs: 8803,
-						timestampMs: 8562,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 9218,
-						endMs: 9352,
-						timestampMs: 9285,
-						confidence: null,
-					},
-					{
-						text: ' anybody',
-						startMs: 9559,
-						endMs: 9838,
-						timestampMs: 9699,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 9838,
-						endMs: 10156,
-						timestampMs: 9997,
-						confidence: null,
-					},
-					{
-						text: ' use',
-						startMs: 10156,
-						endMs: 10514,
-						timestampMs: 10335,
-						confidence: null,
-					},
-					{
-						text: ' for',
-						startMs: 10777,
-						endMs: 11138,
-						timestampMs: 10958,
-						confidence: null,
-					},
-					{
-						text: ' free',
-						startMs: 11138,
-						endMs: 11439,
-						timestampMs: 11289,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 11439,
-						endMs: 11780,
-						timestampMs: 11610,
-						confidence: null,
-					},
-					{
-						text: ' no',
-						startMs: 11780,
-						endMs: 12563,
-						timestampMs: 12172,
-						confidence: null,
-					},
-					{
-						text: ' attribution',
-						startMs: 12563,
-						endMs: 13326,
-						timestampMs: 12945,
-						confidence: null,
-					},
-					{
-						text: ' required.',
-						startMs: 13326,
-						endMs: 13506,
-						timestampMs: 13416,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' We',
-						startMs: 13760,
-						endMs: 13934,
-						timestampMs: 13847,
-						confidence: null,
-					},
-					{
-						text: ' host',
-						startMs: 13934,
-						endMs: 14074,
-						timestampMs: 14004,
-						confidence: null,
-					},
-					{
-						text: ' them',
-						startMs: 14074,
-						endMs: 14231,
-						timestampMs: 14153,
-						confidence: null,
-					},
-					{
-						text: ' on',
-						startMs: 14231,
-						endMs: 14616,
-						timestampMs: 14424,
-						confidence: null,
-					},
-					{
-						text: ' our',
-						startMs: 14616,
-						endMs: 14948,
-						timestampMs: 14782,
-						confidence: null,
-					},
-					{
-						text: ' domain,',
-						startMs: 14948,
-						endMs: 15140,
-						timestampMs: 15044,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' you',
-						startMs: 15332,
-						endMs: 15472,
-						timestampMs: 15402,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 15472,
-						endMs: 15647,
-						timestampMs: 15560,
-						confidence: null,
-					},
-					{
-						text: ' just',
-						startMs: 15647,
-						endMs: 15961,
-						timestampMs: 15804,
-						confidence: null,
-					},
-					{
-						text: ' hotlink',
-						startMs: 15961,
-						endMs: 16276,
-						timestampMs: 16119,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 16276,
-						endMs: 16451,
-						timestampMs: 16364,
-						confidence: null,
-					},
-					{
-						text: ' sound',
-						startMs: 16451,
-						endMs: 16818,
-						timestampMs: 16635,
-						confidence: null,
-					},
-					{
-						text: ' effects',
-						startMs: 16818,
-						endMs: 17377,
-						timestampMs: 17098,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 17545,
-						endMs: 17670,
-						timestampMs: 17608,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 17670,
-						endMs: 17992,
-						timestampMs: 17831,
-						confidence: null,
-					},
-					{
-						text: ' also',
-						startMs: 17992,
-						endMs: 18242,
-						timestampMs: 18117,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 18242,
-						endMs: 18528,
-						timestampMs: 18385,
-						confidence: null,
-					},
-					{
-						text: ' sure',
-						startMs: 18528,
-						endMs: 18992,
-						timestampMs: 18760,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 18992,
-						endMs: 19314,
-						timestampMs: 19153,
-						confidence: null,
-					},
-					{
-						text: ' all',
-						startMs: 19314,
-						endMs: 19456,
-						timestampMs: 19385,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 19456,
-						endMs: 19599,
-						timestampMs: 19528,
-						confidence: null,
-					},
-					{
-						text: ' sound',
-						startMs: 19599,
-						endMs: 19849,
-						timestampMs: 19724,
-						confidence: null,
-					},
-					{
-						text: ' effects',
-						startMs: 19849,
-						endMs: 20046,
-						timestampMs: 19948,
-						confidence: null,
-					},
-					{
-						text: ' have',
-						startMs: 20046,
-						endMs: 20171,
-						timestampMs: 20109,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 20224,
-						endMs: 20284,
-						timestampMs: 20254,
-						confidence: null,
-					},
-					{
-						text: ' same',
-						startMs: 20635,
-						endMs: 21082,
-						timestampMs: 20859,
-						confidence: null,
-					},
-					{
-						text: ' loudness',
-						startMs: 21082,
-						endMs: 21903,
-						timestampMs: 21493,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 22096,
-						endMs: 22220,
-						timestampMs: 22158,
-						confidence: null,
-					},
-					{
-						text: ' get',
-						startMs: 22220,
-						endMs: 22353,
-						timestampMs: 22287,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 22353,
-						endMs: 22628,
-						timestampMs: 22491,
-						confidence: null,
-					},
-					{
-						text: ' standardized',
-						startMs: 22869,
-						endMs: 23280,
-						timestampMs: 23075,
-						confidence: null,
-					},
-					{
-						text: ' as',
-						startMs: 23280,
-						endMs: 23508,
-						timestampMs: 23394,
-						confidence: null,
-					},
-					{
-						text: ' well.',
-						startMs: 23508,
-						endMs: 24102,
-						timestampMs: 23805,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' For',
-						startMs: 24345,
-						endMs: 24617,
-						timestampMs: 24481,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 24617,
-						endMs: 24852,
-						timestampMs: 24735,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 24852,
-						endMs: 25088,
-						timestampMs: 24970,
-						confidence: null,
-					},
-					{
-						text: ' start',
-						startMs: 25088,
-						endMs: 25269,
-						timestampMs: 25179,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 25269,
-						endMs: 25631,
-						timestampMs: 25450,
-						confidence: null,
-					},
-					{
-						text: ' only',
-						startMs: 25631,
-						endMs: 26011,
-						timestampMs: 25821,
-						confidence: null,
-					},
-					{
-						text: ' seven',
-						startMs: 26011,
-						endMs: 26071,
-						timestampMs: 26041,
-						confidence: null,
-					},
-					{
-						text: ' sound',
-						startMs: 26265,
-						endMs: 26537,
-						timestampMs: 26401,
-						confidence: null,
-					},
-					{
-						text: ' effects',
-						startMs: 26537,
-						endMs: 26790,
-						timestampMs: 26664,
-						confidence: null,
-					},
-					{
-						text: ' but',
-						startMs: 26790,
-						endMs: 26953,
-						timestampMs: 26872,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 26953,
-						endMs: 27153,
-						timestampMs: 27053,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 27153,
-						endMs: 27443,
-						timestampMs: 27298,
-						confidence: null,
-					},
-					{
-						text: ' looking',
-						startMs: 27443,
-						endMs: 27696,
-						timestampMs: 27570,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 27696,
-						endMs: 28040,
-						timestampMs: 27868,
-						confidence: null,
-					},
-					{
-						text: ' add',
-						startMs: 28040,
-						endMs: 28384,
-						timestampMs: 28212,
-						confidence: null,
-					},
-					{
-						text: ' more',
-						startMs: 28384,
-						endMs: 28928,
-						timestampMs: 28656,
-						confidence: null,
-					},
-					{
-						text: ' so',
-						startMs: 29374,
-						endMs: 29568,
-						timestampMs: 29471,
-						confidence: null,
-					},
-					{
-						text: ' if',
-						startMs: 29768,
-						endMs: 30107,
-						timestampMs: 29938,
-						confidence: null,
-					},
-					{
-						text: ' you',
-						startMs: 30107,
-						endMs: 30701,
-						timestampMs: 30404,
-						confidence: null,
-					},
-					{
-						text: ' know',
-						startMs: 30701,
-						endMs: 31006,
-						timestampMs: 30854,
-						confidence: null,
-					},
-					{
-						text: ' how',
-						startMs: 31006,
-						endMs: 31227,
-						timestampMs: 31117,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 31227,
-						endMs: 31481,
-						timestampMs: 31354,
-						confidence: null,
-					},
-					{
-						text: ' source',
-						startMs: 31481,
-						endMs: 31956,
-						timestampMs: 31719,
-						confidence: null,
-					},
-					{
-						text: ' good',
-						startMs: 32451,
-						endMs: 32697,
-						timestampMs: 32574,
-						confidence: null,
-					},
-					{
-						text: ' sound',
-						startMs: 32943,
-						endMs: 33327,
-						timestampMs: 33135,
-						confidence: null,
-					},
-					{
-						text: ' effects',
-						startMs: 33327,
-						endMs: 33834,
-						timestampMs: 33581,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 34297,
-						endMs: 34444,
-						timestampMs: 34371,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 34444,
-						endMs: 34591,
-						timestampMs: 34518,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 34591,
-						endMs: 34771,
-						timestampMs: 34681,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 34771,
-						endMs: 35065,
-						timestampMs: 34918,
-						confidence: null,
-					},
-					{
-						text: ' freely',
-						startMs: 35065,
-						endMs: 35473,
-						timestampMs: 35269,
-						confidence: null,
-					},
-					{
-						text: ' available',
-						startMs: 35473,
-						endMs: 35669,
-						timestampMs: 35571,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 35669,
-						endMs: 36012,
-						timestampMs: 35841,
-						confidence: null,
-					},
-					{
-						text: ' anybody',
-						startMs: 36012,
-						endMs: 36617,
-						timestampMs: 36315,
-						confidence: null,
-					},
-					{
-						text: ' then',
-						startMs: 36769,
-						endMs: 36915,
-						timestampMs: 36842,
-						confidence: null,
-					},
-					{
-						text: ' please',
-						startMs: 36915,
-						endMs: 37061,
-						timestampMs: 36988,
-						confidence: null,
-					},
-					{
-						text: ' let',
-						startMs: 37061,
-						endMs: 37121,
-						timestampMs: 37091,
-						confidence: null,
-					},
-					{
-						text: ' us',
-						startMs: 37112,
-						endMs: 37215,
-						timestampMs: 37164,
-						confidence: null,
-					},
-					{
-						text: ' know.',
-						startMs: 37215,
-						endMs: 37938,
-						timestampMs: 37577,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

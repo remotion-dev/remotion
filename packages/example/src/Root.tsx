@@ -29,6 +29,7 @@ import {
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
+import {CombinedCaptionedVideoExample} from './CombinedCaptionedVideoExample';
 import {
 	COMMITTED_HOLDS_DURATION,
 	COMMITTED_HOLDS_HEIGHT,
@@ -3215,6 +3216,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="captioned-video-combined"
+					component={CombinedCaptionedVideoExample}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="keyframe-trim-testbed"
 					component={KeyframeTrimTestbed}

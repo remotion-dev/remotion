@@ -14,7 +14,9 @@ import {PunchyCaptions} from '../components/Captions';
 import {BrowserIcon, CheckIcon} from '../components/icons';
 import {RemotionLogo} from '../components/Logo';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -510,104 +512,560 @@ const CssProperties: React.FC = () => {
 	);
 };
 
-const ClientSideSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const ClientSideSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent={accents.clientSide} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={[
+					'browser',
+					'experimental',
+					'queue',
+					'multiple',
+					'formats,',
+					'audio',
+					'css',
+				]}
+				captions={[
+					// @captions whats6
+					{
+						text: 'Client-side',
+						startMs: 2317.666666,
+						endMs: 3111.666666,
+						timestampMs: 2714.666666,
+						confidence: null,
+					},
+					{
+						text: ' rendering',
+						startMs: 3111.666666,
+						endMs: 3581.666666,
+						timestampMs: 3346.666666,
+						confidence: null,
+					},
+					{
+						text: ' progress.',
+						startMs: 3581.666666,
+						endMs: 4375.666666,
+						timestampMs: 3978.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' We',
+						startMs: 5402.666666,
+						endMs: 5512.666666,
+						timestampMs: 5457.666666,
+						confidence: null,
+					},
+					{
+						text: ' are',
+						startMs: 5512.666666,
+						endMs: 5717.666666,
+						timestampMs: 5615.666666,
+						confidence: null,
+					},
+					{
+						text: ' trying',
+						startMs: 5717.666666,
+						endMs: 5875.666666,
+						timestampMs: 5796.666666,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 5875.666666,
+						endMs: 6001.666666,
+						timestampMs: 5938.666666,
+						confidence: null,
+					},
+					{
+						text: ' make',
+						startMs: 6001.666666,
+						endMs: 6143.666666,
+						timestampMs: 6072.666666,
+						confidence: null,
+					},
+					{
+						text: ' it',
+						startMs: 6143.666666,
+						endMs: 6427.666666,
+						timestampMs: 6285.666666,
+						confidence: null,
+					},
+					{
+						text: ' possible',
+						startMs: 6427.666666,
+						endMs: 6663.666666,
+						timestampMs: 6545.666666,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 6663.666666,
+						endMs: 6947.666666,
+						timestampMs: 6805.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' render',
+						startMs: 6947.666666,
+						endMs: 7420.666666,
+						timestampMs: 7184.666666,
+						confidence: null,
+					},
+					{
+						text: ' videos',
+						startMs: 7420.666666,
+						endMs: 8019.666666,
+						timestampMs: 7720.666666,
+						confidence: null,
+					},
+					{
+						text: ' purely',
+						startMs: 8310.666666,
+						endMs: 8370.666666,
+						timestampMs: 8340.666666,
+						confidence: null,
+					},
+					{
+						text: ' in',
+						startMs: 8686.666666,
+						endMs: 8864.666666,
+						timestampMs: 8775.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' the',
+						startMs: 8864.666666,
+						endMs: 9160.666666,
+						timestampMs: 9012.666666,
+						confidence: null,
+					},
+					{
+						text: ' browser',
+						startMs: 9160.666666,
+						endMs: 9616.666666,
+						timestampMs: 9388.666666,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 9616.666666,
+						endMs: 9774.666666,
+						timestampMs: 9695.666666,
+						confidence: null,
+					},
+					{
+						text: " we've",
+						startMs: 9774.666666,
+						endMs: 10031.666666,
+						timestampMs: 9903.666666,
+						confidence: null,
+					},
+					{
+						text: ' made',
+						startMs: 10031.666666,
+						endMs: 10190.666666,
+						timestampMs: 10111.666666,
+						confidence: null,
+					},
+					{
+						text: ' some',
+						startMs: 10190.666666,
+						endMs: 10407.666666,
+						timestampMs: 10299.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' good',
+						startMs: 10407.666666,
+						endMs: 10922.666666,
+						timestampMs: 10665.666666,
+						confidence: null,
+					},
+					{
+						text: ' progress',
+						startMs: 10922.666666,
+						endMs: 11496.666666,
+						timestampMs: 11209.666666,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 11876.666666,
+						endMs: 12109.666666,
+						timestampMs: 11993.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' this',
+						startMs: 12109.666666,
+						endMs: 12790.666666,
+						timestampMs: 12450.666666,
+						confidence: null,
+					},
+					{
+						text: ' experimental',
+						startMs: 12790.666666,
+						endMs: 13222.666666,
+						timestampMs: 13006.666666,
+						confidence: null,
+					},
+					{
+						text: ' feature.',
+						startMs: 13222.666666,
+						endMs: 13771.666666,
+						timestampMs: 13497.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' It',
+						startMs: 14396.333333,
+						endMs: 14471.333333,
+						timestampMs: 14434.333333,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 14471.333333,
+						endMs: 14531.333333,
+						timestampMs: 14501.333333,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 14679.333333,
+						endMs: 14739.333333,
+						timestampMs: 14709.333333,
+						confidence: null,
+					},
+					{
+						text: ' possible',
+						startMs: 15037.333333,
+						endMs: 15320.333333,
+						timestampMs: 15179.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 15320.333333,
+						endMs: 15490.333333,
+						timestampMs: 15405.333333,
+						confidence: null,
+					},
+					{
+						text: ' queue',
+						startMs: 15490.333333,
+						endMs: 15716.333333,
+						timestampMs: 15603.333333,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 15716.333333,
+						endMs: 16075.333333,
+						timestampMs: 15896.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' track',
+						startMs: 16075.333333,
+						endMs: 16792.333333,
+						timestampMs: 16434.333333,
+						confidence: null,
+					},
+					{
+						text: ' multiple',
+						startMs: 16792.333333,
+						endMs: 17207.333333,
+						timestampMs: 17000.333333,
+						confidence: null,
+					},
+					{
+						text: ' renders',
+						startMs: 17207.333333,
+						endMs: 17678.333333,
+						timestampMs: 17443.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' in',
+						startMs: 17678.333333,
+						endMs: 17886.333333,
+						timestampMs: 17782.333333,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 17886.333333,
+						endMs: 18112.333333,
+						timestampMs: 17999.333333,
+						confidence: null,
+					},
+					{
+						text: ' Remotion',
+						startMs: 18112.333333,
+						endMs: 19037.333333,
+						timestampMs: 18575.333333,
+						confidence: null,
+					},
+					{
+						text: ' Studio,',
+						startMs: 19037.333333,
+						endMs: 19527.333333,
+						timestampMs: 19282.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' we',
+						startMs: 20072,
+						endMs: 20253,
+						timestampMs: 20163,
+						confidence: null,
+					},
+					{
+						text: ' added',
+						startMs: 20253,
+						endMs: 20566,
+						timestampMs: 20410,
+						confidence: null,
+					},
+					{
+						text: ' support',
+						startMs: 20616,
+						endMs: 20682,
+						timestampMs: 20649,
+						confidence: null,
+					},
+					{
+						text: ' for',
+						startMs: 20780,
+						endMs: 21407,
+						timestampMs: 21094,
+						confidence: null,
+					},
+					{
+						text: ' exporting',
+						startMs: 21407,
+						endMs: 21819,
+						timestampMs: 21613,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' in',
+						startMs: 21819,
+						endMs: 22099,
+						timestampMs: 21959,
+						confidence: null,
+					},
+					{
+						text: ' new',
+						startMs: 22099,
+						endMs: 22725,
+						timestampMs: 22412,
+						confidence: null,
+					},
+					{
+						text: ' formats,',
+						startMs: 22933,
+						endMs: 23468,
+						timestampMs: 23201,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' including',
+						startMs: 23997.666666,
+						endMs: 24413.666666,
+						timestampMs: 24205.666666,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 24413.666666,
+						endMs: 24961.666666,
+						timestampMs: 24687.666666,
+						confidence: null,
+					},
+					{
+						text: ' audio',
+						startMs: 25175.666666,
+						endMs: 26212.666666,
+						timestampMs: 25694.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' formats',
+						startMs: 26212.666666,
+						endMs: 26272.666666,
+						timestampMs: 26242.666666,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 26731.333333,
+						endMs: 27031.333333,
+						timestampMs: 26881.333333,
+						confidence: null,
+					},
+					{
+						text: ' also',
+						startMs: 27031.333333,
+						endMs: 27488.333333,
+						timestampMs: 27260.333333,
+						confidence: null,
+					},
+					{
+						text: ' these',
+						startMs: 27837.333333,
+						endMs: 28177.333333,
+						timestampMs: 28007.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' new',
+						startMs: 28177.333333,
+						endMs: 28767.333333,
+						timestampMs: 28472.333333,
+						confidence: null,
+					},
+					{
+						text: ' CSS',
+						startMs: 28767.333333,
+						endMs: 29321.333333,
+						timestampMs: 29044.333333,
+						confidence: null,
+					},
+					{
+						text: ' properties',
+						startMs: 29321.333333,
+						endMs: 30001.333333,
+						timestampMs: 29661.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' are',
+						startMs: 30477.333333,
+						endMs: 30641.333333,
+						timestampMs: 30559.333333,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 30641.333333,
+						endMs: 30950.333333,
+						timestampMs: 30796.333333,
+						confidence: null,
+					},
+					{
+						text: ' supported.',
+						startMs: 31159.333333,
+						endMs: 31637.333333,
+						timestampMs: 31398.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const ClientSideSource = Interactive.create({
+	Component: ClientSideSourceInner,
+	layout: 'absolute-fill',
+});
+
+const ClientSideSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent={accents.clientSide} />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="Client-side rendering"
 						durationInFrames={71}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={65}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<ClientSideSource trimBefore={65} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="In the browser"
 						durationInFrames={258}
 						premountFor={30}
 					>
-						<Punch zoom={1.14}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={160}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.14}>
+							<ClientSideSource trimBefore={160} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Render queue"
 						durationInFrames={160}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={429}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<ClientSideSource trimBefore={429} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="New formats"
 						durationInFrames={107}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={600}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<ClientSideSource trimBefore={600} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Audio formats"
 						durationInFrames={71}
 						premountFor={30}
 					>
-						<Punch zoom={1.04}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={718}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.04}>
+							<ClientSideSource trimBefore={718} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="CSS properties"
 						durationInFrames={165}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats6.mp4'
-								}
-								trimBefore={800}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<ClientSideSource trimBefore={800} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={3} durationInFrames={98}>
 				<ChapterSticker
@@ -628,463 +1086,6 @@ const ClientSideSceneInner: React.FC = () => {
 			<Sequence name="CSS properties" from={684} durationInFrames={148}>
 				<CssProperties />
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={[
-					'browser',
-					'experimental',
-					'queue',
-					'multiple',
-					'formats,',
-					'audio',
-					'css',
-				]}
-				captions={[
-					// @captions whats6
-					{
-						text: 'Client-side',
-						startMs: 151,
-						endMs: 945,
-						timestampMs: 548,
-						confidence: null,
-					},
-					{
-						text: ' rendering',
-						startMs: 945,
-						endMs: 1415,
-						timestampMs: 1180,
-						confidence: null,
-					},
-					{
-						text: ' progress.',
-						startMs: 1415,
-						endMs: 2209,
-						timestampMs: 1812,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' We',
-						startMs: 2436,
-						endMs: 2546,
-						timestampMs: 2491,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 2546,
-						endMs: 2751,
-						timestampMs: 2649,
-						confidence: null,
-					},
-					{
-						text: ' trying',
-						startMs: 2751,
-						endMs: 2909,
-						timestampMs: 2830,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 2909,
-						endMs: 3035,
-						timestampMs: 2972,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 3035,
-						endMs: 3177,
-						timestampMs: 3106,
-						confidence: null,
-					},
-					{
-						text: ' it',
-						startMs: 3177,
-						endMs: 3461,
-						timestampMs: 3319,
-						confidence: null,
-					},
-					{
-						text: ' possible',
-						startMs: 3461,
-						endMs: 3697,
-						timestampMs: 3579,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 3697,
-						endMs: 3981,
-						timestampMs: 3839,
-						confidence: null,
-					},
-					{
-						text: ' render',
-						startMs: 3981,
-						endMs: 4454,
-						timestampMs: 4218,
-						confidence: null,
-					},
-					{
-						text: ' videos',
-						startMs: 4454,
-						endMs: 5053,
-						timestampMs: 4754,
-						confidence: null,
-					},
-					{
-						text: ' purely',
-						startMs: 5344,
-						endMs: 5404,
-						timestampMs: 5374,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 5720,
-						endMs: 5898,
-						timestampMs: 5809,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 5898,
-						endMs: 6194,
-						timestampMs: 6046,
-						confidence: null,
-					},
-					{
-						text: ' browser',
-						startMs: 6194,
-						endMs: 6650,
-						timestampMs: 6422,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 6650,
-						endMs: 6808,
-						timestampMs: 6729,
-						confidence: null,
-					},
-					{
-						text: " we've",
-						startMs: 6808,
-						endMs: 7065,
-						timestampMs: 6937,
-						confidence: null,
-					},
-					{
-						text: ' made',
-						startMs: 7065,
-						endMs: 7224,
-						timestampMs: 7145,
-						confidence: null,
-					},
-					{
-						text: ' some',
-						startMs: 7224,
-						endMs: 7441,
-						timestampMs: 7333,
-						confidence: null,
-					},
-					{
-						text: ' good',
-						startMs: 7441,
-						endMs: 7956,
-						timestampMs: 7699,
-						confidence: null,
-					},
-					{
-						text: ' progress',
-						startMs: 7956,
-						endMs: 8530,
-						timestampMs: 8243,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 8910,
-						endMs: 9143,
-						timestampMs: 9027,
-						confidence: null,
-					},
-					{
-						text: ' this',
-						startMs: 9143,
-						endMs: 9824,
-						timestampMs: 9484,
-						confidence: null,
-					},
-					{
-						text: ' experimental',
-						startMs: 9824,
-						endMs: 10256,
-						timestampMs: 10040,
-						confidence: null,
-					},
-					{
-						text: ' feature.',
-						startMs: 10256,
-						endMs: 10805,
-						timestampMs: 10531,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' It',
-						startMs: 11063,
-						endMs: 11138,
-						timestampMs: 11101,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 11138,
-						endMs: 11198,
-						timestampMs: 11168,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 11346,
-						endMs: 11406,
-						timestampMs: 11376,
-						confidence: null,
-					},
-					{
-						text: ' possible',
-						startMs: 11704,
-						endMs: 11987,
-						timestampMs: 11846,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 11987,
-						endMs: 12157,
-						timestampMs: 12072,
-						confidence: null,
-					},
-					{
-						text: ' queue',
-						startMs: 12157,
-						endMs: 12383,
-						timestampMs: 12270,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 12383,
-						endMs: 12742,
-						timestampMs: 12563,
-						confidence: null,
-					},
-					{
-						text: ' track',
-						startMs: 12742,
-						endMs: 13459,
-						timestampMs: 13101,
-						confidence: null,
-					},
-					{
-						text: ' multiple',
-						startMs: 13459,
-						endMs: 13874,
-						timestampMs: 13667,
-						confidence: null,
-					},
-					{
-						text: ' renders',
-						startMs: 13874,
-						endMs: 14345,
-						timestampMs: 14110,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 14345,
-						endMs: 14553,
-						timestampMs: 14449,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 14553,
-						endMs: 14779,
-						timestampMs: 14666,
-						confidence: null,
-					},
-					{
-						text: ' Remotion',
-						startMs: 14779,
-						endMs: 15704,
-						timestampMs: 15242,
-						confidence: null,
-					},
-					{
-						text: ' Studio,',
-						startMs: 15704,
-						endMs: 16194,
-						timestampMs: 15949,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' we',
-						startMs: 16372,
-						endMs: 16553,
-						timestampMs: 16463,
-						confidence: null,
-					},
-					{
-						text: ' added',
-						startMs: 16553,
-						endMs: 16866,
-						timestampMs: 16710,
-						confidence: null,
-					},
-					{
-						text: ' support',
-						startMs: 16916,
-						endMs: 16982,
-						timestampMs: 16949,
-						confidence: null,
-					},
-					{
-						text: ' for',
-						startMs: 17080,
-						endMs: 17707,
-						timestampMs: 17394,
-						confidence: null,
-					},
-					{
-						text: ' exporting',
-						startMs: 17707,
-						endMs: 18119,
-						timestampMs: 17913,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 18119,
-						endMs: 18399,
-						timestampMs: 18259,
-						confidence: null,
-					},
-					{
-						text: ' new',
-						startMs: 18399,
-						endMs: 19025,
-						timestampMs: 18712,
-						confidence: null,
-					},
-					{
-						text: ' formats,',
-						startMs: 19233,
-						endMs: 19768,
-						timestampMs: 19501,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' including',
-						startMs: 19931,
-						endMs: 20347,
-						timestampMs: 20139,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 20347,
-						endMs: 20895,
-						timestampMs: 20621,
-						confidence: null,
-					},
-					{
-						text: ' audio',
-						startMs: 21109,
-						endMs: 22146,
-						timestampMs: 21628,
-						confidence: null,
-					},
-					{
-						text: ' formats',
-						startMs: 22146,
-						endMs: 22206,
-						timestampMs: 22176,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 22298,
-						endMs: 22598,
-						timestampMs: 22448,
-						confidence: null,
-					},
-					{
-						text: ' also',
-						startMs: 22598,
-						endMs: 23055,
-						timestampMs: 22827,
-						confidence: null,
-					},
-					{
-						text: ' these',
-						startMs: 23404,
-						endMs: 23744,
-						timestampMs: 23574,
-						confidence: null,
-					},
-					{
-						text: ' new',
-						startMs: 23744,
-						endMs: 24334,
-						timestampMs: 24039,
-						confidence: null,
-					},
-					{
-						text: ' CSS',
-						startMs: 24334,
-						endMs: 24888,
-						timestampMs: 24611,
-						confidence: null,
-					},
-					{
-						text: ' properties',
-						startMs: 24888,
-						endMs: 25568,
-						timestampMs: 25228,
-						confidence: null,
-					},
-					{
-						text: ' are',
-						startMs: 26044,
-						endMs: 26208,
-						timestampMs: 26126,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 26208,
-						endMs: 26517,
-						timestampMs: 26363,
-						confidence: null,
-					},
-					{
-						text: ' supported.',
-						startMs: 26726,
-						endMs: 27204,
-						timestampMs: 26965,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

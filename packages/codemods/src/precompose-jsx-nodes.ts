@@ -33,6 +33,7 @@ import {captureJsxAttributeSources, printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
+import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 import {parseAst} from './sequence-props/parse-ast';
 import {
 	applySourceEdits,
@@ -71,9 +72,11 @@ type PrecompositionPlan = {
 const getPrecompositionPlan = ({
 	input,
 	nodePaths,
+	allowMediaParents,
 }: {
 	input: string;
 	nodePaths: SequenceNodePath[];
+	allowMediaParents: boolean;
 }): PrecompositionPlan => {
 	if (nodePaths.length === 0) {
 		throw new Error('Select at least one sequence to pre-compose');
@@ -375,7 +378,26 @@ const getPrecompositionPlan = ({
 						ancestor.scope.lookup(name.object.name)?.path.node ===
 							ast.program &&
 						name.property.name === 'Series'));
-			if (!transparent && !preservesSeriesChild) {
+			let parentRoot = name;
+			while (parentRoot.type === 'JSXMemberExpression') {
+				parentRoot = parentRoot.object;
+			}
+
+			const preservesMediaParent =
+				allowMediaParents &&
+				parentRoot.type === 'JSXIdentifier' &&
+				ancestor.scope.lookup(parentRoot.name)?.path.node === ast.program &&
+				[
+					'dev.remotion.remotion.Track',
+					'dev.remotion.remotion.Series.Sequence',
+					'dev.remotion.transitions.TransitionSeries.Sequence',
+				].includes(
+					getJsxComponentIdentity({
+						ast,
+						jsxElement: ancestorNode.openingElement,
+					}) ?? '',
+				);
+			if (!transparent && !preservesSeriesChild && !preservesMediaParent) {
 				throw new Error('The JSX parent may depend on its direct children');
 			}
 
@@ -1431,6 +1453,25 @@ const getPrecompositionPlan = ({
 	};
 };
 
+export const canExtractJsxWithoutCapturedValues = ({
+	input,
+	nodePath,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+}): boolean => {
+	try {
+		const {hookProps, derivedProps} = getPrecompositionPlan({
+			input,
+			nodePaths: [nodePath],
+			allowMediaParents: true,
+		});
+		return hookProps.length === 0 && derivedProps.length === 0;
+	} catch {
+		return false;
+	}
+};
+
 type PrecomposeOptions<Project extends CodemodProject> = {
 	project: Project;
 	nodes: NodeReference[];
@@ -1561,6 +1602,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	} = getPrecompositionPlan({
 		input,
 		nodePaths: nodes.map((node) => node.nodePath),
+		allowMediaParents: false,
 	});
 	const captured = captureJsxNodePaths(ast);
 	const registrationAst =

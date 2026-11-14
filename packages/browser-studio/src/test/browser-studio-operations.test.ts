@@ -441,6 +441,9 @@ registerRoot(Root);`,
 		'<BasicCaptions captions={[',
 	);
 	expect(currentProject.files[fileName]).toContain("text: ' Hello'");
+	expect(currentProject.files[fileName]).toContain(
+		'const CaptionedVideo = Interactive.create({',
+	);
 	expect(events).toContainEqual({
 		type: 'sequence-node-paths-remapped',
 		mutation: captionsResult.nodePathMutation,

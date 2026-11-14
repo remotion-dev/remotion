@@ -15,7 +15,9 @@ import {PunchyCaptions} from '../components/Captions';
 import {SpeedLines} from '../components/fx';
 import {BoltIcon} from '../components/icons';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -413,104 +415,572 @@ const Roadmap: React.FC = () => {
 	);
 };
 
-const BundlingSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const BundlingSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent={accents.bundling} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={['rspack', 'faster.', 'twice', 'fast', 'default']}
+				captions={[
+					// @captions whats8
+					{
+						text: 'Faster',
+						startMs: 2734,
+						endMs: 2994,
+						timestampMs: 2864,
+						confidence: null,
+					},
+					{
+						text: ' bundling.',
+						startMs: 2994,
+						endMs: 3850,
+						timestampMs: 3422,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' You',
+						startMs: 4644.666666,
+						endMs: 4817.666666,
+						timestampMs: 4731.666666,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 4817.666666,
+						endMs: 5028.666666,
+						timestampMs: 4923.666666,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 5028.666666,
+						endMs: 5277.666666,
+						timestampMs: 5153.666666,
+						confidence: null,
+					},
+					{
+						text: ' opt',
+						startMs: 5277.666666,
+						endMs: 5565.666666,
+						timestampMs: 5421.666666,
+						confidence: null,
+					},
+					{
+						text: ' into',
+						startMs: 5565.666666,
+						endMs: 5795.666666,
+						timestampMs: 5680.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 6013.666666,
+						endMs: 6395.666666,
+						timestampMs: 6204.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Rspack',
+						startMs: 6395.666666,
+						endMs: 7544.666666,
+						timestampMs: 6970.666666,
+						confidence: null,
+					},
+					{
+						text: ' experiment',
+						startMs: 7544.666666,
+						endMs: 8036.666666,
+						timestampMs: 7790.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' which',
+						startMs: 8036.666666,
+						endMs: 8291.666666,
+						timestampMs: 8164.666666,
+						confidence: null,
+					},
+					{
+						text: ' just',
+						startMs: 8291.666666,
+						endMs: 8492.666666,
+						timestampMs: 8392.666666,
+						confidence: null,
+					},
+					{
+						text: ' has',
+						startMs: 8492.666666,
+						endMs: 8856.666666,
+						timestampMs: 8674.666666,
+						confidence: null,
+					},
+					{
+						text: ' one',
+						startMs: 8856.666666,
+						endMs: 9294.666666,
+						timestampMs: 9075.666666,
+						confidence: null,
+					},
+					{
+						text: ' purpose.',
+						startMs: 9294.666666,
+						endMs: 9658.666666,
+						timestampMs: 9476.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' To',
+						startMs: 10200.666666,
+						endMs: 10375.666666,
+						timestampMs: 10288.666666,
+						confidence: null,
+					},
+					{
+						text: ' make',
+						startMs: 10375.666666,
+						endMs: 10578.666666,
+						timestampMs: 10477.666666,
+						confidence: null,
+					},
+					{
+						text: ' things',
+						startMs: 10578.666666,
+						endMs: 10942.666666,
+						timestampMs: 10760.666666,
+						confidence: null,
+					},
+					{
+						text: ' faster.',
+						startMs: 10942.666666,
+						endMs: 11402.666666,
+						timestampMs: 11172.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' When',
+						startMs: 12182,
+						endMs: 12563,
+						timestampMs: 12373,
+						confidence: null,
+					},
+					{
+						text: ' rendering',
+						startMs: 12563,
+						endMs: 12867,
+						timestampMs: 12715,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 12867,
+						endMs: 13229,
+						timestampMs: 13048,
+						confidence: null,
+					},
+					{
+						text: ' video',
+						startMs: 13229,
+						endMs: 13610,
+						timestampMs: 13420,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 13610,
+						endMs: 13801,
+						timestampMs: 13706,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' bundling',
+						startMs: 13801,
+						endMs: 14334,
+						timestampMs: 14068,
+						confidence: null,
+					},
+					{
+						text: ' stage',
+						startMs: 14334,
+						endMs: 14620,
+						timestampMs: 14477,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 14620,
+						endMs: 14830,
+						timestampMs: 14725,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 14830,
+						endMs: 15115,
+						timestampMs: 14973,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 15115,
+						endMs: 15496,
+						timestampMs: 15306,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' twice',
+						startMs: 15496,
+						endMs: 15877,
+						timestampMs: 15687,
+						confidence: null,
+					},
+					{
+						text: ' as',
+						startMs: 15877,
+						endMs: 16335,
+						timestampMs: 16106,
+						confidence: null,
+					},
+					{
+						text: ' fast',
+						startMs: 16335,
+						endMs: 16639,
+						timestampMs: 16487,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 17211,
+						endMs: 17569,
+						timestampMs: 17390,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' changes',
+						startMs: 17569,
+						endMs: 17942,
+						timestampMs: 17756,
+						confidence: null,
+					},
+					{
+						text: ' made',
+						startMs: 17942,
+						endMs: 18106,
+						timestampMs: 18024,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 18106,
+						endMs: 18225,
+						timestampMs: 18166,
+						confidence: null,
+					},
+					{
+						text: ' your',
+						startMs: 18225,
+						endMs: 18524,
+						timestampMs: 18375,
+						confidence: null,
+					},
+					{
+						text: ' code',
+						startMs: 18524,
+						endMs: 19061,
+						timestampMs: 18793,
+						confidence: null,
+					},
+					{
+						text: ' will',
+						startMs: 19545,
+						endMs: 19694,
+						timestampMs: 19620,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' be',
+						startMs: 19694,
+						endMs: 20196,
+						timestampMs: 19945,
+						confidence: null,
+					},
+					{
+						text: ' reflected',
+						startMs: 20196,
+						endMs: 20567,
+						timestampMs: 20382,
+						confidence: null,
+					},
+					{
+						text: ' on',
+						startMs: 20567,
+						endMs: 20790,
+						timestampMs: 20679,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 20790,
+						endMs: 21032,
+						timestampMs: 20911,
+						confidence: null,
+					},
+					{
+						text: ' canvas',
+						startMs: 21032,
+						endMs: 21515,
+						timestampMs: 21274,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' much',
+						startMs: 21515,
+						endMs: 22017,
+						timestampMs: 21766,
+						confidence: null,
+					},
+					{
+						text: ' faster.',
+						startMs: 22017,
+						endMs: 22500,
+						timestampMs: 22259,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' You',
+						startMs: 23368.333333,
+						endMs: 23553.333333,
+						timestampMs: 23461.333333,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 23553.333333,
+						endMs: 23738.333333,
+						timestampMs: 23646.333333,
+						confidence: null,
+					},
+					{
+						text: ' opt',
+						startMs: 23738.333333,
+						endMs: 24078.333333,
+						timestampMs: 23908.333333,
+						confidence: null,
+					},
+					{
+						text: ' into',
+						startMs: 24078.333333,
+						endMs: 24293.333333,
+						timestampMs: 24186.333333,
+						confidence: null,
+					},
+					{
+						text: ' this',
+						startMs: 24293.333333,
+						endMs: 24633.333333,
+						timestampMs: 24463.333333,
+						confidence: null,
+					},
+					{
+						text: ' today',
+						startMs: 24648.333333,
+						endMs: 24910.333333,
+						timestampMs: 24779.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 24910.333333,
+						endMs: 25018.333333,
+						timestampMs: 24964.333333,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 25018.333333,
+						endMs: 25141.333333,
+						timestampMs: 25080.333333,
+						confidence: null,
+					},
+					{
+						text: ' will',
+						startMs: 25141.333333,
+						endMs: 25249.333333,
+						timestampMs: 25195.333333,
+						confidence: null,
+					},
+					{
+						text: ' make',
+						startMs: 25280.333333,
+						endMs: 25340.333333,
+						timestampMs: 25310.333333,
+						confidence: null,
+					},
+					{
+						text: ' it',
+						startMs: 25419.333333,
+						endMs: 25558.333333,
+						timestampMs: 25489.333333,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 25558.333333,
+						endMs: 25882.333333,
+						timestampMs: 25720.333333,
+						confidence: null,
+					},
+					{
+						text: ' default',
+						startMs: 25882.333333,
+						endMs: 26067.333333,
+						timestampMs: 25975.333333,
+						confidence: null,
+					},
+					{
+						text: ' in',
+						startMs: 26067.333333,
+						endMs: 26175.333333,
+						timestampMs: 26121.333333,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 26175.333333,
+						endMs: 26390.333333,
+						timestampMs: 26283.333333,
+						confidence: null,
+					},
+					{
+						text: ' future',
+						startMs: 26390.333333,
+						endMs: 26668.333333,
+						timestampMs: 26529.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' version',
+						startMs: 26668.333333,
+						endMs: 26853.333333,
+						timestampMs: 26761.333333,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 26853.333333,
+						endMs: 27007.333333,
+						timestampMs: 26930.333333,
+						confidence: null,
+					},
+					{
+						text: ' Remotion.',
+						startMs: 27007.333333,
+						endMs: 28471.333333,
+						timestampMs: 27739.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const BundlingSource = Interactive.create({
+	Component: BundlingSourceInner,
+	layout: 'absolute-fill',
+});
+
+const BundlingSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent={accents.bundling} />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="Faster bundling"
 						durationInFrames={42}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={78}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<BundlingSource trimBefore={78} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Rspack experiment"
 						durationInFrames={158}
 						premountFor={30}
 					>
-						<Punch zoom={1.12}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={137}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.12}>
+							<BundlingSource trimBefore={137} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="To make things faster"
 						durationInFrames={43}
 						premountFor={30}
 					>
-						<Punch zoom={1.34}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={304}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.34}>
+							<BundlingSource trimBefore={304} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Twice as fast"
 						durationInFrames={139}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={363}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<BundlingSource trimBefore={363} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Canvas updates"
 						durationInFrames={166}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={514}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<BundlingSource trimBefore={514} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Opt in today"
 						durationInFrames={172}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats8.mp4'
-								}
-								trimBefore={699}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<BundlingSource trimBefore={699} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={2} durationInFrames={46}>
 				<ChapterSticker
@@ -538,476 +1008,6 @@ const BundlingSceneInner: React.FC = () => {
 			<Sequence name="Roadmap" from={548} durationInFrames={172}>
 				<Roadmap />
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={['rspack', 'faster.', 'twice', 'fast', 'default']}
-				captions={[
-					// @captions whats8
-					{
-						text: 'Faster',
-						startMs: 134,
-						endMs: 394,
-						timestampMs: 264,
-						confidence: null,
-					},
-					{
-						text: ' bundling.',
-						startMs: 394,
-						endMs: 1250,
-						timestampMs: 822,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' You',
-						startMs: 1478,
-						endMs: 1651,
-						timestampMs: 1565,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 1651,
-						endMs: 1862,
-						timestampMs: 1757,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 1862,
-						endMs: 2111,
-						timestampMs: 1987,
-						confidence: null,
-					},
-					{
-						text: ' opt',
-						startMs: 2111,
-						endMs: 2399,
-						timestampMs: 2255,
-						confidence: null,
-					},
-					{
-						text: ' into',
-						startMs: 2399,
-						endMs: 2629,
-						timestampMs: 2514,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 2847,
-						endMs: 3229,
-						timestampMs: 3038,
-						confidence: null,
-					},
-					{
-						text: ' Rspack',
-						startMs: 3229,
-						endMs: 4378,
-						timestampMs: 3804,
-						confidence: null,
-					},
-					{
-						text: ' experiment',
-						startMs: 4378,
-						endMs: 4870,
-						timestampMs: 4624,
-						confidence: null,
-					},
-					{
-						text: ' which',
-						startMs: 4870,
-						endMs: 5125,
-						timestampMs: 4998,
-						confidence: null,
-					},
-					{
-						text: ' just',
-						startMs: 5125,
-						endMs: 5326,
-						timestampMs: 5226,
-						confidence: null,
-					},
-					{
-						text: ' has',
-						startMs: 5326,
-						endMs: 5690,
-						timestampMs: 5508,
-						confidence: null,
-					},
-					{
-						text: ' one',
-						startMs: 5690,
-						endMs: 6128,
-						timestampMs: 5909,
-						confidence: null,
-					},
-					{
-						text: ' purpose.',
-						startMs: 6128,
-						endMs: 6492,
-						timestampMs: 6310,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' To',
-						startMs: 6734,
-						endMs: 6909,
-						timestampMs: 6822,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 6909,
-						endMs: 7112,
-						timestampMs: 7011,
-						confidence: null,
-					},
-					{
-						text: ' things',
-						startMs: 7112,
-						endMs: 7476,
-						timestampMs: 7294,
-						confidence: null,
-					},
-					{
-						text: ' faster.',
-						startMs: 7476,
-						endMs: 7936,
-						timestampMs: 7706,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' When',
-						startMs: 8182,
-						endMs: 8563,
-						timestampMs: 8373,
-						confidence: null,
-					},
-					{
-						text: ' rendering',
-						startMs: 8563,
-						endMs: 8867,
-						timestampMs: 8715,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 8867,
-						endMs: 9229,
-						timestampMs: 9048,
-						confidence: null,
-					},
-					{
-						text: ' video',
-						startMs: 9229,
-						endMs: 9610,
-						timestampMs: 9420,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 9610,
-						endMs: 9801,
-						timestampMs: 9706,
-						confidence: null,
-					},
-					{
-						text: ' bundling',
-						startMs: 9801,
-						endMs: 10334,
-						timestampMs: 10068,
-						confidence: null,
-					},
-					{
-						text: ' stage',
-						startMs: 10334,
-						endMs: 10620,
-						timestampMs: 10477,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 10620,
-						endMs: 10830,
-						timestampMs: 10725,
-						confidence: null,
-					},
-					{
-						text: ' up',
-						startMs: 10830,
-						endMs: 11115,
-						timestampMs: 10973,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 11115,
-						endMs: 11496,
-						timestampMs: 11306,
-						confidence: null,
-					},
-					{
-						text: ' twice',
-						startMs: 11496,
-						endMs: 11877,
-						timestampMs: 11687,
-						confidence: null,
-					},
-					{
-						text: ' as',
-						startMs: 11877,
-						endMs: 12335,
-						timestampMs: 12106,
-						confidence: null,
-					},
-					{
-						text: ' fast',
-						startMs: 12335,
-						endMs: 12639,
-						timestampMs: 12487,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 12811,
-						endMs: 13169,
-						timestampMs: 12990,
-						confidence: null,
-					},
-					{
-						text: ' changes',
-						startMs: 13169,
-						endMs: 13542,
-						timestampMs: 13356,
-						confidence: null,
-					},
-					{
-						text: ' made',
-						startMs: 13542,
-						endMs: 13706,
-						timestampMs: 13624,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 13706,
-						endMs: 13825,
-						timestampMs: 13766,
-						confidence: null,
-					},
-					{
-						text: ' your',
-						startMs: 13825,
-						endMs: 14124,
-						timestampMs: 13975,
-						confidence: null,
-					},
-					{
-						text: ' code',
-						startMs: 14124,
-						endMs: 14661,
-						timestampMs: 14393,
-						confidence: null,
-					},
-					{
-						text: ' will',
-						startMs: 15145,
-						endMs: 15294,
-						timestampMs: 15220,
-						confidence: null,
-					},
-					{
-						text: ' be',
-						startMs: 15294,
-						endMs: 15796,
-						timestampMs: 15545,
-						confidence: null,
-					},
-					{
-						text: ' reflected',
-						startMs: 15796,
-						endMs: 16167,
-						timestampMs: 15982,
-						confidence: null,
-					},
-					{
-						text: ' on',
-						startMs: 16167,
-						endMs: 16390,
-						timestampMs: 16279,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 16390,
-						endMs: 16632,
-						timestampMs: 16511,
-						confidence: null,
-					},
-					{
-						text: ' canvas',
-						startMs: 16632,
-						endMs: 17115,
-						timestampMs: 16874,
-						confidence: null,
-					},
-					{
-						text: ' much',
-						startMs: 17115,
-						endMs: 17617,
-						timestampMs: 17366,
-						confidence: null,
-					},
-					{
-						text: ' faster.',
-						startMs: 17617,
-						endMs: 18100,
-						timestampMs: 17859,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' You',
-						startMs: 18335,
-						endMs: 18520,
-						timestampMs: 18428,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 18520,
-						endMs: 18705,
-						timestampMs: 18613,
-						confidence: null,
-					},
-					{
-						text: ' opt',
-						startMs: 18705,
-						endMs: 19045,
-						timestampMs: 18875,
-						confidence: null,
-					},
-					{
-						text: ' into',
-						startMs: 19045,
-						endMs: 19260,
-						timestampMs: 19153,
-						confidence: null,
-					},
-					{
-						text: ' this',
-						startMs: 19260,
-						endMs: 19600,
-						timestampMs: 19430,
-						confidence: null,
-					},
-					{
-						text: ' today',
-						startMs: 19615,
-						endMs: 19877,
-						timestampMs: 19746,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 19877,
-						endMs: 19985,
-						timestampMs: 19931,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 19985,
-						endMs: 20108,
-						timestampMs: 20047,
-						confidence: null,
-					},
-					{
-						text: ' will',
-						startMs: 20108,
-						endMs: 20216,
-						timestampMs: 20162,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 20247,
-						endMs: 20307,
-						timestampMs: 20277,
-						confidence: null,
-					},
-					{
-						text: ' it',
-						startMs: 20386,
-						endMs: 20525,
-						timestampMs: 20456,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 20525,
-						endMs: 20849,
-						timestampMs: 20687,
-						confidence: null,
-					},
-					{
-						text: ' default',
-						startMs: 20849,
-						endMs: 21034,
-						timestampMs: 20942,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 21034,
-						endMs: 21142,
-						timestampMs: 21088,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 21142,
-						endMs: 21357,
-						timestampMs: 21250,
-						confidence: null,
-					},
-					{
-						text: ' future',
-						startMs: 21357,
-						endMs: 21635,
-						timestampMs: 21496,
-						confidence: null,
-					},
-					{
-						text: ' version',
-						startMs: 21635,
-						endMs: 21820,
-						timestampMs: 21728,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 21820,
-						endMs: 21974,
-						timestampMs: 21897,
-						confidence: null,
-					},
-					{
-						text: ' Remotion.',
-						startMs: 21974,
-						endMs: 23438,
-						timestampMs: 22706,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

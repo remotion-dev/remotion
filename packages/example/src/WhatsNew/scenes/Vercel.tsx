@@ -14,7 +14,9 @@ import {PunchyCaptions} from '../components/Captions';
 import {BellIcon, BoxIcon, CheckIcon, TriangleIcon} from '../components/icons';
 import {RemotionLogo} from '../components/Logo';
 import {
-	getCaptionPlacement,
+	ShotFraming,
+	StageLayout,
+	useCaptionPlacement,
 	Punch,
 	Stage,
 	type LayoutKeyframe,
@@ -485,118 +487,727 @@ const FirstClass: React.FC = () => (
 	</div>
 );
 
-const VercelSceneInner: React.FC = () => {
-	const frame = useCurrentFrame();
-	const captions = getCaptionPlacement(frame, layout);
-
+const VercelSourceInner = () => {
+	const captions = useCaptionPlacement(layout);
 	return (
 		<>
-			<Backdrop accent="#6B7280" />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
 			>
+				<Punch>
+					<Video
+						src={
+							'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
+						}
+					/>
+				</Punch>
+			</Stage>
+			<PunchyCaptions
+				combineTokensWithinMilliseconds={10000}
+				width={captions.width}
+				fontSize={captions.fontSize}
+				style={{...captions.style, zIndex: 1}}
+				keywords={[
+					'vercel',
+					'vercel.',
+					'sandbox',
+					'template',
+					'first',
+					'easiest',
+					'soon.',
+				]}
+				captions={[
+					// @captions whats4
+					{
+						text: 'Render',
+						startMs: 2241,
+						endMs: 2666,
+						timestampMs: 2454,
+						confidence: null,
+					},
+					{
+						text: ' videos',
+						startMs: 2666,
+						endMs: 3115,
+						timestampMs: 2891,
+						confidence: null,
+					},
+					{
+						text: ' on',
+						startMs: 3115,
+						endMs: 3398,
+						timestampMs: 3257,
+						confidence: null,
+					},
+					{
+						text: ' Vercel.',
+						startMs: 3398,
+						endMs: 3894,
+						timestampMs: 3646,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' We',
+						startMs: 4536,
+						endMs: 4730,
+						timestampMs: 4633,
+						confidence: null,
+					},
+					{
+						text: ' work',
+						startMs: 4730,
+						endMs: 5029,
+						timestampMs: 4880,
+						confidence: null,
+					},
+					{
+						text: ' together',
+						startMs: 5029,
+						endMs: 5363,
+						timestampMs: 5196,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 5363,
+						endMs: 5751,
+						timestampMs: 5557,
+						confidence: null,
+					},
+					{
+						text: ' Vercel',
+						startMs: 5751,
+						endMs: 6015,
+						timestampMs: 5883,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 6015,
+						endMs: 6279,
+						timestampMs: 6147,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' make',
+						startMs: 6279,
+						endMs: 6666,
+						timestampMs: 6473,
+						confidence: null,
+					},
+					{
+						text: ' rendering',
+						startMs: 6666,
+						endMs: 6878,
+						timestampMs: 6772,
+						confidence: null,
+					},
+					{
+						text: ' on',
+						startMs: 6878,
+						endMs: 7071,
+						timestampMs: 6975,
+						confidence: null,
+					},
+					{
+						text: ' their',
+						startMs: 7071,
+						endMs: 7564,
+						timestampMs: 7318,
+						confidence: null,
+					},
+					{
+						text: ' platform',
+						startMs: 7564,
+						endMs: 8269,
+						timestampMs: 7917,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' possible',
+						startMs: 8500,
+						endMs: 9048,
+						timestampMs: 8774,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 9048,
+						endMs: 9451,
+						timestampMs: 9250,
+						confidence: null,
+					},
+					{
+						text: ' super',
+						startMs: 9451,
+						endMs: 9761,
+						timestampMs: 9606,
+						confidence: null,
+					},
+					{
+						text: ' smooth.',
+						startMs: 9761,
+						endMs: 10255,
+						timestampMs: 10008,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: " There's",
+						startMs: 11008.333333,
+						endMs: 11108.333333,
+						timestampMs: 11058.333333,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 11108.333333,
+						endMs: 11224.333333,
+						timestampMs: 11166.333333,
+						confidence: null,
+					},
+					{
+						text: ' new',
+						startMs: 11224.333333,
+						endMs: 11506.333333,
+						timestampMs: 11365.333333,
+						confidence: null,
+					},
+					{
+						text: ' package',
+						startMs: 11506.333333,
+						endMs: 11922.333333,
+						timestampMs: 11714.333333,
+						confidence: null,
+					},
+					{
+						text: ' called',
+						startMs: 11922.333333,
+						endMs: 12304.333333,
+						timestampMs: 12113.333333,
+						confidence: null,
+					},
+					{
+						text: ' @remotion/vercel',
+						startMs: 12304.333333,
+						endMs: 13168.333333,
+						timestampMs: 12736.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' that',
+						startMs: 13168.333333,
+						endMs: 13384.333333,
+						timestampMs: 13276.333333,
+						confidence: null,
+					},
+					{
+						text: ' allows',
+						startMs: 13384.333333,
+						endMs: 13517.333333,
+						timestampMs: 13451.333333,
+						confidence: null,
+					},
+					{
+						text: ' you',
+						startMs: 13517.333333,
+						endMs: 13650.333333,
+						timestampMs: 13584.333333,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 13650.333333,
+						endMs: 13982.333333,
+						timestampMs: 13816.333333,
+						confidence: null,
+					},
+					{
+						text: ' create',
+						startMs: 13982.333333,
+						endMs: 14630.333333,
+						timestampMs: 14306.333333,
+						confidence: null,
+					},
+					{
+						text: ' Remotion',
+						startMs: 15107.333333,
+						endMs: 15721.333333,
+						timestampMs: 15414.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' rendering',
+						startMs: 15721.333333,
+						endMs: 16409.333333,
+						timestampMs: 16065.333333,
+						confidence: null,
+					},
+					{
+						text: ' instances',
+						startMs: 16409.333333,
+						endMs: 16521.333333,
+						timestampMs: 16465.333333,
+						confidence: null,
+					},
+					{
+						text: ' using',
+						startMs: 16930.333333,
+						endMs: 17395.333333,
+						timestampMs: 17163.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Vercel',
+						startMs: 17395.333333,
+						endMs: 18288.333333,
+						timestampMs: 17842.333333,
+						confidence: null,
+					},
+					{
+						text: ' Sandbox',
+						startMs: 18288.333333,
+						endMs: 19032.333333,
+						timestampMs: 18660.333333,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' and',
+						startMs: 19591,
+						endMs: 19860,
+						timestampMs: 19726,
+						confidence: null,
+					},
+					{
+						text: ' also',
+						startMs: 19860,
+						endMs: 20018,
+						timestampMs: 19939,
+						confidence: null,
+					},
+					{
+						text: ' we',
+						startMs: 20018,
+						endMs: 20208,
+						timestampMs: 20113,
+						confidence: null,
+					},
+					{
+						text: ' have',
+						startMs: 20208,
+						endMs: 20494,
+						timestampMs: 20351,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 20494,
+						endMs: 20842,
+						timestampMs: 20668,
+						confidence: null,
+					},
+					{
+						text: ' starter',
+						startMs: 20842,
+						endMs: 21270,
+						timestampMs: 21056,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' template',
+						startMs: 21270,
+						endMs: 21824,
+						timestampMs: 21547,
+						confidence: null,
+					},
+					{
+						text: ' where',
+						startMs: 22330,
+						endMs: 22739,
+						timestampMs: 22535,
+						confidence: null,
+					},
+					{
+						text: ' everything',
+						startMs: 22739,
+						endMs: 23054,
+						timestampMs: 22897,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 23054,
+						endMs: 23148,
+						timestampMs: 23101,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' set',
+						startMs: 23148,
+						endMs: 23368,
+						timestampMs: 23258,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 23368,
+						endMs: 23730,
+						timestampMs: 23549,
+						confidence: null,
+					},
+					{
+						text: ' out',
+						startMs: 24142,
+						endMs: 24240,
+						timestampMs: 24191,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 24240,
+						endMs: 24338,
+						timestampMs: 24289,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 24338,
+						endMs: 24491,
+						timestampMs: 24415,
+						confidence: null,
+					},
+					{
+						text: ' box.',
+						startMs: 24491,
+						endMs: 24742,
+						timestampMs: 24617,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' This',
+						startMs: 25497,
+						endMs: 25588,
+						timestampMs: 25543,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 25588,
+						endMs: 25842,
+						timestampMs: 25715,
+						confidence: null,
+					},
+					{
+						text: ' now',
+						startMs: 25842,
+						endMs: 26115,
+						timestampMs: 25979,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 26115,
+						endMs: 26497,
+						timestampMs: 26306,
+						confidence: null,
+					},
+					{
+						text: ' first-class',
+						startMs: 26497,
+						endMs: 26952,
+						timestampMs: 26725,
+						confidence: null,
+					},
+					{
+						text: ' server-side',
+						startMs: 27352,
+						endMs: 28189,
+						timestampMs: 27771,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' rendering',
+						startMs: 28189,
+						endMs: 28862,
+						timestampMs: 28526,
+						confidence: null,
+					},
+					{
+						text: ' solution',
+						startMs: 28862,
+						endMs: 29407,
+						timestampMs: 29135,
+						confidence: null,
+					},
+					{
+						text: ' in',
+						startMs: 29635,
+						endMs: 29916,
+						timestampMs: 29776,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Remotion',
+						startMs: 29916,
+						endMs: 30906,
+						timestampMs: 30411,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 31538.666666,
+						endMs: 31764.666666,
+						timestampMs: 31651.666666,
+						confidence: null,
+					},
+					{
+						text: ' it',
+						startMs: 31764.666666,
+						endMs: 31915.666666,
+						timestampMs: 31840.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' is',
+						startMs: 31915.666666,
+						endMs: 32084.666666,
+						timestampMs: 32000.666666,
+						confidence: null,
+					},
+					{
+						text: ' one',
+						startMs: 32084.666666,
+						endMs: 32197.666666,
+						timestampMs: 32141.666666,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 32197.666666,
+						endMs: 32442.666666,
+						timestampMs: 32320.666666,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 32442.666666,
+						endMs: 32800.666666,
+						timestampMs: 32621.666666,
+						confidence: null,
+					},
+					{
+						text: ' easiest',
+						startMs: 32800.666666,
+						endMs: 33064.666666,
+						timestampMs: 32932.666666,
+						confidence: null,
+					},
+					{
+						text: ' way',
+						startMs: 33064.666666,
+						endMs: 33233.666666,
+						timestampMs: 33149.666666,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 33233.666666,
+						endMs: 33421.666666,
+						timestampMs: 33327.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' set',
+						startMs: 33421.666666,
+						endMs: 33481.666666,
+						timestampMs: 33451.666666,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 33591.666666,
+						endMs: 33651.666666,
+						timestampMs: 33621.666666,
+						confidence: null,
+					},
+					{
+						text: ' server-side',
+						startMs: 33817.666666,
+						endMs: 34928.666666,
+						timestampMs: 34373.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' rendering.',
+						startMs: 35174.666666,
+						endMs: 35871.666666,
+						timestampMs: 35523.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' A',
+						startMs: 36213.666666,
+						endMs: 36379.666666,
+						timestampMs: 36296.666666,
+						confidence: null,
+					},
+					{
+						text: ' small',
+						startMs: 36379.666666,
+						endMs: 36571.666666,
+						timestampMs: 36475.666666,
+						confidence: null,
+					},
+					{
+						text: ' tutorial',
+						startMs: 36571.666666,
+						endMs: 36788.666666,
+						timestampMs: 36680.666666,
+						confidence: null,
+					},
+					{
+						text: ' about',
+						startMs: 36788.666666,
+						endMs: 37019.666666,
+						timestampMs: 36904.666666,
+						confidence: null,
+					},
+					{
+						text: ' this',
+						startMs: 37019.666666,
+						endMs: 37159.666666,
+						timestampMs: 37089.666666,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 37159.666666,
+						endMs: 37326.666666,
+						timestampMs: 37243.666666,
+						confidence: null,
+					},
+					{
+						text: ' coming',
+						startMs: 37326.666666,
+						endMs: 37517.666666,
+						timestampMs: 37422.666666,
+						confidence: null,
+					},
+					{
+						text: ' out',
+						startMs: 37517.666666,
+						endMs: 37799.666666,
+						timestampMs: 37658.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' soon.',
+						startMs: 37811.666666,
+						endMs: 38799.666666,
+						timestampMs: 38305.666666,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const VercelSource = Interactive.create({
+	Component: VercelSourceInner,
+	layout: 'absolute-fill',
+});
+
+const VercelSceneInner: React.FC = () => {
+	return (
+		<>
+			<Backdrop accent="#6B7280" />
+			<StageLayout keyframes={layout}>
 				<Series>
 					<Series.Sequence
 						name="Render on Vercel"
 						durationInFrames={59}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={63}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<VercelSource trimBefore={63} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Working with Vercel"
 						durationInFrames={178}
 						premountFor={30}
 					>
-						<Punch zoom={1.12}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={134}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.12}>
+							<VercelSource trimBefore={134} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="New package"
 						durationInFrames={246}
 						premountFor={30}
 					>
-						<Punch zoom={1}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={328}
-							/>
-						</Punch>
+						<ShotFraming zoom={1}>
+							<VercelSource trimBefore={328} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Starter template"
 						durationInFrames={73}
 						premountFor={30}
 					>
-						<Punch zoom={1.16}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={585}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.16}>
+							<VercelSource trimBefore={585} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Out of the box"
 						durationInFrames={80}
 						premountFor={30}
 					>
-						<Punch zoom={1.03}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={667}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.03}>
+							<VercelSource trimBefore={667} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="First-class SSR"
 						durationInFrames={168}
 						premountFor={30}
 					>
-						<Punch zoom={1.18}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={762}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.18}>
+							<VercelSource trimBefore={762} />
+						</ShotFraming>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Easiest way"
 						durationInFrames={236}
 						premountFor={30}
 					>
-						<Punch zoom={1.02}>
-							<Video
-								src={
-									'https://remotion.media/announcements/whats-new-in-remotion/cursor/footage/whats4.mp4'
-								}
-								trimBefore={944}
-							/>
-						</Punch>
+						<ShotFraming zoom={1.02}>
+							<VercelSource trimBefore={944} />
+						</ShotFraming>
 					</Series.Sequence>
 				</Series>
-			</Stage>
+			</StageLayout>
 
 			<Sequence name="Chapter sticker" from={2} durationInFrames={62}>
 				<ChapterSticker
@@ -623,617 +1234,6 @@ const VercelSceneInner: React.FC = () => {
 			<Sequence name="Tutorial soon" from={944} durationInFrames={96}>
 				<TutorialSoon />
 			</Sequence>
-
-			<PunchyCaptions
-				width={captions.width}
-				fontSize={captions.fontSize}
-				style={captions.style}
-				keywords={[
-					'vercel',
-					'vercel.',
-					'sandbox',
-					'template',
-					'first',
-					'easiest',
-					'soon.',
-				]}
-				captions={[
-					// @captions whats4
-					{
-						text: 'Render',
-						startMs: 141,
-						endMs: 566,
-						timestampMs: 354,
-						confidence: null,
-					},
-					{
-						text: ' videos',
-						startMs: 566,
-						endMs: 1015,
-						timestampMs: 791,
-						confidence: null,
-					},
-					{
-						text: ' on',
-						startMs: 1015,
-						endMs: 1298,
-						timestampMs: 1157,
-						confidence: null,
-					},
-					{
-						text: ' Vercel.',
-						startMs: 1298,
-						endMs: 1794,
-						timestampMs: 1546,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' We',
-						startMs: 2036,
-						endMs: 2230,
-						timestampMs: 2133,
-						confidence: null,
-					},
-					{
-						text: ' work',
-						startMs: 2230,
-						endMs: 2529,
-						timestampMs: 2380,
-						confidence: null,
-					},
-					{
-						text: ' together',
-						startMs: 2529,
-						endMs: 2863,
-						timestampMs: 2696,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2863,
-						endMs: 3251,
-						timestampMs: 3057,
-						confidence: null,
-					},
-					{
-						text: ' Vercel',
-						startMs: 3251,
-						endMs: 3515,
-						timestampMs: 3383,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 3515,
-						endMs: 3779,
-						timestampMs: 3647,
-						confidence: null,
-					},
-					{
-						text: ' make',
-						startMs: 3779,
-						endMs: 4166,
-						timestampMs: 3973,
-						confidence: null,
-					},
-					{
-						text: ' rendering',
-						startMs: 4166,
-						endMs: 4378,
-						timestampMs: 4272,
-						confidence: null,
-					},
-					{
-						text: ' on',
-						startMs: 4378,
-						endMs: 4571,
-						timestampMs: 4475,
-						confidence: null,
-					},
-					{
-						text: ' their',
-						startMs: 4571,
-						endMs: 5064,
-						timestampMs: 4818,
-						confidence: null,
-					},
-					{
-						text: ' platform',
-						startMs: 5064,
-						endMs: 5769,
-						timestampMs: 5417,
-						confidence: null,
-					},
-					{
-						text: ' possible',
-						startMs: 6000,
-						endMs: 6548,
-						timestampMs: 6274,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 6548,
-						endMs: 6951,
-						timestampMs: 6750,
-						confidence: null,
-					},
-					{
-						text: ' super',
-						startMs: 6951,
-						endMs: 7261,
-						timestampMs: 7106,
-						confidence: null,
-					},
-					{
-						text: ' smooth.',
-						startMs: 7261,
-						endMs: 7755,
-						timestampMs: 7508,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: " There's",
-						startMs: 7975,
-						endMs: 8075,
-						timestampMs: 8025,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 8075,
-						endMs: 8191,
-						timestampMs: 8133,
-						confidence: null,
-					},
-					{
-						text: ' new',
-						startMs: 8191,
-						endMs: 8473,
-						timestampMs: 8332,
-						confidence: null,
-					},
-					{
-						text: ' package',
-						startMs: 8473,
-						endMs: 8889,
-						timestampMs: 8681,
-						confidence: null,
-					},
-					{
-						text: ' called',
-						startMs: 8889,
-						endMs: 9271,
-						timestampMs: 9080,
-						confidence: null,
-					},
-					{
-						text: ' @remotion/vercel',
-						startMs: 9271,
-						endMs: 10135,
-						timestampMs: 9703,
-						confidence: null,
-					},
-					{
-						text: ' that',
-						startMs: 10135,
-						endMs: 10351,
-						timestampMs: 10243,
-						confidence: null,
-					},
-					{
-						text: ' allows',
-						startMs: 10351,
-						endMs: 10484,
-						timestampMs: 10418,
-						confidence: null,
-					},
-					{
-						text: ' you',
-						startMs: 10484,
-						endMs: 10617,
-						timestampMs: 10551,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 10617,
-						endMs: 10949,
-						timestampMs: 10783,
-						confidence: null,
-					},
-					{
-						text: ' create',
-						startMs: 10949,
-						endMs: 11597,
-						timestampMs: 11273,
-						confidence: null,
-					},
-					{
-						text: ' Remotion',
-						startMs: 12074,
-						endMs: 12688,
-						timestampMs: 12381,
-						confidence: null,
-					},
-					{
-						text: ' rendering',
-						startMs: 12688,
-						endMs: 13376,
-						timestampMs: 13032,
-						confidence: null,
-					},
-					{
-						text: ' instances',
-						startMs: 13376,
-						endMs: 13488,
-						timestampMs: 13432,
-						confidence: null,
-					},
-					{
-						text: ' using',
-						startMs: 13897,
-						endMs: 14362,
-						timestampMs: 14130,
-						confidence: null,
-					},
-					{
-						text: ' Vercel',
-						startMs: 14362,
-						endMs: 15255,
-						timestampMs: 14809,
-						confidence: null,
-					},
-					{
-						text: ' Sandbox',
-						startMs: 15255,
-						endMs: 15999,
-						timestampMs: 15627,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 16191,
-						endMs: 16460,
-						timestampMs: 16326,
-						confidence: null,
-					},
-					{
-						text: ' also',
-						startMs: 16460,
-						endMs: 16618,
-						timestampMs: 16539,
-						confidence: null,
-					},
-					{
-						text: ' we',
-						startMs: 16618,
-						endMs: 16808,
-						timestampMs: 16713,
-						confidence: null,
-					},
-					{
-						text: ' have',
-						startMs: 16808,
-						endMs: 17094,
-						timestampMs: 16951,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 17094,
-						endMs: 17442,
-						timestampMs: 17268,
-						confidence: null,
-					},
-					{
-						text: ' starter',
-						startMs: 17442,
-						endMs: 17870,
-						timestampMs: 17656,
-						confidence: null,
-					},
-					{
-						text: ' template',
-						startMs: 17870,
-						endMs: 18424,
-						timestampMs: 18147,
-						confidence: null,
-					},
-					{
-						text: ' where',
-						startMs: 18630,
-						endMs: 19039,
-						timestampMs: 18835,
-						confidence: null,
-					},
-					{
-						text: ' everything',
-						startMs: 19039,
-						endMs: 19354,
-						timestampMs: 19197,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 19354,
-						endMs: 19448,
-						timestampMs: 19401,
-						confidence: null,
-					},
-					{
-						text: ' set',
-						startMs: 19448,
-						endMs: 19668,
-						timestampMs: 19558,
-						confidence: null,
-					},
-					{
-						text: ' up',
-						startMs: 19668,
-						endMs: 20030,
-						timestampMs: 19849,
-						confidence: null,
-					},
-					{
-						text: ' out',
-						startMs: 20442,
-						endMs: 20540,
-						timestampMs: 20491,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 20540,
-						endMs: 20638,
-						timestampMs: 20589,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 20638,
-						endMs: 20791,
-						timestampMs: 20715,
-						confidence: null,
-					},
-					{
-						text: ' box.',
-						startMs: 20791,
-						endMs: 21042,
-						timestampMs: 20917,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' This',
-						startMs: 21297,
-						endMs: 21388,
-						timestampMs: 21343,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 21388,
-						endMs: 21642,
-						timestampMs: 21515,
-						confidence: null,
-					},
-					{
-						text: ' now',
-						startMs: 21642,
-						endMs: 21915,
-						timestampMs: 21779,
-						confidence: null,
-					},
-					{
-						text: ' a',
-						startMs: 21915,
-						endMs: 22297,
-						timestampMs: 22106,
-						confidence: null,
-					},
-					{
-						text: ' first-class',
-						startMs: 22297,
-						endMs: 22752,
-						timestampMs: 22525,
-						confidence: null,
-					},
-					{
-						text: ' server-side',
-						startMs: 23152,
-						endMs: 23989,
-						timestampMs: 23571,
-						confidence: null,
-					},
-					{
-						text: ' rendering',
-						startMs: 23989,
-						endMs: 24662,
-						timestampMs: 24326,
-						confidence: null,
-					},
-					{
-						text: ' solution',
-						startMs: 24662,
-						endMs: 25207,
-						timestampMs: 24935,
-						confidence: null,
-					},
-					{
-						text: ' in',
-						startMs: 25435,
-						endMs: 25716,
-						timestampMs: 25576,
-						confidence: null,
-					},
-					{
-						text: ' Remotion',
-						startMs: 25716,
-						endMs: 26706,
-						timestampMs: 26211,
-						confidence: null,
-					},
-					{
-						text: ' and',
-						startMs: 26872,
-						endMs: 27098,
-						timestampMs: 26985,
-						confidence: null,
-					},
-					{
-						text: ' it',
-						startMs: 27098,
-						endMs: 27249,
-						timestampMs: 27174,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 27249,
-						endMs: 27418,
-						timestampMs: 27334,
-						confidence: null,
-					},
-					{
-						text: ' one',
-						startMs: 27418,
-						endMs: 27531,
-						timestampMs: 27475,
-						confidence: null,
-					},
-					{
-						text: ' of',
-						startMs: 27531,
-						endMs: 27776,
-						timestampMs: 27654,
-						confidence: null,
-					},
-					{
-						text: ' the',
-						startMs: 27776,
-						endMs: 28134,
-						timestampMs: 27955,
-						confidence: null,
-					},
-					{
-						text: ' easiest',
-						startMs: 28134,
-						endMs: 28398,
-						timestampMs: 28266,
-						confidence: null,
-					},
-					{
-						text: ' way',
-						startMs: 28398,
-						endMs: 28567,
-						timestampMs: 28483,
-						confidence: null,
-					},
-					{
-						text: ' to',
-						startMs: 28567,
-						endMs: 28755,
-						timestampMs: 28661,
-						confidence: null,
-					},
-					{
-						text: ' set',
-						startMs: 28755,
-						endMs: 28815,
-						timestampMs: 28785,
-						confidence: null,
-					},
-					{
-						text: ' up',
-						startMs: 28925,
-						endMs: 28985,
-						timestampMs: 28955,
-						confidence: null,
-					},
-					{
-						text: ' server-side',
-						startMs: 29151,
-						endMs: 30262,
-						timestampMs: 29707,
-						confidence: null,
-					},
-					{
-						text: ' rendering.',
-						startMs: 30508,
-						endMs: 31205,
-						timestampMs: 30857,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-					{
-						text: ' A',
-						startMs: 31547,
-						endMs: 31713,
-						timestampMs: 31630,
-						confidence: null,
-					},
-					{
-						text: ' small',
-						startMs: 31713,
-						endMs: 31905,
-						timestampMs: 31809,
-						confidence: null,
-					},
-					{
-						text: ' tutorial',
-						startMs: 31905,
-						endMs: 32122,
-						timestampMs: 32014,
-						confidence: null,
-					},
-					{
-						text: ' about',
-						startMs: 32122,
-						endMs: 32353,
-						timestampMs: 32238,
-						confidence: null,
-					},
-					{
-						text: ' this',
-						startMs: 32353,
-						endMs: 32493,
-						timestampMs: 32423,
-						confidence: null,
-					},
-					{
-						text: ' is',
-						startMs: 32493,
-						endMs: 32660,
-						timestampMs: 32577,
-						confidence: null,
-					},
-					{
-						text: ' coming',
-						startMs: 32660,
-						endMs: 32851,
-						timestampMs: 32756,
-						confidence: null,
-					},
-					{
-						text: ' out',
-						startMs: 32851,
-						endMs: 33133,
-						timestampMs: 32992,
-						confidence: null,
-					},
-					{
-						text: ' soon.',
-						startMs: 33145,
-						endMs: 34133,
-						timestampMs: 33639,
-						confidence: null,
-						pageBreakAfter: true,
-					},
-				]}
-			/>
 
 			<Track name="Sound effects">
 				<Audio

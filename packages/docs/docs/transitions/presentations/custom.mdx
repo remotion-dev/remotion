@@ -69,11 +69,7 @@ import {AbsoluteFill} from 'remotion';
 const StarPresentation: React.FC<
   TransitionPresentationComponentProps<CustomPresentationProps>
 > = ({children, presentationDirection, presentationProgress, passedProps}) => {
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill>{children}</AbsoluteFill>
-    </AbsoluteFill>
-  );
+  return <AbsoluteFill>{children}</AbsoluteFill>;
 };
 ```
 
