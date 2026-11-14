@@ -758,50 +758,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
-	const lastRedrawInputs = useRef({
-		currentTime,
-		effects,
-		effectsWidth: effectsOutputSize?.width,
-		effectsHeight: effectsOutputSize?.height,
-		maxWidth: maxCanvasSinkFrameSize?.width,
-		maxHeight: maxCanvasSinkFrameSize?.height,
-	});
+	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
-		const previous = lastRedrawInputs.current;
-		lastRedrawInputs.current = {
-			currentTime,
-			effects,
-			effectsWidth: effectsOutputSize?.width,
-			effectsHeight: effectsOutputSize?.height,
-			maxWidth: maxCanvasSinkFrameSize?.width,
-			maxHeight: maxCanvasSinkFrameSize?.height,
-		};
-		const timeChanged = previous.currentTime !== currentTime;
+		const timeChanged = lastEffectsTime.current !== currentTime;
+		lastEffectsTime.current = currentTime;
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady || timeChanged) {
 			return;
 		}
 
-		const redraw = () => {
-			mediaPlayer.redrawVideoEffects().catch(() => {
-				// Player may have been disposed between layout and the async redraw.
-			});
-		};
-
-		const onlySizeChanged =
-			previous.effects === effects &&
-			previous.effectsWidth === effectsOutputSize?.width &&
-			previous.effectsHeight === effectsOutputSize?.height &&
-			(previous.maxWidth !== maxCanvasSinkFrameSize?.width ||
-				previous.maxHeight !== maxCanvasSinkFrameSize?.height);
-		if (playing && onlySizeChanged) {
-			// Let the next playback paint use the new size first. The queued redraw
-			// then skips that already-current frame; a frozen timeline still redraws.
-			const handle = requestAnimationFrame(redraw);
-			return () => cancelAnimationFrame(handle);
-		}
-
-		redraw();
+		mediaPlayer.redrawVideoEffects().catch(() => {
+			// Player may have been disposed between layout and the async redraw.
+		});
 	}, [
 		currentTime,
 		effects,
@@ -811,7 +779,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		maxCanvasSinkFrameSize?.height,
 		mediaPlayerReady,
 		mediaPlayerRef,
-		playing,
 	]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
