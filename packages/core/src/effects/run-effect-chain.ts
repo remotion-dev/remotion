@@ -411,6 +411,7 @@ const runEffectChainWithResize = async (
 			[effect.definition.backend]: effect.definition,
 		};
 		let selected = false;
+		let allocationError: unknown = null;
 		const cached = state.selections.get(effect.definition);
 		const candidates =
 			cached === undefined
@@ -459,6 +460,7 @@ const runEffectChainWithResize = async (
 					);
 				} catch (error) {
 					if (!allowBackendFallback) throw error;
+					allocationError = error;
 					continue;
 				}
 			}
@@ -475,8 +477,11 @@ const runEffectChainWithResize = async (
 		}
 
 		if (!selected)
-			throw new Error(
-				`No supported implementation for effect "${effect.definition.type}" (preferred backend: ${state.preferredEffectBackend})`,
+			throw (
+				allocationError ??
+				new Error(
+					`No supported implementation for effect "${effect.definition.type}" (preferred backend: ${state.preferredEffectBackend})`,
+				)
 			);
 	}
 
@@ -610,7 +615,7 @@ export const runEffectChain = async (
 
 				if (
 					!(failure instanceof WebGLContextLostError) &&
-					!(attempt > 0 && failure instanceof WebGL2ContextCreationError)
+					!(failure instanceof WebGL2ContextCreationError)
 				)
 					throw failure;
 				if (attempt === 2) {
@@ -621,8 +626,9 @@ export const runEffectChain = async (
 					}
 
 					throw new Error(
-						'WebGL context was lost repeatedly while rendering effects. ' +
-							'Recovery failed after two retries. Try reducing rendering concurrency or GPU memory usage.',
+						'WebGL context remained unavailable while rendering effects. ' +
+							'Recovery failed after two retries. Try reducing rendering concurrency or GPU memory usage. ' +
+							failure.message,
 						{cause: failure},
 					);
 				}
