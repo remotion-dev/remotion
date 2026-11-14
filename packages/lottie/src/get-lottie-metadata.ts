@@ -18,7 +18,8 @@ export const getLottieMetadata = (
 	const width = animationData.w;
 	const height = animationData.h;
 	const framerate = animationData.fr;
-	const durationInFrames = animationData.op;
+	const inPoint = typeof animationData.ip === 'number' ? animationData.ip : 0;
+	const durationInFrames = animationData.op - inPoint;
 
 	if (![width, height, framerate, durationInFrames].every(Boolean)) {
 		return null;
