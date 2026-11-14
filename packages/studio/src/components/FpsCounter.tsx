@@ -24,6 +24,33 @@ const pushWithMaxSize = (
 	return arr.slice(-maxSize);
 };
 
+export const getRefreshRate = (frameTimes: number[]): number | null => {
+	const gaps = frameTimes
+		.slice(1)
+		.map((time, i) => time - frameTimes[i])
+		.sort((a, b) => a - b);
+	if (gaps.length === 0) {
+		return null;
+	}
+
+	const median = gaps[Math.floor(gaps.length / 2)];
+	return median > 0 ? 1000 / median : null;
+};
+
+export const getExpectedFps = ({
+	fps,
+	playbackSpeed,
+	refreshRate,
+}: {
+	fps: number;
+	playbackSpeed: number;
+	refreshRate: number | null;
+}) => {
+	return Math.min(Math.abs(playbackSpeed) * fps, refreshRate ?? Infinity);
+};
+
+const REFRESH_RATE_PROBE_FRAMES = 30;
+
 export const FpsCounter: React.FC<{
 	readonly playbackSpeed: number;
 }> = ({playbackSpeed}) => {
@@ -33,6 +60,7 @@ export const FpsCounter: React.FC<{
 
 	const [marker, rerender] = useState({});
 	const [fps, setFps] = useState(0);
+	const [refreshRate, setRefreshRate] = useState<number | null>(null);
 
 	const previousUpdates = useRef<number[]>([]);
 	const fpsRef = useRef<number>(0);
@@ -66,6 +94,27 @@ export const FpsCounter: React.FC<{
 	}, [frame]);
 
 	useEffect(() => {
+		let handle = 0;
+		const frameTimes: number[] = [];
+		const onFrame = (now: number) => {
+			frameTimes.push(now);
+			if (frameTimes.length < REFRESH_RATE_PROBE_FRAMES) {
+				handle = requestAnimationFrame(onFrame);
+				return;
+			}
+
+			const measured = getRefreshRate(frameTimes);
+			if (measured !== null) {
+				// A busy main thread only lowers the estimate, so keep the highest.
+				setRefreshRate((prev) => Math.max(prev ?? 0, measured));
+			}
+		};
+
+		handle = requestAnimationFrame(onFrame);
+		return () => cancelAnimationFrame(handle);
+	}, [playing]);
+
+	useEffect(() => {
 		if (playing) {
 			const t = setTimeout(() => {
 				rerender({});
@@ -80,13 +129,17 @@ export const FpsCounter: React.FC<{
 			return {};
 		}
 
-		const expectedFps = Math.abs(playbackSpeed) * videoConfig.fps;
+		const expectedFps = getExpectedFps({
+			fps: videoConfig.fps,
+			playbackSpeed,
+			refreshRate,
+		});
 
 		return {
 			...label,
 			color: fps < expectedFps * 0.9 ? RED : LIGHT_TEXT,
 		};
-	}, [fps, playbackSpeed, videoConfig]);
+	}, [fps, playbackSpeed, refreshRate, videoConfig]);
 
 	if (fps === 0) {
 		return null;
