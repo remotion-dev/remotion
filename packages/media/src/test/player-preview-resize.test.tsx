@@ -5,6 +5,7 @@ import {createRoot} from 'react-dom/client';
 import {createEffect, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {MediaPlayer} from '../media-player';
+import {PremountAwareDelayPlayback} from '../premount-aware-delay-playback';
 import type {MaxCanvasSinkFrameSize} from '../video/props';
 import {Video} from '../video/video';
 import {waitFor} from './player-frame-accuracy-utils';
@@ -21,6 +22,18 @@ test.each([false, true])(
 		const root = createRoot(container);
 		const playerRef = React.createRef<PlayerRef>();
 		const frames: {width: number; height: number}[] = [];
+		const bufferingOrigins: string[] = [];
+		const originalCreateHandle =
+			PremountAwareDelayPlayback.prototype.createHandle;
+		const delayHandles = vi
+			.spyOn(PremountAwareDelayPlayback.prototype, 'createHandle')
+			.mockImplementation(function (this: PremountAwareDelayPlayback) {
+				bufferingOrigins.push(
+					new Error('Buffering handle allocated').stack ?? 'Stack unavailable',
+				);
+				if (bufferingOrigins.length > 8) bufferingOrigins.shift();
+				return originalCreateHandle.call(this);
+			});
 		let waiting = 0;
 		let pausedAtFrame: number | null = null;
 		let phase = 'initial playback';
@@ -35,6 +48,7 @@ test.each([false, true])(
 			lastFrameSize: {width: number; height: number} | null;
 			millisecondsSinceFrame: number | null;
 			millisecondsSinceResize: number;
+			bufferingOrigins: string[];
 		}[] = [];
 		const onFrame = (frame: CanvasImageSource) => {
 			lastFrameAt = performance.now();
@@ -106,6 +120,7 @@ test.each([false, true])(
 					millisecondsSinceFrame:
 						lastFrameAt === null ? null : now - lastFrameAt,
 					millisecondsSinceResize: now - resizeStartedAt,
+					bufferingOrigins: [...bufferingOrigins],
 				});
 			});
 			playerRef.current!.play();
@@ -209,6 +224,7 @@ test.each([false, true])(
 		} finally {
 			root.unmount();
 			dispose.mockRestore();
+			delayHandles.mockRestore();
 			container.remove();
 			URL.revokeObjectURL(src);
 		}
