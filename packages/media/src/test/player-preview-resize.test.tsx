@@ -347,7 +347,18 @@ test('keeps a paused resize that arrives while the replacement frame is painting
 	}
 });
 
-test('does not share a paused frame across source replacement', async () => {
+test('does not share a paused frame across source replacement', async (t) => {
+	const started = performance.now();
+	const phases: {phase: string; elapsed: number}[] = [];
+	const phase = (name: string) =>
+		phases.push({phase: name, elapsed: performance.now() - started});
+	t.onTestFailed(() =>
+		Internals.Log.info(
+			{logLevel: 'info', tag: 'source-sharing-test'},
+			JSON.stringify(phases),
+		),
+	);
+	phase('fetch');
 	const response = await fetch('/video.mp4');
 	const blob = await response.blob();
 	const sourceA = URL.createObjectURL(blob);
@@ -414,6 +425,7 @@ test('does not share a paused frame across source replacement', async () => {
 	};
 
 	try {
+		phase('initial-decode');
 		render(sourceA, false);
 		const original = container.querySelector<HTMLCanvasElement>(
 			'[data-source-slot="original"] canvas',
@@ -426,6 +438,7 @@ test('does not share a paused frame across source replacement', async () => {
 			return pixels.some((channel, index) => index % 4 === 3 && channel > 0);
 		});
 		drawImage.mockClear();
+		phase('same-source-copy');
 		render(sourceA, true);
 		const sameSource = container.querySelector<HTMLCanvasElement>(
 			'[data-source-slot="duplicate"] canvas',
@@ -439,15 +452,21 @@ test('does not share a paused frame across source replacement', async () => {
 						.canvas === sameSource,
 			),
 		).toBe(true);
-		expect(
-			sameSource
-				.getContext('2d')!
-				.getImageData(0, 0, sameSource.width, sameSource.height).data,
-		).toEqual(
-			original
-				.getContext('2d')!
-				.getImageData(0, 0, original.width, original.height).data,
-		);
+		phase('compare-rgba');
+		const copiedPixels = sameSource
+			.getContext('2d')!
+			.getImageData(0, 0, sameSource.width, sameSource.height).data;
+		const originalPixels = original
+			.getContext('2d')!
+			.getImageData(0, 0, original.width, original.height).data;
+		expect(copiedPixels.length).toBe(originalPixels.length);
+		let differentChannels = 0;
+		for (let index = 0; index < originalPixels.length; index++) {
+			if (copiedPixels[index] !== originalPixels[index]) differentChannels++;
+		}
+
+		expect(differentChannels).toBe(0);
+		phase('replace-source');
 
 		render(sourceA, false);
 		drawImage.mockClear();
