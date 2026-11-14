@@ -178,14 +178,17 @@ test.for(['url', 'constructor', 'start'] as const)(
 				remotion_attempt: 1,
 			};
 			let ready = false;
-			const waiting = waitForReady({
-				timeoutInMilliseconds: 30000,
-				scope,
-				signal: null,
-				apiName: 'renderMediaOnWeb',
-				internalState: null,
-				keepalive,
-			}).then(() => {
+			const waiting = waitForReady(
+				{
+					timeoutInMilliseconds: 30000,
+					scope,
+					signal: null,
+					apiName: 'renderMediaOnWeb',
+					internalState: null,
+					keepalive,
+				},
+				null,
+			).then(() => {
 				ready = true;
 			});
 			await vi.advanceTimersByTimeAsync(40);
