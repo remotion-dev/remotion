@@ -16,7 +16,7 @@ const styleByFontFaceSet = new Map<string, EmbeddedFontStyle>();
 const fontIndexesByFamily = new Map<string, number[]>();
 let indexedFontCount = 0;
 
-const getBase64 = (data: ArrayBuffer): string => {
+export const getBase64 = (data: ArrayBuffer): string => {
 	const cached = base64ByData.get(data);
 	if (cached) {
 		return cached;
@@ -302,6 +302,7 @@ export const insertFontStyleInSvg = (
 	svg: SVGSVGElement,
 	css: string,
 	styleIndex: number,
+	mediaMatches: boolean,
 ) => {
 	// Keep the ordered face snapshot after every retained local font definition.
 	const styles = svg.querySelectorAll<SVGStyleElement | HTMLStyleElement>(
@@ -321,10 +322,7 @@ export const insertFontStyleInSvg = (
 		.getAttribute('media')
 		?.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
 	if (media && media.toLowerCase() !== 'all') {
-		if (!svg.ownerDocument.defaultView!.matchMedia(media).matches) {
-			style.textContent = '';
-		}
-
+		if (!mediaMatches) style.textContent = '';
 		style.removeAttribute('media');
 	}
 

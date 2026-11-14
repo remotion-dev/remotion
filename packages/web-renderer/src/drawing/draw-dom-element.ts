@@ -1,7 +1,10 @@
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
-import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
+import {
+	getSvgFontSnapshot,
+	turnSvgIntoDrawable,
+} from './turn-svg-into-drawable';
 
 const getReadableImageError = (
 	err: unknown,
@@ -203,6 +206,9 @@ const drawReplacedElement = ({
 };
 
 export const drawDomElement = (node: HTMLElement | SVGElement) => {
+	// Measuring transforms temporarily sets inline styles on the mounted SVG.
+	const svgFonts =
+		node instanceof SVGSVGElement ? getSvgFontSnapshot(node) : null;
 	const domDrawFn: DrawFn = async ({
 		dimensions,
 		contextToDraw,
@@ -210,7 +216,7 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 	}) => {
 		// Handle SVG elements separately - they use "contain" behavior by default
 		if (node instanceof SVGSVGElement) {
-			const drawable = await turnSvgIntoDrawable(node);
+			const drawable = await turnSvgIntoDrawable(node, svgFonts);
 			drawSvg({drawable, dimensions, contextToDraw});
 			return;
 		}

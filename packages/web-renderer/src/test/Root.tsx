@@ -193,6 +193,13 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
+import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
+import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {
+	svgCssFontTextNodes,
+	svgCssDocumentTitledFonts,
+} from './fixtures/svg-css-font-text-nodes';
+import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -231,6 +238,8 @@ import {
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
+import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
+import {svgFontReviewCarrier} from './fixtures/svg-font-review-carrier';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -248,6 +257,10 @@ import {
 	svgInactiveTitleModes,
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
+import {
+	svgLocalConditionalFont,
+	svgLocalConditionalUrlFont,
+} from './fixtures/svg-local-conditional-font';
 import {
 	svgPreferredFontCarrier,
 	svgPreferredFontModes,
@@ -373,6 +386,16 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgCssConditionalFont} />
+			<Composition {...svgCssDataFont} />
+			<Composition {...svgCssUrlFont} />
+			<Composition {...svgLocalConditionalFont} />
+			<Composition {...svgLocalConditionalUrlFont} />
+			<Composition {...svgFontMediaCache({active: null})} />
+			<Composition {...svgFontReviewCarrier({literal: false})} />
+			<Composition {...svgCssFontTextNodes} />
+			<Composition {...svgCssDocumentTitledFonts} />
+
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition
