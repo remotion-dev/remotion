@@ -14,6 +14,13 @@ const callLambdaSyncWithoutRetry = async <T extends ServerlessRoutines>({
 	requestHandler,
 }: CallFunctionOptions<T>): Promise<OrError<ServerlessReturnValues[T]>> => {
 	const Payload = JSON.stringify(payload);
+	const byteLength = Buffer.byteLength(Payload);
+	if (byteLength > 6 * 1024 * 1024) {
+		throw new Error(
+			`Payload is too big: ${byteLength} bytes. Maximum size is 6 MB. This should not happen, please report this to the Remotion team.`,
+		);
+	}
+
 	const res = await getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
