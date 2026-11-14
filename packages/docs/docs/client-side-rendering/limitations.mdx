@@ -247,6 +247,8 @@ Remotion automatically works around this by using a Web Worker timer as a fallba
 
 If the Worker cannot start, media rendering falls back to a regular timer. Browser background-timer throttling still applies.
 
+Aborting a render while it waits for readiness does not require an animation frame.
+
 The Worker timer is less precise than `requestAnimationFrame`, so rendering in a background tab will be slower than in a foreground tab. For best performance, keep the tab visible during rendering.
 
 ## See also

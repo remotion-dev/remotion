@@ -23,25 +23,37 @@ export const waitForReady = ({
 	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
 	const {promise, resolve, reject} = withResolvers<void>();
 
-	let cancelled = false;
+	let settled = false;
+	let animationFrame: number | null = null;
+	const releaseFrame = () => {
+		if (animationFrame !== null) {
+			cancelAnimationFrame(animationFrame);
+			animationFrame = null;
+		}
+	};
+
+	const finish = () => {
+		settled = true;
+		signal?.removeEventListener('abort', check);
+		releaseFrame();
+		internalState?.addWaitForReadyTime(performance.now() - start);
+	};
 
 	const check = () => {
 		const now = performance.now();
 
-		if (cancelled) {
+		if (settled) {
 			return;
 		}
 
 		if (signal?.aborted) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			reject(new Error(`${apiName}() was cancelled`));
 			return;
 		}
 
 		if (scope.remotion_cancelledError !== undefined) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			// No serialization is needed for browser rendering. Reject with the
 			// original Error so its identity, cause chain and custom fields survive.
 			if (scope.remotion_cancelledErrorObject) {
@@ -59,7 +71,7 @@ export const waitForReady = ({
 		}
 
 		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			resolve();
 			return;
 		}
@@ -70,8 +82,7 @@ export const waitForReady = ({
 				(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) >
 			timeoutInMilliseconds + 3000
 		) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -89,7 +100,11 @@ export const waitForReady = ({
 	// when tab is visible, raf fires first. when backgrounded, worker wins.
 	const scheduleNextCheck = () => {
 		const rafTick = new Promise<void>((res) => {
-			requestAnimationFrame(() => res());
+			const id = requestAnimationFrame(() => {
+				if (animationFrame === id) animationFrame = null;
+				res();
+			});
+			animationFrame = id;
 		});
 
 		// browsers throttle RAF when tab is backgrounded, so race against worker
@@ -97,9 +112,13 @@ export const waitForReady = ({
 			? Promise.race([rafTick, keepalive.waitForTick()])
 			: rafTick;
 
-		backgroundSafeTick.then(check);
+		backgroundSafeTick.then(() => {
+			releaseFrame();
+			check();
+		});
 	};
 
+	signal?.addEventListener('abort', check, {once: true});
 	// check immediately first - if already ready, don't wait for RAF
 	check();
 
