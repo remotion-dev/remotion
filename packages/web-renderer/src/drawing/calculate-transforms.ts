@@ -3,6 +3,7 @@ import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {makeDOMMatrix} from './make-dom-matrix';
 import {
 	getMaskImageValue,
+	getSvgMaskForDrawable,
 	type MaskImageInfo,
 	parseMaskImage,
 } from './mask-image';
@@ -279,9 +280,13 @@ export const calculateTransforms = ({
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue
-				? parseMaskImage(maskImageValue, computedStyle)
+			const svgMask = maskImageValue
+				? getSvgMaskForDrawable(parent, maskImageValue)
 				: null;
+			maskImageInfo =
+				maskImageValue && svgMask === null
+					? parseMaskImage(maskImageValue, computedStyle)
+					: null;
 
 			svgClip = getSvgClipForPrecompositing(computedStyle.clipPath, parent);
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
@@ -301,9 +306,25 @@ export const calculateTransforms = ({
 			// An authored !important rule must also be neutralized while drawing the
 			// group, then restored with its original inline priority.
 			const overrides: [string, string][] = [
-				['mask-image', 'none'],
-				['-webkit-mask-image', 'none'],
+				['mask-image', svgMask ?? 'none'],
+				['-webkit-mask-image', svgMask ?? 'none'],
 			];
+			if (svgMask !== null) {
+				// The SVG drawable applies this resource itself. Keep external CSS
+				// mask semantics with it instead of masking the bitmap a second time.
+				for (const property of [
+					'mask-mode',
+					'mask-composite',
+					'mask-size',
+					'mask-position',
+					'mask-repeat',
+					'mask-origin',
+					'mask-clip',
+				]) {
+					overrides.push([property, computedStyle.getPropertyValue(property)]);
+				}
+			}
+
 			if (svgClip) overrides.push(['clip-path', 'none']);
 			if (needsGroup) {
 				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);

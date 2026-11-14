@@ -118,6 +118,39 @@ export const parseUrlFunction = (value: string): string | null => {
 	return url.trim();
 };
 
+export const getSvgMaskForDrawable = (
+	element: HTMLElement | SVGElement,
+	value: string,
+): string | null => {
+	const namespace = 'http://www.w3.org/2000/svg';
+	if (element.namespaceURI !== namespace || element.localName !== 'svg')
+		return null;
+	const source = parseUrlFunction(value);
+	if (!source) return null;
+	try {
+		const url = new URL(source, element.baseURI);
+		const fragment = url.hash;
+		const documentUrl = new URL(element.ownerDocument.URL);
+		url.hash = '';
+		documentUrl.hash = '';
+		if (!fragment || url.href !== documentUrl.href) return null;
+		const resource = element.ownerDocument.getElementById(
+			decodeURIComponent(fragment.slice(1)),
+		);
+		if (
+			resource?.namespaceURI !== namespace ||
+			resource.localName !== 'mask' ||
+			!element.contains(resource)
+		)
+			return null;
+
+		// A document-relative URL must become local to the serialized SVG image.
+		return `url(${JSON.stringify(fragment)})`;
+	} catch {
+		return null;
+	}
+};
+
 const getMaskProperty = ({
 	standard,
 	prefixed,

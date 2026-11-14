@@ -193,6 +193,8 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
+import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {svgCssUrlFont} from './fixtures/svg-css-url-font';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -230,7 +232,20 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {
+	svgDefinitionModes,
+	svgDefinitionFont,
+	svgDefinitionFontUrl,
+	svgWildcardStyleModes,
+	svgWildcardStyle,
+} from './fixtures/svg-font-definition-review';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
+import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
+import {
+	svgFontBeforeMutation,
+	svgGroupedFontOrder,
+	svgLocalFontGroups,
+} from './fixtures/svg-font-order-mutation';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -244,10 +259,19 @@ import {
 	svgFullSourceBlobContain,
 } from './fixtures/svg-full-source';
 import {
+	hiddenCssFontModes,
+	svgHiddenCssFont,
+} from './fixtures/svg-hidden-css-font';
+import {
 	svgInactiveTitleMediaCache,
 	svgInactiveTitleModes,
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
+import {
+	svgLayerFontIdentity,
+	svgLayerFontModes,
+} from './fixtures/svg-layer-font-identity';
+import {svgLocalFontOrder} from './fixtures/svg-local-font-order';
 import {
 	svgPreferredFontCarrier,
 	svgPreferredFontModes,
@@ -414,6 +438,35 @@ export const Root: React.FC = () => {
 			))}
 			{svgXmlMetadataModes.map((mode) => (
 				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
+			))}
+			<Composition {...svgCssDataFont} />
+			<Composition {...svgCssUrlFont} />
+			{hiddenCssFontModes.map((mode) => (
+				<Composition key={mode} {...svgHiddenCssFont(mode, false)} />
+			))}
+			<Composition {...svgFontMediaCache({active: null})} />
+			<Composition {...svgLocalFontOrder({literal: false})} />
+			{svgLocalFontGroups.map((group) => (
+				<Composition
+					key={group}
+					{...svgGroupedFontOrder({group, literal: false})}
+				/>
+			))}
+			<Composition {...svgFontBeforeMutation({literal: false})} />
+			{svgLayerFontModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgLayerFontIdentity({mode, literal: false})}
+				/>
+			))}
+			{svgDefinitionModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgDefinitionFont({mode, fontUrl: svgDefinitionFontUrl})}
+				/>
+			))}
+			{svgWildcardStyleModes.map((mode) => (
+				<Composition key={mode} {...svgWildcardStyle({mode, literal: false})} />
 			))}
 			{svgExternalCarrierModes.flatMap((mode) =>
 				[false, true].map((literal) => {
