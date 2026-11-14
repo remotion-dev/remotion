@@ -61,6 +61,9 @@ test.each([false, true])(
 			if (persistent) {
 				await expect(rendering).rejects.toMatchObject({
 					message: expect.stringContaining('Recovery failed after two retries'),
+					stack: expect.stringMatching(
+						/Failed to acquire WebGL2 context.*--gl=angle.*https:\/\/remotion\.dev\/docs\/troubleshooting\/webgl2-context/,
+					),
 					cause: expect.objectContaining({
 						message: expect.stringContaining(
 							'Failed to acquire WebGL2 context',

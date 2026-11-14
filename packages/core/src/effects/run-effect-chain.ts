@@ -627,7 +627,8 @@ export const runEffectChain = async (
 
 					throw new Error(
 						'WebGL context remained unavailable while rendering effects. ' +
-							'Recovery failed after two retries. Try reducing rendering concurrency or GPU memory usage.',
+							'Recovery failed after two retries. Try reducing rendering concurrency or GPU memory usage. ' +
+							failure.message,
 						{cause: failure},
 					);
 				}
