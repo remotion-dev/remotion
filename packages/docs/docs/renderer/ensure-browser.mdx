@@ -20,8 +20,6 @@ import {ensureBrowser} from '@remotion/renderer';
 
 await ensureBrowser({
   onBrowserDownload: () => {
-    console.log('Downloading browser');
-
     return {
       version: '157.0.8080.0',
       onProgress: ({percent}) => {
@@ -55,8 +53,12 @@ Pass the same path to any other API that supports the `browserExecutable` option
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
 
-Remotion only calls this function if the Chrome Headless Shell version that your Remotion version uses by default is not installed. If that version is already installed, the `version` you return is ignored.  
-If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, the next call deletes the custom version and downloads Remotion's default version.
+We recommend returning `null` as the `version`. Remotion's default Chrome Headless Shell builds include optimizations such as [shared-memory capture](/docs/shared-memory-capture). Custom versions are stock builds from Google without them.
+
+Remotion calls this function to determine which Chrome version to use, even if that version is already installed. It is not called if [`browserExecutable`](#browserexecutable) is passed.  
+`onProgress` is only called if the returned `version` is not installed yet and needs to be downloaded. Log download messages in `onProgress` instead of in the function body.
+
+From v4.0.544, each version is installed into its own folder. Installing a version does not delete other versions. If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, those calls use Remotion's default version.
 
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
@@ -66,8 +68,6 @@ const onProgress: DownloadBrowserProgressFn = ({percent, downloadedBytes, totalS
 };
 
 const onBrowserDownload: OnBrowserDownload = () => {
-  console.log('Downloading browser');
-
   return {
     // Pass `null` to use Remotion's recommendation.
     version: '157.0.8080.0',

@@ -138,18 +138,23 @@ export const renderVideo = async ({
       onBrowserDownload: ({chromeMode}) => {
         const browserName =
           chromeMode === "chrome-for-testing" ? "Chrome" : "Chrome Headless Shell";
+        let started = false;
         const onProgress: DownloadBrowserProgressFn = (progress) => {
+          // Only reached when a browser actually needs to be downloaded.
+          if (!started) {
+            started = true;
+            onUpdate?.({
+              type: "status",
+              message: `Downloading ${browserName}...`,
+            });
+          }
+
           onUpdate?.({
             type: "progress",
             stage: "browser-download",
             progress: progress.percent,
           });
         };
-
-        onUpdate?.({
-          type: "status",
-          message: `Downloading ${browserName}...`,
-        });
 
         return {
           version: null,

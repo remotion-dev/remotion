@@ -9,7 +9,6 @@ import {defaultBrowserDownloadProgress} from './browser/browser-download-progres
 import {launchChrome} from './browser/Launcher';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {internalEnsureBrowser} from './ensure-browser';
-import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {type LogLevel} from './log-level';
 import {Log} from './logger';
@@ -161,7 +160,7 @@ export const internalOpenBrowser = async ({
 	}
 
 	Log.verbose({indent, logLevel}, 'Ensuring browser executable');
-	await internalEnsureBrowser({
+	const browserStatus = await internalEnsureBrowser({
 		browserExecutable,
 		logLevel,
 		indent,
@@ -170,12 +169,14 @@ export const internalOpenBrowser = async ({
 	});
 	Log.verbose({indent, logLevel}, 'Ensured browser is available.');
 
-	const executablePath = getLocalBrowserExecutable({
-		preferredBrowserExecutable: browserExecutable,
-		logLevel,
-		indent,
-		chromeMode,
-	});
+	if (browserStatus.type === 'no-browser') {
+		throw new TypeError(
+			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
+				'how you reached this error: https://remotion.dev/issue',
+		);
+	}
+
+	const executablePath = browserStatus.path;
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl);
 	const enableMultiProcessOnLinux =
