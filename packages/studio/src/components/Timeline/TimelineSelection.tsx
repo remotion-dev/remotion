@@ -62,7 +62,10 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
-import {useOptimisticEffectSnapshot} from '../../helpers/optimistic-effect-projection';
+import {
+	projectEffectPropStatuses,
+	useOptimisticEffectSnapshot,
+} from '../../helpers/optimistic-effect-projection';
 import {registerOptimisticEffectSelection} from '../../helpers/optimistic-effect-selection';
 import {
 	isPointerSessionRelease,
@@ -90,13 +93,21 @@ import {
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
+import {createTrackLookupForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getNodeCanEditEasing,
 	getNodeHasKeyframes,
 	getNodeKeyframes,
 } from './get-node-keyframes';
 import {getParentTimelineSelection} from './get-parent-timeline-selection';
+import {getTimelineKeyframes} from './get-timeline-keyframes';
 import {getCurrentFrame} from './imperative-state';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {
+	reconcileKeyframeSelection,
+	type KeyframeFieldState,
+} from './reconcile-keyframe-selection';
+import {hasPendingSavePropChange} from './save-prop-queue';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -110,6 +121,7 @@ import {
 } from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+import {useTimelineKeyframeTracksRef} from './TimelineKeyframeTracksContext';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -539,6 +551,9 @@ type TimelineRowSelectionContextValue = Pick<
 	| 'selectItem'
 > & {
 	readonly getSnapshot: () => TimelineSelectionState;
+	readonly setSnapshot: ReturnType<
+		typeof useCanvasSelectionController
+	>['setSnapshot'];
 	readonly subscribe: (listener: () => void) => () => void;
 };
 
@@ -1010,6 +1025,215 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
+	const selectionController = useContext(TimelineRowSelectionContext);
+	const tracksRef = useTimelineKeyframeTracksRef();
+	const propStatusesSubscription = useContext(
+		Internals.VisualModePropStatusesSubscriptionContext,
+	);
+	const previousKeyframeFieldsRef = useRef<Map<string, KeyframeFieldState>>(
+		new Map(),
+	);
+	const interactiveKeyframeFieldsRef = useRef<Set<string>>(new Set());
+	useLayoutEffect(() => {
+		if (selectionController === null) {
+			return;
+		}
+
+		const snapshot = selectionController.getSnapshot();
+		// A newer selection must not be overwritten by a delayed source change.
+		if (snapshot.selectedItems !== selectedItems) {
+			return;
+		}
+
+		const getTrack = createTrackLookupForNodePathInfo(tracksRef.current);
+		const getFieldState = (
+			item: TimelineSelection,
+		): {state: KeyframeFieldState | null; interactive: boolean} => {
+			if (item.type !== 'keyframe' && item.type !== 'easing') {
+				return {state: null, interactive: false};
+			}
+
+			const track = getTrack(item.nodePathInfo);
+			if (!track?.sequence.controls) {
+				return {state: null, interactive: false};
+			}
+
+			const field = parseKeyframeFieldFromNodePath(
+				item.nodePathInfo.auxiliaryKeys,
+			);
+			if (field === null) {
+				return {state: null, interactive: false};
+			}
+
+			const nodePath = {
+				...item.nodePathInfo.sequenceSubscriptionKey,
+				videoConfigValues: track.sequence.controls.videoConfigValues,
+			};
+			const overrides =
+				field.type === 'sequence'
+					? getDragOverrides(nodePath)
+					: getEffectDragOverrides(nodePath, field.effectIndex);
+			// A drag override or a pending save belongs to an interactive edit.
+			// The first resolved run after it must adopt the source state and
+			// keep the selection the interaction produced.
+			if (
+				Object.prototype.hasOwnProperty.call(overrides, field.fieldKey) ||
+				hasPendingSavePropChange(nodePath)
+			) {
+				return {state: null, interactive: true};
+			}
+
+			const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
+			if (propStatusesSubscription.getSnapshot(key) !== propStatuses[key]) {
+				return {state: null, interactive: false};
+			}
+
+			const sequenceStatus =
+				field.type === 'effect'
+					? projectEffectPropStatuses(propStatuses, nodePath)[key]
+					: propStatuses[key];
+			if (!sequenceStatus?.canUpdate) {
+				return {state: null, interactive: false};
+			}
+
+			const effectStatus =
+				field.type === 'effect'
+					? sequenceStatus.effects.find(
+							(effect) => effect.effectIndex === field.effectIndex,
+						)
+					: null;
+			const sourceStatus =
+				field.type === 'sequence'
+					? sequenceStatus.props[field.fieldKey]
+					: effectStatus?.canUpdate
+						? effectStatus.props[field.fieldKey]
+						: null;
+			if (!sourceStatus) {
+				return {state: null, interactive: false};
+			}
+
+			const status = Internals.evaluateSourcePropStatuses(
+				{value: sourceStatus},
+				nodePath.videoConfigValues,
+			).value;
+			if (status.status === 'computed' && sourceStatus.status !== 'computed') {
+				return {state: null, interactive: false};
+			}
+
+			const schema =
+				field.type === 'sequence'
+					? track.sequence.controls.schema
+					: Internals.OptimisticEffects.getItems(
+							nodePath,
+							track.sequence.effects,
+						)[field.effectIndex]?.definition.schema;
+			const keyframes = getTimelineKeyframes(
+				status,
+				track.keyframeDisplayOffset,
+				track.keyframePlaybackRate,
+			);
+
+			return {
+				state: {
+					keyframes,
+					easingSegments: getKeyframeSegments(keyframes),
+					canEditEasing: CanvasInternals.canEditKeyframeEasing({
+						field: schema
+							? CanvasInternals.getSchemaField(schema, field.fieldKey)
+							: undefined,
+						propStatus: status,
+					}),
+				},
+				interactive: false,
+			};
+		};
+
+		const previousFields = previousKeyframeFieldsRef.current;
+		const currentFields = new Map<string, KeyframeFieldState>();
+		const nextPreviousFields = new Map(previousFields);
+		const interactiveFields = new Set(interactiveKeyframeFieldsRef.current);
+		const adoptedFields = new Set<string>();
+		const selectedFieldKeys = new Set<string>();
+		for (const item of [...snapshot.selectedItems, snapshot.anchor]) {
+			if (
+				item === null ||
+				(item.type !== 'keyframe' && item.type !== 'easing')
+			) {
+				continue;
+			}
+
+			const fieldKey = timelineNodePathInfoToKey(item.nodePathInfo);
+			selectedFieldKeys.add(fieldKey);
+			const {state, interactive} = getFieldState(item);
+			if (state !== null) {
+				nextPreviousFields.set(fieldKey, state);
+				if (adoptedFields.has(fieldKey)) {
+					continue;
+				}
+
+				if (interactiveFields.delete(fieldKey)) {
+					// The interaction already chose the selection; adopt the
+					// resolved keyframes as the new baseline exactly once.
+					adoptedFields.add(fieldKey);
+					continue;
+				}
+
+				currentFields.set(fieldKey, state);
+			} else if (interactive) {
+				interactiveFields.add(fieldKey);
+			}
+		}
+
+		for (const fieldKey of nextPreviousFields.keys()) {
+			if (!selectedFieldKeys.has(fieldKey)) {
+				nextPreviousFields.delete(fieldKey);
+			}
+		}
+
+		for (const fieldKey of interactiveFields) {
+			if (!selectedFieldKeys.has(fieldKey)) {
+				interactiveFields.delete(fieldKey);
+			}
+		}
+
+		const next = reconcileKeyframeSelection({
+			previousFields,
+			currentFields,
+			getFieldKey: (item) =>
+				item.type === 'keyframe' || item.type === 'easing'
+					? timelineNodePathInfoToKey(item.nodePathInfo)
+					: '',
+			state: snapshot,
+		});
+		previousKeyframeFieldsRef.current = nextPreviousFields;
+		interactiveKeyframeFieldsRef.current = interactiveFields;
+		if (next === snapshot) {
+			return;
+		}
+
+		// A value-aware move can map two selections onto the same keyframe.
+		selectionController.setSnapshot({
+			selectedItems: [
+				...new Map(
+					next.selectedItems.map((item) => [
+						getTimelineSelectionKey(item),
+						item,
+					]),
+				).values(),
+			],
+			anchor: next.anchor,
+		});
+	}, [
+		getDragOverrides,
+		getEffectDragOverrides,
+		optimisticEffects,
+		propStatuses,
+		propStatusesSubscription,
+		selectedItems,
+		selectionController,
+		timeline,
+		tracksRef,
+	]);
 	const previousSelectionRef = useRef<{
 		readonly optimisticEffects: typeof optimisticEffects;
 		readonly timeline: readonly TimelineTrackData[];
@@ -1867,6 +2091,7 @@ export const TimelineSelectionProvider: React.FC<{
 			canSelect,
 			clearSelection,
 			getSnapshot: getAvailableSelectionState,
+			setSnapshot: selectionController.setSnapshot,
 			registerMarqueeSelectableItem,
 			selectItem,
 			subscribe: selectionController.subscribe,
@@ -1877,6 +2102,7 @@ export const TimelineSelectionProvider: React.FC<{
 			getAvailableSelectionState,
 			registerMarqueeSelectableItem,
 			selectItem,
+			selectionController.setSnapshot,
 			selectionController.subscribe,
 		],
 	);

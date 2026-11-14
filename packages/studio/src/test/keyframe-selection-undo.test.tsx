@@ -1,0 +1,467 @@
+import {afterEach, expect, test} from 'bun:test';
+import {act, cleanup, render} from '@testing-library/react';
+import {useMemo} from 'react';
+import {
+	Internals,
+	type InteractivitySchema,
+	type PropStatuses,
+	type SequencePropsSubscriptionKey,
+} from 'remotion';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../components/ExpandedTracksProvider';
+import {enqueueSavePropChangeWithResult} from '../components/Timeline/save-prop-queue';
+import {TimelineKeyframeTracksProvider} from '../components/Timeline/TimelineKeyframeTracksContext';
+import {
+	TimelineSelectableItemsProvider,
+	TimelineSelectionProvider,
+	useTimelineSelection,
+	type TimelineSelection,
+} from '../components/Timeline/TimelineSelection';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../helpers/get-timeline-sequence-sort-key';
+import {KeybindingContextProvider} from '../state/keybindings';
+
+afterEach(() => {
+	activeDragOverride = {};
+	cleanup();
+});
+
+const nodePath: SequencePropsSubscriptionKey = {
+	absolutePath: '/project/src/Comp.tsx',
+	effectKeys: [],
+	nodePath: ['body', 0],
+	sequenceKeys: ['from', 'durationInFrames'],
+	videoConfigValues: null,
+};
+const nodePathInfo: SequenceNodePathInfo = {
+	sequenceSubscriptionKey: nodePath,
+	auxiliaryKeys: [],
+	index: 0,
+	numberOfSequencesWithThisNodePath: 1,
+	supportsEffects: true,
+};
+const opacityNodePathInfo: SequenceNodePathInfo = {
+	...nodePathInfo,
+	auxiliaryKeys: ['controls', 'opacity'],
+};
+const schema = {
+	opacity: {type: 'number', default: 1, hiddenFromList: false},
+} satisfies InteractivitySchema;
+
+const makeTrack = (): TimelineTrackData => ({
+	sequence: {
+		type: 'sequence',
+		from: 0,
+		trimBefore: null,
+		duration: 100,
+		id: 'sequence',
+		displayName: 'sequence',
+		documentationLink: null,
+		parent: null,
+		showInTimeline: true,
+		timelineOrder: null,
+		singleChildComponent: undefined,
+		loopDisplay: undefined,
+		getStack: () => null,
+		premountDisplay: null,
+		postmountDisplay: null,
+		controls: {
+			schema,
+			runtimeValues: {},
+			overrideId: 'override',
+			supportsEffects: true,
+			componentIdentity: null,
+			componentName: '<Sequence>',
+			videoConfigValues: null,
+		},
+		refForOutline: null,
+		isInsideSeries: false,
+		effects: [],
+		effectRuntimeValues: null,
+		sequencePlaybackRate: 1,
+		frozenFrame: null,
+		startMediaFrom: 0,
+	} as unknown as TimelineTrackData['sequence'],
+	depth: 0,
+	nodePathInfo,
+	keyframeDisplayOffset: 0,
+	keyframePlaybackRate: 1,
+	sequenceFrameOffset: 0,
+	cascadedStart: 0,
+	localStart: 0,
+	parentVisibleStart: 0,
+	parentVisibleEnd: null,
+});
+
+const makeStatuses = (
+	frames: readonly number[],
+	values: readonly unknown[] = frames.map((_, index) => index),
+): PropStatuses => ({
+	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+		durationDependentKeyframes: null,
+		canUpdate: true,
+		effects: [],
+		props: {
+			opacity:
+				frames.length === 0
+					? {
+							status: 'static',
+							codeValue: 1,
+							keyframeDisplayOffsetAdjustment: null,
+						}
+					: {
+							status: 'keyframed',
+							interpolationFunction: 'interpolate',
+							keyframeDisplayOffsetAdjustment: null,
+							keyframes: frames.map((frame, index) => ({
+								frame,
+								value: values[index],
+							})),
+							easing: frames.slice(1).map(() => ({type: 'linear'})),
+							clamping: {left: 'clamp', right: 'clamp'},
+							posterize: undefined,
+							output: undefined,
+						},
+		},
+	},
+});
+
+const studioServerConnectionContext = {
+	previewServerState: {type: 'connected', clientId: 'client'},
+	configFileChangeRevision: 0,
+	subscribeToEvent: () => () => undefined,
+} as never;
+
+let activeDragOverride: Record<string, unknown> = {};
+
+const dragOverrides = {
+	getDragOverrides: () => activeDragOverride,
+	getEffectDragOverrides: () => activeDragOverride,
+} as never;
+
+const expandedTracksGetter = {getIsExpanded: () => false};
+
+const expandedTracksSetter = {
+	expandParentTracks: () => undefined,
+	toggleTrack: () => undefined,
+	migrateExpandedTracksForSubscriptionKey: () => undefined,
+};
+
+const Harness = ({
+	statuses,
+	onSelection,
+}: {
+	readonly statuses: PropStatuses;
+	readonly onSelection: (
+		selection: ReturnType<typeof useTimelineSelection>,
+	) => void;
+}) => {
+	const track = useMemo(makeTrack, []);
+	const propStatusesValue = useMemo(
+		() => ({propStatuses: statuses}),
+		[statuses],
+	);
+	const subscription = useMemo(
+		() => ({
+			subscribe: () => () => undefined,
+			getSnapshot: (key: string | null) =>
+				key === null ? null : (statuses[key] ?? null),
+		}),
+		[statuses],
+	);
+	return (
+		<StudioServerConnectionCtx.Provider value={studioServerConnectionContext}>
+			<ExpandedTracksGetterContext.Provider value={expandedTracksGetter}>
+				<ExpandedTracksSetterContext.Provider value={expandedTracksSetter}>
+					<Internals.VisualModePropStatusesContext.Provider
+						value={propStatusesValue}
+					>
+						<Internals.VisualModePropStatusesSubscriptionContext.Provider
+							value={subscription}
+						>
+							<Internals.VisualModeDragOverridesContext.Provider
+								value={dragOverrides}
+							>
+								<KeybindingContextProvider>
+									<TimelineSelectionProvider>
+										<CaptureSelection onSelection={onSelection} />
+										<TimelineKeyframeTracksProvider tracks={[track]}>
+											<TimelineSelectableItemsProvider timeline={[track]}>
+												{null}
+											</TimelineSelectableItemsProvider>
+										</TimelineKeyframeTracksProvider>
+									</TimelineSelectionProvider>
+								</KeybindingContextProvider>
+							</Internals.VisualModeDragOverridesContext.Provider>
+						</Internals.VisualModePropStatusesSubscriptionContext.Provider>
+					</Internals.VisualModePropStatusesContext.Provider>
+				</ExpandedTracksSetterContext.Provider>
+			</ExpandedTracksGetterContext.Provider>
+		</StudioServerConnectionCtx.Provider>
+	);
+};
+
+const CaptureSelection = ({
+	onSelection,
+}: {
+	readonly onSelection: (
+		selection: ReturnType<typeof useTimelineSelection>,
+	) => void;
+}) => {
+	onSelection(useTimelineSelection());
+	return null;
+};
+
+const keyframeSelection = (frame: number): TimelineSelection => ({
+	type: 'keyframe',
+	nodePathInfo: opacityNodePathInfo,
+	frame,
+});
+
+const getSelectedFrames = (
+	selection: ReturnType<typeof useTimelineSelection>,
+): number[] =>
+	selection.selectedItems.flatMap((item) =>
+		item.type === 'keyframe' ? [item.frame] : [],
+	);
+
+test('undoing a keyframe move keeps the selection on the restored keyframes', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([27, 37])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(27), keyframeSelection(37)]);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([27, 37]);
+
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+
+	expect(getSelectedFrames(selection!)).toEqual([30, 40]);
+});
+
+test('a selection made while the history operation is pending survives it', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([10, 30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(10)]);
+	});
+
+	rerender(
+		<Harness statuses={makeStatuses([10, 27, 37])} onSelection={capture} />,
+	);
+
+	expect(getSelectedFrames(selection!)).toEqual([10]);
+});
+
+test('undoing an overlapping keyframe move keeps both selections', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([20, 30])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(20), keyframeSelection(30)]);
+	});
+
+	// Undo restores [30, 40]; the frame 30 exists again but now holds the
+	// keyframe that was selected at 20.
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+
+	expect(getSelectedFrames(selection!)).toEqual([30, 40]);
+});
+
+test('a pending keyframe add is not pruned by a delayed status update', async () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+
+	let resolveAdd: (value: null) => void = () => undefined;
+	const addRequest = new Promise<null>((resolve) => {
+		resolveAdd = resolve;
+	});
+	const pending = enqueueSavePropChangeWithResult({
+		nodePath,
+		setPropStatuses: () => undefined,
+		applyOptimistic: (previous) => previous,
+		apiCall: () => addRequest,
+		errorLabel: 'Could not add keyframe',
+	});
+
+	try {
+		act(() => {
+			selection!.selectItems([keyframeSelection(27)]);
+		});
+		expect(getSelectedFrames(selection!)).toEqual([27]);
+
+		// A delayed notification from an earlier edit renders a status that does
+		// not contain the pending keyframe yet.
+		rerender(
+			<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+		);
+		expect(getSelectedFrames(selection!)).toEqual([27]);
+	} finally {
+		resolveAdd(null);
+		await pending;
+	}
+});
+
+test('an active keyframe drag keeps the dragged selection', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+
+	// Pointer-up moves the selection and the optimistic source while the drag
+	// override is still published.
+	activeDragOverride = {opacity: {type: 'static', value: 1}};
+	act(() => {
+		selection!.selectItems([keyframeSelection(27)]);
+		rerender(
+			<Harness statuses={makeStatuses([27, 40])} onSelection={capture} />,
+		);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([27]);
+
+	// Once the move is acknowledged the field resolves; the selection must
+	// survive that run and still map back on undo.
+	activeDragOverride = {};
+	rerender(<Harness statuses={makeStatuses([27, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([27]);
+
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+});
+
+test('dragging a selected keyframe onto another keeps the selection', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+
+	// The drag replaces the destination keyframe and moves the selection onto
+	// it while the override is still published.
+	activeDragOverride = {opacity: {type: 'static', value: 1}};
+	act(() => {
+		selection!.selectItems([keyframeSelection(40)]);
+		rerender(<Harness statuses={makeStatuses([40])} onSelection={capture} />);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([40]);
+
+	// The first resolved run adopts the new source and keeps the interaction's
+	// selection instead of dropping it.
+	activeDragOverride = {};
+	rerender(<Harness statuses={makeStatuses([40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([40]);
+
+	rerender(<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+});
+
+test('an in-place value edit with duplicate values keeps the selected frame', async () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40], [5, 5])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30)]);
+	});
+
+	let resolveSave: (value: null) => void = () => undefined;
+	const saveRequest = new Promise<null>((resolve) => {
+		resolveSave = resolve;
+	});
+	const pending = enqueueSavePropChangeWithResult({
+		nodePath,
+		setPropStatuses: () => undefined,
+		applyOptimistic: (previous) => previous,
+		apiCall: () => saveRequest,
+		errorLabel: 'Could not edit keyframe',
+	});
+
+	try {
+		rerender(
+			<Harness
+				statuses={makeStatuses([30, 40], [6, 5])}
+				onSelection={capture}
+			/>,
+		);
+		expect(getSelectedFrames(selection!)).toEqual([30]);
+	} finally {
+		resolveSave(null);
+		await pending;
+	}
+
+	// The edit is acknowledged: adopt the edited source without moving the
+	// selection to the keyframe that still has the old value.
+	rerender(
+		<Harness statuses={makeStatuses([30, 40], [6, 5])} onSelection={capture} />,
+	);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+
+	rerender(
+		<Harness statuses={makeStatuses([30, 40], [5, 5])} onSelection={capture} />,
+	);
+	expect(getSelectedFrames(selection!)).toEqual([30]);
+});
+
+test('undoing keyframe creation removes the selection', () => {
+	let selection: ReturnType<typeof useTimelineSelection> | null = null;
+	const capture = (value: ReturnType<typeof useTimelineSelection>) => {
+		selection = value;
+	};
+
+	const {rerender} = render(
+		<Harness statuses={makeStatuses([30, 40])} onSelection={capture} />,
+	);
+	act(() => {
+		selection!.selectItems([keyframeSelection(30), keyframeSelection(40)]);
+	});
+	expect(getSelectedFrames(selection!)).toEqual([30, 40]);
+
+	rerender(<Harness statuses={makeStatuses([])} onSelection={capture} />);
+
+	expect(selection!.selectedItems).toEqual([]);
+});

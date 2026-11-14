@@ -41,6 +41,10 @@ const dropQueue = (
 	}
 };
 
+export const hasPendingSavePropChange = (
+	nodePath: SequencePropsSubscriptionKey,
+): boolean => queues.has(Internals.makeSequencePropsSubscriptionKey(nodePath));
+
 export type EnqueueSaveOptions<TResponse> = {
 	nodePath: SequencePropsSubscriptionKey;
 	setPropStatuses: SetPropStatuses;
