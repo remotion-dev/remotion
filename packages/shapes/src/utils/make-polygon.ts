@@ -1,6 +1,7 @@
 import type {Instruction} from '@remotion/paths';
 import {
 	PathInternals,
+	parsePath,
 	reduceInstructions,
 	resetPath,
 	serializeInstructions,
@@ -82,7 +83,7 @@ export const makePolygon = ({
 		path,
 		width: boundingBox.width,
 		height: boundingBox.height,
-		transformOrigin: `${centerX} ${centerY}`,
-		instructions: polygonPathInstructions,
+		transformOrigin: `${centerX - boundingBox.x1} ${centerY - boundingBox.y1}`,
+		instructions: parsePath(path),
 	};
 };

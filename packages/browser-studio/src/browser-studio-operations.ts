@@ -112,10 +112,10 @@ const {
 
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
- * Browser Studio deliberately reports the unsupported operation instead.
+ * remotion.new deliberately reports the unsupported operation instead.
  */
 const svgMarkupToJsx = (): never => {
-	throw new Error('Importing SVG markup is not supported in Browser Studio');
+	throw new Error('Importing SVG markup is not supported in remotion.new');
 };
 
 const insertIntoProject = ({
@@ -1239,7 +1239,7 @@ export const createBrowserStudioOperations = ({
 			if (dependency.name.startsWith('@remotion/')) {
 				if (!remotionVersion) {
 					throw new Error(
-						`Cannot resolve ${dependency.name} because the Browser Studio Remotion version is unavailable`,
+						`Cannot resolve ${dependency.name} because the remotion.new Remotion version is unavailable`,
 					);
 				}
 

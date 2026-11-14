@@ -236,7 +236,7 @@ export const RenderQueueItem: React.FC<{
 					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
 					{job.status === 'running' || job.status === 'idle' ? (
 						<RenderQueueCancelButton job={job} />
-					) : isBrowserStudio ? null : (
+					) : job.status === 'saving' || isBrowserStudio ? null : (
 						<RenderQueueRemoveItem job={job} />
 					)}
 					{job.status === 'done' ? (

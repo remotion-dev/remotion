@@ -20,5 +20,5 @@ const manifest = copyBrowserStudioRemotionPackageArtifacts({
 });
 
 process.stdout.write(
-	`Prepared ${Object.keys(manifest.files).length} Browser Studio workspace artifacts for ${commit}.\n`,
+	`Prepared ${Object.keys(manifest.files).length} remotion.new workspace artifacts for ${commit}.\n`,
 );

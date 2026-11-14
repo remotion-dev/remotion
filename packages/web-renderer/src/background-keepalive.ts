@@ -51,40 +51,57 @@ export function createBackgroundKeepalive({
 		};
 	}
 
-	const blob = new Blob([WORKER_CODE], {type: 'application/javascript'});
-	const workerUrl = URL.createObjectURL(blob);
-	worker = new Worker(workerUrl);
-
-	worker.onmessage = () => {
-		const resolvers = pendingResolvers;
-		pendingResolvers = [];
-		for (const resolve of resolvers) {
-			resolve();
-		}
-	};
-
-	worker.onerror = (event) => {
-		Internals.Log.error(
-			{logLevel, tag: '@remotion/web-renderer'},
-			'Background keepalive worker encountered an error and will be terminated.',
-			event,
-		);
-
-		const resolvers = pendingResolvers;
-		pendingResolvers = [];
-		for (const resolve of resolvers) {
-			resolve();
-		}
-
-		if (!disposed) {
-			disposed = true;
-			worker?.terminate();
-			worker = null;
+	let workerUrl: string | null = null;
+	const releaseWorker = () => {
+		worker?.terminate();
+		worker = null;
+		if (workerUrl !== null) {
 			URL.revokeObjectURL(workerUrl);
+			workerUrl = null;
 		}
 	};
 
-	worker.postMessage({type: 'start', intervalMs});
+	try {
+		const blob = new Blob([WORKER_CODE], {type: 'application/javascript'});
+		workerUrl = URL.createObjectURL(blob);
+		worker = new Worker(workerUrl);
+
+		worker.onmessage = () => {
+			const resolvers = pendingResolvers;
+			pendingResolvers = [];
+			for (const resolve of resolvers) {
+				resolve();
+			}
+		};
+
+		worker.onerror = (event) => {
+			Internals.Log.error(
+				{logLevel, tag: '@remotion/web-renderer'},
+				'Background keepalive worker encountered an error and will be terminated.',
+				event,
+			);
+
+			const resolvers = pendingResolvers;
+			pendingResolvers = [];
+			for (const resolve of resolvers) {
+				resolve();
+			}
+
+			if (!disposed) {
+				disposed = true;
+				releaseWorker();
+			}
+		};
+
+		worker.postMessage({type: 'start', intervalMs});
+	} catch (error) {
+		Internals.Log.warn(
+			{logLevel, tag: '@remotion/web-renderer'},
+			'Background keepalive worker could not start. Using a timer fallback.',
+			error,
+		);
+		releaseWorker();
+	}
 
 	return {
 		waitForTick: () => {
@@ -106,9 +123,7 @@ export function createBackgroundKeepalive({
 
 			disposed = true;
 			worker?.postMessage({type: 'stop'});
-			worker?.terminate();
-			worker = null;
-			URL.revokeObjectURL(workerUrl);
+			releaseWorker();
 
 			const resolvers = pendingResolvers;
 			pendingResolvers = [];
