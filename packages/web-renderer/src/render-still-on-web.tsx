@@ -13,7 +13,10 @@ import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
-import {onlyOneStillRenderAtATimeQueue} from './render-operations-queue';
+import {
+	onlyOneStillRenderAtATimeQueue,
+	runWithRenderQueue,
+} from './render-operations-queue';
 import {
 	createRenderStillOnWebResult,
 	type RenderStillOnWebResult,
@@ -305,9 +308,11 @@ const renderImagesOnWeb = <
 	options: RenderFramesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ): Promise<RenderStillOnWebResult[]> => {
-	const render = onlyOneStillRenderAtATimeQueue.ref
-		.catch(() => Promise.resolve())
-		.then(() =>
+	return runWithRenderQueue({
+		queue: onlyOneStillRenderAtATimeQueue,
+		signal: options.signal ?? null,
+		createCancellationError: () => new Error(`${apiName}() was cancelled`),
+		render: () =>
 			internalRenderImagesOnWeb<Schema, Props>(
 				{
 					...options,
@@ -329,15 +334,7 @@ const renderImagesOnWeb = <
 				},
 				apiName,
 			),
-		);
-
-	// The queue only owns completion; callers own the result or rejection reason.
-	onlyOneStillRenderAtATimeQueue.ref = render.then(
-		() => {},
-		() => {},
-	);
-
-	return render;
+	});
 };
 
 export const renderStillOnWeb = <
