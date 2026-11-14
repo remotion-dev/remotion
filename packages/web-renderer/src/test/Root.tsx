@@ -171,6 +171,7 @@ import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
+import {pendingSdkFontSelection} from './fixtures/pending-sdk-font-selection';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
@@ -230,6 +231,7 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {svgFontCaptureReadiness} from './fixtures/svg-font-capture-readiness';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
 	svgFullSourceUrlFill,
@@ -305,9 +307,13 @@ import {unwrapped} from './fixtures/unwrapped';
 import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
 import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 
+const pendingSdkFontReadinessPreview = svgFontCaptureReadiness().composition;
+
 export const Root: React.FC = () => {
 	return (
 		<>
+			<Composition {...pendingSdkFontReadinessPreview} />
+			<Composition {...pendingSdkFontSelection} />
 			<Composition {...svgDataMimeLowercase} />
 			<Composition {...svgDataMimeUppercase} />
 			<Composition {...svgDataMimeCoverLowercase} />

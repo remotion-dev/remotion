@@ -9,14 +9,17 @@ const scope = (): DelayRenderScope => ({
 	remotion_attempt: 1,
 });
 const wait = (state: DelayRenderScope, signal: AbortSignal | null) =>
-	waitForReady({
-		timeoutInMilliseconds: 30000,
-		scope: state,
-		signal,
-		apiName: 'renderStillOnWeb',
-		internalState: null,
-		keepalive: null,
-	});
+	waitForReady(
+		{
+			timeoutInMilliseconds: 30000,
+			scope: state,
+			signal,
+			apiName: 'renderStillOnWeb',
+			internalState: null,
+			keepalive: null,
+		},
+		null,
+	);
 afterEach(() => vi.unstubAllGlobals());
 test('stored cancellation rejects an already-ready wait with the original error and cause', async () => {
 	const state = scope();

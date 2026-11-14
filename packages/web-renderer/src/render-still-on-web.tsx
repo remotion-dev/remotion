@@ -213,14 +213,17 @@ async function internalRenderImagesOnWeb<
 
 	const artifactsHandler = handleArtifacts();
 	const waitForRenderReady = async () => {
-		await waitForReady({
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-			scope: delayRenderScope,
-			signal,
-			apiName,
-			internalState: null,
-			keepalive: null,
-		});
+		await waitForReady(
+			{
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+				scope: delayRenderScope,
+				signal,
+				apiName,
+				internalState: null,
+				keepalive: null,
+			},
+			div,
+		);
 		checkForError(errorHolder);
 	};
 

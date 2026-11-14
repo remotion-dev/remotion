@@ -1,3 +1,4 @@
+dist/cjs/test/**
 dist/test/**
 src
 .eslintrc

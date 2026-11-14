@@ -15,6 +15,63 @@ export type RegisteredFontFace = {
 	variant: string | null;
 };
 
+export type PendingFontFace = Pick<
+	RegisteredFontFace,
+	'fontFamily' | 'style' | 'weight' | 'stretch' | 'unicodeRange'
+> & {
+	ownerDocument: Document;
+	completion: Promise<void>;
+};
+
+const pendingFontFaces = new Set<PendingFontFace>();
+const fontFaceFamilyInputs = new WeakMap<
+	FontFace,
+	{fontFamily: string; serializedFamily: string}
+>();
+
+export const getFontFaceFamilyInput = (face: FontFace): string | null => {
+	const input = fontFaceFamilyInputs.get(face);
+	return input && input.serializedFamily === face.family
+		? input.fontFamily
+		: null;
+};
+
+export const startPendingFontFace = (
+	fontFace: Omit<PendingFontFace, 'completion'>,
+) => {
+	let resolve!: () => void;
+	let reject!: (error: unknown) => void;
+	const completion = new Promise<void>((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
+	// The SDK also works without a web export subscribing to this load.
+	completion.catch(() => undefined);
+	const pending = {...fontFace, completion};
+	pendingFontFaces.add(pending);
+	return {
+		resolve: (nativeFace: FontFace | null) => {
+			if (nativeFace) {
+				fontFaceFamilyInputs.set(nativeFace, {
+					fontFamily: fontFace.fontFamily,
+					serializedFamily: nativeFace.family,
+				});
+			}
+
+			pendingFontFaces.delete(pending);
+			resolve();
+		},
+		reject: (error: unknown) => {
+			pendingFontFaces.delete(pending);
+			reject(error);
+		},
+	};
+};
+
+export const getPendingFontFaces = (): PendingFontFace[] => {
+	return [...pendingFontFaces];
+};
+
 const registeredFontFaces: RegisteredFontFace[] = [];
 const fontDataByUrl = new Map<string, Promise<ArrayBuffer>>();
 

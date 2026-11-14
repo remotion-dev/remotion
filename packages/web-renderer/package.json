@@ -12,7 +12,7 @@
 		"lint": "eslint src test",
 		"make": "node ../.monorepo/tsrs.cjs && bun --env-file=../.env.bundle bundle.ts",
 		"watch": "node ../.monorepo/tsrs.cjs -w",
-		"testwebrenderer": "bun test ./test && bun ./test/browser-info.ts && vitest src/test --browser --run",
+		"testwebrenderer": "bun test ./test ./src/cpu-test && bun ./test/browser-info.ts && vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos",
 		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
 	},

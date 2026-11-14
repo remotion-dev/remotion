@@ -80,14 +80,17 @@ test.for(['ready', 'abort'] as const)(
 		const controller = new AbortController();
 		let result: 'pending' | 'ready' | string = 'pending';
 		try {
-			const waiting = waitForReady({
-				timeoutInMilliseconds: 30000,
-				scope,
-				signal: controller.signal,
-				apiName: 'renderMediaOnWeb',
-				internalState: null,
-				keepalive,
-			}).then(
+			const waiting = waitForReady(
+				{
+					timeoutInMilliseconds: 30000,
+					scope,
+					signal: controller.signal,
+					apiName: 'renderMediaOnWeb',
+					internalState: null,
+					keepalive,
+				},
+				null,
+			).then(
 				() => {
 					result = 'ready';
 				},
@@ -175,14 +178,17 @@ test.for(['url', 'constructor', 'start'] as const)(
 				remotion_attempt: 1,
 			};
 			let ready = false;
-			const waiting = waitForReady({
-				timeoutInMilliseconds: 30000,
-				scope,
-				signal: null,
-				apiName: 'renderMediaOnWeb',
-				internalState: null,
-				keepalive,
-			}).then(() => {
+			const waiting = waitForReady(
+				{
+					timeoutInMilliseconds: 30000,
+					scope,
+					signal: null,
+					apiName: 'renderMediaOnWeb',
+					internalState: null,
+					keepalive,
+				},
+				null,
+			).then(() => {
 				ready = true;
 			});
 			await vi.advanceTimersByTimeAsync(40);
