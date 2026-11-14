@@ -176,6 +176,7 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {queuedFrameCapturePreview} from './fixtures/queued-frame-capture';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
 	replacedSamplerPixelated,
@@ -636,6 +637,7 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);
 };
