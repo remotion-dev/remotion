@@ -118,6 +118,18 @@ import {
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
+import {
+	maskGradientLayers,
+	maskGradientLayersTransparent,
+	maskGradientLayersUrl,
+	maskGradientLayersUrlTransparent,
+	maskGradientLayersTokenUrl,
+	maskGradientLayersTokenUrlTransparent,
+	maskGradientPalette,
+	maskGradientPaletteTransparent,
+	maskGradientLayersBlob,
+	maskGradientLayersBlobTransparent,
+} from './fixtures/mask-gradient-layers';
 import {maskImage} from './fixtures/mask-image';
 import {
 	maskImageLayers,
@@ -474,6 +486,16 @@ export const Root: React.FC = () => {
 				<Composition {...maskMathExtendedLiteralMultipleTransparent} />
 
 				<Composition {...maskImageLayers} />
+				<Composition {...maskGradientLayers} />
+				<Composition {...maskGradientLayersTransparent} />
+				<Composition {...maskGradientLayersUrl} />
+				<Composition {...maskGradientLayersUrlTransparent} />
+				<Composition {...maskGradientLayersBlob} />
+				<Composition {...maskGradientLayersBlobTransparent} />
+				<Composition {...maskGradientLayersTokenUrl} />
+				<Composition {...maskGradientLayersTokenUrlTransparent} />
+				<Composition {...maskGradientPalette} />
+				<Composition {...maskGradientPaletteTransparent} />
 				<Composition {...maskImageLayersTransparent} />
 				<Composition {...maskImageLayersUrl} />
 				<Composition {...maskImageLayersUrlTransparent} />

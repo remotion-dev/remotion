@@ -174,12 +174,14 @@ export const getRasterImage = async (request: RasterImageRequest) => {
 	return (await getRasterImageResource(request)).image;
 };
 
-// SVG image documents cannot fetch the original URL themselves. Embed the
-// bytes already fetched and validated by the incumbent raster resource loader.
-export const getRasterImageDataUrl = async (request: RasterImageRequest) => {
-	const {blob} = await getRasterImageResource(request);
+export const readBlobAsDataUrl = async ({
+	blob,
+	signal,
+}: {
+	blob: Blob;
+	signal: AbortSignal | null;
+}) => {
 	const reader = new FileReader();
-	const {signal} = request.state;
 	if (signal?.aborted) throw new Error('Raster image embedding was cancelled');
 	const abort = () => reader.abort();
 	signal?.addEventListener('abort', abort, {once: true});
@@ -194,4 +196,11 @@ export const getRasterImageDataUrl = async (request: RasterImageRequest) => {
 	} finally {
 		signal?.removeEventListener('abort', abort);
 	}
+};
+
+// SVG image documents cannot fetch the original URL themselves. Embed the
+// bytes already fetched and validated by the incumbent raster resource loader.
+export const getRasterImageDataUrl = async (request: RasterImageRequest) => {
+	const {blob} = await getRasterImageResource(request);
+	return readBlobAsDataUrl({blob, signal: request.state.signal});
 };

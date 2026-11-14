@@ -4,6 +4,7 @@ import {parseLinearGradient} from './parse-linear-gradient';
 
 type LinearGradientMaskImageInfo = {
 	type: 'linear-gradient';
+	value: string;
 	gradientInfo: LinearGradientInfo;
 };
 
@@ -30,7 +31,7 @@ export type MaskImageInfo =
 	| SingleMaskImageInfo
 	| {
 			type: 'layers';
-			layers: (UrlMaskImageInfo | null)[];
+			layers: (SingleMaskImageInfo | null)[];
 			style: MaskLayerStyle;
 	  };
 
@@ -250,7 +251,7 @@ const parseSingleMaskImage = (
 		? parseLinearGradient(maskImageValue)
 		: null;
 	if (gradientInfo) {
-		return {type: 'linear-gradient', gradientInfo};
+		return {type: 'linear-gradient', gradientInfo, value: maskImageValue};
 	}
 
 	if (maskImageValue.trim().toLowerCase().startsWith('url(')) {
@@ -287,12 +288,7 @@ export const parseMaskImage = (
 		},
 		layers: images.map((image, index) => {
 			if (image === 'none') return null;
-			const parsed = parseSingleMaskImage(image, computedStyle, index);
-			if (parsed.type !== 'url')
-				throw new Error(
-					'Multiple mask-image layers require raster URL or none sources',
-				);
-			return parsed;
+			return parseSingleMaskImage(image, computedStyle, index);
 		}),
 	};
 };

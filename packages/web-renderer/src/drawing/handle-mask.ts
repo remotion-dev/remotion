@@ -30,6 +30,7 @@ export const handleMask = async ({
 }) => {
 	if (maskImageInfo.type === 'layers') {
 		const groupImage = await createCssMask({
+			content: tempContext.canvas,
 			maskImageInfo,
 			maskRect,
 			precomposeRect,
@@ -37,20 +38,20 @@ export const handleMask = async ({
 			height: tempContext.canvas.height,
 			internalState,
 		});
-		const mask = new OffscreenCanvas(
+		const masked = new OffscreenCanvas(
 			tempContext.canvas.width,
 			tempContext.canvas.height,
 		).getContext('2d', {willReadFrequently: true});
-		if (!mask) throw new Error('Could not create mask group context');
+		if (!masked) throw new Error('Could not create mask group context');
 		try {
-			// Rasterize the native mask group before applying it to the content. The
+			// Rasterize the native masked content before copying the completed layer. The
 			// readback context preserves fractional alpha at this SVG drawable seam.
-			mask.drawImage(groupImage, 0, 0);
-			tempContext.globalCompositeOperation = 'destination-in';
-			tempContext.drawImage(mask.canvas, 0, 0);
+			masked.drawImage(groupImage, 0, 0);
+			tempContext.globalCompositeOperation = 'copy';
+			tempContext.drawImage(masked.canvas, 0, 0);
 		} finally {
-			mask.canvas.width = 0;
-			mask.canvas.height = 0;
+			masked.canvas.width = 0;
+			masked.canvas.height = 0;
 		}
 
 		return;
