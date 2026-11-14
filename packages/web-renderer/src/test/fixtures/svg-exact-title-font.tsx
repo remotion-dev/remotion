@@ -1,0 +1,98 @@
+import {useEffect, useState} from 'react';
+import {AbsoluteFill, useDelayRender} from 'remotion';
+
+const sources = Promise.all(
+	[
+		new URL('../../../../example/public/bangers.woff2', import.meta.url),
+		new URL('../../../../example/public/Roboto-Medium.ttf', import.meta.url),
+	].map(async (url) => {
+		const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+		let binary = '';
+		for (const byte of bytes) binary += String.fromCharCode(byte);
+		return `data:application/octet-stream;base64,${btoa(binary)}`;
+	}),
+);
+
+export const svgExactTitleFont = ({
+	title,
+	inactiveTitle,
+	firstRoboto,
+	literal,
+}: {
+	title: string;
+	inactiveTitle: string;
+	firstRoboto: boolean;
+	literal: boolean;
+}) => {
+	const Component = () => {
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const [handle] = useState(() => delayRender('Loading exact-title fonts'));
+		const [data, setData] = useState<string[] | null>(null);
+		const family = `Exact title ${firstRoboto ? 'Roboto' : 'Bangers'}`;
+		useEffect(() => {
+			let active = true;
+			sources.then(
+				(value) => {
+					if (active) setData(value);
+				},
+				(error: unknown) => {
+					if (active) cancelRender(error);
+				},
+			);
+			return () => {
+				active = false;
+				continueRender(handle);
+			};
+		}, [cancelRender, continueRender, handle]);
+		useEffect(() => {
+			if (data === null) return;
+			let active = true;
+			document.fonts.load(`40px "${family}"`).then(
+				(faces) => {
+					if (!active) return;
+					if (faces.length === 0) {
+						cancelRender(new Error('Exact-title font was not loaded'));
+					}
+
+					continueRender(handle);
+				},
+				(error: unknown) => {
+					if (active) cancelRender(error);
+				},
+			);
+			return () => {
+				active = false;
+			};
+		}, [cancelRender, continueRender, data, family, handle]);
+		if (data === null) return null;
+		const preferred = data[firstRoboto ? 1 : 0];
+		const inactive = data[firstRoboto ? 0 : 1];
+		return (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				<svg width={320} height={100}>
+					<style title={literal ? undefined : title}>
+						{`@font-face{font-family:"${family}";src:url("${preferred}")} rect{fill:lime}`}
+					</style>
+					{literal ? null : (
+						<style title={inactiveTitle}>
+							{`@font-face{font-family:"${family}";src:url("${inactive}")} rect{fill:red}`}
+						</style>
+					)}
+					<text x={8} y={60} fontFamily={family} fontSize={40} fill="black">
+						Title Font
+					</text>
+					<rect x={290} y={80} width={20} height={10} />
+				</svg>
+			</AbsoluteFill>
+		);
+	};
+
+	return {
+		component: Component,
+		id: `svg-exact-title-${firstRoboto ? 'roboto' : 'bangers'}-${literal ? 'literal' : 'authored'}`,
+		width: 320,
+		height: 100,
+		durationInFrames: 1,
+		fps: 30,
+	} as const;
+};

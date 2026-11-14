@@ -4,6 +4,7 @@ import {drawDomElement} from './drawing/draw-dom-element';
 import type {ProcessNodeReturnValue} from './drawing/process-node';
 import {processNode} from './drawing/process-node';
 import {handleTextNode} from './drawing/text/handle-text-node';
+import type {SvgFontSnapshots} from './drawing/turn-svg-into-drawable';
 import type {InternalState} from './internal-state';
 
 export const walkOverNode = ({
@@ -16,6 +17,7 @@ export const walkOverNode = ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	svgFontSnapshots,
 	transformStyleCache,
 	isolatedElements,
 }: {
@@ -28,6 +30,7 @@ export const walkOverNode = ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFontSnapshots: SvgFontSnapshots;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
@@ -35,7 +38,11 @@ export const walkOverNode = ({
 		return processNode({
 			element: node,
 			context,
-			draw: drawDomElement(node),
+			draw: drawDomElement(
+				node,
+				svgFontSnapshots,
+				internalState.rasterImageLoaderState.signal,
+			),
 			logLevel,
 			parentRect,
 			internalState,
@@ -44,6 +51,7 @@ export const walkOverNode = ({
 			waitForPageResponsiveness,
 			transformStyleCache,
 			isolatedElements,
+			svgFontSnapshots,
 		});
 	}
 
@@ -60,6 +68,7 @@ export const walkOverNode = ({
 			waitForPageResponsiveness,
 			transformStyleCache,
 			isolatedElements,
+			svgFontSnapshots,
 		});
 	}
 

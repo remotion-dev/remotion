@@ -242,6 +242,7 @@ async function internalRenderImagesOnWeb<
 			}
 
 			const capturedFrame = await createLayer({
+				svgFontSnapshots: null,
 				element: div,
 				transparent,
 				scale,

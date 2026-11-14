@@ -64,22 +64,33 @@ export const handleMask = async ({
 	);
 
 	if (maskImageInfo.type === 'linear-gradient') {
-		const gradient = createCanvasGradient({
-			ctx: tempContext,
-			rect: rectToFill,
-			gradientInfo: maskImageInfo.gradientInfo,
-			offsetLeft: 0,
-			offsetTop: 0,
-		});
+		const mask = new OffscreenCanvas(
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		).getContext('2d', {willReadFrequently: true});
+		if (!mask) throw new Error('Could not create gradient mask context');
+		try {
+			const gradient = createCanvasGradient({
+				ctx: mask,
+				rect: rectToFill,
+				gradientInfo: maskImageInfo.gradientInfo,
+				offsetLeft: 0,
+				offsetTop: 0,
+			});
+			mask.fillStyle = gradient;
+			mask.fillRect(
+				rectToFill.left,
+				rectToFill.top,
+				rectToFill.width,
+				rectToFill.height,
+			);
+			tempContext.globalCompositeOperation = 'destination-in';
+			tempContext.drawImage(mask.canvas, 0, 0);
+		} finally {
+			mask.canvas.width = 0;
+			mask.canvas.height = 0;
+		}
 
-		tempContext.globalCompositeOperation = 'destination-in';
-		tempContext.fillStyle = gradient;
-		tempContext.fillRect(
-			rectToFill.left,
-			rectToFill.top,
-			rectToFill.width,
-			rectToFill.height,
-		);
 		return;
 	}
 

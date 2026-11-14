@@ -16,7 +16,7 @@ const styleByFontFaceSet = new Map<string, EmbeddedFontStyle>();
 const fontIndexesByFamily = new Map<string, number[]>();
 let indexedFontCount = 0;
 
-const getBase64 = (data: ArrayBuffer): string => {
+export const getBase64 = (data: ArrayBuffer): string => {
 	const cached = base64ByData.get(data);
 	if (cached) {
 		return cached;

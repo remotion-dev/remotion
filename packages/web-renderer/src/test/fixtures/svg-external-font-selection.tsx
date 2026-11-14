@@ -245,6 +245,85 @@ export const svgExternalEmptyCarrier = ({
 	} as const;
 };
 
+// Reuse the loaded SVG fixture font while isolating the authored media selector.
+export const svgUnconditionalMediaFixture = ({
+	media,
+	literal,
+	cssSource,
+	literalFill,
+}: {
+	media: string | null;
+	literal: boolean;
+	cssSource: boolean;
+	literalFill: string | null;
+}) => {
+	const family = cssSource
+		? 'SVG unconditional CSS font'
+		: 'External SVG, class font';
+	const MediaComponent = () => {
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const [handle] = useState(() =>
+			delayRender('Loading unconditional SVG font'),
+		);
+		useEffect(() => {
+			let active = true;
+			document.fonts
+				.load(`32px ${JSON.stringify(family)}`)
+				.then(() => {
+					if (active) continueRender(handle);
+				})
+				.catch((error) => {
+					if (active) cancelRender(error);
+				});
+			return () => {
+				active = false;
+				continueRender(handle);
+			};
+		}, [handle, delayRender, continueRender, cancelRender]);
+		const frame = useCurrentFrame();
+		const attributeSelector = `style[media="${CSS.escape(media ?? '')}"]`;
+		const selector = literal ? 'rect' : `${attributeSelector} + rect`;
+		const authoredStyle = useRef<HTMLStyleElement>(null);
+		useLayoutEffect(() => {
+			if (!literal && !authoredStyle.current!.matches(attributeSelector)) {
+				throw new Error(
+					'Authored media selector did not match its style element',
+				);
+			}
+		}, [attributeSelector]);
+		return (
+			<AbsoluteFill style={{backgroundColor: 'white'}}>
+				{cssSource ? (
+					<style>{`@font-face{font-family:${JSON.stringify(family)};src:url("${new URL('../../../../example/public/bangers.woff2', import.meta.url).href}") format("woff2")}`}</style>
+				) : null}
+				<svg width={300} height={100}>
+					<style
+						ref={authoredStyle}
+						media={literal ? undefined : (media ?? undefined)}
+					>{`${selector}{fill:${literal ? (literalFill ?? '#1373ab') : '#1373ab'}}`}</style>
+					<rect width={20} height={20} />
+					<text
+						x={12}
+						y={72}
+						style={{fontFamily: JSON.stringify(family), fontSize: 32 + frame}}
+					>
+						Carried font
+					</text>
+				</svg>
+			</AbsoluteFill>
+		);
+	};
+
+	return {
+		component: MediaComponent,
+		id: `svg-unconditional-${cssSource ? 'css' : 'registered'}-${literal ? 'literal' : encodeURIComponent(media ?? 'omitted').replaceAll('%', '-') || 'empty'}`,
+		width: 300,
+		height: 100,
+		fps: 30,
+		durationInFrames: 2,
+	} as const;
+};
+
 export const svgExternalStyleSelectors = ({literal}: {literal: boolean}) => {
 	const Fixture = () => {
 		const frame = useCurrentFrame();

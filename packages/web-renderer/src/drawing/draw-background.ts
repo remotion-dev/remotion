@@ -82,6 +82,7 @@ export const drawBackground = async ({
 			boundingRect.height,
 		);
 		const onlyBackgroundClipText = await createLayer({
+			svgFontSnapshots: null,
 			transparent: true,
 			element,
 			cutout: textLayerCutout,

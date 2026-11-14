@@ -48,3 +48,13 @@ export const parseFontFamilies = (value: string): string[] => {
 
 	return families;
 };
+
+// FontFace.family can expose a decoded name or its serialized CSS string.
+export const matchesFontFaceFamily = (exposed: string, family: string) => {
+	if (exposed.toLowerCase() === family) return true;
+	const quote = exposed[0];
+	if ((quote !== '"' && quote !== "'") || exposed.at(-1) !== quote)
+		return false;
+	const parsed = parseFontFamilies(exposed);
+	return parsed.length === 1 && parsed[0] === family;
+};

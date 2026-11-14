@@ -1,0 +1,99 @@
+import {NoReactInternals} from 'remotion/no-react';
+import {expect, test, vi} from 'vitest';
+import '../symbol-dispose';
+import {getSvgFontSnapshot} from '../drawing/turn-svg-into-drawable';
+import {renderStillOnWeb} from '../render-still-on-web';
+import {
+	svgDefinitionModes,
+	svgDefinitionFont,
+	svgDefinitionFontUrl,
+	svgWildcardStyleModes,
+	svgWildcardStyle,
+} from './fixtures/svg-font-definition-review';
+import {countNativePixels} from './native-reference';
+import {testCompositions} from './utils';
+
+test('preserves wildcard style selectors', async () => {
+	await testCompositions({
+		cases: svgWildcardStyleModes.map((mode) => ({
+			composition: svgWildcardStyle({mode, literal: false}),
+			frame: 1,
+		})),
+		columns: 3,
+		testId: 'svg-wildcard-style-selectors',
+		scale: null,
+	});
+});
+
+test.for(
+	svgDefinitionModes.flatMap((mode) => [1].map((frame) => ({mode, frame}))),
+)(
+	'fetches only instantiated definition $mode frame $frame',
+	async ({mode, frame}) => {
+		const data = await (await fetch(svgDefinitionFontUrl)).arrayBuffer();
+		const dataUrl = await new Promise<string>((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = () => reject(reader.error);
+			reader.readAsDataURL(new Blob([data], {type: 'font/woff2'}));
+		});
+		const composition = svgDefinitionFont({
+			mode,
+			fontUrl: svgDefinitionFontUrl,
+		});
+		const control = svgDefinitionFont({mode, fontUrl: dataUrl});
+		const used =
+			mode === 'direct' ||
+			mode === 'use-target' ||
+			mode === 'nested' ||
+			mode === 'symbol';
+		const fetchFont = vi.spyOn(NoReactInternals, 'fetchFontData');
+		if (used) fetchFont.mockResolvedValue(data);
+		else
+			fetchFont.mockRejectedValue(
+				new Error('Unused definition font must not be requested'),
+			);
+		try {
+			const options = {
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			} as const;
+			const actual = await (
+				await renderStillOnWeb({...options, composition})
+			).blob({format: 'png'});
+			expect(fetchFont).toHaveBeenCalledTimes(used ? 1 : 0);
+			const expected = await (
+				await renderStillOnWeb({...options, composition: control})
+			).blob({format: 'png'});
+			expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
+				0,
+			);
+		} finally {
+			fetchFont.mockRestore();
+		}
+	},
+);
+
+test.for(
+	(['pattern', 'mask'] as const).flatMap((kind) =>
+		[false, true].map((inDefs) => ({kind, inDefs})),
+	),
+)(
+	'preserves computed fonts in $kind resources, defs=$inDefs',
+	({kind, inDefs}) => {
+		const container = document.createElement('div');
+		const resource = `<${kind} id="resource-font-review"><text class="resource-font-review-label" font-family="serif">Label</text></${kind}>`;
+		container.innerHTML = `<style>.resource-font-review-label {font-size:32px}</style><svg width="160" height="70">${inDefs ? `<defs>${resource}</defs>` : resource}<rect width="160" height="70" ${kind === 'pattern' ? 'fill' : 'mask'}="url(#resource-font-review)" /></svg>`;
+		document.body.appendChild(container);
+		try {
+			const svg = container.querySelector('svg')!;
+			const snapshot = getSvgFontSnapshot(svg);
+			expect(snapshot.textStyles[0]?.[0]).toBe('serif');
+			expect(snapshot.textStyles[0]?.[1]).toBe('32px');
+		} finally {
+			container.remove();
+		}
+	},
+);

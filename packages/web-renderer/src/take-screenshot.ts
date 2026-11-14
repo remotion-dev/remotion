@@ -2,6 +2,7 @@ import type {LogLevel} from 'remotion';
 import {HtmlInCanvas, Internals} from 'remotion';
 import {compose} from './compose';
 import {containsUrlMaskImage} from './drawing/mask-image';
+import type {SvgFontSnapshots} from './drawing/turn-svg-into-drawable';
 import type {HtmlInCanvasContext} from './html-in-canvas';
 import {
 	containsLayoutSubtreeCanvas,
@@ -24,6 +25,7 @@ export const createLayer = async ({
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
+	svgFontSnapshots,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -35,6 +37,7 @@ export const createLayer = async ({
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFontSnapshots: SvgFontSnapshots | null;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
@@ -114,6 +117,7 @@ export const createLayer = async ({
 		parentRect: cutout,
 		internalState,
 		onlyBackgroundClipText,
+		svgFontSnapshots: svgFontSnapshots ?? new WeakMap(),
 		scale,
 		waitForPageResponsiveness,
 	});

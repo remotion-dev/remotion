@@ -192,7 +192,23 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
+import {
+	svgAdoptedFont,
+	svgAdoptedFontGroups,
+} from './fixtures/svg-adopted-font';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
+import {svgCssConditionalFont} from './fixtures/svg-css-conditional-font';
+import {svgCssDataFont} from './fixtures/svg-css-data-font';
+import {
+	svgCssEmptyCarrierModes,
+	svgCssEmptyCarrierFixture,
+} from './fixtures/svg-css-empty-carrier';
+import {svgCssImportFont} from './fixtures/svg-css-import-font';
+import {svgCssUrlFont} from './fixtures/svg-css-url-font';
+import {
+	svgCssomEmptyModes,
+	svgCssomEmptySelector,
+} from './fixtures/svg-cssom-empty-selector';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -214,12 +230,14 @@ import {
 	escapedStyleSelectorModes,
 	svgEscapedStyleSelector,
 } from './fixtures/svg-escaped-style-selector';
+import {svgExactTitleFont} from './fixtures/svg-exact-title-font';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgExternalCarrierModes,
 	svgExternalEmptyCarrier,
 	svgExternalFontSelection,
 	svgExternalStyleSelectors,
+	svgUnconditionalMediaFixture,
 } from './fixtures/svg-external-font-selection';
 import {
 	svgFilterReference,
@@ -230,6 +248,14 @@ import {
 	svgFilterReviewReference,
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
+import {
+	svgDefinitionModes,
+	svgPaintResourceFontSize,
+	svgDefinitionFont,
+	svgDefinitionFontUrl,
+	svgWildcardStyleModes,
+	svgWildcardStyle,
+} from './fixtures/svg-font-definition-review';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {
 	svgFullSourceUrlFill,
@@ -249,6 +275,24 @@ import {
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
 import {
+	svgLocalConditionalFont,
+	svgLocalConditionalUrlFont,
+} from './fixtures/svg-local-conditional-font';
+import {
+	svgPaintFontModes,
+	svgPaintResourceFont,
+} from './fixtures/svg-paint-resource-font';
+import {
+	persistentOrderModes,
+	svgTitledPersistentOrder,
+} from './fixtures/svg-persistent-font-order';
+import {
+	svgPrecomposeFont,
+	svgPrecomposeFontSources,
+	svgPrecomposeFontEffects,
+	svgPrecomposePaintKinds,
+} from './fixtures/svg-precompose-font';
+import {
 	svgPreferredFontCarrier,
 	svgPreferredFontModes,
 } from './fixtures/svg-preferred-font-carrier';
@@ -258,6 +302,12 @@ import {
 	svgRegisteredCdataFont,
 } from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
+import {
+	svgTitledFontMediaCache,
+	svgTitledFontCarrier,
+	svgTitledFontModes,
+	svgTitledFontSources,
+} from './fixtures/svg-titled-font-carrier';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
@@ -319,6 +369,55 @@ export const Root: React.FC = () => {
 			<Composition {...transformPrecision} />
 			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
+			{svgPrecomposeFontSources.flatMap((source) =>
+				svgPrecomposePaintKinds.map((paint) => (
+					<Composition
+						key={`precompose-paint-${source}-${paint}`}
+						{...svgPrecomposeFont({
+							source,
+							effect: 'blend',
+							literal: false,
+							fontStep: null,
+							paint,
+						})}
+					/>
+				)),
+			)}
+			{svgPrecomposeFontSources.map((source) => (
+				<Composition
+					key={`precompose-step-four-${source}`}
+					{...svgPrecomposeFont({
+						source,
+						effect: 'blend',
+						literal: false,
+						fontStep: 4,
+						paint: null,
+					})}
+				/>
+			))}
+			{svgPrecomposeFontSources.flatMap((source) =>
+				svgPrecomposeFontEffects.map((effect) => (
+					<Composition
+						key={`precompose-font-${source}-${effect}`}
+						{...svgPrecomposeFont({
+							source,
+							effect,
+							literal: false,
+							fontStep: null,
+							paint: null,
+						})}
+					/>
+				)),
+			)}
+			{svgEmptyPredicates.map((predicate, index) => (
+				<Composition
+					key={`empty-predicate-${predicate}`}
+					{...svgEmptyPredicate({index, literal: false})}
+				/>
+			))}
+			{svgXmlMetadataModes.map((mode) => (
+				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
+			))}
 			<Folder name="Registered-SVG-CDATA">
 				{registeredCdataWrappers.map((wrapper) => {
 					const fixture = svgRegisteredCdataFont(
@@ -381,12 +480,20 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
-			{svgEmptyPredicates.map((predicate, index) => (
+			{[null, true, false].map((active) => (
 				<Composition
-					key={`empty-predicate-${predicate}`}
-					{...svgEmptyPredicate({index, literal: false})}
+					key={`titled-media-${active}`}
+					{...svgTitledFontMediaCache({active})}
 				/>
 			))}
+			{svgTitledFontModes.flatMap((mode) =>
+				svgTitledFontSources.map((source) => (
+					<Composition
+						key={`titled-font-${mode}-${source}`}
+						{...svgTitledFontCarrier(mode, source, false, false)}
+					/>
+				)),
+			)}
 			{svgPreferredFontModes.map((mode) => (
 				<Composition
 					key={`preferred-font-${mode}`}
@@ -406,14 +513,81 @@ export const Root: React.FC = () => {
 					{...svgInactiveTitledFont({mode, literal: false, fallback: false})}
 				/>
 			))}
+			<Composition
+				{...svgExactTitleFont({
+					title: 'A',
+					inactiveTitle: ' A ',
+					firstRoboto: false,
+					literal: false,
+				})}
+			/>
 			{escapedStyleSelectorModes.map((mode) => (
 				<Composition
 					key={mode}
 					{...svgEscapedStyleSelector({mode, literal: false})}
 				/>
 			))}
-			{svgXmlMetadataModes.map((mode) => (
-				<Composition key={mode} {...svgXmlMetadata({mode, literal: false})} />
+			{[false, true].flatMap((registered) =>
+				svgCssEmptyCarrierModes
+					.filter((mode) =>
+						mode === 'disabled-nonempty' || mode === 'authored-root'
+							? !registered
+							: registered ||
+								(mode !== 'malformed-comment' &&
+									mode !== 'malformed-final-comment'),
+					)
+					.map((mode) => {
+						const fixture = svgCssEmptyCarrierFixture({
+							mode,
+							literal: false,
+							registered,
+						});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+			)}
+			{['', 'all', ' ALL ', ' \t ', '\u00a0', '\u00a0all\u00a0'].flatMap(
+				(media) =>
+					[false, true].map((cssSource) => {
+						const fixture = svgUnconditionalMediaFixture({
+							media,
+							cssSource,
+							literal: false,
+							literalFill: null,
+						});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+			)}
+			<Composition {...svgCssDataFont} />
+			<Composition {...svgCssImportFont} />
+			{svgAdoptedFontGroups.map((group) => (
+				<Composition key={group} {...svgAdoptedFont({group, literal: false})} />
+			))}
+			{(['pattern', 'mask'] as const).flatMap((kind) =>
+				[false, true].flatMap((inDefs) =>
+					[false, true].map((literal) => {
+						const fixture = svgPaintResourceFontSize({kind, inDefs, literal});
+						return <Composition key={fixture.id} {...fixture} />;
+					}),
+				),
+			)}
+			{svgDefinitionModes.map((mode) => (
+				<Composition
+					key={mode}
+					{...svgDefinitionFont({mode, fontUrl: svgDefinitionFontUrl})}
+				/>
+			))}
+			{svgWildcardStyleModes.map((mode) => (
+				<Composition key={mode} {...svgWildcardStyle({mode, literal: false})} />
+			))}
+			<Composition {...svgCssConditionalFont} />
+			<Composition {...svgLocalConditionalFont} />
+			<Composition {...svgLocalConditionalUrlFont} />
+			<Composition {...svgCssUrlFont} />
+			{svgCssomEmptyModes.map((mode) => (
+				<Composition key={mode} {...svgCssomEmptySelector(mode, false)} />
+			))}
+			{svgPaintFontModes.map((mode) => (
+				<Composition key={mode} {...svgPaintResourceFont(mode, false, false)} />
 			))}
 			{svgExternalCarrierModes.flatMap((mode) =>
 				[false, true].map((literal) => {
@@ -637,6 +811,19 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			<Folder name="SVG-persistent-font-order">
+				{[false, true]
+					.flatMap((firstRoboto) =>
+						[false, true].flatMap((literal) =>
+							persistentOrderModes.map((mode) =>
+								svgTitledPersistentOrder(mode, firstRoboto, literal),
+							),
+						),
+					)
+					.map((fixture) => (
+						<Composition key={fixture.id} {...fixture} />
+					))}
+			</Folder>
 			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);

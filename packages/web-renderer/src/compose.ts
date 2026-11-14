@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {TransformStyleCache} from './drawing/calculate-transforms';
 import {getElementsNeedingIsolation} from './drawing/isolation';
+import type {SvgFontSnapshots} from './drawing/turn-svg-into-drawable';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {walkOverNode} from './walk-over-node';
@@ -42,6 +43,7 @@ export const compose = async ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	svgFontSnapshots,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -51,6 +53,7 @@ export const compose = async ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFontSnapshots: SvgFontSnapshots;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -99,6 +102,7 @@ export const compose = async ({
 			waitForPageResponsiveness,
 			transformStyleCache,
 			isolatedElements,
+			svgFontSnapshots,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipChildren()) {

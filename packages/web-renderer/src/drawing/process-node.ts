@@ -31,6 +31,7 @@ import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
 import {setTransform} from './transform';
 import {transformDOMRect} from './transform-rect-with-matrix';
+import type {SvgFontSnapshots} from './turn-svg-into-drawable';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -46,6 +47,7 @@ export const processNode = async ({
 	rootElement,
 	scale,
 	waitForPageResponsiveness,
+	svgFontSnapshots,
 	transformStyleCache,
 	isolatedElements,
 }: {
@@ -58,6 +60,7 @@ export const processNode = async ({
 	rootElement: HTMLElement | SVGElement;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFontSnapshots: SvgFontSnapshots;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
@@ -186,10 +189,79 @@ export const processNode = async ({
 			internalState,
 			scale: layerScale,
 			onlyBackgroundClipText: false,
+			svgFontSnapshots,
 			waitForPageResponsiveness,
 		});
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();
+		}
+
+		const paintBounds =
+			element instanceof SVGSVGElement
+				? svgFontSnapshots.get(element)?.paintBounds
+				: null;
+		if (
+			precompositing.needsBlendMode &&
+			paintBounds &&
+			totalMatrix.is2D &&
+			!is3DPrecomposition
+		) {
+			const inverse = totalMatrix.inverse();
+			const points = paintBounds.map((point) => point.matrixTransform(inverse));
+			if (
+				points.every(
+					(point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+				)
+			) {
+				const {width, height} = tempContext.canvas;
+				const left = Math.max(
+					0,
+					Math.min(
+						width,
+						Math.floor(
+							(Math.min(...points.map((point) => point.x)) - layerRect.left) *
+								layerScale,
+						),
+					),
+				);
+				const top = Math.max(
+					0,
+					Math.min(
+						height,
+						Math.floor(
+							(Math.min(...points.map((point) => point.y)) - layerRect.top) *
+								layerScale,
+						),
+					),
+				);
+				const right = Math.max(
+					left,
+					Math.min(
+						width,
+						Math.ceil(
+							(Math.max(...points.map((point) => point.x)) - layerRect.left) *
+								layerScale,
+						),
+					),
+				);
+				const bottom = Math.max(
+					top,
+					Math.min(
+						height,
+						Math.ceil(
+							(Math.max(...points.map((point) => point.y)) - layerRect.top) *
+								layerScale,
+						),
+					),
+				);
+				tempContext.save();
+				tempContext.resetTransform();
+				tempContext.clearRect(0, 0, width, top);
+				tempContext.clearRect(0, bottom, width, height - bottom);
+				tempContext.clearRect(0, top, left, bottom - top);
+				tempContext.clearRect(right, top, width - right, bottom - top);
+				tempContext.restore();
+			}
 		}
 
 		let drawable: OffscreenCanvas | null = tempContext.canvas;

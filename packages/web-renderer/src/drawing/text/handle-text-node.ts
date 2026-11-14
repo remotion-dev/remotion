@@ -3,6 +3,7 @@ import type {InternalState} from '../../internal-state';
 import type {TransformStyleCache} from '../calculate-transforms';
 import type {ProcessNodeReturnValue} from '../process-node';
 import {processNode} from '../process-node';
+import type {SvgFontSnapshots} from '../turn-svg-into-drawable';
 import {drawText} from './draw-text';
 
 export const handleTextNode = async ({
@@ -15,6 +16,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	svgFontSnapshots,
 	transformStyleCache,
 	isolatedElements,
 }: {
@@ -27,6 +29,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	svgFontSnapshots: SvgFontSnapshots;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
@@ -52,6 +55,7 @@ export const handleTextNode = async ({
 		waitForPageResponsiveness,
 		transformStyleCache,
 		isolatedElements,
+		svgFontSnapshots,
 	});
 
 	// Undo the layout manipulation
