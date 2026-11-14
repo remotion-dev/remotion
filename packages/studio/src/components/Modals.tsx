@@ -19,6 +19,7 @@ import {
 	ElementLibraryAddConfirmation,
 } from './ElementInstallConfirmation';
 import {FixComputedValueModal} from './FixComputedValueModal';
+import {FixDefaultPropsModal} from './FixDefaultPropsModal';
 import {GenerateWithAgentModal} from './GenerateWithAgentModal';
 import {HtmlInCanvasUnavailableModal} from './HtmlInCanvasUnavailableModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
@@ -409,6 +410,9 @@ export const Modals: React.FC<{
 
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'fix-default-props' && (
+				<FixDefaultPropsModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'precompose-name' && (
 				<PrecomposeNameModal state={modalContextType} />

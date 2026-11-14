@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useContext, useLayoutEffect, useRef, useState} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -7,10 +7,12 @@ import {
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
 import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
 	NO_HOVER_BACKGROUND_STYLE,
 	hoverableStyle,
 } from '../../helpers/hoverable';
+import {SetSelectedModalContext} from '../../state/modals';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -23,7 +25,6 @@ import {
 	detailValue,
 	inspectorQuickActionsSection,
 	inspectorSectionBody,
-	resolveLinkStyle,
 	sectionHeader,
 } from './styles';
 
@@ -401,9 +402,48 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	return mainAction;
 };
 
+const fixButtonStyle: React.CSSProperties = {
+	appearance: 'none',
+	background: 'none',
+	border: 'none',
+	cursor: 'default',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	fontWeight: 600,
+	padding: 0,
+	whiteSpace: 'nowrap',
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
+};
+
+export const FixDefaultPropsButton: React.FC<{
+	readonly compositionId: string;
+	readonly reason: string;
+}> = ({compositionId, reason}) => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+
+	return (
+		<button
+			type="button"
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+			style={fixButtonStyle}
+			onClick={() =>
+				setSelectedModal({type: 'fix-default-props', compositionId, reason})
+			}
+		>
+			Fix
+		</button>
+	);
+};
+
 export const InspectorDefaultPropsWarnings: React.FC<{
+	readonly compositionId: string;
 	readonly warnings: RenderModalWarning[];
-}> = ({warnings}) => {
+}> = ({compositionId, warnings}) => {
 	return (
 		<div style={defaultPropsWarningMessages}>
 			{warnings.map((warning) => (
@@ -414,15 +454,11 @@ export const InspectorDefaultPropsWarnings: React.FC<{
 					type="warning"
 					size="compact"
 					action={
-						warning.resolveLink ? (
-							<a
-								href={warning.resolveLink}
-								target="_blank"
-								rel="noopener noreferrer"
-								style={resolveLinkStyle}
-							>
-								Resolve
-							</a>
+						warning.fixReason ? (
+							<FixDefaultPropsButton
+								compositionId={compositionId}
+								reason={warning.fixReason}
+							/>
 						) : null
 					}
 				/>

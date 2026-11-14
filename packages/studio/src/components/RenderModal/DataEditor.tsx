@@ -3,9 +3,10 @@ import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BACKGROUND, BLUE, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
 import {CompactExplanation} from '../CompactExplanation';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
+import {FixDefaultPropsButton} from '../InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -98,19 +99,6 @@ const tabWrapper: React.CSSProperties = {
 	marginBottom: '4px',
 	flexDirection: 'row',
 	alignItems: 'center',
-};
-
-const resolveLinkStyle: React.CSSProperties = {
-	color: BLUE,
-	fontSize: 13,
-	fontFamily: 'sans-serif',
-	textDecoration: 'underline',
-	whiteSpace: 'nowrap',
-};
-
-const compactResolveLinkStyle: React.CSSProperties = {
-	...resolveLinkStyle,
-	fontSize: 12,
 };
 
 const persistanceKey = 'remotion.show-render-modalwarning';
@@ -425,19 +413,11 @@ export const DataEditor: React.FC<{
 										type="warning"
 										size={compactLayout ? 'compact' : 'default'}
 										action={
-											warning.resolveLink ? (
-												<a
-													href={warning.resolveLink}
-													target="_blank"
-													rel="noopener noreferrer"
-													style={
-														compactLayout
-															? compactResolveLinkStyle
-															: resolveLinkStyle
-													}
-												>
-													Resolve
-												</a>
+											warning.fixReason ? (
+												<FixDefaultPropsButton
+													compositionId={unresolvedComposition.id}
+													reason={warning.fixReason}
+												/>
 											) : null
 										}
 									/>
