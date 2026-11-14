@@ -38,6 +38,13 @@ import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {
+	boxShadowSpreadInset,
+	boxShadowSpreadInsetAlpha,
+	boxShadowInsetReview,
+	boxShadowInsetContentClip,
+	boxShadowInsetRoundingControl,
+} from './fixtures/box-shadow-spread-inset';
 import {clipPathShapes, clipPathReferences} from './fixtures/clip-path';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {
@@ -497,6 +504,11 @@ export const Root: React.FC = () => {
 			<Composition {...outline} />
 			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
+			<Composition {...boxShadowSpreadInset} />
+			<Composition {...boxShadowSpreadInsetAlpha} />
+			<Composition {...boxShadowInsetReview} />
+			<Composition {...boxShadowInsetContentClip} />
+			<Composition {...boxShadowInsetRoundingControl} />
 			<Folder name="Filter">
 				<Composition {...filter} />
 				{filterColorSpaceModes.flatMap((mode) =>
