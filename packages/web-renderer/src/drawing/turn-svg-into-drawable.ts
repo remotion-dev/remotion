@@ -30,7 +30,10 @@ const getSvgFontElements = (svg: SVGSVGElement) => {
 		),
 	);
 	for (const element of [...elements]) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			const parent = walker.currentNode.parentElement;
 			if (
@@ -208,7 +211,10 @@ export const getSvgFontSnapshot = (svg: SVGSVGElement) => {
 	const fontFamilies = new Set<string>();
 	const computedStyles = new WeakMap<Element, CSSStyleDeclaration>();
 	for (const element of textElements) {
-		const walker = svg.ownerDocument.createTreeWalker(element, 4);
+		const walker = svg.ownerDocument.createTreeWalker(
+			element,
+			NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION,
+		);
 		while (walker.nextNode()) {
 			if (!walker.currentNode.textContent?.length) continue;
 			const parent = walker.currentNode.parentElement;
@@ -398,7 +404,8 @@ export const turnSvgIntoDrawable = (
 		styles[fontStyleIndex]?.getAttribute('title')?.trim(),
 	);
 	const fontCarriers =
-		embeddedFontStyle && usesStylesheetSets
+		(cssFontRules.length > 0 || embeddedFontStyle !== null) &&
+		usesStylesheetSets
 			? Array.from(styles, (style, index) =>
 					style.sheet ? index : null,
 				).filter((index) => index !== null)
