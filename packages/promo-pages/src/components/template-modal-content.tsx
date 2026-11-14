@@ -470,7 +470,7 @@ export const TemplateModalContent: React.FC<{
 									Try online{' '}
 									<span className="whitespace-pre text-[var(--light-text-color)]">
 										{' '}
-										via Browser Studio
+										via remotion.new
 									</span>
 								</div>
 							</a>

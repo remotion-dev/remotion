@@ -173,7 +173,7 @@ export const useCreateComposition = ({
 					!browserOperations.supportsOpenTimelineImport
 				) {
 					throw new Error(
-						'This Browser Studio does not support importing timelines.',
+						'This remotion.new instance does not support importing timelines.',
 					);
 				}
 			}

@@ -51,7 +51,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 	expect(getItem(items, 'delete-asset').disabled).toBe(true);
 });
 
-test('hides file-manager asset actions in Browser Studio', () => {
+test('hides file-manager asset actions in remotion.new', () => {
 	const items = getAssetContextMenuItems({
 		relativePath: 'nested/video.mp4',
 		fileManagerName: 'Finder',
@@ -75,7 +75,7 @@ test('hides file-manager asset actions in Browser Studio', () => {
 	);
 });
 
-test('offers supported asset folder actions in Browser Studio', () => {
+test('offers supported asset folder actions in remotion.new', () => {
 	const items = getAssetFolderContextMenuItems({
 		folderPath: 'nested/assets',
 		fileManagerName: 'Finder',
@@ -168,7 +168,7 @@ test('disables asset mutations while an editable Studio is disconnected', () => 
 	});
 });
 
-test('enables supported Browser Studio asset mutations', () => {
+test('enables supported remotion.new asset mutations', () => {
 	const availability = getAssetActionAvailability({
 		browserStudioCanMutateAssets: true,
 		readOnlyStudio: true,
@@ -182,7 +182,7 @@ test('enables supported Browser Studio asset mutations', () => {
 	});
 });
 
-test('disables file-manager actions in editable Browser Studio', () => {
+test('disables file-manager actions in editable remotion.new', () => {
 	const availability = getAssetActionAvailability({
 		browserStudioCanMutateAssets: true,
 		readOnlyStudio: false,

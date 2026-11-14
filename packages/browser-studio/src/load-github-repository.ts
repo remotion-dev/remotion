@@ -161,7 +161,7 @@ export const loadGitHubRepository = async ({
 
 	if (tree.truncated) {
 		throw new Error(
-			`${owner}/${repo} has too many files for Browser Studio to load.`,
+			`${owner}/${repo} has too many files for remotion.new to load.`,
 		);
 	}
 
@@ -174,7 +174,7 @@ export const loadGitHubRepository = async ({
 
 	if (fileEntries.length > maximumRepositoryFiles) {
 		throw new Error(
-			`${owner}/${repo} has ${fileEntries.length.toLocaleString()} files. Browser Studio supports up to ${maximumRepositoryFiles.toLocaleString()}.`,
+			`${owner}/${repo} has ${fileEntries.length.toLocaleString()} files. remotion.new supports up to ${maximumRepositoryFiles.toLocaleString()}.`,
 		);
 	}
 
@@ -184,7 +184,7 @@ export const loadGitHubRepository = async ({
 	);
 	if (totalBytes > maximumRepositoryBytes) {
 		throw new Error(
-			`${owner}/${repo} is larger than the 100 MB Browser Studio limit.`,
+			`${owner}/${repo} is larger than the 100 MB remotion.new limit.`,
 		);
 	}
 

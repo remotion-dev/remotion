@@ -3,7 +3,7 @@ import type {BrowserStudioOperations} from '@remotion/studio-shared';
 
 test.use({viewport: {width: 1920, height: 1200}});
 
-test('evaluates shared source expressions while trimming without replacing Browser Studio subscriptions', async ({
+test('evaluates shared source expressions while trimming without replacing remotion.new subscriptions', async ({
 	page,
 }) => {
 	const errors: string[] = [];
