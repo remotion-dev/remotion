@@ -37,6 +37,8 @@ Never force push, unless users asks for it.
 
 Use the `gh` CLI to create a pull request and use the same format as above for the title.
 
+Enable GitHub's **Allow edits by maintainers** setting for the PR. `gh pr create` enables it by default. When updating an existing PR, check `gh pr view <pr> --json maintainerCanModify` and enable it if needed with `gh api --method PATCH repos/<owner>/<repo>/pulls/<number> -F maintainer_can_modify=true`.
+
 When creating the PR, do not pass the PR body inline through a shell command (for example, avoid `--body "..."` or heredocs in `bash`). Instead:
 
 1. Write the PR body to a temporary Markdown file in the system temp directory (for example `/tmp/remotion-pr-body.md`, or a unique file created under `/tmp`).
