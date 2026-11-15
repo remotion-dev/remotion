@@ -6,23 +6,25 @@ const {cliFlag} = BrowserSafeApis.options.stillImageFormatOption;
 const deriveExtensionFromFilename = (
 	filename: string | null,
 ): StillImageFormat | null => {
-	if (filename?.endsWith('.png')) {
+	const lowerCaseFilename = filename?.toLowerCase();
+
+	if (lowerCaseFilename?.endsWith('.png')) {
 		return 'png';
 	}
 
-	if (filename?.endsWith('.jpg')) {
+	if (lowerCaseFilename?.endsWith('.jpg')) {
 		return 'jpeg';
 	}
 
-	if (filename?.endsWith('.jpeg')) {
+	if (lowerCaseFilename?.endsWith('.jpeg')) {
 		return 'jpeg';
 	}
 
-	if (filename?.endsWith('.pdf')) {
+	if (lowerCaseFilename?.endsWith('.pdf')) {
 		return 'pdf';
 	}
 
-	if (filename?.endsWith('.webp')) {
+	if (lowerCaseFilename?.endsWith('.webp')) {
 		return 'webp';
 	}
 
