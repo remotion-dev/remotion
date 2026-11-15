@@ -228,7 +228,12 @@ export function setBorderRadius({
 		},
 	};
 
-	if (typeof ctx.roundRect === 'function') {
+	if (
+		typeof ctx.roundRect === 'function' &&
+		Object.values(actualBorderRadius).some(
+			(corner) => corner.horizontal !== 0 || corner.vertical !== 0,
+		)
+	) {
 		ctx.beginPath();
 		ctx.roundRect(
 			boundingRect.left,

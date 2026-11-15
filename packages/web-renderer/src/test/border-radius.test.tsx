@@ -166,18 +166,33 @@ test('renders CSS corners with native rounded clipping', async () => {
 				20 + Math.floor(index / 3) * 120,
 			);
 			context.beginPath();
-			context.roundRect(
-				0,
-				0,
-				100,
-				80,
-				sample.nativeRadii.map((radius) =>
-					typeof radius === 'number' ? radius : {x: radius[0], y: radius[1]},
-				),
-			);
+			if (sample.nativeInset > 0) {
+				context.rect(
+					sample.nativeInset,
+					sample.nativeInset,
+					100 - sample.nativeInset * 2,
+					80 - sample.nativeInset * 2,
+				);
+			} else {
+				context.roundRect(
+					0,
+					0,
+					100,
+					80,
+					sample.nativeRadii.map((radius) =>
+						typeof radius === 'number' ? radius : {x: radius[0], y: radius[1]},
+					),
+				);
+			}
+
 			context.clip();
 			context.fillStyle = sample.color;
-			context.fillRect(0, 0, 100, 80);
+			context.fillRect(
+				sample.nativeInset,
+				sample.nativeInset,
+				100 - sample.nativeInset * 2,
+				80 - sample.nativeInset * 2,
+			);
 			context.restore();
 		}
 
