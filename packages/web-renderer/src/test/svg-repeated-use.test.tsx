@@ -17,13 +17,13 @@ test(
 		const root = createRoot(host);
 		const Component = svgRepeatedUse.component;
 		let spy: ReturnType<typeof vi.spyOn> | null = null;
+		let geometryVisits = 0;
 		try {
 			flushSync(() => root.render(<Component />));
 			const svg = host.querySelector('svg')!;
 			expect(svg.querySelectorAll('use')).toHaveLength(1000);
 			expect(svg.querySelectorAll('path')).toHaveLength(1000);
 			const original = Element.prototype.matches;
-			let geometryVisits = 0;
 			spy = vi
 				.spyOn(Element.prototype, 'matches')
 				.mockImplementation(function (this: Element, selector) {
@@ -33,21 +33,23 @@ test(
 				});
 			getSvgFontSnapshot(svg);
 			getSvgFontSnapshot(svg);
-			await server.commands.writeFile(
-				`validation/svg-repeated-use/${server.browser}/traversal.json`,
-				JSON.stringify({
-					geometryVisits,
-					snapshotCalls: 2,
-					paths: 1000,
-					uses: 1000,
-				}),
-			);
+
 			expect(geometryVisits).toBe(2000);
 		} finally {
 			spy?.mockRestore();
 			root.unmount();
 			host.remove();
 		}
+
+		await server.commands.writeFile(
+			`validation/svg-repeated-use/${server.browser}/traversal.json`,
+			JSON.stringify({
+				geometryVisits,
+				snapshotCalls: 2,
+				paths: 1000,
+				uses: 1000,
+			}),
+		);
 	},
 );
 
@@ -131,15 +133,7 @@ test(
 			});
 		try {
 			const snapshot = getSvgFontSnapshot(svg);
-			await server.commands.writeFile(
-				`validation/svg-repeated-use/${server.browser}/positive-traversal.json`,
-				JSON.stringify({
-					geometryVisits,
-					wrappers: 1000,
-					paths: 1000,
-					snapshotCalls: 1,
-				}),
-			);
+
 			expect(snapshot.cssFontRules).toBe(style.sheet!.cssRules[0].cssText);
 			expect(geometryVisits).toBe(1000);
 		} finally {
@@ -147,5 +141,15 @@ test(
 			svg.remove();
 			style.remove();
 		}
+
+		await server.commands.writeFile(
+			`validation/svg-repeated-use/${server.browser}/positive-traversal.json`,
+			JSON.stringify({
+				geometryVisits,
+				wrappers: 1000,
+				paths: 1000,
+				snapshotCalls: 1,
+			}),
+		);
 	},
 );
