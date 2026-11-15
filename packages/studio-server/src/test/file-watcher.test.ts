@@ -395,3 +395,64 @@ test('existenceOnly and content watchers on the same path use separate OS watche
 	w2.unwatch();
 	watchFileSpy.mockRestore();
 });
+
+test('win32 registry normalizes path case across sourceStates and watchers', () => {
+	const winRegistry = createFileWatcherRegistry({platform: 'win32'});
+	const watchFileSpy = spyOn(fs, 'watchFile');
+	const missingUpper = path.join(tmpDir, `MissingFile-${Date.now()}.tsx`);
+	const missingLower = missingUpper.toLowerCase();
+
+	// Seed sourceStates with uppercase path, then query with lowercase path
+	winRegistry.recordSourceWrite(missingUpper, null);
+	expect(winRegistry.getExternalSourceRevision(missingLower)).toBe(0);
+
+	// Watchers with different casing should share a single OS watcher on win32
+	const cb1 = mock(() => {});
+	const cb2 = mock(() => {});
+	const w1 = winRegistry.installFileWatcher({
+		file: tmpFile,
+		existenceOnly: false,
+		onChange: cb1,
+	});
+	const w2 = winRegistry.installFileWatcher({
+		file: tmpFile.toLowerCase(),
+		existenceOnly: false,
+		onChange: cb2,
+	});
+
+	expect(watchFileSpy).toHaveBeenCalledTimes(1);
+
+	w1.unwatch();
+	w2.unwatch();
+	watchFileSpy.mockRestore();
+});
+
+test.if(process.platform === 'win32')(
+	'windows mixed-case paths do not trigger false external revision after Studio write',
+	() => {
+		const mixedCaseFile = path.join(
+			tmpDir,
+			`BaiduErnieGlow-${Date.now()}.tsx`,
+		);
+		const lowerCaseFile = mixedCaseFile.toLowerCase();
+		writeFileSync(mixedCaseFile, 'export const a = 1;');
+
+		try {
+			expect(registry.getExternalSourceRevision(lowerCaseFile)).toBe(0);
+
+			registry.writeFileAndNotifyFileWatchers({
+				file: mixedCaseFile,
+				content: 'export const a = 2;',
+				originatorClientId: undefined,
+				metadata: null,
+			});
+
+			expect(registry.getExternalSourceRevision(lowerCaseFile)).toBe(0);
+			expect(readFileSync(mixedCaseFile, 'utf8')).toBe('export const a = 2;');
+		} finally {
+			if (existsSync(mixedCaseFile)) {
+				unlinkSync(mixedCaseFile);
+			}
+		}
+	},
+);
