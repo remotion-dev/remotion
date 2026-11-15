@@ -526,7 +526,7 @@ export const turnSvgIntoDrawable = (
 	// Image documents may select a different titled set. Disabled paint was
 	// neutralized above, but its carrier must still provide the embedded faces.
 	// Include the first titled sheet even when empty: it selects the preferred
-	// set. Other empty sheets need no duplicate font payload.
+	// set. Other empty sheets need a replay only when CSSOM rules are serialized.
 	const firstTitledCarrier = usesStylesheetSets
 		? Array.from(styles).findIndex(
 				(style) => style.sheet && Boolean(style.getAttribute('title')),
@@ -537,6 +537,7 @@ export const turnSvgIntoDrawable = (
 				style.sheet &&
 				(cssFontRules.length === 0 ||
 					!style.matches(':empty') ||
+					style.sheet.cssRules.length > 0 ||
 					index === firstTitledCarrier)
 					? index
 					: null,

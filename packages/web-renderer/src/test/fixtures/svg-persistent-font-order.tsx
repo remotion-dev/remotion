@@ -22,6 +22,7 @@ export const persistentOrderModes = [
 	'external-first',
 	'two-local-last',
 	'import-last',
+	'cssom-last',
 ] as const;
 
 export const svgTitledPersistentOrder = (
@@ -43,6 +44,18 @@ export const svgTitledPersistentOrder = (
 		useLayoutEffect(() => {
 			const style = importedStyle.current;
 			if (style === null) return;
+			if (mode === 'cssom-last' && data !== null) {
+				const sheet = style.sheet!;
+				sheet.insertRule(
+					`@font-face{font-family:"${family}";src:url("${data[firstRoboto ? 0 : 1]}")}`,
+				);
+				if (!style.matches(':empty'))
+					throw new Error('CSSOM font insertion changed DOM emptiness');
+				return () => {
+					while (sheet.cssRules.length) sheet.deleteRule(0);
+				};
+			}
+
 			const ready = () => {
 				const rule = style.sheet?.cssRules[0];
 				if (rule instanceof CSSImportRule && rule.styleSheet?.cssRules.length) {
@@ -53,7 +66,7 @@ export const svgTitledPersistentOrder = (
 			style.addEventListener('load', ready);
 			ready();
 			return () => style.removeEventListener('load', ready);
-		}, [data]);
+		}, [data, family]);
 		useEffect(() => {
 			let active = true;
 			sources
@@ -100,13 +113,15 @@ export const svgTitledPersistentOrder = (
 					<style title={literal ? undefined : 'persistent-a'}>
 						{`${face(literal ? final : preferred)} rect{fill:lime}`}
 					</style>
-					{literal ? null : (
+					{literal || mode === 'cssom-last' ? null : (
 						<style title="persistent-b">{`${face(middle)} rect{fill:red}`}</style>
 					)}
 					{literal ? null : mode === 'import-last' ? (
 						<style
 							ref={importedStyle}
 						>{`@import url("data:text/css,${encodeURIComponent(face(middle))}");`}</style>
+					) : mode === 'cssom-last' ? (
+						<style ref={importedStyle} />
 					) : (
 						<style>{face(middle)}</style>
 					)}
