@@ -1,7 +1,7 @@
 ---
 name: remotion-render
 description: Export a Remotion video, still image, or editable OpenTimelineIO timeline
-version: 4.0.543
+version: 4.0.544
 ---
 
 ## General rendering strategy
