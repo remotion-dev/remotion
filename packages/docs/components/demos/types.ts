@@ -61,6 +61,7 @@ import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
 import {AnimationMath} from './SubtractAnimations';
 import {SwapDocsDemo} from './SwapDemo';
+import {TransitionMotionBlurDocsDemo} from './TransitionMotionBlurDemo';
 import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
 import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
 import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
@@ -1705,6 +1706,19 @@ export const htmlInCanvasDemoWebGPU: DemoType = {
 	autoPlay: true,
 	controls: true,
 	logLevel: 'trace',
+	options: [],
+};
+
+export const transitionMotionBlurDemo: DemoType = {
+	comp: TransitionMotionBlurDocsDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 160,
+	fps: 30,
+	id: 'transition-motion-blur',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
 	options: [],
 };
 

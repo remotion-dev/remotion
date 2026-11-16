@@ -74,6 +74,7 @@ import {
 	starburstDemo,
 	starDemo,
 	swapPresentationDemo,
+	transitionMotionBlurDemo,
 	transitionSeriesEnterExitDemo,
 	transitionSeriesOverlayDemo,
 	transitionSeriesTransitionDemo,
@@ -124,6 +125,7 @@ const dragPreviewSource: React.CSSProperties = {
 
 const demos: DemoType[] = [
 	motionBlurHtmlInCanvasDemo,
+	transitionMotionBlurDemo,
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
 	htmlInCanvasDemoWebGPU,
