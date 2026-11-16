@@ -222,10 +222,6 @@ See [text-highlights.md](text-highlights.md) for text highlights (highlight mark
 
 See [multi-scene-video.md](multi-scene-video.md) if planning to make a video with multiple subsequent scenes.
 
-## Voiceover
-
-See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
-
 ## Embedding Videos
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
