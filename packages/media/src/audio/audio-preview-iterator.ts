@@ -82,30 +82,7 @@ export const makeAudioIterator = ({
 	};
 
 	let pendingChunk: IteratorResult<AudioBufferSlice, void> | null = null;
-	let previousChunk: AudioBufferSlice | null = null;
 	let pendingError: {error: unknown} | null = null;
-	const continuous = (
-		left: AudioBufferSlice | null,
-		right: AudioBufferSlice | void,
-	) => {
-		if (!left || !right) return false;
-		const before = left.buffer.buffer;
-		const after = right.buffer.buffer;
-		return (
-			before.sampleRate === after.sampleRate &&
-			before.numberOfChannels === after.numberOfChannels &&
-			Math.round(
-				(right.buffer.timestamp - left.buffer.timestamp) * before.sampleRate,
-			) === before.length &&
-			Math.round(
-				(right.timelineTimestamp -
-					left.timelineTimestamp -
-					left.sourceDurationInSeconds) *
-					before.sampleRate,
-			) === 0
-		);
-	};
-
 	const getNextFn = async (): Promise<
 		IteratorResult<AudioBufferSlice, void>
 	> => {
@@ -120,7 +97,6 @@ export const makeAudioIterator = ({
 		if (destroyed) return {done: true, value: undefined};
 		if (current.done) {
 			pendingChunk = null;
-			previousChunk = null;
 			waitingForFirstChunk = false;
 			return current;
 		}
@@ -141,41 +117,40 @@ export const makeAudioIterator = ({
 		const {buffer} = slice.buffer;
 		// Preserve the resampling neighborhood without extending audible ownership.
 		// Source continuity excludes looping resets even on a continuous timeline.
-		const before =
-			slice.sourceOffsetInSeconds === 0 && continuous(previousChunk, slice)
-				? previousChunk!.buffer.buffer
-				: null;
-		const after =
-			continuous(slice, next.value) &&
-			next.value &&
-			next.value.sourceOffsetInSeconds === 0
-				? next.value.buffer.buffer
-				: null;
+		const nextSlice = next.value;
+		const after = nextSlice?.buffer.buffer;
 		let value = slice;
-		if (before || after) {
-			const prefix = before?.length ?? 0;
+		if (
+			nextSlice &&
+			after &&
+			nextSlice.sourceOffsetInSeconds === 0 &&
+			buffer.sampleRate === after.sampleRate &&
+			buffer.numberOfChannels === after.numberOfChannels &&
+			Math.round(
+				(nextSlice.buffer.timestamp - slice.buffer.timestamp) *
+					buffer.sampleRate,
+			) === buffer.length &&
+			Math.round(
+				(nextSlice.timelineTimestamp -
+					slice.timelineTimestamp -
+					slice.sourceDurationInSeconds) *
+					buffer.sampleRate,
+			) === 0
+		) {
 			const combined = new AudioBuffer({
 				numberOfChannels: buffer.numberOfChannels,
 				sampleRate: buffer.sampleRate,
-				length: prefix + buffer.length + (after?.length ?? 0),
+				length: buffer.length + after.length,
 			});
 			for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
 				const plane = combined.getChannelData(channel);
-				if (before) plane.set(before.getChannelData(channel));
-				plane.set(buffer.getChannelData(channel), prefix);
-				if (after)
-					plane.set(after.getChannelData(channel), prefix + buffer.length);
+				plane.set(buffer.getChannelData(channel));
+				plane.set(after.getChannelData(channel), buffer.length);
 			}
 
-			value = {
-				...slice,
-				buffer: {...slice.buffer, buffer: combined},
-				sourceOffsetInSeconds:
-					slice.sourceOffsetInSeconds + prefix / buffer.sampleRate,
-			};
+			value = {...slice, buffer: {...slice.buffer, buffer: combined}};
 		}
 
-		previousChunk = slice;
 		waitingForFirstChunk = false;
 		mostRecentTimestamp = Math.max(
 			mostRecentTimestamp,
@@ -189,7 +164,6 @@ export const makeAudioIterator = ({
 			clearSchedule();
 			destroyed = true;
 			pendingChunk = null;
-			previousChunk = null;
 			pendingError = null;
 			// Returning an async generator can reject if its underlying media input
 			// was disposed. Destruction is fire-and-forget and has no caller to
