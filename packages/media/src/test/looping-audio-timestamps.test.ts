@@ -22,11 +22,10 @@ const makeMockAudioSink = (mediaDurationInSeconds: number) => {
 				yield {
 					timestamp: i,
 					duration: CHUNK_DURATION,
-					buffer: new AudioBuffer({
-						numberOfChannels: 1,
+					buffer: {
 						sampleRate: 48000,
 						length: CHUNK_DURATION * 48000,
-					}),
+					},
 				} as unknown as WrappedAudioBuffer;
 			}
 		},
@@ -203,20 +202,18 @@ test('boundary buffers are represented as source slices on every pass', async ()
 			yield {
 				timestamp: 2.987,
 				duration: 0.021,
-				buffer: new AudioBuffer({
-					numberOfChannels: 1,
+				buffer: {
 					sampleRate: 48000,
-					length: 0.021 * 48000,
-				}),
+					length: 1008,
+				},
 			} as unknown as WrappedAudioBuffer;
 			yield {
 				timestamp: 3.008,
 				duration: 0.021,
-				buffer: new AudioBuffer({
-					numberOfChannels: 1,
+				buffer: {
 					sampleRate: 48000,
-					length: 0.021 * 48000,
-				}),
+					length: 1008,
+				},
 			} as unknown as WrappedAudioBuffer;
 		},
 	} as unknown as AudioBufferSink;
