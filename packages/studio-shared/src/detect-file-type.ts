@@ -48,16 +48,17 @@ export const isTransportStream = (data: Uint8Array) => {
 };
 
 export const isMp3 = (data: Uint8Array) => {
-	const mpegPattern = new Uint8Array([0xff, 0xf3]);
-	const mpegPattern2 = new Uint8Array([0xff, 0xfb]);
+	// Layer III frame headers of MPEG-1 (0xfb, 0xfa), MPEG-2 (0xf3, 0xf2) and
+	// MPEG-2.5 (0xe3, 0xe2), without and with CRC
+	const isMpegFrame =
+		data[0] === 0xff && [0xfb, 0xfa, 0xf3, 0xf2, 0xe3, 0xe2].includes(data[1]);
 	const id3v4Pattern = new Uint8Array([0x49, 0x44, 0x33, 4]);
 	const id3v3Pattern = new Uint8Array([0x49, 0x44, 0x33, 3]);
 	const id3v2Pattern = new Uint8Array([0x49, 0x44, 0x33, 2]);
 
 	const subarray = data.subarray(0, 4);
 	return (
-		matchesPattern(mpegPattern)(subarray) ||
-		matchesPattern(mpegPattern2)(subarray) ||
+		isMpegFrame ||
 		matchesPattern(id3v4Pattern)(subarray) ||
 		matchesPattern(id3v3Pattern)(subarray) ||
 		matchesPattern(id3v2Pattern)(subarray)
@@ -65,9 +66,9 @@ export const isMp3 = (data: Uint8Array) => {
 };
 
 export const isAac = (data: Uint8Array) => {
-	const aacPattern = new Uint8Array([0xff, 0xf1]);
-
-	return matchesPattern(aacPattern)(data.subarray(0, 2));
+	// ADTS headers of MPEG-4 (0xf1, 0xf0) and MPEG-2 (0xf9, 0xf8) AAC, without
+	// and with CRC
+	return data[0] === 0xff && [0xf1, 0xf0, 0xf9, 0xf8].includes(data[1]);
 };
 
 export const isFlac = (data: Uint8Array) => {
