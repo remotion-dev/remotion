@@ -104,7 +104,6 @@ const scheduleAt = (
 	scheduledTime: number,
 ) => {
 	return value.scheduleAudioNode({
-		endTime: null,
 		node,
 		mediaTimestamp: 0,
 		sourceOffset: 0,
