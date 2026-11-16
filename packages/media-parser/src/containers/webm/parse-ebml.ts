@@ -42,7 +42,10 @@ export const parseEbml = async (
 
 	if (!hasInMap) {
 		Log.verbose(logLevel, `Unknown EBML hex ID ${JSON.stringify(hex)}`);
-		iterator.discard(size);
+		// `getVint` returns Infinity for unknown-size elements, and a malformed
+		// stream can declare more bytes than are present. Clamping keeps the
+		// offset at the end of the buffer instead of past it.
+		iterator.discard(Math.min(size, iterator.bytesRemaining()));
 		return null;
 	}
 
