@@ -1,589 +1,395 @@
----
-image: https://remotion.media/docs/generated/articles-docs-media-video.png
-title: '<Video>'
-crumb: '@remotion/media'
----
-
-`<Video>` from `@remotion/media` is the recommended component for embedding videos in Remotion.
-
-During rendering, it extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag. This keeps the video in sync with Remotion's timeline.
-
-This component has [native buffering support](/docs/player/buffer-state) enabled by default. When used in the Player, it automatically pauses playback when buffering and resumes when ready.
-
-## Example
-
-```tsx twoslash
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyVideo = () => {
-  return (
-    <>
-      <Video src={staticFile('video.webm')} />
-    </>
-  );
-};
-```
-
-You can load a video from an URL as well:
-
-```tsx twoslash
-import {Video} from '@remotion/media';
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video src="https://remotion.media/BigBuckBunny.mp4" />
-    </>
-  );
-};
-```
-
-You can also load HLS playlists (`.m3u8`):
-
-```tsx twoslash
-import {Video} from '@remotion/media';
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video src="https://stream.mux.com/nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU.m3u8" />
-    </>
-  );
-};
-```
-
-For more information on HLS support, see the [HLS documentation](/docs/hls).
-
-## Props
-
-### `src`
-
-The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
-
-A remote URL must be [CORS-enabled](/docs/media/support#cors). Otherwise, a [fallback](/docs/media/fallback) to [`<OffthreadVideo>`](/docs/offthreadvideo) is attempted during server-side rendering.
-
-### `effects?`<AvailableFrom v="4.0.464" />
-
-Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
-
-### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
-
-An object with positive integer `width` and `height` values that sets the [effect resolution](/docs/effects/api#effect-resolution). This does not change the layout or the output dimensions.
-
-### `cropLeft?`<AvailableFrom v="4.0.500" />
-
-Crops the video from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
-
-### `cropRight?`<AvailableFrom v="4.0.500" />
-
-Crops the video from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
-
-### `cropTop?`<AvailableFrom v="4.0.500" />
-
-Crops the video from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
-
-### `cropBottom?`<AvailableFrom v="4.0.500" />
-
-Crops the video from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
-
-### `from?`<AvailableFrom v="4.0.446" />
-
-At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
-
-### `durationInFrames?`<AvailableFrom v="4.0.446" />
-
-Selects this many source frames starting at `trimBefore`. The clip occupies `durationInFrames / playbackRate` frames on the parent timeline, or uses this range as its loop when `loop` is enabled. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
-
-:::note
-You can still wrap `<Video>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
-:::
-
-```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyComposition = () => {
-  return (
-    <>
-      <Video from={30} durationInFrames={90} src={staticFile('video.webm')} />
-    </>
-  );
-};
-```
-
-### `premountFor?`<AvailableFrom v="4.0.495" />
-
-Mounts the video for the specified number of frames before its `from` frame. The video carries `display: none` and is frozen at its first frame while premounted, so it does not affect layout.
-
-Use this prop to let the video buffer before it becomes visible. See [Premounting](/docs/player/premounting).
-
-### `postmountFor?`<AvailableFrom v="4.0.495" />
-
-Keeps the video mounted for the specified number of frames after its duration has ended. The video is invisible and frozen at its final frame while postmounted.
-
-### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
-
-CSS styles applied to the video while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
-
-### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
-
-CSS styles applied to the video while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
-
-### `trimBefore?`
-
-Will remove a portion of the video at the beginning (left side).
-
-The following example assumes that the [`fps`](/docs/composition#fps) of the composition is `30`.
-
-By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
-By passing `durationInFrames={60}`, the video plays for 60 source frames.
-
-The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
-
-For exact behavior, see [Timing and trimming](/docs/timing).
-
-```tsx twoslash
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video src={staticFile('video.webm')} trimBefore={60} durationInFrames={60} />
-    </>
-  );
-};
-```
-
-### ~~`trimAfter?`~~
-
-:::info Deprecated
-Use [`durationInFrames`](#durationinframes) instead. See [PR #11685](https://github.com/remotion-dev/remotion/pull/11685).
-:::
-
-Removes a portion of the video at the end (right side). If `durationInFrames` ends the range earlier, the shorter range is used. See [`trimBefore`](#trimbefore) for an explanation.
-
-### `volume?`
-
-Allows you to control the volume of the audio in it's entirety or frame by frame.  
-Read the page on [controlling volume and muting](/docs/audio/volume) to learn more.
-
-The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
-
-```tsx twoslash title="Setting a static volume"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyVideo = () => {
-  return (
-    <>
-      <Video volume={0.5} src={staticFile('video.webm')} />
-    </>
-  );
-};
-```
-
-```tsx twoslash title="Changing the volume over time"
-import {interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyVideo = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <>
-      <Video volume={interpolate(frame, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={'https://remotion.media/video.mp4'} />
-    </>
-  );
-};
-```
-
-### `name?`
-
-A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
-
-### `onError?`<AvailableFrom v="4.0.404" />
-
-Handle errors that occur during video processing. The callback receives an `Error` property and should return either `'fallback'` or `'fail'`.
-
-- Return `'fallback'` to fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) (default behavior)
-- Return `'fail'` to fail the render immediately
-
-```tsx twoslash
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-export const MyVideo = () => {
-  return (
-    <Video
-      src={'https://remotion.media/video.mp4'}
-      onError={(error) => {
-        console.log('Video error:', error.message);
-
-        // Return 'fail' to fail the render, or 'fallback' to use <OffthreadVideo>
-        return 'fallback';
-      }}
-    />
-  );
-};
-```
-
-:::note
-
-- In client-side rendering, the render will always fail regardless of the return value.
-- If you return `'fallback'`, the component will fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) which may have its own error handling via [`fallbackOffthreadVideoProps.onError`](#onerror-1).
-  :::
-
-### `playbackRate?`<AvailableFrom v="4.0.354" />
-
-Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
-
-```tsx twoslash title="Example of a video playing twice as fast"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video playbackRate={2} src={'https://remotion.media/video.mp4'} />
-    </>
-  );
-};
-```
-
-:::note
-Playing a video in reverse is not supported.
-
-Changing `playbackRate` also changes the audio pitch by default. Pass [`preservePitch={true}`](#preservepitch) to preserve the original pitch.
-:::
-
-### `preservePitch?`<AvailableFrom v="4.0.538" />
-
-Preserves the audio pitch when changing [`playbackRate`](#playbackrate), including playback speed inherited from parent [`<Sequence>`](/docs/sequence#playbackrate) components. Defaults to `false`. Applies during preview, [server-side rendering](/docs/ssr), and [client-side rendering](/docs/client-side-rendering).
-
-```tsx twoslash title="MyComposition.tsx"
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-// ---cut---
-export const MyComposition = () => (
-  <Video src={staticFile('clip.mp4')} playbackRate={1.4} preservePitch />
+import React from "react";
+import {
+  AbsoluteFill, Composition, Easing, Series, interpolate,
+  registerRoot, spring, useCurrentFrame, useVideoConfig,
+} from "remotion";
+// Para música: pon public/musica.mp3 y descomenta esto y la línea <Audio> de abajo.
+// import { Audio, staticFile } from "remotion";
+
+/* ============ PERSONAJES ============ */
+type Mood = "happy" | "sad" | "mad" | "shy";
+type Kind = "rubor" | "lab" | "som" | "del" | "mas" | "heart" | "house" | "stairs";
+
+const COL = { pink: "#ff7fa8", coral: "#ff8a3d" };
+const line = { fill: "none", stroke: "#222", strokeWidth: 2.5, strokeLinecap: "round" as const };
+
+const Face: React.FC<{ m: Mood; cx: number; ey: number; my: number; d: number }> = ({ m, cx, ey, my, d }) => (
+  <g>
+    <circle cx={cx - d} cy={ey} r={3.5} fill="#222" />
+    <circle cx={cx + d} cy={ey} r={3.5} fill="#222" />
+    {m === "happy" && <path d={`M${cx - 8} ${my} Q${cx} ${my + 10} ${cx + 8} ${my}`} {...line} />}
+    {m === "sad" && (
+      <>
+        <path d={`M${cx - 7} ${my + 5} Q${cx} ${my - 3} ${cx + 7} ${my + 5}`} {...line} />
+        <circle cx={cx + d + 3} cy={ey + 9} r={2.3} fill="#5bb8ff" />
+      </>
+    )}
+    {m === "mad" && (
+      <>
+        <path d={`M${cx - d - 6} ${ey - 9} L${cx - d + 4} ${ey - 4} M${cx + d + 6} ${ey - 9} L${cx + d - 4} ${ey - 4}`} {...line} />
+        <path d={`M${cx - 7} ${my + 4} Q${cx} ${my - 2} ${cx + 7} ${my + 4}`} {...line} />
+      </>
+    )}
+    {m === "shy" && (
+      <>
+        <circle cx={cx - d - 5} cy={ey + 7} r={5} fill="#ff4d7a" opacity={0.5} />
+        <circle cx={cx + d + 5} cy={ey + 7} r={5} fill="#ff4d7a" opacity={0.5} />
+        <path d={`M${cx - 4} ${my + 1} Q${cx} ${my - 2} ${cx + 4} ${my + 1}`} {...line} />
+      </>
+    )}
+  </g>
 );
-```
 
-The default retains the existing behavior of the Mediabunny and WebCodecs path: for example, `playbackRate={2}` doubles the pitch. Set `preservePitch={true}` to change speed without changing pitch. If you already compensate for speed with `toneFrequency`, remove that compensation when enabling `preservePitch` to avoid applying it twice.
+const Character: React.FC<{
+  kind: Kind; color?: "pink" | "coral"; mood?: Mood; broken?: boolean; size: number;
+}> = ({ kind, color = "pink", mood = "happy", broken, size }) => {
+  const c = COL[color];
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} style={{ overflow: "visible" }}>
+      {kind === "rubor" && (
+        <>
+          <circle cx={50} cy={50} r={46} fill="#d9a441" />
+          <circle cx={50} cy={50} r={38} fill={c} />
+          <ellipse cx={36} cy={30} rx={10} ry={5} fill="#fff" opacity={0.35} transform="rotate(-30 36 30)" />
+          <Face m={mood} cx={50} ey={46} my={62} d={13} />
+          {broken && (
+            <>
+              <polygon points="70,12 94,26 82,42" fill={c} stroke="#d9a441" strokeWidth={3} transform="translate(8,-8) rotate(14 80 28)" />
+              <polyline points="50,13 43,32 57,47 45,62 53,88" fill="none" stroke="#5a2a3a" strokeWidth={3} strokeLinejoin="round" />
+            </>
+          )}
+        </>
+      )}
+      {kind === "lab" && (
+        <>
+          <rect x={34} y={50} width={32} height={46} rx={4} fill="#2b2b33" />
+          <rect x={34} y={50} width={32} height={6} fill="#d9a441" />
+          <rect x={37} y={32} width={26} height={20} fill="#d9a441" />
+          <path d="M38 34 V16 L62 6 V34 Z" fill="#d6203f" />
+          <Face m={mood} cx={50} ey={70} my={82} d={8} />
+        </>
+      )}
+      {kind === "som" && (
+        <>
+          <rect x={4} y={20} width={92} height={60} rx={9} fill="#3b3550" />
+          <circle cx={24} cy={62} r={11} fill="#7c5cff" />
+          <circle cx={50} cy={62} r={11} fill="#2fc4b2" />
+          <circle cx={76} cy={62} r={11} fill="#ffb347" />
+          <Face m={mood} cx={50} ey={34} my={44} d={14} />
+        </>
+      )}
+      {kind === "del" && (
+        <>
+          <rect x={38} y={6} width={24} height={68} rx={5} fill="#3b3b44" />
+          <rect x={38} y={6} width={24} height={9} rx={4} fill="#d9a441" />
+          <polygon points="38,74 62,74 50,96" fill="#e8c39e" />
+          <polygon points="45,86 55,86 50,96" fill="#111" />
+          <Face m={mood} cx={50} ey={34} my={48} d={8} />
+        </>
+      )}
+      {kind === "mas" && (
+        <>
+          <rect x={40} y={4} width={20} height={28} rx={5} fill="#111" />
+          <rect x={34} y={30} width={32} height={64} rx={6} fill="#8f3fd1" />
+          <rect x={34} y={30} width={32} height={6} fill="#d9a441" />
+          <Face m={mood} cx={50} ey={56} my={70} d={8} />
+        </>
+      )}
+      {kind === "heart" && (
+        <path d="M50 88 C10 56 14 20 36 20 C44 20 50 28 50 32 C50 28 56 20 64 20 C86 20 90 56 50 88Z" fill="#ff3d7f" />
+      )}
+      {kind === "house" && (
+        <>
+          <polygon points="4,46 50,8 96,46" fill="#c0504d" />
+          <rect x={14} y={46} width={72} height={46} fill="#ffe2b8" />
+          <rect x={42} y={60} width={18} height={32} fill="#8a5a3c" />
+          <rect x={20} y={54} width={16} height={14} fill="#8fd3ff" />
+        </>
+      )}
+      {kind === "stairs" && (
+        <polygon points="4,96 4,76 28,76 28,58 52,58 52,40 76,40 76,22 96,22 96,96" fill="#b48a6a" />
+      )}
+    </svg>
+  );
+};
 
-[`toneFrequency`](#tonefrequency) remains an independent pitch multiplier. For example, `toneFrequency={0.8}` lowers the pitch by 20% even when preserving pitch at a different speed. Keep `preservePitch` and the authored playback speed constant for each asset during rendering.
+/* ============ DATOS DE LAS ESCENAS ============ */
+const FPS = 30;
+type Anim = "bounce" | "shake" | "fall" | "run" | "pop" | "none";
+type Actor = {
+  kind: Kind; color?: "pink" | "coral"; mood?: Mood; broken?: boolean;
+  x: number; y: number; size?: number; anim?: Anim; from?: number; until?: number;
+};
+type Bubble = { text: string; x: number; y: number; from?: number; big?: boolean };
+type SceneData = {
+  title: string; seconds: number; lines: { who: string; text: string }[];
+  actors: Actor[]; bubbles?: Bubble[]; shakeAt?: number;
+};
 
-This prop controls speed changes authored in the composition. Pitch preservation for the Studio's viewing speed is controlled separately by [the Studio setting](/docs/options/preserve-pitch-on-playback), which defaults to `true`. In the [`<Player>`](/docs/player/player), use [its `preservePitch` prop](/docs/player/player#preservepitch), which defaults to `false`.
+const N = "Narrador";
 
-When [falling back to a native media component](/docs/media/fallback), this prop is forwarded to [`<OffthreadVideo>`](/docs/offthreadvideo#preservepitch). An explicit `fallbackOffthreadVideoProps.preservePitch` takes precedence. When neither setting is provided, the native fallback retains its existing default of preserving pitch. See the fallback component's documentation for server-side support. Native fallbacks do not apply `toneFrequency` during preview.
+const SCENES: SceneData[] = [
+  {
+    title: "La fiesta", seconds: 10,
+    lines: [{ who: N, text: "Había una vez una fiesta de maquillajes donde un rubor era el favorito del momento." }],
+    actors: [
+      { kind: "rubor", color: "pink", x: 50, y: 42, size: 340, anim: "bounce" },
+      { kind: "som", x: 20, y: 22, anim: "bounce" },
+      { kind: "lab", x: 80, y: 24, anim: "bounce" },
+      { kind: "mas", x: 20, y: 62, anim: "bounce" },
+      { kind: "del", x: 80, y: 62, anim: "bounce" },
+    ],
+  },
+  {
+    title: "La envidia", seconds: 10,
+    lines: [
+      { who: N, text: "Otro rubor le tenía envidia." },
+      { who: "Rubor naranja", text: "¡Sube conmigo a la azotea!" },
+    ],
+    actors: [
+      { kind: "rubor", color: "pink", x: 28, y: 45, size: 320, anim: "bounce" },
+      { kind: "rubor", color: "coral", mood: "mad", x: 72, y: 45, size: 320, anim: "shake" },
+    ],
+    bubbles: [{ text: "¡Sube conmigo a la azotea!", x: 70, y: 22, from: 60 }],
+  },
+  {
+    title: "La caída", seconds: 10,
+    lines: [{ who: N, text: "En las escaleras, fingió que se caía y empujó al otro rubor, que se rompió." }],
+    actors: [
+      { kind: "stairs", x: 50, y: 52, size: 520 },
+      { kind: "rubor", color: "coral", mood: "mad", x: 30, y: 20, anim: "shake" },
+      { kind: "rubor", color: "pink", mood: "sad", x: 68, y: 22, anim: "fall", from: 20, until: 80 },
+      { kind: "rubor", color: "pink", mood: "sad", broken: true, x: 68, y: 68, size: 280, anim: "pop", from: 80 },
+    ],
+    bubbles: [{ text: "¡CRASH!", x: 50, y: 40, from: 80, big: true }],
+    shakeAt: 80,
+  },
+  {
+    title: "La vergüenza", seconds: 10,
+    lines: [{ who: N, text: "De tanta vergüenza, salió corriendo de la fiesta para irse a su casa y no volver a salir." }],
+    actors: [
+      { kind: "rubor", color: "pink", mood: "shy", broken: true, x: 12, y: 55, anim: "run" },
+      { kind: "house", x: 80, y: 50, size: 380, anim: "pop" },
+    ],
+  },
+  {
+    title: "El amigo labial", seconds: 20,
+    lines: [
+      { who: "Labial", text: "¿Qué te pasa? ¿Por qué ya no quieres salir? Todos te extrañamos mucho." },
+      { who: "Rubor rosa", text: "Tengo miedo de que todos se burlen de mí por haberme roto." },
+      { who: "Labial", text: "No tienes por qué sentir vergüenza. Todos podemos pasar por momentos difíciles, pero eso no significa que debas esconderte. Tú no hiciste nada malo." },
+    ],
+    actors: [
+      { kind: "house", x: 50, y: 20, size: 300 },
+      { kind: "lab", x: 25, y: 62, size: 340, anim: "bounce" },
+      { kind: "rubor", color: "pink", mood: "sad", broken: true, x: 74, y: 64, size: 320 },
+    ],
+  },
+  {
+    title: "La culpa", seconds: 15,
+    lines: [
+      { who: "Sombra de ojos", text: "Escuché lo que pasó… el otro rubor tuvo la culpa." },
+      { who: N, text: "El rubor naranja se sintió mal, porque sabía que había actuado por envidia." },
+    ],
+    actors: [
+      { kind: "som", mood: "mad", x: 28, y: 30, size: 300, anim: "shake" },
+      { kind: "rubor", color: "coral", mood: "sad", x: 68, y: 62, size: 340 },
+    ],
+    bubbles: [{ text: "Ella tuvo la culpa…", x: 30, y: 12, from: 15 }],
+  },
+  {
+    title: "La reunión", seconds: 15,
+    lines: [
+      { who: N, text: "El labial organizó una reunión e invitó a todos. Cuando el rubor llegó, todos se acercaron a saludarla." },
+      { who: "Todos", text: "¡Estamos felices de verte!" },
+    ],
+    actors: [
+      { kind: "rubor", color: "pink", mood: "shy", x: 50, y: 48, size: 340, anim: "pop" },
+      { kind: "lab", x: 18, y: 26, anim: "bounce" },
+      { kind: "som", x: 82, y: 26, anim: "bounce" },
+      { kind: "del", x: 18, y: 70, anim: "bounce" },
+      { kind: "mas", x: 82, y: 70, anim: "bounce" },
+    ],
+  },
+  {
+    title: "El perdón", seconds: 20,
+    lines: [
+      { who: "Rubor naranja", text: "Quiero pedirte perdón. Te tuve envidia porque todos te preferían y no supe controlar mis celos. Me arrepiento mucho." },
+      { who: "Rubor rosa", text: "Me hiciste sentir muy triste, pero agradezco que reconozcas tu error. Espero que nunca vuelvas a hacerle algo así a nadie." },
+      { who: "Rubor naranja", text: "Prometo cambiar y alegrarme por los logros de los demás." },
+    ],
+    actors: [
+      { kind: "rubor", color: "coral", mood: "sad", x: 28, y: 55, size: 340, anim: "pop" },
+      { kind: "rubor", color: "pink", mood: "happy", x: 72, y: 55, size: 340, anim: "pop" },
+      { kind: "heart", x: 50, y: 22, size: 200, anim: "bounce", from: 300 },
+    ],
+  },
+  {
+    title: "Final feliz", seconds: 10,
+    lines: [{ who: N, text: "Todos siguieron celebrando, bailando y divirtiéndose juntos." }],
+    actors: [
+      { kind: "rubor", color: "pink", x: 32, y: 52, size: 300, anim: "bounce" },
+      { kind: "rubor", color: "coral", x: 68, y: 52, size: 300, anim: "bounce" },
+      { kind: "lab", x: 15, y: 22, anim: "bounce" },
+      { kind: "som", x: 50, y: 18, anim: "bounce" },
+      { kind: "mas", x: 85, y: 22, anim: "bounce" },
+      { kind: "del", x: 50, y: 76, anim: "bounce" },
+    ],
+  },
+  {
+    title: "Moraleja", seconds: 10,
+    lines: [{
+      who: "Moraleja",
+      text: "No debemos sentir envidia de los demás ni hacerles daño por querer ser mejores. Cada persona tiene algo especial: valoremos nuestras cualidades, respetemos a los demás y reconozcamos nuestros errores.",
+    }],
+    actors: [
+      { kind: "heart", x: 50, y: 28, size: 320, anim: "bounce" },
+      { kind: "rubor", color: "pink", x: 20, y: 62, size: 200 },
+      { kind: "rubor", color: "coral", x: 40, y: 62, size: 200 },
+      { kind: "lab", x: 60, y: 62, size: 200 },
+      { kind: "som", x: 80, y: 62, size: 200 },
+    ],
+  },
+];
 
-### `muted?`
+const TOTAL = SCENES.reduce((a, s) => a + s.seconds * FPS, 0);
 
-You can drop the audio of the video by adding a `muted` prop:
+/* ============ ANIMACIÓN DE ESCENAS ============ */
+const ActorView: React.FC<{ a: Actor }> = ({ a }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const from = a.from ?? 0;
+  if (frame < from || (a.until !== undefined && frame >= a.until)) return null;
+  const f = frame - from;
 
-```tsx twoslash title="Example of a muted video"
-import {OffthreadVideo} from 'remotion';
-import {Video} from '@remotion/media';
-// ---cut---
-export const MyComposition = () => {
+  let tx = 0, ty = 0, rot = 0, sc = 1;
+  switch (a.anim) {
+    case "bounce":
+      ty = -Math.abs(Math.sin(frame / 8)) * 50;
+      break;
+    case "shake":
+      rot = Math.sin(frame / 2) * 6;
+      tx = Math.sin(frame / 2) * 10;
+      break;
+    case "fall":
+      ty = interpolate(f, [0, 60], [0, 700], { extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
+      rot = interpolate(f, [0, 60], [0, 140], { extrapolateRight: "clamp" });
+      break;
+    case "run":
+      tx = interpolate(f, [0, 150], [0, 650], { extrapolateRight: "clamp" });
+      ty = -Math.abs(Math.sin(f / 4)) * 25;
+      break;
+    case "pop":
+      sc = spring({ frame: f, fps, config: { damping: 10 } });
+      break;
+  }
+
+  return (
+    <div
+      style={{
+        position: "absolute", left: `${a.x}%`, top: `${a.y}%`,
+        transform: `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${sc})`,
+      }}
+    >
+      <Character kind={a.kind} color={a.color} mood={a.mood} broken={a.broken} size={a.size ?? 220} />
+    </div>
+  );
+};
+
+const BubbleView: React.FC<{ b: Bubble }> = ({ b }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const from = b.from ?? 0;
+  if (frame < from) return null;
+  const sc = spring({ frame: frame - from, fps, config: { damping: 10 } });
+  return (
+    <div
+      style={{
+        position: "absolute", left: `${b.x}%`, top: `${b.y}%`,
+        transform: `translate(-50%, -50%) scale(${sc})`,
+        background: b.big ? "#ffe14d" : "#fff", color: "#4a1030",
+        padding: b.big ? "24px 48px" : "16px 28px", borderRadius: 36,
+        fontSize: b.big ? 110 : 48, fontWeight: 800, maxWidth: 520,
+        textAlign: "center", boxShadow: "0 8px 20px rgba(0,0,0,.25)",
+      }}
+    >
+      {b.text}
+    </div>
+  );
+};
+
+const Scene: React.FC<{ data: SceneData }> = ({ data }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+
+  const opacity = interpolate(frame, [0, 10, durationInFrames - 10, durationInFrames], [0, 1, 1, 0]);
+  const shake =
+    data.shakeAt !== undefined && frame >= data.shakeAt && frame < data.shakeAt + 20
+      ? Math.sin(frame * 2) * 18 : 0;
+
+  const perLine = durationInFrames / data.lines.length;
+  const ln = data.lines[Math.min(data.lines.length - 1, Math.floor(frame / perLine))];
+
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ transform: `translate(${shake}px, ${shake / 2}px)` }}>
+        {data.actors.map((a, i) => <ActorView key={i} a={a} />)}
+        {data.bubbles?.map((b, i) => <BubbleView key={i} b={b} />)}
+      </AbsoluteFill>
+
+      <div
+        style={{
+          position: "absolute", left: 60, right: 60, bottom: 140,
+          background: "rgba(255,255,255,.92)", color: "#4a1030", borderRadius: 36,
+          padding: "28px 36px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,.2)",
+        }}
+      >
+        <div style={{ fontSize: 34, fontWeight: 700, color: "#e0457b", marginBottom: 8 }}>{ln.who}</div>
+        <div style={{ fontSize: 46, fontWeight: 600, lineHeight: 1.25 }}>{ln.text}</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/* ============ VIDEO PRINCIPAL ============ */
+const Confetti: React.FC = () => {
+  const frame = useCurrentFrame();
+  const colors = ["#ff5c93", "#ffd23f", "#7c5cff", "#2fc4b2", "#ffffff"];
   return (
     <>
-      <Video muted src="https://remotion.media/BigBuckBunny.mp4" />
+      {Array.from({ length: 28 }).map((_, i) => {
+        const size = 14 + ((i * 7) % 18);
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute", left: `${(i * 37) % 97}%`, top: `${(i * 53) % 95}%`,
+              width: size, height: size, borderRadius: "50%", background: colors[i % 5], opacity: 0.55,
+              transform: `translateY(${Math.sin((frame + i * 9) / 18) * 30}px)`,
+            }}
+          />
+        );
+      })}
     </>
   );
 };
-```
 
-### `style?`
-
-You can pass any style you can pass to a native HTML `<canvas>` element.
-
-```tsx twoslash
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </>
-  );
-};
-```
-
-### `className?`
-
-A CSS class name applied to the `<canvas>` element, or to the fallback element when [falling back](/docs/media/fallback).
-
-### `objectFit?`<AvailableFrom v="4.0.442" />
-
-Controls how the video content is resized to fit the canvas element, similar to the CSS `object-fit` property on `<img>` elements.
-
-Accepts `'contain'` (default), `'cover'`, `'fill'`, `'none'`, or `'scale-down'`.
-
-- `'contain'`: The video is scaled to maintain its aspect ratio while fitting within the element's content box. Letterboxing is applied if the aspect ratios don't match.
-- `'cover'`: The video is sized to maintain its aspect ratio while filling the element's entire content box. The video will be clipped to fit.
-- `'fill'`: The video is stretched to fill the element's content box. The video's aspect ratio is not preserved.
-- `'none'`: The video is not resized. It is centered within the element.
-- `'scale-down'`: The video is sized as if `none` or `contain` were specified, whichever would result in a smaller size.
-
-```tsx twoslash
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video src={staticFile('video.webm')} style={{width: '100%', height: '100%'}} objectFit="cover" />
-    </>
-  );
-};
-```
-
-:::note
-The CSS property `object-fit` is not supported.
-:::
-
-### `maxCanvasSinkFrameSize?`<AvailableFrom v="4.0.530" />
-
-Sets the maximum size of frames output by [Mediabunny](/docs/mediabunny) in Studio and Player previews. Pass a `width`, a `height`, or both, in pixels. Mediabunny keeps the video's aspect ratio and does not upscale it, so the actual frame size can be smaller than these limits.
-
-For example, `{width: 960}` produces 960 × 540 frames from a 1920 × 1080 video. A 640 × 360 video stays at 640 × 360. Without this prop, Mediabunny outputs frames at the video's original size.
-
-The `<canvas>` keeps its original dimensions and scales the frames up when drawing them. [`effects`](#effects) run at the canvas dimensions, while [`onVideoFrame`](#onvideoframe) receives the frames output by Mediabunny.
-
-Smaller frames use less memory when a large video is shown small. The video is still decoded at full size, and rendering is not affected.
-
-For example, use [`useCurrentScale()`](/docs/use-current-scale) to pick a size:
-
-```tsx twoslash title="Smaller frames when the preview is zoomed out"
-import {useCurrentScale} from 'remotion';
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  const scale = useCurrentScale();
-  const width = scale > 0.5 ? 1920 : scale > 0.25 ? 960 : 480;
-
-  return <Video src="https://remotion.media/video.mp4" maxCanvasSinkFrameSize={{width}} />;
-};
-```
-
-Changing either limit recreates the preview player, so prefer a few fixed sizes over a value that changes on every resize. Passing a new object with the same limits does not recreate it.
-
-### `loop?`
-
-Makes the video loop indefinitely.
-
-```tsx twoslash title="Example of a looped video"
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video loop src="https://remotion.media/BigBuckBunny.mp4" />
-    </>
-  );
-};
-```
-
-:::note
-When a video ends (and `loop` is not set), the last frame of the video remains visible by default.  
-This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
-:::
-
-### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
-
-This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
-
-When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
-
-It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
-
-### `logLevel?`
-
-<Options id="log" />
-
-### `showInTimeline?`
-
-If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
-
-### `delayRenderTimeoutInMilliseconds?`
-
-Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
-
-### `delayRenderRetries?`
-
-Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
-
-### `onVideoFrame?`
-
-A callback function that gets called when a frame is extracted from the video.  
-Useful for [video manipulation](/docs/videos/video-manipulation).
-The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
-
-### `audioStreamIndex?`
-
-Select the audio stream to use by its zero-based index. If omitted, Remotion automatically selects a decodable audio track paired with the video, preferring the primary track when supported. An explicit index is always honored, even if that track cannot be decoded.
-
-```tsx twoslash
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
-    </>
-  );
-};
-```
-
-### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
-
-:::info Deprecated
-Use [`requestInit`](#requestinit) instead.
-:::
-
-Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the video data.
-
-Accepts `"omit"`, `"same-origin"` (default behavior of `fetch()`) or `"include"`.
-Set to `"include"` if you need to send cookies or authentication headers to a cross-origin video URL.
-
-```tsx twoslash
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video requestInit={{credentials: 'include'}} src="https://example.com/protected-video.mp4" />
-    </>
-  );
-};
-```
-
-### `requestInit?`<AvailableFrom v="4.0.465" />
-
-Passes a subset of [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the video data: `cache`, `credentials`, `headers`, `integrity`, `mode`, `redirect`, `referrer` and `referrerPolicy`.
-
-`headers` accepts an object or an array of `[key, value]` tuples, but not a `Headers` instance.
-
-Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
-The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
-
-```tsx twoslash
-import {Video} from '@remotion/media';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <>
-      <Video requestInit={{cache: 'no-store'}} src="https://remotion.media/video.mp4" />
-    </>
-  );
-};
-```
-
-### `toneFrequency?`
-
-Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-
-A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
-
-The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
-
-Works during preview and server-side rendering. [Client-side rendering](/docs/client-side-rendering/) is supported from v4.0.523.
-
-If the component [falls back to `<Html5Video>`](/docs/media/fallback) during preview, pitch shifting is not applied.
-
-### `headless?`<AvailableFrom v="4.0.387" />
-
-Does not mount a `<canvas>`, but still allows you to use the [`onVideoFrame`](#onvideoframe) prop.  
-This is useful for [embedding a video as a texture in Three.js](/docs/videos/as-threejs-texture).
-
-### `fallbackOffthreadVideoProps?`
-
-When a [fallback to `<OffthreadVideo>`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<OffthreadVideo>` component.  
-Only props that are not supported by `<Video>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
-
-:::note
-This prop has no effect when using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, as fallback is not possible. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
-:::
-
-#### `acceptableTimeShiftInSeconds?`
-
-Maps to [`<OffthreadVideo />` -> `acceptableTimeShiftInSeconds`](/docs/offthreadvideo#acceptabletimeshiftinseconds)
-
-#### `transparent?`
-
-Maps to [`<OffthreadVideo />` -> `transparent`](/docs/offthreadvideo#transparent)
-
-#### `toneMapped?`
-
-Maps to [`<OffthreadVideo />` -> `toneMapped`](/docs/offthreadvideo#tonemapped)
-
-#### `onError?`
-
-Maps to [`<OffthreadVideo />` -> `onError`](/docs/offthreadvideo#onerror)
-
-#### `crossOrigin?`
-
-Maps to [`<OffthreadVideo />` -> `crossOrigin`](/docs/offthreadvideo#crossorigin)
-
-#### `useWebAudioApi?`
-
-Maps to [`<OffthreadVideo />` -> `useWebAudioApi`](/docs/offthreadvideo#usewebaudioapi)
-
-#### `pauseWhenBuffering?`
-
-Maps to [`<OffthreadVideo />` -> `pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering)
-
-#### `onAutoPlayError?`
-
-Maps to [`<OffthreadVideo />` -> `onAutoPlayError`](/docs/offthreadvideo#onautoplayerror)
-
-#### `preservePitch?`<AvailableFrom v="4.0.463" />
-
-Maps to [`<OffthreadVideo />` -> `preservePitch`](/docs/offthreadvideo#preservepitch).  
-Takes precedence over [`preservePitch`](#preservepitch) when falling back to [`<Html5Video>`](/docs/html5-video) or [`<OffthreadVideo>`](/docs/offthreadvideo).
-
-### `disallowFallbackToOffthreadVideo?`
-
-By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
-
-Pass this prop to disable the fallback and fail the render instead.
-
-:::note
-When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the video cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
-:::
-
-### `debugOverlay?`
-
-Shows a debug overlay on the video. This is useful for debugging the video playback.
-
-### Inherited props
-
-`<Video>` inherits [`freeze`](/docs/sequence#freeze) (from v4.0.477) and [`hidden`](/docs/sequence#hidden) (from v4.0.463) from [`<Sequence>`](/docs/sequence).
-
-## Compatibility
-
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="Supported codecs" serverSideRendering player studio hideServers />
-
-See [supported media](/docs/media/support). Unsupported codecs may use a [fallback](/docs/media/fallback) during preview and server-side rendering; client-side rendering requires a decodable source and cannot fall back.
-
-## See also
-
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
-- [HLS support (HTTP Live Streaming)](/docs/hls)
-- [Comparison of video tags](/docs/video-tags)
-- [`<Audio>` (from `@remotion/media`)](/docs/media/audio)
-- [`<Html5Video>` (from `remotion`)](/docs/html5-video)
-- [`<OffthreadVideo>`](/docs/offthreadvideo)
+const MakeupParty: React.FC = () => (
+  <AbsoluteFill style={{ background: "linear-gradient(160deg, #ffd1e3, #d9b8ff)", fontFamily: "system-ui, sans-serif" }}>
+    <Confetti />
+    <Series>
+      {SCENES.map((s) => (
+        <Series.Sequence key={s.title} durationInFrames={s.seconds * FPS}>
+          <Scene data={s} />
+        </Series.Sequence>
+      ))}
+    </Series>
+    {/* <Audio src={staticFile("musica.mp3")} volume={0.4} /> */}
+  </AbsoluteFill>
+);
+
+const Root: React.FC = () => (
+  <Composition id="MakeupParty" component={MakeupParty} durationInFrames={TOTAL} fps={FPS} width={1080} height={1920} />
+);
+
+registerRoot(Root);
