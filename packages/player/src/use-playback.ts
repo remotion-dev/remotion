@@ -237,14 +237,12 @@ export const usePlayback = ({
 
 		const updateEnd = () => {
 			sharedAudioContext.setPlaybackEnd(
-				!playing
-					? null
-					: muted
-						? 0
-						: !loop && playbackRate > 0
-							? sharedAudioContext.audioSyncAnchor.value +
-								((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
-							: null,
+				!playing || muted
+					? 0
+					: !loop && playbackRate > 0
+						? sharedAudioContext.audioSyncAnchor.value +
+							((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
+						: null,
 				() => {
 					if (
 						muted ||
