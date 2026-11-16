@@ -14,7 +14,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "MIT",
 	"dependencies": {
 		"remotion": "workspace:*"
 	},

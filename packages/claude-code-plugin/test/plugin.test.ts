@@ -10,7 +10,7 @@ const embeddedRoots = [
 	path.join(generatedSkillsRoot, 'remotion-markup'),
 ];
 
-test('manifest version matches the Remotion version', () => {
+test('built plugin has valid metadata and distributable files', () => {
 	const packageJson = JSON.parse(
 		readFileSync(path.join(packageRoot, 'package.json'), 'utf-8'),
 	) as Record<string, unknown>;
@@ -22,6 +22,53 @@ test('manifest version matches the Remotion version', () => {
 	) as Record<string, unknown>;
 
 	expect(manifest.version).toBe(packageJson.version);
+	expect(manifest.skills).toBe('./skills/');
+	expect(manifest.icon).toBeUndefined();
+	const icon = readFileSync(
+		path.join(packageRoot, '.claude-plugin', 'icon.png'),
+	);
+	expect(icon.subarray(0, 8)).toEqual(
+		Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+	);
+	const iconWidth = icon.readUInt32BE(16);
+	expect(icon.readUInt32BE(20)).toBe(iconWidth);
+	expect(iconWidth).toBeGreaterThanOrEqual(512);
+	expect(iconWidth).toBeLessThanOrEqual(2048);
+	expect(icon.length).toBeLessThan(2 * 1024 * 1024);
+
+	const files = ['.claude-plugin', 'skills'].flatMap((directory) =>
+		readdirSync(path.join(packageRoot, directory), {
+			recursive: true,
+			encoding: 'utf8',
+		})
+			.map((file) => path.join(packageRoot, directory, file))
+			.filter((file) => statSync(file).isFile()),
+	);
+	files.push(path.join(packageRoot, 'README.md'));
+	expect(files.length).toBeLessThanOrEqual(512);
+	const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico'];
+	for (const file of files) {
+		const extension = path.extname(file);
+		expect([
+			'.md',
+			'.markdown',
+			'.txt',
+			'.text',
+			'.json',
+			'.yaml',
+			'.yml',
+			...imageExtensions,
+		]).toContain(extension);
+		if (imageExtensions.includes(extension)) {
+			continue;
+		}
+
+		const contents = readFileSync(file);
+		const text = new TextDecoder('utf-8', {fatal: true}).decode(contents);
+		expect(text).not.toContain('\0');
+		expect(text.startsWith('#!')).toBe(false);
+		expect(contents.length).toBeLessThanOrEqual(256 * 1024);
+	}
 });
 
 const getDirectories = (directory: string) => {
