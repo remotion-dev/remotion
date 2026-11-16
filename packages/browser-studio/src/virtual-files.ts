@@ -26,7 +26,7 @@ declare const __BROWSER_STUDIO_SETUP_ENVIRONMENT__: string | undefined;
 
 const getInjectedSetupEnvironment = () => {
 	if (typeof __BROWSER_STUDIO_SETUP_ENVIRONMENT__ === 'undefined') {
-		throw new Error('Browser Studio setup environment was not injected');
+		throw new Error('remotion.new setup environment was not injected');
 	}
 
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
@@ -104,7 +104,7 @@ const modules = {
 globalThis.require = (id) => {
   const module = modules[id];
   if (!module) {
-    throw new Error('Unsupported Browser Studio require: ' + id);
+    throw new Error('Unsupported remotion.new require: ' + id);
   }
 
   return module;
@@ -112,7 +112,7 @@ globalThis.require = (id) => {
 `;
 
 const studioBootstrap = `if (!globalThis.remotion_browserStudioVendor) {
-  throw new Error('Browser Studio vendor bundle was not loaded');
+  throw new Error('remotion.new vendor bundle was not loaded');
 }
 
 globalThis.remotion_browserStudioProjectHot = {

@@ -14,7 +14,6 @@ import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
-import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
 import {deleteCompositionHandler} from './routes/delete-composition';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -24,6 +23,7 @@ import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateCompositionHandler} from './routes/duplicate-composition';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateNodesHandler} from './routes/duplicate-nodes';
+import {elementLibraryFaviconHandler} from './routes/element-library-favicon';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertBasicCaptionsHandler} from './routes/insert-basic-captions';
 import {insertCompositionElementHandler} from './routes/insert-composition-element';
@@ -43,8 +43,10 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {pickOpenTimelineHandler} from './routes/pick-open-timeline';
 import {precomposeJsxNodesHandler} from './routes/precompose-jsx-nodes';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
+import {prepareOpenTimelineImportHandler} from './routes/prepare-open-timeline-import';
 import {prerenderedSceneInfoHandler} from './routes/prerendered-scene-info';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
@@ -86,12 +88,15 @@ import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
+import {updateSequencePropsSubscriptions} from './routes/update-sequence-props-subscription';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 import {wrapNodeHandler} from './routes/wrap-node';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
-	'/api/install-package' | '/api/update-config'
+	| '/api/install-package'
+	| '/api/update-config'
+	| '/api/copy-render-output-to-asset'
 >;
 
 export const allApiRoutes: {
@@ -103,7 +108,6 @@ export const allApiRoutes: {
 	'/api/shared-memory-capture-support': sharedMemoryCaptureSupportHandler,
 	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
-	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
 	'/api/render': handleAddRender,
@@ -121,6 +125,8 @@ export const allApiRoutes: {
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-visual-control-change': applyVisualControlHandler,
 	'/api/add-composition': addCompositionHandler,
+	'/api/prepare-open-timeline-import': prepareOpenTimelineImportHandler,
+	'/api/pick-open-timeline': pickOpenTimelineHandler,
 	'/api/duplicate-composition': duplicateCompositionHandler,
 	'/api/rename-composition': renameCompositionHandler,
 	'/api/update-composition-metadata': updateCompositionMetadataHandler,
@@ -133,6 +139,7 @@ export const allApiRoutes: {
 	'/api/subscribe-to-default-props': subscribeToDefaultProps,
 	'/api/unsubscribe-from-default-props': unsubscribeFromDefaultProps,
 	'/api/subscribe-to-sequence-props': subscribeToSequenceProps,
+	'/api/update-sequence-props-subscription': updateSequencePropsSubscriptions,
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
@@ -182,6 +189,7 @@ export const allApiRoutes: {
 	'/api/prepare-element-install': prepareElementInstallHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
+	'/api/element-library-favicon': elementLibraryFaviconHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 	'/api/log-studio-error': logStudioErrorHandler,

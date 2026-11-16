@@ -42,7 +42,10 @@ export const canDecode = async (src: string | Blob) => {
 
 ### Check if a video can be decoded
 
-```ts
+```ts twoslash title="Usage example"
+declare function canDecode(src: string | Blob): Promise<boolean>;
+export {};
+// ---cut---
 const src = 'https://remotion.media/video.mp4';
 const isDecodable = await canDecode(src);
 

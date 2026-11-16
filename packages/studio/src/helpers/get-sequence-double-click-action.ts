@@ -26,7 +26,7 @@ export const getSequenceDoubleClickAction = ({
 		return null;
 	}
 
-	if (numberOfConnectedCompositions === 1) {
+	if (numberOfConnectedCompositions > 0) {
 		return 'open-connected-composition';
 	}
 

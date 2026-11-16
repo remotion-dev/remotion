@@ -2,7 +2,12 @@ import {TRANSFORMERS_PACKAGE} from '@remotion/studio-shared';
 import React, {Suspense, useCallback, useContext, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BLUE, LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	PRIMARY_BUTTON_BACKGROUND,
+	WARNING_COLOR,
+	WHITE,
+} from '../helpers/colors';
 import {canInstallPackagesInStudio} from '../helpers/settings-tab-availability';
 import {Button} from './Button';
 import {sectionHeader} from './InspectorPanel/styles';
@@ -79,7 +84,7 @@ const missingDescription: React.CSSProperties = {
 };
 
 const installButton: React.CSSProperties = {
-	backgroundColor: BLUE,
+	backgroundColor: PRIMARY_BUTTON_BACKGROUND,
 	color: WHITE,
 	flexShrink: 0,
 };

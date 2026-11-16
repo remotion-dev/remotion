@@ -7,14 +7,18 @@ import {
 	BLUE_HOVERED,
 	FOCUS_BOX_SHADOW,
 	SPLITTER_COLOR,
+	TEXT_SELECTION_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
+const inspectorSectionTransitionDuration = 120;
+const inspectorSectionTransition = `${inspectorSectionTransitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+
 const makeDefaultGlobalCSS = () => {
-	const dragAreaFactor = 2;
+	const dragAreaFactor = 6;
 	const fromMiddle = 50 / dragAreaFactor;
 
 	return `
@@ -51,6 +55,47 @@ const makeDefaultGlobalCSS = () => {
   @keyframes remotion-slide-in {
     from { opacity: 0; transform: translateX(var(--remotion-slide-distance)); }
     to { opacity: 1; transform: translateX(0); }
+  }
+
+  .__remotion-inspector-section-title {
+    --remotion-disclosure-transition: transform ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-section-content {
+    transition: grid-template-rows ${inspectorSectionTransition}, opacity ${inspectorSectionTransition}, visibility 0s ${inspectorSectionTransitionDuration}ms;
+  }
+
+  .__remotion-inspector-section-clip {
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    -webkit-mask-size: 100% 100%;
+    transition: mask-size ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-section-content[data-animating="true"] > .__remotion-inspector-section-clip {
+    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+  }
+
+  .__remotion-inspector-section-content[data-expanded="true"] > .__remotion-inspector-section-clip {
+    mask-size: 100% calc(100% + 40px);
+    -webkit-mask-size: 100% calc(100% + 40px);
+  }
+
+  .__remotion-inspector-section-content[data-expanded="true"] {
+    transition-delay: 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .__remotion-inspector-section-title {
+      --remotion-disclosure-transition: none;
+    }
+
+    .__remotion-inspector-section-content,
+    .__remotion-inspector-section-clip {
+      transition: none;
+    }
   }
 
   .remotion-splitter,
@@ -190,8 +235,15 @@ const makeDefaultGlobalCSS = () => {
     color: ${BLUE_HOVERED} !important;
   }
 
-  .__remotion_input_dragger_input::selection {
-    background-color: #4E4E4E;
+  .css-reset::selection,
+  .css-reset *::selection,
+  pre[class*="language-"]::selection,
+  code[class*="language-"]::selection,
+  pre[class*="language-"] *::selection,
+  code[class*="language-"] *::selection {
+    background-color: ${TEXT_SELECTION_BACKGROUND};
+    color: ${WHITE};
+    text-shadow: none;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {

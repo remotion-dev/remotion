@@ -4,6 +4,7 @@ import {
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
+	useReducer,
 	useRef,
 	useState,
 } from 'react';
@@ -24,7 +25,6 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -37,8 +37,11 @@ import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
+import type {LoadedImage} from './canvas-image-load-state.js';
+import {canvasImageLoadReducer} from './canvas-image-load-state.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
@@ -51,7 +54,6 @@ export const canvasImageSchema = {
 	},
 	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
-	...premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -68,35 +70,17 @@ export const canvasImageSchema = {
 	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
-type LoadedImage = {
-	readonly element: HTMLImageElement;
-	readonly width: number;
-	readonly height: number;
-};
-
-type PendingLoadDelay = {
-	readonly handle: number;
-	continued: boolean;
-};
-
-const continueImageLoadDelay = (
-	pendingLoadDelayRef: React.MutableRefObject<PendingLoadDelay | null>,
-	setIsLoadPending: React.Dispatch<React.SetStateAction<boolean>>,
+const releaseLoadDelay = (
+	pendingLoadHandleRef: React.MutableRefObject<number | null>,
 	continueRender: ReturnType<typeof useDelayRender>['continueRender'],
-	{markAsReady}: {readonly markAsReady: boolean},
 ) => {
-	const pending = pendingLoadDelayRef.current;
-	if (!pending || pending.continued) {
+	const handle = pendingLoadHandleRef.current;
+	if (handle === null) {
 		return;
 	}
 
-	pending.continued = true;
-	if (markAsReady) {
-		setIsLoadPending(false);
-	}
-
-	continueRender(pending.handle);
-	pendingLoadDelayRef.current = null;
+	pendingLoadHandleRef.current = null;
+	continueRender(handle);
 };
 
 const setCanvasRef = (
@@ -273,29 +257,33 @@ const CanvasImageContent = forwardRef<
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
 		);
-		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
+		const [loadState, dispatchLoad] = useReducer(canvasImageLoadReducer, {
+			type: 'idle',
+		});
+		const loadedImage: LoadedImage | null =
+			loadState.type === 'applying-effects' || loadState.type === 'ready'
+				? loadState.image
+				: null;
+		const isLoadPending =
+			loadState.type === 'loading' || loadState.type === 'applying-effects';
+		const onErrorRef = useRef(onError);
+		onErrorRef.current = onError;
 		const actualSrc = usePreload(src);
 		const chainState = useEffectChainState(effectsOutputSize);
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			runtimeValues: controls?.runtimeValues ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
-		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
-		const [isLoadPending, setIsLoadPending] = useState(false);
+		const pendingLoadHandleRef = useRef<number | null>(null);
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
 
 		// Bound callbacks keep only these inputs, including after minification.
-		const continuePendingLoadDelay = useMemo(
-			() =>
-				continueImageLoadDelay.bind(
-					null,
-					pendingLoadDelayRef,
-					setIsLoadPending,
-					continueRender,
-				),
+		const releasePendingLoadDelay = useMemo(
+			() => releaseLoadDelay.bind(null, pendingLoadHandleRef, continueRender),
 			[continueRender],
 		);
 
@@ -345,12 +333,8 @@ const CanvasImageContent = forwardRef<
 			let errorCount = 0;
 			let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-			setLoadedImage(null);
-			setIsLoadPending(true);
-			pendingLoadDelayRef.current = {
-				handle,
-				continued: false,
-			};
+			dispatchLoad({type: 'load-started'});
+			pendingLoadHandleRef.current = handle;
 
 			const attemptLoad = () => {
 				loadImage({src: actualSrc, signal: controller.signal, crossOrigin})
@@ -359,11 +343,10 @@ const CanvasImageContent = forwardRef<
 							return;
 						}
 
-						setLoadedImage(image);
+						dispatchLoad({type: 'image-decoded', image});
 					})
 					.catch((err) => {
 						if ((err as Error).name === 'AbortError') {
-							continuePendingLoadDelay({markAsReady: false});
 							return;
 						}
 
@@ -379,9 +362,10 @@ const CanvasImageContent = forwardRef<
 									attemptLoad();
 								}
 							}, backoff);
-						} else if (onError) {
-							onError(err as Error);
-							continuePendingLoadDelay({markAsReady: true});
+						} else if (onErrorRef.current) {
+							onErrorRef.current(err as Error);
+							dispatchLoad({type: 'load-failed'});
+							releasePendingLoadDelay();
 						} else {
 							cancelRender(err);
 						}
@@ -397,18 +381,17 @@ const CanvasImageContent = forwardRef<
 				}
 
 				controller.abort();
-				continuePendingLoadDelay({markAsReady: false});
+				releasePendingLoadDelay();
 			};
 		}, [
 			actualSrc,
 			cancelRender,
-			continuePendingLoadDelay,
+			releasePendingLoadDelay,
 			crossOrigin,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
 			maxRetries,
-			onError,
 		]);
 
 		useLayoutEffect(() => {
@@ -440,10 +423,21 @@ const CanvasImageContent = forwardRef<
 			});
 
 			if (!sourceContext) {
-				cancelRender(
-					new Error('Could not get 2D context for <CanvasImage> source canvas'),
+				const error = new Error(
+					'Could not get 2D context for <CanvasImage> source canvas',
 				);
-				continueRenderOnce();
+				try {
+					if (onErrorRef.current) {
+						onErrorRef.current(error);
+						dispatchLoad({type: 'presented'});
+						releasePendingLoadDelay();
+					} else {
+						cancelRender(error);
+					}
+				} finally {
+					continueRenderOnce();
+				}
+
 				return () => {
 					continueRenderOnce();
 				};
@@ -481,7 +475,8 @@ const CanvasImageContent = forwardRef<
 								}
 
 								continueRenderOnce();
-								continuePendingLoadDelay({markAsReady: true});
+								dispatchLoad({type: 'presented'});
+								releasePendingLoadDelay();
 							},
 						});
 					}
@@ -491,10 +486,11 @@ const CanvasImageContent = forwardRef<
 						return;
 					}
 
-					if (onError) {
-						onError(err as Error);
+					if (onErrorRef.current) {
+						onErrorRef.current(err as Error);
 						continueRenderOnce();
-						continuePendingLoadDelay({markAsReady: true});
+						dispatchLoad({type: 'presented'});
+						releasePendingLoadDelay();
 					} else {
 						cancelRender(err);
 					}
@@ -510,13 +506,12 @@ const CanvasImageContent = forwardRef<
 			cancelRender,
 			chainState,
 			continueRender,
-			continuePendingLoadDelay,
+			releasePendingLoadDelay,
 			delayRender,
 			fit,
 			height,
 			loadedImage,
 			memoizedEffects,
-			onError,
 			outputCanvas,
 			sourceCanvas,
 			width,
@@ -599,9 +594,11 @@ const CanvasImageInner = forwardRef<
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		const videoEnabled = useVideoEnabled();
+		// No canvas is mounted during audio-only frames; it remounts afterwards.
 		useImperativeHandle(ref, () => {
-			return actualRef.current as HTMLCanvasElement;
-		}, []);
+			return (videoEnabled ? actualRef.current : null) as HTMLCanvasElement;
+		}, [videoEnabled]);
 		const {
 			effectivePostmountFor,
 			effectivePremountFor,
@@ -632,6 +629,10 @@ const CanvasImageInner = forwardRef<
 			style: premountingStyle,
 			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
+
+		if (videoEnabled === false) {
+			return null;
+		}
 
 		return (
 			<Freeze

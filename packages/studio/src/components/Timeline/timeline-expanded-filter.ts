@@ -27,7 +27,11 @@ export const filterTimelineExpandedTree = ({
 			shouldShowNode,
 		});
 
-		if (children.length > 0 || shouldShowNode(node)) {
+		if (
+			children.length > 0 ||
+			node.effectInfo !== null ||
+			shouldShowNode(node)
+		) {
 			out.push({
 				...node,
 				children,

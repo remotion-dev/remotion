@@ -18,7 +18,6 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
 	BLACK_ALPHA_60,
-	BLUE,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	TRANSPARENT,
@@ -34,6 +33,8 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {UvCoordinateHandle} from '../UvCoordinateHandle';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './should-clear-selection-on-pointer-down';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
@@ -64,9 +65,9 @@ type EasingGraphLabels = {
 
 const SVG_WIDTH = 560;
 const SVG_HEIGHT = 320;
-const PLOT_LEFT = 42;
+const PLOT_LEFT = 12;
 const PLOT_TOP = 0;
-const PLOT_WIDTH = 500;
+const PLOT_WIDTH = SVG_WIDTH - PLOT_LEFT * 2;
 const PLOT_HEIGHT = SVG_HEIGHT;
 const Y_MIN = -2;
 const Y_MAX = 3;
@@ -126,6 +127,7 @@ const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
 
 const inlineContainer: React.CSSProperties = {
 	minWidth: 0,
+	outline: 'none',
 	paddingBottom: 12,
 	width: '100%',
 };
@@ -200,8 +202,15 @@ const numberInputStyle: React.CSSProperties = {
 	width: '100%',
 };
 
+const graphWrapperStyle: React.CSSProperties = {
+	margin: `12px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
+	position: 'relative',
+};
+
 const svgStyle: React.CSSProperties = {
 	aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
+	backgroundColor: 'rgba(21, 21, 25, 0.32)',
+	border: '1px solid #45454b',
 	display: 'block',
 	height: 'auto',
 	overflow: 'visible',
@@ -611,6 +620,8 @@ const getEasingGraphLabelStyle = (
 	padding: `0 ${EASING_GRAPH_LABEL_HORIZONTAL_PADDING}px`,
 	textAlign,
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 });
 
@@ -751,7 +762,13 @@ const EasingEditorUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const svgRef = useRef<SVGSVGElement>(null);
-	const [mode, setMode] = useState(() => easingToMode(state.initialEasing));
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [selectedHandle, setSelectedHandle] = useState<HandleIndex | null>(
+		null,
+	);
+	const [mode, setModeState] = useState(() =>
+		easingToMode(state.initialEasing),
+	);
 	const [bezier, setBezier] = useState(() =>
 		easingToBezier(state.initialEasing),
 	);
@@ -764,6 +781,13 @@ const EasingEditorUnmemoized: React.FC<{
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
 	const stopPointerSession = useRef<(() => void) | null>(null);
 
+	const setMode = useCallback((nextMode: EditorMode) => {
+		setModeState(nextMode);
+		if (nextMode !== 'bezier') {
+			setSelectedHandle(null);
+		}
+	}, []);
+
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
 		const nextSpring = easingToSpring(state.initialEasing);
@@ -772,7 +796,7 @@ const EasingEditorUnmemoized: React.FC<{
 		setMode(easingToMode(state.initialEasing));
 		setBezier(nextBezier);
 		setSpring(nextSpring);
-	}, [state.initialEasing]);
+	}, [setMode, state.initialEasing]);
 
 	const getCurrentEasingUpdates = useCallback(() => {
 		return getSelectedEasingUpdates({
@@ -1018,7 +1042,7 @@ const EasingEditorUnmemoized: React.FC<{
 			const version = applyLiveEasing(easing);
 			commitEasing(easing, version);
 		},
-		[applyLiveEasing, commitEasing, mode, previewServerState.type],
+		[applyLiveEasing, commitEasing, mode, previewServerState.type, setMode],
 	);
 
 	const applyPreset = useCallback(
@@ -1052,6 +1076,7 @@ const EasingEditorUnmemoized: React.FC<{
 			commitEasing,
 			previewServerState.type,
 			setBezierAndPreview,
+			setMode,
 			setSpringAndPreview,
 		],
 	);
@@ -1108,6 +1133,8 @@ const EasingEditorUnmemoized: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			stopPointerSession.current?.();
+			setSelectedHandle(handle);
+			containerRef.current?.focus({preventScroll: true});
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
 			stopPointerSession.current = startEscapeCancelableCapturedPointerSession({
@@ -1124,6 +1151,7 @@ const EasingEditorUnmemoized: React.FC<{
 							liveOverrideVersionRef.current,
 						);
 					} else {
+						setSelectedHandle(null);
 						clearEasingDragOverrides(pendingOverrideTargetsRef.current);
 						pendingOverrideTargetsRef.current = [];
 						bezierRef.current = bezierBeforeDrag;
@@ -1147,6 +1175,41 @@ const EasingEditorUnmemoized: React.FC<{
 			pendingOverrideTargetsRef.current = [];
 		};
 	}, [clearEasingDragOverrides]);
+
+	useEffect(() => {
+		if (selectedHandle === null) {
+			return;
+		}
+
+		const onPointerDown = (event: PointerEvent) => {
+			if (
+				event.target instanceof Element &&
+				event.target.closest('[data-easing-handle]')
+			) {
+				return;
+			}
+
+			setSelectedHandle(null);
+		};
+
+		window.addEventListener('pointerdown', onPointerDown, true);
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown, true);
+		};
+	}, [selectedHandle]);
+
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (event.key !== 'Escape' || selectedHandle === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			setSelectedHandle(null);
+		},
+		[selectedHandle],
+	);
 
 	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
 	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
@@ -1227,7 +1290,12 @@ const EasingEditorUnmemoized: React.FC<{
 	);
 
 	return (
-		<div style={inlineContainer}>
+		<div
+			ref={containerRef}
+			style={inlineContainer}
+			tabIndex={-1}
+			onKeyDown={onKeyDown}
+		>
 			{renderHeader ? renderHeader(modeItems) : null}
 			<div
 				style={
@@ -1246,59 +1314,75 @@ const EasingEditorUnmemoized: React.FC<{
 			</div>
 			{mode === 'bezier' ? (
 				<>
-					<svg
-						ref={svgRef}
-						width={SVG_WIDTH}
-						height={SVG_HEIGHT}
-						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-						style={svgStyle}
-						aria-label="Bezier curve editor"
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 					>
-						<EasingGraphScaffold labels={graphLabels} />
-						<line
-							x1={startPoint.x}
-							y1={startPoint.y}
-							x2={firstHandle.x}
-							y2={firstHandle.y}
-							stroke={WHITE_ALPHA_35}
-							strokeWidth={1}
-						/>
-						<line
-							x1={endPoint.x}
-							y1={endPoint.y}
-							x2={secondHandle.x}
-							y2={secondHandle.y}
-							stroke={WHITE_ALPHA_35}
-							strokeWidth={1}
-						/>
-						<path d={bezierPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill={WHITE} />
-						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill={WHITE} />
-						<circle
-							cx={firstHandle.x}
-							cy={firstHandle.y}
-							r={6}
-							fill={WHITE}
-							stroke={BLUE}
-							strokeWidth={2}
-							vectorEffect="non-scaling-stroke"
-							pointerEvents={disabled ? 'none' : 'all'}
-							cursor="default"
-							onPointerDown={(event) => onHandlePointerDown(0, event)}
-						/>
-						<circle
-							cx={secondHandle.x}
-							cy={secondHandle.y}
-							r={6}
-							fill={WHITE}
-							stroke={BLUE}
-							strokeWidth={2}
-							vectorEffect="non-scaling-stroke"
-							pointerEvents={disabled ? 'none' : 'all'}
-							cursor="default"
-							onPointerDown={(event) => onHandlePointerDown(1, event)}
-						/>
-					</svg>
+						<svg
+							ref={svgRef}
+							width={SVG_WIDTH}
+							height={SVG_HEIGHT}
+							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+							style={svgStyle}
+							aria-label="Bezier curve editor"
+						>
+							<EasingGraphScaffold labels={graphLabels} />
+							<line
+								x1={startPoint.x}
+								y1={startPoint.y}
+								x2={firstHandle.x}
+								y2={firstHandle.y}
+								stroke={WHITE_ALPHA_35}
+								strokeWidth={1}
+							/>
+							<line
+								x1={endPoint.x}
+								y1={endPoint.y}
+								x2={secondHandle.x}
+								y2={secondHandle.y}
+								stroke={WHITE_ALPHA_35}
+								strokeWidth={1}
+							/>
+							<path
+								d={bezierPath}
+								fill="none"
+								stroke={WHITE}
+								strokeWidth={2}
+								vectorEffect="non-scaling-stroke"
+							/>
+						</svg>
+						{([firstHandle, secondHandle] as const).map((point, index) => {
+							const handle = index as HandleIndex;
+							return (
+								<svg
+									key={handle}
+									width={18}
+									height={18}
+									viewBox="0 0 18 18"
+									aria-label={`Bezier control point ${handle + 1}`}
+									data-easing-handle
+									style={{
+										position: 'absolute',
+										left: `${(point.x / SVG_WIDTH) * 100}%`,
+										top: `${(point.y / SVG_HEIGHT) * 100}%`,
+										transform: 'translate(-50%, -50%)',
+										overflow: 'visible',
+									}}
+								>
+									<UvCoordinateHandle
+										x={9}
+										y={9}
+										selected={selectedHandle === handle}
+										onPointerDown={
+											disabled
+												? null
+												: (event) => onHandlePointerDown(handle, event)
+										}
+									/>
+								</svg>
+							);
+						})}
+					</div>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1401,18 +1485,27 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : mode === 'spring' ? (
 				<>
-					<svg
-						width={SVG_WIDTH}
-						height={SVG_HEIGHT}
-						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-						style={svgStyle}
-						aria-label="Spring easing curve"
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 					>
-						<EasingGraphScaffold labels={graphLabels} />
-						<path d={springPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={xToSvg(0)} cy={yToSvg(0)} r={4} fill={WHITE} />
-						<circle cx={xToSvg(1)} cy={yToSvg(1)} r={4} fill={WHITE} />
-					</svg>
+						<svg
+							width={SVG_WIDTH}
+							height={SVG_HEIGHT}
+							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+							style={svgStyle}
+							aria-label="Spring easing curve"
+						>
+							<EasingGraphScaffold labels={graphLabels} />
+							<path
+								d={springPath}
+								fill="none"
+								stroke={WHITE}
+								strokeWidth={2}
+								vectorEffect="non-scaling-stroke"
+							/>
+						</svg>
+					</div>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1530,7 +1623,7 @@ const EasingEditorUnmemoized: React.FC<{
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Clamp overshoot</div>
-							<div style={checkboxWrapper}>
+							<label style={checkboxWrapper} aria-label="Clamp overshoot">
 								<Checkbox
 									checked={spring.overshootClamping}
 									onChange={setOvershootClamping}
@@ -1538,11 +1631,11 @@ const EasingEditorUnmemoized: React.FC<{
 									disabled={disabled}
 									variant="small"
 								/>
-							</div>
+							</label>
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Allow tail</div>
-							<div style={checkboxWrapper}>
+							<label style={checkboxWrapper} aria-label="Allow tail">
 								<Checkbox
 									checked={spring.allowTail ?? false}
 									onChange={setAllowTail}
@@ -1550,24 +1643,33 @@ const EasingEditorUnmemoized: React.FC<{
 									disabled={disabled}
 									variant="small"
 								/>
-							</div>
+							</label>
 						</div>
 					</div>
 				</>
 			) : (
 				<>
-					<svg
-						width={SVG_WIDTH}
-						height={SVG_HEIGHT}
-						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-						style={svgStyle}
-						aria-label="Hold easing curve"
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 					>
-						<EasingGraphScaffold labels={graphLabels} />
-						<path d={holdPath} fill="none" stroke={BLUE} strokeWidth={3} />
-						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill={WHITE} />
-						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill={WHITE} />
-					</svg>
+						<svg
+							width={SVG_WIDTH}
+							height={SVG_HEIGHT}
+							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+							style={svgStyle}
+							aria-label="Hold easing curve"
+						>
+							<EasingGraphScaffold labels={graphLabels} />
+							<path
+								d={holdPath}
+								fill="none"
+								stroke={WHITE}
+								strokeWidth={2}
+								vectorEffect="non-scaling-stroke"
+							/>
+						</svg>
+					</div>
 					{modeSwitcher}
 				</>
 			)}

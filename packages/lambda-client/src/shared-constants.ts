@@ -138,6 +138,7 @@ export type ServerlessStartPayload = {
 	composition: string;
 	framesPerLambda: number | null;
 	concurrency: number | null;
+	chunks: [number, number][] | null;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec | null;
 	audioCodec: AudioCodec | null;
@@ -148,6 +149,7 @@ export type ServerlessStartPayload = {
 	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
+	proResBitsPerMacroblock: number | null;
 	disableSharedMemoryCapture: boolean;
 	jpegQuality: number | undefined;
 	maxRetries: number;
@@ -206,6 +208,7 @@ export type ServerlessPayloads = {
 		composition: string;
 		framesPerFunction: number | null;
 		concurrency: number | null;
+		chunks: [number, number][] | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
@@ -218,6 +221,7 @@ export type ServerlessPayloads = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		proResBitsPerMacroblock: number | null;
 		disableSharedMemoryCapture: boolean;
 		jpegQuality: number | undefined;
 		maxRetries: number;
@@ -283,6 +287,7 @@ export type ServerlessPayloads = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		proResBitsPerMacroblock: number | null;
 		disableSharedMemoryCapture: boolean;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;

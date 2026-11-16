@@ -6,7 +6,7 @@ const pendingSuppressedWrites = new Set<string>();
 let currentPlugin: WatchIgnoreNextChangePlugin | null = null;
 
 export const setWatchIgnoreNextChangePlugin = (
-	plugin: WatchIgnoreNextChangePlugin,
+	plugin: WatchIgnoreNextChangePlugin | null,
 ): void => {
 	currentPlugin = plugin;
 	pendingSuppressedWrites.clear();
@@ -18,12 +18,22 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 
 // Consume the intent for this write, rather than letting an earlier suppressed
 // write swallow a subsequent structural change in the watcher's aggregated event.
-export const prepareBundlerForFileWrite = (absolutePath: string): void => {
+export const prepareBundlerForFileWrite = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
 	if (pendingSuppressedWrites.delete(absolutePath)) {
-		currentPlugin?.ignoreNextChange(absolutePath);
+		currentPlugin?.ignoreNextChange(absolutePath, contents);
 	} else {
 		currentPlugin?.requireRebuild(absolutePath);
 	}
+};
+
+export const notifyBundlerOfFileChange = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
+	currentPlugin?.notifyFileChanged(absolutePath, contents);
 };
 
 export const invalidatePreviouslySuppressedFiles = async (
@@ -39,14 +49,18 @@ export const invalidatePreviouslySuppressedFiles = async (
 		files.map(async (file) => {
 			try {
 				await fs.utimes(file, now, now);
-				return true;
+				return {file, contents: await fs.readFile(file, 'utf8')};
 			} catch {
-				return false;
+				return null;
 			}
 		}),
 	);
+	for (const file of touchedFiles) {
+		if (file !== null)
+			currentPlugin.notifyFileChanged(file.file, file.contents);
+	}
 
-	return touchedFiles.some(Boolean);
+	return touchedFiles.some((file) => file !== null);
 };
 
 // Why do we need this?

@@ -12,7 +12,7 @@ export const studioCssVariables = `
   --remotion-studio-input-background: #2f363d;
   --remotion-studio-tab-hover-background: #232629;
   --remotion-studio-light-color: #ddd;
-  --remotion-studio-light-text: #A6A7A9;
+  --remotion-studio-light-text: #BCBDBF;
   --remotion-studio-computed-value-color: var(--remotion-studio-white-alpha-40);
   --remotion-studio-explorer-shortcut-opacity: 0.6;
   --remotion-studio-ruler-color: #808080;
@@ -32,6 +32,7 @@ export const studioCssVariables = `
   --remotion-studio-white-alpha-60: rgba(255, 255, 255, 0.6);
   --remotion-studio-white-alpha-70: rgba(255, 255, 255, 0.7);
   --remotion-studio-white-alpha-72: rgba(255, 255, 255, 0.72);
+  --remotion-studio-text-selection-background: #4e4e4e;
   --remotion-studio-white-alpha-80: rgba(255, 255, 255, 0.8);
   --remotion-studio-white-alpha-90: rgba(255, 255, 255, 0.9);
   --remotion-studio-black-alpha-28: rgba(0, 0, 0, 0.28);
@@ -45,6 +46,7 @@ export const studioCssVariables = `
   --remotion-studio-fail-color: #ff3232;
   --remotion-studio-warning-color: #f1c40f;
   --remotion-studio-blue: #0b84f3;
+  --remotion-studio-primary-button-background: var(--remotion-studio-blue);
   --remotion-studio-interactive-text: var(--remotion-studio-blue);
   --remotion-studio-blue-hovered: #4da3f7;
   --remotion-studio-blue-disabled: #284f73;
@@ -88,7 +90,6 @@ export const studioCssVariables = `
   --remotion-studio-font-family-error-color: #ff8a8a;
   --remotion-studio-selected-outline-snap-color: #ff00ff;
   --remotion-studio-prism-text-color: #d4d4d4;
-  --remotion-studio-prism-selection-background: #264f78;
   --remotion-studio-prism-background: #1e1e1e;
   --remotion-studio-prism-inline-color: #db4c69;
   --remotion-studio-prism-keyword-color: #569cd6;
@@ -112,6 +113,7 @@ html[data-remotion-high-contrast] {
   --remotion-studio-computed-value-color: var(--remotion-studio-light-text);
   --remotion-studio-explorer-shortcut-opacity: 1;
   --remotion-studio-interactive-text: var(--remotion-studio-info-blue);
+  --remotion-studio-primary-button-background: #0976da;
   --remotion-studio-ruler-color: #ccc;
   --remotion-studio-line-color: #85898d;
   --remotion-studio-splitter-color: var(--remotion-studio-line-color);

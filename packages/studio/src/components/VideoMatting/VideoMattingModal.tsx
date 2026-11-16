@@ -269,6 +269,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 				<div style={modalLayout}>
 					<div style={leftSidebar}>
 						<VerticalTab
+							draggable={false}
 							autoFocus
 							onClick={() => setTab('remove')}
 							renderIcon={(color) => (
@@ -282,6 +283,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 							General
 						</VerticalTab>
 						<VerticalTab
+							draggable={false}
 							onClick={() => setTab('models')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>

@@ -10,6 +10,7 @@ import {
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {
+	fakeAws,
 	getWebhookCalls,
 	resetWebhookCalls,
 	useFakeAws,
@@ -71,6 +72,7 @@ test(
 				frameRange: [0, 0],
 				framesPerLambda: 8,
 				concurrency: null,
+				chunks: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -85,6 +87,7 @@ test(
 				proResProfile: undefined,
 				x264Preset: null,
 				gopSize: null,
+				proResBitsPerMacroblock: null,
 				disableSharedMemoryCapture: false,
 				jpegQuality: undefined,
 				scale: 1,
@@ -172,7 +175,7 @@ test(
 );
 
 test(
-	'Should call webhook upon timeout',
+	'Should call only the timeout webhook when the render finishes while it is being sent',
 	async () => {
 		const {port, close} = await RenderInternals.serveStatic(webhookBundle, {
 			binariesDirectory: null,
@@ -187,6 +190,17 @@ test(
 		});
 
 		resetWebhookCalls();
+		const deliveredWebhooks: string[] = [];
+		fakeAws().invokeWebhook.mockImplementation(async (params) => {
+			getWebhookCalls().push(params);
+			if (params.options.payload.type === 'timeout') {
+				await new Promise((resolve) => {
+					setTimeout(resolve, 3000);
+				});
+			}
+
+			deliveredWebhooks.push(params.options.payload.type);
+		});
 
 		await LambdaClientInternals.callFunctionSyncImplementation({
 			functionName: 'remotion-dev-lambda',
@@ -209,6 +223,7 @@ test(
 				frameRange: [0, 0],
 				framesPerFunction: 8,
 				concurrency: null,
+				chunks: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -223,6 +238,7 @@ test(
 				proResProfile: null,
 				x264Preset: null,
 				gopSize: null,
+				proResBitsPerMacroblock: null,
 				disableSharedMemoryCapture: false,
 				jpegQuality: undefined,
 				scale: 1,
@@ -268,6 +284,7 @@ test(
 
 		const webhookCalls = getWebhookCalls();
 
+		expect(deliveredWebhooks).toEqual(['timeout']);
 		expect(webhookCalls.length).toBe(1);
 		expect(webhookCalls[0].options.payload).toEqual({
 			type: 'timeout',
@@ -280,5 +297,5 @@ test(
 		});
 		await close();
 	},
-	{timeout: 10000},
+	{timeout: 15000},
 );

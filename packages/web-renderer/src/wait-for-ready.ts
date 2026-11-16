@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {DelayRenderScope} from 'remotion';
+import {Internals, type DelayRenderScope} from 'remotion';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -20,11 +20,14 @@ export const waitForReady = ({
 	keepalive: BackgroundKeepalive | null;
 }) => {
 	const start = performance.now();
+	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
 
 	const check = () => {
+		const now = performance.now();
+
 		if (cancelled) {
 			return;
 		}
@@ -33,12 +36,6 @@ export const waitForReady = ({
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(new Error(`${apiName}() was cancelled`));
-			return;
-		}
-
-		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
-			resolve();
 			return;
 		}
 
@@ -61,7 +58,18 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (performance.now() - start > timeoutInMilliseconds + 3000) {
+		if (scope.remotion_renderReady === true) {
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			resolve();
+			return;
+		}
+
+		if (
+			now -
+				start -
+				(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) >
+			timeoutInMilliseconds + 3000
+		) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(

@@ -7,13 +7,17 @@ crumb: Recorder
 # Endcard
 
 In the endcard you can add a call to follow, as well as links to your social media profiles or other websites.
-This can be setup in the [`config/endcard.ts`](https://github.com/remotion-dev/recorder/tree/main/config/endcard.ts) file by adding your information as `Channel` object.
+This can be set up in the [`config/endcard.ts`](https://github.com/remotion-dev/recorder/tree/main/config/endcard.ts) file:
 
-```tsx filename="Example configuration.tsx"
+1. Add your brands to the `brand` enum.
+2. Fill out the social media handles for each brand in `channels`.
+3. Add an avatar for each brand in `avatars`.
+
+```tsx title="config/endcard.ts"
+export const brand = z.enum(["jonny", "remotion"]);
+
 export const channels: {
-  [key in Channel]: ChannelConfig & {
-    isLinkedInBusinessPage: boolean;
-  };
+  [key in Brand]: ChannelConfigAndBusinessPage;
 } = {
   jonny: {
     instagram: null,
@@ -31,5 +35,10 @@ export const channels: {
     discord: null,
     isLinkedInBusinessPage: true,
   },
+};
+
+export const avatars: {[key in Brand]: string} = {
+  jonny: "https://www.jonny.io/avatar.png",
+  remotion: staticFile("remotion.png"),
 };
 ```

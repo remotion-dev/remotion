@@ -6,6 +6,7 @@ import type {
 } from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {
+	COMPUTED_VALUE_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -49,7 +50,7 @@ const unsupportedLabel: React.CSSProperties = {
 };
 
 const computedValue: React.CSSProperties = {
-	color: WHITE_ALPHA_40,
+	color: COMPUTED_VALUE_COLOR,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',

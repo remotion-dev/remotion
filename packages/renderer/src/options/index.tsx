@@ -11,6 +11,10 @@ import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
 import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
+import {chromiumBlinkFeaturesOption} from './chromium-blink-features';
+import {chromiumFeaturesOption} from './chromium-features';
+import {chromiumFlagsOption} from './chromium-flags';
+import {chunksOption} from './chunks';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
 import {configOption} from './config';
@@ -62,6 +66,7 @@ import {numberOfSharedAudioTagsOption} from './number-of-shared-audio-tags';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
+import {openTimelineMediaDirectoryOption} from './open-timeline-media-directory';
 import type {AnyRemotionOption} from './option';
 import {outDirOption} from './out-dir';
 import {overrideDurationOption} from './override-duration';
@@ -77,6 +82,7 @@ import {preferredEffectBackendOption} from './preferred-effect-backend';
 import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
+import {proResBitsPerMacroblockOption} from './prores-bits-per-macroblock';
 import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
@@ -88,6 +94,7 @@ import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
 import {sequenceActivityLimitOption} from './sequence-activity-limit';
+import {showDiagnosticsOption} from './show-diagnostics';
 import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
 import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
@@ -106,7 +113,11 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	preservePitchOnPlaybackOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	highContrastOption,
 	showPremountingOption,
@@ -127,6 +138,7 @@ export const allOptions = {
 	offthreadVideoCacheSizeInBytesOption,
 	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
+	chunksOption,
 	colorSpaceOption,
 	deleteAfterOption,
 	disableWebSecurityOption,
@@ -148,6 +160,7 @@ export const allOptions = {
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
 	previewSampleRateOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	x264Option,
 	logLevelOption,
@@ -198,6 +211,7 @@ export const allOptions = {
 	overrideDurationOption,
 	rspackOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	skipSkillsOption,
 	sampleRateOption,

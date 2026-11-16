@@ -10,9 +10,25 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<AbsoluteFill>'}</strong>
 					<div>Position content absolutely and in full size</div>
 				</TOCItem>
+				<TOCItem link="/docs/animatedimage">
+					<strong>{'<AnimatedImage>'}</strong>
+					<div>Display a GIF, AVIF or animated WebP image</div>
+				</TOCItem>
+				<TOCItem link="/docs/artifact">
+					<strong>{'<Artifact>'}</strong>
+					<div>Emit an extra file during rendering</div>
+				</TOCItem>
+				<TOCItem link="/docs/calculate-metadata">
+					<strong>calculateMetadata()</strong>
+					<div>Transform the metadata of a composition</div>
+				</TOCItem>
 				<TOCItem link="/docs/cancel-render">
 					<strong>cancelRender()</strong>
 					<div>Abort an error</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvasimage">
+					<strong>{'<CanvasImage>'}</strong>
+					<div>Render an image into a canvas and apply effects</div>
 				</TOCItem>
 				<TOCItem link="/docs/composition">
 					<strong>{'<Composition>'}</strong>
@@ -21,6 +37,14 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/continue-render">
 					<strong>continueRender()</strong>
 					<div>Unblock a render</div>
+				</TOCItem>
+				<TOCItem link="/docs/create-effect">
+					<strong>createEffect()</strong>
+					<div>Create custom effects for canvas components</div>
+				</TOCItem>
+				<TOCItem link="/docs/create-effect-implementation">
+					<strong>createEffectImplementation()</strong>
+					<div>Type the state of one backend implementation of an effect</div>
 				</TOCItem>
 				<TOCItem link="/docs/delay-render">
 					<strong>delayRender()</strong>
@@ -47,6 +71,12 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/get-remotion-environment">
 					<strong>getRemotionEnvironment()</strong>
 					<div>Determine if you are currently previewing or rendering</div>
+				</TOCItem>
+				<TOCItem link="/docs/getstaticfiles">
+					<strong>getStaticFiles()</strong>
+					<div>
+						Get all files in the <code>public{'/'}</code> folder
+					</div>
 				</TOCItem>
 				<TOCItem link="/docs/html5-audio">
 					<strong>{'<Html5Audio>'}</strong>
@@ -76,21 +106,21 @@ export const TableOfContents: React.FC = () => {
 						Render an <code>{'<img>'}</code> tag and wait for it to load
 					</div>
 				</TOCItem>
-				<TOCItem link="/docs/canvasimage">
-					<strong>{'<CanvasImage>'}</strong>
-					<div>Render an image into a canvas and apply effects</div>
+				<TOCItem link="/docs/interactive-create">
+					<strong>Interactive.create()</strong>
+					<div>Add timing and Studio controls to a component</div>
 				</TOCItem>
-				<TOCItem link="/docs/create-effect">
-					<strong>createEffect()</strong>
-					<div>Create custom effects for canvas components</div>
-				</TOCItem>
-				<TOCItem link="/docs/interpolate-colors">
-					<strong>interpolateColors()</strong>
-					<div>Map a range of values to colors</div>
+				<TOCItem link="/docs/interactivity-schema">
+					<strong>InteractivitySchema</strong>
+					<div>Define timeline controls for components and effects</div>
 				</TOCItem>
 				<TOCItem link="/docs/interpolate">
 					<strong>interpolate()</strong>
 					<div>Map a range of values to another</div>
+				</TOCItem>
+				<TOCItem link="/docs/interpolate-colors">
+					<strong>interpolateColors()</strong>
+					<div>Map a range of values to colors</div>
 				</TOCItem>
 				<TOCItem link="/docs/loop">
 					<strong>{'<Loop>'}</strong>
@@ -106,9 +136,13 @@ export const TableOfContents: React.FC = () => {
 						Alternative to <code>{'<Html5Video>'}</code>
 					</div>
 				</TOCItem>
-				<TOCItem link="/docs/animatedimage">
-					<strong>{'<AnimatedImage>'}</strong>
-					<div>Disply a GIF, AVIF or animated WebP image</div>
+				<TOCItem link="/docs/prefetch">
+					<strong>prefetch()</strong>
+					<div>Fetch an asset and keep it in memory</div>
+				</TOCItem>
+				<TOCItem link="/docs/random">
+					<strong>random()</strong>
+					<div>Get deterministic pseudorandom values</div>
 				</TOCItem>
 				<TOCItem link="/docs/register-root">
 					<strong>{'registerRoot()'}</strong>
@@ -118,13 +152,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<Sequence>'}</strong>
 					<div>Time-shifts it{"'"}s children</div>
 				</TOCItem>
-				<TOCItem link="/docs/interactivity-schema">
-					<strong>InteractivitySchema</strong>
-					<div>Define timeline controls for components and effects</div>
-				</TOCItem>
 				<TOCItem link="/docs/series">
 					<strong>{'<Series>'}</strong>
 					<div>Display contents after another</div>
+				</TOCItem>
+				<TOCItem link="/docs/solid">
+					<strong>{'<Solid>'}</strong>
+					<div>Render a solid-color rectangle on a canvas</div>
 				</TOCItem>
 				<TOCItem link="/docs/spring">
 					<strong>spring()</strong>
@@ -144,9 +178,34 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<Track>'}</strong>
 					<div>Group clips on one Studio timeline row</div>
 				</TOCItem>
+				<TOCItem link="/docs/use-buffer-state">
+					<strong>useBufferState()</strong>
+					<div>Inform the Player that your component is loading data</div>
+				</TOCItem>
 				<TOCItem link="/docs/use-current-frame">
 					<strong>useCurrentFrame()</strong>
 					<div>Obtain the current time</div>
+				</TOCItem>
+				<TOCItem link="/docs/use-current-scale">
+					<strong>useCurrentScale()</strong>
+					<div>Get the scale factor of the canvas</div>
+				</TOCItem>
+				<TOCItem link="/docs/use-delay-render">
+					<strong>useDelayRender()</strong>
+					<div>
+						Scoped <code>delayRender()</code>, <code>continueRender()</code> and{' '}
+						<code>cancelRender()</code>
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/use-pixel-density">
+					<strong>usePixelDensity()</strong>
+					<div>
+						Get the pixel density factor of the current render or preview
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/use-remotion-environment">
+					<strong>useRemotionEnvironment()</strong>
+					<div>Get information about the current Remotion environment</div>
 				</TOCItem>
 				<TOCItem link="/docs/use-video-config">
 					<strong>useVideoConfig()</strong>
@@ -156,9 +215,9 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'VERSION'}</strong>
 					<div>Get the current version of Remotion</div>
 				</TOCItem>
-				<TOCItem link="/docs/interactive-create">
-					<strong>Interactive.create()</strong>
-					<div>Add timing and Studio controls to a component</div>
+				<TOCItem link="/docs/watchstaticfile">
+					<strong>watchStaticFile()</strong>
+					<div>Get notified when a static file changes</div>
 				</TOCItem>
 			</Grid>
 		</div>

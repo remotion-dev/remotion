@@ -95,11 +95,9 @@ Custom components built with [`Interactive.create()`](/docs/interactive-create) 
 
 ### `from?`
 
-(optional from v3.2.36, _required_ in previous versions)
-
 At which frame it's children should assume the video starts.  
 When the sequence is at `frame`, it's children are at frame `0`.  
-From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
+Optional since v3.2.36. Previously required. By default, it is 0.
 
 ### `durationInFrames?`
 
@@ -133,7 +131,7 @@ export const MyVideo = () => {
 
 In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
-### `loop?`
+### `loop?`<AvailableFrom v="4.0.530" />
 
 Repeats the child range selected by [`trimBefore`](#trimbefore) and [`durationInFrames`](#durationinframes) until the parent ends.  
 Default: `false`.
@@ -294,7 +292,7 @@ export const MyVideo = () => {
 ### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
 :::info Deprecated
-This prop has no effect since <AvailableFrom v="4.0.535" inline />. Remotion Studio discovers selection outlines automatically.
+This prop has no effect since v4.0.535. Remotion Studio discovers selection outlines automatically.
 Remove this prop.
 :::
 
@@ -343,7 +341,7 @@ The eye icon in the Studio timeline toggles this prop and persists it to your so
 
 ## Adding a ref
 
-You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on, if the sequence does not use `layout="none"`.  
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from v3.2.13 on, if the sequence does not use `layout="none"`.  
 If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash

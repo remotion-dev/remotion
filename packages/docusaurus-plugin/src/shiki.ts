@@ -72,6 +72,7 @@ const ALL_LANGS: BundledLanguage[] = [
 	'diff',
 	'yaml',
 	'toml',
+	'hcl',
 	'docker',
 	'python',
 	'ruby',
@@ -79,6 +80,7 @@ const ALL_LANGS: BundledLanguage[] = [
 	'php',
 	'markdown',
 	'ini',
+	'astro',
 ];
 
 /** Creates a highlighter and caches for reuse */

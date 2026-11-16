@@ -11,13 +11,13 @@ import TabItem from '@theme/TabItem';
 
 Use the [`toneFrequency`](/docs/media/audio#tonefrequency) prop to control the pitch of sound from both [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
 
-| Tag                                                        | Preview                                 | [Server-side rendering](/docs/ssr)      | [Client-side rendering](/docs/client-side-rendering) |
-| ---------------------------------------------------------- | --------------------------------------- | --------------------------------------- | ---------------------------------------------------- |
-| [`<Audio>`](/docs/media/audio) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ✅ <AvailableFrom v="4.0.523" inline />              |
-| [`<Video>`](/docs/media/video) from `@remotion/media`      | ✅ <AvailableFrom v="4.0.520" inline /> | ✅ <AvailableFrom v="4.0.357" inline /> | ✅ <AvailableFrom v="4.0.523" inline />              |
-| [`<Html5Audio>`](/docs/html5-audio) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
-| [`<Html5Video>`](/docs/html5-video) from `remotion`        | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
-| [`<OffthreadVideo>`](/docs/offthreadvideo) from `remotion` | ❌                                      | ✅ <AvailableFrom v="4.0.47" inline />  | ❌                                                   |
+| Tag                                                        | Preview     | [Server-side rendering](/docs/ssr) | [Client-side rendering](/docs/client-side-rendering) |
+| ---------------------------------------------------------- | ----------- | ---------------------------------- | ---------------------------------------------------- |
+| [`<Audio>`](/docs/media/audio) from `@remotion/media`      | ✅ v4.0.520 | ✅ v4.0.357                        | ✅ v4.0.523                                          |
+| [`<Video>`](/docs/media/video) from `@remotion/media`      | ✅ v4.0.520 | ✅ v4.0.357                        | ✅ v4.0.523                                          |
+| [`<Html5Audio>`](/docs/html5-audio) from `remotion`        | ❌          | ✅ v4.0.47                         | ❌                                                   |
+| [`<Html5Video>`](/docs/html5-video) from `remotion`        | ❌          | ✅ v4.0.47                         | ❌                                                   |
+| [`<OffthreadVideo>`](/docs/offthreadvideo) from `remotion` | ❌          | ✅ v4.0.47                         | ❌                                                   |
 
 Values between `0.01` and `2` are accepted, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
 

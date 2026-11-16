@@ -1,6 +1,12 @@
 import {expect, test} from 'bun:test';
 import {execFileSync} from 'node:child_process';
-import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {
+	appendFileSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {
@@ -74,11 +80,10 @@ test('Should get Git Source from a linked worktree', () => {
 
 	try {
 		mkdirSync(mainCheckout);
+		// Every git process is slow on Windows CI, so keep the setup to the minimum:
+		// no file to stage, no auto-maintenance after the commit, no checkout
+		// (which spawns `git reset --hard`), and the remote is written directly.
 		execFileSync('git', ['-C', mainCheckout, 'init'], {stdio: 'ignore'});
-		writeFileSync(path.join(mainCheckout, 'README.md'), 'Remotion');
-		execFileSync('git', ['-C', mainCheckout, 'add', 'README.md'], {
-			stdio: 'ignore',
-		});
 		execFileSync(
 			'git',
 			[
@@ -88,39 +93,42 @@ test('Should get Git Source from a linked worktree', () => {
 				'user.name=Remotion Test',
 				'-c',
 				'user.email=test@remotion.dev',
+				'-c',
+				'commit.gpgSign=false',
+				'-c',
+				'maintenance.auto=false',
 				'commit',
+				'--allow-empty',
+				'--no-verify',
 				'-m',
 				'Initial commit',
 			],
 			{stdio: 'ignore'},
+		);
+		appendFileSync(
+			path.join(mainCheckout, '.git', 'config'),
+			'[remote "origin"]\n\turl = https://github.com/remotion-dev/remotion.git\n',
 		);
 		execFileSync(
 			'git',
 			[
 				'-C',
 				mainCheckout,
-				'remote',
+				'worktree',
 				'add',
-				'origin',
-				'https://github.com/remotion-dev/remotion.git',
+				'--detach',
+				'--no-checkout',
+				linkedWorktree,
 			],
-			{stdio: 'ignore'},
-		);
-		execFileSync(
-			'git',
-			['-C', mainCheckout, 'worktree', 'add', '--detach', linkedWorktree],
 			{stdio: 'ignore'},
 		);
 		const remotionRoot = path.join(linkedWorktree, 'packages', 'example');
 		mkdirSync(remotionRoot, {recursive: true});
-		const commit = execFileSync('git', [
-			'-C',
-			linkedWorktree,
-			'rev-parse',
-			'HEAD',
-		])
-			.toString('utf-8')
-			.trim();
+		// A detached worktree stores the commit hash directly in its HEAD file
+		const commit = readFileSync(
+			path.join(mainCheckout, '.git', 'worktrees', 'linked', 'HEAD'),
+			'utf-8',
+		).trim();
 
 		expect(
 			getGitSource({

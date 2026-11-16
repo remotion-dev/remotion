@@ -65,6 +65,13 @@ class Semantic
 			'utf-8',
 		);
 		const composerJsonJson = JSON.parse(composerJson);
+		// Outside of `set-version.ts`, the version is already correct.
+		// `composer update --lock` then only resolves against Packagist, which
+		// can hang past the test timeout when Packagist is slow.
+		if (composerJsonJson.version === version) {
+			return;
+		}
+
 		composerJsonJson.version = version;
 		writeFileSync(
 			path.join(process.cwd(), '..', 'lambda-php', 'composer.json'),
@@ -113,6 +120,7 @@ class Semantic
 				colorSpace: null,
 				concurrencyPerLambda: 1,
 				concurrency: null,
+				chunks: null,
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},
@@ -148,6 +156,7 @@ class Semantic
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				proResBitsPerMacroblock: null,
 				disableSharedMemoryCapture: false,
 				preferLossless: false,
 				indent: false,

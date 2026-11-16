@@ -19,11 +19,8 @@ import {getCommandHelp, makeCommandHelpOption} from './command-help';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {ELEMENTS_COMMAND, elementsCommand} from './elements';
 import {findEntryPoint} from './entry-point';
-import {
-	experimentalCodemodCommand,
-	printExperimentalCodemodHelp,
-} from './experimental-codemod';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
@@ -34,6 +31,7 @@ import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {importCanvasCapture} from './import-canvas-capture';
+import {importCompositionCommand} from './import-composition-command';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand, tryPrintLambdaHelp} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -71,11 +69,6 @@ export const cli = async () => {
 			: parsedCli._;
 	if (parsedCli.help || command === 'help') {
 		const [helpCommand, ...helpArgs] = helpPath;
-		if (helpCommand === 'experimental-codemod') {
-			printExperimentalCodemodHelp('info');
-			return;
-		}
-
 		if (helpCommand === 'lambda' || helpCommand === 'cloudrun') {
 			const helpRemotionRoot = RenderInternals.findRemotionRoot();
 			const printed =
@@ -186,16 +179,24 @@ export const cli = async () => {
 				cwd: process.cwd(),
 				environment: process.env,
 			});
-		} else if (command === 'experimental-codemod') {
-			await experimentalCodemodCommand(
+		} else if (command === 'canvas-capture' || command === 'open-timeline') {
+			await importCompositionCommand({
+				feature: command,
 				remotionRoot,
-				process.argv.slice(2),
+				argv: process.argv.slice(2),
 				logLevel,
-			);
+			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
 			await browserCommand(args, logLevel);
+		} else if (command === ELEMENTS_COMMAND) {
+			await elementsCommand({
+				remotionRoot,
+				args,
+				argv: process.argv.slice(2),
+				logLevel,
+			});
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else {

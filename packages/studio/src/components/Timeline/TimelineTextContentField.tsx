@@ -177,6 +177,7 @@ export const TimelineTextContentField: React.FC<{
 			ref={setInputRef}
 			indentWithTab={false}
 			status={valid ? 'ok' : 'error'}
+			aria-label={field.description ?? field.key}
 			aria-invalid={!valid}
 			small
 			defaultValue={currentValue}

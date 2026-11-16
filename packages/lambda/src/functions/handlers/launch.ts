@@ -12,6 +12,7 @@ import {
 	type RenderMetadata,
 	type RendererOutput,
 	type ServerlessPayload,
+	type WebhookPayload,
 } from '@remotion/lambda-client';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {LogOptions} from '@remotion/renderer';
@@ -19,6 +20,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import {waitForPromisesToFinish} from '../../shared/wait-for-promises-to-finish';
 import {
 	makeArtifactRegistry,
 	type OnArtifactFromRenderer,
@@ -63,12 +65,14 @@ const innerLaunchHandler = async ({
 	overallProgress,
 	registerCleanupTask,
 	onBrowser,
+	cancelOtherRenderers,
 }: {
 	params: ServerlessPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	onBrowser: (browser: LaunchedBrowser) => void;
+	cancelOtherRenderers: () => Promise<void>;
 }): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -348,11 +352,26 @@ const innerLaunchHandler = async ({
 		throw new Error('Media renders require a codec');
 	}
 
-	const framesPerLambda = LambdaClientInternals.validateFramesPerFunction({
-		framesPerFunction: params.framesPerFunction,
-		durationInFrames: frameCount.length,
-		concurrency: params.concurrency,
-	});
+	const explicitChunks =
+		params.chunks === null
+			? null
+			: LambdaClientInternals.validateChunks({
+					chunks: params.chunks,
+					frameRange: realFrameRange,
+					everyNthFrame: params.everyNthFrame,
+					framesPerFunction: params.framesPerFunction,
+					concurrency: params.concurrency,
+				});
+	// With explicit chunks, the renderers and the merge only use framesPerLambda to decide
+	// whether AAC can be concatenated seamlessly, which needs every chunk to be longer than 4 frames.
+	const framesPerLambda =
+		explicitChunks === null
+			? LambdaClientInternals.validateFramesPerFunction({
+					framesPerFunction: params.framesPerFunction,
+					durationInFrames: frameCount.length,
+					concurrency: params.concurrency,
+				})
+			: Math.min(...explicitChunks.map(([start, end]) => end - start + 1));
 
 	LambdaClientInternals.validateOutname({
 		outName,
@@ -364,11 +383,13 @@ const innerLaunchHandler = async ({
 	LambdaClientInternals.validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
-	const {chunks} = planFrameRanges({
-		framesPerFunction: framesPerLambda,
-		frameRange: realFrameRange,
-		everyNthFrame: params.everyNthFrame,
-	});
+	const chunks =
+		explicitChunks ??
+		planFrameRanges({
+			framesPerFunction: framesPerLambda,
+			frameRange: realFrameRange,
+			everyNthFrame: params.everyNthFrame,
+		}).chunks;
 
 	if (chunks.length > LambdaClientInternals.MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
@@ -448,6 +469,7 @@ const innerLaunchHandler = async ({
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			proResBitsPerMacroblock: params.proResBitsPerMacroblock ?? null,
 			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
@@ -545,6 +567,7 @@ const innerLaunchHandler = async ({
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
+		chunks: explicitChunks,
 		memorySizeInMb: getCurrentMemorySizeInMb(),
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
@@ -829,7 +852,7 @@ const innerLaunchHandler = async ({
 		const outdir = RenderInternals.tmpDir(
 			LambdaClientInternals.CONCAT_FOLDER_TOKEN,
 		);
-		await Promise.all(
+		await waitForPromisesToFinish(
 			lambdaPayloads.map((payload) =>
 				renderRendererFunctionWithRetry({
 					payload,
@@ -841,6 +864,9 @@ const innerLaunchHandler = async ({
 					onArtifact,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
+				}).catch(async (err) => {
+					await cancelOtherRenderers();
+					throw err;
 				}),
 			),
 		);
@@ -973,9 +999,9 @@ const innerLaunchHandler = async ({
 		mkdirSync(outdir);
 		const files: string[] = [];
 
-		await Promise.all(
-			lambdaPayloads.map(async (payload) => {
-				await renderRendererFunctionWithRetry({
+		await waitForPromisesToFinish(
+			lambdaPayloads.map((payload) =>
+				renderRendererFunctionWithRetry({
 					files,
 					functionName: rendererFunctionName,
 					outdir,
@@ -985,8 +1011,11 @@ const innerLaunchHandler = async ({
 					onArtifact,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
-				});
-			}),
+				}).catch(async (err) => {
+					await cancelOtherRenderers();
+					throw err;
+				}),
+			),
 		);
 
 		postRenderData = await mergeChunksAndFinishRender({
@@ -1013,6 +1042,8 @@ const innerLaunchHandler = async ({
 			audioBitrate: params.audioBitrate,
 			logLevel: params.logLevel,
 			framesPerLambda,
+			chunkDurationsInFrames:
+				explicitChunks?.map(([start, end]) => end - start + 1) ?? null,
 			binariesDirectory: null,
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
@@ -1118,27 +1149,105 @@ export const launchHandler = async ({
 		return prom;
 	};
 
-	const cancelOtherRenderers = async () => {
+	let cancellationSignal: Promise<void> | null = null;
+	const cancelOtherRenderers = (): Promise<void> => {
 		if (!params.enableCancellation) {
-			return;
+			return Promise.resolve();
 		}
 
-		try {
-			await LambdaClientInternals.writeCancellationSignal({
-				bucketName: params.bucketName,
-				renderId: params.renderId,
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner: options.expectedBucketOwner,
-				forcePathStyle: params.forcePathStyle,
-				requestHandler: null,
-			});
-		} catch (err) {
-			RenderInternals.Log.warn(
-				{indent: false, logLevel: params.logLevel},
-				'Could not signal other renderers to stop.',
-				err,
+		cancellationSignal ??= LambdaClientInternals.writeCancellationSignal({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			region: getCurrentRegionInFunction(),
+			expectedBucketOwner: options.expectedBucketOwner,
+			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
+		}).then(
+			() => undefined,
+			(err) => {
+				RenderInternals.Log.warn(
+					{indent: false, logLevel: params.logLevel},
+					'Could not signal other renderers to stop.',
+					err,
+				);
+			},
+		);
+		return cancellationSignal;
+	};
+
+	let webhookState:
+		| {type: 'not-configured'}
+		| {type: 'unclaimed'}
+		| {
+				type: 'claimed';
+				payloadType: WebhookPayload<string | null>['type'];
+				delivery: Promise<void>;
+		  } = params.webhook ? {type: 'unclaimed'} : {type: 'not-configured'};
+
+	const sendTerminalWebhook = (
+		payload: WebhookPayload<string | null>,
+		uploadLabel:
+			| 'timeoutWebhookError'
+			| 'successWebhookError'
+			| 'errorWebhookError',
+	): Promise<void> => {
+		if (webhookState.type === 'claimed') {
+			RenderInternals.Log.verbose(
+				logOptions,
+				`Webhook already invoked (${webhookState.payloadType}). Not invoking again.`,
 			);
+			return webhookState.delivery;
 		}
+
+		if (webhookState.type === 'not-configured' || !params.webhook) {
+			RenderInternals.Log.verbose(logOptions, 'No webhook specified.');
+			return Promise.resolve();
+		}
+
+		const {webhook} = params;
+		const deliver = async () => {
+			try {
+				await invokeWebhook({
+					options: {
+						url: webhook.url,
+						secret: webhook.secret,
+						payload,
+					},
+					logLevel: params.logLevel,
+				});
+				RenderInternals.Log.verbose(
+					logOptions,
+					`Successfully invoked ${payload.type} webhook.`,
+					webhook.url,
+				);
+			} catch (webhookError) {
+				if (process.env.NODE_ENV === 'test') {
+					throw webhookError;
+				}
+
+				RenderInternals.Log.error(logOptions, 'Failed to invoke webhook:');
+				RenderInternals.Log.error(logOptions, webhookError);
+
+				overallProgress.addErrorWithoutUpload({
+					type: 'webhook',
+					message: (webhookError as Error).message,
+					name: (webhookError as Error).name as string,
+					stack: (webhookError as Error).stack as string,
+					tmpDir: null,
+					frame: 0,
+					chunk: 0,
+					isFatal: false,
+					attempt: 1,
+					willRetry: false,
+					totalAttempts: 1,
+				});
+				overallProgress.upload(uploadLabel);
+			}
+		};
+
+		const delivery = deliver();
+		webhookState = {type: 'claimed', payloadType: payload.type, delivery};
+		return delivery;
 	};
 
 	const onTimeout = async () => {
@@ -1187,84 +1296,18 @@ export const launchHandler = async ({
 		runCleanupTasks();
 		await cancelOtherRenderers();
 
-		if (!params.webhook) {
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'No webhook specified.',
-			);
-			return;
-		}
-
-		if (webhookInvoked) {
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'Webhook already invoked. Not invoking again.',
-			);
-			return;
-		}
-
-		try {
-			await invokeWebhook({
-				options: {
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'timeout',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-					},
-				},
-				logLevel: params.logLevel,
-			});
-			RenderInternals.Log.verbose(
-				{
-					indent: false,
-					logLevel: params.logLevel,
-				},
-				'Successfully invoked timeout webhook.',
-				params.webhook.url,
-			);
-			webhookInvoked = true;
-		} catch (err) {
-			if (process.env.NODE_ENV === 'test') {
-				throw err;
-			}
-
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				'Failed to invoke webhook:',
-			);
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				err,
-			);
-
-			overallProgress.addErrorWithoutUpload({
-				type: 'webhook',
-				message: (err as Error).message,
-				name: (err as Error).name as string,
-				stack: (err as Error).stack as string,
-				tmpDir: null,
-				frame: 0,
-				chunk: 0,
-				isFatal: false,
-				attempt: 1,
-				willRetry: false,
-				totalAttempts: 1,
-			});
-			overallProgress.upload('timeoutWebhookError');
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'timeout',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+			},
+			'timeoutWebhookError',
+		);
 	};
 
-	let webhookInvoked = false;
 	const webhookDueToTimeout = setTimeout(
 		onTimeout,
 		Math.max(options.getRemainingTimeInMillis() - 1000, 1000),
@@ -1289,11 +1332,19 @@ export const launchHandler = async ({
 		forcePathStyle: params.forcePathStyle,
 	});
 
+	let progressTimeout: ReturnType<typeof setTimeout> | null = null;
+	let lastProgressUpdate = 0;
 	const publishProgress = () => {
+		if (progressTimeout !== null) {
+			clearTimeout(progressTimeout);
+			progressTimeout = null;
+		}
+
 		if (!onProgress) {
 			return;
 		}
 
+		lastProgressUpdate = Date.now();
 		try {
 			onProgress(
 				LambdaClientInternals.normalizeRenderProgress({
@@ -1315,17 +1366,26 @@ export const launchHandler = async ({
 		}
 	};
 
-	// Read the same in-memory state used by S3 writes. Never poll storage here.
-	const progressInterval = onProgress
-		? setInterval(() => {
-				const state = overallProgress.get();
-				if (
-					!state.postRenderData &&
-					!state.errors.some((e) => e.isFatal && !e.willRetry)
-				) {
-					publishProgress();
+	const unsubscribeProgress = onProgress
+		? overallProgress.subscribe(() => {
+				if (progressTimeout !== null) {
+					return;
 				}
-			}, 250)
+
+				progressTimeout = setTimeout(
+					() => {
+						progressTimeout = null;
+						const state = overallProgress.get();
+						if (
+							!state.postRenderData &&
+							!state.errors.some((e) => e.isFatal && !e.willRetry)
+						) {
+							publishProgress();
+						}
+					},
+					Math.max(0, 100 - (Date.now() - lastProgressUpdate)),
+				);
+			})
 		: null;
 	publishProgress();
 
@@ -1338,6 +1398,7 @@ export const launchHandler = async ({
 			onBrowser: (browser) => {
 				instance = browser;
 			},
+			cancelOtherRenderers,
 		});
 		clearTimeout(webhookDueToTimeout);
 		publishProgress();
@@ -1350,62 +1411,23 @@ export const launchHandler = async ({
 			idempotencyKey: `cloud-render:${params.bucketName}:${params.renderId}`,
 		});
 
-		if (!params.webhook || webhookInvoked) {
-			return;
-		}
-
-		try {
-			await invokeWebhook({
-				options: {
-					url: params.webhook.url,
-					secret: params.webhook.secret,
-					payload: {
-						type: 'success',
-						renderId: params.renderId,
-						expectedBucketOwner: options.expectedBucketOwner,
-						bucketName: params.bucketName,
-						customData: params.webhook.customData ?? null,
-						outputUrl: postRenderData.outputFile ?? undefined,
-						lambdaErrors: postRenderData.errors,
-						outputFile: postRenderData.outputFile ?? undefined,
-						separateAudio: postRenderData.separateAudio,
-						outputSequence: postRenderData.outputSequence,
-						timeToFinish: postRenderData.timeToFinish,
-						costs: postRenderData.cost,
-					},
-				},
-				logLevel: params.logLevel,
-			});
-			webhookInvoked = true;
-		} catch (err) {
-			if (process.env.NODE_ENV === 'test') {
-				throw err;
-			}
-
-			overallProgress.addErrorWithoutUpload({
-				type: 'webhook',
-				message: (err as Error).message,
-				name: (err as Error).name as string,
-				stack: (err as Error).stack as string,
-				tmpDir: null,
-				frame: 0,
-				chunk: 0,
-				isFatal: false,
-				attempt: 1,
-				willRetry: false,
-				totalAttempts: 1,
-			});
-			overallProgress.upload('successWebhookError');
-
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				'Failed to invoke webhook:',
-			);
-			RenderInternals.Log.error(
-				{indent: false, logLevel: params.logLevel},
-				err,
-			);
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'success',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+				outputUrl: postRenderData.outputFile ?? undefined,
+				lambdaErrors: postRenderData.errors,
+				outputFile: postRenderData.outputFile ?? undefined,
+				separateAudio: postRenderData.separateAudio,
+				outputSequence: postRenderData.outputSequence,
+				timeToFinish: postRenderData.timeToFinish,
+				costs: postRenderData.cost,
+			},
+			'successWebhookError',
+		);
 
 		runCleanupTasks();
 	} catch (err) {
@@ -1456,62 +1478,30 @@ export const launchHandler = async ({
 		);
 		clearTimeout(webhookDueToTimeout);
 
-		if (params.webhook && !webhookInvoked) {
-			try {
-				await invokeWebhook({
-					options: {
-						url: params.webhook.url,
-						secret: params.webhook.secret,
-						payload: {
-							type: 'error',
-							renderId: params.renderId,
-							expectedBucketOwner: options.expectedBucketOwner,
-							bucketName: params.bucketName,
-							customData: params.webhook.customData ?? null,
-							errors: [err as Error].map((e) => ({
-								message: e.message,
-								name: e.name as string,
-								stack: e.stack as string,
-							})),
-						},
-					},
-					logLevel: params.logLevel,
-				});
-				webhookInvoked = true;
-			} catch (error) {
-				overallProgress.addErrorWithoutUpload({
-					type: 'webhook',
-					message: (err as Error).message,
-					name: (err as Error).name as string,
-					stack: (err as Error).stack as string,
-					tmpDir: null,
-					frame: 0,
-					chunk: 0,
-					isFatal: false,
-					attempt: 1,
-					willRetry: false,
-					totalAttempts: 1,
-				});
-				overallProgress.upload('errorWebhookError');
-
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					'Failed to invoke webhook:',
-				);
-				RenderInternals.Log.error(
-					{indent: false, logLevel: params.logLevel},
-					error,
-				);
-			}
-		}
+		await sendTerminalWebhook(
+			{
+				type: 'error',
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+				bucketName: params.bucketName,
+				customData: params.webhook?.customData ?? null,
+				errors: [err as Error].map((e) => ({
+					message: e.message,
+					name: e.name as string,
+					stack: e.stack as string,
+				})),
+			},
+			'errorWebhookError',
+		);
 
 		if (persistenceError !== null) {
 			throw persistenceError;
 		}
 	} finally {
 		clearTimeout(webhookDueToTimeout);
-		if (progressInterval) {
-			clearInterval(progressInterval);
+		unsubscribeProgress?.();
+		if (progressTimeout !== null) {
+			clearTimeout(progressTimeout);
 		}
 
 		await overallProgress.upload('finish');

@@ -10,7 +10,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {attachOptimisticEffectPropHistory} from '../../helpers/optimistic-effect-props';
 import {saveSequenceProps as saveSequencePropsApi} from '../sequence-props-api';
 import type {AddSequenceKeyframeChange} from './call-add-keyframe';
 import {
@@ -119,13 +119,6 @@ const saveSequencePropsInternal = (
 	}: SaveSequencePropsOptions,
 	reportResult: boolean,
 ): Promise<SaveSequencePropsResponse | void> => {
-	try {
-		for (const change of movedKeyframes?.effectKeyframes ?? [])
-			assertEffectChainEditable(change.nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	const keyframesToAdd = addedKeyframes === null ? [] : addedKeyframes;
 	const sequenceKeyframes =
 		movedKeyframes === null ? [] : movedKeyframes.sequenceKeyframes;
@@ -193,7 +186,7 @@ const saveSequencePropsInternal = (
 		});
 	}
 
-	applyOptimisticKeyframeMoves({
+	const effectUpdates = applyOptimisticKeyframeMoves({
 		sequenceKeyframes,
 		effectKeyframes,
 		setPropStatuses,
@@ -231,55 +224,68 @@ const saveSequencePropsInternal = (
 		);
 	}
 
-	return saveSequencePropsApi({
-		edits: changes.map((change) => {
-			return {
-				fileName: change.fileName,
-				nodePath: change.nodePath,
-				key: change.fieldKey,
-				value: serializeSequencePropValue(change.value),
-				defaultValue: change.defaultValue,
-				schema: change.schema,
-				sourceEdit: change.sourceEdit ?? null,
-			};
-		}),
-		addedKeyframes:
-			addedKeyframes === null
-				? null
-				: addedKeyframes.map((keyframe) => ({
-						fileName: keyframe.fileName,
-						nodePath: keyframe.nodePath,
-						key: keyframe.fieldKey,
-						frame: keyframe.sourceFrame,
-						value: JSON.stringify(keyframe.value),
-						schema: keyframe.schema,
-					})),
-		movedKeyframes:
-			movedKeyframes === null
-				? null
-				: {
-						sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
-							fileName: keyframe.fileName,
-							nodePath: keyframe.nodePath,
-							key: keyframe.fieldKey,
-							fromFrame: keyframe.fromFrame,
-							toFrame: keyframe.toFrame,
-							schema: keyframe.schema,
-						})),
-						effectKeyframes: effectKeyframes.map((keyframe) => ({
-							fileName: keyframe.fileName,
-							sequenceNodePath: keyframe.nodePath,
-							effectIndex: keyframe.effectIndex,
-							key: keyframe.fieldKey,
-							fromFrame: keyframe.fromFrame,
-							toFrame: keyframe.toFrame,
-							schema: keyframe.schema,
-						})),
-					},
-		clientId,
-		undoLabel,
-		redoLabel,
-	});
+	return saveSequencePropsApi(
+		attachOptimisticEffectPropHistory(
+			{
+				edits: changes.map((change) => {
+					return {
+						fileName: change.fileName,
+						nodePath: change.nodePath,
+						key: change.fieldKey,
+						value: serializeSequencePropValue(change.value),
+						defaultValue: change.defaultValue,
+						schema: change.schema,
+						sourceEdit: change.sourceEdit ?? null,
+					};
+				}),
+				addedKeyframes:
+					addedKeyframes === null
+						? null
+						: addedKeyframes.map((keyframe) => ({
+								fileName: keyframe.fileName,
+								nodePath: keyframe.nodePath,
+								key: keyframe.fieldKey,
+								frame: keyframe.sourceFrame,
+								value: JSON.stringify(keyframe.value),
+								schema: keyframe.schema,
+							})),
+				movedKeyframes:
+					movedKeyframes === null
+						? null
+						: {
+								sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+									fileName: keyframe.fileName,
+									nodePath: keyframe.nodePath,
+									key: keyframe.fieldKey,
+									fromFrame: keyframe.fromFrame,
+									toFrame: keyframe.toFrame,
+									schema: keyframe.schema,
+								})),
+								effectKeyframes: effectKeyframes.map((keyframe) => ({
+									fileName: keyframe.fileName,
+									sequenceNodePath: keyframe.nodePath,
+									effectIndex: keyframe.effectIndex,
+									key: keyframe.fieldKey,
+									fromFrame: keyframe.fromFrame,
+									toFrame: keyframe.toFrame,
+									schema: keyframe.schema,
+								})),
+							},
+				clientId,
+				undoLabel,
+				redoLabel,
+			},
+			effectUpdates,
+		),
+	)
+		.then((response) => {
+			for (const update of effectUpdates) update.acknowledge();
+			return response;
+		})
+		.catch((error) => {
+			for (const update of effectUpdates) update.rollback();
+			throw error;
+		});
 };
 
 export const saveSequenceProps = (

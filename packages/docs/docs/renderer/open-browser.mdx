@@ -13,13 +13,15 @@ Opens a Chrome or Chromium browser instance. By reusing an instance across [`ren
 
 ```ts
 const openBrowser: (
-  browser: Browser,
-  options: {
-    shouldDumpIo?: boolean;
+  browser: 'chrome',
+  options?: {
+    logLevel?: LogLevel;
     browserExecutable?: string | null;
     chromiumOptions?: ChromiumOptions;
+    chromeMode?: ChromeMode;
+    forceDeviceScaleFactor?: number;
   },
-) => Promise<puppeteer.Browser>;
+) => Promise<HeadlessBrowser>;
 ```
 
 ## Arguments
@@ -46,7 +48,7 @@ If set to `true`, logs and other browser diagnostics are being printed to standa
 
 #### `browserExecutable?`
 
-A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
 #### `chromiumOptions?`
 
@@ -56,15 +58,23 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 Chromium flags need to be set at browser launch. If you pass an instance to SSR APIs like [`renderMedia()`](/docs/renderer/render-media), the `chromiumOptions` option of that API will not apply, but rather the flags that have been passed to `openBrowser()`.
 :::
 
+##### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+##### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+##### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
 #### `forceDeviceScaleFactor?`
 
 Set a [scale](/docs/scaling). If you plan to use scaling, you already need to set it when opening the browser.
 
-#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
-
-<Options id="on-browser-download" />
-
-### `chromeMode?`<AvailableFrom v="4.0.248" />
+#### `chromeMode?`<AvailableFrom v="4.0.248" />
 
 <Options id="chrome-mode" />
 

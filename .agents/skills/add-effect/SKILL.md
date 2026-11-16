@@ -22,10 +22,12 @@ Use this skill when adding a new effect to `@remotion/effects`.
 
 In the effect file:
 
-- Import `SequenceSchema` and `Internals` from `remotion`.
+- Import `InteractivitySchema` and `Internals` from `remotion`.
 - Use `const {createEffect, createWebGL2ContextError} = Internals;`.
 - Define defaults as `const` values.
-- Define a schema with `satisfies SequenceSchema`; these fields appear in Studio visual editing.
+- Define a schema with `satisfies InteractivitySchema` for Studio visual editing.
+- Every canvas position parameter (such as a center, origin, or endpoint) must use a normalized `[u, v]` tuple and one `type: 'uv-coordinate'` schema field. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right. Convert to pixels or shader coordinates in the renderer.
+- For paired endpoints such as `origin` and `direction`, setting `visual: {type: 'line', to: 'direction'}` on `origin` connects their handles in Studio.
 - Export the params type.
 - Resolve defaults in a `resolve()` helper.
 - Validate params using helpers from:
@@ -38,7 +40,7 @@ In the effect file:
 For WebGL2 effects, use this general structure:
 
 ```ts
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber, validateUnitInterval} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
@@ -55,8 +57,9 @@ const myEffectSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type MyEffectParams = {
 	readonly amount?: number;

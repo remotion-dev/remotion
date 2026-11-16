@@ -19,6 +19,7 @@ import {
 	getInsertImportSourceEdits,
 	renderImportDeclaration,
 } from './source-edits';
+import {getSourceFormattingConfig} from './source-style';
 import {indentContinuationLines, getLineIndent} from './source-style';
 import {collectReferencedNames, removeUnusedImports} from './unused-imports';
 
@@ -96,6 +97,10 @@ export const replaceNodeChild = <Project extends CodemodProject>({
 					prettierConfigOverride: null,
 				}),
 				declaration: {...statement, specifiers: usedSpecifiers},
+				formatting: getSourceFormattingConfig({
+					input,
+					prettierConfigOverride: null,
+				}),
 				quote: original.includes('"') ? '"' : "'",
 				semicolon: original.trimEnd().endsWith(';') ? ';' : '',
 			}),

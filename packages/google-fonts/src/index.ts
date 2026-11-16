@@ -151,6 +151,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Agdasima') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Agrave Pro',
+		importName: 'AgravePro',
+		load: () => import('./AgravePro') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Agu Display',
 		importName: 'AguDisplay',
 		load: () => import('./AguDisplay') as Promise<GoogleFont>,
@@ -2639,6 +2644,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Fira Sans Extra Condensed',
 		importName: 'FiraSansExtraCondensed',
 		load: () => import('./FiraSansExtraCondensed') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Firjar',
+		importName: 'Firjar',
+		load: () => import('./Firjar') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Fjalla One',

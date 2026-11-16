@@ -62,6 +62,7 @@ class RenderStillParams extends RenderParams
             'audioCodec',
             'x264Preset',
             'gopSize',
+            'proResBitsPerMacroblock',
             'disableSharedMemoryCapture',
             'crf',
             'metadata',

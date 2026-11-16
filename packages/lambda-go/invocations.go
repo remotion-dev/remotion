@@ -90,6 +90,16 @@ func invokeRenderLambda(options RemotionOptions, sequenceOptions *RenderFramesOp
 		return nil, fmt.Errorf("could not parse Lambda response: %w", responseMarshallingError)
 	}
 
+	if renderResponseOutput.Type == "error" {
+		return nil, fmt.Errorf("could not render: %s\n%s", renderResponseOutput.Message, renderResponseOutput.Stack)
+	}
+	if invocationResult.FunctionError != nil {
+		return nil, fmt.Errorf("Lambda render function failed: %s: %s", *invocationResult.FunctionError, renderResponseOutput.ErrorMessage)
+	}
+	if renderResponseOutput.Type != "success" {
+		return nil, fmt.Errorf("unexpected Lambda render response type: %q", renderResponseOutput.Type)
+	}
+
 	return &renderResponseOutput, nil
 }
 
@@ -133,6 +143,13 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
 		return nil, fmt.Errorf("could not parse Lambda progress response: %w", resultUnmarshallError)
+	}
+
+	if renderProgressOutput.Type == "error" {
+		return nil, fmt.Errorf("could not get render progress: %s\n%s", renderProgressOutput.Message, renderProgressOutput.Stack)
+	}
+	if invokeResult.FunctionError != nil {
+		return nil, fmt.Errorf("Lambda progress function failed: %s: %s", *invokeResult.FunctionError, renderProgressOutput.ErrorMessage)
 	}
 
 	return &renderProgressOutput, nil

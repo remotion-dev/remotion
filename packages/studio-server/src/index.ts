@@ -29,6 +29,7 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
+import {prepareOpenTimelineImport} from './codemods/prepare-open-timeline-import';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -44,10 +45,12 @@ import {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
+import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getLocalPackageOverride,
 	localPackageRootKey,
 } from './helpers/get-local-package-override';
+import {httpGet} from './helpers/http-get';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {installElement} from './install-element';
@@ -63,6 +66,8 @@ import {
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
+import {getProjectInfo} from './preview-server/project-info';
+import {getElementInstallPlan} from './preview-server/routes/element-install-plan';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
 import {getRemotionVersion} from './preview-server/update-available';
@@ -82,6 +87,8 @@ export {
 };
 
 export const StudioServerInternals = {
+	getProjectInfo,
+	prepareOpenTimelineImport,
 	startStudio,
 	getRemotionVersion,
 	waitForLiveEventsListener,
@@ -114,4 +121,7 @@ export const StudioServerInternals = {
 	replaceWithPrerenderedVideo,
 	subscribeToSequenceNodePathMutations,
 	installElement,
+	getElementInstallPlan,
+	getInstalledInstallablePackages,
+	httpGet,
 };

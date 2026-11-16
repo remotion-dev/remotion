@@ -41,10 +41,6 @@ type MapRouteProps = InteractiveBaseProps &
 
 const mapRouteSchema = {
 	...Interactive.baseSchema,
-	...{
-		premountFor: Interactive.premountSchema.premountFor,
-		postmountFor: Interactive.premountSchema.postmountFor,
-	},
 	glow: {
 		type: 'number',
 		min: 0,
@@ -94,17 +90,24 @@ const MapRouteDrawing = ({
 	strokeWidth = 9,
 }: MapRouteDrawingProps) => {
 	const {map} = useContext(MapTilerContext);
+	const videoEnabled = Internals.useVideoEnabled();
 	const {continueRender, delayRender} = useDelayRender();
 	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
 	const isReady = map !== null && readyMap === map;
 	useLayoutEffect(() => {
-		if (isReady) {
+		if (isReady || !videoEnabled) {
 			return;
 		}
 
 		const handle = delayRender(`Loading ${feature.properties.name} route`);
 		return () => continueRender(handle);
-	}, [continueRender, delayRender, feature.properties.name, isReady]);
+	}, [
+		continueRender,
+		delayRender,
+		feature.properties.name,
+		isReady,
+		videoEnabled,
+	]);
 	const route = useMemo(
 		() => lineString(feature.geometry.coordinates),
 		[feature],

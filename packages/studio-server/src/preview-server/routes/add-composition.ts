@@ -1,4 +1,4 @@
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, readFileSync, rmSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddCompositionRequest,
@@ -24,8 +24,16 @@ import {
 export const addCompositionHandler: ApiHandler<
 	AddCompositionRequest,
 	CompositionEditResponse
-> = ({input: request, logLevel, remotionRoot, entryPoint}) =>
+> = ({
+	input: request,
+	logLevel,
+	remotionRoot,
+	entryPoint,
+	publicDir,
+	binariesDirectory,
+}) =>
 	withSourceFileWriteQueue(async () => {
+		let copiedAssetPaths: string[] = [];
 		try {
 			let filePath: string;
 			if (request.symbolicatedStack?.originalFileName) {
@@ -48,7 +56,10 @@ export const addCompositionHandler: ApiHandler<
 				filePath,
 				options: request.options,
 				remotionRoot,
+				publicDir,
+				binariesDirectory,
 			});
+			copiedAssetPaths = result.copiedAssetPaths;
 			for (const change of result.changes) {
 				const currentContents = existsSync(change.filePath)
 					? readFileSync(change.filePath, 'utf-8')
@@ -109,6 +120,7 @@ export const addCompositionHandler: ApiHandler<
 
 			return {success: true, nodePathMutation: null};
 		} catch (error) {
+			for (const copied of copiedAssetPaths) rmSync(copied, {force: true});
 			return {
 				success: false,
 				reason: error instanceof Error ? error.message : String(error),

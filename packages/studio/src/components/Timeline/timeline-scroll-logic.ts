@@ -554,12 +554,14 @@ export const prepareToPreserveTimelineCursor = ({
 	currentDurationInFrames,
 	anchorFrame,
 	anchorContentX,
+	anchorViewportX,
 }: {
 	currentFrame: number;
 	currentDurationInFrames: number;
 	anchorFrame: number | null;
 	/** Prefer this over `anchorFrame` when not null (subpixel-accurate anchor). */
 	anchorContentX: number | null;
+	anchorViewportX: number | null;
 }) => {
 	const {current} = scrollableRef;
 
@@ -586,7 +588,12 @@ export const prepareToPreserveTimelineCursor = ({
 
 		current.scrollLeft = getScrollLeftToKeepCursorInPlace({
 			anchorContentX: prevCursorPosition,
-			oldScrollLeft,
+			// The scroll offset may have been clamped by an earlier zoom step, so it
+			// no longer tells where the anchor should sit in the viewport.
+			oldScrollLeft:
+				anchorViewportX === null
+					? oldScrollLeft
+					: prevCursorPosition - anchorViewportX,
 			oldTimelineWidth,
 			newTimelineWidth: getTimelineContentWidth(),
 		});

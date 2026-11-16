@@ -39,6 +39,7 @@ const AgenticallyProgrammaticallyWithStudioUpdateContent = ({
 			>
 				<AgenticallyProgrammatically
 					startWithPanelVisible
+					softenOpeningVoice
 					platform={platform}
 				/>
 			</TransitionSeries.Sequence>

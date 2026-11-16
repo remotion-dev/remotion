@@ -40,12 +40,13 @@ const effectSchema = {
 	},
 } satisfies InteractivitySchema;
 
-test('batches sequence and effect easing changes into one undo entry', async () => {
+test('batches sequence and effect easing changes into one undo entry', () => {
 	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -73,7 +74,7 @@ test('batches sequence and effect easing changes into one undo entry', async () 
 		writeFileSync(sequenceFilePath, input);
 		writeFileSync(effectFilePath, input);
 
-		await batchUpdateKeyframeSettings({
+		batchUpdateKeyframeSettings({
 			sequenceKeyframes: [
 				{
 					fileName: sequenceFileName,

@@ -1,26 +1,20 @@
-import {beforeAll, expect, mock, test} from 'bun:test';
-import type {callFunctionSyncImplementation as CallFnType} from '../call-lambda-sync';
+import {afterEach, beforeEach, expect, mock, spyOn, test} from 'bun:test';
+import type {LambdaClient} from '@aws-sdk/client-lambda';
+import * as awsClients from '../aws-clients';
+import {callFunctionSyncImplementation} from '../call-lambda-sync';
 
 const mockSend = mock();
-const stubClient = () => {
-	throw new Error('Unmocked AWS client called');
-};
+let clientSpy: ReturnType<typeof spyOn<typeof awsClients, 'getLambdaClient'>>;
 
-mock.module('../aws-clients', () => ({
-	getLambdaClient: () => ({
+beforeEach(() => {
+	mockSend.mockReset();
+	clientSpy = spyOn(awsClients, 'getLambdaClient').mockReturnValue({
 		send: mockSend,
-	}),
-	getCloudWatchLogsClient: stubClient,
-	getIamClient: stubClient,
-	getServiceQuotasClient: stubClient,
-	getStsClient: stubClient,
-}));
+	} as unknown as LambdaClient);
+});
 
-let callFunctionSyncImplementation: typeof CallFnType;
-
-beforeAll(async () => {
-	const mod = await import('../call-lambda-sync');
-	callFunctionSyncImplementation = mod.callFunctionSyncImplementation;
+afterEach(() => {
+	clientSpy.mockRestore();
 });
 
 const dummyOptions = {

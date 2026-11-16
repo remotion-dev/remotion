@@ -56,15 +56,21 @@ import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+} from './delay-render.js';
+import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
+import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
 import {createCurveSampler} from './effects/create-curve-sampler.js';
 import {
 	createEffect,
 	createEffectImplementation,
 } from './effects/create-effect.js';
+import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {
 	PreferredEffectBackendContext,
@@ -161,14 +167,16 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
-import {
-	OptimisticEffectDeletion,
-	useOptimisticEffectDeletion,
-} from './optimistic-effect-deletion.js';
+import {OptimisticEffects, useOptimisticEffects} from './optimistic-effects.js';
 import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
+import {
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
+} from './playback-diagnostics.js';
 import {playbackLogging} from './playback-logging.js';
 import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
@@ -370,10 +378,15 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
-	OptimisticEffectDeletion,
-	useOptimisticEffectDeletion,
+	OptimisticEffects,
+	useOptimisticEffects,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
@@ -566,6 +579,8 @@ export const Internals = {
 	PreferredEffectBackendContext,
 	validatePreferredEffectBackend,
 	createEffect,
+	EffectPreviewContext,
+	captureEffectPreviewSnapshot,
 	createEffectImplementation,
 	createCurveSampler,
 	createWebGLContextError,

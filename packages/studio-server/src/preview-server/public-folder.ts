@@ -58,6 +58,7 @@ const watchPublicFolder = ({
 					onUpdate,
 					staticHash,
 				});
+				fetchFolder({publicDir, staticHash});
 				onUpdate();
 				watcher.close();
 			}

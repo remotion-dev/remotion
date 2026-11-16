@@ -1,7 +1,7 @@
 import {Video} from '@remotion/media';
 import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
-const CodexDropSidebarContent = () => {
+const CodexDropSidebarContent = ({fadeIn}: {readonly fadeIn: boolean}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -15,11 +15,13 @@ const CodexDropSidebarContent = () => {
 				height: '100%',
 				overflow: 'hidden',
 				zIndex: 1,
-				opacity: interpolate(frame, [0, 18], [0, 1], {
-					easing: Easing.bezier(0.42, 0, 0.58, 1),
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
+				opacity: fadeIn
+					? interpolate(frame, [0, 18], [0, 1], {
+							easing: Easing.bezier(0.42, 0, 0.58, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})
+					: 1,
 			}}
 		>
 			<Video
@@ -50,5 +52,12 @@ const CodexDropSidebarContent = () => {
 export const CodexDropSidebar = Interactive.create({
 	Component: CodexDropSidebarContent,
 	layout: 'absolute-fill',
-	schema: {},
+	schema: {
+		fadeIn: {
+			type: 'boolean',
+			default: true,
+			description: 'Fade in over the background',
+			keyframable: false,
+		},
+	},
 });

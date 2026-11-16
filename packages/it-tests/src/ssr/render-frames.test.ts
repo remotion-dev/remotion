@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {execSync} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -203,3 +204,63 @@ test('renderFrames() should await async frame buffer callbacks', async () => {
 		await puppeteerInstance.close({silent: false});
 	}
 });
+
+const getChildChromeProcesses = () =>
+	execSync(`ps -o pid=,args= --ppid ${process.pid}`, {encoding: 'utf8'})
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => /chrom/i.test(line))
+		.map((line) => Number(line.split(' ')[0]));
+
+test.skipIf(process.platform !== 'linux')(
+	'renderFrames() should close the replacement browser after Chrome crashes',
+	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
+		const tenFrameTester = await selectComposition({
+			id: 'ten-frame-tester',
+			serveUrl: exampleBuild,
+			puppeteerInstance,
+			inputProps: {},
+		});
+		await puppeteerInstance.close({silent: false});
+		expect(getChildChromeProcesses()).toEqual([]);
+
+		let crashedPid: number | null = null;
+		const {frameCount} = await renderFrames({
+			composition: tenFrameTester,
+			imageFormat: 'jpeg',
+			inputProps: {},
+			serveUrl: exampleBuild,
+			concurrency: 1,
+			outputDir: null,
+			onFrameBuffer: () => undefined,
+			onStart: () => undefined,
+			onFrameUpdate: () => {
+				if (crashedPid !== null) {
+					return;
+				}
+
+				const [pid] = getChildChromeProcesses();
+				crashedPid = pid;
+				process.kill(pid, 'SIGKILL');
+			},
+		});
+
+		expect(crashedPid).not.toBe(null);
+		expect(frameCount).toBe(10);
+
+		let remaining = getChildChromeProcesses();
+		for (let i = 0; i < 50 && remaining.length > 0; i++) {
+			await new Promise((resolve) => {
+				setTimeout(resolve, 100);
+			});
+			remaining = getChildChromeProcesses();
+		}
+
+		for (const pid of remaining) {
+			process.kill(pid, 'SIGKILL');
+		}
+
+		expect(remaining).toEqual([]);
+	},
+);

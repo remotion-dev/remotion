@@ -2,20 +2,20 @@
 image: https://remotion.media/docs/generated/articles-docs-lambda-renderframesonlambda.png
 id: renderframesonlambda
 title: renderFramesOnLambda()
-crumb: '@remotion/lambda-client'
+crumb: 'Lambda API'
 ---
 
 # renderFramesOnLambda()<AvailableFrom v="4.0.535" />
 
 Starts a distributed image sequence render on AWS Lambda.
 
-Requires a [deployed function](/docs/lambda/deployfunction) and a [site or Serve URL](/docs/lambda/deploysite).  
+Requires a [deployed function](/docs/lambda/deployfunction) and a [site or serve URL](/docs/lambda/deploysitefrombundle).  
 The function, site, and client package must use matching Remotion versions.
 
 ## Example
 
 ```ts twoslash title="render-sequence.ts"
-import {renderFramesOnLambda, getRenderProgress} from '@remotion/lambda-client';
+import {renderFramesOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const region = 'eu-central-1';
 const functionName = 'remotion-render-4-0-535-mem2048mb-disk2048mb-120sec';
@@ -53,7 +53,7 @@ The name of the deployed Lambda function.
 
 ### `serveUrl`
 
-The [Serve URL](/docs/terminology/serve-url) or deployed site name.
+The [serve URL](/docs/terminology/serve-url) or deployed site name.
 
 ### `composition`
 
@@ -107,6 +107,12 @@ Frames rendered by each worker. Defaults to the [automatic concurrency setting](
 
 Worker count, as an alternative to `framesPerLambda`. Defaults to automatic selection. Setting `1` uses one worker.
 
+### `chunks?`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" />
+
+Defaults to automatic chunk planning. The ranges must cover `frameRange` (or the whole composition) exactly, in sorted, contiguous order. The same [validation rules as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chunks) apply, including the minimum chunk size and incompatibility with `framesPerLambda`, `concurrency`, and `everyNthFrame` greater than `1`.
+
 ### `concurrencyPerLambda?`
 
 Number of frames rendered and uploaded concurrently in each worker. Defaults to `1`.
@@ -132,6 +138,18 @@ Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#priv
 ### `chromiumOptions?`
 
 Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chromiumoptions). Defaults to `{}`.
+
+#### `flags?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+#### `features?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+#### `blinkFeatures?`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `scale?`
 

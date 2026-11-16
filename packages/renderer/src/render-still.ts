@@ -292,6 +292,7 @@ const innerRenderStill = async ({
 		page,
 		serveUrl,
 		initialFrame: stillFrame,
+		attempt: 1,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
@@ -360,6 +361,8 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({
 		frame: stillFrame,
+		videoEnabled: true,
+		audioEnabled: false,
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,

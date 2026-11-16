@@ -1,5 +1,6 @@
 import {
 	REACT_REFRESH_STARTED_EVENT,
+	REACT_REFRESH_FINISHED_EVENT,
 	type EventSourceEvent,
 	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
@@ -14,9 +15,16 @@ import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated-element-selection';
-import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
-import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
+import {clearOptimisticEffectHistoryIfIdle} from '../../helpers/optimistic-effect-mutations';
 import {
+	reconcileOptimisticEffectPropStatuses,
+	clearIdleOptimisticEffectPropStatuses,
+} from '../../helpers/optimistic-effect-props';
+import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
+import {remapOptimisticEffects} from '../../helpers/remap-optimistic-effects';
+import {
+	getInstalledSequenceNodePathMutationId,
+	getPendingSequenceNodePathMutations,
 	subscribeToInstalledMutationBuild,
 	subscribeToSequenceNodePathMutations,
 	takePendingSequenceNodePathMutations,
@@ -64,6 +72,8 @@ export const SequencePropsObserver = ({
 	const [fastRefreshStarts, setFastRefreshStarts] = useState(0);
 	const [sourceOnlyMutations, setSourceOnlyMutations] = useState(0);
 	const lastRefresh = useRef<{started: number; completed: number} | null>(null);
+	const effectRefreshInProgress = useRef(false);
+	const effectMutationsToSettle = useRef<string[]>([]);
 	useEffect(
 		() =>
 			subscribeToSequenceNodePathMutations((mutation) => {
@@ -111,12 +121,69 @@ export const SequencePropsObserver = ({
 		[setPropStatusesBatch],
 	);
 	useEffect(() => {
+		const finishEffectRefresh = (refreshed: boolean) => {
+			effectRefreshInProgress.current = false;
+			refreshSequencePropsSubscription(null, {type: 'refresh-finished'});
+			if (refreshed && effectMutationsToSettle.current.length === 0) {
+				clearIdleOptimisticEffectPropStatuses();
+				clearOptimisticEffectHistoryIfIdle();
+			}
+
+			Internals.OptimisticEffects.settle(effectMutationsToSettle.current);
+			effectMutationsToSettle.current = [];
+		};
+
 		const handleReactRefreshStarted = () => {
+			effectRefreshInProgress.current = true;
+			refreshSequencePropsSubscription(null, {
+				type: 'refresh-start',
+				mutationId: getInstalledSequenceNodePathMutationId(),
+			});
+			// A refresh may install intermediate builds before their mutation receipt
+			// can settle. Preserve identity now, but read metadata only after settlement.
+			const preserved = new Set<string>();
+			const invalidated = new Set<string>();
+			for (const mutation of getPendingSequenceNodePathMutations()) {
+				for (const file of mutation.files) {
+					for (const remapping of file.remappings) {
+						const before = JSON.stringify([
+							file.absolutePath,
+							remapping.oldNodePath,
+						]);
+						const after = JSON.stringify([
+							file.absolutePath,
+							remapping.newNodePath,
+						]);
+						if (before === after && remapping.effectsOnly)
+							preserved.add(before);
+						else if (before !== after || !mutation.applyWithoutFastRefresh) {
+							invalidated.add(before);
+							invalidated.add(after);
+						}
+					}
+				}
+			}
+
+			for (const [overrideId, node] of Object.entries(
+				overrideIdToNodePathMappingsRef.current,
+			)) {
+				const key = JSON.stringify([node.absolutePath, node.nodePath]);
+				if (preserved.has(key) && !invalidated.has(key))
+					refreshSequencePropsSubscription(overrideId, {
+						type: 'preserve-source',
+					});
+			}
+
+			Internals.OptimisticEffects.startRefresh();
 			// Apply source-node remappings immediately before React commits the
 			// refreshed tree. This keeps the old tree paired with the old statuses
 			// and the new tree paired with the remapped statuses in the same task.
 			flushSync(() => {
 				setFastRefreshStarts((starts) => starts + 1);
+			});
+			// An update without refreshed React roots emits no finished event.
+			queueMicrotask(() => {
+				if (effectRefreshInProgress.current) finishEffectRefresh(false);
 			});
 		};
 
@@ -124,11 +191,20 @@ export const SequencePropsObserver = ({
 			REACT_REFRESH_STARTED_EVENT,
 			handleReactRefreshStarted,
 		);
+		const handleReactRefreshFinished = () => finishEffectRefresh(true);
+		window.addEventListener(
+			REACT_REFRESH_FINISHED_EVENT,
+			handleReactRefreshFinished,
+		);
 		const unsubscribe = subscribeToInstalledMutationBuild(() => {
 			setFastRefreshStarts((starts) => starts + 1);
 		});
 		return () => {
 			unsubscribe();
+			window.removeEventListener(
+				REACT_REFRESH_FINISHED_EVENT,
+				handleReactRefreshFinished,
+			);
 			window.removeEventListener(
 				REACT_REFRESH_STARTED_EVENT,
 				handleReactRefreshStarted,
@@ -152,6 +228,21 @@ export const SequencePropsObserver = ({
 	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
+			if (event.type === 'external-source-changed') {
+				for (const [overrideId, node] of Object.entries(
+					overrideIdToNodePathMappingsRef.current,
+				)) {
+					if (node.absolutePath === event.fileName) {
+						refreshSequencePropsSubscription(overrideId, {
+							type: 'refresh-start',
+							mutationId: null,
+						});
+					}
+				}
+
+				return;
+			}
+
 			if (event.type !== 'sequence-props-updated') {
 				return;
 			}
@@ -175,12 +266,18 @@ export const SequencePropsObserver = ({
 			setPropStatuses(event.nodePath, (prev) =>
 				deepEqual(prev, result) ? prev : result,
 			);
+			reconcileOptimisticEffectPropStatuses(event.nodePath, result);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
+		const unsubscribeExternal = subscribeToEvent(
+			'external-source-changed',
+			handleEvent,
+		);
 
 		return () => {
 			unsubscribe();
+			unsubscribeExternal();
 		};
 	}, [setPropStatuses, subscribeToEvent, updateDragOverrides]);
 
@@ -198,6 +295,14 @@ export const SequencePropsObserver = ({
 			return;
 		}
 
+		effectMutationsToSettle.current.push(
+			...settled.map((mutation) => mutation.mutationId),
+		);
+		if (!effectRefreshInProgress.current) {
+			Internals.OptimisticEffects.settle(effectMutationsToSettle.current);
+			effectMutationsToSettle.current = [];
+		}
+
 		markDuplicationSelectionMutationsApplied(settled, fastRefreshes);
 		if (mutations.length === 0) return;
 
@@ -209,7 +314,7 @@ export const SequencePropsObserver = ({
 			},
 			mutations,
 		);
-		for (const mutation of mutations) remapOptimisticEffectDeletions(mutation);
+		for (const mutation of mutations) remapOptimisticEffects(mutation);
 		remapSelectionNodePaths(mutations);
 		remapCollapsedLayers(mutations);
 
@@ -251,6 +356,7 @@ export const SequencePropsObserver = ({
 
 				return {
 					absolutePath: file.absolutePath,
+					mutationId: mutation.mutationId,
 					applyWithoutFastRefresh: mutation.applyWithoutFastRefresh ?? false,
 					byOldPath,
 					byNewPath,
@@ -277,6 +383,8 @@ export const SequencePropsObserver = ({
 			let runtimeNodePathExists = true;
 			let runtimeNodePathNeedsRefresh = false;
 			let invalidateStatus = false;
+			let metadataMutationId: string | null = null;
+			let structuralRefresh = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
 			for (const files of indexedMutations) {
@@ -306,13 +414,24 @@ export const SequencePropsObserver = ({
 					const runtimeNodePathWasUpdated = file.updatedPaths.has(
 						previousNodePathString,
 					);
+					const effectsOnly =
+						runtimeNodePathWasUpdated &&
+						runtimeNodePathSource?.effectsOnly === true &&
+						runtimeNodePathDestination?.effectsOnly === true;
+					if (effectsOnly) metadataMutationId = file.mutationId;
+					else if (
+						!file.applyWithoutFastRefresh &&
+						(runtimeNodePathWasUpdated || runtimeNodePathWasInserted)
+					)
+						structuralRefresh = true;
 					if (runtimeNodePathSource) {
 						runtimeNodePathExists = Boolean(
 							runtimeNodePathDestination && replacementComponentMatches,
 						);
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathExists &&
-							(runtimeNodePathWasInserted || runtimeNodePathWasUpdated);
+							(runtimeNodePathWasInserted ||
+								(runtimeNodePathWasUpdated && !effectsOnly));
 					} else if (runtimeNodePathDestination) {
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
@@ -321,6 +440,7 @@ export const SequencePropsObserver = ({
 
 					if (
 						!file.applyWithoutFastRefresh &&
+						!effectsOnly &&
 						runtimeNodePathExists &&
 						(runtimeNodePathWasInserted || runtimeNodePathWasUpdated)
 					) {
@@ -377,6 +497,18 @@ export const SequencePropsObserver = ({
 				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
 			if (
+				metadataMutationId &&
+				!structuralRefresh &&
+				!nodePathChanged &&
+				!wasDeleted &&
+				runtimeNodePathExists
+			) {
+				refreshSequencePropsSubscription(overrideId, {
+					type: 'effects',
+					mutationId: metadataMutationId,
+					refreshing: effectRefreshInProgress.current,
+				});
+			} else if (
 				runtimeNodePathNeedsRefresh ||
 				(!wasDeleted && (nodePathChanged || !runtimeNodePathExists))
 			) {
@@ -396,7 +528,7 @@ export const SequencePropsObserver = ({
 		}
 
 		for (const [overrideId, nodePath] of overrideIdsToRefresh) {
-			refreshSequencePropsSubscription(overrideId, nodePath);
+			refreshSequencePropsSubscription(overrideId, {type: 'source', nodePath});
 		}
 
 		for (const event of statusRemappings) {

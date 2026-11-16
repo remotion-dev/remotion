@@ -238,6 +238,7 @@ const internalRenderMediaRaw = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	proResBitsPerMacroblock,
 	crf,
 	composition: compositionWithPossibleUnevenDimensions,
 	serializedInputPropsWithCustomSchema,
@@ -333,6 +334,7 @@ const internalRenderMediaRaw = async ({
 	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 
 	validateSelectedCodecAndProResCombination({
+		proResBitsPerMacroblock,
 		codec,
 		proResProfile,
 	});
@@ -596,6 +598,7 @@ const internalRenderMediaRaw = async ({
 				indent,
 				x264Preset: x264Preset ?? null,
 				gopSize,
+				proResBitsPerMacroblock,
 				colorSpace,
 				binariesDirectory,
 				hardwareAcceleration,
@@ -866,7 +869,9 @@ const internalRenderMediaRaw = async ({
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
-					forSeamlessAacConcatenation,
+					// Padding frames only capture audio, so a muted chunk has none to render.
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenation && !disableAudio,
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
@@ -913,6 +918,7 @@ const internalRenderMediaRaw = async ({
 					proResProfile,
 					crf,
 					gopSize,
+					proResBitsPerMacroblock,
 					assetsInfo,
 					onProgress: (frame: number) => {
 						// With seamless AAC concatenation, the amount of rendered frames
@@ -1089,6 +1095,7 @@ export const renderMedia = ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	proResBitsPerMacroblock,
 	crf,
 	composition,
 	inputProps,
@@ -1189,6 +1196,7 @@ export const renderMedia = ({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
+		proResBitsPerMacroblock: proResBitsPerMacroblock ?? null,
 		codec,
 		composition,
 		serveUrl,

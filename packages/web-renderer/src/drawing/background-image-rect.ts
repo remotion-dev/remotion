@@ -3,12 +3,51 @@ type LengthPercentage = {
 	value: number;
 };
 
-const firstLayer = (value: string) => value.split(',')[0].trim();
+export const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
+	const parts: string[] = [];
+	let depth = 0;
+	let quote: string | null = null;
+	let start = 0;
+	for (let i = 0; i < value.length; i++) {
+		if (value[i] === '\\') {
+			i++;
+			continue;
+		}
+
+		if (quote !== null) {
+			if (value[i] === quote) quote = null;
+			continue;
+		}
+
+		if (value[i] === '"' || value[i] === "'") {
+			quote = value[i];
+			continue;
+		}
+
+		if (value[i] === '(') depth++;
+		if (value[i] === ')') depth--;
+		if (
+			depth === 0 &&
+			(separator === ',' ? value[i] === ',' : /\s/.test(value[i]))
+		) {
+			const part = value.slice(start, i).trim();
+			if (part) parts.push(part);
+			start = i + 1;
+		}
+	}
+
+	parts.push(value.slice(start).trim());
+	return parts;
+};
+
+const firstLayer = (value: string) => splitAtTopLevel(value, ',')[0];
 
 export const parseLengthPercentage = (
 	value: string,
 ): LengthPercentage | null => {
-	const match = value.match(/^(-?(?:\d+\.?\d*|\.\d+))(%|px)$/);
+	const match = value.match(
+		/^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)(%|px)$/i,
+	);
 	if (match) {
 		return {
 			unit: match[2] as LengthPercentage['unit'],
@@ -21,27 +60,6 @@ export const parseLengthPercentage = (
 	}
 
 	return null;
-};
-
-export const resolveSize = ({
-	containerSize,
-	value,
-}: {
-	containerSize: number;
-	value: string | undefined;
-}) => {
-	if (value === undefined || value === 'auto') {
-		return containerSize;
-	}
-
-	const parsed = parseLengthPercentage(value);
-	if (!parsed) {
-		return containerSize;
-	}
-
-	return parsed.unit === '%'
-		? containerSize * (parsed.value / 100)
-		: parsed.value;
 };
 
 const positionKeywordToPercentage = (value: string) => {
@@ -60,18 +78,56 @@ const positionKeywordToPercentage = (value: string) => {
 	return null;
 };
 
-const resolvePosition = ({
-	containerSize,
-	imageSize,
+export const resolveLengthPercentage = ({
+	percentageBasis,
 	value,
 }: {
-	containerSize: number;
-	imageSize: number;
+	percentageBasis: number;
 	value: string;
-}) => {
-	const keywordPercentage = positionKeywordToPercentage(value);
-	if (keywordPercentage !== null) {
-		return (containerSize - imageSize) * (keywordPercentage / 100);
+}): number => {
+	if (value.startsWith('calc(')) {
+		// Keep computed sums fast, without treating other math as a sum.
+		const expression = value.slice(5, -1).replace(/\s/g, '');
+		const terms = expression.match(
+			/[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?(?:%|px)/gi,
+		);
+		if (terms && terms.join('') === expression) {
+			return terms.reduce(
+				(sum, term) =>
+					sum + resolveLengthPercentage({percentageBasis, value: term}),
+				0,
+			);
+		}
+	}
+
+	if (value.includes('(')) {
+		// Resolve percentages before letting the browser evaluate nested CSS math.
+		// Positioning can have negative free space, so an element width cannot
+		// represent every caller's percentage basis.
+		const pixels = value.replace(
+			/([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)%/gi,
+			(_, number) => `${(Number(number) * percentageBasis) / 100}px`,
+		);
+		if (typeof CSSNumericValue !== 'undefined') {
+			try {
+				return CSSNumericValue.parse(pixels).to('px').value;
+			} catch {
+				// Native CSS can support math functions that Typed OM cannot parse.
+			}
+		}
+
+		// Without Typed OM, resolve the same absolute-length expression
+		// through the browser's computed style.
+		const probe = document.createElement('div');
+		probe.style.cssText =
+			'all: initial !important; position: fixed !important; visibility: hidden !important; contain: strict !important;';
+		probe.style.setProperty('left', pixels, 'important');
+		document.body.appendChild(probe);
+		try {
+			return parseFloat(getComputedStyle(probe).left);
+		} finally {
+			probe.remove();
+		}
 	}
 
 	const parsed = parseLengthPercentage(value);
@@ -80,12 +136,60 @@ const resolvePosition = ({
 	}
 
 	return parsed.unit === '%'
-		? (containerSize - imageSize) * (parsed.value / 100)
+		? percentageBasis * (parsed.value / 100)
 		: parsed.value;
 };
 
-const parsePosition = (value: string) => {
-	const parts = firstLayer(value).split(/\s+/);
+export const resolveSize = ({
+	containerSize,
+	value,
+}: {
+	containerSize: number;
+	value: string | undefined;
+}) => {
+	if (value === undefined || value === 'auto') {
+		return containerSize;
+	}
+
+	if (value.includes('(')) {
+		return Math.max(
+			0,
+			resolveLengthPercentage({percentageBasis: containerSize, value}),
+		);
+	}
+
+	const parsed = parseLengthPercentage(value);
+	if (!parsed) {
+		return containerSize;
+	}
+
+	return parsed.unit === '%'
+		? containerSize * (parsed.value / 100)
+		: parsed.value;
+};
+
+export const resolvePosition = ({
+	containerSize,
+	imageSize,
+	value,
+}: {
+	containerSize: number;
+	imageSize: number;
+	value: string;
+}): number => {
+	const keywordPercentage = positionKeywordToPercentage(value);
+	if (keywordPercentage !== null) {
+		return (containerSize - imageSize) * (keywordPercentage / 100);
+	}
+
+	return resolveLengthPercentage({
+		percentageBasis: containerSize - imageSize,
+		value,
+	});
+};
+
+export const parsePosition = (value: string) => {
+	const parts = splitAtTopLevel(firstLayer(value), ' ');
 	if (parts.length === 1) {
 		if (parts[0] === 'top' || parts[0] === 'bottom') {
 			return {x: 'center', y: parts[0]};
@@ -105,20 +209,84 @@ export const getBackgroundImageRect = ({
 	backgroundPosition,
 	backgroundSize,
 	positioningArea,
+	intrinsicSize,
+	backgroundRepeat = 'repeat',
 }: {
 	backgroundPosition: string;
 	backgroundSize: string;
+	backgroundRepeat?: string;
 	positioningArea: DOMRect;
+	intrinsicSize: {width: number; height: number} | null;
 }) => {
-	const sizeParts = firstLayer(backgroundSize).split(/\s+/);
-	const width = resolveSize({
-		containerSize: positioningArea.width,
-		value: sizeParts[0],
-	});
-	const height = resolveSize({
-		containerSize: positioningArea.height,
-		value: sizeParts[1],
-	});
+	const [x, y = 'auto'] = splitAtTopLevel(firstLayer(backgroundSize), ' ');
+	let width: number;
+	let height: number;
+	if (
+		intrinsicSize &&
+		(backgroundSize === 'contain' || backgroundSize === 'cover')
+	) {
+		const factor = (backgroundSize === 'contain' ? Math.min : Math.max)(
+			positioningArea.width / intrinsicSize.width,
+			positioningArea.height / intrinsicSize.height,
+		);
+		width = intrinsicSize.width * factor;
+		height = intrinsicSize.height * factor;
+		// CSS contain snaps only the dimension derived from the aspect ratio.
+		if (backgroundSize === 'contain') {
+			if (width !== positioningArea.width)
+				width = Math.max(1, Math.round(width));
+			if (height !== positioningArea.height)
+				height = Math.max(1, Math.round(height));
+		}
+	} else if (intrinsicSize && x === 'auto' && y === 'auto') {
+		({width, height} = intrinsicSize);
+	} else if (intrinsicSize && x === 'auto') {
+		height = resolveSize({containerSize: positioningArea.height, value: y});
+		width = (height * intrinsicSize.width) / intrinsicSize.height;
+	} else {
+		width = resolveSize({containerSize: positioningArea.width, value: x});
+		height =
+			intrinsicSize && y === 'auto'
+				? (width * intrinsicSize.height) / intrinsicSize.width
+				: resolveSize({containerSize: positioningArea.height, value: y});
+	}
+
+	// CSS round fits the nearest positive whole tile count before positioning.
+	const [repeatX, repeatY = repeatX] = backgroundRepeat.split(/\s+/);
+	const originalWidth = width;
+	const originalHeight = height;
+	if (repeatX === 'round' && width > 0) {
+		width =
+			positioningArea.width /
+			Math.max(1, Math.round(positioningArea.width / width));
+	}
+
+	if (repeatY === 'round' && height > 0) {
+		height =
+			positioningArea.height /
+			Math.max(1, Math.round(positioningArea.height / height));
+	}
+
+	if (
+		repeatX === 'round' &&
+		repeatY !== 'round' &&
+		y === 'auto' &&
+		x !== 'contain' &&
+		x !== 'cover' &&
+		originalWidth > 0
+	) {
+		height *= width / originalWidth;
+	}
+
+	if (
+		repeatY === 'round' &&
+		repeatX !== 'round' &&
+		x === 'auto' &&
+		originalHeight > 0
+	) {
+		width *= height / originalHeight;
+	}
+
 	const position = parsePosition(backgroundPosition);
 
 	return new DOMRect(

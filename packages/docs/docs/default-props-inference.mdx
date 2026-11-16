@@ -55,7 +55,7 @@ This creates a text control for `title`, a color control for `color` and a check
 | Plain object                                         | Nested controls                                                           |
 | Non-empty array                                      | Array editor, if every item matches the type inferred from the first item |
 
-Color inference requires [`@remotion/zod-types`](/docs/zod-types). A string is treated as a color if its property name contains `color` and its value is a valid CSS color, or if it uses unambiguous CSS color syntax such as `#`, `rgb()`, `hsl()` or `oklch()`.
+A string is treated as a color if its property name contains `color` and its value is a valid CSS color, or if it uses unambiguous CSS color syntax such as `#`, `rgb()`, `hsl()` or `oklch()`.
 
 Nested values are inferred recursively.
 

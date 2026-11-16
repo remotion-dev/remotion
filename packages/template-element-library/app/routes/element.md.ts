@@ -1,8 +1,8 @@
 import { catalog } from "../../lib/element-payload";
-import { getElementMarkdown } from "../../lib/markdown";
+import { getElementMarkdown, getElementPageUrl } from "../../lib/markdown";
 import type { Route } from "./+types/element.md";
 
-export const loader = ({ params }: Route.LoaderArgs) => {
+export const loader = ({ params, request }: Route.LoaderArgs) => {
   const entry = catalog.find(
     ({ definition }) => definition.slug === params.slug,
   );
@@ -10,7 +10,15 @@ export const loader = ({ params }: Route.LoaderArgs) => {
     throw new Response("Element not found", { status: 404 });
   }
 
-  return new Response(getElementMarkdown(entry), {
+  const markdown = getElementMarkdown({
+    entry,
+    pageUrl: getElementPageUrl({
+      slug: entry.definition.slug,
+      requestUrl: request.url,
+    }),
+  });
+
+  return new Response(markdown, {
     headers: { "Content-Type": "text/markdown; charset=utf-8" },
   });
 };

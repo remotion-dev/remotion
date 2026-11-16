@@ -6,6 +6,7 @@ const originalNoColor = process.env.NO_COLOR;
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {formatPropChange} from '../preview-server/routes/log-updates/format-prop-change';
@@ -283,7 +284,19 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 				defaultValue: NoReactInternals.sequenceSchema.layout.default,
 			},
 		],
-		schema: NoReactInternals.sequenceSchema,
+		schema: {
+			...NoReactInternals.sequenceSchema,
+			layout: {
+				...NoReactInternals.sequenceSchema.layout,
+				variants: {
+					...NoReactInternals.sequenceSchema.layout.variants,
+					'absolute-fill': {
+						...NoReactInternals.sequenceSchema.layout.variants['absolute-fill'],
+						...Internals.premountSchema,
+					},
+				},
+			},
+		},
 		prettierConfigOverride: null,
 	});
 

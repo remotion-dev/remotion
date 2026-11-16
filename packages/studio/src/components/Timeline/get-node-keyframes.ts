@@ -7,6 +7,7 @@ import {
 	type PropStatuses,
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
 
@@ -106,7 +107,7 @@ export const getNodeKeyframes = ({
 		});
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: node.field.effectIndex,
@@ -166,7 +167,7 @@ export const getNodeHasKeyframes = ({
 		return true;
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: node.field.effectIndex,
@@ -201,7 +202,7 @@ export const getNodeCanEditEasing = ({
 		});
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: node.field.effectIndex,

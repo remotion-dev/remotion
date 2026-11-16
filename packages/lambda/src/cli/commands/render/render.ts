@@ -29,6 +29,7 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {parseChunksFlag} from '../../helpers/get-chunks-from-cli';
 import {
 	getS3OutputProviderFromCli,
 	makeOutNameWithCustomCredentials,
@@ -85,6 +86,7 @@ const {
 	sampleRateOption,
 	enableCancellationOption,
 	separateAudioOption,
+	chunksOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -209,6 +211,10 @@ export const renderCommand = async ({
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -273,6 +279,15 @@ export const renderCommand = async ({
 	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
+		flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		blinkFeatures: BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue(
+			{commandLine: CliInternals.parsedCli},
+		).value,
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
@@ -421,6 +436,7 @@ export const renderCommand = async ({
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
+	const chunks = parseChunksFlag(parsedLambdaCli[chunksOption.cliFlag]);
 	const rendererFunctionName =
 		parsedLambdaCli['renderer-function-name'] ?? null;
 
@@ -454,6 +470,7 @@ export const renderCommand = async ({
 		imageFormat,
 		crf: crf ?? undefined,
 		gopSize,
+		proResBitsPerMacroblock,
 		disableSharedMemoryCapture,
 		envVariables,
 		pixelFormat,
@@ -464,6 +481,7 @@ export const renderCommand = async ({
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
 		concurrency: concurrency ?? null,
+		chunks,
 		privacy,
 		logLevel,
 		frameRange: singleFrameRange,

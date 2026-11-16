@@ -12,6 +12,7 @@ import {
 } from './drop-handler-data';
 import {getElementDragData} from './element-drag-and-drop';
 import {enqueueElementInstallRequest} from './element-install-request';
+import type {AssetInsertion} from './import-assets';
 import {
 	getElementPositionForDrop,
 	hasSvgFile,
@@ -26,6 +27,7 @@ import {
 import type {SvgImportMode} from './SvgImportDialog';
 
 export const handleDrop = async ({
+	insert,
 	chooseSvgImportMode,
 	compositionFile,
 	compositionId,
@@ -37,6 +39,7 @@ export const handleDrop = async ({
 	localFiles,
 	preferCompositionStart,
 }: {
+	insert: AssetInsertion | null;
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
 	compositionFile: string;
 	compositionId: string;
@@ -62,6 +65,7 @@ export const handleDrop = async ({
 		}
 
 		await importAssets({
+			insert,
 			compositionFile,
 			compositionId,
 			destinationDimensions,
@@ -82,6 +86,7 @@ export const handleDrop = async ({
 		}
 
 		await insertExistingAssets({
+			insert,
 			assetPaths: [assetPath],
 			compositionFile,
 			compositionId,
@@ -101,6 +106,7 @@ export const handleDrop = async ({
 		}
 
 		await insertRemoteAudio({
+			insert,
 			compositionFile,
 			compositionId,
 			fps,
@@ -109,6 +115,17 @@ export const handleDrop = async ({
 			url: sfxUrl,
 		});
 		return;
+	}
+
+	if (
+		insert !== null &&
+		(isCompositionDragEvent(event) ||
+			getElementDragData(event.dataTransfer) !== null ||
+			getComponentDragData(event) !== null)
+	) {
+		throw new Error(
+			'Drop an asset or an existing timeline item into this Track',
+		);
 	}
 
 	if (isCompositionDragEvent(event)) {
@@ -172,6 +189,7 @@ export const handleDrop = async ({
 	}
 
 	await importRemoteAsset({
+		insert,
 		compositionFile,
 		compositionId,
 		destinationDimensions,

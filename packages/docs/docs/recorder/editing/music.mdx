@@ -31,24 +31,26 @@ All tracks were produced by [Utope Music](https://www.instagram.com/utopemusic) 
 To add background music, you first have to add songs to the `public/sounds` folder.  
 Then register the track in `config/sounds.ts`.
 
-```tsx filename="config/sounds.ts"
+```tsx title="config/sounds.ts"
 export const music = z.enum([
   "previous",
+  "soft",
+  "epic",
+  "euphoric",
   "none",
-  "somesong",
   // You can give your song any label. This is the name you will see in the editor.
   "<your-song-label>",
 ]);
 
 export const getAudioSource = (track: Music) => {
-  if (track === "somesong") {
-    return staticFile("sounds/soundtrack1.mp3");
-  }
+  // ...
 
   // Add your track here. The label has to match the one you added above.
   if (track === "<your-song-label>") {
-    return staticFile("sounds/<actual-asset-name>");
+    return staticFile(`${SOUNDS_FOLDER}/<actual-asset-name>`);
   }
+
+  throw new Error(`No sound track for ${track}`);
 };
 ```
 

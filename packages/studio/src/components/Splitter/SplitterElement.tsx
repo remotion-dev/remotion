@@ -64,7 +64,12 @@ export const SplitterElement: React.FC<{
 
 	return (
 		<>
-			<div style={style}>{children}</div>
+			<div
+				id={type === 'flexer' ? context.firstPaneId : undefined}
+				style={style}
+			>
+				{children}
+			</div>
 			<div style={stickStyle}>{sticky ?? null}</div>
 		</>
 	);

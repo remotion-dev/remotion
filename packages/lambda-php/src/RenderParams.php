@@ -66,7 +66,9 @@ class RenderParams
     protected $isProduction = null;
     protected $sampleRate = 48000;
     protected $gopSize = null;
+    protected $proResBitsPerMacroblock = null;
     protected $disableSharedMemoryCapture = false;
+    protected $chunks = null;
 
     public function __construct(
         ?array  $data = null,
@@ -95,7 +97,7 @@ class RenderParams
         ?bool   $overwrite = null,
         ?int    $audioBitrate = null,
         ?int    $videoBitrate = null,
-        ?string $webhook = null,
+        ?array  $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
         ?int    $forceFps = null,
@@ -122,7 +124,9 @@ class RenderParams
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
-        string $preferredEffectBackend = 'auto'
+        string $preferredEffectBackend = 'auto',
+        ?array  $chunks = null,
+        ?int    $proResBitsPerMacroblock = null
     )
     {
         if ($chromiumOptions === null) {
@@ -181,8 +185,10 @@ class RenderParams
         $this->forcePathStyle = $forcePathStyle;
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
+        $this->proResBitsPerMacroblock = $proResBitsPerMacroblock;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
+        $this->chunks = $chunks;
     }
 
     private array $inputProps = array();
@@ -214,6 +220,7 @@ class RenderParams
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
+            'chunks' => $this->getChunks(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -239,6 +246,7 @@ class RenderParams
             'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'gopSize' => $this->getGopSize(),
+            'proResBitsPerMacroblock' => $this->getProResBitsPerMacroblock(),
             'disableSharedMemoryCapture' => $this->getDisableSharedMemoryCapture(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
@@ -706,6 +714,11 @@ class RenderParams
         $this->concurrency = $concurrency;
     }
 
+    public function setChunks(?array $chunks)
+    {
+        $this->chunks = $chunks;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -760,6 +773,11 @@ class RenderParams
     public function getConcurrency()
     {
         return $this->concurrency;
+    }
+
+    public function getChunks()
+    {
+        return $this->chunks;
     }
 
     public function getDownloadBehavior()
@@ -1069,6 +1087,17 @@ class RenderParams
     public function setGopSize($gopSize)
     {
         $this->gopSize = $gopSize;
+        return $this;
+    }
+
+    public function getProResBitsPerMacroblock()
+    {
+        return $this->proResBitsPerMacroblock;
+    }
+
+    public function setProResBitsPerMacroblock(?int $proResBitsPerMacroblock)
+    {
+        $this->proResBitsPerMacroblock = $proResBitsPerMacroblock;
         return $this;
     }
 

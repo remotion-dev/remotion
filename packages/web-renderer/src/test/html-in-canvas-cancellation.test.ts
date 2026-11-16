@@ -24,6 +24,7 @@ for (const stage of ['before request', 'waiting for paint', 'after paint']) {
 			}
 
 			const capture = drawWithHtmlInCanvas({
+				transparent: true,
 				htmlInCanvasContext: {
 					layoutCanvas,
 					ctx: {reset, drawElementImage},
@@ -71,6 +72,7 @@ test('removes native paint and abort listeners if requestPaint throws', async ()
 	const removeAbort = vi.spyOn(controller.signal, 'removeEventListener');
 	await expect(
 		drawWithHtmlInCanvas({
+			transparent: true,
 			htmlInCanvasContext: {
 				layoutCanvas,
 				ctx: {},

@@ -43,6 +43,14 @@ The following APIs accept this option:
 - [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#metadata)
 - [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#metadata)
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setMetadata({Author: 'Lunar'});
+```
+
 ## See also
 
 - [All options](/docs/options)

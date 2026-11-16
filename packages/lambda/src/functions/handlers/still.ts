@@ -188,6 +188,7 @@ const innerStillHandler = async (
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
+		chunks: null,
 		memorySizeInMb: getCurrentMemorySizeInMb(),
 		region: getCurrentRegionInFunction(),
 		renderId,

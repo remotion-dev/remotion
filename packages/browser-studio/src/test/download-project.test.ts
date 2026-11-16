@@ -11,7 +11,7 @@ const dependencyVersions = {
 	remotion: '4.0.500',
 };
 
-test('downloads the current Browser Studio project as a runnable archive', async () => {
+test('downloads the current remotion.new project as a runnable archive', async () => {
 	let project: VirtualProject = {
 		...createBlankTemplateProject(),
 		publicFiles: {
@@ -30,6 +30,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	});
 
 	const insertResult = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {

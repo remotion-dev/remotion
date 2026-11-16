@@ -3,6 +3,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
@@ -71,6 +72,8 @@ export const ObserveDefaultProps: React.FC<{
 			? previewServerState.clientId
 			: null;
 
+	const lastAppliedDefaultProps = useRef<Record<string, string>>({});
+
 	const applyResult = useCallback(
 		(
 			compId: string,
@@ -83,11 +86,20 @@ export const ObserveDefaultProps: React.FC<{
 					...prevState,
 					[compId]: {canUpdate: true},
 				}));
+				// Fast Refresh resubscribes and gets the same file contents again.
+				// Applying them again would discard edits made since the last change.
+				const serialized = JSON.stringify(result.currentDefaultProps);
+				if (lastAppliedDefaultProps.current[compId] === serialized) {
+					return;
+				}
+
+				lastAppliedDefaultProps.current[compId] = serialized;
 				// Resolve `remotion-file:` and `remotion-date:` tokens that the
 				// server emits for staticFile() and new Date() values
-				const deserialized = NoReactInternals.deserializeJSONWithSpecialTypes<
-					Record<string, unknown>
-				>(JSON.stringify(result.currentDefaultProps));
+				const deserialized =
+					NoReactInternals.deserializeJSONWithSpecialTypes<
+						Record<string, unknown>
+					>(serialized);
 				updateProps({
 					id: compId,
 					defaultProps: deserialized,

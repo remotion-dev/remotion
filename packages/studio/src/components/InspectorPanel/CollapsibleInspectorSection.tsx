@@ -23,6 +23,7 @@ export const CollapsibleInspectorSection: React.FC<{
 				/>
 			</InspectorSectionHeader>
 			<InspectorSectionBody
+				keepMounted
 				expanded={!collapsible || expanded}
 				paddingBottom={bodyPaddingBottom}
 			>

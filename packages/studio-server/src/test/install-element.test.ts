@@ -127,6 +127,7 @@ test('installs an Element into a project without a running Studio', async () => 
 	const packageManager = fakePackageManager();
 	try {
 		const response = await installElement({
+			binariesDirectory: null,
 			installationName: null,
 			compositionFile: 'src/Root.tsx',
 			compositionId: 'MyVideo',
@@ -161,6 +162,7 @@ test('installs an Element into a project without a running Studio', async () => 
 			publicDir: project.publicDir,
 			logLevel: 'error',
 			installDependencies: true,
+			packageManager: null,
 			studio: false,
 		});
 

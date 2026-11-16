@@ -124,24 +124,23 @@ export const getGifRef = (
 	remotionRoot = process.cwd(),
 ): string | null => {
 	try {
-		const branch = execFileSync(
+		// Resolve the commit and the branch name with a single process,
+		// spawning git is slow on Windows.
+		const [commit, branch] = execFileSync(
 			'git',
-			['-C', remotionRoot, 'rev-parse', '--abbrev-ref', 'HEAD'],
+			['-C', remotionRoot, 'rev-parse', 'HEAD', '--abbrev-ref', 'HEAD'],
 			{
 				stdio: ['ignore', 'pipe', 'ignore'],
 			},
 		)
 			.toString('utf-8')
-			.trim();
-		if (branch !== 'HEAD') {
+			.trim()
+			.split(/\r?\n/);
+		if (branch && branch !== 'HEAD') {
 			return branch;
 		}
 
-		return execFileSync('git', ['-C', remotionRoot, 'rev-parse', 'HEAD'], {
-			stdio: ['ignore', 'pipe', 'ignore'],
-		})
-			.toString('utf-8')
-			.trim();
+		return commit ?? null;
 	} catch (err) {
 		Log.verbose({logLevel, indent: false}, 'Could not get git ref', err);
 		return null;

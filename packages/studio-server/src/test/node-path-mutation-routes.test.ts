@@ -63,6 +63,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 	const events: EventSourceEvent[] = [];
 	const contentsAtMutation: string[] = [];
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -224,6 +225,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		const insertResponse = await insertCompositionElementHandler({
 			...handlerContext,
 			input: {
+				track: null,
 				compositionFile: fileName,
 				compositionId: 'insert',
 				element: {

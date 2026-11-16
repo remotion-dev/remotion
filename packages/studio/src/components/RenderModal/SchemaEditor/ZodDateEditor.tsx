@@ -99,6 +99,7 @@ export const ZodDateEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
+					aria-label={jsonPath.join('.')}
 					value={formatDate(value)}
 					type="datetime-local"
 					status={zodValidation.success ? 'ok' : 'error'}

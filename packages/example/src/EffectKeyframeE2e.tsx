@@ -37,6 +37,7 @@ export const EffectKeyframeE2e: React.FC = () => {
 			/>
 			<CanvasImage
 				name="Effect scale precision"
+				aria-label="Effect scale precision canvas"
 				src={staticFile('1.jpg')}
 				width={1280}
 				height={720}

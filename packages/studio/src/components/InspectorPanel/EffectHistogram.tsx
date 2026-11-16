@@ -142,7 +142,6 @@ export const EffectHistogram: React.FC<{
 				preserveAspectRatio="none"
 				style={{display: 'block', width: '100%', height: '100%'}}
 			>
-				<path d="M64 0V80M128 0V80M192 0V80" stroke="#29292f" />
 				{!message && histogram ? (
 					<path d={histogram.path} fill={color} />
 				) : null}

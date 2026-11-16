@@ -20,7 +20,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes sequence prop operations through Browser Studio', async () => {
+test('routes sequence prop operations through remotion.new', async () => {
 	const calls: string[] = [];
 	const nodePath = {
 		absolutePath: '/project/src/Composition.tsx',

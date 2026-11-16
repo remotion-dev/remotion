@@ -1,6 +1,9 @@
-import React, {useCallback, useContext, useRef} from 'react';
-import type {_InternalTypes} from 'remotion';
-import {Internals} from 'remotion';
+import React, {useCallback, useContext} from 'react';
+import {Internals, type _InternalTypes} from 'remotion';
+import {
+	applyOptimisticCompositionOperation,
+	getActiveOptimisticCompositionOperations,
+} from '../../helpers/optimistic-composition-operations';
 import {getRoute, pushUrl} from '../../helpers/url-state';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {deriveCanvasContentFromUrl} from '../load-canvas-content-from-url';
@@ -37,27 +40,10 @@ const DeleteCompositionLoaded: React.FC<{
 	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const selectComposition = useSelectComposition();
-	const navigationAfterDelete = useRef<
-		_InternalTypes['AnyComposition'] | null | undefined
-	>(undefined);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
-
-	const onSuccess = useCallback(() => {
-		if (navigationAfterDelete.current === undefined) {
-			return;
-		}
-
-		if (navigationAfterDelete.current === null) {
-			pushUrl('/');
-			setCanvasContent(null);
-			return;
-		}
-
-		selectComposition(navigationAfterDelete.current, true);
-	}, [selectComposition, setCanvasContent]);
 
 	return (
 		<>
@@ -78,41 +64,118 @@ const DeleteCompositionLoaded: React.FC<{
 				<ModalFooterContainer>
 					<CompositionEditFooter
 						errorNotification={`Could not delete composition`}
-						loadingNotification={'Deleting'}
+						loadingNotification={null}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`
 						}
 						stack={compositionStack}
 						valid
-						onSuccess={onSuccess}
+						onSuccess={null}
 						applyEdit={({signal, symbolicatedStack}) => {
-							const currentRoute = getRoute();
-							const currentCanvasContent = deriveCanvasContentFromUrl();
-							const isSelected =
-								currentCanvasContent?.type === 'composition' &&
-								currentCanvasContent.compositionId === compositionId;
-							const fallback = isSelected
-								? (compositionManagerRef.current.compositions.find(
-										({id}) => id !== compositionId,
-									) ?? null)
-								: undefined;
-							navigationAfterDelete.current = fallback;
+							const getSnapshot = () => compositionManagerRef.current;
+							const isShown = () => {
+								const canvasContent = deriveCanvasContentFromUrl();
+								return (
+									canvasContent?.type === 'composition' &&
+									canvasContent.compositionId === compositionId
+								);
+							};
 
-							return deleteComposition(
-								{
-									idToDelete: compositionId,
-									symbolicatedStack,
-									undoRedoNavigation:
-										fallback === undefined
-											? null
-											: {
-													undoRoute: currentRoute,
-													redoRoute:
-														fallback === null ? '/' : `/${fallback.id}`,
-												},
+							// Compositions that are being deleted are no navigation targets.
+							const getFallback = () => {
+								const pendingDeletions = new Set(
+									getActiveOptimisticCompositionOperations(
+										getSnapshot(),
+									).flatMap((operation) =>
+										operation.type === 'delete'
+											? [operation.compositionId]
+											: [],
+									),
+								);
+								return (
+									getSnapshot().compositions.find(
+										({id}) => id !== compositionId && !pendingDeletions.has(id),
+									) ?? null
+								);
+							};
+
+							const navigateTo = (
+								target: _InternalTypes['AnyComposition'] | null,
+							) => {
+								if (target === null) {
+									pushUrl('/');
+									setCanvasContent(null);
+								} else {
+									selectComposition(target, true);
+								}
+							};
+
+							const currentRoute = getRoute();
+							const fallback = isShown() ? getFallback() : undefined;
+
+							// The composition disappears immediately, so leave it now
+							// instead of after the source edit is persisted.
+							if (fallback !== undefined) {
+								navigateTo(fallback);
+							}
+
+							// On failure, return to the composition unless the user has
+							// navigated elsewhere in the meantime.
+							const restoreSelection = () => {
+								if (fallback === undefined) {
+									return;
+								}
+
+								const canvasContent = deriveCanvasContentFromUrl();
+								const stillOnFallback =
+									fallback === null
+										? canvasContent === null
+										: canvasContent?.type === 'composition' &&
+											canvasContent.compositionId === fallback.id;
+								const restored = getSnapshot().compositions.find(
+									({id}) => id === compositionId,
+								);
+								if (stillOnFallback && restored) {
+									selectComposition(restored, true);
+								}
+							};
+
+							return applyOptimisticCompositionOperation({
+								operation: {type: 'delete', compositionId},
+								getSnapshot,
+								persist: () =>
+									deleteComposition(
+										{
+											idToDelete: compositionId,
+											symbolicatedStack,
+											undoRedoNavigation:
+												fallback === undefined
+													? null
+													: {
+															undoRoute: currentRoute,
+															redoRoute:
+																fallback === null ? '/' : `/${fallback.id}`,
+														},
+										},
+										signal,
+									),
+							}).then(
+								(result) => {
+									if (!result.success) {
+										restoreSelection();
+									} else if (isShown()) {
+										// It was reopened while the deletion was pending, for
+										// example from the browser history.
+										navigateTo(getFallback());
+									}
+
+									return result;
 								},
-								signal,
+								(error) => {
+									restoreSelection();
+									throw error;
+								},
 							);
 						}}
 					/>

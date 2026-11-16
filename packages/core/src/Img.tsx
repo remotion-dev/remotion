@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
@@ -13,6 +14,11 @@ import type {
 	CanvasImageProps,
 } from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
+import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
+import {
+	EffectPreviewContext,
+	useEffectPreview,
+} from './effects/effect-preview.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
@@ -29,7 +35,6 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -42,6 +47,7 @@ import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {resolveV5Default} from './v5-flag.js';
@@ -170,17 +176,16 @@ const handleImageError = (
 
 	errors.current[imageRef.current?.src as string] =
 		(errors.current[imageRef.current?.src as string] ?? 0) + 1;
+	const failedMessage =
+		'Error loading image with src: ' +
+		truncateSrcForLabel(imageRef.current?.src as string) +
+		`. Failed ${maxRetries + 1} times (maxRetries: ${maxRetries}). Check that the URL is reachable and returns a valid image. During server-side rendering, the browser may have logged the failed request and its HTTP status code above.`;
 	if (
 		(onError || onImageError) &&
 		(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
 	) {
 		onError?.(e);
-		onImageError?.(
-			new Error(
-				'Error loading image with src: ' +
-					truncateSrcForLabel(imageRef.current?.src as string),
-			),
-		);
+		onImageError?.(new Error(failedMessage));
 		return;
 	}
 
@@ -200,10 +205,7 @@ const handleImageError = (
 	}
 
 	try {
-		cancelRender(
-			'Error loading image with src: ' +
-				truncateSrcForLabel(imageRef.current?.src as string),
-		);
+		cancelRender(`${failedMessage} Pass onError to handle the failure.`);
 	} catch {
 		// cancelRender() intentionally throws after storing the error in scope.
 		// In async image callbacks, we rely on the stored error for renderer propagation.
@@ -291,11 +293,8 @@ const loadImage = ({
 	current
 		.decode()
 		.then(onComplete)
-		.catch((err) => {
-			// fall back to onload event if decode() fails
-			// eslint-disable-next-line no-console
-			console.warn(err);
-
+		.catch(() => {
+			// For a failed request (e.g. 404), decode() rejects with "cannot be decoded".
 			// HTMLImageElement.complete is also true for broken images (e.g. 404),
 			// so only treat it as loaded if intrinsic dimensions are available.
 			if (
@@ -554,7 +553,6 @@ export const imgSchema = {
 	},
 	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
-	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
@@ -635,7 +633,7 @@ const getFitFromObjectFit = (
 	return undefined;
 };
 
-const ImgInner: React.FC<
+const ImgWithPreview: React.FC<
 	ImgProps & {
 		readonly controls: SequenceControls | undefined;
 	}
@@ -673,12 +671,101 @@ const ImgInner: React.FC<
 	...props
 }) => {
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
+	const nativeImageRef = useRef<HTMLImageElement | null>(null);
+	const nativeRef = useCallback(
+		(image: HTMLImageElement | null) => {
+			nativeImageRef.current = image;
+			if (typeof ref === 'function') {
+				ref(image);
+			} else if (ref) {
+				ref.current = image;
+			}
+		},
+		[ref],
+	);
+	const [nativePreview, setNativePreview] = useState<{
+		readonly source: string;
+		readonly srcSet: string | null;
+		readonly sizes: string | null;
+		readonly snapshotSrc: string;
+		readonly width: number;
+		readonly height: number;
+		readonly cssWidth: string;
+		readonly cssHeight: string;
+	} | null>(null);
+	const preview = useEffectPreview(controls?.runtimeValues ?? null);
+	const previewStore = useContext(EffectPreviewContext);
+	const onPreviewError = useCallback(() => {
+		if (previewStore.getSnapshot(controls?.runtimeValues ?? null) !== null) {
+			previewStore.setPreview(null);
+		}
+	}, [controls?.runtimeValues, previewStore]);
 
-	if (effects.length === 0) {
+	useLayoutEffect(() => {
+		if (preview === null || effects.length > 0) {
+			setNativePreview(null);
+			return;
+		}
+
+		const image = nativeImageRef.current;
+		if (image === null) {
+			return;
+		}
+
+		const captureNativeImage = () => {
+			// Capture the displayed native pixels before replacing the image. The
+			// same rasterization is used for cards, including srcSet and object-fit.
+			const snapshot = captureEffectPreviewSnapshot(image);
+			if (snapshot === null) {
+				onPreviewError();
+				return;
+			}
+
+			try {
+				const computed =
+					image.ownerDocument.defaultView!.getComputedStyle(image);
+				setNativePreview({
+					source: src,
+					srcSet: props.srcSet ?? null,
+					sizes: props.sizes ?? null,
+					snapshotSrc: snapshot.toDataURL(),
+					width: snapshot.width,
+					height: snapshot.height,
+					cssWidth: computed.width,
+					cssHeight: computed.height,
+				});
+			} catch {
+				onPreviewError();
+			} finally {
+				snapshot.width = 0;
+				snapshot.height = 0;
+			}
+		};
+
+		if (image.complete && image.naturalWidth > 0) {
+			captureNativeImage();
+		} else {
+			image.addEventListener('load', captureNativeImage);
+		}
+
+		return () => image.removeEventListener('load', captureNativeImage);
+	}, [effects.length, onPreviewError, preview, props.sizes, props.srcSet, src]);
+
+	const nativePreviewIsCurrent =
+		nativePreview !== null &&
+		nativePreview.source === src &&
+		nativePreview.srcSet === (props.srcSet ?? null) &&
+		nativePreview.sizes === (props.sizes ?? null);
+	const nativeSnapshot =
+		effects.length === 0 && preview !== null && nativePreviewIsCurrent
+			? nativePreview
+			: null;
+
+	if (effects.length === 0 && nativeSnapshot === null) {
 		return (
 			<NativeImgInner
 				{...props}
-				ref={ref}
+				ref={nativeRef}
 				hidden={hidden}
 				name={name}
 				showInTimeline={showInTimeline}
@@ -714,36 +801,55 @@ const ImgInner: React.FC<
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	validateCanvasImageFallbackProps({
-		props,
-		ref,
-		width,
-		height,
-	});
+	if (effects.length > 0) {
+		validateCanvasImageFallbackProps({props, ref, width, height});
+	}
 
-	const canvasWidth = typeof width === 'number' ? width : undefined;
-	const canvasHeight = typeof height === 'number' ? height : undefined;
-	const canvasProps = props as CanvasImageCanvasProps;
-	const canvasFit = getFitFromObjectFit(style) ?? 'fill';
+	const canvasWidth =
+		nativeSnapshot?.width ?? (typeof width === 'number' ? width : undefined);
+	const canvasHeight =
+		nativeSnapshot?.height ?? (typeof height === 'number' ? height : undefined);
+
+	// A transient preview also works for a native Img with image-only props.
+	// Keep them intact for when its original native element is restored.
+	const canvasProps = (
+		effects.length === 0
+			? Object.fromEntries(
+					Object.entries(props).filter(
+						([key]) => !imgCanvasFallbackIncompatibleProps.has(key),
+					),
+				)
+			: props
+	) as CanvasImageCanvasProps;
+	const canvasFit =
+		nativeSnapshot === null ? (getFitFromObjectFit(style) ?? 'fill') : 'fill';
+	const canvasStyle: React.CSSProperties | undefined =
+		nativeSnapshot === null
+			? style
+			: {
+					width: nativeSnapshot.cssWidth,
+					height: nativeSnapshot.cssHeight,
+					...style,
+				};
 
 	return (
 		<CanvasImageWithPrivateProps
-			src={src}
+			src={nativeSnapshot?.snapshotSrc ?? src}
 			width={canvasWidth}
 			height={canvasHeight}
 			fit={canvasFit}
 			effects={effects}
 			effectsOutputSize={effectsOutputSize}
 			className={className}
-			style={style}
+			style={canvasStyle}
 			cropLeft={cropLeft}
 			cropRight={cropRight}
 			cropTop={cropTop}
 			cropBottom={cropBottom}
 			id={id}
-			onError={onImageError}
+			onError={preview === null ? onImageError : onPreviewError}
 			pauseWhenLoading={shouldPauseWhenLoading}
-			maxRetries={maxRetries}
+			maxRetries={preview === null ? maxRetries : 0}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
@@ -763,6 +869,19 @@ const ImgInner: React.FC<
 			{...canvasProps}
 		/>
 	);
+};
+
+const ImgInner: React.FC<
+	ImgProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = (props) => {
+	const videoEnabled = useVideoEnabled();
+	if (videoEnabled === false) {
+		return null;
+	}
+
+	return <ImgWithPreview {...props} />;
 };
 
 /*

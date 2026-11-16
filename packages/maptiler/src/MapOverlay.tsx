@@ -40,7 +40,6 @@ export type MapOverlayProps = InteractiveBaseProps &
 
 const mapOverlaySchema = {
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	longitude: {
 		type: 'number',
 		min: -180,

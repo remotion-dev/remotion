@@ -3,18 +3,18 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.541",
+	"version": "4.0.544",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
 		"test": "bun test test",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "MIT",
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
@@ -27,6 +27,9 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
+			"base": [
+				"dist/cjs/base.d.ts"
+			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -77,6 +80,9 @@
 			],
 			"Agdasima": [
 				"dist/cjs/Agdasima.d.ts"
+			],
+			"AgravePro": [
+				"dist/cjs/AgravePro.d.ts"
 			],
 			"AguDisplay": [
 				"dist/cjs/AguDisplay.d.ts"
@@ -1571,6 +1577,9 @@
 			],
 			"FiraSansExtraCondensed": [
 				"dist/cjs/FiraSansExtraCondensed.d.ts"
+			],
+			"Firjar": [
+				"dist/cjs/Firjar.d.ts"
 			],
 			"FjallaOne": [
 				"dist/cjs/FjallaOne.d.ts"

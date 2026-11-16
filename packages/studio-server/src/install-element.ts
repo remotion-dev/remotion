@@ -7,7 +7,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
+import {insertBasicCaptions} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
@@ -20,7 +20,10 @@ import {
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {addCompositionToFile} from './codemods/add-composition-to-file';
-import {writeFileAndNotifyFileWatchers} from './file-watcher';
+import {
+	getFileWatcherRegistry,
+	writeFileAndNotifyFileWatchers,
+} from './file-watcher';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	assertNoSymlinks,
@@ -48,6 +51,10 @@ import {
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from './preview-server/undo-stack';
+import {
+	notifyBundlerOfFileChange,
+	prepareBundlerForFileWrite,
+} from './preview-server/watch-ignore-next-change';
 
 const hasExpectedFileState = ({
 	expected,
@@ -75,6 +82,7 @@ export type InstallElementOptions = InsertElementRequest & {
 	readonly remotionRoot: string;
 	readonly entryPoint: string;
 	readonly publicDir: string;
+	readonly binariesDirectory: string | null;
 	readonly logLevel: LogLevel;
 	/**
 	 * Install the Element's missing npm dependencies with the project's package
@@ -82,6 +90,7 @@ export type InstallElementOptions = InsertElementRequest & {
 	 * browser beforehand and passes `false`.
 	 */
 	readonly installDependencies: boolean;
+	readonly packageManager: string | null;
 	/**
 	 * Whether the installation runs inside a Remotion Studio server. If so,
 	 * files are written through the Studio file watchers and the installation is
@@ -112,7 +121,9 @@ export const installElement = async ({
 	remotionRoot,
 	logLevel,
 	publicDir,
+	binariesDirectory,
 	installDependencies,
+	packageManager,
 	studio,
 }: InstallElementOptions): Promise<InsertElementResponse> => {
 	const writeSourceFile = ({
@@ -167,6 +178,7 @@ export const installElement = async ({
 					logLevel,
 					remotionRoot,
 					dependencies: withRequiredAuxiliaryPackages(missingDependencies),
+					packageManager,
 					invalidateBundle: null,
 				});
 			}
@@ -291,6 +303,8 @@ export const installElement = async ({
 					filePath: registrationFilePath,
 					options: newComposition.options,
 					remotionRoot,
+					publicDir,
+					binariesDirectory,
 				});
 				const registrationFileNewContents =
 					codemodResult.changes.find(
@@ -453,7 +467,7 @@ export const installElement = async ({
 				nodePathRemappings: SequenceNodePathRemapping[];
 			};
 			if (captionTarget === null) {
-				inserted = await insertJsxElementIntoComposition({
+				inserted = insertJsxElementIntoComposition({
 					...insertionInput,
 					compositionFile,
 					compositionId,
@@ -462,15 +476,19 @@ export const installElement = async ({
 			} else {
 				const fileName = plan.safePaths.compositionFileName;
 				const oldContents = readFileSync(fileName, 'utf-8');
+				const result = insertBasicCaptions({
+					...captionTarget,
+					project: {rootDir: remotionRoot, files: {[fileName]: oldContents}},
+					node: {filePath: fileName, nodePath: captionTarget.nodePath},
+					importPath: plan.importPath,
+					element: {componentName: plan.componentName, initialProps},
+				});
 				inserted = {
-					...CodemodsInternals.insertBasicCaptions({
-						...captionTarget,
-						input: oldContents,
-						importPath: plan.importPath,
-						element: {componentName: plan.componentName, initialProps},
-					}),
 					fileName,
 					oldContents,
+					output: result.changes[0]?.nextContents ?? oldContents,
+					logLine: result.editDetails[0].logLine,
+					nodePathRemappings: result.nodePathRemappings,
 				};
 			}
 
@@ -742,7 +760,12 @@ export const installElement = async ({
 					}
 
 					if (source.oldContents === null) {
+						if (studio) prepareBundlerForFileWrite(source.filePath, null);
 						unlinkSync(source.filePath);
+						if (studio) {
+							getFileWatcherRegistry().recordSourceWrite(source.filePath, null);
+							notifyBundlerOfFileChange(source.filePath, null);
+						}
 					} else {
 						writeSourceFile({
 							file: source.filePath,

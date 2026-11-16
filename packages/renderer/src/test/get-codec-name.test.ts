@@ -38,6 +38,7 @@ const callGetCodecName = ({
 		crf: crf ?? null,
 		encodingMaxRate,
 		encodingBufferSize,
+		proResBitsPerMacroblock: null,
 		logLevel: 'warn',
 		indent: false,
 		onLog: null,

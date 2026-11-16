@@ -8,10 +8,12 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {
+	createOptimisticEffectPropUpdate,
+	attachOptimisticEffectPropHistory,
+} from '../../helpers/optimistic-effect-props';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -112,15 +114,11 @@ export const callUpdateEffectKeyframeSettings = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
-	try {
-		assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
-	return enqueueSavePropChange({
+	const update = createOptimisticEffectPropUpdate({
 		nodePath,
-		setPropStatuses,
+		effectIndex,
+		fieldKey,
+		schema,
 		applyOptimistic: (prev) =>
 			optimisticUpdateEffectKeyframeSettings({
 				previous: prev,
@@ -128,18 +126,39 @@ export const callUpdateEffectKeyframeSettings = ({
 				fieldKey,
 				settings,
 			}),
-		applyServerResponse: (prev, response) =>
-			applyEffectResponseToPropStatuses({previous: prev, response}),
+	});
+	return enqueueSavePropChange({
+		nodePath,
+		setPropStatuses,
+		applyOptimistic: update.applyOptimistic,
+		applyServerResponse: (previous, response) =>
+			update.optimistic ? previous : update.applyResponse(previous, response),
 		apiCall: () =>
-			updateEffectKeyframeSettings({
-				fileName,
-				sequenceNodePath: nodePath,
-				effectIndex,
-				key: fieldKey,
-				settings,
-				schema,
-				clientId,
-			}),
+			updateEffectKeyframeSettings(
+				attachOptimisticEffectPropHistory(
+					{
+						fileName,
+						sequenceNodePath: nodePath,
+						effectIndex,
+						key: fieldKey,
+						settings,
+						schema,
+						clientId,
+					},
+					[update],
+				),
+			)
+				.then((response) => {
+					if (update.optimistic)
+						setPropStatuses(nodePath, (previous) =>
+							update.applyResponse(previous, response),
+						);
+					return response;
+				})
+				.catch((error) => {
+					update.rollback();
+					throw error;
+				}),
 		errorLabel: 'Could not update keyframe settings',
 	});
 };
@@ -167,13 +186,6 @@ export const callBatchUpdateKeyframeSettings = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
-	try {
-		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
-			assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	for (const update of sequenceKeyframes) {
 		setPropStatuses(update.nodePath, (prev) =>
 			optimisticUpdateSequenceKeyframeSettings({
@@ -184,37 +196,65 @@ export const callBatchUpdateKeyframeSettings = ({
 		);
 	}
 
+	const groups = new Map<string, BatchEffectKeyframeSettingsUpdate[]>();
 	for (const update of effectKeyframes) {
-		setPropStatuses(update.nodePath, (prev) =>
-			optimisticUpdateEffectKeyframeSettings({
-				previous: prev,
-				effectIndex: update.effectIndex,
-				fieldKey: update.fieldKey,
-				settings: update.settings,
-			}),
-		);
+		const key = JSON.stringify([update.nodePath, update.effectIndex]);
+		const group = groups.get(key) ?? [];
+		group.push(update);
+		groups.set(key, group);
 	}
 
-	return batchUpdateKeyframeSettings({
-		sequenceKeyframes: sequenceKeyframes.map((update) => ({
-			fileName: update.fileName,
-			nodePath: update.nodePath,
-			key: update.fieldKey,
-			settings: update.settings,
-			schema: update.schema,
-		})),
-		effectKeyframes: effectKeyframes.map((update) => ({
-			fileName: update.fileName,
-			sequenceNodePath: update.nodePath,
-			effectIndex: update.effectIndex,
-			key: update.fieldKey,
-			settings: update.settings,
-			schema: update.schema,
-		})),
-		clientId,
-	})
-		.then(() => undefined)
+	const effectUpdates = [...groups.values()].map((group) => {
+		const first = group[0];
+		const update = createOptimisticEffectPropUpdate({
+			nodePath: first.nodePath,
+			effectIndex: first.effectIndex,
+			fieldKey: first.fieldKey,
+			schema: first.schema,
+			applyOptimistic: (previous) =>
+				group.reduce(
+					(current, keyframe) =>
+						optimisticUpdateEffectKeyframeSettings({
+							previous: current,
+							effectIndex: keyframe.effectIndex,
+							fieldKey: keyframe.fieldKey,
+							settings: keyframe.settings,
+						}),
+					previous,
+				),
+		});
+		setPropStatuses(first.nodePath, update.applyOptimistic);
+		return update;
+	});
+
+	return batchUpdateKeyframeSettings(
+		attachOptimisticEffectPropHistory(
+			{
+				sequenceKeyframes: sequenceKeyframes.map((update) => ({
+					fileName: update.fileName,
+					nodePath: update.nodePath,
+					key: update.fieldKey,
+					settings: update.settings,
+					schema: update.schema,
+				})),
+				effectKeyframes: effectKeyframes.map((update) => ({
+					fileName: update.fileName,
+					sequenceNodePath: update.nodePath,
+					effectIndex: update.effectIndex,
+					key: update.fieldKey,
+					settings: update.settings,
+					schema: update.schema,
+				})),
+				clientId,
+			},
+			effectUpdates,
+		),
+	)
+		.then(() => {
+			for (const update of effectUpdates) update.acknowledge();
+		})
 		.catch((err) => {
+			for (const update of effectUpdates) update.rollback();
 			showNotification(
 				`Could not update keyframe settings: ${
 					err instanceof Error ? err.message : String(err)

@@ -24,6 +24,7 @@ import {
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {noop} from '../helpers/noop';
+import {useCompositionsWithoutPendingDeletions} from '../helpers/optimistic-composition-operations';
 import {getOutputRoute} from '../helpers/output-path';
 import {
 	closedAllCanvasTabsStorageKey,
@@ -575,9 +576,16 @@ const MemoizedCanvasTab = React.memo(CanvasTab);
 export const CanvasTabs: React.FC = React.memo(() => {
 	const {studioRuntimeConfig} = useSettings();
 	const canvasTabsEnabled = studioRuntimeConfig?.canvasTabsEnabled ?? true;
-	const {canvasContent, compositions} = useContext(
-		Internals.CompositionManager,
-	);
+	const {
+		canvasContent,
+		compositions: registeredCompositions,
+		folders,
+	} = useContext(Internals.CompositionManager);
+	// Tabs of compositions that are being deleted close, and cannot be selected.
+	const compositions = useCompositionsWithoutPendingDeletions({
+		compositions: registeredCompositions,
+		folders,
+	});
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {compositionListState} = useContext(CompositionListContext);
 	const selectComposition = useSelectComposition();

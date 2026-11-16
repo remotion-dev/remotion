@@ -1,15 +1,24 @@
 import {Video} from '@remotion/media';
-import {Composition, Folder} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {z} from 'zod';
+import {IterateFastThumbnail} from '../IterateFastThumbnail';
 import {
 	AgenticallyProgrammatically,
 	agenticallyProgrammaticallySchema,
 } from './AgenticallyProgrammatically';
+import {AgenticallyProgrammaticallyShort} from './AgenticallyProgrammaticallyShort';
 import {AgenticallyProgrammaticallyWithStudioUpdate} from './AgenticallyProgrammaticallyWithStudioUpdate';
 import {AnnotateChatGPTBroll} from './AnnotateChatGPTBroll';
 import {AvailableAgentsSidebar} from './AvailableAgentsSidebar';
 import {BeatMatchPrompt} from './BeatMatchPrompt';
+import {ChatGPTPluginBroll} from './ChatGPTPluginBroll';
+import {ChatGPTPluginCaptureComposition} from './ChatGPTPluginCaptureComposition';
 import {CodexDropSidebar} from './CodexDropSidebar';
+import {
+	GitHubHeaderBroll,
+	GitHubStarsBroll,
+	NpmDownloadsBroll,
+} from './CommunityStatsBroll';
 import {ComputedPropertiesBroll} from './ComputedPropertiesBroll';
 import {ComputedPropertiesCaptureComposition} from './ComputedPropertiesCaptureComposition';
 import {ComputedValueBroll} from './ComputedValueBroll';
@@ -24,6 +33,7 @@ import {EarlyRemotionDemoBroll} from './EarlyRemotionDemoBroll';
 import {EditingCapabilitiesBroll} from './EditingCapabilitiesBroll';
 import {EndCardSidebar, publicationPlatformSchema} from './EndCardSidebar';
 import {HigherLevelTaskPrompt} from './HigherLevelTaskPrompt';
+import {HomepageHeroZoom} from './HomepageHeroZoom';
 import {InteractiveTimelinePan} from './InteractiveTimelinePan';
 import {InvokeAgentBroll} from './InvokeAgentBroll';
 import {InvokeAgentCaptureComposition} from './InvokeAgentCaptureComposition';
@@ -39,6 +49,16 @@ import {RemotionOriginExchange} from './RemotionOriginExchange';
 import {RestructureAgentBroll} from './RestructureAgentBroll';
 import {RestructureAgentCaptureComposition} from './RestructureAgentCaptureComposition';
 import {RoughCutPrompt} from './RoughCutPrompt';
+import {
+	ShortAgentPlugins,
+	ShortBeatMatchPrompt,
+	ShortMotionGraphicsTitle,
+	ShortPlaceholderTimeline,
+	ShortPluginPrompt,
+	ShortPrompt,
+	ShortSoundtrackDemo,
+	ShortSoundtrackPlayback,
+} from './ShortFormBroll';
 import {SoundtrackTimelineCaptureComposition} from './SoundtrackTimelineCaptureComposition';
 import {SoundtrackTimelinePlayback} from './SoundtrackTimelinePlayback';
 import {StudioSettingsCaptureComposition} from './StudioSettingsCaptureComposition';
@@ -60,6 +80,12 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 	return (
 		<>
 			<Folder name="AgenticallyProgrammatically">
+				<Still
+					id="IterateFastThumbnail"
+					component={IterateFastThumbnail}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="AgenticallyProgrammaticallyWithStudioUpdate"
 					component={AgenticallyProgrammaticallyWithStudioUpdate}
@@ -80,12 +106,146 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 						durationInFrames: props.platform === 'youtube' ? 9445 : 9145,
 					})}
 					schema={agenticallyProgrammaticallySchema}
-					defaultProps={{startWithPanelVisible: false, platform: 'linkedin'}}
+					defaultProps={{
+						startWithPanelVisible: false,
+						softenOpeningVoice: false,
+						platform: 'linkedin',
+					}}
 					durationInFrames={9145}
 					fps={30}
 					width={1920}
 					height={1080}
 				/>
+				<Folder name="Short-form">
+					<Composition
+						id="GitHubHeaderBroll"
+						component={GitHubHeaderBroll}
+						durationInFrames={46}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{
+							style: {backgroundColor: '#010409', overflow: 'hidden'},
+						}}
+					/>
+					<Composition
+						id="GitHubStarsBroll"
+						component={GitHubStarsBroll}
+						durationInFrames={45}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#0d1117'}}}
+					/>
+					<Composition
+						id="NpmDownloadsBroll"
+						component={NpmDownloadsBroll}
+						durationInFrames={48}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#0d1117'}}}
+					/>
+					<Composition
+						id="AgenticallyProgrammaticallyShort"
+						component={AgenticallyProgrammaticallyShort}
+						durationInFrames={1446}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ShortMotionGraphicsTitle"
+						component={ShortMotionGraphicsTitle}
+						durationInFrames={29}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortPluginPrompt"
+						component={ShortPluginPrompt}
+						durationInFrames={122}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortPrompt"
+						component={ShortPrompt}
+						durationInFrames={130}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{
+							theme: 'light',
+							pluginName: 'Remotion',
+							isInitialPrompt: false,
+							prompt:
+								'Put these videos on the timeline with captions and motion graphics as well.',
+							typingStartFrame: 6,
+							typingDurationInFrames: 112,
+							cameraDurationInFrames: 130,
+						}}
+					/>
+					<Composition
+						id="ShortBeatMatchPrompt"
+						component={ShortBeatMatchPrompt}
+						durationInFrames={223}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortPlaceholderTimeline"
+						component={ShortPlaceholderTimeline}
+						durationInFrames={81}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortSoundtrackDemo"
+						component={ShortSoundtrackDemo}
+						durationInFrames={169}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ShortSoundtrackPlayback"
+						component={ShortSoundtrackPlayback}
+						durationInFrames={169}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ChatGPTPluginBroll"
+						component={ChatGPTPluginBroll}
+						durationInFrames={113}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ChatGPTPluginCapture"
+						component={ChatGPTPluginCaptureComposition}
+						durationInFrames={176}
+						fps={30}
+						width={3530}
+						height={1758}
+					/>
+					<Composition
+						id="ShortAgentPlugins"
+						component={ShortAgentPlugins}
+						durationInFrames={113}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#f8fafc'}}}
+					/>
+				</Folder>
 				<Composition
 					id="WebMcpAgentsSidebar"
 					component={WebMcpAgentsSidebar}
@@ -197,6 +357,14 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 					width={1920}
 					height={1080}
 					defaultProps={{style: {scale: 1.18, transformOrigin: '50% 100%'}}}
+				/>
+				<Composition
+					id="HomepageHeroZoom"
+					component={HomepageHeroZoom}
+					durationInFrames={570}
+					fps={30}
+					width={1080}
+					height={880}
 				/>
 				<Composition
 					id="ThreeWaysSplitView"

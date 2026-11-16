@@ -4,6 +4,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	type useDeleteKeyframes,
 	type DeleteEffectKeyframeChange,
@@ -72,12 +73,15 @@ const getSelectedKeyframeDeletion = ({
 	const fileName = nodePath.absolutePath;
 
 	if (field.type === 'effect') {
-		const effect = sequence.effects[field.effectIndex];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			sequence.effects,
+		)[field.effectIndex]?.definition;
 		if (!effect) {
 			return null;
 		}
 
-		const effectStatus = Internals.getEffectPropStatusesCtx({
+		const effectStatus = getProjectedEffectPropStatuses({
 			propStatuses,
 			nodePath,
 			effectIndex: field.effectIndex,

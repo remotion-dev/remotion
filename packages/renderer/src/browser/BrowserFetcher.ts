@@ -156,7 +156,10 @@ export const downloadBrowser = async ({
 
 	if (await existsAsync(outputPath)) {
 		const installedVersion = readVersionFile(chromeMode);
-		if (installedVersion === expectedVersion) {
+		if (
+			installedVersion === expectedVersion &&
+			(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+		) {
 			return getRevisionInfo(chromeMode);
 		}
 	}
@@ -186,13 +189,16 @@ export const downloadBrowser = async ({
 	try {
 		if (await existsAsync(outputPath)) {
 			const installedVersion = readVersionFile(chromeMode);
-			if (installedVersion === expectedVersion) {
+			if (
+				installedVersion === expectedVersion &&
+				(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+			) {
 				return getRevisionInfo(chromeMode);
 			}
-
-			// VERSION file missing or mismatched - delete and re-download
-			fs.rmSync(outputPath, {recursive: true, force: true});
 		}
+
+		fs.rmSync(getVersionFilePath(chromeMode), {force: true});
+		fs.rmSync(outputPath, {recursive: true, force: true});
 
 		logDownloadUrl({url: downloadURL, logLevel, indent});
 
@@ -215,6 +221,11 @@ export const downloadBrowser = async ({
 				indent,
 				logLevel,
 				abortSignal: new AbortController().signal,
+			}).catch((err) => {
+				throw new Error(
+					`Could not download ${chromeMode === 'headless-shell' ? 'Chrome Headless Shell' : 'Chrome for Testing'} from ${downloadURL}: ${err instanceof Error ? err.message : String(err)}\nIf your network restricts outgoing traffic, allow the download hosts. If the machine has no internet access at render time, install the browser while building it (e.g. "npx remotion browser ensure" in your Dockerfile), or pass "browserExecutable". See https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell#download-hosts`,
+					{cause: err},
+				);
 			});
 			await extractZipArchive(archivePath, outputPath);
 
@@ -259,10 +270,9 @@ export const downloadBrowser = async ({
 			}
 		}
 
-		writeVersionFile(chromeMode, expectedVersion);
-
 		const revisionInfo = getRevisionInfo(chromeMode);
 		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
+		writeVersionFile(chromeMode, expectedVersion);
 
 		return revisionInfo;
 	} finally {

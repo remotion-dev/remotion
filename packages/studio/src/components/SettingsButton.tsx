@@ -1,7 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {WARNING_COLOR, WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT, WARNING_COLOR} from '../helpers/colors';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {GearIcon} from '../icons/gear';
 import {SetSelectedModalContext} from '../state/modals';
@@ -32,7 +32,6 @@ export const SettingsButton: React.FC<{
 	const openModal = useCallback(() => {
 		setSelectedModal({
 			type: 'settings',
-			initialStudioPane: null,
 			initialTab: updateAvailable
 				? 'updates'
 				: canEditConfig
@@ -79,7 +78,7 @@ export const SettingsButton: React.FC<{
 				variant={null}
 				onClick={openModal}
 				renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
-				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
+				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : LIGHT_TEXT}
 				aria-label={label}
 			/>
 		</ActionTooltip>

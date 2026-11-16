@@ -15,6 +15,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {callBatchUpdateKeyframeSettings} from './call-update-keyframe-settings';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
@@ -121,12 +122,15 @@ export const getSelectedEasingUpdate = ({
 		};
 	}
 
-	const effect = sequence.effects[field.effectIndex];
+	const effect = Internals.OptimisticEffects.getItems(
+		nodePath,
+		sequence.effects,
+	)[field.effectIndex]?.definition;
 	if (!effect) {
 		return null;
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: field.effectIndex,

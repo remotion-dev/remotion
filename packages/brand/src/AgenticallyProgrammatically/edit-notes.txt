@@ -180,3 +180,51 @@ LIVE STUDIO PREVIEW — 5 NOVEMBER 2026
 The workflow reveal overlays the synchronized original here7.mov footage in
 Studio's preview area, preserving its color through both camera moves.
 Review clip: https://remotion.media/agentically-programmatically/studio-workflow-live-preview-db67d9730ea4.mp4
+
+SHORT-FORM CUT — 6 NOVEMBER 2026
+Composition: AgenticallyProgrammaticallyShort (Short-form folder), 1080 x 1920 at 30 fps,
+43.20 seconds. Five new takes (agent1-5.mov, 1920 x 1080) re-record the pitch in short form.
+Split screen: cutaways fill the top 1080 x 960, the presenter fills the bottom half with a
+static 1.15x crop (editable Video crop and translate). The timeline playback goes full screen.
+Captions keep the Basic Captions style at 80px (new editable Font size; padding scales with
+it, so 64px renders as before), centered on the seam, one line per page.
+
+EDIT DECISION LIST (source seconds -> timeline seconds)
+1 - Interactive timeline in sync with your agent: agent1.mov 2.800-9.867 -> 0.000-7.067
+2 - Edit a video with ChatGPT: agent2.mov 7.800-16.467 -> 7.067-15.733
+3 - Ask for motion graphics or captions: agent3.mov 3.233-7.567 -> 15.733-20.067
+4 - Start with some music: agent4.mov 2.233-12.367 -> 20.067-30.200
+5 - Try the ChatGPT or Claude plugin: agent5.mov 2.000-15.000 -> 30.200-43.200
+
+SOURCE TRANSCRIPTS (whisper.cpp medium.en, obvious spelling corrected)
+agent1.mov: Remotion now has an interactive timeline like a regular video editor, but it stays in sync with your agent.
+agent2.mov: This makes it super easy to edit a video with ChatGPT. Drag some footage into your agent and ask it to be edited with Remotion.
+agent3.mov: And of course you can also ask for motion graphics or captions to be added.
+agent4.mov: Or what is also super cool, start with some music, ask your agent to analyze the beat and place some placeholder items on your timeline.
+agent5.mov: Now the video you'll be working on will flow with the music. Try it yourself today using the ChatGPT or Claude plugin and experience it yourself why people like editing with Remotion a lot.
+("why people like" is heard as "by people like" by whisper; verify by ear.)
+
+AUDIO
+The five takes were joined and processed as one Auphonic production
+(caCxAoCL6Gwoh4Z9YQv7AY) with the long-form settings: Voice AutoEQ, 12 dB dynamic noise
+reduction, 6 dB reverb reduction, 70% adaptive leveling, soft compression, -16 LUFS,
+-1.5 dBTP. Input -28.99 LUFS, output -16.00 LUFS. The 3,350,156-sample result was split
+back into one 24-bit FLAC per take; cross-correlation shows zero lag at three points per take.
+Dialogue plays at volume 1. (The long-form dialogue uses volume 0.25, which renders at
+about -26.5 LUFS.) The Takiti soundtrack fades in under "on your timeline", plays in sync
+with the full-screen timeline playback, swells in the pause after "flow with the music",
+and stays under the call to action. The mix measures -15.3 LUFS integrated, -1.1 dBTP.
+
+CUTAWAYS
+1: InteractiveTimelinePan, then CopyContextBroll on "but it stays in sync with your agent."
+2: InvokeAgentBroll (menu, then ChatGPT receiving the context), then CodexDropSidebar.
+3: ShortPrompt typing the rough-cut prompt from the long-form video.
+4: ShortBeatMatchPrompt ("See ~/Downloads/track.mp3 ..."), then ShortPlaceholderTimeline.
+5: ShortSoundtrackPlayback full screen, ShortAgentPlugins (ChatGPT, Claude), MottoSidebar.
+Long-form 1920 x 1080 cutaways render at 1920 x 1080 and are framed with scale and translate.
+
+MEDIA STORAGE
+The 5 takes and 5 cleaned dialogue files are hosted on remotion.media under
+agent-2026-11-06/. Public SHA-256 hashes were checked against the local files on
+6 November 2026 and are listed in short-form-media-manifest.json. Original files in Movies
+are retained. No media binaries are added to the repository.

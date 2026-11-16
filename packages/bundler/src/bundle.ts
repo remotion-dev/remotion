@@ -438,6 +438,7 @@ export const internalBundle = async (
 		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
 		fileSystemPlatform: null,
+		supportsNativeFilePicker: false,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
@@ -456,6 +457,7 @@ export const internalBundle = async (
 			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
+			showDiagnostics: {value: false, source: 'config' as const},
 			showLayerFrameNumbers: false,
 			showPremounting: null,
 			defaultPremountInSeconds: null,

@@ -88,6 +88,7 @@ export const startHandler = async ({
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
 		concurrency: params.concurrency,
+		chunks: params.chunks ?? null,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
@@ -104,6 +105,7 @@ export const startHandler = async ({
 			params.x264Preset ??
 			(params.codec === 'h264' ? DEFAULT_X264_PRESET : null),
 		gopSize: params.gopSize ?? null,
+		proResBitsPerMacroblock: params.proResBitsPerMacroblock ?? null,
 		disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,

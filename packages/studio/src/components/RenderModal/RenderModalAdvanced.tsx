@@ -355,7 +355,9 @@ export const RenderModalAdvanced: React.FC<{
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
 					<div style={label}>
-						Custom @remotion/media cache size
+						<label htmlFor="remotion-render-media-cache-size" style={label}>
+							Custom @remotion/media cache size
+						</label>
 						<Spacing x={0.5} />
 						<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
 					</div>
@@ -364,6 +366,7 @@ export const RenderModalAdvanced: React.FC<{
 							checked={mediaCacheSizeInBytes !== null}
 							onChange={toggleCustomMediaCacheSizeInBytes}
 							name="media-cache-size"
+							inputId="remotion-render-media-cache-size"
 						/>
 					</div>
 				</div>
@@ -386,13 +389,13 @@ export const RenderModalAdvanced: React.FC<{
 						<Spacing x={0.5} />
 						<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
 					</div>
-					<div style={rightRow}>
+					<label style={rightRow} aria-label="Custom OffthreadVideo cache">
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
 							onChange={toggleCustomOffthreadVideoCacheSizeInBytes}
 							name="custom-audio-bitrate"
 						/>
-					</div>
+					</label>
 				</div>
 			)}
 			{renderMode === 'audio' ||
@@ -413,13 +416,13 @@ export const RenderModalAdvanced: React.FC<{
 						OffthreadVideo threads <Spacing x={0.5} />
 						<OptionExplainerBubble id="offthreadVideoThreadsOption" />
 					</div>
-					<div style={rightRow}>
+					<label style={rightRow} aria-label="OffthreadVideo threads">
 						<Checkbox
 							checked={offthreadVideoThreads !== null}
 							onChange={toggleCustomOffthreadVideoThreads}
 							name="offthread-video-threads"
 						/>
-					</div>
+					</label>
 				</div>
 			)}
 			{renderMode === 'audio' || offthreadVideoThreads === null ? null : (
@@ -436,23 +439,23 @@ export const RenderModalAdvanced: React.FC<{
 			<RenderModalHr />
 			<div style={optionRow}>
 				<div style={label}>Disable web security</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Disable web security">
 					<Checkbox
 						checked={disableWebSecurity}
 						onChange={onDisableWebSecurityChanged}
 						name="disable-web-security"
 					/>
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Ignore certificate errors</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Ignore certificate errors">
 					<Checkbox
 						checked={ignoreCertificateErrors}
 						onChange={onIgnoreCertificatErrors}
 						name="ignore-certificate-errors"
 					/>
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>
@@ -460,9 +463,9 @@ export const RenderModalAdvanced: React.FC<{
 					<Spacing x={0.5} />
 					<OptionExplainerBubble id="headlessOption" />
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Headless mode">
 					<Checkbox checked={headless} onChange={onHeadless} name="headless" />
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>
@@ -511,13 +514,13 @@ export const RenderModalAdvanced: React.FC<{
 					<Spacing x={0.5} />
 					<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Multi-process Chrome on Linux">
 					<Checkbox
 						checked={enableMultiProcessOnLinux}
 						onChange={onEnableMultiProcessOnLinux}
 						name="enable-multi-process-on-linux"
 					/>
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>
@@ -525,19 +528,19 @@ export const RenderModalAdvanced: React.FC<{
 					<Spacing x={0.5} />
 					<OptionExplainerBubble id="darkModeOption" />
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Dark Mode">
 					<Checkbox checked={darkMode} onChange={onDarkMode} name="dark-mode" />
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Custom User Agent</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Custom User Agent">
 					<Checkbox
 						checked={userAgent !== null}
 						onChange={toggleCustomUserAgent}
 						name="custom-user-agent"
 					/>
-				</div>
+				</label>
 			</div>
 			{userAgent === null ? null : (
 				<div style={optionRow}>
@@ -545,6 +548,7 @@ export const RenderModalAdvanced: React.FC<{
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
+								aria-label="User Agent"
 								style={input}
 								value={userAgent}
 								onChange={onUserAgentChanged}
@@ -560,22 +564,22 @@ export const RenderModalAdvanced: React.FC<{
 					Create a reproduction <OptionExplainerBubble id="reproOption" />
 				</div>
 
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Create a reproduction">
 					<Checkbox checked={repro} onChange={onReproToggle} name="repro" />
-				</div>
+				</label>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>
 					Beep when finished <OptionExplainerBubble id="beepOnFinishOption" />
 				</div>
 
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Beep when finished">
 					<Checkbox
 						checked={beep}
 						onChange={onPlayBeepSound}
 						name="beep-when-finished"
 					/>
-				</div>
+				</label>
 			</div>
 		</div>
 	);

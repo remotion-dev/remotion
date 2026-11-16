@@ -43,6 +43,7 @@ test('Should calculate most expensive chunks', () => {
 		framesPerFunction: 10,
 		firstFrame: 0,
 		lastFrame: 99,
+		chunks: null,
 	});
 
 	expect(most).toEqual([
@@ -99,6 +100,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 		framesPerFunction,
 		firstFrame,
 		lastFrame,
+		chunks: null,
 	});
 
 	expect(most).toEqual([
@@ -155,6 +157,7 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 		framesPerFunction,
 		firstFrame,
 		lastFrame,
+		chunks: null,
 	});
 
 	expect(most).toEqual([
@@ -163,5 +166,29 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 		{timeInMilliseconds: 3000, chunk: 2, frameRange: [30, 39]},
 		{timeInMilliseconds: 2000, chunk: 1, frameRange: [20, 29]},
 		{timeInMilliseconds: 1000, chunk: 0, frameRange: [10, 19]},
+	]);
+});
+
+test('Explicit chunks report their own frame ranges', () => {
+	const most = getMostExpensiveChunks({
+		parsedTimings: [
+			{chunk: 0, rendered: 1000, start: 0},
+			{chunk: 1, rendered: 9000, start: 0},
+			{chunk: 2, rendered: 4000, start: 0},
+		],
+		framesPerFunction: 5,
+		firstFrame: 10,
+		lastFrame: 99,
+		chunks: [
+			[10, 14],
+			[15, 79],
+			[80, 99],
+		],
+	});
+
+	expect(most).toEqual([
+		{timeInMilliseconds: 9000, chunk: 1, frameRange: [15, 79]},
+		{timeInMilliseconds: 4000, chunk: 2, frameRange: [80, 99]},
+		{timeInMilliseconds: 1000, chunk: 0, frameRange: [10, 14]},
 	]);
 });

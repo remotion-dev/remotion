@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.541
+version: 4.0.544
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -155,10 +155,6 @@ Read [connected compositions](connected-compositions.md) when a scene or group
 needs its own editable timeline, or when handling a Studio pre-compose request.
 It covers extraction, registration, inherited styles, and verification in both
 the parent and standalone views.
-
-## Voiceover
-
-See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
 
 ## Embedding Videos
 

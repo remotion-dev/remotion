@@ -1,0 +1,39 @@
+{
+  "selection": "Frames selected from recent here recordings after comparing nearby face sharpness and checking expressions and open eyes.",
+  "processing": "Original frames extracted with FFmpeg. Transparent portraits made with the built-in image editing tool, followed by an edge cleanup pass. These AI-assisted cutouts are not pixel-identical to the originals.",
+  "portraits": [
+    {
+      "label": "smile",
+      "sourceFile": "here20.mov",
+      "sourceUrl": "https://remotion.media/here-2026-11-03/here20-976fdac624c8.mov",
+      "sourceTimeSeconds": 11.2,
+      "original": "originals/smile-here20-11.20.png",
+      "cutout": "smile-here20-11.20.png",
+      "width": 1310,
+      "height": 1200,
+      "hasAlpha": true
+    },
+    {
+      "label": "expressive",
+      "sourceFile": "here20.mov",
+      "sourceUrl": "https://remotion.media/here-2026-11-03/here20-976fdac624c8.mov",
+      "sourceTimeSeconds": 17.2,
+      "original": "originals/expressive-here20-17.20.png",
+      "cutout": "expressive-here20-17.20.png",
+      "width": 1324,
+      "height": 1188,
+      "hasAlpha": true
+    },
+    {
+      "label": "calm",
+      "sourceFile": "here26.mov",
+      "sourceUrl": "https://remotion.media/here-2026-11-03/here26-163623811ceb.mov",
+      "sourceTimeSeconds": 34.9,
+      "original": "originals/calm-here26-34.90.png",
+      "cutout": "calm-here26-34.90.png",
+      "width": 1323,
+      "height": 1189,
+      "hasAlpha": true
+    }
+  ]
+}

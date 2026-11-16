@@ -35,7 +35,7 @@ group affects all its layers. For consecutive shots, use the existing
 import {Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
 import {staticFile, useVideoConfig} from 'remotion';
-import {BasicCaptions} from './basic-captions';
+import {BasicCaptions} from './basic-captions.element';
 
 export const Interview = () => {
   const {fps} = useVideoConfig();

@@ -1,0 +1,77 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-open-timeline-import.png
+title: npx remotion open-timeline import
+crumb: CLI Reference
+sidebar_label: import
+---
+
+# npx remotion open-timeline import<AvailableFrom v="4.0.543" />
+
+Imports an OpenTimelineIO (`.otio`) file as a new composition without starting Remotion Studio.
+
+```bash title="Import a composition"
+bunx remotion open-timeline import my-edit.otio
+```
+
+The command creates an editable composition, copies referenced local media into the public directory, and installs `@remotion/media` if needed. Media already in the public directory is reused. Remote media URLs are preserved.
+
+Relative media paths are resolved from the timeline's directory.  
+Use `--media-dir` to import media from another directory.
+
+Unsupported timeline features are printed, see [supported timelines](/docs/codemods/generate-open-timeline-composition#supported-timelines).
+
+The command prints the files and dependencies, then imports them. Use `--dry-run` to preview without installing packages or writing files.
+
+## Flags
+
+### `--composition`
+
+The new composition ID - must not be pre-existing.  
+If omitted, a filename is generated off your .otio file name.
+
+### `--root-file`
+
+The [root file](/docs/terminology/root-file), relative to the project root. Detected automatically if not passed.
+
+### `--dry-run`
+
+Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files.
+
+### `--width`
+
+<Options id="width" />
+
+Defaults to `1920`.
+
+### `--height`
+
+<Options id="height" />
+
+Defaults to `1080`.
+
+### `--fps`
+
+<Options id="fps" />
+
+Defaults to `30`. The composition duration is calculated from the timeline at this frame rate.
+
+### `--media-dir`
+
+<Options id="media-dir" />
+
+### `--binaries-directory`
+
+<Options id="binaries-directory" />
+
+### `--public-dir`
+
+<Options id="public-dir" />
+
+### `--package-manager`
+
+<Options id="package-manager" />
+
+## See also
+
+- [`npx remotion open-timeline`](/docs/cli/open-timeline)
+- [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition)

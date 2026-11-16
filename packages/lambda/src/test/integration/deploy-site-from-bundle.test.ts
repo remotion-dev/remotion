@@ -25,7 +25,7 @@ const relocatableIndexHtml = `<!DOCTYPE html>
 <head></head>
 <body>
 <script>window.remotion_publicPath = "./";</script>
-<script>window.siteVersion = '11'; window.remotion_version = '${VERSION}';</script>
+<script>window.siteVersion = '12'; window.remotion_version = '${VERSION}';</script>
 </body>
 </html>`;
 

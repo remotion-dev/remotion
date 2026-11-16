@@ -45,16 +45,18 @@ export const useConfirmationDialog = (): ConfirmationDialogFunction => {
 					resolve(result);
 				};
 
-				setSelectedModal({
+				const id = String(Math.random());
+				setSelectedModal((current) => ({
 					type: 'confirmation-dialog',
-					id: String(Math.random()),
+					id,
+					library: current?.type === 'element-library' ? current : null,
 					title: options.title,
 					message: options.message,
 					confirmLabel: options.confirmLabel ?? 'Continue',
 					cancelLabel: options.cancelLabel ?? 'Cancel',
 					onConfirm: () => settle(true),
 					onCancel: () => settle(false),
-				});
+				}));
 			});
 		},
 		[setSelectedModal],
@@ -70,10 +72,10 @@ export const ConfirmationDialog: React.FC<{
 	const closeCurrentModal = useCallback(() => {
 		setSelectedModal((modal) =>
 			modal?.type === 'confirmation-dialog' && modal.id === state.id
-				? null
+				? state.library
 				: modal,
 		);
-	}, [setSelectedModal, state.id]);
+	}, [setSelectedModal, state.id, state.library]);
 
 	const settle = useCallback(
 		(confirmed: boolean) => {

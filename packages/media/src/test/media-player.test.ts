@@ -555,8 +555,10 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		expect((await player.initialize(0, true, 1)).type).toBe('success');
 		expect(frames).toBeGreaterThan(0);
 		expect(errors).toHaveLength(0);
+		expect(support).not.toHaveBeenCalled();
+		expect(player.audioIteratorManager).toBeNull();
 		player.setMuted(false);
-		expect(errors).toHaveLength(1);
+		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
 		player.setMuted(false);
 		expect(errors).toHaveLength(1);
@@ -594,7 +596,7 @@ test.each([
 				})
 			: null;
 		let input: Input | null = null;
-		const {getFormat, getAudioTracks} = Input.prototype;
+		const {getFormat, getPrimaryVideoTrack} = Input.prototype;
 		const pause = async (value: Input) => {
 			input = value;
 			reached();
@@ -610,10 +612,10 @@ test.each([
 							return getFormat.call(this);
 						})
 				: vi
-						.spyOn(Input.prototype, 'getAudioTracks')
+						.spyOn(Input.prototype, 'getPrimaryVideoTrack')
 						.mockImplementationOnce(async function (this: Input) {
 							await pause(this);
-							return getAudioTracks.call(this);
+							return getPrimaryVideoTrack.call(this);
 						});
 		const player = makeAudioPlayer(null, null, 'audio', {
 			canvas: null,

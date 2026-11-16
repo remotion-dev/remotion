@@ -24,8 +24,6 @@ export const offthreadVideoCacheSizeInBytesOption = {
 			is, the faster the render will be, but the more memory will be used.
 			<br />
 			The used value will be printed when running in verbose mode.
-			<br />
-			Default: <code>null</code>
 		</>
 	),
 	ssrName: 'offthreadVideoCacheSizeInBytes' as const,

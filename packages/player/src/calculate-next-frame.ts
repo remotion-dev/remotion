@@ -28,6 +28,17 @@ export const calculateNextFrame = ({
 		nextFrame > actualLastFrame || nextFrame < actualFirstFrame;
 
 	const hasEnded = !shouldLoop && isNextFrameOutside && !isCurrentFrameOutside;
+	if (shouldLoop && isNextFrameOutside && !isCurrentFrameOutside) {
+		const playbackRange = actualLastFrame - actualFirstFrame + 1;
+		const frameWithinRange = (nextFrame - actualFirstFrame) % playbackRange;
+		return {
+			nextFrame:
+				actualFirstFrame + ((frameWithinRange + playbackRange) % playbackRange),
+			framesToAdvance,
+			hasEnded,
+		};
+	}
+
 	if (playbackSpeed > 0) {
 		// Play forwards
 		if (isNextFrameOutside) {

@@ -208,7 +208,6 @@ const underlinePaddingSchema = {
 
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
 		min: 0,
@@ -381,13 +380,14 @@ const makeAnnotationComponent = ({
 		preserveVertices,
 		...configProps
 	}) => {
+		const videoEnabled = Internals.useVideoEnabled();
 		const annotation = useMemo(() => {
 			return createAnnotation();
 		}, []);
 		const config = (
 			disabled ? {type: 'none'} : {...configProps, type}
 		) as AnnotationConfig;
-		const annotationElement = (
+		const annotationElement = videoEnabled ? (
 			<annotation.Annotation
 				{...config}
 				progress={progress}
@@ -401,7 +401,7 @@ const makeAnnotationComponent = ({
 				disableMultiStroke={disableMultiStroke}
 				preserveVertices={preserveVertices}
 			/>
-		);
+		) : null;
 
 		const {
 			effectivePremountFor,

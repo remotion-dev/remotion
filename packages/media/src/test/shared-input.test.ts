@@ -2,6 +2,8 @@ import {ALL_FORMATS, EncodedPacketSink, Input, UrlSource} from 'mediabunny';
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {acquireSharedInput} from '../get-shared-input';
+import {makeOfflineMediaFetch} from '../offline-media-fetch';
+import {makeSinks} from '../video-extraction/get-frames-since-keyframe';
 
 test('shares a main-thread Input acquired outside @remotion/media', async () => {
 	const src = 'https://example.com/shared-input.mp4';
@@ -108,5 +110,80 @@ test('handles failed prefetches while still rejecting required reads', async () 
 		await Promise.resolve();
 		fetchSpy.mockRestore();
 		warnSpy.mockRestore();
+	}
+});
+
+// PR #12021: disposing an extraction input must release its reconnect wait
+// even when Mediabunny does not abort the fetch request's signal itself.
+test('disposing an offline extraction input releases its wait without reconnecting', async () => {
+	const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+	const fetchSpy = vi
+		.spyOn(globalThis, 'fetch')
+		.mockRejectedValue(new TypeError('Offline'));
+	const {dispose} = Input.prototype;
+	const disposeSpy = vi
+		.spyOn(Input.prototype, 'dispose')
+		.mockImplementation(function (this: Input) {
+			expect(fetchSpy.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
+			dispose.call(this);
+		});
+	const waits: boolean[] = [];
+	const sinks = makeSinks(
+		'https://example.com/offline-disposal.mp4',
+		'error',
+		undefined,
+		undefined,
+		(waiting) => waits.push(waiting),
+	);
+	try {
+		await vi.waitFor(() => expect(waits).toEqual([true]));
+		sinks.dispose();
+		const result = await sinks.promise;
+		expect(result.formatDetectionError?.name).toBe('InputDisposedError');
+		await vi.waitFor(() => expect(waits).toEqual([true, false]));
+		window.dispatchEvent(new Event('online'));
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
+	} finally {
+		disposeSpy.mockRestore();
+		sinks.dispose();
+		online.mockRestore();
+		fetchSpy.mockRestore();
+	}
+});
+
+// PR #12021: supporting WebCodecs must not require newer AbortSignal APIs.
+test('forwards request cancellation after headers without AbortSignal.any or throwIfAborted', async () => {
+	const any = vi.spyOn(AbortSignal, 'any').mockImplementation(() => {
+		throw new Error('AbortSignal.any is unavailable');
+	});
+	const throwIfAborted = vi
+		.spyOn(AbortSignal.prototype, 'throwIfAborted')
+		.mockImplementation(() => {
+			throw new Error('AbortSignal.throwIfAborted is unavailable');
+		});
+	const fetchSpy = vi
+		.spyOn(globalThis, 'fetch')
+		.mockResolvedValue(new Response('media'));
+	const caller = new AbortController();
+	const recovery = makeOfflineMediaFetch(null);
+	try {
+		await recovery.fetchFn('https://example.com/legacy-signal.mp4', {
+			signal: caller.signal,
+		});
+		const signal = fetchSpy.mock.calls[0][1]?.signal;
+		expect(signal?.aborted).toBe(false);
+		caller.abort();
+		expect(signal?.aborted).toBe(true);
+		recovery.dispose();
+		await expect(
+			recovery.fetchFn('https://example.com/disposed.mp4'),
+		).rejects.toThrow();
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
+	} finally {
+		recovery.dispose();
+		any.mockRestore();
+		throwIfAborted.mockRestore();
+		fetchSpy.mockRestore();
 	}
 });

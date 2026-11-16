@@ -1,5 +1,4 @@
-import {StudioInternals} from '@remotion/studio';
-import {AbsoluteFill, AnimatedImage, staticFile} from 'remotion';
+import {AbsoluteFill, AnimatedImage, Composition, staticFile} from 'remotion';
 
 const Comp = () => {
 	return (
@@ -36,11 +35,15 @@ const Comp = () => {
 	);
 };
 
-export const AnimatedImages = StudioInternals.createComposition({
-	component: Comp,
-	id: 'animated-images',
-	width: 2400,
-	height: 1080,
-	durationInFrames: 200,
-	fps: 30,
-});
+export const AnimatedImages = () => {
+	return (
+		<Composition
+			component={Comp}
+			id="animated-images"
+			width={2400}
+			height={1080}
+			durationInFrames={200}
+			fps={30}
+		/>
+	);
+};

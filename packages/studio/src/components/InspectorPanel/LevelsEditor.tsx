@@ -11,6 +11,7 @@ import {
 	canUseKeyframeOperations,
 } from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {callAddEffectKeyframe} from '../Timeline/call-add-keyframe';
@@ -66,7 +67,8 @@ export const LevelsEditor: React.FC<{
 		channel: useRuntimeStoreValue(runtimeValueStore, 'channel'),
 		disabled: useRuntimeStoreValue(runtimeValueStore, 'disabled'),
 	};
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	Internals.useOptimisticEffects(nodePath);
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex,

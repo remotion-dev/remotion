@@ -34,6 +34,7 @@ import {lensBlur} from '@remotion/effects/lens-blur';
 import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
+import {lightning} from '@remotion/effects/lightning';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
@@ -126,6 +127,7 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
+import {EffectsLightningPreview} from '../effects/effects-lightning-preview';
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
@@ -231,6 +233,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-lightning',
+		effectName: 'lightning',
+		effectImportPath: '@remotion/effects/lightning',
+		comp: EffectsLightningPreview,
+		schema: lightning().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-rain-fall',

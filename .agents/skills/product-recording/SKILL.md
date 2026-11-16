@@ -34,6 +34,7 @@ Remotion workflow; keep this skill in `.agents/skills`.
    timeline captures. It does not set the extension's output resolution.
    `RollerSkiRoughCut` lives in `packages/jonnys-videos`; locate other requested
    compositions rather than assuming they live in `packages/example`.
+
 5. Verify the requested composition and current timeline are visible. Activate
    Canvas Capture through its toolbar icon or Extensions menu.
 
@@ -71,9 +72,9 @@ Remotion workflow; keep this skill in `.agents/skills`.
    `packages/brand`, the local built CLI can be invoked as:
 
    ```bash
-   node ../cli/remotion-cli.js experimental-codemod add-canvas-capture \
+   node ../cli/remotion-cli.js canvas-capture import \
      /absolute/path/to/downloaded-capture.mp4 \
-     --composition-file src/Root.tsx --id TimelineRecording
+     --root-file src/Root.tsx --composition TimelineRecording
    ```
 
    Follow that skill's dimension, dependency, and conflict guidance. Inspect
@@ -81,6 +82,7 @@ Remotion workflow; keep this skill in `.agents/skills`.
    importing the full shot: the default 1920×1080 composition can crop a larger
    recording because the generated component retains native video dimensions.
    Preserve the download and existing compositions/assets.
+
 4. Review the generated component, registration, copied public asset, and any
    dependency changes. Run the relevant brand validation before offloading.
 

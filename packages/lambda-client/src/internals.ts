@@ -151,6 +151,7 @@ export {truthy} from './truthy';
 export {validateAwsRegion} from './validate-aws-region';
 export {validateBucketName} from './validate-bucket-name';
 export {parseBucketName} from './validate-bucketname';
+export {validateChunks} from './validate-chunks';
 export {validateDeleteAfter} from './validate-delete-after';
 export {validateDiskSizeInMb} from './validate-disk-size-in-mb';
 export {validateDownloadBehavior} from './validate-download-behavior';

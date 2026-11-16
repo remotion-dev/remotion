@@ -2,7 +2,7 @@ import {buildPackage} from '../.monorepo/builder';
 
 await buildPackage({
 	formats: {
-		cjs: 'use-tsc',
+		cjs: 'use-compiler-output',
 		esm: 'build',
 	},
 	external: ['./main.js', './worker.js'],

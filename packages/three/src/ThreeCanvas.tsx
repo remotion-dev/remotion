@@ -87,6 +87,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const {isRendering} = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
+	const videoEnabled = Internals.useVideoEnabled();
 	const frame = useCurrentFrame();
 
 	// Taken at commit and released on unmount, so a canvas that unmounts before it is
@@ -121,7 +122,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 
 	const remotion_onCreated: typeof onCreated = useCallback(
 		(state: RootState) => {
-			if (isRendering && advanceOnCreated) {
+			if (isRendering && videoEnabled && advanceOnCreated) {
 				state.advance(performance.now());
 			}
 
@@ -133,11 +134,11 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 
 			onCreated?.(state);
 		},
-		[onCreated, continueRender, isRendering, advanceOnCreated],
+		[onCreated, continueRender, isRendering, videoEnabled, advanceOnCreated],
 	);
 
 	useLayoutEffect(() => {
-		if (!isRendering || frame === 0) {
+		if (!isRendering || !videoEnabled || frame === 0) {
 			return;
 		}
 
@@ -150,7 +151,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 				continueRender(frameDelayHandle.current);
 			}
 		};
-	}, [frame, isRendering, delayRender, continueRender]);
+	}, [frame, isRendering, videoEnabled, delayRender, continueRender]);
 
 	const handleRendered = useCallback(() => {
 		if (frameDelayHandle.current !== null) {
@@ -170,7 +171,9 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					{isRendering && <FrameRenderer onRendered={handleRendered} />}
+					{isRendering && videoEnabled ? (
+						<FrameRenderer onRendered={handleRendered} />
+					) : null}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>

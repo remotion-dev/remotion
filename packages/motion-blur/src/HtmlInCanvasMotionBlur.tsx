@@ -25,7 +25,6 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 
 const htmlInCanvasMotionBlurSchema = {
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	shutterAngle: {
 		type: 'number',
 		min: 0,
@@ -82,7 +81,6 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
-	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
 	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
@@ -105,13 +103,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			{isRepresentativeSample ? (
-				content
-			) : (
-				<Internals.DisableSequenceRegistrationProvider>
-					{content}
-				</Internals.DisableSequenceRegistrationProvider>
-			)}
+			<Internals.DisableSequenceRegistrationProvider
+				disabled={!isRepresentativeSample}
+			>
+				<Freeze frame={sampleFrame}>{children}</Freeze>
+			</Internals.DisableSequenceRegistrationProvider>
 		</div>
 	);
 };
@@ -143,6 +139,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const videoEnabled = Internals.useVideoEnabled();
 	const accumulationCanvasRef = useRef<OffscreenCanvas | null>(null);
 
 	if (!Number.isInteger(samples) || samples < 1 || samples > 64) {
@@ -163,7 +160,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	}
 
 	// Keep the first sample mounted when blur is disabled so the canvas stays visible.
-	const actualSamples = disabled || shutterAngle === 0 ? 1 : samples;
+	// Audio-only frames mount the children once so their audio is captured once.
+	const actualSamples =
+		disabled || shutterAngle === 0 || !videoEnabled ? 1 : samples;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(

@@ -9,9 +9,7 @@ crumb: 'Integrations'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion in Vue
-
-This guide explains how to integrate Remotion into a **Vue.js** project.
+This guide explains how to integrate Remotion into a **Vue** project.
 
 ## Install required packages
 
@@ -56,7 +54,7 @@ yarn add --dev @types/react @types/react-dom @vitejs/plugin-react
 
 ```bash title="Use Bun as the package manager and runtime"
 bun i remotion @remotion/player @remotion/cli react react-dom
-bun --dev @types/react @types/react-dom @vitejs/plugin-react
+bun add --dev @types/react @types/react-dom @vitejs/plugin-react
 ```
 
 :::note
@@ -74,19 +72,19 @@ For better separation, create a folder to hold your Remotion files:
 src/remotion
 ```
 
-Copy the contents of your Remotion project or a starter template (e.g., HelloWorld) into this new folder. This will help separate Remotion related files from the rest of your VueJS codebase.
+Copy the contents of your Remotion project or a starter template (e.g., HelloWorld) into this new folder. This will help separate Remotion related files from the rest of your Vue codebase.
 
 ## Copy `remotion.config.ts`
 
-Copy the `remotion.config.ts` file to the root directory of your VueJS project, placing it at the same level as `package.json`.
+Copy the `remotion.config.ts` file to the root directory of your Vue project, placing it at the same level as `package.json`.
 
 This configuration file is necessary for Remotion to recognize and compile your project settings.
 
 ## Configure TypeScript for JSX
 
-To enable JSX support in VueJS, update the `tsconfig.app.json` file by setting `"jsx": "react"` under `compilerOptions`. This configuration allows VueJS to interpret JSX syntax used in Remotion's React components.
+To enable JSX support in Vue, update the `tsconfig.app.json` file by setting `"jsx": "react"` under `compilerOptions`. This configuration allows Vue to interpret JSX syntax used in Remotion's React components.
 
-```json title="tsconfig.json"
+```json title="tsconfig.app.json"
 {
   "compilerOptions": {
     "jsx": "react",
@@ -125,9 +123,9 @@ export default defineConfig({
 });
 ```
 
-## Create a React wrapper component for VueJS
+## Create a React wrapper component for Vue
 
-To embed Remotion components in VueJS, create a **wrapper component**:
+To embed Remotion components in Vue, create a **wrapper component**:
 
 1. In your `remotion` folder, create a file named `PlayerViewWrapper.vue`.
 
@@ -192,7 +190,7 @@ To embed Remotion components in VueJS, create a **wrapper component**:
 </template>
 ```
 
-This wrapper component will serve as the bridge between VueJs and Remotion’s React components.
+This wrapper component will serve as the bridge between Vue and Remotion’s React components.
 
 ## Create a wrapper for the Remotion Player
 
@@ -251,17 +249,17 @@ export const PlayerView = ({
 };
 ```
 
-## Use the component in VueJS
+## Use the component in Vue
 
-To display the Remotion player within an VueJS template, add your new wrapper component wherever you'd like the Player to appear:
+To display the Remotion player within a Vue template, add your new wrapper component wherever you'd like the Player to appear:
 
 ```html
-<PlayerWrapper @paused="onPaused" :data="data" />
+<PlayerViewWrapper @paused="onPaused" :data="data" />
 ```
 
-This VueJS component tag will render the Remotion Player, allowing you to pass data or configuration as needed through VueJS's data binding.
+This Vue component tag will render the Remotion Player, allowing you to pass data or configuration as needed through Vue's data binding.
 
-You're now able to use the [`API`](/docs/player/player) of the player via the `player` ref binding
+You're now able to use the [`API`](/docs/player/player) of the player via the `playerRef` ref in `PlayerViewWrapper.vue`.
 
 ## See also
 

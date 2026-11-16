@@ -21,6 +21,8 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	CopyRenderOutputToAssetRequest,
+	CopyRenderOutputToAssetResponse,
 	GitSource,
 	InstallPackageRequest,
 	InstallPackageResponse,
@@ -40,11 +42,17 @@ import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {getNativeFilePickerDirectory} from './helpers/native-file-picker-directory';
 import {
 	assertNoSymlinks,
 	openFileForWritingWithoutSymlinks,
 } from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
+import {resolveReadableOutputPath} from './helpers/resolve-readable-output-path';
+import {
+	prewarmNativeFilePicker,
+	supportsNativeFilePicker,
+} from './native-file-picker';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
@@ -53,6 +61,7 @@ import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {handleAppIcon} from './preview-server/routes/app-icon';
+import {copyRenderOutputToAssetHandler} from './preview-server/routes/copy-render-output-to-asset';
 import {handleInstallPackage} from './preview-server/routes/install-dependency';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {updateConfigHandler} from './preview-server/routes/update-config';
@@ -156,7 +165,18 @@ const handleFallback = async ({
 	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
+	const nativeFilePickerSupported = supportsNativeFilePicker(request);
 	if (request.method === 'GET' && acceptsHtml) {
+		if (nativeFilePickerSupported) {
+			prewarmNativeFilePicker(
+				(await getNativeFilePickerDirectory({
+					remotionRoot,
+					type: 'timeline',
+					updateDirectory: null,
+				})) ?? remotionRoot,
+			);
+		}
+
 		await reloadPreviouslySuppressedFiles();
 	}
 
@@ -222,6 +242,7 @@ const handleFallback = async ({
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 			fileSystemPlatform: process.platform,
+			supportsNativeFilePicker: nativeFilePickerSupported,
 			gitSource,
 			projectName: getProjectName({
 				basename: path.basename,
@@ -675,6 +696,27 @@ export const handleRoutes = ({
 		});
 	}
 
+	if (url.pathname === '/api/copy-render-output-to-asset') {
+		return handleRequest<
+			CopyRenderOutputToAssetRequest,
+			CopyRenderOutputToAssetResponse
+		>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) =>
+				copyRenderOutputToAssetHandler({...params, getRenderQueue}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
+		});
+	}
+
 	for (const [key, value] of Object.entries(allApiRoutes)) {
 		if (url.pathname === key) {
 			return handleRequest({
@@ -744,21 +786,12 @@ export const handleRoutes = ({
 			return Promise.resolve();
 		}
 
-		const filePath = path.resolve(remotionRoot, filename);
-		const outsideProject = !RenderInternals.isPathInside(
-			filePath,
+		const resolvedOutput = resolveReadableOutputPath({
 			remotionRoot,
-		);
-		const isCompletedOutput =
-			outsideProject &&
-			getRenderQueue().some(
-				(job) =>
-					job.status === 'done' &&
-					(job.type === 'video' || job.type === 'still') &&
-					!job.deletedOutputLocation &&
-					path.resolve(remotionRoot, job.outName) === filePath,
-			);
-		if (outsideProject && !isCompletedOutput) {
+			outputPath: filename,
+			getRenderQueue,
+		});
+		if (resolvedOutput === null) {
 			response.writeHead(404);
 			response.end('Output file not found');
 			return Promise.resolve();
@@ -766,10 +799,10 @@ export const handleRoutes = ({
 
 		return serveStatic({
 			root: remotionRoot,
-			path: filePath,
+			path: resolvedOutput.filePath,
 			req: request,
 			res: response,
-			allowOutsidePublicFolder: isCompletedOutput,
+			allowOutsidePublicFolder: resolvedOutput.allowOutsideProject,
 			allowRemotionConvertCors: false,
 		});
 	}

@@ -109,6 +109,7 @@ const PrecomposeNameModalLoaded: React.FC<{readonly state: State}> = ({
 					setSelectedModal({
 						type: 'precompose-refactor',
 						targets: state.refactorTargets,
+						failureReason: result.reason,
 					});
 					return;
 				}

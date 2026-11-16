@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getElementLibraryLabel} from '../../helpers/get-element-library-label';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
@@ -749,7 +750,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		type: 'item',
 		id: url,
 		value: url,
-		label: libraryName ?? new URL(url).host,
+		label: getElementLibraryLabel({url, displayName: libraryName}),
 		leftItem: url === libraryUrl ? <Checkmark /> : null,
 		keyHint: null,
 		subMenu: null,
@@ -965,6 +966,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 				<div style={transcriptionLayout}>
 					<div style={leftSidebar}>
 						<VerticalTab
+							draggable={false}
 							autoFocus
 							style={horizontalTab}
 							selected={tab === 'transcribe'}
@@ -979,6 +981,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						</VerticalTab>
 						{target === null ? null : (
 							<VerticalTab
+								draggable={false}
 								style={horizontalTab}
 								selected={tab === 'styles'}
 								onClick={() => setTab('styles')}
@@ -992,6 +995,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							</VerticalTab>
 						)}
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'models'}
 							onClick={() => setTab('models')}
@@ -1004,6 +1008,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							Models
 						</VerticalTab>
 						<VerticalTab
+							draggable={false}
 							style={horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
@@ -1168,6 +1173,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								url={libraryUrl}
 								context="captions"
 								captionStyleSelection={captionStyleSelection}
+								onUrlChange={null}
 							/>
 						</div>
 					) : null}

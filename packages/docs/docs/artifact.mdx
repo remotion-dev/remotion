@@ -32,12 +32,10 @@ However, the file names must be unique.
 The component will get evaluated on every frame, which means if you want to emit just one file, only render it on one frame.
 
 ```tsx twoslash title="❌ Will generate an asset on every frame and throw an error because the file name is not unique"
-import {Artifact, useCurrentFrame} from 'remotion';
+import {Artifact} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-
-  return frame === 0 ? <Artifact filename="my-file.txt" content="Hello World!" /> : null;
+  return <Artifact filename="my-file.txt" content="Hello World!" />;
 };
 ```
 
@@ -60,7 +58,7 @@ Only applies to serverless rendering.
 How the output file should behave when accessed through the output link in the browser.  
 Either:
 
-- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "play-in-browser"}` - The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 The default behavior is the same download behavior you defined for the main rendering output.

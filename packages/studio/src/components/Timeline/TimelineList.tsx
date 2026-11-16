@@ -268,7 +268,6 @@ export const TimelineList: React.FC = () => {
 				font-family: Arial, Helvetica, sans-serif;
 				font-size: 12px;
 				line-height: normal;
-				padding-right: 10px;
 				visibility: hidden;
 			}`}</style>
 			{virtualItems.map((virtualItem) =>

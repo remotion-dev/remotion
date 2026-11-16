@@ -1,6 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {Freeze, Sequence} from 'remotion';
+import {Easing, Freeze, interpolate, Sequence} from 'remotion';
 import {z} from 'zod';
 import {BasicCaptions, BasicCaptionsVisibility} from '../basic-captions';
 import {AnnotateChatGPTBroll} from './AnnotateChatGPTBroll';
@@ -49,6 +49,7 @@ import {WebMcpAgentsLayout, WebMcpAgentsSidebar} from './WebMcpAgentsSidebar';
 
 export const agenticallyProgrammaticallySchema = z.object({
 	startWithPanelVisible: z.boolean(),
+	softenOpeningVoice: z.boolean(),
 	platform: publicationPlatformSchema,
 });
 
@@ -58,6 +59,7 @@ type AgenticallyProgrammaticallyProps = z.infer<
 
 const AgenticallyProgrammaticallyContent = ({
 	startWithPanelVisible,
+	softenOpeningVoice,
 	platform,
 }: AgenticallyProgrammaticallyProps) => {
 	return (
@@ -90,7 +92,18 @@ const AgenticallyProgrammaticallyContent = ({
 				<Audio
 					name="here1 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here1-auphonic-7a767eea0051.flac"
-					volume={0.25}
+					volume={(frame) =>
+						softenOpeningVoice
+							? 0.25 *
+								10 **
+									(interpolate(frame, [0, 60], [-2.5, 0], {
+										easing: Easing.inOut(Easing.cubic),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									}) /
+										20)
+							: 0.25
+					}
 				/>
 				<MottoCaptions startWithPanelVisible={startWithPanelVisible}>
 					<BasicCaptions
@@ -1806,6 +1819,7 @@ const AgenticallyProgrammaticallyContent = ({
 				/>
 				<CodexDropSidebar
 					name="08 - Drop camera footage into Codex"
+					fadeIn
 					from={237}
 					durationInFrames={126}
 				/>

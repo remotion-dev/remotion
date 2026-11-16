@@ -25,6 +25,7 @@ export const concatVideos = async ({
 	audioBitrate,
 	logLevel,
 	framesPerLambda,
+	chunkDurationsInFrames,
 	binariesDirectory,
 	cancelSignal,
 	preferLossless,
@@ -46,6 +47,7 @@ export const concatVideos = async ({
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
+	chunkDurationsInFrames: number[] | null;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
@@ -104,6 +106,7 @@ export const concatVideos = async ({
 			everyNthFrame,
 			frameRange,
 			sampleRate,
+			chunkDurationsInFrames,
 		});
 	} catch (err) {
 		await fs.promises.rm(outputDirectory, {recursive: true, force: true});
