@@ -706,8 +706,12 @@ export const renderVideoFlow = async ({
 				});
 				Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 			} catch (err) {
-				Log.error({indent, logLevel}, 'Failed to send usage event');
-				Log.error({indent: true, logLevel}, err);
+				const {message, cause} = err as Error;
+				Log.error(
+					{indent, logLevel},
+					`Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`,
+				);
+				Log.verbose({indent: true, logLevel}, err);
 			}
 		}
 

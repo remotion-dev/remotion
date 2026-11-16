@@ -158,8 +158,7 @@ export const internalRegisterUsageEvent = async ({
 				const backoffMs = exponentialBackoffMs(attempt);
 				// eslint-disable-next-line no-console
 				console.log(
-					`Failed to send usage event (attempt ${attempt}/${totalAttempts}), retrying in ${backoffMs}ms...`,
-					err,
+					`Failed to send usage event (attempt ${attempt}/${totalAttempts}): ${lastError.message}. Retrying in ${backoffMs}ms...`,
 				);
 				await sleep(backoffMs);
 			}

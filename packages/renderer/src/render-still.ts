@@ -478,8 +478,12 @@ const internalRenderStillRaw = (
 						Log.verbose(options, 'Usage event sent successfully');
 					})
 					.catch((err) => {
-						Log.error(options, 'Failed to send usage event');
-						Log.error(options, err);
+						const {message, cause} = err as Error;
+						Log.error(
+							options,
+							`Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`,
+						);
+						Log.verbose(options, err);
 					})
 					.finally(() => {
 						resolve(res);
