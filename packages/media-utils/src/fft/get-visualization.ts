@@ -46,15 +46,21 @@ export const getVisualization = ({
 	}
 
 	const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
-
-	const actualStart = Math.max(0, start - sampleSize / 2);
+	const windowStart = Math.floor(start - sampleSize / 2);
+	const windowEnd = windowStart + sampleSize;
+	const clampedStart = Math.min(Math.max(windowStart, 0), data.length);
+	const clampedEnd = Math.min(Math.max(windowEnd, 0), data.length);
 
 	const ints = new Int16Array({
 		length: sampleSize,
 	});
-	ints.set(
-		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x)),
-	);
+	if (clampedEnd > clampedStart) {
+		ints.set(
+			data.subarray(clampedStart, clampedEnd).map((x) => toInt16(x)),
+			clampedStart - windowStart,
+		);
+	}
+
 	const alg = optimizeFor === 'accuracy' ? fftAccurate : fftFast;
 
 	const phasors = alg(ints);
