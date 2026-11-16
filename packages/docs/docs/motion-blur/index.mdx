@@ -6,13 +6,19 @@ crumb: 'Designing visuals'
 
 # Motion blur
 
-To realize a realistic motion blur, a frame needs to be duplicated multiple times and blended together.
+Motion blur is an essential, albeit expensive effect used in video editing and motion graphics.  
+It duplicates a frame multiple times and blends it together.
 
-Remotion provides a [`@remotion/motion-blur`](/docs/motion-blur/api) package to achieve this.
+Remotion supports Motion Blur on arbitrary content in the [`@remotion/motion-blur`](/docs/motion-blur/api) package and for transitions through [`@remotion/transitions`](/docs/transitions).
 
 Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add motion blur to a component:
 
-<SuggestedPrompt prompt="/remotion-markup Add motion blur to my text animation" />
+## Using an agent
+
+The `/remotion-markup` skills can help you find the right motion blur for your animation.  
+Reference an element and ask:
+
+<SuggestedPrompt prompt="/remotion-markup Add motion blur to this" />
 
 ## Transition motion blur<AvailableFrom v="4.0.545" />
 
