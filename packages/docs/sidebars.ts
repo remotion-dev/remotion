@@ -1362,7 +1362,7 @@ const sidebars: SidebarsConfig = {
 		'html-in-canvas',
 		{
 			type: 'category',
-			label: 'Designing visuals',
+			label: 'Visual techniques',
 			items: [
 				'layers',
 				'video-matting-guide',
