@@ -463,7 +463,7 @@ export const usePlayback = ({
 					: nextFrame;
 
 			const didJump = frameToDisplay !== currentFrame + framesToAdvance;
-			if (didJump) {
+			if (didJump && !hasEnded) {
 				// Re-anchor after the jump's target frame commits.
 				playbackJumpRevision.current++;
 			}
