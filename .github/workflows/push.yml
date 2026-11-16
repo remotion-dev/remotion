@@ -195,14 +195,6 @@ jobs:
           path: packages/web-renderer/src/test/__screenshots__/native-pixel-failures/
           if-no-files-found: ignore
           retention-days: 7
-      - name: Upload web renderer screenshot failures
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-renderer-screenshot-failures-${{ github.run_attempt }}
-          path: packages/web-renderer/.vitest/attachments/
-          if-no-files-found: ignore
-          retention-days: 7
   browser-studio-tests:
     needs: affected
     if: ${{ needs.affected.outputs.webrenderer == 'true' }}
