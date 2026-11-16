@@ -290,6 +290,7 @@ export const Demo: React.FC<{
 					<Player
 						key={key}
 						acknowledgeRemotionLicense
+						defaultPremountInSeconds={2}
 						component={demo.comp}
 						compositionWidth={demo.compWidth}
 						compositionHeight={demo.compHeight}
