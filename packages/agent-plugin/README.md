@@ -1,4 +1,4 @@
-# Remotion Codex Plugin
+# Remotion Agent Plugin
 
 The official [Remotion](https://www.remotion.dev/) Agent Plugin.
 
