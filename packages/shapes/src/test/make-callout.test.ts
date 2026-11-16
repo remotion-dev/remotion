@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {getBoundingBox} from '@remotion/paths';
 import {makeCallout} from '../utils/make-callout';
 
 test('Should be able to make a callout path', () => {
@@ -108,4 +109,29 @@ test('Should not round the pointer join when left pointer is on the edge', () =>
 	expect(callout.path).toBe(
 		'M 40 0 L 500 0 a 40 40 0 0 1 40 40 L 540 160 a 40 40 0 0 1 -40 40 L 80 200 a 40 40 0 0 1 -40 -40 L 40 30 L 0 0 Z',
 	);
+});
+
+test('Should clamp cornerRadius to available edge lengths', () => {
+	expect(makeCallout({width: 500, height: 200, cornerRadius: 1000})).toEqual(
+		makeCallout({width: 500, height: 200, cornerRadius: 100}),
+	);
+
+	const nearCorner = makeCallout({
+		width: 500,
+		height: 200,
+		pointerLength: 40,
+		pointerBaseWidth: 60,
+		pointerPosition: 0.1,
+		pointerDirection: 'down',
+		cornerRadius: 40,
+	});
+
+	expect(nearCorner.path).toBe(
+		'M 40 0 L 460 0 a 40 40 0 0 1 40 40 L 500 160 a 40 40 0 0 1 -40 40 L 80 200 L 50 240 L 20 200 L 20 200 a 20 20 0 0 1 -20 -20 L 0 40 a 40 40 0 0 1 40 -40 Z',
+	);
+	const box = getBoundingBox(nearCorner.path);
+	expect(box.x1).toBeCloseTo(0);
+	expect(box.y1).toBeCloseTo(0);
+	expect(box.x2).toBeCloseTo(500);
+	expect(box.y2).toBeCloseTo(240);
 });

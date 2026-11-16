@@ -110,11 +110,11 @@ const makeInstructions = ({
 }): Instruction[] => {
 	const rawPoints = points.map((p) => p.point);
 
-	if (edgeRoundness !== null || cornerRadius === 0) {
+	if (edgeRoundness !== null || cornerRadius <= 0) {
 		return [
 			...joinPoints(rawPoints, {
 				edgeRoundness,
-				cornerRadius,
+				cornerRadius: edgeRoundness === null ? 0 : cornerRadius,
 				roundCornerStrategy: 'arc',
 			}),
 			{
@@ -129,14 +129,41 @@ const makeInstructions = ({
 	)
 		? points.slice(0, -1)
 		: points;
+	const getCornerRadius = (index: number) => {
+		const current = uniquePoints[index];
+		if (!current.round) {
+			return 0;
+		}
+
+		const previous =
+			uniquePoints[(index - 1 + uniquePoints.length) % uniquePoints.length];
+		const next = uniquePoints[(index + 1) % uniquePoints.length];
+		const incomingLength = Math.hypot(
+			current.point[0] - previous.point[0],
+			current.point[1] - previous.point[1],
+		);
+		const outgoingLength = Math.hypot(
+			next.point[0] - current.point[0],
+			next.point[1] - current.point[1],
+		);
+
+		return Math.min(
+			cornerRadius,
+			previous.round ? incomingLength / 2 : incomingLength,
+			next.round ? outgoingLength / 2 : outgoingLength,
+		);
+	};
+
 	const firstPoint = uniquePoints[0];
-	const startDir = firstPoint.round
-		? unitDir(uniquePoints[0].point, uniquePoints[1].point)
-		: null;
+	const firstRadius = getCornerRadius(0);
+	const startDir =
+		firstRadius > 0
+			? unitDir(uniquePoints[0].point, uniquePoints[1].point)
+			: null;
 	const startPoint: Point = startDir
 		? [
-				firstPoint.point[0] + startDir[0] * cornerRadius,
-				firstPoint.point[1] + startDir[1] * cornerRadius,
+				firstPoint.point[0] + startDir[0] * firstRadius,
+				firstPoint.point[1] + startDir[1] * firstRadius,
 			]
 		: firstPoint.point;
 	const instructions: Instruction[] = [
@@ -145,8 +172,9 @@ const makeInstructions = ({
 
 	for (let i = 1; i < uniquePoints.length; i++) {
 		const current = uniquePoints[i];
+		const radius = getCornerRadius(i);
 
-		if (!current.round) {
+		if (radius === 0) {
 			instructions.push({
 				type: 'L',
 				x: current.point[0],
@@ -160,8 +188,8 @@ const makeInstructions = ({
 		const incoming = unitDir(previous, current.point);
 		const outgoing = unitDir(current.point, next);
 		const arcStart: Point = [
-			current.point[0] - incoming[0] * cornerRadius,
-			current.point[1] - incoming[1] * cornerRadius,
+			current.point[0] - incoming[0] * radius,
+			current.point[1] - incoming[1] * radius,
 		];
 
 		instructions.push(
@@ -172,34 +200,34 @@ const makeInstructions = ({
 			},
 			{
 				type: 'a',
-				rx: cornerRadius,
-				ry: cornerRadius,
+				rx: radius,
+				ry: radius,
 				xAxisRotation: 0,
-				dx: incoming[0] * cornerRadius + outgoing[0] * cornerRadius,
-				dy: incoming[1] * cornerRadius + outgoing[1] * cornerRadius,
+				dx: incoming[0] * radius + outgoing[0] * radius,
+				dy: incoming[1] * radius + outgoing[1] * radius,
 				largeArcFlag: false,
 				sweepFlag: true,
 			},
 		);
 	}
 
-	if (firstPoint.round) {
+	if (firstRadius > 0) {
 		const previous = uniquePoints[uniquePoints.length - 1].point;
 		const incoming = unitDir(previous, firstPoint.point);
 
 		instructions.push(
 			{
 				type: 'L',
-				x: firstPoint.point[0] - incoming[0] * cornerRadius,
-				y: firstPoint.point[1] - incoming[1] * cornerRadius,
+				x: firstPoint.point[0] - incoming[0] * firstRadius,
+				y: firstPoint.point[1] - incoming[1] * firstRadius,
 			},
 			{
 				type: 'a',
-				rx: cornerRadius,
-				ry: cornerRadius,
+				rx: firstRadius,
+				ry: firstRadius,
 				xAxisRotation: 0,
-				dx: incoming[0] * cornerRadius + startDir![0] * cornerRadius,
-				dy: incoming[1] * cornerRadius + startDir![1] * cornerRadius,
+				dx: incoming[0] * firstRadius + startDir![0] * firstRadius,
+				dy: incoming[1] * firstRadius + startDir![1] * firstRadius,
 				largeArcFlag: false,
 				sweepFlag: true,
 			},
