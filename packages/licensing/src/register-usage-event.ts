@@ -168,6 +168,11 @@ export const internalRegisterUsageEvent = async ({
 	throw lastError;
 };
 
+export const getUsageEventErrorMessage = (err: unknown) => {
+	const {message, cause} = err as Error;
+	return `Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`;
+};
+
 export const registerUsageEvent = (
 	options: RegisterUsageEventOptions,
 ): Promise<RegisterUsageEventResponse> => {

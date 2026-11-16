@@ -995,10 +995,9 @@ const internalRenderMediaRaw = async ({
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 						})
 						.catch((err) => {
-							const {message, cause} = err as Error;
 							Log.error(
 								{indent, logLevel},
-								`Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`,
+								LicensingInternals.getUsageEventErrorMessage(err),
 							);
 							Log.verbose({indent: true, logLevel}, err);
 						})

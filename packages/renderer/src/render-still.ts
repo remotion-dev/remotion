@@ -478,10 +478,9 @@ const internalRenderStillRaw = (
 						Log.verbose(options, 'Usage event sent successfully');
 					})
 					.catch((err) => {
-						const {message, cause} = err as Error;
 						Log.error(
 							options,
-							`Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`,
+							LicensingInternals.getUsageEventErrorMessage(err),
 						);
 						Log.verbose(options, err);
 					})
