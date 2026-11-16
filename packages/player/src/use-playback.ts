@@ -253,6 +253,13 @@ export const usePlayback = ({
 						return null;
 					}
 
+					if (playing) {
+						return (
+							sharedAudioContext.audioSyncAnchor.value +
+							((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
+						);
+					}
+
 					// play() resumes audio before the playing React commit. Compute
 					// the deadline from the live playhead before queued nodes start.
 					return (
