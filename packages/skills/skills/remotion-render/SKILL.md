@@ -37,11 +37,12 @@ See https://www.remotion.dev/docs/passing-props.md.
 ## License key
 
 Companies that need a [Remotion license](../remotion-license/SKILL.md) should
-pass their license key to every render. If the user qualifies for the free
-license, pass `free-license` instead:
+pass their license key to every render. Replace `YOUR_API_KEY` in this example
+with that license key. If the user qualifies for the free license, pass
+`free-license` instead.
 
 ```
-npx remotion render [composition-id] out/video.mp4 --license-key=$REMOTION_PRIVATE_LICENSE_KEY
+npx remotion render [composition-id] out/video.mp4 --license-key=YOUR_API_KEY
 ```
 
 Only pass `--license-key` if a key is available, since an empty value is not a valid key.
