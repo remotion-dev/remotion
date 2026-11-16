@@ -14,6 +14,72 @@ Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add motion blu
 
 <SuggestedPrompt prompt="/remotion-markup Add motion blur to my text animation" />
 
+## Transition motion blur<AvailableFrom v="4.0.545" />
+
+The `motionBlur` prop on `<TransitionSeries.Transition>` blurs the presentation's movement. It is available in `@remotion/transitions`. [API reference](/docs/transitions/transitionseries#motionblur)
+
+```tsx twoslash title="MyComposition.tsx"
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#0b84f3'}} />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide({direction: 'from-bottom'})}
+        timing={springTiming({durationInFrames: 20})}
+        motionBlur={{shutterAngle: 180, samples: 16}}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#2ecc71'}} />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+Both scenes keep advancing during the transition. Each scene is captured once at the current frame. The captured images are reused while the presentation is drawn at fractional times across the shutter interval, using the transition's timing function. The resulting images are averaged.
+
+Animations and videos inside the scenes are sampled at the current frame. For temporal sampling of scene contents, use `<HtmlInCanvasMotionBlur>`. [Component reference](/docs/motion-blur/html-in-canvas-motion-blur)
+
+### `motionBlur?`
+
+An object with the following options. Passing `{}` uses the defaults. Omitting `motionBlur` disables transition motion blur.
+
+#### `shutterAngle?`
+
+The exposure length, expressed as an angle from `0` to `360`. Defaults to `180`, which spans half a frame centered on the current frame. At `0`, the presentation is drawn once at the current frame.
+
+#### `samples?`
+
+The number of presentation images to average. Defaults to `16`. Must be a positive integer. Higher values make the blur smoother and increase the rendering work.
+
+### Supported presentations
+
+All built-in presentations support `motionBlur`, including `slide()`, `fade()`, `wipe()`, `flip()`, `cube()`, `clockWipe()`, `iris()`, `none()`, and `pushCut()`. Their direction, perspective, mask dimensions, fade-out, and push-cut options are preserved. [Presentation reference](/docs/transitions/presentations)
+
+CSS style overrides such as `enterStyle`, `exitStyle`, `innerEnterStyle`, `innerExitStyle`, `outerEnterStyle`, and `outerExitStyle` require the React rendering path. Combining them with `motionBlur` throws an error.
+
+Custom presentations can provide a `canvas` renderer with the `HtmlInCanvasShader<Props>` interface. Presentations created with `makeHtmlInCanvasPresentation()` expose their shader automatically. Each draw must produce a complete image for the supplied progress value independently of earlier draws. [Shader API](/docs/transitions/make-html-in-canvas-presentation)
+
+### Sequence boundaries
+
+Transition motion blur requires a `<TransitionSeries.Sequence>` on both sides of the transition. The entering and exiting transitions of a middle sequence must fit within its duration without overlapping.
+
+Exposure samples are clamped to the transition duration. Scene mounting follows the current frame, so samples near a sequence boundary can differ from temporal sampling of the full scene.
+
+### Browser support
+
+Preview requires HTML-in-canvas support. Browsers without it show the original presentation and a “Motion blur is not visible” indication. Rendering requires HTML-in-canvas support and uses Remotion's bundled browser by default. [HTML-in-canvas setup](/docs/html-in-canvas#enabling-the-flag-in-chrome)
+
+<ExperimentalBadge>
+  <p>The transition motion-blur API is experimental and may change.</p>
+</ExperimentalBadge>
+
 ## Recommended: HTML-in-canvas motion blur
 
 [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) is the state-of-the-art implementation of motion blur.
