@@ -8,7 +8,7 @@ Use MapTiler for both layers:
 - `satellite-v2`: raster satellite imagery draped on that mesh.
 
 CesiumJS renders the layers. MapTiler supplies the data. Replace `YOUR_API_KEY` in
-the `MAPTILER_KEY` constant in `../assets/CesiumFlythrough.tsx` with a MapTiler key.
+both `api.maptiler.com` URLs in `../assets/CesiumFlythrough.tsx` with a MapTiler key.
 
 Create a key:
 
@@ -23,7 +23,7 @@ Official documentation:
 
 Use Google Photorealistic 3D Tiles. Google supplies one high-resolution 3D mesh already textured
 with imagery. Disable the Cesium globe and do not add MapTiler terrain or satellite beneath it.
-Replace `YOUR_API_KEY` in the `GOOGLE_MAPS_API_KEY` constant in
+Replace `YOUR_API_KEY` in the `tile.googleapis.com` URL in
 `../assets/CesiumFlythrough.tsx` with a Google Map Tiles API key.
 
 Create and configure a key:
