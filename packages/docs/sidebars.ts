@@ -1380,6 +1380,12 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+			defaultStyle: true,
+		},
+		{
 			type: 'category',
 			label: 'Parameterized videos',
 			link: {
