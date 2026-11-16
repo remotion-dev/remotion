@@ -57,6 +57,7 @@ import {
 	validateDurationInFrames,
 	validateFps,
 } from './validate';
+import {validateImageSequencePattern} from './validate-image-sequence-pattern';
 import {validateScale} from './validate-scale';
 import {validateSelectedFrames} from './validate-selected-frames';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
@@ -568,6 +569,7 @@ const internalRenderFramesRaw = ({
 
 	validateJpegQuality(jpegQuality);
 	validateScale(scale);
+	validateImageSequencePattern(imageSequencePattern);
 
 	const makeBrowser = () =>
 		internalOpenBrowser({
