@@ -163,6 +163,10 @@ const siteConfig: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect('/api/:path+/', '/api/:path+', {
+			permanent: true,
+			has: accountHosts,
+		}),
 		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
 		routes.redirect(
 			'/docs/starburst',
