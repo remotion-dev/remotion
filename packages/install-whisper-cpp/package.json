@@ -17,7 +17,7 @@
 		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "MIT",
 	"dependencies": {
 		"@remotion/captions": "workspace:*"
 	},
