@@ -45,20 +45,21 @@ export const getVisualization = ({
 		);
 	}
 
-	const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
-	const windowStart = Math.floor(start - sampleSize / 2);
-	const windowEnd = windowStart + sampleSize;
-	const clampedStart = Math.min(Math.max(windowStart, 0), data.length);
-	const clampedEnd = Math.min(Math.max(windowEnd, 0), data.length);
-
 	const ints = new Int16Array({
 		length: sampleSize,
 	});
-	if (clampedEnd > clampedStart) {
-		ints.set(
-			data.subarray(clampedStart, clampedEnd).map((x) => toInt16(x)),
-			clampedStart - windowStart,
-		);
+	if (frame >= 0) {
+		const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
+		const windowStart = Math.floor(start - sampleSize / 2);
+		const windowEnd = windowStart + sampleSize;
+		const clampedStart = Math.min(Math.max(windowStart, 0), data.length);
+		const clampedEnd = Math.min(Math.max(windowEnd, 0), data.length);
+		if (clampedEnd > clampedStart) {
+			ints.set(
+				data.subarray(clampedStart, clampedEnd).map((x) => toInt16(x)),
+				clampedStart - windowStart,
+			);
+		}
 	}
 
 	const alg = optimizeFor === 'accuracy' ? fftAccurate : fftFast;

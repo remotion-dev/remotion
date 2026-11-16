@@ -63,7 +63,7 @@ export const visualizeAudio = ({
 	...parameters
 }: MandatoryVisualizeAudioOptions &
 	Partial<OptionalVisualizeAudioOptions> & {}) => {
-	if (!smoothing) {
+	if (!smoothing || parameters.frame < 0) {
 		return visualizeAudioFrame({
 			...parameters,
 			optimizeFor,

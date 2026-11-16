@@ -19,6 +19,19 @@ const audioData: MediaUtilsAudioData = {
 
 test('returns silence before the audio starts for both FFT modes', () => {
 	for (const optimizeFor of ['accuracy', 'speed'] as const) {
+		for (const smoothing of [true, false] as const) {
+			expect(
+				visualizeAudio({
+					audioData,
+					frame: -1,
+					fps: 30,
+					numberOfSamples: 512,
+					smoothing,
+					optimizeFor,
+				}),
+			).toEqual(new Array(512).fill(0));
+		}
+
 		expect(
 			visualizeAudio({
 				audioData,
@@ -39,6 +52,17 @@ test('returns silence before the audio starts for both FFT modes', () => {
 				optimizeFor,
 			}),
 		).toEqual(new Array(16).fill(0));
+
+		const windowed = visualizeAudio({
+			audioData,
+			frame: 299,
+			fps: 30,
+			numberOfSamples: 512,
+			dataOffsetInSeconds: 10,
+			smoothing: false,
+			optimizeFor,
+		});
+		expect(windowed.some((value) => value > 0)).toBe(true);
 	}
 });
 
