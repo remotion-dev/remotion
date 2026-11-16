@@ -1,9 +1,11 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill, interpolate} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
 } from '../types.js';
+import {makeThreeDimensionalSceneRenderer} from './three-dimensional-scene';
 
 export type FlipDirection =
 	| 'from-left'
@@ -18,6 +20,48 @@ export type FlipProps = {
 	outerExitStyle?: React.CSSProperties;
 	innerEnterStyle?: React.CSSProperties;
 	innerExitStyle?: React.CSSProperties;
+};
+
+const flipCanvas: HtmlInCanvasShader<FlipProps> = (canvas) => {
+	const renderer = makeThreeDimensionalSceneRenderer(canvas);
+	return {
+		clear: renderer.clear,
+		cleanup: renderer.cleanup,
+		draw: ({
+			prevImage,
+			nextImage,
+			width,
+			height,
+			time,
+			pixelRatio = 1,
+			passedProps: {direction = 'from-left', perspective = 1000},
+		}) => {
+			renderer.clear();
+			const vertical = direction === 'from-top' || direction === 'from-bottom';
+			const rotationSign =
+				direction === 'from-right' || direction === 'from-top' ? 1 : -1;
+			for (const [image, entering] of [
+				[nextImage, false],
+				[prevImage, true],
+			] as const) {
+				if (!image) {
+					continue;
+				}
+
+				renderer.draw({
+					image,
+					width,
+					height,
+					vertical,
+					angle: (entering ? 1 - time : -time) * rotationSign * Math.PI,
+					originX: 0.5,
+					originY: 0.5,
+					translation: 0,
+					perspective: Math.max(1, perspective) * pixelRatio,
+				});
+			}
+		},
+	};
 };
 
 const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
@@ -92,5 +136,14 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
  */
 
 export const flip = (props?: FlipProps): TransitionPresentation<FlipProps> => {
-	return {component: Flip, props: props ?? {}};
+	return {
+		component: Flip,
+		props: props ?? {},
+		...(props?.outerEnterStyle ||
+		props?.outerExitStyle ||
+		props?.innerEnterStyle ||
+		props?.innerExitStyle
+			? {}
+			: {canvas: flipCanvas}),
+	};
 };

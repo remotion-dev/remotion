@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import type {CSSProperties} from 'react';
 import {AbsoluteFill, Easing, interpolate} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -77,6 +78,143 @@ const validateProps = (props: PushCutProps) => {
 	}
 };
 
+const pushCutCanvas: HtmlInCanvasShader<PushCutProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create push cut canvas context');
+	}
+
+	let originElement: HTMLDivElement | null = null;
+	let previousOrigin: PushCutProps['transformOrigin'];
+	let previousWidth = 0;
+	let previousHeight = 0;
+	let previousPixelRatio = 0;
+	let originX = 0;
+	let originY = 0;
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => {
+			context.reset();
+			originElement?.remove();
+		},
+		draw: ({
+			prevImage,
+			nextImage,
+			width,
+			height,
+			time,
+			pixelRatio = 1,
+			presentationDurationInFrames = 1,
+			passedProps,
+		}) => {
+			context.reset();
+			const {
+				cutProgress = 5 / 11,
+				outgoingScale = 1.04,
+				incomingStartScale = 1.04,
+				incomingEndScale = 1.07,
+				transformOrigin,
+				flashColor = '#f5f2ed',
+				flashOpacity: peakFlashOpacity = 0.2,
+				flashFrames = 2,
+			} = passedProps;
+
+			if (transformOrigin === undefined) {
+				originX = width / 2;
+				originY = height / 2;
+			} else if (
+				transformOrigin !== previousOrigin ||
+				width !== previousWidth ||
+				height !== previousHeight ||
+				pixelRatio !== previousPixelRatio
+			) {
+				if (!originElement) {
+					originElement = document.createElement('div');
+					originElement.style.cssText =
+						'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;contain:strict;';
+					document.body.appendChild(originElement);
+				}
+
+				originElement.style.width = `${width / pixelRatio}px`;
+				originElement.style.height = `${height / pixelRatio}px`;
+				originElement.style.transformOrigin = '';
+				originElement.style.transformOrigin =
+					typeof transformOrigin === 'number'
+						? `${transformOrigin}px`
+						: transformOrigin;
+				const [x, y] =
+					getComputedStyle(originElement).transformOrigin.split(' ');
+				originX = parseFloat(x) * pixelRatio;
+				originY = parseFloat(y) * pixelRatio;
+			}
+
+			previousOrigin = transformOrigin;
+			previousWidth = width;
+			previousHeight = height;
+			previousPixelRatio = pixelRatio;
+
+			const outgoingProgress = interpolate(time, [0, cutProgress], [0, 1], {
+				...clamp,
+				easing: Easing.in(Easing.quad),
+			});
+			const incomingProgress = interpolate(time, [cutProgress, 1], [0, 1], {
+				...clamp,
+				easing: Easing.out(Easing.quad),
+			});
+			const duration = Math.max(1, presentationDurationInFrames);
+			const outgoingFlash = interpolate(
+				time,
+				[cutProgress - 1 / duration, cutProgress],
+				[0, peakFlashOpacity],
+				clamp,
+			);
+			const incomingFlash =
+				flashFrames === 0
+					? 0
+					: interpolate(
+							time,
+							[cutProgress, cutProgress + flashFrames / duration],
+							[peakFlashOpacity, 0],
+							clamp,
+						);
+
+			for (const [image, visible, scale, flash] of [
+				[
+					nextImage,
+					true,
+					interpolate(outgoingProgress, [0, 1], [1, outgoingScale]),
+					outgoingFlash,
+				],
+				[
+					prevImage,
+					time >= cutProgress,
+					interpolate(
+						incomingProgress,
+						[0, 1],
+						[incomingStartScale, incomingEndScale],
+					),
+					incomingFlash,
+				],
+			] as const) {
+				if (!image || !visible) {
+					continue;
+				}
+
+				context.save();
+				context.translate(originX, originY);
+				context.scale(scale, scale);
+				context.drawImage(image, -originX, -originY, width, height);
+				context.restore();
+				context.fillStyle = flashColor;
+				context.globalAlpha = flash;
+				context.fillRect(0, 0, width, height);
+				context.globalAlpha = 1;
+			}
+		},
+	};
+};
+
 const PushCutPresentation: React.FC<
 	TransitionPresentationComponentProps<PushCutProps>
 > = ({
@@ -133,12 +271,14 @@ const PushCutPresentation: React.FC<
 	const oneFrame = 1 / Math.max(1, presentationDurationInFrames);
 	const flashTail = flashFrames / Math.max(1, presentationDurationInFrames);
 	const flashOpacity = isEntering
-		? interpolate(
-				presentationProgress,
-				[cutProgress, cutProgress + flashTail],
-				[peakFlashOpacity, 0],
-				clamp,
-			)
+		? flashFrames === 0
+			? 0
+			: interpolate(
+					presentationProgress,
+					[cutProgress, cutProgress + flashTail],
+					[peakFlashOpacity, 0],
+					clamp,
+				)
 		: interpolate(
 				presentationProgress,
 				[cutProgress - oneFrame, cutProgress],
@@ -202,5 +342,11 @@ export const pushCut = (
 	return {
 		component: PushCutPresentation,
 		props: passedProps,
+		...(props?.outerEnterStyle ||
+		props?.outerExitStyle ||
+		props?.innerEnterStyle ||
+		props?.innerExitStyle
+			? {}
+			: {canvas: pushCutCanvas}),
 	};
 };

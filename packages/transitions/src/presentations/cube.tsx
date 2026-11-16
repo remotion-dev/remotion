@@ -2,10 +2,12 @@
 // See ../../LICENSE.cube.md for attribution and license terms.
 import React, {useMemo} from 'react';
 import {AbsoluteFill, interpolate} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentationComponentProps,
 	TransitionPresentation,
 } from '../types.js';
+import {makeThreeDimensionalSceneRenderer} from './three-dimensional-scene';
 
 export type CubeDirection =
 	| 'from-left'
@@ -16,6 +18,60 @@ export type CubeDirection =
 export type CubeProps = {
 	direction: CubeDirection;
 	perspective?: number;
+};
+
+const cubeCanvas: HtmlInCanvasShader<CubeProps> = (canvas) => {
+	const renderer = makeThreeDimensionalSceneRenderer(canvas);
+	return {
+		clear: renderer.clear,
+		cleanup: renderer.cleanup,
+		draw: ({
+			prevImage,
+			nextImage,
+			width,
+			height,
+			time,
+			pixelRatio = 1,
+			passedProps: {direction, perspective = 1000},
+		}) => {
+			renderer.clear();
+			const vertical = direction === 'from-top' || direction === 'from-bottom';
+			const rotationSign =
+				direction === 'from-right' || direction === 'from-top' ? 1 : -1;
+			const translationSign =
+				direction === 'from-right' || direction === 'from-bottom' ? 1 : -1;
+			const incomingOriginX = vertical
+				? 0.5
+				: direction === 'from-left'
+					? 1
+					: 0;
+			const incomingOriginY = vertical
+				? direction === 'from-top'
+					? 1
+					: 0
+				: 0.5;
+			for (const [image, entering] of [
+				[nextImage, false],
+				[prevImage, true],
+			] as const) {
+				if (!image) {
+					continue;
+				}
+
+				renderer.draw({
+					image,
+					width,
+					height,
+					vertical,
+					angle: (entering ? 1 - time : -time) * rotationSign * (Math.PI / 2),
+					originX: entering ? incomingOriginX : 1 - incomingOriginX,
+					originY: entering ? incomingOriginY : 1 - incomingOriginY,
+					translation: (entering ? 1 - time : -time) * translationSign,
+					perspective: Math.max(1, perspective) * pixelRatio,
+				});
+			}
+		},
+	};
 };
 
 const Cube: React.FC<TransitionPresentationComponentProps<CubeProps>> = ({
@@ -121,5 +177,5 @@ const Cube: React.FC<TransitionPresentationComponentProps<CubeProps>> = ({
  * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/cube)
  */
 export const cube = (props: CubeProps): TransitionPresentation<CubeProps> => {
-	return {component: Cube, props};
+	return {component: Cube, props, canvas: cubeCanvas};
 };

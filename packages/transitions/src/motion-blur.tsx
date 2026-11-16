@@ -46,14 +46,9 @@ const motionBlurShader: HtmlInCanvasShader<MotionBlurPresentationProps> = (
 				sampleCanvas.height = 0;
 			}
 		},
-		draw: ({prevImage, nextImage, width, height, passedProps}) => {
+		draw: ({prevImage, nextImage, width, height, pixelRatio, passedProps}) => {
 			context.reset();
-			if (!prevImage || !nextImage) {
-				const image = prevImage ?? nextImage;
-				if (image) {
-					context.drawImage(image, 0, 0, width, height);
-				}
-
+			if (!prevImage && !nextImage) {
 				return;
 			}
 
@@ -71,8 +66,15 @@ const motionBlurShader: HtmlInCanvasShader<MotionBlurPresentationProps> = (
 
 			const {samples, shutterAngle, timing, frame, fps, presentation} =
 				passedProps;
-			const sampleCount = shutterAngle === 0 ? 1 : samples;
 			const duration = timing.getDurationInFrames({fps});
+			const sampleCount =
+				shutterAngle === 0 ||
+				!prevImage ||
+				!nextImage ||
+				frame < 0 ||
+				frame >= duration
+					? 1
+					: samples;
 			context.globalCompositeOperation = 'lighter';
 			context.globalAlpha = 1 / sampleCount;
 			for (let i = 0; i < sampleCount; i++) {
@@ -88,6 +90,8 @@ const motionBlurShader: HtmlInCanvasShader<MotionBlurPresentationProps> = (
 					width,
 					height,
 					time: progress,
+					pixelRatio,
+					presentationDurationInFrames: duration,
 					passedProps: presentation.props,
 				});
 				context.drawImage(sampleCanvas, 0, 0);
@@ -161,7 +165,7 @@ export const resolveMotionBlurPresentation = ({
 
 	if (!presentation.canvas) {
 		throw new TypeError(
-			'This presentation does not provide a canvas renderer for motionBlur. Use slide() without enterStyle/exitStyle, a presentation made with makeHtmlInCanvasPresentation(), or provide a canvas renderer on your custom presentation.',
+			'This presentation does not provide a canvas renderer for motionBlur. Use a built-in presentation without CSS style overrides, a presentation made with makeHtmlInCanvasPresentation(), or provide a canvas renderer on your custom presentation.',
 		);
 	}
 

@@ -2,6 +2,7 @@ import {translatePath} from '@remotion/paths';
 import {makePie} from '@remotion/shapes';
 import React, {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -14,6 +15,56 @@ export type ClockWipeProps = {
 	outerExitStyle?: React.CSSProperties;
 	innerEnterStyle?: React.CSSProperties;
 	innerExitStyle?: React.CSSProperties;
+};
+
+const clockWipeCanvas: HtmlInCanvasShader<ClockWipeProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create clock wipe canvas context');
+	}
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => context.reset(),
+		draw: ({
+			prevImage,
+			nextImage,
+			width,
+			height,
+			time,
+			pixelRatio = 1,
+			passedProps,
+		}) => {
+			context.reset();
+			if (nextImage) {
+				context.drawImage(nextImage, 0, 0, width, height);
+			}
+
+			if (!prevImage) {
+				return;
+			}
+
+			const radius =
+				Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
+			const {path} = makePie({radius, progress: time});
+			const translatedPath = translatePath(
+				path,
+				-(radius * 2 - passedProps.width) / 2,
+				-(radius * 2 - passedProps.height) / 2,
+			);
+			context.save();
+			context.scale(pixelRatio, pixelRatio);
+			context.clip(new Path2D(translatedPath));
+			context.drawImage(
+				prevImage,
+				0,
+				0,
+				width / pixelRatio,
+				height / pixelRatio,
+			);
+			context.restore();
+		},
+	};
 };
 
 const ClockWipePresentation: React.FC<
@@ -78,5 +129,14 @@ const ClockWipePresentation: React.FC<
 export const clockWipe = (
 	props: ClockWipeProps,
 ): TransitionPresentation<ClockWipeProps> => {
-	return {component: ClockWipePresentation, props: props ?? {}};
+	return {
+		component: ClockWipePresentation,
+		props: props ?? {},
+		...(props?.outerEnterStyle ||
+		props?.outerExitStyle ||
+		props?.innerEnterStyle ||
+		props?.innerExitStyle
+			? {}
+			: {canvas: clockWipeCanvas}),
+	};
 };

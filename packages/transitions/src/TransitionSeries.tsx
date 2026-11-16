@@ -841,7 +841,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						const UppercaseNextPresentation = nextPresentation.component;
 						const UppercasePrevPresentation = prevPresentation.component;
 						const separateCanvases =
-							Boolean(prev.props.motionBlur) !== Boolean(next.props.motionBlur);
+							Boolean(prev.props.motionBlur) || Boolean(next.props.motionBlur);
 						const previousTransitionFinished =
 							frame - actualStartFrame >=
 							prev.props.timing.getDurationInFrames({fps});

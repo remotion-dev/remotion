@@ -33,6 +33,7 @@ const HtmlInCanvasPresentationWithSupport = <
 	onUnmount,
 	presentationProgress,
 	presentationDirection,
+	presentationDurationInFrames,
 	shader,
 	effects,
 	effectsOutputSize,
@@ -190,6 +191,8 @@ const HtmlInCanvasPresentationWithSupport = <
 					width,
 					height,
 					time: progress,
+					pixelRatio: width / (canvasRef.current?.clientWidth || width),
+					presentationDurationInFrames,
 					passedProps: passedPropsRef.current,
 				});
 
@@ -206,7 +209,14 @@ const HtmlInCanvasPresentationWithSupport = <
 				cancelRender(error);
 			}
 		},
-		[cancelRender, chainState, continueRender, delayRender, shaderCanvas],
+		[
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			presentationDurationInFrames,
+			shaderCanvas,
+		],
 	);
 
 	useLayoutEffect(() => {
@@ -413,6 +423,10 @@ export type HtmlInCanvasShaderDrawParams<Props> = {
 	width: number;
 	height: number;
 	time: number;
+	/** Captured pixels per CSS pixel. Defaults to 1 for direct shader calls. */
+	pixelRatio?: number;
+	/** Duration of the transition, independent of its current progress. */
+	presentationDurationInFrames?: number;
 	passedProps: Props;
 };
 

@@ -2,6 +2,7 @@ import {translatePath} from '@remotion/paths';
 import {makeCircle} from '@remotion/shapes';
 import React, {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -14,6 +15,57 @@ export type IrisProps = {
 	outerExitStyle?: React.CSSProperties;
 	innerEnterStyle?: React.CSSProperties;
 	innerExitStyle?: React.CSSProperties;
+};
+
+const irisCanvas: HtmlInCanvasShader<IrisProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create iris canvas context');
+	}
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => context.reset(),
+		draw: ({
+			prevImage,
+			nextImage,
+			width,
+			height,
+			time,
+			pixelRatio = 1,
+			passedProps,
+		}) => {
+			context.reset();
+			if (nextImage) {
+				context.drawImage(nextImage, 0, 0, width, height);
+			}
+
+			if (!prevImage) {
+				return;
+			}
+
+			const radius =
+				(Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2) *
+				time;
+			const {path} = makeCircle({radius});
+			const translatedPath = translatePath(
+				path,
+				passedProps.width / 2 - radius,
+				passedProps.height / 2 - radius,
+			);
+			context.save();
+			context.scale(pixelRatio, pixelRatio);
+			context.clip(new Path2D(translatedPath));
+			context.drawImage(
+				prevImage,
+				0,
+				0,
+				width / pixelRatio,
+				height / pixelRatio,
+			);
+			context.restore();
+		},
+	};
 };
 
 const IrisPresentation: React.FC<
@@ -81,5 +133,14 @@ const IrisPresentation: React.FC<
  * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/iris)
  */
 export const iris = (props: IrisProps): TransitionPresentation<IrisProps> => {
-	return {component: IrisPresentation, props: props ?? {}};
+	return {
+		component: IrisPresentation,
+		props: props ?? {},
+		...(props?.outerEnterStyle ||
+		props?.outerExitStyle ||
+		props?.innerEnterStyle ||
+		props?.innerExitStyle
+			? {}
+			: {canvas: irisCanvas}),
+	};
 };
