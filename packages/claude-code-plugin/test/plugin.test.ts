@@ -23,8 +23,10 @@ test('built plugin has valid metadata and distributable files', () => {
 
 	expect(manifest.version).toBe(packageJson.version);
 	expect(manifest.skills).toBe('./skills/');
-	expect(manifest.icon).toBe('./.claude-plugin/icon.png');
-	const icon = readFileSync(path.join(packageRoot, manifest.icon as string));
+	expect(manifest.icon).toBeUndefined();
+	const icon = readFileSync(
+		path.join(packageRoot, '.claude-plugin', 'icon.png'),
+	);
 	expect(icon.subarray(0, 8)).toEqual(
 		Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
 	);
