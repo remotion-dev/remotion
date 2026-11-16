@@ -725,6 +725,14 @@ export type SaveMultipleEffectPropsResponse = {
 };
 
 export type AddEffectRequest = {
+	wrapInHtmlInCanvas: {
+		compositionId: string;
+		width: number;
+		height: number;
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;

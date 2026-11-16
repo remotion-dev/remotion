@@ -29,6 +29,7 @@ test('metadata returned by an effect insertion supports the next edit before HMR
 		videoConfigValues: null,
 	};
 	const request: AddEffectRequest = {
+		wrapInHtmlInCanvas: null,
 		fileName,
 		sequenceNodePath,
 		effectName: 'scale',

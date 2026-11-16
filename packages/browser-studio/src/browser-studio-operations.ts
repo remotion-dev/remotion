@@ -4,7 +4,6 @@ import {
 	addComposition as addCompositionCodemod,
 	addCanvasCaptureComposition,
 	addOpenTimelineComposition,
-	addEffect as addEffectCodemod,
 	addElement,
 	pasteEffects as pasteEffectsCodemod,
 	insertBasicCaptions as insertBasicCaptionsCodemod,
@@ -1363,11 +1362,25 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const result = addEffectCodemod({
+				const {wrapInHtmlInCanvas} = request;
+				const result = CodemodsInternals.addEffectWithOptionalWrapper({
 					project,
 					props: request.effectConfig,
 					importPath: request.effectImportPath,
 					importName: request.effectName,
+					wrapper: wrapInHtmlInCanvas
+						? createElement({
+								component: 'HtmlInCanvas',
+								importPath: 'remotion',
+								props: {
+									width: wrapInHtmlInCanvas.width,
+									height: wrapInHtmlInCanvas.height,
+									from: wrapInHtmlInCanvas.from,
+									durationInFrames: wrapInHtmlInCanvas.durationInFrames,
+									trimBefore: wrapInHtmlInCanvas.trimBefore,
+								},
+							})
+						: null,
 					node: {
 						filePath: absolutePath,
 						nodePath: request.sequenceNodePath.nodePath,

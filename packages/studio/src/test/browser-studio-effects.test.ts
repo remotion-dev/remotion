@@ -107,6 +107,7 @@ test('routes effect mutations through the explicit remotion.new capability', asy
 
 	expect(canUseEffectOperations()).toBe(true);
 	await addEffect({
+		wrapInHtmlInCanvas: null,
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath: nodePath,
 		effectName: 'brightness',

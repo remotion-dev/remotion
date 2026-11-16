@@ -2116,6 +2116,7 @@ export const Comp = () => (
 
 	const {effects} = operations;
 	const addResult = await effects.addEffect({
+		wrapInHtmlInCanvas: null,
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
 		effectName: 'tint',
@@ -2445,6 +2446,7 @@ export const Comp = () => (
 	});
 	expect(
 		await effects.addEffect({
+			wrapInHtmlInCanvas: null,
 			fileName: 'src/Comp.tsx',
 			sequenceNodePath,
 			effectName: 'unsafe',

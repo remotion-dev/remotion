@@ -6,6 +6,7 @@ export type InsertedElementSelectionBaseline = {
 };
 
 export type PendingInsertedElementSelection = {
+	effectIndex: number | null;
 	compositionId: string;
 	notification: string | null;
 	nodePath: {

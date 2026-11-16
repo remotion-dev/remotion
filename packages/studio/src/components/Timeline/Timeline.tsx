@@ -818,9 +818,24 @@ const TimelineInner: React.FC = () => {
 			return;
 		}
 
+		const {effectIndex} = pendingInsertedElementSelection;
+		if (effectIndex !== null && !insertedTrack.sequence.effects[effectIndex])
+			return;
+
 		currentSelection.current.selectItems(
-			[{type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}],
-			{reveal: true},
+			[
+				effectIndex === null
+					? {type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}
+					: {
+							type: 'sequence-effect',
+							i: effectIndex,
+							nodePathInfo: {
+								...insertedTrack.nodePathInfo,
+								auxiliaryKeys: ['effects', String(effectIndex)],
+							},
+						},
+			],
+			{reveal: true, revealInInspector: effectIndex !== null},
 		);
 		clearInsertedElementSelection(pendingInsertedElementSelection);
 		if (pendingInsertedElementSelection.notification !== null) {

@@ -17,6 +17,7 @@ import type {
 	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	EffectDefinition,
 	NodeWrapper,
 	PrecomposeJsxNodesRequest,
 	RenderDefaults,
@@ -350,6 +351,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'wrap-refactor';
+			effect: EffectDefinition | null;
 			displayName: string | null;
 			location: {
 				source: string;
