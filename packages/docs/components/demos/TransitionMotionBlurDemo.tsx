@@ -1,7 +1,7 @@
-import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill, Easing, Sequence} from 'remotion';
 import {SceneA, SceneB} from '../transitions/TransitionScenes';
 import {HtmlInCanvasDocsVideoFallback} from './HtmlInCanvasDocsVideoFallback';
 import {useHtmlInCanvasDocsDemoBranch} from './useHtmlInCanvasDocsDemoBranch';
@@ -15,7 +15,10 @@ export const TransitionMotionBlurLiveDemo: React.FC = () => {
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					presentation={slide({direction: 'from-left'})}
-					timing={springTiming({durationInFrames: 20, config: {damping: 200}})}
+					timing={linearTiming({
+						durationInFrames: 20,
+						easing: Easing.bezier(0.76, 0, 0.24, 1),
+					})}
 					motionBlur={{shutterAngle: 180, samples: 16}}
 				/>
 				<TransitionSeries.Sequence durationInFrames={30}>
