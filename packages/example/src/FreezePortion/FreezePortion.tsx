@@ -83,10 +83,6 @@ export const FreezePortion: React.FC = () => {
 	}, [activeFreeze, freezes, nextFreeze]);
 
 	return (
-		<Counter
-			from={from}
-			freeze={activeFreeze ? activeFreeze.frame : null}
-			premountFor={fps}
-		/>
+		<Counter from={from} freeze={activeFreeze ? activeFreeze.frame : null} />
 	);
 };

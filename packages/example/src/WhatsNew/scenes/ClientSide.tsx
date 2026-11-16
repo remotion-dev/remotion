@@ -522,11 +522,7 @@ const ClientSideSceneInner: React.FC = () => {
 				keyframes={layout}
 			>
 				<Series>
-					<Series.Sequence
-						name="Client-side rendering"
-						durationInFrames={71}
-						premountFor={30}
-					>
+					<Series.Sequence name="Client-side rendering" durationInFrames={71}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -536,11 +532,7 @@ const ClientSideSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="In the browser"
-						durationInFrames={258}
-						premountFor={30}
-					>
+					<Series.Sequence name="In the browser" durationInFrames={258}>
 						<Punch zoom={1.14}>
 							<Video
 								src={
@@ -550,11 +542,7 @@ const ClientSideSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Render queue"
-						durationInFrames={160}
-						premountFor={30}
-					>
+					<Series.Sequence name="Render queue" durationInFrames={160}>
 						<Punch zoom={1.02}>
 							<Video
 								src={
@@ -564,11 +552,7 @@ const ClientSideSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="New formats"
-						durationInFrames={107}
-						premountFor={30}
-					>
+					<Series.Sequence name="New formats" durationInFrames={107}>
 						<Punch zoom={1.16}>
 							<Video
 								src={
@@ -578,11 +562,7 @@ const ClientSideSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Audio formats"
-						durationInFrames={71}
-						premountFor={30}
-					>
+					<Series.Sequence name="Audio formats" durationInFrames={71}>
 						<Punch zoom={1.04}>
 							<Video
 								src={
@@ -592,11 +572,7 @@ const ClientSideSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="CSS properties"
-						durationInFrames={165}
-						premountFor={30}
-					>
+					<Series.Sequence name="CSS properties" durationInFrames={165}>
 						<Punch zoom={1}>
 							<Video
 								src={

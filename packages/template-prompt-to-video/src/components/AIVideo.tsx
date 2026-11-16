@@ -65,7 +65,6 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
-            premountFor={3 * FPS}
           >
             <Background project={id} item={element} />
           </Sequence>
@@ -102,7 +101,6 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
-            premountFor={3 * FPS}
             src={getAudioPath(id, element.audioUrl)}
           />
         );

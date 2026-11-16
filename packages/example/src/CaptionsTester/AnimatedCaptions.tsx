@@ -149,7 +149,6 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({captions}) => {
 						key={`${page.startMs}-${index}`}
 						from={startFrame}
 						durationInFrames={durationInFrames}
-						premountFor={fps}
 						showInTimeline={false}
 						page={page}
 					/>

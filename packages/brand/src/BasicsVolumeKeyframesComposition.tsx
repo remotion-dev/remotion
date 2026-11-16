@@ -24,7 +24,6 @@ const BasicsVolumeKeyframesInner = ({
 		<>
 			<Video
 				name="Screen recording"
-				premountFor={fps}
 				muted
 				effects={
 					HtmlInCanvas.isSupported()
@@ -50,7 +49,6 @@ const BasicsVolumeKeyframesInner = ({
 			/>
 			<MacOSCursor
 				name="Recorded cursor"
-				premountFor={fps}
 				cursor={interpolate(
 					frame,
 					[
@@ -1289,7 +1287,6 @@ const BasicsVolumeKeyframesInner = ({
 						}),
 					]}
 					durationInFrames={1785}
-					premountFor={fps}
 					style={{
 						translate: interpolate(
 							frame,
@@ -1319,7 +1316,6 @@ const BasicsVolumeKeyframesInner = ({
 				<AbsoluteFill
 					name="Canvas Capture"
 					durationInFrames={1785}
-					premountFor={fps}
 					style={{
 						width: 2114,
 						height: 1440,

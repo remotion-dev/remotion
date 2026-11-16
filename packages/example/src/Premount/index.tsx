@@ -8,20 +8,10 @@ const ShouldNotUnmount: React.FC = () => {
 export const PremountedExample: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			<Sequence
-				premountFor={10}
-				postmountFor={10}
-				from={30}
-				durationInFrames={80}
-			>
+			<Sequence postmountFor={10} from={30} durationInFrames={80}>
 				<ShouldNotUnmount />
 			</Sequence>
-			<Sequence
-				premountFor={10}
-				postmountFor={10}
-				from={30}
-				durationInFrames={80}
-			>
+			<Sequence postmountFor={10} from={30} durationInFrames={80}>
 				<ShouldNotUnmount />
 			</Sequence>
 		</AbsoluteFill>

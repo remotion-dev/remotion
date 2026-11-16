@@ -24,7 +24,6 @@ const BasicsVirtualizedTimelineInner = ({
 		<>
 			<Video
 				name="Screen recording"
-				premountFor={fps}
 				muted
 				effects={
 					HtmlInCanvas.isSupported()
@@ -50,7 +49,6 @@ const BasicsVirtualizedTimelineInner = ({
 			/>
 			<MacOSCursor
 				name="Recorded cursor"
-				premountFor={fps}
 				cursor={interpolate(
 					frame,
 					[10, 52, 216, 219, 221, 637, 638],
@@ -522,7 +520,6 @@ const BasicsVirtualizedTimelineInner = ({
 						}),
 					]}
 					durationInFrames={1189}
-					premountFor={fps}
 					style={{
 						translate: '-100px -480px',
 						scale: 1.1,
@@ -537,7 +534,6 @@ const BasicsVirtualizedTimelineInner = ({
 				<AbsoluteFill
 					name="Canvas Capture"
 					durationInFrames={1189}
-					premountFor={fps}
 					style={{
 						width: 2542,
 						height: 1440,

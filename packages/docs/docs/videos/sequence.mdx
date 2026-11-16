@@ -30,8 +30,6 @@ export type VideosInSequenceProps = {
 };
 
 export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
-  const {fps} = useVideoConfig();
-
   return (
     <Series>
       {videos.map((video) => {
@@ -43,7 +41,6 @@ export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
           <Series.Sequence
             key={video.src}
             durationInFrames={video.durationInFrames}
-            premountFor={fps}
           >
             <Video src={video.src} />
           </Series.Sequence>

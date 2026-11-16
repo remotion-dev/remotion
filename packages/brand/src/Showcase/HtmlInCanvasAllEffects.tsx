@@ -299,7 +299,6 @@ export const HtmlInCanvasAllEffects: React.FC<HtmlInCanvasAllEffectsProps> = ({
 						key={effect.name}
 						from={index * EFFECT_DURATION}
 						durationInFrames={EFFECT_DURATION}
-						premountFor={PREMOUNT_DURATION}
 					>
 						<EffectSlide effect={effect} index={index} layout={layout} />
 					</Sequence>

@@ -108,13 +108,10 @@ import {Video} from '@remotion/media';
 import {Interactive, useVideoConfig} from 'remotion';
 
 const SceneInner: React.FC = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
       <Video
         src="https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0466.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{width: '100%', height: '100%'}}
       />
@@ -137,7 +134,7 @@ export const Scene = Interactive.withSchema({
 });
 
 const Example = () => (
-  <Scene from={30} durationInFrames={90} premountFor={30} style={{opacity: 0.5}} />
+  <Scene from={30} durationInFrames={90} style={{opacity: 0.5}} />
 );
 ```
 

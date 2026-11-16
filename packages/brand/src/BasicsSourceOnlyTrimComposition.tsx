@@ -24,7 +24,6 @@ const BasicsSourceOnlyTrimInner = ({
 		<>
 			<Video
 				name="Screen recording"
-				premountFor={fps}
 				muted
 				effects={
 					HtmlInCanvas.isSupported()
@@ -50,7 +49,6 @@ const BasicsSourceOnlyTrimInner = ({
 			/>
 			<MacOSCursor
 				name="Recorded cursor"
-				premountFor={fps}
 				cursor={interpolate(frame, [12, 95, 250], ['auto', 'custom', 'auto'], {
 					easing: Easing.step1,
 					extrapolateLeft: 'clamp',
@@ -334,7 +332,6 @@ const BasicsSourceOnlyTrimInner = ({
 						}),
 					]}
 					durationInFrames={375}
-					premountFor={fps}
 					style={{
 						translate: '-720px -520px',
 						scale: 1.15,
@@ -349,7 +346,6 @@ const BasicsSourceOnlyTrimInner = ({
 				<AbsoluteFill
 					name="Canvas Capture"
 					durationInFrames={375}
-					premountFor={fps}
 					style={{
 						width: 2496,
 						height: 1440,

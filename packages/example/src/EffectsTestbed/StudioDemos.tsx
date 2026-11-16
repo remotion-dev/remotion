@@ -17,6 +17,14 @@ export const ColorCorrectionStudioDemo: React.FC = () => {
 					exposure: 0.4,
 					contrast: 1.2,
 				}),
+				colorCorrection({
+					exposure: 0.4,
+					contrast: 1.2,
+				}),
+				colorCorrection({
+					exposure: 0.4,
+					contrast: 1.2,
+				}),
 			]}
 		/>
 	);

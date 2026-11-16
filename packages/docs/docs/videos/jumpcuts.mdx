@@ -45,14 +45,10 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = ({props}) => 
 };
 
 export const JumpCuts: React.FC<Props> = ({sections}) => {
-  const {fps: videoFps} = useVideoConfig();
-
   return (
     <Series>
       {sections.map((section, i) => (
         <Series.Sequence
-          // Premount the next segment for 1.5 seconds so it can preload before it starts playing
-          premountFor={Math.round(1.5 * videoFps)}
           key={i}
           durationInFrames={section.durationInFrames}
         >
