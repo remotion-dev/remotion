@@ -466,7 +466,8 @@ export const usePlayback = ({
 			clock.frame = frameToDisplay;
 			if (frameToDisplay !== currentFrame) {
 				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
-			} else if (didJump) {
+			} else if (didJump && !hasEnded) {
+				// A terminal anchor would re-arm the expired audio cutoff before pause.
 				// A jump can land on the same frame without a React commit.
 				updateAudioAnchor();
 				if (previousAudioBoundary.current !== null) {
