@@ -22,6 +22,8 @@ export async function* makeIteratorWithPriming({
 	maximumTimestamp: number;
 }): AsyncGenerator<AudioBufferSlice, void, unknown> {
 	let resumeTime = timeToSeek;
+	let sampleOrigin: number | null = null;
+	let resumeSample: number | null = null;
 	let retriedWithoutProgress = false;
 	while (true) {
 		const iterator = audioSink.buffers(
@@ -30,24 +32,30 @@ export async function* makeIteratorWithPriming({
 		);
 		try {
 			for await (const buffer of iterator) {
-				const sourceStart = Math.max(buffer.timestamp, resumeTime);
-				const sourceEnd = Math.min(
-					buffer.timestamp + buffer.duration,
-					maximumTimestamp,
+				const {sampleRate} = buffer.buffer;
+				sampleOrigin ??= buffer.timestamp;
+				const bufferStartSample = Math.round(
+					(buffer.timestamp - sampleOrigin) * sampleRate,
 				);
-
-				if (sourceEnd <= sourceStart) {
-					continue;
-				}
-
-				// Preserve queued audio and resume after its last delivered slice.
-				resumeTime = sourceEnd;
+				const sourceStartSample = Math.max(
+					bufferStartSample,
+					resumeSample ?? (timeToSeek - sampleOrigin) * sampleRate,
+				);
+				const sourceEndSample = Math.min(
+					bufferStartSample + buffer.buffer.length,
+					(maximumTimestamp - sampleOrigin) * sampleRate,
+				);
+				if (sourceEndSample <= sourceStartSample) continue;
+				resumeSample = sourceEndSample;
+				resumeTime = sampleOrigin + sourceEndSample / sampleRate;
 				retriedWithoutProgress = false;
 				yield {
 					buffer,
-					timelineTimestamp: sourceStart,
-					sourceOffsetInSeconds: sourceStart - buffer.timestamp,
-					sourceDurationInSeconds: sourceEnd - sourceStart,
+					timelineTimestamp: sampleOrigin + sourceStartSample / sampleRate,
+					sourceOffsetInSeconds:
+						(sourceStartSample - bufferStartSample) / sampleRate,
+					sourceDurationInSeconds:
+						(sourceEndSample - sourceStartSample) / sampleRate,
 				};
 			}
 
