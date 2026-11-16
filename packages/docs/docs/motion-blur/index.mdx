@@ -30,7 +30,8 @@ It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) t
 
 ## Transition motion blur<AvailableFrom v="4.0.545" />
 
-The `motionBlur` prop on `<TransitionSeries.Transition>` blurs the presentation's movement. It is available in `@remotion/transitions`. [API reference](/docs/transitions/transitionseries#motionblur)
+Use `motionBlur` on a `<TransitionSeries.Transition>` to blur the presentations movement.  
+It is available in `@remotion/transitions`. [API reference](/docs/transitions/transitionseries#motionblur)
 
 The demo plays at quarter speed.
 
@@ -64,18 +65,6 @@ Both scenes keep advancing during the transition. Each scene is captured once at
 
 Animations and videos inside the scenes are sampled at the current frame. For temporal sampling of scene contents, use `<HtmlInCanvasMotionBlur>`. [Component reference](/docs/motion-blur/html-in-canvas-motion-blur)
 
-### `motionBlur?`
-
-An object with the following options. Passing `{}` uses the defaults. Omitting `motionBlur` disables transition motion blur.
-
-#### `shutterAngle?`
-
-The exposure length, expressed as an angle from `0` to `360`. Defaults to `180`, which spans half a frame centered on the current frame. At `0`, the presentation is drawn once at the current frame.
-
-#### `samples?`
-
-The number of presentation images to average. Defaults to `16`. Must be a positive integer. Higher values make the blur smoother and increase the rendering work.
-
 ### Supported presentations
 
 All built-in presentations support `motionBlur`, including `slide()`, `fade()`, `wipe()`, `flip()`, `cube()`, `clockWipe()`, `iris()`, `none()`, and `pushCut()`. Their direction, perspective, mask dimensions, fade-out, and push-cut options are preserved. [Presentation reference](/docs/transitions/presentations)
@@ -108,23 +97,12 @@ There are 2 more ways motion blur can be achieved in Remotion, but it is not rec
 
 ## Explaining "shutter angle"
 
-The name comes from film cameras with a rotating shutter disc. The angle of its open sector determines how long each frame is exposed.
-
-Shutter angle describes the exposure duration as a fraction of one frame. A full turn is `360°`, so `180°` covers half a frame. Larger angles produce longer motion streaks, while smaller angles make movement appear sharper.
+Shutter angle is the exposure duration as a fraction of one frame.  
+A full turn is `360°` meaning 1 frame, `180°` is half a frame, `90°` is a quarter of a frame, and so on.
 
 The equivalent exposure time in seconds is `(shutterAngle / 360) / fps`.
 
-| Shutter angle | Exposure in frames | Exposure at 30 FPS |
-| ------------- | ------------------ | ------------------ |
-| `90°`         | Quarter of a frame | `1/120` second     |
-| `180°`        | Half a frame       | `1/60` second      |
-| `360°`        | One frame          | `1/30` second      |
-
-For `<HtmlInCanvasMotionBlur>` and transition motion blur, `0°` renders the current instant and `180°` is the default. At 60 FPS, the same `180°` angle corresponds to `1/120` second, so faster frame rates produce shorter streaks for the same movement per second.
-
-`<HtmlInCanvasMotionBlur>` and transition motion blur center the exposure on the current frame. At `180°`, samples span from a quarter-frame before the current frame to a quarter-frame after it.
-
-The `samples` setting controls how many snapshots are averaged within that interval. Increasing it smooths the blur and increases rendering work. The shutter angle controls the interval's length.
+The `samples` setting controls how many snapshots are averaged within that interval. Increasing it smooths the blur and increases rendering work.
 
 ## See also
 
