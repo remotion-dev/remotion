@@ -430,10 +430,7 @@ test('win32 registry normalizes path case across sourceStates and watchers', () 
 test.if(process.platform === 'win32')(
 	'windows mixed-case paths do not trigger false external revision after Studio write',
 	() => {
-		const mixedCaseFile = path.join(
-			tmpDir,
-			`BaiduErnieGlow-${Date.now()}.tsx`,
-		);
+		const mixedCaseFile = path.join(tmpDir, `BaiduErnieGlow-${Date.now()}.tsx`);
 		const lowerCaseFile = mixedCaseFile.toLowerCase();
 		writeFileSync(mixedCaseFile, 'export const a = 1;');
 
