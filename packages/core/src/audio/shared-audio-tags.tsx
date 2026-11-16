@@ -95,6 +95,10 @@ type SharedAudioContextValue = {
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
 	resumeAsAutoPlay: () => Promise<void>;
+	setPlaybackEnd: (
+		time: number | null,
+		getEndOnResume: () => number | null,
+	) => void;
 	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean;
@@ -394,6 +398,51 @@ export const SharedAudioContextProvider: React.FC<{
 		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
+	const playbackEnd = useRef<number | null>(null);
+	const playbackEndOnResume = useRef<(() => number | null) | null>(null);
+	const fadeStartedAt = useRef<number | null>(null);
+	const applyPlaybackGain = useCallback(() => {
+		if (!ctxAndGain || fadeStartedAt.current === null) {
+			return;
+		}
+
+		const now = ctxAndGain.audioContext.currentTime;
+		const end = playbackEnd.current;
+		const fadeEnd = fadeStartedAt.current + 0.03;
+		const {gain} = ctxAndGain.gainNode;
+		gain.cancelScheduledValues(now);
+		if (!playbackRequested.current || (end !== null && end <= now)) {
+			gain.setValueAtTime(0, now);
+			return;
+		}
+
+		gain.setValueAtTime(Math.min(1, (now - fadeStartedAt.current) / 0.03), now);
+		if (now < fadeEnd) {
+			const rampEnd = end === null ? fadeEnd : Math.min(fadeEnd, end);
+			gain.linearRampToValueAtTime(
+				(rampEnd - fadeStartedAt.current) / 0.03,
+				rampEnd,
+			);
+		}
+
+		if (end !== null) {
+			gain.setValueAtTime(0, end);
+		}
+	}, [ctxAndGain]);
+
+	const setPlaybackEnd = useCallback(
+		(time: number | null, getEndOnResume: () => number | null) => {
+			playbackEndOnResume.current = getEndOnResume;
+			if (playbackEnd.current === time) {
+				return;
+			}
+
+			playbackEnd.current = time;
+			applyPlaybackGain();
+		},
+		[applyPlaybackGain],
+	);
+
 	const resume = useCallback(() => {
 		playbackRequested.current = true;
 		if (!ctxAndGain) {
@@ -408,17 +457,9 @@ export const SharedAudioContextProvider: React.FC<{
 
 		audioContextIsPlayingEventually.current = ctxAndGain.audioContext;
 
-		ctxAndGain.gainNode.gain.cancelScheduledValues(
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.setValueAtTime(
-			0,
-			ctxAndGain.audioContext.currentTime,
-		);
-		ctxAndGain.gainNode.gain.linearRampToValueAtTime(
-			1,
-			ctxAndGain.audioContext.currentTime + 0.03,
-		);
+		playbackEnd.current = playbackEndOnResume.current?.() ?? null;
+		fadeStartedAt.current = ctxAndGain.audioContext.currentTime;
+		applyPlaybackGain();
 
 		nodesToResume.current.forEach((r, node) => {
 			node.start(r.scheduledTime, r.offset, r.duration);
@@ -470,7 +511,12 @@ export const SharedAudioContextProvider: React.FC<{
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+	}, [
+		ctxAndGain,
+		_experimentalKeepAudioContextAlive,
+		logLevel,
+		applyPlaybackGain,
+	]);
 
 	const resumeAsAutoPlay = useCallback(() => {
 		nextResumeIsAutoPlayAttempt.current = true;
@@ -575,6 +621,7 @@ export const SharedAudioContextProvider: React.FC<{
 			scheduleAudioNode,
 			resume,
 			resumeAsAutoPlay,
+			setPlaybackEnd,
 			suspend,
 			getIsResumingAudioContext,
 			unscheduleAudioNode,
@@ -589,6 +636,7 @@ export const SharedAudioContextProvider: React.FC<{
 		scheduleAudioNode,
 		resume,
 		resumeAsAutoPlay,
+		setPlaybackEnd,
 		suspend,
 		getIsResumingAudioContext,
 		unscheduleAudioNode,

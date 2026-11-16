@@ -230,6 +230,60 @@ export const usePlayback = ({
 		updateAudioAnchor,
 	]);
 
+	useLayoutEffect(() => {
+		if (!sharedAudioContext || fps === null || durationInFrames === null) {
+			return;
+		}
+
+		const updateEnd = () => {
+			sharedAudioContext.setPlaybackEnd(
+				!playing
+					? null
+					: muted
+						? 0
+						: !loop && playbackRate > 0
+							? sharedAudioContext.audioSyncAnchor.value +
+								((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
+							: null,
+				() => {
+					if (
+						muted ||
+						loop ||
+						playbackRate <= 0 ||
+						!sharedAudioContext.audioContext
+					) {
+						return null;
+					}
+
+					// play() resumes audio before the playing React commit. Compute
+					// the deadline from the live playhead before queued nodes start.
+					return (
+						sharedAudioContext.audioContext.currentTime +
+						((outFrame ?? durationInFrames - 1) + 1 - getCurrentFrame()) /
+							fps /
+							playbackRate
+					);
+				},
+			);
+		};
+
+		updateEnd();
+		const subscription =
+			sharedAudioContext.audioSyncAnchorEmitter.subscribe(updateEnd);
+
+		return () => subscription.remove();
+	}, [
+		sharedAudioContext,
+		fps,
+		durationInFrames,
+		playing,
+		muted,
+		loop,
+		playbackRate,
+		outFrame,
+		getCurrentFrame,
+	]);
+
 	// Native pauses, resumes and interruptions are clock boundaries too.
 	useLayoutEffect(() => {
 		const audioContext = sharedAudioContext?.audioContext;
