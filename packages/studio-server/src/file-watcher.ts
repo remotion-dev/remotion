@@ -103,6 +103,7 @@ export const createFileWatcherRegistry = (
 		const normalized = path.resolve(file);
 		return platform === 'win32' ? normalized.toLowerCase() : normalized;
 	};
+
 	const sharedWatchers = new Map<string, SharedWatcher>();
 	const sessionId = randomUUID();
 	let revision = 0;
