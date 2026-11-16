@@ -1,9 +1,5 @@
 import {loadFont} from '@remotion/fonts';
-import {
-	CameraMotionBlur,
-	HtmlInCanvasMotionBlur,
-	Trail,
-} from '@remotion/motion-blur';
+import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -57,32 +53,10 @@ const SlidingText: React.FC<{readonly darkMode: boolean}> = ({darkMode}) => {
 	);
 };
 
-const MotionBlurScene: React.FC<
-	MotionBlurDemoProps & {
-		readonly variant: 'trail' | 'camera' | 'html-in-canvas';
-	}
-> = ({variant, darkMode = false}) => {
+export const MotionBlurHtmlInCanvasLiveDemo: React.FC<MotionBlurDemoProps> = ({
+	darkMode = false,
+}) => {
 	const {width, height} = useVideoConfig();
-	const text = <SlidingText darkMode={darkMode} />;
-	const blurred =
-		variant === 'trail' ? (
-			<Trail layers={12} lagInFrames={0.14} trailOpacity={0.8}>
-				{text}
-			</Trail>
-		) : variant === 'camera' ? (
-			<CameraMotionBlur samples={10} shutterAngle={360}>
-				{text}
-			</CameraMotionBlur>
-		) : (
-			<HtmlInCanvasMotionBlur
-				width={width}
-				height={height}
-				samples={24}
-				shutterAngle={360}
-			>
-				{text}
-			</HtmlInCanvasMotionBlur>
-		);
 
 	return (
 		<AbsoluteFill
@@ -91,22 +65,17 @@ const MotionBlurScene: React.FC<
 				overflow: 'hidden',
 			}}
 		>
-			{blurred}
+			<HtmlInCanvasMotionBlur
+				width={width}
+				height={height}
+				samples={24}
+				shutterAngle={360}
+			>
+				<SlidingText darkMode={darkMode} />
+			</HtmlInCanvasMotionBlur>
 		</AbsoluteFill>
 	);
 };
-
-export const MotionBlurTrailDocsDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="trail" darkMode={darkMode} />;
-
-export const MotionBlurCameraDocsDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="camera" darkMode={darkMode} />;
-
-export const MotionBlurHtmlInCanvasLiveDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="html-in-canvas" darkMode={darkMode} />;
 
 export const MotionBlurHtmlInCanvasDocsDemo: React.FC<MotionBlurDemoProps> = ({
 	darkMode = false,

@@ -42,9 +42,7 @@ import {
 	irisPresentationDemo,
 	lightLeakDemo,
 	linearBlurPresentationDemo,
-	motionBlurCameraDemo,
 	motionBlurHtmlInCanvasDemo,
-	motionBlurTrailDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -125,8 +123,6 @@ const dragPreviewSource: React.CSSProperties = {
 };
 
 const demos: DemoType[] = [
-	motionBlurTrailDemo,
-	motionBlurCameraDemo,
 	motionBlurHtmlInCanvasDemo,
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
