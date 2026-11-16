@@ -52,6 +52,16 @@ test('Documented package licenses match package.json', () => {
 		}
 
 		const contents = readFileSync(path.join(docsDirectory, file), 'utf-8');
+		for (const [, url] of contents.matchAll(
+			/\[Remotion [Ll]icense\]\(([^)]+)\)/g,
+		)) {
+			if (url !== 'https://remotion.dev/license') {
+				mismatches.push(
+					`${file}: Remotion License must link to https://remotion.dev/license`,
+				);
+			}
+		}
+
 		if (!/^## License[ \t]*$/m.test(contents)) {
 			continue;
 		}
@@ -74,7 +84,7 @@ test('Documented package licenses match package.json', () => {
 		const expectedLicense =
 			packageLicenses.get(packageName) === 'MIT'
 				? 'MIT'
-				: '[Remotion License](/docs/license)';
+				: '[Remotion License](https://remotion.dev/license)';
 		const documentedLicense = contents
 			.match(/^## License[ \t]*\r?\n(?:[ \t]*\r?\n)*([^\r\n]+)/m)?.[1]
 			.trim();
