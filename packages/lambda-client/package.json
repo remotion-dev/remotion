@@ -13,7 +13,7 @@
 		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "UNLICENSED",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {},
 	"devDependencies": {
 		"@aws-sdk/client-cloudwatch-logs": "catalog:",

@@ -12,6 +12,7 @@
 	"homepage": "https://www.remotion.dev/docs/ai/claude-code-plugin",
 	"repository": "https://github.com/remotion-dev/claude-code-plugin",
 	"license": "MIT",
+	"skills": "./skills/",
 	"keywords": [
 		"remotion",
 		"video",

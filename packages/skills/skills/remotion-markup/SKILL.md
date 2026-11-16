@@ -156,10 +156,6 @@ needs its own editable timeline, or when handling a Studio pre-compose request.
 It covers extraction, registration, inherited styles, and verification in both
 the parent and standalone views.
 
-## Voiceover
-
-See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
-
 ## Embedding Videos
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
