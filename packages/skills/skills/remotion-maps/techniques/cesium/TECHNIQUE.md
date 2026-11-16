@@ -14,19 +14,13 @@ textured architecture.
 
 ## Credentials
 
-For `landscape`, set:
-
-```text
-REMOTION_MAPTILER_KEY=...
-```
+For `landscape`, replace `YOUR_API_KEY` in the `MAPTILER_KEY` constant in
+`assets/CesiumFlythrough.tsx` with a MapTiler key.
 
 Create a MapTiler key at https://cloud.maptiler.com/account/keys/.
 
-For `city`, set:
-
-```text
-REMOTION_GOOGLE_MAPS_API_KEY=...
-```
+For `city`, replace `YOUR_API_KEY` in the `GOOGLE_MAPS_API_KEY` constant in
+`assets/CesiumFlythrough.tsx` with a Google Map Tiles API key.
 
 Create a billing-enabled Google Map Tiles API key by following
 https://developers.google.com/maps/documentation/tile/get-api-key. Enable the **Map Tiles API** and
@@ -63,7 +57,6 @@ camera banks into a turn instead of twitching left and right.
 
 For landscape routes, `scripts/prep-cesium-path.mjs` also clips, resamples, smooths and dampens a
 GeoJSON centerline before the component applies its final curve smoothing.
-
 
 ## Mechanics
 

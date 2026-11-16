@@ -19,14 +19,13 @@ const SOURCE_ID = 'maptiler-planet';
 
 export const addMapTilerVectorElement = (
 	map: any,
-	apiKey: string,
 	element: MapTilerVectorElement,
 	beforeId?: string,
 ) => {
 	if (!map.getSource(SOURCE_ID)) {
 		map.addSource(SOURCE_ID, {
 			type: 'vector',
-			url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${apiKey}`,
+			url: 'https://api.maptiler.com/tiles/v3/tiles.json?key=YOUR_API_KEY',
 		});
 	}
 
