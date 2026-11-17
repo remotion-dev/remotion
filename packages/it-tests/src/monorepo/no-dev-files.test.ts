@@ -3,7 +3,7 @@ import {copyFileSync, existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {getAllPackages} from './get-all-packages';
 
-const packages = getAllPackages().filter((pkg) => pkg.pkg !== 'google-fonts');
+const packages = getAllPackages();
 
 const MAX_CONCURRENT_PACK_CHECKS = 8;
 const PACK_TIMEOUT_MS = 15000;
@@ -105,7 +105,7 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 				continue;
 			}
 			const filename = line.split(/\s+/).at(-1) as string;
-			if (filename === 'LICENSE.md' || filename.endsWith('/LICENSE.md')) {
+			if (filename === 'LICENSE.md') {
 				hasPackedLicense = true;
 			}
 

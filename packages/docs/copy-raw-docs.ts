@@ -89,6 +89,27 @@ function copyRawDocs() {
 				copiedCount++;
 			}
 		}
+
+		// Docusaurus serves studio/studio.mdx at /docs/studio unless the folder has an index page or the doc sets a slug
+		const parsedPath = path.parse(relativePathWithoutDocs);
+		if (
+			parsedPath.dir &&
+			path.basename(parsedPath.dir) === parsedPath.name &&
+			!['index.md', 'index.mdx', 'README.md', 'README.mdx'].some((file) =>
+				fs.existsSync(path.join(DOCS_DIR, parsedPath.dir, file)),
+			) &&
+			!/^slug:/m.test(
+				fs
+					.readFileSync(sourcePath, 'utf8')
+					.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '',
+			)
+		) {
+			writeRawMarkdown({
+				destPath: path.join(DOCS_OUTPUT_DIR, `${parsedPath.dir}.md`),
+				sourcePath,
+			});
+			copiedCount++;
+		}
 	}
 
 	// Options added to the registry are generated before this script runs, even
