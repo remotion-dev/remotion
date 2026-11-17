@@ -61,7 +61,8 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 					zIndex: 1,
 					borderRadius: 18,
 					border: '1px solid var(--border-color)',
-					backgroundColor: 'var(--ifm-background-color)',
+					backgroundColor:
+						'var(--suggested-prompt-background, var(--ifm-background-color))',
 					color: 'var(--text-color)',
 					display: 'grid',
 					gridTemplateColumns: 'minmax(0, 1fr) 28px',
@@ -112,7 +113,8 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 				style={{
 					margin: '-12px 12px 0',
 					borderRadius: '0 0 12px 12px',
-					backgroundColor: 'var(--ifm-color-emphasis-100)',
+					backgroundColor:
+						'var(--suggested-prompt-label-background, var(--ifm-color-emphasis-100))',
 					color: 'var(--subtitle)',
 					padding: '20px 14px 8px',
 					fontFamily: 'GTPlanar',

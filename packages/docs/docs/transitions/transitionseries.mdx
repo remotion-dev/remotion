@@ -139,7 +139,7 @@ During the transition, both scenes are rendered simultaneously and the total dur
 Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
 
-Takes two props:
+Accepts the following props.
 
 #### `timing`
 
@@ -148,6 +148,13 @@ A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) fo
 #### `presentation?`
 
 A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
+
+#### `motionBlur?`<AvailableFrom v="4.0.545" />
+
+An object with optional `shutterAngle` and `samples` properties that enables motion blur for the presentation.  
+Defaults to [`180` degrees and `16` samples](/docs/motion-blur#shutterangle-and-samples) when enabled.  
+A transition must have a [HTML-in-canvas based implementation](/docs/transitions/presentations/custom-html-in-canvas) for this to work.  
+See also: [Transition motion blur](/docs/motion-blur#motion-blur-on-transitions)
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 

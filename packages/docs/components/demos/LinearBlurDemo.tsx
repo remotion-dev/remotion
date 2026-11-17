@@ -13,7 +13,7 @@ export const LinearBlurDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/linear-blur-transition.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/linear-blur-transition.mp4" />
 		);
 	}
 

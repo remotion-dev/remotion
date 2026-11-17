@@ -12,9 +12,7 @@ export const FilmBurnDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/film-burn-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/film-burn-transition.mp4" />;
 	}
 
 	return <FilmBurnTransitionPreview />;

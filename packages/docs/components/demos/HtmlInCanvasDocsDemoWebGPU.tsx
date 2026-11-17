@@ -343,7 +343,7 @@ export const HtmlInCanvasDocsDemoWebGPU: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/html-in-canvas-webgpu.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/html-in-canvas-webgpu.mp4" />
 		);
 	}
 

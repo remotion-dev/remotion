@@ -12,9 +12,7 @@ export const RippleDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/ripple-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/ripple-transition.mp4" />;
 	}
 
 	return <RippleTransitionPreview />;
