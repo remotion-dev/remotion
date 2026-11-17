@@ -258,6 +258,7 @@ export const getSequenceContextMenuItems = (
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			sourceTarget: null,
 		}),
 		getCopyContextForAgentsMenuItem({contextForAgents}),
 		...getAnnotateWithChatGPTMenuItems({

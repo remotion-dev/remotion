@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.542",
+	"version": "4.0.544",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -14,7 +14,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "MIT",
 	"dependencies": {
 		"remotion": "workspace:*"
 	},
@@ -80,6 +80,9 @@
 			],
 			"Agdasima": [
 				"dist/cjs/Agdasima.d.ts"
+			],
+			"AgravePro": [
+				"dist/cjs/AgravePro.d.ts"
 			],
 			"AguDisplay": [
 				"dist/cjs/AguDisplay.d.ts"
@@ -1574,6 +1577,9 @@
 			],
 			"FiraSansExtraCondensed": [
 				"dist/cjs/FiraSansExtraCondensed.d.ts"
+			],
+			"Firjar": [
+				"dist/cjs/Firjar.d.ts"
 			],
 			"FjallaOne": [
 				"dist/cjs/FjallaOne.d.ts"

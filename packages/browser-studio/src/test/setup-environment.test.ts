@@ -7,7 +7,7 @@ import {getBrowserStudioSetupEnvironmentForBuild} from '../dev/get-setup-environ
 const packageDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoDir = join(packageDir, '..', '..');
 
-test('browser studio setup environment is derived from bundler', () => {
+test('remotion.new setup environment is derived from bundler', () => {
 	expect(getBrowserStudioSetupEnvironmentForBuild()).toBe(
 		readFileSync(
 			join(repoDir, 'packages', 'bundler', 'src', 'setup-environment.ts'),

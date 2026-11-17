@@ -13,7 +13,7 @@ export const numberOfSharedAudioTagsOption = {
 		<>
 			Set number of shared audio tags. See{' '}
 			<a href="https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop">
-				Using the numberOfSharedAudioTags prop
+				Using the <code>numberOfSharedAudioTags</code> prop
 			</a>{' '}
 			for more information.
 		</>

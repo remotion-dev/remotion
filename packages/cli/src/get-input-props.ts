@@ -12,10 +12,12 @@ export const getInputProps = (
 	onUpdate: ((newProps: Record<string, unknown>) => void) | null,
 	logLevel: LogLevel,
 ): Record<string, unknown> => {
-	const props = propsOption.getValue({commandLine: parsedCli}).value;
-	if (!props) {
+	const rawProps = propsOption.getValue({commandLine: parsedCli}).value;
+	if (rawProps === null) {
 		return {};
 	}
+
+	const props = String(rawProps);
 
 	const jsonFile = path.resolve(process.cwd(), props);
 	try {

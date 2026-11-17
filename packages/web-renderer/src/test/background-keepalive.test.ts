@@ -115,3 +115,90 @@ test('a real worker tick settles multiple waits and disposes cleanly', async () 
 	await Promise.all([keepalive.waitForTick(), keepalive.waitForTick()]);
 	await keepalive.waitForTick();
 });
+
+test.for(['url', 'constructor', 'start'] as const)(
+	'uses timer ticks and releases owned resources when worker %s fails',
+	async (phase) => {
+		vi.useFakeTimers();
+		const failure = new DOMException(
+			'Worker startup was blocked',
+			'SecurityError',
+		);
+		const createUrl = vi.spyOn(URL, 'createObjectURL');
+		const revoke = vi.spyOn(URL, 'revokeObjectURL');
+		const terminate = vi.fn();
+		if (phase === 'url')
+			createUrl.mockImplementation(() => {
+				throw failure;
+			});
+		vi.stubGlobal(
+			'Worker',
+			class {
+				onerror = () => {};
+				onmessage = () => {};
+				terminate = terminate;
+				constructor() {
+					if (phase === 'constructor') throw failure;
+				}
+
+				postMessage() {
+					throw failure;
+				}
+			},
+		);
+		const keepalive = createBackgroundKeepalive({fps: 25, logLevel: 'error'});
+		try {
+			let ticks = 0;
+			const first = Promise.all([
+				keepalive.waitForTick().then(() => ticks++),
+				keepalive.waitForTick().then(() => ticks++),
+			]);
+			await vi.advanceTimersByTimeAsync(39);
+			expect(ticks).toBe(0);
+			await vi.advanceTimersByTimeAsync(1);
+			await first;
+			expect(ticks).toBe(2);
+			const next = keepalive.waitForTick().then(() => ticks++);
+			await vi.advanceTimersByTimeAsync(40);
+			await next;
+			expect(ticks).toBe(3);
+
+			vi.stubGlobal(
+				'requestAnimationFrame',
+				vi.fn(() => 1),
+			);
+			const scope = {
+				remotion_renderReady: false,
+				remotion_delayRenderHandles: [],
+				remotion_delayRenderTimeouts: {},
+				remotion_puppeteerTimeout: 30000,
+				remotion_attempt: 1,
+			};
+			let ready = false;
+			const waiting = waitForReady({
+				timeoutInMilliseconds: 30000,
+				scope,
+				signal: null,
+				apiName: 'renderMediaOnWeb',
+				internalState: null,
+				keepalive,
+			}).then(() => {
+				ready = true;
+			});
+			await vi.advanceTimersByTimeAsync(40);
+			expect(ready).toBe(false);
+			scope.remotion_renderReady = true;
+			await vi.advanceTimersByTimeAsync(40);
+			expect(ready).toBe(true);
+			await waiting;
+		} finally {
+			keepalive[Symbol.dispose]();
+			keepalive[Symbol.dispose]();
+		}
+
+		expect(terminate).toHaveBeenCalledTimes(phase === 'start' ? 1 : 0);
+		expect(revoke).toHaveBeenCalledTimes(phase === 'url' ? 0 : 1);
+		if (phase !== 'url')
+			expect(revoke).toHaveBeenCalledWith(createUrl.mock.results[0].value);
+	},
+);

@@ -1,7 +1,8 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
+	type HtmlInCanvasOnInit,
 	type HtmlInCanvasOnPaint,
 	Interactive,
 	type InteractiveBaseProps,
@@ -12,6 +13,10 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {
+	createMotionBlurCompositor,
+	getMotionBlurGpuDevice,
+} from './motion-blur-compositor';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 	InteractivePremountProps & {
@@ -81,7 +86,6 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
-	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
 	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
@@ -104,13 +108,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			{isRepresentativeSample ? (
-				content
-			) : (
-				<Internals.DisableSequenceRegistrationProvider>
-					{content}
-				</Internals.DisableSequenceRegistrationProvider>
-			)}
+			<Internals.DisableSequenceRegistrationProvider
+				disabled={!isRepresentativeSample}
+			>
+				<Freeze frame={sampleFrame}>{children}</Freeze>
+			</Internals.DisableSequenceRegistrationProvider>
 		</div>
 	);
 };
@@ -143,7 +145,14 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 	const videoEnabled = Internals.useVideoEnabled();
-	const accumulationCanvasRef = useRef<OffscreenCanvas | null>(null);
+	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
+	const gpuDeviceRef = useRef<GPUDevice | null>(null);
+	const compositorRef = useRef<{
+		compositor: ReturnType<typeof createMotionBlurCompositor>;
+		width: number;
+		height: number;
+		preferWebGl: boolean;
+	} | null>(null);
 
 	if (!Number.isInteger(samples) || samples < 1 || samples > 64) {
 		throw new TypeError(
@@ -182,6 +191,15 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	const lastFrame =
 		firstFrame + Math.max(0, visibleDuration - 1) * (playbackRate ?? 1);
 
+	const onInit: HtmlInCanvasOnInit = useCallback(async () => {
+		gpuDeviceRef.current = await getMotionBlurGpuDevice();
+		return () => {
+			gpuDeviceRef.current = null;
+			compositorRef.current?.compositor.dispose();
+			compositorRef.current = null;
+		};
+	}, []);
+
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
 		({canvas, element, elementImage}) => {
 			const context = canvas.getContext('2d');
@@ -202,34 +220,51 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 				throw new Error('Motion blur samples are not ready to paint');
 			}
 
+			if (actualSamples === 1) {
+				compositorRef.current?.compositor.dispose();
+				compositorRef.current = null;
+				context.reset();
+				context.drawElementImage(elementImage, 0, 0);
+				return;
+			}
+
+			const preferWebGl =
+				(preferredBackend ?? window.remotion_preferredEffectBackend) ===
+					'webgl2' || Boolean(window.remotion_disableWebGpuEffects);
+			if (compositorRef.current?.compositor.isLost()) {
+				if (compositorRef.current.compositor.backend === 'webgpu') {
+					gpuDeviceRef.current = null;
+				}
+
+				compositorRef.current.compositor.dispose();
+				compositorRef.current = null;
+			}
+
 			if (
-				accumulationCanvasRef.current === null ||
-				accumulationCanvasRef.current.width !== canvas.width ||
-				accumulationCanvasRef.current.height !== canvas.height
+				compositorRef.current === null ||
+				compositorRef.current.width !== canvas.width ||
+				compositorRef.current.height !== canvas.height ||
+				compositorRef.current.preferWebGl !== preferWebGl
 			) {
-				accumulationCanvasRef.current = new OffscreenCanvas(
-					canvas.width,
-					canvas.height,
-				);
+				compositorRef.current?.compositor.dispose();
+				compositorRef.current = null;
+				const createdCompositor = createMotionBlurCompositor({
+					width: canvas.width,
+					height: canvas.height,
+					device: preferWebGl ? null : gpuDeviceRef.current,
+					requestPaint: () => layoutCanvas.requestPaint?.(),
+				});
+				compositorRef.current = {
+					compositor: createdCompositor,
+					width: canvas.width,
+					height: canvas.height,
+					preferWebGl,
+				};
 			}
 
-			const accumulationCanvas = accumulationCanvasRef.current;
-			const accumulationSettings = {
-				colorSpace: 'srgb',
-				colorType: 'float16',
-			} as const;
-			const accumulationContext = accumulationCanvas.getContext(
-				'2d',
-				accumulationSettings,
-			);
-			if (!accumulationContext) {
-				throw new Error('Failed to acquire 2D context for motion blur samples');
-			}
-
-			accumulationContext.reset();
-			accumulationContext.globalCompositeOperation = 'lighter';
-			accumulationContext.globalAlpha = 1 / actualSamples;
-
+			const {compositor} = compositorRef.current;
+			// Canvas2D quantizes globalAlpha to eight bits, including float16 targets.
+			const sampleWeight = Math.round(255 / actualSamples) / 255;
 			for (const [index, sampleElement] of captureElements.entries()) {
 				const image =
 					index === 0
@@ -239,7 +274,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 					// ElementImage can only be drawn back to its originating canvas.
 					context.reset();
 					context.drawElementImage(image, 0, 0);
-					accumulationContext.drawImage(canvas, 0, 0);
+					compositor.addSample(canvas, index, sampleWeight);
 				} finally {
 					if (index !== 0) {
 						image.close();
@@ -248,9 +283,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			}
 
 			context.reset();
-			context.drawImage(accumulationCanvas, 0, 0);
+			context.drawImage(compositor.finish(), 0, 0);
 		},
-		[actualSamples],
+		[actualSamples, preferredBackend],
 	);
 
 	const passThrough = Internals.useHtmlInCanvasUnsupportedMessage() !== null;
@@ -295,6 +330,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			styleWhilePostmounted={styleWhilePostmounted}
 			{...{controls}}
 			onPaint={onPaint}
+			onInit={onInit}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
 			_remotionInternalFallbackLabel="Motion blur is not visible"
 		>

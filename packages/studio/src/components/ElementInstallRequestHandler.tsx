@@ -413,7 +413,7 @@ export const ElementInstallRequestHandler: FC = () => {
 					source.type === 'studio-protocol'
 						? source.origin
 						: source.type === 'browser-studio-link'
-							? (source.origin ?? 'Unverified Browser Studio link')
+							? (source.origin ?? 'Unverified remotion.new link')
 							: 'Unverified drag-and-drop payload';
 				const sourceIsUnverified =
 					source.type === 'drag-and-drop' ||

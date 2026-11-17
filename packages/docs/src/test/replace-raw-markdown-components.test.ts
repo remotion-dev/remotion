@@ -113,6 +113,6 @@ test('replaces the Studio table of contents and removes its import', () => {
 
 	expect(output).not.toContain('TableOfContents');
 	expect(output).toContain(
-		'| [`getStaticFiles()`](/docs/studio/get-static-files) |',
+		'| [`getStaticFiles()`](https://www.remotion.dev/docs/studio/get-static-files.md) |',
 	);
 });

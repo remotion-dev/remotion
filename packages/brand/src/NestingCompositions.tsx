@@ -16,7 +16,6 @@ const PrecompositionInner = () => {
 			name="Canvas Capture"
 			durationInFrames={438}
 			trimBefore={323}
-			premountFor={60}
 			style={{
 				width: 3126,
 				height: 2958,
@@ -515,12 +514,7 @@ export const NestingCompositionsPreview = () => {
 	return (
 		<>
 			<Precomposition name={'Precomposition'} durationInFrames={158} />
-			<Precomposition
-				name={'Precomposition'}
-				from={158}
-				trimBefore={186}
-				premountFor={60}
-			/>
+			<Precomposition name={'Precomposition'} from={158} trimBefore={186} />
 		</>
 	);
 };

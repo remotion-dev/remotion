@@ -3,7 +3,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import {
 	openInCodingAgent,
-	openOriginalPositionInEditor,
+	openSourceInEditor,
 } from '../../helpers/open-in-editor';
 import {ContextMenu} from '../ContextMenu';
 import {getSourceContextMenuItems} from '../get-source-context-menu-items';
@@ -54,14 +54,17 @@ export const TimelineEffectsContextMenu: React.FC<{
 						return;
 					}
 
-					openOriginalPositionInEditor(
-						validatedLocation,
-						resolvedEditorId,
-					).catch((error) => {
+					openSourceInEditor({
+						originalPosition: validatedLocation,
+						editorId: resolvedEditorId,
+						property: 'effects',
+						effectIndex: null,
+					}).catch((error) => {
 						showNotification((error as Error).message, 2000);
 					});
 				},
 				originalLocation: validatedLocation,
+				sourceTarget: {property: 'effects', effectIndex: null},
 			}),
 			getCopyContextForAgentsMenuItem({contextForAgents}),
 		];

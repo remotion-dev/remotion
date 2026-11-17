@@ -1,3 +1,4 @@
+import {duotone} from '@remotion/effects/duotone';
 import {Video} from '@remotion/media';
 import {CalculateMetadataFunction, Composition, Sequence} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
@@ -19,7 +20,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return <Video src={src} debugOverlay />;
+	return <Video src={src} debugOverlay effects={[duotone({})]} />;
 };
 
 export const NewVideoComp = () => {
@@ -34,7 +35,7 @@ export const NewVideoComp = () => {
 
 const PremountSequenceVideo = () => {
 	return (
-		<Sequence from={90} premountFor={30}>
+		<Sequence from={90}>
 			<Video src={src} debugOverlay />
 		</Sequence>
 	);

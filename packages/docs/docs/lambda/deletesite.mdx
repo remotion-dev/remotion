@@ -15,7 +15,8 @@ Each project is located in the `sites/` subdirectory of your S3 bucket. Calling 
 Gets all sites and deletes them.
 
 ```ts twoslash
-import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
+import {deleteSite} from '@remotion/lambda';
+import {AwsRegion, getSites} from '@remotion/lambda/client';
 
 const region: AwsRegion = 'eu-central-1';
 
@@ -57,7 +58,11 @@ The unique ID of the project you want to delete.
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ## Return value
 
@@ -76,5 +81,5 @@ The amount of space that was freed by deleting the project.
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/delete-site.ts)
-- [getSites()](/docs/lambda/getsites)
-- [deploySiteFromBundle()](/docs/lambda/deploysitefrombundle)
+- [`getSites()`](/docs/lambda/getsites)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)

@@ -86,7 +86,7 @@ export const RemotionMediaVideoTexture: React.FC = () => {
 ### Notes
 
 - By using the [`headless`](/docs/media/video#headless) prop, nothing will be returned by the `<Video>` tag, so it can be mounted within a [`<ThreeCanvas>`](/docs/three-canvas) without affecting the rendering.
-- During rendering, [`<ThreeCanvas>`](/docs/three-canvas) sets `frameloop='never'`, which means the scene is only re-rendered on demand. Use `advance()` inside `onVideoFrame` to synchronously re-render the scene before the screenshot is taken. Using `invalidate()` would only schedule an asynchronous re-render, which can lead to stale frames — especially with concurrency greater than 1.
+- During rendering, [`<ThreeCanvas>`](/docs/three-canvas) sets `frameloop='never'`, which means the scene is only re-rendered on demand. Use `advance()` inside [`onVideoFrame`](/docs/media/video#onvideoframe) to synchronously re-render the scene before the screenshot is taken. Using `invalidate()` would only schedule an asynchronous re-render, which can lead to stale frames — especially with concurrency greater than 1.
 - During preview, `invalidate()` is sufficient because the frame loop runs continuously.
 
 ## Examples
@@ -114,11 +114,11 @@ _deprecated in favor of using `@remotion/media`_
 
 You can use the [`useVideoTexture()`](/docs/use-video-texture) hook from [`@remotion/three`](/docs/three-canvas) to get a texture from a video.
 
-It has all the drawbacks of the [`<Html5Video>`](/docs/video-tags) tag and is therefore **deprecated** in favor of using the recommended approach mentioned above.
+It has all the drawbacks of the [`<Html5Video>`](/docs/html5-video) tag and is therefore **deprecated** in favor of using the recommended approach mentioned above.
 
 ## See also
 
 - [`@remotion/three`](/docs/three)
 - [React Three Fiber template](/templates/three)
-- [Comparison of video tags](/docs/video-tags)
+- [Choosing a media component](/docs/video-tags)
 - [`<Video>`→ `headless` prop](/docs/media/video)

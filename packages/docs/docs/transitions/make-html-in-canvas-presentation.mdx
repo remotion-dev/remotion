@@ -260,11 +260,11 @@ Has the type [`HtmlInCanvasShaderDraw<Props>`](#htmlincanvasshaderdraw); the arg
 
 ##### `prevImage`
 
-`OffscreenCanvas | null` — the rasterized exiting scene. `null` while it has not yet rendered (e.g. at the very start).
+`OffscreenCanvas | null` — the rasterized entering scene. `null` while the scene is unmounted or has not yet rendered.
 
 ##### `nextImage`
 
-`OffscreenCanvas | null` — the rasterized entering scene. `null` after the entering scene has unmounted.
+`OffscreenCanvas | null` — the rasterized exiting scene. `null` while the scene is unmounted or has not yet rendered.
 
 Upload these sources to WebGL textures using [`texImage2D()`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D).
 
@@ -276,9 +276,23 @@ The pixel size of the canvas to draw into.
 
 A `number` between `0` and `1`.
 
-`time = 0` means the shader should output the entering scene fully (i.e. transition end), and `time = 1` means the shader should output the exiting scene fully (i.e. transition start).
+`time = 0` is the transition start, and `time = 1` is the transition end.  
+The transition moves from the exiting scene (`nextImage`) to the entering scene (`prevImage`).
 
-When one image is missing, treat it as the boundary case: if `!prevImage`, force `time = 0` so the shader falls back to `nextImage` only; if `!nextImage`, force `time = 1` so the shader falls back to `prevImage` only.
+When one image is missing, draw the available scene using the corresponding endpoint of the presentation.
+
+With [transition motion blur](/docs/motion-blur#transition-motion-blur) enabled, `draw()` is called for each exposure sample.  
+Each call must produce a complete image independently of earlier draws.
+
+##### `pixelRatio`<AvailableFrom v="4.0.545" />
+
+The number of capture pixels per CSS pixel. Multiply CSS-pixel dimensions by this value when drawing into the canvas.  
+Remotion supplies this field on every draw.
+
+##### `presentationDurationInFrames`<AvailableFrom v="4.0.545" />
+
+The transition duration, independent of the current `time`. Use it for duration-dependent effects such as a flash lasting a fixed number of frames.  
+Remotion supplies this field on every draw.
 
 ##### `passedProps`
 
@@ -290,11 +304,11 @@ A `presentation` that you can pass to a [`<TransitionSeries.Transition>`](/docs/
 
 The returned function accepts your shader props and the following options:
 
-### `effects`?
+### `effects?`
 
 [Effects](/docs/effects/api) to apply after the transition shader. Defaults to an empty array.
 
-### `effectsOutputSize`?<AvailableFrom v="4.0.536" />
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
 
 An object with positive integer `width` and `height` values that sets the [effect resolution](/docs/effects/api#effect-resolution). By default, effects use the transition canvas dimensions. This does not change the shader or output dimensions.
 
@@ -327,8 +341,25 @@ import type {
 } from '@remotion/transitions';
 ```
 
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
 ## See also
 
 - [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas) — full walkthrough and example
-- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [HTML-in-canvas](/docs/html-in-canvas)
 - [Custom presentations](/docs/transitions/presentations/custom) — the CSS-based path

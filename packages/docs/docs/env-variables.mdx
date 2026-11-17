@@ -40,13 +40,15 @@ Since `v4.0.110`, the following locations will get automatically recognized:
 - `.env` in your [Remotion Root](/docs/terminology/remotion-root)
 - `.env.local` in your [Remotion Root](/docs/terminology/remotion-root)
 
+Only one file is read: If `.env` exists, `.env.local` is ignored.
+
 You can see which config file gets read by adding a `--log=verbose` flag to your command and looking out for the following log:
 
 ```
 Loaded env file from /Users/my-user/remotion-project/.env.local.
 ```
 
-You can override the location of your dotenv file using the [configuration file setting](/docs/config#setdotenvlocation) or the [CLI flag](/docs/cli).
+You can override the location of your dotenv file using the [configuration file setting](/docs/config#setdotenvlocation) or the [`--env-file`](/docs/options/env-file) CLI flag.
 
 ## Using in Node.js APIs
 
@@ -63,7 +65,7 @@ If you want to read the environment variables from a `.env` file, use the [doten
 The `envVariables` option of [`renderMedia()`](/docs/renderer/render-media#envvariables), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#envvariables) accepts an object of key-value pairs.  
 These values can then be read from `process.env` inside your React component.
 
-The option is not for authenticating with AWS - instead, load the AWS credentials using one of the described methods above.
+The option is not for authenticating with AWS. To provide AWS credentials, see [Lambda authentication](/docs/lambda/authentication).
 
 ## See also
 

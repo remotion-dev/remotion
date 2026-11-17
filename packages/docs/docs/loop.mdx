@@ -168,11 +168,6 @@ const MyComp = () => {
 A child component can use the `Loop.useLoop()` hook to get information about the current loop.  
 You should check for `null`, which is the case if the component is not inside a loop.
 
-If inside a loop, an object with two properties is returned:
-
-- `durationInFrames`: The duration of the loop in frames as passed to the `<Loop />` component.
-- `iteration`: The current iteration of the loop, starting at 0.
-
 ```tsx twoslash
 import React from 'react';
 import {Loop, useCurrentFrame} from 'remotion';
@@ -199,6 +194,16 @@ const Child = () => {
   return <div>{frame}</div>;
 };
 ```
+
+If inside a loop, an object with two properties is returned:
+
+### `durationInFrames`
+
+The duration of the loop in frames as passed to the `<Loop />` component.
+
+### `iteration`
+
+The current iteration of the loop, starting at 0.
 
 ## Compatibility
 

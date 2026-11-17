@@ -65,6 +65,14 @@ export type WebhookSuccessPayload = StaticWebhookPayload & {
     key: string;
     sizeInBytes: number;
   } | null;
+  outputSequence: {
+    bucketName: string;
+    keyPrefix: string;
+    manifestKey: string;
+    manifestUrl: string;
+    imageFormat: 'png' | 'jpeg';
+    frameCount: number;
+  } | null;
   timeToFinish: number | undefined;
   costs: AfterRenderCost;
 };
@@ -88,7 +96,7 @@ The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the r
 {
   "s3Location": "string",
   "explanation": "string" | null,
-  "type": "renderer" | "browser" | "stitcher",
+  "type": "renderer" | "browser" | "stitcher" | "webhook" | "artifact",
   "message": "string",
   "name": "string",
   "stack": "string",
@@ -149,7 +157,7 @@ Instead of validating the signature yourself, you can use the [`validateWebhookS
 
 ## Example webhook endpoint (Express)
 
-You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, we are using [`expressWebhook()`](/docs/lambda/expresswebhook) to simplify the process.
+You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework and uses [`expressWebhook()`](/docs/lambda/expresswebhook) to simplify the process.
 
 ```javascript twoslash title="server.js"
 import express from 'express';
@@ -291,5 +299,5 @@ This tool sends the demo webhook requests directly from your browser, which has 
 
 ## See also
 
-- [validateWebhookSignature()](/docs/lambda/validatewebhooksignature)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
+- [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)

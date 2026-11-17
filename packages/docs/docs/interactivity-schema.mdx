@@ -61,7 +61,7 @@ Controls for cropping a component from each edge: [`cropLeft`](/docs/sequence#cr
 
 Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
 
-`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
+`style.fontFamily` is available from v4.0.486.
 
 ### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
 
@@ -104,13 +104,13 @@ When `style.borderRadius` is a number or contains one to four pixel values, the 
 
 ### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components that accept SVG paint props.
 
 ### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
 
-Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from <AvailableFrom v="4.0.507" inline /> and controls paint values that use `currentColor`.
+Controls for the SVG `stroke` and `strokeWidth` props. The `color` prop is available from v4.0.507 and controls paint values that use `currentColor`.
 
 Use it for custom components such as lines that do not have a paintable interior.
 
@@ -341,11 +341,11 @@ Controls whether the field can be animated with keyframes.
 
 Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate`, `color`, `font-weight` and `svg-path` fields.
 
-Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from <AvailableFrom v="4.0.530" inline />.
+Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from v4.0.530.
 
 `array`, `asset`, `font-family`, `string`, `text-content` and `remotion-captions` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 
-`enum` fields are not keyframable by default. From <AvailableFrom v="4.0.509" inline />, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
+`enum` fields are not keyframable by default. From v4.0.509, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
 
 Set `keyframable: false` on a keyframable field to show a static control.
 

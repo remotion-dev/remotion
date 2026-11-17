@@ -177,4 +177,4 @@ Bun.serve({
 	},
 });
 
-process.stdout.write(`Browser Studio E2E server: http://127.0.0.1:${port}\n`);
+process.stdout.write(`remotion.new E2E server: http://127.0.0.1:${port}\n`);

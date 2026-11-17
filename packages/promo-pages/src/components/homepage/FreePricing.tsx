@@ -196,7 +196,7 @@ export const EnterpriseLicense: React.FC = () => {
 							<a
 								className="cursor-pointer no-underline text-inherit hover:text-brand"
 								target={'_blank'}
-								href="https://www.remotion.pro/contact"
+								href="https://www.remotion.dev/contact"
 							>
 								Contact us
 							</a>
@@ -494,7 +494,7 @@ export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
 								<a
 									className="bluelink"
 									target="_blank"
-									href="https://www.remotion.pro/contact"
+									href="https://www.remotion.dev/contact"
 								>
 									contact us
 								</a>

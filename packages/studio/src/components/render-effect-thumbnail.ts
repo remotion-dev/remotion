@@ -5,12 +5,10 @@ import type {EffectPreviewFactory} from './effect-preview-loaders';
 
 const thumbnails = new WeakMap<
 	HTMLCanvasElement,
-	{
-		source: HTMLCanvasElement;
-		images: Map<string, HTMLCanvasElement>;
-	}
+	Map<string, HTMLCanvasElement>
 >();
 let renderQueue = Promise.resolve();
+let lastYield = -Infinity;
 
 export const getCachedEffectThumbnail = (
 	snapshot: HTMLCanvasElement | null,
@@ -18,7 +16,7 @@ export const getCachedEffectThumbnail = (
 ): HTMLCanvasElement | null => {
 	return snapshot === null
 		? null
-		: (thumbnails.get(snapshot)?.images.get(effectId) ?? null);
+		: (thumbnails.get(snapshot)?.get(effectId) ?? null);
 };
 
 export const renderEffectThumbnail = ({
@@ -49,9 +47,13 @@ export const renderEffectThumbnail = ({
 			return queuedCached;
 		}
 
-		await new Promise<void>((resolve) => {
-			requestAnimationFrame(() => setTimeout(resolve, 0));
-		});
+		if (performance.now() - lastYield >= 8) {
+			await new Promise<void>((resolve) => {
+				requestAnimationFrame(() => setTimeout(resolve, 0));
+			});
+			lastYield = performance.now();
+		}
+
 		if (signal.aborted) {
 			return null;
 		}
@@ -76,34 +78,20 @@ export const renderEffectThumbnail = ({
 
 		let cache = thumbnails.get(snapshot);
 		if (!cache) {
-			const source = document.createElement('canvas');
-			const scale = Math.min(
-				1,
-				320 / Math.max(snapshot.width, snapshot.height),
-			);
-			source.width = Math.max(1, Math.round(snapshot.width * scale));
-			source.height = Math.max(1, Math.round(snapshot.height * scale));
-			const context = source.getContext('2d');
-			if (!context) {
-				return null;
-			}
-
-			context.drawImage(snapshot, 0, 0, source.width, source.height);
-			cache = {source, images: new Map()};
+			cache = new Map();
 			thumbnails.set(snapshot, cache);
 		}
 
 		const effect = factory(getEffectPickerConfig(item));
-		const {width, height} = cache.source;
+		const {width, height} = snapshot;
 		const state = Internals.createEffectChainState(width, height);
 		const output = document.createElement('canvas');
 		output.width = width;
 		output.height = height;
-		let retained = false;
 		try {
 			const completed = await Internals.runEffectChain({
 				state,
-				source: cache.source,
+				source: snapshot,
 				effects: [{...effect, memoized: true}],
 				output,
 				width,
@@ -113,15 +101,22 @@ export const renderEffectThumbnail = ({
 				return null;
 			}
 
-			cache.images.set(item.id, output);
-			retained = true;
-			return output;
+			const thumbnail = document.createElement('canvas');
+			const scale = Math.min(1, 320 / Math.max(width, height));
+			thumbnail.width = Math.max(1, Math.round(width * scale));
+			thumbnail.height = Math.max(1, Math.round(height * scale));
+			const context = thumbnail.getContext('2d');
+			if (!context) {
+				return null;
+			}
+
+			context.drawImage(output, 0, 0, thumbnail.width, thumbnail.height);
+			cache.set(item.id, thumbnail);
+			return thumbnail;
 		} finally {
 			Internals.cleanupEffectChainState(state);
-			if (!retained) {
-				output.width = 0;
-				output.height = 0;
-			}
+			output.width = 0;
+			output.height = 0;
 		}
 	});
 

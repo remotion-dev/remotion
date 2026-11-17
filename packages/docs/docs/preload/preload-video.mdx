@@ -31,48 +31,15 @@ unpreload();
 ## How it works
 
 - On Firefox, it appends a `<link rel="preload" as="video">` tag in the head element of the document.
-- In other browsers, it appends a `<video preload="auto">` tag in the body element of the document.
+- In other browsers, it appends a `<video preload="auto">` tag in the body element of the document. On iOS Safari, `preload="metadata"` is used instead.
 
 ## Handle redirects
 
-If the video URL redirects to another URL, preloading the original URL does not work.
+`preloadVideo()` resolves redirects automatically. It first fetches the URL to determine the final URL after any redirects, and then preloads the final URL.
 
-If the URL you include is unknown, use [`resolveRedirect()`](/docs/preload/resolve-redirect) to programmatically obtain the final URL following potential redirects.
+This requires the resource to support CORS. If the URL cannot be fetched, for example because the resource does not support CORS or the request times out, nothing gets preloaded and the error is logged to the console.
 
-If the resource does not support CORS, `resolveRedirect()` will fail. If the resource redirects, and does not support CORS, you cannot preload the asset.
-
-This snippet tries to preload a video on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
-
-```tsx twoslash
-import {preloadVideo, resolveRedirect} from '@remotion/preload';
-import {OffthreadVideo} from 'remotion';
-
-// This code gets executed immediately once the page loads
-let urlToLoad = 'https://player.vimeo.com/external/291648067.hd.mp4?s=94998971682c6a3267e4cbd19d16a7b6c720f345&profile_id=175&oauth2_token_id=57447761';
-
-resolveRedirect(urlToLoad)
-  .then((resolved) => {
-    // Was able to resolve a redirect, setting this as the video to load
-    urlToLoad = resolved;
-  })
-  .catch((err) => {
-    // Was unable to resolve redirect e.g. due to no CORS support
-    console.log('Could not resolve redirect', err);
-  })
-  .finally(() => {
-    // In either case, we try to preload the original or resolved URL
-    preloadVideo(urlToLoad);
-  });
-
-// This code only executes once the component gets mounted
-const MyComp: React.FC = () => {
-  // If the component did not mount immediately, this will be the resolved URL.
-
-  // If the component mounted immediately, this will be the original URL.
-  // In that case preloading is ineffective anyway.
-  return <OffthreadVideo src={urlToLoad}></OffthreadVideo>;
-};
-```
+To obtain the final URL yourself, use [`resolveRedirect()`](/docs/preload/resolve-redirect).
 
 ## Compatibility
 

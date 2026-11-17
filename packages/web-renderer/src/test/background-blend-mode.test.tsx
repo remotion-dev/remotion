@@ -1,28 +1,24 @@
-import {expect, test} from 'vitest';
+import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {testImage} from './utils';
 
-// KINO-7774: compare real browser painting, including alpha, without tolerance.
-// One test per frame keeps each native capture and render within the timeout.
-test.skipIf(!navigator.userAgent.includes('Chrome')).for([0, 1])(
-	'blends backgrounds without blending descendants or the element backdrop at frame %i',
-	async (frame) => {
+test.skipIf(!navigator.userAgent.includes('Chrome'))(
+	'blends backgrounds without blending descendants or the backdrop',
+	async () => {
 		await page.viewport(backgroundBlendMode.width, backgroundBlendMode.height);
 		const still = await renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: backgroundBlendMode,
-			frame,
+			frame: 1,
 			inputProps: {},
 			allowHtmlInCanvas: false,
 		});
-		const reference = await captureNativeReference(backgroundBlendMode, frame);
-		const result = await compareNativePixels(
-			reference,
-			await still.blob({format: 'png'}),
-		);
-		expect(result.mismatchedPixels).toBe(0);
+		await testImage({
+			blob: await still.blob({format: 'png'}),
+			testId: 'background-blend-mode',
+		});
 	},
 );

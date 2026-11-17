@@ -13,6 +13,8 @@ import {
 } from '@remotion/studio-protocol';
 import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {strFromU8, unzipSync} from 'fflate';
+import {captureTrackDropFailureEvidence} from './track-drop-failure-evidence';
+import {isTrackDropPreviewAboveRuler} from './track-drop-paint-order';
 
 const localImagePath = fileURLToPath(
 	new URL('../../agent-plugin/assets/logo.png', import.meta.url),
@@ -30,9 +32,10 @@ const dropLocalFile = async ({
 	page: Page;
 	target: Locator;
 }) => {
+	await target.scrollIntoViewIfNeeded();
 	const box = await target.boundingBox();
 	if (box === null) {
-		throw new Error('Browser Studio drop target has no bounding box');
+		throw new Error('remotion.new drop target has no bounding box');
 	}
 
 	const client = await page.context().newCDPSession(page);
@@ -121,7 +124,7 @@ test('selects a composition inserted from the Add composition dialog', async ({
 	await expect(insertedComposition).toHaveCSS('opacity', '1');
 });
 
-test('loads Browser Studio, opens external links, and can add, delete, and duplicate', async ({
+test('loads remotion.new, opens external links, and can add, delete, and duplicate', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
@@ -511,7 +514,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 	expect(studioApiRequests).toEqual([]);
 });
 
-test('loads Browser Studio from one immutable release artifact set', async ({
+test('loads remotion.new from one immutable release artifact set', async ({
 	page,
 }) => {
 	const releasePackageRequests: string[] = [];
@@ -647,7 +650,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 
 	const studioFrame = page.frames().find((frame) => frame !== page.mainFrame());
 	if (!studioFrame) {
-		throw new Error('Could not find the Browser Studio frame');
+		throw new Error('Could not find the remotion.new frame');
 	}
 
 	const rangeResult = await studioFrame.evaluate(async () => {
@@ -725,7 +728,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 				page.evaluate(async () => {
 					const storage = window.__browserStudioProject.publicFileStorage;
 					if (!storage) {
-						throw new Error('Expected Browser Studio project storage');
+						throw new Error('Expected remotion.new project storage');
 					}
 
 					const root = await navigator.storage.getDirectory();
@@ -811,9 +814,10 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	expect(remainingProjectDirectories).not.toContain(previousDirectoryName);
 });
 
-test('drops a local image onto the canvas and imports it into the virtual project', async ({
+test('drops assets onto canvas and Tracks and moves clips with undo and redo', async ({
 	page,
 }) => {
+	await page.setViewportSize({width: 1600, height: 1000});
 	const studioApiRequests: string[] = [];
 	page.on('request', (request) => {
 		const requestUrl = new URL(request.url());
@@ -874,13 +878,125 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 			publicFileSize: expect.any(Number),
 		});
 
+	const timeline = studio.getByRole('region', {name: 'Timeline', exact: true});
+	const addTrack = async () => {
+		const box = await timeline.boundingBox();
+		if (!box) throw new Error('Timeline is not visible');
+		await timeline.click({
+			button: 'right',
+			position: {x: box.width - 30, y: box.height - 10},
+		});
+		await studio.getByRole('button', {name: 'Add Track', exact: true}).click();
+	};
+
+	await addTrack();
+	const track = studio.locator('[data-track-drop-target]').first();
+	await expect(track).toBeAttached();
+	const image = studio.locator(
+		'[data-timeline-marquee-item][aria-label="<CanvasImage>"]',
+	);
+	const imageBox = await image.boundingBox();
+	const trackBox = await track.boundingBox();
+	if (!imageBox || !trackBox) throw new Error('Expected an image and Track');
+	await page.mouse.move(
+		imageBox.x + Math.min(25, imageBox.width / 2),
+		imageBox.y + imageBox.height / 2,
+	);
+	await page.mouse.down();
+	await page.mouse.move(
+		imageBox.x + Math.min(25, imageBox.width / 2),
+		trackBox.y + trackBox.height / 2,
+		{steps: 10},
+	);
+	await page.mouse.up();
+	const readComposition = () =>
+		page.evaluate(
+			() => window.__browserStudioProject.files['/project/src/Composition.tsx'],
+		);
+	await expect
+		.poll(readComposition)
+		.toMatch(/<Track[\s>][\s\S]*<Sequence[\s>][\s\S]*<CanvasImage/);
+	await expect(
+		studio.getByText('Moving into Track...', {exact: true}),
+	).toBeHidden();
+	const movedSource = await readComposition();
+	const undoOrRedo = async (shortcut: string) => {
+		const refresh = studio
+			.locator('body')
+			.evaluate(
+				() =>
+					new Promise<void>((resolve) => {
+						window.addEventListener(
+							'remotion-react-refresh-finished',
+							() => resolve(),
+							{once: true},
+						);
+					}),
+			)
+			.catch((error: unknown) => {
+				if (
+					!(error instanceof Error) ||
+					!error.message.includes('Execution context was destroyed')
+				)
+					throw error;
+			});
+		await Promise.all([refresh, studio.locator('body').press(shortcut)]);
+		await expect(timeline).toBeVisible();
+	};
+
+	await undoOrRedo('ControlOrMeta+z');
+	await expect.poll(readComposition).not.toBe(movedSource);
+	await undoOrRedo('ControlOrMeta+Shift+z');
+	await expect.poll(readComposition).toBe(movedSource);
+	await expect(track).toBeVisible();
+	const movedImage = studio
+		.locator('[data-timeline-marquee-item][aria-label="<CanvasImage>"]')
+		.first();
+	const expandTrack = studio
+		.getByRole('button', {name: /Expand children of.*Track/})
+		.first();
+	await expect
+		.poll(
+			async () => {
+				const imageVisible = await movedImage.isVisible();
+				const expandVisible = await expandTrack.isVisible();
+				return imageVisible || expandVisible;
+			},
+			{timeout: 10_000},
+		)
+		.toBe(true);
+	if (await expandTrack.isVisible()) await expandTrack.click();
+	await expect(movedImage).toBeVisible({timeout: 10_000});
+	await dropLocalFile({filePath: localImagePath, page, target: track});
+	await expect(
+		studio.getByText(/Could not add asset: This item would overlap/),
+	).toBeVisible();
+	expect(await readComposition()).toBe(movedSource);
+	const firstTrackId = await track.getAttribute('data-track-drop-target');
+	await addTrack();
+	await expect
+		.poll(
+			async () =>
+				(await readComposition()).match(/<Track(?:\s|>)/g)?.length ?? 0,
+		)
+		.toBe(2);
+	await expect
+		.poll(() =>
+			studio
+				.locator('[data-track-drop-target]')
+				.last()
+				.getAttribute('data-track-drop-target'),
+		)
+		.not.toBe(firstTrackId);
+	const secondTrack = studio.locator('[data-track-drop-target]').last();
+	await expect(secondTrack).toBeVisible();
 	await dropLocalFile({
 		filePath: localVideoPath,
 		page,
-		target: canvas,
+		target: secondTrack,
 	});
 	await expect(
-		studio.getByRole('button', {name: 'framer.webm', exact: true}),
+		studio.getByRole('group', {name: 'framer.webm', exact: true}),
 	).toBeVisible();
 	await expect
 		.poll(() =>
@@ -891,6 +1007,111 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 			),
 		)
 		.toBe(true);
+	const finalSource = await readComposition();
+	expect(finalSource.indexOf('staticFile("framer.webm")')).toBeLessThan(
+		finalSource.lastIndexOf('</Track>'),
+	);
+	await page.screenshot({path: test.info().outputPath('track-drop.png')});
+
+	await addTrack();
+	await studio.locator('body').evaluate(async () => {
+		for (let index = 0; index < 12; index++) {
+			const result =
+				await window.remotion_browserStudio.insertCompositionElement({
+					compositionFile: '/project/src/Composition.tsx',
+					compositionId: 'MyComp',
+					from: null,
+					track: null,
+					element: {
+						type: 'component',
+						componentName: 'Sequence',
+						importName: 'Sequence',
+						importPath: 'remotion',
+						props: [{name: 'name', value: `Filler ${index}`}],
+						position: null,
+					},
+				});
+			if (!result.success) throw new Error(result.reason);
+		}
+	});
+	await expect(
+		studio.getByRole('group', {name: 'Filler 11', exact: true}).last(),
+	).toBeVisible();
+	const scrollArea = timeline.locator('.__remotion-vertical-scrollbar').first();
+	await expect
+		.poll(() =>
+			scrollArea.evaluate(
+				(element) => element.scrollHeight - element.clientHeight,
+			),
+		)
+		.toBeGreaterThan(200);
+	await scrollArea.evaluate((element) => {
+		element.scrollTop = 0;
+	});
+	const source = studio.locator(
+		'[data-timeline-marquee-item][aria-label="Filler 0"]',
+	);
+	await expect(source).toBeInViewport();
+	const destination = studio.locator('[data-track-drop-target]').last();
+	await expect(destination).toBeInViewport();
+	const destinationBox = await destination.boundingBox();
+	const sourceBox = await source.boundingBox();
+	const timelineBox = await timeline.boundingBox();
+	const rulerBox = await timeline
+		.locator('[data-timeline-ruler]')
+		.boundingBox();
+	if (!destinationBox || !sourceBox || !timelineBox || !rulerBox)
+		throw new Error('Expected the source, destination and timeline');
+	const rulerBottom = rulerBox.y + rulerBox.height;
+	const sourceX = sourceBox.x + Math.min(25, sourceBox.width / 2);
+	const beforeRejectedDrop = await readComposition();
+	await page.mouse.move(sourceX, sourceBox.y + sourceBox.height / 2);
+	await page.mouse.down();
+	await page.mouse.move(sourceX, destinationBox.y + destinationBox.height / 2, {
+		steps: 10,
+	});
+	const preview = destination.locator('[data-timeline-track-drop-preview]');
+	await expect(preview).toBeVisible({timeout: 10_000});
+	await scrollArea.evaluate(
+		(element, scrollTop) => {
+			element.scrollTop = scrollTop;
+		},
+		destinationBox.y - rulerBottom + 12,
+	);
+	await expect
+		.poll(() => destination.boundingBox().then((box) => box?.y ?? Infinity))
+		.toBeLessThan(rulerBottom);
+	const paintsOverRuler = await preview.evaluate(isTrackDropPreviewAboveRuler);
+	if (paintsOverRuler) {
+		try {
+			await captureTrackDropFailureEvidence({
+				page,
+				preview,
+				rulerBottom,
+				testInfo: test.info(),
+			});
+		} catch (error) {
+			await test
+				.info()
+				.attach('track-drop-evidence-error', {
+					body: String(error),
+					contentType: 'text/plain',
+				})
+				.catch(() => undefined);
+		}
+	}
+
+	expect(paintsOverRuler).toBe(false);
+	await page.screenshot({
+		path: test.info().outputPath('track-drop-clipped.png'),
+	});
+	await page.mouse.move(sourceX, rulerBottom - 2, {steps: 5});
+	await expect(preview).toHaveCount(0);
+	await page.mouse.up();
+	await expect(
+		studio.getByText('Moving into Track...', {exact: true}),
+	).toBeHidden();
+	expect(await readComposition()).toBe(beforeRejectedDrop);
 	expect(studioApiRequests).toEqual([]);
 });
 
@@ -996,7 +1217,7 @@ test('previews effects and chains edits while browser persistence is delayed', a
 		};
 		const {effects: effectOperations} = studioWindow.remotion_browserStudio;
 		if (!effectOperations)
-			throw new Error('Browser Studio effect editing is unavailable');
+			throw new Error('remotion.new effect editing is unavailable');
 		const {duplicateEffects: duplicate} = effectOperations;
 		let first = true;
 		const gate = new Promise<void>((resolve) => {
@@ -1338,7 +1559,7 @@ test('drops and imports an Element payload with the deployment Remotion version'
 	await expect(canvas).toBeVisible();
 	const box = await canvas.boundingBox();
 	if (box === null) {
-		throw new Error('Browser Studio canvas has no bounding box');
+		throw new Error('remotion.new canvas has no bounding box');
 	}
 
 	const dataTransfer = await canvas.evaluateHandle(() => new DataTransfer());
@@ -1493,9 +1714,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 		'📦 Install Linked Element - Remotion Studio',
 		{timeout: 5000},
 	);
-	await expect(
-		studio.getByText('Unverified Browser Studio link'),
-	).toBeVisible();
+	await expect(studio.getByText('Unverified remotion.new link')).toBeVisible();
 	await expect(studio.getByText('Linked Element')).toBeVisible();
 	await expect
 		.poll(() =>
@@ -1597,10 +1816,9 @@ test('reports inline SVG imports as unsupported without changing the project', a
 	await studio.getByRole('button', {name: /Import as inline/}).click();
 
 	await expect(
-		studio.getByText(
-			'Importing SVG markup is not supported in Browser Studio',
-			{exact: true},
-		),
+		studio.getByText('Importing SVG markup is not supported in remotion.new', {
+			exact: true,
+		}),
 	).toBeVisible();
 	const compositionAfter = await page.evaluate(() => {
 		const browserWindow = window as typeof window & {

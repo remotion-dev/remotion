@@ -6,6 +6,15 @@ crumb: '@remotion/zod-types'
 
 Using this type you can specify in your [schema](/docs/schemas) a string that will be displayed in the Remotion Studio as a multiline text area.
 
+```tsx twoslash
+import {z} from 'zod';
+import {zTextarea} from '@remotion/zod-types';
+
+const myCompSchema = z.object({
+  text: zTextarea(),
+});
+```
+
 When using `zTextarea()`, the value will be a string, even if the user enters several lines.
 
 To display the value in a

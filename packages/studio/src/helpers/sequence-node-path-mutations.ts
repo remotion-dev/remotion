@@ -116,6 +116,11 @@ const mutationListeners = new Set<
 >();
 
 export const getSequenceNodePathMutationRevision = () => seenMutationIds.size;
+export const getInstalledSequenceNodePathMutationId = (): string | null =>
+	typeof __webpack_hash__ === 'string'
+		? (lastMutationByBuildHash.get(__webpack_hash__) ?? null)
+		: null;
+
 export const getPendingSequenceNodePathMutations = () =>
 	pendingMutations.slice();
 export const prepareSequenceSourceRead = () => {
@@ -134,6 +139,14 @@ export const prepareSequenceSourceRead = () => {
 		return current;
 	};
 };
+
+export class SequenceSourceReadCancelledError extends Error {
+	constructor() {
+		super(
+			'The source changed while loading controls. Wait for the preview to update, then try again.',
+		);
+	}
+}
 
 export const withSequenceSourceRead = async <T>(
 	fileNames: readonly string[],
@@ -176,9 +189,7 @@ export const withSequenceSourceRead = async <T>(
 			}
 		}
 
-		throw new Error(
-			'The source changed while loading controls. Wait for the preview to update, then try again.',
-		);
+		throw new SequenceSourceReadCancelledError();
 	} finally {
 		unsubscribe();
 	}

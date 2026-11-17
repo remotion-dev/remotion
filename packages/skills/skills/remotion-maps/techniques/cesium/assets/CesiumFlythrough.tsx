@@ -26,8 +26,6 @@ export type CesiumFlythroughProps = {
 	maximumScreenSpaceError?: number;
 };
 
-const MAPTILER_KEY = process.env.REMOTION_MAPTILER_KEY;
-const GOOGLE_MAPS_API_KEY = process.env.REMOTION_GOOGLE_MAPS_API_KEY;
 const CESIUM_VER = '1.143';
 const CDN = `https://cesium.com/downloads/cesiumjs/releases/${CESIUM_VER}/Build/Cesium/`;
 const R = 6371;
@@ -174,16 +172,6 @@ export const CesiumFlythrough: React.FC<CesiumFlythroughProps> = ({
 		if (started.current) return;
 		started.current = true;
 		(async () => {
-			if (mode === 'landscape' && !MAPTILER_KEY) {
-				throw new Error(
-					'Set REMOTION_MAPTILER_KEY. Create a key at https://cloud.maptiler.com/account/keys/',
-				);
-			}
-			if (mode === 'city' && !GOOGLE_MAPS_API_KEY) {
-				throw new Error(
-					'Set REMOTION_GOOGLE_MAPS_API_KEY. Create a Map Tiles API key at https://developers.google.com/maps/documentation/tile/get-api-key',
-				);
-			}
 			if (mode === 'city' && durationInFrames / fps > 30) {
 				throw new Error(
 					'Google Photorealistic 3D Tiles compositions must not exceed 30 seconds',
@@ -208,12 +196,12 @@ export const CesiumFlythrough: React.FC<CesiumFlythroughProps> = ({
 			if (mode === 'landscape') {
 				viewer.imageryLayers.addImageryProvider(
 					new C.UrlTemplateImageryProvider({
-						url: `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`,
+						url: 'https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=YOUR_API_KEY',
 						maximumLevel: 20,
 					}),
 				);
 				viewer.terrainProvider = await C.CesiumTerrainProvider.fromUrl(
-					`https://api.maptiler.com/tiles/terrain-quantized-mesh-v2/?key=${MAPTILER_KEY}`,
+					'https://api.maptiler.com/tiles/terrain-quantized-mesh-v2/?key=YOUR_API_KEY',
 					{requestVertexNormals: true},
 				);
 				viewer.creditDisplay.addStaticCredit(
@@ -226,7 +214,7 @@ export const CesiumFlythrough: React.FC<CesiumFlythroughProps> = ({
 			if (mode === 'city') {
 				viewer.scene.globe.show = false;
 				const tileset = await C.Cesium3DTileset.fromUrl(
-					`https://tile.googleapis.com/v1/3dtiles/root.json?key=${GOOGLE_MAPS_API_KEY}`,
+					'https://tile.googleapis.com/v1/3dtiles/root.json?key=YOUR_API_KEY',
 					{
 						showCreditsOnScreen: true,
 						maximumScreenSpaceError,

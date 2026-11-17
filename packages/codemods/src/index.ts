@@ -2,16 +2,8 @@ import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
 } from './basic-captions-element-source';
-import {enumerateEffectArrayElements, pasteEffects} from './effect-operations';
+import {enumerateEffectArrayElements} from './effect-operations';
 import {findSearchPosition} from './find-search-position';
-import {insertBasicCaptions} from './insert-basic-captions';
-import {
-	insertJsxElementIntoComposition,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	resolveCompositionComponent,
-	resolveCompositionComponentWithFile,
-} from './insert-jsx-element';
-import {createElementFromInsertable} from './insertable-element';
 import {
 	computeCanUpdateDefaultPropsFromContent,
 	findProjectFile,
@@ -28,8 +20,6 @@ import {
 } from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
-import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
-import {replaceNodeChild} from './replace-node-child';
 import {resolveCompositionImportFile} from './resolve-composition-import-file';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {
@@ -42,7 +32,7 @@ import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-id
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
-import {updateInlineCaptionPatches} from './update-inline-caption-patches';
+import {validateKeyframePasteTiming} from './validate-keyframe-paste-timing';
 
 export {
 	CodemodElement,
@@ -55,6 +45,7 @@ export {
 	addElement,
 	type AddElementOptions,
 	type AddElementTarget,
+	type AddElementDescriptor,
 } from './add-element';
 export {type CodemodValue} from './codemod-value';
 export {getNodes, type GetNodesOptions, type CodemodNode} from './get-nodes';
@@ -75,7 +66,33 @@ export {
 	type DuplicateNodesOptions,
 	type DuplicateNodesResult,
 } from './duplicate-nodes';
-export {reorderNodes, type ReorderNodesOptions} from './reorder-nodes';
+export {
+	reorderNodes,
+	type ReorderNodesOptions,
+	type NodeMoveTiming,
+} from './reorder-nodes';
+export {
+	pasteEffects,
+	type PasteEffectsOptions,
+	type PasteEffect,
+} from './paste-effects';
+export {
+	insertBasicCaptions,
+	type InsertBasicCaptionsOptions,
+} from './insert-basic-captions';
+export {
+	updateInlineCaptionPatches,
+	type UpdateInlineCaptionPatchesOptions,
+	type InlineCaptionPatch,
+} from './update-inline-caption-patches';
+export {
+	replaceNodeChild,
+	type ReplaceNodeChildOptions,
+} from './replace-node-child';
+export {
+	replaceJsxElementWithSource,
+	type ReplaceJsxElementWithSourceOptions,
+} from './replace-jsx-element-with-source';
 export {splitSequences, type SplitSequencesOptions} from './split-sequences';
 export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {
@@ -87,6 +104,7 @@ export type {
 export {
 	resolveCompositionComponent,
 	type ResolveCompositionComponentOptions,
+	type ResolvedComposition,
 } from './resolve-composition-component';
 export {addComposition, type AddCompositionOptions} from './add-composition';
 export {
@@ -133,7 +151,7 @@ export {
 	duplicateEffects,
 	type DuplicateEffectsOptions,
 } from './duplicate-effects';
-export {reorderEffect, type ReorderEffectOptions} from './reorder-effect';
+export {reorderEffects, type ReorderEffectsOptions} from './reorder-effects';
 export {type EffectReference} from './effect-references';
 export {
 	updateNodeKeyframes,
@@ -147,6 +165,7 @@ export {
 export type {
 	CodemodFileChange,
 	CodemodProject,
+	CodemodSource,
 	CodemodResult,
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
@@ -172,6 +191,7 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 } from './update-keyframes';
 export type {
 	CodemodEnvironment,
@@ -198,7 +218,6 @@ export const CodemodsInternals = {
 	computeCanUpdateDefaultPropsFromContent,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
-	createElementFromInsertable,
 	enumerateEffectArrayElements,
 	findProjectFile,
 	findSearchPosition,
@@ -214,16 +233,8 @@ export const CodemodsInternals = {
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
 	getStaticNumericValue,
-	insertBasicCaptions,
-	insertJsxElementIntoComposition,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	pasteEffects,
-	replaceJsxElementWithSource,
-	replaceNodeChild,
-	resolveCompositionComponent,
-	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,
-	updateInlineCaptionPatches,
+	validateKeyframePasteTiming,
 };
 
 export {

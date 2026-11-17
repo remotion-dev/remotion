@@ -79,7 +79,7 @@ Files to install in the project's public directory. The default is `[]`.
 
 Set `path` to a forward-slash path relative to the public directory. Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in `initialProps` to pass the installed asset to your component. Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation and leaves the Element source unchanged. Paths cannot be absolute, contain traversal or platform-unsafe segments, or conflict with another declared asset path.
 
-For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. Browser Studio requires remote servers to allow cross-origin requests (CORS).
+For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. remotion.new requires remote servers to allow cross-origin requests (CORS).
 
 An installation can contain at most 100 assets and 50MB of downloaded or decoded data in total. The complete Element payload remains limited to 250,000 JSON characters, including embedded base64 data. Use remote URLs for larger files.
 
@@ -89,7 +89,7 @@ Assets use Element payload version 2. Asset-free payloads continue to use versio
 
 ### dimensions
 
-The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive numbers of at most 100,000.
+The preferred width and height, or `null` for an Element without fixed dimensions. `createElementPayload()` does not validate them, but Studio rejects the payload unless both values are positive numbers of at most 100,000.
 
 Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
 
@@ -133,7 +133,7 @@ Invalid input throws a `TypeError`.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

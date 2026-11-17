@@ -11,6 +11,10 @@ import {
 	getGitSourceName,
 	openGitSource,
 } from '../helpers/get-git-menu-item';
+import {
+	resolveSourceLocation,
+	type SourceLocationTarget,
+} from '../helpers/open-in-editor';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -26,6 +30,7 @@ export const getSourceContextMenuItems = ({
 	openInCodingAgent,
 	openInEditor,
 	originalLocation,
+	sourceTarget,
 }: {
 	readonly canOpenInEditor: boolean;
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
@@ -39,6 +44,7 @@ export const getSourceContextMenuItems = ({
 	) => void;
 	readonly openInEditor: (editorId: EditorPickerId | null) => void;
 	readonly originalLocation: OriginalPosition | null;
+	readonly sourceTarget: SourceLocationTarget | null;
 }): ComboboxValue[] => {
 	const installedEditors = editorInfo?.installedEditors ?? [];
 	const defaultEditorId = getPreferredEditorId(editorInfo);
@@ -61,6 +67,29 @@ export const getSourceContextMenuItems = ({
 			codingAgentName,
 			codingAgentId === 'copilot' ? null : contextForAgents,
 		);
+	};
+
+	const openInGitSource = async () => {
+		if (!originalLocation?.source) return;
+		if (sourceTarget === null) {
+			openGitSource({folder: false, location: originalLocation});
+			return;
+		}
+
+		try {
+			const location = await resolveSourceLocation({
+				originalPosition: {
+					source: originalLocation.source,
+					line: originalLocation.line ?? 1,
+					column: originalLocation.column ?? 1,
+				},
+				property: sourceTarget?.property ?? null,
+				effectIndex: sourceTarget?.effectIndex ?? null,
+			});
+			openGitSource({folder: false, location});
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
 	};
 
 	const openInMenuItems = getOpenInMenuItems({
@@ -88,7 +117,7 @@ export const getSourceContextMenuItems = ({
 		},
 		onOpenInGitClient: () => undefined,
 		onOpenInGitSource: () => {
-			openGitSource({folder: false, location: originalLocation});
+			openInGitSource();
 		},
 		onOpenInTerminal: null,
 	});
@@ -111,7 +140,7 @@ export const getSourceContextMenuItems = ({
 							return;
 						}
 
-						openGitSource({folder: false, location: originalLocation});
+						openInGitSource();
 					},
 					quickSwitcherLabel: null,
 					subMenu: null,

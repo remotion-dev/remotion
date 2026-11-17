@@ -464,12 +464,12 @@ const TimelineSequenceBar: React.FC<{
 					return;
 				}
 
-				if (fromCanUpdate) {
+				if (fromCanUpdate || nodePathInfo !== null) {
 					onMoveDragPointerDown(e);
 				}
 			}
 		},
-		[fromCanUpdate, onMoveDragPointerDown, onSelect],
+		[fromCanUpdate, nodePathInfo, onMoveDragPointerDown, onSelect],
 	);
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
@@ -570,9 +570,11 @@ const TimelineSequenceBar: React.FC<{
 		Number(style.width) - selectionLeft - (selectionBounds?.width ?? 0),
 	);
 	const selectionWidth = Number(style.width) - selectionLeft - selectionRight;
+	const isTrackDropTarget =
+		s.controls?.componentIdentity === 'dev.remotion.remotion.Track';
 	const selectionShapes = useMemo(() => {
 		if (
-			!(selected || containsSelection) ||
+			!(selected || containsSelection || isTrackDropTarget) ||
 			isTransition ||
 			frameIncrement === null
 		) {
@@ -626,6 +628,7 @@ const TimelineSequenceBar: React.FC<{
 	}, [
 		containsSelection,
 		frameIncrement,
+		isTrackDropTarget,
 		isTransition,
 		isPackedClip,
 		inheritedSceneRange,
@@ -1024,49 +1027,61 @@ const TimelineSequenceBar: React.FC<{
 						</div>
 					)}
 					{!isTransition &&
-					(selected || containsSelection) &&
+					(selected || containsSelection || isTrackDropTarget) &&
 					selectionBounds ? (
-						selectionShapes.length > 0 ? (
-							selectionShapes.map(({key, shape}) => (
-								<svg
-									key={key}
+						<div
+							aria-hidden="true"
+							data-track-drop-outline={isTrackDropTarget ? true : undefined}
+							style={{
+								borderRadius: 'inherit',
+								display:
+									selected || containsSelection
+										? 'contents'
+										: 'var(--remotion-track-drop-display, none)',
+							}}
+						>
+							{selectionShapes.length > 0 ? (
+								selectionShapes.map(({key, shape}) => (
+									<svg
+										key={key}
+										aria-hidden="true"
+										style={{
+											position: 'absolute',
+											left: selectionLeft,
+											top: 0,
+											width: selectionWidth,
+											height: Number(style.height),
+											clipPath: shape.clipPath,
+											overflow: 'hidden',
+											pointerEvents: 'none',
+										}}
+									>
+										<path
+											d={shape.path}
+											fill="none"
+											stroke={`var(--remotion-track-drop-color, ${WHITE})`}
+											// Half the stroke is clipped, matching the 2px inset outline.
+											strokeWidth={4}
+											strokeLinejoin="round"
+											vectorEffect="non-scaling-stroke"
+										/>
+									</svg>
+								))
+							) : (
+								<div
 									aria-hidden="true"
 									style={{
 										position: 'absolute',
+										inset: 0,
 										left: selectionLeft,
-										top: 0,
-										width: selectionWidth,
-										height: Number(style.height),
-										clipPath: shape.clipPath,
-										overflow: 'hidden',
+										right: selectionRight,
+										borderRadius: 'inherit',
+										boxShadow: `inset 0 0 0 2px var(--remotion-track-drop-color, ${WHITE})`,
 										pointerEvents: 'none',
 									}}
-								>
-									<path
-										d={shape.path}
-										fill="none"
-										stroke={WHITE}
-										// Half the stroke is clipped, matching the 2px inset outline.
-										strokeWidth={4}
-										strokeLinejoin="round"
-										vectorEffect="non-scaling-stroke"
-									/>
-								</svg>
-							))
-						) : (
-							<div
-								aria-hidden="true"
-								style={{
-									position: 'absolute',
-									inset: 0,
-									left: selectionLeft,
-									right: selectionRight,
-									borderRadius: 'inherit',
-									boxShadow: `inset 0 0 0 2px ${WHITE}`,
-									pointerEvents: 'none',
-								}}
-							/>
-						)
+								/>
+							)}
+						</div>
 					) : null}
 				</div>
 			)}
@@ -1737,7 +1752,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 						? () => {
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'apps',
 									initialPublicLicenseKey:
 										window.remotion_renderDefaults?.publicLicenseKey ?? null,

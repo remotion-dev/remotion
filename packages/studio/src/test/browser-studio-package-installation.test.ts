@@ -22,7 +22,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes package installation through the explicit Browser Studio capability', async () => {
+test('routes package installation through the explicit remotion.new capability', async () => {
 	const requests: PackageInstallSpec[][] = [];
 	const packageInstallation: BrowserStudioPackageInstallationOperations = {
 		installPackages: ({dependencies}) => {
@@ -58,7 +58,7 @@ test('routes package installation through the explicit Browser Studio capability
 	]);
 });
 
-test('surfaces structured Browser Studio package installation failures', async () => {
+test('surfaces structured remotion.new package installation failures', async () => {
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
 		value: {

@@ -52,7 +52,7 @@ const EscapeHook: React.FC<{
 
 export const HigherZIndex: React.FC<{
 	readonly onEscape: () => void;
-	readonly onOutsideClick: (target: Node) => void;
+	readonly onOutsideClick: ((target: Node) => void) | null;
 	readonly children: React.ReactNode;
 	readonly disabled?: boolean;
 	readonly outsideClickButton?: 'any' | 'primary';
@@ -70,6 +70,7 @@ export const HigherZIndex: React.FC<{
 	const highestIndexRef = useRef(highestContext.highestIndex);
 	const onOutsideClickRef = useRef(onOutsideClick);
 	const outsideClickButtonRef = useRef(outsideClickButton);
+	const hasOutsideClick = onOutsideClick !== null;
 
 	const currentIndex = disabled
 		? context.currentIndex
@@ -91,7 +92,7 @@ export const HigherZIndex: React.FC<{
 	}, [currentIndex, disabled, registerZIndex, unregisterZIndex]);
 
 	useLayoutEffect(() => {
-		if (disabled) {
+		if (disabled || !hasOutsideClick) {
 			return;
 		}
 
@@ -129,7 +130,7 @@ export const HigherZIndex: React.FC<{
 							(upEvent.target as Element);
 						if (document.contains(target)) {
 							upEvent.stopPropagation();
-							onOutsideClickRef.current(target);
+							onOutsideClickRef.current?.(target);
 						}
 					}
 				},
@@ -143,7 +144,7 @@ export const HigherZIndex: React.FC<{
 
 			return window.removeEventListener('pointerdown', listener, true);
 		};
-	}, [currentIndex, disabled]);
+	}, [currentIndex, disabled, hasOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
 		return {

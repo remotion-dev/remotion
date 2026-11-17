@@ -10,7 +10,7 @@ A website can either be cross-origin-isolated or not.
 
 ## How cross-origin isolation affects pages
 
-Enabling cross-origin isolation is required for some web features. For example, the [SharedArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer) API, which is required for the [`@remotion/whisper-web`](/docs/whisper-web) package to work, is only available in cross-origin isolated pages.
+Enabling cross-origin isolation is required for some web features. For example, the [SharedArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer) API, which is required for the deprecated [`@remotion/whisper-web`](/docs/whisper-web) package to work, is only available in cross-origin isolated pages. Its replacement, [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), does not require cross-origin isolation.
 
 It can also improve performance for packages that can use shared-memory multithreading. For example, [`@mediabunny/prores`](/docs/mediabunny/formats#prores) uses a faster ProRes decoding path when cross-origin isolation is enabled, and falls back to a slower algorithm otherwise.
 

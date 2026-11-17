@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {reorderEffect} from '@remotion/codemods';
+import {reorderEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderEffectRequest,
@@ -10,6 +10,7 @@ import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-projec
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -26,15 +27,22 @@ export const reorderEffectHandler: ApiHandler<
 	ReorderEffectRequest,
 	ReorderEffectResponse
 > = ({
-	input: {fileName, sequenceNodePath, fromIndex, toIndex, clientId},
+	input: {
+		fileName,
+		sequenceNodePath,
+		fromIndices,
+		toIndex,
+		clientId,
+		sequenceProps,
+	},
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[reorder-effect] Received request for fileName="${fileName}" fromIndex=${fromIndex} toIndex=${toIndex}`,
+				`[reorder-effect] Received request for fileName="${fileName}" fromIndices=${fromIndices.join(',')} toIndex=${toIndex}`,
 			);
 
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
@@ -44,19 +52,23 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderEffect({
+			const result = reorderEffects({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				effect: {
+				effects: fromIndices.map((effectIndex) => ({
 					filePath: absolutePath,
 					nodePath: sequenceNodePath.nodePath,
-					effectIndex: fromIndex,
-				},
+					effectIndex,
+				})),
 				toIndex,
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
-			if (fromIndex === toIndex) {
+			if (
+				[...fromIndices]
+					.sort((a, b) => a - b)
+					.every((index, offset) => index === toIndex + offset)
+			) {
 				return {success: true, nodePathMutation: null};
 			}
 
@@ -114,6 +126,7 @@ export const reorderEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(sequenceProps ?? [], remotionRoot),
 				nodePathMutation,
 			};
 		} catch (err) {

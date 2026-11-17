@@ -12,6 +12,7 @@ export type GuideState = {
 	editorShowGuides: boolean;
 	setEditorShowGuides: (cb: (prevState: boolean) => boolean) => void;
 	guidesList: Guide[];
+	guidesListRef: React.RefObject<Guide[]>;
 	setGuidesList: (cb: (prevState: Guide[]) => Guide[]) => void;
 	draggingGuideId: string | null;
 	moveGuidePointerRef: React.RefObject<((event: PointerEvent) => void) | null>;
@@ -44,6 +45,7 @@ export const EditorShowGuidesContext = createContext<GuideState>({
 	editorShowGuides: false,
 	setEditorShowGuides: () => undefined,
 	guidesList: [],
+	guidesListRef: {current: []},
 	setGuidesList: () => undefined,
 	draggingGuideId: null,
 	moveGuidePointerRef: {current: null},

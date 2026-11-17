@@ -18,7 +18,7 @@ import { getBoundingBox } from "@remotion/paths";
 const boundingBox = getBoundingBox(
   "M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0"
 );
-// { x1: 35, x2: 85, y1: 24.999999999999993, y2: 75 };
+// { x1: 35, y1: 24.999999999999993, x2: 85, y2: 75, viewBox: "35 24.999999999999993 50 50.00000000000001", width: 50, height: 50.00000000000001 }
 ```
 
 This function will throw if the SVG path is invalid.
@@ -27,13 +27,33 @@ This function will throw if the SVG path is invalid.
 
 Includes the following properties:
 
-- `x1`: The leftmost x coordinate of the bounding box
-- `x2`: The rightmost x coordinate of the bounding box
-- `y1`: The topmost y coordinate of the bounding box
-- `y2`: The bottommost y coordinate of the bounding box
-- `width`: The width of the bounding box, _returned from v3.3.97_
-- `height`: The height of the bounding box, _returned from v3.3.97_
-- `viewBox`: The `viewBox` value that you can pass to an SVG, _returned from v3.3.97_
+### `x1`
+
+The leftmost x coordinate of the bounding box.
+
+### `x2`
+
+The rightmost x coordinate of the bounding box.
+
+### `y1`
+
+The topmost y coordinate of the bounding box.
+
+### `y2`
+
+The bottommost y coordinate of the bounding box.
+
+### `width`<AvailableFrom v="3.3.97" />
+
+The width of the bounding box.
+
+### `height`<AvailableFrom v="3.3.97" />
+
+The height of the bounding box.
+
+### `viewBox`<AvailableFrom v="3.3.97" />
+
+The `viewBox` value that you can pass to an SVG.
 
 ## `BoundingBox` type
 

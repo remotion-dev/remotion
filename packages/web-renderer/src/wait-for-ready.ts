@@ -39,12 +39,6 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
-			resolve();
-			return;
-		}
-
 		if (scope.remotion_cancelledError !== undefined) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
@@ -61,6 +55,12 @@ export const waitForReady = ({
 			const error = new Error(message);
 			error.stack = stack;
 			reject(error);
+			return;
+		}
+
+		if (scope.remotion_renderReady === true) {
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			resolve();
 			return;
 		}
 

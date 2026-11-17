@@ -10,6 +10,7 @@ import {
 import {
 	updateSequenceKeyframes,
 	type SequenceKeyframeUpdate,
+	type SourceKeyframeUpdate,
 } from './update-keyframes';
 
 export type NodeKeyframeUpdate = SequenceKeyframeUpdate;
@@ -17,13 +18,13 @@ export type NodeKeyframeUpdate = SequenceKeyframeUpdate;
 export type UpdateNodeKeyframesOptions<Project extends CodemodProject> = {
 	project: Project;
 	node: NodeReference;
-	updates: NodeKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	videoConfig?: VideoConfigValues;
 	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
-export const updateNodeKeyframes = async <Project extends CodemodProject>({
+export const updateNodeKeyframes = <Project extends CodemodProject>({
 	project,
 	node,
 	updates,
@@ -37,7 +38,7 @@ export const updateNodeKeyframes = async <Project extends CodemodProject>({
 
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const {output, ...details} = await updateSequenceKeyframes({
+	const {output, ...details} = updateSequenceKeyframes({
 		input,
 		nodePath: node.nodePath,
 		updates,

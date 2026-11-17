@@ -1,5 +1,5 @@
 import {lstatSync, readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {CodemodsInternals, insertBasicCaptions} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	InsertBasicCaptionsRequest,
@@ -20,11 +20,8 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-	insertBasicCaptions,
-} = CodemodsInternals;
+const {basicCaptionsElementSource, getBasicCaptionsElementFile} =
+	CodemodsInternals;
 
 export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,
@@ -68,14 +65,17 @@ export const insertBasicCaptionsHandler: ApiHandler<
 					return readFileSync(elementPath, 'utf-8');
 				},
 			});
-			const {output, logLine, nodePathRemappings} = insertBasicCaptions({
+			const result = insertBasicCaptions({
 				element: null,
-				input: fileContents,
-				nodePath,
+				project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
+				node: {filePath: absolutePath, nodePath},
 				captions,
 				durationInFrames,
 				importPath: elementFile.importPath,
 			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {logLine} = result.editDetails[0];
+			const {nodePathRemappings} = result;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],
 				null,

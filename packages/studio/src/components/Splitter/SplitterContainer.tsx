@@ -1,11 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {
+	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {flushSync} from 'react-dom';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -13,7 +15,7 @@ import type {
 	TSplitterContext,
 } from './SplitterContext';
 import {
-	getSplitterFlexBounds,
+	getEffectiveSplitterFlex,
 	SplitterContext,
 	SplitterLayoutContext,
 } from './SplitterContext';
@@ -59,8 +61,18 @@ export const SplitterContainer: React.FC<{
 }) => {
 	const parentLayout = useContext(SplitterLayoutContext);
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
-	const [flexValue, setFlexValue] = useState(
+	const [flexValue, setFlexValueState] = useState(
 		initialTimelineFlex ?? defaultFlex,
+	);
+	const flexValueRef = useRef(flexValue);
+	const setFlexValue: TSplitterContext['setFlexValue'] = useCallback((next) => {
+		const updated =
+			typeof next === 'function' ? next(flexValueRef.current) : next;
+		flexValueRef.current = updated;
+		setFlexValueState(updated);
+	}, []);
+	const [firstPaneId] = useState(
+		() => `remotion-splitter-pane-${String(Math.random()).slice(2)}`,
 	);
 
 	const [collapsedDuringDrag, setCollapsedDuringDrag] = useState<
@@ -77,7 +89,7 @@ export const SplitterContainer: React.FC<{
 		? (orientation === 'vertical' ? size.width : size.height) -
 			SPLITTER_HANDLE_SIZE
 		: null;
-	const flexBounds = getSplitterFlexBounds({
+	const bounds = {
 		availableSize,
 		maxAntiFlexerSize,
 		maxFlex,
@@ -85,27 +97,67 @@ export const SplitterContainer: React.FC<{
 		minAntiFlexerSize,
 		minFlex,
 		minFlexerSize,
+	};
+	const {flexValue: effectiveFlexValue, position} = getEffectiveSplitterFlex({
+		...bounds,
+		flexValue,
 	});
-	let effectiveFlexValue = Math.min(
-		flexBounds.maxFlex,
-		Math.max(flexBounds.minFlex, flexValue),
-	);
-	if (availableSize !== null && availableSize > 0) {
-		// Keep panel boundaries on whole pixels so toolbar icons stay crisp.
-		const minimumSize = Math.ceil(flexBounds.minFlex * availableSize);
-		const maximumSize = Math.floor(flexBounds.maxFlex * availableSize);
-		if (minimumSize <= maximumSize) {
-			effectiveFlexValue =
-				Math.min(
-					maximumSize,
-					Math.max(minimumSize, Math.round(flexValue * availableSize)),
-				) / availableSize;
+	const latest = useRef({bounds, orientation, persistFlex});
+	latest.current = {bounds, orientation, persistFlex};
+
+	const getLayout = useCallback((positionInPixels: number | null) => {
+		const element = ref.current;
+		if (!element?.isConnected) {
+			return null;
 		}
-	}
+
+		const {width, height} = element.getBoundingClientRect();
+		const liveSize =
+			(latest.current.orientation === 'vertical' ? width : height) -
+			SPLITTER_HANDLE_SIZE;
+		if (liveSize <= 0) {
+			return null;
+		}
+
+		return getEffectiveSplitterFlex({
+			...latest.current.bounds,
+			availableSize: liveSize,
+			flexValue:
+				positionInPixels === null
+					? flexValueRef.current
+					: positionInPixels / liveSize,
+		});
+	}, []);
+	const getPosition = useCallback(
+		() => getLayout(null)?.position ?? null,
+		[getLayout],
+	);
+	const setPosition = useCallback(
+		(positionInPixels: number) => {
+			if (!Number.isFinite(positionInPixels)) {
+				throw new Error('Splitter position must be a finite number.');
+			}
+
+			if (isDragging.current) {
+				throw new Error('The splitter is being dragged.');
+			}
+
+			const nextLayout = getLayout(positionInPixels);
+			if (nextLayout === null || nextLayout.position === null) {
+				throw new Error('Splitter is unavailable.');
+			}
+
+			flushSync(() => setFlexValue(nextLayout.flexValue));
+			latest.current.persistFlex(nextLayout.flexValue);
+			return nextLayout.position;
+		},
+		[getLayout, setFlexValue],
+	);
 
 	const value: TSplitterContext = useMemo(() => {
 		return {
 			flexValue: effectiveFlexValue,
+			position,
 			collapsedDuringDrag,
 			setCollapsedDuringDrag,
 			ref,
@@ -113,6 +165,9 @@ export const SplitterContainer: React.FC<{
 			isDragging,
 			orientation,
 			id,
+			firstPaneId,
+			getPosition,
+			setPosition,
 			maxFlex,
 			minFlex,
 			maxFlexerSize,
@@ -126,6 +181,10 @@ export const SplitterContainer: React.FC<{
 		defaultFlex,
 		collapsedDuringDrag,
 		effectiveFlexValue,
+		firstPaneId,
+		getPosition,
+		setPosition,
+		setFlexValue,
 		id,
 		maxFlex,
 		maxFlexerSize,
@@ -135,6 +194,7 @@ export const SplitterContainer: React.FC<{
 		minFlex,
 		orientation,
 		persistFlex,
+		position,
 		ref,
 	]);
 

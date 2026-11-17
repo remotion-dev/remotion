@@ -12,6 +12,7 @@ import {setupServer} from 'msw/node';
 import * as usageEventModule from '../register-usage-event';
 import {
 	exponentialBackoffMs,
+	getUsageEventErrorMessage,
 	HOST,
 	registerUsageEvent,
 } from '../register-usage-event';
@@ -239,4 +240,41 @@ test('should call sleep with correct backoff values between retries', async () =
 	});
 
 	expect(sleepCalls).toEqual([1000, 2000, 4000]);
+});
+
+test('should log each retry as one line without a stack trace', async () => {
+	server.use(
+		http.post(`${HOST}/api/track/register-usage-point`, () => {
+			return HttpResponse.error();
+		}),
+	);
+	const consoleLog = spyOn(console, 'log').mockImplementation(() => undefined);
+
+	try {
+		await expect(
+			registerUsageEvent({
+				licenseKey: 'rm_pub_test123',
+				host: 'https://test.com',
+				succeeded: true,
+				event: 'web-render',
+			}),
+		).rejects.toThrow();
+
+		expect(consoleLog.mock.calls.map((args) => args.length)).toEqual([1, 1, 1]);
+		expect(consoleLog.mock.calls[0][0]).toBe(
+			'Failed to send usage event (attempt 1/4): Failed to fetch. Retrying in 1000ms...',
+		);
+	} finally {
+		consoleLog.mockRestore();
+	}
+});
+
+test('getUsageEventErrorMessage() should include the cause in one line', () => {
+	const err = new TypeError('fetch failed', {
+		cause: new Error('getaddrinfo ENOTFOUND www.remotion.pro'),
+	});
+
+	expect(getUsageEventErrorMessage(err)).toBe(
+		'Failed to send usage event: fetch failed (getaddrinfo ENOTFOUND www.remotion.pro). The render was not affected.',
+	);
 });

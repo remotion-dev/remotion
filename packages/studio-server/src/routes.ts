@@ -21,6 +21,8 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	CopyRenderOutputToAssetRequest,
+	CopyRenderOutputToAssetResponse,
 	GitSource,
 	InstallPackageRequest,
 	InstallPackageResponse,
@@ -46,6 +48,7 @@ import {
 	openFileForWritingWithoutSymlinks,
 } from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
+import {resolveReadableOutputPath} from './helpers/resolve-readable-output-path';
 import {
 	prewarmNativeFilePicker,
 	supportsNativeFilePicker,
@@ -58,6 +61,7 @@ import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {handleAppIcon} from './preview-server/routes/app-icon';
+import {copyRenderOutputToAssetHandler} from './preview-server/routes/copy-render-output-to-asset';
 import {handleInstallPackage} from './preview-server/routes/install-dependency';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {updateConfigHandler} from './preview-server/routes/update-config';
@@ -692,6 +696,27 @@ export const handleRoutes = ({
 		});
 	}
 
+	if (url.pathname === '/api/copy-render-output-to-asset') {
+		return handleRequest<
+			CopyRenderOutputToAssetRequest,
+			CopyRenderOutputToAssetResponse
+		>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) =>
+				copyRenderOutputToAssetHandler({...params, getRenderQueue}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
+		});
+	}
+
 	for (const [key, value] of Object.entries(allApiRoutes)) {
 		if (url.pathname === key) {
 			return handleRequest({
@@ -761,21 +786,12 @@ export const handleRoutes = ({
 			return Promise.resolve();
 		}
 
-		const filePath = path.resolve(remotionRoot, filename);
-		const outsideProject = !RenderInternals.isPathInside(
-			filePath,
+		const resolvedOutput = resolveReadableOutputPath({
 			remotionRoot,
-		);
-		const isCompletedOutput =
-			outsideProject &&
-			getRenderQueue().some(
-				(job) =>
-					job.status === 'done' &&
-					(job.type === 'video' || job.type === 'still') &&
-					!job.deletedOutputLocation &&
-					path.resolve(remotionRoot, job.outName) === filePath,
-			);
-		if (outsideProject && !isCompletedOutput) {
+			outputPath: filename,
+			getRenderQueue,
+		});
+		if (resolvedOutput === null) {
 			response.writeHead(404);
 			response.end('Output file not found');
 			return Promise.resolve();
@@ -783,10 +799,10 @@ export const handleRoutes = ({
 
 		return serveStatic({
 			root: remotionRoot,
-			path: filePath,
+			path: resolvedOutput.filePath,
 			req: request,
 			res: response,
-			allowOutsidePublicFolder: isCompletedOutput,
+			allowOutsidePublicFolder: resolvedOutput.allowOutsideProject,
 			allowRemotionConvertCors: false,
 		});
 	}

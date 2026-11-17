@@ -63,7 +63,7 @@ Selects this many source frames starting at `trimBefore`. The video occupies `du
 
 Will remove a portion of the video at the beginning (left side).
 
-In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+In the following example, assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
 By passing `durationInFrames={60}`, the video plays for 60 source frames.
@@ -323,7 +323,7 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
-From <AvailableFrom v="4.0.542" inline />, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
+From v4.0.542, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
 
 Anonymous CORS omits cross-origin credentials. For videos that require cookies or HTTP authentication, use `crossOrigin="use-credentials"`. The server must return `Access-Control-Allow-Credentials: true` and an `Access-Control-Allow-Origin` header matching the requesting origin, rather than `*`.
 
@@ -363,9 +363,9 @@ To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/html5-video.tsx)
-- [`<Video />` (from `@remotion/media`)](/docs/media/video)
-- [`<Html5Audio />`](/docs/html5-audio)
-- [`<OffthreadVideo />`](/docs/offthreadvideo)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/html5-video.tsx)
+- [`<Video>` (from `@remotion/media`)](/docs/media/video)
+- [`<Html5Audio>`](/docs/html5-audio)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)
 - [Comparison of video tags](/docs/video-tags)
-- [`Change the speed of a video over time`](/docs/videos/accelerated-video)
+- [Change the speed of a video over time](/docs/videos/accelerated-video)

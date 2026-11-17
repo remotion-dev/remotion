@@ -105,7 +105,8 @@ export const glOption = {
 					{DEFAULT_OPENGL_RENDERER === null
 						? ', letting Chrome decide'
 						: ', with automatic fallback to SwiftShader if no compatible GPU is available'}
-					, except on Lambda where the default is <code>{'"swangle"'}</code>
+					, except on Lambda and Cloud Run where the default is{' '}
+					<code>{'"swangle"'}</code>
 				</p>
 			</>
 		);

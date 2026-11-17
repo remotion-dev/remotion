@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.542",
+	"version": "4.0.544",
 	"description": "Default configuration for Remotion templates (ESLint <= 8)",
 	"main": "dist/index.js",
 	"files": [
@@ -19,7 +19,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "ISC",
+	"license": "MIT",
 	"dependencies": {},
 	"peerDependencies": {
 		"eslint": ">=7.15.0"

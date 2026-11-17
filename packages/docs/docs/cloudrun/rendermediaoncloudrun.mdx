@@ -239,7 +239,7 @@ How the output file should behave when accessed through the Cloud Storage output
 
 ### `frameRange?`
 
-Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
+Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered. Pass `[number, null]` to render from a frame to the end of the composition (from v4.0.421).
 
 Multiple frame ranges are not supported. Use local [`renderMedia()`](/docs/renderer/render-media) to render discontinuous sections.
 
@@ -358,7 +358,7 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 ### `licenseKey?`<AvailableFrom v="4.0.540"/>
 
-License key for reporting usage on [remotion.pro](https://www.remotion.pro). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
+License key for reporting usage. Get it from your project's **License keys** page in the [Remotion Dashboard](https://www.remotion.dev/dashboard). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
 
 ### `isProduction?`<AvailableFrom v="4.0.540"/>
 

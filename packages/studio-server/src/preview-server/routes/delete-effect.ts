@@ -10,6 +10,7 @@ import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-projec
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
@@ -34,7 +35,7 @@ export const deleteEffectHandler: ApiHandler<
 	DeleteEffectRequest,
 	DeleteEffectResponse
 > = ({input: effects, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0) {
 				throw new Error('No effects were specified for deletion');
@@ -52,8 +53,8 @@ export const deleteEffectHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const preparedUpdates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+			const preparedUpdates = [...itemsByFileName.entries()].map(
+				([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
@@ -61,7 +62,7 @@ export const deleteEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await deleteEffects({
+					const result = deleteEffects({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,
@@ -86,7 +87,7 @@ export const deleteEffectHandler: ApiHandler<
 						effectLabels,
 						logLine: Math.min(...logLines),
 					};
-				}),
+				},
 			);
 
 			const updates = preparedUpdates.filter(
@@ -162,6 +163,10 @@ export const deleteEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(
+					effects.flatMap((item) => item.sequenceProps ?? []),
+					remotionRoot,
+				),
 				nodePathMutation,
 			};
 		} catch (err) {

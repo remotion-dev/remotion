@@ -9,8 +9,6 @@ crumb: 'Integrations'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Using Remotion in Svelte
-
 This guide explains how to integrate Remotion into a **Svelte** project.
 
 ## Install required packages
@@ -56,7 +54,7 @@ yarn add --dev @types/react @types/react-dom
 
 ```bash title="Use Bun as the package manager and runtime"
 bun i remotion @remotion/player @remotion/cli react react-dom
-bun --dev @types/react @types/react-dom
+bun add --dev @types/react @types/react-dom
 ```
 
 :::note
@@ -86,7 +84,7 @@ This configuration file is necessary for Remotion to recognize and compile your 
 
 To enable JSX support in Svelte, update the `tsconfig.app.json` file by setting `"jsx": "react"` under `compilerOptions`. This configuration allows Svelte to interpret JSX syntax used in Remotion's React components.
 
-```json title="tsconfig.json"
+```json title="tsconfig.app.json"
 {
   "compilerOptions": {
     "jsx": "react",
@@ -109,7 +107,7 @@ To embed Remotion components in Svelte, create a **wrapper component**:
     import {type PlayerSchema, PlayerView} from "./PlayerView";
     import {type PlayerRef} from "@remotion/player";
 
-    let {data, player = $bindable<PlayerRef>(), onPaused} = $props<{ data: PlayerSchema, player: PlayerRef, onPaused: void }>()
+    let {data, player = $bindable<PlayerRef>(), onPaused} = $props<{ data: PlayerSchema, player: PlayerRef, onPaused: () => void }>()
     let containerRef;
     let root: Root;
 
@@ -201,7 +199,7 @@ export const PlayerView = forwardRef((props: { data: PlayerSchema, onPaused?: ()
 
 ## Use the component in Svelte
 
-To display the Remotion player within an Svelte template, add your new wrapper component wherever you'd like the Player to appear:
+To display the Remotion player within a Svelte template, add your new wrapper component wherever you'd like the Player to appear:
 
 ```html
 <PlayerViewWrapper bind:player={player} {onPaused} {data}/>

@@ -283,12 +283,7 @@ export const Scene6: React.FC = () => {
 			>
 				<NumberedChapter chapterNumber={5} chapterTitle="Web Renderer Update" />
 			</Interactive.Div>
-			<Sequence
-				name="Web renderer demo"
-				from={180}
-				durationInFrames={450}
-				premountFor={30}
-			>
+			<Sequence name="Web renderer demo" from={180} durationInFrames={450}>
 				<WebRendererDemo />
 			</Sequence>
 			<Sequence name="Web renderer note" from={190} layout="none">

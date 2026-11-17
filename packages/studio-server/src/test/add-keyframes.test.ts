@@ -88,7 +88,7 @@ const linearProgressiveBlurSchema = {
 	},
 } satisfies InteractivitySchema;
 
-test('addKeyframes batches sequence and effect adds into one undo entry', async () => {
+test('addKeyframes batches sequence and effect adds into one undo entry', () => {
 	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -115,7 +115,8 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 	try {
 		writeFileSync(filePath, input);
 
-		await addKeyframes({
+		addKeyframes({
+			paste: null,
 			sequenceKeyframes: [
 				{
 					fileName,
@@ -239,6 +240,7 @@ export const Target = () => (
 		const first = await addKeyframesHandler({
 			...handlerContext,
 			input: {
+				paste: null,
 				clientId: 'test-client',
 				effectKeyframes: [],
 				sequenceKeyframes: [
@@ -283,6 +285,7 @@ export const Target = () => (
 		const second = await addKeyframesHandler({
 			...handlerContext,
 			input: {
+				paste: null,
 				clientId: 'test-client',
 				effectKeyframes: [],
 				sequenceKeyframes: [
@@ -309,7 +312,7 @@ export const Target = () => (
 	}
 });
 
-test('addKeyframes adds a missing effect prop before keyframing it', async () => {
+test('addKeyframes adds a missing effect prop before keyframing it', () => {
 	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -336,7 +339,8 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 	try {
 		writeFileSync(filePath, linearProgressiveBlurInput);
 
-		await addKeyframes({
+		addKeyframes({
+			paste: null,
 			sequenceKeyframes: [],
 			effectKeyframes: [
 				{

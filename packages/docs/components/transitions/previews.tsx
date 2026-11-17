@@ -23,66 +23,13 @@ import type {WipeDirection} from '@remotion/transitions/wipe';
 import {wipe} from '@remotion/transitions/wipe';
 import React, {useEffect, useRef} from 'react';
 import type {SpringConfig} from 'remotion';
-import {
-	AbsoluteFill,
-	Img,
-	measureSpring,
-	spring,
-	useVideoConfig,
-} from 'remotion';
+import {measureSpring, spring, useVideoConfig} from 'remotion';
 import {
 	presentationCompositionHeight,
 	presentationCompositionWidth,
 } from '../TableOfContents/transitions/presentations';
 import {customPresentation} from './custom-transition';
-
-const sceneStyle: React.CSSProperties = {
-	justifyContent: 'center',
-	alignItems: 'center',
-	fontFamily: 'sans-serif',
-	fontWeight: 900,
-	color: 'white',
-	fontSize: 100,
-};
-
-const backgroundImageStyle: React.CSSProperties = {
-	position: 'absolute',
-	inset: 0,
-	width: '100%',
-	height: '100%',
-	objectFit: 'cover',
-};
-
-const letterStyle: React.CSSProperties = {
-	position: 'relative',
-	textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
-};
-
-const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
-	return (
-		<AbsoluteFill style={sceneStyle}>
-			<Img
-				src={`https://remotion.media/transition-bg-blue${small ? '-small' : ''}.jpg`}
-				style={backgroundImageStyle}
-				alt=""
-			/>
-			<div style={letterStyle}>A</div>
-		</AbsoluteFill>
-	);
-};
-
-const SceneB: React.FC<{readonly small: boolean}> = ({small}) => {
-	return (
-		<AbsoluteFill style={sceneStyle}>
-			<Img
-				src={`https://remotion.media/transition-bg-pink${small ? '-small' : ''}.jpg`}
-				style={backgroundImageStyle}
-				alt=""
-			/>
-			<div style={letterStyle}>B</div>
-		</AbsoluteFill>
-	);
-};
+import {SceneA, SceneB} from './TransitionScenes';
 
 export const SampleTransition: React.FC<{
 	readonly effect: TransitionPresentation<Record<string, unknown>>;

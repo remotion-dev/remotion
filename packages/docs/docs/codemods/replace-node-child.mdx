@@ -1,0 +1,85 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-replace-node-child.png
+title: 'replaceNodeChild()'
+crumb: '@remotion/codemods'
+---
+
+# replaceNodeChild()<AvailableFrom v="4.0.544" />
+
+Replaces a node's single JSX child with an element and records the original source and imports for restoration.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="replace-node-child.ts"
+import {replaceNodeChild, type CodemodProject, type NodeReference, createElement} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = replaceNodeChild({
+  project, node,
+  element: createElement({component: 'Video', importPath: '@remotion/media', props: {src: 'https://example.com/scene.mp4'}}),
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model).
+
+### node
+
+The target [`NodeReference`](/docs/codemods#node-references).
+
+### element
+
+The replacement created with [`createElement()`](/docs/codemods/create-element). The target node must contain exactly one meaningful JSX child. Its surrounding node is preserved.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+File changes to apply with [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes). The input project is not mutated.
+
+### nodePathRemappings
+
+Mappings from the original node paths to their new paths. See [node references](/docs/codemods#node-references).
+
+### replacedSource
+
+The original child JSX source.
+
+### replacedImports
+
+Import declarations used by the original child. Unused bindings are removed from the edited source.
+
+### sceneImportSource
+
+The module containing the original child's component, or `null`.
+
+### logLine
+
+The original child's source line.
+
+## Errors
+
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/replace-node-child.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

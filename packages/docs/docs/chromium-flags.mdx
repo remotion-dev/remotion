@@ -106,7 +106,7 @@ Pass [`--disable-web-security`](/docs/options/disable-web-security).
 
 ### Via config file
 
-Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
+Use [`setChromiumDisableWebSecurity()`](/docs/config#setchromiumdisablewebsecurity).
 
 ```tsx twoslash
 import {Config} from '@remotion/cli/config';
@@ -134,7 +134,7 @@ Pass [`--ignore-certificate-errors`](/docs/options/ignore-certificate-errors).
 
 ### Via config file
 
-Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
+Use [`setChromiumIgnoreCertificateErrors()`](/docs/config#setchromiumignorecertificateerrors).
 
 ```tsx twoslash
 import {Config} from '@remotion/cli/config';
@@ -167,7 +167,7 @@ On Linux, headed mode requires a running display server. It is not available on 
 
 Pass [`chromiumOptions.headless: false`](/docs/options/disable-headless) in rendering APIs, including [`getCompositions()`](/docs/renderer/get-compositions).
 
-Also pass `chromeMode: 'chrome-for-testing'`, or provide a compatible desktop browser using `browserExecutable`.
+Also pass [`chromeMode: 'chrome-for-testing'`](/docs/options/chrome-mode), or provide a compatible desktop browser using [`browserExecutable`](/docs/options/browser-executable).
 
 ### Via CLI flag
 
@@ -181,7 +181,7 @@ Alternatively, combine it with [`--browser-executable`](/docs/options/browser-ex
 
 ### Via config file
 
-Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode) and select Chrome for Testing:
+Use [`setChromiumHeadlessMode()`](/docs/config#setchromiumheadlessmode) and select Chrome for Testing:
 
 ```tsx twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -232,6 +232,16 @@ Pass [`chromiumOptions.userAgent`](/docs/options/user-agent) in rendering APIs, 
 
 Pass [`--user-agent`](/docs/options/user-agent).
 
+### Via config file
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumUserAgent('Mozilla/5.0 (Remotion)');
+```
+
 ## `--dark-mode`<AvailableFrom v="4.0.381"/>
 
 <Options id="dark-mode" />
@@ -243,6 +253,16 @@ Pass [`chromiumOptions.darkMode`](/docs/options/dark-mode) in rendering APIs, in
 ### Via CLI flag
 
 Pass [`--dark-mode`](/docs/options/dark-mode).
+
+### Via config file
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumDarkMode(true);
+```
 
 ## Need more flags?
 

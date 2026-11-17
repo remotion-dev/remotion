@@ -83,7 +83,9 @@ test.describe('render output dragging', () => {
 
 			const output = page.getByText(outName, {exact: true});
 			const renderItem = page.locator(`[data-render-queue-item="${id}"]`);
-			const actionButtons = renderItem.locator('button.__remotion-hoverable');
+			const actionButtons = renderItem.getByRole('button', {
+				name: /^(Clear|Open in Folder)$/,
+			});
 			expect(
 				await page.evaluate(() => ({
 					dataTransfer: typeof DataTransfer,

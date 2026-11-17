@@ -19,20 +19,18 @@ export type DuplicateNodesResult = CodemodNodeResult & {
 	editDetails: {filePath: string; nodeLabels: string[]; logLines: number[]}[];
 };
 
-export const duplicateNodes = async <Project extends CodemodProject>({
+export const duplicateNodes = <Project extends CodemodProject>({
 	project,
 	nodes,
-}: DuplicateNodesOptions<Project>): Promise<DuplicateNodesResult> => {
+}: DuplicateNodesOptions<Project>): DuplicateNodesResult => {
 	const groups = groupNodeReferencesByFile({project, nodes});
-	const edits = await Promise.all(
-		[...groups].map(async ([filePath, nodePaths]) => ({
-			filePath,
-			...(await duplicateNodesInSource({
-				input: project.files[filePath],
-				nodePaths,
-			})),
-		})),
-	);
+	const edits = [...groups].map(([filePath, nodePaths]) => ({
+		filePath,
+		...duplicateNodesInSource({
+			input: project.files[filePath],
+			nodePaths,
+		}),
+	}));
 	const result = getNodeEditResult({project, edits});
 	return {
 		...result,

@@ -10,7 +10,12 @@ The matrix has to be "flat", for example a 2x2 matrix has to be represented as a
 
 The matrix has to be a square matrix, for example a 2x2, 3x3, 4x4, etc.
 
-```tsx
+In the Props Editor, the values of the matrix are edited in steps of `0.01`.
+
+```tsx twoslash
+import {z} from 'zod';
+import {zMatrix} from '@remotion/zod-types';
+
 const myCompSchema = z.object({
   matrix: zMatrix(),
 });

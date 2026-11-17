@@ -5,6 +5,7 @@ import type {
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UnsubscribeFromSequencePropsRequest,
+	UpdateSequencePropsSubscriptionRequest,
 } from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {hasSourceOnlyRemappings} from '../helpers/sequence-node-path-mutations';
@@ -131,4 +132,18 @@ export const unsubscribeFromSequenceProps = (
 			}, 0);
 		}
 	});
+};
+
+export const updateSequencePropsSubscription = async (
+	request: UpdateSequencePropsSubscriptionRequest,
+): Promise<SubscribeToSequencePropsResponse> => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations?.updateSequencePropsSubscription) {
+		return browserStudioOperations.updateSequencePropsSubscription(request);
+	}
+
+	const {results} = await callApi('/api/update-sequence-props-subscription', {
+		requests: [request],
+	});
+	return results[0];
 };

@@ -7,7 +7,7 @@ slug: /player/current-time
 crumb: '@remotion/player'
 ---
 
-When rendering a [`<Player>`](/docs/player) in your app, special considerations must be taken to prevent constant re-renders of the app or [`<Player>`](/docs/player) if the time changes.
+When rendering a [`<Player>`](/docs/player/player) in your app, special considerations must be taken to prevent constant re-renders of the app or [`<Player>`](/docs/player/player) if the time changes.
 
 This is why the [`useCurrentFrame()`](/docs/use-current-frame) hook does not work outside a composition.
 
@@ -104,13 +104,13 @@ export const useCurrentPlayerFrame = (
   ref: React.RefObject<PlayerRef | null>,
 ) => {
   const subscribe = useCallback(
-    (onStoreChange: (newVal: number) => void) => {
+    (onStoreChange: () => void) => {
       const {current} = ref;
       if (!current) {
         return () => undefined;
       }
       const updater: CallbackListener<'frameupdate'> = ({detail}) => {
-        onStoreChange(detail.frame);
+        onStoreChange();
       };
       current.addEventListener('frameupdate', updater);
       return () => {

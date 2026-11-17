@@ -43,12 +43,8 @@ import {useConfirmationDialog} from '../ConfirmationDialog';
 import {pasteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
-import {callAddKeyframes} from './call-add-keyframe';
 import {useDeleteKeyframes} from './call-delete-keyframe';
-import {
-	callUpdateEffectKeyframeSettings,
-	callUpdateSequenceKeyframeSettings,
-} from './call-update-keyframe-settings';
+import {callPasteKeyframes} from './call-paste-keyframes';
 import {deleteSelectedTimelineItems} from './delete-selected-timeline-item';
 import {
 	readClipboardTextAndEffectsEnvelope,
@@ -669,7 +665,11 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const setters = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses} = setters;
+	const {getSnapshot} = useContext(
+		Internals.VisualModePropStatusesSubscriptionContext,
+	);
 	const deleteKeyframes = useDeleteKeyframes({notifyOnError: false});
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
@@ -1072,81 +1072,14 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 							}
 						}
 
-						const changes = keyframeTarget.keyframes.map((keyframe) => ({
-							fileName: keyframeTarget.fileName,
-							nodePath: keyframeTarget.nodePath,
-							fieldKey: keyframeTarget.fieldKey,
-							sourceFrame: keyframe.sourceFrame,
-							value: keyframe.value,
-							schema: keyframeTarget.schema,
-						}));
-						const {effectIndex} = keyframeTarget;
-
-						const deletions = keyframeTarget.keyframesToDelete.map(
-							(sourceFrame) => ({
-								fileName: keyframeTarget.fileName,
-								nodePath: keyframeTarget.nodePath,
-								fieldKey: keyframeTarget.fieldKey,
-								sourceFrame,
-								schema: keyframeTarget.schema,
-								valueWhenLastKeyframeDeleted: null,
-							}),
-						);
-
-						return deleteKeyframes({
-							sequenceKeyframes: effectIndex === null ? deletions : [],
-							effectKeyframes:
-								effectIndex === null
-									? []
-									: deletions.map((deletion) => ({
-											...deletion,
-											effectIndex,
-										})),
+						return callPasteKeyframes({
+							target: keyframeTarget,
+							setters,
+							getSnapshot,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
 							clientId,
-						})
-							.then(() =>
-								callAddKeyframes({
-									sequenceKeyframes: effectIndex === null ? changes : [],
-									effectKeyframes:
-										effectIndex === null
-											? []
-											: changes.map((change) => ({...change, effectIndex})),
-									setPropStatuses,
-									clientId,
-								}),
-							)
-							.then(async () => {
-								for (const [index, easing] of keyframeTarget.easing.entries()) {
-									const settings = {
-										type: 'easing' as const,
-										segmentIndex:
-											keyframeTarget.firstEasingSegmentIndex + index,
-										easing,
-									};
-									if (effectIndex === null) {
-										await callUpdateSequenceKeyframeSettings({
-											fileName: keyframeTarget.fileName,
-											nodePath: keyframeTarget.nodePath,
-											fieldKey: keyframeTarget.fieldKey,
-											settings,
-											schema: keyframeTarget.schema,
-											setPropStatuses,
-											clientId,
-										});
-									} else {
-										await callUpdateEffectKeyframeSettings({
-											fileName: keyframeTarget.fileName,
-											nodePath: keyframeTarget.nodePath,
-											effectIndex,
-											fieldKey: keyframeTarget.fieldKey,
-											settings,
-											schema: keyframeTarget.schema,
-											setPropStatuses,
-											clientId,
-										});
-									}
-								}
-							});
+						});
 					}
 
 					const easingResult = parseEasingClipboardDataResult(text);
@@ -1461,6 +1394,8 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 		previewServerState,
 		sequencesRef,
 		setPropStatuses,
+		setters,
+		getSnapshot,
 	]);
 
 	return null;

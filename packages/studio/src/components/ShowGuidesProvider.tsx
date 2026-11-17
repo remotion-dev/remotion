@@ -17,7 +17,15 @@ import {
 export const ShowGuidesProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [guidesList, setGuidesList] = useState<Guide[]>(() => loadGuidesList());
+	const [guidesList, setGuidesListState] = useState<Guide[]>(() =>
+		loadGuidesList(),
+	);
+	const guidesListRef = useRef(guidesList);
+	const setGuidesList = useCallback((update: (guides: Guide[]) => Guide[]) => {
+		const next = update(guidesListRef.current);
+		guidesListRef.current = next;
+		setGuidesListState(next);
+	}, []);
 	const [draggingGuideId, setDraggingGuideId] = useState<string | null>(null);
 	const moveGuidePointerRef = useRef<((event: PointerEvent) => void) | null>(
 		null,
@@ -45,6 +53,7 @@ export const ShowGuidesProvider: React.FC<{
 			editorShowGuides,
 			setEditorShowGuides,
 			guidesList,
+			guidesListRef,
 			setGuidesList,
 			draggingGuideId,
 			moveGuidePointerRef,
@@ -58,6 +67,7 @@ export const ShowGuidesProvider: React.FC<{
 		editorShowGuides,
 		setEditorShowGuides,
 		guidesList,
+		setGuidesList,
 		draggingGuideId,
 		hoveredGuideId,
 	]);

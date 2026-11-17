@@ -99,7 +99,13 @@ export const createElementFromInsertable = ({
 	const positioned = sequence === null;
 
 	let inner: CodemodElement;
-	if (element.type === 'solid') {
+	if (element.type === 'track') {
+		inner = createElement({
+			component: 'Track',
+			importPath: 'remotion',
+			props: from === null ? {} : {from},
+		});
+	} else if (element.type === 'solid') {
 		inner = createElement({
 			component: 'Solid',
 			importPath: 'remotion',

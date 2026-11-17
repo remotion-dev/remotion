@@ -4,6 +4,7 @@ import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
 import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
+import {TransitionMotionBlurLiveDemo} from '../../components/demos/TransitionMotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {
 	EffectsBevelAlphaPreview,
@@ -193,9 +194,17 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
+				id="transition-motion-blur-demo"
+				component={TransitionMotionBlurLiveDemo}
+				durationInFrames={160}
+				fps={30}
+				width={540}
+				height={280}
+			/>
+			<Composition
 				id="motion-blur-html-in-canvas-demo"
 				component={MotionBlurHtmlInCanvasLiveDemo}
-				durationInFrames={60}
+				durationInFrames={240}
 				fps={30}
 				width={960}
 				height={540}

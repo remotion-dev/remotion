@@ -426,11 +426,7 @@ const AgentsSceneInner: React.FC = () => {
 				keyframes={layout}
 			>
 				<Series>
-					<Series.Sequence
-						name="Better with agents"
-						durationInFrames={94}
-						premountFor={30}
-					>
+					<Series.Sequence name="Better with agents" durationInFrames={94}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -440,11 +436,7 @@ const AgentsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Rough edges"
-						durationInFrames={288}
-						premountFor={30}
-					>
+					<Series.Sequence name="Rough edges" durationInFrames={288}>
 						<Punch zoom={1.12}>
 							<Video
 								src={
@@ -454,11 +446,7 @@ const AgentsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Studio already running"
-						durationInFrames={163}
-						premountFor={30}
-					>
+					<Series.Sequence name="Studio already running" durationInFrames={163}>
 						<Punch zoom={1.02}>
 							<Video
 								src={
@@ -468,11 +456,7 @@ const AgentsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="We prevent that"
-						durationInFrames={47}
-						premountFor={30}
-					>
+					<Series.Sequence name="We prevent that" durationInFrames={47}>
 						<Punch zoom={1.18}>
 							<Video
 								src={
@@ -482,11 +466,7 @@ const AgentsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Lockfiles and Zod"
-						durationInFrames={314}
-						premountFor={30}
-					>
+					<Series.Sequence name="Lockfiles and Zod" durationInFrames={314}>
 						<Punch zoom={1.02}>
 							<Video
 								src={
@@ -496,11 +476,7 @@ const AgentsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Let us know"
-						durationInFrames={70}
-						premountFor={30}
-					>
+					<Series.Sequence name="Let us know" durationInFrames={70}>
 						<Punch zoom={1.16}>
 							<Video
 								src={

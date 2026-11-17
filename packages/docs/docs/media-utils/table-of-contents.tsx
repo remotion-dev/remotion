@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>getAudioDurationInSeconds()</strong>
 					<div>Get the duration of an audio source</div>
 				</TOCItem>
+				<TOCItem link="/docs/get-image-dimensions">
+					<strong>getImageDimensions()</strong>
+					<div>Get the dimensions of an image</div>
+				</TOCItem>
 				<TOCItem link="/docs/get-video-metadata">
 					<strong>getVideoMetadata()</strong>
 					<div>Get metadata of a video source</div>

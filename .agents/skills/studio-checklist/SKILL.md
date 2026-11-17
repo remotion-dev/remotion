@@ -6,7 +6,7 @@ description: Develop or review Remotion Studio features and UI. Apply Studio pri
 # Studio checklist
 
 Apply these principles when implementing or reviewing Studio itself. They cover
-the regular Studio and Browser Studio at `remotion.new`.
+the regular Studio and remotion.new.
 
 ## Optimistic operations
 
@@ -54,10 +54,10 @@ new action and its WebMCP entry point against all four modes:
 | Regular interactive Studio                  | Attached Studio server; source edits, codemods, dependency installation, server rendering, and supported “Open in” actions.                |
 | Regular Studio with preview server detached | `previewServerConnected` is `false`; effectively read-only, with client-side rendering still available.                                    |
 | Read-only deployed Studio                   | No attached server; hide or disable server-dependent actions. GitHub is the only supported “Open in” action.                               |
-| Browser Studio (`remotion.new`)             | Runs in an iframe with a virtual filesystem hidden from the user; supports codemods and dependency installation, but no “Open in” actions. |
+| remotion.new                                | Runs in an iframe with a virtual filesystem hidden from the user; supports codemods and dependency installation, but no “Open in” actions. |
 
 Use existing capability checks. A deployed Studio is not necessarily read-only:
-Browser Studio has its own mutation capabilities. Hide or disable unsupported
+remotion.new has its own mutation capabilities. Hide or disable unsupported
 UI actions and enforce the same restrictions when invoked agentically.
 
 ## Prevent the iframe hover bug
@@ -76,7 +76,7 @@ and the [tooltip and hover fix](https://github.com/remotion-dev/remotion/pull/12
 - When JavaScript behavior depends on hover, such as a delayed menu or tooltip,
   use [observeHover()](../../../packages/studio/src/helpers/observe-hover.ts).
   It handles recovery from missed leave events, window blur, visibility changes,
-  and Browser Studio's forwarded `remotion-browser-studio-pointerleave` event.
+  and remotion.new's forwarded `remotion-browser-studio-pointerleave` event.
   Dispose the observer and cancel pending timers during cleanup and dismissal.
 - Preserve intentional selected, keyboard-focused, and open-menu states.
   Nested actions must not appear hovered just because their parent row is
@@ -114,6 +114,25 @@ Read [studio-css-reset](../studio-css-reset/SKILL.md) and
   keep a visible keyboard focus indicator.
 
 ## Performance must not regress
+
+### Keep provider trees stable
+
+Do not conditionally add or remove a context provider around children that must
+stay mounted. Keep the provider at the same position and change its value or an
+explicit enabled/disabled prop instead. Preserve any inherited context value
+when the local override is inactive.
+
+Adding or removing a provider changes the React tree and remounts its descendants,
+resetting state, focus, effects, and media decoders. Check ternaries, early returns,
+and conditional wrapper components, especially when toggling playback features,
+sample counts, selection, or optional callbacks. For example, changing motion blur
+from one sample to four and back must preserve the surviving sample's subtree.
+
+Verify descendant identity and state across the toggle and compare buffering or
+effect cleanup where relevant. Conditional mounting remains appropriate when the
+whole subtree is intentionally created or removed, such as opening a modal.
+
+### Measure runtime performance
 
 Read [studio-perf](../studio-perf/SKILL.md). Prefer consuming context through an
 existing stable ref or imperative getter when the value is needed only during

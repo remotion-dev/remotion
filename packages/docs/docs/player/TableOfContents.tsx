@@ -35,6 +35,10 @@ export const PlayerGuide: React.FC = () => {
 					<strong>Sizing</strong>
 					<div>Setting the size of the Player</div>
 				</TOCItem>
+				<TOCItem link="/docs/player/integration">
+					<strong>Code sharing</strong>
+					<div>Share code between the Player, the Studio and rendering</div>
+				</TOCItem>
 				<TOCItem link="/docs/player/autoplay">
 					<strong>Autoplay</strong>
 					<div>Dealing with browser autoplay policies</div>
@@ -74,6 +78,10 @@ export const PlayerGuide: React.FC = () => {
 				<TOCItem link="/docs/player/media-keys">
 					<strong>Media Keys</strong>
 					<div>Control what happens when users presses ⏯️</div>
+				</TOCItem>
+				<TOCItem link="/docs/player/playback-issues">
+					<strong>Playback issues</strong>
+					<div>Troubleshooting playback problems</div>
 				</TOCItem>
 			</Grid>
 		</div>

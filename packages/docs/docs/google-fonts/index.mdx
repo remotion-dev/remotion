@@ -5,46 +5,13 @@ sidebar_label: Overview
 title: '@remotion/google-fonts'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import {TableOfContents} from './TableOfContents';
 
 One way of [embedding fonts](/docs/fonts) in Remotion is `@remotion/google-fonts`, sourcing fonts from [Google Fonts](https://fonts.google.com/).
 
 ## Installation
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/google-fonts
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/google-fonts
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/google-fonts
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="@remotion/google-fonts" />
 
 ## Usage
 
@@ -138,7 +105,7 @@ export const waitForFonts = async () => {
 
 If you use text measurement APIs, wrap your content in a component that waits for your fonts before rendering. See the [higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component) and [font loading troubleshooting](/docs/troubleshooting/font-loading-errors).
 
-To get information about a font, you can import the `getInfo()` function:
+To get information about a font, you can import the [`getInfo()`](/docs/google-fonts/get-info) function:
 
 ```tsx twoslash title="Get info about the font"
 import {getInfo} from '@remotion/google-fonts/TitanOne';

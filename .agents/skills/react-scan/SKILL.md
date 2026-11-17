@@ -29,11 +29,18 @@ development capture mode.
 Call `start_react_scan_recording`, then use browser-use to perform one named
 interaction three times. Call `stop_react_scan_recording` immediately
 afterwards. Keep the recording short so startup, HMR, and unrelated interactions
-do not dominate the data. Call `get_react_scan_recording` to return the raw
-events and an agent-oriented summary.
+do not dominate the data. Call `get_react_scan_recording` with
+`{"includeEvents": false}` to return recording status and an agent-oriented
+summary with `events: null`. This avoids serializing the raw fiber trees, which
+can make even a short recording too large for a native WebMCP response.
 
-After retrieving the recording, stop Studio with Ctrl+C. Recordings only live in
-the WebMCP result; React Scan does not send them to a separate HTTP collector.
+The default `includeEvents: true` preserves raw-event retrieval. Request raw
+events only when individual trees are needed, using a small focused recording.
+Summary-only reads keep the raw events in memory for later retrieval.
+
+After retrieving the recording, stop Studio with Ctrl+C. Recordings live in page
+memory until the next recording or page reload; React Scan does not send them
+to a separate HTTP collector.
 
 React Scan replaces the React DevTools profiling-hook channel while active. Do
 not record with the React DevTools Timeline Profiler at the same time.

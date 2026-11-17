@@ -42,8 +42,8 @@ Support is provided on a best-we-can-do basis via GitHub Issues and Discord.
 
 You are required to obtain a Company License to use Remotion if you are not within the group of entities eligible for a Free License. This license will enable you to use Remotion for the allowed use cases specified in the Free License, and give you access to prioritized support (read the [Support Policy](https://www.remotion.dev/docs/support)).
 
-Visit [remotion.pro](https://www.remotion.pro/license) for pricing and to buy a license.
+Visit [remotion.dev](https://www.remotion.dev/docs/license/pricing) for pricing and to buy a license.
 
 ### FAQs
 
-Are you not sure whether you need a Company License because of an edge case? Here are some [frequently asked questions](https://www.remotion.pro/faq).
+Are you not sure whether you need a Company License because of an edge case? Here are some [frequently asked questions](https://www.remotion.dev/docs/license/faq).

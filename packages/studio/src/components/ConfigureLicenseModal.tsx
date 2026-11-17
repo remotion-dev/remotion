@@ -252,11 +252,11 @@ export const LicenseSettings: React.FC = () => {
 								Visit{' '}
 								<a
 									style={externalDescriptionLink}
-									href="https://remotion.pro/license"
+									href="https://www.remotion.dev/docs/license/pricing"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									remotion.pro/license
+									License &amp; Pricing
 									<svg
 										aria-hidden="true"
 										viewBox="0 0 16 16"
