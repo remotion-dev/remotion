@@ -14,12 +14,12 @@ textured architecture.
 
 ## Credentials
 
-For `landscape`, replace `YOUR_API_KEY` in the `MAPTILER_KEY` constant in
+For `landscape`, replace `YOUR_API_KEY` in both `api.maptiler.com` URLs in
 `assets/CesiumFlythrough.tsx` with a MapTiler key.
 
 Create a MapTiler key at https://cloud.maptiler.com/account/keys/.
 
-For `city`, replace `YOUR_API_KEY` in the `GOOGLE_MAPS_API_KEY` constant in
+For `city`, replace `YOUR_API_KEY` in the `tile.googleapis.com` URL in
 `assets/CesiumFlythrough.tsx` with a Google Map Tiles API key.
 
 Create a billing-enabled Google Map Tiles API key by following
