@@ -145,11 +145,16 @@ Increasing it leads to a smoother blur, but increases rendering work.
 
 ## Browser support
 
-Preview requires HTML-in-canvas support. Browsers without it show the original presentation and a “Motion blur is not visible” indication. Rendering requires HTML-in-canvas support and uses Remotion's bundled browser by default. [HTML-in-canvas setup](/docs/html-in-canvas#enabling-the-flag-in-chrome)
+In regular rendering and server-side rendering, motion blur is supported.
+
+Preview requires HTML-in-canvas, currently only supported in Chrome.  
+As a fallback the original content and a “Motion blur is not visible” indication is shown.
+
+In client-side rendering, HTML-in-canvas must be enabled, otherwise a render fails if it includes motion blur.
 
 ## `<CameraMotionBlur>` and `<Trail>`
 
-There are 2 more ways motion blur can be achieved in Remotion, but it is not recommended anymore:
+There are 2 more ways motion blur can be achieved in Remotion, but they are not recommended anymore:
 
 - [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but colors and opacity can be inaccurate.
 - [`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one, it does not blend frames.

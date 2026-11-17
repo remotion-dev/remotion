@@ -31,12 +31,12 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 
 ## Develop with React and Vite
 
-1. Close any running Recorder Chrome instance that uses the dedicated Canvas
+1. Close any running Chrome instance that uses the dedicated Canvas
    Capture profile.
 2. From `packages/canvas-capture-extension`, run `bun run dev`.
 3. WXT writes the development bundle to the durable directory
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`,
-   launches Chrome for Testing and loads the extension automatically.
+   launches Chrome and loads the extension automatically.
 4. Click the extension icon to show the in-page controls. Source and manifest
    changes cause WXT to rebuild and reload the affected extension contexts.
 

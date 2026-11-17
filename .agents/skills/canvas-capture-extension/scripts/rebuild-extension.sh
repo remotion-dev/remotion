@@ -72,5 +72,4 @@ mkdir -p "$install_dir"
 rsync -a --delete "$dist_dir/" "$install_dir/"
 
 printf 'Installed Remotion Canvas Capture in %s\n' "$install_dir"
-printf '%s\n' 'Use current stable Chrome to record with Canvas Capture.'
 printf '%s\n' 'Open chrome://extensions, then click Reload or choose Load unpacked for this directory.'
