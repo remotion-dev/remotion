@@ -150,7 +150,6 @@ export const MacBookDesktopScene = () => {
 					translate: '-104.8px -11px',
 				}}
 				width={1320}
-				premountFor={30}
 			>
 				<MacBookAppScene />
 			</Sequence>
@@ -172,7 +171,6 @@ export const MacBookDesktopScene = () => {
 					translate: '-104.8px -11px',
 				}}
 				width={1320}
-				premountFor={30}
 			>
 				<MacBookAppScene />
 			</Sequence>

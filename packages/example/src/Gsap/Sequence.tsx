@@ -4,7 +4,7 @@ import {OpacityFixture} from './OpacityFixture';
 
 const SequenceFixture: React.FC = () => (
 	<AbsoluteFill style={{background: '#000'}}>
-		<Sequence from={30} durationInFrames={45} premountFor={10}>
+		<Sequence from={30} durationInFrames={45}>
 			<OpacityFixture />
 		</Sequence>
 	</AbsoluteFill>
