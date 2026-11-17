@@ -19,6 +19,7 @@ import type {
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
 import {
@@ -43,11 +44,18 @@ import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu
 import {getSourceContextMenuItems} from '../get-source-context-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSettings} from '../SettingsContext';
 import {useOpenInMenuApps} from '../use-open-in-menu-apps';
 import {useDeleteEffects} from './delete-effects-from-source';
 import {duplicateEffectsFromSource} from './duplicate-selected-timeline-item';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
+import {
+	getEffectContextForAgents,
+	getEffectsContextForAgents,
+	getMultiEffectContextMenuItems,
+	getMultiSelectedEffects,
+} from './get-effect-context-menu-items';
 import {saveEffectProp} from './save-effect-prop';
 import {
 	TimelineExpandArrowButton,
@@ -63,6 +71,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
 const EFFECT_REORDER_MIME_TYPE = 'application/remotion-effect-reorder';
 
@@ -253,6 +262,12 @@ export const TimelineEffectItem: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const deleteTimelineItems = useDeleteTimelineItems();
+	const calculateTimeline = useTimelineCalculator();
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [dropIndicator, setDropIndicator] = useState<'before' | 'after' | null>(
 		null,
@@ -379,7 +394,15 @@ export const TimelineEffectItem: React.FC<{
 			codingAgentName: string,
 			contextForAgents: string | null,
 		) => {
-			openCodingAgent(codingAgentId, contextForAgents)
+			(contextForAgents === null
+				? Promise.resolve(null)
+				: getEffectContextForAgents({
+						label,
+						sequenceLocation: validatedLocation,
+						effectIndex,
+					})
+			)
+				.then((context) => openCodingAgent(codingAgentId, context))
 				.then((response) => {
 					if (!response.success) {
 						showNotification(`Could not open ${codingAgentName}`, 2000);
@@ -389,12 +412,34 @@ export const TimelineEffectItem: React.FC<{
 					showNotification((error as Error).message, 2000);
 				});
 		},
-		[],
+		[effectIndex, label, validatedLocation],
 	);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
-		if (selection.selectable) {
+		if (selection.selectable && !selection.selected) {
 			selection.onSelect({shiftKey: false, toggleKey: false});
+		}
+
+		const selectedEffects = selection.selected
+			? getMultiSelectedEffects(selection.selectedItems)
+			: null;
+		if (selectedEffects !== null) {
+			return getMultiEffectContextMenuItems({
+				selectedEffectCount: selectedEffects.length,
+				getContextForAgents: () =>
+					getEffectsContextForAgents({
+						effects: selectedEffects,
+						tracks: calculateTimeline({
+							sequences: sequencesRef.current,
+							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+						}).tracks,
+					}),
+				disabled: !previewConnected || !canMutateEffects,
+				onDuplicateSelectedEffects: () => {
+					duplicateEffectsFromSource(selectedEffects);
+				},
+				onDeleteSelectedEffects: () => deleteTimelineItems(selectedEffects),
+			});
 		}
 
 		const items: ComboboxValue[] = [
@@ -432,11 +477,12 @@ export const TimelineEffectItem: React.FC<{
 					]
 				: []),
 			getCopyContextForAgentsMenuItem({
-				contextForAgents: formatContextForAgents({
-					location: validatedLocation,
-					name: `Effect "${label}"`,
-					root: window.remotion_cwd,
-				}),
+				contextForAgents: () =>
+					getEffectContextForAgents({
+						label,
+						sequenceLocation: validatedLocation,
+						effectIndex,
+					}),
 			}),
 			...getAnnotateWithChatGPTMenuItems({
 				id: 'annotate-effect',
@@ -501,7 +547,10 @@ export const TimelineEffectItem: React.FC<{
 
 		return items;
 	}, [
+		calculateTimeline,
+		canMutateEffects,
 		deleteDisabled,
+		deleteTimelineItems,
 		documentationLink,
 		label,
 		effectIndex,
@@ -512,8 +561,10 @@ export const TimelineEffectItem: React.FC<{
 		openInApps,
 		openInCodingAgent,
 		openInEditor,
+		overrideIdToNodePathMappingsRef,
 		previewConnected,
 		selection,
+		sequencesRef,
 		validatedLocation,
 	]);
 

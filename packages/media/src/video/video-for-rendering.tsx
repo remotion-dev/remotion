@@ -270,7 +270,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					handleError(
 						result.error,
 						result.error,
-						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						`Failed to read ${src}: ${result.error.message}${result.type === 'network-error' ? ' (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues)' : ''}, falling back to <OffthreadVideo>`,
 						null,
 					);
 					return;
@@ -328,7 +328,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						new Error(
 							`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
 						),
-						`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
+						`Network error fetching ${src} (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues), falling back to <OffthreadVideo>`,
 						null,
 					);
 					return;
