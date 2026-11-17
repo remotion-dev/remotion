@@ -71,3 +71,20 @@ export const registerFontFace = (fontFace: RegisteredFontFace) => {
 export const getRegisteredFontFaces = (): RegisteredFontFace[] => {
 	return registeredFontFaces.slice();
 };
+
+let pendingFontLoads = 0;
+
+export const startFontLoad = (): (() => void) => {
+	pendingFontLoads++;
+	let finished = false;
+	return () => {
+		if (!finished) {
+			finished = true;
+			pendingFontLoads--;
+		}
+	};
+};
+
+export const getPendingFontLoadCount = (): number => {
+	return pendingFontLoads;
+};

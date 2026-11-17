@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {Internals, type DelayRenderScope} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -58,7 +59,8 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (scope.remotion_renderReady === true) {
+		const pendingFontLoads = NoReactInternals.getPendingFontLoadCount();
+		if (scope.remotion_renderReady === true && pendingFontLoads === 0) {
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			resolve();
 			return;
@@ -74,9 +76,14 @@ export const waitForReady = ({
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(
 				new Error(
-					Object.values(scope.remotion_delayRenderTimeouts)
-						.map((d) => d.label)
-						.join(', '),
+					[
+						...Object.values(scope.remotion_delayRenderTimeouts).map(
+							(d) => d.label,
+						),
+						...(pendingFontLoads > 0
+							? [`${pendingFontLoads} font(s) loaded with loadFont()`]
+							: []),
+					].join(', '),
 				),
 			);
 			return;
