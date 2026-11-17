@@ -89,7 +89,7 @@ const Clock = () => {
 // The ordinary SVG circle deliberately has no editable property schema.
 const CircleContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Interactive.Svg
@@ -98,7 +98,6 @@ const CircleContent = () => {
 				width={128}
 				height={120}
 				style={{marginBottom: 24}}
-				premountFor={fps}
 			>
 				<circle
 					cx="32"
@@ -131,7 +130,7 @@ const CircleContent = () => {
 
 const PropertyContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -139,7 +138,6 @@ const PropertyContent = () => {
 				width={120}
 				height={100}
 				color="#77b4ff"
-				premountFor={fps}
 				style={{
 					borderRadius: 18,
 					marginBottom: 24,
@@ -158,7 +156,7 @@ const PropertyContent = () => {
 
 const EffectContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -166,7 +164,6 @@ const EffectContent = () => {
 				width={120}
 				height={100}
 				color="#ffbf83"
-				premountFor={fps}
 				style={{borderRadius: 18, marginBottom: 24}}
 				effects={[
 					blur({
@@ -185,7 +182,6 @@ const EffectContent = () => {
 };
 
 const NestedContent = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<Sequence
 			name="Child: from 10, playback rate 2"
@@ -193,7 +189,6 @@ const NestedContent = () => {
 			durationInFrames={120}
 			playbackRate={2}
 			style={{justifyContent: 'center', alignItems: 'center'}}
-			premountFor={fps}
 		>
 			<CircleContent />
 		</Sequence>
@@ -202,7 +197,7 @@ const NestedContent = () => {
 
 const MaximumContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -210,7 +205,6 @@ const MaximumContent = () => {
 				width={120}
 				height={100}
 				color="#cfabff"
-				premountFor={fps}
 				style={{
 					borderRadius: 18,
 					marginBottom: 24,
@@ -229,7 +223,7 @@ const MaximumContent = () => {
 
 const UnknownArithmeticContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -237,7 +231,6 @@ const UnknownArithmeticContent = () => {
 				width={120}
 				height={100}
 				color="#ff8eac"
-				premountFor={fps}
 				style={{
 					borderRadius: 18,
 					marginBottom: 24,
@@ -255,7 +248,6 @@ const UnknownArithmeticContent = () => {
 };
 
 export const KeyframeTrimTestbed = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<AbsoluteFill
 			style={{
@@ -291,7 +283,6 @@ export const KeyframeTrimTestbed = () => {
 						name="1. SVG child — minimum 40"
 						durationInFrames={40}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<CircleContent />
 					</Sequence>
@@ -305,7 +296,6 @@ export const KeyframeTrimTestbed = () => {
 						name="2. Property — minimum 40"
 						durationInFrames={40}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<PropertyContent />
 					</Sequence>
@@ -319,7 +309,6 @@ export const KeyframeTrimTestbed = () => {
 						name="3. Effect — minimum 40"
 						durationInFrames={54}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<EffectContent />
 					</Sequence>
@@ -333,7 +322,6 @@ export const KeyframeTrimTestbed = () => {
 						name="4. Nested parent — minimum 30"
 						durationInFrames={38}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<NestedContent />
 					</Sequence>
@@ -347,7 +335,6 @@ export const KeyframeTrimTestbed = () => {
 						name="5. Upper bound — maximum 89"
 						durationInFrames={60}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<MaximumContent />
 					</Sequence>
@@ -361,7 +348,6 @@ export const KeyframeTrimTestbed = () => {
 						name="6. Computed range — locked at 90"
 						durationInFrames={90}
 						style={{justifyContent: 'center', alignItems: 'center'}}
-						premountFor={fps}
 					>
 						<UnknownArithmeticContent />
 					</Sequence>
@@ -409,7 +395,6 @@ export const KeyframeTrimTestbed = () => {
 						from={20}
 						trimBefore={15}
 						durationInFrames={60}
-						premountFor={fps}
 					>
 						<Clock />
 					</Sequence>
@@ -465,7 +450,6 @@ export const KeyframeTrimTestbed = () => {
 							name="13. Adjacent clip — B"
 							from={80}
 							durationInFrames={50}
-							premountFor={fps * 6}
 						>
 							<Clock />
 						</Sequence>
@@ -525,7 +509,6 @@ export const KeyframeTrimTestbed = () => {
 						from={45}
 						trimBefore={100}
 						durationInFrames={60}
-						premountFor={fps * 6}
 					/>
 				</Card>
 			</div>

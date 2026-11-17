@@ -83,7 +83,6 @@ export const StudioUpdate = ({
 					name="01a - Glow across the opening chapters"
 					from={0}
 					durationInFrames={49}
-					premountFor={6}
 					revealOffsetInSeconds={0}
 					focusX={562}
 					focusY={reel ? 1260 : 1150}
@@ -98,7 +97,6 @@ export const StudioUpdate = ({
 					name="01b - Glow from the left"
 					from={49}
 					durationInFrames={59}
-					premountFor={6}
 					revealOffsetInSeconds={1.6333333333333333}
 					focusX={840.8}
 					focusY={1098}
@@ -113,7 +111,6 @@ export const StudioUpdate = ({
 					name="01c - Glow across the source clips"
 					from={108}
 					durationInFrames={50}
-					premountFor={6}
 					revealOffsetInSeconds={3.6}
 					focusX={1176.4}
 					focusY={1184}
@@ -128,7 +125,6 @@ export const StudioUpdate = ({
 					name="01d - Glow across the chapter titles"
 					from={158}
 					durationInFrames={50}
-					premountFor={6}
 					revealOffsetInSeconds={5.266666666666667}
 					focusX={1460.8}
 					focusY={1068}
@@ -143,7 +139,6 @@ export const StudioUpdate = ({
 					name="01e - Dark seam detail"
 					from={208}
 					durationInFrames={34}
-					premountFor={6}
 					revealOffsetInSeconds={6.933333333333334}
 					focusX={1745.3}
 					focusY={1190}
@@ -162,7 +157,6 @@ export const StudioUpdate = ({
 					}
 					from={242}
 					durationInFrames={56}
-					premountFor={6}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 				<TimelineAudioRollingEditComposition
@@ -171,7 +165,6 @@ export const StudioUpdate = ({
 					style={{...reelCamera(1.35), backgroundColor: '#15161b'}}
 					from={298}
 					durationInFrames={57}
-					premountFor={30}
 				/>
 				<TimelineClipSelectionComposition
 					name="02-09a - Rattle - progressive clip selection"
@@ -179,7 +172,6 @@ export const StudioUpdate = ({
 					trimBefore={6}
 					durationInFrames={42}
 					rattleTiming
-					premountFor={30}
 				/>
 				<TimelineZoomComposition
 					style={reelCamera(1.9)}
@@ -188,7 +180,6 @@ export const StudioUpdate = ({
 					trimBefore={120}
 					durationInFrames={90}
 					playbackRate={90 / 26}
-					premountFor={30}
 				/>
 				<TimelineRightTrimComposition
 					name="09c - Right-edge trim - active drag - 11.18x"
@@ -196,7 +187,6 @@ export const StudioUpdate = ({
 					trimBefore={87}
 					durationInFrames={123}
 					playbackRate={123 / 11}
-					premountFor={30}
 					style={{
 						...reelCamera(
 							2.3,
@@ -215,14 +205,12 @@ export const StudioUpdate = ({
 					from={434}
 					durationInFrames={72}
 					playbackRate={72 / 38}
-					premountFor={30}
 					trimBefore={19.894736842105264}
 				/>
 				<TimelinePlayheadScrub
 					name="10 - Playhead scrubbing"
 					from={472}
 					durationInFrames={38}
-					premountFor={30}
 					style={{
 						...reelCamera(
 							2.1,
@@ -244,7 +232,6 @@ export const StudioUpdate = ({
 					trimBefore={40}
 					durationInFrames={90}
 					playbackRate={90 / 36}
-					premountFor={30}
 				/>
 				<StudioActionsMenuComposition
 					name="12 - Actions menu - cursor sweep"
@@ -252,21 +239,18 @@ export const StudioUpdate = ({
 					trimBefore={43}
 					durationInFrames={54}
 					playbackRate={54 / 26}
-					premountFor={30}
 					style={{...reelCamera(2.05, 0.44), overflow: 'hidden'}}
 				/>
 				<StudioScreenshotRattle
 					name="14 - Full Studio screenshot - snare rattle zoom"
 					from={572}
 					durationInFrames={24}
-					premountFor={30}
 					style={{backgroundColor: '#151719', overflow: 'hidden'}}
 				/>
 				<TimelineCaptionPosition
 					name="20 - Caption positioning - pink alignment guide"
 					from={596}
 					durationInFrames={24}
-					premountFor={30}
 					style={{
 						...reelCamera(2.1, 0.53, 0.56),
 						backgroundColor: '#1c1e23',
@@ -278,7 +262,6 @@ export const StudioUpdate = ({
 					name="21.01 - Effects - enable all in one sweep"
 					from={620}
 					durationInFrames={25}
-					premountFor={30}
 					style={{
 						...reelCamera(2.15, 0.27, 0.52),
 						backgroundColor: '#1f2427',
@@ -289,7 +272,6 @@ export const StudioUpdate = ({
 					name="21.04 - remotion.new - Actions menu"
 					from={645}
 					durationInFrames={38}
-					premountFor={30}
 					style={{
 						...reelCamera(2, 0.28),
 						backgroundColor: '#1f2427',
@@ -301,7 +283,6 @@ export const StudioUpdate = ({
 					name="22-26 - Bass stutter - frozen rolling edit pickup"
 					from={683}
 					durationInFrames={12}
-					premountFor={30}
 				/>
 				<TimelineVideoRollingEditComposition
 					style={reelCamera(1.35, 0.54)}
@@ -310,7 +291,6 @@ export const StudioUpdate = ({
 					trimBefore={32}
 					durationInFrames={52}
 					playbackRate={52 / 25}
-					premountFor={30}
 				/>
 				<TimelineKeyframeShiftComposition
 					style={reelCamera(1.9)}
@@ -319,7 +299,6 @@ export const StudioUpdate = ({
 					trimBefore={33}
 					durationInFrames={74}
 					playbackRate={2}
-					premountFor={30}
 				/>
 				<StudioPlaybackRateComposition
 					name="28 - Playback rate - clips and keyframes - 1.78x"
@@ -327,7 +306,6 @@ export const StudioUpdate = ({
 					trimBefore={490}
 					durationInFrames={80}
 					playbackRate={80 / 45}
-					premountFor={30}
 				/>
 				<StudioLevelsComposition
 					name="29a - Levels - input-black adjustment"
@@ -335,7 +313,6 @@ export const StudioUpdate = ({
 					trimBefore={35}
 					durationInFrames={48}
 					playbackRate={48 / 31}
-					premountFor={30}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 				<StudioCurvesSplit
@@ -343,7 +320,6 @@ export const StudioUpdate = ({
 					from={833}
 					durationInFrames={67}
 					playbackRate={67 / 36}
-					premountFor={30}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 				<StudioAiPrompt
@@ -351,7 +327,6 @@ export const StudioUpdate = ({
 					from={869}
 					durationInFrames={12}
 					playbackRate={12 / 21}
-					premountFor={30}
 					style={{
 						backgroundColor: '#0d0d0d',
 						overflow: 'hidden',
@@ -373,7 +348,6 @@ export const StudioUpdate = ({
 					from={890}
 					durationInFrames={18}
 					playbackRate={18 / 21}
-					premountFor={30}
 					style={{
 						backgroundColor: '#1f2428',
 						overflow: 'hidden',
@@ -390,7 +364,6 @@ export const StudioUpdate = ({
 					from={911}
 					durationInFrames={16}
 					playbackRate={16 / 27}
-					premountFor={30}
 					style={{
 						...reelCamera(
 							1.95 * (1.7 + (closingPushScale - 1.7) / 2),
@@ -408,7 +381,6 @@ export const StudioUpdate = ({
 					trimBefore={360}
 					durationInFrames={21}
 					playbackRate={21 / 15}
-					premountFor={30}
 					style={{
 						overflow: 'hidden',
 						scale: closingPushScale,
@@ -420,7 +392,6 @@ export const StudioUpdate = ({
 					trimBefore={738}
 					durationInFrames={63}
 					playbackRate={63 / 16}
-					premountFor={30}
 					style={{
 						overflow: 'hidden',
 						scale:
@@ -436,7 +407,6 @@ export const StudioUpdate = ({
 					name="33 - Remotion logo outro"
 					from={969}
 					durationInFrames={54}
-					premountFor={30}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 			</Track>

@@ -5,10 +5,10 @@ export const PremountedRemoteVideos: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			<Series>
-				<Series.Sequence durationInFrames={200} premountFor={20}>
+				<Series.Sequence durationInFrames={200}>
 					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
-				<Series.Sequence durationInFrames={700} premountFor={30}>
+				<Series.Sequence durationInFrames={700}>
 					<Html5Video
 						pauseWhenBuffering
 						startFrom={1000}

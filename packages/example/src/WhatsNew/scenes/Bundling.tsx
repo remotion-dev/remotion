@@ -425,11 +425,7 @@ const BundlingSceneInner: React.FC = () => {
 				keyframes={layout}
 			>
 				<Series>
-					<Series.Sequence
-						name="Faster bundling"
-						durationInFrames={42}
-						premountFor={30}
-					>
+					<Series.Sequence name="Faster bundling" durationInFrames={42}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -439,11 +435,7 @@ const BundlingSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Rspack experiment"
-						durationInFrames={158}
-						premountFor={30}
-					>
+					<Series.Sequence name="Rspack experiment" durationInFrames={158}>
 						<Punch zoom={1.12}>
 							<Video
 								src={
@@ -453,11 +445,7 @@ const BundlingSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="To make things faster"
-						durationInFrames={43}
-						premountFor={30}
-					>
+					<Series.Sequence name="To make things faster" durationInFrames={43}>
 						<Punch zoom={1.34}>
 							<Video
 								src={
@@ -467,11 +455,7 @@ const BundlingSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Twice as fast"
-						durationInFrames={139}
-						premountFor={30}
-					>
+					<Series.Sequence name="Twice as fast" durationInFrames={139}>
 						<Punch zoom={1.02}>
 							<Video
 								src={
@@ -481,11 +465,7 @@ const BundlingSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Canvas updates"
-						durationInFrames={166}
-						premountFor={30}
-					>
+					<Series.Sequence name="Canvas updates" durationInFrames={166}>
 						<Punch zoom={1.16}>
 							<Video
 								src={
@@ -495,11 +475,7 @@ const BundlingSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Opt in today"
-						durationInFrames={172}
-						premountFor={30}
-					>
+					<Series.Sequence name="Opt in today" durationInFrames={172}>
 						<Punch zoom={1.02}>
 							<Video
 								src={

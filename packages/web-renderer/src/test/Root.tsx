@@ -239,6 +239,7 @@ import {
 	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
+import {svgForeignObjectFont} from './fixtures/svg-foreign-object-font';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -381,6 +382,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgForeignObjectFont} />
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition
