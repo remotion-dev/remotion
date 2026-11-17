@@ -96,6 +96,8 @@ Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
+WebKit software exports preserve native colors for the registered font-selection, stylesheet-carrier, and font-family lifetime cases described here.
+
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
