@@ -34,6 +34,7 @@ export const handleMask = async ({
 			precomposeRect,
 			width: tempContext.canvas.width,
 			height: tempContext.canvas.height,
+			scale,
 			internalState,
 		});
 		const mask = new OffscreenCanvas(
@@ -169,12 +170,14 @@ export const handleSvgClip = async ({
 	precomposeRect,
 	element,
 	tempContext,
+	scale,
 }: {
 	resource: SVGClipPathElement;
 	element: HTMLElement | SVGElement;
 	maskRect: DOMRect;
 	precomposeRect: DOMRect;
 	tempContext: OffscreenCanvasRenderingContext2D;
+	scale: number;
 }) => {
 	const image = await createSvgClipMask({
 		resource,
@@ -185,6 +188,7 @@ export const handleSvgClip = async ({
 		referenceRect: getBiggestBoundingClientRect(element, false, true),
 		width: tempContext.canvas.width,
 		height: tempContext.canvas.height,
+		scale,
 	});
 	tempContext.globalCompositeOperation = 'destination-in';
 	tempContext.drawImage(image, 0, 0);

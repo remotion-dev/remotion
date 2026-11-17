@@ -82,3 +82,53 @@ test.for(Object.entries(cases))(
 		).toBeLessThanOrEqual(2);
 	},
 );
+
+test.for([1.5, 2.5])(
+	'a hard gradient mask cuts at the same pixel as a narrower box at scale %s',
+	async (scale) => {
+		// 17px becomes a fractional canvas width at these scales, while the
+		// box edges and the 8px cut land on whole pixels.
+		const render = async (width: number, maskImage: string) => {
+			const result = await renderStillOnWeb({
+				composition: {
+					component: () => (
+						<AbsoluteFill style={{backgroundColor: 'white'}}>
+							<div
+								style={{
+									position: 'absolute',
+									left: 10,
+									top: 10,
+									width,
+									height: 20,
+									backgroundColor: '#2563eb',
+									maskImage,
+								}}
+							/>
+						</AbsoluteFill>
+					),
+					id: 'hard-mask-scale',
+					width: 40,
+					height: 40,
+					fps: 30,
+					durationInFrames: 1,
+				},
+				frame: 0,
+				licenseKey: 'free-license',
+				inputProps: {},
+				scale,
+			});
+			return result.blob({format: 'png'});
+		};
+
+		const expected = await render(8, 'none');
+		for (const maskImage of [
+			'linear-gradient(90deg, black 8px, transparent 8px)',
+			'linear-gradient(90deg, black 8px, transparent 8px), linear-gradient(90deg, black 8px, transparent 8px)',
+		]) {
+			expect(
+				(await countNativePixels(expected, await render(17, maskImage)))
+					.maxChannelDelta,
+			).toBeLessThanOrEqual(2);
+		}
+	},
+);

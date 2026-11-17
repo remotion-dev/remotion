@@ -10,6 +10,7 @@ export const createCssMask = async ({
 	precomposeRect,
 	width,
 	height,
+	scale,
 	internalState,
 }: {
 	maskImageInfo: Extract<MaskImageInfo, {type: 'layers'}>;
@@ -17,6 +18,7 @@ export const createCssMask = async ({
 	precomposeRect: DOMRect;
 	width: number;
 	height: number;
+	scale: number;
 	internalState: InternalState;
 }) => {
 	const images = await Promise.all(
@@ -38,6 +40,7 @@ export const createCssMask = async ({
 		referenceRect: maskRect,
 		width,
 		height,
+		scale,
 	});
 	Object.assign(target.style, maskImageInfo.style, {
 		maskImage: images.join(', '),

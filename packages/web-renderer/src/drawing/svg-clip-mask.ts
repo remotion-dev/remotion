@@ -11,6 +11,7 @@ export const createSvgClipMask = ({
 	referenceRect,
 	width,
 	height,
+	scale,
 }: {
 	resource: SVGClipPathElement;
 	maskRect: DOMRect;
@@ -18,6 +19,7 @@ export const createSvgClipMask = ({
 	referenceRect: DOMRect;
 	width: number;
 	height: number;
+	scale: number;
 }) => {
 	const namespace = 'http://www.w3.org/2000/svg';
 	const {svg, target} = createNativeMaskSvg({
@@ -27,6 +29,7 @@ export const createSvgClipMask = ({
 		referenceRect,
 		width,
 		height,
+		scale,
 	});
 	target.style.clipPath = 'url(#remotion-svg-clip)';
 
