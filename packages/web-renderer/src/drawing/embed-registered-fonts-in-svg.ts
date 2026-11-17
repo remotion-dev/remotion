@@ -238,45 +238,35 @@ const getFontFaceRule = (font: EmbeddableFontFace) => {
 	return rule;
 };
 
-const descriptorKey = (
-	family: string,
-	style: string,
-	weight: string,
-	stretch: string,
-	unicodeRange: string,
-) =>
-	[
-		normalizeFamily(family),
-		style || 'normal',
-		weight || 'normal',
-		stretch || 'normal',
-		unicodeRange || 'U+0-10FFFF',
-	]
-		.map((value) => value.trim().replace(/\s+/g, ' ').toLowerCase())
-		.join('|');
+const fontSources =
+	/url\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|([^)\s]*))\s*\)(?:\s*format\(\s*["']?([^"')]+)["']?\s*\))?/g;
+const embeddableFormats = ['woff2', 'woff', 'truetype', 'opentype'];
 
-const firstUrlInSrc =
-	/url\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|([^)\s]*))\s*\)/;
+const fetchFirstFontSource = async (urls: string[]) => {
+	let lastError: unknown = new Error('The @font-face rule has no usable src');
+	for (const url of urls) {
+		try {
+			return await NoReactInternals.fetchFontData(url);
+		} catch (error) {
+			lastError = error;
+		}
+	}
+
+	throw lastError;
+};
 
 // SVG images cannot load fonts from the document, so @font-face rules are
-// re-embedded. document.fonts decides which rules are active: rules inside
-// non-matching conditions or disabled stylesheets have no FontFace there.
+// re-embedded. Rules apply only while their stylesheet and every enclosing
+// @media, @supports and @import condition matches the document.
 const getCssFontFaces = (document: Document): EmbeddableFontFace[] => {
-	const activeFaces = new Set(
-		Array.from(document.fonts, (face) =>
-			descriptorKey(
-				face.family,
-				face.style,
-				face.weight,
-				face.stretch,
-				face.unicodeRange,
-			),
-		),
-	);
+	const view = document.defaultView ?? window;
 	const faces: EmbeddableFontFace[] = [];
 
 	const readRules = (sheet: CSSStyleSheet): CSSRuleList | null => {
-		if (sheet.disabled) {
+		if (
+			sheet.disabled ||
+			(sheet.media.mediaText && !view.matchMedia(sheet.media.mediaText).matches)
+		) {
 			return null;
 		}
 
@@ -299,6 +289,14 @@ const getCssFontFaces = (document: Document): EmbeddableFontFace[] => {
 				continue;
 			}
 
+			if (
+				(rule instanceof CSSMediaRule &&
+					!view.matchMedia(rule.conditionText).matches) ||
+				(rule instanceof CSSSupportsRule && !CSS.supports(rule.conditionText))
+			) {
+				continue;
+			}
+
 			if (!(rule instanceof CSSFontFaceRule)) {
 				if ('cssRules' in rule)
 					visitRules(rule.cssRules as CSSRuleList, baseUrl);
@@ -307,40 +305,43 @@ const getCssFontFaces = (document: Document): EmbeddableFontFace[] => {
 
 			const get = (property: string) =>
 				rule.style.getPropertyValue(property).trim();
-			const fontFamily = get('font-family').replace(/^(['"])(.*)\1$/, '$2');
-			const style = get('font-style');
-			const weight = get('font-weight');
-			const stretch = get('font-stretch');
-			const unicodeRange = get('unicode-range');
-			const match = firstUrlInSrc.exec(get('src'));
-			const rawUrl = match?.[1] ?? match?.[2] ?? match?.[3];
-			if (
-				!rawUrl ||
-				!activeFaces.has(
-					descriptorKey(fontFamily, style, weight, stretch, unicodeRange),
+			const urls = Array.from(get('src').matchAll(fontSources))
+				.filter(
+					(match) =>
+						match[4] === undefined ||
+						embeddableFormats.includes(match[4].trim().toLowerCase()),
 				)
-			) {
+				.map(
+					(match) =>
+						new URL(
+							(match[1] ?? match[2] ?? match[3]).replace(/\\(.)/g, '$1'),
+							baseUrl,
+						).href,
+				);
+			if (urls.length === 0) {
 				continue;
 			}
 
-			const fontUrl = new URL(rawUrl.replace(/\\(.)/g, '$1'), baseUrl).href;
 			const orNull = (value: string) => value || null;
-			faces.push({
-				key: `css:${fontUrl}|${descriptorKey(fontFamily, style, weight, stretch, unicodeRange)}`,
-				fontFamily,
-				fontUrl,
-				format: null,
-				getData: () => NoReactInternals.fetchFontData(fontUrl),
-				style: orNull(style),
-				weight: orNull(weight),
-				stretch: orNull(stretch),
-				unicodeRange: orNull(unicodeRange),
+			const face = {
+				fontFamily: get('font-family').replace(/^(['"])(.*)\1$/, '$2'),
+				fontUrl: urls[0],
+				style: orNull(get('font-style')),
+				weight: orNull(get('font-weight')),
+				stretch: orNull(get('font-stretch')),
+				unicodeRange: orNull(get('unicode-range')),
 				variant: orNull(get('font-variant')),
 				featureSettings: orNull(get('font-feature-settings')),
 				display: orNull(get('font-display')) as EmbeddableFontFace['display'],
 				ascentOverride: orNull(get('ascent-override')),
 				descentOverride: orNull(get('descent-override')),
 				lineGapOverride: orNull(get('line-gap-override')),
+			};
+			faces.push({
+				...face,
+				key: `css:${JSON.stringify({...face, urls})}`,
+				format: null,
+				getData: () => fetchFirstFontSource(urls),
 			});
 		}
 	};
@@ -379,6 +380,8 @@ export const getEmbeddedFontStyleForSvg = (
 		}),
 	);
 	let cssFonts: EmbeddableFontFace[] | null = null;
+	const fontOrder = new Map<EmbeddableFontFace, number>();
+	registeredFonts.forEach((font, index) => fontOrder.set(font, index));
 	const getFamilyFonts = (normalizedFamily: string) => {
 		const isFamily = (font: EmbeddableFontFace) =>
 			normalizeFamily(font.fontFamily) === normalizedFamily;
@@ -387,7 +390,13 @@ export const getEmbeddedFontStyleForSvg = (
 			return registered;
 		}
 
-		cssFonts ??= getCssFontFaces(svg.ownerDocument);
+		if (cssFonts === null) {
+			cssFonts = getCssFontFaces(svg.ownerDocument);
+			cssFonts.forEach((font, index) =>
+				fontOrder.set(font, registeredFonts.length + index),
+			);
+		}
+
 		return cssFonts.filter(isFamily);
 	};
 
@@ -436,8 +445,9 @@ export const getEmbeddedFontStyleForSvg = (
 		return null;
 	}
 
-	const sortedFonts = Array.from(usedFonts.values()).sort((a, b) =>
-		a.key.localeCompare(b.key, 'en', {numeric: true}),
+	// Later @font-face rules take precedence, so keep the source order.
+	const sortedFonts = Array.from(usedFonts.values()).sort(
+		(a, b) => fontOrder.get(a)! - fontOrder.get(b)!,
 	);
 	const cacheKey = sortedFonts.map((font) => font.key).join(',');
 	const cached = styleByFontFaceSet.get(cacheKey);
