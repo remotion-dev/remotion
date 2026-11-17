@@ -1,19 +1,19 @@
 # Motion blur
 
 Motion blur samples times around the current frame and blends the results.
-Use `@remotion/motion-blur` for motion blur on animated content.  
-For transition presentation movement, use the optimized `motionBlur` prop from `@remotion/transitions`.
+`@remotion/motion-blur` CAN blur animated content.  
+`@remotion/transitions` CAN blur presentation movement with its optimized `motionBlur` prop.
 
 ## `<HtmlInCanvasMotionBlur>`
 
 `<HtmlInCanvasMotionBlur>` captures animated content at fractional frames and averages its pixels in a canvas.  
-Supply the canvas `width` and `height`.
+`<HtmlInCanvasMotionBlur>` MUST receive `width` and `height`.
 
 ```bash
 bunx remotion add @remotion/motion-blur
 ```
 
-Call `useCurrentFrame()` inside the child component so each sample receives its own frame.
+Child calls to `useCurrentFrame()` receive each sample's frame.
 
 ```tsx title="MyComposition.tsx"
 import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
@@ -56,8 +56,8 @@ export const MyComposition = () => {
 
 Read [transitions.md](transitions.md) for scene setup, presentations, and timing.
 
-Use `motionBlur` on a `<TransitionSeries.Transition>` to blur the presentation's movement.  
-This is faster than `<HtmlInCanvasMotionBlur>` and advisable for transitions, but content that does not fit the transitions primitive should not be shoehorned.
+`<TransitionSeries.Transition>` CAN blur presentation movement with `motionBlur`.  
+For transition motion blur, you SHOULD use `motionBlur` for performance. `<HtmlInCanvasMotionBlur>` CAN blur content beyond the transition structure.
 
 ```bash
 bunx remotion add @remotion/transitions
@@ -103,4 +103,4 @@ Keep styling in the scene contents or implement it in a custom HTML-in-canvas pr
 The exposure time in seconds is `(shutterAngle / 360) / fps`. At 30 fps, `180` gives an exposure time of `1 / 60` second.
 
 `samples` controls how many snapshots are blended within the exposure time. It defaults to `8` for `<HtmlInCanvasMotionBlur>` and `16` for transition `motionBlur`.
-Use a positive integer. `<HtmlInCanvasMotionBlur>` accepts `1` to `64`. More samples smooth the blur and increase preview and render cost.
+`samples` MUST be a positive integer. `<HtmlInCanvasMotionBlur>` accepts `1` to `64`. More samples smooth the blur and increase preview and render cost.

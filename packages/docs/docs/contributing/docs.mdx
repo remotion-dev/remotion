@@ -32,6 +32,23 @@ At the bottom of each page, the `Improve this page` button is the easiest way to
 - **Don't blame the user**: Instead of "You have provided the wrong input", say "The input is invalid" or "the wrong input was provided".
 - **Don't assume it is easy**: Avoid using the words "simply" and "just" as beginners might not find it as simple as you do.
 
+### Requirement language
+
+Use these uppercase terms consistently in documentation and skills.
+
+| Term         | Meaning                                     |
+| ------------ | ------------------------------------------- |
+| `MUST`       | A requirement for the chosen operation      |
+| `SHOULD`     | A recommendation with reasonable exceptions |
+| `MAY`        | An optional action                          |
+| `CAN`        | An available capability                     |
+| `MUST NOT`   | A prohibition                               |
+| `SHOULD NOT` | A discouraged action                        |
+
+Describe features as capabilities, such as “`motionBlur` CAN blur a transition’s movement.” Scope requirements to the operation, such as “`<HtmlInCanvasMotionBlur>` MUST receive `width` and `height`.” Prefer affirmative wording and ask the author when the intended strength is unclear.
+
+The requirement levels follow RFC 2119 and RFC 8174. `CAN` follows ISO's capability wording. [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174), [ISO wording guidance](https://www.iso.org/ISO-house-style.html)
+
 ## API documentation
 
 - **Format API names as code**: Write [`useVideoConfig()`](/docs/use-video-config), not useVideoConfig().
