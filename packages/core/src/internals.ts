@@ -275,6 +275,7 @@ import {TimelineTrackContext} from './timeline-track-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
+	PlaybackRangeContext,
 	SetTimelineContext,
 	TimelineContext,
 	type PlaybackRateContextValue,
@@ -497,6 +498,7 @@ export const Internals = {
 	portalNode,
 	setPortalNodeCurrentScale,
 	waitForRoot,
+	PlaybackRangeContext,
 	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,

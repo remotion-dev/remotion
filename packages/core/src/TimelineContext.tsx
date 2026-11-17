@@ -74,6 +74,11 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
 
+export const PlaybackRangeContext = createContext<{
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+}>({inFrame: null, outFrame: null});
+
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
 

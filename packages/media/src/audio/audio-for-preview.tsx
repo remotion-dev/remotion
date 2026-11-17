@@ -151,6 +151,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const parentSequence = useContext(SequenceContext);
 	const absoluteTime = useContext(Internals.AbsoluteTimeContext);
 	const {isBuffering} = useContext(Internals.SetTimelineContext);
+	const {outFrame} = useContext(Internals.PlaybackRangeContext);
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
 	const effectiveToneFrequency =
@@ -198,7 +199,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		absoluteFrame !== undefined &&
 		audibleStart !== null &&
 		audibleStart > absoluteFrame &&
-		audibleStart <= absoluteFrame + 1
+		audibleStart <= absoluteFrame + 1 &&
+		(outFrame === null || audibleStart < outFrame + 1)
 			? absoluteFrame / videoConfig.fps - sequenceOffset
 			: null;
 	const getPremountBufferingTime = useMemo(

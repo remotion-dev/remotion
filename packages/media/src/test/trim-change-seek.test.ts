@@ -18,6 +18,7 @@ test('setTrimRange should atomically update trims when paused', async () => {
 		debugOverlay: false,
 		bufferState: {delayPlayback: () => ({unblock: () => {}})},
 		isPremounting: false,
+		getPremountBufferingTime: null,
 		isPostmounting: false,
 		durationInFrames: 300,
 		onVideoFrameCallback: null,

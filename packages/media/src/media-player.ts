@@ -127,7 +127,7 @@ export class MediaPlayer {
 		debugOverlay,
 		bufferState,
 		isPremounting,
-		getPremountBufferingTime = null,
+		getPremountBufferingTime,
 		isPostmounting,
 		durationInFrames,
 		onVideoFrameCallback,
@@ -156,7 +156,7 @@ export class MediaPlayer {
 		debugOverlay: boolean;
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
-		getPremountBufferingTime?: (() => number | null) | null;
+		getPremountBufferingTime: (() => number | null) | null;
 		isPostmounting: boolean;
 		durationInFrames: number;
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
@@ -815,7 +815,7 @@ export class MediaPlayer {
 
 	public setIsPremounting(
 		isPremounting: boolean,
-		getPremountBufferingTime: (() => number | null) | null = null,
+		getPremountBufferingTime: (() => number | null) | null,
 	): void {
 		this.isPremounting = isPremounting;
 		this.getPremountBufferingTime = getPremountBufferingTime;

@@ -23,7 +23,7 @@ export const useCommonEffects = ({
 	loop,
 	durationInFrames,
 	isPremounting,
-	getPremountBufferingTime = null,
+	getPremountBufferingTime,
 	isPostmounting,
 	currentTime,
 	logLevel,
@@ -47,7 +47,7 @@ export const useCommonEffects = ({
 	readonly loop: boolean;
 	readonly durationInFrames: number;
 	readonly isPremounting: boolean;
-	readonly getPremountBufferingTime?: (() => number | null) | null;
+	readonly getPremountBufferingTime: (() => number | null) | null;
 	readonly isPostmounting: boolean;
 	readonly currentTime: number;
 	readonly logLevel: LogLevel;

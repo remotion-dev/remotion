@@ -1,6 +1,5 @@
-import {createContext} from 'react';
+import {Internals} from 'remotion';
 
-export const PlaybackRangeContext = createContext<{
-	readonly inFrame: number | null;
-	readonly outFrame: number | null;
-}>({inFrame: null, outFrame: null});
+export const {
+	PlaybackRangeContext,
+}: Pick<typeof Internals, 'PlaybackRangeContext'> = Internals;
