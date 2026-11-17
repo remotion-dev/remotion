@@ -2,9 +2,16 @@ import {AbsoluteFill} from 'remotion';
 
 const Shapes = () => (
 	<svg width={320} height={100} style={{minWidth: 0, minHeight: 0}}>
+		<style>{`
+			rect.width-marker, rect.height-marker { fill: blue; }
+			svg[width="320"] > rect.width-marker { fill: #ee7755; }
+			svg[height="100"] > rect.height-marker { fill: #33aacc; }
+		`}</style>
 		<rect width={320} height={100} fill="#113355" />
 		<rect x={8} y={16} width={140} height={20} fill="#33aacc" />
 		<rect x={24} y={48} width={100} height={28} fill="#ee7755" />
+		<rect className="width-marker" x={156} y={16} width={12} height={20} />
+		<rect className="height-marker" x={156} y={48} width={12} height={20} />
 	</svg>
 );
 

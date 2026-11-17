@@ -55,6 +55,26 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const originalWidth = svg.getAttribute('width');
+	const originalHeight = svg.getAttribute('height');
+	const absoluteLength = /^([0-9]+(?:\.[0-9]+)?)(?:px)?$/;
+	const resolvedWidth = width.endsWith('px') && parseFloat(width);
+	const resolvedHeight = height.endsWith('px') && parseFloat(height);
+	const authoredWidth = originalWidth?.match(absoluteLength);
+	const authoredHeight = originalHeight?.match(absoluteLength);
+	const resizedWithoutViewBox =
+		!svg.hasAttribute('viewBox') &&
+		authoredWidth &&
+		authoredHeight &&
+		resolvedWidth &&
+		resolvedHeight &&
+		(resolvedWidth !== Number(authoredWidth[1]) ||
+			resolvedHeight !== Number(authoredHeight[1]));
+	const needsExplicitDimensions =
+		resizedWithoutViewBox ||
+		svg.preserveAspectRatio.baseVal.align ===
+			SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
+
 	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
@@ -81,13 +101,21 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	).lastIndexOf(true);
 
 	const authoredElements =
-		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
+		textElements.length > 0 || needsExplicitDimensions
+			? [svg, ...svg.querySelectorAll('*')]
+			: null;
 	const authoredStyles =
 		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
 	const authoredMedia =
 		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
 	const authoredEmpty =
 		authoredElements?.map((element) => element.matches(':empty')) ?? null;
+	const authoredWidths = needsExplicitDimensions
+		? authoredElements!.map((element) => element.getAttribute('width'))
+		: null;
+	const authoredHeights = needsExplicitDimensions
+		? authoredElements!.map((element) => element.getAttribute('height'))
+		: null;
 
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
@@ -104,25 +132,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	}
 
 	const originalStyle = svg.getAttribute('style');
-	const originalWidth = svg.getAttribute('width');
-	const originalHeight = svg.getAttribute('height');
-	const absoluteLength = /^([0-9]+(?:\.[0-9]+)?)(?:px)?$/;
-	const resolvedWidth = width.endsWith('px') && parseFloat(width);
-	const resolvedHeight = height.endsWith('px') && parseFloat(height);
-	const authoredWidth = originalWidth?.match(absoluteLength);
-	const authoredHeight = originalHeight?.match(absoluteLength);
-	const resizedWithoutViewBox =
-		!svg.hasAttribute('viewBox') &&
-		authoredWidth &&
-		authoredHeight &&
-		resolvedWidth &&
-		resolvedHeight &&
-		(resolvedWidth !== Number(authoredWidth[1]) ||
-			resolvedHeight !== Number(authoredHeight[1]));
-	const needsExplicitDimensions =
-		resizedWithoutViewBox ||
-		svg.preserveAspectRatio.baseVal.align ===
-			SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
 
 	// Without a viewBox, layout sizes the viewport without scaling SVG user
 	// coordinates. Give the detached image the same viewport to preserve them.
@@ -158,7 +167,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 && embeddedFontStyle === null && !hasDisabledStyles
+		textStyles.length === 0 &&
+		embeddedFontStyle === null &&
+		!hasDisabledStyles &&
+		!needsExplicitDimensions
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
 	if (hasDisabledStyles) {
@@ -245,6 +257,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			authoredStyles,
 			authoredMedia,
 			authoredEmpty,
+			authoredWidths,
+			authoredHeights,
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
