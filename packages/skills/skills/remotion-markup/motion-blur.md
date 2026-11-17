@@ -57,7 +57,7 @@ export const MyComposition = () => {
 Read [transitions.md](transitions.md) for scene setup, presentations, and timing.
 
 `<TransitionSeries.Transition>` CAN blur presentation movement with `motionBlur`.  
-For transition motion blur, you SHOULD use `motionBlur` for performance. `<HtmlInCanvasMotionBlur>` CAN blur content beyond the transition structure.
+If an animation can be represented as a Remotion transition, you SHOULD use `<TransitionSeries.Transition>` with `motionBlur` for performance. `<HtmlInCanvasMotionBlur>` CAN blur content beyond the transition structure.
 
 ```bash
 bunx remotion add @remotion/transitions
