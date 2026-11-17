@@ -1,10 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
-import {createContext, useContext, useMemo} from 'react';
+import {createContext, useContext, useLayoutEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {
 	getTimelineWidth,
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
+import {AudioLevelsContext} from '../../state/audio-levels';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 
@@ -20,8 +21,17 @@ export const TimelineWidthProvider: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
+	const {visible: audioLevelsVisible} = useContext(AudioLevelsContext);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+
+	// Toggling the audio levels panel resizes the timeline in the same commit.
+	// Measure it before paint instead of waiting for the resize observer, so
+	// the tracks are not painted at the previous width first.
+	const refreshSize = size?.refresh;
+	useLayoutEffect(() => {
+		refreshSize?.();
+	}, [audioLevelsVisible, refreshSize]);
 
 	const width = useMemo(() => {
 		const scrollableWidth = size?.width ?? scrollableRef.current?.clientWidth;
