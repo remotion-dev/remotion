@@ -250,7 +250,13 @@ test('a font loads from a later src URL when the first one fails', async () => {
 	await expectSameAsRegistered('Css Fallback Bangers');
 });
 
-test('a descriptor changed through the CSSOM applies to the next render', async () => {
+test('a descriptor changed through the CSSOM applies to the next render', async (t) => {
+	// WebKit does not support ascent-override.
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	const withAscent = (family: string, ascent: string) =>
 		`@font-face { font-family: '${family}'; src: url("${fontUrl}") format('woff2'); ascent-override: ${ascent}; }`;
 	await addStyle(
@@ -259,14 +265,13 @@ test('a descriptor changed through the CSSOM applies to the next render', async 
 	const central = (fontFamily: string) =>
 		render({fontFamily, dominantBaseline: 'central'});
 	const before = await central("'Css Mutated Bangers', serif");
-	const rule = Array.from(document.styleSheets)
-		.flatMap((sheet) => Array.from(sheet.cssRules))
-		.find(
-			(candidate): candidate is CSSFontFaceRule =>
-				candidate instanceof CSSFontFaceRule &&
-				candidate.style.getPropertyValue('font-family').includes('Mutated'),
-		)!;
-	rule.style.setProperty('ascent-override', '10%');
+	const sheet = Array.from(document.styleSheets).find((candidate) =>
+		Array.from(candidate.cssRules).some((rule) =>
+			rule.cssText.includes('Css Mutated Bangers'),
+		),
+	)!;
+	sheet.deleteRule(0);
+	sheet.insertRule(withAscent('Css Mutated Bangers', '10%'), 0);
 	const after = await central("'Css Mutated Bangers', serif");
 	const fresh = await central("'Css Fresh Bangers', serif");
 
