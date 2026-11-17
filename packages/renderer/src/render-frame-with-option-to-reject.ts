@@ -16,6 +16,7 @@ import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import {makeAssetDownloadError} from './make-asset-download-error';
 import type {CancelSignal} from './make-cancel-signal';
 import type {
 	CapturedFrame,
@@ -379,14 +380,7 @@ export const renderFrameWithOptionToReject = async ({
 				cancelSignalForAudioAnalysis: cancelSignal,
 				shouldAnalyzeAudioImmediately: true,
 			}).catch((err) => {
-				const truncateWithEllipsis =
-					renderAsset.src.substring(0, 1000) +
-					(renderAsset.src.length > 1000 ? '...' : '');
-				onError(
-					new Error(
-						`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
-					),
-				);
+				onError(makeAssetDownloadError({src: renderAsset.src, error: err}));
 			});
 		}
 

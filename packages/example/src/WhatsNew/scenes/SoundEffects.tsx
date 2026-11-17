@@ -542,7 +542,6 @@ const SoundEffectsSceneInner: React.FC = () => {
 					<Series.Sequence
 						name="AI is bad at finding them"
 						durationInFrames={154}
-						premountFor={30}
 					>
 						<Punch zoom={1}>
 							<Video
@@ -553,11 +552,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Our own library"
-						durationInFrames={256}
-						premountFor={30}
-					>
+					<Series.Sequence name="Our own library" durationInFrames={256}>
 						<Punch zoom={1.14}>
 							<Video
 								src={
@@ -567,11 +562,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Hotlink"
-						durationInFrames={114}
-						premountFor={30}
-					>
+					<Series.Sequence name="Hotlink" durationInFrames={114}>
 						<Punch zoom={1.02}>
 							<Video
 								src={
@@ -581,11 +572,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Same loudness"
-						durationInFrames={136}
-						premountFor={30}
-					>
+					<Series.Sequence name="Same loudness" durationInFrames={136}>
 						<Punch zoom={1.16}>
 							<Video
 								src={
@@ -595,11 +582,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Standardized"
-						durationInFrames={68}
-						premountFor={30}
-					>
+					<Series.Sequence name="Standardized" durationInFrames={68}>
 						<Punch zoom={1.04}>
 							<Video
 								src={
@@ -609,11 +592,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Seven to start"
-						durationInFrames={373}
-						premountFor={30}
-					>
+					<Series.Sequence name="Seven to start" durationInFrames={373}>
 						<Punch zoom={1.2}>
 							<Video
 								src={
@@ -623,11 +602,7 @@ const SoundEffectsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Let us know"
-						durationInFrames={51}
-						premountFor={30}
-					>
+					<Series.Sequence name="Let us know" durationInFrames={51}>
 						<Punch zoom={1.04}>
 							<Video
 								src={

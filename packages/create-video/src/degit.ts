@@ -5,30 +5,142 @@ import path from 'node:path';
 import * as tar from 'tar';
 import {mkdirp} from './mkdirp';
 
-export function fetch(url: string, dest: string) {
+const MAX_REDIRECTS = 5;
+const REQUEST_TIMEOUT_IN_MS = 30_000;
+
+const fetchWithRedirects = ({
+	url,
+	dest,
+	redirectsLeft,
+}: {
+	url: string;
+	dest: string;
+	redirectsLeft: number;
+}): Promise<void> => {
 	return new Promise<void>((resolve, reject) => {
-		https
-			.get(url, (response) => {
-				const code = response.statusCode as number;
-				if (code >= 400) {
+		let timeout: ReturnType<typeof setTimeout> | null = null;
+		let request: ReturnType<typeof https.get> | null = null;
+
+		const clearRequestTimeout = () => {
+			if (timeout !== null) {
+				clearTimeout(timeout);
+				timeout = null;
+			}
+		};
+
+		const resetRequestTimeout = () => {
+			clearRequestTimeout();
+			timeout = setTimeout(() => {
+				request?.destroy(
+					new Error(
+						`Network request to ${url} timed out after ${REQUEST_TIMEOUT_IN_MS}ms without receiving data`,
+					),
+				);
+			}, REQUEST_TIMEOUT_IN_MS);
+		};
+
+		let active = true;
+
+		const deactivate = () => {
+			active = false;
+			clearRequestTimeout();
+		};
+
+		const clientRequest = https.get(url, (response) => {
+			const code = response.statusCode as number;
+			response.on('error', (err) => {
+				if (active) {
+					reject(err);
+				}
+			});
+			response.on('data', () => {
+				if (active) {
+					resetRequestTimeout();
+				}
+			});
+
+			if (code >= 400) {
+				deactivate();
+				response.resume();
+				reject(
+					new Error(
+						`Network request to ${url} failed with code ${code} (${response.statusMessage})`,
+					),
+				);
+			} else if (code >= 300) {
+				const {location} = response.headers;
+				if (!location) {
+					deactivate();
+					response.resume();
 					reject(
 						new Error(
-							`Network request to ${url} failed with code ${code} (${response.statusMessage})`,
+							`Network request to ${url} was redirected without a location header`,
 						),
 					);
-				} else if (code >= 300) {
-					fetch(response.headers.location as string, dest)
-						.then(resolve)
-						.catch(reject);
-				} else {
-					response
-						.pipe(fs.createWriteStream(dest))
-						.on('finish', () => resolve())
-						.on('error', reject);
+					return;
 				}
-			})
-			.on('error', reject);
+
+				if (redirectsLeft === 0) {
+					deactivate();
+					response.resume();
+					reject(
+						new Error(
+							`Network request to ${url} was redirected more than ${MAX_REDIRECTS} times`,
+						),
+					);
+					return;
+				}
+
+				let nextUrl: string;
+				try {
+					nextUrl = new URL(location, url).toString();
+				} catch {
+					deactivate();
+					response.resume();
+					reject(
+						new Error(
+							`Network request to ${url} was redirected to an invalid URL: ${location}`,
+						),
+					);
+					return;
+				}
+
+				deactivate();
+				response.destroy();
+
+				fetchWithRedirects({
+					url: nextUrl,
+					dest,
+					redirectsLeft: redirectsLeft - 1,
+				})
+					.then(resolve)
+					.catch(reject);
+			} else {
+				response
+					.pipe(fs.createWriteStream(dest))
+					.on('finish', () => resolve())
+					.on('error', reject);
+			}
+		});
+
+		request = clientRequest;
+		resetRequestTimeout();
+
+		clientRequest.on('close', clearRequestTimeout);
+
+		clientRequest.on('error', (err) => {
+			if (!active) {
+				return;
+			}
+
+			deactivate();
+			reject(err);
+		});
 	});
+};
+
+export function fetch(url: string, dest: string) {
+	return fetchWithRedirects({url, dest, redirectsLeft: MAX_REDIRECTS});
 }
 
 function untar(file: string, dest: string) {
