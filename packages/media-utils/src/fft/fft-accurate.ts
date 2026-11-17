@@ -1,36 +1,53 @@
 // Adapted from node-fft project by Joshua Wong and Ben Bryan
 // https://github.com/vail-systems/node-fft
 
-import {complexAdd, complexMultiply, complexSubtract} from './complex';
 import {exponent} from './exponent';
 
+// Iterative form of node-fft's recursive radix-2 transform. It runs the same
+// butterflies with the same twiddle factors in the same arithmetic order, so
+// the output is bit-identical, without allocating sub-arrays and tuples at
+// every level of the recursion.
 export const fftAccurate = function (vector: Int16Array): [number, number][] {
-	const X: [number, number][] = [];
 	const N = vector.length;
+	const real = new Float64Array(N);
+	const imag = new Float64Array(N);
 
-	// Base case is X = x + 0i since our input is assumed to be real only.
-	if (N === 1) {
-		if (Array.isArray(vector[0])) {
-			// If input vector contains complex numbers
-			return [[vector[0][0], vector[0][1]]];
+	// The recursion splits even and odd samples until single samples remain,
+	// which puts them in bit-reversed order.
+	for (let i = 0, j = 0; i < N; i++) {
+		real[i] = vector[j];
+
+		let bit = N >> 1;
+		while (j & bit) {
+			j ^= bit;
+			bit >>= 1;
 		}
 
-		return [[vector[0], 0]];
+		j |= bit;
 	}
 
-	// Recurse: all even samples
-	const X_evens = fftAccurate(vector.filter((_, ix) => ix % 2 === 0));
-	// Recurse: all odd samples
-	const X_odds = fftAccurate(vector.filter((__, ix) => ix % 2 === 1));
+	for (let size = 2; size <= N; size *= 2) {
+		const half = size / 2;
+		for (let k = 0; k < half; k++) {
+			const [wReal, wImag] = exponent(k, size);
+			for (let even = k; even < N; even += size) {
+				const odd = even + half;
+				const tReal = real[even];
+				const tImag = imag[even];
+				const eReal = wReal * real[odd] - wImag * imag[odd];
+				const eImag = wReal * imag[odd] + wImag * real[odd];
 
-	// Now, perform N/2 operations!
-	for (let k = 0; k < N / 2; k++) {
-		// t is a complex number!
-		const t = X_evens[k];
-		const e = complexMultiply(exponent(k, N), X_odds[k]);
+				real[even] = tReal + eReal;
+				imag[even] = tImag + eImag;
+				real[odd] = tReal - eReal;
+				imag[odd] = tImag - eImag;
+			}
+		}
+	}
 
-		X[k] = complexAdd(t, e);
-		X[k + N / 2] = complexSubtract(t, e);
+	const X: [number, number][] = new Array(N);
+	for (let i = 0; i < N; i++) {
+		X[i] = [real[i], imag[i]];
 	}
 
 	return X;
