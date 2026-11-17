@@ -40,8 +40,6 @@ crumb: '@remotion/my-package'
 
 ## Language guidelines
 
-Apply the [requirement language convention](../../../packages/docs/docs/contributing/docs.mdx#requirement-language) to documentation and skills. Describe capabilities with `CAN`, optional actions with `MAY`, recommendations with `SHOULD`, and requirements with `MUST`. Ask the user when the intended strength is unclear.
-
 - **Keep it brief**: Developers don't like to read. Extra words cause information loss.
 - **Link to terminology**: Use [terminology](/docs/terminology) page for Remotion-specific terms.
 - **Do not bold terms**: Write terms as plain text, code spans, or links as appropriate. Do not use bold formatting to introduce a term.
