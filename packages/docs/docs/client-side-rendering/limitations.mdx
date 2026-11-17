@@ -104,7 +104,9 @@ Self-contained SVG-local font rules retain their authored conditional wrappers a
 
 CSS font fetching excludes SVG text hidden by `display: none` on the text or an ancestor in its rendered instance. Hidden definitions can still provide CSS fonts to visible `<use>` instances. It also excludes unused definitions and follows local `<use>` and paint-resource references, including nested references through patterns, masks, and clip paths. External font properties on text-bearing SVG anchors are preserved. SVG-local wildcard namespace selectors such as `[*|style]` retain authored style-attribute values.
 
-CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` or same-origin HTTP(S) source. HTTP(S) families require exactly one loaded face. Conditional and grouped rules in external stylesheets, multiple sources, CSS-escaped URLs, font collection fragments, cross-origin font URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
+CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` or same-origin HTTP(S) source. HTTP(S) families require exactly one loaded face. Conditional and grouped rules in external stylesheets, multiple sources, CSS-escaped URLs, font collection fragments, cross-origin font URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), and browser `FontFace` fonts are not supported for SVG text.
+
+Registered fonts are supported in `<foreignObject>` HTML text with inline or inherited font selection. External HTML CSS selection and fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported.
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 
@@ -115,8 +117,7 @@ SVG-local selector preservation is not supported for stylesheets containing `@im
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
-"Spread radius" is <a style={{color: 'red'}}>not supported</a>.
+`inset` shadows and positive or negative spread radius are <a style={{color: 'green'}}>supported</a>. With `border-radius`, a spread or `inset` shadow may show a 1px anti-aliasing seam where it meets the box. Blurred `inset` shadows may differ slightly from native rendering.
 
 ## Masks
 

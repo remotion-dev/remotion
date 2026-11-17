@@ -246,6 +246,7 @@ import {
 	svgGroupedFontOrder,
 	svgLocalFontGroups,
 } from './fixtures/svg-font-order-mutation';
+import {svgForeignObjectFont} from './fixtures/svg-foreign-object-font';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -397,6 +398,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgForeignObjectFont} />
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition

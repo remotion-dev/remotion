@@ -17,7 +17,7 @@ export const waitForReady = ({
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb' | 'renderFramesOnWeb';
 	internalState: InternalState | null;
-	keepalive: BackgroundKeepalive | null;
+	keepalive: BackgroundKeepalive;
 }) => {
 	const start = performance.now();
 	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
@@ -92,12 +92,7 @@ export const waitForReady = ({
 			requestAnimationFrame(() => res());
 		});
 
-		// browsers throttle RAF when tab is backgrounded, so race against worker
-		const backgroundSafeTick = keepalive
-			? Promise.race([rafTick, keepalive.waitForTick()])
-			: rafTick;
-
-		backgroundSafeTick.then(check);
+		Promise.race([rafTick, keepalive.waitForTick()]).then(check);
 	};
 
 	// check immediately first - if already ready, don't wait for RAF

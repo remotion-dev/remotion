@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -18,6 +19,56 @@ export type SlideProps = {
 };
 
 const epsilon = 0.01;
+
+const slideCanvas: HtmlInCanvasShader<SlideProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create slide canvas context');
+	}
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => context.reset(),
+		draw: ({prevImage, nextImage, width, height, time, passedProps}) => {
+			context.reset();
+			const {direction = 'from-left'} = passedProps;
+			const corrected = time === 1 ? time : time - epsilon / 100;
+			let outgoingX = 0;
+			let outgoingY = 0;
+			let incomingX = 0;
+			let incomingY = 0;
+			switch (direction) {
+				case 'from-left':
+					outgoingX = corrected * width;
+					incomingX = (time - 1) * width;
+					break;
+				case 'from-right':
+					outgoingX = -time * width;
+					incomingX = (1 - corrected) * width;
+					break;
+				case 'from-top':
+					outgoingY = corrected * height;
+					incomingY = (time - 1) * height;
+					break;
+				case 'from-bottom':
+					outgoingY = -time * height;
+					incomingY = (1 - corrected) * height;
+					break;
+				default:
+					throw new Error(`Invalid direction: ${direction}`);
+			}
+
+			// TransitionSeries supplies the entering scene as prevImage.
+			if (nextImage) {
+				context.drawImage(nextImage, outgoingX, outgoingY, width, height);
+			}
+
+			if (prevImage) {
+				context.drawImage(prevImage, incomingX, incomingY, width, height);
+			}
+		},
+	};
+};
 
 const SlidePresentation: React.FC<
 	TransitionPresentationComponentProps<SlideProps>
@@ -112,5 +163,6 @@ export const slide = (
 	return {
 		component: SlidePresentation,
 		props: props ?? {},
+		...(props?.enterStyle || props?.exitStyle ? {} : {canvas: slideCanvas}),
 	};
 };
