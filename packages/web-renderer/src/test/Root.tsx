@@ -303,6 +303,7 @@ import {transitionClockWipe} from './fixtures/transition-clock-wipe';
 import {transitionIris} from './fixtures/transition-iris';
 import {transitionWipe} from './fixtures/transition-wipe';
 import {unwrapped} from './fixtures/unwrapped';
+import {webkitLayeredBackdrop} from './fixtures/webkit-layered-backdrop';
 import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
 import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 
@@ -639,6 +640,10 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			{[false, true].map((translucent) => {
+				const fixture = webkitLayeredBackdrop(translucent);
+				return <Composition key={fixture.id} {...fixture} />;
+			})}
 			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);
