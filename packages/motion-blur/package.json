@@ -37,6 +37,7 @@
 		}
 	},
 	"devDependencies": {
+		"@webgpu/types": "0.1.74",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
