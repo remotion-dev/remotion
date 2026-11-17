@@ -46,6 +46,10 @@ const HtmlInCanvasPresentationWithSupport = <
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
+	const inheritedPremountInSeconds = useContext(
+		Internals.DefaultPremountContext,
+	);
+	const canPremount = useMemo(() => Internals.canPremountInHtmlInCanvas(), []);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -384,9 +388,13 @@ const HtmlInCanvasPresentationWithSupport = <
 				style={{...canvasSubtreeStyle, visibility: 'hidden'}}
 			>
 				{/* Keep the drawable element mounted while async children load. */}
-				<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
-					{children}
-				</div>
+				<Internals.DefaultPremountContext.Provider
+					value={canPremount ? inheritedPremountInSeconds : 0}
+				>
+					<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
+						{children}
+					</div>
+				</Internals.DefaultPremountContext.Provider>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>
