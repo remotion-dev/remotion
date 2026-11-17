@@ -211,12 +211,7 @@ export const getEmbeddedFontStyleForSvg = (
 ): EmbeddedFontStyle | null => {
 	const textElements = Array.from(
 		svg.querySelectorAll('text, foreignObject'),
-	).filter(
-		(element) =>
-			element.namespaceURI === 'http://www.w3.org/2000/svg' ||
-			element.closest('foreignObject')?.namespaceURI ===
-				'http://www.w3.org/2000/svg',
-	);
+	).filter((element) => element.namespaceURI === 'http://www.w3.org/2000/svg');
 	if (textElements.length === 0) {
 		return null;
 	}
