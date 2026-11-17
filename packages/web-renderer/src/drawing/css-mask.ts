@@ -22,6 +22,7 @@ export const createCssMask = async ({
 	const images = await Promise.all(
 		maskImageInfo.layers.map(async (layer) => {
 			if (layer === null) return 'none';
+			if (layer.type === 'gradient') return layer.value;
 			const src = await getRasterImageDataUrl({
 				src: layer.src,
 				sourceProperty: 'mask-image',

@@ -3,7 +3,6 @@ import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
 import {createCssMask} from './css-mask';
 import type {MaskImageInfo} from './mask-image';
-import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 import {createSvgClipMask} from './svg-clip-mask';
 
@@ -62,26 +61,6 @@ export const handleMask = async ({
 		maskRect.width * scale,
 		maskRect.height * scale,
 	);
-
-	if (maskImageInfo.type === 'linear-gradient') {
-		const gradient = createCanvasGradient({
-			ctx: tempContext,
-			rect: rectToFill,
-			gradientInfo: maskImageInfo.gradientInfo,
-			offsetLeft: 0,
-			offsetTop: 0,
-		});
-
-		tempContext.globalCompositeOperation = 'destination-in';
-		tempContext.fillStyle = gradient;
-		tempContext.fillRect(
-			rectToFill.left,
-			rectToFill.top,
-			rectToFill.width,
-			rectToFill.height,
-		);
-		return;
-	}
 
 	const image = await getRasterImage({
 		src: maskImageInfo.src,
