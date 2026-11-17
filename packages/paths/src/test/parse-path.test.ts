@@ -15,6 +15,12 @@ test('Should catch invalid paths', () => {
 	);
 });
 
+test('Should catch non-finite numbers', () => {
+	expect(() => parsePath('M 1e999 0')).toThrow(
+		/Malformed path data: M has a non-finite number in "M 1e999 0"/,
+	);
+});
+
 test('Should parse arc flags without separators', () => {
 	expect(parsePath('M 0 0 A 1 1 0 0140 40')).toEqual([
 		{type: 'M', x: 0, y: 0},

@@ -116,7 +116,16 @@ const parseValues = (
 		);
 	}
 
-	return numbers.map(Number);
+	const parsed = numbers.map(Number);
+	if (parsed.some((number) => !Number.isFinite(number))) {
+		throw new Error(
+			`Malformed path data: ${instructionType} has a non-finite number in "${instructionType} ${numbers.join(
+				' ',
+			)}"`,
+		);
+	}
+
+	return parsed;
 };
 
 /*
