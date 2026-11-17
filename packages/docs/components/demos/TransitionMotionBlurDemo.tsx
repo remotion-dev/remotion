@@ -38,7 +38,7 @@ export const TransitionMotionBlurDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/transition-motion-blur.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="https://remotion.media/docs/motion-blur/transition-ea826b4c7b39.mp4" />
 		);
 	}
 

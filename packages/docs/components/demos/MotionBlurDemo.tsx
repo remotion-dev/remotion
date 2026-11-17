@@ -94,10 +94,10 @@ export const MotionBlurHtmlInCanvasDocsDemo: React.FC<MotionBlurDemoProps> = ({
 	if (branch === 'fallback') {
 		return (
 			<HtmlInCanvasDocsVideoFallback
-				relativeSrc={
+				src={
 					darkMode
-						? 'img/motion-blur-html-in-canvas-dark.mp4'
-						: 'img/motion-blur-html-in-canvas.mp4'
+						? 'https://remotion.media/docs/motion-blur/html-in-canvas-dark-66d727429c60.mp4'
+						: 'https://remotion.media/docs/motion-blur/html-in-canvas-92f3ebdb2818.mp4'
 				}
 			/>
 		);
