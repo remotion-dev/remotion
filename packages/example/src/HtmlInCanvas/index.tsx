@@ -39,7 +39,6 @@ export {
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
 export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
 export {HtmlInCanvasMotionBlurExample} from './motion-blur';
-export {HtmlInCanvasMotionBlurVideo} from './motion-blur-video';
 export {HtmlInCanvasNested} from './nested';
 export {HtmlInCanvasPixelDensity} from './pixel-density';
 export {HtmlInCanvasReactSvg} from './react-svg';
