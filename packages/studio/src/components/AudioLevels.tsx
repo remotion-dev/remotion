@@ -89,7 +89,10 @@ const AudioLevelsInner: React.FC = () => {
 		const updateMaxPeak = (channel: number) => {
 			const data = channels[channel];
 			const button = maxPeakRefs.current[channel];
-			const text = data.maxPeak <= MIN_DB ? '-inf' : formatDb(data.maxPeak);
+			const text =
+				data.maxPeak <= MIN_DB || !Number.isFinite(data.maxPeak)
+					? ''
+					: formatDb(data.maxPeak);
 			if (!button || text === data.maxPeakText) {
 				return;
 			}
@@ -225,7 +228,6 @@ const AudioLevelsInner: React.FC = () => {
 								right: 0,
 								bottom: `${toPercent(db)}%`,
 								transform: 'translateY(50%)',
-								color: db > 0 ? FAIL_COLOR : LIGHT_TEXT,
 							}}
 						>
 							{db > 0 ? `+${db}` : db}
@@ -251,9 +253,7 @@ const AudioLevelsInner: React.FC = () => {
 							aria-label={`${label} highest peak, click to reset`}
 							style={peakButtonStyle}
 							onClick={() => resetMaxPeaks.current?.()}
-						>
-							-inf
-						</button>
+						/>
 						<div
 							ref={(node) => {
 								meterRefs.current[channel] = node;
