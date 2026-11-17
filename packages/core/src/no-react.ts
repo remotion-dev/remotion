@@ -52,7 +52,7 @@ import {
 import {findPropsToDelete} from './find-props-to-delete';
 import {
 	fetchFontData,
-	getPendingFontLoadCount,
+	getPendingFontLoads,
 	getRegisteredFontFaces,
 	registerFontFace,
 	startFontLoad,
@@ -121,5 +121,5 @@ export const NoReactInternals = {
 	registerFontFace,
 	fetchFontData,
 	startFontLoad,
-	getPendingFontLoadCount,
+	getPendingFontLoads,
 };

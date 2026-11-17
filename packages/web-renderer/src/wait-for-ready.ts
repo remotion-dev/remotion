@@ -25,6 +25,8 @@ export const waitForReady = ({
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
+	const subscribedFontLoads = new WeakSet<Promise<void>>();
+	let fontLoadFailure: {error: unknown} | null = null;
 
 	const check = () => {
 		const now = performance.now();
@@ -59,8 +61,26 @@ export const waitForReady = ({
 			return;
 		}
 
-		const pendingFontLoads = NoReactInternals.getPendingFontLoadCount();
-		if (scope.remotion_renderReady === true && pendingFontLoads === 0) {
+		const pendingFontLoads = NoReactInternals.getPendingFontLoads();
+		for (const fontLoad of pendingFontLoads) {
+			if (!subscribedFontLoads.has(fontLoad)) {
+				subscribedFontLoads.add(fontLoad);
+				fontLoad.catch((error: unknown) => {
+					fontLoadFailure ??= {error};
+					check();
+				});
+			}
+		}
+
+		if (fontLoadFailure !== null) {
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			reject(fontLoadFailure.error);
+			return;
+		}
+
+		if (scope.remotion_renderReady === true && pendingFontLoads.length === 0) {
+			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			resolve();
 			return;
@@ -80,8 +100,8 @@ export const waitForReady = ({
 						...Object.values(scope.remotion_delayRenderTimeouts).map(
 							(d) => d.label,
 						),
-						...(pendingFontLoads > 0
-							? [`${pendingFontLoads} font(s) loaded with loadFont()`]
+						...(pendingFontLoads.length > 0
+							? [`${pendingFontLoads.length} font(s) loaded with loadFont()`]
 							: []),
 					].join(', '),
 				),

@@ -63,3 +63,32 @@ test('waits for a loadFont() call that is still fetching', async () => {
 		(await countNativePixels(afterLoading, whileLoading)).mismatchedPixels,
 	).toBe(0);
 });
+
+test('fails with the font error when a pending loadFont() call fails', async () => {
+	const missingUrl = new URL('/missing-pending-font.woff2', fontUrl).href;
+	const fetchFont = window.fetch;
+	vi.stubGlobal('fetch', async (...args: Parameters<typeof fetch>) => {
+		if (String(args[0]) === missingUrl) {
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+
+		return fetchFont(...args);
+	});
+
+	try {
+		const loading = loadFont({family: 'Missing Bangers', url: missingUrl});
+		const [loadResult, renderResult] = await Promise.allSettled([
+			loading,
+			render("'Missing Bangers', serif"),
+		]);
+
+		expect(loadResult.status).toBe('rejected');
+		expect(renderResult.status).toBe('rejected');
+		expect(renderResult.status === 'rejected' && renderResult.reason).toBe(
+			loadResult.status === 'rejected' && loadResult.reason,
+		);
+	} finally {
+		delete window.remotion_cancelledError;
+		delete window.remotion_cancelledErrorObject;
+	}
+});
