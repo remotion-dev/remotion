@@ -15,7 +15,7 @@ Remotion workflow; keep this skill in `.agents/skills`.
    and install the extension in its durable directory. Reload the installed
    extension through `chrome://extensions` after rebuilding; a successful build
    alone does not refresh Chrome's loaded extension.
-2. Use an existing compatible Chrome with Canvas Draw Element enabled.
+2. Use an existing current stable Chrome installation.
    Preserve unrelated browser tabs and unfinished recordings.
 3. Find the requested composition's registration and owning package. Follow
    [studio](../studio/SKILL.md) for dependency/build preparation and server

@@ -136,7 +136,7 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 						>
 							{cancelling ? 'Cancelling…' : 'Cancel render'}
 						</Button>
-					) : (
+					) : job.status === 'saving' ? null : (
 						<Button onClick={onClickOnRemove}>Remove render</Button>
 					)}
 					<Flex />

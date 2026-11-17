@@ -100,7 +100,7 @@ Removing and re-adding script-loaded SVG font families is supported. Removing or
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+Registered fonts are supported in `<foreignObject>` HTML text with inline or inherited font selection. External HTML CSS selection and fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported.
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 
@@ -226,6 +226,8 @@ Media fetches can resume after an interruption when the browser reports being of
 
 ## Single concurrency
 
+Calls to `renderStillOnWeb()` and `renderFramesOnWeb()` share a serial queue. Media renders use a separate serial queue, so a still can run while a media render is in progress. Aborting a waiting call rejects that caller without waiting for the preceding render; the cancelled call does not mount its composition or release the preceding render's turn.
+
 There is no multithreading for client-side rendering.  
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
@@ -242,6 +244,8 @@ Higher responsiveness settings make renders slower.
 When the browser tab running the render is moved to the background, browsers throttle `requestAnimationFrame` to conserve resources. This could cause rendering to pause or slow down significantly.
 
 Remotion automatically works around this by using a Web Worker timer as a fallback. When the tab is backgrounded and RAF is throttled, the Worker timer takes over to keep the render progressing.
+
+If the Worker cannot start, media rendering falls back to a regular timer. Browser background-timer throttling still applies.
 
 The Worker timer is less precise than `requestAnimationFrame`, so rendering in a background tab will be slower than in a foreground tab. For best performance, keep the tab visible during rendering.
 

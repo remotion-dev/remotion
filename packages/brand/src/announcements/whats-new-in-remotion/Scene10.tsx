@@ -50,20 +50,10 @@ export const Scene10: React.FC = () => {
 				trimBefore={55}
 				trimAfter={476}
 			/>
-			<Sequence
-				name="Visual mode zoom"
-				from={30}
-				durationInFrames={150}
-				premountFor={30}
-			>
+			<Sequence name="Visual mode zoom" from={30} durationInFrames={150}>
 				<VisualModeDemo />
 			</Sequence>
-			<Sequence
-				name="Visual mode editing"
-				from={180}
-				durationInFrames={150}
-				premountFor={30}
-			>
+			<Sequence name="Visual mode editing" from={180} durationInFrames={150}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: '#141414',
@@ -84,12 +74,7 @@ export const Scene10: React.FC = () => {
 					/>
 				</AbsoluteFill>
 			</Sequence>
-			<Sequence
-				name="Visual mode demo"
-				from={330}
-				durationInFrames={90}
-				premountFor={30}
-			>
+			<Sequence name="Visual mode demo" from={330} durationInFrames={90}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: '#181818',

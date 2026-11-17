@@ -16,12 +16,7 @@ export const PostmountDemoComposition: React.FC = () => {
 			</Sequence>
 
 			{/* Overlapping sequences with both premount and postmount */}
-			<Sequence
-				from={120}
-				durationInFrames={80}
-				premountFor={30}
-				postmountFor={30}
-			>
+			<Sequence from={120} durationInFrames={80} postmountFor={30}>
 				<AbsoluteFill style={{background: 'rgba(255, 0, 0, 0.5)'}}>
 					<Html5Video
 						pauseWhenBuffering
@@ -31,12 +26,7 @@ export const PostmountDemoComposition: React.FC = () => {
 			</Sequence>
 
 			{/* Another sequence that benefits from the previous one's postmount */}
-			<Sequence
-				from={200}
-				durationInFrames={100}
-				premountFor={20}
-				postmountFor={50}
-			>
+			<Sequence from={200} durationInFrames={100} postmountFor={50}>
 				<AbsoluteFill style={{background: 'rgba(0, 0, 255, 0.5)'}}>
 					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</AbsoluteFill>
@@ -54,7 +44,6 @@ export const PostmountWithCustomStyles: React.FC = () => {
 			<Sequence
 				from={30}
 				durationInFrames={60}
-				premountFor={20}
 				postmountFor={30}
 				style={{
 					border: '2px solid blue',

@@ -8,7 +8,6 @@ import {
 	readFileSync,
 	rmSync,
 	statSync,
-	unlinkSync,
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -105,7 +104,7 @@ for (const dir of dirs) {
 	packagesToPublish.push({
 		dir,
 		name: packageJson.name,
-		hasLicense: packageJson.license?.includes('LICENSE.md') === true,
+		hasLicense: packageJson.license === 'SEE LICENSE IN LICENSE.md',
 		hasNativeTypescriptBuild: /\b(?:tsc|tsrs)\b/.test(
 			packageJson.scripts?.make ?? '',
 		),
@@ -123,23 +122,30 @@ if (!listOnly) {
 	const validatedTarballs = new Map<string, string>();
 
 	try {
-		// Validate the exact archives that will be published. A successful native TypeScript build
-		// once left dist/render-queue/queue.js empty in @remotion/cli@4.0.531.
 		const preflightResults = await Promise.allSettled(
-			packagesToPublish
-				.filter(({hasNativeTypescriptBuild}) => hasNativeTypescriptBuild)
-				.map(({dir, name, hasLicense, hasPrepublishOnly, packagePath}) =>
+			packagesToPublish.map(
+				({
+					dir,
+					name,
+					hasLicense,
+					hasNativeTypescriptBuild,
+					hasPrepublishOnly,
+					packagePath,
+				}) =>
 					p(async () => {
 						const licensePath = path.join(packagePath, 'LICENSE.md');
 						const copiedLicense = hasLicense && !existsSync(licensePath);
 						const stagingDir = path.join(packedDir, dir);
 						mkdirSync(stagingDir);
 
-						if (copiedLicense) {
-							copyFileSync(path.join(process.cwd(), 'LICENSE.md'), licensePath);
-						}
-
 						try {
+							if (copiedLicense) {
+								copyFileSync(
+									path.join(process.cwd(), 'LICENSE.md'),
+									licensePath,
+								);
+							}
+
 							// Publishing a tarball skips prepublishOnly, so run it before packing.
 							if (hasPrepublishOnly) {
 								await $`bun run prepublishOnly`.cwd(packagePath);
@@ -157,33 +163,61 @@ if (!listOnly) {
 
 							const tarball = path.join(stagingDir, tarballName);
 							await $`tar -xzf ${tarball} -C ${stagingDir}`.quiet();
-							const distDir = path.join(stagingDir, 'package', 'dist');
-							const jsFiles = existsSync(distDir)
-								? readdirSync(distDir, {recursive: true}).filter((file) =>
-										/\.(c|m)?js$/.test(file),
-									)
-								: [];
-							if (jsFiles.length === 0) {
-								throw new Error(`No compiled JavaScript in ${name}`);
+							const packedPackagePath = path.join(stagingDir, 'package');
+							const packedPackageJson = JSON.parse(
+								readFileSync(
+									path.join(packedPackagePath, 'package.json'),
+									'utf-8',
+								),
+							);
+							if (
+								hasLicense ||
+								packedPackageJson.license === 'SEE LICENSE IN LICENSE.md'
+							) {
+								const packedLicensePath = path.join(
+									packedPackagePath,
+									'LICENSE.md',
+								);
+								if (
+									!existsSync(packedLicensePath) ||
+									!lstatSync(packedLicensePath).isFile() ||
+									readFileSync(packedLicensePath, 'utf-8').trim().length === 0
+								) {
+									throw new Error(
+										`Missing or empty LICENSE.md in ${name} tarball`,
+									);
+								}
 							}
 
-							const emptyFiles = jsFiles.filter(
-								(file) => statSync(path.join(distDir, file)).size === 0,
-							);
-							if (emptyFiles.length > 0) {
-								throw new Error(
-									`Empty compiled JavaScript in ${name}: ${emptyFiles.join(', ')}`,
+							if (hasNativeTypescriptBuild) {
+								const distDir = path.join(packedPackagePath, 'dist');
+								const jsFiles = existsSync(distDir)
+									? readdirSync(distDir, {recursive: true}).filter((file) =>
+											/\.(c|m)?js$/.test(file),
+										)
+									: [];
+								if (jsFiles.length === 0) {
+									throw new Error(`No compiled JavaScript in ${name}`);
+								}
+
+								const emptyFiles = jsFiles.filter(
+									(file) => statSync(path.join(distDir, file)).size === 0,
 								);
+								if (emptyFiles.length > 0) {
+									throw new Error(
+										`Empty compiled JavaScript in ${name}: ${emptyFiles.join(', ')}`,
+									);
+								}
 							}
 
 							validatedTarballs.set(name, tarball);
 						} finally {
 							if (copiedLicense) {
-								unlinkSync(licensePath);
+								rmSync(licensePath, {force: true});
 							}
 						}
 					}),
-				),
+			),
 		);
 		const preflightFailure = preflightResults.find(
 			(result) => result.status === 'rejected',
@@ -193,40 +227,24 @@ if (!listOnly) {
 		}
 
 		if (checkOnly) {
-			console.log(`Validated ${validatedTarballs.size} compiled packages`);
+			console.log(`Validated ${validatedTarballs.size} packages`);
 		} else {
 			const publishResults = await Promise.allSettled(
-				packagesToPublish.map(({name, hasLicense, packagePath}) =>
+				packagesToPublish.map(({name, packagePath}) =>
 					p(async () => {
 						const tarball = validatedTarballs.get(name);
-						const licensePath = path.join(packagePath, 'LICENSE.md');
-						const copiedLicense =
-							!tarball && hasLicense && !existsSync(licensePath);
-
-						if (copiedLicense) {
-							copyFileSync(path.join(process.cwd(), 'LICENSE.md'), licensePath);
+						if (!tarball) {
+							throw new Error(`No validated tarball for ${name}`);
 						}
 
-						try {
-							if (tarball) {
-								if (releaseTag === null) {
-									await $`bun publish ${tarball} --tolerate-republish`.cwd(
-										packagePath,
-									);
-								} else {
-									await $`bun publish ${tarball} --tag=${releaseTag}`.cwd(
-										packagePath,
-									);
-								}
-							} else if (releaseTag === null) {
-								await $`bun publish --tolerate-republish`.cwd(packagePath);
-							} else {
-								await $`bun publish --tag=${releaseTag}`.cwd(packagePath);
-							}
-						} finally {
-							if (copiedLicense) {
-								unlinkSync(licensePath);
-							}
+						if (releaseTag === null) {
+							await $`bun publish ${tarball} --tolerate-republish`.cwd(
+								packagePath,
+							);
+						} else {
+							await $`bun publish ${tarball} --tag=${releaseTag}`.cwd(
+								packagePath,
+							);
 						}
 					}),
 				),

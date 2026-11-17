@@ -35,7 +35,7 @@ export const NewVideoComp = () => {
 
 const PremountSequenceVideo = () => {
 	return (
-		<Sequence from={90} premountFor={30}>
+		<Sequence from={90}>
 			<Video src={src} debugOverlay />
 		</Sequence>
 	);

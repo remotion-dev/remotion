@@ -41,7 +41,6 @@ await renderMedia({
   codec: "h264",
   outputLocation: "out/video.mp4",
   inputProps,
-  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY || null,
   onProgress: ({ progress }) => console.log(progress),
 });
 ```
