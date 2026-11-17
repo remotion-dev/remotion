@@ -29,8 +29,12 @@ export const MotionBlurSampleProvider: React.FC<{
 	);
 
 	return (
-		<Internals.MotionBlurContext.Provider value={value}>
-			{children}
-		</Internals.MotionBlurContext.Provider>
+		<Internals.DisableSequenceRegistrationProvider
+			disabled={!value.isPrimarySample}
+		>
+			<Internals.MotionBlurContext.Provider value={value}>
+				{children}
+			</Internals.MotionBlurContext.Provider>
+		</Internals.DisableSequenceRegistrationProvider>
 	);
 };

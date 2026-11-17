@@ -102,29 +102,35 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 
 	return (
 		<AbsoluteFill style={{isolation: 'isolate'}}>
-			{new Array(actualSamples).fill(true).map((_, i) => {
-				const sample = i === 0 ? actualSamples : i;
-				const sampleFrameOffset = shutterFraction * (sample / actualSamples);
+			<AbsoluteFill style={{opacity: actualSamples > 1 ? 0 : 1}}>
+				<MotionBlurSampleProvider sampleIndex={0} videoCanvases={videoCanvases}>
+					{children}
+				</MotionBlurSampleProvider>
+			</AbsoluteFill>
+			{new Array(actualSamples > 1 ? actualSamples : 0)
+				.fill(true)
+				.map((_, i) => {
+					const sampleFrameOffset = shutterFraction * ((i + 1) / actualSamples);
 
-				return (
-					<AbsoluteFill
-						key={`frame-${i.toString()}`}
-						style={{
-							mixBlendMode: 'plus-lighter',
-							filter: `opacity(${1 / actualSamples})`,
-						}}
-					>
-						<Freeze frame={currentFrame - sampleFrameOffset + 1}>
-							<MotionBlurSampleProvider
-								sampleIndex={i}
-								videoCanvases={videoCanvases}
-							>
-								{children}
-							</MotionBlurSampleProvider>
-						</Freeze>
-					</AbsoluteFill>
-				);
-			})}
+					return (
+						<AbsoluteFill
+							key={`frame-${i.toString()}`}
+							style={{
+								mixBlendMode: 'plus-lighter',
+								filter: `opacity(${1 / actualSamples})`,
+							}}
+						>
+							<Freeze frame={currentFrame - sampleFrameOffset + 1}>
+								<MotionBlurSampleProvider
+									sampleIndex={i + 1}
+									videoCanvases={videoCanvases}
+								>
+									{children}
+								</MotionBlurSampleProvider>
+							</Freeze>
+						</AbsoluteFill>
+					);
+				})}
 		</AbsoluteFill>
 	);
 };
