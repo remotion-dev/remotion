@@ -20,6 +20,7 @@ import {
 import {useMediaAudioState} from './audio/use-media-audio-state.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
+import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -385,6 +386,7 @@ export const Internals = {
 	playbackDiagnostics,
 	registerMediabunnySink,
 	HtmlInCanvasFallback,
+	canPremountInHtmlInCanvas,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticEffects,
 	useOptimisticEffects,

@@ -10,6 +10,7 @@ mock.module('remotion', () => ({
 mock.module('remotion/no-react', () => ({
 	NoReactInternals: {
 		ENABLE_V5_BREAKING_CHANGES: false,
+		startFontLoad: () => ({finish: () => undefined, fail: () => undefined}),
 		fetchFontData: (url: string) => {
 			const match = /order-(\d+)\.woff2$/.exec(url);
 			if (!match) {
