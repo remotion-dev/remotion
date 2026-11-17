@@ -163,15 +163,19 @@ export const degit = async ({
 	repoName: string;
 	dest: string;
 }) => {
-	const base = path.join(tmpdir(), '.degit');
-	const dir = path.join(base, repoOrg, repoName);
-	const file = `${dir}/HEAD.tar.gz`;
+	// Use a unique directory per run so concurrent invocations cannot clobber
+	// each other, and so a leftover file from another local user cannot be
+	// picked up (or symlink-attacked) at a predictable path.
+	const dir = fs.mkdtempSync(path.join(tmpdir(), 'remotion-degit-'));
+	const file = path.join(dir, 'HEAD.tar.gz');
 	const url = `https://github.com/${repoOrg}/${repoName}/archive/HEAD.tar.gz`;
 
-	mkdirp(path.dirname(file));
-	await fetch(url, file);
+	try {
+		await fetch(url, file);
 
-	mkdirp(dest);
-	await untar(file, dest);
-	fs.unlinkSync(file);
+		mkdirp(dest);
+		await untar(file, dest);
+	} finally {
+		fs.rmSync(dir, {recursive: true, force: true});
+	}
 };
