@@ -54,6 +54,8 @@ export const MyComposition = () => {
 
 ### Motion blur on transitions
 
+Read [transitions.md](transitions.md) for scene setup, presentations, and timing.
+
 Use `motionBlur` on a `<TransitionSeries.Transition>` to blur the presentation's movement.  
 This is faster than `<HtmlInCanvasMotionBlur>` and advisable for transitions, but content that does not fit the transitions primitive should not be shoehorned.
 
