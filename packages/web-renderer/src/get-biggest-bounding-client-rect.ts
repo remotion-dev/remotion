@@ -64,20 +64,13 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		const hasOutline =
-			includePaintOutsets &&
-			computedStyle.outlineStyle !== 'none' &&
-			computedStyle.outlineStyle !== 'hidden';
-		const outlineWidth = hasOutline
-			? parseOutlineWidth(computedStyle.outlineWidth)
+		const outlineOutset = includePaintOutsets
+			? Math.max(
+					0,
+					parseOutlineWidth(computedStyle.outlineWidth) +
+						parseOutlineOffset(computedStyle.outlineOffset),
+				)
 			: 0;
-		const outlineOutset =
-			outlineWidth > 0
-				? Math.max(
-						0,
-						outlineWidth + parseOutlineOffset(computedStyle.outlineOffset),
-					)
-				: 0;
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1

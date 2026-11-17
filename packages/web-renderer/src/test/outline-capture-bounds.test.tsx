@@ -6,10 +6,11 @@ import {outlineCaptureBounds} from './fixtures/outline-capture-bounds';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
 test.for([
-	{outline: 'none', offset: 7, extent: 0},
-	{outline: '0px solid black', offset: 7, extent: 0},
+	{outline: 'none', offset: -7, extent: 0},
+	{outline: '0px solid black', offset: -7, extent: 0},
 	{outline: '4px solid black', offset: 7, extent: 11},
 	{outline: '4px solid black', offset: -2, extent: 2},
+	{outline: '4px solid black', offset: -4, extent: 0},
 	{outline: '4px solid black', offset: -12, extent: 0},
 ])(
 	'keeps outline $outline with offset $offset inside correct capture bounds',
