@@ -1400,9 +1400,9 @@ const sidebars: SidebarsConfig = {
 				'data-fetching',
 				'dynamic-metadata',
 				'props-resolution',
-				'design-systems',
 			],
 		},
+		'design-systems',
 		{
 			type: 'html',
 			value:

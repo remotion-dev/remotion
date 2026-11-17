@@ -1,33 +1,39 @@
 # Motion blur
 
-Use `@remotion/motion-blur` for frame-driven motion blur.  
-Install it with `npx remotion add @remotion/motion-blur`.
+Motion blur samples times around the current frame and blends the results.
+Use `@remotion/motion-blur` for motion blur on animated content. For transition presentation movement, use the optimized `motionBlur` prop from `@remotion/transitions`.
 
-`<HtmlInCanvasMotionBlur>` is the state of the art in Remotion for blurring animated HTML. It captures the content at fractional frames and averages its pixels in a canvas.
+## In Studio
 
-## `<HtmlInCanvasMotionBlur>`
+Select an element in the Remotion Studio timeline, then click Motion blur in the inspector's Actions section.
+Studio wraps the element in `<HtmlInCanvasMotionBlur>`. Select the wrapper and expand Controls to adjust Shutter angle and Samples, or toggle Disabled.
+
+## Programmatically
+
+### `<HtmlInCanvasMotionBlur>`
 
 Available from Remotion 4.0.529.  
-Supply the canvas `width` and `height`, usually from `useVideoConfig()`.  
-`shutterAngle` defaults to `180` and accepts `0` to `360`.
-`0` disables blur. `samples` defaults to `8` and must be an integer from `1` to `64`. More samples can smooth the blur but increase preview and render cost.
+`<HtmlInCanvasMotionBlur>` captures animated content at fractional frames and averages its pixels in a canvas. Supply the canvas `width` and `height`, usually from `useVideoConfig()`.
+
+```bash
+bunx remotion add @remotion/motion-blur
+```
 
 Call `useCurrentFrame()` inside the child component so each sample receives its own frame.
 
-```tsx
-import {
-  HtmlInCanvasMotionBlur,
-} from '@remotion/motion-blur';
+```tsx title="MyComposition.tsx"
+import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 
 const MovingBox = () => {
   const frame = useCurrentFrame();
+
   return (
     <div
       style={{
         position: 'absolute',
         left: frame * 10,
-        top: 200,
+        top: 300,
         width: 120,
         height: 120,
         backgroundColor: '#ff6b6b',
@@ -36,7 +42,7 @@ const MovingBox = () => {
   );
 };
 
-export const HtmlInCanvasBlur = () => {
+export const MyComposition = () => {
   const {width, height} = useVideoConfig();
 
   return (
@@ -52,9 +58,63 @@ export const HtmlInCanvasBlur = () => {
 };
 ```
 
-For live preview, enable HTML-in-canvas in Chrome 149 or later with `chrome://flags/#canvas-draw-element`.  
-No configuration for rendering is necessary.
+### Motion blur on transitions
 
-Nest `<HtmlInCanvas>` or `<HtmlInCanvasMotionBlur>` components only when `HtmlInCanvas.isNestingSupported()` returns `true` (Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled).
+Available from Remotion 4.0.545. Use `motionBlur` on a `<TransitionSeries.Transition>` to blur the presentation's movement.
 
-If HTML-in-canvas is unavailable, see the [motion blur guide](https://www.remotion.dev/docs/motion-blur) for other options. See the [`<HtmlInCanvasMotionBlur>` reference](https://www.remotion.dev/docs/motion-blur/html-in-canvas-motion-blur) for API details.
+```bash
+bunx remotion add @remotion/transitions
+```
+
+```tsx title="TransitionVideo.tsx"
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
+import {AbsoluteFill} from 'remotion';
+
+export const TransitionVideo = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#0b84f3'}} />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide({direction: 'from-bottom'})}
+        timing={springTiming({durationInFrames: 20})}
+        motionBlur={{shutterAngle: 180, samples: 16}}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#2ecc71'}} />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+All built-in presentations support motion blur. Custom presentations need an HTML-in-canvas implementation. [Custom presentation guide](https://www.remotion.dev/docs/transitions/presentations/custom-html-in-canvas)
+
+Each scene is captured once at the current frame, and the presentation is drawn at fractional times using those captures. Both scenes keep advancing during the transition. To sample animations or videos inside a scene at multiple times, apply `<HtmlInCanvasMotionBlur>` to that content.
+
+Place a `<TransitionSeries.Sequence>` on each side of a blurred transition. Keep the entering and exiting transitions of a middle sequence within its duration, with no overlap.
+
+Passing `enterStyle`, `exitStyle`, `innerEnterStyle`, `innerExitStyle`, `outerEnterStyle`, or `outerExitStyle` alongside `motionBlur` throws an error. Keep styling in the scene contents or implement it in a custom HTML-in-canvas presentation.
+
+### `shutterAngle` and `samples`
+
+`shutterAngle` accepts values from `0` to `360` and defaults to `180`. `0` disables blur. `360` exposes one frame, `180` half a frame, and `90` a quarter of a frame.
+The exposure time in seconds is `(shutterAngle / 360) / fps`. At 30 fps, `180` gives an exposure time of `1 / 60` second.
+
+`samples` controls how many snapshots are blended within the exposure time. It defaults to `8` for `<HtmlInCanvasMotionBlur>` and `16` for transition `motionBlur`.
+Use a positive integer. `<HtmlInCanvasMotionBlur>` accepts `1` to `64`. More samples smooth the blur and increase preview and render cost.
+
+## Browser support
+
+Rendering uses Remotion's bundled browser.
+
+When HTML-in-canvas is unavailable, transition previews show the original presentation with a "Motion blur is not visible" indication.
+
+## `<CameraMotionBlur>` and `<Trail>`
+
+Prefer `<HtmlInCanvasMotionBlur>` for motion blur on animated content. `<CameraMotionBlur>` and `<Trail>` are older options.
+`<CameraMotionBlur>` works in browsers without HTML-in-canvas, but colors and opacity can be inaccurate. `<Trail>` repeats earlier positions behind the current one to create a movement trail.
+
+See the [motion blur guide](https://www.remotion.dev/docs/motion-blur) and [`<HtmlInCanvasMotionBlur>` reference](https://www.remotion.dev/docs/motion-blur/html-in-canvas-motion-blur) for details.
