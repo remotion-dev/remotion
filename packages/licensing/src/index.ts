@@ -1,4 +1,7 @@
-import {internalRegisterUsageEvent} from './register-usage-event';
+import {
+	getUsageEventErrorMessage,
+	internalRegisterUsageEvent,
+} from './register-usage-event';
 
 export {
 	UsageEventClassification as Classification,
@@ -10,4 +13,5 @@ export {EventCount, getUsage, GetUsageResponse} from './get-usage';
 
 export const LicensingInternals = {
 	internalRegisterUsageEvent,
+	getUsageEventErrorMessage,
 };

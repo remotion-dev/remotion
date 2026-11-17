@@ -5,7 +5,7 @@ export const LicenseDisclaimer: React.FC = () => {
 		<>
 			<div>
 				This package is licensed under the{' '}
-				<a href="/docs/license">Remotion License</a>.<br />
+				<a href="https://remotion.dev/license">Remotion License</a>.<br />
 				We consider a team of 4 or more people a "company".
 			</div>
 			<br />

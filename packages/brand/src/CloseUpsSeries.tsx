@@ -14,51 +14,33 @@ export const CloseUpsSeries = () => {
 			<Series.Sequence
 				name="Hover over outlines"
 				durationInFrames={100}
-				premountFor={30}
 				trimBefore={284}
 			>
 				<CloseUp8Preview />
 			</Series.Sequence>
-			<Series.Sequence name="Trim clip" durationInFrames={54} premountFor={30}>
+			<Series.Sequence name="Trim clip" durationInFrames={54}>
 				<CloseUp1Preview />
 			</Series.Sequence>
-			<Series.Sequence
-				name="Trim clip beginning"
-				durationInFrames={70}
-				premountFor={30}
-			>
+			<Series.Sequence name="Trim clip beginning" durationInFrames={70}>
 				<CloseUp2Preview />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Drag onto canvas"
 				durationInFrames={63}
-				premountFor={30}
 				trimBefore={13}
 			>
 				<CloseUp3Preview />
 			</Series.Sequence>
-			<Series.Sequence
-				name="Edit easing"
-				durationInFrames={80}
-				premountFor={30}
-			>
+			<Series.Sequence name="Edit easing" durationInFrames={80}>
 				<CloseUp4Preview />
 			</Series.Sequence>
-			<Series.Sequence
-				name="Edit effects"
-				durationInFrames={98}
-				premountFor={30}
-			>
+			<Series.Sequence name="Edit effects" durationInFrames={98}>
 				<CloseUp5Preview />
 			</Series.Sequence>
-			<Series.Sequence
-				name="Rotation control"
-				durationInFrames={82}
-				premountFor={30}
-			>
+			<Series.Sequence name="Rotation control" durationInFrames={82}>
 				<CloseUp6Preview />
 			</Series.Sequence>
-			<Series.Sequence name="Add effect" durationInFrames={90} premountFor={30}>
+			<Series.Sequence name="Add effect" durationInFrames={90}>
 				<CloseUp7Preview blur />
 			</Series.Sequence>
 		</Series>

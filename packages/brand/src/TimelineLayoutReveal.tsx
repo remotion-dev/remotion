@@ -34,7 +34,6 @@ export const TimelineRevealLayers = ({
 			<Img
 				name="Before"
 				src="https://remotion.media/timeline-reveal/before-2026-11-02-fe42182c5870.png"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					width: 6400,
@@ -45,7 +44,6 @@ export const TimelineRevealLayers = ({
 			<Img
 				name="After"
 				src="https://remotion.media/timeline-reveal/after-2026-11-02-filmstrip-fixed-9548b256cf19.png"
-				premountFor={fps}
 				cropTop={timelineTop / 4000}
 				cropRight={1 - revealX / 6400}
 				style={{

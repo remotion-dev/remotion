@@ -35,10 +35,10 @@ const OverlapLayer: React.FC<{color: string; direction: number}> = ({
 
 const OverlapFixture: React.FC = () => (
 	<AbsoluteFill style={{background: '#05060B'}}>
-		<Sequence from={10} durationInFrames={55} premountFor={10}>
+		<Sequence from={10} durationInFrames={55}>
 			<OverlapLayer color="#7C5CFF" direction={-1} />
 		</Sequence>
-		<Sequence from={30} durationInFrames={55} premountFor={10}>
+		<Sequence from={30} durationInFrames={55}>
 			<OverlapLayer color="#FF5F8F" direction={1} />
 		</Sequence>
 	</AbsoluteFill>
