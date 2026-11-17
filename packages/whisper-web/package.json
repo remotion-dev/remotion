@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web"
 	},
 	"name": "@remotion/whisper-web",
-	"version": "4.0.543",
+	"version": "4.0.544",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "oxfmt src --check",
@@ -12,7 +12,7 @@
 		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
-	"license": "UNLICENSED",
+	"license": "MIT",
 	"dependencies": {
 		"@remotion/captions": "workspace:*"
 	},

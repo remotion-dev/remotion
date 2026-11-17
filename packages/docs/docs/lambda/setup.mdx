@@ -215,6 +215,8 @@ npx remotion lambda render <serve-url> <composition-id>
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Lambda 🚀
 
+Pass [`--license-key`](/docs/lambda/cli/render#--license-key) to report the render: your private license key, or `"free-license"` if you [qualify for the free license](/docs/license). See [Telemetry](/docs/telemetry).
+
 </TabItem>
 <TabItem value="node">
 
@@ -239,6 +241,7 @@ const result = await renderMediaOnLambdaAndStream({
   maxRetries: 1,
   framesPerLambda: 20,
   privacy: 'public',
+  licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY ?? null,
   onProgress: ({overallProgress}) => {
     console.log(`${Math.round(overallProgress * 100)}%`);
   },
@@ -248,6 +251,8 @@ console.log('Render finished!', result.outputFile);
 ```
 
 Use the serve URL from step 9. The promise resolves when the render finishes and rejects if it fails. Your video is now available in your [S3 bucket](https://s3.console.aws.amazon.com/s3/).
+
+[`licenseKey`](/docs/lambda/rendermediaonlambda#licensekey) reports the render. Pass your private license key, or `"free-license"` if you [qualify for the free license](/docs/license). See [Telemetry](/docs/telemetry).
 
 </TabItem>
 </Tabs>
