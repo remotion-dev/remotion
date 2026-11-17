@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseFontFamilies} from './parse-font-families';
 
@@ -7,14 +8,18 @@ type RegisteredFontFace = ReturnType<
 
 export type EmbeddedFontStyle = {
 	cacheKey: string;
-	css: string;
+	css: Promise<string>;
+};
+
+type EmbeddableFontFace = Omit<RegisteredFontFace, 'fontData' | 'format'> & {
+	format: RegisteredFontFace['format'] | null;
+	key: string;
+	getData: () => Promise<ArrayBuffer>;
 };
 
 const base64ByData = new WeakMap<ArrayBuffer, string>();
-const ruleByFontFace = new WeakMap<RegisteredFontFace, string>();
+const ruleByFontFace = new Map<string, Promise<string>>();
 const styleByFontFaceSet = new Map<string, EmbeddedFontStyle>();
-const fontIndexesByFamily = new Map<string, number[]>();
-let indexedFontCount = 0;
 
 const getBase64 = (data: ArrayBuffer): string => {
 	const cached = base64ByData.get(data);
@@ -105,7 +110,7 @@ const valueMatchesRange = ({
 };
 
 const descriptorsMatch = (
-	font: RegisteredFontFace,
+	font: EmbeddableFontFace,
 	computedStyle: CSSStyleDeclaration,
 ): boolean => {
 	const fontStyle = font.style ?? 'normal';
@@ -166,21 +171,39 @@ const unicodeRangeSupportsText = (
 	});
 };
 
-const getFontFaceRule = (font: RegisteredFontFace): string => {
-	const cached = ruleByFontFace.get(font);
-	if (cached) {
-		return cached;
+const mimeTypes = {
+	opentype: 'font/otf',
+	truetype: 'font/ttf',
+	woff: 'font/woff',
+	woff2: 'font/woff2',
+} as const;
+
+const sniffFontFormat = (data: ArrayBuffer): RegisteredFontFace['format'] => {
+	const signature = String.fromCharCode(...new Uint8Array(data).subarray(0, 4));
+	if (signature === 'wOF2') return 'woff2';
+	if (signature === 'wOFF') return 'woff';
+	if (signature === 'OTTO') return 'opentype';
+	return 'truetype';
+};
+
+const createFontFaceRule = async (font: EmbeddableFontFace) => {
+	let data: ArrayBuffer;
+	try {
+		data = await font.getData();
+	} catch (error) {
+		// Fonts without CORS headers cannot be read, so the SVG image falls back.
+		Internals.Log.warn(
+			{logLevel: 'warn', tag: '@remotion/web-renderer'},
+			`Could not embed the font ${JSON.stringify(font.fontFamily)} from ${font.fontUrl} into an SVG. SVG text using it will render with a fallback font.`,
+			error,
+		);
+		return '';
 	}
 
-	const mimeTypes = {
-		opentype: 'font/otf',
-		truetype: 'font/ttf',
-		woff: 'font/woff',
-		woff2: 'font/woff2',
-	} as const;
+	const format = font.format ?? sniffFontFormat(data);
 	const declarations = [
 		`font-family:${JSON.stringify(font.fontFamily)}`,
-		`src:url(data:${mimeTypes[font.format]};base64,${getBase64(font.fontData)}) format(${JSON.stringify(font.format)})`,
+		`src:url(data:${mimeTypes[format]};base64,${getBase64(data)}) format(${JSON.stringify(format)})`,
 	];
 	const optionalDeclarations = [
 		['ascent-override', font.ascentOverride],
@@ -201,9 +224,138 @@ const getFontFaceRule = (font: RegisteredFontFace): string => {
 		}
 	}
 
-	const rule = `@font-face{${declarations.join(';')}}`;
-	ruleByFontFace.set(font, rule);
+	return `@font-face{${declarations.join(';')}}`;
+};
+
+const getFontFaceRule = (font: EmbeddableFontFace) => {
+	const cached = ruleByFontFace.get(font.key);
+	if (cached) {
+		return cached;
+	}
+
+	const rule = createFontFaceRule(font);
+	ruleByFontFace.set(font.key, rule);
 	return rule;
+};
+
+const descriptorKey = (
+	family: string,
+	style: string,
+	weight: string,
+	stretch: string,
+	unicodeRange: string,
+) =>
+	[
+		normalizeFamily(family),
+		style || 'normal',
+		weight || 'normal',
+		stretch || 'normal',
+		unicodeRange || 'U+0-10FFFF',
+	]
+		.map((value) => value.trim().replace(/\s+/g, ' ').toLowerCase())
+		.join('|');
+
+const firstUrlInSrc =
+	/url\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|([^)\s]*))\s*\)/;
+
+// SVG images cannot load fonts from the document, so @font-face rules are
+// re-embedded. document.fonts decides which rules are active: rules inside
+// non-matching conditions or disabled stylesheets have no FontFace there.
+const getCssFontFaces = (document: Document): EmbeddableFontFace[] => {
+	const activeFaces = new Set(
+		Array.from(document.fonts, (face) =>
+			descriptorKey(
+				face.family,
+				face.style,
+				face.weight,
+				face.stretch,
+				face.unicodeRange,
+			),
+		),
+	);
+	const faces: EmbeddableFontFace[] = [];
+
+	const readRules = (sheet: CSSStyleSheet): CSSRuleList | null => {
+		if (sheet.disabled) {
+			return null;
+		}
+
+		try {
+			return sheet.cssRules;
+		} catch {
+			// Cross-origin stylesheets without CORS cannot be read.
+			return null;
+		}
+	};
+
+	const visitRules = (rules: CSSRuleList, baseUrl: string) => {
+		for (const rule of rules) {
+			if (rule instanceof CSSImportRule) {
+				const importedRules = rule.styleSheet && readRules(rule.styleSheet);
+				if (importedRules) {
+					visitRules(importedRules, rule.styleSheet!.href ?? baseUrl);
+				}
+
+				continue;
+			}
+
+			if (!(rule instanceof CSSFontFaceRule)) {
+				if ('cssRules' in rule)
+					visitRules(rule.cssRules as CSSRuleList, baseUrl);
+				continue;
+			}
+
+			const get = (property: string) =>
+				rule.style.getPropertyValue(property).trim();
+			const fontFamily = get('font-family').replace(/^(['"])(.*)\1$/, '$2');
+			const style = get('font-style');
+			const weight = get('font-weight');
+			const stretch = get('font-stretch');
+			const unicodeRange = get('unicode-range');
+			const match = firstUrlInSrc.exec(get('src'));
+			const rawUrl = match?.[1] ?? match?.[2] ?? match?.[3];
+			if (
+				!rawUrl ||
+				!activeFaces.has(
+					descriptorKey(fontFamily, style, weight, stretch, unicodeRange),
+				)
+			) {
+				continue;
+			}
+
+			const fontUrl = new URL(rawUrl.replace(/\\(.)/g, '$1'), baseUrl).href;
+			const orNull = (value: string) => value || null;
+			faces.push({
+				key: `css:${fontUrl}|${descriptorKey(fontFamily, style, weight, stretch, unicodeRange)}`,
+				fontFamily,
+				fontUrl,
+				format: null,
+				getData: () => NoReactInternals.fetchFontData(fontUrl),
+				style: orNull(style),
+				weight: orNull(weight),
+				stretch: orNull(stretch),
+				unicodeRange: orNull(unicodeRange),
+				variant: orNull(get('font-variant')),
+				featureSettings: orNull(get('font-feature-settings')),
+				display: orNull(get('font-display')) as EmbeddableFontFace['display'],
+				ascentOverride: orNull(get('ascent-override')),
+				descentOverride: orNull(get('descent-override')),
+				lineGapOverride: orNull(get('line-gap-override')),
+			});
+		}
+	};
+
+	for (const sheet of [
+		...Array.from(document.styleSheets),
+		...document.adoptedStyleSheets,
+	]) {
+		const rules = readRules(sheet);
+		if (rules) {
+			visitRules(rules, sheet.href ?? document.baseURI);
+		}
+	}
+
+	return faces;
 };
 
 export const getEmbeddedFontStyleForSvg = (
@@ -222,17 +374,27 @@ export const getEmbeddedFontStyleForSvg = (
 	const availableFamilies = new Set(
 		Array.from(svg.ownerDocument.fonts, (face) => normalizeFamily(face.family)),
 	);
-	const registeredFonts = NoReactInternals.getRegisteredFontFaces();
-	for (let index = indexedFontCount; index < registeredFonts.length; index++) {
-		const family = registeredFonts[index]!.fontFamily.toLowerCase();
-		const indexes = fontIndexesByFamily.get(family) ?? [];
-		indexes.push(index);
-		fontIndexesByFamily.set(family, indexes);
-	}
+	const registeredFonts = NoReactInternals.getRegisteredFontFaces().map(
+		(font, index): EmbeddableFontFace => ({
+			...font,
+			key: `registered:${index}`,
+			getData: () => Promise.resolve(font.fontData),
+		}),
+	);
+	let cssFonts: EmbeddableFontFace[] | null = null;
+	const getFamilyFonts = (normalizedFamily: string) => {
+		const isFamily = (font: EmbeddableFontFace) =>
+			normalizeFamily(font.fontFamily) === normalizedFamily;
+		const registered = registeredFonts.filter(isFamily);
+		if (registered.length > 0) {
+			return registered;
+		}
 
-	indexedFontCount = registeredFonts.length;
+		cssFonts ??= getCssFontFaces(svg.ownerDocument);
+		return cssFonts.filter(isFamily);
+	};
 
-	const usedFontIndexes = new Set<number>();
+	const usedFonts = new Map<string, EmbeddableFontFace>();
 	for (const textElement of textElements) {
 		const textNodeWalker = svg.ownerDocument.createTreeWalker(
 			textElement,
@@ -257,41 +419,40 @@ export const getEmbeddedFontStyleForSvg = (
 				computedStyle.fontFamily,
 			)) {
 				if (!availableFamilies.has(normalizedFamily)) continue;
-				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
-				const matchingIndexes = familyIndexes.filter((index) =>
-					descriptorsMatch(registeredFonts[index]!, computedStyle),
+				const familyFonts = getFamilyFonts(normalizedFamily);
+				const matchingFonts = familyFonts.filter((font) =>
+					descriptorsMatch(font, computedStyle),
 				);
-				const candidateIndexes =
-					matchingIndexes.length === 0 ? familyIndexes : matchingIndexes;
+				const candidateFonts =
+					matchingFonts.length === 0 ? familyFonts : matchingFonts;
 
-				for (const index of candidateIndexes) {
-					if (
-						unicodeRangeSupportsText(registeredFonts[index]!.unicodeRange, text)
-					) {
-						usedFontIndexes.add(index);
+				for (const font of candidateFonts) {
+					if (unicodeRangeSupportsText(font.unicodeRange, text)) {
+						usedFonts.set(font.key, font);
 					}
 				}
 			}
 		}
 	}
 
-	if (usedFontIndexes.size === 0) {
+	if (usedFonts.size === 0) {
 		return null;
 	}
 
-	const sortedIndexes = Array.from(usedFontIndexes).sort((a, b) => a - b);
-	const cacheKey = sortedIndexes.join(',');
+	const sortedFonts = Array.from(usedFonts.values()).sort((a, b) =>
+		a.key.localeCompare(b.key, 'en', {numeric: true}),
+	);
+	const cacheKey = sortedFonts.map((font) => font.key).join(',');
 	const cached = styleByFontFaceSet.get(cacheKey);
 	if (cached) {
 		return cached;
 	}
 
-	const css = sortedIndexes
-		.map((index) => getFontFaceRule(registeredFonts[index]!))
-		.join('');
 	const embeddedStyle = {
 		cacheKey,
-		css,
+		css: Promise.all(sortedFonts.map(getFontFaceRule)).then((rules) =>
+			rules.join(''),
+		),
 	};
 	styleByFontFaceSet.set(cacheKey, embeddedStyle);
 	return embeddedStyle;
