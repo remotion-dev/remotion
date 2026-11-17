@@ -2,15 +2,7 @@ import {StudioInternals} from '@remotion/studio';
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
 import type {ReactNode} from 'react';
-import {
-	CanvasImage,
-	Easing,
-	Img,
-	Interactive,
-	Sequence,
-	Track,
-	useRemotionEnvironment,
-} from 'remotion';
+import {CanvasImage, Easing, Img, Interactive, Sequence, Track} from 'remotion';
 import {CodexPrompt} from '../CodexPrompt';
 import {ExploreElementsRecording20261027Composition} from '../ExploreElementsRecording20261027Composition';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
@@ -89,11 +81,7 @@ const AngledPaneContent = ({
 };
 
 const ThreeWaysSplitViewContent = () => {
-	const {isRendering} = useRemotionEnvironment();
-	const motionBlur = {
-		shutterAngle: isRendering ? 180 : 90,
-		samples: isRendering ? 32 : 16,
-	};
+	const motionBlur = {};
 	return (
 		<>
 			<Interactive.Div

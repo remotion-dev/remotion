@@ -35,6 +35,7 @@ const output = await build({
 		...presentations.map((p) => `src/presentations/${p}.tsx`),
 	],
 	external: [
+		'@remotion/motion-blur',
 		'remotion',
 		'remotion/no-react',
 		'react',
