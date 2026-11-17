@@ -106,12 +106,26 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
+	const absoluteLength = /^([0-9]+(?:\.[0-9]+)?)(?:px)?$/;
+	const resolvedWidth = width.endsWith('px') && parseFloat(width);
+	const resolvedHeight = height.endsWith('px') && parseFloat(height);
+	const authoredWidth = originalWidth?.match(absoluteLength);
+	const authoredHeight = originalHeight?.match(absoluteLength);
+	const resizedWithoutViewBox =
+		!svg.hasAttribute('viewBox') &&
+		authoredWidth &&
+		authoredHeight &&
+		resolvedWidth &&
+		resolvedHeight &&
+		(resolvedWidth !== Number(authoredWidth[1]) ||
+			resolvedHeight !== Number(authoredHeight[1]));
 	const needsExplicitDimensions =
+		resizedWithoutViewBox ||
 		svg.preserveAspectRatio.baseVal.align ===
-		SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
+			SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
 
-	// SVG images need explicit dimensions to preserve their viewport when
-	// preserveAspectRatio="none" removes the intrinsic aspect ratio.
+	// Without a viewBox, layout sizes the viewport without scaling SVG user
+	// coordinates. Give the detached image the same viewport to preserve them.
 	if (needsExplicitDimensions) {
 		svg.setAttribute('width', width);
 		svg.setAttribute('height', height);
