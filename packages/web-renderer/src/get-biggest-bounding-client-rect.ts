@@ -64,13 +64,18 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		const outlineOutset = includePaintOutsets
-			? Math.max(
-					0,
-					parseOutlineWidth(computedStyle.outlineWidth) +
-						parseOutlineOffset(computedStyle.outlineOffset),
-				)
+		let outlineWidth = includePaintOutsets
+			? parseOutlineWidth(computedStyle.outlineWidth)
 			: 0;
+		let outlineOffset = includePaintOutsets
+			? parseOutlineOffset(computedStyle.outlineOffset)
+			: 0;
+		// An entirely inward outline must not shrink the bounds of the element.
+		if (outlineWidth + outlineOffset < 0) {
+			outlineWidth = 0;
+			outlineOffset = 0;
+		}
+
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1
@@ -151,24 +156,34 @@ export const getBiggestBoundingClientRect = (
 
 		mostLeft = Math.min(
 			mostLeft,
-			rect.left - outlineOutset - shadowLeft - filterOutsets.left,
+			rect.left -
+				outlineOffset -
+				outlineWidth -
+				shadowLeft -
+				filterOutsets.left,
 		);
 		mostTop = Math.min(
 			mostTop,
 			rect.top -
-				outlineOutset -
+				outlineOffset -
+				outlineWidth -
 				shadowTop -
 				textOverflow.top -
 				filterOutsets.top,
 		);
 		mostRight = Math.max(
 			mostRight,
-			rect.right + outlineOutset + shadowRight + filterOutsets.right,
+			rect.right +
+				outlineOffset +
+				outlineWidth +
+				shadowRight +
+				filterOutsets.right,
 		);
 		mostBottom = Math.max(
 			mostBottom,
 			rect.bottom +
-				outlineOutset +
+				outlineOffset +
+				outlineWidth +
 				shadowBottom +
 				textOverflow.bottom +
 				filterOutsets.bottom,
