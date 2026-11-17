@@ -74,6 +74,7 @@ export class MediaPlayer {
 
 	private playing = false;
 	private isPremounting: boolean;
+	private getPremountBufferingTime: (() => number | null) | null;
 	private isPostmounting: boolean;
 	private lastRequestedTime = 0;
 	private lastSeekIntent: MediaSeekIntent = null;
@@ -126,6 +127,7 @@ export class MediaPlayer {
 		debugOverlay,
 		bufferState,
 		isPremounting,
+		getPremountBufferingTime = null,
 		isPostmounting,
 		durationInFrames,
 		onVideoFrameCallback,
@@ -154,6 +156,7 @@ export class MediaPlayer {
 		debugOverlay: boolean;
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
+		getPremountBufferingTime?: (() => number | null) | null;
 		isPostmounting: boolean;
 		durationInFrames: number;
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
@@ -185,7 +188,7 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
 			bufferState,
-			isPremounting,
+			isPremounting: isPremounting && getPremountBufferingTime === null,
 			isPostmounting,
 		});
 		this.sequenceDurationInFrames = durationInFrames;
@@ -193,6 +196,7 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.isPremounting = isPremounting;
+		this.getPremountBufferingTime = getPremountBufferingTime;
 		this.isPostmounting = isPostmounting;
 		this.sequenceOffset = sequenceOffset;
 		// Reuse a shared, reference-counted Input per (src, credentials,
@@ -809,9 +813,15 @@ export class MediaPlayer {
 		}
 	}
 
-	public setIsPremounting(isPremounting: boolean): void {
+	public setIsPremounting(
+		isPremounting: boolean,
+		getPremountBufferingTime: (() => number | null) | null = null,
+	): void {
 		this.isPremounting = isPremounting;
-		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
+		this.getPremountBufferingTime = getPremountBufferingTime;
+		this.premountAwareDelayPlayback.setIsPremounting(
+			isPremounting && getPremountBufferingTime === null,
+		);
 		processNext();
 	}
 
@@ -897,11 +907,12 @@ export class MediaPlayer {
 		}
 
 		const timeInSeconds =
-			this.playing || this.isPremounting || this.isPostmounting
+			this.getPremountBufferingTime?.() ??
+			(this.playing || this.isPremounting || this.isPostmounting
 				? (currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
 						this.globalPlaybackRate -
 					this.sequenceOffset
-				: this.lastRequestedTime;
+				: this.lastRequestedTime);
 
 		// When looping, the audio iterator emits timestamps that continue
 		// monotonically across loop iterations, while the looped media time
