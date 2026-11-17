@@ -25,6 +25,7 @@ type Props = {
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly effectsOutputSize: EffectsOutputSize | null;
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 } & AnimatedImageCanvasProps;
 
 export type AnimatedImageCanvasRef = {
@@ -37,7 +38,17 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	AnimatedImageCanvasRef,
 	Props
 > = (
-	{width, height, fit, className, style, effects, effectsOutputSize, ...props},
+	{
+		width,
+		height,
+		fit,
+		className,
+		style,
+		effects,
+		effectsOutputSize,
+		onCanvasUpdated,
+		...props
+	},
 	ref,
 ) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -140,12 +151,13 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 						canvasWidth,
 						canvasHeight,
 					};
+					onCanvasUpdated?.(canvas);
 				}
 
 				return completed;
 			});
 		},
-		[chainState, effects, fit, height, sourceCanvas, width],
+		[chainState, effects, fit, height, onCanvasUpdated, sourceCanvas, width],
 	);
 
 	useEffect(() => {
@@ -191,9 +203,10 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 					canvasRef.current!.width,
 					canvasRef.current!.height,
 				);
+				onCanvasUpdated?.(canvasRef.current!);
 			},
 		};
-	}, [draw]);
+	}, [draw, onCanvasUpdated]);
 
 	return (
 		<canvas ref={canvasRef} className={className} style={style} {...props} />
