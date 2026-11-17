@@ -26,6 +26,19 @@ if (version.startsWith('v')) {
 	version = version.slice(1);
 }
 
+// The version is interpolated into shell commands, file contents and a git
+// tag below, so reject anything that is not a valid semver version. The pattern
+// is the one from semver.org, so `01.0.0` and `4.0.0-rc..1` are rejected too:
+// the latter is not a legal git tag name either.
+const SEMVER_REGEX =
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+if (!SEMVER_REGEX.test(version)) {
+	throw new Error(
+		`Invalid version "${version}". Expected a semver version such as 4.0.178`,
+	);
+}
+
 // Ensure we are on the main branch
 const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
 	encoding: 'utf-8',
