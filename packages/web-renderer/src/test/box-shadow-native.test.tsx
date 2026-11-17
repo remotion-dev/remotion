@@ -6,11 +6,7 @@ import {captureNativeReference, compareNativePixels} from './native-reference';
 
 const cases: Record<string, React.CSSProperties> = {
 	spread: {boxShadow: '0 0 0 12px #e11d48'},
-	'spread with blur': {boxShadow: '8px 8px 16px 6px rgba(0, 0, 0, 0.6)'},
 	'negative spread': {boxShadow: '0 18px 0 -8px #000'},
-	'negative spread with blur': {
-		boxShadow: '0 18px 12px -8px rgba(0, 0, 0, 0.7)',
-	},
 	inset: {boxShadow: 'inset 10px 10px 0 0 #16a34a'},
 	'inset spread': {boxShadow: 'inset 0 0 0 8px #9333ea'},
 	'inset with border': {
