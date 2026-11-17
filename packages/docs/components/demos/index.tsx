@@ -42,9 +42,7 @@ import {
 	irisPresentationDemo,
 	lightLeakDemo,
 	linearBlurPresentationDemo,
-	motionBlurCameraDemo,
 	motionBlurHtmlInCanvasDemo,
-	motionBlurTrailDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -76,6 +74,7 @@ import {
 	starburstDemo,
 	starDemo,
 	swapPresentationDemo,
+	transitionMotionBlurDemo,
 	transitionSeriesEnterExitDemo,
 	transitionSeriesOverlayDemo,
 	transitionSeriesTransitionDemo,
@@ -125,9 +124,8 @@ const dragPreviewSource: React.CSSProperties = {
 };
 
 const demos: DemoType[] = [
-	motionBlurTrailDemo,
-	motionBlurCameraDemo,
 	motionBlurHtmlInCanvasDemo,
+	transitionMotionBlurDemo,
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
 	htmlInCanvasDemoWebGPU,
@@ -292,6 +290,7 @@ export const Demo: React.FC<{
 					<Player
 						key={key}
 						acknowledgeRemotionLicense
+						defaultPremountInSeconds={2}
 						component={demo.comp}
 						compositionWidth={demo.compWidth}
 						compositionHeight={demo.compHeight}

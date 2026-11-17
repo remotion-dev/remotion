@@ -180,7 +180,7 @@ See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Motion blur
 
-When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.md) for the preferred HTML-in-canvas approach, preview requirements, and alternatives.
+When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.md) for `<HtmlInCanvasMotionBlur>`, transition `motionBlur`, Studio controls, and preview requirements.
 
 ## Visual and pixel effects
 
