@@ -1,5 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
@@ -482,7 +483,7 @@ const internalRenderStillRaw = (
 							options,
 							LicensingInternals.getUsageEventErrorMessage(err),
 						);
-						Log.verbose(options, err);
+						Log.verbose(options, inspect(err));
 					})
 					.finally(() => {
 						resolve(res);

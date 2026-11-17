@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import type {_InternalTypes} from 'remotion';
@@ -999,7 +1000,7 @@ const internalRenderMediaRaw = async ({
 								{indent, logLevel},
 								LicensingInternals.getUsageEventErrorMessage(err),
 							);
-							Log.verbose({indent: true, logLevel}, err);
+							Log.verbose({indent: true, logLevel}, inspect(err));
 						})
 						.finally(() => {
 							resolve(result);

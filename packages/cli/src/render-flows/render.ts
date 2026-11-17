@@ -1,6 +1,7 @@
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import type {
 	BundlerOverrideFn,
 	RspackOverrideFn,
@@ -710,7 +711,7 @@ export const renderVideoFlow = async ({
 					{indent, logLevel},
 					LicensingInternals.getUsageEventErrorMessage(err),
 				);
-				Log.verbose({indent: true, logLevel}, err);
+				Log.verbose({indent: true, logLevel}, inspect(err));
 			}
 		}
 
