@@ -62,7 +62,7 @@ export const HtmlInCanvasDocsDemo2DBlur: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/html-in-canvas-2d-blur.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/html-in-canvas-2d-blur.mp4" />
 		);
 	}
 

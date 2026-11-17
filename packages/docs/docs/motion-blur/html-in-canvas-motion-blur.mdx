@@ -102,6 +102,10 @@ Higher values make the blur smoother but cost more work during preview and rende
 Disable motion blur while keeping the content inside `<HtmlInCanvas>`. Default: `false`.
 When `true`, the component captures one sample at the current frame. You can keyframe this prop in Remotion Studio to turn motion blur on or off without remounting the canvas.
 
+### `disabledInPreview?`<AvailableFrom v="4.0.545" />
+
+Disable motion blur during preview in Remotion Studio and the Player to improve playback performance. Defaults to `false`.
+
 ### `shutterAngle?`
 
 How long the exposure is, expressed as an angle from `0` to `360`. Default: `180`.  

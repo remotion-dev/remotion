@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -8,6 +9,28 @@ import type {
 export type NoneProps = {
 	enterStyle?: React.CSSProperties;
 	exitStyle?: React.CSSProperties;
+};
+
+const noneCanvas: HtmlInCanvasShader<NoneProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create none canvas context');
+	}
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => context.reset(),
+		draw: ({prevImage, nextImage, width, height}) => {
+			context.reset();
+			if (nextImage) {
+				context.drawImage(nextImage, 0, 0, width, height);
+			}
+
+			if (prevImage) {
+				context.drawImage(prevImage, 0, 0, width, height);
+			}
+		},
+	};
 };
 
 const NonePresentation: React.FC<
@@ -36,5 +59,6 @@ export const none = (props?: NoneProps): TransitionPresentation<NoneProps> => {
 	return {
 		component: NonePresentation,
 		props: props ?? {},
+		...(props?.enterStyle || props?.exitStyle ? {} : {canvas: noneCanvas}),
 	};
 };

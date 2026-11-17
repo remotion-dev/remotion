@@ -16,7 +16,10 @@ const wait = (state: DelayRenderScope, signal: AbortSignal | null) =>
 			signal,
 			apiName: 'renderStillOnWeb',
 			internalState: null,
-			keepalive: null,
+			keepalive: {
+				waitForTick: () => new Promise(() => {}),
+				[Symbol.dispose]: () => {},
+			},
 		},
 		null,
 	);

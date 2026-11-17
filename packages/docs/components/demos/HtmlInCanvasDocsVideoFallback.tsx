@@ -4,14 +4,14 @@ import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
 
 /**
  * Pre-rendered fallback when `HtmlInCanvas.isSupported()` is false.
- * `relativeSrc` is relative to the docs site static root (e.g. `img/foo.mp4`).
+ * `src` is a URL or a path relative to the docs site static root.
  *
  * Typography is sized vs. composition width so it stays legible when the Player
  * scales a 1920×1080 frame down (~500px wide in docs).
  */
 export const HtmlInCanvasDocsVideoFallback: React.FC<{
-	readonly relativeSrc: string;
-}> = ({relativeSrc}) => {
+	readonly src: string;
+}> = ({src}) => {
 	const {width} = useVideoConfig();
 	const fontSize = Math.round(width * 0.052);
 	const padY = Math.round(width * 0.022);
@@ -23,7 +23,7 @@ export const HtmlInCanvasDocsVideoFallback: React.FC<{
 				loop
 				muted
 				objectFit="contain"
-				src={staticFile(relativeSrc)}
+				src={/^https?:\/\//.test(src) ? src : staticFile(src)}
 				style={{
 					width: '100%',
 					height: '100%',

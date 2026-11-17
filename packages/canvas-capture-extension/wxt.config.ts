@@ -71,14 +71,7 @@ export default defineConfig({
 		binaries: {
 			chrome:
 				process.env.CANVAS_CAPTURE_BROWSER_EXECUTABLE ??
-				path.join(
-					homeDirectory,
-					'Applications',
-					'Recorder Chrome.app',
-					'Contents',
-					'MacOS',
-					'Google Chrome for Testing',
-				),
+				'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 		},
 		chromiumArgs: [
 			`--user-data-dir=${path.join(

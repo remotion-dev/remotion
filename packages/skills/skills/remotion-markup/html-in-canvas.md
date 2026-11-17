@@ -2,13 +2,6 @@
 
 Renders children into a `<canvas>` so you can post-process them with the Canvas 2D API or WebGL.
 
-Only works in Chrome 149+ with the `chrome://flags/#canvas-draw-element` flag enabled.  
-Give the user a notice.
-
-## Nesting
-
-Nest `<HtmlInCanvas>` components only when `HtmlInCanvas.isNestingSupported()` returns `true` (Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled). Older browsers reject nesting.
-
 ## Enabling WebGL during renders
 
 If you make use of WebGL during renders, you need to enable it:

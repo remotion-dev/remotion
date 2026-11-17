@@ -250,6 +250,11 @@ code {
 	text-decoration: none;
 }
 
+[data-theme='dark'] .suggested-prompt {
+	--suggested-prompt-background: #343434;
+	--suggested-prompt-label-background: #282828;
+}
+
 .ts-type-link {
 	text-decoration: none !important;
 	text-underline-position: under;

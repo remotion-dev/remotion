@@ -19,13 +19,12 @@ export const HelloWorld: React.FC<HelloWorldProps> = ({
   titleColor,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
       <Interactive.Div
         name="Content fade"
-        premountFor={fps}
         style={{
           position: "absolute",
           inset: 0,
@@ -39,8 +38,7 @@ export const HelloWorld: React.FC<HelloWorldProps> = ({
       >
         <Logo
           name="Remotion logo"
-          premountFor={fps}
-          logoColor1="#91EAE4"
+            logoColor1="#91EAE4"
           logoColor2="#86A8E7"
           style={{
             translate: interpolate(frame, [25, 55], ["0px 0px", "0px -150px"], {
@@ -53,15 +51,13 @@ export const HelloWorld: React.FC<HelloWorldProps> = ({
         <Title
           name="Welcome title"
           from={35}
-          premountFor={fps}
-          titleText={titleText}
+            titleText={titleText}
           titleColor={titleColor}
         />
         <Interactive.Div
           name="Editing hint"
           from={75}
-          premountFor={fps}
-          style={{
+            style={{
             fontFamily: "SF Pro Text, Helvetica, Arial, sans-serif",
             fontSize: 40,
             textAlign: "center",
