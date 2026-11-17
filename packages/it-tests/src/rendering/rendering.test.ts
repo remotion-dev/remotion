@@ -1,5 +1,6 @@
 import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import fs from 'fs';
+import os from 'node:os';
 import path from 'path';
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
@@ -435,10 +436,14 @@ test(
 test(
 	'Should render WAV, MP3, and AAC audio files',
 	async () => {
-		await Promise.all(
-			(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
-				const out = outputPath.replace('mp4', extension);
-				try {
+		const attemptDirectory = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-audio-formats-'),
+		);
+		try {
+			// Finish every render before Bun can retry the test.
+			const results = await Promise.allSettled(
+				(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
+					const out = path.join(attemptDirectory, `audio.${extension}`);
 					const task = execa(
 						'bun',
 						['x', 'remotion', 'render', 'build', 'audio-testing', out],
@@ -476,11 +481,22 @@ test(
 						expect(data).not.toContain('Kevin MacLeod');
 						expect(data).toMatch(/\d?\d kb\/s/);
 					}
-				} finally {
-					await fs.promises.rm(out, {force: true});
-				}
-			}),
-		);
+				}),
+			);
+			const failures = results.filter((result) => result.status === 'rejected');
+			if (failures.length === 1) {
+				throw failures[0]!.reason;
+			}
+
+			if (failures.length > 1) {
+				throw new AggregateError(
+					failures.map((failure) => failure.reason),
+					'Multiple audio format integration checks failed',
+				);
+			}
+		} finally {
+			await fs.promises.rm(attemptDirectory, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000, retry: 3},
 );
