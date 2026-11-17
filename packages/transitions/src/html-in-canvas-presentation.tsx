@@ -46,6 +46,10 @@ const HtmlInCanvasPresentationWithSupport = <
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
+	const inheritedPremountInSeconds = useContext(
+		Internals.DefaultPremountContext,
+	);
+	const canPremount = useMemo(() => Internals.canPremountInHtmlInCanvas(), []);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -93,7 +97,8 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
 	const sequence = useContext(Internals.SequenceContext);
-	const inactive = Boolean(sequence?.premounting || sequence?.postmounting);
+	const premounting = Boolean(sequence?.premounting);
+	const inactive = premounting || Boolean(sequence?.postmounting);
 	const videoEnabled = Internals.useVideoEnabled();
 	// Audio-only frames keep the scenes mounted without capturing or drawing them.
 	const passThrough =
@@ -270,7 +275,9 @@ const HtmlInCanvasPresentationWithSupport = <
 				elementImage.close();
 			}
 
-			if (!inactive) {
+			if (premounting) {
+				draw(captureCanvas, null, presentationProgress);
+			} else if (!inactive) {
 				onElementImage(captureCanvas, draw);
 			}
 		};
@@ -280,7 +287,15 @@ const HtmlInCanvasPresentationWithSupport = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough, inactive]);
+	}, [
+		onElementImage,
+		presentationDirection,
+		presentationProgress,
+		draw,
+		passThrough,
+		inactive,
+		premounting,
+	]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -308,6 +323,7 @@ const HtmlInCanvasPresentationWithSupport = <
 		};
 	}, [
 		presentationProgress,
+		shader,
 		onElementImage,
 		inactive,
 		passThrough,
@@ -372,9 +388,13 @@ const HtmlInCanvasPresentationWithSupport = <
 				style={{...canvasSubtreeStyle, visibility: 'hidden'}}
 			>
 				{/* Keep the drawable element mounted while async children load. */}
-				<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
-					{children}
-				</div>
+				<Internals.DefaultPremountContext.Provider
+					value={canPremount ? inheritedPremountInSeconds : 0}
+				>
+					<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
+						{children}
+					</div>
+				</Internals.DefaultPremountContext.Provider>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>

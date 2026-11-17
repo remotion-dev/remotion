@@ -58,7 +58,7 @@ test.for(registeredCdataWrappers.map((wrapper) => ({wrapper})))(
 			expect(styles[0]).not.toBeNull();
 			for (const style of styles) {
 				expect(style).toBe(styles[0]);
-				expect(style!.css.match(/@font-face/g)?.length).toBe(1);
+				expect((await style!.css).match(/@font-face/g)?.length).toBe(1);
 			}
 
 			for (let index = 0; index < originals.length; index++) {

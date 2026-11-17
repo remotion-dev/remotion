@@ -89,15 +89,16 @@ test('embeds only the font faces needed by SVG text', async () => {
 	try {
 		const embedded = getEmbeddedFontStyleForSvg(svg);
 		expect(embedded).not.toBeNull();
-		expect(embedded!.css).toContain('base64,AQ==');
-		expect(embedded!.css).not.toContain('base64,Ag==');
-		expect(embedded!.css).not.toContain('base64,Aw==');
-		expect(embedded!.css).toContain('ascent-override:90%');
-		expect(embedded!.css).toContain('descent-override:20%');
-		expect(embedded!.css).toContain('font-display:swap');
-		expect(embedded!.css).toContain('font-feature-settings:"liga" 0');
-		expect(embedded!.css).toContain('line-gap-override:10%');
-		expect(embedded!.css).toContain('font-variant:small-caps');
+		const css = await embedded!.css;
+		expect(css).toContain('base64,AQ==');
+		expect(css).not.toContain('base64,Ag==');
+		expect(css).not.toContain('base64,Aw==');
+		expect(css).toContain('ascent-override:90%');
+		expect(css).toContain('descent-override:20%');
+		expect(css).toContain('font-display:swap');
+		expect(css).toContain('font-feature-settings:"liga" 0');
+		expect(css).toContain('line-gap-override:10%');
+		expect(css).toContain('font-variant:small-caps');
 	} finally {
 		svg.remove();
 		document.fonts.delete(face);

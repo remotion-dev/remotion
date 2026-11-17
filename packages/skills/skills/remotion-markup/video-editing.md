@@ -136,7 +136,6 @@ and stacking order unchanged unless the user requested an edit. Moving content
 under a new timing boundary can change the frame returned by `useCurrentFrame()`;
 preserve the source clock or adjust local offsets deliberately.
 
-Verify the full composition and any connected views, rather than judging the
-result only from a standalone scene. Check visual output and audio around cuts,
-overlay boundaries, and sound tails. Grouping the timeline should preserve the
-existing edit while making its controls easier to use.
+Rendered frames CAN show cuts and overlay boundaries across the full composition
+and connected views. Audio timing CAN be checked through clip durations, trims,
+and volume envelopes.
