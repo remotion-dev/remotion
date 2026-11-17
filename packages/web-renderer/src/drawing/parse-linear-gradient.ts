@@ -357,12 +357,15 @@ export const createCanvasGradient = ({
 	gradientInfo,
 	offsetLeft,
 	offsetTop,
+	cssPixelsPerUnit,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	gradientInfo: LinearGradientInfo;
 	offsetLeft: number;
 	offsetTop: number;
+	// How many units of `rect` make up one CSS pixel, for resolving px stops.
+	cssPixelsPerUnit: number;
 }): CanvasGradient => {
 	// Convert angle to radians
 	// CSS angles: 0deg = to top, 90deg = to right, 180deg = to bottom, 270deg = to left
@@ -390,7 +393,10 @@ export const createCanvasGradient = ({
 		length = Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
 	}
 
-	const stops = resolveColorStops(gradientInfo.colorStops, length * 2);
+	const stops = resolveColorStops(
+		gradientInfo.colorStops,
+		(length * 2) / cssPixelsPerUnit,
+	);
 	const {start, end, toCanvasOffset} = getCanvasGradientRange(stops);
 
 	const x0 = centerX - cos * length;

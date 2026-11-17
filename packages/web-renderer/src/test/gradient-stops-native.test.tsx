@@ -64,3 +64,47 @@ test.for(Object.entries(cases))(
 		).toBeLessThanOrEqual(2);
 	},
 );
+
+test.for([1, 2, 3])(
+	'px stops in a gradient mask match percentage stops at scale %s',
+	async (scale) => {
+		const render = async (maskImage: string) => {
+			const result = await renderStillOnWeb({
+				composition: {
+					component: () => (
+						<AbsoluteFill style={{backgroundColor: 'white'}}>
+							<div
+								style={{
+									width: 120,
+									height: 40,
+									backgroundColor: '#2563eb',
+									maskImage,
+								}}
+							/>
+						</AbsoluteFill>
+					),
+					id: 'gradient-mask-px-scale',
+					width: 120,
+					height: 40,
+					fps: 30,
+					durationInFrames: 1,
+				},
+				frame: 0,
+				licenseKey: 'free-license',
+				inputProps: {},
+				scale,
+			});
+			return result.blob({format: 'png'});
+		};
+
+		const percentage = await render(
+			'linear-gradient(90deg, black 0%, transparent 100%)',
+		);
+		const pixels = await render(
+			'linear-gradient(90deg, black 0px, transparent 120px)',
+		);
+		expect(
+			(await countNativePixels(percentage, pixels)).maxChannelDelta,
+		).toBeLessThanOrEqual(2);
+	},
+);

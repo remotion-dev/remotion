@@ -244,6 +244,7 @@ export const getBackgroundFill = async ({
 				gradientInfo,
 				offsetLeft,
 				offsetTop,
+				cssPixelsPerUnit: 1,
 			});
 
 			return gradient;
