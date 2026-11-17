@@ -95,14 +95,7 @@ export const createLayer = async ({
 	}
 
 	const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
-	const userAgent =
-		element.ownerDocument.defaultView?.navigator.userAgent ?? '';
-	const context = canvas.getContext('2d', {
-		alpha: transparent,
-		willReadFrequently:
-			/AppleWebKit/.test(userAgent) &&
-			!/Chrome\/|Chromium\/|Android/.test(userAgent),
-	});
+	const context = canvas.getContext('2d', {alpha: transparent});
 
 	if (!context) {
 		throw new Error('Could not get context');

@@ -32,7 +32,7 @@ const getReadableImageError = (
 	return null;
 };
 
-const drawFilteredSvgThroughOrdinaryCanvas = ({
+const drawSvgThroughReadbackCanvas = ({
 	drawable,
 	fitted,
 	context,
@@ -53,20 +53,20 @@ const drawFilteredSvgThroughOrdinaryCanvas = ({
 		return false;
 	const scratch = new OffscreenCanvas(width, height);
 	try {
-		const ordinary = scratch.getContext('2d', {
+		const readbackContext = scratch.getContext('2d', {
 			alpha: true,
-			willReadFrequently: false,
+			willReadFrequently: true,
 		});
-		if (!ordinary) return false;
-		ordinary.drawImage(context.canvas, 0, 0);
-		ordinary.setTransform(context.getTransform());
-		ordinary.globalAlpha = context.globalAlpha;
-		ordinary.filter = context.filter;
-		ordinary.shadowColor = context.shadowColor;
-		ordinary.shadowBlur = context.shadowBlur;
-		ordinary.shadowOffsetX = context.shadowOffsetX;
-		ordinary.shadowOffsetY = context.shadowOffsetY;
-		ordinary.drawImage(
+		if (!readbackContext) return false;
+		readbackContext.drawImage(context.canvas, 0, 0);
+		readbackContext.setTransform(context.getTransform());
+		readbackContext.globalAlpha = context.globalAlpha;
+		readbackContext.filter = context.filter;
+		readbackContext.shadowColor = context.shadowColor;
+		readbackContext.shadowBlur = context.shadowBlur;
+		readbackContext.shadowOffsetX = context.shadowOffsetX;
+		readbackContext.shadowOffsetY = context.shadowOffsetY;
+		readbackContext.drawImage(
 			drawable,
 			fitted.left,
 			fitted.top,
@@ -96,12 +96,12 @@ const drawFilteredSvgThroughOrdinaryCanvas = ({
  * Draw an SVG element using "contain" behavior (the default for SVGs).
  */
 const drawSvg = ({
-	ordinaryFilter,
+	readback,
 	drawable,
 	dimensions,
 	contextToDraw,
 }: {
-	ordinaryFilter: boolean;
+	readback: boolean;
 	drawable: HTMLImageElement;
 	dimensions: DOMRect;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
@@ -114,8 +114,8 @@ const drawSvg = ({
 		},
 	});
 	if (
-		ordinaryFilter &&
-		drawFilteredSvgThroughOrdinaryCanvas({
+		readback &&
+		drawSvgThroughReadbackCanvas({
 			drawable,
 			fitted,
 			context: contextToDraw,
@@ -290,11 +290,12 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 				drawable,
 				dimensions,
 				contextToDraw,
-				ordinaryFilter:
+				readback:
 					/AppleWebKit/.test(userAgent) &&
 					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
 					!getMaskImageValue(computedStyle) &&
-					Boolean(node.querySelector('feImage')),
+					Boolean(node.querySelector('text')) &&
+					!node.querySelector('feImage'),
 			});
 			return;
 		}
