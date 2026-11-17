@@ -153,7 +153,7 @@
 			"@types/dom-webcodecs": "0.1.11",
 			"@vitejs/plugin-react": "4.3.4",
 			"@vitest/browser-playwright": "5.0.3",
-			"playwright": "1.60.0",
+			"playwright": "1.65.1",
 			"vitest": "5.0.3",
 			"tsrs": "0.23.0-ts7.1.0-beta",
 			"typescript": "7.1.0-beta"

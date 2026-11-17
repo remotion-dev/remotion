@@ -51,6 +51,7 @@ export const loadFont = async (options: LoadFontOptions): Promise<void> => {
 	const waitForFont = delayRender(
 		`Loading font ${family} (url: ${url}, format: ${format}, weight: ${weight}, style: ${style}, variant: ${variant}, ascentOverride: ${ascentOverride}, descentOverride: ${descentOverride}, display: ${display}, featureSettings: ${featureSettings}, lineGapOverride: ${lineGapOverride}, stretch: ${stretch}, unicodeRange: ${unicodeRange})`,
 	);
+	const fontLoad = NoReactInternals.startFontLoad();
 	try {
 		const fontFormat = format ?? getFontFormat(url);
 		const fontData = await NoReactInternals.fetchFontData(url);
@@ -86,8 +87,10 @@ export const loadFont = async (options: LoadFontOptions): Promise<void> => {
 			unicodeRange: unicodeRange ?? null,
 			variant: variant ?? null,
 		});
+		fontLoad.finish();
 		continueRender(waitForFont);
 	} catch (err) {
+		fontLoad.fail(err);
 		cancelRender(err);
 	}
 };
