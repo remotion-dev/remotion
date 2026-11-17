@@ -119,6 +119,10 @@ export const makeStreamer = (
 		}
 
 		const length = Number(lengthString);
+		if (!/^\d+$/.test(lengthString) || !Number.isSafeInteger(length)) {
+			throw new Error(`Invalid message length in stream: "${lengthString}"`);
+		}
+
 		const status = Number(statusString);
 		const statusType = status === 1 ? 'error' : 'success';
 
@@ -174,14 +178,12 @@ export const makeStreamer = (
 
 		const data = outputBuffer.subarray(
 			separatorIndex + 1,
-			separatorIndex + 1 + Number(lengthString),
+			separatorIndex + 1 + length,
 		);
 		onMessage(status === 1 ? 'error' : 'success', nonceString, data);
 		missingData = null;
 
-		outputBuffer = outputBuffer.subarray(
-			separatorIndex + Number(lengthString) + 1,
-		);
+		outputBuffer = outputBuffer.subarray(separatorIndex + length + 1);
 
 		return processInput();
 	};

@@ -214,14 +214,43 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 	let runningStatus: RunningStatus = {type: 'running'};
 
-	child.stdout.on('data', onData);
-
 	child.stderr.on('data', (data) => {
 		stderrChunks.push(data);
 	});
 
 	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;
 	let reject: ((reason: Error) => void) | null = null;
+
+	// The streamer throws synchronously on a malformed frame. Without this
+	// handler the exception escapes the `data` listener, becomes an uncaught
+	// exception and takes down the host process instead of failing the render.
+	const failWithProtocolError = (error: Error) => {
+		runningStatus = {
+			type: 'quit-with-error',
+			error: error.message,
+			signal: null,
+		};
+		for (const waiter of Array.from(waiters.values())) {
+			waiter.reject(error);
+		}
+
+		waiters.clear();
+		reject?.(error);
+		child.kill();
+	};
+
+	child.stdout.on('data', (data) => {
+		try {
+			const result = onData(data);
+			if (result instanceof Promise) {
+				result.catch(failWithProtocolError);
+			}
+		} catch (error) {
+			failWithProtocolError(
+				error instanceof Error ? error : new Error(String(error)),
+			);
+		}
+	});
 
 	child.on('close', (code, signal) => {
 		const waitersToKill = Array.from(waiters.values());

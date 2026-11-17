@@ -49,6 +49,36 @@ test('should buffer messages when no payload sink is given', () => {
 	expect(new TextDecoder().decode(received[0].data)).toBe('hello world');
 });
 
+test('should throw when the message length is not a number', () => {
+	const {onData} = makeStreamer(() => {
+		// unused
+	});
+
+	const wire = new TextEncoder().encode('remotion_buffer:1:abc:0:');
+
+	expect(() => onData(wire)).toThrow('Invalid message length in stream: "abc"');
+});
+
+test('should throw when the message length is negative', () => {
+	const {onData} = makeStreamer(() => {
+		// unused
+	});
+
+	const wire = new TextEncoder().encode('remotion_buffer:1:-1:0:');
+
+	expect(() => onData(wire)).toThrow('Invalid message length in stream: "-1"');
+});
+
+test('should throw when the message length is empty', () => {
+	const {onData} = makeStreamer(() => {
+		// unused
+	});
+
+	const wire = new TextEncoder().encode('remotion_buffer:1::0:hello');
+
+	expect(() => onData(wire)).toThrow('Invalid message length in stream: ""');
+});
+
 test('should stream payload into sink instead of buffering', async () => {
 	const received: ReceivedMessage[] = [];
 	const sinkWrites: Uint8Array[] = [];
