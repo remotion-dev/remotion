@@ -10,13 +10,10 @@ const BasicsVirtualizedTimelineSceneInner = () => {
 			<BasicsVirtualizedTimelinePreview
 				trimBefore={4.5 * fps}
 				durationInFrames={3 * fps}
-				premountFor={fps}
 				style={{width: (width * 2) / 3}}
 				captureStyle={{translate: '-80px -480px'}}
 			/>
-			<BasicsTitlePanel premountFor={fps} style={null}>
-				Virtualized timeline
-			</BasicsTitlePanel>
+			<BasicsTitlePanel style={null}>Virtualized timeline</BasicsTitlePanel>
 		</AbsoluteFill>
 	);
 };

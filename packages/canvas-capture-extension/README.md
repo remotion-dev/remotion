@@ -4,7 +4,7 @@ Record an area—or a whole webpage—as a high-resolution H.264 MP4 or VP9 WebM
 
 ## Browser setup on macOS
 
-Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
+Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
 
 When the controls open, a red callout above the toolbar explains any unmet browser
 requirements before an area is selected. An outdated browser shows the minimum
@@ -14,22 +14,10 @@ new tab; enable Canvas Draw Element there and restart Chrome. The warning descri
 assuming the flag's state. Requirements are checked again when the controls reopen.
 Chrome versions below the manifest minimum cannot load the extension at all.
 
-To install a compatible Chrome for Testing build, run:
+Run Chrome using a dedicated profile and enable the HTML-in-canvas feature.
 
 ```bash
-packages/canvas-capture-extension/scripts/install-browser.sh
-```
-
-The installer uses a compatible release from Google's Chrome for Testing channels and installs it at:
-
-```text
-/Users/jonathanburger/Applications/Recorder Chrome.app
-```
-
-Launch it with a dedicated profile and the HTML-in-canvas feature enabled:
-
-```bash
-'/Users/jonathanburger/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing' \
+'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
   --user-data-dir='/Users/jonathanburger/Library/Application Support/Remotion Canvas Capture' \
   --enable-features=CanvasDrawElement \
   --no-first-run \
@@ -44,7 +32,7 @@ Load the unpacked extension from the durable installation directory:
 
 ## Development
 
-Close Recorder Chrome if it is already using the dedicated Canvas Capture
+Close Chrome if it is already using the dedicated Canvas Capture
 profile, then run:
 
 ```bash
@@ -54,7 +42,7 @@ bun run dev
 
 WXT starts Vite, writes the development extension to the durable
 `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`
-directory, launches Chrome for Testing with the required feature
+directory, launches Chrome with the required feature
 flags and persistent profile, and loads the extension automatically.
 
 To use another Chrome 157.0.8080.0 or newer executable, set

@@ -10,7 +10,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 1"
 						src="https://remotion.media/canvas-capture-short/short-01.mov"
-						premountFor={30}
 						trimBefore={37}
 						style={{
 							position: 'absolute',
@@ -27,7 +26,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 2"
 						src="https://remotion.media/canvas-capture-short/short-02.mov"
-						premountFor={30}
 						trimBefore={69}
 						style={{
 							position: 'absolute',
@@ -44,7 +42,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 3"
 						src="https://remotion.media/canvas-capture-short/short-03.mov"
-						premountFor={30}
 						trimBefore={71}
 						style={{
 							position: 'absolute',
@@ -61,7 +58,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 4"
 						src="https://remotion.media/canvas-capture-short/short-04.mov"
-						premountFor={30}
 						trimBefore={65}
 						style={{
 							position: 'absolute',
@@ -78,7 +74,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 5"
 						src="https://remotion.media/canvas-capture-short/short-05.mov"
-						premountFor={30}
 						trimBefore={62}
 						style={{
 							position: 'absolute',
@@ -95,7 +90,6 @@ export const CanvasCaptureShort: React.FC = () => {
 					<Video
 						name="Short 6"
 						src="https://remotion.media/canvas-capture-short/short-06.mov"
-						premountFor={30}
 						trimBefore={80}
 						style={{
 							position: 'absolute',
