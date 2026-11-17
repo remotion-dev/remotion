@@ -276,15 +276,18 @@ The pixel size of the canvas to draw into.
 
 A `number` between `0` and `1`.
 
-`time = 0` is the transition start, and `time = 1` is the transition end. The transition moves from the exiting scene (`nextImage`) to the entering scene (`prevImage`).
+`time = 0` is the transition start, and `time = 1` is the transition end.  
+The transition moves from the exiting scene (`nextImage`) to the entering scene (`prevImage`).
 
 When one image is missing, draw the available scene using the corresponding endpoint of the presentation.
 
-With transition motion blur enabled, `draw()` is called for each exposure sample. Each call must produce a complete image independently of earlier draws. [Transition motion blur](/docs/motion-blur#transition-motion-blur)
+With [transition motion blur](/docs/motion-blur#transition-motion-blur) enabled, `draw()` is called for each exposure sample.  
+Each call must produce a complete image independently of earlier draws.
 
 ##### `pixelRatio`<AvailableFrom v="4.0.545" />
 
-The number of capture pixels per CSS pixel. Multiply CSS-pixel dimensions by this value when drawing into the canvas. Remotion supplies this field on every draw. It is optional in the exported type for compatibility with direct shader calls, where a renderer can default to `1`.
+The number of capture pixels per CSS pixel. Multiply CSS-pixel dimensions by this value when drawing into the canvas.  
+Remotion supplies this field on every draw. It is optional in the exported type for compatibility with direct shader calls, where a renderer can default to `1`.
 
 ##### `presentationDurationInFrames`<AvailableFrom v="4.0.545" />
 
