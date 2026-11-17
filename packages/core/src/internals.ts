@@ -72,6 +72,7 @@ import {
 } from './effects/create-effect.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {getGpuDevice} from './effects/gpu-device.js';
 import {
 	PreferredEffectBackendContext,
 	validatePreferredEffectBackend,
@@ -574,6 +575,7 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	getGpuDevice,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	PreferredEffectBackendContext,
