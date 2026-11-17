@@ -72,7 +72,6 @@ export const WebMCPPromo2Preview = () => {
 				}}
 				durationInFrames={303}
 				from={-31}
-				premountFor={30}
 			/>
 			<Video
 				src="https://remotion.media/webmcp-promo/interaction-recording-v2.mp4"
@@ -83,7 +82,6 @@ export const WebMCPPromo2Preview = () => {
 				durationInFrames={135}
 				trimBefore={530}
 				freeze={36}
-				premountFor={30}
 			/>
 			<Video
 				src="https://remotion.media/webmcp-promo/interaction-recording-v2.mp4"
@@ -93,7 +91,6 @@ export const WebMCPPromo2Preview = () => {
 				from={380}
 				durationInFrames={735}
 				trimBefore={598}
-				premountFor={30}
 			/>
 			<MacOSCursor
 				cursor={interpolate(

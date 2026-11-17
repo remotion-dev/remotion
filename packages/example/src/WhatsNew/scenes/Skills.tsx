@@ -323,11 +323,7 @@ const SkillsSceneInner: React.FC = () => {
 				keyframes={layout}
 			>
 				<Series>
-					<Series.Sequence
-						name="New skills"
-						durationInFrames={34}
-						premountFor={30}
-					>
+					<Series.Sequence name="New skills" durationInFrames={34}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -337,11 +333,7 @@ const SkillsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="What did not work"
-						durationInFrames={129}
-						premountFor={30}
-					>
+					<Series.Sequence name="What did not work" durationInFrames={129}>
 						<Punch zoom={1.14}>
 							<Video
 								src={
@@ -351,11 +343,7 @@ const SkillsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Voiceovers"
-						durationInFrames={84}
-						premountFor={30}
-					>
+					<Series.Sequence name="Voiceovers" durationInFrames={84}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -365,11 +353,7 @@ const SkillsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="FFmpeg"
-						durationInFrames={111}
-						premountFor={30}
-					>
+					<Series.Sequence name="FFmpeg" durationInFrames={111}>
 						<Punch zoom={1.16}>
 							<Video
 								src={
@@ -382,7 +366,6 @@ const SkillsSceneInner: React.FC = () => {
 					<Series.Sequence
 						name="Visualization and transparency"
 						durationInFrames={144}
-						premountFor={30}
 					>
 						<Punch zoom={1.02}>
 							<Video
@@ -393,11 +376,7 @@ const SkillsSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Much smoother"
-						durationInFrames={106}
-						premountFor={30}
-					>
+					<Series.Sequence name="Much smoother" durationInFrames={106}>
 						<Punch zoom={1.18}>
 							<Video
 								src={
