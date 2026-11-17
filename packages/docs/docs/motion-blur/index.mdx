@@ -60,7 +60,7 @@ export const MyComposition = () => {
 
 All built-in presentations support motion blur.  
 Custom presentations must be implemented using [HTML-in-canvas](/docs/transitions/presentations/custom-html-in-canvas) in order to support motion blur.  
-The properties `enterStyle`, `exitStyle`, `innerEnterStyle`, `innerExitStyle`, `outerEnterStyle`, and `outerExitStyle` cannot be used when applying motion blur to the
+The properties `enterStyle`, `exitStyle`, `innerEnterStyle`, `innerExitStyle`, `outerEnterStyle`, and `outerExitStyle` cannot be used when applying motion blur to an element.
 
 ## Browser support
 
@@ -70,8 +70,8 @@ Preview requires HTML-in-canvas support. Browsers without it show the original p
 
 There are 2 more ways motion blur can be achieved in Remotion, but it is not recommended anymore:
 
-- [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but layered blending can change colors and opacity.
-- [`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one.
+- [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but colors and opacity can be inaccurate.
+- [`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one, it does not blend frames.
 
 ## Shutter angle
 
