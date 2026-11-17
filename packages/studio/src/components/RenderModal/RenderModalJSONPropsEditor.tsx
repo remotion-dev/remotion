@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {useContext} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -105,6 +105,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
+	const previousValue = useRef({compositionId, value});
 
 	useEffect(() => {
 		const unsub = subscribeToEvent('default-props-updatable-changed', (e) => {
@@ -121,6 +122,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				const deserialized = NoReactInternals.deserializeJSONWithSpecialTypes<
 					Record<string, unknown>
 				>(JSON.stringify(result.currentDefaultProps));
+				if (deepEqual(deserialized, value)) return;
 				const nextState = parseJS(deserialized, schema);
 				setLocalValue(nextState);
 			}
@@ -129,9 +131,15 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		return () => {
 			unsub();
 		};
-	}, [subscribeToEvent, compositionId, schema]);
+	}, [subscribeToEvent, compositionId, schema, value]);
 
 	useEffect(() => {
+		if (
+			previousValue.current.compositionId === compositionId &&
+			deepEqual(previousValue.current.value, value)
+		)
+			return;
+		previousValue.current = {compositionId, value};
 		setLocalValue((prev) => {
 			if (prev.validJSON && deepEqual(value, prev.value)) {
 				return prev;
@@ -139,7 +147,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 			return parseJS(value as Record<string, unknown>, schema);
 		});
-	}, [value, schema]);
+	}, [value, schema, compositionId]);
 
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {

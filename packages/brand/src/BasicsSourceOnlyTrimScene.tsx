@@ -10,13 +10,10 @@ const BasicsSourceOnlyTrimSceneInner = () => {
 			<BasicsSourceOnlyTrimPreview
 				trimBefore={1.5 * fps}
 				durationInFrames={3 * fps}
-				premountFor={fps}
 				style={{width: (width * 2) / 3}}
 				captureStyle={{translate: '-990px -520px'}}
 			/>
-			<BasicsTitlePanel premountFor={fps} style={null}>
-				{'Source-only\ntrim'}
-			</BasicsTitlePanel>
+			<BasicsTitlePanel style={null}>{'Source-only\ntrim'}</BasicsTitlePanel>
 		</AbsoluteFill>
 	);
 };

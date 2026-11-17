@@ -6,11 +6,7 @@ export const PostmountExample: React.FC = () => {
 		<AbsoluteFill>
 			<Series>
 				{/* First video with both premount and postmount */}
-				<Series.Sequence
-					durationInFrames={100}
-					premountFor={20}
-					postmountFor={30}
-				>
+				<Series.Sequence durationInFrames={100} postmountFor={30}>
 					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
 
@@ -23,11 +19,7 @@ export const PostmountExample: React.FC = () => {
 				</Series.Sequence>
 
 				{/* Third video with both to enable smooth transitions */}
-				<Series.Sequence
-					durationInFrames={100}
-					premountFor={25}
-					postmountFor={25}
-				>
+				<Series.Sequence durationInFrames={100} postmountFor={25}>
 					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
 			</Series>
@@ -41,7 +33,6 @@ export const PostmountWithStyles: React.FC = () => {
 			<Series>
 				<Series.Sequence
 					durationInFrames={100}
-					premountFor={20}
 					postmountFor={30}
 					styleWhilePremounted={{
 						opacity: 0,
@@ -66,11 +57,7 @@ export const PostmountWithStyles: React.FC = () => {
 					</AbsoluteFill>
 				</Series.Sequence>
 
-				<Series.Sequence
-					durationInFrames={100}
-					premountFor={20}
-					postmountFor={30}
-				>
+				<Series.Sequence durationInFrames={100} postmountFor={30}>
 					<AbsoluteFill
 						style={{
 							background: 'green',

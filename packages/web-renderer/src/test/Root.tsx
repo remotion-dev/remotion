@@ -240,6 +240,7 @@ import {
 import {svgFontFamilyLifetime} from './fixtures/svg-font-family-lifetime';
 import {svgFontMediaCache} from './fixtures/svg-font-media-cache';
 import {svgFontReviewCarrier} from './fixtures/svg-font-review-carrier';
+import {svgForeignObjectFont} from './fixtures/svg-foreign-object-font';
 import {
 	svgFullSourceUrlFill,
 	svgFullSourceUrlContainFractional,
@@ -395,7 +396,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgFontReviewCarrier({literal: false})} />
 			<Composition {...svgCssFontTextNodes} />
 			<Composition {...svgCssDocumentTitledFonts} />
-
+			<Composition {...svgForeignObjectFont} />
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition

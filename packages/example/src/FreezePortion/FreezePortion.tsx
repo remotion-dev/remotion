@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Interactive, useCurrentFrame} from 'remotion';
 
 const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
 	return (
@@ -53,7 +53,6 @@ const getFreezes = () => {
 };
 
 export const FreezePortion: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const freezes = useMemo(() => {
 		return getFreezes();
 	}, []);
@@ -83,10 +82,6 @@ export const FreezePortion: React.FC = () => {
 	}, [activeFreeze, freezes, nextFreeze]);
 
 	return (
-		<Counter
-			from={from}
-			freeze={activeFreeze ? activeFreeze.frame : null}
-			premountFor={fps}
-		/>
+		<Counter from={from} freeze={activeFreeze ? activeFreeze.frame : null} />
 	);
 };
