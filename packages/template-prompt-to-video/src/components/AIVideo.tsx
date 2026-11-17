@@ -2,7 +2,7 @@ import { loadFont } from "@remotion/google-fonts/BreeSerif";
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
 import { z } from "zod";
-import { FPS, INTRO_DURATION } from "../lib/constants";
+import { INTRO_DURATION } from "../lib/constants";
 import { TimelineSchema } from "../lib/types";
 import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 import { Background } from "./Background";

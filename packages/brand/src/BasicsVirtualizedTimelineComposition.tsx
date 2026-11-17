@@ -9,7 +9,6 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 const BasicsVirtualizedTimelineInner = ({
@@ -18,7 +17,6 @@ const BasicsVirtualizedTimelineInner = ({
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 
 	const screenCapture = (
 		<>

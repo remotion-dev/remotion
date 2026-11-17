@@ -130,7 +130,7 @@ const CircleContent = () => {
 
 const PropertyContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -156,7 +156,7 @@ const PropertyContent = () => {
 
 const EffectContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -223,7 +223,7 @@ const MaximumContent = () => {
 
 const UnknownArithmeticContent = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<>
 			<Solid
@@ -248,7 +248,6 @@ const UnknownArithmeticContent = () => {
 };
 
 export const KeyframeTrimTestbed = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<AbsoluteFill
 			style={{

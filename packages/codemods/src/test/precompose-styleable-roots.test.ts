@@ -264,7 +264,7 @@ test('preserves disabled premounting, postmount styling, and the trimmed duratio
 	const input = `import {AbsoluteFill, Interactive} from 'remotion';
 export const Video = () => (
   <AbsoluteFill>
-    <Interactive.Div name="Closing card" from={600} durationInFrames={90} trimBefore={12} styleWhilePostmounted={{opacity: 0.25}}>
+    <Interactive.Div name="Closing card" from={600} durationInFrames={90} trimBefore={12} premountFor={0} postmountFor={15} styleWhilePostmounted={{opacity: 0.25}}>
       <h1>Thanks for watching!</h1>
     </Interactive.Div>
   </AbsoluteFill>
@@ -275,7 +275,7 @@ export const Video = () => (
 		(node) => node.tagName === 'Interactive.Div',
 	);
 	expect(after.files[filePath]).toContain(
-		'<ClosingCard name="Closing card" from={600} durationInFrames={90} trimBefore={12} styleWhilePostmounted={{opacity: 0.25}} />',
+		'<ClosingCard name="Closing card" from={600} durationInFrames={90} trimBefore={12} premountFor={0} postmountFor={15} styleWhilePostmounted={{opacity: 0.25}} />',
 	);
 	expect(after.files[filePath])
 		.toContain(`function ClosingCardContent({style: precomposeStyle}: {style?: import('react').CSSProperties}) {
@@ -298,7 +298,7 @@ export const Video = () => {
   const {fps} = useVideoConfig();
   return (
     <AbsoluteFill>
-      <Interactive.Div name="Speaker intro" from={90} durationInFrames={150} style={{padding: 48}}>
+      <Interactive.Div name="Speaker intro" from={90} durationInFrames={150} premountFor={fps} style={{padding: 48}}>
         <h1>Meet the team</h1>
       </Interactive.Div>
     </AbsoluteFill>
@@ -311,7 +311,7 @@ export const Video = () => {
 	);
 	expect(after.files[filePath]).toContain('const {fps} = useVideoConfig();');
 	expect(after.files[filePath]).toContain(
-		'<SpeakerIntro name="Speaker intro" from={90} durationInFrames={150} />',
+		'<SpeakerIntro name="Speaker intro" from={90} durationInFrames={150} premountFor={fps} />',
 	);
 	expect(after.files[filePath])
 		.toContain(`function SpeakerIntroContent({style: precomposeStyle}: {style?: import('react').CSSProperties}) {

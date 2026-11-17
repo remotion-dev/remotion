@@ -9,7 +9,6 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 const BasicsSourceOnlyTrimInner = ({
@@ -18,7 +17,6 @@ const BasicsSourceOnlyTrimInner = ({
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 
 	const screenCapture = (
 		<>

@@ -218,7 +218,7 @@ export const Video = () => {
   return (
     <${parentTag}>
       <${sequenceTag} name="Before" durationInFrames={30}><div>Before</div></${sequenceTag}>
-      <${sequenceTag} name="Presenter" durationInFrames={147} trimBefore={369} ${extraProps}>
+      <${sequenceTag} name="Presenter" durationInFrames={147} trimBefore={369} premountFor={fps} ${extraProps}>
         <PresenterZoom />
         <BasicCaptions captions={[{text: ' I', startMs: 13300, endMs: 13520, timestampMs: 13410, confidence: null}]} />
       </${sequenceTag}>
@@ -249,7 +249,7 @@ export const Video = () => {
 		const result = precomposeJsxNodes(request);
 		const after = applyCodemodChanges(project, result.changes);
 		expect(after.files[filePath]).toContain(
-			`<${sequenceTag} name="Presenter" durationInFrames={147} trimBefore={369} ${extraProps}>\n        <Presenter />\n      </${sequenceTag}>`,
+			`<${sequenceTag} name="Presenter" durationInFrames={147} trimBefore={369} premountFor={fps} ${extraProps}>\n        <Presenter />\n      </${sequenceTag}>`,
 		);
 		expect(after.files[filePath]).toContain('export function Presenter()');
 		expect(after.files[filePath]).toContain(

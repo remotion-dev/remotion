@@ -19,7 +19,7 @@ export const HelloWorld: React.FC<HelloWorldProps> = ({
   titleColor,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>

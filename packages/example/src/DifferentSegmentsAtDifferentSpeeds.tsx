@@ -1,6 +1,6 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Series, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Series} from 'remotion';
 
 const src = 'https://remotion.media/video.mp4';
 
