@@ -7,6 +7,8 @@ version: 4.0.544
 This is guidance for writing Remotion React Markup.
 If this is not relevant, load [Remotion Best Practices](../remotion-best-practices/SKILL.md) instead.
 
+`MUST` marks requirements, `SHOULD` recommendations, `MAY` optional actions, and `CAN` capabilities. Apply them to the requested task.
+
 ## Preserve user changes
 
 Users may make edits in the code outside of the conversation.
@@ -180,7 +182,7 @@ See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Motion blur
 
-When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.md) for the preferred HTML-in-canvas approach, preview requirements, and alternatives.
+When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.md) for `<HtmlInCanvasMotionBlur>`, transition `motionBlur`, Studio controls, and preview requirements.
 
 ## Visual and pixel effects
 
@@ -322,9 +324,7 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and 
 
 ## Visual checks
 
-Open the [Remotion Studio](../remotion-studio/SKILL.md) to check visual changes.
-When changing timeline structure, inspect the full composition as well as any
-connected components; verify the visible layers, cut timing, and synchronized
-content.
-
-You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.
+Visual changes CAN be inspected in [Remotion Studio](../remotion-studio/SKILL.md)
+or [rendered frames](../remotion-render/SKILL.md). Comparisons CAN include visible
+layers, cut timing, and synchronized content across the full composition and
+connected components.

@@ -370,7 +370,7 @@ export const articles = [
 	},
 	{
 		id: 'pitch',
-		title: 'Controlling pitch',
+		title: 'Pitch',
 		relativePath: 'docs/audio/pitch.mdx',
 		compId: 'articles-docs-audio-pitch',
 		crumb: 'Video and Audio',
@@ -388,7 +388,7 @@ export const articles = [
 	},
 	{
 		id: 'speed',
-		title: 'Controlling playback speed',
+		title: 'Playback speed',
 		relativePath: 'docs/audio/speed.mdx',
 		compId: 'articles-docs-audio-speed',
 		crumb: 'Video and Audio',
@@ -415,7 +415,7 @@ export const articles = [
 	},
 	{
 		id: 'volume',
-		title: 'Controlling volume and muting',
+		title: 'Volume and muting',
 		relativePath: 'docs/audio/volume.mdx',
 		compId: 'articles-docs-audio-volume',
 		crumb: 'Video and Audio',

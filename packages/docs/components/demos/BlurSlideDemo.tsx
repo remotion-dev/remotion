@@ -13,7 +13,7 @@ export const BlurSlideDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/blur-slide-transition.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/blur-slide-transition.mp4" />
 		);
 	}
 

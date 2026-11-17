@@ -11,6 +11,7 @@ import {
 	Internals,
 	type SequenceControls,
 	useCurrentFrame,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
 import {
@@ -26,6 +27,7 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 		readonly shutterAngle?: number;
 		readonly samples?: number;
 		readonly disabled?: boolean;
+		readonly disabledInPreview?: boolean;
 	};
 
 const htmlInCanvasMotionBlurSchema = {
@@ -54,6 +56,12 @@ const htmlInCanvasMotionBlurSchema = {
 		type: 'boolean',
 		default: false,
 		description: 'Disabled',
+	},
+	disabledInPreview: {
+		type: 'boolean',
+		default: false,
+		description: 'Disabled in preview',
+		keyframable: false,
 	},
 } as const satisfies InteractivitySchema;
 
@@ -128,6 +136,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	shutterAngle = 180,
 	samples = 8,
 	disabled = false,
+	disabledInPreview = false,
 	from,
 	durationInFrames,
 	trimBefore,
@@ -144,6 +153,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
 	const gpuDeviceRef = useRef<GPUDevice | null>(null);
@@ -174,7 +184,12 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	// Keep the first sample mounted when blur is disabled so the canvas stays visible.
 	// Audio-only frames mount the children once so their audio is captured once.
 	const actualSamples =
-		disabled || shutterAngle === 0 || !videoEnabled ? 1 : samples;
+		disabled ||
+		(disabledInPreview && !isRendering) ||
+		shutterAngle === 0 ||
+		!videoEnabled
+			? 1
+			: samples;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(

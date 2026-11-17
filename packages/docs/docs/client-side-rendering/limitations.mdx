@@ -102,7 +102,9 @@ Literal inline and presentation-attribute `font-family` selection on local `<use
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text, including text in patterns and masks and XML CDATA text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements do not affect web-font support. Foreign-namespace XML metadata outside `foreignObject` does not add unused registered fonts or change visible SVG styling.
 
-External CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Optional `format()` and `tech()` qualifiers are retained; technology availability and fallback follow the browser. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), browser `FontFace` fonts, text inside `<foreignObject>` are not supported.
+Registered fonts are supported in `<foreignObject>` HTML text with inline or inherited font selection. External HTML CSS selection and fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported.
+
+External CSS `@font-face` at the top level is supported from accessible, enabled document stylesheets with a single `data:` source. Optional `format()` and `tech()` qualifiers are retained; technology availability and fallback follow the browser. Conditional and grouped rules, multiple sources, CSS-escaped URLs, CSS imports, unreadable stylesheets (including typical Google Fonts CSS), and browser `FontFace` fonts are not supported for SVG text.
 
 SVG-local top-level faces and active `@media` and `@supports` groups keep their declared face order, including nested conditions and multiple-source lists. Font definitions inside local `@container` and `@scope` groups remain global; container-query and scope-selector matching do not disable them. Retained `@layer` groups keep their layer precedence. Inactive media and supports faces are not carried as active definitions. Native glyph rasterization can still differ between the document and SVG image. External font discovery remains limited to a single data source. Font-group matching requires the rendered text’s font queries to be loaded; the document’s font set may still be loading other faces. Loaded single-source CSS data fonts, including percent-encoded binary, base64 data with MIME-header spaces, and data URLs with fragments, retain title-set font selection when the complete title group can be resolved uniquely. Title-set selection that depends on unreadable or unmodelled grouped rules, registered-face precedence, unsupported shaping, or ambiguous groups remains unsupported.
 
@@ -119,8 +121,7 @@ Mentions of `@import` or `@scope` inside comments, strings, URLs (including esca
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
-"Spread radius" is <a style={{color: 'red'}}>not supported</a>.
+`inset` shadows and positive or negative spread radius are <a style={{color: 'green'}}>supported</a>. With `border-radius`, a spread or `inset` shadow may show a 1px anti-aliasing seam where it meets the box. Blurred `inset` shadows may differ slightly from native rendering.
 
 ## Masks
 
