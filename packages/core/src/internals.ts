@@ -169,6 +169,7 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {MotionBlurContext} from './motion-blur-context.js';
 import {OptimisticEffects, useOptimisticEffects} from './optimistic-effects.js';
 import {
 	OptimisticSequenceDeletion,
@@ -380,6 +381,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	MotionBlurContext,
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 	bufferingDiagnostics,

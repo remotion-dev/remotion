@@ -117,6 +117,11 @@ Samples outside the composition are clamped to its first or last frame.
 
 [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) are also accepted and behave like on [`<Sequence>`](/docs/sequence).
 
+## Video frame reuse<AvailableFrom v="4.0.545" />
+
+All motion blur samples share a single frame and its video effects when using [`<Video>`](/docs/media/video).
+This avoids a separate video player for each sample. Transforms and other animations still use each sample's time.
+
 ## Nested HTML-in-canvas caveat
 
 Children of `<HtmlInCanvasMotionBlur>` can contain another [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, or vice versa, in Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. Check [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) before nesting them.

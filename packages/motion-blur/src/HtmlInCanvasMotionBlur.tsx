@@ -18,6 +18,11 @@ import {
 	createMotionBlurCompositor,
 	getMotionBlurGpuDevice,
 } from './motion-blur-compositor';
+import {
+	MotionBlurSampleProvider,
+	useMotionBlurVideoCanvases,
+	type MotionBlurVideoCanvases,
+} from './motion-blur-context';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 	InteractivePremountProps & {
@@ -74,6 +79,7 @@ type MotionBlurSampleProps = {
 	readonly shutterInFrames: number;
 	readonly firstFrame: number;
 	readonly lastFrame: number;
+	readonly videoCanvases: MotionBlurVideoCanvases;
 };
 
 const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
@@ -85,16 +91,24 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 	shutterInFrames,
 	firstFrame,
 	lastFrame,
+	videoCanvases,
 }) => {
 	const frame = useCurrentFrame();
+	const representativeIndex = Math.floor(count / 2);
+	const temporalIndex =
+		index === 0
+			? representativeIndex
+			: index <= representativeIndex
+				? index - 1
+				: index;
 	const sampleFrame = Math.max(
 		firstFrame,
 		Math.min(
 			lastFrame,
-			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
+			frame + ((temporalIndex + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
-	const isRepresentativeSample = index === Math.floor(count / 2);
+	const isRepresentativeSample = index === 0;
 
 	return (
 		<div
@@ -119,7 +133,14 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			<Internals.DisableSequenceRegistrationProvider
 				disabled={!isRepresentativeSample}
 			>
-				<Freeze frame={sampleFrame}>{children}</Freeze>
+				<Freeze frame={sampleFrame}>
+					<MotionBlurSampleProvider
+						sampleIndex={index}
+						videoCanvases={videoCanvases}
+					>
+						{children}
+					</MotionBlurSampleProvider>
+				</Freeze>
 			</Internals.DisableSequenceRegistrationProvider>
 		</div>
 	);
@@ -156,6 +177,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
+	const videoCanvases = useMotionBlurVideoCanvases();
 	const gpuDeviceRef = useRef<GPUDevice | null>(null);
 	const compositorRef = useRef<{
 		compositor: ReturnType<typeof createMotionBlurCompositor>;
@@ -317,6 +339,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 					shutterInFrames={shutterInFrames}
 					firstFrame={firstFrame}
 					lastFrame={lastFrame}
+					videoCanvases={videoCanvases}
 				>
 					{children}
 				</MotionBlurSample>

@@ -6,6 +6,7 @@ export {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 } from './book-flip-doc';
+export {BouncingVideoMotionBlur} from './bouncing-video';
 export {
 	HtmlInCanvasChangingSize,
 	HtmlInCanvasChangingSize as HtmlInCanvasDemo,

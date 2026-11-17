@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -73,6 +74,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly volume: VolumeProp;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 	readonly showInTimeline: boolean;
 	readonly loop: boolean;
 	readonly trimAfter: number | undefined;
@@ -118,6 +120,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	volume,
 	loopVolumeCurveBehavior,
 	onVideoFrame,
+	onCanvasUpdated,
 	showInTimeline,
 	loop,
 	trimAfter,
@@ -214,6 +217,35 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	const onCanvasUpdatedRef = useRef(onCanvasUpdated);
+	onCanvasUpdatedRef.current = onCanvasUpdated;
+	const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const handleFallbackVideoFrame = useCallback(
+		(image: CanvasImageSource) => {
+			onVideoFrame?.(image);
+			if (
+				onCanvasUpdated === null ||
+				!(image instanceof HTMLVideoElement) ||
+				image.readyState < 2
+			) {
+				return;
+			}
+
+			const canvas =
+				fallbackCanvasRef.current ?? document.createElement('canvas');
+			fallbackCanvasRef.current = canvas;
+			if (canvas.width !== image.videoWidth) canvas.width = image.videoWidth;
+			if (canvas.height !== image.videoHeight)
+				canvas.height = image.videoHeight;
+			const context = canvas.getContext('2d');
+			if (context) {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				context.drawImage(image, 0, 0);
+				onCanvasUpdated(canvas);
+			}
+		},
+		[onCanvasUpdated, onVideoFrame],
+	);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [status, dispatchStatus] = useReducer(
@@ -525,6 +557,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					);
 				},
 			});
+			player.setCanvasUpdateCallback(onCanvasUpdatedRef.current);
 
 			if (canvas && studioSourceKey) {
 				const copied = copiedFrameRef.current;
@@ -756,7 +789,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
-	}, [onVideoFrame, mediaPlayerReady]);
+		mediaPlayer.setCanvasUpdateCallback(onCanvasUpdated);
+	}, [onVideoFrame, onCanvasUpdated, mediaPlayerReady]);
 
 	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
@@ -864,6 +898,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 				className={className}
 				muted={effectiveMuted}
 				volume={volume}
+				onVideoFrame={
+					onVideoFrame || onCanvasUpdated ? handleFallbackVideoFrame : undefined
+				}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}

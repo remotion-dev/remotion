@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -10,6 +10,7 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getSharedInputCacheKey} from '../get-shared-input';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {
@@ -17,6 +18,7 @@ import {
 	getVideoSequenceDuration,
 } from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
+import {useMotionBlurVideo} from './use-motion-blur-video';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
@@ -122,7 +124,7 @@ const InnerVideo: React.FC<
 	...props
 }) => {
 	const environment = useRemotionEnvironment();
-
+	const sequence = useContext(Internals.SequenceContext);
 	if (typeof src !== 'string') {
 		throw new TypeError(
 			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
@@ -130,6 +132,37 @@ const InnerVideo: React.FC<
 			)} instead.`,
 		);
 	}
+
+	const motionBlurSourceKey = useMemo(
+		() =>
+			JSON.stringify([
+				getSharedInputCacheKey({src, credentials, requestInit}),
+				_remotionInternalStack,
+				sequence?.absoluteFrom,
+				sequence?.playbackRate,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop,
+				maxCanvasSinkFrameSize,
+				headless,
+			]),
+		[
+			_remotionInternalStack,
+			credentials,
+			headless,
+			loop,
+			maxCanvasSinkFrameSize,
+			playbackRate,
+			requestInit,
+			sequence?.absoluteFrom,
+			sequence?.playbackRate,
+			src,
+			trimAfter,
+			trimBefore,
+		],
+	);
+	const motionBlur = useMotionBlurVideo(motionBlurSourceKey);
 
 	validateMediaTrimProps({
 		startFrom: undefined,
@@ -146,6 +179,19 @@ const InnerVideo: React.FC<
 	});
 
 	validateToneFrequency({toneFrequency, component: 'Video'});
+
+	if (!motionBlur.primary) {
+		return headless ? null : (
+			<canvas
+				{...props}
+				ref={motionBlur.canvasRef}
+				className={[Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+					.filter(Internals.truthy)
+					.join(' ')}
+				style={{...style, objectFit}}
+			/>
+		);
+	}
 
 	if (environment.isRendering) {
 		return (
@@ -166,6 +212,7 @@ const InnerVideo: React.FC<
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				muted={muted}
 				onVideoFrame={onVideoFrame}
+				onCanvasUpdated={motionBlur.onCanvasUpdated}
 				playbackRate={playbackRate}
 				src={src}
 				_remotionInternalStack={_remotionInternalStack}
@@ -213,6 +260,7 @@ const InnerVideo: React.FC<
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 			muted={muted}
 			onVideoFrame={onVideoFrame}
+			onCanvasUpdated={motionBlur.onCanvasUpdated}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
 			preservePitch={preservePitch}

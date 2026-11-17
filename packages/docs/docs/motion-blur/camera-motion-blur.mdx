@@ -95,6 +95,11 @@ export const MyComposition = () => {
 };
 ```
 
+## Video frame reuse<AvailableFrom v="4.0.545" />
+
+All motion blur samples share a single frame and its video effects when using [`<Video>`](/docs/media/video).
+This avoids a separate video player for each sample. Transforms and other animations still use each sample's time.
+
 ## Demo
 
 <CameraMotionBlurExample />
