@@ -477,7 +477,7 @@ function normalizeColor(color: string): number {
 		}
 	}
 
-	if (colorNames[color] !== undefined) {
+	if (Object.prototype.hasOwnProperty.call(colorNames, color)) {
 		return colorNames[color];
 	}
 

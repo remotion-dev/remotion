@@ -9,6 +9,19 @@ test('Throws if color string is not right', () => {
 	}, /invalid color string #fabgdf provided/);
 });
 
+test('Throws for inherited object properties used as color names', () => {
+	for (const color of [
+		'constructor',
+		'toString',
+		'__proto__',
+		'hasOwnProperty',
+	]) {
+		expectToThrow(() => {
+			interpolateColors(1, [0, 1], [color, '#ffaabb']);
+		}, /invalid color string/);
+	}
+});
+
 describe('Throws error for undefined parameters', () => {
 	test('Undefined input', () => {
 		expectToThrow(() => {
