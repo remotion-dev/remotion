@@ -308,6 +308,7 @@ const HtmlInCanvasPresentationWithSupport = <
 		};
 	}, [
 		presentationProgress,
+		shader,
 		onElementImage,
 		inactive,
 		passThrough,
