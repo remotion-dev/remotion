@@ -33,7 +33,6 @@ export async function uploadToVercelBlob({
 		sandboxFilePath,
 		blobPath: actualBlobPath,
 		contentType,
-		blobToken,
 		access,
 	};
 
@@ -41,6 +40,7 @@ export async function uploadToVercelBlob({
 		cmd: 'node',
 		args: ['upload-blob.mjs', JSON.stringify(uploadConfig)],
 		detached: true,
+		env: {BLOB_READ_WRITE_TOKEN: blobToken},
 	});
 
 	let result: {url: string; size: number} | null = null;
