@@ -1283,11 +1283,7 @@ const sidebars: SidebarsConfig = {
 					],
 				},
 				'ai/webmcp',
-				'ai/bolt',
 				'ai/chatbot',
-				'ai/generate',
-				'ai/dynamic-compilation',
-				'ai/ai-saas-template',
 			],
 		},
 		{

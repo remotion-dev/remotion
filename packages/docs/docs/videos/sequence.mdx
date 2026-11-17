@@ -18,7 +18,7 @@ Render each [`<Video>`](/docs/media/video) in a [`<Series.Sequence>`](/docs/seri
 ```tsx twoslash title="VideosInSequence.tsx"
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Series, useVideoConfig} from 'remotion';
+import {Series} from 'remotion';
 
 export type VideoToEmbed = {
   src: string;
@@ -30,8 +30,6 @@ export type VideosInSequenceProps = {
 };
 
 export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
-  const {fps} = useVideoConfig();
-
   return (
     <Series>
       {videos.map((video) => {
@@ -43,7 +41,6 @@ export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
           <Series.Sequence
             key={video.src}
             durationInFrames={video.durationInFrames}
-            premountFor={fps}
           >
             <Video src={video.src} />
           </Series.Sequence>
@@ -54,7 +51,7 @@ export const VideosInSequence: React.FC<VideosInSequenceProps> = ({videos}) => {
 };
 ```
 
-[`premountFor`](/docs/series#premountfor) mounts each video one second before it enters the timeline, giving it time to load in the Player.
+The Studio [premounts](/docs/player/premounting) each video for 2 seconds by default, giving it time to load. In the [Player](/docs/player), pass [`defaultPremountInSeconds`](/docs/player/player#defaultpremountinseconds) to enable premounting.
 
 ## Calculate the durations
 

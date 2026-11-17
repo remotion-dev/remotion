@@ -1,6 +1,6 @@
 {
 	"name": "template-vibe-code",
-	"version": "4.0.543",
+	"version": "4.0.544",
 	"description": "Browser-based motion graphics editor: code, preview and edit Remotion compositions live in the browser",
 	"private": true,
 	"repository": {
@@ -37,7 +37,7 @@
 		"lucide-react": "0.555.0",
 		"monaco-editor": "0.55.1",
 		"monaco-jsx-syntax-highlight": "1.2.2",
-		"next": "16.4.1",
+		"next": "16.4.5",
 		"react": "19.3.1",
 		"react-dom": "19.3.1",
 		"react-refresh": "0.18.0",

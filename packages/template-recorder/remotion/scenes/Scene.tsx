@@ -243,7 +243,6 @@ export const Scene: React.FC<Props> = ({
 
   return (
     <Sequence
-      premountFor={30}
       name={sequenceName}
       from={sceneAndMetadata.from}
       durationInFrames={Math.max(1, sceneAndMetadata.durationInFrames)}

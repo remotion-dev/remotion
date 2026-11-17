@@ -64,7 +64,6 @@ export const CaptionLeftEdgeTrimRepro: React.FC = () => {
 				<Series.Sequence
 					name="Presenter introduction (2)"
 					durationInFrames={129}
-					premountFor={30}
 					trimBefore={369}
 				>
 					<BasicCaptions
