@@ -439,8 +439,16 @@ test(
 		const attemptDirectory = await fs.promises.mkdtemp(
 			path.join(os.tmpdir(), 'remotion-audio-formats-'),
 		);
+		const processes = new Set<execa.ExecaChildProcess>();
+		let expired = false;
+		const deadline = setTimeout(() => {
+			expired = true;
+			for (const process of processes) {
+				process.kill('SIGTERM', {forceKillAfterTimeout: 1000});
+			}
+		}, 20_000);
 		try {
-			// Finish every render before Bun can retry the test.
+			// Leave time for process termination and cleanup before Bun's timeout.
 			const results = await Promise.allSettled(
 				(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
 					const out = path.join(attemptDirectory, `audio.${extension}`);
@@ -451,11 +459,19 @@ test(
 							cwd: path.join(process.cwd(), '..', 'example'),
 						},
 					);
+					processes.add(task);
 					task.stderr?.pipe(process.stderr);
-					await task;
+					try {
+						await task;
+					} finally {
+						processes.delete(task);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					expect(fs.existsSync(out)).toBe(true);
 
-					const info = await RenderInternals.callFf({
+					const probe = RenderInternals.callFf({
 						bin: 'ffprobe',
 						args: [out],
 						indent: false,
@@ -463,6 +479,16 @@ test(
 						binariesDirectory: null,
 						cancelSignal: undefined,
 					});
+					processes.add(probe);
+					let info;
+					try {
+						info = await probe;
+					} finally {
+						processes.delete(probe);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					const data = info.stderr;
 					expect(data).toContain('Stream #0');
 					expect(data).not.toContain('Stream #1');
@@ -495,6 +521,7 @@ test(
 				);
 			}
 		} finally {
+			clearTimeout(deadline);
 			await fs.promises.rm(attemptDirectory, {recursive: true, force: true});
 		}
 	},
