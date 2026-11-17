@@ -151,7 +151,10 @@ A presentation of type `TransitionPresentation`. If not specified, the default v
 
 #### `motionBlur?`<AvailableFrom v="4.0.545" />
 
-An object with optional `shutterAngle` and `samples` properties that enables motion blur for the presentation. Defaults to `180` degrees and `16` samples when enabled. Omitting this prop disables transition motion blur. See [Transition motion blur](/docs/motion-blur#transition-motion-blur) for usage, supported presentations, and sequence requirements.
+An object with optional `shutterAngle` and `samples` properties that enables motion blur for the presentation.  
+Defaults to [`180` degrees and `16` samples](/docs/motion-blur#shutterangle-and-samples) when enabled.  
+A transition must have a [HTML-in-canvas based implementation](/docs/transitions/presentations/custom-html-in-canvas) for this to work.  
+See also: [Transition motion blur](/docs/motion-blur#motion-blur-on-transitions)
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 
