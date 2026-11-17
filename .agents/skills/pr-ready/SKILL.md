@@ -11,6 +11,8 @@ Use this skill when a pull request is not ready because there is either:
 
 Bring the pull request back to a ready state.
 
+Do not run the full docs build locally. Use targeted local checks for documentation changes and verify the full docs build through the CI deployment.
+
 Start by checking:
 
 1. The current git branch and working tree state with `git status`.

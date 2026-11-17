@@ -12,9 +12,7 @@ export const DissolveDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/dissolve-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/dissolve-transition.mp4" />;
 	}
 
 	return <DissolveTransitionPreview />;

@@ -13,7 +13,7 @@ export const DreamyZoomDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/dreamy-zoom-transition.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/dreamy-zoom-transition.mp4" />
 		);
 	}
 
