@@ -220,6 +220,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const onCanvasUpdatedRef = useRef(onCanvasUpdated);
 	onCanvasUpdatedRef.current = onCanvasUpdated;
 	const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
 	const handleFallbackVideoFrame = useCallback(
 		(image: CanvasImageSource) => {
 			onVideoFrame?.(image);
@@ -256,6 +257,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const mediaPlayerReady = status.type === 'ready';
 	const shouldFallbackToNativeVideo = status.type === 'fallback';
 	const terminalError = status.type === 'failed' ? status.error : null;
+	Internals.useEmitVideoFrame({
+		ref: fallbackVideoRef,
+		onVideoFrame:
+			shouldFallbackToNativeVideo &&
+			!disallowFallbackToOffthreadVideo &&
+			onCanvasUpdated !== null &&
+			!onVideoFrame
+				? handleFallbackVideoFrame
+				: null,
+	});
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
@@ -893,14 +904,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		return (
 			<Html5Video
 				{...props}
+				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
 				muted={effectiveMuted}
 				volume={volume}
-				onVideoFrame={
-					onVideoFrame || onCanvasUpdated ? handleFallbackVideoFrame : undefined
-				}
+				onVideoFrame={onVideoFrame ? handleFallbackVideoFrame : undefined}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}

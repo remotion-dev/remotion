@@ -344,6 +344,7 @@ import {
 	isFolderNameValid,
 } from './validation/validate-folder-name.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {useEmitVideoFrame} from './video/emit-video-frame.js';
 import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
 import {VideoForPreview} from './video/VideoForPreview.js';
@@ -416,6 +417,7 @@ export const Internals = {
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
 	useIsInsideNonPremountFreeze,
 	useMediaAudioState,
+	useEmitVideoFrame,
 	evaluateVolume,
 	getAbsoluteSrc,
 	getAnimatedImageDurationInSeconds,
