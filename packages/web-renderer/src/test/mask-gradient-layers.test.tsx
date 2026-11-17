@@ -8,16 +8,16 @@ import {
 } from './fixtures/mask-gradient-layers';
 import {testCompositions} from './utils';
 
-test('composes gradient mask operators across raster sources and alpha', async () => {
+test.each([
+	maskGradientLayersUrl,
+	maskGradientLayersBlob,
+	maskGradientPaletteTransparent,
+	maskGradientLayersTokenUrlTransparent,
+])('composes gradient mask operators for $id', async (composition) => {
 	await testCompositions({
-		cases: [
-			maskGradientLayersUrl,
-			maskGradientLayersBlob,
-			maskGradientPaletteTransparent,
-			maskGradientLayersTokenUrlTransparent,
-		].map((composition) => ({composition, frame: 1})),
-		columns: 2,
-		testId: 'mask-gradient-layers',
+		cases: [{composition, frame: 1}],
+		columns: 1,
+		testId: composition.id,
 		scale: null,
 	});
 });
