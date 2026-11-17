@@ -13,6 +13,17 @@ export const lzw = (
 ) => {
 	const MAX_STACK_SIZE = 4096;
 	const nullCode = -1;
+
+	// Every pixel consumes at least one bit of compressed input, so a frame
+	// cannot decode to more pixels than the image data could possibly describe.
+	// Without this, a tiny file declaring a 65535x65535 frame allocates
+	// 4.29 billion entries.
+	if (pixelCount > data.length * 8) {
+		throw new Error(
+			`Invalid GIF frame: ${pixelCount} pixels requested from ${data.length} bytes of image data`,
+		);
+	}
+
 	const npix = pixelCount;
 	let available;
 	let code_mask;
