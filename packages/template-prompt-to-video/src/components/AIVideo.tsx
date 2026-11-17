@@ -2,7 +2,7 @@ import { loadFont } from "@remotion/google-fonts/BreeSerif";
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
 import { z } from "zod";
-import { FPS, INTRO_DURATION } from "../lib/constants";
+import { INTRO_DURATION } from "../lib/constants";
 import { TimelineSchema } from "../lib/types";
 import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 import { Background } from "./Background";
@@ -65,7 +65,6 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
-            premountFor={3 * FPS}
           >
             <Background project={id} item={element} />
           </Sequence>
@@ -102,7 +101,6 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
-            premountFor={3 * FPS}
             src={getAudioPath(id, element.audioUrl)}
           />
         );

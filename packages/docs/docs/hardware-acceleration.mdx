@@ -96,7 +96,7 @@ Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the con
 
 Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs fall back to software encoding, with these exceptions when hardware acceleration is `"required"`: `h264-mkv` and `h264-ts` throw an error on every platform, and ProRes throws an error on Linux and Windows.
 
-## Controlling quality using `--video-bitrate`
+## Quality using `--video-bitrate` {#controlling-quality-using---video-bitrate}
 
 Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
 We recommend that you use the `--video-bitrate` flag to control the file size.

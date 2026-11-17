@@ -12,9 +12,7 @@ export const CrosswarpDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/crosswarp-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/crosswarp-transition.mp4" />;
 	}
 
 	return <CrosswarpTransitionPreview />;

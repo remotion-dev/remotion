@@ -15,7 +15,10 @@ const wait = (state: DelayRenderScope, signal: AbortSignal | null) =>
 		signal,
 		apiName: 'renderStillOnWeb',
 		internalState: null,
-		keepalive: null,
+		keepalive: {
+			waitForTick: () => new Promise(() => {}),
+			[Symbol.dispose]: () => {},
+		},
 	});
 afterEach(() => vi.unstubAllGlobals());
 test('stored cancellation rejects an already-ready wait with the original error and cause', async () => {
