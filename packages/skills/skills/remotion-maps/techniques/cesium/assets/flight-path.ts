@@ -2,7 +2,10 @@ export type LngLat = [number, number];
 
 // Chaikin corner cutting turns a sparse route into a continuous curve. Repeated passes round
 // direction changes into deliberate swerves instead of left-right heading bumps.
-export const smoothFlightPath = (source: LngLat[], passes = 3): LngLat[] => {
+export const smoothFlightPath = (
+	source: LngLat[],
+	iterations = 3,
+): LngLat[] => {
 	if (source.length < 2)
 		throw new Error('Flyover path needs at least two points');
 
@@ -18,7 +21,7 @@ export const smoothFlightPath = (source: LngLat[], passes = 3): LngLat[] => {
 	}
 
 	let curve = unwrapped;
-	for (let pass = 0; pass < Math.max(0, passes); pass++) {
+	for (let iteration = 0; iteration < Math.max(0, iterations); iteration++) {
 		const next: LngLat[] = [curve[0]];
 		for (let i = 0; i < curve.length - 1; i++) {
 			const a = curve[i];

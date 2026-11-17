@@ -43,6 +43,8 @@ export const MyComposition = () => {
 
 The URL of the audio to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
+A remote URL must be [CORS-enabled](/docs/media/support#cors). Otherwise, a [fallback](/docs/media/fallback) to [`<Html5Audio>`](/docs/html5-audio) is attempted during server-side rendering.
+
 ### `from?`<AvailableFrom v="4.0.446" />
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).

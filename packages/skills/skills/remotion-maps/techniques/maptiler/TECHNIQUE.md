@@ -17,7 +17,8 @@ Use `preserveDrawingBuffer:true`.
 
 Render labels as positioned [`<Interactive.Div>`](https://www.remotion.dev/docs/interactive.md) elements.
 
-Env `REMOTION_MAPTILER_KEY` (unrestricted). Init the map once (ref guard); update imperatively per frame.
+Replace `YOUR_API_KEY` in `assets/MapTilerVectorElement.ts` with a MapTiler key.
+Initialize the map once using a ref guard and update it imperatively per frame.
 
 When constructing MapLibre/MapTiler layer objects, omit optional properties that are absent.  
 In particular, use `...(layer.filter ? {filter: layer.filter} : {})`; do not pass `filter: undefined`. An undefined filter can suppress the layer while separately created halo or border layers continue rendering, producing missing country fills and dark marker halos with no coloured cores.

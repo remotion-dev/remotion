@@ -61,6 +61,8 @@ For more information on HLS support, see the [HLS documentation](/docs/hls).
 
 The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
+A remote URL must be [CORS-enabled](/docs/media/support#cors). Otherwise, a [fallback](/docs/media/fallback) to [`<OffthreadVideo>`](/docs/offthreadvideo) is attempted during server-side rendering.
+
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
