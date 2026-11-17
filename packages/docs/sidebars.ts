@@ -1310,7 +1310,6 @@ const sidebars: SidebarsConfig = {
 						'videos/size-and-position',
 						'videos/sequence',
 						'videos/transparency',
-						'color-correction',
 						'greenscreen',
 						'videos/video-manipulation',
 						'videos/jumpcuts',
@@ -1351,19 +1350,20 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		'effects',
+		'assets',
+		'fonts',
+		'transitioning',
+		'motion-blur/index',
+		'color-correction',
+		'html-in-canvas',
 		{
 			type: 'category',
-			label: 'Designing visuals',
+			label: 'Visual techniques',
 			items: [
 				'layers',
 				'video-matting-guide',
 				'transforms',
-				'assets',
-				'fonts',
-				'transitioning',
 				'transitions/audio-transitions',
-				'motion-blur/index',
-				'html-in-canvas',
 				'shaders',
 				'measuring',
 				'using-randomness',
@@ -1374,6 +1374,12 @@ const sidebars: SidebarsConfig = {
 				'light-leaks',
 				'text-highlights',
 			],
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+			defaultStyle: true,
 		},
 		{
 			type: 'category',
@@ -1390,9 +1396,9 @@ const sidebars: SidebarsConfig = {
 				'data-fetching',
 				'dynamic-metadata',
 				'props-resolution',
-				'design-systems',
 			],
 		},
+		'design-systems',
 		{
 			type: 'html',
 			value:

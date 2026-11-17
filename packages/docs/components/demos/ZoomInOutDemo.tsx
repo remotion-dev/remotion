@@ -13,7 +13,7 @@ export const ZoomInOutDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/zoom-in-out-transition.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/zoom-in-out-transition.mp4" />
 		);
 	}
 

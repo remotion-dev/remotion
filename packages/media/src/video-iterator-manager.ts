@@ -95,6 +95,7 @@ export const videoIteratorManager = async ({
 		chainState: EffectChainState;
 	} | null = null;
 	let destroyed = false;
+	let onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null = null;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
 	const clearLastDrawnFrame = () => {
@@ -223,6 +224,8 @@ export const videoIteratorManager = async ({
 		framesRendered++;
 
 		drawDebugOverlay();
+		if (onCanvasUpdated !== null && canvas instanceof HTMLCanvasElement)
+			onCanvasUpdated(canvas);
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
 			callback(frame.canvas);
@@ -261,6 +264,8 @@ export const videoIteratorManager = async ({
 		}
 
 		drawDebugOverlay();
+		if (onCanvasUpdated !== null && canvas instanceof HTMLCanvasElement)
+			onCanvasUpdated(canvas);
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
 			callback(lastDrawnFrame.canvas);
@@ -489,6 +494,11 @@ export const videoIteratorManager = async ({
 	};
 
 	return {
+		setCanvasUpdateCallback: (
+			callback: ((canvas: HTMLCanvasElement) => void) | null,
+		) => {
+			onCanvasUpdated = callback;
+		},
 		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
 			startVideoIterator(timeToSeek, nonce, true),
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
@@ -499,6 +509,7 @@ export const videoIteratorManager = async ({
 			}
 
 			destroyed = true;
+			onCanvasUpdated = null;
 			releaseSink();
 			// Cancel only this manager's pending run, not a newer run sharing its state.
 			if (

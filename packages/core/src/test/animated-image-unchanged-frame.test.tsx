@@ -69,7 +69,13 @@ test('AnimatedImage does not rerun effects for an unchanged decoded frame', asyn
 	const effects = makeEffect(apply);
 	const ref = React.createRef<AnimatedImageCanvasRef>();
 	render(
-		<Canvas ref={ref} fit="fill" effects={effects} effectsOutputSize={null} />,
+		<Canvas
+			ref={ref}
+			onCanvasUpdated={null}
+			fit="fill"
+			effects={effects}
+			effectsOutputSize={null}
+		/>,
 	);
 
 	const firstFrame = {displayWidth: 2, displayHeight: 1} as VideoFrame;
@@ -118,6 +124,7 @@ test('AnimatedImage redraws a frame whose run was superseded', async () => {
 		render(
 			<Canvas
 				ref={ref}
+				onCanvasUpdated={null}
 				fit="fill"
 				effects={effects}
 				effectsOutputSize={{width: 4, height: 2}}
@@ -193,7 +200,13 @@ test('AnimatedImage redraws after a size change and a restored context', async (
 	const effects = makeEffect(apply);
 	const ref = React.createRef<AnimatedImageCanvasRef>();
 	const rendered = render(
-		<Canvas ref={ref} fit="fill" effects={effects} effectsOutputSize={null} />,
+		<Canvas
+			ref={ref}
+			onCanvasUpdated={null}
+			fit="fill"
+			effects={effects}
+			effectsOutputSize={null}
+		/>,
 	);
 	const canvas = rendered.container.querySelector('canvas')!;
 	const frame = {displayWidth: 2, displayHeight: 1} as VideoFrame;
@@ -207,6 +220,7 @@ test('AnimatedImage redraws after a size change and a restored context', async (
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			width={4}
 			fit="fill"
 			effects={effects}
@@ -234,6 +248,7 @@ test('AnimatedImage redraws after a size change and a restored context', async (
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			width={4}
 			height={3}
 			fit="fill"
@@ -250,6 +265,7 @@ test('AnimatedImage redraws after a size change and a restored context', async (
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			width={4}
 			height={3}
 			fit="fill"
@@ -276,6 +292,7 @@ test('AnimatedImage reruns effects when the effect parameters change', async () 
 	const rendered = render(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			fit="fill"
 			effects={makeEffect(apply)}
 			effectsOutputSize={null}
@@ -294,6 +311,7 @@ test('AnimatedImage reruns effects when the effect parameters change', async () 
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			fit="fill"
 			effects={changedEffects}
 			effectsOutputSize={null}
@@ -308,6 +326,7 @@ test('AnimatedImage reruns effects when the effect parameters change', async () 
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			onCanvasUpdated={null}
 			fit="contain"
 			effects={changedEffects}
 			effectsOutputSize={null}

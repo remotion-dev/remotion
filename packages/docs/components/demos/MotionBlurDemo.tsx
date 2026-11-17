@@ -1,14 +1,11 @@
 import {loadFont} from '@remotion/fonts';
-import {
-	CameraMotionBlur,
-	HtmlInCanvasMotionBlur,
-	Trail,
-} from '@remotion/motion-blur';
+import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import React from 'react';
 import {
 	AbsoluteFill,
 	Easing,
 	interpolate,
+	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -57,56 +54,31 @@ const SlidingText: React.FC<{readonly darkMode: boolean}> = ({darkMode}) => {
 	);
 };
 
-const MotionBlurScene: React.FC<
-	MotionBlurDemoProps & {
-		readonly variant: 'trail' | 'camera' | 'html-in-canvas';
-	}
-> = ({variant, darkMode = false}) => {
+export const MotionBlurHtmlInCanvasLiveDemo: React.FC<MotionBlurDemoProps> = ({
+	darkMode = false,
+}) => {
 	const {width, height} = useVideoConfig();
-	const text = <SlidingText darkMode={darkMode} />;
-	const blurred =
-		variant === 'trail' ? (
-			<Trail layers={12} lagInFrames={0.14} trailOpacity={0.8}>
-				{text}
-			</Trail>
-		) : variant === 'camera' ? (
-			<CameraMotionBlur samples={10} shutterAngle={360}>
-				{text}
-			</CameraMotionBlur>
-		) : (
-			<HtmlInCanvasMotionBlur
-				width={width}
-				height={height}
-				samples={24}
-				shutterAngle={360}
-			>
-				{text}
-			</HtmlInCanvasMotionBlur>
-		);
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: darkMode ? '#15151e' : '#fff',
-				overflow: 'hidden',
-			}}
-		>
-			{blurred}
-		</AbsoluteFill>
+		<Sequence playbackRate={0.25}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: darkMode ? '#15151e' : '#fff',
+					overflow: 'hidden',
+				}}
+			>
+				<HtmlInCanvasMotionBlur
+					width={width}
+					height={height}
+					samples={24}
+					shutterAngle={360}
+				>
+					<SlidingText darkMode={darkMode} />
+				</HtmlInCanvasMotionBlur>
+			</AbsoluteFill>
+		</Sequence>
 	);
 };
-
-export const MotionBlurTrailDocsDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="trail" darkMode={darkMode} />;
-
-export const MotionBlurCameraDocsDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="camera" darkMode={darkMode} />;
-
-export const MotionBlurHtmlInCanvasLiveDemo: React.FC<MotionBlurDemoProps> = ({
-	darkMode,
-}) => <MotionBlurScene variant="html-in-canvas" darkMode={darkMode} />;
 
 export const MotionBlurHtmlInCanvasDocsDemo: React.FC<MotionBlurDemoProps> = ({
 	darkMode = false,
@@ -122,10 +94,10 @@ export const MotionBlurHtmlInCanvasDocsDemo: React.FC<MotionBlurDemoProps> = ({
 	if (branch === 'fallback') {
 		return (
 			<HtmlInCanvasDocsVideoFallback
-				relativeSrc={
+				src={
 					darkMode
-						? 'img/motion-blur-html-in-canvas-dark.mp4'
-						: 'img/motion-blur-html-in-canvas.mp4'
+						? 'https://remotion.media/docs/motion-blur/html-in-canvas-dark-66d727429c60.mp4'
+						: 'https://remotion.media/docs/motion-blur/html-in-canvas-92f3ebdb2818.mp4'
 				}
 			/>
 		);
