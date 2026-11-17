@@ -20,8 +20,8 @@ import {
 } from './motion-blur-compositor';
 import {
 	MotionBlurSampleProvider,
-	useMotionBlurCanvases,
-	type MotionBlurCanvases,
+	useMotionBlurRegistry,
+	type MotionBlurRegistry,
 } from './motion-blur-context';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
@@ -79,7 +79,7 @@ type MotionBlurSampleProps = {
 	readonly shutterInFrames: number;
 	readonly firstFrame: number;
 	readonly lastFrame: number;
-	readonly canvases: MotionBlurCanvases;
+	readonly registry: MotionBlurRegistry;
 };
 
 const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
@@ -91,7 +91,7 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 	shutterInFrames,
 	firstFrame,
 	lastFrame,
-	canvases,
+	registry,
 }) => {
 	const frame = useCurrentFrame();
 	const isRepresentativeSample = index === 0;
@@ -126,7 +126,7 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			}}
 		>
 			<Freeze frame={sampleFrame} active={!isRepresentativeSample}>
-				<MotionBlurSampleProvider sampleIndex={index} canvases={canvases}>
+				<MotionBlurSampleProvider sampleIndex={index} registry={registry}>
 					{children}
 				</MotionBlurSampleProvider>
 			</Freeze>
@@ -165,7 +165,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
-	const canvases = useMotionBlurCanvases();
+	const registry = useMotionBlurRegistry('HtmlInCanvasMotionBlur');
 	const gpuDeviceRef = useRef<GPUDevice | null>(null);
 	const compositorRef = useRef<{
 		compositor: ReturnType<typeof createMotionBlurCompositor>;
@@ -310,6 +310,8 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	);
 
 	const passThrough = Internals.useHtmlInCanvasUnsupportedMessage() !== null;
+	if (registry === null) return null;
+
 	const sampleElements = Array.from(
 		{length: passThrough ? 0 : renderedSampleCount},
 		(_, index) => {
@@ -323,7 +325,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 					shutterInFrames={shutterInFrames}
 					firstFrame={firstFrame}
 					lastFrame={lastFrame}
-					canvases={canvases}
+					registry={registry}
 				>
 					{children}
 				</MotionBlurSample>

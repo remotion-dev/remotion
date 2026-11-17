@@ -327,10 +327,15 @@ const GifComponent = (
 			props.freeze,
 		],
 	);
-	const motionBlur = Internals.useMotionBlurCanvas(
+	const motionBlur = Internals.useMotionBlurCanvas({
 		sourceKey,
-		props.ref ?? null,
-	);
+		contentKey: getGifCacheKey({
+			resolvedSrc: resolveGifSource(props.src),
+			requestInit: props.requestInit,
+		}),
+		forwardedRef: props.ref ?? null,
+		onVideoFrame: null,
+	});
 	if (!videoEnabled) {
 		return null;
 	}

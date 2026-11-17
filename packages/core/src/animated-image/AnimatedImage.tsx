@@ -567,7 +567,15 @@ const AnimatedImageComponent = (
 			props.freeze,
 		],
 	);
-	const motionBlur = useMotionBlurCanvas(sourceKey, props.ref ?? null);
+	const motionBlur = useMotionBlurCanvas({
+		sourceKey,
+		contentKey: JSON.stringify([
+			resolveAnimatedImageSource(props.src),
+			serializeRequestInit(props.requestInit),
+		]),
+		forwardedRef: props.ref ?? null,
+		onVideoFrame: null,
+	});
 	if (videoEnabled === false) {
 		return null;
 	}

@@ -1,21 +1,64 @@
-import React, {useContext, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 
-export type MotionBlurCanvases = NonNullable<
+export type MotionBlurRegistry = NonNullable<
 	React.ContextType<typeof Internals.MotionBlurContext>
->['canvases'];
+>['registry'];
 
-export const useMotionBlurCanvases = () => {
+export const useMotionBlurRegistry = (
+	componentName: string,
+): MotionBlurRegistry | null => {
 	const parent = useContext(Internals.MotionBlurContext);
-	const canvases = useRef<MotionBlurCanvases>(new Map());
-	return parent?.canvases ?? canvases.current;
+	const [registry] = useState<MotionBlurRegistry>(() => ({
+		canvases: new Map(),
+		nestedScopes: new Map(),
+	}));
+	const [nested, setNested] = useState<{
+		parent: typeof parent;
+		registry: MotionBlurRegistry;
+	} | null>(null);
+
+	useLayoutEffect(() => {
+		if (parent === null) return;
+		const scopes = parent.registry.nestedScopes.get(componentName) ?? [];
+		parent.registry.nestedScopes.set(componentName, scopes);
+		let scope = scopes.find(
+			(candidate) => !candidate.registrations.has(parent.sampleIndex),
+		);
+		if (!scope) {
+			scope = {
+				registrations: new Set(),
+				registry: {canvases: new Map(), nestedScopes: new Map()},
+			};
+			scopes.push(scope);
+		}
+
+		scope.registrations.add(parent.sampleIndex);
+		setNested({parent, registry: scope.registry});
+		const current = scope;
+		return () => {
+			current.registrations.delete(parent.sampleIndex);
+			if (current.registrations.size === 0) {
+				scopes.splice(scopes.indexOf(current), 1);
+				if (scopes.length === 0) {
+					parent.registry.nestedScopes.delete(componentName);
+				}
+			}
+		};
+	}, [componentName, parent]);
+
+	return parent === null
+		? registry
+		: nested?.parent === parent
+			? nested.registry
+			: null;
 };
 
 export const MotionBlurSampleProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sampleIndex: number;
-	readonly canvases: MotionBlurCanvases;
-}> = ({children, sampleIndex, canvases}) => {
+	readonly registry: MotionBlurRegistry;
+}> = ({children, sampleIndex, registry}) => {
 	const parent = useContext(Internals.MotionBlurContext);
 	const parentIndex = parent?.sampleIndex ?? '';
 	const parentIsPrimary = parent?.isPrimarySample ?? true;
@@ -23,9 +66,9 @@ export const MotionBlurSampleProvider: React.FC<{
 		() => ({
 			sampleIndex: `${parentIndex}/${sampleIndex}`,
 			isPrimarySample: parentIsPrimary && sampleIndex === 0,
-			canvases,
+			registry,
 		}),
-		[parentIndex, parentIsPrimary, sampleIndex, canvases],
+		[parentIndex, parentIsPrimary, sampleIndex, registry],
 	);
 
 	return (

@@ -162,7 +162,12 @@ const InnerVideo: React.FC<
 			trimBefore,
 		],
 	);
-	const motionBlur = Internals.useMotionBlurCanvas(motionBlurSourceKey, null);
+	const motionBlur = Internals.useMotionBlurCanvas({
+		sourceKey: motionBlurSourceKey,
+		contentKey: getSharedInputCacheKey({src, credentials, requestInit}),
+		forwardedRef: null,
+		onVideoFrame: onVideoFrame ?? null,
+	});
 
 	validateMediaTrimProps({
 		startFrom: undefined,
@@ -211,7 +216,7 @@ const InnerVideo: React.FC<
 				loop={loop}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				muted={muted}
-				onVideoFrame={onVideoFrame}
+				onVideoFrame={motionBlur.onVideoFrame ?? undefined}
 				onCanvasUpdated={motionBlur.onCanvasUpdated}
 				playbackRate={playbackRate}
 				src={src}
@@ -259,7 +264,7 @@ const InnerVideo: React.FC<
 			loop={loop}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 			muted={muted}
-			onVideoFrame={onVideoFrame}
+			onVideoFrame={motionBlur.onVideoFrame ?? undefined}
 			onCanvasUpdated={motionBlur.onCanvasUpdated}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
