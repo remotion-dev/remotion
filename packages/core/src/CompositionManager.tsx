@@ -1,6 +1,7 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import React from 'react';
 import type {AnyZodObject} from './any-zod-type.js';
+import type {ClientAudioBoundary} from './client-audio-sample.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
 import type {EffectDefinition} from './effects/effect-types.js';
@@ -122,6 +123,7 @@ export type SequenceControls = SequenceRegistrationControls & {
 };
 
 export type TSequence = {
+	readonly clientAudioBoundary?: ClientAudioBoundary | null;
 	/** This sequence's clock multiplier; ancestor rates are applied by the timeline. */
 	sequencePlaybackRate: number;
 	from: number;
@@ -172,6 +174,8 @@ export type AudioOrVideoAsset = {
 
 export type InlineAudioAsset = {
 	type: 'inline-audio';
+	/** Absolute PCM start for an audio-only browser render window. */
+	startSample?: number;
 	id: string;
 	audio: Int16Array | number[];
 	frame: number;

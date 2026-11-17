@@ -24,7 +24,8 @@ export const RenderAssetManager = createContext<RenderAssetManagerContext>({
 });
 
 export type CollectAssetsRef = {
-	collectAssets: () => TRenderAsset[];
+	collectAssets: (retainAudio?: boolean) => TRenderAsset[];
+	snapshotAssets: () => TRenderAsset[];
 };
 
 export const RenderAssetManagerProvider: React.FC<{
@@ -44,10 +45,17 @@ export const RenderAssetManagerProvider: React.FC<{
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useImperativeHandle(collectAssets, () => {
 			return {
-				collectAssets: () => {
+				snapshotAssets: () => renderAssetsRef.current,
+				collectAssets: (retainAudio = false) => {
 					const assets = renderAssetsRef.current;
-					renderAssetsRef.current = [];
-					setRenderAssets([]);
+					const remaining = retainAudio
+						? assets.filter((asset) => asset.type === 'inline-audio')
+						: [];
+					if (remaining.length !== assets.length) {
+						renderAssetsRef.current = remaining;
+						setRenderAssets(remaining);
+					}
+
 					return assets;
 				},
 			};

@@ -1,10 +1,54 @@
-import React, {useImperativeHandle, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react';
 import {flushSync} from 'react-dom';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 
+type Sequence = React.ContextType<
+	typeof Internals.SequenceManagerRefContext
+>['current'][number];
+
 export type TimeUpdaterRef = {
-	update: (frame: number) => void;
+	update: (frame: number, reset?: Iterable<() => void>) => void;
+	getSequences: () => readonly Sequence[];
+};
+
+const AudioClock: React.FC<{
+	readonly children: React.ReactNode;
+	readonly frame: number;
+	readonly timeUpdater: React.RefObject<TimeUpdaterRef | null>;
+	readonly update: TimeUpdaterRef['update'];
+	readonly enabled: boolean;
+}> = ({children, frame, update, timeUpdater, enabled}) => {
+	const timeline = Internals.useTimelineContext();
+	const sequences = useContext(Internals.SequenceManagerRefContext);
+	useImperativeHandle(
+		timeUpdater,
+		() => ({
+			update,
+			getSequences: () => sequences.current,
+		}),
+		[sequences, update],
+	);
+	const audioTimeline = useMemo(
+		() => ({...timeline, clientAudioOutputFrame: frame}),
+		[frame, timeline],
+	);
+
+	return enabled ? (
+		<Internals.SequenceRegistrationContext.Provider value>
+			<Internals.TimelineContext.Provider value={audioTimeline}>
+				{children}
+			</Internals.TimelineContext.Provider>
+		</Internals.SequenceRegistrationContext.Provider>
+	) : (
+		children
+	);
 };
 
 export const UpdateTime: React.FC<{
@@ -28,13 +72,15 @@ export const UpdateTime: React.FC<{
 }) => {
 	const [frame, setFrame] = useState(initialFrame);
 
-	useImperativeHandle(timeUpdater, () => ({
-		update: (f: number) => {
+	const update = useCallback(
+		(nextFrame: number, reset: Iterable<() => void> = []) => {
 			flushSync(() => {
-				setFrame(f);
+				for (const callback of reset) callback();
+				setFrame(nextFrame);
 			});
 		},
-	}));
+		[],
+	);
 
 	return (
 		<Internals.RemotionRootContexts
@@ -49,7 +95,14 @@ export const UpdateTime: React.FC<{
 				[compId]: frame,
 			}}
 		>
-			{children}
+			<AudioClock
+				frame={frame}
+				enabled={audioEnabled && !videoEnabled}
+				update={update}
+				timeUpdater={timeUpdater}
+			>
+				{children}
+			</AudioClock>
 		</Internals.RemotionRootContexts>
 	);
 };

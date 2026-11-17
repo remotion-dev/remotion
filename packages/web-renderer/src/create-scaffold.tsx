@@ -193,7 +193,8 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	div: HTMLDivElement;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
-		collectAssets: () => TRenderAsset[];
+		collectAssets: (retainAudio?: boolean) => TRenderAsset[];
+		snapshotAssets: () => TRenderAsset[];
 	} | null>;
 	errorHolder: ErrorHolder;
 	htmlInCanvasContext: HtmlInCanvasContext | null;
@@ -274,7 +275,8 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const timeUpdater = createRef<TimeUpdaterRef | null>();
 
 	const collectAssets = createRef<{
-		collectAssets: () => TRenderAsset[];
+		collectAssets: (retainAudio?: boolean) => TRenderAsset[];
+		snapshotAssets: () => TRenderAsset[];
 	}>();
 	const renderResourceManager = Internals.makeRenderResourceManager();
 

@@ -87,7 +87,7 @@ const useTimelinePositionFromContext = (
 
 	// A discovery clock can be beyond the composition end, for example when a
 	// nested scene is trimmed by its parent. Keep its initial local frame intact.
-	return dormant
+	return dormant || state.clientAudioSampleFrame !== undefined
 		? unclamped
 		: clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };

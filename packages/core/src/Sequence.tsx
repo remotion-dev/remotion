@@ -9,6 +9,10 @@ import React, {
 } from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import {
+	useClientAudioSample,
+	type ClientAudioBoundary,
+} from './client-audio-sample.js';
+import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
@@ -61,11 +65,11 @@ import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
-import {useTimelinePosition} from './timeline-position-state.js';
 import {
 	TimelineTrackContext,
 	type TimelineTrackItem,
 } from './timeline-track-context.js';
+import {TimelineContext} from './TimelineContext.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -127,6 +131,8 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated For internal use only.
 	 */
 	readonly _remotionInternalLoopDisplay?: LoopDisplay;
+	/** @deprecated For internal use only. */
+	readonly _remotionInternalClientAudioLoop?: ClientAudioBoundary | null;
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -210,6 +216,7 @@ const setSequenceWrapperRef = (
 };
 
 type SequenceTiming = {
+	readonly audioBoundary: ClientAudioBoundary | null;
 	readonly contentDurationInFrames: number;
 	readonly effectiveDurationInFrames: number;
 	readonly actualDurationInFrames: number;
@@ -248,6 +255,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		_remotionInternalEffects,
 		_remotionInternalTimelineTrack: timelineTrackItem,
 		_remotionInternalLoopDisplay: loopDisplay,
+		_remotionInternalClientAudioLoop: _clientAudioLoop,
 		_remotionInternalStack: stack,
 		_remotionInternalSingleChildComponent: childComponentOverride,
 		_remotionInternalSingleChildren: authoredChildrenOverride,
@@ -676,15 +684,20 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		]);
 
 	const sequenceForRegistration = useMemo((): TSequence => {
+		const audioRegistration =
+			timing.audioBoundary === null
+				? {}
+				: {clientAudioBoundary: timing.audioBoundary};
 		const trackRegistration = timelineTrack
 			? {
+					...audioRegistration,
 					timelineTrack: {
 						...timelineTrack,
 						role: timelineTrackRole,
 						seriesOffset,
 					},
 				}
-			: {};
+			: audioRegistration;
 		if (isMedia) {
 			if (isMedia.type === 'image') {
 				return {
@@ -785,6 +798,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		};
 	}, [
 		id,
+		timing.audioBoundary,
 		timelineTrack,
 		timelineTrackRole,
 		seriesOffset,
@@ -824,7 +838,9 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	);
 	const registration = useSequenceRegistration({
 		getSequence:
-			env.isStudio || sequenceRegistrationEnabled
+			env.isStudio ||
+			sequenceRegistrationEnabled ||
+			timing.audioBoundary !== null
 				? getSequenceForRegistration
 				: null,
 		id,
@@ -1037,7 +1053,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const contentDurationInFrames = resolveSequenceContentDuration({
 		durationInFrames,
 	});
-	const absoluteFrame = useTimelinePosition();
+	const audioSample = useClientAudioSample();
+	const absoluteFrame = audioSample.frame;
 	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
 	if (
 		typeof playbackRate !== 'number' ||
@@ -1112,6 +1129,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	loopIteration = audioSample.iteration ?? loopIteration;
+
 	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
 	const endThreshold = from + effectiveDurationInFrames;
 	const boundaryTolerance = getSequenceBoundaryTolerance({
@@ -1139,8 +1158,59 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? currentFrame
 		: null;
 	const currentFrameRef = useRef(currentFrame);
+	const start = cumulatedFrom + from / parentPlaybackRate;
+	const end = start + actualDurationInFrames / parentPlaybackRate;
+	const nextIteration =
+		loopPeriod === null
+			? Infinity
+			: start + ((loopIteration + 1) * loopPeriod) / parentPlaybackRate;
+	const boundary =
+		absoluteFrame < start && !contentVisible
+			? start
+			: nextIteration < end
+				? nextIteration
+				: absoluteFrame < end && !props._remotionInternalClientAudioLoop
+					? end
+					: Infinity;
+	const {enabled, sampleAt, reset} = audioSample;
+	const audioBoundary = useMemo(() => {
+		if (
+			!enabled ||
+			props.hidden ||
+			typeof freeze === 'number' ||
+			inheritedFrozenFrame !== null
+		) {
+			return null;
+		}
+
+		if (!Number.isFinite(boundary)) {
+			return props._remotionInternalClientAudioLoop ?? null;
+		}
+
+		return {
+			frame: boundary,
+			advance: () =>
+				sampleAt(
+					boundary,
+					boundary === nextIteration ? loopIteration + 1 : null,
+				),
+			reset,
+		};
+	}, [
+		enabled,
+		props.hidden,
+		props._remotionInternalClientAudioLoop,
+		freeze,
+		inheritedFrozenFrame,
+		boundary,
+		nextIteration,
+		loopIteration,
+		sampleAt,
+		reset,
+	]);
 	const timing = useMemo(
 		(): SequenceTiming => ({
+			audioBoundary,
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
@@ -1151,6 +1221,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			currentFrameRef,
 		}),
 		[
+			audioBoundary,
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
@@ -1162,7 +1233,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	// The timeline subscriber stays small. Descendants retain their own frame subscriptions,
 	// while registration, validation and provider elements only update with timing or props.
-	return (
+	const content = (
 		<React.Fragment>
 			<SequenceFrameCommit
 				currentFrame={currentFrame}
@@ -1170,6 +1241,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			/>
 			<RegularSequenceContent {...props} ref={ref} timing={timing} />
 		</React.Fragment>
+	);
+	return audioSample.enabled ? (
+		<TimelineContext.Provider value={audioSample.timeline}>
+			{content}
+		</TimelineContext.Provider>
+	) : (
+		content
 	);
 };
 

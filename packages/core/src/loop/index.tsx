@@ -1,8 +1,11 @@
 import React, {createContext, useContext, useMemo} from 'react';
+import {useClientAudioSample} from '../client-audio-sample.js';
 import type {LoopDisplay} from '../CompositionManager.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -44,10 +47,14 @@ export const Loop: React.FC<LoopProps> & {
 	playbackRate,
 	...props
 }) => {
-	const currentFrame = useCurrentFrame();
+	const audioSample = useClientAudioSample();
+	const localFrame = useCurrentFrame();
+	const publicFrame = useTimelinePosition();
 	const {durationInFrames: compDuration} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
+	const currentFrame =
+		localFrame + (audioSample.frame - publicFrame) * parentPlaybackRate;
 	const playbackRateValue = playbackRate ?? 1;
 	const iterationDurationInFrames = durationInFrames / playbackRateValue;
 	const loopStartFrame = parentSequence
@@ -94,16 +101,19 @@ export const Loop: React.FC<LoopProps> & {
 	const isAtBoundary =
 		Math.abs(loopsElapsed - nearestIteration) <=
 		Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4;
-	const iteration = Math.max(
-		0,
-		Math.min(
-			actualTimes - 1,
-			isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
-		),
-	);
-	const start = isAtBoundary
-		? currentFrame
-		: iteration * iterationDurationInFrames;
+	const iteration =
+		audioSample.iteration ??
+		Math.max(
+			0,
+			Math.min(
+				actualTimes - 1,
+				isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
+			),
+		);
+	const start =
+		audioSample.iteration === null && isAtBoundary
+			? currentFrame
+			: iteration * iterationDurationInFrames;
 	const from = Math.max(0, Math.min(start, maxFrame));
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
@@ -130,11 +140,27 @@ export const Loop: React.FC<LoopProps> & {
 		[loopStartFrame, firstVisibleFrame, endFrame, parentPlaybackRate],
 	);
 
+	const boundary =
+		loopStartFrame +
+		((iteration + 1) * iterationDurationInFrames) / parentPlaybackRate;
+	const {enabled, sampleAt, reset} = audioSample;
+	const audioBoundary = useMemo(
+		() =>
+			enabled && boundary < endFrame
+				? {
+						frame: boundary,
+						advance: () => sampleAt(boundary, iteration + 1),
+						reset,
+					}
+				: null,
+		[enabled, boundary, endFrame, sampleAt, iteration, reset],
+	);
+
 	if (actualTimes === 0) {
 		return null;
 	}
 
-	return (
+	const content = (
 		<LoopTimelineContext.Provider value={timelineContext}>
 			<LoopContext.Provider value={loopContext}>
 				<Sequence
@@ -143,6 +169,7 @@ export const Loop: React.FC<LoopProps> & {
 					name={name ?? '<Loop>'}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"
 					_remotionInternalLoopDisplay={loopDisplay}
+					_remotionInternalClientAudioLoop={audioBoundary}
 					{...props}
 					showInTimeline={showInTimeline}
 					playbackRate={playbackRate}
@@ -151,6 +178,13 @@ export const Loop: React.FC<LoopProps> & {
 				</Sequence>
 			</LoopContext.Provider>
 		</LoopTimelineContext.Provider>
+	);
+	return enabled ? (
+		<TimelineContext.Provider value={audioSample.timeline}>
+			{content}
+		</TimelineContext.Provider>
+	) : (
+		content
 	);
 };
 

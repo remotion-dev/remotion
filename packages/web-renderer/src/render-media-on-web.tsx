@@ -5,6 +5,7 @@ import {
 	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
+import {flushSync} from 'react-dom';
 import type {PreferredEffectBackend} from 'remotion';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
@@ -620,12 +621,18 @@ const internalRenderMediaOnWeb = async <
 			};
 		};
 
+		const sampleAudioBoundaries = audioSampleSource !== null && !videoEnabled;
+		const resets = new Set<() => void>();
+		const samplesPerFrame = sampleRate / resolved.fps;
+		const rangeStartSample = Math.round(realFrameRange[0] * samplesPerFrame);
+
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			timeUpdater.current?.update(frame);
+			timeUpdater.current?.update(frame, resets);
+			resets.clear();
 
 			await waitForRenderReady();
 
@@ -718,7 +725,93 @@ const internalRenderMediaOnWeb = async <
 				throttledOnProgress?.(getProgressPayload());
 
 				const audioCombineStart = performance.now();
-				const assets = collectAssets.current!.collectAssets();
+				const assets = collectAssets.current!.collectAssets(
+					sampleAudioBoundaries,
+				);
+				let audioAssets = assets;
+				if (sampleAudioBoundaries) {
+					audioAssets = [];
+					let passAssets = assets;
+					let start = frame;
+					const advanced = new Map<string, number>();
+					for (;;) {
+						const sequences = timeUpdater.current!.getSequences();
+						const byId = new Map(
+							sequences.map((sequence) => [sequence.id, sequence]),
+						);
+						const depth = (id: string | null) => {
+							let result = 0;
+							for (let parent = id; parent !== null; ) {
+								const sequence = byId.get(parent);
+								if (!sequence) break;
+								result++;
+								parent = sequence.parent;
+							}
+
+							return result;
+						};
+
+						const next = sequences
+							.flatMap((sequence) => {
+								const boundary = sequence.clientAudioBoundary;
+								return boundary &&
+									boundary.frame >= start &&
+									boundary.frame < frame + 1
+									? [{id: sequence.id, parent: sequence.parent, boundary}]
+									: [];
+							})
+							.sort(
+								(a, b) =>
+									a.boundary.frame - b.boundary.frame ||
+									depth(a.parent) - depth(b.parent),
+							)[0];
+						const end = next?.boundary.frame ?? frame + 1;
+						const fromSample = Math.round(start * samplesPerFrame);
+						const toSample = Math.round(end * samplesPerFrame);
+						for (const asset of passAssets) {
+							if (asset.type !== 'inline-audio') continue;
+							const assetStart =
+								asset.startSample ?? Math.round(frame * samplesPerFrame);
+							const from = Math.max(assetStart, fromSample);
+							const to = Math.min(
+								assetStart + asset.audio.length / 2,
+								toSample,
+							);
+							if (to > from) {
+								const begin = (from - assetStart) * 2;
+								const finish = (to - assetStart) * 2;
+								const pcm =
+									begin === 0 && finish === asset.audio.length
+										? asset.audio
+										: asset.audio instanceof Int16Array
+											? asset.audio.subarray(begin, finish)
+											: asset.audio.slice(begin, finish);
+								audioAssets.push({...asset, startSample: from, audio: pcm});
+							}
+						}
+
+						if (!next) break;
+
+						const previous = advanced.get(next.id);
+						if (previous !== undefined && next.boundary.frame <= previous) {
+							throw new Error(
+								`Audio boundary did not advance for Sequence ${next.id}`,
+							);
+						}
+
+						advanced.set(next.id, next.boundary.frame);
+						resets.add(next.boundary.reset);
+						flushSync(next.boundary.advance);
+						await waitForRenderReady();
+						if (signal?.aborted)
+							throw new Error('renderMediaOnWeb() was cancelled');
+						start = next.boundary.frame;
+						// Only the integer pass drains artifacts.
+						passAssets = collectAssets.current!.snapshotAssets();
+						await waitForPageResponsiveness();
+					}
+				}
+
 				if (onArtifact) {
 					await artifactsHandler.handle({
 						imageData: layerCanvas,
@@ -732,8 +825,15 @@ const internalRenderMediaOnWeb = async <
 
 				if (audioSampleSource) {
 					audioMixer.addFrame({
-						assets,
-						timestamp,
+						assets: audioAssets,
+						outputFrame: sampleAudioBoundaries ? frame : undefined,
+						timestamp: sampleAudioBoundaries
+							? Math.round(
+									((Math.round(frame * samplesPerFrame) - rangeStartSample) /
+										sampleRate) *
+										1_000_000,
+								)
+							: timestamp,
 						isLastFrame: frame === realFrameRange[1],
 					});
 				}

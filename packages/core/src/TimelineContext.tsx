@@ -18,6 +18,8 @@ import {useTimelineSeek, type TimelineSeek} from './use-timeline-seek';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
+	clientAudioOutputFrame?: number;
+	clientAudioSampleFrame?: number;
 	isPlaying: () => boolean;
 	isInsideFreeze: boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
