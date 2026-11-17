@@ -187,7 +187,7 @@ export const MixedVideo = () => (
 
 ## Motion blur
 
-From Remotion 4.0.545, add `motionBlur={{shutterAngle: 180, samples: 16}}` to `<TransitionSeries.Transition>` to blur the presentation's movement.
+Add `motionBlur={{shutterAngle: 180, samples: 16}}` to `<TransitionSeries.Transition>` to blur the presentation's movement.
 All built-in presentations support it. For a complete example, custom presentation requirements, scene sampling, and CSS style restrictions, read [motion-blur.md](motion-blur.md#motion-blur-on-transitions).
 
 ## Overlay props
