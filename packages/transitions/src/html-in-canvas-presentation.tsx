@@ -1,4 +1,11 @@
-import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {
+	useCallback,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	AbsoluteFill,
 	getHtmlInCanvasUnsupportedMessage,
@@ -26,6 +33,7 @@ const HtmlInCanvasPresentationWithSupport = <
 	onUnmount,
 	presentationProgress,
 	presentationDirection,
+	presentationDurationInFrames,
 	shader,
 	effects,
 	effectsOutputSize,
@@ -38,6 +46,10 @@ const HtmlInCanvasPresentationWithSupport = <
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
+	const inheritedPremountInSeconds = useContext(
+		Internals.DefaultPremountContext,
+	);
+	const canPremount = useMemo(() => Internals.canPremountInHtmlInCanvas(), []);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -70,6 +82,8 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
+	const onUnmountRef = useRef(onUnmount);
+	onUnmountRef.current = onUnmount;
 
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
@@ -82,6 +96,9 @@ const HtmlInCanvasPresentationWithSupport = <
 	effectsRef.current = memoizedEffects;
 
 	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
+	const sequence = useContext(Internals.SequenceContext);
+	const premounting = Boolean(sequence?.premounting);
+	const inactive = premounting || Boolean(sequence?.postmounting);
 	const videoEnabled = Internals.useVideoEnabled();
 	// Audio-only frames keep the scenes mounted without capturing or drawing them.
 	const passThrough =
@@ -195,6 +212,8 @@ const HtmlInCanvasPresentationWithSupport = <
 					width,
 					height,
 					time: progress,
+					pixelRatio: width / (canvasRef.current?.clientWidth || width),
+					presentationDurationInFrames,
 					passedProps: passedPropsRef.current,
 				});
 
@@ -212,7 +231,14 @@ const HtmlInCanvasPresentationWithSupport = <
 				releaseDraw();
 			}
 		},
-		[reportRenderError, chainState, continueRender, delayRender, shaderCanvas],
+		[
+			chainState,
+			continueRender,
+			delayRender,
+			presentationDurationInFrames,
+			reportRenderError,
+			shaderCanvas,
+		],
 	);
 
 	useLayoutEffect(() => {
@@ -266,7 +292,11 @@ const HtmlInCanvasPresentationWithSupport = <
 				elementImage.close();
 			}
 
-			onElementImage(captureCanvas, draw);
+			if (premounting) {
+				draw(captureCanvas, null, presentationProgress);
+			} else if (!inactive) {
+				onElementImage(captureCanvas, draw);
+			}
 		};
 
 		canvas.addEventListener('paint', onPaint);
@@ -274,7 +304,15 @@ const HtmlInCanvasPresentationWithSupport = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough]);
+	}, [
+		onElementImage,
+		presentationDirection,
+		presentationProgress,
+		draw,
+		passThrough,
+		inactive,
+		premounting,
+	]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -302,6 +340,9 @@ const HtmlInCanvasPresentationWithSupport = <
 		};
 	}, [
 		presentationProgress,
+		shader,
+		onElementImage,
+		inactive,
 		passThrough,
 		memoizedEffects,
 		chainState,
@@ -311,14 +352,14 @@ const HtmlInCanvasPresentationWithSupport = <
 	]);
 
 	useLayoutEffect(() => {
-		if (passThrough) {
+		if (passThrough || inactive) {
 			return;
 		}
 
 		return () => {
-			onUnmount();
+			onUnmountRef.current();
 		};
-	}, [onUnmount, passThrough]);
+	}, [passThrough, inactive]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -359,9 +400,18 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	return (
 		<AbsoluteFill showInTimeline={false}>
-			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
+			<canvas
+				ref={canvasRef}
+				style={{...canvasSubtreeStyle, visibility: 'hidden'}}
+			>
 				{/* Keep the drawable element mounted while async children load. */}
-				<div style={canvasSubtreeStyle}>{children}</div>
+				<Internals.DefaultPremountContext.Provider
+					value={canPremount ? inheritedPremountInSeconds : 0}
+				>
+					<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
+						{children}
+					</div>
+				</Internals.DefaultPremountContext.Provider>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>
@@ -410,6 +460,10 @@ export type HtmlInCanvasShaderDrawParams<Props> = {
 	width: number;
 	height: number;
 	time: number;
+	/** Captured pixels per CSS pixel. */
+	pixelRatio: number;
+	/** Duration of the transition, independent of its current progress. */
+	presentationDurationInFrames: number;
 	passedProps: Props;
 };
 
@@ -452,6 +506,7 @@ export const makeHtmlInCanvasPresentation = <
 		return {
 			component: CompWithShader,
 			props,
+			canvas: shader,
 		};
 	};
 };

@@ -179,6 +179,14 @@ describe('Turborepo monorepo test inputs', () => {
 				{directory: 'lambda-python', file: 'synthetic-input.txt'},
 				{directory: 'lambda-ruby', file: 'synthetic-input.txt'},
 			] as const;
+			const rootFiles = ['publish.ts', 'LICENSE.md'];
+			const docsFile = 'packages/docs/docs/licensing/index.mdx';
+			expect(monorepoTask.inputs).toContain(
+				'$TURBO_ROOT$/packages/docs/docs/**/*.mdx',
+			);
+			for (const file of rootFiles) {
+				expect(monorepoTask.inputs).toContain(`$TURBO_ROOT$/${file}`);
+			}
 			for (const {directory} of externalChanges) {
 				expect(monorepoTask.inputs).toContain(
 					`$TURBO_ROOT$/packages/${directory}/**`,
@@ -238,6 +246,11 @@ describe('Turborepo monorepo test inputs', () => {
 					}
 					writeFileSync(path.join(sdkDirectory, file), 'baseline\n');
 				}
+				for (const file of [...rootFiles, docsFile]) {
+					const filePath = path.join(fixture, file);
+					mkdirSync(path.dirname(filePath), {recursive: true});
+					writeFileSync(filePath, 'baseline\n');
+				}
 				const unrelatedDirectory = path.join(fixture, 'packages', 'unrelated');
 				mkdirSync(path.join(unrelatedDirectory, 'src'), {recursive: true});
 				writeJson(path.join(unrelatedDirectory, 'package.json'), {
@@ -280,10 +293,14 @@ describe('Turborepo monorepo test inputs', () => {
 					return affectedJson;
 				};
 
-				for (const {directory, file} of externalChanges) {
-					const affectedJson = affectedForChange(
-						`packages/${directory}/${file}`,
-					);
+				for (const file of [
+					...externalChanges.map(
+						({directory, file}) => `packages/${directory}/${file}`,
+					),
+					...rootFiles,
+					docsFile,
+				]) {
+					const affectedJson = affectedForChange(file);
 					const query = JSON.parse(affectedJson) as {
 						data: {affectedTasks: {items: Array<{fullName: string}>}};
 					};

@@ -20,6 +20,7 @@ import {
 import {useMediaAudioState} from './audio/use-media-audio-state.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
+import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -72,6 +73,7 @@ import {
 } from './effects/create-effect.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {getGpuDevice} from './effects/gpu-device.js';
 import {
 	PreferredEffectBackendContext,
 	validatePreferredEffectBackend,
@@ -391,6 +393,7 @@ export const Internals = {
 	playbackDiagnostics,
 	registerMediabunnySink,
 	HtmlInCanvasFallback,
+	canPremountInHtmlInCanvas,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticEffects,
 	useOptimisticEffects,
@@ -584,6 +587,7 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	getGpuDevice,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	PreferredEffectBackendContext,

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.543",
+	"version": "4.0.544",
 	"description": "Library for creating transitions in Remotion",
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
@@ -17,16 +17,18 @@
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
-	"license": "UNLICENSED",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/motion-blur": "workspace:*",
 		"remotion": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/paths": "workspace:*"
 	},
 	"devDependencies": {
+		"@webgpu/types": "0.1.74",
 		"@happy-dom/global-registrator": "14.5.1",
 		"remotion": "workspace:*",
 		"react": "catalog:",

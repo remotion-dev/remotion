@@ -48,6 +48,14 @@ const invokeStreamOrTimeout = async ({
 	payload: Record<string, unknown>;
 	requestHandler: RequestHandler | null;
 }) => {
+	const stringifiedPayload = JSON.stringify({type, ...payload});
+	const byteLength = Buffer.byteLength(stringifiedPayload);
+	if (byteLength > 6 * 1024 * 1024) {
+		throw new Error(
+			`Payload is too big: ${byteLength} bytes. Maximum size is 6 MB. This should not happen, please report this to the Remotion team.`,
+		);
+	}
+
 	const resProm = getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
@@ -55,7 +63,7 @@ const invokeStreamOrTimeout = async ({
 	).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
-			Payload: JSON.stringify({type, ...payload}),
+			Payload: stringifiedPayload,
 		}),
 	);
 
@@ -94,11 +102,19 @@ export const invokeWithResponseStreamImplementation = ({
 	requestHandler: RequestHandler | null;
 	abortSignal: AbortSignal;
 }): Promise<InvokeWithResponseStreamCommandOutput> => {
+	const stringifiedPayload = JSON.stringify(payload);
+	const byteLength = Buffer.byteLength(stringifiedPayload);
+	if (byteLength > 6 * 1024 * 1024) {
+		throw new Error(
+			`Payload is too big: ${byteLength} bytes. Maximum size is 6 MB. This should not happen, please report this to the Remotion team.`,
+		);
+	}
+
 	return getLambdaClient(region, timeoutInMilliseconds, requestHandler).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			InvocationType: 'RequestResponse',
-			Payload: JSON.stringify(payload),
+			Payload: stringifiedPayload,
 		}),
 		{abortSignal},
 	);

@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill} from 'remotion';
+import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -9,21 +10,57 @@ const makePolygonIn = (progress: number, direction: WipeDirection) => {
 	const p = progress * 100;
 	switch (direction) {
 		case 'from-left':
-			return `polygon(0% 0%, ${p}% 0%, ${p}% 100%, 0% 100%)`;
+			return [
+				[0, 0],
+				[p, 0],
+				[p, 100],
+				[0, 100],
+			];
 		case 'from-top-left':
-			return `polygon(0% 0%, ${p * 2}% 0%, 0% ${p * 2}%)`;
+			return [
+				[0, 0],
+				[p * 2, 0],
+				[0, p * 2],
+			];
 		case 'from-top':
-			return `polygon(0% 0%, 100% 0%, 100% ${p}%, 0% ${p}%)`;
+			return [
+				[0, 0],
+				[100, 0],
+				[100, p],
+				[0, p],
+			];
 		case 'from-top-right':
-			return `polygon(100% 0%, ${100 - p * 2}% 0%, 100% ${p * 2}%)`;
+			return [
+				[100, 0],
+				[100 - p * 2, 0],
+				[100, p * 2],
+			];
 		case 'from-right':
-			return `polygon(100% 0%, 100% 100%, ${100 - p}% 100%, ${100 - p}% 0%)`;
+			return [
+				[100, 0],
+				[100, 100],
+				[100 - p, 100],
+				[100 - p, 0],
+			];
 		case 'from-bottom-right':
-			return `polygon(100% 100%, ${100 - p * 2}% 100%, 100% ${100 - p * 2}%)`;
+			return [
+				[100, 100],
+				[100 - p * 2, 100],
+				[100, 100 - p * 2],
+			];
 		case 'from-bottom':
-			return `polygon(0% 100%, 100% 100%, 100% ${100 - p}%, 0% ${100 - p}%)`;
+			return [
+				[0, 100],
+				[100, 100],
+				[100, 100 - p],
+				[0, 100 - p],
+			];
 		case 'from-bottom-left':
-			return `polygon(0% 100%, 0% ${100 - p * 2}%, ${p * 2}% 100%)`;
+			return [
+				[0, 100],
+				[0, 100 - p * 2],
+				[p * 2, 100],
+			];
 		default:
 			throw new Error(`Unknown direction ${JSON.stringify(direction)}`);
 	}
@@ -33,21 +70,57 @@ const makePolygonOut = (progress: number, direction: WipeDirection) => {
 	const p = progress * 100;
 	switch (direction) {
 		case 'from-left':
-			return `polygon(100% 100%, ${100 - p}% 100%, ${100 - p}% 0%, 100% 0%)`;
+			return [
+				[100, 100],
+				[100 - p, 100],
+				[100 - p, 0],
+				[100, 0],
+			];
 		case 'from-top-left':
-			return `polygon(100% 100%, ${100 - p * 2}% 100%, 100% ${100 - p * 2}%)`;
+			return [
+				[100, 100],
+				[100 - p * 2, 100],
+				[100, 100 - p * 2],
+			];
 		case 'from-top':
-			return `polygon(100% 100%, 0% 100%, 0% ${100 - p}%, 100% ${100 - p}%)`;
+			return [
+				[100, 100],
+				[0, 100],
+				[0, 100 - p],
+				[100, 100 - p],
+			];
 		case 'from-top-right':
-			return `polygon(0% 100%, ${p * 2}% 100%, 0% ${100 - p * 2}%)`;
+			return [
+				[0, 100],
+				[p * 2, 100],
+				[0, 100 - p * 2],
+			];
 		case 'from-right':
-			return `polygon(0% 0%, ${p}% 0%, ${p}% 100%, 0% 100%)`;
+			return [
+				[0, 0],
+				[p, 0],
+				[p, 100],
+				[0, 100],
+			];
 		case 'from-bottom-right':
-			return `polygon(0% 0%, ${p * 2}% 0%, 0% ${p * 2}%)`;
+			return [
+				[0, 0],
+				[p * 2, 0],
+				[0, p * 2],
+			];
 		case 'from-bottom':
-			return `polygon(100% 0%, 0% 0%, 0% ${p}%, 100% ${p}%)`;
+			return [
+				[100, 0],
+				[0, 0],
+				[0, p],
+				[100, p],
+			];
 		case 'from-bottom-left':
-			return `polygon(100% 0%, ${100 - p * 2}% 0%, 100% ${p * 2}%)`;
+			return [
+				[100, 0],
+				[100 - p * 2, 0],
+				[100, p * 2],
+			];
 		default:
 			throw new Error(`Unknown direction ${JSON.stringify(direction)}`);
 	}
@@ -71,6 +144,45 @@ export type WipeProps = {
 	innerExitStyle?: React.CSSProperties;
 };
 
+const wipeCanvas: HtmlInCanvasShader<WipeProps> = (canvas) => {
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Failed to create wipe canvas context');
+	}
+
+	return {
+		clear: () => context.reset(),
+		cleanup: () => context.reset(),
+		draw: ({prevImage, nextImage, width, height, time, passedProps}) => {
+			context.reset();
+			const direction = passedProps.direction ?? 'from-left';
+			for (const [image, polygon] of [
+				[nextImage, makePolygonOut(1 - time, direction)],
+				[prevImage, makePolygonIn(time, direction)],
+			] as const) {
+				if (!image) {
+					continue;
+				}
+
+				context.save();
+				context.beginPath();
+				for (const [index, [x, y]] of polygon.entries()) {
+					if (index === 0) {
+						context.moveTo((x / 100) * width, (y / 100) * height);
+					} else {
+						context.lineTo((x / 100) * width, (y / 100) * height);
+					}
+				}
+
+				context.closePath();
+				context.clip();
+				context.drawImage(image, 0, 0, width, height);
+				context.restore();
+			}
+		},
+	};
+};
+
 const WipePresentation: React.FC<
 	TransitionPresentationComponentProps<WipeProps>
 > = ({
@@ -90,10 +202,11 @@ const WipePresentation: React.FC<
 			? presentationProgress
 			: 1 - presentationProgress;
 
-	const clipPath =
+	const polygon =
 		presentationDirection === 'entering'
 			? makePolygonIn(progressInDirection, direction)
 			: makePolygonOut(progressInDirection, direction);
+	const clipPath = `polygon(${polygon.map(([x, y]) => `${x}% ${y}%`).join(', ')})`;
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -131,5 +244,11 @@ export const wipe = (props?: WipeProps): TransitionPresentation<WipeProps> => {
 	return {
 		component: WipePresentation,
 		props: props ?? {},
+		...(props?.outerEnterStyle ||
+		props?.outerExitStyle ||
+		props?.innerEnterStyle ||
+		props?.innerExitStyle
+			? {}
+			: {canvas: wipeCanvas}),
 	};
 };

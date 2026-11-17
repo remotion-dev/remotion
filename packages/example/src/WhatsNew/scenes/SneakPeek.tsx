@@ -328,11 +328,7 @@ const SneakPeekSceneInner: React.FC = () => {
 				keyframes={layout}
 			>
 				<Series>
-					<Series.Sequence
-						name="Sneak peek"
-						durationInFrames={79}
-						premountFor={30}
-					>
+					<Series.Sequence name="Sneak peek" durationInFrames={79}>
 						<Punch zoom={1.06}>
 							<Video
 								src={
@@ -342,11 +338,7 @@ const SneakPeekSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Easier to use"
-						durationInFrames={405}
-						premountFor={30}
-					>
+					<Series.Sequence name="Easier to use" durationInFrames={405}>
 						<Punch zoom={1.18}>
 							<Video
 								src={
@@ -356,11 +348,7 @@ const SneakPeekSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Visual mode"
-						durationInFrames={361}
-						premountFor={30}
-					>
+					<Series.Sequence name="Visual mode" durationInFrames={361}>
 						<Punch zoom={1.04}>
 							<Video
 								src={
@@ -370,11 +358,7 @@ const SneakPeekSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Regular React code"
-						durationInFrames={67}
-						premountFor={30}
-					>
+					<Series.Sequence name="Regular React code" durationInFrames={67}>
 						<Punch zoom={1.16}>
 							<Video
 								src={

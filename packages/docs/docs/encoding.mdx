@@ -114,7 +114,7 @@ Set the [codec option](/docs/options/codec).
 
 Remotion can encode video frames while other frames are still being rendered. See [Parallel encoding](/docs/parallel-encoding) for when it is enabled, memory usage and how to opt out.
 
-## Controlling quality using the CRF setting
+## Quality using the CRF setting {#controlling-quality-using-the-crf-setting}
 
 _Applies only to `h264`, `h265`, `vp8`, `vp9` and `av1`._
 
@@ -167,13 +167,13 @@ Set the [CRF option](/docs/options/crf).
 If you set `crf` while [hardware acceleration](/docs/hardware-acceleration) is `"required"`, the render throws an error. With `"if-possible"`, setting `crf` makes Remotion fall back to software encoding.
 :::
 
-## Controlling quality using `--video-bitrate` and `--audio-bitrate`
+## Quality using `--video-bitrate` and `--audio-bitrate` {#controlling-quality-using---video-bitrate-and---audio-bitrate}
 
 Use the [video bitrate](/docs/options/video-bitrate) and [audio bitrate](/docs/options/audio-bitrate) options, or set them in the Studio Render Dialog.
 
 The `videoBitrate` option cannot be combined with `crf`.
 
-## Controlling quality using ProRes profile
+## Quality using ProRes profile {#controlling-quality-using-prores-profile}
 
 _Applies only to `prores` codec_.
 

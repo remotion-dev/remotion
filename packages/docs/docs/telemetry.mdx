@@ -71,7 +71,8 @@ Use `isStill: true` for a still image and `isProduction: false` for development 
 
 ## Obligation to set a license key
 
-In Remotion 5.0, it becomes obligatory for companies which are under the "Remotion for Automators" option to set the `licenseKey` field and opt into telemetry.
+In Remotion 5.0, it becomes obligatory for companies which are under the "Remotion for Automators" option to set the `licenseKey` field and opt into telemetry.  
+Before Remotion 5.0, setting a `licenseKey` is voluntary.
 
 This obligation does not apply to companies under the "Remotion for Creators" option. Setting a `licenseKey` is not required, but Creators should still set one in the [Remotion Studio](/docs/studio) to avoid a warning being shown. A `licenseKey` also lets Creators track their own usage.
 
@@ -100,7 +101,8 @@ If you utilize client-side rendering, the end user's IP address is transmitted t
 ## Setting a license key
 
 If you [qualify for the free license](/docs/license), pass `"free-license"` to `licenseKey` to declare your eligibility for the free license.  
-For client-side rendering, this also disables the warning in the console.
+For client-side rendering, this also disables the warning in the console.  
+For server-side rendering, `"free-license"` sends an event without a license key, containing the [information listed above](#sent-information).
 
 If you have a Remotion Company License or Enterprise License, open the [Remotion Dashboard](https://www.remotion.dev/dashboard), select your project, and get your license key from the **License keys** page.
 
@@ -168,6 +170,8 @@ await renderMedia({
   licenseKey: process.env.REMOTION_PRIVATE_LICENSE_KEY,
 });
 ```
+
+Remotion does not read the license key from an environment variable automatically. `REMOTION_PRIVATE_LICENSE_KEY` is an example name. If the variable is not set, no event is sent.
 
 </TabItem>
 <TabItem value="client-side-rendering">
@@ -250,9 +254,16 @@ See [Setting a license key in the Studio](/docs/studio#setting-a-license-key).
 </TabItem>
 </Tabs>
 
+## Verifying that events are sent
+
+Render with verbose logging ([`--log=verbose`](/docs/cli/render#--log) or `logLevel: "verbose"`). After a successful render, `Usage event sent successfully` is logged.  
+If the event could not be sent, an error is logged and the render still completes.
+
+On [Lambda](/docs/lambda), the event is sent from the function, so these messages do not appear in your terminal. Look for `Telemetry event sent` in the [CloudWatch logs](/docs/lambda/troubleshooting/debug#inspecting-the-logs) of the function instead.
+
 ## Tracking usage
 
-After you set up the license key, you can now track your usage on the same Usage tab.
+After you set up the license key, you can track your usage on the Usage page of your project in the [Remotion Dashboard](https://www.remotion.dev/dashboard).
 
 Usage is not (yet) tied to billing.  
 You will need to update your render count manually periodically to reflect your usage.
