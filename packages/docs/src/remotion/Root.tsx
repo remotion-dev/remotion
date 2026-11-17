@@ -204,7 +204,7 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="motion-blur-html-in-canvas-demo"
 				component={MotionBlurHtmlInCanvasLiveDemo}
-				durationInFrames={60}
+				durationInFrames={240}
 				fps={30}
 				width={960}
 				height={540}

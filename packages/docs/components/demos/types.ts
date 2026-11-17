@@ -1726,7 +1726,7 @@ export const motionBlurHtmlInCanvasDemo: DemoType = {
 	comp: MotionBlurHtmlInCanvasDocsDemo,
 	compHeight: 540,
 	compWidth: 960,
-	durationInFrames: 60,
+	durationInFrames: 240,
 	fps: 30,
 	id: 'motion-blur-html-in-canvas',
 	autoPlay: true,

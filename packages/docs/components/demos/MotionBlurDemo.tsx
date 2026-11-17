@@ -5,6 +5,7 @@ import {
 	AbsoluteFill,
 	Easing,
 	interpolate,
+	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -59,21 +60,23 @@ export const MotionBlurHtmlInCanvasLiveDemo: React.FC<MotionBlurDemoProps> = ({
 	const {width, height} = useVideoConfig();
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: darkMode ? '#15151e' : '#fff',
-				overflow: 'hidden',
-			}}
-		>
-			<HtmlInCanvasMotionBlur
-				width={width}
-				height={height}
-				samples={24}
-				shutterAngle={360}
+		<Sequence playbackRate={0.25}>
+			<AbsoluteFill
+				style={{
+					backgroundColor: darkMode ? '#15151e' : '#fff',
+					overflow: 'hidden',
+				}}
 			>
-				<SlidingText darkMode={darkMode} />
-			</HtmlInCanvasMotionBlur>
-		</AbsoluteFill>
+				<HtmlInCanvasMotionBlur
+					width={width}
+					height={height}
+					samples={24}
+					shutterAngle={360}
+				>
+					<SlidingText darkMode={darkMode} />
+				</HtmlInCanvasMotionBlur>
+			</AbsoluteFill>
+		</Sequence>
 	);
 };
 
