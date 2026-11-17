@@ -31,7 +31,7 @@ const cubeCanvas: HtmlInCanvasShader<CubeProps> = (canvas) => {
 			width,
 			height,
 			time,
-			pixelRatio = 1,
+			pixelRatio,
 			passedProps: {direction, perspective = 1000},
 		}) => {
 			renderer.clear();

@@ -104,8 +104,8 @@ const pushCutCanvas: HtmlInCanvasShader<PushCutProps> = (canvas) => {
 			width,
 			height,
 			time,
-			pixelRatio = 1,
-			presentationDurationInFrames = 1,
+			pixelRatio,
+			presentationDurationInFrames,
 			passedProps,
 		}) => {
 			context.reset();

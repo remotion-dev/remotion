@@ -423,10 +423,10 @@ export type HtmlInCanvasShaderDrawParams<Props> = {
 	width: number;
 	height: number;
 	time: number;
-	/** Captured pixels per CSS pixel. Defaults to 1 for direct shader calls. */
-	pixelRatio?: number;
+	/** Captured pixels per CSS pixel. */
+	pixelRatio: number;
 	/** Duration of the transition, independent of its current progress. */
-	presentationDurationInFrames?: number;
+	presentationDurationInFrames: number;
 	passedProps: Props;
 };
 

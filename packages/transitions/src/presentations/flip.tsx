@@ -33,7 +33,7 @@ const flipCanvas: HtmlInCanvasShader<FlipProps> = (canvas) => {
 			width,
 			height,
 			time,
-			pixelRatio = 1,
+			pixelRatio,
 			passedProps: {direction = 'from-left', perspective = 1000},
 		}) => {
 			renderer.clear();

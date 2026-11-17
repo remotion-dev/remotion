@@ -32,7 +32,7 @@ const irisCanvas: HtmlInCanvasShader<IrisProps> = (canvas) => {
 			width,
 			height,
 			time,
-			pixelRatio = 1,
+			pixelRatio,
 			passedProps,
 		}) => {
 			context.reset();

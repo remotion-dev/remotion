@@ -287,11 +287,12 @@ Each call must produce a complete image independently of earlier draws.
 ##### `pixelRatio`<AvailableFrom v="4.0.545" />
 
 The number of capture pixels per CSS pixel. Multiply CSS-pixel dimensions by this value when drawing into the canvas.  
-Remotion supplies this field on every draw. It is optional in the exported type for compatibility with direct shader calls, where a renderer can default to `1`.
+Remotion supplies this field on every draw.
 
 ##### `presentationDurationInFrames`<AvailableFrom v="4.0.545" />
 
-The transition duration, independent of the current `time`. Use it for duration-dependent effects such as a flash lasting a fixed number of frames. Remotion supplies this field on every draw. It is optional in the exported type for compatibility with direct shader calls.
+The transition duration, independent of the current `time`. Use it for duration-dependent effects such as a flash lasting a fixed number of frames.  
+Remotion supplies this field on every draw.
 
 ##### `passedProps`
 
