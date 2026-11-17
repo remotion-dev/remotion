@@ -110,9 +110,11 @@ const createMotionBlurShader =
 					frame >= duration
 						? 1
 						: samples;
+				const needsCompositor =
+					shutterAngle > 0 && samples > 1 && frame < duration;
 				if (
 					compositor &&
-					(sampleCount === 1 ||
+					(!needsCompositor ||
 						compositorWidth !== width ||
 						compositorHeight !== height ||
 						compositor.isLost())
@@ -121,7 +123,7 @@ const createMotionBlurShader =
 					compositor = null;
 				}
 
-				if (sampleCount > 1 && compositor === null) {
+				if (needsCompositor && compositor === null) {
 					compositor = MotionBlurInternals.createMotionBlurCompositor({
 						width,
 						height,
@@ -130,6 +132,8 @@ const createMotionBlurShader =
 					});
 					compositorWidth = width;
 					compositorHeight = height;
+					compositor.addSample(sampleCanvas, 0, 1);
+					compositor.finish();
 				}
 
 				const sampleWeight = Math.round(255 / sampleCount) / 255;
@@ -150,14 +154,14 @@ const createMotionBlurShader =
 						presentationDurationInFrames: duration,
 						passedProps: presentation.props,
 					});
-					if (compositor) {
+					if (compositor && sampleCount > 1) {
 						compositor.addSample(sampleCanvas, i, sampleWeight);
 					} else {
 						context.drawImage(sampleCanvas, 0, 0);
 					}
 				}
 
-				if (compositor) {
+				if (compositor && sampleCount > 1) {
 					context.drawImage(compositor.finish(), 0, 0);
 				}
 			},
