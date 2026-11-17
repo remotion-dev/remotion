@@ -43,6 +43,7 @@ export const createLayer = async ({
 		!onlyBackgroundClipText &&
 		element instanceof HTMLElement &&
 		htmlInCanvasContext &&
+		!htmlInCanvasContext.paintTimedOut &&
 		onHtmlInCanvasLayerOutcome
 	) {
 		if (containsUrlMaskImage(element)) {
