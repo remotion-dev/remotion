@@ -35,7 +35,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"playwright": "catalog:",
 		"vite": "6.4.5",
-		"@playwright/test": "1.60.0",
+		"@playwright/test": "1.65.1",
 		"eslint": "catalog:",
 		"typescript": "catalog:"
 	},
