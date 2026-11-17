@@ -35,7 +35,6 @@ test.each([false, true])(
 		try {
 			const render = () =>
 				drawBorderRadius({
-					experimental3DRendering: true,
 					ctx: context,
 					rect: new DOMRect(0, 0, 400, 250),
 					borderRadius: parseBorderRadius({
@@ -78,7 +77,6 @@ test('rejects an oversized inset shadow before allocating its surface', () => {
 	document.body.appendChild(element);
 	try {
 		drawBorderRadius({
-			experimental3DRendering: true,
 			ctx: context,
 			rect: new DOMRect(0, 0, 100000, 250),
 			borderRadius: parseBorderRadius({

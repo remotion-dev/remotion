@@ -110,24 +110,29 @@ export const getBiggestBoundingClientRect = (
 
 		for (const shadow of shadows) {
 			if (!shadow.inset) {
-				const spread = experimental3DRendering
-					? Math.max(0, shadow.spreadRadius || 0)
-					: 0;
 				shadowLeft = Math.max(
 					shadowLeft,
-					Math.abs(Math.min(shadow.offsetX, 0)) + shadow.blurRadius + spread,
+					Math.abs(Math.min(shadow.offsetX, 0)) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowRight = Math.max(
 					shadowRight,
-					Math.max(shadow.offsetX, 0) + shadow.blurRadius + spread,
+					Math.max(shadow.offsetX, 0) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowTop = Math.max(
 					shadowTop,
-					Math.abs(Math.min(shadow.offsetY, 0)) + shadow.blurRadius + spread,
+					Math.abs(Math.min(shadow.offsetY, 0)) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowBottom = Math.max(
 					shadowBottom,
-					Math.max(shadow.offsetY, 0) + shadow.blurRadius + spread,
+					Math.max(shadow.offsetY, 0) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 			}
 		}

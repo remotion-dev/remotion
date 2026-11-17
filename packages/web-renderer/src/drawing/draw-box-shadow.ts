@@ -1,8 +1,9 @@
-import type {LogLevel} from 'remotion';
-import {Internals} from 'remotion';
-import {clampBorderRadius, setBorderRadius} from './border-radius';
-import type {BorderRadiusCorners} from './border-radius';
-import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
+import {Internals, type LogLevel} from 'remotion';
+import {
+	clampBorderRadius,
+	setBorderRadius,
+	type BorderRadiusCorners,
+} from './border-radius';
 import {drawRoundedRectPath} from './draw-rounded';
 import {getPaddingBox} from './get-padding-box';
 import type {ShadowBase} from './parse-shadow';
@@ -36,51 +37,37 @@ export const drawBorderRadius = ({
 	rect,
 	borderRadius,
 	computedStyle,
+	inset,
 	logLevel,
-	inset: insetOption,
-	experimental3DRendering: experimental3DRenderingOption,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
+	inset: boolean;
 	logLevel: LogLevel;
-	inset: boolean | null;
-	experimental3DRendering: boolean | null;
 }) => {
-	const inset = insetOption === null ? false : insetOption;
-	const experimental3DRendering =
-		experimental3DRenderingOption === null
-			? false
-			: experimental3DRenderingOption;
 	const shadows = parseBoxShadow(computedStyle.boxShadow);
-	if (shadows.length === 0 || (inset && !experimental3DRendering)) {
+
+	if (shadows.length === 0) {
 		return;
 	}
 
+	// Draw shadows from last to first (so first shadow appears on top)
 	for (let i = shadows.length - 1; i >= 0; i--) {
 		const shadow = shadows[i];
-		if (shadow.inset !== inset) continue;
-		if (shadow.inset && experimental3DRendering) {
-			// A blurred outer ring casts into the padding box even with zero spread.
-			if (
-				shadow.blurRadius === 0 &&
-				shadow.spreadRadius <= 0 &&
-				shadow.offsetX === 0 &&
-				shadow.offsetY === 0
-			)
-				continue;
+
+		if (shadow.inset !== inset) {
+			continue;
+		}
+
+		const spread = shadow.spreadRadius;
+		if (shadow.inset) {
 			const paddingRect = getPaddingBox(rect, computedStyle);
 			if (paddingRect.width <= 0 || paddingRect.height <= 0) continue;
-			const spread = shadow.spreadRadius;
 			const innerWidth = paddingRect.width - 2 * spread;
 			const innerHeight = paddingRect.height - 2 * spread;
-			const left = paddingRect.left - rect.left;
-			const right = rect.right - paddingRect.right;
-			const top = paddingRect.top - rect.top;
-			const bottom = rect.bottom - paddingRect.bottom;
-			// CSS Backgrounds 3 applies spread after subtracting the border width.
-			const insetRadius = (radius: number, borderWidth: number) => {
+			const radiusForInset = (radius: number, borderWidth: number) => {
 				const paddingRadius = Math.max(0, radius - borderWidth);
 				const effectiveSpread =
 					spread < 0 && paddingRadius < -spread
@@ -89,105 +76,77 @@ export const drawBorderRadius = ({
 				return Math.max(0, paddingRadius - effectiveSpread);
 			};
 
-			const corners: [keyof BorderRadiusCorners, number, number][] = [
-				['topLeft', left, top],
-				['topRight', right, top],
-				['bottomRight', right, bottom],
-				['bottomLeft', left, bottom],
-			];
 			const innerRadius = Object.fromEntries(
-				corners.map(([corner, horizontalInset, verticalInset]) => [
+				(
+					[
+						[
+							'topLeft',
+							paddingRect.left - rect.left,
+							paddingRect.top - rect.top,
+						],
+						[
+							'topRight',
+							rect.right - paddingRect.right,
+							paddingRect.top - rect.top,
+						],
+						[
+							'bottomRight',
+							rect.right - paddingRect.right,
+							rect.bottom - paddingRect.bottom,
+						],
+						[
+							'bottomLeft',
+							paddingRect.left - rect.left,
+							rect.bottom - paddingRect.bottom,
+						],
+					] as const
+				).map(([corner, x, y]) => [
 					corner,
 					{
-						horizontal: insetRadius(
-							borderRadius[corner].horizontal,
-							horizontalInset,
-						),
-						vertical: insetRadius(borderRadius[corner].vertical, verticalInset),
+						horizontal: radiusForInset(borderRadius[corner].horizontal, x),
+						vertical: radiusForInset(borderRadius[corner].vertical, y),
 					},
 				]),
 			) as BorderRadiusCorners;
-			const finishPaddingClip = setBorderRadius({
+			const finishClip = setBorderRadius({
 				ctx,
 				rect,
 				borderRadius,
-				forceClipEvenWhenZero: true,
 				computedStyle,
 				backgroundClip: 'padding-box',
+				forceClipEvenWhenZero: true,
 			});
+			// Only blur support can affect pixels outside the padding-box crop.
+			// Spread and offsets move the hole; they do not enlarge this surface.
+			const insetMargin = Math.ceil(shadow.blurRadius * 2 + 2);
+			const surfaceWidth = Math.ceil(paddingRect.width + insetMargin * 2);
+			const surfaceHeight = Math.ceil(paddingRect.height + insetMargin * 2);
+			let canvas: OffscreenCanvas | null = null;
 			try {
-				if (shadow.blurRadius > 0) {
-					// Blur the exterior of the shifted hole in local CSS pixels, then
-					// project the finished shadow with the rest of this element's plane.
-					const margin = Math.ceil(
-						shadow.blurRadius * 2 +
-							Math.abs(shadow.offsetX) +
-							Math.abs(shadow.offsetY) +
-							Math.abs(spread) +
-							2,
+				if (
+					surfaceWidth > 16384 ||
+					surfaceHeight > 16384 ||
+					surfaceWidth * surfaceHeight > 16777216
+				) {
+					Internals.Log.warn(
+						{logLevel, tag: '@remotion/web-renderer'},
+						'Inset shadow exceeds the temporary bitmap budget',
 					);
-					const width = Math.ceil(paddingRect.width + margin * 2);
-					const height = Math.ceil(paddingRect.height + margin * 2);
-					if (width > 16384 || height > 16384 || width * height > 16777216) {
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/web-renderer'},
-							'Inset shadow exceeds the temporary bitmap budget',
-						);
-						continue;
-					}
-
-					const canvas = new OffscreenCanvas(width, height);
-					try {
-						const shadowCtx = canvas.getContext('2d');
-						if (!shadowCtx)
-							throw new Error('Failed to create inset shadow context');
-						shadowCtx.fillStyle = shadow.color;
-						shadowCtx.filter = `blur(${shadow.blurRadius / 2}px)`;
-						shadowCtx.beginPath();
-						shadowCtx.rect(0, 0, width, height);
-						if (innerWidth > 0 && innerHeight > 0) {
-							drawRoundedRectPath({
-								ctx: shadowCtx,
-								x: margin + spread + shadow.offsetX,
-								y: margin + spread + shadow.offsetY,
-								width: innerWidth,
-								height: innerHeight,
-								borderRadius: clampBorderRadius({
-									borderRadius: innerRadius,
-									width: innerWidth,
-									height: innerHeight,
-								}),
-								appendToPath: true,
-							});
-						}
-
-						shadowCtx.fill('evenodd');
-						ctx.drawImage(
-							canvas,
-							paddingRect.left - margin,
-							paddingRect.top - margin,
-						);
-					} finally {
-						canvas.width = 0;
-						canvas.height = 0;
-					}
-
 					continue;
 				}
 
-				ctx.fillStyle = shadow.color;
-				ctx.beginPath();
-				ctx.rect(
-					paddingRect.left,
-					paddingRect.top,
-					paddingRect.width,
-					paddingRect.height,
-				);
+				canvas = new OffscreenCanvas(surfaceWidth, surfaceHeight);
+				const shadowCtx = canvas.getContext('2d');
+				if (!shadowCtx) throw new Error('Failed to get shadow context');
+				shadowCtx.fillStyle = shadow.color;
+				shadowCtx.filter = `blur(${shadow.blurRadius / 2}px)`;
+				shadowCtx.beginPath();
+				shadowCtx.rect(0, 0, canvas.width, canvas.height);
 				if (innerWidth > 0 && innerHeight > 0) {
 					drawRoundedRectPath({
-						ctx,
-						x: paddingRect.left + spread + shadow.offsetX,
-						y: paddingRect.top + spread + shadow.offsetY,
+						ctx: shadowCtx,
+						x: insetMargin + spread + shadow.offsetX,
+						y: insetMargin + spread + shadow.offsetY,
 						width: innerWidth,
 						height: innerHeight,
 						borderRadius: clampBorderRadius({
@@ -199,130 +158,93 @@ export const drawBorderRadius = ({
 					});
 				}
 
-				ctx.fill('evenodd');
+				shadowCtx.fill('evenodd');
+				ctx.drawImage(
+					canvas,
+					paddingRect.left - insetMargin,
+					paddingRect.top - insetMargin,
+				);
 			} finally {
-				finishPaddingClip();
+				if (canvas) {
+					canvas.width = 0;
+					canvas.height = 0;
+				}
+
+				finishClip();
 			}
 
 			continue;
 		}
 
-		if (
-			experimental3DRendering &&
-			shadow.blurRadius === 0 &&
-			shadow.spreadRadius !== 0
-		) {
-			const spread = shadow.spreadRadius;
-			const shadowRect = new DOMRect(
-				rect.left - spread + shadow.offsetX,
-				rect.top - spread + shadow.offsetY,
-				rect.width + 2 * spread,
-				rect.height + 2 * spread,
-			);
-			if (shadowRect.width <= 0 || shadowRect.height <= 0) continue;
-			// CSS Backgrounds 3 keeps sharp corners when spread exceeds the radius.
-			const outerRadius = (radius: number) => {
-				const effectiveSpread =
-					spread > 0 && radius < spread
-						? spread * (1 + (radius / spread - 1) ** 3)
-						: spread;
-				return Math.max(0, radius + effectiveSpread);
-			};
-
-			const shadowRadius = clampBorderRadius({
-				borderRadius: Object.fromEntries(
-					Object.entries(borderRadius).map(([corner, radius]) => [
+		const width = rect.width + spread * 2;
+		const height = rect.height + spread * 2;
+		if (width <= 0 || height <= 0) continue;
+		const shadowRadius = clampBorderRadius({
+			borderRadius: Object.fromEntries(
+				Object.entries(borderRadius).map(([corner, radius]) => {
+					const outerRadius = (value: number) =>
+						Math.max(
+							0,
+							value +
+								(spread > 0 && value < spread
+									? spread * (1 + (value / spread - 1) ** 3)
+									: spread),
+						);
+					return [
 						corner,
 						{
 							horizontal: outerRadius(radius.horizontal),
 							vertical: outerRadius(radius.vertical),
 						},
-					]),
-				) as BorderRadiusCorners,
-				width: shadowRect.width,
-				height: shadowRect.height,
-			});
-			const unionRect = getWiderRectAndExpand({
-				firstRect: rect,
-				secondRect: shadowRect,
-			});
-			ctx.save();
-			try {
-				// Cut the original border shape out of the shifted shadow.
-				ctx.beginPath();
-				ctx.rect(
-					unionRect.left,
-					unionRect.top,
-					unionRect.width,
-					unionRect.height,
-				);
-				drawRoundedRectPath({
-					ctx,
-					x: rect.left,
-					y: rect.top,
-					width: rect.width,
-					height: rect.height,
-					borderRadius,
-					appendToPath: true,
-				});
-				ctx.clip('evenodd');
-				ctx.fillStyle = shadow.color;
-				drawRoundedRectPath({
-					ctx,
-					x: shadowRect.left,
-					y: shadowRect.top,
-					width: shadowRect.width,
-					height: shadowRect.height,
-					borderRadius: shadowRadius,
-
-					appendToPath: null,
-				});
-				ctx.fill();
-			} finally {
-				ctx.restore();
-			}
-
-			continue;
-		}
-
-		const newLeft = rect.left + Math.min(shadow.offsetX, 0) - shadow.blurRadius;
-		const newRight =
-			rect.right + Math.max(shadow.offsetX, 0) + shadow.blurRadius;
-		const newTop = rect.top + Math.min(shadow.offsetY, 0) - shadow.blurRadius;
-		const newBottom =
-			rect.bottom + Math.max(shadow.offsetY, 0) + shadow.blurRadius;
-		const newRect = new DOMRect(
-			newLeft,
-			newTop,
-			newRight - newLeft,
-			newBottom - newTop,
+					];
+				}),
+			) as BorderRadiusCorners,
+			width,
+			height,
+		});
+		const margin = Math.ceil(shadow.blurRadius * 2);
+		const newLeft = Math.floor(
+			Math.min(rect.left, rect.left - spread + shadow.offsetX - margin),
+		);
+		const newTop = Math.floor(
+			Math.min(rect.top, rect.top - spread + shadow.offsetY - margin),
+		);
+		const newRight = Math.ceil(
+			Math.max(rect.right, rect.right + spread + shadow.offsetX + margin),
+		);
+		const newBottom = Math.ceil(
+			Math.max(rect.bottom, rect.bottom + spread + shadow.offsetY + margin),
 		);
 		const leftOffset = rect.left - newLeft;
 		const topOffset = rect.top - newTop;
-		const newCanvas = new OffscreenCanvas(newRect.width, newRect.height);
+		const newCanvas = new OffscreenCanvas(
+			newRight - newLeft,
+			newBottom - newTop,
+		);
 		const newCtx = newCanvas.getContext('2d');
-		if (!newCtx) {
-			throw new Error('Failed to get context');
-		}
+		if (!newCtx) throw new Error('Failed to get context');
 
+		// Apply shadow properties to canvas
 		newCtx.shadowBlur = shadow.blurRadius;
 		newCtx.shadowColor = shadow.color;
-		newCtx.shadowOffsetX = shadow.offsetX;
+		newCtx.shadowOffsetX = shadow.offsetX + newCanvas.width * 2;
 		newCtx.shadowOffsetY = shadow.offsetY;
+
 		newCtx.fillStyle = 'black';
 		drawRoundedRectPath({
 			ctx: newCtx,
-			x: leftOffset,
-			y: topOffset,
-			width: rect.width,
-			height: rect.height,
-			borderRadius,
-
-			appendToPath: null,
+			x: leftOffset - spread - newCanvas.width * 2,
+			y: topOffset - spread,
+			width,
+			height,
+			borderRadius: shadowRadius,
 		});
 		newCtx.fill();
+
+		// Cut out the shape, leaving only shadow
 		newCtx.shadowColor = 'transparent';
 		newCtx.globalCompositeOperation = 'destination-out';
+
 		drawRoundedRectPath({
 			ctx: newCtx,
 			x: leftOffset,
@@ -330,10 +252,9 @@ export const drawBorderRadius = ({
 			width: rect.width,
 			height: rect.height,
 			borderRadius,
-
-			appendToPath: null,
 		});
 		newCtx.fill();
+
 		ctx.drawImage(newCanvas, rect.left - leftOffset, rect.top - topOffset);
 	}
 };

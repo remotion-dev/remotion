@@ -110,8 +110,7 @@ SVG-local selector preservation is not supported for stylesheets containing `@im
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows, including blur and spread, require `experimental3DRendering: true`. Inset shadows exceeding 16384 pixels per axis or 16 Mi pixels are not supported.  
-Spread for unblurred outer shadows requires `experimental3DRendering: true`. Spread on blurred outer shadows is not supported.
+\`inset\` shadows and positive or negative spread radius are <a style={{color: 'green'}}>supported</a>. With \`border-radius\`, a spread or \`inset\` shadow may show a 1px anti-aliasing seam where it meets the box. Blurred \`inset\` shadows may differ slightly from native rendering. Inset shadow surfaces exceeding 16384 pixels per axis or 16 Mi pixels are not supported.
 
 ## Masks
 

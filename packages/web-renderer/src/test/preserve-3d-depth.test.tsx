@@ -270,20 +270,14 @@ const reviewComposition = (kind: string) => ({
 	durationInFrames: 1,
 });
 
-test('keeps unsupported inset shadows disabled on the default path', async () => {
-	const control = await (
-		await renderStillOnWeb({
-			composition: reviewComposition('review-inset-control'),
-			frame: 0,
-			inputProps: {},
-			licenseKey: 'free-license',
-			allowHtmlInCanvas: false,
-		})
-	).blob({format: 'png'});
-	for (const experimental3DRendering of [undefined, false]) {
-		const actual = await (
+test('keeps upstream inset shadow support when 3D rendering is off', async () => {
+	const render = async (
+		kind: string,
+		experimental3DRendering: boolean | undefined,
+	) =>
+		(
 			await renderStillOnWeb({
-				composition: reviewComposition('review-inset'),
+				composition: reviewComposition(kind),
 				frame: 0,
 				inputProps: {},
 				licenseKey: 'free-license',
@@ -291,10 +285,15 @@ test('keeps unsupported inset shadows disabled on the default path', async () =>
 				experimental3DRendering,
 			})
 		).blob({format: 'png'});
-		expect((await compareNativePixels(control, actual)).mismatchedPixels).toBe(
-			0,
-		);
-	}
+	const control = await render('review-inset-control', undefined);
+	const implicit = await render('review-inset', undefined);
+	const disabled = await render('review-inset', false);
+	expect(
+		(await countNativePixels(control, implicit)).mismatchedPixels,
+	).toBeGreaterThan(0);
+	expect((await compareNativePixels(implicit, disabled)).mismatchedPixels).toBe(
+		0,
+	);
 });
 
 test.skipIf(server.browser !== 'chromium')(

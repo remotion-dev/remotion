@@ -54,9 +54,12 @@ export const parseShadowValues = (shadowValue: string): ShadowBase[] => {
 			if (values.length >= 3) {
 				shadow.blurRadius = Math.max(0, values[2]);
 			}
+
+			if (values.length >= 4) {
+				shadow.spreadRadius = values[3];
+			}
 		}
 
-		shadow.spreadRadius = values[3] ?? 0;
 		shadows.push(shadow);
 	}
 
