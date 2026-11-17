@@ -254,7 +254,10 @@ test.each([0.01, 2])(
 			source: new BlobSource(await result.getBlob()),
 		});
 		const track = await input.getPrimaryAudioTrack();
-		const audio = new Float32Array(Math.round((6 * sampleRate) / fps));
+		const rangeStartSample = Math.round((2 * sampleRate) / fps);
+		const audio = new Float32Array(
+			Math.round((8 * sampleRate) / fps) - rangeStartSample,
+		);
 		let totalSamples = 0;
 		for await (const {buffer, timestamp} of new AudioBufferSink(
 			track!,
@@ -265,8 +268,8 @@ test.each([0.01, 2])(
 		}
 
 		expect(totalSamples).toBe(audio.length);
-		const gapStart = Math.round((2 * sampleRate) / fps);
-		const gapEnd = Math.round((3 * sampleRate) / fps);
+		const gapStart = Math.round((4 * sampleRate) / fps) - rangeStartSample;
+		const gapEnd = Math.round((5 * sampleRate) / fps) - rangeStartSample;
 		expect(
 			audio.subarray(0, gapStart).some((sample) => Math.abs(sample) > 0.1),
 		).toBe(true);
