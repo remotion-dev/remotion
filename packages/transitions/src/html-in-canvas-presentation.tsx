@@ -93,7 +93,8 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
 	const sequence = useContext(Internals.SequenceContext);
-	const inactive = Boolean(sequence?.premounting || sequence?.postmounting);
+	const premounting = Boolean(sequence?.premounting);
+	const inactive = premounting || Boolean(sequence?.postmounting);
 	const videoEnabled = Internals.useVideoEnabled();
 	// Audio-only frames keep the scenes mounted without capturing or drawing them.
 	const passThrough =
@@ -270,7 +271,9 @@ const HtmlInCanvasPresentationWithSupport = <
 				elementImage.close();
 			}
 
-			if (!inactive) {
+			if (premounting) {
+				draw(captureCanvas, null, presentationProgress);
+			} else if (!inactive) {
 				onElementImage(captureCanvas, draw);
 			}
 		};
@@ -280,7 +283,15 @@ const HtmlInCanvasPresentationWithSupport = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough, inactive]);
+	}, [
+		onElementImage,
+		presentationDirection,
+		presentationProgress,
+		draw,
+		passThrough,
+		inactive,
+		premounting,
+	]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
