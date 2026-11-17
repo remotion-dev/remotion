@@ -3,7 +3,9 @@ import {getBackgroundImageRect} from './background-image-rect';
 import {parseUrlFunction} from './mask-image';
 import {
 	createCanvasGradient,
+	getCanvasGradientRange,
 	parseLinearGradient,
+	resolveColorStops,
 } from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 
@@ -205,9 +207,14 @@ export const getBackgroundFill = async ({
 						if (!ctx) throw new Error('Could not get radial gradient context');
 						ctx.translate(rect.width / 2, rect.height / 2);
 						ctx.scale(radiusX, radiusY);
-						const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-						for (const stop of stops.colorStops)
-							gradient.addColorStop(stop.position, stop.color);
+						// Canvas radial gradients cannot start below radius 0.
+						const colorStops = resolveColorStops(stops.colorStops, radiusX).map(
+							(stop) => ({...stop, position: Math.max(0, stop.position)}),
+						);
+						const {end, toCanvasOffset} = getCanvasGradientRange(colorStops);
+						const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, end);
+						for (const stop of colorStops)
+							gradient.addColorStop(toCanvasOffset(stop.position), stop.color);
 						ctx.fillStyle = gradient;
 						ctx.fillRect(-1, -1, 2, 2);
 						const pattern = contextToDraw.createPattern(canvas, 'no-repeat');
