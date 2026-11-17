@@ -17,7 +17,10 @@ const wait = (state: DelayRenderScope, signal: AbortSignal | null) =>
 		internalState: null,
 		keepalive: null,
 	});
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+	vi.useRealTimers();
+	vi.unstubAllGlobals();
+});
 test('stored cancellation rejects an already-ready wait with the original error and cause', async () => {
 	const state = scope();
 	const failure = new Error('fatal before wait', {
@@ -35,21 +38,22 @@ test('a defined empty legacy cancellation stack takes priority over readiness', 
 		stack: '',
 	});
 });
-test('a cancellation observed while waiting takes priority over a simultaneous ready transition', async () => {
-	const ticks: FrameRequestCallback[] = [];
-	vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
-		ticks.push(callback);
-		return ticks.length;
-	});
+test('stored cancellation takes priority over readiness even if the only check is the deadline', async () => {
+	vi.useFakeTimers();
+	vi.stubGlobal('requestAnimationFrame', () => 1);
+	const cancelFrame = vi.fn();
+	vi.stubGlobal('cancelAnimationFrame', cancelFrame);
 	const state = scope();
 	state.remotion_renderReady = false;
 	const waiting = wait(state, null);
 	const failure = new Error('fatal before pending tick');
+	const rejected = expect(waiting).rejects.toBe(failure);
 	state.remotion_cancelledError = failure.stack!;
 	state.remotion_cancelledErrorObject = failure;
 	state.remotion_renderReady = true;
-	ticks.splice(0).forEach((callback) => callback(performance.now()));
-	await expect(waiting).rejects.toBe(failure);
+	await vi.advanceTimersByTimeAsync(33_000);
+	await rejected;
+	expect(cancelFrame).toHaveBeenCalledWith(1);
 });
 test('ordinary ready waits resolve and later cancellation does not undo a completed wait', async () => {
 	const state = scope();
@@ -61,7 +65,7 @@ test('ordinary ready waits resolve and later cancellation does not undo a comple
 	await expect(completed).resolves.toBeUndefined();
 	await expect(wait(state, null)).rejects.toBe(failure);
 });
-test('an already-aborted signal retains priority over stored cancellation and readiness', async () => {
+test('abort takes priority over stored cancellation and readiness before and during a wait', async () => {
 	const state = scope();
 	state.remotion_cancelledError = 'Error: renderer failure';
 	const controller = new AbortController();
@@ -69,4 +73,20 @@ test('an already-aborted signal retains priority over stored cancellation and re
 	await expect(wait(state, controller.signal)).rejects.toThrow(
 		'renderStillOnWeb() was cancelled',
 	);
+
+	vi.useFakeTimers();
+	vi.stubGlobal('requestAnimationFrame', () => 2);
+	const cancelFrame = vi.fn();
+	vi.stubGlobal('cancelAnimationFrame', cancelFrame);
+	const pendingScope = scope();
+	pendingScope.remotion_renderReady = false;
+	const active = new AbortController();
+	const pending = wait(pendingScope, active.signal);
+	const rejected = expect(pending).rejects.toThrow(
+		'renderStillOnWeb() was cancelled',
+	);
+	active.abort();
+	await rejected;
+	expect(cancelFrame).toHaveBeenCalledWith(2);
+	expect(vi.getTimerCount()).toBe(0);
 });

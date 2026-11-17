@@ -23,25 +23,40 @@ export const waitForReady = ({
 	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
 	const {promise, resolve, reject} = withResolvers<void>();
 
-	let cancelled = false;
+	let settled = false;
+	let frame: number | undefined;
+	let deadline: ReturnType<typeof setTimeout> | undefined;
 
-	const check = () => {
-		const now = performance.now();
-
-		if (cancelled) {
-			return;
+	const finish = () => {
+		settled = true;
+		clearTimeout(deadline);
+		if (frame !== undefined) {
+			cancelAnimationFrame(frame);
 		}
 
+		signal?.removeEventListener('abort', onAbort);
+		internalState?.addWaitForReadyTime(performance.now() - start);
+	};
+
+	const onAbort = () => {
+		finish();
+		reject(new Error(`${apiName}() was cancelled`));
+	};
+
+	const timeRemaining = () =>
+		timeoutInMilliseconds +
+		3000 +
+		(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) -
+		(performance.now() - start);
+
+	const check = () => {
 		if (signal?.aborted) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
-			reject(new Error(`${apiName}() was cancelled`));
+			onAbort();
 			return;
 		}
 
 		if (scope.remotion_cancelledError !== undefined) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			// No serialization is needed for browser rendering. Reject with the
 			// original Error so its identity, cause chain and custom fields survive.
 			if (scope.remotion_cancelledErrorObject) {
@@ -59,19 +74,13 @@ export const waitForReady = ({
 		}
 
 		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
+			finish();
 			resolve();
 			return;
 		}
 
-		if (
-			now -
-				start -
-				(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) >
-			timeoutInMilliseconds + 3000
-		) {
-			cancelled = true;
-			internalState?.addWaitForReadyTime(performance.now() - start);
+		if (timeRemaining() <= 0) {
+			finish();
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -79,29 +88,51 @@ export const waitForReady = ({
 						.join(', '),
 				),
 			);
-			return;
 		}
-
-		scheduleNextCheck();
 	};
 
 	// schedule both raf and worker timer - whichever fires first wins.
 	// when tab is visible, raf fires first. when backgrounded, worker wins.
 	const scheduleNextCheck = () => {
-		const rafTick = new Promise<void>((res) => {
-			requestAnimationFrame(() => res());
-		});
+		const rafTick = withResolvers<void>();
+		const id = requestAnimationFrame(() => rafTick.resolve());
+		frame = id;
 
 		// browsers throttle RAF when tab is backgrounded, so race against worker
 		const backgroundSafeTick = keepalive
-			? Promise.race([rafTick, keepalive.waitForTick()])
-			: rafTick;
+			? Promise.race([rafTick.promise, keepalive.waitForTick()])
+			: rafTick.promise;
 
-		backgroundSafeTick.then(check);
+		backgroundSafeTick.then(() => {
+			if (settled) {
+				return;
+			}
+
+			cancelAnimationFrame(id);
+			frame = undefined;
+			check();
+			if (!settled) {
+				scheduleNextCheck();
+			}
+		});
 	};
 
-	// check immediately first - if already ready, don't wait for RAF
+	const checkDeadline = () => {
+		check();
+		if (!settled) {
+			// Offline suspension may have moved the deadline.
+			deadline = setTimeout(checkDeadline, Math.max(1000, timeRemaining()));
+		}
+	};
+
+	// Check immediately so an already-ready composition needs no tick or timer.
 	check();
+	if (!settled) {
+		// A stopped compositor must not prevent cancellation or the deadline.
+		signal?.addEventListener('abort', onAbort, {once: true});
+		deadline = setTimeout(checkDeadline, timeRemaining());
+		scheduleNextCheck();
+	}
 
 	return promise;
 };
