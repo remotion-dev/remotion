@@ -132,3 +132,71 @@ test.for([1.5, 2.5])(
 		}
 	},
 );
+
+test.for([1.5, 2.5])(
+	'layered image masks and SVG clip paths cut at the same pixel as a narrower box at scale %s',
+	async (scale) => {
+		const canvas = new OffscreenCanvas(1, 1);
+		const context = canvas.getContext('2d')!;
+		context.fillRect(0, 0, 1, 1);
+		const opaqueImage = URL.createObjectURL(
+			await canvas.convertToBlob({type: 'image/png'}),
+		);
+
+		const render = async (width: number, style: React.CSSProperties) => {
+			const result = await renderStillOnWeb({
+				composition: {
+					component: () => (
+						<AbsoluteFill style={{backgroundColor: 'white'}}>
+							<svg width={0} height={0} style={{position: 'absolute'}}>
+								<clipPath id="first-8px" clipPathUnits="userSpaceOnUse">
+									<rect x={0} y={0} width={8} height={20} />
+								</clipPath>
+							</svg>
+							<div
+								style={{
+									position: 'absolute',
+									left: 10,
+									top: 10,
+									width,
+									height: 20,
+									backgroundColor: '#2563eb',
+									...style,
+								}}
+							/>
+						</AbsoluteFill>
+					),
+					id: 'cut-scale',
+					width: 40,
+					height: 40,
+					fps: 30,
+					durationInFrames: 1,
+				},
+				frame: 0,
+				licenseKey: 'free-license',
+				inputProps: {},
+				scale,
+			});
+			return result.blob({format: 'png'});
+		};
+
+		try {
+			const expected = await render(8, {});
+			for (const style of [
+				{
+					maskImage: `url("${opaqueImage}"), url("${opaqueImage}")`,
+					maskSize: '8px 100%',
+					maskRepeat: 'no-repeat',
+				},
+				{clipPath: 'url(#first-8px)'},
+			]) {
+				expect(
+					(await countNativePixels(expected, await render(17, style)))
+						.maxChannelDelta,
+				).toBeLessThanOrEqual(2);
+			}
+		} finally {
+			URL.revokeObjectURL(opaqueImage);
+		}
+	},
+);
