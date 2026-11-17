@@ -1310,7 +1310,6 @@ const sidebars: SidebarsConfig = {
 						'videos/size-and-position',
 						'videos/sequence',
 						'videos/transparency',
-						'color-correction',
 						'greenscreen',
 						'videos/video-manipulation',
 						'videos/jumpcuts',
@@ -1355,6 +1354,7 @@ const sidebars: SidebarsConfig = {
 		'fonts',
 		'transitioning',
 		'motion-blur/index',
+		'color-correction',
 		'html-in-canvas',
 		{
 			type: 'category',
