@@ -54,13 +54,13 @@ High-volume automated contribution looks like PRs to many unrelated repositories
 
 ## 7. Decide
 
-| Situation                              | Action                                                                                            |
+Report the findings and the recommended action to the user. Take an action that touches GitHub (closing, labeling, commenting, filing an issue) only after the user confirms it.
+
+| Situation                              | Recommended action                                                                                |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Real issue, root-cause fix, good tests | Review normally                                                                                   |
-| Speculative                            | Close, add `wontfix`, no comment                                                                  |
+| Speculative                            | Close, add `wontfix`, no comment on the PR                                                        |
 | Unrequested but valuable idea          | File an issue describing the problem, then close the PR with `wontfix`                            |
 | Plausible bug, unconfirmed             | Close the PR with `wontfix`, ask on the issue for a screenshot or composition from a real project |
 | Duplicate                              | Keep the better one, close the other with "Closing in favor of #N"                                |
 | Trusted repeat contributor             | Suggest adding them to the pull request limit bypass list                                         |
-
-Report findings to the user and wait for confirmation before closing anything.
