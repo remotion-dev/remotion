@@ -21,6 +21,7 @@ type SvgTextProps = {
 	dominantBaseline: 'auto' | 'central';
 	variant: Variant;
 	localCss: string;
+	fontWeight: number;
 };
 
 const SvgText: React.FC<SvgTextProps> = ({
@@ -28,6 +29,7 @@ const SvgText: React.FC<SvgTextProps> = ({
 	dominantBaseline,
 	variant,
 	localCss,
+	fontWeight,
 }) => {
 	const text = (
 		<text
@@ -36,7 +38,7 @@ const SvgText: React.FC<SvgTextProps> = ({
 			y={dominantBaseline === 'central' ? 30 : 46}
 			fontSize={42}
 			dominantBaseline={dominantBaseline}
-			style={{fontFamily}}
+			style={{fontFamily, fontWeight}}
 		>
 			Hamburgefonstiv
 		</text>
@@ -70,17 +72,20 @@ const render = async ({
 	dominantBaseline = 'auto',
 	variant = 'text',
 	localCss = '',
+	fontWeight = 400,
 }: {
 	fontFamily: string;
 	dominantBaseline?: SvgTextProps['dominantBaseline'];
 	variant?: Variant;
 	localCss?: string;
+	fontWeight?: number;
 }) => {
 	const inputProps: SvgTextProps = {
 		fontFamily,
 		dominantBaseline,
 		variant,
 		localCss,
+		fontWeight,
 	};
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
@@ -279,4 +284,27 @@ test('a descriptor changed through the CSSOM applies to the next render', async 
 		(await countNativePixels(before, after)).mismatchedPixels,
 	).toBeGreaterThan(0);
 	expect((await countNativePixels(fresh, after)).mismatchedPixels).toBe(0);
+});
+
+test('a family with both a loadFont() face and a CSS @font-face face uses both', async () => {
+	await loadFont({family: 'Mixed Bangers', url: fontUrl, weight: '400'});
+	const weighted = (family: string, url: string, weight: number) =>
+		`@font-face { font-family: '${family}'; src: url("${url}"); font-weight: ${weight}; }`;
+	await addStyle(
+		`${weighted('Mixed Bangers', otherFontUrl, 700)} ${weighted('Css Only Mixed', fontUrl, 400)} ${weighted('Css Only Mixed', otherFontUrl, 700)}`,
+	);
+
+	for (const fontWeight of [400, 700]) {
+		const expected = await render({
+			fontFamily: "'Css Only Mixed', serif",
+			fontWeight,
+		});
+		const actual = await render({
+			fontFamily: "'Mixed Bangers', serif",
+			fontWeight,
+		});
+		expect((await countNativePixels(expected, actual)).mismatchedPixels).toBe(
+			0,
+		);
+	}
 });

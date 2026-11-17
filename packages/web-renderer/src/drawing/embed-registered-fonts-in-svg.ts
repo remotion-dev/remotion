@@ -359,6 +359,53 @@ const getCssFontFaces = (document: Document): EmbeddableFontFace[] => {
 	return faces;
 };
 
+const fontFaceIds = new WeakMap<FontFace, number>();
+let nextFontFaceId = 0;
+const cssFontFacesByDocument = new WeakMap<
+	Document,
+	{signature: string; faces: EmbeddableFontFace[]}
+>();
+
+// Walking every stylesheet is slow on large pages. document.fonts holds a
+// FontFace for each active @font-face rule: replacing a rule creates a new
+// FontFace and editing a descriptor updates its attributes, so reuse the
+// last walk while those stay the same.
+const getCachedCssFontFaces = (document: Document) => {
+	const signature = JSON.stringify([
+		document.styleSheets.length,
+		document.adoptedStyleSheets.length,
+		Array.from(document.fonts, (face) => {
+			let id = fontFaceIds.get(face);
+			if (id === undefined) {
+				id = nextFontFaceId++;
+				fontFaceIds.set(face, id);
+			}
+
+			return [
+				id,
+				face.family,
+				face.style,
+				face.weight,
+				face.stretch,
+				face.unicodeRange,
+				face.featureSettings,
+				face.display,
+				face.ascentOverride,
+				face.descentOverride,
+				face.lineGapOverride,
+			];
+		}),
+	]);
+	const cached = cssFontFacesByDocument.get(document);
+	if (cached?.signature === signature) {
+		return cached.faces;
+	}
+
+	const faces = getCssFontFaces(document);
+	cssFontFacesByDocument.set(document, {signature, faces});
+	return faces;
+};
+
 export const getEmbeddedFontStyleForSvg = (
 	svg: SVGSVGElement,
 ): EmbeddedFontStyle | null => {
@@ -379,25 +426,14 @@ export const getEmbeddedFontStyleForSvg = (
 			getData: () => Promise.resolve(font.fontData),
 		}),
 	);
-	let cssFonts: EmbeddableFontFace[] | null = null;
-	const fontOrder = new Map<EmbeddableFontFace, number>();
-	registeredFonts.forEach((font, index) => fontOrder.set(font, index));
+	// Like document.fonts, CSS-connected faces come first and faces added
+	// through the FontFace API (registered fonts) after them.
+	let fonts: EmbeddableFontFace[] | null = null;
 	const getFamilyFonts = (normalizedFamily: string) => {
-		const isFamily = (font: EmbeddableFontFace) =>
-			normalizeFamily(font.fontFamily) === normalizedFamily;
-		const registered = registeredFonts.filter(isFamily);
-		if (registered.length > 0) {
-			return registered;
-		}
-
-		if (cssFonts === null) {
-			cssFonts = getCssFontFaces(svg.ownerDocument);
-			cssFonts.forEach((font, index) =>
-				fontOrder.set(font, registeredFonts.length + index),
-			);
-		}
-
-		return cssFonts.filter(isFamily);
+		fonts ??= [...getCachedCssFontFaces(svg.ownerDocument), ...registeredFonts];
+		return fonts.filter(
+			(font) => normalizeFamily(font.fontFamily) === normalizedFamily,
+		);
 	};
 
 	const usedFonts = new Map<string, EmbeddableFontFace>();
@@ -446,9 +482,7 @@ export const getEmbeddedFontStyleForSvg = (
 	}
 
 	// Later @font-face rules take precedence, so keep the source order.
-	const sortedFonts = Array.from(usedFonts.values()).sort(
-		(a, b) => fontOrder.get(a)! - fontOrder.get(b)!,
-	);
+	const sortedFonts = fonts!.filter((font) => usedFonts.has(font.key));
 	const cacheKey = sortedFonts.map((font) => font.key).join(',');
 	const cached = styleByFontFaceSet.get(cacheKey);
 	if (cached) {
