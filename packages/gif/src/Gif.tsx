@@ -1,4 +1,10 @@
-import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -75,6 +81,7 @@ const GifInner = ({
 	cropTop,
 	cropBottom,
 	controls,
+	motionBlur,
 	effects = [],
 	effectsOutputSize,
 	ref,
@@ -82,6 +89,7 @@ const GifInner = ({
 }: GifProps & {
 	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
+	readonly motionBlur: ReturnType<typeof Internals.useMotionBlurCanvas>;
 }) => {
 	const env = useRemotionEnvironment();
 	const isMedia = useMemo(
@@ -139,6 +147,7 @@ const GifInner = ({
 
 	const gifProps: RemotionGifProps & {
 		readonly effects: typeof memoizedEffects;
+		readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 	} = {
 		src,
 		width,
@@ -153,9 +162,17 @@ const GifInner = ({
 		style: croppedStyle ?? undefined,
 		effects: memoizedEffects,
 		effectsOutputSize,
+		onCanvasUpdated: motionBlur.onCanvasUpdated,
 	};
 
-	const inner = env.isRendering ? (
+	const inner = !motionBlur.primary ? (
+		<canvas
+			ref={ref}
+			width={width}
+			height={height}
+			style={{width, height, ...croppedStyle}}
+		/>
+	) : env.isRendering ? (
 		<GifForRendering {...gifProps} ref={ref} />
 	) : (
 		<GifForDevelopment {...gifProps} ref={ref} />
@@ -189,6 +206,7 @@ const GifWithIntrinsicDuration = (
 	props: GifProps & {
 		readonly controls?: SequenceControls | undefined;
 		readonly ref?: React.Ref<HTMLCanvasElement>;
+		readonly motionBlur: ReturnType<typeof Internals.useMotionBlurCanvas>;
 	},
 ) => {
 	const {fps} = useVideoConfig();
@@ -271,8 +289,67 @@ const GifComponent = (
 	},
 ) => {
 	const videoEnabled = Internals.useVideoEnabled();
+	const parentSequence = useContext(Internals.SequenceContext);
+	const sourceStack = props.controls
+		? Internals.getStackForControls(props.controls)
+		: null;
+	const sourceKey = useMemo(
+		() =>
+			JSON.stringify([
+				'gif',
+				getGifCacheKey({
+					resolvedSrc: resolveGifSource(props.src),
+					requestInit: props.requestInit,
+				}),
+				sourceStack,
+				parentSequence?.absoluteFrom,
+				parentSequence?.playbackRate,
+				props.from,
+				props.trimBefore,
+				props.durationInFrames,
+				props.playbackRate,
+				props.loop,
+				props.loopBehavior,
+				props.freeze,
+			]),
+		[
+			sourceStack,
+			parentSequence?.absoluteFrom,
+			parentSequence?.playbackRate,
+			props.src,
+			props.requestInit,
+			props.from,
+			props.trimBefore,
+			props.durationInFrames,
+			props.playbackRate,
+			props.loop,
+			props.loopBehavior,
+			props.freeze,
+		],
+	);
+	const motionBlur = Internals.useMotionBlurCanvas({
+		sourceKey,
+		contentKey: getGifCacheKey({
+			resolvedSrc: resolveGifSource(props.src),
+			requestInit: props.requestInit,
+		}),
+		forwardedRef: props.ref ?? null,
+		onVideoFrame: null,
+	});
 	if (!videoEnabled) {
 		return null;
+	}
+
+	if (!motionBlur.primary) {
+		return (
+			<GifInner
+				{...props}
+				ref={motionBlur.canvasRef}
+				motionBlur={motionBlur}
+				loop={false}
+				durationInFrames={props.loop ? undefined : props.durationInFrames}
+			/>
+		);
 	}
 
 	if (props.loop && props.durationInFrames === undefined) {
@@ -285,11 +362,15 @@ const GifComponent = (
 			<GifWithIntrinsicDuration
 				{...props}
 				key={`${cacheKey}-${props.trimBefore ?? 0}`}
+				ref={motionBlur.canvasRef}
+				motionBlur={motionBlur}
 			/>
 		);
 	}
 
-	return <GifInner {...props} />;
+	return (
+		<GifInner {...props} ref={motionBlur.canvasRef} motionBlur={motionBlur} />
+	);
 };
 
 export const Gif = Interactive.withSchema({

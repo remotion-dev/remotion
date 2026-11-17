@@ -12,9 +12,7 @@ export const BookFlipDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/book-flip-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/book-flip-transition.mp4" />;
 	}
 
 	return <BookFlipTransitionPreview />;

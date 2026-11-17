@@ -11,13 +11,10 @@ const BasicsSeriesTrimSceneInner = () => {
 				trimBefore={1.95 * fps}
 				durationInFrames={4.5 * fps}
 				playbackRate={1.5}
-				premountFor={fps}
 				style={{width: (width * 2) / 3}}
 				captureStyle={{translate: '-1210px 50px'}}
 			/>
-			<BasicsTitlePanel premountFor={fps} style={null}>
-				Series trimming
-			</BasicsTitlePanel>
+			<BasicsTitlePanel style={null}>Series trimming</BasicsTitlePanel>
 		</AbsoluteFill>
 	);
 };

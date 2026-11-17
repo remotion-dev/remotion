@@ -14,6 +14,7 @@ export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps & {
 		readonly effects: EffectDefinitionAndStack<unknown>[];
+		readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 	}
 >(
 	(
@@ -29,6 +30,7 @@ export const GifForDevelopment = forwardRef<
 			requestInit,
 			effects,
 			effectsOutputSize = null,
+			onCanvasUpdated,
 			...props
 		},
 		ref,
@@ -135,6 +137,7 @@ export const GifForDevelopment = forwardRef<
 				height={height}
 				effects={effects}
 				effectsOutputSize={effectsOutputSize}
+				onCanvasUpdated={onCanvasUpdated}
 				{...props}
 				ref={ref}
 			/>

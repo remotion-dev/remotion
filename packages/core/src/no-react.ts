@@ -52,8 +52,10 @@ import {
 import {findPropsToDelete} from './find-props-to-delete';
 import {
 	fetchFontData,
+	getPendingFontLoads,
 	getRegisteredFontFaces,
 	registerFontFace,
+	startFontLoad,
 } from './font-face-registry';
 import {
 	deserializeJSONWithSpecialTypes,
@@ -118,4 +120,6 @@ export const NoReactInternals = {
 	getRegisteredFontFaces,
 	registerFontFace,
 	fetchFontData,
+	startFontLoad,
+	getPendingFontLoads,
 };

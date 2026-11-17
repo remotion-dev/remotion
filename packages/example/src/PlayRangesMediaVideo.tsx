@@ -69,7 +69,6 @@ export const PlayRangesMediaVideo: React.FC<PlayRangesMediaVideoProps> = ({
 					<Series.Sequence
 						key={i}
 						durationInFrames={section.trimAfter - section.trimBefore}
-						premountFor={30}
 					>
 						<div
 							style={{

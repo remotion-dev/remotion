@@ -29,11 +29,7 @@ const LightLeaksSceneInner: React.FC = () => {
 				showInTimeline={false}
 			>
 				<Series>
-					<Series.Sequence
-						name="Intro line"
-						durationInFrames={224}
-						premountFor={30}
-					>
+					<Series.Sequence name="Intro line" durationInFrames={224}>
 						<Punch zoom={1}>
 							<Video
 								src={
@@ -43,11 +39,7 @@ const LightLeaksSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Procedurally generated"
-						durationInFrames={226}
-						premountFor={30}
-					>
+					<Series.Sequence name="Procedurally generated" durationInFrames={226}>
 						<Punch zoom={1.14}>
 							<Video
 								src={
@@ -57,11 +49,7 @@ const LightLeaksSceneInner: React.FC = () => {
 							/>
 						</Punch>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Components or skill"
-						durationInFrames={270}
-						premountFor={30}
-					>
+					<Series.Sequence name="Components or skill" durationInFrames={270}>
 						<Punch zoom={1.02}>
 							<Video
 								src={

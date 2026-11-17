@@ -59,7 +59,7 @@ audio once: mute the foreground when the base has audio. For replacement
 backgrounds, use `audio: 'foreground'` during separation or add the original
 audio separately. Preserve the foreground's alpha-capable WebM format.
 
-Preview the composition and scrub through motion to check synchronization and
-the edges of hair or moving objects. See the
+Rendered frames or Studio scrubbing CAN show synchronization and the edges of
+hair or moving objects. See the
 [video matting guide](https://www.remotion.dev/docs/video-matting-guide) for
 complete composition examples.

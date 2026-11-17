@@ -72,5 +72,4 @@ mkdir -p "$install_dir"
 rsync -a --delete "$dist_dir/" "$install_dir/"
 
 printf 'Installed Remotion Canvas Capture in %s\n' "$install_dir"
-printf '%s\n' 'Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.'
 printf '%s\n' 'Open chrome://extensions, then click Reload or choose Load unpacked for this directory.'

@@ -9,7 +9,6 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 const BasicsVolumeKeyframesInner = ({
@@ -18,13 +17,11 @@ const BasicsVolumeKeyframesInner = ({
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 
 	const screenCapture = (
 		<>
 			<Video
 				name="Screen recording"
-				premountFor={fps}
 				muted
 				effects={
 					HtmlInCanvas.isSupported()
@@ -50,7 +47,6 @@ const BasicsVolumeKeyframesInner = ({
 			/>
 			<MacOSCursor
 				name="Recorded cursor"
-				premountFor={fps}
 				cursor={interpolate(
 					frame,
 					[
@@ -1289,7 +1285,6 @@ const BasicsVolumeKeyframesInner = ({
 						}),
 					]}
 					durationInFrames={1785}
-					premountFor={fps}
 					style={{
 						translate: interpolate(
 							frame,
@@ -1319,7 +1314,6 @@ const BasicsVolumeKeyframesInner = ({
 				<AbsoluteFill
 					name="Canvas Capture"
 					durationInFrames={1785}
-					premountFor={fps}
 					style={{
 						width: 2114,
 						height: 1440,
