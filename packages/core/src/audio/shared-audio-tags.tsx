@@ -68,6 +68,7 @@ export type ScheduleAudioNodeOptions = {
 	readonly originalUnloopedMediaTimestamp: number;
 	readonly duration: number;
 	readonly offset: number;
+	readonly endTime?: number | null;
 };
 
 export type AudioSyncAnchorEvent = 'changed';
@@ -182,6 +183,29 @@ type NodeToResume = {
 	scheduledTime: number;
 	offset: number;
 	duration: number;
+	endTime: number | null;
+};
+
+const startAudioNode = (
+	audioContext: AudioContext,
+	node: AudioBufferSourceNode,
+	{scheduledTime, offset, duration, endTime}: NodeToResume,
+) => {
+	if (endTime === null) {
+		node.start(scheduledTime, offset, duration);
+		return;
+	}
+
+	const startTime = Math.max(scheduledTime, audioContext.currentTime);
+	if (startTime >= endTime) {
+		node.start(startTime, 0, 0);
+		return;
+	}
+
+	const {sampleRate} = audioContext;
+	const samplesLate = Math.round((startTime - scheduledTime) * sampleRate);
+	node.start(startTime, offset + samplesLate / sampleRate);
+	node.stop(endTime);
 };
 
 type AudioContextResumeAttempt = {
@@ -291,6 +315,7 @@ export const SharedAudioContextProvider: React.FC<{
 			scheduledTime,
 			duration,
 			offset,
+			endTime = null,
 			originalUnloopedMediaTimestamp,
 		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
 			if (!ctxAndGain) {
@@ -317,19 +342,16 @@ export const SharedAudioContextProvider: React.FC<{
 					audioContextIsPlayingEventually.current !== ctxAndGain.audioContext);
 
 			if (duration > 0) {
+				const timing = {scheduledTime, offset, duration, endTime};
 				if (saveForLater) {
-					nodesToResume.current.set(node, {
-						scheduledTime,
-						offset,
-						duration,
-					});
+					nodesToResume.current.set(node, timing);
 				} else {
-					node.start(scheduledTime, offset, duration);
+					startAudioNode(ctxAndGain.audioContext, node, timing);
 				}
 			}
 
 			const scheduledEndTime =
-				scheduledTime + duration / node.playbackRate.value;
+				endTime ?? scheduledTime + duration / node.playbackRate.value;
 
 			const mediaTime = mediaTimestamp + offset - sourceOffset;
 
@@ -420,8 +442,8 @@ export const SharedAudioContextProvider: React.FC<{
 			ctxAndGain.audioContext.currentTime + 0.03,
 		);
 
-		nodesToResume.current.forEach((r, node) => {
-			node.start(r.scheduledTime, r.offset, r.duration);
+		nodesToResume.current.forEach((timing, node) => {
+			startAudioNode(ctxAndGain.audioContext, node, timing);
 		});
 		nodesToResume.current.clear();
 
