@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 import {
 	MotionBlurSampleProvider,
-	useMotionBlurVideoCanvases,
+	useMotionBlurCanvases,
 } from './motion-blur-context';
 
 export type CameraMotionBlurProps = {
@@ -48,7 +48,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	samples = 10,
 }: CameraMotionBlurProps) => {
 	const currentFrame = useCurrentFrame();
-	const videoCanvases = useMotionBlurVideoCanvases();
+	const canvases = useMotionBlurCanvases();
 
 	if (
 		typeof samples !== 'number' ||
@@ -103,7 +103,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	return (
 		<AbsoluteFill style={{isolation: 'isolate'}}>
 			<AbsoluteFill style={{opacity: actualSamples > 1 ? 0 : 1}}>
-				<MotionBlurSampleProvider sampleIndex={0} videoCanvases={videoCanvases}>
+				<MotionBlurSampleProvider sampleIndex={0} canvases={canvases}>
 					{children}
 				</MotionBlurSampleProvider>
 			</AbsoluteFill>
@@ -123,7 +123,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 							<Freeze frame={currentFrame - sampleFrameOffset + 1}>
 								<MotionBlurSampleProvider
 									sampleIndex={i + 1}
-									videoCanvases={videoCanvases}
+									canvases={canvases}
 								>
 									{children}
 								</MotionBlurSampleProvider>

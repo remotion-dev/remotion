@@ -300,6 +300,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimelineRegistration as useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import {useMotionBlurCanvas} from './use-motion-blur-canvas.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
@@ -383,6 +384,7 @@ const compositionSelectorRef = createRef<{
 // API and are less likely to use it
 export const Internals = {
 	MotionBlurContext,
+	useMotionBlurCanvas,
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 	bufferingDiagnostics,

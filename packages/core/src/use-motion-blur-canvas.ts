@@ -1,3 +1,4 @@
+import type React from 'react';
 import {
 	useCallback,
 	useContext,
@@ -5,28 +6,73 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {MotionBlurContext} from './motion-blur-context.js';
 
-export const useMotionBlurVideo = (sourceKey: string) => {
-	const motionBlur = useContext(Internals.MotionBlurContext);
+type ForwardedCanvasRef = {
+	ref: React.Ref<HTMLCanvasElement> | null;
+	canvas: HTMLCanvasElement | null;
+	cleanup: (() => void) | null;
+};
+
+const setForwardedRef = (
+	state: ForwardedCanvasRef,
+	ref: React.Ref<HTMLCanvasElement> | null,
+	canvas: HTMLCanvasElement | null,
+) => {
+	if (state.ref === ref && state.canvas === canvas) return;
+	if (state.canvas !== null) {
+		if (state.cleanup) state.cleanup();
+		else if (typeof state.ref === 'function') state.ref(null);
+		else if (state.ref) state.ref.current = null;
+	}
+
+	state.ref = ref;
+	state.canvas = canvas;
+	state.cleanup = null;
+	if (canvas !== null) {
+		if (typeof ref === 'function') {
+			const cleanup = ref(canvas);
+			state.cleanup = typeof cleanup === 'function' ? cleanup : null;
+		} else if (ref) {
+			ref.current = canvas;
+		}
+	}
+};
+
+export const useMotionBlurCanvas = (
+	sourceKey: string,
+	forwardedRef: React.Ref<HTMLCanvasElement> | null,
+) => {
+	const motionBlur = useContext(MotionBlurContext);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const forwardedRefRef = useRef<ForwardedCanvasRef>({
+		ref: forwardedRef,
+		canvas: null,
+		cleanup: null,
+	});
 	const [primary, setPrimary] = useState(false);
-	const publishRef = useRef<((canvas: HTMLCanvasElement) => void) | null>(null);
+	const publishRef = useRef<
+		((canvas: HTMLCanvasElement | null) => void) | null
+	>(null);
+	const redrawRef = useRef<(() => void) | null>(null);
+	useLayoutEffect(() => {
+		setForwardedRef(forwardedRefRef.current, forwardedRef, canvasRef.current);
+	}, [forwardedRef]);
 
 	useLayoutEffect(() => {
 		if (motionBlur === null) {
 			return;
 		}
 
-		const {sampleIndex, isPrimarySample, videoCanvases} = motionBlur;
-		const canvases = videoCanvases.get(sourceKey) ?? [];
-		videoCanvases.set(sourceKey, canvases);
-		let shared = canvases.find(
+		const {sampleIndex, isPrimarySample, canvases} = motionBlur;
+		const sources = canvases.get(sourceKey) ?? [];
+		canvases.set(sourceKey, sources);
+		let shared = sources.find(
 			(candidate) => !candidate.registrations.has(sampleIndex),
 		);
 		if (!shared) {
 			shared = {registrations: new Map(), primary: null, canvas: null};
-			canvases.push(shared);
+			sources.push(shared);
 		}
 
 		const registration = {
@@ -71,6 +117,10 @@ export const useMotionBlurVideo = (sourceKey: string) => {
 		}
 
 		const current = shared;
+		redrawRef.current = () => {
+			if (current.primary !== registration) registration.draw(current.canvas);
+		};
+
 		publishRef.current = (canvas) => {
 			if (current.primary !== registration) {
 				return;
@@ -84,10 +134,11 @@ export const useMotionBlurVideo = (sourceKey: string) => {
 
 		return () => {
 			publishRef.current = null;
+			redrawRef.current = null;
 			current.registrations.delete(sampleIndex);
 			if (current.registrations.size === 0) {
-				canvases.splice(canvases.indexOf(current), 1);
-				if (canvases.length === 0) videoCanvases.delete(sourceKey);
+				sources.splice(sources.indexOf(current), 1);
+				if (sources.length === 0) canvases.delete(sourceKey);
 				return;
 			}
 
@@ -102,13 +153,27 @@ export const useMotionBlurVideo = (sourceKey: string) => {
 		};
 	}, [motionBlur, sourceKey]);
 
-	const onCanvasUpdated = useCallback((canvas: HTMLCanvasElement) => {
+	const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
+		canvasRef.current = canvas;
+		setForwardedRef(
+			forwardedRefRef.current,
+			forwardedRefRef.current.ref,
+			canvas,
+		);
+		if (canvas === null) {
+			publishRef.current?.(null);
+		} else {
+			redrawRef.current?.();
+		}
+	}, []);
+
+	const onCanvasUpdated = useCallback((canvas: HTMLCanvasElement | null) => {
 		publishRef.current?.(canvas);
 	}, []);
 
 	return {
 		primary: motionBlur === null || primary,
-		canvasRef,
+		canvasRef: setCanvasRef,
 		onCanvasUpdated: motionBlur === null ? null : onCanvasUpdated,
 	};
 };

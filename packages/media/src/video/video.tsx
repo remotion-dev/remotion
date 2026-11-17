@@ -18,7 +18,6 @@ import {
 	getVideoSequenceDuration,
 } from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
-import {useMotionBlurVideo} from './use-motion-blur-video';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
@@ -136,6 +135,7 @@ const InnerVideo: React.FC<
 	const motionBlurSourceKey = useMemo(
 		() =>
 			JSON.stringify([
+				'video',
 				getSharedInputCacheKey({src, credentials, requestInit}),
 				_remotionInternalStack,
 				sequence?.absoluteFrom,
@@ -162,7 +162,7 @@ const InnerVideo: React.FC<
 			trimBefore,
 		],
 	);
-	const motionBlur = useMotionBlurVideo(motionBlurSourceKey);
+	const motionBlur = Internals.useMotionBlurCanvas(motionBlurSourceKey, null);
 
 	validateMediaTrimProps({
 		startFrom: undefined,

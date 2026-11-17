@@ -1,21 +1,21 @@
 import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 
-export type MotionBlurVideoCanvases = NonNullable<
+export type MotionBlurCanvases = NonNullable<
 	React.ContextType<typeof Internals.MotionBlurContext>
->['videoCanvases'];
+>['canvases'];
 
-export const useMotionBlurVideoCanvases = () => {
+export const useMotionBlurCanvases = () => {
 	const parent = useContext(Internals.MotionBlurContext);
-	const videoCanvases = useRef<MotionBlurVideoCanvases>(new Map());
-	return parent?.videoCanvases ?? videoCanvases.current;
+	const canvases = useRef<MotionBlurCanvases>(new Map());
+	return parent?.canvases ?? canvases.current;
 };
 
 export const MotionBlurSampleProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sampleIndex: number;
-	readonly videoCanvases: MotionBlurVideoCanvases;
-}> = ({children, sampleIndex, videoCanvases}) => {
+	readonly canvases: MotionBlurCanvases;
+}> = ({children, sampleIndex, canvases}) => {
 	const parent = useContext(Internals.MotionBlurContext);
 	const parentIndex = parent?.sampleIndex ?? '';
 	const parentIsPrimary = parent?.isPrimarySample ?? true;
@@ -23,9 +23,9 @@ export const MotionBlurSampleProvider: React.FC<{
 		() => ({
 			sampleIndex: `${parentIndex}/${sampleIndex}`,
 			isPrimarySample: parentIsPrimary && sampleIndex === 0,
-			videoCanvases,
+			canvases,
 		}),
-		[parentIndex, parentIsPrimary, sampleIndex, videoCanvases],
+		[parentIndex, parentIsPrimary, sampleIndex, canvases],
 	);
 
 	return (
