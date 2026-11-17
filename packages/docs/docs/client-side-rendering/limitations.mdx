@@ -100,7 +100,7 @@ Removing and re-adding script-loaded SVG font families is supported. Removing or
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+Registered fonts are supported in `<foreignObject>` HTML text with inline or inherited font selection. External HTML CSS selection and fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported.
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 
