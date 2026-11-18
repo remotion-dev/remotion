@@ -109,6 +109,7 @@ type Props = {
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly effectsOutputSize: EffectsOutputSize | null;
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 };
 
 export const Canvas = forwardRef(
@@ -123,6 +124,7 @@ export const Canvas = forwardRef(
 			style,
 			effects,
 			effectsOutputSize,
+			onCanvasUpdated,
 		}: Props,
 		ref,
 	) => {
@@ -203,6 +205,7 @@ export const Canvas = forwardRef(
 					tempCtx.canvas,
 					...calcArgs(fit, frameSize, layoutSize),
 				);
+				onCanvasUpdated?.(outputCanvas);
 				return;
 			}
 
@@ -271,6 +274,7 @@ export const Canvas = forwardRef(
 						effectOutputCanvas,
 						...calcArgs(fit, frameSize, layoutSize),
 					);
+					onCanvasUpdated?.(outputCanvas);
 					continueRender(effectChainHandle);
 				})
 				.catch((err: unknown) => {
@@ -296,6 +300,7 @@ export const Canvas = forwardRef(
 			delayRender,
 			continueRender,
 			cancelRender,
+			onCanvasUpdated,
 		]);
 
 		return (

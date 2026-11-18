@@ -216,7 +216,10 @@ const internalRenderMediaOnWeb = async <
 
 	let htmlInCanvasLayerOutcomeReported = false;
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
-		if (htmlInCanvasLayerOutcomeReported) {
+		if (
+			htmlInCanvasLayerOutcomeReported &&
+			(outcome.native || !outcome.paintTimedOut)
+		) {
 			return;
 		}
 
@@ -581,7 +584,11 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		const audioMixer = createAudioMixer({fps: resolved.fps, sampleRate});
+		const audioMixer = createAudioMixer({
+			fps: resolved.fps,
+			sampleRate,
+			startFrame: realFrameRange[0],
+		});
 		const encodeReadyAudio = async () => {
 			if (!audioSampleSource) {
 				return;

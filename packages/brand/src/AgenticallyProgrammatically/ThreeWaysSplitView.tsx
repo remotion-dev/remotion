@@ -2,15 +2,7 @@ import {StudioInternals} from '@remotion/studio';
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
 import type {ReactNode} from 'react';
-import {
-	CanvasImage,
-	Easing,
-	Img,
-	Interactive,
-	Sequence,
-	Track,
-	useRemotionEnvironment,
-} from 'remotion';
+import {CanvasImage, Easing, Img, Interactive, Sequence, Track} from 'remotion';
 import {CodexPrompt} from '../CodexPrompt';
 import {ExploreElementsRecording20261027Composition} from '../ExploreElementsRecording20261027Composition';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
@@ -89,11 +81,7 @@ const AngledPaneContent = ({
 };
 
 const ThreeWaysSplitViewContent = () => {
-	const {isRendering} = useRemotionEnvironment();
-	const motionBlur = {
-		shutterAngle: isRendering ? 180 : 90,
-		samples: isRendering ? 32 : 16,
-	};
+	const motionBlur = {};
 	return (
 		<>
 			<Interactive.Div
@@ -488,7 +476,7 @@ const ThreeWaysSplitViewContent = () => {
 									width={1920}
 									height={3240}
 									name="Adding content — rotating-starburst.element.tsx"
-									src="https://remotion.media/three-ways-code/content-starburst-2026-11-04-192e4b033c77.png"
+									src="https://remotion.media/three-ways-code/content-starburst-github-dark-19b22ccfad51.png"
 									style={{width: 640, height: 1080}}
 								/>
 							</AngledPaneContent>
@@ -513,7 +501,7 @@ const ThreeWaysSplitViewContent = () => {
 									width={1920}
 									height={3240}
 									name="Editing — RideMontage.tsx"
-									src="https://remotion.media/three-ways-code/editing-video-trims-2026-11-04-6abe0c641af0.png"
+									src="https://remotion.media/three-ways-code/editing-video-trims-github-dark-f78fe9445876.png"
 									style={{width: 640, height: 1080}}
 								/>
 							</AngledPaneContent>
@@ -538,7 +526,7 @@ const ThreeWaysSplitViewContent = () => {
 									width={1920}
 									height={3240}
 									name="Captions — AgenticallyProgrammatically.tsx"
-									src="https://remotion.media/three-ways-code/captions-dark-plus-prettier-2026-11-04-80c9a3b5d65e.png"
+									src="https://remotion.media/three-ways-code/captions-github-dark-ec5599da1231.png"
 									style={{width: 640, height: 1080}}
 								/>
 							</AngledPaneContent>
@@ -563,7 +551,7 @@ const ThreeWaysSplitViewContent = () => {
 									width={1920}
 									height={3240}
 									name="Exporting — bundle and render"
-									src="https://remotion.media/three-ways-code/exporting-bundle-2026-11-04-03c897301cbe.png"
+									src="https://remotion.media/three-ways-code/exporting-bundle-github-dark-e7c678638872.png"
 									style={{width: 640, height: 1080}}
 								/>
 							</AngledPaneContent>
@@ -588,7 +576,7 @@ const ThreeWaysSplitViewContent = () => {
 									width={1920}
 									height={3240}
 									name="Settings — remotion.config.ts"
-									src="https://remotion.media/three-ways-code/settings-dark-plus-prettier-2026-11-04-83df154b5ada.png"
+									src="https://remotion.media/three-ways-code/settings-github-dark-1d705ef4519d.png"
 									style={{width: 640, height: 1080}}
 								/>
 							</AngledPaneContent>

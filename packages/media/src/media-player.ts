@@ -95,6 +95,8 @@ export class MediaPlayer {
 	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
 		null;
 
+	private onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null = null;
+
 	private getEffects: () => EffectDefinitionAndStack<unknown>[];
 	private getEffectChainState: (
 		width: number,
@@ -489,6 +491,7 @@ export class MediaPlayer {
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
 
 			if (this.isDisposalError()) {
@@ -997,6 +1000,13 @@ export class MediaPlayer {
 		callback: null | ((frame: CanvasImageSource) => void),
 	) {
 		this.onVideoFrameCallback = callback;
+	}
+
+	public setCanvasUpdateCallback(
+		callback: ((canvas: HTMLCanvasElement) => void) | null,
+	) {
+		this.onCanvasUpdated = callback;
+		this.videoIteratorManager?.setCanvasUpdateCallback(callback);
 	}
 
 	public async redrawVideoEffects(): Promise<void> {

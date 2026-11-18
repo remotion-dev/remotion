@@ -64,24 +64,24 @@ window.auraReady = new Promise<void>((resolve, reject) => {
 					),
 				),
 			];
-			monaco.editor.defineTheme('homepage-dark-plus', {
+			monaco.editor.defineTheme('homepage-github-dark', {
 				base: 'vs-dark',
 				inherit: true,
 				rules: tokenNames.map((token) => ({token, foreground: token.slice(5)})),
 				colors: {
-					'editor.background': '#131414',
-					'editor.foreground': '#D4D4D4',
-					'editorLineNumber.foreground': '#858585',
-					'editorLineNumber.activeForeground': '#858585',
-					'editorCursor.foreground': '#D4D4D4',
-					'editor.selectionBackground': '#264f78',
-					'editor.inactiveSelectionBackground': '#264f78',
+					'editor.background': '#24292E',
+					'editor.foreground': '#E1E4E8',
+					'editorLineNumber.foreground': '#959DA5',
+					'editorLineNumber.activeForeground': '#959DA5',
+					'editorCursor.foreground': '#E1E4E8',
+					'editor.selectionBackground': '#3392FF44',
+					'editor.inactiveSelectionBackground': '#3392FF44',
 				},
 			});
 			editor = monaco.editor.create(document.getElementById('editor')!, {
 				value: shot.code,
 				language: 'homepage-tsx',
-				theme: 'homepage-dark-plus',
+				theme: 'homepage-github-dark',
 				fontFamily: 'Menlo, Monaco, "Courier New", monospace',
 				fontSize: shot.fontSize,
 				lineHeight: shot.lineHeight,

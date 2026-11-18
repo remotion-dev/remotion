@@ -8,6 +8,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
+import {createBackgroundKeepalive} from './background-keepalive';
 import {checkForError, createScaffold} from './create-scaffold';
 import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
@@ -212,6 +213,10 @@ async function internalRenderImagesOnWeb<
 	}
 
 	const artifactsHandler = handleArtifacts();
+	using keepalive = createBackgroundKeepalive({
+		fps: resolved.fps,
+		logLevel,
+	});
 	const waitForRenderReady = async () => {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -219,7 +224,7 @@ async function internalRenderImagesOnWeb<
 			signal,
 			apiName,
 			internalState: null,
-			keepalive: null,
+			keepalive,
 		});
 		checkForError(errorHolder);
 	};
