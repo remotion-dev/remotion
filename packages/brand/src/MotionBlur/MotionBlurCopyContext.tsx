@@ -6,9 +6,9 @@ const MotionBlurCopyContextContent = () => {
 	return (
 		<Sequence
 			name="Copy context for agents click"
-			trimBefore={90}
-			durationInFrames={29}
-			playbackRate={29 / 38}
+			trimBefore={55}
+			durationInFrames={60}
+			playbackRate={60 / 38}
 			layout="none"
 		>
 			<div

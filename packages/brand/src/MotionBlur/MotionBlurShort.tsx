@@ -8,14 +8,19 @@ import {BasicCaptions} from '../basic-captions';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 import {MotionBlurAdjustment} from './MotionBlurAdjustment';
 import {MotionBlurAgentPrompt} from './MotionBlurAgentPrompt';
+import {MotionBlurBounce} from './MotionBlurBounce';
 import {MotionBlurClick} from './MotionBlurClick';
 import {MotionBlurCodeCloseup} from './MotionBlurCodeCloseup';
 import {MotionBlurCopyContext} from './MotionBlurCopyContext';
 import {MotionBlurDocumentation} from './MotionBlurDocumentation';
 import {MotionBlurFrameBlending} from './MotionBlurFrameBlending';
-import {MotionBlurOutro} from './MotionBlurOutro';
+import {
+	MOTION_BLUR_OUTRO_START_FRAME,
+	MotionBlurOutro,
+} from './MotionBlurOutro';
 import {MotionBlurScrub} from './MotionBlurScrub';
 import {MotionBlurSelect} from './MotionBlurSelect';
+import {MotionBlurTransition} from './MotionBlurTransition';
 
 loadFont({
 	family: 'Here GT Planar',
@@ -401,6 +406,22 @@ export const MotionBlurShort = ({
 						name="motionblur2 - dialogue"
 						src="https://remotion.media/motion-blur-2026-11-17/motionblur2-auphonic-35babfd50e39.flac"
 					/>
+					<MotionBlurTransition
+						name="2 - Motion blur on a transition"
+						from={152}
+						durationInFrames={57}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						style={{left: 0, top: 0}}
+					/>
+					<MotionBlurBounce
+						name="2 - Motion blur on an edge bounce"
+						from={209}
+						durationInFrames={58}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						style={{left: 0, top: 0}}
+					/>
 					<MotionBlurAdjustment
 						name="2 - Motion blur adjustment"
 						from={267}
@@ -670,25 +691,27 @@ export const MotionBlurShort = ({
 							}}
 						/>
 						<MotionBlurAgentPrompt
-							name="3 - Paste context and request motion blur"
+							name="3 - Request motion blur, then paste context"
 							from={154}
 							durationInFrames={81}
 							pastedContext={
 								'Triangle motion blur\nRemotionTriangleMotionBlur.tsx:30'
 							}
 							prompt="add motion blur to this"
-							pasteFrame={8}
-							typingStartFrame={30}
+							heading=""
+							projectName="blur-short"
+							pasteFrame={58}
+							typingStartFrame={8}
 							typingDurationInFrames={40}
 							style={{
 								position: 'absolute',
-								left: '50%',
-								top: '49%',
+								left: '55%',
+								top: '43%',
 								width: 940,
 								height: 622,
 								translate: '-50% -50%',
 								rotate: EXPLORE_CAMERA_ANGLE,
-								scale: portrait ? 1 : 8 / 9,
+								scale: portrait ? 1.25 : 10 / 9,
 								transformOrigin: '50% 50%',
 							}}
 						/>
@@ -1033,7 +1056,7 @@ export const MotionBlurShort = ({
 						style={{left: 0, top: 0}}
 					/>
 					<MotionBlurDocumentation
-						name="5 - Motion blur API documentation"
+						name="5 - Motion blur guide"
 						from={254}
 						durationInFrames={159}
 						width={portrait ? 1080 : 960}
@@ -1233,7 +1256,7 @@ export const MotionBlurShort = ({
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="6 - Everything looks smoother"
-					trimBefore={65}
+					trimBefore={MOTION_BLUR_OUTRO_START_FRAME}
 					durationInFrames={178}
 				>
 					<MotionBlurOutro>

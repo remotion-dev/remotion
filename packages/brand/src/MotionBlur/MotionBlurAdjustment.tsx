@@ -1,14 +1,17 @@
 import {Interactive, Sequence, useVideoConfig} from 'remotion';
+import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 import {MotionBlurEditorCaptureComposition} from './MotionBlurEditorCapture';
 
 const MotionBlurAdjustmentContent = () => {
 	const {width, height} = useVideoConfig();
+	const playbackRate = 1.25;
 
 	return (
 		<Sequence
 			name="Increase shutter angle"
 			trimBefore={237}
-			durationInFrames={105}
+			playbackRate={playbackRate}
+			durationInFrames={105 * playbackRate}
 			width={width}
 			height={height}
 		>
@@ -49,7 +52,7 @@ const MotionBlurAdjustmentContent = () => {
 						style={{
 							translate: '-2518px -232px',
 							scale: 1.6,
-							rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+							rotate: EXPLORE_CAMERA_ANGLE,
 							transformOrigin: '84% 24%',
 						}}
 					/>
@@ -77,6 +80,8 @@ const MotionBlurAdjustmentContent = () => {
 						scale: Math.min(width / 1080, height / 960),
 						transformOrigin: '50% 50%',
 						overflow: 'hidden',
+						perspective: 1400,
+						perspectiveOrigin: '50% 50%',
 					}}
 				>
 					<MotionBlurEditorCaptureComposition
@@ -88,9 +93,10 @@ const MotionBlurAdjustmentContent = () => {
 						cropTop={0.24}
 						cropBottom={0.21}
 						style={{
-							translate: '-60px -237px',
+							translate: '-734px -774px',
 							scale: 0.47,
-							transformOrigin: '0% 0%',
+							rotate: EXPLORE_CAMERA_ANGLE,
+							transformOrigin: '34% 51.5%',
 						}}
 					/>
 				</div>

@@ -11,6 +11,10 @@ import {SpinningRemotionTriangle} from './RemotionTriangleMotionBlur';
 const MotionBlurFrameBlendingContent = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
+	const sampleCount = 5;
+	const shutterAngle = 240;
+	const centerFrame = (47 / 30) * fps;
+	const blendStart = 3.3 * fps;
 
 	return (
 		<div
@@ -37,19 +41,20 @@ const MotionBlurFrameBlendingContent = () => {
 					name="Sampled frames slideshow"
 					style={{position: 'absolute', inset: 0}}
 				>
-					{Array.from({length: 15}, (_, index) => (
+					{Array.from({length: sampleCount}, (_, index) => (
 						<div
 							key={index}
 							style={{
 								position: 'absolute',
 								inset: 0,
 								backgroundColor: '#F8FAFC',
-								opacity: frame >= index * 0.22 * fps ? 1 : 0,
+								opacity: frame >= (index * blendStart) / sampleCount ? 1 : 0,
 							}}
 						>
 							<Freeze
 								frame={
-									(47 / 30) * fps + ((index + 0.5) / 15 - 0.5) * (240 / 360)
+									centerFrame +
+									((index + 0.5) / sampleCount - 0.5) * (shutterAngle / 360)
 								}
 							>
 								<SpinningRemotionTriangle />
@@ -59,24 +64,24 @@ const MotionBlurFrameBlendingContent = () => {
 				</Interactive.Div>
 				<Interactive.Div
 					name="Blended motion blur result"
-					from={3.3 * fps}
+					from={blendStart}
 					style={{
 						position: 'absolute',
 						inset: 0,
 						backgroundColor: '#F8FAFC',
-						opacity: interpolate(frame, [3.3 * fps, 3.6 * fps], [0, 1], {
+						opacity: interpolate(frame, [blendStart, 3.6 * fps], [0, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),
 					}}
 				>
-					<Freeze frame={(47 / 30) * fps}>
+					<Freeze frame={centerFrame}>
 						<HtmlInCanvasMotionBlur
-							name="Average of the 15 sampled frames"
+							name={`Average of the ${sampleCount} sampled frames`}
 							width={1080}
 							height={960}
-							shutterAngle={240}
-							samples={15}
+							shutterAngle={shutterAngle}
+							samples={sampleCount}
 						>
 							<SpinningRemotionTriangle />
 						</HtmlInCanvasMotionBlur>
