@@ -1074,56 +1074,32 @@ const AgentsSceneInner: React.FC = () => {
 			<Backdrop accent={accents.agents} />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Better with agents"
-						durationInFrames={94}
-						premountFor={30}
-					>
+					<Series.Sequence name="Better with agents" durationInFrames={94}>
 						<ShotFraming zoom={1}>
 							<AgentsSource trimBefore={122} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Rough edges"
-						durationInFrames={288}
-						premountFor={30}
-					>
+					<Series.Sequence name="Rough edges" durationInFrames={288}>
 						<ShotFraming zoom={1.12}>
 							<AgentsSource trimBefore={233} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Studio already running"
-						durationInFrames={163}
-						premountFor={30}
-					>
+					<Series.Sequence name="Studio already running" durationInFrames={163}>
 						<ShotFraming zoom={1.02}>
 							<AgentsSource trimBefore={537} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="We prevent that"
-						durationInFrames={47}
-						premountFor={30}
-					>
+					<Series.Sequence name="We prevent that" durationInFrames={47}>
 						<ShotFraming zoom={1.18}>
 							<AgentsSource trimBefore={711} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Lockfiles and Zod"
-						durationInFrames={314}
-						premountFor={30}
-					>
+					<Series.Sequence name="Lockfiles and Zod" durationInFrames={314}>
 						<ShotFraming zoom={1.02}>
 							<AgentsSource trimBefore={777} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Let us know"
-						durationInFrames={70}
-						premountFor={30}
-					>
+					<Series.Sequence name="Let us know" durationInFrames={70}>
 						<ShotFraming zoom={1.16}>
 							<AgentsSource trimBefore={1111} />
 						</ShotFraming>

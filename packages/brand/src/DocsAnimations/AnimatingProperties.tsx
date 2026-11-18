@@ -64,7 +64,6 @@ const AnimatingPropertiesGraphInner = ({theme, animation}: Props) => {
 	return (
 		<Interactive.Svg
 			name="Animation graph"
-			premountFor={fps}
 			width="100%"
 			height="100%"
 			viewBox="0 0 640 360"
@@ -156,7 +155,6 @@ const AnimatingPropertiesTextInner = ({theme, animation}: Props) => {
 	return (
 		<Interactive.Div
 			name="Hello World"
-			premountFor={fps}
 			style={{
 				position: 'absolute',
 				inset: 0,

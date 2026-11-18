@@ -1010,56 +1010,32 @@ const ClientSideSceneInner: React.FC = () => {
 			<Backdrop accent={accents.clientSide} />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Client-side rendering"
-						durationInFrames={71}
-						premountFor={30}
-					>
+					<Series.Sequence name="Client-side rendering" durationInFrames={71}>
 						<ShotFraming zoom={1}>
 							<ClientSideSource trimBefore={65} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="In the browser"
-						durationInFrames={258}
-						premountFor={30}
-					>
+					<Series.Sequence name="In the browser" durationInFrames={258}>
 						<ShotFraming zoom={1.14}>
 							<ClientSideSource trimBefore={160} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Render queue"
-						durationInFrames={160}
-						premountFor={30}
-					>
+					<Series.Sequence name="Render queue" durationInFrames={160}>
 						<ShotFraming zoom={1.02}>
 							<ClientSideSource trimBefore={429} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="New formats"
-						durationInFrames={107}
-						premountFor={30}
-					>
+					<Series.Sequence name="New formats" durationInFrames={107}>
 						<ShotFraming zoom={1.16}>
 							<ClientSideSource trimBefore={600} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Audio formats"
-						durationInFrames={71}
-						premountFor={30}
-					>
+					<Series.Sequence name="Audio formats" durationInFrames={71}>
 						<ShotFraming zoom={1.04}>
 							<ClientSideSource trimBefore={718} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="CSS properties"
-						durationInFrames={165}
-						premountFor={30}
-					>
+					<Series.Sequence name="CSS properties" durationInFrames={165}>
 						<ShotFraming zoom={1}>
 							<ClientSideSource trimBefore={800} />
 						</ShotFraming>

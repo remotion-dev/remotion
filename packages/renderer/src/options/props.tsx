@@ -3,7 +3,7 @@ import type {AnyRemotionOption} from './option';
 const cliFlag = 'props' as const;
 
 export const propsOption = {
-	name: 'Input Props',
+	name: 'Input props',
 	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (

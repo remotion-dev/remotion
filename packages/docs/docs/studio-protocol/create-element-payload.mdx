@@ -79,7 +79,7 @@ Files to install in the project's public directory. The default is `[]`.
 
 Set `path` to a forward-slash path relative to the public directory. Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in `initialProps` to pass the installed asset to your component. Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation and leaves the Element source unchanged. Paths cannot be absolute, contain traversal or platform-unsafe segments, or conflict with another declared asset path.
 
-For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. Browser Studio requires remote servers to allow cross-origin requests (CORS).
+For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. remotion.new requires remote servers to allow cross-origin requests (CORS).
 
 An installation can contain at most 100 assets and 50MB of downloaded or decoded data in total. The complete Element payload remains limited to 250,000 JSON characters, including embedded base64 data. Use remote URLs for larger files.
 

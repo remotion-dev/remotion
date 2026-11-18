@@ -1143,65 +1143,37 @@ const VercelSceneInner: React.FC = () => {
 			<Backdrop accent="#6B7280" />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Render on Vercel"
-						durationInFrames={59}
-						premountFor={30}
-					>
+					<Series.Sequence name="Render on Vercel" durationInFrames={59}>
 						<ShotFraming zoom={1}>
 							<VercelSource trimBefore={63} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Working with Vercel"
-						durationInFrames={178}
-						premountFor={30}
-					>
+					<Series.Sequence name="Working with Vercel" durationInFrames={178}>
 						<ShotFraming zoom={1.12}>
 							<VercelSource trimBefore={134} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="New package"
-						durationInFrames={246}
-						premountFor={30}
-					>
+					<Series.Sequence name="New package" durationInFrames={246}>
 						<ShotFraming zoom={1}>
 							<VercelSource trimBefore={328} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Starter template"
-						durationInFrames={73}
-						premountFor={30}
-					>
+					<Series.Sequence name="Starter template" durationInFrames={73}>
 						<ShotFraming zoom={1.16}>
 							<VercelSource trimBefore={585} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Out of the box"
-						durationInFrames={80}
-						premountFor={30}
-					>
+					<Series.Sequence name="Out of the box" durationInFrames={80}>
 						<ShotFraming zoom={1.03}>
 							<VercelSource trimBefore={667} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="First-class SSR"
-						durationInFrames={168}
-						premountFor={30}
-					>
+					<Series.Sequence name="First-class SSR" durationInFrames={168}>
 						<ShotFraming zoom={1.18}>
 							<VercelSource trimBefore={762} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Easiest way"
-						durationInFrames={236}
-						premountFor={30}
-					>
+					<Series.Sequence name="Easiest way" durationInFrames={236}>
 						<ShotFraming zoom={1.02}>
 							<VercelSource trimBefore={944} />
 						</ShotFraming>

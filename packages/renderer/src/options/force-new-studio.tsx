@@ -5,7 +5,7 @@ let forceNewEnabled = false;
 const cliFlag = 'force-new' as const;
 
 export const forceNewStudioOption = {
-	name: 'Force New Studio',
+	name: 'Force new Studio',
 	addedIn: '4.0.421',
 	cliFlag,
 	description: () => (

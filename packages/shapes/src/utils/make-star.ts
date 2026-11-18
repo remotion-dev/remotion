@@ -3,6 +3,7 @@
 import type {Instruction} from '@remotion/paths';
 import {
 	PathInternals,
+	parsePath,
 	reduceInstructions,
 	resetPath,
 	serializeInstructions,
@@ -103,7 +104,7 @@ export const makeStar = ({
 		path,
 		width: boundingBox.width,
 		height: boundingBox.height,
-		transformOrigin: `${centerX} ${centerY}`,
-		instructions: starPathInstructions,
+		transformOrigin: `${centerX - boundingBox.x1} ${centerY - boundingBox.y1}`,
+		instructions: parsePath(path),
 	};
 };

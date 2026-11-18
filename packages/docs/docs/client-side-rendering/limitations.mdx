@@ -96,11 +96,15 @@ Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
+WebKit exports preserve native SVG text colors, including under CSS gradient masks. Colors can differ at raster-mask edges, with `<feImage>` or non-default blend modes, or when the affected area exceeds 16,384 pixels on either axis or 16,777,216 pixels in total. For SVG text with filters or shadows, the limit can apply to the full export area.
+
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
 External CSS selection of `font-family`, `font-size`, `font-style`, `font-weight`, and `font-stretch` is supported for SVG text. Other external CSS properties and external font selection on `<use>` templates are not supported. Non-CSS `<style>` elements and foreign-namespace XML metadata outside `foreignObject` do not affect SVG text styling.
 
-Fonts loaded through CSS `@font-face`, Google Fonts CSS imports, or the browser's `FontFace` API are not supported. Text inside `<foreignObject>` is not supported.
+Fonts loaded through CSS `@font-face` are supported, including rules inside `@media`, `@supports` and `@import`-ed stylesheets. The stylesheet must be readable by the page: same-origin, or loaded with a `crossorigin` attribute from a server that sends CORS headers. The font file must also be same-origin or served with CORS headers. Fonts added only through the browser's `FontFace` API are not supported.
+
+HTML text inside `<foreignObject>` supports inline or inherited font selection. External HTML CSS selection is not supported.
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 
@@ -111,8 +115,7 @@ SVG-local selector preservation is not supported for stylesheets containing `@im
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
-"Spread radius" is <a style={{color: 'red'}}>not supported</a>.
+`inset` shadows and positive or negative spread radius are <a style={{color: 'green'}}>supported</a>. With `border-radius`, a spread or `inset` shadow may show a 1px anti-aliasing seam where it meets the box. Blurred `inset` shadows may differ slightly from native rendering.
 
 ## Masks
 
@@ -226,6 +229,8 @@ Media fetches can resume after an interruption when the browser reports being of
 
 ## Single concurrency
 
+Calls to `renderStillOnWeb()` and `renderFramesOnWeb()` share a serial queue. Media renders use a separate serial queue, so a still can run while a media render is in progress. Aborting a waiting call rejects that caller without waiting for the preceding render; the cancelled call does not mount its composition or release the preceding render's turn.
+
 There is no multithreading for client-side rendering.  
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
@@ -242,6 +247,8 @@ Higher responsiveness settings make renders slower.
 When the browser tab running the render is moved to the background, browsers throttle `requestAnimationFrame` to conserve resources. This could cause rendering to pause or slow down significantly.
 
 Remotion automatically works around this by using a Web Worker timer as a fallback. When the tab is backgrounded and RAF is throttled, the Worker timer takes over to keep the render progressing.
+
+If the Worker cannot start, media rendering falls back to a regular timer. Browser background-timer throttling still applies.
 
 The Worker timer is less precise than `requestAnimationFrame`, so rendering in a background tab will be slower than in a foreground tab. For best performance, keep the tab visible during rendering.
 

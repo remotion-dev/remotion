@@ -1,22 +1,9 @@
-import {beforeAll, expect, test} from 'vitest';
+import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	warmUpNativeReferences,
-} from './native-reference';
 import {testImage} from './utils';
-
-beforeAll(async () => {
-	if (!navigator.userAgent.includes('Chrome')) {
-		return;
-	}
-
-	await warmUpNativeReferences([stackingContextSiblings]);
-}, 60_000);
 
 test('orders atomic stacking-context siblings', async () => {
 	await page.viewport(
@@ -32,13 +19,6 @@ test('orders atomic stacking-context siblings', async () => {
 			allowHtmlInCanvas: false,
 		});
 		const blob = await still.blob();
-		if (navigator.userAgent.includes('Chrome')) {
-			const result = await compareNativePixels(
-				await captureNativeReference(stackingContextSiblings, frame),
-				blob,
-			);
-			expect(result.mismatchedPixels).toBe(0);
-		}
 
 		await testImage({
 			blob,

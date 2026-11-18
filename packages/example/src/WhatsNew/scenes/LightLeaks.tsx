@@ -517,29 +517,17 @@ const LightLeaksSceneInner: React.FC = () => {
 			<Backdrop accent={accents.lightLeaks} showInTimeline={false} />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Intro line"
-						durationInFrames={224}
-						premountFor={30}
-					>
+					<Series.Sequence name="Intro line" durationInFrames={224}>
 						<ShotFraming zoom={1}>
 							<LightLeaksSource trimBefore={191} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Procedurally generated"
-						durationInFrames={226}
-						premountFor={30}
-					>
+					<Series.Sequence name="Procedurally generated" durationInFrames={226}>
 						<ShotFraming zoom={1.14}>
 							<LightLeaksSource trimBefore={435} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Components or skill"
-						durationInFrames={270}
-						premountFor={30}
-					>
+					<Series.Sequence name="Components or skill" durationInFrames={270}>
 						<ShotFraming zoom={1.02}>
 							<LightLeaksSource trimBefore={671} />
 						</ShotFraming>

@@ -1925,7 +1925,7 @@ export const WebMcp: FC = () => {
 					name: 'reveal_buffering_handle',
 					title: 'Reveal buffering handle',
 					description:
-						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and Browser Studio. Errors if the recorded composition or layer can no longer be found.',
+						'Pause playback, select the recorded composition, seek to the start of its buffering episode, and reveal the handle’s owning layer in the timeline and Inspector. Uses event and handle IDs from get_buffering_events. Available wherever composition timeline selection is available, including detached, deployed, and remotion.new. Errors if the recorded composition or layer can no longer be found.',
 					inputSchema: {
 						type: 'object',
 						properties: {

@@ -6,7 +6,7 @@ let currentHeight: number | null = null;
 const cliFlag = 'height' as const;
 
 export const overrideHeightOption = {
-	name: 'Override Height',
+	name: 'Override height',
 	addedIn: '3.2.40',
 	cliFlag,
 	description: () => <>Overrides the height of the composition.</>,

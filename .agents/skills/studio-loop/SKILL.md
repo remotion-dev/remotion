@@ -56,7 +56,7 @@ The Source start Inspector field was intentionally removed; do not reintroduce i
    tool contracts as required by studio-checklist.
 4. Repeat the original interaction in the rebuilt UI. Verify immediate feedback,
    persistence/HMR, relevant failure/navigation races, and undo/redo. Cover the
-   applicable Studio modes, using a real Browser Studio iframe for changes that
+   applicable Studio modes, using a real remotion.new iframe for changes that
    depend on embedding. Recheck neighboring common actions affected by the fix.
 5. Repeat the performance measurement with a comparable project, viewport,
    interaction, and playback state. Verify playback actually started; avoid

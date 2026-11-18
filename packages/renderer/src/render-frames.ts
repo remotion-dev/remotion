@@ -336,10 +336,15 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const makeNewPage = async (frame: number, pageIndex: number) => {
+	const makeNewPage = async (
+		frame: number,
+		pageIndex: number,
+		attempt: number,
+	) => {
 		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
+			attempt,
 			// A replacement tab may first render an audio-only padding frame.
 			videoEnabled: imageFormat !== 'none' && framesToRender.includes(frame),
 			browserReplacer,
@@ -373,7 +378,7 @@ const innerRenderFrames = async ({
 			.fill(true)
 			// Tabs start on the frames they are likely to render first, so a tab
 			// that begins with an audio-only padding frame skips the visual work.
-			.map((_, i) => makeNewPage(allFramesAndExtraFrames[i], i));
+			.map((_, i) => makeNewPage(allFramesAndExtraFrames[i], i, 1));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -429,7 +434,7 @@ const innerRenderFrames = async ({
 		allFramesAndExtraFrames.map(() => {
 			return renderFrameAndRetryTargetClose({
 				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
+				retry: null,
 				assets,
 				assetIndex,
 				binariesDirectory,

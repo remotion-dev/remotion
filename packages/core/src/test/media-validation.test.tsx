@@ -14,6 +14,22 @@ describe('ValidateMediaProps should throw with invalid volume inputs', () => {
 				),
 			);
 		});
+		test(`It should not allow an ${component} element to have a non-finite volume`, () => {
+			expectToThrow(
+				// @ts-expect-error
+				() => validateMediaProps({volume: NaN}, component),
+				new RegExp(
+					`You have passed a volume of NaN to your <${component} /> component. Volume must be a real number.`,
+				),
+			);
+			expectToThrow(
+				// @ts-expect-error
+				() => validateMediaProps({volume: Infinity}, component),
+				new RegExp(
+					`You have passed a volume of Infinity to your <${component} /> component. Volume must be a real number.`,
+				),
+			);
+		});
 		test(`It should not allow an ${component} element to have an invalid type`, () => {
 			expectToThrow(
 				// @ts-expect-error

@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
@@ -45,6 +46,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly volume: VolumeProp;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	readonly onVideoFrame: OnVideoFrame | undefined;
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 	readonly playbackRate: number;
 	readonly style: React.CSSProperties;
 	readonly delayRenderRetries: number | null;
@@ -79,6 +81,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	onVideoFrame,
+	onCanvasUpdated,
 	logLevel,
 	loop,
 	style,
@@ -139,6 +142,30 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const handleFallbackVideoFrame = useCallback(
+		(image: CanvasImageSource) => {
+			onVideoFrame?.(image);
+			if (onCanvasUpdated === null || !(image instanceof HTMLImageElement)) {
+				return;
+			}
+
+			const canvas =
+				fallbackCanvasRef.current ?? document.createElement('canvas');
+			fallbackCanvasRef.current = canvas;
+			if (canvas.width !== image.naturalWidth)
+				canvas.width = image.naturalWidth;
+			if (canvas.height !== image.naturalHeight)
+				canvas.height = image.naturalHeight;
+			const context = canvas.getContext('2d');
+			if (context) {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				context.drawImage(image, 0, 0);
+				onCanvasUpdated(canvas);
+			}
+		},
+		[onCanvasUpdated, onVideoFrame],
+	);
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
 		FallbackToOffthreadVideo | false
 	>(false);
@@ -270,7 +297,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					handleError(
 						result.error,
 						result.error,
-						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						`Failed to read ${src}: ${result.error.message}${result.type === 'network-error' ? ' (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues)' : ''}, falling back to <OffthreadVideo>`,
 						null,
 					);
 					return;
@@ -328,7 +355,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						new Error(
 							`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
 						),
-						`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
+						`Network error fetching ${src} (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues), falling back to <OffthreadVideo>`,
 						null,
 					);
 					return;
@@ -390,6 +417,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						);
 					}
 				}
+
+				if (canvasRef.current) onCanvasUpdated?.(canvasRef.current);
 
 				const volumePropsFrame = frameForVolumeProp({
 					behavior: loopVolumeCurveBehavior,
@@ -462,6 +491,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		loopVolumeCurveBehavior,
 		shouldUseAudio,
 		onVideoFrame,
+		onCanvasUpdated,
 		playbackRate,
 		sequencePlaybackRate,
 		registerRenderAsset,
@@ -527,7 +557,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}
 				audioStreamIndex={audioStreamIndex ?? 0}
 				className={className}
-				onVideoFrame={onVideoFrame}
+				onVideoFrame={
+					onVideoFrame || onCanvasUpdated ? handleFallbackVideoFrame : undefined
+				}
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}

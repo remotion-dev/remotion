@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
@@ -515,6 +516,8 @@ const HtmlInCanvasContent = forwardRef<
 		ref,
 	) => {
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
+		const inheritedPremountInSeconds = useContext(DefaultPremountContext);
+		const canPremount = useMemo(canPremountInHtmlInCanvas, []);
 		assertHtmlInCanvasDimensions(width, height);
 		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
@@ -1106,7 +1109,9 @@ const HtmlInCanvasContent = forwardRef<
 							: canvasStyle
 					}
 				>
-					<DefaultPremountContext.Provider value={0}>
+					<DefaultPremountContext.Provider
+						value={canPremount ? inheritedPremountInSeconds : 0}
+					>
 						<div
 							ref={divRef}
 							style={

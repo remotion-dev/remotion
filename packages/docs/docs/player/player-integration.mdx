@@ -70,7 +70,7 @@ yarn add remotion @remotion/cli @remotion/player
   </TabItem>
 </Tabs>
 
-Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Root.tsx` file for your list of compositions, and a file with your composition. It could look like this:
+Afterwards, create a subfolder for Remotion within your project and add three files: An [entry point](/docs/terminology/entry-point), a `Root.tsx` file for your list of compositions, and a file with your composition. It could look like this:
 
 ```diff
  └── src/
@@ -111,7 +111,7 @@ export const RemotionRoot = () => {
 };
 ```
 
-Your index file (`remotion/index.ts` in the example) could look like this:
+Your entry point (`remotion/index.ts` in the example) could look like this:
 
 ```tsx twoslash title="src/remotion/index.ts"
 // @filename: ./Root.tsx

@@ -43,7 +43,7 @@ test('resolves file source using a GET request', async () => {
 	}
 });
 
-test('resolves file source using a Browser Studio operation', async () => {
+test('resolves file source using a remotion.new operation', async () => {
 	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const previousFetch = globalThis.fetch;
 	let fetchCalled = false;
@@ -89,7 +89,7 @@ test('resolves file source using a Browser Studio operation', async () => {
 	}
 });
 
-test('does not fall back to the server when Browser Studio cannot find a file', async () => {
+test('does not fall back to the server when remotion.new cannot find a file', async () => {
 	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const previousFetch = globalThis.fetch;
 	let fetchCalled = false;

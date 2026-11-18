@@ -5,7 +5,7 @@ const cliFlag = 'audio-latency-hint' as const;
 let value: AudioContextLatencyCategory | null = null;
 
 export const audioLatencyHintOption = {
-	name: 'Audio Latency Hint',
+	name: 'Audio latency hint',
 	addedIn: '4.0.303',
 	cliFlag,
 	description: () => (

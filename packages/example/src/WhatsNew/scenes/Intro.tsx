@@ -338,11 +338,7 @@ const IntroSceneInner: React.FC = () => {
 		<>
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Opening line"
-						durationInFrames={208}
-						premountFor={30}
-					>
+					<Series.Sequence name="Opening line" durationInFrames={208}>
 						<ShotFraming zoom={1.1}>
 							<IntroSource trimBefore={35} />
 						</ShotFraming>

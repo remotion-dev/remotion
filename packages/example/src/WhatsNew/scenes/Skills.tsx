@@ -689,38 +689,22 @@ const SkillsSceneInner: React.FC = () => {
 			<Backdrop accent={accents.skills} />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="New skills"
-						durationInFrames={34}
-						premountFor={30}
-					>
+					<Series.Sequence name="New skills" durationInFrames={34}>
 						<ShotFraming zoom={1}>
 							<SkillsSource trimBefore={87} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="What did not work"
-						durationInFrames={129}
-						premountFor={30}
-					>
+					<Series.Sequence name="What did not work" durationInFrames={129}>
 						<ShotFraming zoom={1.14}>
 							<SkillsSource trimBefore={135} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Voiceovers"
-						durationInFrames={84}
-						premountFor={30}
-					>
+					<Series.Sequence name="Voiceovers" durationInFrames={84}>
 						<ShotFraming zoom={1}>
 							<SkillsSource trimBefore={275} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="FFmpeg"
-						durationInFrames={111}
-						premountFor={30}
-					>
+					<Series.Sequence name="FFmpeg" durationInFrames={111}>
 						<ShotFraming zoom={1.16}>
 							<SkillsSource trimBefore={372} />
 						</ShotFraming>
@@ -728,17 +712,12 @@ const SkillsSceneInner: React.FC = () => {
 					<Series.Sequence
 						name="Visualization and transparency"
 						durationInFrames={144}
-						premountFor={30}
 					>
 						<ShotFraming zoom={1.02}>
 							<SkillsSource trimBefore={503} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Much smoother"
-						durationInFrames={106}
-						premountFor={30}
-					>
+					<Series.Sequence name="Much smoother" durationInFrames={106}>
 						<ShotFraming zoom={1.18}>
 							<SkillsSource trimBefore={663} />
 						</ShotFraming>

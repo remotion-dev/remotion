@@ -20,7 +20,7 @@ const repoDir = join(packageDir, '..', '..');
 const readPackageJson = (path: string): PackageJson =>
 	JSON.parse(readFileSync(path, 'utf-8')) as PackageJson;
 
-test('browser studio dependency versions are derived from package metadata', () => {
+test('remotion.new dependency versions are derived from package metadata', () => {
 	const rootPackageJson = readPackageJson(join(repoDir, 'package.json'));
 	const studioPackageJson = readPackageJson(
 		join(repoDir, 'packages', 'studio', 'package.json'),
@@ -78,7 +78,7 @@ test('browser studio dependency versions are derived from package metadata', () 
 	).toBe(true);
 });
 
-test('generated Browser Studio artifacts are not rediscovered as workspace packages', () => {
+test('generated remotion.new artifacts are not rediscovered as workspace packages', () => {
 	expect(
 		isBrowserStudioArtifactPath(
 			'packages/docs/static/__remotion_browser_studio_workspace__/commits/abc/packages/core/package.json',

@@ -1324,62 +1324,37 @@ const SoundEffectsSceneInner: React.FC = () => {
 					<Series.Sequence
 						name="AI is bad at finding them"
 						durationInFrames={154}
-						premountFor={30}
 					>
 						<ShotFraming zoom={1}>
 							<SoundEffectsSource trimBefore={94} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Our own library"
-						durationInFrames={256}
-						premountFor={30}
-					>
+					<Series.Sequence name="Our own library" durationInFrames={256}>
 						<ShotFraming zoom={1.14}>
 							<SoundEffectsSource trimBefore={256} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Hotlink"
-						durationInFrames={114}
-						premountFor={30}
-					>
+					<Series.Sequence name="Hotlink" durationInFrames={114}>
 						<ShotFraming zoom={1.02}>
 							<SoundEffectsSource trimBefore={533} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Same loudness"
-						durationInFrames={136}
-						premountFor={30}
-					>
+					<Series.Sequence name="Same loudness" durationInFrames={136}>
 						<ShotFraming zoom={1.16}>
 							<SoundEffectsSource trimBefore={658} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Standardized"
-						durationInFrames={68}
-						premountFor={30}
-					>
+					<Series.Sequence name="Standardized" durationInFrames={68}>
 						<ShotFraming zoom={1.04}>
 							<SoundEffectsSource trimBefore={805} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Seven to start"
-						durationInFrames={373}
-						premountFor={30}
-					>
+					<Series.Sequence name="Seven to start" durationInFrames={373}>
 						<ShotFraming zoom={1.2}>
 							<SoundEffectsSource trimBefore={894} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Let us know"
-						durationInFrames={51}
-						premountFor={30}
-					>
+					<Series.Sequence name="Let us know" durationInFrames={51}>
 						<ShotFraming zoom={1.04}>
 							<SoundEffectsSource trimBefore={1279} />
 						</ShotFraming>

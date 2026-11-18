@@ -28,7 +28,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/cli/bundle">
 					<strong>bundle</strong>
-					<div>Create a Remotion Bundle</div>
+					<div>Create a Remotion bundle</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/cli">
 					<strong>lambda</strong>

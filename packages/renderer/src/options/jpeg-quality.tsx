@@ -20,7 +20,7 @@ export const getJpegQuality = () => quality;
 const cliFlag = 'jpeg-quality' as const;
 
 export const jpegQualityOption = {
-	name: 'JPEG Quality',
+	name: 'JPEG quality',
 	addedIn: '4.0.0',
 	cliFlag,
 	description: () => (

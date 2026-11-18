@@ -6,7 +6,7 @@ let configuredEnableCrossSiteIsolation: boolean | null = null;
 const cliFlag = 'cross-site-isolation' as const;
 
 export const enableCrossSiteIsolationOption = {
-	name: 'Enable Cross-Site Isolation',
+	name: 'Enable cross-site isolation',
 	addedIn: '4.0.306',
 	cliFlag,
 	description: () => (

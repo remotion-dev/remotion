@@ -83,6 +83,9 @@ import {
 	BlurSlideTransitionDocThumb,
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
+	BouncingImagesMotionBlur,
+	BouncingVideoMotionBlur,
+	bouncingImagesMotionBlurSchema,
 	CrossZoomTransitionDoc,
 	CrossZoomTransitionDocThumb,
 	CrosswarpTransitionDoc,
@@ -1291,6 +1294,30 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="BouncingVideoMotionBlur"
+						component={BouncingVideoMotionBlur}
+						fps={120}
+						height={720}
+						width={1280}
+						durationInFrames={2400}
+					/>
+					<Composition
+						id="BouncingImagesMotionBlur"
+						component={BouncingImagesMotionBlur}
+						schema={bouncingImagesMotionBlurSchema}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={600}
+						defaultProps={{
+							blur: 'HtmlInCanvasMotionBlur',
+							samples: 16,
+							shutterAngle: 180,
+							trailLagInFrames: 0.75,
+							effects: false,
+						}}
+					/>
 					<Composition
 						id="html-in-canvas-fallback"
 						component={HtmlInCanvasFallbackExample}

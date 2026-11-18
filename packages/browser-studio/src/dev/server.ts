@@ -31,7 +31,7 @@ const indexHtml = `<!DOCTYPE html>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Remotion Browser Studio</title>
+		<title>remotion.new</title>
 		<style>
 			html,
 			body,
@@ -97,7 +97,7 @@ const buildDevAssets = async () => {
 		(file) => path.basename(file.path) === 'browser-studio-vendor-entry.mjs',
 	);
 	if (!vendorEntryArtifact) {
-		throw new Error('Browser Studio vendor entry was not generated');
+		throw new Error('remotion.new vendor entry was not generated');
 	}
 
 	const transformersOutput = await build({
@@ -249,7 +249,7 @@ const start = async () => {
 		},
 	});
 
-	process.stdout.write(`Browser Studio dev server: http://localhost:${port}\n`);
+	process.stdout.write(`remotion.new dev server: http://localhost:${port}\n`);
 	process.stdout.write('Press Ctrl+C to stop.\n');
 };
 

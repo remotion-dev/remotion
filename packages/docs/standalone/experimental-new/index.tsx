@@ -166,7 +166,7 @@ const BrowserStudioContent: React.FC = () => {
 	}, [loadingRepoUrl]);
 
 	if (initialElementState.type === 'invalid') {
-		return <div style={fallback}>Invalid Browser Studio payload.</div>;
+		return <div style={fallback}>Invalid remotion.new payload.</div>;
 	}
 
 	if (projectState.type !== 'ready') {

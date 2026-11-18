@@ -925,56 +925,32 @@ const BundlingSceneInner: React.FC = () => {
 			<Backdrop accent={accents.bundling} />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Faster bundling"
-						durationInFrames={42}
-						premountFor={30}
-					>
+					<Series.Sequence name="Faster bundling" durationInFrames={42}>
 						<ShotFraming zoom={1}>
 							<BundlingSource trimBefore={78} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Rspack experiment"
-						durationInFrames={158}
-						premountFor={30}
-					>
+					<Series.Sequence name="Rspack experiment" durationInFrames={158}>
 						<ShotFraming zoom={1.12}>
 							<BundlingSource trimBefore={137} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="To make things faster"
-						durationInFrames={43}
-						premountFor={30}
-					>
+					<Series.Sequence name="To make things faster" durationInFrames={43}>
 						<ShotFraming zoom={1.34}>
 							<BundlingSource trimBefore={304} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Twice as fast"
-						durationInFrames={139}
-						premountFor={30}
-					>
+					<Series.Sequence name="Twice as fast" durationInFrames={139}>
 						<ShotFraming zoom={1.02}>
 							<BundlingSource trimBefore={363} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Canvas updates"
-						durationInFrames={166}
-						premountFor={30}
-					>
+					<Series.Sequence name="Canvas updates" durationInFrames={166}>
 						<ShotFraming zoom={1.16}>
 							<BundlingSource trimBefore={514} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Opt in today"
-						durationInFrames={172}
-						premountFor={30}
-					>
+					<Series.Sequence name="Opt in today" durationInFrames={172}>
 						<ShotFraming zoom={1.02}>
 							<BundlingSource trimBefore={699} />
 						</ShotFraming>

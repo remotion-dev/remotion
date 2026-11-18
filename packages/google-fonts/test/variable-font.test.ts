@@ -9,6 +9,7 @@ mock.module('remotion', () => ({
 mock.module('remotion/no-react', () => ({
 	NoReactInternals: {
 		ENABLE_V5_BREAKING_CHANGES: false,
+		startFontLoad: () => ({finish: () => undefined, fail: () => undefined}),
 		fetchFontData: () => Promise.resolve(new ArrayBuffer(4)),
 		registerFontFace: (fontFace: unknown) => {
 			registeredFontFaces.push(fontFace);

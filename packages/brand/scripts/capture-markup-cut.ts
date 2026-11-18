@@ -1,7 +1,7 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {openBrowser} from '@remotion/renderer';
-import {highlightCode} from './dark-plus';
+import {highlightCode} from './github-dark';
 
 const output = path.resolve(process.argv[2] ?? '/tmp/higher-level-markup-cut');
 const mode =
@@ -83,9 +83,9 @@ const server = Bun.serve({
 		if (pathname === '/')
 			return new Response(html, {headers: {'Content-Type': 'text/html'}});
 		if (pathname === '/snippet') return Response.json(snippet);
-		if (pathname === '/dark-plus-monaco.js')
+		if (pathname === '/github-dark-monaco.js')
 			return new Response(
-				Bun.file(path.join(import.meta.dir, 'dark-plus-monaco.js')),
+				Bun.file(path.join(import.meta.dir, 'github-dark-monaco.js')),
 			);
 		if (pathname.startsWith('/monaco/')) {
 			const file = path.resolve(monacoRoot, pathname.slice('/monaco/'.length));
@@ -184,7 +184,7 @@ try {
 		throw new Error('Cmd+X did not cut the exact HigherLevelTaskPrompt block');
 	await page.evaluate(
 		(tokens: unknown) =>
-			(window as any).installDarkPlus((window as any).monaco, tokens),
+			(window as any).installGitHubDark((window as any).monaco, tokens),
 		afterTokens,
 	);
 	if (mode === 'cut') {
@@ -227,7 +227,7 @@ try {
 			);
 		await page.evaluate(
 			(tokens: unknown, line: number, margin: number) => {
-				(window as any).installDarkPlus((window as any).monaco, tokens);
+				(window as any).installGitHubDark((window as any).monaco, tokens);
 				const editor = (window as any).sdkEditor;
 				editor.updateOptions({cursorBlinking: 'blink'});
 				editor.setScrollTop((line - margin) * 38);

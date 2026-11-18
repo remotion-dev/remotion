@@ -203,7 +203,9 @@ export const useCommonEffects = ({
 		mediaPlayer.setSequenceOffset(sequenceOffset, currentTimeRef.current);
 	}, [sequenceOffset, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
-	const {seek} = useContext(Internals.SetTimelineContext);
+	const {seek, isPlaying: isTimelinePlaying} = useContext(
+		Internals.SetTimelineContext,
+	);
 	const revision = seek?.revision.current ?? null;
 	const lastRequest = useRef<{
 		player: MediaPlayer;
@@ -238,7 +240,10 @@ export const useCommonEffects = ({
 			muted: effectiveMuted,
 		};
 		mediaPlayer
-			.seekTo(currentTime, revision === null ? null : {revision, playing})
+			.seekTo(
+				currentTime,
+				revision === null ? null : {revision, playing: isTimelinePlaying()},
+			)
 			.catch(() => {
 				// Might be disposed
 			});
@@ -254,7 +259,7 @@ export const useCommonEffects = ({
 		mediaPlayerReady,
 		label,
 		mediaPlayerRef,
-		playing,
+		isTimelinePlaying,
 		revision,
 	]);
 };

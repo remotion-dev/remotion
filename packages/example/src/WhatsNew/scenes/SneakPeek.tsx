@@ -972,38 +972,22 @@ const SneakPeekSceneInner: React.FC = () => {
 			<Backdrop accent={accents.sneakPeek} dark />
 			<StageLayout keyframes={layout}>
 				<Series>
-					<Series.Sequence
-						name="Sneak peek"
-						durationInFrames={79}
-						premountFor={30}
-					>
+					<Series.Sequence name="Sneak peek" durationInFrames={79}>
 						<ShotFraming zoom={1.06}>
 							<SneakPeekRequestsSource trimBefore={51} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Easier to use"
-						durationInFrames={405}
-						premountFor={30}
-					>
+					<Series.Sequence name="Easier to use" durationInFrames={405}>
 						<ShotFraming zoom={1.18}>
 							<SneakPeekRequestsSource trimBefore={147} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Visual mode"
-						durationInFrames={361}
-						premountFor={30}
-					>
+					<Series.Sequence name="Visual mode" durationInFrames={361}>
 						<ShotFraming zoom={1.04}>
 							<SneakPeekVisualModeSource trimBefore={51} />
 						</ShotFraming>
 					</Series.Sequence>
-					<Series.Sequence
-						name="Regular React code"
-						durationInFrames={67}
-						premountFor={30}
-					>
+					<Series.Sequence name="Regular React code" durationInFrames={67}>
 						<ShotFraming zoom={1.16}>
 							<SneakPeekVisualModeSource trimBefore={423} />
 						</ShotFraming>

@@ -11,7 +11,7 @@ Master: AuraCodeAndTimeline, 3840 × 1080, 60 fps.
 Layout: The approved 1920 × 1080 code shots occupy the left panel; matching
   genuine Studio timeline captures occupy the right panel.
   Retain AuraCode as the original 1920 × 1080 code-only composition.
-Look: The homepage's charcoal editor and Dark+ syntax colors, using Menlo.
+Look: The homepage's charcoal editor and GitHub Dark syntax colors, using Menlo.
 Source: Real Monaco editor showing WhatsNew.tsx, LowerThird.tsx, and Scene1.tsx.
   Use the homepage's chapter overview, the real announcement's presenter card,
   and a proposed caption addition to its existing presenter video.

@@ -53,7 +53,7 @@ export default [
 						{
 							name: '@remotion/codemods',
 							message:
-								'Load codemods with a dynamic import only in Browser Studio so regular Studio does not download them.',
+								'Load codemods with a dynamic import only in remotion.new so regular Studio does not download them.',
 							allowTypeImports: true,
 						},
 					],

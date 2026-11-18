@@ -9,7 +9,7 @@ let currentVideoImageFormat: VideoImageFormat | null = null;
 const cliFlag = 'image-format' as const;
 
 export const videoImageFormatOption = {
-	name: 'Video Image Format',
+	name: 'Video image format',
 	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
