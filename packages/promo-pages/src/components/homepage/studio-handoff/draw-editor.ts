@@ -131,15 +131,17 @@ export const drawEditor = (ctx: CanvasRenderingContext2D) => {
 		weight: null,
 		align: null,
 	};
+	const codeFontSize = 14;
+	const codeLineHeight = codeFontSize * 1.5;
 	for (const [index, tokens] of editorCode.entries()) {
-		const top = 85.5 + index * 21;
-		text(ctx, String(index + 1), 43, top, 14, '#959da5', {
+		const top = 85.5 + index * codeLineHeight;
+		text(ctx, String(index + 1), 43, top, codeFontSize, '#959da5', {
 			...codeFont,
 			align: 'right',
 		});
 		let left = 68;
 		for (const [content, color] of tokens) {
-			text(ctx, content, left, top, 14, color, codeFont);
+			text(ctx, content, left, top, codeFontSize, color, codeFont);
 			left += ctx.measureText(content).width;
 		}
 	}

@@ -43,6 +43,9 @@ font-feature-settings: 'ss03' on;
 Use Shiki’s **GitHub Dark** (`github-dark`) for documentation code blocks,
 the homepage hero, and promotional images, videos, and editor demos.
 
+Use row spacing of 1.5× the font size for code. Round to whole pixels where
+the capture or rendering tool requires it.
+
 | Token                      | Color     |
 | -------------------------- | --------- |
 | Plain text and punctuation | `#E1E4E8` |

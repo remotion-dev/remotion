@@ -1,13 +1,13 @@
 export const auraCodeAssets = {
 	code: {
 		chapters:
-			'https://remotion.media/why/aura-code/chapters-github-dark-9bf76f5bc6fc.png',
+			'https://remotion.media/why/aura-code/chapters-github-dark-e9c204f3fc2f.png',
 		styles:
-			'https://remotion.media/why/aura-code/styles-github-dark-b67fda5f79b8.png',
+			'https://remotion.media/why/aura-code/styles-github-dark-cf789aea96c3.png',
 		captions:
-			'https://remotion.media/why/aura-code/captions-github-dark-a94f10ac9eac.png',
+			'https://remotion.media/why/aura-code/captions-github-dark-9a39ba87ab1e.png',
 		duplicate:
-			'https://remotion.media/why/aura-code/duplicate-github-dark-8b8d7ec0a31f.webm',
+			'https://remotion.media/why/aura-code/duplicate-github-dark-eafa84e16cbf.webm',
 	},
 	timeline: {
 		chapters:

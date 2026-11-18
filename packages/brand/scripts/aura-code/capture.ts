@@ -29,7 +29,7 @@ const duplicated = [
 	...chapterLines.slice(12, 18),
 	...chapterLines.slice(18),
 ].join('\n');
-const shots: EditorShot[] = [
+const shotConfigs: Omit<EditorShot, 'lineHeight'>[] = [
 	{
 		id: 'chapters',
 		frameCount: 120,
@@ -41,7 +41,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 7,
 		folds: [],
 		anchors: [
@@ -64,7 +63,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 27,
-		lineHeight: 34,
 		firstVisibleLine: 10,
 		folds: [],
 		anchors: [
@@ -84,7 +82,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 21,
 		folds: [
 			{start: 34, end: 42},
@@ -110,12 +107,15 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 17,
 		folds: [],
 		anchors: [],
 	},
 ];
+const shots: EditorShot[] = shotConfigs.map((shot) => ({
+	...shot,
+	lineHeight: Math.round(shot.fontSize * 1.5),
+}));
 const requested =
 	process.argv
 		.find((arg) => arg.startsWith('--shot='))
