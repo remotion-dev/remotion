@@ -96,7 +96,7 @@ Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
-WebKit software exports preserve native colors for the registered font-selection, stylesheet-carrier, and font-family lifetime cases described here. Native checks also cover the tested CSS gradient-masked SVG text case. Raster-mask edge sampling can still differ.
+WebKit software exports preserve native colors for the registered font-selection, stylesheet-carrier, and font-family lifetime cases described here. Native checks also cover the tested CSS gradient-masked SVG text case. Raster-mask edge sampling can still differ. Effect-free SVG text retains the tested native colors in 8K still images using bounded readback surfaces. Surfaces exceeding 16 Mi pixels or 16,384 pixels on either axis retain direct rendering; native color parity for those surfaces and oversized filtered or shadowed exports remains unverified.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 

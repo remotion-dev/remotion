@@ -41,24 +41,95 @@ const drawSvgThroughReadbackCanvas = ({
 	context: OffscreenCanvasRenderingContext2D;
 }) => {
 	const {width, height} = context.canvas;
+	const transform = context.getTransform();
+	let left = 0;
+	let top = 0;
+	let right = width;
+	let bottom = height;
+	// Effects can paint outside the image's transformed rectangle. Keep their
+	// existing full-surface transfer until their paint bounds are known.
+	if (
+		(typeof context.filter !== 'string' || context.filter === 'none') &&
+		(context.shadowColor === 'rgba(0, 0, 0, 0)' ||
+			context.shadowColor === 'transparent')
+	) {
+		const corners = [
+			[fitted.left, fitted.top],
+			[fitted.left + fitted.width, fitted.top],
+			[fitted.left, fitted.top + fitted.height],
+			[fitted.left + fitted.width, fitted.top + fitted.height],
+		].map(([x, y]) => ({
+			x: transform.a * x + transform.c * y + transform.e,
+			y: transform.b * x + transform.d * y + transform.f,
+		}));
+		if (
+			corners.every(
+				(point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+			)
+		) {
+			left = Math.max(
+				0,
+				Math.min(
+					width,
+					Math.floor(Math.min(...corners.map((point) => point.x))),
+				),
+			);
+			top = Math.max(
+				0,
+				Math.min(
+					height,
+					Math.floor(Math.min(...corners.map((point) => point.y))),
+				),
+			);
+			right = Math.min(
+				width,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.x)))),
+			);
+			bottom = Math.min(
+				height,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.y)))),
+			);
+		}
+	}
+
+	const scratchWidth = right - left;
+	const scratchHeight = bottom - top;
 	if (
 		context.globalCompositeOperation !== 'source-over' ||
 		width <= 0 ||
 		height <= 0 ||
-		width > 16384 ||
-		height > 16384 ||
-		width * height > 16 * 1024 ** 2
+		scratchWidth > 16384 ||
+		scratchHeight > 16384 ||
+		scratchWidth * scratchHeight > 16 * 1024 ** 2
 	)
 		return false;
-	const scratch = new OffscreenCanvas(width, height);
+	if (scratchWidth <= 0 || scratchHeight <= 0) return true;
+	const scratch = new OffscreenCanvas(scratchWidth, scratchHeight);
 	try {
 		const readbackContext = scratch.getContext('2d', {
 			alpha: true,
 			willReadFrequently: true,
 		});
 		if (!readbackContext) return false;
-		readbackContext.drawImage(context.canvas, 0, 0);
-		readbackContext.setTransform(context.getTransform());
+		readbackContext.drawImage(
+			context.canvas,
+			left,
+			top,
+			scratchWidth,
+			scratchHeight,
+			0,
+			0,
+			scratchWidth,
+			scratchHeight,
+		);
+		readbackContext.setTransform(
+			transform.a,
+			transform.b,
+			transform.c,
+			transform.d,
+			transform.e - left,
+			transform.f - top,
+		);
 		readbackContext.globalAlpha = context.globalAlpha;
 		readbackContext.filter = context.filter;
 		readbackContext.shadowColor = context.shadowColor;
@@ -75,11 +146,14 @@ const drawSvgThroughReadbackCanvas = ({
 		context.save();
 		try {
 			context.resetTransform();
+			const copyBounds = new Path2D();
+			copyBounds.rect(left, top, scratchWidth, scratchHeight);
+			context.clip(copyBounds);
 			context.globalCompositeOperation = 'copy';
 			context.globalAlpha = 1;
 			context.filter = 'none';
 			context.shadowColor = 'transparent';
-			context.drawImage(scratch, 0, 0);
+			context.drawImage(scratch, left, top);
 		} finally {
 			context.restore();
 		}
