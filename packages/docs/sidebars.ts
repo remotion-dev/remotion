@@ -1287,12 +1287,6 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
-			type: 'category',
-			label: 'OpenTimelineIO',
-			link: {type: 'doc', id: 'opentimeline/index'},
-			items: ['opentimeline/import', 'opentimeline/export'],
-		},
-		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1571,6 +1565,12 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 			],
+		},
+		{
+			type: 'category',
+			label: 'OpenTimelineIO',
+			link: {type: 'doc', id: 'opentimeline/index'},
+			items: ['opentimeline/import', 'opentimeline/export'],
 		},
 		{
 			type: 'html',
