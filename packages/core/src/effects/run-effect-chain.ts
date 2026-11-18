@@ -9,6 +9,7 @@ import type {
 	PreferredEffectBackend,
 	Backend,
 	EffectDefinitionAndStack,
+	EffectChainLink,
 } from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
 import {
@@ -216,6 +217,14 @@ const ensureSetup = <S>(
 /** Final compositing target for an effect chain (layout canvas or transferred offscreen). */
 export type EffectChainOutput = HTMLCanvasElement | OffscreenCanvas;
 
+const chainLinks = new WeakMap<object, EffectChainLink>();
+
+// The link through which an effect target was last written, or `null` for a
+// source that is not an effect target of a running chain.
+export const getEffectChainLink = (
+	canvas: CanvasImageSource,
+): EffectChainLink | null => chainLinks.get(canvas) ?? null;
+
 export type RunEffectChainOptions = {
 	readonly state: EffectChainState;
 	readonly source: CanvasImageSource;
@@ -299,6 +308,12 @@ const runEffectChainWithoutResize = async (
 				if (isCancelled()) return false;
 				if (run.backend === 'webgl2')
 					canvasPool.prepareWebGL(dst, flipWebGLSourceY);
+				chainLinks.set(dst, {
+					final:
+						runIndex === runs.length - 1 &&
+						eff === run.effects[run.effects.length - 1],
+					precise: null,
+				});
 				def.apply({
 					source: currentImage,
 					target: dst,

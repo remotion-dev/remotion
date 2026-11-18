@@ -48,6 +48,16 @@ export type MultiBackendEffectDefinition<P> = Omit<
 // (e.g. via a local type assertion or by depending on `@webgpu/types`).
 type AnyGpuDevice = unknown;
 
+// One effect's output within a chain. `runEffectChain` creates a new link
+// before every `apply()`, so a link never outlives the pixels it describes.
+export type EffectChainLink = {
+	// The chain draws this target into its 8-bit output canvas.
+	readonly final: boolean;
+	// A higher-precision copy of the target's pixels that the next effect may
+	// read instead of the canvas. Set by the effect that wrote the target.
+	precise: unknown;
+};
+
 export type EffectApplyParams<P, S> = {
 	readonly source: CanvasImageSource;
 	readonly target: HTMLCanvasElement;
