@@ -1,5 +1,8 @@
+import {ALL_FORMATS, AudioBufferSink, BlobSource, Input} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {canRenderMediaOnWeb} from '../can-render-media-on-web';
+import {renderMediaOnWeb} from '../render-media-on-web';
+import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import '../symbol-dispose';
 
 test('should resolve video codec for MP4/H264 configuration', async () => {
@@ -198,9 +201,68 @@ test('should not report video issues for audio-only containers', async () => {
 			i.type === 'container-codec-mismatch' ||
 			i.type === 'transparent-video-unsupported' ||
 			i.type === 'invalid-dimensions' ||
-			i.type === 'webcodecs-unavailable',
+			i.type === 'webcodecs-unavailable' ||
+			i.type === 'webgl-unsupported',
 	);
 	expect(videoIssues).toHaveLength(0);
+});
+
+test('audio-only readiness agrees with an actual PCM export', async () => {
+	const capability = await canRenderMediaOnWeb({
+		container: 'wav',
+		audioCodec: 'pcm-s16',
+		width: pitchShiftAudio.width,
+		height: pitchShiftAudio.height,
+		outputTarget: 'arraybuffer',
+	});
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {...pitchShiftAudio, calculateMetadata: null},
+		frameRange: [50, 50],
+		container: 'wav',
+		audioCodec: 'pcm-s16',
+		sampleRate: 48000,
+		outputTarget: 'arraybuffer',
+	});
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(await result.getBlob()),
+	});
+	const track = await input.getPrimaryAudioTrack();
+	expect(track).not.toBeNull();
+	let totalSamples = 0;
+	let wrongSamples = 0;
+	for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+		expect(buffer.sampleRate).toBe(48000);
+		expect(buffer.numberOfChannels).toBe(2);
+		for (let channel = 0; channel < 2; channel++) {
+			const audio = buffer.getChannelData(channel);
+			for (let sample = 0; sample < audio.length; sample++) {
+				const sourceSample = 8000 + totalSamples + sample;
+				const expected =
+					Math.round(
+						Math.sin(
+							(sourceSample / 48000) *
+								(channel === 0 ? 440 : 660) *
+								Math.PI *
+								2,
+						) * 10000,
+					) / 32768;
+				if (audio[sample] !== expected) wrongSamples++;
+			}
+		}
+
+		totalSamples += buffer.length;
+	}
+
+	expect(totalSamples).toBe(1600);
+	expect(wrongSamples).toBe(0);
+	expect(capability.resolvedVideoCodec).toBeNull();
+	expect(capability.resolvedAudioCodec).toBe('pcm-s16');
+	expect(
+		capability.issues.filter((issue) => issue.type === 'webgl-unsupported'),
+	).toHaveLength(0);
+	expect(capability.canRender).toBe(true);
 });
 
 test('should accept videoCodec: null for audio-only containers', async () => {
