@@ -34,6 +34,7 @@ const MotionBlurFrameBlendingContent = () => {
 					height: 960,
 					translate: '-50% -50%',
 					scale: Math.min(width / 1080, height / 960) * 1.65,
+					transform: 'scaleX(-1)',
 					transformOrigin: '50% 50%',
 				}}
 			>

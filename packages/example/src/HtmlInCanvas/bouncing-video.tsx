@@ -8,13 +8,16 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
+const slowMotionRate = 0.25;
+
 const BouncingVideo: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const horizontalRange = width - 320;
 	const verticalRange = height - 180;
-	const horizontalTravel = (frame / fps) * 840 + 96;
-	const verticalTravel = (frame / fps) * 570 + 64;
+	const time = (frame / fps) * slowMotionRate;
+	const horizontalTravel = time * 840 + 96;
+	const verticalTravel = time * 570 + 64;
 	const x =
 		horizontalRange -
 		Math.abs((horizontalTravel % (2 * horizontalRange)) - horizontalRange);
@@ -28,6 +31,7 @@ const BouncingVideo: React.FC = () => {
 			src={staticFile('drums-drumsticks.mp4')}
 			muted
 			loop
+			playbackRate={slowMotionRate}
 			objectFit="cover"
 			style={{
 				position: 'absolute',
@@ -46,7 +50,7 @@ export const BouncingVideoMotionBlur: React.FC = () => {
 				name="Video motion blur"
 				width={1280}
 				height={720}
-				shutterAngle={180}
+				shutterAngle={4000}
 				samples={16}
 				disabled={false}
 				disabledInPreview={false}

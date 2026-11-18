@@ -7,25 +7,29 @@ import {MotionBlurBounceCaptureComposition} from './MotionBlurBounceCaptureCompo
 import {MotionBlurClick} from './MotionBlurClick';
 import {MotionBlurClickCaptureComposition} from './MotionBlurClickCapture';
 import {MotionBlurCodeCloseup} from './MotionBlurCodeCloseup';
+import {MotionBlurCompilation} from './MotionBlurCompilation';
+import {MotionBlurControlsCaptureComposition} from './MotionBlurControlsCaptureComposition';
 import {
-	MOTION_BLUR_COMPILATION_SECONDS,
-	MotionBlurCompilation,
-} from './MotionBlurCompilation';
-import {MotionBlurCopyContext} from './MotionBlurCopyContext';
+	MOTION_BLUR_COPY_CONTEXT_DURATION_IN_FRAMES,
+	MotionBlurCopyContext,
+} from './MotionBlurCopyContext';
 import {MotionBlurDocumentation} from './MotionBlurDocumentation';
 import {MotionBlurDrumsticksCaptureComposition} from './MotionBlurDrumsticksCaptureComposition';
 import {MotionBlurEditorCaptureComposition} from './MotionBlurEditorCapture';
 import {MotionBlurFrameBlending} from './MotionBlurFrameBlending';
 import {getMotionBlurOutroTriangleDurationInFrames} from './MotionBlurOutro';
+import {MotionBlurSampleCountCaptureComposition} from './MotionBlurSampleCountCaptureComposition';
 import {MotionBlurScrub} from './MotionBlurScrub';
 import {MotionBlurScrubCaptureComposition} from './MotionBlurScrubCaptureComposition';
 import {MotionBlurSelect} from './MotionBlurSelect';
 import {MotionBlurSelectCaptureComposition} from './MotionBlurSelectCaptureComposition';
 import {MotionBlurShort, motionBlurShortSchema} from './MotionBlurShort';
+import {MotionBlurShutterAngleCaptureComposition} from './MotionBlurShutterAngleCaptureComposition';
 import {MotionBlurTransition} from './MotionBlurTransition';
 import {MotionBlurTransitionCaptureComposition} from './MotionBlurTransitionCaptureComposition';
 import {MotionBlurTransitionSlowCaptureComposition} from './MotionBlurTransitionSlowCaptureComposition';
 import {MotionBlurTriangleCaptureComposition} from './MotionBlurTriangleCaptureComposition';
+import {MotionBlurTriangleDemo} from './MotionBlurTriangleDemo';
 import {
 	MotionBlurOutroTriangle,
 	RemotionTriangleMotionBlur,
@@ -58,16 +62,24 @@ export const MotionBlurCompositions = () => {
 			<Composition
 				id="MotionBlurCompilation"
 				component={MotionBlurCompilation}
-				durationInFrames={MOTION_BLUR_COMPILATION_SECONDS * 30}
+				durationInFrames={858}
 				fps={30}
 				width={1920}
 				height={1080}
 			/>
 			<Composition
-				id="RemotionTriangleMotionBlur"
-				component={RemotionTriangleMotionBlur}
+				id="MotionBlurTriangleDemo"
+				component={MotionBlurTriangleDemo}
 				durationInFrames={96}
 				fps={30}
+				width={1080}
+				height={960}
+			/>
+			<Composition
+				id="RemotionTriangleMotionBlur"
+				component={RemotionTriangleMotionBlur}
+				durationInFrames={1536}
+				fps={120}
 				width={1080}
 				height={960}
 			/>
@@ -145,7 +157,7 @@ export const MotionBlurCompositions = () => {
 			<Composition
 				id="MotionBlurCopyContext"
 				component={MotionBlurCopyContext}
-				durationInFrames={38}
+				durationInFrames={MOTION_BLUR_COPY_CONTEXT_DURATION_IN_FRAMES}
 				fps={30}
 				width={1080}
 				height={960}
@@ -194,6 +206,30 @@ export const MotionBlurCompositions = () => {
 				height={960}
 			/>
 			<Folder name="Source-captures">
+				<Composition
+					id="MotionBlurControlsCapture"
+					component={MotionBlurControlsCaptureComposition}
+					durationInFrames={531}
+					fps={30}
+					width={2394}
+					height={1538}
+				/>
+				<Composition
+					id="MotionBlurShutterAngleCapture"
+					component={MotionBlurShutterAngleCaptureComposition}
+					durationInFrames={414}
+					fps={30}
+					width={2374}
+					height={1628}
+				/>
+				<Composition
+					id="MotionBlurSampleCountCapture"
+					component={MotionBlurSampleCountCaptureComposition}
+					durationInFrames={439}
+					fps={30}
+					width={2374}
+					height={1628}
+				/>
 				<Composition
 					id="MotionBlurTransitionSlowCapture"
 					component={MotionBlurTransitionSlowCaptureComposition}

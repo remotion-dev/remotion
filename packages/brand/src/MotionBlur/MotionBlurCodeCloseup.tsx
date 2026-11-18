@@ -86,6 +86,8 @@ const MotionBlurCodeCloseupContent = () => {
 					width: 960,
 					translate: '-50% -50%',
 					rotate: EXPLORE_CAMERA_ANGLE,
+					transform: 'perspective(100px)',
+					willChange: 'transform',
 					scale: interpolate(
 						frame,
 						[0, 2.6 * fps],

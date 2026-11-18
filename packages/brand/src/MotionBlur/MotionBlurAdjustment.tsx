@@ -1,105 +1,74 @@
 import {Interactive, Sequence, useVideoConfig} from 'remotion';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
-import {MotionBlurEditorCaptureComposition} from './MotionBlurEditorCapture';
+import {MotionBlurControlsCaptureComposition} from './MotionBlurControlsCaptureComposition';
 
 const MotionBlurAdjustmentContent = () => {
 	const {width, height} = useVideoConfig();
-	const playbackRate = 1.25;
+	const sourceDurationInFrames = 228;
+	const scale = Math.min(width / 1080, height / 960);
 
 	return (
 		<Sequence
-			name="Increase shutter angle"
-			trimBefore={237}
-			playbackRate={playbackRate}
-			durationInFrames={105 * playbackRate}
+			name="Adjust shutter angle and samples"
+			trimBefore={224}
+			playbackRate={sourceDurationInFrames / 105}
+			durationInFrames={sourceDurationInFrames}
 			width={width}
 			height={height}
 		>
 			<div
 				style={{
 					position: 'absolute',
-					left: 0,
-					top: 0,
-					width: '100%',
-					height: '50%',
+					inset: '0 0 60% 0',
 					overflow: 'hidden',
-					backgroundColor: '#1f2327',
+					backgroundColor: '#1f2427',
+					perspective: 1400,
 				}}
 			>
-				<div
+				<MotionBlurControlsCaptureComposition
+					name="Shutter angle and samples controls"
+					width={2394}
+					height={1538}
+					cropLeft={0.62}
+					cropRight={0.036}
+					cropTop={0.247}
+					cropBottom={0.568}
 					style={{
-						position: 'absolute',
 						left: '50%',
 						top: '50%',
-						width: 1080,
-						height: 480,
-						translate: '-50% -50%',
-						scale: Math.min(width / 1080, height / 960),
-						transformOrigin: '50% 50%',
-						overflow: 'hidden',
-						perspective: 1400,
-						perspectiveOrigin: '50% 50%',
+						translate: '-1890px -510px',
+						transformOrigin: '1890px 510px',
+						scale: scale * 1.16,
+						rotate: EXPLORE_CAMERA_ANGLE,
 					}}
-				>
-					<MotionBlurEditorCaptureComposition
-						name="Motion blur controls"
-						width={3742}
-						height={1966}
-						cropLeft={0.72}
-						cropRight={0.02}
-						cropTop={0.185}
-						cropBottom={0.712}
-						style={{
-							translate: '-2518px -232px',
-							scale: 1.6,
-							rotate: EXPLORE_CAMERA_ANGLE,
-							transformOrigin: '84% 24%',
-						}}
-					/>
-				</div>
+				/>
 			</div>
 			<div
 				style={{
 					position: 'absolute',
-					left: 0,
-					top: '50%',
-					width: '100%',
-					height: '50%',
+					inset: '40% 0 0 0',
 					overflow: 'hidden',
-					backgroundColor: '#0e1317',
+					backgroundColor: '#f6fafb',
+					perspective: 1400,
 				}}
 			>
-				<div
+				<MotionBlurControlsCaptureComposition
+					name="Triangle responding to motion blur"
+					width={2394}
+					height={1538}
+					cropLeft={0.12}
+					cropRight={0.39}
+					cropTop={0.247}
+					cropBottom={0.11}
 					style={{
-						position: 'absolute',
 						left: '50%',
-						top: '50%',
-						width: 1080,
-						height: 480,
-						translate: '-50% -50%',
-						scale: Math.min(width / 1080, height / 960),
-						transformOrigin: '50% 50%',
-						overflow: 'hidden',
-						perspective: 1400,
-						perspectiveOrigin: '50% 50%',
+						top: '45%',
+						translate: '-923px -840px',
+						transformOrigin: '923px 840px',
+						scale: scale * 0.55,
+						rotate: EXPLORE_CAMERA_ANGLE,
 					}}
-				>
-					<MotionBlurEditorCaptureComposition
-						name="Canvas responding to motion blur"
-						width={3742}
-						height={1966}
-						cropLeft={0.08}
-						cropRight={0.4}
-						cropTop={0.24}
-						cropBottom={0.21}
-						style={{
-							translate: '-734px -774px',
-							scale: 0.47,
-							rotate: EXPLORE_CAMERA_ANGLE,
-							transformOrigin: '34% 51.5%',
-						}}
-					/>
-				</div>
+				/>
 			</div>
 		</Sequence>
 	);

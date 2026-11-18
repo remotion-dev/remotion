@@ -10,8 +10,9 @@ import {
 } from 'remotion';
 
 export const MOTION_BLUR_OUTRO_START_FRAME = 65;
-const OUTRO_SHRINK_START_SECONDS = 5.43;
-const OUTRO_SHRINK_END_SECONDS = 5.8;
+const OUTRO_SPIN_WHOOSH_OFFSET_SECONDS = 1.67;
+const OUTRO_SHRINK_START_SECONDS = 4.9;
+const OUTRO_SHRINK_END_SECONDS = 5.27;
 
 export const getMotionBlurOutroTriangleDurationInFrames = (fps: number) => {
 	const lastFrameWithBlur = Math.ceil(OUTRO_SHRINK_END_SECONDS * fps);
@@ -46,6 +47,8 @@ const getBounceGeometry = (width: number, height: number) => {
 	const horizontalRange = width - tileWidth;
 	const verticalRange = height - tileHeight;
 	return {
+		panelWidth,
+		panelHeight,
 		centerX,
 		centerY,
 		tileWidth,
@@ -166,7 +169,7 @@ export const MotionBlurOutro = ({children}: {readonly children: ReactNode}) => {
 		<>
 			<Video
 				name="6 - Spinning Remotion triangle"
-				src="https://remotion.media/motion-blur-2026-11-17/outro-spinning-triangle-75de2005f76b.webm"
+				src="https://remotion.media/motion-blur-2026-11-17/outro-spinning-triangle-f54e5691f7e5.webm"
 				from={MOTION_BLUR_OUTRO_START_FRAME}
 				durationInFrames={getMotionBlurOutroTriangleDurationInFrames(fps)}
 				muted
@@ -190,6 +193,21 @@ export const MotionBlurOutro = ({children}: {readonly children: ReactNode}) => {
 			>
 				<BouncingPresenter>{children}</BouncingPresenter>
 			</HtmlInCanvasMotionBlur>
+			<Audio
+				name="Triangle spin whoosh"
+				src="https://remotion.media/motion-blur-2026-11-17/sound-lab-silk-9afd9eb970ab.wav"
+				from={
+					MOTION_BLUR_OUTRO_START_FRAME +
+					Math.round(OUTRO_SPIN_WHOOSH_OFFSET_SECONDS * fps)
+				}
+				volume={0.18}
+			/>
+			<Audio
+				name="Scale-down dip"
+				src="https://remotion.media/motion-blur-2026-11-17/sound-lab-dip-06a6a3ecd4b3.wav"
+				from={Math.round(shrinkStartFrame)}
+				volume={0.14}
+			/>
 			<BounceSounds />
 		</>
 	);
