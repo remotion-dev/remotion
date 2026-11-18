@@ -74,10 +74,11 @@ fn ditherHash(pixel: vec2u) -> f32 {
 
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
 	let color = effectFragment(input);
+	let alpha = clamp(color.a, 0.0, 1.0);
 	// +/- 0.36 of an 8-bit step, so values that are exact 8-bit codes still
 	// round back to themselves after float16 storage.
 	let noise = (ditherHash(vec2u(input.position.xy)) - 0.5) * (0.72 / 255.0);
-	return vec4f(clamp(color.rgb + vec3f(noise), vec3f(0.0), vec3f(1.0)), color.a);
+	return vec4f(clamp(color.rgb + vec3f(noise), vec3f(0.0), vec3f(alpha)), alpha);
 }
 `;
 
