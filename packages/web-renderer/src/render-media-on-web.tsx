@@ -628,7 +628,7 @@ const internalRenderMediaOnWeb = async <
 			};
 		};
 
-		const sampleAudioBoundaries = audioSampleSource !== null && !videoEnabled;
+		const sampleAudioBoundaries = audioSampleSource !== null;
 		const resets = new Set<() => void>();
 		const samplesPerFrame = sampleRate / resolved.fps;
 		const rangeStartSample = Math.round(realFrameRange[0] * samplesPerFrame);

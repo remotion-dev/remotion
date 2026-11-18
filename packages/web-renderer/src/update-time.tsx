@@ -97,7 +97,7 @@ export const UpdateTime: React.FC<{
 		>
 			<AudioClock
 				frame={frame}
-				enabled={audioEnabled && !videoEnabled}
+				enabled={audioEnabled}
 				update={update}
 				timeUpdater={timeUpdater}
 			>
