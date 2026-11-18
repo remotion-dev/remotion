@@ -3,7 +3,11 @@ import {existsSync, mkdtempSync, readFileSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {parseCLI} from 'vitest/node';
+
+type CommandRecord = {
+	command: string[];
+	parsed: {project: string[] | null; reporter: unknown};
+};
 
 const browsers = ['chromium', 'firefox', 'webkit'];
 const runLauncher = async (
@@ -41,13 +45,18 @@ const runLauncher = async (
 			new Response(child.stdout).text(),
 			new Response(child.stderr).text(),
 		]);
-		const commands: string[][] = existsSync(journal)
+		const records: CommandRecord[] = existsSync(journal)
 			? readFileSync(journal, 'utf8')
 					.trim()
 					.split('\n')
 					.map((row) => JSON.parse(row))
 			: [];
-		return {exitCode, commands, error};
+		return {
+			exitCode,
+			commands: records.map((record) => record.command),
+			records,
+			error,
+		};
 	} finally {
 		rmSync(directory, {recursive: true, force: true});
 	}
@@ -82,9 +91,8 @@ test.each([
 	expect(
 		result.commands.map((command) => command[command.indexOf('--project') + 1]),
 	).toEqual(expected);
-	for (const command of result.commands) {
+	for (const {command, parsed} of result.records) {
 		const ownProject = command[command.indexOf('--project') + 1];
-		const parsed = parseCLI(command.slice(1)).options;
 		expect(parsed.reporter).toEqual(['verbose']);
 		// Interpret the documented filters with a separate glob implementation.
 		// This checks effective selection rather than requiring a flag layout.
