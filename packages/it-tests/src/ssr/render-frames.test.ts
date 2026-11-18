@@ -120,17 +120,18 @@ test('renderFrames() should render selected frames with HTML-in-canvas motion bl
 			const probes =
 				frame === 0
 					? [
-							[left + 1, 128],
-							[left + 17, 255],
-							[left + 29, 64],
+							[left + 1, 4],
+							[left + 17, 8],
+							[left + 29, 2],
 						]
 					: [
-							[left - 13, 32],
-							[left - 9, 64],
-							[left + 3, 160],
+							[left - 13, 1],
+							[left - 9, 2],
+							[left + 3, 5],
 						];
-			for (const [x, red] of probes) {
+			for (const [x, coveredSamples] of probes) {
 				const offset = (30 * png.width + x) * 4;
+				const red = Math.round((coveredSamples * 255) / 8);
 				expect(
 					Array.from(png.data.subarray(offset, offset + 4)),
 					`motion blur at frame ${frame}, x=${x}`,

@@ -144,7 +144,7 @@
 			"@mediabunny/prores": "1.66.0",
 			"@mediabunny/ac3": "1.66.0",
 			"@mediabunny/dts": "1.66.0",
-			"next": "16.4.1",
+			"next": "16.4.5",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",
@@ -153,7 +153,7 @@
 			"@types/dom-webcodecs": "0.1.11",
 			"@vitejs/plugin-react": "4.3.4",
 			"@vitest/browser-playwright": "5.0.3",
-			"playwright": "1.60.0",
+			"playwright": "1.65.1",
 			"vitest": "5.0.3",
 			"tsrs": "0.23.0-ts7.1.0-beta",
 			"typescript": "7.1.0-beta"

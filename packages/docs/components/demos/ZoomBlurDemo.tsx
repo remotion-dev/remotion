@@ -12,9 +12,7 @@ export const ZoomBlurDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/zoom-blur-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/zoom-blur-transition.mp4" />;
 	}
 
 	return <ZoomBlurTransitionPreview />;

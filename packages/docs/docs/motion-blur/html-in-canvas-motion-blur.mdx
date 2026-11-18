@@ -68,6 +68,10 @@ The canvas width in pixels. Must be a positive integer. Use the composition widt
 
 The canvas height in pixels. Must be a positive integer. Use the composition height from [`useVideoConfig()`](/docs/use-video-config) to cover the full frame.
 
+### `style?`<AvailableFrom v="4.0.546" />
+
+Applies CSS to the output canvas.
+
 ### `from?`
 
 Moves the blurred content on its parent timeline. Default: `0`.
@@ -102,6 +106,10 @@ Higher values make the blur smoother but cost more work during preview and rende
 Disable motion blur while keeping the content inside `<HtmlInCanvas>`. Default: `false`.
 When `true`, the component captures one sample at the current frame. You can keyframe this prop in Remotion Studio to turn motion blur on or off without remounting the canvas.
 
+### `disabledInPreview?`<AvailableFrom v="4.0.545" />
+
+Disable motion blur during preview in Remotion Studio and the Player to improve playback performance. Defaults to `false`.
+
 ### `shutterAngle?`
 
 How long the exposure is, expressed as an angle from `0` to `360`. Default: `180`.  
@@ -112,6 +120,11 @@ Samples outside the composition are clamped to its first or last frame.
 ### Premounting props
 
 [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) are also accepted and behave like on [`<Sequence>`](/docs/sequence).
+
+## Frame reuse<AvailableFrom v="4.0.545" />
+
+When using [`<Video>`](/docs/media/video), [`<Gif>`](/docs/gif/gif), or [`<AnimatedImage>`](/docs/animatedimage), all motion blur samples share the current media frame, including any applied effects.
+This avoids a separate decoder and effects pass for each sample. Transforms and other animations still use each sample's time.
 
 ## Nested HTML-in-canvas caveat
 

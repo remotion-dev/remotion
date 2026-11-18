@@ -13,7 +13,7 @@ export const CrossZoomDocsDemo: React.FC = () => {
 
 	if (branch === 'fallback') {
 		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/cross-zoom-transition.mp4" />
+			<HtmlInCanvasDocsVideoFallback src="img/cross-zoom-transition.mp4" />
 		);
 	}
 

@@ -1,0 +1,156 @@
+{
+	"durationInFrames": 3141,
+	"fps": 30,
+	"picks": [
+		{
+			"source": "IMG_0765",
+			"startSeconds": 130,
+			"endSeconds": 138,
+			"timelineStartFrame": 0,
+			"durationInFrames": 240,
+			"title": "ENTTEC USB-B connection",
+			"category": "USB TO DMX",
+			"notes": "Held toward the camera: USB-B socket and cable plug, then connection."
+		},
+		{
+			"source": "IMG_0765",
+			"startSeconds": 147,
+			"endSeconds": 153,
+			"timelineStartFrame": 240,
+			"durationInFrames": 180,
+			"title": "3-to-5-pin converter",
+			"category": "ADAPTER",
+			"notes": "Both connector ends face the camera. Useful insert for the adapter explanation."
+		},
+		{
+			"source": "IMG_0765",
+			"startSeconds": 193,
+			"endSeconds": 201,
+			"timelineStartFrame": 420,
+			"durationInFrames": 240,
+			"title": "Join the DMX connectors",
+			"category": "DMX CABLE",
+			"notes": "Male and female three-pin connectors, then mating. This is a cable join."
+		},
+		{
+			"source": "IMG_0765",
+			"startSeconds": 176,
+			"endSeconds": 183,
+			"timelineStartFrame": 660,
+			"durationInFrames": 210,
+			"title": "Moving-head rear ports",
+			"category": "DEVICE PORTS",
+			"notes": "DMX IN / OUT and mains input are shown as the fixture is lifted toward camera."
+		},
+		{
+			"source": "IMG_0759",
+			"startSeconds": 4,
+			"endSeconds": 11,
+			"timelineStartFrame": 870,
+			"durationInFrames": 210,
+			"title": "Set the moving-head address",
+			"category": "ADDRESSING",
+			"notes": "Tight view of the control panel and address menu; cables are already attached."
+		},
+		{
+			"source": "IMG_0762",
+			"startSeconds": 6,
+			"endSeconds": 11.5,
+			"timelineStartFrame": 1080,
+			"durationInFrames": 165,
+			"title": "Confirm the moving-head address",
+			"category": "ADDRESSING · ALTERNATE",
+			"notes": "A cleaner end view of the address display after the hand moves away."
+		},
+		{
+			"source": "IMG_0770",
+			"startSeconds": 0,
+			"endSeconds": 2.5,
+			"timelineStartFrame": 1245,
+			"durationInFrames": 75,
+			"title": "Laser DMX and power connections",
+			"category": "DAISY CHAIN",
+			"notes": "Rear DMX IN / OUT, mains switch and key/interlock. Both DMX leads are already attached."
+		},
+		{
+			"source": "IMG_0771",
+			"startSeconds": 2.2,
+			"endSeconds": 9.5,
+			"timelineStartFrame": 1320,
+			"durationInFrames": 219,
+			"title": "Set the laser DIP switches",
+			"category": "ADDRESSING",
+			"notes": "Close view of the numbered switch bank and the hand setting switches."
+		},
+		{
+			"source": "IMG_0772",
+			"startSeconds": 2.5,
+			"endSeconds": 9.7,
+			"timelineStartFrame": 1539,
+			"durationInFrames": 216,
+			"title": "Laser DIP switches — alternate",
+			"category": "ADDRESSING · ALTERNATE",
+			"notes": "Tighter switch-bank view with the status indicator visible."
+		},
+		{
+			"source": "IMG_0775",
+			"startSeconds": 0,
+			"endSeconds": 7.5,
+			"timelineStartFrame": 1755,
+			"durationInFrames": 225,
+			"title": "Set the LED-bar mode and address",
+			"category": "ADDRESSING",
+			"notes": "Front-panel buttons and d001 / Pr01 display. Setup detail after physical wiring."
+		},
+		{
+			"source": "IMG_0774",
+			"startSeconds": 0,
+			"endSeconds": 6.3,
+			"timelineStartFrame": 1980,
+			"durationInFrames": 189,
+			"title": "Installed DMX terminator",
+			"category": "TERMINATOR",
+			"notes": "Capped plug in labeled DMX OUT, beside the DMX IN cable. Pullback shows the wired rig; insertion is not filmed."
+		},
+		{
+			"source": "IMG_0773",
+			"startSeconds": 0.4,
+			"endSeconds": 2.8,
+			"timelineStartFrame": 2169,
+			"durationInFrames": 72,
+			"title": "Terminator — alternate angle",
+			"category": "TERMINATOR · ALTERNATE",
+			"notes": "Push-in on the same DMX OUT plug. Focus is softer than IMG_0774."
+		},
+		{
+			"source": "IMG_0763",
+			"startSeconds": 8,
+			"endSeconds": 19,
+			"timelineStartFrame": 2241,
+			"durationInFrames": 330,
+			"title": "Laptop controls the first light",
+			"category": "CONTROL / RESPONSE",
+			"notes": "Laptop controls and the lit moving head in the same shot."
+		},
+		{
+			"source": "IMG_0769",
+			"startSeconds": 15,
+			"endSeconds": 22,
+			"timelineStartFrame": 2571,
+			"durationInFrames": 210,
+			"title": "Play the light-show timeline",
+			"category": "CONTROL / RESPONSE",
+			"notes": "Closer view of the Remotion timeline on the laptop."
+		},
+		{
+			"source": "IMG_0782",
+			"startSeconds": 6,
+			"endSeconds": 18,
+			"timelineStartFrame": 2781,
+			"durationInFrames": 360,
+			"title": "Software and fixture response",
+			"category": "CONTROL / RESPONSE",
+			"notes": "Laptop color controls with the nearby fixtures responding. Added after reviewing the complete short clip."
+		}
+	]
+}

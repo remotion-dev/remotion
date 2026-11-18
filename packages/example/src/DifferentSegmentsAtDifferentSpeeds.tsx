@@ -1,6 +1,6 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Series, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Series} from 'remotion';
 
 const src = 'https://remotion.media/video.mp4';
 
@@ -57,8 +57,6 @@ export const DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION = Math.ceil(
 );
 
 export const DifferentSegmentsAtDifferentSpeeds: React.FC = () => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
 			<Series>
@@ -66,7 +64,6 @@ export const DifferentSegmentsAtDifferentSpeeds: React.FC = () => {
 					<Series.Sequence
 						key={segment.start}
 						durationInFrames={segment.end - segment.start}
-						premountFor={Math.round(1.5 * fps)}
 					>
 						<Video
 							src={src}

@@ -1,8 +1,9 @@
 import type * as Codemods from '@remotion/codemods';
 import {CanvasInternals} from '@remotion/sdk';
-import type {
-	PrepareOpenTimelineImportRequest,
-	PrepareOpenTimelineImportResponse,
+import {
+	getOpenTimelineFrameRate,
+	type PrepareOpenTimelineImportRequest,
+	type PrepareOpenTimelineImportResponse,
 } from '@remotion/studio-shared';
 import type {
 	ChangeEventHandler,
@@ -50,7 +51,6 @@ import {CompositionEditFooter} from './CompositionEditFooter';
 import {CompositionIdField} from './CompositionIdField';
 import {DismissableModal} from './DismissableModal';
 import {getNewCompositionDefaults} from './get-new-composition-defaults';
-import {getOpenTimelineFrameRate} from './get-open-timeline-frame-rate';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';

@@ -18,6 +18,7 @@ import {
 	getKeyframeSourceLocationRemappings,
 	getUnchangedStructureRemappings,
 } from './node-references';
+import {resolveOpenTimelineMedia} from './open-timeline/generate';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {resolveCompositionImportFile} from './resolve-composition-import-file';
@@ -234,6 +235,7 @@ export const CodemodsInternals = {
 	getRootFileForProject,
 	getStaticNumericValue,
 	resolveNodePathsFromLocations,
+	resolveOpenTimelineMedia,
 	validateKeyframePasteTiming,
 };
 

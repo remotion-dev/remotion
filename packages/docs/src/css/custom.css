@@ -165,6 +165,7 @@ html:has(.studio-caption-picker),
 	--ifm-color-primary-lighter: #2f96f6;
 	--ifm-color-primary-lightest: #53a9f7;
 	--ifm-code-font-size: 100%;
+	--ifm-pre-line-height: 1.5;
 	--ifm-font-family-base:
 		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
 		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
@@ -248,6 +249,11 @@ code {
 
 .markdown .suggested-prompt a {
 	text-decoration: none;
+}
+
+[data-theme='dark'] .suggested-prompt {
+	--suggested-prompt-background: #343434;
+	--suggested-prompt-label-background: #282828;
 }
 
 .ts-type-link {
