@@ -1289,7 +1289,8 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'OpenTimelineIO',
-			items: ['import-opentimeline', 'export-opentimeline'],
+			link: {type: 'doc', id: 'opentimeline/index'},
+			items: ['opentimeline/import', 'opentimeline/export'],
 		},
 		{
 			type: 'html',

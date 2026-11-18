@@ -64,7 +64,7 @@ Launch the Studio to see a preview of your video.
 
 ### `/remotion-render`
 
-Render a video or still, or [export an editable OpenTimelineIO timeline](/docs/export-opentimeline).
+Render a video or still, or [export an editable OpenTimelineIO timeline](/docs/opentimeline/export).
 
 > Example prompt: `/remotion-render`
 
