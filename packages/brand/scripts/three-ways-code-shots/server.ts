@@ -1,7 +1,7 @@
 import path from 'node:path';
 import {format, resolveConfig} from 'prettier';
 import ts from '../../../example/node_modules/typescript/lib/typescript.js';
-import {highlightCode} from '../dark-plus';
+import {highlightCode} from '../github-dark';
 
 const packagesRoot = path.resolve(import.meta.dir, '../../..');
 const monacoRoot = path.join(
@@ -33,9 +33,9 @@ const server = Bun.serve({
 	port: 3041,
 	async fetch(request) {
 		const url = new URL(request.url);
-		if (url.pathname === '/dark-plus-monaco.js') {
+		if (url.pathname === '/github-dark-monaco.js') {
 			return new Response(
-				Bun.file(path.join(import.meta.dir, '../dark-plus-monaco.js')),
+				Bun.file(path.join(import.meta.dir, '../github-dark-monaco.js')),
 				{headers: {'Content-Type': 'text/javascript'}},
 			);
 		}

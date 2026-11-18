@@ -18,7 +18,7 @@ import {
 } from './source-file-write-queue';
 
 export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
-	input: {fileName, compositionId, nodePath, wrapper, width, height, timing},
+	input: {fileName, compositionId, nodePath, wrapper, timing},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -39,14 +39,6 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 				});
 			}
 
-			if (
-				!eligibility.canWrap ||
-				((wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur') &&
-					!eligibility.canWrapHtmlInCanvas)
-			) {
-				throw new Error('This JSX element cannot be wrapped');
-			}
-
 			const result = wrapNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
@@ -58,11 +50,7 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 							: 'remotion',
 					props:
 						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
-							? {
-									width: width ?? 0,
-									height: height ?? 0,
-									...(timing ?? {}),
-								}
+							? (timing ?? {})
 							: {},
 				}),
 			});

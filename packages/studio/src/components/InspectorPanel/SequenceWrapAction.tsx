@@ -12,7 +12,6 @@ import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
-import {getCurrentDimensions} from '../Timeline/imperative-state';
 import {wrapNode} from '../wrap-node-api';
 import {
 	InspectorQuickAction,
@@ -83,7 +82,6 @@ export const SequenceWrapAction: React.FC<{
 			const sequences = sequencesRef.current;
 			const overrideIdToNodePathMappings =
 				overrideIdToNodePathMappingsRef.current;
-			const {width, height} = getCurrentDimensions();
 			const sequencesById = new Map(
 				sequences.map((registeredSequence) => [
 					registeredSequence.id,
@@ -150,8 +148,6 @@ export const SequenceWrapAction: React.FC<{
 					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper: null,
-					width: null,
-					height: null,
 					timing: null,
 				});
 				if (!eligibility.success) {
@@ -159,12 +155,16 @@ export const SequenceWrapAction: React.FC<{
 					return;
 				}
 
-				if (eligibility.canWrap && !eligibility.canWrapHtmlInCanvas) {
+				if (eligibility.canvasWrapBlocker === 'nested') {
 					showNotification('HTML-in-canvas components cannot be nested.', 4000);
 					return;
 				}
 
-				if (!eligibility.canWrap || timing === null) {
+				if (
+					!eligibility.canWrap ||
+					eligibility.canvasWrapBlocker === 'unknown-dimensions' ||
+					timing === null
+				) {
 					setSelectedModal({
 						type: 'wrap-refactor',
 						displayName:
@@ -186,8 +186,6 @@ export const SequenceWrapAction: React.FC<{
 					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
-					width,
-					height,
 					timing,
 				});
 				if (!result.success) {
