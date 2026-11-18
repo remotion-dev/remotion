@@ -59,6 +59,7 @@ RUN apt-get update && apt-get install -y \
     libpam0g-dev \
     libpci-dev \
     libgbm-dev \
+    libva-dev \
     libxshmfence-dev \
     && rm -rf /var/lib/apt/lists/*
 

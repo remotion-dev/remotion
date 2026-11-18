@@ -54,6 +54,7 @@ RUN dnf install -y \
     libdrm-devel \
     libjpeg-devel \
     libuuid-devel \
+    libva-devel \
     libXScrnSaver-devel \
     libxkbcommon-x11-devel \
     libxml2-devel \
