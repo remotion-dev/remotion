@@ -2,7 +2,7 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {homedir} from 'node:os';
 import path from 'node:path';
-import {highlightCode} from '../dark-plus';
+import {highlightCode} from '../github-dark';
 import {captionsSample} from './captions';
 import {sample} from './sample';
 import type {EditorShot} from './timeline';
@@ -238,7 +238,7 @@ try {
 					fps: 30,
 					frames: shot.frameCount,
 					durationInSeconds: shot.frameCount / 30,
-					theme: 'Code Hike dark-plus, matching the homepage',
+					theme: 'Shiki GitHub Dark',
 					source: shot.source,
 					fileName: shot.fileName,
 					fontSize: shot.fontSize,

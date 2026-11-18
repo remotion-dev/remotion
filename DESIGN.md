@@ -40,36 +40,31 @@ font-feature-settings: 'ss03' on;
 
 ## Code highlighting
 
-Use VS Code **Dark+** for code shown on the homepage, in Remotion Studio,
-and in brand images, videos, and editor demos. Do not use Monaco's default
-`vs-dark` token colors or the former `vibe-dark` theme as a substitute.
+Use Shiki’s **GitHub Dark** (`github-dark`) for documentation code blocks,
+the homepage hero, and promotional images, videos, and editor demos.
 
-| Token                                 | Color     |
-| ------------------------------------- | --------- |
-| Plain text and punctuation            | `#D4D4D4` |
-| Keywords                              | `#569CD6` |
-| Control flow and module keywords      | `#C586C0` |
-| Variables, properties, and parameters | `#9CDCFE` |
-| Strings                               | `#CE9178` |
-| Numbers                               | `#B5CEA8` |
-| Comments                              | `#6A9955` |
-| Functions                             | `#DCDCAA` |
-| Types and class names                 | `#4EC9B0` |
+| Token                      | Color     |
+| -------------------------- | --------- |
+| Plain text and punctuation | `#E1E4E8` |
+| Keywords and operators     | `#F97583` |
+| Parameters                 | `#FFAB70` |
+| Strings                    | `#9ECBFF` |
+| Numbers and constants      | `#79B8FF` |
+| Comments                   | `#6A737D` |
+| Functions and JSX props    | `#B392F0` |
+| HTML tags                  | `#85E89D` |
 
-Use Code Hike's `dark-plus` TSX highlighting for brand code visuals. For real
-Monaco captures, feed those tokens into Monaco instead of relying on its default
-tokenizer. The shared capture helpers are
-[`dark-plus.ts`](packages/brand/scripts/dark-plus.ts) and
-[`dark-plus-monaco.js`](packages/brand/scripts/dark-plus-monaco.js).
+Pass the [shared GitHub Dark theme](packages/brand/src/code-theme.ts) to
+Code Hike for promo code. Use its tokens in Monaco captures through
+[`github-dark.ts`](packages/brand/scripts/github-dark.ts) and
+[`github-dark-monaco.js`](packages/brand/scripts/github-dark-monaco.js).
 
-Studio uses the matching Prism `vsc-dark-plus` theme. Its CSS variables preserve
-the original colors; token boundaries can differ between highlighters.
+Studio's code editor uses Prism `vsc-dark-plus` with a `#1E1E1E` background.
 
-Editor backgrounds may fit their surrounding surface: homepage and brand
-captures use `#131414` with `#181919` headers; Studio uses `#1E1E1E`.
-Use `#264F78` for code selection. Keep syntax colors consistent when changing
-editor chrome, typography, or layout. Regenerate affected source captures and
-derived assets together, and use new hosted URLs to avoid stale image caches.
+Use `#24292E` as the GitHub Dark code background and `#3392FF44` for selections.
+Promotional editor headers may use the surrounding `#181919` chrome. Regenerate
+affected source captures and derived assets together, and use new hosted URLs
+to avoid stale image caches.
 
 Capture code screenshots as lossless PNGs at 3× pixel density using
 [`capture-code.ts`](packages/brand/scripts/capture-code.ts). Keep the CSS viewport

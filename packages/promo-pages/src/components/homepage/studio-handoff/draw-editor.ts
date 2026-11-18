@@ -12,7 +12,7 @@ const font = {
 export const drawEditor = (ctx: CanvasRenderingContext2D) => {
 	const scale = 667 / 720;
 	ctx.save();
-	roundedRect(ctx, 0, 0, 667, 748, 6, '#131414');
+	roundedRect(ctx, 0, 0, 667, 748, 6, '#24292e');
 	ctx.clip();
 	ctx.save();
 	ctx.scale(scale, scale);
@@ -124,7 +124,7 @@ export const drawEditor = (ctx: CanvasRenderingContext2D) => {
 		}
 	}
 
-	ctx.fillStyle = '#131414';
+	ctx.fillStyle = '#24292e';
 	ctx.fillRect(0, 82, 718, 748 / scale - 82);
 	const codeFont = {
 		fontFamily: 'Menlo, Monaco, "Courier New", monospace',
@@ -133,7 +133,7 @@ export const drawEditor = (ctx: CanvasRenderingContext2D) => {
 	};
 	for (const [index, tokens] of editorCode.entries()) {
 		const top = 85.5 + index * 21;
-		text(ctx, String(index + 1), 43, top, 14, '#858585', {
+		text(ctx, String(index + 1), 43, top, 14, '#959da5', {
 			...codeFont,
 			align: 'right',
 		});
