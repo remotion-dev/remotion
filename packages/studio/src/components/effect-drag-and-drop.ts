@@ -15,6 +15,7 @@ import {
 	requestInsertedElementSelection,
 } from '../helpers/inserted-element-selection';
 import {selectOptimisticEffects} from '../helpers/optimistic-effect-selection';
+import {getTimelineSelectionRevision} from '../helpers/timeline-selection-revision';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {useTimelineSelection} from './Timeline/TimelineSelection';
@@ -159,6 +160,7 @@ export const addEffectToSequence = async ({
 	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 	readonly wrapInHtmlInCanvas: AddEffectRequest['wrapInHtmlInCanvas'];
 }) => {
+	const selectionRevision = getTimelineSelectionRevision();
 	const baseline =
 		wrapInHtmlInCanvas === null
 			? null
@@ -191,6 +193,8 @@ export const addEffectToSequence = async ({
 			return;
 		}
 
+		if (getTimelineSelectionRevision() !== selectionRevision) return;
+
 		if (wrapInHtmlInCanvas !== null) {
 			requestInsertedElementSelection({
 				compositionId: wrapInHtmlInCanvas.compositionId,
@@ -200,7 +204,7 @@ export const addEffectToSequence = async ({
 				},
 				notification: null,
 				baseline,
-				effectIndex: result.insertedEffect.effectIndex,
+				effect: {index: result.insertedEffect.effectIndex, selectionRevision},
 			});
 			return;
 		}

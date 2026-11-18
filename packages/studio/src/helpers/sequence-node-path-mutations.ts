@@ -268,7 +268,7 @@ export const queueSequenceNodePathMutation = (
 
 	if (mutation.timelineSelection !== null) {
 		requestInsertedElementSelection({
-			effectIndex: null,
+			effect: null,
 			compositionId: mutation.timelineSelection.compositionId,
 			nodePath: {
 				absolutePath: mutation.timelineSelection.absolutePath,

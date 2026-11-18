@@ -1411,7 +1411,7 @@ export const insertElement = async ({
 
 		onInstalled?.();
 		requestInsertedElementSelection({
-			effectIndex: null,
+			effect: null,
 			compositionId,
 			nodePath: null,
 			notification: `Installed ${element.displayName}`,
