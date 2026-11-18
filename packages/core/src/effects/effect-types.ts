@@ -56,6 +56,9 @@ export type EffectChainLink = {
 	// A higher-precision copy of the target's pixels that the next effect may
 	// read instead of the canvas. Set by the effect that wrote the target.
 	precise: unknown;
+	// Set by an effect whose output is only known to be valid once the GPU
+	// reports back. Resolves `false` if the chain must render the frame again.
+	check: Promise<boolean> | null;
 };
 
 export type EffectApplyParams<P, S> = {

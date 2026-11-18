@@ -199,10 +199,22 @@ export const applyWebGpuSinglePass = (
 	const target = state.context.canvas as HTMLCanvasElement;
 	const link = Internals.getEffectChainLink(target);
 	// Shaders with a different fragment signature keep the 8-bit path.
-	const float =
+	const floatCapable =
 		link !== null &&
 		shader.split(FRAGMENT_ENTRY).length === 2 &&
 		!floatRejected.has(device);
+	const upstreamCandidate = floatCapable
+		? (Internals.getEffectChainLink(source)?.precise as PreciseImage | null)
+		: null;
+	const upstream =
+		upstreamCandidate &&
+		!upstreamCandidate.destroyed &&
+		upstreamCandidate.device === device
+			? upstreamCandidate
+			: null;
+	// The last effect only gains from 16-bit input handed over by a previous
+	// effect. On an 8-bit source it renders exactly as without this path.
+	const float = floatCapable && (!link.final || upstream !== null);
 	const variant: OutputVariant = !float
 		? 'plain'
 		: link.final
@@ -368,14 +380,8 @@ export const applyWebGpuSinglePass = (
 	if (validate) device.pushErrorScope('validation');
 
 	try {
-		const upstream = float
-			? (Internals.getEffectChainLink(source)?.precise as
-					| PreciseImage
-					| null
-					| undefined)
-			: null;
 		let bindGroup: GPUBindGroup;
-		if (upstream && !upstream.destroyed && upstream.device === device) {
+		if (upstream) {
 			if (resources.upstream?.image !== upstream) {
 				resources.upstream = {
 					image: upstream,
@@ -505,12 +511,15 @@ export const applyWebGpuSinglePass = (
 	} finally {
 		if (validate) {
 			resources.preciseValidated = true;
-			device.popErrorScope().then(
+			const check = device.popErrorScope().then(
 				(error) => {
-					if (error) floatRejected.add(device);
+					if (!error) return true;
+					floatRejected.add(device);
+					return false;
 				},
-				() => undefined,
+				() => true,
 			);
+			if (link) link.check = check;
 		}
 	}
 };
