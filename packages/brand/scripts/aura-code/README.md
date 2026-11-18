@@ -38,8 +38,8 @@ profile is needed.
 
 ## Source and styling
 
-The editor uses the homepage's Menlo typography, `#131414` editor background,
-`#181919` headers, and exact Code Hike `dark-plus` TSX colors. A Monaco tokens
+The editor uses the homepage's Menlo typography, `#24292e` editor background,
+`#181919` headers, and exact Shiki `github-dark` TSX colors. A Monaco tokens
 provider displays the Code Hike tokenization for the original and duplicated
 source. Each shot opens its prepared file directly; the only editing beat is the
 chapter duplication.
