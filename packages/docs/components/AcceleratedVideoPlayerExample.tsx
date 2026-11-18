@@ -50,6 +50,8 @@ export const AcceleratedVideoExample: React.FC = () => {
 			durationInFrames={1500}
 			fps={30}
 			controls
+			clickToPlay={false}
+			spaceKeyToPlayOrPause={false}
 			style={{
 				width: '100%',
 			}}
