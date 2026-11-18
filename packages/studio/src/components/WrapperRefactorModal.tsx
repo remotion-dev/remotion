@@ -26,9 +26,7 @@ export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 			description={
 				state.type === 'unwrap-refactor'
 					? 'Studio could not automatically remove this wrapper. Remove it in code while keeping its children, or ask an agent to do it.'
-					: state.unknownDimensions
-						? 'Studio could not determine the canvas size. Give the layer explicit width and height props in pixels. For computed sizes, assign each result to a local variable and use it as the prop.'
-						: `Studio could not automatically wrap this item in <${state.wrapper}>. Edit the code or ask an agent to do it.`
+					: `Studio could not automatically wrap this item in <${state.wrapper}>. Edit the code or ask an agent to do it.`
 			}
 			prompt={
 				state.type === 'unwrap-refactor'

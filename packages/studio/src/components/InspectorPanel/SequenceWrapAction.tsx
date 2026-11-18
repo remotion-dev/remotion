@@ -167,8 +167,6 @@ export const SequenceWrapAction: React.FC<{
 				) {
 					setSelectedModal({
 						type: 'wrap-refactor',
-						unknownDimensions:
-							eligibility.canvasWrapBlocker === 'unknown-dimensions',
 						displayName:
 							sequence.displayName || sequence.controls?.componentName || null,
 						location: sourceLocation,

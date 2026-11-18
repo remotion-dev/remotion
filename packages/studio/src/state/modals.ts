@@ -350,7 +350,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'wrap-refactor';
-			unknownDimensions: boolean;
 			displayName: string | null;
 			location: {
 				source: string;
