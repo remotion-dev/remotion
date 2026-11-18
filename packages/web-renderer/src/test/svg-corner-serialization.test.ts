@@ -1,6 +1,8 @@
+import '../symbol-dispose';
 import {expect, test} from 'vitest';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import {svgCornerShapeValues} from './fixtures/svg-corner-styles';
+import {svgForeignObjectFontReady} from './fixtures/svg-foreign-object-font';
 
 test('preserves authored corner styles, selectors and drawable cache without mutating mounted HTML', async () => {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -108,42 +110,79 @@ test('preserves authored corner styles, selectors and drawable cache without mut
 });
 
 test('retains authored style matching when scoped selectors cannot be rewritten', async () => {
-	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.setAttribute('width', '40');
-	svg.setAttribute('height', '40');
-	svg.innerHTML =
-		'<foreignObject width="40" height="40"><div xmlns="http://www.w3.org/1999/xhtml" data-corner-probe="" /></foreignObject>';
-	const box = svg.querySelector<HTMLElement>('[data-corner-probe]')!;
-	Object.assign(box.style, {
-		width: '40px',
-		height: '40px',
-		borderRadius: '12px',
-		backgroundColor: 'red',
-	});
-	box.style.setProperty('corner-shape', 'bevel');
-	const authored = box.getAttribute('style')!;
-	const selector = `[data-corner-probe][style=${JSON.stringify(authored)}]`;
-	const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-	style.textContent = `@scope { ${selector} { background-color: blue !important; } }`;
-	svg.prepend(style);
-	document.body.appendChild(svg);
-	let image: HTMLImageElement | null = null;
-	try {
-		const original = svg.outerHTML;
-		image = await turnSvgIntoDrawable(svg);
-		const prefix = 'data:image/svg+xml;charset=utf-8,';
-		expect(image.src.startsWith(prefix)).toBe(true);
-		const parsed = new DOMParser().parseFromString(
-			decodeURIComponent(image.src.slice(prefix.length)),
-			'image/svg+xml',
+	for (const cssom of [false, true]) {
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('width', '40');
+		svg.setAttribute('height', '40');
+		svg.innerHTML =
+			'<foreignObject width="40" height="40"><div xmlns="http://www.w3.org/1999/xhtml" data-corner-probe="" /></foreignObject>';
+		const box = svg.querySelector<HTMLElement>('[data-corner-probe]')!;
+		Object.assign(box.style, {
+			width: '40px',
+			height: '40px',
+			borderRadius: '12px',
+			backgroundColor: 'red',
+		});
+		box.style.setProperty('corner-shape', 'bevel');
+		const authored = box.getAttribute('style')!;
+		const selector = `[data-corner-probe][style=${JSON.stringify(authored)}]`;
+		const style = document.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'style',
 		);
-		const encoded = parsed.querySelector('[data-corner-probe]')!;
-		expect(encoded.getAttribute('style')).toBe(authored);
-		expect(parsed.querySelector(selector)).toBe(encoded);
-		expect(parsed.querySelector('style')!.textContent).toBe(style.textContent);
-		expect(svg.outerHTML).toBe(original);
-	} finally {
-		image?.removeAttribute('src');
-		svg.remove();
+		const scoped = `@scope { ${selector} { background-color: blue !important; } }`;
+		style.textContent = cssom ? '' : scoped;
+		svg.prepend(style);
+		document.body.appendChild(svg);
+		let image: HTMLImageElement | null = null;
+		try {
+			if (cssom) {
+				await svgForeignObjectFontReady;
+				const text = document.createElementNS(
+					'http://www.w3.org/1999/xhtml',
+					'span',
+				);
+				text.style.fontFamily = 'Foreign object registered font';
+				text.textContent = 'A';
+				box.parentElement!.appendChild(text);
+				if (!style.sheet) throw new Error('SVG stylesheet is not ready');
+				style.sheet.insertRule(`@media all { ${scoped} }`);
+			}
+
+			const rules = Array.from(
+				style.sheet?.cssRules ?? [],
+				(rule) => rule.cssText,
+			).join('');
+			const original = svg.outerHTML;
+			image = await turnSvgIntoDrawable(svg);
+			const prefix = 'data:image/svg+xml;charset=utf-8,';
+			expect(image.src.startsWith(prefix)).toBe(true);
+			const parsed = new DOMParser().parseFromString(
+				decodeURIComponent(image.src.slice(prefix.length)),
+				'image/svg+xml',
+			);
+			const encoded = parsed.querySelector('[data-corner-probe]')!;
+			expect(encoded.getAttribute('style')).toBe(authored);
+			expect(parsed.querySelector(selector)).toBe(encoded);
+			if (cssom) {
+				const serializedRules = parsed.querySelector('style')!.textContent!;
+				expect(serializedRules).toContain(rules);
+				expect(serializedRules).toContain('@font-face');
+			} else {
+				expect(parsed.querySelector('style')!.textContent).toBe(
+					style.textContent,
+				);
+			}
+
+			expect(
+				Array.from(style.sheet?.cssRules ?? [], (rule) => rule.cssText).join(
+					'',
+				),
+			).toBe(rules);
+			expect(svg.outerHTML).toBe(original);
+		} finally {
+			image?.removeAttribute('src');
+			svg.remove();
+		}
 	}
 });

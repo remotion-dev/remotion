@@ -104,7 +104,7 @@ Fonts loaded through CSS `@font-face` are supported, including rules inside `@me
 
 HTML text inside `<foreignObject>` supports inline or inherited font selection. External HTML CSS selection is not supported.
 
-Explicit inline corner radii and shapes inside SVG `<foreignObject>` elements are preserved when the SVG becomes an image. Unresolved `corner` shorthand values and styles in SVGs with enabled stylesheets containing `@import` or `@scope` rules are not expanded. Browser support, render scaling and canvas transfer can still affect corner pixels.
+Explicit inline corner radii and shapes inside SVG `<foreignObject>` elements are preserved when the SVG becomes an image. Unresolved `corner` shorthand values and styles in SVGs with enabled stylesheets containing `@import` or `@scope` rules, including rules inserted through JavaScript, are not expanded. Browser support, render scaling and canvas transfer can still affect corner pixels.
 
 SVG-local `style:empty` and `style[media]` selectors are partially supported, including uppercase and CSS-escaped `:empty` spellings, empty and `all` media attributes, and wildcard or namespaced media attributes. Empty stylesheets may become nonempty when there is no earlier active stylesheet or later CSSOM rules prevent preserving their emptiness.
 

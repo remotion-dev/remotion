@@ -62,10 +62,15 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	).some((style) => {
 		if (style.sheet?.disabled) return false;
 		const type = style.getAttribute('type')?.trim().toLowerCase();
-		return (
-			(!type || type === 'text/css') &&
-			hasExcludedSvgStyleAtRule(style.textContent ?? '')
-		);
+		if (type && type !== 'text/css') return false;
+		if (hasExcludedSvgStyleAtRule(style.textContent ?? '')) return true;
+		try {
+			return Array.from(style.sheet?.cssRules ?? []).some((rule) =>
+				hasExcludedSvgStyleAtRule(rule.cssText),
+			);
+		} catch {
+			return true;
+		}
 	});
 	// WebKit's image document does not parse the corner shorthand emitted by
 	// its page CSSOM. Keep authored longhands instead of resolving their cascade.
