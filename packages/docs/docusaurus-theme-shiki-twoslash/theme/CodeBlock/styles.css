@@ -77,6 +77,7 @@ pre.shiki .meta-line {
 
 /* Sets vertical padding for the container — shiki v3 wraps in <code> directly */
 pre.shiki > code {
+	font-family: monospace;
 	padding: var(--ifm-pre-padding) 0;
 	display: block;
 	overflow: auto;

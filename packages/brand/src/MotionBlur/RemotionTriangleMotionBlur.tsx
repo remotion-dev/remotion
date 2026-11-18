@@ -1,6 +1,16 @@
 import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
-import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Easing,
+	interpolate,
+	Sequence,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {RemotionTriangle} from '../HomepageAssets/RemotionTriangle';
+import {
+	getMotionBlurOutroScale,
+	MOTION_BLUR_OUTRO_START_FRAME,
+} from './MotionBlurOutro';
 
 export const SpinningRemotionTriangle = () => {
 	const frame = useCurrentFrame();
@@ -30,11 +40,46 @@ export const RemotionTriangleMotionBlur = () => {
 				name="Triangle motion blur"
 				width={width}
 				height={height}
-				shutterAngle={0}
+				playbackRate={0.25}
+				shutterAngle={360}
 				samples={15}
 			>
 				<SpinningRemotionTriangle />
 			</HtmlInCanvasMotionBlur>
 		</div>
+	);
+};
+
+const ShrinkingOutroTriangle = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const scale = getMotionBlurOutroScale(
+		frame + MOTION_BLUR_OUTRO_START_FRAME,
+		fps,
+		0,
+	);
+
+	return (
+		<div style={{position: 'absolute', inset: 0, scale}}>
+			<Sequence layout="none" playbackRate={0.85}>
+				<SpinningRemotionTriangle />
+			</Sequence>
+		</div>
+	);
+};
+
+export const MotionBlurOutroTriangle = () => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<HtmlInCanvasMotionBlur
+			name="Spinning end-card triangle"
+			width={width}
+			height={height}
+			shutterAngle={180}
+			samples={15}
+		>
+			<ShrinkingOutroTriangle />
+		</HtmlInCanvasMotionBlur>
 	);
 };

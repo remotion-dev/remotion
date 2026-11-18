@@ -727,7 +727,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 				props: {width: 0, height: 0},
 			}),
 		}),
-	).toThrow('positive integer dimensions');
+	).toThrow('inherits width and height');
 	const conflicting = {
 		rootDir: '/',
 		files: {

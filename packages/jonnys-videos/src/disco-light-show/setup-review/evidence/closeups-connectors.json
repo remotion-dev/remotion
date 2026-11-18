@@ -1,0 +1,160 @@
+{
+	"reviewMethod": "Full-clip three-point samples, finer candidate checks; visually identified. Source-relative seconds. Stable within ~1 second; manual refining recommended for final edit.",
+	"summary": "14 other clips reviewed. Clear installed DMX terminator on LED bar in IMG_0774, alternate IMG_0773. No USB-C/ENTTEC close-up in this subset. Strong extra details: moving-head address, laser ports/DIPswitches, LEDbarcontrols, laptop response.",
+	"clips": [
+		{
+			"source": "IMG_0759",
+			"durationSeconds": 14.835,
+			"title": "Moving-head menu/address selection",
+			"recommendedIn": 4,
+			"recommendedOut": 11,
+			"stepIndex": 4,
+			"confidence": "high",
+			"evidence": "Tight BeamZ Panther85 panel. Menu and changing numeric address visible; use as configuration insert. Display scanned digits vary, so avoid claiming an exact address from this clip.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0760",
+			"durationSeconds": 2.169,
+			"title": "Moving-head address display",
+			"recommendedIn": 0,
+			"recommendedOut": 2.1,
+			"stepIndex": 4,
+			"confidence": "high",
+			"evidence": "Very short close-up, addr then A030 display; use whole clip or 0.2\u20132.1s.",
+			"recommended": false
+		},
+		{
+			"source": "IMG_0761",
+			"durationSeconds": 21.703,
+			"title": "Change moving-head DMX address",
+			"recommendedIn": 8,
+			"recommendedOut": 20,
+			"stepIndex": 4,
+			"confidence": "high",
+			"evidence": "Tight control panel/buttons; addr menu and address values aroundA030/031. Good longer version of0759, hand partly covers display.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0762",
+			"durationSeconds": 11.635,
+			"title": "Moving-head menu and address confirmation",
+			"recommendedIn": 4,
+			"recommendedOut": 11.5,
+			"stepIndex": 4,
+			"confidence": "high",
+			"evidence": "Menu control followed by cleaner hand-free addr display; alternate to0759/0761.",
+			"recommended": false
+		},
+		{
+			"source": "IMG_0763",
+			"durationSeconds": 29.07,
+			"title": "Laptop controls moving-head light",
+			"recommendedIn": 8,
+			"recommendedOut": 24,
+			"stepIndex": 4,
+			"confidence": "high",
+			"evidence": "Close/medium combined shot of software laptop and lit movinghead. Useful cause/effect demo rather than ports.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0764",
+			"durationSeconds": 0.834,
+			"title": "Laptop software flash insert",
+			"recommendedIn": 0,
+			"recommendedOut": 0.8,
+			"stepIndex": 0,
+			"confidence": "high",
+			"evidence": "Less than1second and camera tilted; redundant with0763. Not recommended.",
+			"recommended": false
+		},
+		{
+			"source": "IMG_0768",
+			"durationSeconds": 7.968,
+			"title": "Laptop controlling assembled rig",
+			"recommendedIn": 0.3,
+			"recommendedOut": 7.7,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Close keyboard/software, fixtures behind; easy cutaway for software playback after wiring.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0769",
+			"durationSeconds": 23.514,
+			"title": "Laptop and surrounding connected fixtures",
+			"recommendedIn": 15,
+			"recommendedOut": 22,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Camera pushes toward laptop screen. Better for software control; no individual adaptercloseup.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0770",
+			"durationSeconds": 2.602,
+			"title": "Laser rear DMX connections and power",
+			"recommendedIn": 0,
+			"recommendedOut": 2.5,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Rear panel labels DMX IN/OUT, cable connections, mains input/switch, key/interlock. Cables already attached. Short2.6second establishing detail.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0771",
+			"durationSeconds": 10.173,
+			"title": "Laser DIP-switch address setup",
+			"recommendedIn": 2.2,
+			"recommendedOut": 9.5,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Tight zoom on numbered DIP bank and handchanging switches, key/interlock beneath. Good addressingdetail; no visible cable insertion.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0772",
+			"durationSeconds": 10.306,
+			"title": "Laser DIP-switch setting alternate",
+			"recommendedIn": 2.5,
+			"recommendedOut": 9.7,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Tighter sharper DIPbank view and greenindicator. Alternative to0771; avoid duplicatingboth unlesscomparison desired.",
+			"recommended": false
+		},
+		{
+			"source": "IMG_0773",
+			"durationSeconds": 7.967,
+			"title": "LED-bar DMX input and installed terminator",
+			"recommendedIn": 0.4,
+			"recommendedOut": 2.8,
+			"stepIndex": 6,
+			"confidence": "high",
+			"evidence": "DMX IN cable beside short capped plug in labeled DMX OUT. Camera pushes in and goes softer later; installed terminator consistent shape and no outgoinglead. No insertion shown.",
+			"recommended": false
+		},
+		{
+			"source": "IMG_0774",
+			"durationSeconds": 6.404,
+			"title": "Installed DMX terminator, clear close-up",
+			"recommendedIn": 0,
+			"recommendedOut": 6.4,
+			"stepIndex": 6,
+			"confidence": "high",
+			"evidence": "Sharp first0\u20131.5seconds of capped terminator in labeled DMX OUT beside cabled DMX IN; then camera pulls back to complete connected rig. No insertion action shown.",
+			"recommended": true
+		},
+		{
+			"source": "IMG_0775",
+			"durationSeconds": 7.635,
+			"title": "LED-bar menu/address setup",
+			"recommendedIn": 0,
+			"recommendedOut": 7.5,
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Front panel MODE/SETUP/UP/DOWN; d001 then Pr01 and back to d001. Useful deviceaddressing/operatingmode detail.",
+			"recommended": true
+		}
+	]
+}

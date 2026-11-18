@@ -20,7 +20,7 @@ const CubeWaveCodeBrollContent = () => {
 			name="Tilted CubeWave code with downward-moving progressive blur"
 			width={1920}
 			height={1080}
-			style={{backgroundColor: '#131414'}}
+			style={{backgroundColor: '#24292e'}}
 			effects={[
 				linearProgressiveBlur({
 					start: [0.5, 0.05 + blurPosition],
@@ -30,8 +30,8 @@ const CubeWaveCodeBrollContent = () => {
 			]}
 		>
 			<CanvasImage
-				name="CubeWave.tsx — actual Monaco screenshot, Dark+"
-				src="https://remotion.media/agentically-programmatically/cube-wave-monaco-c8499a30a565.png"
+				name="CubeWave.tsx — actual Monaco screenshot, GitHub Dark"
+				src="https://remotion.media/agentically-programmatically/cube-wave-monaco-github-dark-ed7ac6fb373e.png"
 				width={1440}
 				height={1700}
 				style={{
