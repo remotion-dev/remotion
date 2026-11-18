@@ -30,7 +30,7 @@ By default, there are the following items:
 - [`VideoItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+videoitem&type=code)
 - [`GifItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+gifitem&type=code)
 - [`SolidItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+soliditem&type=code)
-- [`AudioItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+soliditem&type=code)
+- [`AudioItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+audioitem&type=code)
 - [`CaptionsItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+captionsitem&type=code)
 
 To add a new item type, copy the logic of one of the items, change it, and add it to the [`EditorStarterItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterItem&type=code) union.  
@@ -41,7 +41,7 @@ These errors are intentional and are supposed to guide you towards where in the 
 ## Assets
 
 The different asset types are defined by the union [`EditorStarterAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterAsset&type=code).  
-By default, there are the following items:
+By default, there are the following assets:
 
 - [`ImageAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+ImageAsset&type=code)
 - [`VideoAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+VideoAsset&type=code)
@@ -49,7 +49,7 @@ By default, there are the following items:
 - [`AudioAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+AudioAsset&type=code)
 - [`CaptionAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+CaptionAsset&type=code)
 
-To add a new item type, copy the logic of one of the items, change it, and add it to the [`EditorStarterAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterAsset&type=code) union.  
+To add a new asset type, copy the logic of one of the assets, change it, and add it to the [`EditorStarterAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterAsset&type=code) union.  
 Some errors should appear when you run the type checker in your console: `npx tsc -w`
 
 Resolve these errors to complete the implementation of your new asset type.

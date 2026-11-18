@@ -18,11 +18,9 @@ describe('input props', () => {
 			firstProperty: 'firstProperty',
 			secondProperty: 'secondProperty',
 		};
-		window.remotion_inputProps = JSON.stringify(JSON.stringify(inputProps));
+		window.remotion_inputProps = JSON.stringify(inputProps);
 
-		expect(getInputProps()).toEqual(
-			JSON.stringify(inputProps) as unknown as Record<string, unknown>,
-		);
+		expect(getInputProps()).toEqual(inputProps);
 	});
 
 	test('input props in production env', () => {
@@ -30,5 +28,22 @@ describe('input props', () => {
 		window.remotion_inputProps = JSON.stringify({});
 
 		expect(getInputProps()).toEqual({});
+	});
+
+	test('input props must be an object', () => {
+		process.env.NODE_ENV = 'production';
+
+		window.remotion_inputProps = JSON.stringify([1, 2]);
+		expect(() => getInputProps()).toThrow(
+			'"inputProps" must be an object, an array was passed',
+		);
+
+		window.remotion_inputProps = JSON.stringify(42);
+		expect(() => getInputProps()).toThrow(
+			'"inputProps" must be an object, but you passed a value of type number',
+		);
+
+		window.remotion_inputProps = JSON.stringify({nested: [1, 2]});
+		expect(getInputProps()).toEqual({nested: [1, 2]});
 	});
 });

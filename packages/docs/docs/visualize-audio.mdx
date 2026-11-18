@@ -7,7 +7,7 @@ crumb: '@remotion/media-utils'
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (for example fetched by [`useAudioData()`](/docs/use-audio-data)) and processes it for displaying as bars.
+This function takes in `MediaUtilsAudioData` (for example fetched by [`useAudioData()`](/docs/use-audio-data)) and processes it for displaying as bars.
 
 ## Arguments
 
@@ -15,7 +15,7 @@ Takes an object containing the following values:
 
 ### `audioData`
 
-_`AudioData`_
+_`MediaUtilsAudioData`_
 
 An object containing audio data. You can fetch this object using [`useAudioData()`](/docs/use-audio-data) or [`getAudioData()`](/docs/get-audio-data).
 
@@ -23,7 +23,7 @@ An object containing audio data. You can fetch this object using [`useAudioData(
 
 _`number`_
 
-The time of the track that you want to get the audio information for. The `frame` always refers to the position in the audio track - if you have shifted or trimmed the audio in your timeline, the frame returned by `useCurrentFrame` must also be tweaked before you pass it into this function.
+The time of the track that you want to get the audio information for. The `frame` always refers to the position in the audio track - if you have shifted or trimmed the audio in your timeline, the frame returned by [`useCurrentFrame()`](/docs/use-current-frame) must also be tweaked before you pass it into this function.
 
 ### `fps`
 
@@ -37,7 +37,7 @@ The frame rate of the composition. This helps the function understand the meanin
 
 Must be a power of two, such as `32`, `64`, `128`, etc. This parameter controls the length of the output array. A lower number will simplify the spectrum and is useful if you want to animate elements roughly based on the level of lows, mids and highs. A higher number will give the spectrum in more detail, which is useful for displaying a bar chart or waveform-style visualization of the audio.
 
-### `smoothing`
+### `smoothing?`
 
 `boolean`
 
@@ -51,7 +51,7 @@ Default `"accuracy"`. When set to `"speed"`, a faster Fast Fourier transform is 
 
 From [v5.0](/docs/5-0-migration), the default value changes from `"accuracy"` to `"speed"`.
 
-### `dataOffsetInSeconds`<AvailableFrom v="4.0.268" />
+### `dataOffsetInSeconds?`<AvailableFrom v="4.0.268" />
 
 The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
 
@@ -61,13 +61,13 @@ The amount of seconds the audio is offset, pass this parameter if you are using 
 
 An array of values describing the amplitude of each frequency range. Each value is between 0 and 1. The array is of length defined by the `numberOfSamples` parameter.
 
-The values on the left of the array are low frequencies (for example bass) and as we move towards the right, we go through the mid and high frequencies like drums and vocals.
+The values on the left of the array are low frequencies (for example bass) and further to the right are the mid and high frequencies like drums and vocals.
 
 Usually the values on left side of the array can become much larger than the values on the right. This is not a mistake, but for some visualizations you might have to apply some postprocessing to it, you can flatten the curve by for example mapping each value to a logarithm of the original function.
 
 ## Example
 
-In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
+This example renders a bar chart visualizing the audio spectrum of an audio file imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash title="MyComponent.tsx"
 import {Audio} from '@remotion/media';

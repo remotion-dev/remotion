@@ -1,5 +1,16 @@
 import React, {useCallback, useContext} from 'react';
-import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {
+	CURRENT_COLOR,
+	FAIL_COLOR,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {SetSelectedModalContext} from '../../state/modals';
 import {
 	CircularProgress,
@@ -21,21 +32,21 @@ const invisibleStyle: React.CSSProperties = {
 	display: 'flex',
 };
 
+const doneStyle: React.CSSProperties = {
+	...invisibleStyle,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
+};
+
 export const RenderQueueItemStatus: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const [hovered, setHovered] = React.useState(false);
-
 	const isClientJob = isClientRenderJob(job);
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
@@ -50,7 +61,13 @@ export const RenderQueueItemStatus: React.FC<{
 
 	if (job.status === 'failed') {
 		return (
-			<button type="button" style={invisibleStyle} onClick={onClick}>
+			<button
+				type="button"
+				aria-label="Show render details"
+				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+				style={invisibleStyle}
+				onClick={onClick}
+			>
 				<svg style={iconStyle} viewBox="0 0 512 512">
 					<path
 						fill={FAIL_COLOR}
@@ -76,14 +93,14 @@ export const RenderQueueItemStatus: React.FC<{
 		return (
 			<button
 				type="button"
-				style={invisibleStyle}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
+				aria-label="Show render details"
+				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+				style={doneStyle}
 				onClick={onClick}
 			>
 				<svg style={iconStyle} viewBox="0 0 512 512">
 					<path
-						fill={hovered ? WHITE : LIGHT_TEXT}
+						fill={CURRENT_COLOR}
 						d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337l-17 17-17-17-64-64-17-17L160 222.1l17 17 47 47L335 175l17-17L385.9 192l-17 17z"
 					/>
 				</svg>
@@ -100,7 +117,13 @@ export const RenderQueueItemStatus: React.FC<{
 		}
 
 		return (
-			<button type="button" style={invisibleStyle} onClick={onClick}>
+			<button
+				type="button"
+				aria-label="Show render details"
+				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+				style={invisibleStyle}
+				onClick={onClick}
+			>
 				<CircularProgress progress={Math.max(0.07, progressValue)} />
 			</button>
 		);
@@ -108,7 +131,13 @@ export const RenderQueueItemStatus: React.FC<{
 
 	if (job.status === 'saving') {
 		return (
-			<button type="button" style={invisibleStyle} onClick={onClick}>
+			<button
+				type="button"
+				aria-label="Show render details"
+				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+				style={invisibleStyle}
+				onClick={onClick}
+			>
 				<CircularProgress progress={0.95} />
 			</button>
 		);

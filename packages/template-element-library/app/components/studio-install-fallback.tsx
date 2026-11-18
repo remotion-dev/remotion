@@ -125,15 +125,15 @@ export const StudioInstallFallback = ({
           </p>
         ) : failure?.code === "no-installable-target" ? (
           <p>
-            Open your video in{" "}
+            Focus the{" "}
             <a
               href="https://www.remotion.dev/docs/studio"
               target="_blank"
               rel="noreferrer"
             >
               Remotion Studio
-            </a>
-            , select where you want to insert the Element, then try again.{" "}
+            </a>{" "}
+            tab you want to install into, then try again.{" "}
             <a
               href="https://www.remotion.dev/docs/studio/browse-elements"
               target="_blank"

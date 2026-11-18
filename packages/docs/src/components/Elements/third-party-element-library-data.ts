@@ -3,6 +3,7 @@ export type ThirdPartyElementLibrary = {
 	readonly browseUrl: string;
 	readonly libraryUrl: string;
 	readonly displayName: string;
+	readonly markdownIndexUrl: string | null;
 };
 
 export const thirdPartyElementLibraries = [
@@ -12,6 +13,7 @@ export const thirdPartyElementLibraries = [
 		browseUrl: 'https://remocn.dev/docs/components',
 		libraryUrl: 'https://remocn.dev/docs/typography',
 		displayName: 'Remocn',
+		markdownIndexUrl: 'https://remocn.dev/llms-components.txt',
 	},
 	{
 		bannerUrl:
@@ -19,6 +21,7 @@ export const thirdPartyElementLibraries = [
 		browseUrl: 'https://lexingtonthemes.com/remotion/free-templates',
 		libraryUrl: 'https://lexingtonthemes.com/remotion/free-templates',
 		displayName: 'Lexington Themes',
+		markdownIndexUrl: null,
 	},
 	{
 		bannerUrl:
@@ -26,5 +29,6 @@ export const thirdPartyElementLibraries = [
 		browseUrl: 'https://snapcn.dev/docs/components',
 		libraryUrl: 'https://snapcn.dev/docs/components',
 		displayName: 'snapcn',
+		markdownIndexUrl: 'https://snapcn.dev/llms-components.txt',
 	},
 ] as const satisfies readonly ThirdPartyElementLibrary[];

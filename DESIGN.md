@@ -37,3 +37,39 @@ Use GT Planar for brand typography and enable stylistic set 03:
 font-family: 'GTPlanar', sans-serif;
 font-feature-settings: 'ss03' on;
 ```
+
+## Code highlighting
+
+Use Shiki’s **GitHub Dark** (`github-dark`) for documentation code blocks,
+the homepage hero, and promotional images, videos, and editor demos.
+
+Use row spacing of 1.5× the font size for code. Round to whole pixels where
+the capture or rendering tool requires it.
+
+| Token                      | Color     |
+| -------------------------- | --------- |
+| Plain text and punctuation | `#E1E4E8` |
+| Keywords and operators     | `#F97583` |
+| Parameters                 | `#FFAB70` |
+| Strings                    | `#9ECBFF` |
+| Numbers and constants      | `#79B8FF` |
+| Comments                   | `#6A737D` |
+| Functions and JSX props    | `#B392F0` |
+| HTML tags                  | `#85E89D` |
+
+Pass the [shared GitHub Dark theme](packages/brand/src/code-theme.ts) to
+Code Hike for promo code. Use its tokens in Monaco captures through
+[`github-dark.ts`](packages/brand/scripts/github-dark.ts) and
+[`github-dark-monaco.js`](packages/brand/scripts/github-dark-monaco.js).
+
+Studio's code editor uses Prism `vsc-dark-plus` with a `#1E1E1E` background.
+
+Use `#24292E` as the GitHub Dark code background and `#3392FF44` for selections.
+Promotional editor headers may use the surrounding `#181919` chrome. Regenerate
+affected source captures and derived assets together, and use new hosted URLs
+to avoid stale image caches.
+
+Capture code screenshots as lossless PNGs at 3× pixel density using
+[`capture-code.ts`](packages/brand/scripts/capture-code.ts). Keep the CSS viewport
+and font sizes fixed when changing density; scale the captured image down in the
+composition. Avoid JPEG intermediates for text.

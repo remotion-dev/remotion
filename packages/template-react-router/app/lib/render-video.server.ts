@@ -1,10 +1,9 @@
 import {
-  renderMediaOnLambda,
+  renderMediaOnLambdaAndStream,
   speculateFunctionName,
 } from "@remotion/lambda/client";
-import type { RenderResponse } from "./types";
 import { z } from "zod";
-import { CompositionProps } from "~/remotion/schemata";
+import { CompositionProps, RenderStreamEvent } from "~/remotion/schemata";
 import { DISK, RAM, REGION, TIMEOUT } from "~/remotion/constants.mjs";
 
 export const renderVideo = async ({
@@ -19,7 +18,7 @@ export const renderVideo = async ({
   inputProps: z.infer<typeof CompositionProps>;
   outName: string;
   metadata: Record<string, string> | null;
-}): Promise<RenderResponse> => {
+}): Promise<Response> => {
   if (
     !process.env.AWS_ACCESS_KEY_ID &&
     !process.env.REMOTION_AWS_ACCESS_KEY_ID
@@ -37,32 +36,76 @@ export const renderVideo = async ({
     );
   }
 
-  const { renderId, bucketName } = await renderMediaOnLambda({
-    region: REGION,
-    functionName: speculateFunctionName({
-      diskSizeInMb: DISK,
-      memorySizeInMb: RAM,
-      timeoutInSeconds: TIMEOUT,
-    }),
-    serveUrl,
-    composition,
-    inputProps,
-    codec: "h264",
-    downloadBehavior: {
-      type: "download",
-      fileName: outName,
+  let closed = false;
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (event: RenderStreamEvent) => {
+        if (closed) {
+          throw new Error("The render response was closed.");
+        }
+        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+      };
+
+      try {
+        const result = await renderMediaOnLambdaAndStream({
+          region: REGION,
+          functionName: speculateFunctionName({
+            diskSizeInMb: DISK,
+            memorySizeInMb: RAM,
+            timeoutInSeconds: TIMEOUT,
+          }),
+          serveUrl,
+          composition,
+          inputProps,
+          codec: "h264",
+          downloadBehavior: {
+            type: "download",
+            fileName: outName,
+          },
+          metadata,
+          onInit: ({ renderId, bucketName }) => {
+            send({ type: "started", renderId, bucketName });
+          },
+          onProgress: ({ overallProgress }) => {
+            send({
+              type: "progress",
+              progress: Math.max(0.03, overallProgress),
+            });
+          },
+        });
+        if (result.outputSizeInBytes === null) {
+          throw new Error("The finished render has no output size.");
+        }
+        send({
+          type: "done",
+          url: result.outputFile,
+          size: result.outputSizeInBytes,
+        });
+      } catch (err) {
+        if (!closed) {
+          send({
+            type: "error",
+            message: err instanceof Error ? err.message : String(err),
+          });
+        }
+      } finally {
+        if (!closed) {
+          closed = true;
+          controller.close();
+        }
+      }
     },
-    metadata,
+    cancel() {
+      closed = true;
+    },
   });
 
-  return {
-    renderId,
-    bucketName,
-    functionName: speculateFunctionName({
-      diskSizeInMb: DISK,
-      memorySizeInMb: RAM,
-      timeoutInSeconds: TIMEOUT,
-    }),
-    region: REGION,
-  };
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      "X-Accel-Buffering": "no",
+    },
+  });
 };

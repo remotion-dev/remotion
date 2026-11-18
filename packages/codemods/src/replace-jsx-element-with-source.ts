@@ -16,6 +16,7 @@ import {
 	renderImportDeclaration,
 	type SourceEdit,
 } from './source-edits';
+import {getSourceFormattingConfig} from './source-style';
 import {
 	getEndOfLine,
 	getLineIndent,
@@ -141,6 +142,10 @@ export const replaceJsxElementWithSource = <Project extends CodemodProject>({
 					renderImportDeclaration({
 						bracketSpacing: /\{\s/.test(importStatement),
 						declaration: {...savedImport, specifiers},
+						formatting: getSourceFormattingConfig({
+							input,
+							prettierConfigOverride: null,
+						}),
 						quote: importStatement.includes('"') ? '"' : "'",
 						semicolon: importStatement.trimEnd().endsWith(';') ? ';' : '',
 					}),

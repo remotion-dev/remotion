@@ -1,5 +1,7 @@
 import type {GetPayloadSink, PayloadSink} from '@remotion/streaming';
 import {makeStreamPayloadMessage} from '@remotion/streaming';
+import type {RenderMediaOnLambdaOutput} from '../render-media-on-lambda';
+import type {GenericRenderProgress} from '../render-progress';
 import type {SerializedArtifact} from '../serialize-artifact';
 import type {RenderStillFunctionResponsePayload} from '../types';
 import type {FunctionErrorInfo} from '../write-error-to-storage';
@@ -26,12 +28,20 @@ const messageTypes = {
 	'8': {type: functionInvoked},
 	'9': {type: artifactEmitted},
 	a: {type: framesUploaded},
+	b: {type: 'render-started'},
+	c: {type: 'render-progress'},
+	d: {type: 'render-complete'},
+	e: {type: 'render-failed'},
 } as const;
 
 export type MessageTypeId = keyof typeof messageTypes;
 type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
+	'render-started': 'json',
+	'render-progress': 'json',
+	'render-complete': 'json',
+	'render-failed': 'json',
 	[framesRendered]: 'json',
 	[framesUploaded]: 'json',
 	[errorOccurred]: 'json',
@@ -45,6 +55,19 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 };
 
 export type StreamingPayload =
+	| {type: 'render-started'; payload: RenderMediaOnLambdaOutput}
+	| {
+			type: 'render-progress' | 'render-complete';
+			payload: GenericRenderProgress;
+	  }
+	| {
+			type: 'render-failed';
+			payload: {
+				message: string;
+				stack: string | null;
+				progress: GenericRenderProgress | null;
+			};
+	  }
 	| {
 			type: typeof framesUploaded;
 			payload: {uploaded: number; sizeInBytes: number};

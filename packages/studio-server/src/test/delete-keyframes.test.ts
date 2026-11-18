@@ -34,11 +34,12 @@ export const Comp = () => {
 };
 `;
 
-test('deleteKeyframes batches sequence and effect deletes into one undo entry', async () => {
+test('deleteKeyframes batches sequence and effect deletes into one undo entry', () => {
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -59,7 +60,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 	try {
 		writeFileSync(filePath, input);
 
-		const results = await deleteKeyframes({
+		const results = deleteKeyframes({
 			sequenceKeyframes: [
 				{
 					fileName,

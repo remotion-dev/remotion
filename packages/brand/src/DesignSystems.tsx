@@ -102,6 +102,7 @@ export const DesignSystems: React.FC = () => {
 			>
 				<RemotionTriangle
 					frame={animatedLogoFrame}
+					rotationY={null}
 					scale={animatedLogoScale}
 					outlineStrokeWidth={selectionOutlineStrokeWidth}
 					outlineHandleSize={

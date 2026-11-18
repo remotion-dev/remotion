@@ -20,7 +20,7 @@ import {duplicateEffects, type CodemodProject, type EffectReference} from '@remo
 declare const project: CodemodProject;
 declare const effect: EffectReference;
 
-const result = await duplicateEffects({
+const result = duplicateEffects({
   project,
   effects: [effect],
 });
@@ -29,6 +29,8 @@ console.log(result);
 ```
 
 Copies effect configuration expressions, including animations. Existing effect indices may shift; inspect the updated source before reusing other effect references.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -42,7 +44,7 @@ Effect references to duplicate. References may span files and nodes; indices ref
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -58,7 +60,7 @@ References to the copies, with indices in the updated effects arrays.
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

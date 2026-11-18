@@ -30,6 +30,7 @@ import {InlineDropdown} from './InlineDropdown';
 import {sectionHeader} from './InspectorPanel/styles';
 import {
 	askAIKeyboardShortcutGroup,
+	canShareKeyboardShortcut,
 	defaultKeyboardShortcuts,
 	formatKeyboardShortcut,
 	getKeyboardShortcutsForAction,
@@ -430,6 +431,10 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 																(item) =>
 																	item.actionId !== null &&
 																	item.actionId !== shortcut.actionId &&
+																	!canShareKeyboardShortcut(
+																		item.actionId,
+																		shortcut.actionId!,
+																	) &&
 																	getKeyboardShortcutsForAction(
 																		item.actionId,
 																		configuredShortcuts,

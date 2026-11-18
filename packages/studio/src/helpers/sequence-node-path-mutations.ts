@@ -27,6 +27,23 @@ const unchangedSince = new Map<string, string | null>();
 const installedBuildListeners = new Set<() => void>();
 const filesWithSourceOnlyRemappings = new Set<string>();
 
+export const invalidateSourceFileRemappings = (fileName: string) => {
+	for (let index = pendingMutations.length - 1; index >= 0; index--) {
+		const mutation = pendingMutations[index];
+		const files = mutation.files.filter(
+			(file) => normalizeSourceFileName(file.absolutePath, '') !== fileName,
+		);
+		if (files.length === mutation.files.length) continue;
+		pendingDeletionRemappings.delete(mutation.mutationId);
+		pendingDeletionRetirements.delete(mutation.mutationId);
+		if (files.length === 0) pendingMutations.splice(index, 1);
+		else
+			pendingMutations[index] = {...mutation, files, timelineSelection: null};
+	}
+
+	filesWithSourceOnlyRemappings.delete(fileName);
+};
+
 const notifyInstalledBuild = () => {
 	for (const listener of installedBuildListeners) listener();
 };
@@ -99,6 +116,11 @@ const mutationListeners = new Set<
 >();
 
 export const getSequenceNodePathMutationRevision = () => seenMutationIds.size;
+export const getInstalledSequenceNodePathMutationId = (): string | null =>
+	typeof __webpack_hash__ === 'string'
+		? (lastMutationByBuildHash.get(__webpack_hash__) ?? null)
+		: null;
+
 export const getPendingSequenceNodePathMutations = () =>
 	pendingMutations.slice();
 export const prepareSequenceSourceRead = () => {
@@ -117,6 +139,14 @@ export const prepareSequenceSourceRead = () => {
 		return current;
 	};
 };
+
+export class SequenceSourceReadCancelledError extends Error {
+	constructor() {
+		super(
+			'The source changed while loading controls. Wait for the preview to update, then try again.',
+		);
+	}
+}
 
 export const withSequenceSourceRead = async <T>(
 	fileNames: readonly string[],
@@ -159,9 +189,7 @@ export const withSequenceSourceRead = async <T>(
 			}
 		}
 
-		throw new Error(
-			'The source changed while loading controls. Wait for the preview to update, then try again.',
-		);
+		throw new SequenceSourceReadCancelledError();
 	} finally {
 		unsubscribe();
 	}
@@ -246,6 +274,7 @@ export const queueSequenceNodePathMutation = (
 				nodePath: mutation.timelineSelection.nodePath,
 			},
 			notification: null,
+			baseline: null,
 		});
 	}
 

@@ -8,13 +8,14 @@ import {
 	type CanvasOutlineTranslateTarget,
 	type CanvasSelectableOutline,
 } from '@remotion/sdk';
-import type {
-	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropStatusKeyframed,
-	CanUpdateSequencePropStatusStatic,
-	InteractivitySchema,
-	InteractivitySchemaField,
-	SequencePropsSubscriptionKey,
+import {
+	Internals,
+	type CanUpdateSequencePropStatus,
+	type CanUpdateSequencePropStatusKeyframed,
+	type CanUpdateSequencePropStatusStatic,
+	type InteractivitySchema,
+	type InteractivitySchemaField,
+	type SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import type {KeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
@@ -40,7 +41,7 @@ export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 	readonly canCrop: boolean;
 	readonly pathDrag: SelectedOutlinePathDragTarget | null;
 	readonly cropDrag: SelectedOutlineCropDragTarget | null;
-	readonly drag: SelectedOutlineDragTarget | null;
+	readonly translation: SelectedOutlineTranslation;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
@@ -137,6 +138,49 @@ export type SelectedOutlineCropDragTarget = {
 export type SelectedOutlineDragTarget = CanvasOutlineTranslateTarget & {
 	readonly propStatus: CanvasOutlineTranslatePropStatus;
 	readonly clientId: string;
+};
+
+export type SelectedOutlineTranslation =
+	| {readonly type: 'not-connected'}
+	| {readonly type: 'interactivity-disabled'}
+	| {readonly type: 'no-translate-control'}
+	| {readonly type: 'loading'}
+	| {readonly type: 'computed'}
+	| {readonly type: 'unsupported-keyframes'}
+	| {readonly type: 'editable'; readonly target: SelectedOutlineDragTarget};
+
+export type SelectedOutlineSelection =
+	| {readonly type: 'empty'}
+	| {readonly type: 'guides-only'}
+	| {readonly type: 'fullscreen'}
+	| {readonly type: 'selection-disabled'}
+	| {readonly type: 'preview-unavailable'}
+	| {readonly type: 'outlines-hidden'}
+	| {readonly type: 'non-visual'}
+	| {
+			readonly type: 'visual';
+			readonly targets: readonly SelectedOutlineTarget[];
+	  };
+
+export const getEditableOutlineDragTargets = (
+	targets: readonly SelectedOutlineTarget[],
+): SelectedOutlineDragTarget[] => {
+	const dragTargets = new Map<string, SelectedOutlineDragTarget>();
+	for (const {translation} of targets) {
+		if (translation.type !== 'editable') {
+			continue;
+		}
+
+		const {target} = translation;
+		const sourceNodeKey = Internals.makeSequencePropsSubscriptionKey(
+			target.nodePath,
+		);
+		if (!dragTargets.has(sourceNodeKey)) {
+			dragTargets.set(sourceNodeKey, target);
+		}
+	}
+
+	return [...dragTargets.values()];
 };
 
 export type SelectedOutlineTransformOriginDragTarget = {

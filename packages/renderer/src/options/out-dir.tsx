@@ -5,15 +5,16 @@ const cliFlag = 'out-dir' as const;
 let currentOutDir: string | null = null;
 
 export const outDirOption = {
-	name: 'Output Directory',
+	name: 'Output directory',
 	addedIn: '4.0.426',
 	cliFlag,
 	description: () => {
 		return (
 			<>
-				Define the location of the resulting bundle. By default it is a folder
-				called <code>build</code>, adjacent to the{' '}
-				<a href="/docs/terminology/remotion-root">Remotion Root</a>.
+				Define the location of the resulting bundle. In the CLI, the default is
+				a folder called <code>build</code>, adjacent to the{' '}
+				<a href="/docs/terminology/remotion-root">Remotion Root</a>. In{' '}
+				<code>bundle()</code>, the default is a temporary directory.
 			</>
 		);
 	},

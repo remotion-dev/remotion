@@ -8,6 +8,9 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	allowHtmlInCanvasOption,
 	preferredEffectBackendOption,
 	benchmarkConcurrenciesOption,
@@ -36,8 +39,10 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showDiagnosticsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
+	highContrastOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	licenseKeyOption,
@@ -49,6 +54,7 @@ const {
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
+	proResBitsPerMacroblockOption,
 	proResProfileOption,
 	userAgentOption,
 	disableWebSecurityOption,
@@ -58,6 +64,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	outDirOption,
+	openTimelineMediaDirectoryOption,
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
@@ -102,6 +109,12 @@ const {
 }: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[chromiumFlagsOption.cliFlag]: string;
+	[chromiumFeaturesOption.cliFlag]: string;
+	[chromiumBlinkFeaturesOption.cliFlag]: string;
+	[openTimelineMediaDirectoryOption.cliFlag]: TypeOfOption<
+		typeof openTimelineMediaDirectoryOption
+	>;
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
 		typeof allowHtmlInCanvasOption
 	> | null;
@@ -110,6 +123,9 @@ export type CommandLineOptions = {
 	>;
 	[pixelFormatOption.cliFlag]: TypeOfOption<typeof pixelFormatOption>;
 	['image-format']: VideoImageFormat | StillImageFormat;
+	[proResBitsPerMacroblockOption.cliFlag]: TypeOfOption<
+		typeof proResBitsPerMacroblockOption
+	>;
 	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	[bundleCacheOption.cliFlag]: TypeOfOption<typeof bundleCacheOption> | null;
@@ -128,9 +144,13 @@ export type CommandLineOptions = {
 	[preservePitchOnPlaybackOption.cliFlag]: TypeOfOption<
 		typeof preservePitchOnPlaybackOption
 	> | null;
+	[showDiagnosticsOption.cliFlag]: TypeOfOption<
+		typeof showDiagnosticsOption
+	> | null;
 	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
 		typeof showLayerFrameNumbersOption
 	> | null;
+	[highContrastOption.cliFlag]: TypeOfOption<typeof highContrastOption> | null;
 	[showPremountingOption.cliFlag]: TypeOfOption<
 		typeof showPremountingOption
 	> | null;
@@ -269,7 +289,9 @@ export type CommandLineOptions = {
 
 export const BooleanFlags = [
 	preservePitchOnPlaybackOption.cliFlag,
+	showDiagnosticsOption.cliFlag,
 	showLayerFrameNumbersOption.cliFlag,
+	highContrastOption.cliFlag,
 	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
@@ -313,7 +335,9 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
 		[preservePitchOnPlaybackOption.cliFlag]: null,
+		[showDiagnosticsOption.cliFlag]: null,
 		[showLayerFrameNumbersOption.cliFlag]: null,
+		[highContrastOption.cliFlag]: null,
 		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,

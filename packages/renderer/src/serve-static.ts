@@ -39,7 +39,7 @@ export const serveStatic = async (
 		binariesDirectory: options.binariesDirectory,
 	});
 
-	const connections: Record<string, Socket> = {};
+	const connections = new Set<Socket>();
 
 	const server = http.createServer((request, response) => {
 		if (request.url?.startsWith('/proxy')) {
@@ -64,17 +64,9 @@ export const serveStatic = async (
 	});
 
 	server.on('connection', (conn) => {
-		let key;
-		// Bun 1.0.43 fails on this
-		try {
-			key = conn.remoteAddress + ':' + conn.remotePort;
-		} catch {
-			key = ':';
-		}
-
-		connections[key] = conn;
+		connections.add(conn);
 		conn.on('close', () => {
-			delete connections[key];
+			connections.delete(conn);
 		});
 	});
 
@@ -115,7 +107,7 @@ export const serveStatic = async (
 					});
 			});
 			const destroyConnections = function () {
-				for (const key in connections) connections[key].destroy();
+				for (const conn of connections) conn.destroy();
 			};
 
 			const close = async () => {

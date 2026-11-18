@@ -1,14 +1,15 @@
 import {readFileSync} from 'node:fs';
+import {pasteEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 } from '@remotion/studio-shared';
-import {pasteEffects} from '../../codemods/paste-effects';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -44,7 +45,7 @@ export const pasteEffectsHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			if (effects.length === 0 && type !== 'effects-replacing') {
 				throw new Error('No effects were specified for pasting');
@@ -62,14 +63,25 @@ export const pasteEffectsHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabels, logLine} = await pasteEffects({
-				input: fileContents,
-				targetFileName,
-				targetSequenceNodePath: targetSequenceNodePath.nodePath,
-				type,
+			const result = pasteEffects({
+				project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
+				node: {
+					filePath: absolutePath,
+					nodePath: targetSequenceNodePath.nodePath,
+				},
+				mode: type === 'effects-replacing' ? 'replace' : 'append',
 				effects,
 				insertAtIndices,
 			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, effectLabels, logLine} = result.editDetails[0];
+			if (output === fileContents)
+				return {success: true, nodePathMutation: null};
+			const {nodePathRemappings} = result;
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[{absolutePath, remappings: nodePathRemappings}],
+				null,
+			);
 
 			const effectDescription = getPastedEffectDescription(effectLabels);
 
@@ -86,14 +98,14 @@ export const pasteEffectsHandler: ApiHandler<
 				},
 				entryType: 'paste-effects',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -118,6 +130,7 @@ export const pasteEffectsHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

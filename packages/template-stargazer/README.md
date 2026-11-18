@@ -4,20 +4,31 @@ Your repo reached a stars milestone? Celebrate with a video of your stargazers!
 
 https://user-images.githubusercontent.com/1911623/121809549-93342a80-cc33-11eb-88ff-e45f8b6dace4.mp4?width=200
 
-## There are 2 ways to make your Stargazer video.
+## Authentication
 
-1. Make your Video locally
-2. Make your Video using Github Actions (Easy)
+This template displays stargazers' names and avatars. GitHub [restricts access to this data to repository admins and collaborators](https://docs.github.com/en/rest/activity/starring#new-access-restrictions), including for public repositories.
+
+Set `REMOTION_GITHUB_TOKEN` to a token from an account with admin or collaborator access to the repository you want to feature in the video. Creating a token does not grant access to another repository's stargazers.
+
+1. [Create a fine-grained personal access token](https://github.com/settings/personal-access-tokens/new).
+2. Set the Resource owner to the user or organization that owns the repository you want to feature. Under Repository access, select that repository. This is the repository whose stars you want to show, which may be different from your copy of this template.
+3. Keep the Metadata repository permission set to Read-only. If your organization requires token approval, have the token approved before rendering.
+
+If you cannot select the target repository, check [GitHub's token limitations](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#fine-grained-personal-access-tokens-limitations), including those affecting outside collaborators.
+
+Use the token locally or in GitHub Actions as described below.
 
 ## Make your own video (local)
 
 1. [Use this repo as a template](https://github.com/pomber/stargazer/generate)
 
-2. Go to https://github.com/settings/personal-access-tokens/new and create a token with default settings. Create a `.env` file and add it:
+2. Follow the [authentication steps](#authentication), then create a `.env` file in the project root and add your token:
 
 ```
 REMOTION_GITHUB_TOKEN=github_pat_...
 ```
+
+Restart Remotion Studio after creating or updating `.env`.
 
 3. Install dependencies:
 
@@ -31,8 +42,9 @@ npm i
 npm run dev
 ```
 
-5. Open the right sidebar, enter your repo name and click "Render".  
-   Or use the command line:
+5. Open the right sidebar and replace the example `repoOrg` and `repoName` with the repository your token can access. Click "Render".
+
+Or use the command line:
 
 ```
 npx remotion render
@@ -40,26 +52,29 @@ npx remotion render
 
 ## Make your own video (GitHub Actions)
 
-1. Fork this repo
-   <img src="https://user-images.githubusercontent.com/1911623/121809008-75fe5c80-cc31-11eb-8f44-5df6183deca5.png" width="720"/>
+1. Fork this repo and follow the [authentication steps](#authentication).
+2. In your fork, go to Settings → Secrets and variables → Actions → New repository secret. Name the secret `REMOTION_GITHUB_TOKEN` and paste your token as its value.
+3. Open the Actions tab and enable workflows if prompted.
+4. Select Render video → Run workflow. Enter the owner and name of the repository your token can access, along with the star count and duration.
+5. When the workflow finishes, download `out.mp4` from its artifacts.
 
-2. Go to Actions of the forked repo.
-   <img src="https://user-images.githubusercontent.com/1911623/121809050-ae059f80-cc31-11eb-9af9-2aa05a24bc7f.png" width="720"/>
+The workflow uses your `REMOTION_GITHUB_TOKEN` secret. The automatic `GITHUB_TOKEN` [is scoped to the repository running the workflow](https://docs.github.com/en/actions/concepts/security/github_token), so it does not grant access to another repository's stargazer list.
 
-3. Click on `I understand my workforce, go ahead and enable them `
-   <img src="https://user-images.githubusercontent.com/1911623/121809098-e1482e80-cc31-11eb-9ffc-e4d34f419fb1.png" width="720"/>
+## Troubleshooting authentication
 
-4. Go to the render video option in the workforce.
-   <img src="https://user-images.githubusercontent.com/1911623/121809174-1e142580-cc32-11eb-84cc-c5aa19698fc1.png" width="720"/>
+### `REMOTION_GITHUB_TOKEN is missing`
 
-5. Over here enter the details of the repo for which you want to make the Stargazer video.
-   <img src="https://user-images.githubusercontent.com/1911623/121809216-54ea3b80-cc32-11eb-8b22-7d74306adb9e.png" width="720"/>
+For local renders, check that `.env` is in the project root and restart Remotion Studio. For GitHub Actions, add the `REMOTION_GITHUB_TOKEN` repository secret to the fork running the workflow.
 
-6. Here you can see the progress of the rendering video.
-   <img src="https://user-images.githubusercontent.com/1911623/121809344-cf1ac000-cc32-11eb-93c3-cc6e58ff7988.png" width="720"/>
+### `401`, `403`, or `Resource not accessible by integration`
 
-7. By clicking on this you can get your Stargazer video.
-   <img src="https://user-images.githubusercontent.com/1911623/121809394-fb364100-cc32-11eb-8a82-e9a6d25f37cf.png" width="720"/>
+Check that the token has not expired, its account is an admin or collaborator of the target repository, and the target repository is included in the token's access. For organization repositories, check any required approval or SSO authorization. Confirm that `repoOrg` and `repoName` identify that repository.
+
+If GitHub explicitly reports a rate limit, wait until the limit resets before retrying.
+
+### No stargazers returned
+
+Check whether the repository has stars. GitHub may also return an empty list when the token lacks access to its stargazers; follow the authentication checks above.
 
 ## Upgrade Remotion
 

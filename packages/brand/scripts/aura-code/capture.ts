@@ -2,10 +2,10 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {homedir} from 'node:os';
 import path from 'node:path';
-import {highlight} from 'codehike/code';
+import {highlightCode} from '../github-dark';
 import {captionsSample} from './captions';
 import {sample} from './sample';
-import type {EditorShot, EditorToken} from './timeline';
+import type {EditorShot} from './timeline';
 
 const brandRoot = path.resolve(import.meta.dir, '../..');
 const packagesRoot = path.resolve(brandRoot, '..');
@@ -29,7 +29,7 @@ const duplicated = [
 	...chapterLines.slice(12, 18),
 	...chapterLines.slice(18),
 ].join('\n');
-const shots: EditorShot[] = [
+const shotConfigs: Omit<EditorShot, 'lineHeight'>[] = [
 	{
 		id: 'chapters',
 		frameCount: 120,
@@ -41,7 +41,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 7,
 		folds: [],
 		anchors: [
@@ -64,7 +63,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 27,
-		lineHeight: 34,
 		firstVisibleLine: 10,
 		folds: [],
 		anchors: [
@@ -84,7 +82,6 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 21,
 		folds: [
 			{start: 34, end: 42},
@@ -110,12 +107,15 @@ const shots: EditorShot[] = [
 		tokens: [],
 		finalTokens: [],
 		fontSize: 46,
-		lineHeight: 56,
 		firstVisibleLine: 17,
 		folds: [],
 		anchors: [],
 	},
 ];
+const shots: EditorShot[] = shotConfigs.map((shot) => ({
+	...shot,
+	lineHeight: Math.round(shot.fontSize * 1.5),
+}));
 const requested =
 	process.argv
 		.find((arg) => arg.startsWith('--shot='))
@@ -123,33 +123,6 @@ const requested =
 if (requested !== null && !shots.some((shot) => shot.id === requested))
 	throw new Error(`Unknown shot: ${requested}`);
 
-const highlightCode = async (code: string): Promise<EditorToken[][]> => {
-	const highlighted = await highlight(
-		{value: code, lang: 'tsx', meta: ''},
-		'dark-plus',
-	);
-	const lines: EditorToken[][] = [[]];
-	let column = 0;
-	for (const token of highlighted.tokens) {
-		const content = typeof token === 'string' ? token : token[0];
-		const color = typeof token === 'string' ? '#D4D4D4' : token[1];
-		const parts = content.split('\n');
-		for (let index = 0; index < parts.length; index++) {
-			if (index > 0) {
-				lines.push([]);
-				column = 0;
-			}
-			if (parts[index].length > 0) {
-				lines.at(-1)!.push({
-					startIndex: column,
-					scopes: `color${color.slice(1).toLowerCase()}`,
-				});
-				column += parts[index].length;
-			}
-		}
-	}
-	return lines;
-};
 for (const shot of shots) {
 	shot.tokens = await highlightCode(shot.code);
 	shot.finalTokens =
@@ -265,7 +238,7 @@ try {
 					fps: 30,
 					frames: shot.frameCount,
 					durationInSeconds: shot.frameCount / 30,
-					theme: 'Code Hike dark-plus, matching the homepage',
+					theme: 'Shiki GitHub Dark',
 					source: shot.source,
 					fileName: shot.fileName,
 					fontSize: shot.fontSize,

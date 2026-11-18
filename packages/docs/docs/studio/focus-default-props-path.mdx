@@ -34,17 +34,21 @@ focusDefaultPropsPath({
 });
 ```
 
-## API
+## Arguments
 
 ### `path`
 
 The path to the field you want to focus on. An array containing numbers and strings.
 
-### `scrollBehavior`
+### `scrollBehavior?`
 
 The behavior of the scrolling.  
 One of `"auto" | "instant" | "smooth"`.  
 Defaults to the [default scroll behavior](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView).
+
+## Return value
+
+An object with a `success` property. It is `false` if no field matching the path is found in the default props editor.
 
 ## Compatibility
 

@@ -54,6 +54,7 @@ type PreStitcherOptions = {
 	crf: number | null | undefined;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
+	proResBitsPerMacroblock: number | null;
 	onProgress: (progress: number) => void;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	logLevel: LogLevel;
@@ -195,6 +196,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		crf: options.crf,
 		encodingMaxRate: options.encodingMaxRate,
 		encodingBufferSize: options.encodingBufferSize,
+		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
 		onLog: options.onLog,
 	});
 
@@ -204,6 +206,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		pixelFormat,
 		x264Preset: options.x264Preset,
 		gopSize: options.gopSize,
+		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
 		codec,
 		crf: options.crf,
 		videoBitrate: options.videoBitrate,

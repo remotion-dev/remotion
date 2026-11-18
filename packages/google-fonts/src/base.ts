@@ -185,6 +185,7 @@ export const loadFonts = (
 					: `${baseLabel}. This might be caused by loading too many font variations. Read more: https://www.remotion.dev/docs/troubleshooting/font-loading-errors#render-timeout-when-loading-google-fonts`;
 
 				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
+				const fontLoad = NoReactInternals.startFontLoad();
 				fontsLoaded++;
 
 				const registerFont = (fontData: ArrayBuffer) => {
@@ -243,6 +244,7 @@ export const loadFonts = (
 						continueRender(handle);
 					},
 				);
+				promise.then(fontLoad.finish, fontLoad.fail);
 				previousAdded = promise.catch(() => undefined);
 				loadedFonts[fontKey] = promise;
 				promises.push(promise);
@@ -345,6 +347,7 @@ export const loadVariableFonts = (
 			})}`,
 			{timeoutInMilliseconds: 60000},
 		);
+		const fontLoad = NoReactInternals.startFontLoad();
 		const descriptors: FontFaceDescriptors = {
 			style: font.style,
 			weight: font.weight,
@@ -405,6 +408,7 @@ export const loadVariableFonts = (
 				continueRender(handle);
 			},
 		);
+		promise.then(fontLoad.finish, fontLoad.fail);
 		previousAdded = promise.catch(() => undefined);
 		loadedFonts[fontKey] = promise;
 		promises.push(promise);

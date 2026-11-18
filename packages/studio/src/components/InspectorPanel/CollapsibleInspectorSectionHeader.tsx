@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {TRANSPARENT, WHITE_ALPHA_40} from '../../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -7,6 +7,7 @@ import {
 	HOVER_GROUP_REVEAL_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
+import {DisclosureChevron} from '../../icons/disclosure-chevron';
 import {sectionHeaderRow} from './styles';
 
 const sectionTitle: React.CSSProperties = {
@@ -29,7 +30,7 @@ const sectionTitle: React.CSSProperties = {
 
 const staticSectionTitle: React.CSSProperties = {
 	...sectionTitle,
-	color: LIGHT_TEXT,
+	color: WHITE_ALPHA_40,
 };
 
 const collapsibleSectionHeaderButton: React.CSSProperties = {
@@ -45,8 +46,8 @@ const collapsibleSectionHeaderButton: React.CSSProperties = {
 	...hoverableStyle({
 		idleBackground: TRANSPARENT,
 		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
+		idleColor: WHITE_ALPHA_40,
+		hoverColor: WHITE_ALPHA_40,
 	}),
 };
 
@@ -65,13 +66,6 @@ const sectionChevronContainer: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	justifyContent: 'center',
-};
-
-const sectionChevron: React.CSSProperties = {
-	display: 'block',
-	height: 10,
-	transition: 'transform 150ms ease',
-	width: 6,
 };
 
 const stopActivationKeyPropagation = (
@@ -109,22 +103,7 @@ export const CollapsibleInspectorSectionHeader: React.FC<{
 						className={expanded ? HOVER_GROUP_REVEAL_CLASS_NAME : undefined}
 						style={sectionChevronContainer}
 					>
-						<svg
-							viewBox="0 0 6 10"
-							style={{
-								...sectionChevron,
-								transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-							}}
-						>
-							<path
-								d="M1.5 1.5L4.5 5L1.5 8.5"
-								fill="none"
-								stroke="currentColor"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1"
-							/>
-						</svg>
+						<DisclosureChevron expanded={expanded} />
 					</span>
 				</button>
 			)}

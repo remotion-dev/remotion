@@ -1,6 +1,7 @@
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {getInputPropsOverride} from '../input-props-override.js';
 import {deserializeJSONWithSpecialTypes} from '../input-props-serialization.js';
+import {validateDefaultAndInputProps} from '../validation/validate-default-props.js';
 
 let didWarnSSRImport = false;
 
@@ -54,5 +55,6 @@ export const getInputProps = <
 	}
 
 	const parsed = deserializeJSONWithSpecialTypes<T>(param);
+	validateDefaultAndInputProps(parsed, 'inputProps', null);
 	return parsed;
 };

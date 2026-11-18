@@ -44,14 +44,37 @@ An object with the following properties:
 
 An object describing a composition. The object should have the following properties:
 
-- `id`: A unique identifier for the composition.
-- `component`: A React component that renders the content.
-- `durationInFrames`: The duration of the composition in frames.
-- `fps`: The frame rate of the composition.
-- `width`: The width of the output in pixels.
-- `height`: The height of the output in pixels.
-- `defaultProps?`: Optional default props to pass to the component.
-- `calculateMetadata?`: Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
+#### `id`
+
+A unique identifier for the composition.
+
+#### `component`
+
+A React component that renders the content.
+
+#### `durationInFrames`
+
+The duration of the composition in frames.
+
+#### `fps`
+
+The frame rate of the composition.
+
+#### `width`
+
+The width of the output in pixels.
+
+#### `height`
+
+The height of the output in pixels.
+
+#### `defaultProps?`
+
+Optional default props to pass to the component.
+
+#### `calculateMetadata?`
+
+Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
 
 ### `frame`
 
@@ -161,6 +184,16 @@ _default `true`_
 
 <Options id="is-production" />
 
+### `transparent?`<AvailableFrom v="4.0.543" />
+
+_boolean — default `true`_
+
+Whether the final canvas retains an alpha channel.
+Set to `false` for an opaque final canvas, which renders uncovered areas against black.
+Intermediate layers retain alpha so masks, filters and group opacity keep working.
+On Linux Chromium, opaque targets can preserve native LCD text rendering that is unavailable on a transparent canvas.
+This also applies to [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web).
+
 ### `allowHtmlInCanvas?`<AvailableFrom v="4.0.447" />
 
 _boolean — default `false`_
@@ -170,10 +203,6 @@ _boolean — default `false`_
 ## Return value
 
 Returns a promise that resolves to a <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> once the frame has been painted to an internal canvas.
-
-### `internalState`
-
-Internal bookkeeping used by the web renderer (e.g. for tests and diagnostics).
 
 ### `canvas()`
 
@@ -214,6 +243,10 @@ const img = document.createElement('img');
 img.src = objectUrl;
 document.body.appendChild(img);
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

@@ -91,6 +91,7 @@ test('Render Media payload', async () => {
 			colorSpace: null,
 			concurrencyPerLambda: 1,
 			concurrency: null,
+			chunks: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
@@ -135,6 +136,7 @@ test('Render Media payload', async () => {
 			},
 			x264Preset: null,
 			gopSize: null,
+			proResBitsPerMacroblock: null,
 			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,

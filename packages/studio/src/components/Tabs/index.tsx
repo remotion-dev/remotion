@@ -8,7 +8,11 @@ import {
 	TAB_HOVER_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
@@ -80,7 +84,6 @@ export const Tab: React.FC<{
 				hoverColor: selected ? WHITE : LIGHT_TEXT,
 			}),
 			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
-			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),
 		[selected, style],
@@ -89,7 +92,7 @@ export const Tab: React.FC<{
 	return (
 		<div
 			style={definiteStyle}
-			className={HOVERABLE_CLASS_NAME}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			role="button"
 			onClick={onClick}
 			onDragEnter={onDragEnter}

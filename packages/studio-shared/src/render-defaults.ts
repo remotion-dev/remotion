@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	ChromeMode,
+	ChromiumOptions,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -26,6 +27,10 @@ export type ConfigFileRenderDefaults = {
 };
 
 export type RenderDefaults = {
+	chromiumOptions: Pick<
+		Required<ChromiumOptions>,
+		'flags' | 'features' | 'blinkFeatures'
+	>;
 	jpegQuality: number;
 	scale: number;
 	logLevel: LogLevel;

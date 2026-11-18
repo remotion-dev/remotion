@@ -43,7 +43,7 @@ for (const fn of info) {
 Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
 :::
 
-## Argument
+## Arguments
 
 An object containing the following properties:
 
@@ -59,6 +59,10 @@ The [AWS region](/docs/lambda/region-selection) that you would like to query.
 
 If `true`, only functions that match the version of the current Remotion Lambda package are returned. If `false`, all functions are returned.
 
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
+
 ## Return value
 
 A promise resolving to an **array of objects** with the following properties:
@@ -73,7 +77,7 @@ The amount of memory allocated to the function.
 
 ### `diskSizeInMb`
 
-The amount of ephemereal disk storage allocated to the function. See [Disk size](/docs/lambda/disk-size) for defaults when deploying:
+The amount of ephemeral disk storage allocated to the function. See [Disk size](/docs/lambda/disk-size) for defaults when deploying:
 
 | Remotion Version | Default |
 | ---------------- | ------- |

@@ -167,6 +167,7 @@ export const getFolderMenuItems = ({
 					parentName: folder.parent,
 					stack: folder.stack,
 					canvasCapture: null,
+					openTimeline: null,
 				});
 			},
 			quickSwitcherLabel: 'New composition in folder...',

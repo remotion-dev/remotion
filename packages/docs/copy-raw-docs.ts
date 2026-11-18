@@ -1,7 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {expandElementSourceReferences} from './plugins/element-source-utils.js';
+import {
+	expandElementSourceReferences,
+	getRemotionElementSource,
+} from './plugins/element-source-utils.js';
+import {getElementDefinition} from './src/components/Elements/element-utils';
 import {articles} from './src/data/articles';
+import {
+	getElementCatalogMarkdown,
+	getElementMarkdown,
+} from './src/raw-markdown/element-markdown';
 import {expandRawMarkdownComponents} from './src/raw-markdown/replace-components';
 
 const DOCS_DIR = path.join(__dirname, 'docs');
@@ -81,6 +89,27 @@ function copyRawDocs() {
 				copiedCount++;
 			}
 		}
+
+		// Docusaurus serves studio/studio.mdx at /docs/studio unless the folder has an index page or the doc sets a slug
+		const parsedPath = path.parse(relativePathWithoutDocs);
+		if (
+			parsedPath.dir &&
+			path.basename(parsedPath.dir) === parsedPath.name &&
+			!['index.md', 'index.mdx', 'README.md', 'README.mdx'].some((file) =>
+				fs.existsSync(path.join(DOCS_DIR, parsedPath.dir, file)),
+			) &&
+			!/^slug:/m.test(
+				fs
+					.readFileSync(sourcePath, 'utf8')
+					.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '',
+			)
+		) {
+			writeRawMarkdown({
+				destPath: path.join(DOCS_OUTPUT_DIR, `${parsedPath.dir}.md`),
+				sourcePath,
+			});
+			copiedCount++;
+		}
 	}
 
 	// Options added to the registry are generated before this script runs, even
@@ -101,6 +130,15 @@ function copyRawDocs() {
 		writeRawMarkdown({
 			destPath: path.join(DOCS_OUTPUT_DIR, `${slug}.md`),
 			sourcePath,
+		});
+		copiedCount++;
+	}
+
+	// These policy documents are deliberately absent from the article catalog.
+	for (const slug of ['privacy-4-0', 'terms-4-0']) {
+		writeRawMarkdown({
+			destPath: path.join(DOCS_OUTPUT_DIR, `${slug}.md`),
+			sourcePath: path.join(DOCS_DIR, `${slug}.mdx`),
 		});
 		copiedCount++;
 	}
@@ -149,12 +187,42 @@ function copyRawElements() {
 				: path.join(parsed.dir, parsed.name);
 		const destPath = path.join(ELEMENTS_OUTPUT_DIR, `${slug}.md`);
 
-		writeRawMarkdown({destPath, sourcePath});
-		copiedCount++;
+		const elementPage = contents.match(
+			/<ElementPage\s+definition=\{getElementDefinition\('([^']+)'\)\}\s+sourceFile="([^"]+)"\s*\/>/,
+		);
+		if (!elementPage && contents.includes('<ElementPage')) {
+			throw new Error(
+				`Could not parse <ElementPage definition={getElementDefinition('...')} sourceFile="..." /> in ${sourcePath}`,
+			);
+		}
 
-		if (parsed.name === 'index' && parsed.dir) {
-			const indexPath = path.join(ELEMENTS_OUTPUT_DIR, parsed.dir, 'index.md');
-			writeRawMarkdown({destPath: indexPath, sourcePath});
+		const markdown =
+			relativePath === 'index.mdx'
+				? getElementCatalogMarkdown()
+				: elementPage
+					? getElementMarkdown({
+							definition: getElementDefinition(elementPage[1]),
+							sourceCode: getRemotionElementSource({
+								file: elementPage[2],
+								sourceFilePath: sourcePath,
+							}),
+						})
+					: null;
+		const destPaths = [
+			destPath,
+			...(parsed.name === 'index' && parsed.dir
+				? [path.join(ELEMENTS_OUTPUT_DIR, parsed.dir, 'index.md')]
+				: []),
+		];
+
+		for (const currentDestPath of destPaths) {
+			if (markdown === null) {
+				writeRawMarkdown({destPath: currentDestPath, sourcePath});
+			} else {
+				fs.mkdirSync(path.dirname(currentDestPath), {recursive: true});
+				fs.writeFileSync(currentDestPath, markdown);
+			}
+
 			copiedCount++;
 		}
 	}

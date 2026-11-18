@@ -7,7 +7,12 @@ import type {
 	InputVideoTrack,
 	Rotation,
 } from 'mediabunny';
-import {Conversion, Output, StreamTarget} from 'mediabunny';
+import {
+	Conversion,
+	ConversionCanceledError,
+	Output,
+	StreamTarget,
+} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
 import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -558,6 +563,10 @@ const ConvertUI = ({
 					newName: filename,
 				});
 			} catch (error) {
+				if (error instanceof ConversionCanceledError) {
+					return;
+				}
+
 				setState({
 					type: 'error',
 					error: error as Error,

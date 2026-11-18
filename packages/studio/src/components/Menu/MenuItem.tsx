@@ -4,10 +4,14 @@ import React, {useCallback, useMemo, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import {
 	WHITE,
-	WHITE_ALPHA_80,
+	LIGHT_TEXT,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
@@ -54,6 +58,10 @@ export type Menu = {
 	label: React.ReactNode;
 	items: ComboboxValue[];
 	leaveLeftPadding: boolean;
+	// Declared when the label is only an icon, so the trigger keeps a
+	// discernible name for assistive technology. `null` means the visible
+	// label already names the trigger.
+	ariaLabel: string | null;
 };
 
 export const MenuItem: React.FC<{
@@ -97,7 +105,7 @@ export const MenuItem: React.FC<{
 					hovered: true,
 					selected,
 				}),
-				idleColor: selected ? WHITE : WHITE_ALPHA_80,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
 		};
@@ -187,13 +195,14 @@ export const MenuItem: React.FC<{
 			<button
 				ref={ref}
 				role="button"
+				aria-label={menu.ariaLabel ?? undefined}
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerDown={onPointerDown}
 				onClick={onClick}
 				style={containerStyle}
 				type="button"
-				className={`${MENU_INITIATOR_CLASSNAME} ${HOVERABLE_CLASS_NAME}`}
+				className={`${MENU_INITIATOR_CLASSNAME} ${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			>
 				{itemName}
 			</button>

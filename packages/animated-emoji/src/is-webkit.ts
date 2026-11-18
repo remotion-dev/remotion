@@ -3,10 +3,9 @@ export const isWebkit = () => {
 		return false;
 	}
 
-	const isSafariUserAgent = Boolean(
-		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	const {userAgent} = window.navigator;
+	return (
+		/AppleWebKit/.test(userAgent) &&
+		!/Chrome\/|Chromium\/|Android/.test(userAgent)
 	);
-
-	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
-	return isSafariUserAgent || isChrome;
 };

@@ -1,6 +1,6 @@
 # @remotion/licensing
 
-Manage your Remotion.pro license
+Manage your Remotion license
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/licensing.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/licensing?minimal=true)
 

@@ -53,6 +53,7 @@ import type {
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {UvCoordinateHandle} from './UvCoordinateHandle';
 
 const getSvgPointFromPointerEvent = ({
 	event,
@@ -67,8 +68,6 @@ const getSvgPointFromPointerEvent = ({
 	};
 };
 
-const uvHandleRadius = 4.25;
-const selectedUvHandleRadius = 6.8;
 const ellipseControlRadius = 5.2;
 const uvHandleStyle: React.CSSProperties = {
 	filter: SELECTED_OUTLINE_UV_DROP_SHADOW,
@@ -1042,17 +1041,10 @@ const SelectedUvHandleCircle: React.FC<{
 	);
 
 	return (
-		<circle
-			cx={position.x}
-			cy={position.y}
-			r={handle.isSelected ? selectedUvHandleRadius : uvHandleRadius}
-			fill={WHITE}
-			stroke={BLUE}
-			strokeWidth={2}
-			style={uvHandleStyle}
-			vectorEffect="non-scaling-stroke"
-			pointerEvents="all"
-			cursor="default"
+		<UvCoordinateHandle
+			x={position.x}
+			y={position.y}
+			selected={handle.isSelected}
 			onPointerDown={onPointerDown}
 		/>
 	);

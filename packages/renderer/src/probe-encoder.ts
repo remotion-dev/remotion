@@ -82,6 +82,7 @@ export const resolveHardwareAcceleration = ({
 	crf,
 	encodingMaxRate,
 	encodingBufferSize,
+	proResBitsPerMacroblock,
 	onLog,
 }: {
 	codec: Codec;
@@ -92,6 +93,7 @@ export const resolveHardwareAcceleration = ({
 	crf: unknown;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	proResBitsPerMacroblock: number | null;
 	onLog: OnLog | null;
 }): HardwareAccelerationOption => {
 	if (hardwareAcceleration === 'disable') {
@@ -104,6 +106,7 @@ export const resolveHardwareAcceleration = ({
 		crf,
 		encodingMaxRate,
 		encodingBufferSize,
+		proResBitsPerMacroblock,
 		logLevel,
 		indent,
 		onLog,
@@ -122,6 +125,7 @@ export const resolveHardwareAcceleration = ({
 				crf,
 				encodingMaxRate,
 				encodingBufferSize,
+				proResBitsPerMacroblock,
 			})
 		) {
 			return 'disable';

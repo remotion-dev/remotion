@@ -1,35 +1,29 @@
-import type {PackageInstallSpec} from '@remotion/studio-shared';
+import {
+	getMissingPackageDependencies,
+	uniquePackageDependencies,
+	type PackageInstallSpec,
+} from '@remotion/studio-shared';
 import {installPackages} from '../api/install-package';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 
 let installQueue: Promise<void> = Promise.resolve();
 
-const uniqueDependencies = (
-	dependencies: readonly PackageInstallSpec[],
-): PackageInstallSpec[] =>
-	Array.from(
-		new Map(
-			dependencies.map((dependency) => [dependency.name, dependency] as const),
-		).values(),
-	);
-
 export const getMissingPackages = (
 	dependencies: readonly PackageInstallSpec[],
-) => {
-	const installedPackages = window.remotion_installedPackages ?? [];
-	return uniqueDependencies(dependencies).filter(
-		(dependency) =>
-			dependency.version !== null ||
-			!installedPackages.includes(dependency.name),
-	);
-};
+) =>
+	getMissingPackageDependencies({
+		dependencies,
+		installedPackages: window.remotion_installedPackages ?? [],
+	});
 
 const addInstalledPackages = (dependencies: readonly PackageInstallSpec[]) => {
 	const installedPackages = window.remotion_installedPackages ?? [];
 	window.remotion_installedPackages = Array.from(
 		new Set([
 			...installedPackages,
-			...uniqueDependencies(dependencies).map((dependency) => dependency.name),
+			...uniquePackageDependencies(dependencies).map(
+				(dependency) => dependency.name,
+			),
 		]),
 	);
 };

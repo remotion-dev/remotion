@@ -1,5 +1,6 @@
+import {MINIMUM_FRAMES_PER_FUNCTION} from '@remotion/lambda-client/constants';
 import React from 'react';
 
 export const MinimumFramesPerLambda: React.FC = () => {
-	return <code>4</code>;
+	return <code>{MINIMUM_FRAMES_PER_FUNCTION}</code>;
 };

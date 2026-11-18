@@ -1,10 +1,10 @@
 import {blur} from '@remotion/effects/blur';
 import {tint} from '@remotion/effects/tint';
-import {StudioInternals} from '@remotion/studio';
 import React from 'react';
 import {
 	AbsoluteFill,
 	AnimatedImage,
+	Composition,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -88,11 +88,15 @@ const Comp: React.FC = () => {
 	);
 };
 
-export const AnimatedImageEffects = StudioInternals.createComposition({
-	component: Comp,
-	id: 'animated-image-effects',
-	width: 1280,
-	height: 720,
-	durationInFrames: 150,
-	fps: 30,
-});
+export const AnimatedImageEffects = () => {
+	return (
+		<Composition
+			component={Comp}
+			id="animated-image-effects"
+			width={1280}
+			height={720}
+			durationInFrames={150}
+			fps={30}
+		/>
+	);
+};

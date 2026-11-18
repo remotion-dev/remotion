@@ -18,12 +18,12 @@ Adds falling rain to a canvas-based component, with wind, depth, and refracting 
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {rainFall} from '@remotion/effects/rain-fall';
 import {Video} from '@remotion/media';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
@@ -32,7 +32,7 @@ export const MyComp: React.FC = () => {
       src="https://remotion.media/video.mp4"
       effects={[
         rainFall({
-          time: frame / fps,
+          time: interpolate(frame, [0, fps], [0, 1]),
           drops: 100000,
           size: 2,
           wind: 200,
@@ -52,7 +52,7 @@ Pass an object with the following properties. You can also call `rainFall()` wit
 
 Elapsed time in seconds. Must be non-negative. Defaults to `0`.
 
-Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+Animate this value with an inline [`interpolate()`](/docs/interpolate) call, using `fps` from [`useVideoConfig()`](/docs/use-video-config) to map frames to seconds. The effect does not advance automatically.
 
 The same parameters and `time` produce the same result when seeking or rendering frames out of order.
 
@@ -94,7 +94,7 @@ Unlike `windVariation`, this also spreads drops when `wind` is `0`.
 
 ### `color?`
 
-CSS color of the drops. Defaults to `"#cccccc"`.
+CSS color of the drops. Defaults to `'#cccccc'`.
 
 The color's alpha is multiplied by `opacity`. With `appearance: "refracting"`, the drops also sample the source behind them.
 
@@ -104,9 +104,9 @@ Opacity of the rain, from `0` to `1`. Defaults to `0.25`.
 
 ### `transferMode?`
 
-How the rain blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"lighten"`.
+How the rain blends with the source. One of `'composite'` or `'lighten'`. Defaults to `'lighten'`.
 
-`"composite"` places the rain over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+`'composite'` places the rain over the source. `'lighten'` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
 
 ### `compositeWithOriginal?`
 
@@ -116,9 +116,9 @@ Set to `false` to output only the rain on a transparent background.
 
 ### `appearance?`
 
-Appearance of the drops. One of `"refracting"` or `"soft-solid"`. Defaults to `"refracting"`.
+Appearance of the drops. One of `'refracting'` or `'soft-solid'`. Defaults to `'refracting'`.
 
-`"refracting"` uses a brightened, offset sample of the source to color each drop. `"soft-solid"` uses the chosen `color`.
+`'refracting'` uses a brightened, offset sample of the source to color each drop. `'soft-solid'` uses the chosen `color`.
 
 ### `offset?`
 
@@ -139,9 +139,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

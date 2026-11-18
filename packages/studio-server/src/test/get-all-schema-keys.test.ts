@@ -32,8 +32,6 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'cropRight',
 			'cropTop',
 			'cropBottom',
-			'premountFor',
-			'postmountFor',
 			'durationInFrames',
 			'from',
 			'trimBefore',

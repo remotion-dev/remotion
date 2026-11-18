@@ -8,7 +8,7 @@ import {
 } from './colors';
 
 // Purely visual hover styling must be driven by CSS `:hover` rather than
-// React state: When the Studio runs in an <iframe> (like in Browser Studio),
+// React state: When the Studio runs in an <iframe> (like in remotion.new),
 // browsers can fail to deliver `pointerleave` when the pointer exits the
 // frame, which would leave a state-driven hover background stuck forever.
 // CSS `:hover` is maintained by the browser and self-corrects.
@@ -115,6 +115,7 @@ export const makeHoverableCSS = () => `
     }
 
     ${hoverGroup}:hover ${reveal},
+    ${hoverGroup}:focus-within ${reveal},
     ${hoverGroup}:has([aria-expanded="true"]) ${reveal} {
       opacity: 1;
       width: auto;

@@ -19,6 +19,7 @@ export const handleCanvasCaptureDrop = async ({
 
 	setSelectedModal({
 		type: 'new-comp',
+		openTimeline: null,
 		canvasCapture,
 		folderName: null,
 		parentName: null,

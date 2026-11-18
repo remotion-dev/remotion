@@ -100,6 +100,11 @@ test('prevents closing the tab while browser-local jobs are incomplete', async (
 	};
 
 	expect(closeIsPrevented()).toBe(false);
+	act(() => {
+		getContext().setProcessCaptionJobCallback(() => Promise.resolve());
+		getContext().setProcessVideoMattingJobCallback(() => Promise.resolve());
+		getContext().setProcessJobCallback(() => Promise.resolve());
+	});
 	let captionId = '';
 	act(() => {
 		captionId = getContext().addCaptionJob(makeCaptionParams('audio.mp3'));
@@ -207,6 +212,19 @@ test('processes client renders and captions in one local FIFO', async () => {
 		).toBe('idle');
 
 		act(() => getContext().markClientJobSaving(renderId));
+		act(() => getContext().removeClientJob(renderId));
+		act(() =>
+			getContext().updateClientJobProgress(renderId, {
+				encodedFrames: 1,
+				totalFrames: 1,
+				doneIn: null,
+				renderEstimatedTime: 0,
+				progress: 1,
+			}),
+		);
+		expect(
+			getContext().clientJobs.find((job) => job.id === renderId)?.status,
+		).toBe('saving');
 		expect(processedJobs).toEqual([firstCaptionId, renderId]);
 		expect(
 			getContext().captionJobs.find((job) => job.id === secondCaptionId)
@@ -231,6 +249,12 @@ test('processes client renders and captions in one local FIFO', async () => {
 				secondCaptionId,
 			]),
 		);
+
+		expect(
+			getContext().clientJobs.find((job) => job.id === renderId)?.status,
+		).toBe('done');
+		act(() => getContext().removeClientJob(renderId));
+		expect(getContext().clientJobs).toEqual([]);
 
 		act(() => getContext().markCaptionJobDone(secondCaptionId, 1));
 	} finally {

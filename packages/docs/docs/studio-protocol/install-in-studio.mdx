@@ -40,7 +40,7 @@ if (!result.success) {
 
 An installation request provides a one-click flow and shows the requesting website in Studio. On macOS, Studio attempts to bring the selected Studio tab to the foreground after delivering the request.
 
-When [the library](/docs/elements/libraries) is embedded in Studio, the containing Studio is selected. Otherwise, local Studio ports are probed and the most recently focused compatible Studio tab is used. If only one writable tab is available, it can receive the request without having been focused <AvailableFrom v="4.0.530" inline />. Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
+When [the library](/docs/elements/libraries) is embedded in Studio, the containing Studio is selected. Otherwise, local Studio ports are probed and the most recently focused compatible Studio tab is used. If only one writable tab is available, it can receive the request without having been focused (from v4.0.530). Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
 
 ### Installing without a selected composition<AvailableFrom v="4.0.530" />
 
@@ -83,7 +83,7 @@ The Remotion version running in that Studio.
 #### ~~compositionId~~
 
 :::info Deprecated
-Deprecated since <AvailableFrom v="4.0.530" inline />. Use `projectName` or `studioOrigin` to identify the receiving Studio. The installation destination is chosen in Studio.
+Deprecated since v4.0.530. Use `projectName` or `studioOrigin` to identify the receiving Studio. The installation destination is chosen in Studio.
 :::
 
 Retained for compatibility. Contains the composition ID at the time of the request, or `null` when no composition is selected. It does not identify the final installation destination.
@@ -94,7 +94,7 @@ On failure, one of:
 
 - `unsupported-origin`
 - `no-compatible-studio`
-- `loopback-network-permission-denied` <AvailableFrom v="4.0.521" inline />
+- `loopback-network-permission-denied` (from v4.0.521)
 - `studio-upgrade-required`
 - `no-installable-target`
 - `unsupported-protocol`
@@ -110,7 +110,7 @@ A human-readable failure message. Use `code` for application logic.
 
 ## Discovery
 
-When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible tab is selected, or the only available writable tab if none has focus history <AvailableFrom v="4.0.530" inline />. If multiple tabs are available and none has focus history, no tab is selected. A running Studio server without a connected, writable tab cannot receive a request. Discovery returns a short-lived, single-use token for the selected tab.
+When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible tab is selected, or the only available writable tab if none has focus history (from v4.0.530). If multiple tabs are available and none has focus history, no tab is selected. A running Studio server without a connected, writable tab cannot receive a request. Discovery returns a short-lived, single-use token for the selected tab.
 
 ## Supported origins
 

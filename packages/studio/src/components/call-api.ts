@@ -2,16 +2,16 @@ import {
 	studioOperations,
 	type ApiRoutes,
 	type SubscribeToSequencePropsBatchRequest,
+	type UpdateSequencePropsSubscriptionBatchRequest,
+	type SourceMutationGuard,
 } from '@remotion/studio-shared';
 import {enqueueStudioSourceMutation} from '../helpers/enqueue-studio-source-mutation';
-import {
-	withSequenceSourceRead,
-	queueSequenceNodePathMutationFromApiResponse,
-} from '../helpers/sequence-node-path-mutations';
+import {withSequenceSourceRead} from '../helpers/sequence-node-path-mutations';
 
 const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request'],
+	guard: SourceMutationGuard | null,
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	const run = () =>
@@ -20,6 +20,9 @@ const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 				method: 'post',
 				headers: {
 					'content-type': 'application/json',
+					...(guard === null
+						? {}
+						: {'x-remotion-source-revision': JSON.stringify(guard)}),
 				},
 				signal,
 				body: JSON.stringify(body),
@@ -32,7 +35,6 @@ const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 							| {success: false; error: string},
 					) => {
 						if (data.success) {
-							queueSequenceNodePathMutationFromApiResponse(data.data);
 							resolve(data.data);
 						} else {
 							reject(new Error(data.error));
@@ -50,7 +52,14 @@ const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 				),
 				run,
 			)
-		: run();
+		: endpoint === '/api/update-sequence-props-subscription'
+			? withSequenceSourceRead(
+					(body as UpdateSequencePropsSubscriptionBatchRequest).requests.map(
+						(request) => request.subscription.fileName,
+					),
+					run,
+				)
+			: run();
 };
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
@@ -59,13 +68,14 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	if (!studioOperations[endpoint].mutatesSource) {
-		return callApiImmediately(endpoint, body, signal);
+		return callApiImmediately(endpoint, body, null, signal);
 	}
 
-	return enqueueStudioSourceMutation(endpoint, body, (rebasedBody) =>
+	return enqueueStudioSourceMutation(endpoint, body, (rebasedBody, guard) =>
 		callApiImmediately(
 			endpoint,
 			rebasedBody as ApiRoutes[Endpoint]['Request'],
+			guard,
 			signal,
 		),
 	);

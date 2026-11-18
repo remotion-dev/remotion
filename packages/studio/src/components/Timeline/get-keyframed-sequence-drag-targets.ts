@@ -7,6 +7,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {projectEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 
 const {getParentSequencePlaybackRate} = CanvasInternals;
 
@@ -59,8 +60,13 @@ export const getKeyframedSequenceDragTargets = ({
 		...sourceNodePath,
 		videoConfigValues: sequence.controls?.videoConfigValues ?? null,
 	};
-	const status =
-		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+	const effects = Internals.OptimisticEffects.getItems(
+		nodePath,
+		sequence.effects,
+	);
+	const status = projectEffectPropStatuses(propStatuses, nodePath)[
+		Internals.makeSequencePropsSubscriptionKey(nodePath)
+	];
 	if (status === null || status === undefined || !status.canUpdate) {
 		return {effectKeyframes: [], sequenceKeyframes: []};
 	}
@@ -98,7 +104,7 @@ export const getKeyframedSequenceDragTargets = ({
 			return [];
 		}
 
-		const effectSchema = sequence.effects[effectStatus.effectIndex]?.schema;
+		const effectSchema = effects[effectStatus.effectIndex]?.definition.schema;
 		if (effectSchema === undefined) {
 			return [];
 		}

@@ -33,6 +33,15 @@ export const fitTextOnNLines = ({
 	// Fixed max font size since we are using binary search a
 	const minFontSize = 0.1;
 
+	if (
+		maxFontSize !== undefined &&
+		(!Number.isFinite(maxFontSize) || maxFontSize < minFontSize)
+	) {
+		throw new Error(
+			`"maxFontSize" must be a finite number of at least ${minFontSize}, got ${maxFontSize}`,
+		);
+	}
+
 	// Binary search to find the optimal font size
 	let left = Math.floor(minFontSize * PRECISION);
 	let right = Math.floor((maxFontSize ?? 2000) * PRECISION);

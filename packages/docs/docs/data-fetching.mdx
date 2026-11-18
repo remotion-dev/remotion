@@ -5,11 +5,11 @@ title: Data fetching
 crumb: "How to"
 ---
 
-In Remotion, you may fetch data from an API to use it in your video. On this page, we document recipes and best practices.
+In Remotion, you may fetch data from an API to use it in your video. This page documents recipes and best practices.
 
 ## Fetching data before the render<AvailableFrom v="4.0.0"/>
 
-You may use the [`calculateMetadata`](/docs/composition#calculatemetadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
+You may use the [`calculateMetadata`](/docs/calculate-metadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
 
 ### When to use
 
@@ -90,7 +90,7 @@ const MyComp: React.FC<MyCompProps> = ({ data }) => {
 
 ### TypeScript typing
 
-You may use the `CalculateMetadataFunction` type from `remotion` to type your callback function. Pass as the generic value (`<>`) the type of your props.
+You may use the [`CalculateMetadataFunction`](/docs/calculate-metadata) type from [`remotion`](/docs/remotion) to type your callback function. Pass as the generic value (`<>`) the type of your props.
 
 ```tsx twoslash title="src/Root.tsx"
 type ApiResponse = {
@@ -225,7 +225,7 @@ export const Root = () => {
 };
 ```
 
-By implementing this pattern, The `id` in the [props editor](/docs/visual-editing) can now be tweaked and Remotion will refetch the data whenever it changes.
+By implementing this pattern, the `id` in the [props editor](/docs/visual-editing) can now be tweaked and Remotion will refetch the data whenever it changes.
 
 ### Setting the duration based on data
 
@@ -251,12 +251,12 @@ export const calculateMyCompMetadata: CalculateMetadataFunction<
 };
 ```
 
-Learn more about this feature in the [Variable metadata](/docs/dynamic-metadata) page.
+Learn more about this feature in the [Variable duration and dimensions](/docs/dynamic-metadata) page.
 
 ### Aborting stale requests
 
 The props in the props editor may rapidly change for example by typing fast.  
-It is a good practice to cancel requests which are stale using the `abortSignal` that gets passed to the [`calculateMetadata()`](/docs/composition#calculatemetadata) function:
+It is a good practice to cancel requests which are stale using the `abortSignal` that gets passed to the [`calculateMetadata()`](/docs/calculate-metadata) function:
 
 ```tsx twoslash title="src/MyComp.tsx" {3-6}
 // ---cut---
@@ -447,7 +447,7 @@ This means that if you are fetching data inside your component, the data fetchin
 <Step>1</Step> Prefer fetching the data before rendering if possible. <br/>
 <Step>2</Step> Ensure you are entitled to a high request rate without running into a rate limit.<br/>
 <Step>3</Step> The data returned by the API must be the same on all threads, otherwise <a href="/docs/flickering">flickering</a> may occur. <br/>
-<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br/>
+<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits.
 
 ## See also
 

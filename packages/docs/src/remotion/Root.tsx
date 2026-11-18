@@ -4,6 +4,7 @@ import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
 import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
+import {TransitionMotionBlurLiveDemo} from '../../components/demos/TransitionMotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {
 	EffectsBevelAlphaPreview,
@@ -57,6 +58,7 @@ import {
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 	LightTrailTextSource,
 } from '../../components/effects/effects-light-trail-preview';
+import {EffectsLightningPreview} from '../../components/effects/effects-lightning-preview';
 import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
@@ -75,6 +77,7 @@ import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../../components/effects/effects-lut-preview';
+import {EffectsMagnifyPreview} from '../../components/effects/effects-magnify-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -191,9 +194,18 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
+				id="transition-motion-blur-demo"
+				component={TransitionMotionBlurLiveDemo}
+				defaultProps={{shutterAngle: 1000}}
+				durationInFrames={640}
+				fps={120}
+				width={540}
+				height={280}
+			/>
+			<Composition
 				id="motion-blur-html-in-canvas-demo"
 				component={MotionBlurHtmlInCanvasLiveDemo}
-				durationInFrames={60}
+				durationInFrames={240}
 				fps={30}
 				width={960}
 				height={540}
@@ -879,6 +891,20 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.28}}
+				/>
+				<Still
+					id="effects-lightning-preview"
+					component={EffectsLightningPreview}
+					width={1280}
+					height={720}
+					defaultProps={{}}
+				/>
+				<Still
+					id="effects-magnify-preview"
+					component={EffectsMagnifyPreview}
+					width={1280}
+					height={720}
+					defaultProps={{size: 180, magnification: 200, scaling: 'soft'}}
 				/>
 				<Still
 					id="effects-fisheye-preview"

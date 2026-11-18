@@ -61,7 +61,7 @@ Since handling queueing correctly is a challenging task, we offer helpers that h
 
 Remotion's primitives are designed to offer you functionality to implement queueing in a sensible way:
 
-- In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asnychronous, and as long as they don't resolve, the parsing process will not continue.
+- In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asynchronous, and as long as they don't resolve, the parsing process will not continue.
 - The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.
 - For processing video and audio frames as well as encoding video and audio, we don't offer helpers yet, but hope to do so soon.
 

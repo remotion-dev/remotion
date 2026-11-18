@@ -101,10 +101,25 @@ if (typeof modelContext?.registerTool === 'function') {
 				name: 'get_react_scan_recording',
 				title: 'Get React Scan recording',
 				description:
-					'Return the current React Scan Lite recording, including raw events and a summary ranked by commit and component cost. Stop the recording first so the result is stable.',
-				inputSchema: emptyInputSchema,
+					'Return the current React Scan Lite recording and a summary ranked by commit and component cost. Set includeEvents to false for summary-only reads without serializing raw events. Stop the recording first so the result is stable.',
+				inputSchema: {
+					type: 'object',
+					properties: {
+						includeEvents: {
+							type: 'boolean',
+							default: true,
+							description:
+								'Include raw events. Defaults to true. Set to false to return events: null and avoid large WebMCP responses.',
+						},
+					},
+					additionalProperties: false,
+				},
 				annotations: {readOnlyHint: true},
-				execute: async () => {
+				execute: async ({includeEvents = true}) => {
+					if (typeof includeEvents !== 'boolean') {
+						throw new Error('includeEvents must be a boolean.');
+					}
+
 					if (recordingStartedAt === null) {
 						throw new Error('No React Scan recording has been started.');
 					}
@@ -114,7 +129,7 @@ if (typeof modelContext?.registerTool === 'function') {
 
 					return {
 						...getRecordingStatus(),
-						events: recordedEvents,
+						events: includeEvents ? recordedEvents : null,
 						summary: summarizeReactScanEvents(recordedEvents),
 					};
 				},

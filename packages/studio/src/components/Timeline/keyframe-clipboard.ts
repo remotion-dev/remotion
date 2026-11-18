@@ -14,6 +14,7 @@ import {
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getKeyframePlaybackRate,
@@ -32,6 +33,7 @@ type KeyframeFieldIdentity =
 	  };
 
 type ResolvedKeyframeField = {
+	readonly sequenceId: string;
 	readonly identity: KeyframeFieldIdentity;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly fileName: string;
@@ -126,6 +128,7 @@ const resolveKeyframeField = ({
 
 		const {schema} = track.sequence.controls;
 		return {
+			sequenceId: track.sequence.id,
 			identity,
 			nodePath,
 			fileName: nodePath.absolutePath,
@@ -136,16 +139,15 @@ const resolveKeyframeField = ({
 			}),
 			propStatus: sequencePropStatus,
 			keyframePlaybackRate: track.keyframePlaybackRate,
-			keyframeDisplayOffset: getKeyframeDisplayOffset({
-				propStatus: sequencePropStatus,
-				keyframeDisplayOffset: track.keyframeDisplayOffset,
-				keyframePlaybackRate: track.keyframePlaybackRate,
-			}),
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
 		};
 	}
 
-	const effect = track.sequence.effects[identity.effectIndex];
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effect = Internals.OptimisticEffects.getItems(
+		nodePath,
+		track.sequence.effects,
+	)[identity.effectIndex]?.definition;
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: identity.effectIndex,
@@ -159,6 +161,7 @@ const resolveKeyframeField = ({
 	}
 
 	return {
+		sequenceId: track.sequence.id,
 		identity,
 		nodePath,
 		fileName: nodePath.absolutePath,
@@ -169,11 +172,7 @@ const resolveKeyframeField = ({
 		}),
 		propStatus: effectPropStatus,
 		keyframePlaybackRate: track.keyframePlaybackRate,
-		keyframeDisplayOffset: getKeyframeDisplayOffset({
-			propStatus: effectPropStatus,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-			keyframePlaybackRate: track.keyframePlaybackRate,
-		}),
+		keyframeDisplayOffset: track.keyframeDisplayOffset,
 	};
 };
 
@@ -256,7 +255,11 @@ export const getKeyframeClipboardDataFromSelections = ({
 	for (const {selection} of resolvedFields) {
 		const sourceFrame = getKeyframeSourceFrame({
 			displayFrame: selection.frame,
-			keyframeDisplayOffset: firstResolved.keyframeDisplayOffset,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: keyframedPropStatus,
+				keyframeDisplayOffset: firstResolved.keyframeDisplayOffset,
+				keyframePlaybackRate: firstResolved.keyframePlaybackRate,
+			}),
 			keyframePlaybackRate: firstResolved.keyframePlaybackRate,
 			propStatus: keyframedPropStatus,
 		});
@@ -345,17 +348,18 @@ export const getKeyframeClipboardDataFromSelections = ({
 export type PasteKeyframeTarget =
 	| {
 			readonly type: 'valid';
+			readonly sequenceId: string;
 			readonly fileName: string;
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly fieldKey: string;
 			readonly effectIndex: number | null;
+			readonly keyframeDisplayOffset: number;
+			readonly keyframePlaybackRate: number;
 			readonly keyframes: readonly {
-				readonly sourceFrame: number;
+				readonly displayFrame: number;
 				readonly value: unknown;
 			}[];
-			readonly keyframesToDelete: readonly number[];
 			readonly easing: KeyframeClipboardData['easing'];
-			readonly firstEasingSegmentIndex: number;
 			readonly schema: InteractivitySchema;
 	  }
 	| {
@@ -452,34 +456,12 @@ export const getPasteKeyframeTarget = ({
 	}
 
 	const keyframes = payload.keyframes.map((keyframe) => ({
-		sourceFrame: getKeyframeSourceFrame({
-			displayFrame: timelinePosition + keyframe.frameOffset,
-			keyframeDisplayOffset: resolved.keyframeDisplayOffset,
-			keyframePlaybackRate: resolved.keyframePlaybackRate,
-			propStatus: resolved.propStatus,
-		}),
+		displayFrame: timelinePosition + keyframe.frameOffset,
 		value: keyframe.value,
 	}));
-	const firstFrame = keyframes[0]?.sourceFrame;
-	const lastFrame = keyframes.at(-1)?.sourceFrame;
-	if (firstFrame === undefined || lastFrame === undefined) {
+	if (keyframes.length === 0) {
 		return {type: 'incompatible'};
 	}
-
-	const existingFrames =
-		resolved.propStatus.status === 'keyframed'
-			? resolved.propStatus.keyframes.map((keyframe) => keyframe.frame)
-			: [];
-	const keyframesToDelete = existingFrames.filter(
-		(frame) => frame >= firstFrame && frame <= lastFrame,
-	);
-	const finalFrames = [
-		...existingFrames.filter(
-			(frame) => frame < firstFrame || frame > lastFrame,
-		),
-		...keyframes.map((keyframe) => keyframe.sourceFrame),
-	].sort((first, second) => first - second);
-	const firstEasingSegmentIndex = finalFrames.indexOf(firstFrame);
 
 	if (
 		resolved.fieldType !== payload.fieldType ||
@@ -496,17 +478,18 @@ export const getPasteKeyframeTarget = ({
 
 	return {
 		type: 'valid',
+		sequenceId: resolved.sequenceId,
 		fileName: resolved.fileName,
 		nodePath: resolved.nodePath,
 		fieldKey: resolved.identity.fieldKey,
+		keyframeDisplayOffset: resolved.keyframeDisplayOffset,
+		keyframePlaybackRate: resolved.keyframePlaybackRate,
 		effectIndex:
 			resolved.identity.type === 'effect'
 				? resolved.identity.effectIndex
 				: null,
 		keyframes,
-		keyframesToDelete,
 		easing: payload.easing,
-		firstEasingSegmentIndex,
 		schema: resolved.schema,
 	};
 };

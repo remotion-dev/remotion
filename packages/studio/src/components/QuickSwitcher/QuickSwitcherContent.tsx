@@ -13,6 +13,7 @@ import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {createFolderTree} from '../../helpers/create-folder-tree';
 import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 import {isCompositionStill} from '../../helpers/is-composition-still';
+import {useCompositionsWithoutPendingDeletions} from '../../helpers/optimistic-composition-operations';
 import {pushUrl} from '../../helpers/url-state';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -192,7 +193,13 @@ export const QuickSwitcherContent: React.FC<{
 	assetSelection,
 	compositionSelection,
 }) => {
-	const {compositions, folders} = useContext(Internals.CompositionManager);
+	const {compositions: registeredCompositions, folders} = useContext(
+		Internals.CompositionManager,
+	);
+	const compositions = useCompositionsWithoutPendingDeletions({
+		compositions: registeredCompositions,
+		folders,
+	});
 	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {

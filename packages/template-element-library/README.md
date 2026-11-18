@@ -102,13 +102,15 @@ npm run preview
 
 The default build prerenders all Element pages from the registry. Publish `build/client` to a static host. See the [React Router prerendering guide](https://reactrouter.com/how-to/pre-rendering) for static hosting and fallback routing.
 
-Serve the website with HTTPS. Allow embedding in Remotion Studio. See the library integration guide for embedding requirements.
+Serve the website with HTTPS. Don't prevent other sites from embedding it in an iframe, because Remotion Studio embeds Element Libraries in Browse Elements. See [Test the integration](https://www.remotion.dev/docs/elements/libraries#5-test-the-integration) in the library integration guide.
 
 ## Markdown and agent discovery
 
 Each page with Markdown has a `<link rel="alternate" type="text/markdown">` tag. The tag gives the Markdown URL.
 
 Agents can follow `/index.md` from the homepage to find every Element. They do not need to guess URLs or run JavaScript.
+
+Each Element's Markdown starts its installation steps with [`npx remotion elements use`](https://www.remotion.dev/docs/cli/elements/use) and the absolute URL of the Element page. The prerendered Markdown cannot detect your domain, so set `SITE_URL` when you build, for example `SITE_URL=https://elements.example.com npm run build`. Without it, the static Markdown tells agents to use the URL of the Element page. With SSR, the Markdown uses the request URL.
 
 `app/routes.ts` registers the Markdown resource routes. HTML-only pages do not need a Markdown route.
 

@@ -45,14 +45,11 @@ export const metadataOption = {
 					);
 				}
 
-				const splitted = a.split('=');
-				if (splitted.length !== 2) {
-					throw new Error(
-						`"metadata" must be in the format of key=value, but got ${a}`,
-					);
-				}
-
-				return [splitted[0], splitted[1]] as [string, string];
+				const separator = a.indexOf('=');
+				return [a.slice(0, separator), a.slice(separator + 1)] as [
+					string,
+					string,
+				];
 			});
 			const value = Object.fromEntries(keyValues);
 

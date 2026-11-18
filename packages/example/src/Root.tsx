@@ -82,6 +82,9 @@ import {
 	BlurSlideTransitionDocThumb,
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
+	BouncingImagesMotionBlur,
+	BouncingVideoMotionBlur,
+	bouncingImagesMotionBlurSchema,
 	CrossZoomTransitionDoc,
 	CrossZoomTransitionDocThumb,
 	CrosswarpTransitionDoc,
@@ -102,7 +105,6 @@ import {
 	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
-	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
 	LinearBlurTransitionDocThumb,
@@ -125,6 +127,7 @@ import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
+import {UnavailableVideo} from './MediaErrorHandling/UnavailableVideo';
 import {MissingImg} from './MissingImg';
 import {ClosingScene} from './MultiSceneSample/ClosingScene';
 import {FeatureScene} from './MultiSceneSample/FeatureScene';
@@ -1291,6 +1294,30 @@ export const Index: React.FC = () => {
 				/>
 				<Folder name="html-in-canvas">
 					<Composition
+						id="BouncingVideoMotionBlur"
+						component={BouncingVideoMotionBlur}
+						fps={120}
+						height={720}
+						width={1280}
+						durationInFrames={2400}
+					/>
+					<Composition
+						id="BouncingImagesMotionBlur"
+						component={BouncingImagesMotionBlur}
+						schema={bouncingImagesMotionBlurSchema}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={600}
+						defaultProps={{
+							blur: 'HtmlInCanvasMotionBlur',
+							samples: 16,
+							shutterAngle: 180,
+							trailLagInFrames: 0.75,
+							effects: false,
+						}}
+					/>
+					<Composition
 						id="html-in-canvas-fallback"
 						component={HtmlInCanvasFallbackExample}
 						fps={30}
@@ -1568,14 +1595,6 @@ export const Index: React.FC = () => {
 						fps={30}
 						height={720}
 						width={1280}
-						durationInFrames={60}
-					/>
-					<Composition
-						id="html-in-canvas-privacy"
-						component={HtmlInCanvasPrivacy}
-						fps={30}
-						height={900}
-						width={1400}
 						durationInFrames={60}
 					/>
 					<Composition
@@ -2777,6 +2796,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="MediaErrorHandling">
+				<Composition
+					id="UnavailableVideo"
+					component={UnavailableVideo}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="AudioError"
 					component={HandleAudioRenderError}

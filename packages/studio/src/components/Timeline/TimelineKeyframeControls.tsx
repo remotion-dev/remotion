@@ -18,6 +18,8 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	buildTimelineTree,
 	type TimelineTreeNode,
@@ -219,7 +221,7 @@ const resolveKeyframeControlTarget = ({
 	}
 
 	const tree = buildTimelineTree({
-		pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+		optimisticEffects: Internals.OptimisticEffects.get(
 			nodePathInfo.sequenceSubscriptionKey,
 		),
 		sequence: track.sequence,
@@ -283,7 +285,7 @@ const resolveKeyframeControlTarget = ({
 		};
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: fieldNode.field.effectIndex,
@@ -859,6 +861,9 @@ export const TimelineKeyframeControls: React.FC<{
 				<button
 					type="button"
 					style={diamondStyle}
+					className={
+						mode === 'inspector' ? FOCUS_VISIBLE_ONLY_CLASS_NAME : undefined
+					}
 					disabled={!canToggleKeyframe || !clientId}
 					onPointerDown={
 						canToggleKeyframe && clientId ? onToggleKeyframe : undefined

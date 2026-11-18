@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	ModifyableCSSProperties,
 	TextTransform,
@@ -41,6 +42,14 @@ export const fitText = ({
 		textTransform,
 		additionalStyles,
 	});
+
+	if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES && estimate.width === 0) {
+		throw new Error(
+			`The width of the text ${JSON.stringify(
+				text,
+			)} is 0, therefore a font size cannot be calculated. Pass a text with a width greater than 0.`,
+		);
+	}
 
 	return {fontSize: (withinWidth / estimate.width) * sampleSize};
 };

@@ -380,6 +380,7 @@ class RenderMediaParams:
     number_of_gif_loops: Optional[int] = None
     concurrency_per_lambda: Optional[int] = 1
     concurrency: Optional[int] = None
+    chunks: Optional[List[List[int]]] = None
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
@@ -414,16 +415,19 @@ class RenderMediaParams:
     disable_shared_memory_capture: bool = False
     separate_audio_to: Optional[Union[str, OutNameInputObject]] = None
     preferred_effect_backend: Literal["auto", "webgpu", "webgl2", "2d"] = "auto"
+    pro_res_bits_per_macroblock: Optional[int] = None
 
     def serialize_params(self) -> Dict:
         """
         Convert instance attributes to a dictionary for serialization.
         """
         parameters = {
+            'streamProgress': False,
             'enableCancellation': self.enable_cancellation,
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,
             'concurrency': self.concurrency,
+            'chunks': self.chunks,
             'composition': self.composition,
             'serveUrl': self.serve_url,
             'inputProps': self.private_serialized_input_props,
@@ -478,6 +482,7 @@ class RenderMediaParams:
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'gopSize': self.gop_size,
+            'proResBitsPerMacroblock': self.pro_res_bits_per_macroblock,
             'disableSharedMemoryCapture': self.disable_shared_memory_capture,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,

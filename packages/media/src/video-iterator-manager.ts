@@ -95,6 +95,7 @@ export const videoIteratorManager = async ({
 		chainState: EffectChainState;
 	} | null = null;
 	let destroyed = false;
+	let onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null = null;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
 	const clearLastDrawnFrame = () => {
@@ -136,6 +137,8 @@ export const videoIteratorManager = async ({
 		await videoTrack.getTimeResolution(),
 		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
+
+	const releaseSink = Internals.registerMediabunnySink(videoTrack.input);
 
 	const paintFrame = async (
 		frame: WrappedCanvas,
@@ -221,6 +224,8 @@ export const videoIteratorManager = async ({
 		framesRendered++;
 
 		drawDebugOverlay();
+		if (onCanvasUpdated !== null && canvas instanceof HTMLCanvasElement)
+			onCanvasUpdated(canvas);
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
 			callback(frame.canvas);
@@ -237,12 +242,30 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
+		if (context && canvas) {
+			// Once the player becomes ready, an effects redraw is requested even
+			// though the initial paint already used the current effects. Skip it
+			// so that onVideoFrame does not report the same frame twice.
+			const effects = getEffects();
+			const chainState = getEffectChainState(canvas.width, canvas.height);
+			if (
+				effects === lastPaintedEffects &&
+				chainState === lastPaintedEffectChainState &&
+				(effects.length === 0 ||
+					lastCompletedEffectPaint?.frame === lastDrawnFrame)
+			) {
+				return;
+			}
+		}
+
 		await paintFrame(lastDrawnFrame, lastDrawnMediaTime);
 		if (destroyed) {
 			return;
 		}
 
 		drawDebugOverlay();
+		if (onCanvasUpdated !== null && canvas instanceof HTMLCanvasElement)
+			onCanvasUpdated(canvas);
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
 			callback(lastDrawnFrame.canvas);
@@ -471,6 +494,11 @@ export const videoIteratorManager = async ({
 	};
 
 	return {
+		setCanvasUpdateCallback: (
+			callback: ((canvas: HTMLCanvasElement) => void) | null,
+		) => {
+			onCanvasUpdated = callback;
+		},
 		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
 			startVideoIterator(timeToSeek, nonce, true),
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
@@ -481,6 +509,8 @@ export const videoIteratorManager = async ({
 			}
 
 			destroyed = true;
+			onCanvasUpdated = null;
+			releaseSink();
 			// Cancel only this manager's pending run, not a newer run sharing its state.
 			if (
 				pendingEffectRun &&

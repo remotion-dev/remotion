@@ -206,6 +206,11 @@ export const Lottie = ({
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'opacity',
 	});
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	return (
 		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 			<Sequence

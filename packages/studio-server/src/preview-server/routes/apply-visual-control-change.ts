@@ -44,9 +44,10 @@ export const applyVisualControlHandler: ApiHandler<
 		});
 		const output = result.changes[0]?.nextContents ?? fileContents;
 		const logLine =
-			result.updatedControls.findLast(
-				(control) => control.id === changes[0]?.id,
-			)?.line ?? 1;
+			result.updatedControls
+				.slice()
+				.reverse()
+				.find((control) => control.id === changes[0]?.id)?.line ?? 1;
 
 		if (result.updatedControls.length === 0) {
 			throw new Error('No changes were made to the file');

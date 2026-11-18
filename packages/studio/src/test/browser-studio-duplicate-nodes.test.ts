@@ -17,7 +17,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes JSX duplication through Browser Studio', async () => {
+test('routes JSX duplication through remotion.new', async () => {
 	const nodePath = ['program', 'body', 1];
 	const receivedRequests: DuplicateNodesRequest[] = [];
 	Object.defineProperty(globalThis, 'window', {

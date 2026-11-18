@@ -19,6 +19,7 @@ test('undo and redo restore every file in a transaction', () => {
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -79,6 +80,12 @@ test('undo and redo restore every file in a transaction', () => {
 		});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('new first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('new second');
+
+		expect(popUndo().success).toBe(true);
+		writeFileSync(secondFile, 'external second');
+		expect(popRedo().success).toBe(false);
+		expect(readFileSync(firstFile, 'utf-8')).toBe('old first');
+		expect(readFileSync(secondFile, 'utf-8')).toBe('external second');
 	} finally {
 		clearUndoStackForTests();
 		cleanupLiveEvents();

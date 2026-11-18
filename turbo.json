@@ -2,6 +2,7 @@
 	"$schema": "https://turbo.build/schema.json",
 	"agentGuidance": false,
 	"ui": "stream",
+	"globalDependencies": ["packages/.monorepo/tsrs*.cjs"],
 	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
 	"tasks": {
 		"formatting": {
@@ -23,6 +24,7 @@
 				"$TURBO_ROOT$/.gitignore",
 				"$TURBO_ROOT$/LICENSE.md",
 				"$TURBO_ROOT$/package.json",
+				"$TURBO_ROOT$/publish.ts",
 				"$TURBO_ROOT$/packages/*/.gitignore",
 				"$TURBO_ROOT$/packages/*/.npmignore",
 				"$TURBO_ROOT$/packages/*/LICENSE.md",
@@ -31,6 +33,7 @@
 				"$TURBO_ROOT$/packages/STATS.md",
 				"$TURBO_ROOT$/packages/cli/src/list-of-remotion-packages.ts",
 				"$TURBO_ROOT$/packages/create-video/src/list-of-remotion-packages.ts",
+				"$TURBO_ROOT$/packages/docs/docs/**/*.mdx",
 				"$TURBO_ROOT$/packages/docs/docs/contributing/index.mdx",
 				"$TURBO_ROOT$/packages/lambda-client/src/aws-provider.ts",
 				"$TURBO_ROOT$/packages/lambda/src/api/create-function.ts",

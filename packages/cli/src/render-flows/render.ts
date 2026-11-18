@@ -1,6 +1,7 @@
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import type {
 	BundlerOverrideFn,
 	RspackOverrideFn,
@@ -706,8 +707,11 @@ export const renderVideoFlow = async ({
 				});
 				Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 			} catch (err) {
-				Log.error({indent, logLevel}, 'Failed to send usage event');
-				Log.error({indent: true, logLevel}, err);
+				Log.error(
+					{indent, logLevel},
+					LicensingInternals.getUsageEventErrorMessage(err),
+				);
+				Log.verbose({indent: true, logLevel}, inspect(err));
 			}
 		}
 
@@ -733,6 +737,10 @@ export const renderVideoFlow = async ({
 	};
 
 	const {slowestFrames} = await RenderInternals.internalRenderMedia({
+		proResBitsPerMacroblock:
+			BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 		outputLocation: absoluteOutputFile,
 		composition: {
 			...config,

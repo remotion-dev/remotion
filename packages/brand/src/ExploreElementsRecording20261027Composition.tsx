@@ -2,8 +2,8 @@ import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
+	CanvasImage,
 	Easing,
-	Img,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
@@ -246,8 +246,10 @@ export const ExploreElementsRecording20261027Composition = ({
 				}}
 			/>
 			{showDragPreview && currentFrame >= 119 && currentFrame < 179 ? (
-				<Img
+				<CanvasImage
 					src="https://remotion.media/elements/backgrounds-rotating-starburst-preview.png"
+					width={132 * 3.2}
+					height={74.25 * 3.2}
 					style={{
 						position: 'absolute',
 						// Match the 132 × 74.25 CSS-pixel drag image and its centered

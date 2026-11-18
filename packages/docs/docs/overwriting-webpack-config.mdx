@@ -19,7 +19,7 @@ Rspack is intended to replace Webpack:
 
 You can enable Rspack now to test your project before this transition.
 
-## Enable Rspack<AvailableFrom v="4.0.426" />
+## Enable Rspack<AvailableFrom v="4.0.502" />
 
 Rspack requires Node.js 20.19 or newer in the 20.x release line, or Node.js 22.12 or newer. Bun is also supported.
 
@@ -116,7 +116,7 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 
 ## Rspack overrides in `remotion.config.ts`<AvailableFrom v="4.0.498" />
 
-Use `Config.overrideRspackConfig()` when [Rspack is enabled](/docs/config#setexperimentalrspackenabled):
+Use `Config.overrideRspackConfig()` when [Rspack is enabled](/docs/config#setrspack):
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -300,7 +300,7 @@ Config.overrideBundlerConfig(enableMdx);
 
 ### Enable TailwindCSS support
 
-- [TailwindCSS V3](/docs/tailwind)
+- [TailwindCSS](/docs/tailwind)
 
 ### Enable PostCSS support
 

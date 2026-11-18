@@ -119,3 +119,112 @@ Public objects were checked against SHA-256 hashes on 3 November 2026.
 The shared repository-local logo and font copies were removed after verification;
 their other brand references now use the same hosted URLs. Original camera files
 in Movies remain untouched.
+
+AVAILABLE CODING AGENTS SIDEBAR
+Shot 08 shows the Studio logos for Codex, Claude Code, Cursor, and GitHub Copilot,
+followed by Agent Plugin with a single blue Remotion triangle. Kimi is not listed.
+The panel uses the opening sidebar's 840px width and light background, with
+GT Planar Medium typography and 88px icons, without divider lines.
+It enters over source frames 132-150 (4.40-5.00s) and holds until the Codex
+footage crossfades over it during source frames 276-294 (9.20-9.80s).
+Presenter and captions stay shifted left through both sidebars. The panel is
+also editable on its own in the AvailableAgentsSidebar composition.
+
+CODEX FOOTAGE DROP SIDEBAR
+Shot 08 shows the final drop from Screen Recording 2026-11-04 at 11.21.29.mov
+with the prompt "import this footage and place it on a timeline."
+Alongside "drop in some raw camera footage," only source 37.50-41.70s is used,
+at 1.4x playback speed. It crossfades over the app list during source frames
+276-294 and stays through the cut at frame 363, without retracting the sidebar.
+The lossless WebM has solid padding sampled from the recording's background,
+so it matches both the blue drop overlay and the white attachment composer.
+The recording's bottom 24px blend into that solid, allowing the cropped window
+shadow to taper off before the padding begins without a visible horizontal seam.
+It is hosted on remotion.media and editable as CodexDropSidebar. The original
+Desktop recording is untouched.
+
+THREE WAYS SETTINGS CAPTURE
+The middle pane's settings section uses the 4 November 10:24:52 Canvas Capture,
+starting at source 3.63s with the cursor over Studio, the first settings item,
+and playing at 1.5x with the recorded cursor and clicks.
+The angled crop focuses on the settings dialog and its navigation. The capture
+is hosted on remotion.media and editable as StudioSettingsCapture.
+
+INTERACTIVE TIMELINE B-ROLL
+Shot 11 pans across the exact timeline screenshot used by the homepage hero
+from "Remotion shows you" through "your content" (source frames 343-497).
+The screenshot keeps the existing angled style and original narration/captions.
+The 154-frame pan is editable as InteractiveTimelinePan.
+
+EDITING CAPABILITIES B-ROLL
+Shot 12 uses seven recorded Studio demonstrations, timed to the narration:
+trim clips, move animation keyframes, drag a caption on the canvas, change a
+duration parameter, adjust color correction, toggle effects, and edit subtitles.
+The montage spans source frames 106-470, retaining the camera for the opening
+and returning to it for "and most importantly, press delete on all of the AI slop."
+The cutaways share the EditingCapabilitiesBroll composition; narration and
+caption word timings are unchanged.
+
+REVIEW EDITS — IMPLEMENTED 4 NOVEMBER 2026
+Timestamps refer to the YouTube export (AgenticallyProgrammaticallyWithStudioUpdate).
+- 03:31: Animate the prompt's progressive blur, gradually expanding the sharp
+  area and easing the blur from 32px to 20px during the shot.
+- 02:33: Extend the timeline screenshot's top and bottom edges with their
+  matching colors (#202428 and #16181b) so the pan has no gray mismatch.
+- 02:03: Type "See ", paste ~/Downloads/track.mp3 in one frame, pause briefly,
+  then type the rest of the beat-analysis prompt.
+- 03:25: Reframe and enlarge the coding-agent menu capture to fill the left
+  edge, with room above the opening menu label.
+
+LIVE STUDIO PREVIEW — 5 NOVEMBER 2026
+The workflow reveal overlays the synchronized original here7.mov footage in
+Studio's preview area, preserving its color through both camera moves.
+Review clip: https://remotion.media/agentically-programmatically/studio-workflow-live-preview-db67d9730ea4.mp4
+
+SHORT-FORM CUT — 6 NOVEMBER 2026
+Composition: AgenticallyProgrammaticallyShort (Short-form folder), 1080 x 1920 at 30 fps,
+43.20 seconds. Five new takes (agent1-5.mov, 1920 x 1080) re-record the pitch in short form.
+Split screen: cutaways fill the top 1080 x 960, the presenter fills the bottom half with a
+static 1.15x crop (editable Video crop and translate). The timeline playback goes full screen.
+Captions keep the Basic Captions style at 80px (new editable Font size; padding scales with
+it, so 64px renders as before), centered on the seam, one line per page.
+
+EDIT DECISION LIST (source seconds -> timeline seconds)
+1 - Interactive timeline in sync with your agent: agent1.mov 2.800-9.867 -> 0.000-7.067
+2 - Edit a video with ChatGPT: agent2.mov 7.800-16.467 -> 7.067-15.733
+3 - Ask for motion graphics or captions: agent3.mov 3.233-7.567 -> 15.733-20.067
+4 - Start with some music: agent4.mov 2.233-12.367 -> 20.067-30.200
+5 - Try the ChatGPT or Claude plugin: agent5.mov 2.000-15.000 -> 30.200-43.200
+
+SOURCE TRANSCRIPTS (whisper.cpp medium.en, obvious spelling corrected)
+agent1.mov: Remotion now has an interactive timeline like a regular video editor, but it stays in sync with your agent.
+agent2.mov: This makes it super easy to edit a video with ChatGPT. Drag some footage into your agent and ask it to be edited with Remotion.
+agent3.mov: And of course you can also ask for motion graphics or captions to be added.
+agent4.mov: Or what is also super cool, start with some music, ask your agent to analyze the beat and place some placeholder items on your timeline.
+agent5.mov: Now the video you'll be working on will flow with the music. Try it yourself today using the ChatGPT or Claude plugin and experience it yourself why people like editing with Remotion a lot.
+("why people like" is heard as "by people like" by whisper; verify by ear.)
+
+AUDIO
+The five takes were joined and processed as one Auphonic production
+(caCxAoCL6Gwoh4Z9YQv7AY) with the long-form settings: Voice AutoEQ, 12 dB dynamic noise
+reduction, 6 dB reverb reduction, 70% adaptive leveling, soft compression, -16 LUFS,
+-1.5 dBTP. Input -28.99 LUFS, output -16.00 LUFS. The 3,350,156-sample result was split
+back into one 24-bit FLAC per take; cross-correlation shows zero lag at three points per take.
+Dialogue plays at volume 1. (The long-form dialogue uses volume 0.25, which renders at
+about -26.5 LUFS.) The Takiti soundtrack fades in under "on your timeline", plays in sync
+with the full-screen timeline playback, swells in the pause after "flow with the music",
+and stays under the call to action. The mix measures -15.3 LUFS integrated, -1.1 dBTP.
+
+CUTAWAYS
+1: InteractiveTimelinePan, then CopyContextBroll on "but it stays in sync with your agent."
+2: InvokeAgentBroll (menu, then ChatGPT receiving the context), then CodexDropSidebar.
+3: ShortPrompt typing the rough-cut prompt from the long-form video.
+4: ShortBeatMatchPrompt ("See ~/Downloads/track.mp3 ..."), then ShortPlaceholderTimeline.
+5: ShortSoundtrackPlayback full screen, ShortAgentPlugins (ChatGPT, Claude), MottoSidebar.
+Long-form 1920 x 1080 cutaways render at 1920 x 1080 and are framed with scale and translate.
+
+MEDIA STORAGE
+The 5 takes and 5 cleaned dialogue files are hosted on remotion.media under
+agent-2026-11-06/. Public SHA-256 hashes were checked against the local files on
+6 November 2026 and are listed in short-form-media-manifest.json. Original files in Movies
+are retained. No media binaries are added to the repository.

@@ -8,7 +8,7 @@ crumb: '@remotion/google-fonts'
 
 Loads a Google Font based on some metadata that was obtained using [`getInfo()`](/docs/google-fonts/get-info).
 
-[`getInfo()`](/docs/google-fonts/get-info) returns just a pure JSON object, so the metadata of a font may be loaded from a server, which can avoid having a heavy client-side bundle.
+[`getInfo()`](/docs/google-fonts/get-info) returns a plain JSON object, so the metadata of a font may be loaded from a server, which can avoid having a heavy client-side bundle.
 
 ```tsx twoslash title="On the server"
 import {getInfo} from '@remotion/google-fonts/InterTight';

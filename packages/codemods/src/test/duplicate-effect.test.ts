@@ -18,11 +18,11 @@ export const Comp = () => {
 };
 `;
 
-test('duplicateEffect clones the targeted effect after itself', async () => {
+test('duplicateEffect clones the targeted effect after itself', () => {
 	const input = buildInput(
 		'[blur({radius: 5}), tint({color: "red"}), brightness({amount: 2})]',
 	);
-	const {output, effectLabel} = await duplicateEffect({
+	const {output, effectLabel} = duplicateEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 8),
 		effectIndex: 1,
@@ -38,11 +38,11 @@ test('duplicateEffect clones the targeted effect after itself', async () => {
 	);
 });
 
-test('duplicateEffects clones multiple targeted effects in one pass', async () => {
+test('duplicateEffects clones multiple targeted effects in one pass', () => {
 	const input = buildInput(
 		'[blur({radius: 5}), tint({color: "red"}), brightness({amount: 2})]',
 	);
-	const {output, effectLabels} = await duplicateEffects({
+	const {output, effectLabels} = duplicateEffects({
 		input,
 		effects: [
 			{
@@ -63,35 +63,35 @@ test('duplicateEffects clones multiple targeted effects in one pass', async () =
 	expect(output.indexOf('tint({')).toBeLessThan(output.indexOf('brightness({'));
 });
 
-test('duplicateEffect throws when effect index is out of range', async () => {
+test('duplicateEffect throws when effect index is out of range', () => {
 	const input = buildInput('[tint({color: "red"})]');
-	await expect(
+	expect(() =>
 		duplicateEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
 			effectIndex: 5,
 		}),
-	).rejects.toThrow(/not-found/);
+	).toThrow(/not-found/);
 });
 
-test('duplicateEffect throws when effects are not an inline array', async () => {
+test('duplicateEffect throws when effects are not an inline array', () => {
 	const input = buildInput('effects');
-	await expect(
+	expect(() =>
 		duplicateEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
 			effectIndex: 0,
 		}),
-	).rejects.toThrow(/not an array/);
+	).toThrow(/not an array/);
 });
 
-test('duplicateEffect throws when the target effect is unsupported', async () => {
+test('duplicateEffect throws when the target effect is unsupported', () => {
 	const input = buildInput('[tint({color: "red"}), ...effects]');
-	await expect(
+	expect(() =>
 		duplicateEffect({
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 8),
 			effectIndex: 1,
 		}),
-	).rejects.toThrow(/not-call-expression/);
+	).toThrow(/not-call-expression/);
 });

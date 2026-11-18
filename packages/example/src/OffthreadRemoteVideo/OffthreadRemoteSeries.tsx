@@ -1,5 +1,9 @@
-import {StudioInternals} from '@remotion/studio';
-import {CalculateMetadataFunction, OffthreadVideo, Series} from 'remotion';
+import {
+	CalculateMetadataFunction,
+	Composition,
+	OffthreadVideo,
+	Series,
+} from 'remotion';
 import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
@@ -79,12 +83,16 @@ const Component: React.FC<{
 	);
 };
 
-export const OffthreadRemoteSeries = StudioInternals.createComposition({
-	component: Component,
-	id: 'OffthreadRemoteSeries',
-	calculateMetadata: calculateMetadataFn,
-	defaultProps: {
-		durations: null,
-	},
-	fps,
-});
+export const OffthreadRemoteSeries = () => {
+	return (
+		<Composition
+			component={Component}
+			id="OffthreadRemoteSeries"
+			calculateMetadata={calculateMetadataFn}
+			defaultProps={{
+				durations: null,
+			}}
+			fps={fps}
+		/>
+	);
+};

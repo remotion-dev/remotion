@@ -26,7 +26,7 @@ An object with the following property:
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
 
-### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
+### `enableFolderExpiry?`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
 
@@ -39,7 +39,15 @@ Removed in v4.0 since we don't use the website option anymore.
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `logLevel?`
+
+<Options id="log" />
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ## Return value
 
@@ -60,4 +68,4 @@ A boolean indicating whether the bucket already existed or was newly created.
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-or-create-bucket.ts)
-- [getFunctions()](/docs/lambda/getfunctions)
+- [`getFunctions()`](/docs/lambda/getfunctions)

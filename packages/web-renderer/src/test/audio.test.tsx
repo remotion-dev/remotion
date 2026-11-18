@@ -1,9 +1,17 @@
+import {blur} from '@remotion/effects/blur';
 import {Audio, Video} from '@remotion/media';
-import {ALL_FORMATS, BlobSource, Input, type InputAudioTrack} from 'mediabunny';
-import {staticFile} from 'remotion';
+import {
+	ALL_FORMATS,
+	AudioBufferSink,
+	BlobSource,
+	Input,
+	type InputAudioTrack,
+} from 'mediabunny';
+import {AnimatedImage, CanvasImage, Img, Sequence, staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
+import {makeToneWav} from './fixtures/pitch-shift-audio';
 
 const getAudioTrackFromBlob = async (blob: Blob): Promise<InputAudioTrack> => {
 	using input = new Input({
@@ -266,3 +274,83 @@ test('should render audio at default 48000 Hz when sampleRate is not set', async
 	const track = await getAudioTrackFromBlob(blob);
 	expect(track.sampleRate).toBe(48000);
 });
+
+test.each([
+	'Img',
+	'Img with effects',
+	'CanvasImage',
+	'AnimatedImage',
+	'looping AnimatedImage',
+	'muted Video',
+] as const)(
+	'audio-only rendering ignores unavailable visual media (%s)',
+	async (kind) => {
+		const src = makeToneWav();
+		const missingSrc = staticFile('missing-audio-only-image.png');
+		const visual = {
+			Img: <Img src={missingSrc} maxRetries={0} />,
+			'Img with effects': (
+				<Img
+					src={missingSrc}
+					width={100}
+					height={100}
+					effects={[blur({radius: 1})]}
+					maxRetries={0}
+				/>
+			),
+			CanvasImage: (
+				<CanvasImage src={missingSrc} width={100} height={100} maxRetries={0} />
+			),
+			AnimatedImage: (
+				<AnimatedImage
+					src={missingSrc}
+					width={100}
+					height={100}
+					durationInFrames={2}
+				/>
+			),
+			'looping AnimatedImage': <AnimatedImage src={missingSrc} loop />,
+			'muted Video': (
+				<Video src={missingSrc} muted disallowFallbackToOffthreadVideo />
+			),
+		}[kind];
+		const Component: React.FC = () => (
+			<>
+				<Audio src={src} />
+				<Sequence from={1}>{visual}</Sequence>
+			</>
+		);
+
+		const result = await renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: Component,
+				id: 'audio-only-image',
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 3,
+				calculateMetadata: null,
+			},
+			container: 'wav',
+			audioCodec: 'pcm-s16',
+			sampleRate: 48000,
+			outputTarget: 'arraybuffer',
+		});
+
+		using input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(await result.getBlob()),
+		});
+		const track = await input.getPrimaryAudioTrack();
+		expect(track).not.toBeNull();
+		let totalSamples = 0;
+		for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+			expect(buffer.numberOfChannels).toBe(2);
+			expect(Math.max(...buffer.getChannelData(0))).toBeGreaterThan(0.3);
+			totalSamples += buffer.length;
+		}
+
+		expect(totalSamples).toBe(4800);
+	},
+);

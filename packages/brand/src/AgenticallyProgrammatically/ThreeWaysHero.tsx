@@ -1,5 +1,6 @@
 import {
 	AbsoluteFill,
+	Easing,
 	Freeze,
 	Interactive,
 	interpolate,
@@ -23,6 +24,23 @@ const ThreeWaysHeroContent = () => {
 					bottom: 0,
 					width: 1600,
 					height: (1600 / 1874) * 1020,
+					translate: interpolate(
+						frame,
+						[104, 126, 270, 292],
+						['360px 0px', '0px 0px', '0px 0px', '-360px 0px'],
+						{
+							easing: Easing.bezier(0.42, 0, 0.58, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					transformOrigin: '50% 100%',
+					scale: interpolate(frame, [104, 126, 270, 292], [1.45, 1, 1, 1.45], {
+						easing: Easing.bezier(0.42, 0, 0.58, 1),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					}),
 				}}
 			>
 				<Freeze

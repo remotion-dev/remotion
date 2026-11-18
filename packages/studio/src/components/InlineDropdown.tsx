@@ -173,10 +173,17 @@ export const InlineDropdown = ({
 				return;
 			}
 
+			const keyboardBounds =
+				e.detail === 0 ? e.currentTarget.getBoundingClientRect() : null;
+
 			setOpened({
 				type: 'open',
-				left: e.clientX,
-				top: e.clientY,
+				left: keyboardBounds
+					? keyboardBounds.left + keyboardBounds.width / 2
+					: e.clientX,
+				top: keyboardBounds
+					? keyboardBounds.top + keyboardBounds.height / 2
+					: e.clientY,
 				values: invocationValues,
 			});
 			onOpenChange?.(true);

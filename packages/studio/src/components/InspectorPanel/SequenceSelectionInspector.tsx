@@ -32,11 +32,7 @@ import {
 	getTimelineSequenceSplitEligibility,
 	splitTimelineSequenceFromSource,
 } from '../Timeline/split-selected-timeline-item';
-import {
-	getTimelineSelectionKey,
-	type TimelineSelection,
-	useTimelineSelection,
-} from '../Timeline/TimelineSelection';
+import type {TimelineSelection} from '../Timeline/TimelineSelection';
 import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
@@ -438,9 +434,9 @@ const SequenceSourceQuickActions: React.FC<{
 const SequenceExpandedInspector: React.FC<{
 	readonly track: TimelineTrackData;
 	readonly readOnlyStudio: boolean;
-}> = ({track, readOnlyStudio}) => {
+	readonly selection: SequenceSectionSelection;
+}> = ({track, readOnlyStudio, selection}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const {validatedLocation} = sourceLocation;
 	const sequenceSelection = useMemo((): Extract<
@@ -456,31 +452,6 @@ const SequenceExpandedInspector: React.FC<{
 			nodePathInfo: track.nodePathInfo,
 		};
 	}, [track.nodePathInfo]);
-	const sequenceSelected = useMemo(() => {
-		if (sequenceSelection === null || selectedItems.length !== 1) {
-			return false;
-		}
-
-		return (
-			getTimelineSelectionKey(selectedItems[0]) ===
-			getTimelineSelectionKey(sequenceSelection)
-		);
-	}, [selectedItems, sequenceSelection]);
-	const selectSequenceOnInspectorPointerDown = useCallback(
-		(event: React.PointerEvent<HTMLDivElement>) => {
-			if (event.button !== 0 || sequenceSelection === null) {
-				return;
-			}
-
-			event.stopPropagation();
-			if (sequenceSelected) {
-				return;
-			}
-
-			selectItems([sequenceSelection], {reveal: true});
-		},
-		[selectItems, sequenceSelected, sequenceSelection],
-	);
 
 	if (
 		previewServerState.type !== 'connected' &&
@@ -498,12 +469,8 @@ const SequenceExpandedInspector: React.FC<{
 	}
 
 	return (
-		<div
-			style={selectedContainer}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
-			onPointerDown={selectSequenceOnInspectorPointerDown}
-		>
-			<SequenceInspectorSections track={track} />
+		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<SequenceInspectorSections track={track} selection={selection} />
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection
@@ -581,6 +548,10 @@ export const SequenceSelectionInspector: React.FC<{
 	}
 
 	return (
-		<SequenceExpandedInspector track={track} readOnlyStudio={readOnlyStudio} />
+		<SequenceExpandedInspector
+			track={track}
+			readOnlyStudio={readOnlyStudio}
+			selection={selection}
+		/>
 	);
 };

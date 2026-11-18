@@ -89,17 +89,17 @@ If your project uses multiple fonts, load them in one module and export a `waitF
 
 ## Arguments
 
-Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options.
+Use TypeScript autocompletion or [`getInfo()`](/docs/google-fonts/get-info) to discover available options.
 
 The `style` argument is optional. In Remotion 4.0, if no arguments are passed, all styles, weights and subsets are loaded.
 
 From [v5.0](/docs/5-0-migration), `options.weights` and `options.subsets` are required and must be non-empty arrays.
 
-### `style`
+### `style?`
 
-The font style we want to load. While each font has a different set of styles, common options are: `normal`, `italic` etc.
+The font style you want to load. While each font has a different set of styles, common options are: `normal`, `italic` etc.
 
-### `options`
+### `options?`
 
 #### `weights?`
 
@@ -152,7 +152,7 @@ Unicode range information about the font.
 }
 ```
 
-### `waitUntilDone`<AvailableFrom v="4.0.135"/>
+### `waitUntilDone()`<AvailableFrom v="4.0.135"/>
 
 A function that returns a promise that resolves when the font is loaded.
 

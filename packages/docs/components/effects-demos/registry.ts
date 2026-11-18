@@ -34,6 +34,7 @@ import {lensBlur} from '@remotion/effects/lens-blur';
 import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
+import {lightning} from '@remotion/effects/lightning';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
@@ -42,6 +43,7 @@ import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import {longShadows} from '@remotion/effects/long-shadows';
 import {lut} from '@remotion/effects/lut';
+import {magnify} from '@remotion/effects/magnify';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -125,6 +127,7 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
+import {EffectsLightningPreview} from '../effects/effects-lightning-preview';
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
@@ -139,6 +142,7 @@ import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../effects/effects-lut-preview';
+import {EffectsMagnifyPreview} from '../effects/effects-magnify-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -229,6 +233,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-lightning',
+		effectName: 'lightning',
+		effectImportPath: '@remotion/effects/lightning',
+		comp: EffectsLightningPreview,
+		schema: lightning().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-rain-fall',
@@ -790,6 +802,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/barrel-distortion',
 		comp: EffectsBarrelDistortionPreview,
 		schema: barrelDistortion().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-magnify',
+		effectName: 'magnify',
+		effectImportPath: '@remotion/effects/magnify',
+		comp: EffectsMagnifyPreview,
+		schema: magnify().definition.schema,
 	},
 	{
 		...defaults,

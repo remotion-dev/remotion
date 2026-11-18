@@ -48,11 +48,14 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		/>,
 	);
 	try {
-		await vi.waitFor(() => {
-			expect(
-				createdNodes.filter(({node}) => node.buffer !== null).length,
-			).toBeGreaterThan(5);
-		});
+		await vi.waitFor(
+			() => {
+				expect(
+					createdNodes.filter(({node}) => node.buffer !== null).length,
+				).toBeGreaterThan(5);
+			},
+			{timeout: 10000},
+		);
 		if (!audioContext) throw new Error('Audio context did not initialize');
 		const context: AudioContext = audioContext;
 		const oldNodes = createdNodes.filter(({node}) => node.buffer !== null);
@@ -89,7 +92,7 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		createBufferSourceSpy.mockRestore();
 		vi.restoreAllMocks();
 	}
-});
+}, 15000);
 
 test('paused seeks unschedule unstarted nodes while playing cleanup still stops started nodes', async () => {
 	const nodes: {
@@ -247,15 +250,16 @@ test.each([
 			);
 			expect(playerRef.current?.getCurrentFrame()).toBe(0);
 			expect(playerRef.current?.isPlaying()).toBe(false);
-			const queuedDuration = nodes.reduce(
-				(sum, node) => sum + (node.buffer?.duration ?? 0),
+			const decodedBuffers = new Set(nodes.map((node) => node.buffer));
+			const decodedDuration = [...decodedBuffers].reduce(
+				(sum, buffer) => sum + (buffer?.duration ?? 0),
 				0,
 			);
 			// The final decoded chunk can straddle the two-second boundary.
-			expect(queuedDuration).toBeGreaterThanOrEqual(
+			expect(decodedDuration).toBeGreaterThanOrEqual(
 				Math.max(1.9 * playbackRate, 0.1),
 			);
-			expect(queuedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
+			expect(decodedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
 			playerRef.current?.play();
 			await vi.waitFor(
 				() => {

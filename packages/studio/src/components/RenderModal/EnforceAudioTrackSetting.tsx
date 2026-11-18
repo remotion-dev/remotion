@@ -25,14 +25,14 @@ export const EnforceAudioTrackSetting: React.FC<{
 				<OptionExplainerBubble id="enforceAudioOption" />
 			</div>
 
-			<div style={rightRow}>
+			<label style={rightRow} aria-label="Enforce Audio Track">
 				<Checkbox
 					disabled={muted && !enforceAudioTrack}
 					checked={enforceAudioTrack}
 					onChange={onEnforceAudioTrackChanged}
 					name="enforce-audio-track"
 				/>
-			</div>
+			</label>
 		</div>
 	);
 };

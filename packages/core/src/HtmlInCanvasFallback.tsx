@@ -5,7 +5,8 @@ export const HtmlInCanvasFallback: React.FC<{
 	readonly children: React.ReactNode;
 	readonly style: React.CSSProperties;
 	readonly label: string;
-}> = ({children, style, label}) => {
+	readonly title?: string;
+}> = ({children, style, label, title = 'HTML-in-canvas is not available'}) => {
 	const currentScale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
 	const scale = currentScale > 0 ? currentScale : 1;
 
@@ -41,7 +42,7 @@ export const HtmlInCanvasFallback: React.FC<{
 						color: '#ffabb5',
 					}}
 				>
-					HTML-in-canvas is not available
+					{title}
 				</div>
 				<div
 					style={{

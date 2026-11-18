@@ -9,6 +9,8 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
+import {updateSequencePropsForEffectEdit} from '../sequence-props-watchers';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -25,7 +27,7 @@ export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
 > = ({input: request, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		try {
 			const {
 				fileName,
@@ -47,7 +49,7 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await addEffect({
+			const result = addEffect({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
 				importName: effectName,
@@ -57,6 +59,11 @@ export const addEffectHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, nodeLabel, logLine} =
 				result.editDetails[0];
+
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[{absolutePath, remappings: result.nodePathRemappings}],
+				null,
+			);
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -71,14 +78,14 @@ export const addEffectHandler: ApiHandler<
 				},
 				entryType: 'add-effect',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings: result.nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -103,6 +110,11 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...updateSequencePropsForEffectEdit(
+					request.sequenceProps ?? [],
+					remotionRoot,
+				),
+				nodePathMutation,
 				insertedEffect: {
 					effectIndex: result.insertedEffect.effectIndex,
 					nodePath: result.insertedEffect.nodePath,

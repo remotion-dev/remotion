@@ -367,14 +367,14 @@ export const duplicateNodes = ({
 }: {
 	input: string;
 	nodePaths: SequenceNodePath[];
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	nodeLabels: string[];
 	logLines: number[];
 	nodePathRemappings: SequenceNodePathRemapping[];
 	duplicatedNodePaths: SequenceNodePath[];
-}> => {
+} => {
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
 	const targets = nodePaths.map((nodePath) => {
@@ -596,12 +596,12 @@ export const duplicateNodes = ({
 		return nodePath;
 	});
 
-	return Promise.resolve({
+	return {
 		output,
 		formatted: true,
 		nodeLabels: targets.map((target) => target.nodeLabel),
 		logLines: targets.map((target) => target.logLine),
 		nodePathRemappings,
 		duplicatedNodePaths,
-	});
+	};
 };

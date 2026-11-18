@@ -1,4 +1,8 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
+import {
+	TRANSFORMERS_PACKAGE,
+	withRequiredAuxiliaryPackages,
+} from '@remotion/studio-shared';
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModalsProvider} from '../components/ModalsProvider';
 import {SettingsProvider} from '../components/SettingsContext';
@@ -10,10 +14,6 @@ import {
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
 import {VideoMattingModalWithOptionalPackage} from '../components/VideoMatting/VideoMattingModalWithOptionalPackage';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	TRANSFORMERS_PACKAGE,
-	withRequiredAuxiliaryPackages,
-} from '../helpers/optional-package-dependencies';
 
 const originalInstalledPackages = window.remotion_installedPackages;
 

@@ -92,11 +92,13 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 					},
 					key: 'my-comp',
 					type: 'composition',
+					sourceFileRemaps: [],
 				},
 			],
 			expanded: false,
 			key: 'my-folder',
 			type: 'folder',
+			sourceFileRemaps: [],
 			parentName: null,
 		},
 		{
@@ -117,6 +119,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 			},
 			key: 'second-comp',
 			type: 'composition',
+			sourceFileRemaps: [],
 		},
 	]);
 });
@@ -161,6 +164,7 @@ test('Should handle nested folders well', async () => {
 			items: [
 				{
 					type: 'folder',
+					sourceFileRemaps: [],
 					folder: testFolder('my-second-folder', 'my-third-folder'),
 					expanded: false,
 					key: 'my-second-folder',
@@ -169,6 +173,7 @@ test('Should handle nested folders well', async () => {
 					items: [
 						{
 							type: 'folder',
+							sourceFileRemaps: [],
 							folder: testFolder(
 								'my-folder',
 								'my-third-folder/my-second-folder',
@@ -196,6 +201,7 @@ test('Should handle nested folders well', async () => {
 									},
 									key: 'my-comp',
 									type: 'composition',
+									sourceFileRemaps: [],
 								},
 							],
 						},
@@ -203,6 +209,7 @@ test('Should handle nested folders well', async () => {
 				},
 			],
 			type: 'folder',
+			sourceFileRemaps: [],
 		},
 	]);
 });

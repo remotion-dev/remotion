@@ -1,8 +1,6 @@
-/* eslint-disable no-undef */
 import {deployFunction} from '@remotion/lambda';
 import {
-	getRenderProgress,
-	renderMediaOnLambda,
+	renderMediaOnLambdaAndStream,
 	speculateFunctionName,
 } from '@remotion/lambda-client';
 import dotenv from 'dotenv';
@@ -22,7 +20,7 @@ const functionName = speculateFunctionName({
 	timeoutInSeconds: 120,
 });
 
-const {bucketName, renderId, cloudWatchMainLogs} = await renderMediaOnLambda({
+const result = await renderMediaOnLambdaAndStream({
 	serveUrl: 'https://remotion-helloworld.vercel.app',
 	functionName,
 	composition: 'HelloWorld',
@@ -42,29 +40,15 @@ const {bucketName, renderId, cloudWatchMainLogs} = await renderMediaOnLambda({
 			secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? '',
 		},
 	},
+	onInit: ({bucketName, renderId, cloudWatchMainLogs}) => {
+		console.log(
+			`Render started in bucket ${bucketName} with ID ${renderId}`,
+			cloudWatchMainLogs,
+		);
+	},
+	onProgress: ({overallProgress}) => {
+		console.log(`Render progress ${overallProgress}`);
+	},
 });
 
-console.log(
-	`Render initiated it is in this bucket=${bucketName} and the id=${renderId}`,
-	cloudWatchMainLogs,
-);
-
-while (true) {
-	const {overallProgress, errors, done, fatalErrorEncountered} =
-		await getRenderProgress({
-			renderId: renderId,
-			bucketName: bucketName,
-			functionName: functionName,
-			region: 'eu-central-1',
-		});
-	if (fatalErrorEncountered) {
-		console.error(errors);
-		break;
-	}
-	if (done) {
-		break;
-	}
-
-	console.log(`Render progress ${overallProgress}`);
-	console.log(errors);
-}
+console.log('Render finished!', result.outputFile);

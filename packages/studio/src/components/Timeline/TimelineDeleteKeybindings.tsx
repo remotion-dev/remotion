@@ -31,7 +31,7 @@ const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
 	useEffect(() => {
-		if (!canSelect || previewServerState.type !== 'connected') {
+		if (!canSelect) {
 			return;
 		}
 
@@ -43,6 +43,10 @@ const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
+		if (previewServerState.type !== 'connected') {
+			return () => deleteKey.unregister();
+		}
+
 		const duplicate = keybindings.registerKeybinding({
 			event: 'keydown',
 			action: 'duplicateSequences',

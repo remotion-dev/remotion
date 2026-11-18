@@ -1,5 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
@@ -292,6 +293,7 @@ const innerRenderStill = async ({
 		page,
 		serveUrl,
 		initialFrame: stillFrame,
+		attempt: 1,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
@@ -360,6 +362,8 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({
 		frame: stillFrame,
+		videoEnabled: true,
+		audioEnabled: false,
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,
@@ -475,8 +479,11 @@ const internalRenderStillRaw = (
 						Log.verbose(options, 'Usage event sent successfully');
 					})
 					.catch((err) => {
-						Log.error(options, 'Failed to send usage event');
-						Log.error(options, err);
+						Log.error(
+							options,
+							LicensingInternals.getUsageEventErrorMessage(err),
+						);
+						Log.verbose(options, inspect(err));
 					})
 					.finally(() => {
 						resolve(res);

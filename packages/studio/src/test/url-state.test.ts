@@ -34,7 +34,7 @@ test('replaces the current Studio URL', () => {
 	expect(replaceStateCalls).toEqual([[{}, 'Studio', '/assets/renamed.mp4']]);
 });
 
-test('uses query-string routing in Browser Studio', () => {
+test('uses query-string routing in remotion.new', () => {
 	const replaceStateCalls: unknown[][] = [];
 	const parentWindow = {
 		history: {

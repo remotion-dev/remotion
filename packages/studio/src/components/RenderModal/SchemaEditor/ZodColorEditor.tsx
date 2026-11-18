@@ -92,6 +92,7 @@ export const ZodColorEditor: React.FC<{
 					/>
 					<Spacing x={1} block />
 					<RemotionInput
+						aria-label={jsonPath.join('.')}
 						value={value}
 						status={status}
 						placeholder={jsonPath.join('.')}

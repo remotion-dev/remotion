@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {BLUE, SELECTED_GUIDE, UNSELECTED_GUIDE} from '../helpers/colors';
 import {
 	getEditorGuideColor,
-	getRulerGuideHighlight,
+	getRulerGuideHighlights,
 	isGuidePointerUpAClick,
 	type GuidePointerDownPosition,
 } from '../helpers/editor-guide-selection';
@@ -85,52 +85,57 @@ test('selected guides use blue while hovered or dragged guides keep the guide ac
 
 test('ruler shows dragged guide numbers without requiring guide selection', () => {
 	expect(
-		getRulerGuideHighlight({
+		getRulerGuideHighlights({
 			guidesList: [guideA, guideB],
 			selectedItems: [{type: 'sequence'}],
 			hoveredGuideId: null,
 			draggingGuideId: 'guide-a',
 		}),
-	).toEqual({
-		guide: guideA,
-		color: SELECTED_GUIDE,
-	});
+	).toEqual([
+		{
+			guide: guideA,
+			color: SELECTED_GUIDE,
+		},
+	]);
 	expect(
-		getRulerGuideHighlight({
+		getRulerGuideHighlights({
 			guidesList: [guideA, guideB],
 			selectedItems: [{type: 'guide', guideId: 'guide-b'}],
 			hoveredGuideId: null,
 			draggingGuideId: 'guide-a',
 		}),
-	).toEqual({
-		guide: guideB,
-		color: BLUE,
-	});
+	).toEqual([
+		{guide: guideA, color: SELECTED_GUIDE},
+		{
+			guide: guideB,
+			color: BLUE,
+		},
+	]);
 });
 
 test('ruler does not show hidden guide numbers while a guide is being removed', () => {
 	expect(
-		getRulerGuideHighlight({
+		getRulerGuideHighlights({
 			guidesList: [guideA, hiddenGuide],
 			selectedItems: [{type: 'guide', guideId: 'hidden-guide'}],
 			hoveredGuideId: null,
 			draggingGuideId: null,
 		}),
-	).toBe(null);
+	).toEqual([]);
 	expect(
-		getRulerGuideHighlight({
+		getRulerGuideHighlights({
 			guidesList: [guideA, hiddenGuide],
 			selectedItems: [{type: 'sequence'}],
 			hoveredGuideId: null,
 			draggingGuideId: 'hidden-guide',
 		}),
-	).toBe(null);
+	).toEqual([]);
 	expect(
-		getRulerGuideHighlight({
+		getRulerGuideHighlights({
 			guidesList: [guideA, hiddenGuide],
 			selectedItems: [{type: 'sequence'}],
 			hoveredGuideId: 'hidden-guide',
 			draggingGuideId: null,
 		}),
-	).toBe(null);
+	).toEqual([]);
 });

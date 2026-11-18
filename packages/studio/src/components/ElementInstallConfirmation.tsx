@@ -496,6 +496,7 @@ export const ElementInstallConfirmation: React.FC<{
 	} = useCreateComposition({
 		asset: null,
 		canvasCapture: null,
+		openTimeline: null,
 		compositions,
 		durationInFrames: newCompositionValues.durationInFrames,
 		folderName: newCompositionValues.folder.folderName,
@@ -796,19 +797,20 @@ export const ElementInstallConfirmation: React.FC<{
 								selectedFolderStack === null ? null : folderSymbolicatedStack,
 						}
 					: null,
+			onInstalled:
+				mode === 'new-composition'
+					? () =>
+							selectComposition(
+								{
+									id: newCompositionId,
+									folderName: newCompositionValues.folder.folderName,
+									parentFolderName: newCompositionValues.folder.parentName,
+								},
+								true,
+							)
+					: null,
 		});
 		if (installed) {
-			if (mode === 'new-composition') {
-				selectComposition(
-					{
-						id: newCompositionId,
-						folderName: newCompositionValues.folder.folderName,
-						parentFolderName: newCompositionValues.folder.parentName,
-					},
-					true,
-				);
-			}
-
 			onClose();
 		} else {
 			setSubmitting(false);
@@ -935,6 +937,8 @@ export const ElementInstallConfirmation: React.FC<{
 							aria-label="New composition settings"
 						>
 							<NewCompositionFields
+								fixedFps={null}
+								fixedDuration={null}
 								compositionId={newCompositionId}
 								heightValidationMessage={heightValidationMessage}
 								inputRef={inputRef}

@@ -35,7 +35,7 @@ WebGPU: Hardware accelerated
 
 The output should not be used for automated parsing, as it may change inbetween any Remotion and Chrome versions.
 
-## API
+## Flags
 
 ### `--log`
 
@@ -45,11 +45,23 @@ The output should not be used for automated parsing, as it may change inbetween 
 
 <Options id="gl" />
 
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
+
 ### `--chrome-mode`<AvailableFrom v="4.0.248" />
 
 <Options id="chrome-mode" />
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/gpu.ts)
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/gpu.ts)
 - [Using the GPU](/docs/gpu)

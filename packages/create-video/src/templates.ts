@@ -561,6 +561,6 @@ export const PAID_TEMPLATES = [
 		longerDescription: 'A starting point for building your own video editor.',
 		cliId: 'editor-starter' as const,
 		defaultBranch: 'main',
-		previewURL: 'https://www.remotion.pro/editor-starter',
+		previewURL: 'https://www.remotion.dev/store/editor-starter',
 	},
 ].filter(truthy);

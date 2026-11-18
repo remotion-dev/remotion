@@ -1,11 +1,12 @@
 import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
 import {FlatCompat} from '@eslint/eslintrc';
 import js from '@eslint/js';
 import parser from '@remotion/typescript-tools/eslint-parser';
 import typescriptPlugin from '@remotion/typescript-tools/eslint-plugin';
 
 const require = createRequire(import.meta.url);
-const __dirname = new URL('.', import.meta.url).pathname;
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 const {configs, rules: reactRules} = require('eslint-plugin-react');
 

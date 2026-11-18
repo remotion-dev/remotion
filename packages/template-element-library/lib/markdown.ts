@@ -20,7 +20,7 @@ export const getCatalogMarkdown = (category: string | null) => {
 
   return [
     `# ${category === null ? "Studio Supply - Remotion Elements" : `${category} - Studio Supply`}`,
-    "Editable video building blocks for Remotion. Each Element document includes its source code and installation metadata.",
+    "Editable video building blocks for Remotion. Each Element document includes its install command, source code and installation metadata.",
     "[All Elements](/index.md) | [Caption styles](/captions.md)",
     ...categories.map((name) =>
       [
@@ -37,11 +37,29 @@ export const getCatalogMarkdown = (category: string | null) => {
   ].join("\n\n");
 };
 
+// React Router prerenders every page with a request to localhost.
+export const getElementPageUrl = ({
+  slug,
+  requestUrl,
+}: {
+  slug: string;
+  requestUrl: string;
+}) => {
+  const origin =
+    process.env.SITE_URL ||
+    (import.meta.env.PROD && new URL(requestUrl).hostname === "localhost"
+      ? null
+      : requestUrl);
+  return origin === null ? null : new URL(`/elements/${slug}`, origin).href;
+};
+
 export const getElementMarkdown = ({
-  definition,
-  sourceCode,
-  payload,
-}: CatalogEntry) => {
+  entry: { definition, sourceCode, payload },
+  pageUrl,
+}: {
+  entry: CatalogEntry;
+  pageUrl: string | null;
+}) => {
   const remotionDependencies = definition.dependencies.filter(
     ({ version }) => version === null,
   );
@@ -68,7 +86,14 @@ export const getElementMarkdown = ({
     "## Details",
     `- Category: ${definition.category}\n- Duration: ${definition.durationInFrames} frames (${definition.durationInFrames / definition.fps}s at ${definition.fps} fps)\n- Dimensions: ${definition.dimensions === null ? "Fills composition" : `${definition.dimensions.width} x ${definition.dimensions.height}`}`,
     "## Installation",
-    `Save the source below as \`${definition.slug}.element.tsx\` in your Remotion project and import its exported component.`,
+    "Install this Element into a composition of your Remotion project:",
+    codeBlock(
+      "sh",
+      `npx remotion elements use ${pageUrl ?? "<url>"} --composition <composition-id> --yes`,
+    ),
+    `${pageUrl === null ? `Replace \`<url>\` with the absolute URL of the page at \`/elements/${definition.slug}\`, which is the URL of this document without \`.md\`. ` : ""}Replace \`<composition-id>\` with the ID of the composition to add the Element to. The command installs the dependencies, downloads the assets, writes the source file and adds the Element to the composition. See [\`npx remotion elements use\`](https://www.remotion.dev/docs/cli/elements/use.md).`,
+    "## Manual installation",
+    `To install the Element manually instead, save the source below as \`${definition.slug}.element.tsx\` in your Remotion project and import its exported component.`,
     installationCommands.length === 0
       ? "No additional package dependencies are required beyond React and Remotion."
       : codeBlock("sh", installationCommands.join("\n")),

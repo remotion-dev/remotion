@@ -142,16 +142,20 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
+			const descriptionLines = (
+				exceptionDetails.exception?.description as string
+			).split('\n');
+			const firstStackLine = descriptionLines.findIndex((line) =>
+				/^\s+at\s/.test(line),
+			);
 			const err = new SymbolicateableError({
 				stack: exceptionDetails.exception?.description as string,
 				name: exceptionDetails.exception?.className as string,
-				message: exceptionDetails.exception?.description?.split(
-					'\n',
-				)[0] as string,
+				message: descriptionLines
+					.slice(0, firstStackLine === -1 ? 1 : Math.max(1, firstStackLine))
+					.join('\n'),
 				frame,
-				stackFrame: parseStack(
-					(exceptionDetails.exception?.description as string).split('\n'),
-				),
+				stackFrame: parseStack(descriptionLines),
 				chunk: null,
 			});
 			// The browser may get closed before the page is, which rejects

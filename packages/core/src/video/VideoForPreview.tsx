@@ -18,6 +18,7 @@ import {
 	type CommittedMetadata,
 } from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
+import {HtmlInCanvasAncestorContext} from '../HtmlInCanvasAncestorContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
@@ -142,6 +143,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
+	const htmlInCanvasContext = useContext(HtmlInCanvasAncestorContext);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
@@ -296,7 +298,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [style]);
 
 	const crossOriginValue = getCrossOriginValue({
-		crossOrigin,
+		crossOrigin:
+			crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous'),
 		requestsVideoFrame: Boolean(onVideoFrame),
 		isClientSideRendering: false,
 	});

@@ -10,7 +10,7 @@ If your render is stuck, proceed as follows:
 
 ## Check for long `delayRender()` calls
 
-If the `delayRender()` timeout is too big and does not resolve, a render may get stuck indefinitely without an error message.
+If the [`delayRender()`](/docs/delay-render) timeout is too big and does not resolve, a render may get stuck indefinitely without an error message.
 
 This issue may be more confusing on Remotion Lambda, whose runtime also has a timeout.  
 If the `delayRender()` timeout is bigger than the Lambda function timeout, the Lambda function will first time out without the `delayRender()` call failing first, leading to no error message.
@@ -18,7 +18,7 @@ If the `delayRender()` timeout is bigger than the Lambda function timeout, the L
 To debug the issue:
 
 - Set the `delayRender()` timeout value to a smaller value, so that if it does not resolve, an error message is shown.
-- Always use [`cancelRender()`](/docs/cancel-render) to handle any error that prevents you from calling `continueRender()`.
+- Always use [`cancelRender()`](/docs/cancel-render) to handle any error that prevents you from calling [`continueRender()`](/docs/continue-render).
 
 ## Enable verbose logging
 
@@ -36,7 +36,7 @@ This issue does not occur on Remotion Lambda.
 Follow these best practices:
 
 - Do not download Chrome from a Linux package manager.
-- Do not set the `--chrome-executable` option and let Remotion download a compatible version of Chrome Headless Shell for you.
+- Do not set the [`--browser-executable`](/docs/options/browser-executable) option and let Remotion download a compatible version of Chrome Headless Shell for you.
 - Use [`npx remotion browser ensure`](/docs/cli/browser/ensure) to make sure a compatible versions of Chrome Headless Shell is ready before the first render.
 
 ## Lambda: Are you reading the `errors` field?

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import {rspack} from '@rspack/core';
 
-const port = Number(process.env.PORT ?? 62338);
+const port = Number(process.env.PORT ?? 31338);
 const outputPath = path.join(import.meta.dir, '..', 'dist', 'e2e');
 const repoDir = path.join(import.meta.dir, '..', '..', '..');
 const workspacePackagesDir = path.join(repoDir, 'packages');
@@ -177,4 +177,4 @@ Bun.serve({
 	},
 });
 
-process.stdout.write(`Browser Studio E2E server: http://127.0.0.1:${port}\n`);
+process.stdout.write(`remotion.new E2E server: http://127.0.0.1:${port}\n`);

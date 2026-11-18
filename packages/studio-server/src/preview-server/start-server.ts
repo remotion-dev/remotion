@@ -23,6 +23,7 @@ import type {
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {detectRemotionServer} from '../detect-remotion-server';
+import {closeNativeFilePicker} from '../native-file-picker';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
@@ -353,6 +354,7 @@ export const startServer = async (options: {
 			port: selectedPort,
 			liveEventsServer,
 			close: async () => {
+				closeNativeFilePicker();
 				server.closeAllConnections();
 				await Promise.all([
 					new Promise<void>((resolve) => {
@@ -369,6 +371,7 @@ export const startServer = async (options: {
 			},
 		};
 	} catch (error) {
+		closeNativeFilePicker();
 		server.closeAllConnections();
 		await Promise.all([
 			new Promise<void>((resolve) => {

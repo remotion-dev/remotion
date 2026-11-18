@@ -20,7 +20,9 @@ export const MutedSetting: React.FC<{
 	return (
 		<div style={optionRow}>
 			<div style={label}>
-				Muted
+				<label htmlFor="remotion-render-muted" style={label}>
+					Muted
+				</label>
 				<Spacing x={0.5} />
 				<OptionExplainerBubble id="mutedOption" />
 			</div>
@@ -28,6 +30,7 @@ export const MutedSetting: React.FC<{
 
 			<div style={rightRow}>
 				<Checkbox
+					inputId="remotion-render-muted"
 					checked={muted}
 					disabled={enforceAudioTrack && !muted}
 					onChange={onMutedChanged}

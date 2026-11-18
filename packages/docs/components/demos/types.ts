@@ -36,11 +36,7 @@ import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
 import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
 import {LinearBlurDocsDemo} from './LinearBlurDemo';
-import {
-	MotionBlurCameraDocsDemo,
-	MotionBlurHtmlInCanvasDocsDemo,
-	MotionBlurTrailDocsDemo,
-} from './MotionBlurDemo';
+import {MotionBlurHtmlInCanvasDocsDemo} from './MotionBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
@@ -65,6 +61,7 @@ import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
 import {AnimationMath} from './SubtractAnimations';
 import {SwapDocsDemo} from './SwapDemo';
+import {TransitionMotionBlurDocsDemo} from './TransitionMotionBlurDemo';
 import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
 import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
 import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
@@ -1712,26 +1709,13 @@ export const htmlInCanvasDemoWebGPU: DemoType = {
 	options: [],
 };
 
-export const motionBlurTrailDemo: DemoType = {
-	comp: MotionBlurTrailDocsDemo,
-	compHeight: 540,
-	compWidth: 960,
-	durationInFrames: 60,
+export const transitionMotionBlurDemo: DemoType = {
+	comp: TransitionMotionBlurDocsDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 160,
 	fps: 30,
-	id: 'motion-blur-trail',
-	autoPlay: true,
-	controls: true,
-	logLevel: 'info',
-	options: [],
-};
-
-export const motionBlurCameraDemo: DemoType = {
-	comp: MotionBlurCameraDocsDemo,
-	compHeight: 540,
-	compWidth: 960,
-	durationInFrames: 60,
-	fps: 30,
-	id: 'motion-blur-camera',
+	id: 'transition-motion-blur',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',
@@ -1742,7 +1726,7 @@ export const motionBlurHtmlInCanvasDemo: DemoType = {
 	comp: MotionBlurHtmlInCanvasDocsDemo,
 	compHeight: 540,
 	compWidth: 960,
-	durationInFrames: 60,
+	durationInFrames: 240,
 	fps: 30,
 	id: 'motion-blur-html-in-canvas',
 	autoPlay: true,

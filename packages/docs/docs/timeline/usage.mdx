@@ -5,9 +5,9 @@ sidebar_label: Usage
 id: usage
 ---
 
-# Timeline Usage
+# Timeline usage
 
-## Component Integration
+## Component integration
 
 Import and use the timeline components in your React application.
 
@@ -15,15 +15,19 @@ For optimal performance and proper functionality, structure your components like
 
 ```tsx
 import type {PlayerRef} from '@remotion/player';
+import {useRef} from 'react';
+import {PreviewContainer} from './layout';
+import {ActionRow} from './timeline/remotion-timeline/components/action-row';
 import {Timeline, TimelineContainer} from './timeline/remotion-timeline/components/timeline';
 import {TimelineProvider} from './timeline/remotion-timeline/context/provider';
 import {TimelineSizeProvider} from './timeline/remotion-timeline/context/timeline-size-provider';
 import {TimelineZoomProvider} from './timeline/remotion-timeline/context/timeline-zoom-provider';
-import {PreviewContainer} from './layout';
+import {useElementSize} from './timeline/remotion-timeline/hooks/use-element-size';
+import {timelineContainerRef} from './timeline/remotion-timeline/utils/restore-scroll-after-zoom';
+import {VideoPreview} from './timeline/video-preview';
 
 export const App = () => {
   const playerRef = useRef<PlayerRef>(null);
-  const timelineContainerRef = useRef<HTMLDivElement>(null);
   const timelineContainerSize = useElementSize(timelineContainerRef);
   const timelineContainerWidth = timelineContainerSize?.width;
 
@@ -40,7 +44,7 @@ export const App = () => {
           <ActionRow playerRef={playerRef} />
         </PreviewContainer>
 
-        <TimelineContainer timelineContainerRef={timelineContainerRef}>
+        <TimelineContainer>
           {timelineContainerWidth ? (
             <TimelineSizeProvider containerWidth={timelineContainerWidth}>
               <Timeline playerRef={playerRef} />
@@ -64,7 +68,7 @@ This structure ensures:
 
 The project includes a predefined state structure for timeline tracks and items. You can check [TimelineProvider component](https://github.com/remotion-dev/timeline/blob/main/src/timeline/remotion-timeline/context/provider.tsx) for the state structure.
 
-## Video Preview
+## Video preview
 
 This project includes a `CanvasComposition`, a Remotion composition that renders the timeline state in the Remotion Player.
 
@@ -76,13 +80,13 @@ You can:
 
 Check `video-preview.tsx` and `App.tsx` for implementation examples.
 
-## State Persistence
+## State persistence
 
-The `TimelineProvider` includes an `onChange` callback that fires whenever the timeline state changes (adding/removing tracks, moving items, etc.). Use this to save the editor state to your backend:
+The `TimelineProvider` includes an `onChange` callback that fires when the tracks change (adding/removing tracks, moving items, etc.). Calls are debounced by 300 milliseconds. Use this to save the editor state to your backend:
 
 ```tsx
 function VideoEditor() {
-  const saveToServer = async (state: TimelineState) => {
+  const saveToServer = async (state: {tracks: TrackType[]}) => {
     try {
       await fetch('/api/save-timeline', {
         method: 'POST',
@@ -95,17 +99,13 @@ function VideoEditor() {
 
   return (
     <TimelineProvider onChange={saveToServer} initialState={initialState}>
-      <div className="video-editor">
-        <VideoPreview playerRef={playerRef} />
-        <ActionRow playerRef={playerRef} />
-        <TimelineRoot playerRef={playerRef} />
-      </div>
+      {/* Same children as in the example above */}
     </TimelineProvider>
   );
 }
 ```
 
-## Example Project Structure
+## Example project structure
 
 In `App.tsx`, you can see the complete implementation of the timeline component.
 
@@ -113,4 +113,4 @@ The example project demonstrates:
 
 - Importing the timeline components
 - Using the `ActionRow` component to use timeline zoom and add clips
-- Using the `TimelineRoot` component to render the timeline
+- Using the `Timeline` component to render the timeline

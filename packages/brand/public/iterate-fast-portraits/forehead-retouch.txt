@@ -1,0 +1,6 @@
+Source: calm-here26-34.90.png
+Output: calm-here26-34.90-clean.png
+Tool: built-in image_gen followed by a feathered 22-pixel local composite centered at (742, 248). The original portrait is preserved outside this small area.
+
+Prompt:
+Precisely retouch only the small red pimple on the forehead of this existing transparent portrait, located at approximately x=742, y=248 in the 1323-by-1189 image, above the eyebrow on the viewer's right. Replace just the blemish with naturally matching nearby skin texture and tone. Do not smooth or retouch the rest of the face. Preserve the exact identity, expression, facial proportions, eyes, mouth, hair, stubble, shirt, lighting, colors, crop, image dimensions and transparent alpha edges. Do not reframe, redraw, beautify, sharpen, relight or add anything. Keep the transparent background. The only visible change should be removal of that one forehead pimple.

@@ -33,6 +33,7 @@ export type StudioHtmlOptions = {
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
 	fileSystemPlatform: string | null;
+	supportsNativeFilePicker: boolean;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -67,6 +68,7 @@ export const studioHtml = ({
 	renderDefaults,
 	publicFolderExists,
 	fileSystemPlatform,
+	supportsNativeFilePicker,
 	gitSource,
 	projectName,
 	installedDependencies,
@@ -190,8 +192,8 @@ export const studioHtml = ({
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
 		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
-		<script>window.remotion_audioEnabled = true;</script>
-		<script>window.remotion_videoEnabled = true;</script>
+		<script>window.remotion_audioEnabled ??= true;</script>
+		<script>window.remotion_videoEnabled ??= true;</script>
 		<script>window.remotion_studioConfig = ${JSON.stringify(
 			studioRuntimeConfig ?? null,
 		)};</script>
@@ -200,6 +202,7 @@ export const studioHtml = ({
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_fileSystemPlatform = ${JSON.stringify(fileSystemPlatform)};</script>
+		<script>window.remotion_supportsNativeFilePicker = ${JSON.stringify(supportsNativeFilePicker)};</script>
 		<script>window.remotion_studioServerCommand = ${
 			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
@@ -255,7 +258,7 @@ export const studioHtml = ({
 				// and should not be bumped for every generated HTML change.
 				// Keep it synchronized with requiredVersion in
 				// packages/renderer/src/set-props-and-env.ts by incrementing both values.
-				window.siteVersion = '11';
+				window.siteVersion = '12';
 				window.remotion_version = '${VERSION}';
 		</script>
 		

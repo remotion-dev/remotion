@@ -4,26 +4,24 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useMemo,
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {
-	LIGHT_TEXT,
-	TRANSPARENT,
-	WHITE,
-	WHITE_ALPHA_80,
-} from '../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {noop} from '../helpers/noop';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
 import {ActionTooltip} from './ActionTooltip';
+import {parseCompositionDuration} from './InspectorPanel/parse-composition-duration';
 import {Flex, Spacing} from './layout';
-import {InputDragger} from './NewComposition/InputDragger';
+import {InputDraggerWithTextEditing} from './NewComposition/InputDragger';
 import {TimelineTickFormatContext} from './Timeline/TimelineTickFormatProvider';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 
@@ -38,7 +36,7 @@ const text: React.CSSProperties = {
 };
 
 const currentTimeTypography: React.CSSProperties = {
-	color: WHITE_ALPHA_80,
+	color: LIGHT_TEXT,
 	display: 'inline-block',
 	fontSize: 14,
 	fontVariantNumeric: 'tabular-nums',
@@ -91,23 +89,33 @@ const currentTimeSubtitle: React.CSSProperties = {
 
 const CurrentTimeInput: React.FC<{
 	readonly buttonRef: React.Ref<HTMLButtonElement>;
-	readonly onTextChange: (value: string) => void;
 	readonly onValueChange: (value: number) => void;
-	readonly formatter: (value: string | number) => string;
-}> = ({buttonRef, onTextChange, onValueChange, formatter}) => {
+	readonly fps: number;
+}> = ({buttonRef, onValueChange, fps}) => {
 	const frame = useCurrentFrame();
+	const textEditing = useMemo(
+		() => ({
+			format: (value: string | number) => renderFrame(Number(value), fps),
+			parse: (input: string) => parseCompositionDuration(input, fps, true),
+			invalidMessage: 'Enter a frame number or a timecode such as 00:02.10.',
+			onCancel: noop,
+		}),
+		[fps],
+	);
 
 	return (
-		<InputDragger
+		<InputDraggerWithTextEditing
 			ref={buttonRef}
+			textEditing={textEditing}
+			valueFromSteps={null}
 			onValueChangeCancel={null}
 			integerOnly
 			step={1}
 			aria-label={String(frame)}
 			value={frame}
-			onTextChange={onTextChange}
+			onTextChange={noop}
 			onValueChange={onValueChange}
-			formatter={formatter}
+			formatter={textEditing.format}
 			formatterStyle={currentTimeTypography}
 			buttonStyle={currentTimeButtonStyle}
 			rightAlign={false}
@@ -133,24 +141,6 @@ export const TimeValue = React.memo(() => {
 	const keybindings = useKeybinding();
 	const ref = useRef<HTMLButtonElement>(null);
 
-	const onTextChange = useCallback(
-		(newVal: string) => {
-			seek(parseInt(newVal, 10));
-		},
-		[seek],
-	);
-	const onValueChange = useCallback(
-		(val: number) => {
-			seek(val);
-		},
-		[seek],
-	);
-	const formatter = useCallback(
-		(value: string | number) => {
-			return config ? renderFrame(Number(value), config.fps) : String(value);
-		},
-		[config],
-	);
 	useImperativeHandle(
 		Internals.timeValueRef,
 		() => ({
@@ -195,9 +185,8 @@ export const TimeValue = React.memo(() => {
 			<div style={currentTimeStack}>
 				<CurrentTimeInput
 					buttonRef={ref}
-					onTextChange={onTextChange}
-					onValueChange={onValueChange}
-					formatter={formatter}
+					onValueChange={seek}
+					fps={config.fps}
 				/>
 				<ActionTooltip
 					label="Toggle time format"

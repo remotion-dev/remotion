@@ -98,7 +98,7 @@ const transform2 = rotateX("45deg");
 // => "rotateX(45deg)"
 
 const transform3 = rotateX(1, "rad");
-// => "rotateX(45rad)"
+// => "rotateX(1rad)"
 ```
 
 ### rotateY()
@@ -185,7 +185,7 @@ const transform = scaleZ(2);
 import { skew } from "@remotion/animation-utils";
 
 const transform = skew(45);
-// => "skew(45deg)"
+// => "skew(45deg, 45deg)"
 ```
 
 ### skewX()
@@ -239,7 +239,7 @@ const transform5 = translate(0, "%", 10, "%");
 // => "translate(0%, 10%)"
 
 const transform6 = translate("10px", "30%");
-// => "translate(10px, 20%)"
+// => "translate(10px, 30%)"
 ```
 
 ### translate3d()

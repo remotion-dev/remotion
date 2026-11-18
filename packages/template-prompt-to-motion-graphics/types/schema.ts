@@ -24,3 +24,7 @@ export type ProgressResponse =
       url: string;
       size: number;
     };
+
+export type RenderStreamEvent =
+  | { type: "started"; renderId: string; bucketName: string }
+  | ProgressResponse;

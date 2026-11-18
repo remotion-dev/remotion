@@ -20,11 +20,11 @@ It uses the same color, gap, angle and alpha masking controls as [`lines()`](/do
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {checkerboard} from '@remotion/effects/checkerboard';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -38,8 +38,8 @@ export const MyComp: React.FC = () => {
             cellSize: 80,
             gap: 0,
             angle: 15,
-            offsetX: frame * 2,
-            offsetY: frame,
+            offsetX: interpolate(frame, [0, 60], [0, 120]),
+            offsetY: interpolate(frame, [0, 60], [0, 60]),
           }),
         ]}
       />
@@ -60,11 +60,11 @@ Defaults to `['#dff4ff', '#7cc6ff']`.
 
 ### `cellSize?`
 
-Size of each square cell in pixels. Defaults to `80`.
+Size of each square cell in pixels. Defaults to `80`. Must be greater than `0`.
 
 ### `gap?`
 
-Transparent gap in pixels between cells. Defaults to `0`.
+Transparent gap in pixels between cells. Defaults to `0`. Must be at least `0`.
 
 With `gap: 0` (the default), cells are packed solid with no gap between them.
 With `gap > 0`, the source content shows through between cells.
@@ -97,10 +97,14 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Implementations
 
-- WebGPU<AvailableFrom v="4.0.540" inline />
 - WebGL2
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

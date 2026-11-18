@@ -72,19 +72,19 @@ The component to wrap.
 With the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
 With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size container instead. `Component` must not declare `style`, `width`, or `height` props; these belong to the wrapper.
 
-### `componentName`?
+### `componentName?`
 
-The component name used by Studio and in validation messages.
+The component name used by Studio and in validation messages. Defaults to the `displayName` of `Component`, or its function name with an `Inner` suffix removed, or `'Component'`.
 
-### `schema`?
+### `schema?`
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which custom props are editable in Remotion Studio. Defaults to `{}`.
 
-Timing, premounting, cropping, and transform controls are included automatically.
+Timing, cropping, and transform controls are included automatically. Premounting props are accepted, but their controls are only shown if you spread [`Interactive.premountSchema`](/docs/interactivity-schema#interactivepremountschema) into the schema.
 
 See: [Make a component interactive](/docs/studio/make-component-interactive#create-a-schema)
 
-### `layout`?
+### `layout?`
 
 Defaults to `'none'`, which forwards styles to `Component` without adding a container.
 
@@ -95,16 +95,13 @@ The inner component can return a fragment and does not need to forward styles:
 ```tsx twoslash title="Scene.tsx"
 import React from 'react';
 import {Video} from '@remotion/media';
-import {Interactive, useVideoConfig} from 'remotion';
+import {Interactive} from 'remotion';
 
 const SceneInner: React.FC = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
       <Video
         src="https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0466.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{width: '100%', height: '100%'}}
       />
@@ -124,7 +121,7 @@ export const Scene = Interactive.create({
 });
 
 const Example = () => (
-  <Scene from={30} durationInFrames={90} premountFor={30} style={{opacity: 0.5}} />
+  <Scene from={30} durationInFrames={90} style={{opacity: 0.5}} />
 );
 ```
 

@@ -4,6 +4,9 @@ export const errorAsJson = (fn: ActionFunction): ActionFunction => {
   return async (...args) => {
     try {
       const res = await fn(...args);
+      if (res instanceof Response) {
+        return res;
+      }
       return new Response(JSON.stringify({ type: "success", data: res }), {
         status: 200,
       });

@@ -3,6 +3,7 @@
 import type {Instruction} from '@remotion/paths';
 import {
 	PathInternals,
+	parsePath,
 	reduceInstructions,
 	resetPath,
 	serializeInstructions,
@@ -75,6 +76,10 @@ export const makeStar = ({
 	cornerRadius = 0,
 	edgeRoundness = null,
 }: MakeStarProps): ShapeInfo => {
+	if (points < 3) {
+		throw new Error(`"points" should be minimum 3, got ${points}`);
+	}
+
 	const width = outerRadius * 2;
 	const height = outerRadius * 2;
 
@@ -99,7 +104,7 @@ export const makeStar = ({
 		path,
 		width: boundingBox.width,
 		height: boundingBox.height,
-		transformOrigin: `${centerX} ${centerY}`,
-		instructions: starPathInstructions,
+		transformOrigin: `${centerX - boundingBox.x1} ${centerY - boundingBox.y1}`,
+		instructions: parsePath(path),
 	};
 };

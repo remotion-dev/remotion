@@ -109,6 +109,9 @@ const getContainerStyle = (
 	display: 'flex',
 	overflow: 'hidden',
 	position: 'relative',
+	// Keeps canvas overlays such as the drop preview below floating Studio UI,
+	// like the composition browser in narrow layouts.
+	isolation: 'isolate',
 	backgroundColor: BACKGROUND,
 	...(editorZoomGestures ? {touchAction: 'none' as const} : {}),
 });
@@ -205,6 +208,18 @@ const isDragEventInsideCanvas = (event: DragEvent): boolean => {
 	const targetIsNode = event.target instanceof Node;
 	if (targetIsNode && current.contains(event.target as Node)) {
 		return true;
+	}
+
+	// Floating panels, such as the composition browser in narrow layouts, are
+	// portaled above the canvas. Drags over them do not target the canvas.
+	const targetElement =
+		event.target instanceof Element
+			? event.target
+			: targetIsNode
+				? (event.target as Node).parentElement
+				: null;
+	if (targetElement?.closest('[data-canvas-drop-occluder]')) {
+		return false;
 	}
 
 	const rect = current.getBoundingClientRect();
@@ -1068,6 +1083,7 @@ export const Canvas: React.FC<{
 				}
 
 				await handleDrop({
+					insert: null,
 					chooseSvgImportMode,
 					compositionFile,
 					compositionId: currentCompositionId,
@@ -1186,6 +1202,7 @@ export const Canvas: React.FC<{
 			setIsAddingAsset(true);
 			try {
 				await importAssets({
+					insert: null,
 					files,
 					fps: config.fps,
 					compositionFile,

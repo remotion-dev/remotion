@@ -78,7 +78,7 @@ Reverse the timing curve.
 
 ## Recommendation: Set a low duration rest threshold
 
-The default `durationRestThreshold` is `0.005` (same as `spring()`). This means that if the animations has progressed 99.5%, it is considered to be finished.  
+The default `durationRestThreshold` is `0.005` (same as `spring()`). This means that if the animation has progressed 99.5%, it is considered to be finished.  
 For a transition, this can lead to a slightly noticeable cutoff of the animation:
 
 <Demo type="slide-long-duration-rest" />
@@ -86,8 +86,14 @@ For a transition, this can lead to a slightly noticeable cutoff of the animation
 To avoid this, set a low `durationRestThreshold`, we recommend `0.001`.
 
 Consider that this will also increase the duration of the animation.
-If you set a fixed `durationInFrames`, the animation will feel faster because it for longer it is not considered to be finished.
+If you set a fixed `durationInFrames`, the animation will feel faster because a longer part of the spring has to fit into the same duration.
 
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this timing](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/timings/spring-timing.ts)
+- [`linearTiming()`](/docs/transitions/timings/lineartiming)
+- [Timings](/docs/transitions/timings)

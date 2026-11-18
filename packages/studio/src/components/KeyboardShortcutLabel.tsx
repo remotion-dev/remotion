@@ -36,7 +36,7 @@ export const KeyboardShortcutLabel: React.FC<{
 	parts.push(visualShortcut.slice(previousEnd));
 
 	return (
-		<span aria-label={shortcut} style={{...shortcutLabel, ...style}}>
+		<span role="img" aria-label={shortcut} style={{...shortcutLabel, ...style}}>
 			{parts}
 		</span>
 	);

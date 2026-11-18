@@ -13,8 +13,10 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
+	showDiagnostics: {value: false, source: 'config' as const},
 	showLayerFrameNumbers: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
@@ -32,6 +34,7 @@ const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	})),
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
+	keyboardShortcuts: null,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
 });

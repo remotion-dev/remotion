@@ -3,6 +3,7 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
+	getLineIndent,
 	getSourceFormattingConfig,
 	normalizePrintedIndentation,
 } from './source-style';
@@ -185,6 +186,9 @@ export const printInsertedJsx = ({
 			objectCurlySpacing: formattingConfig.bracketSpacing,
 			quote: formattingConfig.quote,
 			tabWidth,
+			trailingComma:
+				Number.isFinite(wrapColumn) &&
+				prettierConfigOverride?.trailingComma === 'all',
 			useTabs: false,
 			wrapColumn,
 		}).code;
@@ -199,7 +203,12 @@ export const printInsertedJsx = ({
 		});
 	};
 
-	const printOpeningElement = (opening: namedTypes.JSXOpeningElement) => {
+	const printOpeningElement = (
+		opening: namedTypes.JSXOpeningElement,
+		indentWidth: number,
+	) => {
+		const availableWidth = printWidth - indentWidth;
+		const attributeWidth = availableWidth - tabWidth;
 		const name = printNode(opening.name, printWidth);
 		const attributes = (opening.attributes ?? []).map((attribute) => {
 			const originalAttributeSource = originalAttributeSources?.get(attribute);
@@ -262,15 +271,16 @@ export const printInsertedJsx = ({
 							printed,
 						})
 					: printed;
-			return !unwrapped.includes(endOfLine) && unwrapped.length <= printWidth
+			return !unwrapped.includes(endOfLine) &&
+				unwrapped.length <= attributeWidth
 				? unwrapped
-				: normalizeIndentation(printNode(attribute, printWidth));
+				: normalizeIndentation(printNode(attribute, attributeWidth));
 		});
 		const suffix = opening.selfClosing ? ' />' : '>';
 		const singleLine = `<${name}${attributes.length === 0 ? '' : ` ${attributes.join(' ')}`}${suffix}`;
 		if (
 			!attributes.some((attribute) => attribute.includes(endOfLine)) &&
-			singleLine.length <= printWidth
+			singleLine.length <= availableWidth
 		) {
 			return singleLine;
 		}
@@ -286,11 +296,12 @@ export const printInsertedJsx = ({
 
 	const printElement = (
 		node: namedTypes.JSXElement | namedTypes.JSXFragment,
+		indentWidth: number,
 	): string => {
 		if (node.type === 'JSXFragment') {
 			const fragmentChildren = (node.children ?? []).flatMap((child) => {
 				if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
-					return [printElement(child)];
+					return [printElement(child, indentWidth + tabWidth)];
 				}
 
 				if (child.type === 'JSXText' && child.value.trim() === '') {
@@ -308,7 +319,7 @@ export const printInsertedJsx = ({
 			].join(endOfLine);
 		}
 
-		const opening = printOpeningElement(node.openingElement);
+		const opening = printOpeningElement(node.openingElement, indentWidth);
 		if (node.openingElement.selfClosing) {
 			return opening;
 		}
@@ -337,7 +348,7 @@ export const printInsertedJsx = ({
 
 		const printedChildren = children.flatMap((child) => {
 			if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
-				return [printElement(child)];
+				return [printElement(child, indentWidth + tabWidth)];
 			}
 
 			if (child.type === 'JSXText' && child.value.trim() === '') {
@@ -359,7 +370,18 @@ export const printInsertedJsx = ({
 		].join(endOfLine);
 	};
 
-	return printElement(element);
+	const initialIndent =
+		element.loc && input
+			? getLineIndent({
+					input,
+					offset: recastLocToOffset(input, element.loc.start),
+				})
+			: '';
+	const initialIndentWidth = [...initialIndent].reduce(
+		(width, character) => width + (character === '\t' ? tabWidth : 1),
+		0,
+	);
+	return printElement(element, initialIndentWidth);
 };
 
 export const printJsxOpeningElement = ({

@@ -1,5 +1,6 @@
 import {
 	CodemodsInternals,
+	updateInlineCaptionPatches,
 	applyCodemodChanges,
 	getNodeProps,
 	type CodemodNodeResult,
@@ -15,7 +16,7 @@ import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import type {VirtualProject} from './types';
 
-const {findProjectFile, updateInlineCaptionPatches} = CodemodsInternals;
+const {findProjectFile} = CodemodsInternals;
 
 const parseSequencePropEditValue = (
 	value: SaveSequencePropEdit['value'],
@@ -103,11 +104,16 @@ export const saveSequencePropsInProject = ({
 		);
 		if (remapping?.newNodePath === null)
 			throw new Error('The caption node was removed');
-		nextFiles[absolutePath] = updateInlineCaptionPatches({
-			input: nextFiles[absolutePath],
-			nodePath: remapping?.newNodePath ?? oldNodePath,
+		const result = updateInlineCaptionPatches({
+			project: {...project, files: nextFiles},
+			node: {
+				filePath: absolutePath,
+				nodePath: remapping?.newNodePath ?? oldNodePath,
+			},
 			patches: captionPatch.patches,
-		}).output;
+		});
+		nextFiles[absolutePath] =
+			result.changes[0]?.nextContents ?? nextFiles[absolutePath];
 		if (!remapping)
 			nodePathRemappings.push({
 				filePath: absolutePath,

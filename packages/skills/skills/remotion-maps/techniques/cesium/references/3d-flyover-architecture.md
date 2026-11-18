@@ -16,12 +16,13 @@ MapTiler supplies both datasets; no Cesium ion token is required.
 
 ### City
 
-Do not add MapTiler. Hide the globe, then add:
+Do not add MapTiler. Hide the globe, then add the tileset. Replace `YOUR_API_KEY`
+with a Google Map Tiles API key.
 
 ```ts
 viewer.scene.globe.show = false;
 const tileset = await Cesium.Cesium3DTileset.fromUrl(
-  `https://tile.googleapis.com/v1/3dtiles/root.json?key=${GOOGLE_KEY}`,
+  'https://tile.googleapis.com/v1/3dtiles/root.json?key=YOUR_API_KEY',
   {showCreditsOnScreen: true, maximumScreenSpaceError: 4},
 );
 viewer.scene.primitives.add(tileset);

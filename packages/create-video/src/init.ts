@@ -29,6 +29,7 @@ import {resolveProjectRoot} from './resolve-project-root';
 import {
 	getDirectoryArgument,
 	isHelpFlagSelected,
+	isSkillsFlagSelected,
 	isTailwindFlagSelected,
 	isTmpFlagSelected,
 	isYesFlagSelected,
@@ -164,7 +165,11 @@ export const init = async () => {
 	const shouldOverrideTailwind =
 		selectedTemplate.allowEnableTailwind && isTailwindFlagSelected();
 
-	const skillsInstallation = isYesFlagSelected() ? null : await askSkills();
+	const skillsInstallation = isSkillsFlagSelected()
+		? 'recommended'
+		: isYesFlagSelected()
+			? null
+			: await askSkills();
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
@@ -345,9 +350,9 @@ export const init = async () => {
 		'Adopting Remotion in your company? Visit ' +
 			chalk.blue(
 				makeHyperlink({
-					text: 'remotion.pro/license',
-					url: 'https://remotion.pro/license',
-					fallback: 'https://www.remotion.pro/license',
+					text: 'remotion.dev/docs/license/pricing',
+					url: 'https://www.remotion.dev/docs/license/pricing',
+					fallback: 'https://www.remotion.dev/docs/license/pricing',
 				}),
 			),
 	);

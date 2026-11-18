@@ -19,7 +19,7 @@ const {outputPath, sizeInBytes} = await downloadMedia({
   renderId: '8hfxlw',
   outPath: 'out.mp4',
   onProgress: ({totalSize, downloaded, percent}) => {
-    console.log(`Download progress: ${totalSize}/${downloaded} bytes (${(percent * 100).toFixed(0)}%)`);
+    console.log(`Download progress: ${downloaded}/${totalSize} bytes (${(percent * 100).toFixed(0)}%)`);
   },
 });
 
@@ -55,9 +55,17 @@ Select the output to download: `"main"` (the default) or `"separate-audio"` for 
 
 Callback function that gets called with the following properties:
 
-- `totalSize` in bytes
-- `downloaded` number of bytes downloaded
-- `percent` relative progress between 0 and 1
+#### `totalSize`
+
+The total size in bytes.
+
+#### `downloaded`
+
+The number of bytes downloaded.
+
+#### `percent`
+
+The relative progress between 0 and 1.
 
 ### `customCredentials?`<AvailableFrom v="3.2.23" />
 
@@ -68,6 +76,18 @@ When downloading `"separate-audio"`, pass the credentials for its destination.
 ### `signal?`<AvailableFrom v="4.0.406" />
 
 An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that allows the download to be cancelled.
+
+### `logLevel?`
+
+<Options id="log" />
+
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
 
 ## Return value
 
@@ -83,10 +103,10 @@ The size of the file in bytes.
 
 ## Compatibility
 
-<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions={false} clientSideRendering="" serverSideRendering="" player="" studio="" hideBrowsers />
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/download-media.ts)
-- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
-- [renderStillOnLambda()](/docs/lambda/renderstillonlambda)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)

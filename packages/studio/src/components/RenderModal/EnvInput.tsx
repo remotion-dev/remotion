@@ -88,6 +88,7 @@ export const EnvInput: React.FC<{
 		<>
 			<Row align="center" style={optionRow}>
 				<RemotionInput
+					aria-label={`Environment variable ${index + 1} key`}
 					status={
 						isNodeEnvKey || isDuplicate || isKeyMissing ? 'warning' : 'ok'
 					}
@@ -102,6 +103,7 @@ export const EnvInput: React.FC<{
 				/>
 				<Spacing x={1} />
 				<RemotionInput
+					aria-label={`Environment variable ${index + 1} value`}
 					status={isValMissing ? 'warning' : 'ok'}
 					placeholder="Value"
 					type={showInPlainText ? 'text' : 'password'}

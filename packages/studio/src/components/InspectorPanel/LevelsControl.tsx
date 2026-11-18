@@ -9,6 +9,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 
 export type LevelsValues = {
 	blackPoint: number;
@@ -231,7 +232,10 @@ export const LevelsControl: React.FC<{
 	readonly histogram: React.ReactNode;
 }> = ({values, editable, onChange, onCancel, histogram}) => {
 	return (
-		<div style={{padding: '8px 20px 4px', userSelect: 'none'}}>
+		<div
+			style={{padding: '8px 20px 4px', userSelect: 'none'}}
+			{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+		>
 			<div style={{fontSize: 11, color: LIGHT_TEXT, marginBottom: 6}}>
 				Input levels
 			</div>

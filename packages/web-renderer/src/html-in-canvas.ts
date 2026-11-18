@@ -32,10 +32,13 @@ export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 	);
 };
 
+const NATIVE_PAINT_TIMEOUT_MS = 5_000;
+
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;
 	wasDrawable: boolean;
+	paintTimedOut: boolean;
 };
 
 /**
@@ -94,13 +97,14 @@ export const setupHtmlInCanvas = ({
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx, wasDrawable};
+	return {layoutCanvas, ctx: maybeCtx, wasDrawable, paintTimedOut: false};
 };
 
 const waitForPaint = (
-	layoutCanvas: HTMLCanvasWithLayoutSubtree,
+	htmlInCanvasContext: HtmlInCanvasContext,
 	signal: AbortSignal | null,
 ): Promise<void> => {
+	const {layoutCanvas} = htmlInCanvasContext;
 	return new Promise((resolve, reject) => {
 		let paintTimer: ReturnType<typeof setTimeout> | null = null;
 		let onPaint: () => void = () => undefined;
@@ -124,6 +128,10 @@ const waitForPaint = (
 			// so WebGL context eviction cannot destroy a texture layer during commit.
 			// Remove this workaround once the Chromium fix ships in supported Chrome versions.
 			// https://github.com/remotion-dev/remotion/issues/12293
+			if (paintTimer !== null) {
+				clearTimeout(paintTimer);
+			}
+
 			paintTimer = setTimeout(() => {
 				cleanup();
 				resolve();
@@ -137,6 +145,15 @@ const waitForPaint = (
 
 		layoutCanvas.addEventListener('paint', onPaint, {once: true});
 		signal?.addEventListener('abort', onAbort, {once: true});
+		paintTimer = setTimeout(() => {
+			cleanup();
+			htmlInCanvasContext.paintTimedOut = true;
+			reject(
+				new Error(
+					`Native canvas paint timed out after ${NATIVE_PAINT_TIMEOUT_MS}ms`,
+				),
+			);
+		}, NATIVE_PAINT_TIMEOUT_MS);
 		try {
 			layoutCanvas.requestPaint!();
 		} catch (error) {
@@ -159,12 +176,14 @@ export const drawWithHtmlInCanvas = async ({
 	scaledWidth,
 	scaledHeight,
 	signal,
+	transparent,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
 	signal: AbortSignal | null;
+	transparent: boolean;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -176,15 +195,19 @@ export const drawWithHtmlInCanvas = async ({
 		layoutCanvas.height = scaledHeight;
 	}
 
-	await waitForPaint(layoutCanvas, signal);
+	await waitForPaint(htmlInCanvasContext, signal);
 
 	ctx.reset();
 	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
 
 	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
-	const offCtx = offscreen.getContext('2d');
+	const offCtx = offscreen.getContext('2d', {alpha: transparent});
 	if (!offCtx) {
 		throw new Error('Could not get offscreen context');
+	}
+
+	if (!transparent) {
+		offCtx.fillRect(0, 0, scaledWidth, scaledHeight);
 	}
 
 	offCtx.drawImage(layoutCanvas, 0, 0);

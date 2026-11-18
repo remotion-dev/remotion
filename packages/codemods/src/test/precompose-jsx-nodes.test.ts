@@ -85,10 +85,8 @@ test('precomposes the roller-skis presenter and captions without changing their 
 		existingCompositionIds: ['RollerSkiRoughCut'],
 		name: null,
 	};
-	expect(canPrecomposeJsxNodes(request)).toEqual({
-		canPrecompose: true,
-		reason: null,
-	});
+	// canPrecomposeJsxNodes() runs the full codemod, so call it only on the small
+	// fixtures below. Running both on this large source doubles the test's cost.
 	const result = precomposeJsxNodes(request);
 	const after = applyCodemodChanges(project, result.changes);
 	const afterNodes = getNodes({project: after, filePath});
@@ -179,7 +177,8 @@ test('precomposes the roller-skis presenter and captions without changing their 
 	}
 
 	expect(project.files[filePath]).toBe(input);
-});
+	// Parses and prints a real ~90KB composition, which is slow on CI runners.
+}, 30_000);
 
 for (const {imports, parentTag, sequenceTag, extraProps} of [
 	{

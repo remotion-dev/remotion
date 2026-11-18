@@ -9,9 +9,10 @@ import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 export const InlineCompositionName: React.FC<{
 	readonly compositionId: string;
+	readonly onEditingChange: (editing: boolean) => void;
 	readonly stack: string | null;
 	readonly compositions: _InternalTypes['AnyComposition'][];
-}> = ({compositionId, stack, compositions}) => {
+}> = ({compositionId, stack, compositions, onEditingChange}) => {
 	const canRename = !window.remotion_isReadOnlyStudio;
 	const resolvedLocation = useResolvedStack(stack);
 	const symbolicatedStack = useMemo(
@@ -83,6 +84,7 @@ export const InlineCompositionName: React.FC<{
 	return (
 		<InlineEditableTitle
 			value={compositionId}
+			onEditingChange={onEditingChange}
 			canRename={canRename}
 			onCommit={commit}
 			size="inspector"

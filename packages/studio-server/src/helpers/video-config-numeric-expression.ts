@@ -1,4 +1,5 @@
 import type {Expression} from '@babel/types';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {
@@ -9,28 +10,6 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {VideoConfigIdentifierValues} from './video-config-values';
 
 const b = recast.types.builders;
-
-const getNumericLiteral = (node: Expression): number | null => {
-	if (node.type === 'NumericLiteral') {
-		return Number.isFinite(node.value) ? node.value : null;
-	}
-
-	if (
-		node.type === 'UnaryExpression' &&
-		(node.operator === '-' || node.operator === '+') &&
-		node.argument.type === 'NumericLiteral'
-	) {
-		const value =
-			node.operator === '-' ? -node.argument.value : node.argument.value;
-		return Number.isFinite(value) ? value : null;
-	}
-
-	if (node.type === 'TSAsExpression') {
-		return getNumericLiteral(node.expression as Expression);
-	}
-
-	return null;
-};
 
 const getVideoConfigValue = ({
 	node,
@@ -75,7 +54,7 @@ export const parseVideoConfigNumericExpression = ({
 		});
 	}
 
-	const literal = getNumericLiteral(node);
+	const literal = CodemodsInternals.getStaticNumericValue(node);
 	if (literal !== null) {
 		return {type: 'literal', value: literal};
 	}
@@ -96,7 +75,7 @@ export const parseVideoConfigNumericExpression = ({
 			node: left,
 			videoConfigValues,
 		});
-		const subtrahend = getNumericLiteral(right);
+		const subtrahend = CodemodsInternals.getStaticNumericValue(right);
 		if (minuend === null || subtrahend === null) {
 			return null;
 		}
@@ -113,8 +92,8 @@ export const parseVideoConfigNumericExpression = ({
 		return null;
 	}
 
-	const leftNumber = getNumericLiteral(left);
-	const rightNumber = getNumericLiteral(right);
+	const leftNumber = CodemodsInternals.getStaticNumericValue(left);
+	const rightNumber = CodemodsInternals.getStaticNumericValue(right);
 	const leftVideoConfig = getVideoConfigValue({
 		node: left,
 		videoConfigValues,

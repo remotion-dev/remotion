@@ -18,12 +18,12 @@ A wave effect that can be applied to canvas-based components such as [`<Video>`]
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
-import {useCurrentFrame} from 'remotion';
+```tsx twoslash title="MyScene.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {wave} from '@remotion/effects/wave';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -32,7 +32,7 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           wave({
-            phase: frame * 0.2,
+            phase: interpolate(frame, [0, 60], [0, 12]),
             amplitude: 22,
             wavelength: 180,
           }),
@@ -45,7 +45,7 @@ export const MyComp: React.FC = () => {
 
 ## API
 
-Pass an object with the following properties.
+Pass an object with the following properties. You can also call `wave()` without arguments.
 
 ### `phase?`
 
@@ -62,7 +62,7 @@ To combine both axes, chain two `wave()` calls with different `direction` values
 
 ### `amplitude?`
 
-Displacement strength in pixels. Defaults to `60`.
+Displacement strength in pixels. Defaults to `60`. Must be at least `0`.
 
 ### `wavelength?`
 
@@ -75,9 +75,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU <AvailableFrom v="4.0.540" />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

@@ -4,6 +4,7 @@ import type {
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {getLiveEventsListener} from './live-events';
+import {validateSourceMutation} from './source-mutation-guard';
 
 const mutationSessionId = randomUUID();
 let mutationCounter = 0;
@@ -26,6 +27,7 @@ export const broadcastSequenceNodePathMutation = (
 	timelineSelection: SequenceNodePathMutation['timelineSelection'],
 	applyWithoutFastRefresh = false,
 ): SequenceNodePathMutation => {
+	validateSourceMutation();
 	mutationCounter++;
 	const mutation: SequenceNodePathMutation = {
 		mutationId: `${mutationSessionId}:${mutationCounter}`,

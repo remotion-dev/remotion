@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {Checkmark} from '../icons/Checkmark';
@@ -15,7 +15,9 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import {toggleLoop} from './LoopToggle';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {usePlaybackRateMenuItems} from './PlaybackRateSelector';
 import {usePreviewSizeMenuItems} from './SizeSelector';
+import {useAudioLevelsMenuItem} from './use-audio-levels-menu-item';
 
 const clickButton = (id: string) => {
 	(document.getElementById(id) as HTMLButtonElement | null)?.click();
@@ -23,20 +25,27 @@ const clickButton = (id: string) => {
 
 export const PreviewToolbarOverflowButton: React.FC<{
 	readonly showFullscreen: boolean;
+	readonly showPlaybackRate: boolean;
 	readonly showLoop: boolean;
 	readonly showCanvasViewControls: boolean;
 	readonly showCompositionControls: boolean;
+	readonly playbackRate: number;
+	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 	readonly loop: boolean;
 	readonly setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	showFullscreen,
+	showPlaybackRate,
 	showLoop,
 	showCanvasViewControls,
 	showCompositionControls,
+	playbackRate,
+	setPlaybackRate,
 	loop,
 	setLoop,
 }) => {
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const audioLevelsMenuItem = useAudioLevelsMenuItem(null);
 	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
 	const loopShortcut = useKeyboardShortcutLabel('toggleLoop');
 	const outlinesShortcut = useKeyboardShortcutLabel('toggleOutlines');
@@ -60,6 +69,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		selectedId: selectedPreviewSize,
 		zoomable,
 	} = usePreviewSizeMenuItems();
+	const {items: playbackRateItems, selectedId: selectedPlaybackRate} =
+		usePlaybackRateMenuItems({playbackRate, setPlaybackRate});
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -93,6 +104,26 @@ export const PreviewToolbarOverflowButton: React.FC<{
 					leaveLeftSpace: true,
 					preselectIndex: previewSizeItems.findIndex(
 						(item) => item.id === selectedPreviewSize,
+					),
+				},
+				quickSwitcherLabel: null,
+			});
+		}
+
+		if (showPlaybackRate) {
+			items.push({
+				type: 'item',
+				id: 'playback-rate',
+				label: 'Playback Rate',
+				value: 'playback-rate',
+				onClick: () => undefined,
+				keyHint: null,
+				leftItem: null,
+				subMenu: {
+					items: playbackRateItems,
+					leaveLeftSpace: true,
+					preselectIndex: playbackRateItems.findIndex(
+						(item) => item.id === selectedPlaybackRate,
 					),
 				},
 				quickSwitcherLabel: null,
@@ -189,6 +220,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			});
 		}
 
+		items.push(audioLevelsMenuItem);
+
 		if (showFullscreen) {
 			items.push({
 				type: 'item',
@@ -208,13 +241,17 @@ export const PreviewToolbarOverflowButton: React.FC<{
 
 		return items;
 	}, [
+		audioLevelsMenuItem,
 		checkerboardShortcut,
 		fullscreenShortcut,
 		loopShortcut,
 		previewSizeItems,
+		playbackRateItems,
+		selectedPlaybackRate,
 		selectedPreviewSize,
 		showFullscreen,
 		showLoop,
+		showPlaybackRate,
 		showCanvasViewControls,
 		showCompositionControls,
 		loop,
@@ -251,7 +288,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				renderAction={renderAction}
 				values={values}
 				aria-label="More actions"
-				unhoveredColor={WHITE_ALPHA_80}
+				unhoveredColor={LIGHT_TEXT}
 			/>
 		</ActionTooltip>
 	);

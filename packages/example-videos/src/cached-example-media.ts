@@ -16,6 +16,7 @@ const cachedExampleMedia = {
 	music: 'music.mp3',
 	iphonehevc: 'iphone-hevc.mov',
 	stretchedVp8: 'stretched-vp8.webm',
+	edts: 'edts.mp4',
 } as const;
 
 type CachedKey = keyof typeof cachedExampleMedia;

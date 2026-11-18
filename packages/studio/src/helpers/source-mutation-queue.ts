@@ -12,6 +12,10 @@ export const getSourceMutationRevision = () => revision;
 export const getLastDispatchedSourceMutationRevision = () =>
 	lastDispatchedRevision;
 export const getActiveSourceMutationRevision = () => activeRevision;
+export const cancelActiveSourceMutation = (cancelledRevision: number) => {
+	if (activeRevision === cancelledRevision) activeRevision = null;
+};
+
 export const waitForSourceMutationQueue = (): Promise<unknown> => chain;
 
 // Reserve the revision synchronously, in user action order. A response may finish

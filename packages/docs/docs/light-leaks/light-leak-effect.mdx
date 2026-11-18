@@ -24,16 +24,12 @@ Use it when you want to add the light leak effect through an [`effects`](/docs/e
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {lightLeak} from '@remotion/light-leaks';
 import {CanvasImage, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <CanvasImage
@@ -45,7 +41,10 @@ export const MyComp: React.FC = () => {
         lightLeak({
           seed: 3,
           hueShift: 30,
-          progress,
+          progress: interpolate(frame, [0, 30], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
         }),
       ]}
     />
