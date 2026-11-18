@@ -1,0 +1,510 @@
+{
+	"takes": [
+		{
+			"originalFile": "motionblur1.mov",
+			"sha256": "c3b31409c4f7456ec58189da5df38b292abfc1a1e7e24324bc70394fd16911ca",
+			"bytes": 36045437,
+			"durationInSeconds": 19.383333,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur1-c3b31409c4f7.mov"
+		},
+		{
+			"originalFile": "motionblur2.mov",
+			"sha256": "877e2ac3e47a1d8fb506df28f955cc5eca3e9c6857db859d44755f75adfb6650",
+			"bytes": 26458071,
+			"durationInSeconds": 14.27,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur2-877e2ac3e47a.mov"
+		},
+		{
+			"originalFile": "motionblur3.mov",
+			"sha256": "be5cefd516780eb8d5bc7109f4cc014eb17a0fdfdfd0c92c724c9b99de52218f",
+			"bytes": 19585559,
+			"durationInSeconds": 10.545,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur3-be5cefd51678.mov"
+		},
+		{
+			"originalFile": "motionblur4.mov",
+			"sha256": "63f1841794927041b6cc2cbcc284fb4697b9b867f501ef978a58ae056db1efa1",
+			"bytes": 16951902,
+			"durationInSeconds": 9.095,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur4-63f184179492.mov"
+		},
+		{
+			"originalFile": "motionblur5.mov",
+			"sha256": "56ef839c3bc9b04f9a991f2eb990fae2c3b80aeaa55e85ab4783f6e4604b9f34",
+			"bytes": 28818560,
+			"durationInSeconds": 15.421667,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur5-56ef839c3bc9.mov"
+		},
+		{
+			"originalFile": "motionblur6.mov",
+			"sha256": "bfcb3ee8d79b510d163ce641e45627591f89615057ee0e4a27a28592d513b47c",
+			"bytes": 19185049,
+			"durationInSeconds": 10.26,
+			"width": 1920,
+			"height": 1080,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur6-bfcb3ee8d79b.mov"
+		}
+	],
+	"audioFiles": [
+		{
+			"originalFile": "motionblur1.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur1-auphonic-f5707c0628bc.flac",
+			"sha256": "f5707c0628bcd4f1860ec123e1299a62665f4ea3b6462fa7229d198e679c3e54",
+			"bytes": 2430960,
+			"samples": 930101,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		},
+		{
+			"originalFile": "motionblur2.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur2-auphonic-35babfd50e39.flac",
+			"sha256": "35babfd50e39d9cc1eec4c9f516d40f4320b1baa2af7f2f52509fa4307c31df6",
+			"bytes": 1555408,
+			"samples": 684138,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		},
+		{
+			"originalFile": "motionblur3.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur3-auphonic-ca939e5d5769.flac",
+			"sha256": "ca939e5d57693190018e7f9bc8d732b1f33bc6445f6fa45bb8d324f14f5704d3",
+			"bytes": 1052185,
+			"samples": 506221,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		},
+		{
+			"originalFile": "motionblur4.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur4-auphonic-041ad03f19e2.flac",
+			"sha256": "041ad03f19e25d74db9ddc04806092d7a537bde6f8a24bb1303c685cc1c61da5",
+			"bytes": 1049205,
+			"samples": 436587,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		},
+		{
+			"originalFile": "motionblur5.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur5-auphonic-a1b798ab2831.flac",
+			"sha256": "a1b798ab2831d650cc80665fa3211fdaa39048e359c8fe93e16c61dd6507a754",
+			"bytes": 1760438,
+			"samples": 738460,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		},
+		{
+			"originalFile": "motionblur6.mov",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur6-auphonic-4b4e7dc94a41.flac",
+			"sha256": "4b4e7dc94a414ce5fd9bc7cf942261249b6582bfc0af95fd4aadd38abe3b47a0",
+			"bytes": 1213353,
+			"samples": 491551,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5
+		}
+	],
+	"bRoll": [
+		{
+			"originalFile": "15488699_3840_2160_50fps.mp4",
+			"url": "https://remotion.media/motion-blur-2026-11-17/subway-motion-blur-ef598b5ed372.mp4",
+			"sha256": "ef598b5ed3728700b6ba9aa72a2586dc12f364725f30ef8d5d47f25003a8cc80",
+			"bytes": 33208774,
+			"width": 3840,
+			"height": 2160,
+			"frameRate": 50,
+			"durationInSeconds": 18.4,
+			"credit": "Orhan Pergel · Pexels",
+			"sourceUrl": "https://www.pexels.com/video/blurry-subway-train-in-motion-at-station-36526912/",
+			"licenseUrl": "https://www.pexels.com/license/"
+		}
+	],
+	"canvasCaptures": [
+		{
+			"originalFile": "remotion-capture-localhost-2026-11-17T15-34-02-821Z.mp4",
+			"url": "https://remotion.media/motion-blur-2026-11-17/editor-motion-blur-a1fd60b259cf.mp4",
+			"sha256": "a1fd60b259cff9faabd1681e8a16afc2b5a764fec81a3933ceb59936cb0e97d0",
+			"bytes": 912567,
+			"width": 3742,
+			"height": 1966,
+			"durationInSeconds": 14.89441,
+			"compositionId": "MotionBlurEditorCapture"
+		},
+		{
+			"originalFile": "remotion-capture-localhost-2026-11-17T15-47-53-107Z.mp4",
+			"url": "https://remotion.media/motion-blur-2026-11-17/motion-blur-click-d947c221a1d3.mp4",
+			"sha256": "d947c221a1d3265dccc28420e314365020e3379e15e09eb8dce088c3a00b9262",
+			"bytes": 328130,
+			"width": 1262,
+			"height": 1184,
+			"durationInSeconds": 14.19191,
+			"compositionId": "MotionBlurClickCapture"
+		},
+		{
+			"originalFile": "remotion-capture-localhost-2026-11-17T16-16-11-961Z.mp4",
+			"url": "https://remotion.media/motion-blur-2026-11-17/scrub-capture-5f421b00bc82.mp4",
+			"sha256": "5f421b00bc821289773d6c683dbf2c83cabf7f48796a81999b3c8084bd294694",
+			"bytes": 842600,
+			"width": 1904,
+			"height": 1440,
+			"durationInSeconds": 15.331302,
+			"compositionId": "MotionBlurScrubCapture"
+		},
+		{
+			"originalFile": "remotion-capture-localhost-2026-11-17T16-40-58-664Z.mp4",
+			"url": "https://remotion.media/motion-blur-2026-11-17/selection-capture-6481a1ca544b.mp4",
+			"sha256": "6481a1ca544befb1cb0b4170c82a04c6a4b1325b3d039f1872a902c24848148f",
+			"bytes": 84749,
+			"width": 1572,
+			"height": 1440,
+			"durationInSeconds": 6.844913,
+			"compositionId": "MotionBlurSelectCapture"
+		}
+	],
+	"originalAudioFiles": [
+		{
+			"originalFile": "motionblur1.mov",
+			"sha256": "54d2ccc2c9283de123706bc03eb3df19c330d49b3d71a0cc259f19769747887d",
+			"bytes": 1797214,
+			"samples": 930101,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur1-54d2ccc2c928-dialogue.flac"
+		},
+		{
+			"originalFile": "motionblur2.mov",
+			"sha256": "9e2aca7546483b5f497f3c88dcb3399ba689883f617413bd5741d072729c3bab",
+			"bytes": 1232605,
+			"samples": 684138,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur2-9e2aca754648-dialogue.flac"
+		},
+		{
+			"originalFile": "motionblur3.mov",
+			"sha256": "5072189e739b483941d50e0b01c909ff405d509ce4e2ad3dfc9a897546044f9e",
+			"bytes": 931622,
+			"samples": 506221,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur3-5072189e739b-dialogue.flac"
+		},
+		{
+			"originalFile": "motionblur4.mov",
+			"sha256": "f50798004aacaf3d8877c7c9e2d215035e05479a72bbee6fc01128f0bdbfee10",
+			"bytes": 822842,
+			"samples": 436587,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur4-f50798004aac-dialogue.flac"
+		},
+		{
+			"originalFile": "motionblur5.mov",
+			"sha256": "6f1bad495a677676c65e8df8624defb7446ad00a6faba0176e6960bec048375a",
+			"bytes": 1397336,
+			"samples": 738460,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur5-6f1bad495a67-dialogue.flac"
+		},
+		{
+			"originalFile": "motionblur6.mov",
+			"sha256": "01e7549681def246adfe5a5f6e41fa393ae5bda500a8dfd355ff06a53a83e5bf",
+			"bytes": 915781,
+			"samples": 491551,
+			"sampleRate": 48000,
+			"channels": 2,
+			"targetLufs": -16,
+			"truePeakLimitDb": -1.5,
+			"url": "https://remotion.media/motion-blur-2026-11-17/motionblur6-01e7549681de-dialogue.flac"
+		}
+	],
+	"audioProcessing": {
+		"provider": "Auphonic",
+		"productionId": "5uE8syYtBDCNnNZ85KGeQ9",
+		"productionUrl": "https://auphonic.com/engine/status/5uE8syYtBDCNnNZ85KGeQ9",
+		"createdAt": "2026-11-17T16:24:23.938Z",
+		"inputSha256": "3e05635b42a7a23560f945bd52c7727f1372de3b0e0ccef330ca860c129e7fcd",
+		"algorithms": {
+			"filtering": true,
+			"filtermethod": "autoeq",
+			"leveler": true,
+			"levelermode": "broadcast",
+			"compressor_speech": "soft",
+			"compressor_music": "same",
+			"levelerstrength_speech": 70,
+			"levelerstrength_music": -1,
+			"maxlra": 0,
+			"maxs": 0,
+			"maxm": 0,
+			"musicgain": 0,
+			"msclassifier": "speech",
+			"normloudness": true,
+			"loudnesstarget": -16,
+			"maxpeak": -1.5,
+			"dualmono": false,
+			"loudnessmethod": "program",
+			"denoise": true,
+			"denoisemethod": "dynamic",
+			"denoiseamount": 12,
+			"deverbamount": 6,
+			"dehum": 0,
+			"dehumamount": 0,
+			"debreathamount": -1,
+			"cutter": false,
+			"cut_mode": "apply_cuts",
+			"silence_cutter": false,
+			"filler_cutter": false,
+			"cough_cutter": false,
+			"music_cutter": false,
+			"segments": []
+		},
+		"statistics": {
+			"input": {
+				"signal_level": [-34.14, "dB"],
+				"noise_level": [-75.36, "dB"],
+				"snr": [41.22, "dB"],
+				"loudness": [-28.77, "LUFS"],
+				"max_momentary": [-23.23, "LUFS"],
+				"max_shortterm": [-27.59, "LUFS"],
+				"lra": [9.32, "LU"],
+				"speech_loudness": [-28.77, "LUFS"],
+				"speech_lra": [9.32, "LU"],
+				"speech_percentage": [100, "%"],
+				"lsr": [0, "LU"]
+			},
+			"output": {
+				"loudness": [-16, "LUFS"],
+				"lra": [7.54, "LU"],
+				"max_momentary": [-10.569999694824219, "LUFS"],
+				"max_shortterm": [-14.829999923706055, "LUFS"],
+				"speech_loudness": [-16, "LUFS"],
+				"speech_lra": [7.54, "LU"],
+				"speech_percentage": [100, "%"],
+				"lsr": [0, "LU"],
+				"gain_mean": [12.5, "dB"],
+				"gain_min": [10.869999885559082, "dB"],
+				"gain_max": [14.600000381469727, "dB"],
+				"peak": [-1.5, "dBTP"],
+				"plr": [14.5, "LU"]
+			}
+		},
+		"timingVerification": {
+			"expectedSamples": 3787058,
+			"actualSamples": 3787059,
+			"endRoundingCorrectionSamples": -1,
+			"sampleRate": 48000,
+			"alignment": [
+				{
+					"file": "motionblur1.mov",
+					"sourceStartSeconds": 5.633333333333334,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.99403
+				},
+				{
+					"file": "motionblur1.mov",
+					"sourceStartSeconds": 10.066666666666666,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98571
+				},
+				{
+					"file": "motionblur1.mov",
+					"sourceStartSeconds": 14.5,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.9813
+				},
+				{
+					"file": "motionblur2.mov",
+					"sourceStartSeconds": 6.016666666666667,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.96731
+				},
+				{
+					"file": "motionblur2.mov",
+					"sourceStartSeconds": 8.233333333333333,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.99069
+				},
+				{
+					"file": "motionblur2.mov",
+					"sourceStartSeconds": 10.45,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98828
+				},
+				{
+					"file": "motionblur3.mov",
+					"sourceStartSeconds": 4.3116666666666665,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.9847
+				},
+				{
+					"file": "motionblur3.mov",
+					"sourceStartSeconds": 5.35,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98222
+				},
+				{
+					"file": "motionblur3.mov",
+					"sourceStartSeconds": 6.388333333333334,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.97912
+				},
+				{
+					"file": "motionblur4.mov",
+					"sourceStartSeconds": 2.8266666666666667,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98304
+				},
+				{
+					"file": "motionblur4.mov",
+					"sourceStartSeconds": 4.133333333333334,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98589
+				},
+				{
+					"file": "motionblur4.mov",
+					"sourceStartSeconds": 5.44,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.97825
+				},
+				{
+					"file": "motionblur5.mov",
+					"sourceStartSeconds": 6.873333333333333,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98484
+				},
+				{
+					"file": "motionblur5.mov",
+					"sourceStartSeconds": 9.3,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98669
+				},
+				{
+					"file": "motionblur5.mov",
+					"sourceStartSeconds": 11.726666666666667,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98183
+				},
+				{
+					"file": "motionblur6.mov",
+					"sourceStartSeconds": 2.9066666666666667,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98668
+				},
+				{
+					"file": "motionblur6.mov",
+					"sourceStartSeconds": 4.633333333333334,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.98317
+				},
+				{
+					"file": "motionblur6.mov",
+					"sourceStartSeconds": 6.36,
+					"lagSamples": 0,
+					"lagMilliseconds": 0.0,
+					"correlation": 0.95977
+				}
+			]
+		},
+		"editedTimelineMeasurement": {
+			"integratedLufs": -15.36,
+			"truePeakDbtp": -1.43,
+			"loudnessRangeLu": 2.2
+		}
+	},
+	"soundEffects": [
+		{
+			"sha256": "c990fa67fe786025743315533c70071419928287eea6f8ed41a6a9680d479d83",
+			"bytes": 92792,
+			"sourceUrl": "https://reactbits.dev/tools/sound-lab",
+			"preset": "Rebound",
+			"settings": {
+				"pitch": -1,
+				"tone": -0.15,
+				"length": 0.7,
+				"space": 0,
+				"punch": -0.11,
+				"variation": 0,
+				"volume": 0
+			},
+			"sampleRate": 48000,
+			"channels": 2,
+			"bitDepth": 24,
+			"mixVolume": 0.22,
+			"originalFile": "sound-lab-rebound-c990fa67fe78.wav",
+			"url": "https://remotion.media/motion-blur-2026-11-17/sound-lab-rebound-c990fa67fe78.wav"
+		}
+	],
+	"images": [
+		{
+			"originalFile": "motion-blur-code.png",
+			"url": "https://remotion.media/motion-blur-2026-11-17/code-closeup-4ba50e55de98.png",
+			"sha256": "4ba50e55de98f1a44b16b765de0b7863115f3c4fe20437470513202684977019",
+			"bytes": 220713,
+			"width": 3000,
+			"height": 2280
+		},
+		{
+			"originalFile": "motion-blur-documentation-api-light.png",
+			"url": "https://remotion.media/motion-blur-2026-11-17/documentation-api-light-7cab3e0dc354.png",
+			"sha256": "7cab3e0dc354a91a118ace2047981173ed734d72ff97ce02ba7be1abdc1b4243",
+			"bytes": 596607,
+			"width": 2580,
+			"height": 5400
+		},
+		{
+			"originalFile": "motion-blur-documentation-light.png",
+			"url": "https://remotion.media/motion-blur-2026-11-17/documentation-light-b4a2ff9cdcaf.png",
+			"sha256": "b4a2ff9cdcafaecf644696a35421779be92e3e0f7654d06ab3811def16a3394a",
+			"bytes": 4581875,
+			"width": 4320,
+			"height": 18156
+		}
+	]
+}
