@@ -4,7 +4,11 @@ import type {SequenceNodePath} from 'remotion';
 type CopiedNode = {absolutePath: string; nodePath: SequenceNodePath};
 type DuplicationSelectionRequest = {
 	compositionId: string;
-	result: {mutationId: string; nodes: readonly CopiedNode[]} | null;
+	result: {
+		mutationId: string;
+		nodes: readonly CopiedNode[];
+		effectIndices: readonly number[] | null;
+	} | null;
 	mutations: {
 		mutation: SequenceNodePathMutation;
 		appliedBeforeRefresh: number | null;
@@ -18,6 +22,7 @@ let snapshot: {
 	request: DuplicationSelectionRequest;
 	compositionId: string;
 	nodes: readonly CopiedNode[];
+	effectIndices: readonly number[] | null;
 	refreshAfter: number;
 } | null = null;
 const listeners = new Set<() => void>();
@@ -162,6 +167,7 @@ const publishSelection = () => {
 					request: pending,
 					compositionId: pending.compositionId,
 					nodes,
+					effectIndices: pending.result.effectIndices,
 					refreshAfter,
 				};
 	for (const listener of listeners) {
@@ -173,12 +179,13 @@ export const resolveDuplicatedElementSelection = (
 	request: DuplicationSelectionRequest | null,
 	mutationId: string,
 	nodes: readonly CopiedNode[],
+	effectIndices: readonly number[] | null,
 ) => {
 	if (request === null || pending !== request) {
 		return;
 	}
 
-	request.result = {mutationId, nodes};
+	request.result = {mutationId, nodes, effectIndices};
 	publishSelection();
 };
 

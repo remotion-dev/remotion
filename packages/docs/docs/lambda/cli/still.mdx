@@ -12,10 +12,10 @@ Using the `npx remotion lambda still` command, you can render a still frame in t
 The command has the following structure:
 
 ```
-npx remotion lambda still <serve-url>? [<composition-id>] [<output-location>]
+npx remotion lambda still <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
+- Obtain a [serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`bundle()`](/docs/bundle) and [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 - The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the still is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -77,7 +77,7 @@ Log level to be used inside the Lambda function. Also, if you set it to `verbose
 
 ### `--privacy`
 
-Defines if the output media is accessible for everyone or not. Either `public` or `private`, default `public`.
+Defines if the output media is accessible for everyone or not. One of `public`, `private` or `no-acl`, default `public`. `no-acl` does not set an ACL at all, which is useful when writing to a bucket that does not support ACLs.
 
 ### `--max-retries`
 
@@ -132,7 +132,19 @@ Passes `forcePathStyle` to the S3 client created for `--s3-output-provider-endpo
 
 ### ~~`--quality`~~
 
-Renamed to `jpegQuality` in `v4.0.0`.
+Renamed to `--jpeg-quality` in `v4.0.0`.
+
+### `--chromium-flags`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-flags" />
+
+### `--chromium-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-features" />
+
+### `--chromium-blink-features`<AvailableFrom v="4.0.543" />
+
+<Options id="chromium-blink-features" />
 
 ### `--ignore-certificate-errors`
 
@@ -172,7 +184,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `--force-path-style`<AvailableFrom v="4.0.202" />
 
-Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+Passes `forcePathStyle` to the AWS S3 client.
 
 ### `--storage-class`<AvailableFrom v="4.0.305"/>
 

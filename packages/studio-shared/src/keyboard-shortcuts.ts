@@ -40,6 +40,7 @@ export const studioKeyboardShortcutActions = [
 	'selectRotateProp',
 	'selectScaleProp',
 	'selectVolumeProp',
+	'selectEffects',
 	'duplicateSequences',
 	'splitSequences',
 	'copyEffectsAndValues',

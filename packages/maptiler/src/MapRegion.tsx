@@ -43,10 +43,6 @@ type MapRegionProps = InteractiveBaseProps &
 
 const mapRegionSchema = {
 	...Interactive.baseSchema,
-	...{
-		premountFor: Interactive.premountSchema.premountFor,
-		postmountFor: Interactive.premountSchema.postmountFor,
-	},
 	fill: {
 		type: 'number',
 		min: 0,
@@ -120,17 +116,24 @@ const MapRegionDrawing = ({
 	strokeWidth = 9,
 }: MapRegionDrawingProps) => {
 	const {map} = useContext(MapTilerContext);
+	const videoEnabled = Internals.useVideoEnabled();
 	const {continueRender, delayRender} = useDelayRender();
 	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
 	const isReady = map !== null && readyMap === map;
 	useLayoutEffect(() => {
-		if (isReady) {
+		if (isReady || !videoEnabled) {
 			return;
 		}
 
 		const handle = delayRender(`Loading ${feature.properties.name} geometry`);
 		return () => continueRender(handle);
-	}, [continueRender, delayRender, feature.properties.name, isReady]);
+	}, [
+		continueRender,
+		delayRender,
+		feature.properties.name,
+		isReady,
+		videoEnabled,
+	]);
 	const outline = useMemo(
 		() => lineString(feature.geometry.coordinates[0]),
 		[feature],

@@ -1,4 +1,5 @@
 import {execFileSync, spawn} from 'node:child_process';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	extraPackages,
@@ -30,14 +31,19 @@ export const getPackageInstallSpec = (
 	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
-export const handleInstallPackage = async ({
+export const installPackageDependencies = async ({
 	logLevel,
 	remotionRoot,
-	input: {dependencies},
+	dependencies,
+	packageManager,
 	invalidateBundle,
-}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
-	readonly invalidateBundle: () => Promise<void>;
-}): Promise<InstallPackageResponse> => {
+}: {
+	readonly logLevel: LogLevel;
+	readonly remotionRoot: string;
+	readonly dependencies: readonly PackageInstallSpec[];
+	readonly packageManager: string | null;
+	readonly invalidateBundle: (() => Promise<void>) | null;
+}): Promise<void> => {
 	for (const dependency of dependencies) {
 		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(
@@ -63,7 +69,7 @@ export const handleInstallPackage = async ({
 
 	const manager = getPackageManager({
 		remotionRoot,
-		packageManager: undefined,
+		packageManager: packageManager ?? undefined,
 		dirUp: 0,
 		logLevel,
 	});
@@ -146,13 +152,12 @@ export const handleInstallPackage = async ({
 				);
 			});
 		});
-		await invalidateBundle();
+		await invalidateBundle?.();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),
 			`Done in ${Date.now() - time}ms`,
 		);
-		return {};
 	} catch (err) {
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
@@ -161,4 +166,22 @@ export const handleInstallPackage = async ({
 		);
 		return Promise.reject(err);
 	}
+};
+
+export const handleInstallPackage = async ({
+	logLevel,
+	remotionRoot,
+	input: {dependencies},
+	invalidateBundle,
+}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
+	readonly invalidateBundle: () => Promise<void>;
+}): Promise<InstallPackageResponse> => {
+	await installPackageDependencies({
+		logLevel,
+		remotionRoot,
+		dependencies,
+		packageManager: null,
+		invalidateBundle,
+	});
+	return {};
 };

@@ -1,6 +1,8 @@
 # SDK code shot
 
-A real Monaco editor using the `vibe-dark` theme from `template-vibe-code`.
+A real Monaco editor using exact Shiki `github-dark` tokens, matching the
+homepage and brand editor. The shared `../github-dark.ts` and
+`../github-dark-monaco.js` helpers keep captures consistent.
 The import list comes from the template's preview runtime, keyframe model, and
 editor actions, and only uses public exports from `@remotion/sdk` and
 `@remotion/codemods`.

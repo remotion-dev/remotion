@@ -78,6 +78,7 @@ export const defaultKeyboardShortcuts: Record<
 	selectRotateProp: [{key: 'r', shift: false}],
 	selectScaleProp: [{key: 's'}],
 	selectVolumeProp: [{key: 'v'}],
+	selectEffects: [{key: 'e', shift: false}],
 	duplicateSequences: [{key: 'd', commandOrControl: true, shift: false}],
 	splitSequences: [{key: 'd', commandOrControl: true, shift: true}],
 	copyEffectsAndValues: [{key: 'c', commandOrControl: true}],
@@ -115,7 +116,7 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 				'Context-sensitive timeline control',
 			),
 			shortcut('Jump to beginning', 'jumpToBeginning'),
-			shortcut('Jump to end', 'jumpToEnd'),
+			shortcut('Jump to end, unless selecting effects', 'jumpToEnd'),
 			shortcut('Reverse playback', 'reversePlayback'),
 			shortcut('Pause', 'pausePlayback'),
 			shortcut('Play / Speed up', 'playForward'),
@@ -205,6 +206,7 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 			shortcut('Select rotate prop', 'selectRotateProp'),
 			shortcut('Select scale prop', 'selectScaleProp'),
 			shortcut('Select volume prop', 'selectVolumeProp'),
+			shortcut('Select effects', 'selectEffects'),
 			shortcut('Duplicate sequences', 'duplicateSequences'),
 			shortcut('Split sequences at playhead', 'splitSequences'),
 			shortcut('Copy effects / values', 'copyEffectsAndValues'),
@@ -281,6 +283,25 @@ export const keyboardShortcutsOverlap = (
 	(first.alt === undefined ||
 		second.alt === undefined ||
 		first.alt === second.alt);
+
+export const canShareKeyboardShortcut = (
+	first: StudioKeyboardShortcutAction,
+	second: StudioKeyboardShortcutAction,
+) => {
+	const pairs: readonly (readonly [
+		StudioKeyboardShortcutAction,
+		StudioKeyboardShortcutAction,
+	])[] = [
+		['selectRotateProp', 'render'],
+		['selectOpacityProp', 'toggleCheckerboard'],
+		['selectEffects', 'jumpToEnd'],
+	];
+	return pairs.some(
+		([primary, fallback]) =>
+			(first === primary && second === fallback) ||
+			(first === fallback && second === primary),
+	);
+};
 
 export const keyboardEventMatchesAction = (
 	event: KeyboardEvent,

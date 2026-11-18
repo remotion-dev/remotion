@@ -15,7 +15,7 @@ An object with the following arguments:
 
 ### `audioData`
 
-_AudioData_
+_MediaUtilsAudioData_
 
 Information about the audio. Use [`getAudioData()`](/docs/get-audio-data) to fetch it.
 
@@ -37,17 +37,23 @@ _number_
 
 How big you want the result array to be. The function will compress the waveform to fit in `numberOfSamples` data points.
 
-### `channel`
+### `channel?`
 
 _number_
 
 Which channel to use. Defaults to 0.
 
-### `outputRange`
+### `outputRange?`
+
+_`"minus-one-to-one" | "zero-to-one"`_
+
+The range of the output values. Either `minus-one-to-one` or `zero-to-one`. Defaults to `zero-to-one`.
+
+### `dataOffsetInSeconds?`
 
 _number_
 
-The range of the output values. Either `minus-one-to-one` or `zero-to-one`. Defaults to `zero-to-one`.
+The amount of seconds the audio data is offset. Pass the `dataOffsetInSeconds` returned by [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
 
 ### `normalize?`<AvailableFrom v="4.0.280" />
 
@@ -73,7 +79,7 @@ The index of the datapoint, starting at 0. Useful for specifying as React `key` 
 
 _number_
 
-A value describing the amplitude / volume / loudness of the audio. Values range between 0 and 1.
+A value describing the amplitude / volume / loudness of the audio. Values range between 0 and 1, or between -1 and 1 if `outputRange` is `"minus-one-to-one"`.
 
 ## Example
 
@@ -83,15 +89,15 @@ import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import {staticFile} from 'remotion';
 
 const audioData = await getAudioData(staticFile('music.mp3')); /* {
-  channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
-  sampleRate: 44100,
+  channelWaveforms: [Float32Array(4800000), Float32Array(4800000)],
+  sampleRate: 48000,
   durationInSeconds: 100.0000,
   numberOfChannels: 2,
   resultId: "0.432878981",
   isRemote: false
 } */
 
-const waveformPortion = await getWaveformPortion({
+const waveformPortion = getWaveformPortion({
   audioData,
   // Will select time range of 20-40 seconds
   startTimeInSeconds: 20,

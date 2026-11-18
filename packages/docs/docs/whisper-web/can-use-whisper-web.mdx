@@ -4,11 +4,11 @@ title: canUseWhisperWeb()
 crumb: '@remotion/whisper-web'
 ---
 
-:::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
-:::
+# ~~canUseWhisperWeb()~~
 
-# canUseWhisperWeb()
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) from [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) instead.
+:::
 
 Checks if the current browser environment supports running `@remotion/whisper-web` with a specified model.  
 This function verifies various browser capabilities like `crossOriginIsolated`, `IndexedDB`, `navigator.storage.estimate()`, and available storage space.

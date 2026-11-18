@@ -701,15 +701,15 @@ export const deleteNodes = ({
 	formatFile?: (input: {
 		contents: string;
 		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
+	}) => {output: string; formatted: boolean};
 	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	nodeLabels: string[];
 	logLines: number[];
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
 	if (nodePaths.length === 0) {
 		throw new Error('No JSX nodes were specified for deletion');
 	}
@@ -806,11 +806,11 @@ export const deleteNodes = ({
 		output,
 	});
 
-	return Promise.resolve({
+	return {
 		output,
 		formatted: true,
 		nodeLabels: pathsToDelete.map(({nodeLabel}) => nodeLabel),
 		logLines: pathsToDelete.map(({logLine}) => logLine),
 		nodePathRemappings,
-	});
+	};
 };

@@ -136,6 +136,7 @@ export const SequencePrerenderAction: React.FC<{
 			audioCodec: 'opus',
 			disallowParallelEncoding: false,
 			chromiumOptions: {
+				...defaults.chromiumOptions,
 				headless: defaults.headless,
 				disableWebSecurity: defaults.disableWebSecurity,
 				ignoreCertificateErrors: defaults.ignoreCertificateErrors,

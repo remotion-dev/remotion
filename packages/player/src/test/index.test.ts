@@ -1,6 +1,14 @@
 import {afterEach, expect, test} from 'bun:test';
 import React, {createRef, useRef} from 'react';
-import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
+import {renderToString} from 'react-dom/server';
+import {
+	AnimatedImage,
+	CanvasImage,
+	Html5Audio,
+	Img,
+	Internals,
+	useCurrentFrame,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
@@ -38,6 +46,52 @@ test('Thumbnail supports usePlaying in its composition', () => {
 
 	expect(view.getByText('paused')).toBeTruthy();
 });
+
+test.each([
+	['Img', React.createElement(Img, {src: 'test.png'}), '<img'],
+	[
+		'CanvasImage',
+		React.createElement(CanvasImage, {src: 'test.png'}),
+		'<canvas',
+	],
+	[
+		'AnimatedImage',
+		React.createElement(AnimatedImage, {src: 'test.png'}),
+		'<canvas',
+	],
+] as const)(
+	'Thumbnail server-renders %s without a media-enabled provider',
+	(_name, image, tag) => {
+		const windowDescriptor = Object.getOwnPropertyDescriptor(
+			globalThis,
+			'window',
+		);
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: undefined,
+		});
+		try {
+			const html = renderToString(
+				React.createElement(Thumbnail, {
+					component: () => image,
+					durationInFrames: 30,
+					compositionWidth: 100,
+					compositionHeight: 100,
+					fps: 30,
+					frameToDisplay: 0,
+					noSuspense: true,
+				}),
+			);
+			expect(html).toContain(tag);
+		} finally {
+			if (windowDescriptor) {
+				Object.defineProperty(globalThis, 'window', windowDescriptor);
+			} else {
+				Reflect.deleteProperty(globalThis, 'window');
+			}
+		}
+	},
+);
 
 test('Player uses the version-specific default number of shared audio tags', () => {
 	const view = render(

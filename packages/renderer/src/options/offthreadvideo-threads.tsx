@@ -14,7 +14,7 @@ export const offthreadVideoThreadsOption = {
 	cliFlag,
 	description: () => (
 		<>
-			The number of threads that
+			The number of threads that{' '}
 			<a href="https://remotion.dev/docs/offthreadvideo">
 				<code>&lt;OffthreadVideo&gt;</code>
 			</a>{' '}

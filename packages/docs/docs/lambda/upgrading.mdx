@@ -63,6 +63,7 @@ See [`npx remotion lambda functions rm`](/docs/lambda/cli/functions/rm).
 If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime:
 
 1. Deploy the new function and create a new site – old functions and sites remain unaffected.
+   - Consider including the Remotion version in the site name - sites should be bundled with the same Remotion version as the renderer being used.
 2. Update the [`@remotion/lambda`](/docs/lambda) package version, function name and [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) in your application.
 3. Ship your application update. From this point, all new renders use the new function + site.
 4. Once no in-flight renders remain on the old version, remove the old function and site.

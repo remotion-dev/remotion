@@ -1,4 +1,8 @@
 import { ArrowLeftIcon, ChevronDownIcon } from "@heroicons/react/16/solid";
+import {
+  ELEMENT_PAYLOAD_MIME_TYPE,
+  serializeElementPayloadForHtml,
+} from "@remotion/studio-protocol";
 import { useState } from "react";
 import {
   Link,
@@ -96,6 +100,12 @@ export default function ElementPage() {
         </div>
         <aside aria-label="Element details" className="min-w-0">
           <StudioActions key={slug} entry={entry} variant="default" />
+          <script
+            type={ELEMENT_PAYLOAD_MIME_TYPE}
+            dangerouslySetInnerHTML={{
+              __html: serializeElementPayloadForHtml(entry.payload),
+            }}
+          />
           <dl className="mt-6 text-base sm:text-sm [&>div]:flex [&>div]:justify-between [&>div]:gap-4 [&>div]:py-3 [&>div:first-child]:pt-0 [&>div:last-child]:pb-0 [&_dt]:font-medium [&_dd]:text-right [&_dd]:text-muted">
             <div>
               <dt>Duration</dt>

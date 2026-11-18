@@ -9,12 +9,12 @@ Sometimes you want to implement a "jump cut" to skip parts of a video (for examp
 
 ## Best practice: Pre-mounting multiple video tags
 
-The recommended approach for smooth jump-cut playback in the browser is to pre-mount a separate [`<Video>` from `@remotion/media`](/docs/media/video) tag for each section using [`<Series>`](/docs/series) with a `premountFor` prop. This gives the browser time to preload each segment before it starts playing.
+The recommended approach for smooth jump-cut playback in the browser is to render a separate [`<Video>` from `@remotion/media`](/docs/media/video) tag for each section using [`<Series>`](/docs/series). The Studio [premounts](/docs/player/premounting) each segment for 2 seconds by default, giving the browser time to preload it before it starts playing. In the [Player](/docs/player), pass [`defaultPremountInSeconds`](/docs/player/player#defaultpremountinseconds) to enable premounting.
 
 ```tsx twoslash title="JumpCuts.tsx"
 import {Video} from '@remotion/media';
 import React from 'react';
-import {CalculateMetadataFunction, Series, staticFile, useVideoConfig} from 'remotion';
+import {CalculateMetadataFunction, Series, staticFile} from 'remotion';
 
 const fps = 30;
 
@@ -45,14 +45,10 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = ({props}) => 
 };
 
 export const JumpCuts: React.FC<Props> = ({sections}) => {
-  const {fps: videoFps} = useVideoConfig();
-
   return (
     <Series>
       {sections.map((section, i) => (
         <Series.Sequence
-          // Premount the next segment for 1.5 seconds so it can preload before it starts playing
-          premountFor={Math.round(1.5 * videoFps)}
           key={i}
           durationInFrames={section.durationInFrames}
         >

@@ -52,7 +52,9 @@ If it is a genuine CI failure:
 3. Commit and push the fix.
 4. Start the loop from the top.
 
-If it is a CI flake:
+If it is a CI flake in a test file this PR added or changed, or a `Web renderer flake test` failure, treat it as a genuine failure: fix the test so it is deterministic, then push. Do not record it in the flake tracker and do not rerun it to get a green check.
+
+If it is a CI flake in an existing test:
 
 1. Use the [`flake`](../flake/SKILL.md) skill in this monorepo.
 2. Rerun the failed flaky job or failed jobs as directed by that skill.

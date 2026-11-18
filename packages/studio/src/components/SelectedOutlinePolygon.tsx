@@ -196,7 +196,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const {drag} = target;
+			const drag =
+				target.translation.type === 'editable'
+					? target.translation.target
+					: null;
 			const {
 				interaction,
 				temporaryTranslate,

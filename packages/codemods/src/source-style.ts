@@ -10,6 +10,7 @@ export type SourceFormattingConfig = {
 	semi: boolean;
 	singleQuote: boolean;
 	tabWidth: number;
+	trailingComma: boolean;
 	useTabs: boolean;
 };
 
@@ -153,6 +154,10 @@ export const getSourceFormattingConfig = ({
 				: indentationUnit === '\t'
 					? 2
 					: indentationUnit.length,
+		// Prettier 3 defaults to "all"; "es5" also adds trailing commas to imports.
+		trailingComma:
+			prettierConfigOverride?.trailingComma !== 'none' &&
+			prettierConfigOverride?.trailingComma !== false,
 		useTabs: indentationUnit === '\t',
 	};
 };

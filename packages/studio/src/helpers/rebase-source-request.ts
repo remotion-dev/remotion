@@ -28,11 +28,15 @@ const envelopes = new Set([
 	'effectKeyframes',
 	'nodes',
 	'duplicatedNodes',
+	'duplicatedEffects',
 	'splitNodes',
 	'sequences',
 	'captionTarget',
 	'results',
 	'insertedEffect',
+	'paste',
+	'timingGuards',
+	'track',
 ]);
 
 // Only visit transport locations. Props, schemas, captions and effect configs
@@ -101,6 +105,20 @@ export const markSourceRequestPaths = (
 		provenance.set(nodePath, {appliedMutationIds, uncertain});
 		return nodePath;
 	});
+};
+
+export const getSourceRequestFiles = (body: unknown): string[] => {
+	const files = new Set<string>();
+	const root = typeof window === 'undefined' ? '' : (window.remotion_cwd ?? '');
+	mapSourcePaths(body, (nodePath, fileName) => {
+		if (fileName !== null) {
+			const normalized = normalizeSourceFileName(fileName, root);
+			files.add(/^[a-z]:\//i.test(normalized) ? normalized : `/${normalized}`);
+		}
+
+		return nodePath;
+	});
+	return [...files];
 };
 
 export const copySourcePathProvenance = (

@@ -20,12 +20,12 @@ The effect preserves the source colors and alpha mask. Transparent regions stay 
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {emboss} from '@remotion/effects/emboss';
 import {Video} from '@remotion/media';
-import {useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -40,7 +40,7 @@ export const MyComp: React.FC = () => {
             depth: 0.85,
             angle: 0,
             lightAngle: 135,
-            offset: frame * 0.6,
+            offset: interpolate(frame, [0, 60], [0, 36]),
           }),
         ]}
       />
@@ -100,9 +100,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU <AvailableFrom v="4.0.540" />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

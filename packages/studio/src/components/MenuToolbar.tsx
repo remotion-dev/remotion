@@ -142,8 +142,12 @@ export const MenuToolbar: React.FC<{
 	}, [setSelected]);
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		// Prevent deselection of currently selected items
-		e.stopPropagation();
+		if (
+			e.target instanceof Element &&
+			e.target.closest('button, a, input, select, textarea, [role="button"]')
+		) {
+			e.stopPropagation();
+		}
 	}, []);
 
 	return (

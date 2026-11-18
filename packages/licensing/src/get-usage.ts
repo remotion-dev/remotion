@@ -57,5 +57,9 @@ export const getUsage = async ({
 		};
 	}
 
-	throw new Error(json.error);
+	if (!res.ok) {
+		throw new Error(json.error);
+	}
+
+	throw new Error(`Unexpected response from server: ${JSON.stringify(json)}`);
 };

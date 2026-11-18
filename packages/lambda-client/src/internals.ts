@@ -99,11 +99,12 @@ export {
 } from './most-expensive-chunks';
 export {pLimit} from './p-limit';
 export {parseFunctionName} from './parse-function-name';
-export {getProgress} from './progress';
+export {getProgress, normalizeRenderProgress} from './progress';
 export {randomHashImplementation} from './random-hash';
 export {lambdaReadFileImplementation} from './read-file';
 export {
 	internalRenderMediaOnLambdaRaw,
+	makeRenderMediaOnLambdaOutput,
 	renderMediaOnLambdaOptionalToRequired,
 } from './render-media-on-lambda';
 export {internalRenderStillOnLambda} from './render-still-on-lambda';
@@ -150,6 +151,7 @@ export {truthy} from './truthy';
 export {validateAwsRegion} from './validate-aws-region';
 export {validateBucketName} from './validate-bucket-name';
 export {parseBucketName} from './validate-bucketname';
+export {validateChunks} from './validate-chunks';
 export {validateDeleteAfter} from './validate-delete-after';
 export {validateDiskSizeInMb} from './validate-disk-size-in-mb';
 export {validateDownloadBehavior} from './validate-download-behavior';
@@ -165,3 +167,5 @@ export {
 	lambdaWriteFileImplementation,
 	supportsConditionalOutput,
 } from './write-file';
+
+export {internalRenderOnLambdaAndStream} from './render-on-lambda-and-stream';

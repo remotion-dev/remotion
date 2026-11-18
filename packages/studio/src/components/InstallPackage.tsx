@@ -206,14 +206,16 @@ export const InstallPackageSettings: React.FC<{
 										index === packageCount - 1 ? lastPackageRow : packageRow
 									}
 								>
-									<Checkbox
-										checked={map[pkg]}
-										name={pkg}
-										onChange={() => {
-											setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
-										}}
-										disabled={!canSelectPackages || isInstalled}
-									/>
+									<label aria-label={pkg}>
+										<Checkbox
+											checked={map[pkg]}
+											name={pkg}
+											onChange={() => {
+												setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
+											}}
+											disabled={!canSelectPackages || isInstalled}
+										/>
+									</label>
 									<InstallablePackageComp
 										description={description}
 										isInstalled={isInstalled}
@@ -239,17 +241,19 @@ export const InstallPackageSettings: React.FC<{
 											: packageRow
 									}
 								>
-									<Checkbox
-										checked={map[extraPkg.name]}
-										name={extraPkg.name}
-										onChange={() => {
-											setMap((prev) => ({
-												...prev,
-												[extraPkg.name]: !prev[extraPkg.name],
-											}));
-										}}
-										disabled={!canSelectPackages || isInstalled}
-									/>
+									<label aria-label={extraPkg.name}>
+										<Checkbox
+											checked={map[extraPkg.name]}
+											name={extraPkg.name}
+											onChange={() => {
+												setMap((prev) => ({
+													...prev,
+													[extraPkg.name]: !prev[extraPkg.name],
+												}));
+											}}
+											disabled={!canSelectPackages || isInstalled}
+										/>
+									</label>
 									<InstallablePackageComp
 										description={extraPkg.description}
 										isInstalled={isInstalled}

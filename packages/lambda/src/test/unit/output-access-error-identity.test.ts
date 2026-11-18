@@ -54,6 +54,7 @@ const params: ServerlessPayloads['launch'] = {
 	outName: {bucketName: destination},
 	separateAudioTo: null,
 	concurrency: 1,
+	chunks: null,
 	framesPerFunction: null,
 	concurrencyPerFunction: 1,
 	frameRange: null,
@@ -72,6 +73,7 @@ const params: ServerlessPayloads['launch'] = {
 	proResProfile: null,
 	x264Preset: null,
 	gopSize: null,
+	proResBitsPerMacroblock: null,
 	disableSharedMemoryCapture: false,
 	jpegQuality: 80,
 	maxRetries: 0,
@@ -243,6 +245,7 @@ const invokeLaunch = (
 	overwrite = false,
 ) =>
 	launchHandler({
+		onProgress: null,
 		params: {...params, overwrite},
 		options: {
 			expectedBucketOwner: null,
@@ -273,6 +276,7 @@ const completedProgress = (): OverallRenderProgress => {
 		audioCodec: null,
 		inputProps: params.inputProps,
 		framesPerLambda: 20,
+		chunks: null,
 		memorySizeInMb: 2048,
 		functionName: 'render-worker',
 		rendererFunctionName: 'render-worker',
@@ -532,6 +536,7 @@ test('launch cleans up the serialized props when it is about to time out', async
 	).mockImplementation(() => new Promise(() => undefined) as never);
 	try {
 		launchHandler({
+			onProgress: null,
 			params: {...params, overwrite: true},
 			options: {
 				expectedBucketOwner: null,

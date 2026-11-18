@@ -11,6 +11,10 @@ import {
 } from 'fs';
 import {dirname, join, relative, resolve} from 'path';
 
+export const getTsrsPath: (
+	resolvePackage: (packageName: string) => string,
+) => string | null = require('../../.monorepo/tsrs-path.cjs');
+
 export const TWOSLASH_CACHE_SCHEMA_VERSION = 4;
 export const TWOSLASH_THEME = 'github-dark';
 export const TWOSLASH_EXPLICIT_TRIGGER = false;
@@ -34,6 +38,7 @@ export interface TwoslashVersions {
 	twoslash: string;
 	shiki: string;
 	typescript: string;
+	tsrs: string | null;
 	shikiTwoslash: string;
 }
 
@@ -102,6 +107,9 @@ export const getTwoslashVersions = (
 		twoslash: 'remotion-native-1',
 		shiki: findPackageVersion('shiki', resolvePackage),
 		typescript: findPackageVersion('typescript', resolvePackage),
+		tsrs: getTsrsPath(resolvePackage)
+			? findPackageVersion('tsrs', resolvePackage)
+			: null,
 		shikiTwoslash: findPackageVersion('@shikijs/twoslash/core', resolvePackage),
 	};
 };

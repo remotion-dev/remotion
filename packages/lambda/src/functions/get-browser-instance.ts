@@ -15,6 +15,10 @@ const makeConfigurationString = (
 ): string => {
 	return [
 		`web-security-${Boolean(options.disableWebSecurity)}`,
+		...(['flags', 'features', 'blinkFeatures'] as const).map(
+			(key) =>
+				`${key}-${JSON.stringify(Object.entries(options[key] ?? {}).sort(([a], [b]) => a.localeCompare(b)))}`,
+		),
 		`multi-process-${options.enableMultiProcessOnLinux ?? true}`,
 		`ignore-certificate-errors-${Boolean(options.ignoreCertificateErrors)}`,
 		`log-level-${logLevel}`,

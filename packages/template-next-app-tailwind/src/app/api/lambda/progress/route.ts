@@ -19,6 +19,7 @@ export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
       }),
       region: REGION as AwsRegion,
       renderId: body.id,
+      skipLambdaInvocation: true,
     });
 
     if (renderProgress.fatalErrorEncountered) {

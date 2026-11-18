@@ -5,6 +5,7 @@ import {
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
 	type SequenceKeyframeUpdate,
+	type SourceKeyframeUpdate,
 } from '@remotion/codemods';
 import type {
 	InteractivitySchema,
@@ -17,23 +18,24 @@ export type {
 	IntroducedKeyframeIdentifiers,
 	KeyframeOperation,
 	SequenceKeyframeUpdate,
+	SourceKeyframeUpdate,
 };
 
 type KeyframeInput = {
 	input: string;
-	updates: SequenceKeyframeUpdate[];
+	updates: SourceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 	videoConfigValues: VideoConfigValues | null;
 };
 
-export const updateSequenceKeyframes = async ({
+export const updateSequenceKeyframes = ({
 	input,
 	nodePath,
 	videoConfigValues,
 	...options
 }: KeyframeInput & {nodePath: SequenceNodePath}) => {
-	const result = await updateNodeKeyframes({
+	const result = updateNodeKeyframes({
 		project: {files: {'source.tsx': input}, rootDir: '/'},
 		node: {filePath: 'source.tsx', nodePath},
 		videoConfig: videoConfigValues ?? undefined,
@@ -42,7 +44,7 @@ export const updateSequenceKeyframes = async ({
 	return {...result, output: result.changes[0]?.nextContents ?? input};
 };
 
-export const updateEffectKeyframes = async ({
+export const updateEffectKeyframes = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
@@ -52,7 +54,7 @@ export const updateEffectKeyframes = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 }) => {
-	const result = await updateEffectKeyframesInProject({
+	const result = updateEffectKeyframesInProject({
 		project: {files: {'source.tsx': input}, rootDir: '/'},
 		effect: {filePath: 'source.tsx', nodePath: sequenceNodePath, effectIndex},
 		videoConfig: videoConfigValues ?? undefined,

@@ -8,7 +8,14 @@ crumb: '@remotion/sdk'
 
 Calculates where a dragged group lands after removing its selected siblings. Returns `null` for a drop on the selection, a negative or duplicate source index, or a move that leaves a contiguous group in place.
 
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
 ```ts twoslash title="get-insertion-index.ts"
+// @moduleResolution: bundler
 import {getCanvasSequenceReorderInsertionIndex} from '@remotion/sdk';
 
 const insertionIndex = getCanvasSequenceReorderInsertionIndex({
@@ -23,7 +30,7 @@ console.log(insertionIndex);
 
 Indexes must describe siblings in the same order. This helper does not check whether the JSX nodes are direct siblings; [`reorderNodes()`](/docs/codemods/reorder-nodes) validates that against source code.
 
-## Options
+## Parameters
 
 ### sourceIndexes
 

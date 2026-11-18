@@ -3,7 +3,11 @@ export const isFirefox = () => {
 };
 
 export const isSafari = () => {
-	return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+	const {userAgent} = navigator;
+	return (
+		/AppleWebKit/.test(userAgent) &&
+		!/Chrome\/|Chromium\/|Android/.test(userAgent)
+	);
 };
 
 export const isChrome = () => {

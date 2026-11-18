@@ -44,10 +44,16 @@ const withMutationQueue = <T extends object>(operations: T): T => {
 						enqueueStudioSourceMutation(endpoint, args[0], (rebasedBody) =>
 							value.apply(target, [rebasedBody, ...args.slice(1)]),
 						)
-				: property === 'subscribeToSequenceProps'
+				: property === 'subscribeToSequenceProps' ||
+					  property === 'updateSequencePropsSubscription'
 					? (...args: unknown[]) => {
 							return withSequenceSourceRead(
-								[(args[0] as {fileName: string}).fileName],
+								[
+									property === 'updateSequencePropsSubscription'
+										? (args[0] as {subscription: {fileName: string}})
+												.subscription.fileName
+										: (args[0] as {fileName: string}).fileName,
+								],
 								() => value.apply(target, args),
 							);
 						}
@@ -60,7 +66,7 @@ const withMutationQueue = <T extends object>(operations: T): T => {
 	return wrapped;
 };
 
-// Browser Studio may be hosted by a different studio-shared version, so this
+// remotion.new may be hosted by a different studio-shared version, so this
 // handshake intentionally has no shared runtime import.
 export const BROWSER_STUDIO_OPERATIONS_READY_EVENT =
 	'remotion-browser-studio-operations-ready';

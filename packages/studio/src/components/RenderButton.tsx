@@ -13,7 +13,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
@@ -208,6 +208,16 @@ const RenderButtonInner: React.FC<{
 	const video = Internals.useVideo();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
+	const openOpenTimelineInstructions = useCallback(() => {
+		if (!video || !canServerRender) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'export-opentimeline',
+			compositionId: video.id,
+		});
+	}, [canServerRender, setSelectedModal, video]);
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
@@ -345,6 +355,22 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
+		const exportOptions: ComboboxValue[] = canServerRender
+			? [
+					{
+						type: 'item',
+						id: 'export-opentimeline',
+						label: 'Export as OpenTimeline...',
+						value: 'export-opentimeline',
+						onClick: openOpenTimelineInstructions,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: null,
+					},
+					{type: 'divider', id: 'export-divider'},
+				]
+			: [];
 		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
@@ -373,6 +399,7 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
+			...exportOptions,
 			...(canServerRender || isBrowserStudio
 				? [
 						{
@@ -408,6 +435,7 @@ const RenderButtonInner: React.FC<{
 		canServerRender,
 		handleRenderTypeChange,
 		isBrowserStudio,
+		openOpenTimelineInstructions,
 		openServerRenderHandoff,
 		readOnlyStudio,
 	]);
@@ -425,7 +453,7 @@ const RenderButtonInner: React.FC<{
 				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
 				disabled: false,
-				idleColor: WHITE_ALPHA_80,
+				idleColor: LIGHT_TEXT,
 				onClick,
 				onPointerDown: null,
 				renderContent: (color) => (
@@ -463,7 +491,7 @@ const RenderButtonInner: React.FC<{
 				ariaLabel: 'Select render type',
 				buttonId: null,
 				disabled: false,
-				idleColor: WHITE_ALPHA_80,
+				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: false,
 				onOpenChange: null,
 				renderContent: (color) => <CaretDown color={color} />,

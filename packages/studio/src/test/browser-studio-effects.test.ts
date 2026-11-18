@@ -26,13 +26,18 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes effect mutations through the explicit Browser Studio capability', async () => {
+test('routes effect mutations through the explicit remotion.new capability', async () => {
 	const calls: string[] = [];
 	const effects: BrowserStudioEffectOperations = {
 		addEffect: (request) => {
 			calls.push(`add:${request.effectName}`);
 			return Promise.resolve({
 				success: true,
+				nodePathMutation: {
+					mutationId: 'add-effect',
+					files: [],
+					timelineSelection: null,
+				},
 				insertedEffect: {
 					effectIndex: request.sequenceNodePath.effectKeys.length,
 					nodePath: request.sequenceNodePath.nodePath,
@@ -41,19 +46,31 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 		},
 		deleteEffects: (request) => {
 			calls.push(`delete:${request.length}`);
-			return Promise.resolve({success: true});
+			return Promise.resolve({success: true, nodePathMutation: null});
 		},
 		duplicateEffects: (request) => {
 			calls.push(`duplicate:${request.length}`);
-			return Promise.resolve({success: true});
+			return Promise.resolve({
+				success: true,
+				nodePathMutation: {
+					mutationId: 'duplicate-effects',
+					files: [],
+					timelineSelection: null,
+				},
+				duplicatedEffects: request.map((effect) => ({
+					absolutePath: effect.fileName,
+					nodePath: effect.sequenceNodePath.nodePath,
+					effectIndex: effect.effectIndex + 1,
+				})),
+			});
 		},
 		pasteEffects: (request) => {
 			calls.push(`paste:${request.effects.length}`);
-			return Promise.resolve({success: true});
+			return Promise.resolve({success: true, nodePathMutation: null});
 		},
 		reorderEffect: (request) => {
-			calls.push(`reorder:${request.fromIndex}:${request.toIndex}`);
-			return Promise.resolve({success: true});
+			calls.push(`reorder:${request.fromIndices.join(',')}:${request.toIndex}`);
+			return Promise.resolve({success: true, nodePathMutation: null});
 		},
 		saveEffectProps: (request) => {
 			calls.push(`save:${request.key}`);
@@ -107,7 +124,7 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 	await reorderEffect({
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath: nodePath,
-		fromIndex: 0,
+		fromIndices: [0],
 		toIndex: 1,
 		clientId: 'browser-studio',
 	});

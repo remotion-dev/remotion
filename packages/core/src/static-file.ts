@@ -139,7 +139,7 @@ export const staticFile = (path: string) => {
 	}
 
 	if (typeof window !== 'undefined') {
-		// This lookup is primarily used by Browser Studio, where virtual assets
+		// This lookup is primarily used by remotion.new, where virtual assets
 		// have blob: URLs. Regular Studio sources are already encoded using the
 		// same per-path-segment encoding as the fallback below.
 		const matchingStaticFile = window.remotion_staticFiles?.find(

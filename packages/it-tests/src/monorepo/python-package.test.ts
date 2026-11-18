@@ -79,6 +79,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			colorSpace: null,
 			concurrencyPerLambda: 1,
 			concurrency: null,
+			chunks: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
@@ -123,6 +124,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			},
 			x264Preset: null,
 			gopSize: null,
+			proResBitsPerMacroblock: null,
 			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,

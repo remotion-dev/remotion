@@ -27,6 +27,7 @@ import {
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
+import {parseElementPayloadsFromHtml} from './element-payload-html';
 import {
 	installInStudioWithDependencies,
 	isAllowedStudioProtocolPageOrigin,
@@ -113,6 +114,11 @@ export {
 } from './element-payload';
 
 export {
+	ELEMENT_PAYLOAD_MIME_TYPE,
+	serializeElementPayloadForHtml,
+} from './element-payload-html';
+
+export {
 	installInStudio,
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
@@ -151,6 +157,7 @@ export const StudioProtocolInternals = {
 	openInBrowserStudio,
 	parseBrowserStudioHash,
 	parseDragData,
+	parseElementPayloadsFromHtml,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
 	parseStudioProtocolIframeAddElementLibraryRequest,

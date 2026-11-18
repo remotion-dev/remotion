@@ -39,7 +39,18 @@ export const removeCrossSkillLinksFromMarkdown = ({
 				relativeTarget.startsWith(`..${path.sep}`) ||
 				path.isAbsolute(relativeTarget)
 			) {
-				return label;
+				const [skillName, ...fileParts] = path
+					.relative(
+						path.dirname(skillRoot),
+						path.resolve(path.dirname(file), targetWithoutFragment),
+					)
+					.split(path.sep);
+				const skillFile = fileParts.join('/');
+				if (skillFile === '' || skillFile === 'SKILL.md') {
+					return `${label} (\`${skillName}\` skill)`;
+				}
+
+				return `${label} (\`${skillFile}\` in the \`${skillName}\` skill)`;
 			}
 
 			return match;
@@ -47,8 +58,8 @@ export const removeCrossSkillLinksFromMarkdown = ({
 	);
 };
 
-// Agent Skills file references must stay inside the skill directory. Keep the
-// handoff text while removing links to sibling skills from distributable builds.
+// Agent Skills file references must stay inside the skill directory. Replace
+// links to sibling skills with text naming the skill and file to load instead.
 const removeCrossSkillLinks = (skillsRoot: string) => {
 	const skillDirectories = readdirSync(skillsRoot, {withFileTypes: true})
 		.filter((entry) => entry.isDirectory())

@@ -1,7 +1,7 @@
-import {StudioInternals} from '@remotion/studio';
 import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
+	Composition,
 	OffthreadVideo,
 	Sequence,
 	useCurrentFrame,
@@ -11,7 +11,6 @@ import {
 const fps = 25;
 const src =
 	'https://cdn.realoficial.com.br/shorts/01ks841xnddqfccpjxkaqp4jnk/01ks84dcvkkwak4pvfa82tr2b3_preview.mp4?v=20260522152242';
-const premountFor = 1.5 * fps;
 
 type Cut = {
 	id: string;
@@ -94,7 +93,6 @@ const Component: React.FC = () => {
 					key={cut.id}
 					from={cut.from}
 					durationInFrames={cut.durationInFrames}
-					premountFor={premountFor}
 					styleWhilePremounted={{display: 'block'}}
 				>
 					<InstrumentedOffthreadVideo cut={cut} />
@@ -128,11 +126,15 @@ const Component: React.FC = () => {
 	);
 };
 
-export const Issue7562OffthreadVideoCuts = StudioInternals.createComposition({
-	component: Component,
-	id: 'issue-7562-offthread-video-cuts',
-	width: 1080,
-	height: 1920,
-	fps,
-	durationInFrames,
-});
+export const Issue7562OffthreadVideoCuts = () => {
+	return (
+		<Composition
+			component={Component}
+			id="issue-7562-offthread-video-cuts"
+			width={1080}
+			height={1920}
+			fps={fps}
+			durationInFrames={durationInFrames}
+		/>
+	);
+};

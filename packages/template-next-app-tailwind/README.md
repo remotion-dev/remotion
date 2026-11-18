@@ -71,6 +71,12 @@ This template supports rendering the videos via [Remotion Lambda](https://remoti
 
 1. Run `node deploy.mjs` to deploy your Lambda function and Remotion Bundle.
 
+## Render progress
+
+The render endpoint uses [`renderMediaOnLambdaAndStream()`](https://www.remotion.dev/docs/lambda/rendermediaonlambdaandstream) and streams progress to the browser. If the connection closes early, the browser uses the progress endpoint to continue following the same render.
+
+Keep the progress endpoint available for recovery. Deploy the render endpoint on a Node.js server with response streaming enabled.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

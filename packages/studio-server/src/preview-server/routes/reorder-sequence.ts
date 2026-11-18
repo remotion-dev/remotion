@@ -24,12 +24,9 @@ import {
 export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
 	ReorderSequenceResponse
-> = ({
-	input: {fileName, sourceNodePaths, targetNodePath, position, clientId},
-	remotionRoot,
-	logLevel,
-}) => {
-	return withSourceFileWriteQueue(async () => {
+> = ({input, remotionRoot, logLevel}) => {
+	const {fileName, sourceNodePaths, targetNodePath, position, clientId} = input;
+	return withSourceFileWriteQueue(() => {
 		try {
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -43,14 +40,20 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderNodes({
-				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				nodes: sourceNodePaths.map((sourceNodePath) => ({
+			const project = {
+				files: {[absolutePath]: fileContents},
+				rootDir: remotionRoot,
+			};
+			const result = reorderNodes({
+				project,
+				nodes: sourceNodePaths.map((node) => ({
 					filePath: absolutePath,
-					nodePath: sourceNodePath.nodePath,
+					nodePath: node.nodePath,
 				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
-				position,
+				...(input.position === 'inside'
+					? {position: 'inside', timings: input.timings}
+					: {position: input.position}),
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {sequenceLabel, logLine} = result.editDetails[0];

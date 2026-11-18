@@ -57,6 +57,9 @@ test('creates and registers an interactive Canvas Capture composition', () => {
 		.replaceAll('\r', '\n');
 
 	expect(getChangedContents(result, componentFile)).toBe(expected);
+	expect(getChangedContents(result, componentFile)).not.toContain(
+		'premountFor',
+	);
 	expect(getChangedContents(result, compositionFile)).toContain(
 		"import {CanvasCaptureComposition} from './CanvasCaptureComposition';",
 	);

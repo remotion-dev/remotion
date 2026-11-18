@@ -11,10 +11,10 @@ _Part of the [`@remotion/paths`](/docs/paths) package._
 Takes an array of [`Instruction`](/docs/paths/parse-path)'s and reduces the amount of instruction types them so the path only consists of `M`, `L`, `C` and `Z` instructions.
 
 :::note
-In versions before v4.0.168, `Q` instructions were reduced away.
+In versions before v4.0.168, `Q` instructions were not reduced away.
 :::
 
-In reverse logic, this function will eliminate all `H`, `V`, `S`, `T`, `A`, `Q` `m`, `l`, `h`, `v`, `c`, `s`, `q`, `t`, `a`, `q` and `z` instructions.
+In reverse logic, this function will eliminate all `H`, `V`, `S`, `T`, `A`, `Q`, `m`, `l`, `h`, `v`, `c`, `s`, `q`, `t`, `a` and `z` instructions.
 
 This is useful if you want to manually edit a path and want to make sure it's as simple as possible.
 

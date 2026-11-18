@@ -22,12 +22,12 @@ Wraps canvas content around a sphere using an orthographic projection. Rotate it
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import React from 'react';
-import {CanvasImage, useCurrentFrame} from 'remotion';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
 import {sphere} from '@remotion/effects/sphere';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
       effects={[
         sphere({
           radius: 300,
-          rotationY: frame * 1.5,
+          rotationY: interpolate(frame, [0, 60], [0, 90]),
         }),
       ]}
     />
@@ -54,6 +54,8 @@ The entire source width maps to 360° of longitude, and its height maps from the
 Set [`<CanvasImage>`](/docs/canvasimage)'s `fit` to `'fill'` to preserve the full texture when the canvas and image have different aspect ratios. `'cover'` crops the texture before it reaches the effect.
 
 ## API
+
+Pass an object with the following properties. You can also call `sphere()` without arguments.
 
 ### `radius?`
 
@@ -86,18 +88,22 @@ Darkening toward the sphere's silhouette, from `0` to `1`. Defaults to `0.35`. S
 
 ### `disabled?`
 
-When `true`, skips the effect. Defaults to `false`.
+When `true`, the effect is skipped. Defaults to `false`.
 
 ## Implementations
 
-- WebGL2 <AvailableFrom v="4.0.540" />
+- WebGL2 (from v4.0.540)
 - WebGPU
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
 ## See also
 
+- [`@remotion/effects`](/docs/effects/api)
 - [`cylinder()`](/docs/effects/cylinder)
 - [`fisheye()`](/docs/effects/fisheye)
-- [`@remotion/effects`](/docs/effects/api)
-- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/sphere/index.ts)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/sphere/index.ts)

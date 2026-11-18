@@ -8,10 +8,7 @@ crumb: 'Accessibility'
 This page documents how Remotion's **products** ([Remotion Player](/docs/player), [Remotion Studio](/docs/studio), [Remotion Editor Starter](/docs/editor-starter), and others) meet accessibility standards.
 This is a common question we get from enterprises who need to ensure their suppliers meet accessibility standards.
 
-This page is about product accessibility, not website conformance. For a statement about the accessibility of our websites, see:
-
-- [remotion.dev](/docs/accessibility/dev)
-- [remotion.pro](/docs/accessibility/pro)
+This page is about product accessibility, not website conformance. The [website accessibility statement](/docs/accessibility/dev) covers remotion.dev, including marketing, documentation, the Dashboard, and the Store.
 
 ## Remotion Player
 
@@ -47,6 +44,12 @@ We are not giving any guarantees on its accessibility. Our latest internal revie
 - Status messages such as "Copied command!" are not announced to screen readers, and the search placeholder text does not meet the 4.5:1 contrast requirement.
 
 We are addressing these issues over time.
+
+### High contrast<AvailableFrom v="4.0.542" />
+
+In Remotion Studio, open Settings → Studio → Interface and enable “High contrast” for brighter text, panel dividers, and keyboard focus indicators. The setting is off by default and takes effect immediately.
+
+You can also enable it with [`--high-contrast`](/docs/options/high-contrast) or [`Config.setHighContrast(true)`](/docs/config#sethighcontrast).
 
 ## Other products
 

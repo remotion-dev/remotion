@@ -6,10 +6,11 @@ import type {
 } from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
-	INPUT_BACKGROUND,
+	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
+	WHITE_ALPHA_10,
 } from '../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
@@ -41,6 +42,7 @@ const titleInner: React.CSSProperties = {
 };
 
 const titleGridItem: React.CSSProperties = {
+	color: 'inherit',
 	fontSize: 12,
 	gridArea: '1 / 1',
 	minWidth: 0,
@@ -54,7 +56,9 @@ const titleGridItem: React.CSSProperties = {
 const titleInput: React.CSSProperties = {
 	appearance: 'none',
 	backgroundColor: TRANSPARENT,
-	border: 'none',
+	border: `1px solid ${WHITE_ALPHA_10}`,
+	borderRadius: 3,
+	boxSizing: 'border-box',
 	boxShadow: 'none',
 	color: WHITE,
 	fontFamily: 'inherit',
@@ -62,53 +66,66 @@ const titleInput: React.CSSProperties = {
 	height: 18,
 	lineHeight: '18px',
 	margin: 0,
+	marginLeft: -4,
 	minWidth: 0,
 	outline: 'none',
 	overflow: 'hidden',
-	padding: 0,
+	padding: '0 3px',
 	userSelect: 'text',
 	WebkitAppearance: 'none',
-	width: '100%',
+	width: 'calc(100% + 8px)',
 };
 
 const inspectorTitleWrapper: React.CSSProperties = {
 	...titleWrapper,
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 14,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
-	margin: '0 4px',
-	width: 'calc(100% - 8px)',
+	margin: '0 0 0 4px',
+	textOverflow: 'clip',
+	width: 'calc(100% - 4px)',
 };
 
 const inspectorTitleInner: React.CSSProperties = {
 	...titleInner,
 	alignItems: 'center',
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 14,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	paddingBottom: 0,
 	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
-	paddingRight: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
+	paddingRight: 0,
 	paddingTop: 0,
 	width: '100%',
 };
 
 const inspectorTitleGridItem: React.CSSProperties = {
 	...titleGridItem,
-	color: 'inherit',
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 14,
 	lineHeight: '18px',
+	maskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
+	textOverflow: 'clip',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
 };
 
 const inspectorTitleInput: React.CSSProperties = {
 	...titleInput,
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 14,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
+	marginLeft: -6,
+	maskImage: 'none',
+	padding: '0 5px',
+	WebkitMaskImage: 'none',
+	width: 'calc(100% + 6px)',
 };
 
 export const InlineEditableTitle: React.FC<{
 	readonly value: string;
+	readonly onEditingChange: ((editing: boolean) => void) | null;
 	readonly canRename: boolean;
 	readonly getInitialSelection?: (value: string) => [number, number];
 	readonly onClick?: () => void;
@@ -117,6 +134,7 @@ export const InlineEditableTitle: React.FC<{
 	readonly 'aria-label'?: string;
 }> = ({
 	value,
+	onEditingChange,
 	canRename,
 	getInitialSelection,
 	onClick,
@@ -162,9 +180,10 @@ export const InlineEditableTitle: React.FC<{
 			}
 
 			setIsEditing(false);
+			onEditingChange?.(false);
 			onCommit(newValue);
 		},
-		[onCommit],
+		[onCommit, onEditingChange],
 	);
 
 	const handleClick = useCallback(() => {
@@ -180,7 +199,8 @@ export const InlineEditableTitle: React.FC<{
 		cancelledRef.current = false;
 		setDraftValue(value);
 		setIsEditing(true);
-	}, [canRename, onClick, value]);
+		onEditingChange?.(true);
+	}, [canRename, onClick, onEditingChange, value]);
 
 	const onChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
 		setDraftValue(e.target.value);
@@ -205,9 +225,10 @@ export const InlineEditableTitle: React.FC<{
 				cancelledRef.current = true;
 				setDraftValue(value);
 				setIsEditing(false);
+				onEditingChange?.(false);
 			}
 		},
-		[value],
+		[onEditingChange, value],
 	);
 
 	const isInteractive = canRename || onClick !== undefined;
@@ -217,22 +238,13 @@ export const InlineEditableTitle: React.FC<{
 		return {
 			...(isInspectorSize ? inspectorTitleInner : titleInner),
 			...hoverableStyle({
-				idleBackground: isEditing ? INPUT_BACKGROUND : TRANSPARENT,
-				hoverBackground: isEditing
-					? INPUT_BACKGROUND
-					: isInteractive
-						? WHITE_ALPHA_06
-						: TRANSPARENT,
-				idleColor: WHITE,
-				hoverColor: WHITE,
+				idleBackground: TRANSPARENT,
+				hoverBackground:
+					!isEditing && isInteractive ? WHITE_ALPHA_06 : TRANSPARENT,
+				idleColor: isEditing ? WHITE : LIGHT_TEXT,
+				hoverColor: isEditing ? WHITE : LIGHT_TEXT,
 			}),
-			cursor: isEditing
-				? 'text'
-				: isInspectorSize
-					? 'text'
-					: isInteractive
-						? 'pointer'
-						: 'default',
+			cursor: isEditing ? 'text' : 'default',
 			userSelect: isEditing ? 'text' : 'none',
 			width: isEditing || isInspectorSize ? '100%' : undefined,
 		};

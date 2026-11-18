@@ -157,6 +157,8 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 					compositionWidth={previewWidth}
 					compositionHeight={previewHeight}
 					controls
+					clickToPlay={false}
+					spaceKeyToPlayOrPause={false}
 					initiallyMuted
 					loop
 					renderCustomControls={() => (

@@ -4,12 +4,14 @@ import {
 	type SaveMultipleEffectPropsEdit,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {
+	attachOptimisticEffectPropHistory,
+	createOptimisticEffectPropUpdate,
+} from '../../helpers/optimistic-effect-props';
 import {
 	saveEffectProps as saveEffectPropsApi,
 	saveMultipleEffectProps as saveMultipleEffectPropsApi,
 } from '../effect-operations-api';
-import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -57,80 +59,92 @@ export const saveMultipleEffectProps = ({
 	undoLabel,
 	redoLabel,
 }: SaveMultipleEffectPropsOptions): Promise<void> => {
-	try {
-		for (const nodePath of changes.map((change) => change.nodePath))
-			assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (changes.length === 0) {
 		return Promise.resolve();
 	}
 
-	for (const change of changes) {
-		if (change.type === 'effect-param') {
-			continue;
-		}
-
-		setPropStatuses(change.nodePath, (prev) =>
-			optimisticUpdateForEffectPropStatuses({
-				previous: prev,
-				effectIndex: change.effectIndex,
-				fieldKey: change.fieldKey,
-				value: change.value,
-				schema: change.schema,
-			}),
-		);
-	}
-
-	return saveMultipleEffectPropsApi({
-		edits: changes.map(
-			(change): SaveMultipleEffectPropsEdit =>
+	const updates = changes.map((change) =>
+		createOptimisticEffectPropUpdate({
+			nodePath: change.nodePath,
+			effectIndex: change.effectIndex,
+			fieldKey: change.fieldKey,
+			schema: change.schema,
+			applyOptimistic: (previous) =>
 				change.type === 'effect-param'
-					? {
-							type: 'effect-param',
-							fileName: change.fileName,
-							sequenceNodePath: change.nodePath,
+					? previous
+					: optimisticUpdateForEffectPropStatuses({
+							previous,
 							effectIndex: change.effectIndex,
-							key: change.fieldKey,
-							effectParam: change.effectParam,
-							defaultValue: change.defaultValue,
+							fieldKey: change.fieldKey,
+							value: change.value,
 							schema: change.schema,
-						}
-					: {
-							type: 'value',
-							fileName: change.fileName,
-							sequenceNodePath: change.nodePath,
-							effectIndex: change.effectIndex,
-							key: change.fieldKey,
-							value: JSON.stringify(change.value),
-							defaultValue: change.defaultValue,
-							schema: change.schema,
-						},
-		),
-		clientId,
-		undoLabel,
-		redoLabel,
-	}).then((response) => {
-		for (const result of response.results) {
-			setPropStatuses(result.sequenceNodePath, (prev) =>
-				applyEffectResponseToPropStatuses({
-					previous: prev,
-					response: result.status,
-				}),
-			);
-		}
+						}),
+		}),
+	);
+	changes.forEach((change, index) => {
+		setPropStatuses(change.nodePath, updates[index].applyOptimistic);
 	});
+	const groups = new Map<string, number[]>();
+	changes.forEach((change, index) => {
+		const key = JSON.stringify([
+			change.fileName,
+			change.nodePath.nodePath,
+			change.effectIndex,
+		]);
+		groups.set(key, [...(groups.get(key) ?? []), index]);
+	});
+
+	return saveMultipleEffectPropsApi(
+		attachOptimisticEffectPropHistory(
+			{
+				edits: changes.map(
+					(change): SaveMultipleEffectPropsEdit =>
+						change.type === 'effect-param'
+							? {
+									type: 'effect-param',
+									fileName: change.fileName,
+									sequenceNodePath: change.nodePath,
+									effectIndex: change.effectIndex,
+									key: change.fieldKey,
+									effectParam: change.effectParam,
+									defaultValue: change.defaultValue,
+									schema: change.schema,
+								}
+							: {
+									type: 'value',
+									fileName: change.fileName,
+									sequenceNodePath: change.nodePath,
+									effectIndex: change.effectIndex,
+									key: change.fieldKey,
+									value: JSON.stringify(change.value),
+									defaultValue: change.defaultValue,
+									schema: change.schema,
+								},
+				),
+				clientId,
+				undoLabel,
+				redoLabel,
+			},
+			updates,
+		),
+	)
+		.then((response) => {
+			const targets = [...groups.values()];
+			for (const [resultIndex, result] of response.results.entries()) {
+				for (const index of targets[resultIndex] ?? []) {
+					setPropStatuses(changes[index].nodePath, (previous) =>
+						updates[index].applyResponse(previous, result.status),
+					);
+				}
+			}
+		})
+		.catch((error) => {
+			for (const update of updates) update.rollback();
+			throw error;
+		});
 };
 
 export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
-	try {
-		assertEffectChainEditable(input.nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	const {
 		fileName,
 		nodePath,
@@ -142,47 +156,70 @@ export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
 		clientId,
 	} = input;
 
-	return enqueueSavePropChange({
+	const update = createOptimisticEffectPropUpdate({
 		nodePath,
-		setPropStatuses,
-		applyOptimistic: (prev) =>
+		effectIndex,
+		fieldKey,
+		schema,
+		applyOptimistic: (previous) =>
 			input.type === 'effect-param'
-				? prev
+				? previous
 				: optimisticUpdateForEffectPropStatuses({
-						previous: prev,
+						previous,
 						effectIndex,
 						fieldKey,
 						value: input.value,
 						schema,
 					}),
-		applyServerResponse: (prev, response) =>
-			applyEffectResponseToPropStatuses({previous: prev, response}),
+	});
+	return enqueueSavePropChange({
+		nodePath,
+		setPropStatuses,
+		applyOptimistic: update.applyOptimistic,
+		applyServerResponse: (previous, response) =>
+			update.optimistic ? previous : update.applyResponse(previous, response),
 		apiCall: () =>
 			saveEffectPropsApi(
-				input.type === 'effect-param'
-					? {
-							type: 'effect-param',
-							fileName,
-							sequenceNodePath: nodePath,
-							effectIndex,
-							key: fieldKey,
-							effectParam: input.effectParam,
-							defaultValue,
-							schema,
-							clientId,
-						}
-					: {
-							type: 'value',
-							fileName,
-							sequenceNodePath: nodePath,
-							effectIndex,
-							key: fieldKey,
-							value: JSON.stringify(input.value),
-							defaultValue,
-							schema,
-							clientId,
-						},
-			),
+				attachOptimisticEffectPropHistory(
+					input.type === 'effect-param'
+						? {
+								type: 'effect-param',
+								fileName,
+								sequenceNodePath: nodePath,
+								effectIndex,
+								key: fieldKey,
+								effectParam: input.effectParam,
+								defaultValue,
+								schema,
+								clientId,
+							}
+						: {
+								type: 'value',
+								fileName,
+								sequenceNodePath: nodePath,
+								effectIndex,
+								key: fieldKey,
+								value: JSON.stringify(input.value),
+								defaultValue,
+								schema,
+								clientId,
+							},
+					[update],
+				),
+			)
+				.then((response) => {
+					if (update.optimistic) {
+						setPropStatuses(nodePath, (previous) =>
+							update.applyResponse(previous, response),
+						);
+					}
+
+					return response;
+				})
+				.catch((error) => {
+					update.rollback();
+					throw error;
+				}),
 		errorLabel: 'Could not save effect prop',
 	});
 };

@@ -12,7 +12,6 @@ import {AlignTopIcon} from '../../icons/align-top';
 import {ActionTooltip} from '../ActionTooltip';
 import {createCanvasDragPreview} from '../canvas-drag-preview';
 import {InlineAction} from '../InlineAction';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
@@ -46,7 +45,6 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	gap: 4,
-	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 12px`,
 	alignItems: 'center',
 };
 

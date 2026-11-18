@@ -3,19 +3,30 @@ import type {
 	DeleteNodesRequest,
 	SaveSequencePropsRequest,
 	SequenceNodePathMutation,
+	SourceMutationGuard,
 } from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {
 	clearPendingSequenceSplits,
 	supersedePendingSequenceSplits,
 } from '../components/Timeline/pending-sequence-splits';
+import {
+	getSequencePropsForEffectEdit,
+	receiveSequencePropsFromEffectEdit,
+} from '../components/Timeline/sequence-props-subscription-store';
 import {invalidateDuplicatedElementSelection} from './duplicated-element-selection';
-import {guardPendingEffectDeletion} from './guard-pending-effect-deletion';
+import {
+	captureExternalSourceRevision,
+	sourceEditCancelledMessage,
+	subscribeToExternalSourceChanges,
+} from './external-source-changes';
 import {installRequiredPackages} from './install-required-package';
 import {loadGoogleFontForPreview} from './load-google-font-for-preview';
+import {captureOptimisticEffectMutation} from './optimistic-effect-mutations';
 import {
 	captureSourceRequest,
 	markSourceRequestPaths,
+	normalizeSourceFileName,
 	rebaseSourceRequest,
 } from './rebase-source-request';
 import {
@@ -24,23 +35,19 @@ import {
 	queueSequenceNodePathMutationFromApiResponse,
 	subscribeToSequenceNodePathMutations,
 } from './sequence-node-path-mutations';
-import {enqueueSourceMutation} from './source-mutation-queue';
+import {
+	cancelActiveSourceMutation,
+	enqueueSourceMutation,
+} from './source-mutation-queue';
 
 export const enqueueStudioSourceMutation = <T>(
 	endpoint: keyof ApiRoutes,
 	body: unknown,
-	run: (rebasedBody: unknown) => Promise<T>,
+	run: (rebasedBody: unknown, guard: SourceMutationGuard | null) => Promise<T>,
 ): Promise<T> => {
-	try {
-		guardPendingEffectDeletion(endpoint, body);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (endpoint === '/api/undo' || endpoint === '/api/redo') {
 		invalidateDuplicatedElementSelection();
 		clearPendingSequenceSplits();
-		Internals.OptimisticEffectDeletion.clear();
 	}
 
 	const nodes =
@@ -57,6 +64,11 @@ export const enqueueStudioSourceMutation = <T>(
 	let capturedBody = body;
 	let rebaseError: unknown = null;
 	let unsubscribeFromMutations = () => {};
+	let unsubscribeFromExternalChanges = () => {};
+	let sourceGuard: SourceMutationGuard | null = null;
+	let effectMutation: ReturnType<
+		typeof captureOptimisticEffectMutation
+	> | null = null;
 
 	return enqueueSourceMutation(
 		async (operation) => {
@@ -64,6 +76,8 @@ export const enqueueStudioSourceMutation = <T>(
 				if (rebaseError !== null) {
 					throw rebaseError;
 				}
+
+				await effectMutation?.prepare();
 
 				// Preparation is part of the queued edit, not a prerequisite for
 				// enqueueing it. Undo and other edits must follow user action order.
@@ -89,7 +103,33 @@ export const enqueueStudioSourceMutation = <T>(
 					throw rebaseError;
 				}
 
-				const result = await run(rebasedBody);
+				Internals.OptimisticEffects.startSourceMutation(operation.revision);
+				let resolvedBody = effectMutation?.resolve(rebasedBody) ?? rebasedBody;
+				if (
+					[
+						'/api/add-effect',
+						'/api/delete-effect',
+						'/api/duplicate-effect',
+						'/api/reorder-effect',
+						'/api/undo',
+						'/api/redo',
+					].includes(endpoint)
+				) {
+					const sequenceProps = getSequencePropsForEffectEdit(
+						effectMutation?.getEffectMetadata() ?? [],
+					);
+					if (sequenceProps.length > 0) {
+						resolvedBody = Array.isArray(resolvedBody)
+							? resolvedBody.map((item, index) =>
+									index === 0 ? {...item, sequenceProps} : item,
+								)
+							: {...(resolvedBody as object), sequenceProps};
+					}
+				}
+
+				if (rebaseError !== null) throw rebaseError;
+				const result = await run(resolvedBody, sourceGuard);
+				if (rebaseError !== null) throw rebaseError;
 				queueSequenceNodePathMutationFromApiResponse(result);
 				const ownMutation =
 					typeof result === 'object' &&
@@ -98,21 +138,55 @@ export const enqueueStudioSourceMutation = <T>(
 					result.nodePathMutation
 						? (result.nodePathMutation as SequenceNodePathMutation)
 						: null;
+				if (
+					ownMutation &&
+					typeof result === 'object' &&
+					result !== null &&
+					'sequenceProps' in result
+				) {
+					const sequenceProps = result.sequenceProps as Parameters<
+						typeof receiveSequencePropsFromEffectEdit
+					>[1];
+					for (const update of sequenceProps) {
+						markSourceRequestPaths(
+							update.result,
+							[...mutations, ownMutation],
+							false,
+						);
+					}
+
+					receiveSequencePropsFromEffectEdit(
+						ownMutation.mutationId,
+						sequenceProps,
+					);
+				}
+
 				markSourceRequestPaths(
 					result,
 					ownMutation ? [...mutations, ownMutation] : mutations,
 					false,
 				);
 				if (typeof result !== 'object' || result === null) {
+					effectMutation?.acknowledge(ownMutation?.mutationId ?? null);
 					return result;
 				}
 
-				if ('success' in result && result.success === false) {
+				if (
+					('success' in result && result.success === false) ||
+					('canUpdate' in result && result.canUpdate === false)
+				) {
+					effectMutation?.rollback();
 					Internals.OptimisticSequenceDeletion.rollbackRevision(
 						operation.revision,
 					);
 					return result;
 				}
+
+				effectMutation?.acknowledge(ownMutation?.mutationId ?? null);
+				if (ownMutation !== null)
+					Internals.OptimisticEffects.acknowledgeMutation(
+						ownMutation.mutationId,
+					);
 
 				if (
 					(endpoint === '/api/undo' || endpoint === '/api/redo') &&
@@ -159,18 +233,40 @@ export const enqueueStudioSourceMutation = <T>(
 				// optimistic state here could overwrite a newer undo intent.
 				return result;
 			} catch (error) {
+				effectMutation?.rollback();
 				Internals.OptimisticSequenceDeletion.rollbackRevision(
 					operation.revision,
 				);
 				throw error;
 			} finally {
+				unsubscribeFromExternalChanges();
 				unsubscribeFromMutations();
+				Internals.OptimisticEffects.finishSourceMutation(operation.revision);
 			}
 		},
 		(operation) => {
 			try {
 				capturedBody = captureSourceRequest(body, initialMutations);
 				rebasedBody = capturedBody;
+				effectMutation = captureOptimisticEffectMutation(endpoint, body);
+				sourceGuard = captureExternalSourceRevision(effectMutation.files);
+				const files = new Set(
+					effectMutation.files.map((file) =>
+						normalizeSourceFileName(file, root),
+					),
+				);
+				unsubscribeFromExternalChanges = subscribeToExternalSourceChanges(
+					(file) => {
+						if (!files.has(file)) return;
+						rebaseError = new Error(sourceEditCancelledMessage);
+						if (sourceGuard !== null)
+							cancelActiveSourceMutation(operation.revision);
+						effectMutation?.rollback();
+						Internals.OptimisticSequenceDeletion.rollbackRevision(
+							operation.revision,
+						);
+					},
+				);
 			} catch (error) {
 				rebaseError = error;
 				return;

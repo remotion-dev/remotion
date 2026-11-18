@@ -23,7 +23,8 @@ export const TimelineTrimOutlineContainer: React.FC<{
 	readonly children: React.ReactNode;
 	readonly style: React.CSSProperties;
 	readonly clipPath: string | null;
-}> = ({children, style, clipPath}) => {
+	readonly dropTargetId: string | null;
+}> = ({children, style, clipPath, dropTargetId}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const highlightRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +43,18 @@ export const TimelineTrimOutlineContainer: React.FC<{
 						}}
 					>
 						{children}
+						{dropTargetId === null ? null : (
+							<div
+								data-track-drop-preview-container={dropTargetId}
+								style={{
+									position: 'absolute',
+									inset: 0,
+									overflow: 'hidden',
+									pointerEvents: 'none',
+									zIndex: 3,
+								}}
+							/>
+						)}
 					</div>
 				</TimelineTrimHighlightTarget.Provider>
 			</TimelineTrimOutlineTarget.Provider>

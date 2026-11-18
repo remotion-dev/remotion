@@ -23,7 +23,7 @@ export const TableOfContents: React.FC = () => {
 					<div>Fetch data before rendering</div>
 				</TOCItem>
 				<TOCItem link="/docs/dynamic-metadata">
-					<strong>Variable metadata</strong>
+					<strong>Variable duration and dimensions</strong>
 					<div>Calculate dimensions, duration, and props</div>
 				</TOCItem>
 				<TOCItem link="/docs/props-resolution">

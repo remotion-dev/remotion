@@ -44,6 +44,7 @@ import {orderOutlinesForRendering} from './selected-outline-order';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
+	getEditableOutlineDragTargets,
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -52,7 +53,9 @@ import {
 	type SelectedOutlineCropFieldKey,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
+	type SelectedOutlineSelection,
 	type SelectedOutlineTarget,
+	type SelectedOutlineTranslation,
 } from './selected-outline-types';
 import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls';
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
@@ -414,19 +417,70 @@ const calculateOutlineTargets = ({
 			cropValues,
 			propStatuses: nodePropStatuses,
 		});
-		const canDragStatus =
-			propStatus?.status === 'static' ||
-			(propStatus?.status === 'keyframed' &&
-				propStatus.interpolationFunction === 'interpolate');
+		const translation = ((): SelectedOutlineTranslation => {
+			if (connectedClientId === null) {
+				return {type: 'not-connected'};
+			}
+
+			if (!studioInteractivityEnabled) {
+				return {type: 'interactivity-disabled'};
+			}
+
+			if (controls === null || fieldSchema?.type !== 'translate') {
+				return {type: 'no-translate-control'};
+			}
+
+			if (propStatus === undefined) {
+				return {type: 'loading'};
+			}
+
+			switch (propStatus.status) {
+				case 'computed':
+					return {type: 'computed'};
+				case 'keyframed':
+					switch (propStatus.interpolationFunction) {
+						case 'interpolateColors':
+						case 'interpolatePaths':
+							return {type: 'unsupported-keyframes'};
+						case 'interpolate':
+							break;
+						default:
+							throw new Error(
+								`Unexpected interpolation: ${propStatus.interpolationFunction satisfies never}`,
+							);
+					}
+
+					break;
+				case 'static':
+					break;
+				default:
+					throw new Error(
+						`Unexpected position status: ${propStatus satisfies never}`,
+					);
+			}
+
+			return {
+				type: 'editable',
+				target: {
+					propStatus,
+					clientId: connectedClientId,
+					fieldDefault: fieldSchema.default,
+					runtimeValue: runtimeValues[translateFieldKey],
+					keyframePlaybackRate,
+					keyframeDisplayOffset: getKeyframeDisplayOffset({
+						propStatus,
+						keyframeDisplayOffset,
+						keyframePlaybackRate,
+					}),
+					nodePath,
+					schema: controls.schema,
+				},
+			};
+		})();
 		const canRotationDragStatus =
 			rotationPropStatus?.status === 'static' ||
 			(rotationPropStatus?.status === 'keyframed' &&
 				rotationPropStatus.interpolationFunction === 'interpolate');
-		const canDrag =
-			previewInteractive &&
-			controls !== null &&
-			fieldSchema?.type === 'translate' &&
-			canDragStatus;
 		const canScaleDragStatus =
 			scalePropStatus?.status === 'static' ||
 			(scalePropStatus?.status === 'keyframed' &&
@@ -532,22 +586,7 @@ const calculateOutlineTargets = ({
 									: null,
 						}
 					: null,
-				drag: canDrag
-					? {
-							propStatus,
-							clientId: connectedClientId,
-							fieldDefault: fieldSchema.default,
-							runtimeValue: runtimeValues[translateFieldKey],
-							keyframePlaybackRate,
-							keyframeDisplayOffset: getKeyframeDisplayOffset({
-								propStatus,
-								keyframeDisplayOffset,
-								keyframePlaybackRate,
-							}),
-							nodePath,
-							schema: controls.schema,
-						}
-					: null,
+				translation,
 				scaleDrag: canScaleDrag
 					? {
 							propStatus: scalePropStatus,
@@ -1097,19 +1136,42 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		selectedSequenceKeys,
 		sequenceKeysContainingSelection,
 	]);
-	const getAllDragTargets = useCallback((): SelectedOutlineDragTarget[] => {
+	const getOutlineSelection = useCallback((): SelectedOutlineSelection => {
+		const currentItems = currentSelection.current.selectedItems;
+		if (currentItems.length === 0) {
+			return {type: 'empty'};
+		}
+
 		// Selected layers can be outside the current frame and have no mounted DOM.
 		// Only outline measurement and snapping need to be restricted to visible layers.
-		const selectedKeys = getSequenceKeysContainingSelection(
-			currentSelection.current.selectedItems,
-		);
+		const selectedKeys = getSequenceKeysContainingSelection(currentItems);
 		if (selectedKeys.size === 0) {
-			return [];
+			return {type: 'guides-only'};
+		}
+
+		if (isFullscreen) {
+			return {type: 'fullscreen'};
+		}
+
+		if (!isStudioSelectionEnabled()) {
+			return {type: 'selection-disabled'};
+		}
+
+		if (!previewSelectionAvailable) {
+			return {type: 'preview-unavailable'};
+		}
+
+		if (!editorShowOutlines) {
+			return {type: 'outlines-hidden'};
 		}
 
 		const selectableOutlines = getSelectableOutlines(null).filter(({key}) =>
 			selectedKeys.has(key),
 		);
+		if (selectableOutlines.length === 0) {
+			return {type: 'non-visual'};
+		}
+
 		const targets = calculateOutlineTargetsForCurrentState({
 			getCanvasLayoutTargets: null,
 			mode: 'controls',
@@ -1118,27 +1180,22 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			targetKey: null,
 			targetTimelinePosition: getCurrentFrame(),
 		}) as SelectedOutlineTarget[];
-		const dragTargets = new Map<string, SelectedOutlineDragTarget>();
-		for (const {drag} of targets) {
-			if (drag === null) {
-				continue;
-			}
-
-			const sourceNodeKey = Internals.makeSequencePropsSubscriptionKey(
-				drag.nodePath,
-			);
-			if (!dragTargets.has(sourceNodeKey)) {
-				dragTargets.set(sourceNodeKey, drag);
-			}
-		}
-
-		return [...dragTargets.values()];
+		return {type: 'visual', targets};
 	}, [
 		calculateOutlineTargetsForCurrentState,
 		currentSelection,
+		editorShowOutlines,
 		getCurrentFrame,
 		getSelectableOutlines,
+		isFullscreen,
+		previewSelectionAvailable,
 	]);
+	const getAllDragTargets = useCallback((): SelectedOutlineDragTarget[] => {
+		const selection = getOutlineSelection();
+		return selection.type === 'visual'
+			? getEditableOutlineDragTargets(selection.targets)
+			: [];
+	}, [getOutlineSelection]);
 	const onDraggingChange = useCallback(
 		(dragging: boolean) => {
 			setDraggingOutline(dragging);
@@ -1176,7 +1233,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 
 	return (
 		<>
-			<SelectedOutlineKeyboardControls getAllDragTargets={getAllDragTargets} />
+			<SelectedOutlineKeyboardControls getSelection={getOutlineSelection} />
 			{measurementActive ? (
 				<ActiveSelectedOutlineOverlay
 					calculateOutlineTargetsForCurrentState={

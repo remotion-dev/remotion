@@ -1,68 +1,45 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {CURRENT_COLOR} from '../../helpers/colors';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import type {SourceLocationTarget} from '../../helpers/open-in-editor';
+import {BookIcon} from '../../icons/book';
 import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
-import {InspectorLocationCopy} from '../InspectorLocationCopy';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
-import {InspectorSourceLocation} from '../InspectorSourceLocation';
-import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
-import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
+import {
+	InspectorHeaderAction,
+	InspectorHeaderActionSlot,
+	InspectorLocationCopy,
+	inspectorHeaderIconStyle,
+} from '../InspectorLocationCopy';
+import {InspectorOpenInEditor} from '../InspectorOpenInEditor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
-import {InspectorQuickAction, InspectorSection} from './common';
+import {useSequenceSourceLocation} from '../Timeline/use-sequence-source-location';
+import {InspectorSection} from './common';
 import {
 	ConnectedCompositionsSection,
 	useConnectedCompositions,
 } from './ConnectedCompositionsSection';
-import {sequenceHeaderSubtitle} from './styles';
+import type {SequenceSectionSelection} from './inspector-selection';
 
-const sourceLocationIconStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 18,
-	width: 18,
-};
+const renderReactIcon = (color: string) => (
+	<ReactIcon color={color} style={{...inspectorHeaderIconStyle, width: 20}} />
+);
 
-const renderReactIcon = (color: string) => {
-	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
-};
-
-const sequenceInspectorSubtitle: React.CSSProperties = {
-	...sequenceHeaderSubtitle,
-	alignItems: 'center',
-	boxSizing: 'border-box',
-	fontSize: 13,
-	height: COMPACT_CONTROL_ROW_HEIGHT,
-	lineHeight: '18px',
-	margin: '0 4px',
-	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
-	width: 'calc(100% - 8px)',
-};
-
-const defaultCursor: React.CSSProperties = {
-	cursor: 'default',
-};
-
-const externalTabIndicatorStyle: React.CSSProperties = {
-	display: 'inline-block',
-	height: 12,
-	marginLeft: 4,
-	verticalAlign: -2,
-	width: 12,
-};
+const renderDocsIcon = (color: string) => (
+	<BookIcon color={color} style={{...inspectorHeaderIconStyle, width: 14}} />
+);
 
 type SequenceInspectorSourceLocation = {
-	readonly canOpen: boolean;
-	readonly openFileLocation: () => void;
 	readonly validatedLocation: CodePosition | null;
 };
 
 export const useSequenceInspectorSourceLocation = (
 	track: TimelineTrackData,
 ): SequenceInspectorSourceLocation => {
-	const {canOpenSource, openSource, originalLocation} = useOpenSequenceInApps(
+	const {location: originalLocation} = useSequenceSourceLocation(
 		track.sequence,
 		track.nodePathInfo?.sequenceSubscriptionKey ?? null,
 	);
@@ -83,13 +60,7 @@ export const useSequenceInspectorSourceLocation = (
 		};
 	}, [originalLocation]);
 
-	const openFileLocation = useCallback(() => {
-		openSource();
-	}, [openSource]);
-
 	return {
-		canOpen: validatedLocation !== null && canOpenSource,
-		openFileLocation,
 		validatedLocation,
 	};
 };
@@ -97,7 +68,9 @@ export const useSequenceInspectorSourceLocation = (
 export const SequenceInspectorHeader: React.FC<{
 	readonly sourceLocation: SequenceInspectorSourceLocation;
 	readonly track: TimelineTrackData;
-}> = ({sourceLocation, track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({sourceLocation, track, selection}) => {
+	const [isEditing, setIsEditing] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canRename, displayName, fallbackDisplayName, saveName} =
 		useRenameSequence({
@@ -111,23 +84,35 @@ export const SequenceInspectorHeader: React.FC<{
 		});
 	const sequenceDisplayName = displayName || fallbackDisplayName;
 	const {documentationLink} = track.sequence;
-
-	const openDocumentationLink = useCallback(() => {
-		if (!documentationLink) {
-			return;
-		}
-
-		window.open(documentationLink, '_blank', 'noopener,noreferrer');
-	}, [documentationLink]);
-
-	const subtitleStyle = useMemo((): React.CSSProperties => {
-		return {
-			...sequenceInspectorSubtitle,
-			cursor: documentationLink ? 'pointer' : 'default',
-		};
-	}, [documentationLink]);
-
 	const componentName = track.sequence.controls?.componentName;
+	const sourceTarget = useMemo<SourceLocationTarget | null>(() => {
+		switch (selection?.type) {
+			case 'sequence-prop':
+				return {property: selection.key, effectIndex: null};
+			case 'sequence-all-effects':
+				return {property: 'effects', effectIndex: null};
+			case 'sequence-effect':
+				return {property: null, effectIndex: selection.i};
+			case 'sequence-effect-prop':
+				return {property: selection.key, effectIndex: selection.i};
+			default:
+				return null;
+		}
+	}, [selection]);
+	const contextForAgents = useMemo(
+		() =>
+			formatContextForAgents({
+				location: sourceLocation.validatedLocation,
+				name: componentName ?? null,
+				root: window.remotion_cwd,
+			}),
+		[componentName, sourceLocation.validatedLocation],
+	);
+	const openDocumentationLink = useCallback(() => {
+		if (documentationLink) {
+			window.open(documentationLink, '_blank', 'noopener,noreferrer');
+		}
+	}, [documentationLink]);
 	const onRename = useCallback(
 		(newName: string) => {
 			saveName(newName).catch(() => undefined);
@@ -136,50 +121,44 @@ export const SequenceInspectorHeader: React.FC<{
 	);
 
 	return (
-		<InspectorInfoHeader contentSized padding="4px 0">
+		<InspectorInfoHeader contentSized padding="4px 0 0">
 			<InspectorLocationCopy
-				location={sourceLocation.validatedLocation}
-				name={componentName ?? null}
-				openInEditorLocation={sourceLocation.validatedLocation}
+				contextForAgents={contextForAgents}
+				isEditing={isEditing}
+				actions={
+					<InspectorHeaderActionSlot>
+						{sourceLocation.validatedLocation ? (
+							<InspectorOpenInEditor
+								sourceTarget={sourceTarget}
+								menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
+								annotationName={componentName ?? null}
+								contextForAgents={contextForAgents}
+								locationType={null}
+								location={sourceLocation.validatedLocation}
+								showTooltips
+							/>
+						) : null}
+					</InspectorHeaderActionSlot>
+				}
+				leadingActions={
+					<InspectorHeaderActionSlot>
+						{documentationLink ? (
+							<InspectorHeaderAction
+								label={`Open docs for ${componentName ?? fallbackDisplayName}`}
+								disabled={false}
+								onClick={openDocumentationLink}
+								renderIcon={renderDocsIcon}
+							/>
+						) : null}
+					</InspectorHeaderActionSlot>
+				}
 			>
 				<InlineEditableTitle
 					value={sequenceDisplayName}
 					canRename={canRename}
 					onCommit={onRename}
+					onEditingChange={setIsEditing}
 					size="inspector"
-				/>
-				{documentationLink ? (
-					<InspectorQuickAction
-						disabled={false}
-						style={defaultCursor}
-						aria-label="Open component docs"
-						onClick={openDocumentationLink}
-					>
-						{componentName}
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							style={externalTabIndicatorStyle}
-						>
-							<path
-								d="M4 12 12 4M6 4h6v6"
-								fill="none"
-								stroke={CURRENT_COLOR}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1.5"
-							/>
-						</svg>
-					</InspectorQuickAction>
-				) : (
-					<div style={subtitleStyle}>{componentName}</div>
-				)}
-				<InspectorSourceLocation
-					location={sourceLocation.validatedLocation}
-					canOpen={sourceLocation.canOpen}
-					onOpen={sourceLocation.openFileLocation}
-					renderIcon={renderReactIcon}
-					size="quick-action"
 				/>
 			</InspectorLocationCopy>
 		</InspectorInfoHeader>
@@ -197,6 +176,8 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 	return (
 		<InspectorSection
+			headerRef={null}
+			expanded
 			header={
 				<span
 					style={{
@@ -220,13 +201,18 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 export const SequenceInspectorSections: React.FC<{
 	readonly track: TimelineTrackData;
-}> = ({track}) => {
+	readonly selection: SequenceSectionSelection | null;
+}> = ({track, selection}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
-			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorHeader
+				selection={selection}
+				sourceLocation={sourceLocation}
+				track={track}
+			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<ConnectedCompositionsSection

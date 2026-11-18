@@ -113,6 +113,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		codec: 'h264',
 		colorSpace: 'default',
 		configFileRenderDefaults: null,
+		chromiumOptions: {flags: {}, features: {}, blinkFeatures: {}},
 		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
 		crf: null,
 		darkMode: false,
@@ -293,7 +294,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					? remotionPackageSource.version
 					: browserStudioDependencyVersions.remotion;
 			if (!remotionVersion) {
-				throw new Error('Browser Studio Remotion version is unavailable');
+				throw new Error('remotion.new Remotion version is unavailable');
 			}
 
 			const versions: Record<string, string> = {};
@@ -490,7 +491,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					.then(async (response) => {
 						if (!response.ok) {
 							throw new Error(
-								`Failed to load the Browser Studio vendor bundle: ${response.status}`,
+								`Failed to load the remotion.new vendor bundle: ${response.status}`,
 							);
 						}
 
@@ -684,6 +685,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				publicFiles,
 				publicFolderExists: null,
 				fileSystemPlatform: null,
+				supportsNativeFilePicker: false,
 				publicPath: '',
 				readOnlyStudio: readOnly,
 				remotionRoot: currentProject.rootDir,
@@ -692,18 +694,22 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					highContrast: null,
 					preferredEffectBackend: null,
 					preservePitchOnPlayback: true,
+					showDiagnostics: {value: false, source: 'config' as const},
 					showLayerFrameNumbers: false,
 					showPremounting: null,
 					defaultPremountInSeconds: null,
 					sequenceActivityLimit: null,
 					askAIEnabled: false,
+					elementLibraries: [],
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,
 					defaultEditor: null,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
+					keyboardShortcuts: null,
 					maxTimelineTracks: null,
 					publicLicenseKey: null,
 					canvasTabsEnabled: true,

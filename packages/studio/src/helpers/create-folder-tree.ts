@@ -184,6 +184,7 @@ const createFolderIfDoesNotExist = (
 		folderName: folderItem.name,
 		items: [],
 		key: folderItem.name,
+		sourceFileRemaps: [],
 		expanded:
 			foldersExpanded[
 				openFolderKey({
@@ -230,6 +231,7 @@ export const createFolderTree = (
 			type: 'composition',
 			composition: item,
 			key: item.id,
+			sourceFileRemaps: [],
 		};
 		const list = findItemListToPush(
 			items,

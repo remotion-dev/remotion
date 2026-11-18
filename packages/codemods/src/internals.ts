@@ -341,6 +341,54 @@ export const getCompositionFile = ({
 	return null;
 };
 
+const jsxAttributeNumber = (attribute: AstNode | null) => {
+	const value = attribute ? getNode(attribute, 'value') : null;
+	const expression =
+		value?.type === 'JSXExpressionContainer'
+			? getNode(value, 'expression')
+			: null;
+	const number =
+		expression?.type === 'NumericLiteral' ? expression.value : null;
+	return typeof number === 'number' ? number : null;
+};
+
+// Compositions and stills whose `id` is a string literal, in source order.
+export const getCompositionsInSource = (source: string) => {
+	const compositions: Array<{
+		id: string;
+		width: number | null;
+		height: number | null;
+	}> = [];
+	visit(parseSource(source), (node) => {
+		if (node.type !== 'JSXOpeningElement') {
+			return false;
+		}
+
+		const name = jsxName(getNode(node, 'name'));
+		if (
+			name !== 'Composition' &&
+			name !== 'Still' &&
+			!name?.endsWith('.Composition') &&
+			!name?.endsWith('.Still')
+		) {
+			return false;
+		}
+
+		const id = jsxAttributeString(getJsxAttribute(node, 'id'));
+		if (id !== null) {
+			compositions.push({
+				id,
+				width: jsxAttributeNumber(getJsxAttribute(node, 'width')),
+				height: jsxAttributeNumber(getJsxAttribute(node, 'height')),
+			});
+		}
+
+		return false;
+	});
+
+	return compositions;
+};
+
 export const getFolderFile = ({
 	folderName,
 	project,

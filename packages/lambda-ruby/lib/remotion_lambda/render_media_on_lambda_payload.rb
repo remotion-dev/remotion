@@ -16,6 +16,7 @@ def get_render_media_on_lambda_payload(
   composition: nil,
   concurrency_per_lambda: 1,
   concurrency: nil,
+  chunks: nil,
   crf: nil,
   delete_after: nil,
   download_behavior: nil,
@@ -60,6 +61,7 @@ def get_render_media_on_lambda_payload(
   webhook: nil,
   x264_preset: nil,
   gop_size: nil,
+  pro_res_bits_per_macroblock: nil,
   disable_shared_memory_capture: false,
   chromium_options: {},
   is_production: nil,
@@ -71,6 +73,7 @@ if api_key != nil
 end
 
 payload = {
+    streamProgress: false,
     audioBitrate: audio_bitrate,
     audioCodec: audio_codec,
     storageClass: storage_class,
@@ -79,6 +82,7 @@ payload = {
     composition: composition,
     concurrencyPerLambda: concurrency_per_lambda,
     concurrency: concurrency,
+    chunks: chunks,
     chromiumOptions: chromium_options,
     crf: crf,
     deleteAfter: delete_after,
@@ -130,6 +134,7 @@ payload = {
     webhook: webhook,
     x264Preset: x264_preset,
     gopSize: gop_size,
+    proResBitsPerMacroblock: pro_res_bits_per_macroblock,
     disableSharedMemoryCapture: disable_shared_memory_capture,
     bucketName: bucket_name,
     isProduction: is_production

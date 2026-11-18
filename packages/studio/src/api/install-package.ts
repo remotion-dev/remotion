@@ -1,11 +1,11 @@
-import type {
-	InstallPackageResponse,
-	PackageInstallSpec,
+import {
+	type InstallPackageResponse,
+	type PackageInstallSpec,
+	withRequiredAuxiliaryPackages,
 } from '@remotion/studio-shared';
 import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
-import {withRequiredAuxiliaryPackages} from '../helpers/optional-package-dependencies';
 
 export const installPackages = async (
 	dependencies: readonly PackageInstallSpec[],

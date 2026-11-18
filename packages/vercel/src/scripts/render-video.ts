@@ -43,6 +43,7 @@ type RenderVideoConfig = {
 	numberOfGifLoops: InternalRenderMediaOptions['numberOfGifLoops'];
 	x264Preset: InternalRenderMediaOptions['x264Preset'];
 	gopSize: InternalRenderMediaOptions['gopSize'];
+	proResBitsPerMacroblock: InternalRenderMediaOptions['proResBitsPerMacroblock'];
 	colorSpace: InternalRenderMediaOptions['colorSpace'];
 	jpegQuality: InternalRenderMediaOptions['jpegQuality'];
 	audioCodec: InternalRenderMediaOptions['audioCodec'];
@@ -218,6 +219,7 @@ try {
 		numberOfGifLoops: config.numberOfGifLoops,
 		x264Preset: config.x264Preset,
 		gopSize: config.gopSize,
+		proResBitsPerMacroblock: config.proResBitsPerMacroblock,
 		colorSpace: config.colorSpace,
 		jpegQuality: config.jpegQuality,
 		audioCodec: config.audioCodec,

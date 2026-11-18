@@ -1,10 +1,5 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import {
-	BORDER_CURRENT_COLOR,
-	CURRENT_COLOR,
-	TRANSPARENT,
-	WHITE_ALPHA_80,
-} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {
@@ -27,13 +22,10 @@ import {InlineAction} from './InlineAction';
 import {getSidebarMenuItems} from './sidebar-menu-items';
 
 const style: React.CSSProperties = {
+	display: 'block',
 	width: 16,
 	height: 16,
 	minWidth: 16,
-	border: BORDER_CURRENT_COLOR,
-	borderRadius: 3,
-	color: CURRENT_COLOR,
-	position: 'relative',
 };
 
 export const SidebarCollapserControl: React.FC<{
@@ -57,40 +49,6 @@ export const SidebarCollapserControl: React.FC<{
 		? 'expanded'
 		: responsiveLeftSidebarStatus;
 	const rightSidebarStatus = useResponsiveSidebarStatus('right');
-
-	const leftIcon = useCallback(
-		(color: string): React.CSSProperties => {
-			return {
-				width: '35%',
-				height: '100%',
-				borderRight: '1px solid ' + color,
-				background:
-					leftSidebarStatus === 'expanded' &&
-					sidebarCollapsedDuringDrag !== 'left'
-						? color
-						: TRANSPARENT,
-			};
-		},
-		[leftSidebarStatus, sidebarCollapsedDuringDrag],
-	);
-
-	const rightIcon = useCallback(
-		(color: string): React.CSSProperties => {
-			return {
-				width: '35%',
-				height: '100%',
-				right: 0,
-				position: 'absolute',
-				borderLeft: '1px solid ' + color,
-				background:
-					rightSidebarStatus === 'expanded' &&
-					sidebarCollapsedDuringDrag !== 'right'
-						? color
-						: TRANSPARENT,
-			};
-		},
-		[rightSidebarStatus, sidebarCollapsedDuringDrag],
-	);
 
 	const toggleLeft = useCallback(() => {
 		if (mobileLayout || leftSidebarOverlayOpen) {
@@ -280,33 +238,46 @@ export const SidebarCollapserControl: React.FC<{
 			? `${expanded ? 'Close' : 'Open'} compositions`
 			: `${expanded ? 'Collapse' : 'Expand'} ${side} sidebar`;
 
-	const colorStyle = useCallback((color: string): React.CSSProperties => {
-		return {
-			...style,
-			color,
-		};
-	}, []);
-
-	const toggleLeftAction: RenderInlineAction = useCallback(
+	const renderSidebarIcon: RenderInlineAction = useCallback(
 		(color) => {
+			const dividerX = side === 'left' ? 5.5 : 10.5;
 			return (
-				<div data-sidebar-toggle="left" style={colorStyle(color)}>
-					<div style={leftIcon(color)} />
-				</div>
+				<svg
+					data-sidebar-toggle={side}
+					style={style}
+					viewBox="0 0 16 16"
+					aria-hidden="true"
+				>
+					{expanded ? (
+						<path
+							fill={color}
+							d={
+								side === 'left'
+									? 'M3 .5H5.5V15.5H3A2.5 2.5 0 0 1 .5 13V3A2.5 2.5 0 0 1 3 .5Z'
+									: 'M10.5 .5H13A2.5 2.5 0 0 1 15.5 3V13A2.5 2.5 0 0 1 13 15.5H10.5Z'
+							}
+						/>
+					) : null}
+					<rect
+						x={0.5}
+						y={0.5}
+						width={15}
+						height={15}
+						rx={2.5}
+						fill="none"
+						stroke={color}
+						strokeWidth={1}
+					/>
+					<path
+						d={`M${dividerX} .5V15.5`}
+						fill="none"
+						stroke={color}
+						strokeWidth={1}
+					/>
+				</svg>
 			);
 		},
-		[colorStyle, leftIcon],
-	);
-
-	const toggleRightAction: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<div data-sidebar-toggle="right" style={colorStyle(color)}>
-					<div style={rightIcon(color)} />
-				</div>
-			);
-		},
-		[colorStyle, rightIcon],
+		[expanded, side],
 	);
 
 	const control = (
@@ -319,8 +290,8 @@ export const SidebarCollapserControl: React.FC<{
 			<InlineAction
 				variant={null}
 				onClick={side === 'left' ? toggleLeft : toggleRight}
-				renderAction={side === 'left' ? toggleLeftAction : toggleRightAction}
-				unhoveredColor={WHITE_ALPHA_80}
+				renderAction={renderSidebarIcon}
+				unhoveredColor={LIGHT_TEXT}
 				style={side === 'left' ? {marginRight: 4} : undefined}
 				aria-label={label}
 				aria-expanded={expanded}

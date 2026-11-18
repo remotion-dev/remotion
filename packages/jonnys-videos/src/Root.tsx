@@ -1,4 +1,10 @@
 import {Composition, Folder} from 'remotion';
+import {
+	AvatarBeforeAfter,
+	AvatarComparison,
+	MatchedAvatar,
+} from './avatar-match/Avatar';
+import {AvatarSwap} from './avatar-match/AvatarSwap';
 import {Composition4People} from './Composition4People';
 import {
 	AnimatedCaptions,
@@ -49,6 +55,7 @@ import {Mediabunny} from './disco-light-show/Mediabunny';
 import {OneShot} from './disco-light-show/OneShot';
 import {OpeningScene} from './disco-light-show/OpeningScene';
 import {DiscoLightShowRerecording} from './disco-light-show/recordings/DiscoLightShowRerecording';
+import {ProResRecordings} from './disco-light-show/recordings/prores-2026-10-31/ProResRecordings';
 import {RemotionAssemblyScene} from './disco-light-show/RemotionAssemblyScene';
 import {RemotionSticker} from './disco-light-show/RemotionSticker';
 import {EvacuateDrop} from './disco-light-show/selects/evacuate/EvacuateDrop';
@@ -70,6 +77,7 @@ import {SuperfreakRiff} from './disco-light-show/selects/superfreak/SuperfreakRi
 import {ThreePersonChoreography} from './disco-light-show/selects/ThreePersonChoreography';
 import {Separate} from './disco-light-show/Separate';
 import {Setup} from './disco-light-show/Setup';
+import {SetupReviewCompositions} from './disco-light-show/setup-review/SetupReviewCompositions';
 import {SocialSafeZones} from './disco-light-show/SocialSafeZones';
 import {Text} from './disco-light-show/Text';
 import {TextBehindVideoSeriesFirst20s} from './disco-light-show/TextBehindVideoSeriesFirst20s';
@@ -113,7 +121,43 @@ import {RemotionRoot as RollerSkisRoot} from './roller-skis/Root';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="Avatar">
+				<Composition
+					id="AvatarSwap"
+					component={AvatarSwap}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={240}
+				/>
+				<Composition
+					id="AvatarMatched"
+					component={MatchedAvatar}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+					defaultProps={{style: {backgroundColor: 'white'}}}
+				/>
+				<Composition
+					id="AvatarComparison"
+					component={AvatarComparison}
+					width={2160}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="AvatarBeforeAfter"
+					component={AvatarBeforeAfter}
+					width={2160}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
 			<Folder name="DiscoLightShow">
+				<SetupReviewCompositions />
 				<MyComposition />
 				<Folder name="AnimatingTheLights">
 					<Composition
@@ -196,6 +240,7 @@ export const RemotionRoot: React.FC = () => {
 					/>
 				</Folder>
 				<Folder name="Recordings">
+					<ProResRecordings />
 					<Composition
 						id="DiscoLightShowRerecording"
 						component={DiscoLightShowRerecording}

@@ -18,12 +18,12 @@ Adds drifting snow to a canvas-based component, with wind, depth, and individual
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {snowFall} from '@remotion/effects/snow-fall';
 import {Video} from '@remotion/media';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
@@ -32,7 +32,7 @@ export const MyComp: React.FC = () => {
       src="https://remotion.media/video.mp4"
       effects={[
         snowFall({
-          time: frame / fps,
+          time: interpolate(frame, [0, fps], [0, 1]),
           flakes: 1500,
           size: 8,
           wind: 25,
@@ -52,7 +52,7 @@ Pass an object with the following properties. You can also call `snowFall()` wit
 
 Elapsed time in seconds. Must be non-negative. Defaults to `0`.
 
-Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+Animate this value with an inline [`interpolate()`](/docs/interpolate) call, using `fps` from [`useVideoConfig()`](/docs/use-video-config) to map frames to seconds. The effect does not advance automatically.
 
 The same parameters and `time` produce the same result when seeking or rendering frames out of order.
 
@@ -120,7 +120,7 @@ Random variation in wiggle frequency between flakes, from `0` to `1`. Defaults t
 
 ### `color?`
 
-CSS color of the flakes. Defaults to `"#ffffff"`.
+CSS color of the flakes. Defaults to `'#ffffff'`.
 
 The color's alpha is multiplied by `opacity`.
 
@@ -130,9 +130,9 @@ Opacity of the snow, from `0` to `1`. Defaults to `1`.
 
 ### `transferMode?`
 
-How the snow blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"composite"`.
+How the snow blends with the source. One of `'composite'` or `'lighten'`. Defaults to `'composite'`.
 
-`"composite"` places the snow over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+`'composite'` places the snow over the source. `'lighten'` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
 
 ### `compositeWithOriginal?`
 
@@ -159,9 +159,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

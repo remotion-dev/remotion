@@ -4,7 +4,10 @@ import {startErrorOverlay} from './error-overlay/entry-basic';
 import {addErrorToOverlay} from './error-overlay/runtime-error-store';
 import {BACKGROUND_HEX} from './helpers/colors';
 import {injectCSS} from './helpers/inject-css';
-import {studioCssVariables} from './helpers/studio-css-variables';
+import {
+	applyStudioHighContrast,
+	studioCssVariables,
+} from './helpers/studio-css-variables';
 import {getStudioPixelRatio} from './helpers/studio-pixel-ratio';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 
@@ -25,6 +28,9 @@ export const initializeStudioPreview = () => {
 	}
 
 	CanvasInternals.installReactCommitObserver(window);
+	applyStudioHighContrast(
+		window.remotion_studioConfig?.highContrast?.value ?? false,
+	);
 	Internals.CSSUtils.injectCSS(studioCssVariables);
 	Internals.CSSUtils.injectCSS(
 		Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),

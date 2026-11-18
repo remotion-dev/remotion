@@ -10,7 +10,7 @@ You may want to implement custom controls for the [`<Player>`](/docs/player/play
 
 There are two approaches:
 
-- Enable the [`controls`](/docs/player/player#controls) prop and granunarly override some or all of the controls inside the Player.
+- Enable the [`controls`](/docs/player/player#controls) prop and granularly override some or all of the controls inside the Player.
 - Disable the [`controls`](/docs/player/player#controls) prop and implement your own controls anywhere on the page.
 
 ## Custom inline controls
@@ -746,7 +746,7 @@ export const SeekBar: React.FC<{
 
 ### Loop button
 
-[`loop`](/docs/player/player#loop) is a prop of the [`<Player/>`](/docs/player/player) component, so you can just control is using a [`useState`](https://react.dev/reference/react/useState) hook.
+[`loop`](/docs/player/player#loop) is a prop of the [`<Player/>`](/docs/player/player) component, so you can control it using a [`useState`](https://react.dev/reference/react/useState) hook.
 
 ```tsx twoslash title="LoopButton.tsx"
 import React from 'react';

@@ -33,6 +33,7 @@ export const useInnerVideoTexture = ({
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
 }) => {
+	const videoEnabled = Internals.useVideoEnabled();
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -105,14 +106,19 @@ export const useInnerVideoTexture = ({
 	]);
 
 	useLayoutEffect(() => {
+		if (!videoEnabled) {
+			setImageTexture(null);
+			return;
+		}
+
 		const cleanup = fetchTexture();
 
 		return () => {
 			cleanup();
 		};
-	}, [offthreadVideoFrameSrc, fetchTexture]);
+	}, [offthreadVideoFrameSrc, fetchTexture, videoEnabled]);
 
-	return imageTexture;
+	return videoEnabled ? imageTexture : null;
 };
 
 /*

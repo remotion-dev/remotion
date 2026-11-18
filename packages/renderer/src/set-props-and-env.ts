@@ -18,6 +18,7 @@ type SetPropsAndEnv = {
 	page: Page;
 	serveUrl: string;
 	initialFrame: number;
+	attempt: number;
 	timeoutInMilliseconds: number | undefined;
 	darkMode: boolean;
 	proxyPort: number;
@@ -40,6 +41,7 @@ const innerSetPropsAndEnv = async ({
 	page,
 	serveUrl,
 	initialFrame,
+	attempt,
 	timeoutInMilliseconds,
 	proxyPort,
 	retriesRemaining,
@@ -120,6 +122,7 @@ const innerSetPropsAndEnv = async ({
 		(
 			input: string,
 			key: number,
+			att: number,
 			port: number,
 			audEnabled: boolean,
 			vidEnabled: boolean,
@@ -128,7 +131,7 @@ const innerSetPropsAndEnv = async ({
 		) => {
 			window.remotion_inputProps = input;
 			window.remotion_initialFrame = key;
-			window.remotion_attempt = 1;
+			window.remotion_attempt = att;
 			window.remotion_proxyPort = port;
 			window.remotion_audioEnabled = audEnabled;
 			window.remotion_videoEnabled = vidEnabled;
@@ -162,6 +165,7 @@ const innerSetPropsAndEnv = async ({
 		},
 		serializedInputPropsWithCustomSchema,
 		initialFrame,
+		attempt,
 		proxyPort,
 		audioEnabled,
 		videoEnabled,
@@ -178,6 +182,7 @@ const innerSetPropsAndEnv = async ({
 		return innerSetPropsAndEnv({
 			envVariables,
 			initialFrame,
+			attempt,
 			serializedInputPropsWithCustomSchema,
 			page,
 			proxyPort,
@@ -299,7 +304,7 @@ const innerSetPropsAndEnv = async ({
 	// should not be bumped for every generated HTML change. Keep it synchronized
 	// with window.siteVersion in packages/studio-shared/src/studio-html.ts by
 	// incrementing both values.
-	const requiredVersion: typeof window.siteVersion = '11';
+	const requiredVersion: typeof window.siteVersion = '12';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(

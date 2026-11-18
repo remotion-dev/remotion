@@ -52,18 +52,20 @@ const cliFlag = 'x264-preset' as const;
 const DEFAULT_PRESET: X264Preset = 'medium' as const;
 
 export const x264Option = {
-	name: 'x264 Preset',
+	name: 'x264 preset',
 	addedIn: '4.0.22',
 	cliFlag,
 	description: () => (
 		<>
-			Sets a x264 preset profile. Only applies to videos rendered with{' '}
-			<code>h264</code> codec.
+			Sets a x264 preset profile. Only applies to videos rendered with the{' '}
+			<code>h264</code>, <code>h264-mkv</code> or <code>h264-ts</code> codec.
 			<br />
-			Possible values: <code>superfast</code>, <code>veryfast</code>,{' '}
-			<code>faster</code>, <code>fast</code>, <code>medium</code>,{' '}
-			<code>slow</code>, <code>slower</code>, <code>veryslow</code>,{' '}
-			<code>placebo</code>.<br />
+			Possible values:{' '}
+			{x264PresetOptions.flatMap((p, i) => [
+				i > 0 ? ', ' : null,
+				<code key={p}>{p}</code>,
+			])}
+			.<br />
 			Default: <code>{DEFAULT_PRESET}</code>
 		</>
 	),

@@ -389,6 +389,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			{
 				id: 'composition',
 				label: 'Composition',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items,
 			},
@@ -407,6 +408,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			{
 				id: 'remotion',
 				label: 'Remotion',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					{

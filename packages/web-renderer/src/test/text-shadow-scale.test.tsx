@@ -39,17 +39,13 @@ const leftmostX = (
 	return -1;
 };
 
-const isBlack = (r: number, g: number, b: number, a: number) =>
-	a > 200 && r < 60 && g < 60 && b < 60;
+const isGray = (r: number, g: number, b: number, a: number) =>
+	a > 200 && r < 200 && r === g && g === b;
 const isRed = (r: number, g: number, b: number, a: number) =>
-	a > 200 && r > 180 && g < 80 && b < 80;
+	a > 200 && r > 180 && g < 200 && b < 200 && r > g + 30;
 
-// The fixture draws a black glyph with a red shadow offset 60px to the right.
-// Since the shadow is a copy of the glyph shifted by the offset, the gap
-// between the leftmost red pixel and the leftmost black pixel equals the
-// shadow's horizontal offset in output pixels.
 const measureShadowOffset = (img: ImageData) =>
-	leftmostX(img, isRed) - leftmostX(img, isBlack);
+	leftmostX(img, isRed) - leftmostX(img, isGray);
 
 const render = async (scale: number) => {
 	const blob = await (
@@ -64,9 +60,20 @@ const render = async (scale: number) => {
 	return decode(blob);
 };
 
-test('text-shadow offset scales with the export scale option', async () => {
-	const offset1x = measureShadowOffset(await render(1));
-	const offset3x = measureShadowOffset(await render(3));
+test('text-shadow scales with the export scale option and preserves glyph opacity', async () => {
+	const image1x = await render(1);
+	const image3x = await render(3);
+	const offset1x = measureShadowOffset(image1x);
+	const offset3x = measureShadowOffset(image3x);
+
+	for (const image of [image1x, image3x]) {
+		const darkestRed = image.data.reduce(
+			(min, value, index) => (index % 4 === 0 ? Math.min(min, value) : min),
+			255,
+		);
+		expect(darkestRed).toBeGreaterThanOrEqual(139);
+		expect(darkestRed).toBeLessThanOrEqual(141);
+	}
 
 	// Sanity: at 1x the offset is roughly the 60px the fixture specifies.
 	expect(offset1x).toBeGreaterThan(45);

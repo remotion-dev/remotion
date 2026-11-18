@@ -6,37 +6,158 @@ crumb: 'Designing visuals'
 
 # Motion blur
 
-To realize a realistic motion blur, a frame needs to be duplicated multiple times and blended together.
+<img
+  src="https://remotion.media/docs/motion-blur/hero-7921dc4391e4.webp"
+  alt="Close-up of the B scene sliding through a motion-blurred transition, tilted in 3D."
+  width={1200}
+  height={420}
+  style={{width: '100%', height: 'auto', borderRadius: 5}}
+/>
 
-Remotion provides a [`@remotion/motion-blur`](/docs/motion-blur/api) package to achieve this.
+Motion blur is an essential, albeit expensive effect used in video editing and motion graphics.  
+It samples frames from before and after the current time and blends them together.
 
-Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add motion blur to a component:
+Remotion supports motion blur on [arbitrary content](#htmlincanvasmotionblur) through [`@remotion/motion-blur`](/docs/motion-blur/api).  
+[For transitions](#motion-blur-on-transitions) there is an optimized way available in [`@remotion/transitions`](/docs/transitions).
 
-<SuggestedPrompt prompt="/remotion-markup Add motion blur to my text animation" />
+## Using an agent
 
-## Recommended: HTML-in-canvas motion blur
+The `/remotion-markup` skills can help you find the right motion blur for your animation.  
+Reference an element and ask:
 
-[`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) is the state-of-the-art implementation of motion blur.
+<SuggestedPrompt prompt="/remotion-markup Add motion blur to this" />
 
-It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
+## In Studio
+
+Select an element in the [Remotion Studio](/docs/studio) timeline, then click `Motion blur`.
+
+<img
+  src="https://remotion.media/docs/motion-blur/studio-fa0fba1490a9.png"
+  alt="Actions section of the Remotion Studio inspector, showing the Motion blur button."
+  width={340}
+  height={258}
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 5}}
+/><br/><br/>
+
+Studio will wrap the element in [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur).  
+Select the newly created element and adjust [shutter angle and amount of samples](#shutterangle-and-samples) in the sidebar.
+
+<img
+  src="https://remotion.media/docs/motion-blur/studio-controls-66b9c138020a.png"
+  alt="Motion blur controls in Remotion Studio, with Shutter angle set to 180 and Samples set to 8."
+  width={340}
+  height={132}
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 5}}
+/>
+
+## Programmatically
+
+### `<HtmlInCanvasMotionBlur>`
+
+[`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) is Remotion's state-of-the-art implementation of motion blur.  
+Wrap any content with it to apply motion blur. You must pass a `width` and `height`.
 
 <Demo type="motion-blur-html-in-canvas" />
 
-## Camera motion blur
+```tsx twoslash title="MyComposition.tsx"
+import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 
-[`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but layered blending can change colors and opacity.
+const MovingBox = () => {
+  const frame = useCurrentFrame();
 
-<Demo type="motion-blur-camera" />
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: frame * 10,
+        top: 300,
+        width: 120,
+        height: 120,
+        backgroundColor: '#ff6b6b',
+      }}
+    />
+  );
+};
 
-Set `shutterAngle` to control the exposure length and `samples` to control smoothness.
+export const MyComposition = () => {
+  const {width, height} = useVideoConfig();
 
-## Trail
+  return (
+    <HtmlInCanvasMotionBlur
+      width={width}
+      height={height}
+      samples={8}
+      shutterAngle={180}
+    >
+      <MovingBox />
+    </HtmlInCanvasMotionBlur>
+  );
+};
+```
 
-[`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one.
+Call [`useCurrentFrame()`](/docs/use-current-frame) from a child component so each motion blur sample receives its own frame.
 
-It does not aim to reproduce a realistic camera exposure.
+### Motion blur on transitions<AvailableFrom v="4.0.545" />
 
-<Demo type="motion-blur-trail" />
+Use [`motionBlur`](/docs/transitions/transitionseries#motionblur) on a [`<TransitionSeries.Transition>`](/docs/transitions/transitionseries#transitionseriestransition) to blur the presentations movement.
+
+<Demo type="transition-motion-blur" />
+
+```tsx twoslash title="MyComposition.tsx"
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#0b84f3'}} />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={slide({direction: 'from-bottom'})}
+        timing={springTiming({durationInFrames: 20})}
+        motionBlur={{shutterAngle: 180, samples: 16}}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <AbsoluteFill style={{backgroundColor: '#2ecc71'}} />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+All built-in presentations support motion blur.  
+Custom presentations must be implemented using [HTML-in-canvas](/docs/transitions/presentations/custom-html-in-canvas) in order to support motion blur.  
+The properties `enterStyle`, `exitStyle`, `innerEnterStyle`, `innerExitStyle`, `outerEnterStyle`, and `outerExitStyle` cannot be used when applying motion blur to an element.
+
+## `shutterAngle` and `samples`
+
+`shutterAngle` is the exposure duration as a fraction of one frame.  
+`360°` equals 1 frame, `180°` is half a frame, `90°` is a quarter of a frame, and so on.
+
+The equivalent exposure time in seconds is `(shutterAngle / 360) / fps`.  
+For example, at 30fps, a `shutterAngle` of `180` is `(180 / 360) / fps = 1 / 60 sec`.
+
+Use `samples` to control how many snapshots are blended within the exposure time.  
+Increasing it leads to a smoother blur, but increases rendering work.
+
+## Browser support
+
+In regular rendering and server-side rendering, motion blur is supported.
+
+Preview requires HTML-in-canvas, currently only supported in Chrome.  
+As a fallback the original content and a “Motion blur is not visible” indication is shown.
+
+In client-side rendering, HTML-in-canvas must be enabled, otherwise a render fails if it includes motion blur.
+
+## `<CameraMotionBlur>` and `<Trail>`
+
+There are 2 more ways motion blur can be achieved in Remotion, but they are not recommended anymore:
+
+- [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but colors and opacity can be inaccurate.
+- [`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one, it does not blend frames.
 
 ## See also
 

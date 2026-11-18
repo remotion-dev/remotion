@@ -20,6 +20,7 @@ import * as bucketExists from '../../../../lambda-client/src/bucket-exists';
 import * as callLambdaAsync from '../../../../lambda-client/src/call-lambda-async';
 import * as callLambdaStreaming from '../../../../lambda-client/src/call-lambda-streaming';
 import * as callLambdaSync from '../../../../lambda-client/src/call-lambda-sync';
+import * as checkBucketListing from '../../../../lambda-client/src/check-bucket-listing';
 import * as checkCredentials from '../../../../lambda-client/src/check-credentials';
 import * as createBucket from '../../../../lambda-client/src/create-bucket';
 import * as deleteFile from '../../../../lambda-client/src/delete-file';
@@ -51,6 +52,7 @@ import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
+	getMockInvokeWithResponseStream,
 } from './aws-clients';
 import {mockBundleSite} from './mock-bundle-site';
 import {mockCreateFunction} from './mock-create-function';
@@ -89,6 +91,7 @@ export type FakeAwsDefaults = {
 	generateRenderId: typeof lifecycle.generateRandomHashWithLifeCycleRule;
 	getAccountId: typeof getAccountId.getAccountIdImplementation;
 	checkCredentials: typeof checkCredentials.checkCredentials;
+	checkBucketListing: typeof checkBucketListing.checkBucketListing;
 	applyLifeCycle: typeof lifecycleRules.applyLifeCyleOperation;
 	createBucket: typeof createBucket.createBucket;
 	getBuckets: typeof getBuckets.getRemotionBuckets;
@@ -104,6 +107,7 @@ export type FakeAwsDefaults = {
 	callFunctionAsync: typeof callLambdaAsync.callFunctionAsyncImplementation;
 	callFunctionStreaming: typeof callLambdaStreaming.callFunctionWithStreamingImplementation;
 	callFunctionSync: typeof callLambdaSync.callFunctionSyncImplementation;
+	invokeWithResponseStream: typeof callLambdaStreaming.invokeWithResponseStreamImplementation;
 	getFunctions: typeof getFunctions.getFunctions;
 	getFunctionInfo: typeof getFunctionInfo.getFunctionInfo;
 	deleteFunction: typeof deleteFunction.deleteFunction;
@@ -131,6 +135,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 		realGenerateRenderId({deleteAfter, randomHashFn: realRandomHash}),
 	getAccountId: () => Promise.resolve('123456789'),
 	checkCredentials: () => undefined,
+	checkBucketListing: () => Promise.resolve(),
 	applyLifeCycle: () => Promise.resolve(),
 	createBucket: (input) => {
 		addMockBucket({
@@ -209,6 +214,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
+	invokeWithResponseStream: getMockInvokeWithResponseStream,
 	getFunctions: getAllMockFunctions,
 	getFunctionInfo: ({functionName, region}) => {
 		const fn = findFunction(functionName, region);
@@ -257,6 +263,7 @@ const makeSpies = (): FakeAwsSpies => ({
 	generateRenderId: spyOn(lifecycle, 'generateRandomHashWithLifeCycleRule'),
 	getAccountId: spyOn(getAccountId, 'getAccountIdImplementation'),
 	checkCredentials: spyOn(checkCredentials, 'checkCredentials'),
+	checkBucketListing: spyOn(checkBucketListing, 'checkBucketListing'),
 	applyLifeCycle: spyOn(lifecycleRules, 'applyLifeCyleOperation'),
 	createBucket: spyOn(createBucket, 'createBucket'),
 	getBuckets: spyOn(getBuckets, 'getRemotionBuckets'),
@@ -278,6 +285,10 @@ const makeSpies = (): FakeAwsSpies => ({
 		'callFunctionWithStreamingImplementation',
 	),
 	callFunctionSync: spyOn(callLambdaSync, 'callFunctionSyncImplementation'),
+	invokeWithResponseStream: spyOn(
+		callLambdaStreaming,
+		'invokeWithResponseStreamImplementation',
+	),
 	getFunctions: spyOn(getFunctions, 'getFunctions'),
 	getFunctionInfo: spyOn(getFunctionInfo, 'getFunctionInfo'),
 	deleteFunction: spyOn(deleteFunction, 'deleteFunction'),

@@ -16,6 +16,7 @@ import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import {makeAssetDownloadError} from './make-asset-download-error';
 import type {CancelSignal} from './make-cancel-signal';
 import type {
 	CapturedFrame,
@@ -41,6 +42,7 @@ export const renderFrameWithOptionToReject = async ({
 	onFrame,
 	remotionSharedMemory,
 	imageFormat,
+	muted,
 	onError,
 	lastFrame,
 	jpegQuality,
@@ -84,6 +86,7 @@ export const renderFrameWithOptionToReject = async ({
 		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
 	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	imageFormat: VideoImageFormat;
+	muted: boolean;
 	onError: (err: Error) => void;
 	lastFrame: number;
 	jpegQuality: number;
@@ -117,7 +120,10 @@ export const renderFrameWithOptionToReject = async ({
 	const startTime = performance.now();
 
 	const index = framesToRender.indexOf(frame);
+	// Frames outside the requested range are only evaluated for their audio
+	// so a seamless AAC chunk can be aligned to packet boundaries.
 	const assetsOnly = index === -1;
+	const videoEnabled = !assetsOnly && imageFormat !== 'none';
 
 	if (stoppedSignal.stopped) {
 		return Promise.reject(new Error('Render was stopped'));
@@ -151,6 +157,8 @@ export const renderFrameWithOptionToReject = async ({
 
 		await seekToFrame({
 			frame,
+			videoEnabled,
+			audioEnabled: !muted,
 			page,
 			composition: compId,
 			timeoutInMilliseconds,
@@ -306,10 +314,13 @@ export const renderFrameWithOptionToReject = async ({
 		}
 
 		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-		const artifactAssets = onlyArtifact({
-			assets: collectedAssets,
-			frameBuffer: frameBufferForArtifacts,
-		});
+		// Artifacts belong to the requested frames, not to the audio padding.
+		const artifactAssets = assetsOnly
+			? []
+			: onlyArtifact({
+					assets: collectedAssets,
+					frameBuffer: frameBufferForArtifacts,
+				});
 
 		for (const artifact of artifactAssets) {
 			const previousFrame = assetIndex.firstArtifactFrameByFilename.get(
@@ -369,14 +380,7 @@ export const renderFrameWithOptionToReject = async ({
 				cancelSignalForAudioAnalysis: cancelSignal,
 				shouldAnalyzeAudioImmediately: true,
 			}).catch((err) => {
-				const truncateWithEllipsis =
-					renderAsset.src.substring(0, 1000) +
-					(renderAsset.src.length > 1000 ? '...' : '');
-				onError(
-					new Error(
-						`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
-					),
-				);
+				onError(makeAssetDownloadError({src: renderAsset.src, error: err}));
 			});
 		}
 

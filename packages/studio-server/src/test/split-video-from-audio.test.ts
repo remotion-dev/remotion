@@ -68,6 +68,7 @@ test('splitVideoFromAudioHandler writes success and failure responses', async ()
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 

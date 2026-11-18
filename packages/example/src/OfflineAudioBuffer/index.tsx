@@ -13,7 +13,6 @@ const sampleRate = 44100;
 
 export const OfflineAudioBufferExample: React.FC = () => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [handle] = useState(() => delayRender('Creating offline audio'));
 	const [audioBuffer, setAudioBuffer] = useState<string | null>(null);
 	const {fps, durationInFrames} = useVideoConfig();
 	const lengthInSeconds = durationInFrames / fps;
@@ -42,10 +41,13 @@ export const OfflineAudioBufferExample: React.FC = () => {
 	}, [lengthInSeconds]);
 
 	useEffect(() => {
+		// Not in a useState() initializer: React may discard an uncommitted
+		// render and mount again, which would leak a handle that is never cleared.
+		const handle = delayRender('Creating offline audio');
 		renderAudio()
 			.then(() => continueRender(handle))
 			.catch((err) => cancelRender(err));
-	}, [continueRender, handle, renderAudio, cancelRender]);
+	}, [continueRender, delayRender, renderAudio, cancelRender]);
 
 	return (
 		<AbsoluteFill>

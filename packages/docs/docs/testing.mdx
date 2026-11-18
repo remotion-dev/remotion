@@ -16,7 +16,7 @@ You can approach testing Remotion components the same way as testing regular Rea
 
 ## Adding Remotion contexts
 
-To add the contexts that Remotion needs, consider using the [￼`<Thumbnail>`￼](https://www.remotion.dev/docs/player/thumbnail) component to add the necessary React contexts that Remotion needs and to show the component at a specific frame.
+To add the contexts that Remotion needs, consider using the [`<Thumbnail>`](/docs/player/thumbnail) component to add the necessary React contexts that Remotion needs and to show the component at a specific frame.
 
 Add the [`noSuspense`](/docs/player/thumbnail#nosuspense) prop (available from Remotion v4.0.271) to prevent the component to be wrapped in React `<Suspense>`, which might delay the rendering of the markup.
 
@@ -24,7 +24,7 @@ Add the [`noSuspense`](/docs/player/thumbnail#nosuspense) prop (available from R
 
 While not the most sophisticated, this is a very fast and lightweight way to test Remotion components.
 
-```tsx title="src/test/example.test.ts"
+```tsx title="src/test/example.test.tsx"
 import {Thumbnail} from '@remotion/player';
 import {expect, test} from 'bun:test';
 
@@ -44,7 +44,7 @@ test('should work', () => {
 });
 ```
 
-```toml title="bunfig.tom"
+```toml title="bunfig.toml"
 [test]
 preload = "./happydom.ts"
 ```
@@ -58,5 +58,5 @@ GlobalRegistrator.register();
 Run the test using
 
 ```sh
-bun test src/test/example.test.ts
+bun test src/test/example.test.tsx
 ```

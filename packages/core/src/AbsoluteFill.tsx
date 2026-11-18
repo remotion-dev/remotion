@@ -13,7 +13,6 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
-	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	childrenSchema,
@@ -41,7 +40,6 @@ export type AbsoluteFillProps = Omit<
 
 export const absoluteFillSchema = {
 	...baseSchema,
-	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,

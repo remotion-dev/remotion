@@ -15,13 +15,16 @@ import {
 	openInCodingAgent,
 	openInGitClient,
 	openInTerminal,
-	openOriginalPositionInEditor,
+	openSourceInEditor,
+	resolveSourceLocation,
+	type SourceLocationTarget,
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {GitHubIcon} from '../icons/github';
 import {getAnnotateWithChatGPTMenuItems} from './get-annotate-with-chatgpt-menu-item';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
+import {inspectorHeaderActionStyle} from './InspectorPanel/common';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
@@ -48,17 +51,24 @@ const editorButtonIconSize = 18;
 const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
+	readonly menuTrigger: {
+		readonly label: string;
+		readonly renderIcon: (color: string) => React.ReactNode;
+	} | null;
 	readonly annotationName: string | null;
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
+	readonly sourceTarget: SourceLocationTarget | null;
 	readonly label?: React.ReactNode;
 	readonly locationType: 'file' | 'folder' | null;
 	readonly showTooltips: boolean;
 }> = ({
+	menuTrigger,
 	annotationName,
 	contextForAgents = null,
 	label,
 	location,
+	sourceTarget,
 	locationType,
 	showTooltips,
 }) => {
@@ -77,18 +87,45 @@ export const InspectorOpenInEditor: React.FC<{
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId) => {
-			if (!location) {
+			if (!location?.source) {
 				return;
 			}
 
 			try {
-				await openOriginalPositionInEditor(location, editorId);
+				await openSourceInEditor({
+					originalPosition: {
+						source: location.source,
+						line: location.line ?? 1,
+						column: location.column ?? 1,
+					},
+					editorId,
+					property: sourceTarget?.property ?? null,
+					effectIndex: sourceTarget?.effectIndex ?? null,
+				});
 			} catch (err) {
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[location],
+		[location, sourceTarget],
 	);
+
+	const openInGitSource = useCallback(async () => {
+		if (!location?.source) return;
+		try {
+			const resolved = await resolveSourceLocation({
+				originalPosition: {
+					source: location.source,
+					line: location.line ?? 1,
+					column: location.column ?? 1,
+				},
+				property: sourceTarget?.property ?? null,
+				effectIndex: sourceTarget?.effectIndex ?? null,
+			});
+			openGitSource({folder: locationType === 'folder', location: resolved});
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	}, [location, locationType, sourceTarget]);
 
 	const openWithCodingAgent = useCallback(
 		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
@@ -128,18 +165,12 @@ export const InspectorOpenInEditor: React.FC<{
 		(event) => {
 			event.stopPropagation();
 			if (defaultOpenInTarget === 'git-source') {
-				openGitSource({folder: locationType === 'folder', location});
+				openInGitSource();
 			} else if (defaultOpenInTarget === 'editor' && defaultEditorId) {
 				openWithEditor(defaultEditorId).catch(() => undefined);
 			}
 		},
-		[
-			defaultEditorId,
-			defaultOpenInTarget,
-			location,
-			locationType,
-			openWithEditor,
-		],
+		[defaultEditorId, defaultOpenInTarget, openWithEditor, openInGitSource],
 	);
 	const menuItems = useMemo((): ComboboxValue[] => {
 		const items = getOpenInMenuItems({
@@ -148,8 +179,9 @@ export const InspectorOpenInEditor: React.FC<{
 			editorDisabled: !location?.source || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
-			excludeEditorId: defaultEditorId,
-			excludeGitSource: defaultOpenInTarget === 'git-source',
+			excludeEditorId: menuTrigger === null ? defaultEditorId : null,
+			excludeGitSource:
+				menuTrigger === null && defaultOpenInTarget === 'git-source',
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
@@ -193,7 +225,7 @@ export const InspectorOpenInEditor: React.FC<{
 					});
 			},
 			onOpenInGitSource: () => {
-				openGitSource({folder: locationType === 'folder', location});
+				openInGitSource();
 			},
 			onOpenInTerminal: (terminalId) => {
 				if (!location?.source || locationType !== 'folder') {
@@ -252,11 +284,37 @@ export const InspectorOpenInEditor: React.FC<{
 		editorInfo,
 		location,
 		locationType,
+		menuTrigger,
 		openWithCodingAgent,
 		openWithEditor,
+		openInGitSource,
 		previewServerState.type,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {
+		if (menuTrigger !== null) {
+			return [
+				{
+					ariaLabel: menuTrigger.label,
+					buttonId: null,
+					disabled: !location?.source,
+					idleColor: LIGHT_TEXT,
+					leaveLeftSpace: true,
+					onOpenChange: null,
+					renderContent: menuTrigger.renderIcon,
+					segmentId: 'source-location',
+					selectedId: null,
+					style: inspectorHeaderActionStyle,
+					tooltipLabel: showTooltips
+						? (formatFileLocation({location, root: window.remotion_cwd}) ??
+							location?.source ??
+							null)
+						: null,
+					type: 'menu',
+					values: menuItems,
+				},
+			];
+		}
+
 		const result: SegmentedButtonSegment[] = [
 			{
 				ariaLabel: `Open in ${defaultAppName}`,
@@ -313,6 +371,7 @@ export const InspectorOpenInEditor: React.FC<{
 		label,
 		location,
 		menuItems,
+		menuTrigger,
 		onOpenDefault,
 		showTooltips,
 	]);

@@ -11,12 +11,16 @@ import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
 	installFileWatcher,
+	getFileWatcherRegistry,
+	subscribeToExternalSourceChanges,
 	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
 import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
+import {validateSourceMutation} from './source-mutation-guard';
 import {
+	notifyBundlerOfFileChange,
 	prepareBundlerForFileWrite,
 	suppressBundlerUpdateForFile,
 } from './watch-ignore-next-change';
@@ -25,6 +29,19 @@ export interface UndoEntryDescription {
 	undoMessage: string;
 	redoMessage: string;
 }
+
+const shouldSkipSequencePropsUpdate = (
+	remappings: readonly SequenceNodePathRemapping[] | null,
+) => {
+	return (
+		remappings !== null &&
+		!remappings.every(
+			({oldNodePath, newNodePath, sourceLocations}) =>
+				sourceLocations &&
+				JSON.stringify(oldNodePath) === JSON.stringify(newNodePath),
+		)
+	);
+};
 
 export type UndoEntryType =
 	| 'visual-control'
@@ -209,6 +226,7 @@ export function pushTransactionToUndoStack({
 	suppressHmrOnFileRestore: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
 }) {
+	validateSourceMutation();
 	storedLogLevel = logLevel;
 	storedRemotionRoot = remotionRoot;
 
@@ -389,6 +407,8 @@ function invalidateForFile(filePath: string) {
 	}
 }
 
+subscribeToExternalSourceChanges(invalidateForFile);
+
 function cleanupWatchers() {
 	const filesInStacks = new Set([
 		...undoStack.flatMap(getEntryFilePaths),
@@ -436,6 +456,9 @@ function logFileAction(action: string, filePath: string, logLine: number) {
 }
 
 export function popUndo(): UndoResponse {
+	for (const snapshot of undoStack.at(-1)?.snapshots ?? [])
+		getFileWatcherRegistry().getExternalSourceRevision(snapshot.filePath);
+	validateSourceMutation();
 	const entry = undoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to undo'};
@@ -475,6 +498,7 @@ export function popUndo(): UndoResponse {
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings.map(
 					(remapping): SequenceNodePathRemapping => ({
+						...(remapping.effectsOnly ? {effectsOnly: true as const} : {}),
 						oldNodePath: remapping.newNodePath,
 						newNodePath: remapping.oldNodePath,
 						...(remapping.newJsxName === undefined
@@ -505,24 +529,31 @@ export function popUndo(): UndoResponse {
 					entry.suppressHmrOnFileRestore,
 				);
 
-	for (const snapshot of entry.snapshots) {
+	for (const snapshot of redoSnapshots) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);
 		}
 
 		if (snapshot.oldContents === null) {
-			prepareBundlerForFileWrite(snapshot.filePath);
+			prepareBundlerForFileWrite(snapshot.filePath, null);
 			rmSync(snapshot.filePath, {force: true});
+			getFileWatcherRegistry().recordSourceWrite(snapshot.filePath, null);
+			notifyBundlerOfFileChange(snapshot.filePath, null);
 		} else {
 			writeFileAndNotifyFileWatchers({
 				file: snapshot.filePath,
 				content: snapshot.oldContents,
 				originatorClientId: undefined,
-				metadata:
-					snapshot.nodePathRemappings === null
-						? null
-						: {skipSequencePropsUpdate: true},
+				metadata: {
+					skipSequencePropsUpdate: shouldSkipSequencePropsUpdate(
+						snapshot.nodePathRemappings,
+					),
+				},
 			});
 		}
 	}
@@ -556,6 +587,9 @@ export function popUndo(): UndoResponse {
 }
 
 export function popRedo(): RedoResponse {
+	for (const snapshot of redoStack.at(-1)?.snapshots ?? [])
+		getFileWatcherRegistry().getExternalSourceRevision(snapshot.filePath);
+	validateSourceMutation();
 	const entry = redoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to redo'};
@@ -612,6 +646,10 @@ export function popRedo(): RedoResponse {
 				);
 
 	for (const snapshot of snapshotsWithNewContents) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);
@@ -621,10 +659,11 @@ export function popRedo(): RedoResponse {
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: undefined,
-			metadata:
-				snapshot.nodePathRemappings === null
-					? null
-					: {skipSequencePropsUpdate: true},
+			metadata: {
+				skipSequencePropsUpdate: shouldSkipSequencePropsUpdate(
+					snapshot.nodePathRemappings,
+				),
+			},
 		});
 	}
 

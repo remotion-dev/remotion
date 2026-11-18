@@ -53,6 +53,7 @@ type RenderMediaOnVercelBaseOptions = {
 	numberOfGifLoops?: number | null;
 	x264Preset?: X264Preset | null;
 	gopSize?: number | null;
+	proResBitsPerMacroblock?: number | null;
 	colorSpace?: ColorSpace;
 	jpegQuality?: number;
 	audioCodec?: AudioCodec | null;
@@ -127,6 +128,7 @@ const internalRenderMediaOnVercel = async (
 		numberOfGifLoops,
 		x264Preset,
 		gopSize,
+		proResBitsPerMacroblock,
 		colorSpace = 'default',
 		jpegQuality = 80,
 		audioCodec,
@@ -184,6 +186,7 @@ const internalRenderMediaOnVercel = async (
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
+		proResBitsPerMacroblock: proResBitsPerMacroblock ?? null,
 		colorSpace,
 		jpegQuality,
 		audioCodec: audioCodec ?? null,

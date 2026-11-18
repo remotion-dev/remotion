@@ -4,7 +4,7 @@ declare const __BROWSER_STUDIO_DEPENDENCY_VERSIONS__:
 
 const getInjectedDependencyVersions = () => {
 	if (typeof __BROWSER_STUDIO_DEPENDENCY_VERSIONS__ === 'undefined') {
-		throw new Error('Browser Studio dependency versions were not injected');
+		throw new Error('remotion.new dependency versions were not injected');
 	}
 
 	return __BROWSER_STUDIO_DEPENDENCY_VERSIONS__;

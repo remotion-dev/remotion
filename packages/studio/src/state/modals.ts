@@ -13,6 +13,8 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	CanvasCaptureData,
+	CompositionDestination,
+	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
@@ -30,14 +32,12 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {PreferredEffectBackend} from 'remotion';
+import type {PreferredEffectBackend, ResolvedStackLocation} from 'remotion';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {useTimelineSelection} from '../components/Timeline/TimelineSelection';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -69,6 +69,7 @@ export type WebRenderModalState = {
 };
 
 export type ServerRenderRetrySettings = {
+	chromiumOptions: RenderDefaults['chromiumOptions'];
 	jobId: string;
 	outName: string;
 	crf: number | null;
@@ -136,6 +137,7 @@ export type RenderModalState = {
 export type ConfirmationDialogState = {
 	type: 'confirmation-dialog';
 	id: string;
+	library: ElementLibraryModalState | null;
 	title: string;
 	message: React.ReactNode;
 	confirmLabel: string;
@@ -150,14 +152,6 @@ export type SvgImportDialogState = {
 	onImage: () => void;
 	onInline: () => void;
 	onDismiss: () => void;
-};
-
-export type AddEffectModalState = {
-	type: 'add-effect';
-	fileName: string;
-	nodePathInfo: SequenceNodePathInfo;
-	clientId: string;
-	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 };
 
 export type AssetSelectionModalState = {
@@ -244,6 +238,11 @@ export type ModalState =
 			parentName: string | null;
 			stack: string | null;
 			canvasCapture: CanvasCaptureImport | null;
+			openTimeline: {
+				name: string;
+				contents: string;
+				mediaDirectory: string | null;
+			} | null;
 	  }
 	| {
 			type: 'new-folder';
@@ -284,7 +283,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -299,6 +297,10 @@ export type ModalState =
 	  }
 	| RenderModalState
 	| WebRenderModalState
+	| {
+			type: 'export-opentimeline';
+			compositionId: string;
+	  }
 	| {
 			type: 'render-progress';
 			jobId: string;
@@ -323,6 +325,7 @@ export type ModalState =
 	| {
 			type: 'precompose-refactor';
 			targets: PrecomposeRefactorTarget[];
+			failureReason: string | null;
 	  }
 	| {
 			type: 'precompose-name';
@@ -336,6 +339,14 @@ export type ModalState =
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'reorder-composition';
+			item: CompositionOrFolder;
+			destination: CompositionDestination;
+			sourceFile: string | null;
+			destinationFile: string | null;
+			sourceLocations: ResolvedStackLocation[];
 	  }
 	| {
 			type: 'wrap-refactor';
@@ -382,7 +393,6 @@ export type ModalState =
 	  }
 	| ElementLibraryModalState
 	| ElementInstallModalState
-	| AddEffectModalState
 	| AssetSelectionModalState
 	| TranscriptionModalState
 	| VideoMattingModalState

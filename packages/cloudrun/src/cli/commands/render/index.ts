@@ -184,6 +184,15 @@ export const renderCommand = async (
 	let composition: string = args[1];
 
 	const chromiumOptions: Required<ChromiumOptions> = {
+		flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		blinkFeatures: BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue(
+			{commandLine: CliInternals.parsedCli},
+		).value,
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
@@ -351,6 +360,10 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const proResBitsPerMacroblock =
+		BrowserSafeApis.options.proResBitsPerMacroblockOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -403,6 +416,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		proResProfile,
 		x264Preset,
 		gopSize,
+		proResBitsPerMacroblock,
 		disableSharedMemoryCapture,
 		crf: crf ?? undefined,
 		pixelFormat,

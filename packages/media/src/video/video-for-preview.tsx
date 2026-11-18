@@ -1,8 +1,10 @@
 import React, {
+	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
+	useReducer,
 	useRef,
 	useState,
 } from 'react';
@@ -12,6 +14,7 @@ import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	SequenceControls,
+	StaticFile,
 	VolumeProp,
 } from 'remotion';
 import {
@@ -27,6 +30,10 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {
+	initialPreviewPlayerStatus,
+	previewPlayerStatusReducer,
+} from '../preview-player-status';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
@@ -67,6 +74,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly volume: VolumeProp;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 	readonly showInTimeline: boolean;
 	readonly loop: boolean;
 	readonly trimAfter: number | undefined;
@@ -112,6 +120,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	volume,
 	loopVolumeCurveBehavior,
 	onVideoFrame,
+	onCanvasUpdated,
 	showInTimeline,
 	loop,
 	trimAfter,
@@ -133,23 +142,131 @@ const VideoForPreviewAssertedShowing: React.FC<
 	setMediaDurationInSeconds,
 	...props
 }) => {
-	const src = usePreload(unpreloadedSrc);
-
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const {isStudio} = useRemotionEnvironment();
+	const [staticFiles, setStaticFiles] = useState<StaticFile[] | null>(() =>
+		isStudio ? (window.remotion_staticFiles ?? null) : null,
+	);
+	useEffect(() => {
+		if (!isStudio) {
+			return;
+		}
+
+		const update = () => setStaticFiles(window.remotion_staticFiles ?? null);
+		update();
+		window.addEventListener(Internals.WATCH_REMOTION_STATIC_FILES, update);
+		return () => {
+			window.removeEventListener(Internals.WATCH_REMOTION_STATIC_FILES, update);
+		};
+	}, [isStudio]);
+
+	const knownStaticFile = useMemo(
+		() =>
+			isStudio
+				? (window.remotion_staticFiles?.find(
+						(file) => file.src === unpreloadedSrc,
+					) ?? null)
+				: null,
+		[isStudio, unpreloadedSrc],
+	);
+	const {missing: missingStaticFile, src: resolvedSrc} = useMemo(() => {
+		const unchanged = {missing: null, src: unpreloadedSrc};
+		if (!isStudio || !staticFiles) {
+			return unchanged;
+		}
+
+		let fileName = knownStaticFile?.name ?? null;
+		if (fileName === null) {
+			const staticBase = window.remotion_staticBase;
+			if (
+				typeof staticBase !== 'string' ||
+				(staticBase === '' &&
+					(!unpreloadedSrc.startsWith('/') || unpreloadedSrc.startsWith('//')))
+			) {
+				return unchanged;
+			}
+
+			try {
+				const source = new URL(unpreloadedSrc, window.location.href);
+				const base = new URL(`${staticBase}/`, window.location.href);
+				if (
+					source.origin !== base.origin ||
+					!source.pathname.startsWith(base.pathname)
+				) {
+					return unchanged;
+				}
+
+				fileName = decodeURIComponent(
+					source.pathname.slice(base.pathname.length),
+				);
+			} catch {
+				return unchanged;
+			}
+		}
+
+		const file = staticFiles.find((entry) => entry.name === fileName);
+		return {
+			missing: file ? null : fileName,
+			src: file?.src.startsWith('blob:') ? file.src : unpreloadedSrc,
+		};
+	}, [isStudio, knownStaticFile, staticFiles, unpreloadedSrc]);
+	const src = usePreload(resolvedSrc);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	const onCanvasUpdatedRef = useRef(onCanvasUpdated);
+	onCanvasUpdatedRef.current = onCanvasUpdated;
+	const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
+	const handleFallbackVideoFrame = useCallback(
+		(image: CanvasImageSource) => {
+			onVideoFrame?.(image);
+			if (
+				onCanvasUpdated === null ||
+				!(image instanceof HTMLVideoElement) ||
+				image.readyState < 2
+			) {
+				return;
+			}
+
+			const canvas =
+				fallbackCanvasRef.current ?? document.createElement('canvas');
+			fallbackCanvasRef.current = canvas;
+			if (canvas.width !== image.videoWidth) canvas.width = image.videoWidth;
+			if (canvas.height !== image.videoHeight)
+				canvas.height = image.videoHeight;
+			const context = canvas.getContext('2d');
+			if (context) {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				context.drawImage(image, 0, 0);
+				onCanvasUpdated(canvas);
+			}
+		},
+		[onCanvasUpdated, onVideoFrame],
+	);
 	const [initialRequestInit] = useState(requestInit);
 
-	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [status, dispatchStatus] = useReducer(
+		previewPlayerStatusReducer,
+		initialPreviewPlayerStatus,
+	);
 	const [knownDuration, setKnownDuration] = useState<number | null>(null);
-	const [terminalError, setTerminalError] = useState<Error | null>(null);
-	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
-		useState(false);
+	const mediaPlayerReady = status.type === 'ready';
+	const shouldFallbackToNativeVideo = status.type === 'fallback';
+	const terminalError = status.type === 'failed' ? status.error : null;
+	Internals.useEmitVideoFrame({
+		ref: fallbackVideoRef,
+		onVideoFrame:
+			shouldFallbackToNativeVideo &&
+			!disallowFallbackToOffthreadVideo &&
+			onCanvasUpdated !== null &&
+			!onVideoFrame
+				? handleFallbackVideoFrame
+				: null,
+	});
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
@@ -226,11 +343,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+	const audioEnabled = Internals.useAudioEnabled();
 	// TODO: Consider Sequence hidden
 	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
-		muted,
+		muted: muted || audioEnabled === false,
 		volume: userPreferredVolume,
-		audioEnabled: true,
+		audioEnabled: audioEnabled !== false,
 	});
 	const mediaPlayerMuted = useMediaPlayerMuted({
 		muted,
@@ -384,6 +502,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
+		if (missingStaticFile !== null) {
+			return;
+		}
+
 		// The context is created after commit. Avoid initializing a silent player
 		// that would immediately be replaced when its audio context becomes ready.
 		if (sharedAudioContext?.audioContextPending) {
@@ -439,13 +561,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 						isClientSideRendering: false,
 						clientSideError: error,
 					});
-					if (action === 'fallback') {
-						setShouldFallbackToNativeVideo(true);
-					} else {
-						setTerminalError(errorToUse);
-					}
+					dispatchStatus(
+						action === 'fallback'
+							? {type: 'fallback-requested'}
+							: {type: 'failed', error: errorToUse},
+					);
 				},
 			});
+			player.setCanvasUpdateCallback(onCanvasUpdatedRef.current);
 
 			if (canvas && studioSourceKey) {
 				const copied = copiedFrameRef.current;
@@ -493,7 +616,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 							clientSideError: error,
 						});
 						if (action === 'fail') {
-							throw errorToUse;
+							dispatchStatus({type: 'failed', error: errorToUse});
+							return;
 						}
 
 						// action === 'fallback'
@@ -501,7 +625,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 							{logLevel, tag: '@remotion/media'},
 							fallbackMessage,
 						);
-						setShouldFallbackToNativeVideo(true);
+						dispatchStatus({type: 'fallback-requested'});
 					};
 
 					if (
@@ -521,9 +645,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'cannot-decode-prores') {
-						// Unrecoverable: a native <video> can't decode ProRes either, so
-						// we must not fall back. The .catch below notifies onError and
-						// rethrows without falling back.
+						// A native <video> can't decode ProRes either, so we must not fall back.
 						throw new ProResDecoderNotEnabledError(preloadedSrc);
 					}
 
@@ -536,7 +658,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'success') {
-						setMediaPlayerReady(true);
+						dispatchStatus({type: 'init-succeeded'});
 						setMediaDurationInSeconds(result.durationInSeconds);
 						setKnownDuration(result.durationInSeconds);
 
@@ -546,10 +668,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 				.catch((error) => {
 					// ProRes without a registered decoder is unrecoverable and must not
 					// fall back to a native <video> (which cannot decode it either).
-					// Notify onError once for observability, then rethrow.
 					if (error instanceof ProResDecoderNotEnabledError) {
 						onErrorRef.current?.(error);
-						throw error;
+						dispatchStatus({type: 'failed', error});
+						return;
 					}
 
 					const [action, errorToUse] = callOnErrorAndResolve({
@@ -560,7 +682,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 						clientSideError: error,
 					});
 					if (action === 'fail') {
-						throw errorToUse;
+						dispatchStatus({type: 'failed', error: errorToUse});
+						return;
 					}
 
 					Internals.Log.error(
@@ -568,7 +691,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 						'[VideoForPreview] Failed to initialize MediaPlayer',
 						errorToUse,
 					);
-					setShouldFallbackToNativeVideo(true);
+					dispatchStatus({type: 'fallback-requested'});
 				});
 		} catch (error) {
 			const [action, errorToUse] = callOnErrorAndResolve({
@@ -579,15 +702,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 				clientSideError: error as Error,
 			});
 			if (action === 'fail') {
-				throw errorToUse;
+				dispatchStatus({type: 'failed', error: errorToUse});
+			} else {
+				Internals.Log.error(
+					{logLevel, tag: '@remotion/media'},
+					'[VideoForPreview] MediaPlayer initialization failed',
+					errorToUse,
+				);
+				dispatchStatus({type: 'fallback-requested'});
 			}
-
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[VideoForPreview] MediaPlayer initialization failed',
-				errorToUse,
-			);
-			setShouldFallbackToNativeVideo(true);
 		}
 
 		return () => {
@@ -604,8 +727,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				mediaPlayerRef.current = null;
 			}
 
-			setMediaPlayerReady(false);
-			setShouldFallbackToNativeVideo(false);
+			dispatchStatus({type: 'reset'});
 			hasDrawnRealFrameRef.current = false;
 		};
 	}, [
@@ -615,6 +737,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		disallowFallbackToOffthreadVideo,
 		logLevel,
 		loop,
+		missingStaticFile,
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
@@ -677,7 +800,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
-	}, [onVideoFrame, mediaPlayerReady]);
+		mediaPlayer.setCanvasUpdateCallback(onCanvasUpdated);
+	}, [onVideoFrame, onCanvasUpdated, mediaPlayerReady]);
 
 	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
@@ -708,6 +832,68 @@ const VideoForPreviewAssertedShowing: React.FC<
 		};
 	}, [objectFitProp, style]);
 
+	if (missingStaticFile !== null) {
+		if (headless) {
+			return null;
+		}
+
+		return (
+			<div
+				{...props}
+				className={className}
+				role="img"
+				aria-label={`Media unavailable: ${missingStaticFile}`}
+				style={{
+					width: 300,
+					height: 150,
+					...actualStyle,
+					backgroundColor: '#2a1819',
+				}}
+			>
+				<svg width="100%" height="100%" viewBox="0 0 480 270">
+					<g
+						fill="none"
+						stroke="#d58d90"
+						strokeWidth={2}
+						strokeLinejoin="round"
+					>
+						<path
+							d="M238.680 70.333C237.925 70.054 237.138 69.781 236.267 69.496C233.039 68.442 229.044 67.527 225.665 67.071C225.134 66.999 224.413 66.958 224.036 66.977C222.881 67.040 221.950 67.223 221.011 67.580C220.543 67.757 219.776 68.140 219.354 68.405C217.588 69.513 216.242 71.177 215.540 73.114C215.400 73.498 215.021 74.721 214.777 75.563C213.154 81.191 212.233 87.345 212.035 93.858C212.003 94.896 212.003 97.366 212.035 98.386C212.167 102.705 212.580 106.603 213.328 110.579C213.632 112.188 214.119 114.349 214.401 115.331C214.978 117.326 216.155 119.024 217.829 120.269C218.951 121.104 220.225 121.664 221.636 121.938C222.316 122.071 223.214 122.131 223.875 122.088C224.789 122.028 226.603 121.784 228.077 121.521C231.772 120.863 235.310 119.914 238.680 118.680L235.460 104.720L240.980 93.910L234.540 86.550Z"
+							transform="translate(-6 0) rotate(-8 230 97)"
+						/>
+						<path
+							d="M238.680 118.680C241.370 117.695 243.953 116.529 246.423 115.182C249.948 113.259 252.961 111.177 255.868 108.651C258.765 106.137 261.235 103.433 263.409 100.398C263.913 99.696 264.166 99.286 264.420 98.770C265.071 97.438 265.377 96.114 265.375 94.633C265.375 93.253 265.114 92.027 264.552 90.773C264.282 90.167 264.024 89.733 263.445 88.908C261.312 85.871 258.946 83.225 256.061 80.653C251.588 76.668 246.276 73.399 240.344 70.979C239.793 70.755 239.246 70.542 238.680 70.333L234.540 86.550L240.980 93.910L235.460 104.720Z"
+							transform="translate(7 2) rotate(9 254 97)"
+						/>
+					</g>
+					<text
+						x={240}
+						y={155}
+						textAnchor="middle"
+						fill="#ffe1e1"
+						fontFamily="Arial, sans-serif"
+						fontSize={24}
+					>
+						Media unavailable
+					</text>
+					<foreignObject x={20} y={158} width={440} height={50}>
+						<div
+							style={{
+								color: '#d58d90',
+								fontFamily: 'Arial, sans-serif',
+								fontSize: 14,
+								textAlign: 'center',
+								overflowWrap: 'anywhere',
+							}}
+						>
+							{missingStaticFile}
+						</div>
+					</foreignObject>
+				</svg>
+			</div>
+		);
+	}
+
 	if (terminalError) {
 		throw terminalError;
 	}
@@ -718,11 +904,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		return (
 			<Html5Video
 				{...props}
+				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
 				muted={effectiveMuted}
 				volume={volume}
+				onVideoFrame={onVideoFrame ? handleFallbackVideoFrame : undefined}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}

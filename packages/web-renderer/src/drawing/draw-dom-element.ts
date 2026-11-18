@@ -31,14 +31,150 @@ const getReadableImageError = (
 	return null;
 };
 
+const drawSvgThroughReadbackCanvas = ({
+	drawable,
+	fitted,
+	context,
+}: {
+	drawable: HTMLImageElement;
+	fitted: ReturnType<typeof fitSvgIntoItsContainer>;
+	context: OffscreenCanvasRenderingContext2D;
+}) => {
+	const {width, height} = context.canvas;
+	const transform = context.getTransform();
+	let left = 0;
+	let top = 0;
+	let right = width;
+	let bottom = height;
+	// Effects can paint outside the image's transformed rectangle. Keep their
+	// existing full-surface transfer until their paint bounds are known.
+	if (
+		(typeof context.filter !== 'string' || context.filter === 'none') &&
+		(context.shadowColor === 'rgba(0, 0, 0, 0)' ||
+			context.shadowColor === 'transparent')
+	) {
+		const corners = [
+			[fitted.left, fitted.top],
+			[fitted.left + fitted.width, fitted.top],
+			[fitted.left, fitted.top + fitted.height],
+			[fitted.left + fitted.width, fitted.top + fitted.height],
+		].map(([x, y]) => ({
+			x: transform.a * x + transform.c * y + transform.e,
+			y: transform.b * x + transform.d * y + transform.f,
+		}));
+		if (
+			corners.every(
+				(point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+			)
+		) {
+			left = Math.max(
+				0,
+				Math.min(
+					width,
+					Math.floor(Math.min(...corners.map((point) => point.x))),
+				),
+			);
+			top = Math.max(
+				0,
+				Math.min(
+					height,
+					Math.floor(Math.min(...corners.map((point) => point.y))),
+				),
+			);
+			right = Math.min(
+				width,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.x)))),
+			);
+			bottom = Math.min(
+				height,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.y)))),
+			);
+		}
+	}
+
+	const scratchWidth = right - left;
+	const scratchHeight = bottom - top;
+	if (
+		context.globalCompositeOperation !== 'source-over' ||
+		width <= 0 ||
+		height <= 0 ||
+		scratchWidth > 16384 ||
+		scratchHeight > 16384 ||
+		scratchWidth * scratchHeight > 16 * 1024 ** 2
+	)
+		return false;
+	if (scratchWidth <= 0 || scratchHeight <= 0) return true;
+	const scratch = new OffscreenCanvas(scratchWidth, scratchHeight);
+	try {
+		const readbackContext = scratch.getContext('2d', {
+			alpha: true,
+			willReadFrequently: true,
+		});
+		if (!readbackContext) return false;
+		readbackContext.drawImage(
+			context.canvas,
+			left,
+			top,
+			scratchWidth,
+			scratchHeight,
+			0,
+			0,
+			scratchWidth,
+			scratchHeight,
+		);
+		readbackContext.setTransform(
+			transform.a,
+			transform.b,
+			transform.c,
+			transform.d,
+			transform.e - left,
+			transform.f - top,
+		);
+		readbackContext.globalAlpha = context.globalAlpha;
+		readbackContext.filter = context.filter;
+		readbackContext.shadowColor = context.shadowColor;
+		readbackContext.shadowBlur = context.shadowBlur;
+		readbackContext.shadowOffsetX = context.shadowOffsetX;
+		readbackContext.shadowOffsetY = context.shadowOffsetY;
+		readbackContext.drawImage(
+			drawable,
+			fitted.left,
+			fitted.top,
+			fitted.width,
+			fitted.height,
+		);
+		context.save();
+		try {
+			context.resetTransform();
+			const copyBounds = new Path2D();
+			copyBounds.rect(left, top, scratchWidth, scratchHeight);
+			context.clip(copyBounds);
+			context.globalCompositeOperation = 'copy';
+			context.globalAlpha = 1;
+			context.filter = 'none';
+			context.shadowColor = 'transparent';
+			context.drawImage(scratch, left, top);
+		} finally {
+			context.restore();
+		}
+
+		return true;
+	} finally {
+		scratch.width = 0;
+		scratch.height = 0;
+	}
+};
+
 /**
  * Draw an SVG element using "contain" behavior (the default for SVGs).
  */
 const drawSvg = ({
+	readback,
 	drawable,
 	dimensions,
 	contextToDraw,
 }: {
+	readback: boolean;
 	drawable: HTMLImageElement;
 	dimensions: DOMRect;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
@@ -50,6 +186,16 @@ const drawSvg = ({
 			height: drawable.height,
 		},
 	});
+	if (
+		readback &&
+		drawSvgThroughReadbackCanvas({
+			drawable,
+			fitted,
+			context: contextToDraw,
+		})
+	)
+		return;
+
 	contextToDraw.drawImage(
 		drawable,
 		fitted.left,
@@ -80,69 +226,9 @@ const drawReplacedElement = ({
 			? {width: drawable.naturalWidth, height: drawable.naturalHeight}
 			: {width: drawable.width, height: drawable.height};
 
-	if (
-		drawable instanceof HTMLImageElement &&
-		drawable.currentSrc.startsWith('data:image/svg+xml')
-	) {
-		// Chromium and Firefox rasterize SVG image sources at the element's
-		// concrete size, so intrinsic source cropping cuts off most of the image.
-		const containerAspect = dimensions.width / dimensions.height;
-		const imageAspect = intrinsicSize.width / intrinsicSize.height;
-		let destWidth = dimensions.width;
-		let destHeight = dimensions.height;
-		let destX = dimensions.left;
-		let destY = dimensions.top;
-
-		if (
-			objectFit === 'contain' ||
-			(objectFit === 'scale-down' &&
-				(intrinsicSize.width > dimensions.width ||
-					intrinsicSize.height > dimensions.height))
-		) {
-			if (imageAspect > containerAspect) {
-				destWidth = dimensions.width;
-				destHeight = destWidth / imageAspect;
-			} else {
-				destHeight = dimensions.height;
-				destWidth = destHeight * imageAspect;
-			}
-
-			destX = dimensions.left + (dimensions.width - destWidth) / 2;
-			destY = dimensions.top + (dimensions.height - destHeight) / 2;
-		} else if (objectFit === 'cover') {
-			if (imageAspect > containerAspect) {
-				destHeight = dimensions.height;
-				destWidth = destHeight * imageAspect;
-			} else {
-				destWidth = dimensions.width;
-				destHeight = destWidth / imageAspect;
-			}
-
-			destX = dimensions.left + (dimensions.width - destWidth) / 2;
-			destY = dimensions.top + (dimensions.height - destHeight) / 2;
-		} else if (objectFit === 'none' || objectFit === 'scale-down') {
-			destWidth = intrinsicSize.width;
-			destHeight = intrinsicSize.height;
-			destX = dimensions.left + (dimensions.width - destWidth) / 2;
-			destY = dimensions.top + (dimensions.height - destHeight) / 2;
-		}
-
-		contextToDraw.save();
-		contextToDraw.beginPath();
-		contextToDraw.rect(
-			dimensions.left,
-			dimensions.top,
-			dimensions.width,
-			dimensions.height,
-		);
-		contextToDraw.clip();
-		contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
-		contextToDraw.restore();
-		return;
-	}
-
 	const result = calculateObjectFit({
 		objectFit,
+		objectPosition: computedStyle.objectPosition,
 		containerSize: {
 			width: dimensions.width,
 			height: dimensions.height,
@@ -151,6 +237,102 @@ const drawReplacedElement = ({
 		},
 		intrinsicSize,
 	});
+
+	if (result.destWidth === 0 || result.destHeight === 0) {
+		return;
+	}
+
+	if (
+		drawable instanceof HTMLImageElement &&
+		(/^data:image\/svg\+xml[\t\n\f\r ]*[;,]/i.test(drawable.currentSrc) ||
+			(drawable.currentSrc !== '' &&
+				new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg')))
+	) {
+		// SVG sources are rasterized at their concrete size; crop the destination
+		// rather than indexing the SVG's intrinsic source pixels.
+		const scaleX = result.destWidth / result.sourceWidth;
+		const scaleY = result.destHeight / result.sourceHeight;
+		const destX = result.destX - result.sourceX * scaleX;
+		const destY = result.destY - result.sourceY * scaleY;
+		const destWidth = intrinsicSize.width * scaleX;
+		const destHeight = intrinsicSize.height * scaleY;
+
+		const overflowsBox =
+			destX < dimensions.left ||
+			destY < dimensions.top ||
+			destX + destWidth > dimensions.left + dimensions.width ||
+			destY + destHeight > dimensions.top + dimensions.height;
+
+		if (!overflowsBox) {
+			contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
+			return;
+		}
+
+		// Crop on a separate canvas instead of clipping this context, so that a
+		// CSS filter set on this context (e.g. blur) can still extend past the box.
+		const {a, b, c, d} = contextToDraw.getTransform();
+		const cropWidth = Math.max(
+			1,
+			Math.ceil(dimensions.width * Math.hypot(a, b)),
+		);
+		const cropHeight = Math.max(
+			1,
+			Math.ceil(dimensions.height * Math.hypot(c, d)),
+		);
+		const crop = new OffscreenCanvas(cropWidth, cropHeight);
+		const cropContext = crop.getContext('2d');
+		if (!cropContext) {
+			throw new Error('Could not get 2D context to crop SVG image');
+		}
+
+		cropContext.scale(
+			cropWidth / dimensions.width,
+			cropHeight / dimensions.height,
+		);
+		cropContext.drawImage(
+			drawable,
+			destX - dimensions.left,
+			destY - dimensions.top,
+			destWidth,
+			destHeight,
+		);
+		contextToDraw.drawImage(
+			crop,
+			dimensions.left,
+			dimensions.top,
+			dimensions.width,
+			dimensions.height,
+		);
+		return;
+	}
+
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
+	}
+
+	// Preserve the concrete destination size when the entire image is visible.
+	if (
+		drawable instanceof HTMLImageElement &&
+		result.sourceX === 0 &&
+		result.sourceY === 0 &&
+		result.sourceWidth === intrinsicSize.width &&
+		result.sourceHeight === intrinsicSize.height
+	) {
+		contextToDraw.drawImage(
+			drawable,
+			result.destX,
+			result.destY,
+			result.destWidth,
+			result.destHeight,
+		);
+		return;
+	}
 
 	// Use the 9-argument drawImage to support source cropping (for cover mode)
 	contextToDraw.drawImage(
@@ -175,7 +357,18 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		// Handle SVG elements separately - they use "contain" behavior by default
 		if (node instanceof SVGSVGElement) {
 			const drawable = await turnSvgIntoDrawable(node);
-			drawSvg({drawable, dimensions, contextToDraw});
+			const userAgent =
+				node.ownerDocument.defaultView?.navigator.userAgent ?? '';
+			drawSvg({
+				drawable,
+				dimensions,
+				contextToDraw,
+				readback:
+					/AppleWebKit/.test(userAgent) &&
+					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
+					Boolean(node.querySelector('text')) &&
+					!node.querySelector('feImage'),
+			});
 			return;
 		}
 

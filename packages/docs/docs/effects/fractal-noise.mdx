@@ -59,28 +59,28 @@ Pass an object with the following properties. You can also call `fractalNoise()`
 
 ### `fractalType?`
 
-Texture style. Defaults to `"basic"`.
+Texture style. Defaults to `'basic'`.
 
-- `"basic"`: Layered clouds.
-- `"turbulent-smooth"`: Broad, smooth ridges.
-- `"turbulent-basic"`: Folded noise with sharper ridges.
-- `"turbulent-sharp"`: Narrow, high-contrast ridges.
-- `"dynamic"`: Noise warped by another noise field.
-- `"dynamic-twist"`: Twisted noise.
-- `"dynamic-progressive"`: Increasingly warped fine detail.
-- `"max"`: The strongest value from the layers.
-- `"strings"`: Thin strands around each layer's mid-gray values.
+- `'basic'`: Layered clouds.
+- `'turbulent-smooth'`: Broad, smooth ridges.
+- `'turbulent-basic'`: Folded noise with sharper ridges.
+- `'turbulent-sharp'`: Narrow, high-contrast ridges.
+- `'dynamic'`: Noise warped by another noise field.
+- `'dynamic-twist'`: Twisted noise.
+- `'dynamic-progressive'`: Increasingly warped fine detail.
+- `'max'`: The strongest value from the layers.
+- `'strings'`: Thin strands around each layer's mid-gray values.
 
 ### `noiseType?`
 
-Interpolation between noise cells. Defaults to `"soft-linear"`.
+Interpolation between noise cells. Defaults to `'soft-linear'`.
 
-- `"block"`: Hard-edged cells.
-- `"linear"`: Linear interpolation.
-- `"soft-linear"`: Smooth, filtered interpolation.
-- `"spline"`: Cubic interpolation.
+- `'block'`: Hard-edged cells.
+- `'linear'`: Linear interpolation.
+- `'soft-linear'`: Smooth, filtered interpolation.
+- `'spline'`: Cubic interpolation.
 
-All modes evolve smoothly over time, including `"block"`.
+All modes evolve smoothly over time, including `'block'`.
 
 ### `scale?`
 
@@ -151,12 +151,17 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Implementations
 
 - WebGL2
-- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
 ## See also
 
+- [`@remotion/effects`](/docs/effects/api)
 - [`noise()`](/docs/effects/noise)
 - [`liquidContours()`](/docs/effects/liquid-contours)
 - [`tint()`](/docs/effects/tint)

@@ -121,6 +121,12 @@ npx remotion render
 npx remotion upgrade
 ```
 
+## Render progress
+
+The render endpoint uses [`renderMediaOnLambdaAndStream()`](https://www.remotion.dev/docs/lambda/rendermediaonlambdaandstream) and streams progress to the browser. If the connection closes early, the browser uses the progress endpoint to continue following the same render.
+
+Keep the progress endpoint available for recovery. Deploy the render endpoint on a Node.js server with response streaming enabled.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

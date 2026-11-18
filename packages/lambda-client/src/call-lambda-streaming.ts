@@ -48,6 +48,14 @@ const invokeStreamOrTimeout = async ({
 	payload: Record<string, unknown>;
 	requestHandler: RequestHandler | null;
 }) => {
+	const stringifiedPayload = JSON.stringify({type, ...payload});
+	const byteLength = Buffer.byteLength(stringifiedPayload);
+	if (byteLength > 6 * 1024 * 1024) {
+		throw new Error(
+			`Payload is too big: ${byteLength} bytes. Maximum size is 6 MB. This should not happen, please report this to the Remotion team.`,
+		);
+	}
+
 	const resProm = getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
@@ -55,7 +63,7 @@ const invokeStreamOrTimeout = async ({
 	).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
-			Payload: JSON.stringify({type, ...payload}),
+			Payload: stringifiedPayload,
 		}),
 	);
 
@@ -77,6 +85,39 @@ const invokeStreamOrTimeout = async ({
 	cleanup();
 
 	return res;
+};
+
+export const invokeWithResponseStreamImplementation = ({
+	region,
+	functionName,
+	payload,
+	timeoutInMilliseconds,
+	requestHandler,
+	abortSignal,
+}: {
+	region: AwsRegion;
+	functionName: string;
+	payload: Record<string, unknown>;
+	timeoutInMilliseconds: number;
+	requestHandler: RequestHandler | null;
+	abortSignal: AbortSignal;
+}): Promise<InvokeWithResponseStreamCommandOutput> => {
+	const stringifiedPayload = JSON.stringify(payload);
+	const byteLength = Buffer.byteLength(stringifiedPayload);
+	if (byteLength > 6 * 1024 * 1024) {
+		throw new Error(
+			`Payload is too big: ${byteLength} bytes. Maximum size is 6 MB. This should not happen, please report this to the Remotion team.`,
+		);
+	}
+
+	return getLambdaClient(region, timeoutInMilliseconds, requestHandler).send(
+		new InvokeWithResponseStreamCommand({
+			FunctionName: functionName,
+			InvocationType: 'RequestResponse',
+			Payload: stringifiedPayload,
+		}),
+		{abortSignal},
+	);
 };
 
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
@@ -188,9 +229,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 			);
 		}
 
-		// Also closes the active payload sink if the stream aborted
-		// mid-payload, so no file descriptor is leaked
-		clear();
+		await clear();
 	}
 };
 

@@ -18,6 +18,12 @@ export const validateMediaProps = (
 		);
 	}
 
+	if (typeof props.volume === 'number' && !Number.isFinite(props.volume)) {
+		throw new TypeError(
+			`You have passed a volume of ${props.volume} to your <${component} /> component. Volume must be a real number.`,
+		);
+	}
+
 	if (typeof props.volume === 'number' && props.volume < 0) {
 		throw new TypeError(
 			`You have passed a volume below 0 to your <${component} /> component. Volume must be between 0 and 1`,

@@ -113,6 +113,12 @@ node deploy.mjs
 When upgrading Remotion to a newer version, you will need to redeploy your function and update your site using the commands above.  
 If your functions or sites are already used in production, make sure to not overwrite them - [read here](https://www.remotion.dev/docs/lambda/upgrading) for more details about upgrading.
 
+## Render progress
+
+The render endpoint uses [`renderMediaOnLambdaAndStream()`](https://www.remotion.dev/docs/lambda/rendermediaonlambdaandstream) and streams progress to the browser. If the connection closes early, the browser uses the progress endpoint to continue following the same render.
+
+Keep the progress endpoint available for recovery. Deploy the render endpoint on a Node.js server with response streaming enabled.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).  

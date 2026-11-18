@@ -57,10 +57,6 @@ Names from `keys` for which [`staticFile()`](/docs/staticfile) calls and `new Da
 
 The expected component identity, such as `'dev.remotion.remotion.Sequence'`. Remotion imports are resolved through named aliases and namespace imports. Throws if the node now refers to a different component. Defaults to `null`, which skips this check.
 
-### videoConfig?
-
-The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
-
 ## Return value
 
 Returns an object with the following properties.
@@ -80,6 +76,10 @@ Recognized static `style.translate` strings contain one to three space-separated
 ### effects
 
 An array of effect descriptions. Editable entries include `canUpdate: true`, `effectIndex`, `callee`, `importPath`, and prop statuses. Unsupported entries include `canUpdate: false` and a `reason`. Automatically discovering effects requires an inline array.
+
+### durationDependentKeyframes
+
+Always `null` for this function.
 
 ## Errors
 

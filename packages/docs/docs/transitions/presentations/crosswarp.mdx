@@ -11,7 +11,7 @@ A presentation that warps the outgoing scene and incoming scene against each oth
 <Demo type="crosswarp" />
 
 :::warning
-This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+This presentation is built with [HTML-in-canvas](/docs/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
 :::
 
 ## Example
@@ -60,6 +60,18 @@ const BasicTransition = () => {
 };
 ```
 
+## API
+
+Accepts an object with the following options. Pass an empty object to use the defaults: `crosswarp({})`.
+
+### `effects?`
+
+[Effects](/docs/effects/api) to apply after the transition shader. See [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation#effects).
+
+### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
+
+Sets the [effect resolution](/docs/effects/api#effect-resolution). See [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation#effectsoutputsize).
+
 ## Compatibility
 
 <CompatibilityTable
@@ -84,5 +96,5 @@ The fragment shader is adapted from the [`crosswarp`](https://gl-transitions.com
 ## See also
 
 - [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/crosswarp.tsx)
-- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [HTML-in-canvas](/docs/html-in-canvas)
 - [Presentations](/docs/transitions/presentations)

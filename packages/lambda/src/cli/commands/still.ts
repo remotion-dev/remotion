@@ -12,6 +12,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
+import {validateOutputPath} from '../../shared/validate-output-path';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
@@ -85,6 +86,11 @@ export const stillCommand = async ({
 		quit(1);
 	}
 
+	const downloadName = args[2] ?? null;
+	if (downloadName) {
+		validateOutputPath({outputPath: downloadName, type: 'file'});
+	}
+
 	const {envVariables, inputProps, stillFrame} = getCliOptions({
 		isStill: true,
 		logLevel,
@@ -123,6 +129,15 @@ export const stillCommand = async ({
 	}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const chromiumOptions: Required<ChromiumOptions> = {
+		flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		blinkFeatures: BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue(
+			{commandLine: parsedCli},
+		).value,
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
@@ -222,7 +237,6 @@ export const stillCommand = async ({
 		composition = compositionId;
 	}
 
-	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],

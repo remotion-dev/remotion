@@ -8,25 +8,31 @@ import {
 	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
 
-export const CloseUp7Preview = () => {
-	const frame = useCurrentFrame();
+export const CloseUp7Preview = ({blur}: {readonly blur: boolean}) => {
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 	const captureFrame = frame + 355;
 
 	return (
 		<HtmlInCanvas
 			width={3320}
 			height={2310}
-			effects={[
-				radialProgressiveBlur({
-					center: [0.28, 0.253],
-					endBlur: 10,
-					height: 0.36,
-					width: 0.201,
-					rotation: -17.8,
-				}),
-			]}
+			effects={
+				blur
+					? [
+							radialProgressiveBlur({
+								center: [0.28, 0.253],
+								endBlur: 10,
+								height: 0.36,
+								width: 0.201,
+								rotation: -17.8,
+							}),
+						]
+					: []
+			}
 		>
 			<AbsoluteFill
 				name="Canvas Capture"
@@ -37,10 +43,11 @@ export const CloseUp7Preview = () => {
 					rotate: '0.974685 0.089312 -0.204969 52.344171deg',
 					scale: 1.51,
 				}}
-				from={-355}
+				from={(-355 / 60) * fps}
 			>
 				<Video
 					src="https://remotion.media/studio-close-ups/studio-pattern-effect-editing.mp4"
+					muted
 					style={{
 						position: 'absolute',
 					}}
@@ -340,6 +347,7 @@ export const CloseUp7 = () => {
 		<Composition
 			id="AddEffect"
 			component={CloseUp7Preview}
+			defaultProps={{blur: true}}
 			width={1920}
 			height={1080}
 			fps={60}

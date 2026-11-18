@@ -82,7 +82,7 @@ export const optionDescriptionToMarkdown = (
 			}
 
 			const href = node.props.href.replace(
-				/^https:\/\/(www\.)?remotion\.dev(?=\/)/,
+				/^https:\/\/(www\.)?remotion\.dev(?=\/docs(?:\/|[?#]|$))/,
 				'',
 			);
 			return `[${children}](${href})`;

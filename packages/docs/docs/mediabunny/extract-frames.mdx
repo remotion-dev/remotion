@@ -7,10 +7,10 @@ sidebar_label: Extracting video frames
 
 Extracting frames from a video file, for example to display a filmstrip in an editing interface, can be done using [Mediabunny](https://mediabunny.dev).
 
-Here's a `extractFrames()` function you can use copy and paste into your project:
+Here is an `extractFrames()` function you can copy and paste into your project:
 
 ```ts twoslash title="extract-frames.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 type Options = {
   track: {width: number; height: number};
@@ -45,8 +45,8 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
     typeof timestampsInSeconds === 'function'
       ? await timestampsInSeconds({
           track: {
-            width: videoTrack.displayWidth,
-            height: videoTrack.displayHeight,
+            width: await videoTrack.getDisplayWidth(),
+            height: await videoTrack.getDisplayHeight(),
           },
           container: format.name,
           durationInSeconds,
@@ -79,7 +79,10 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
 
 ## Example: Extract frames at specific times
 
-```ts
+```ts twoslash title="Extract frames at specific times"
+import type {VideoSample} from 'mediabunny';
+declare function extractFrames(options: {src: string; timestampsInSeconds: number[]; onVideoSample: (sample: VideoSample) => void}): Promise<void>;
+// ---cut---
 await extractFrames({
   src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
@@ -99,7 +102,7 @@ await extractFrames({
 Extract as many frames as fit in a canvas based on the video's aspect ratio:
 
 ```tsx twoslash title="extract-frames.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 type Options = {
   track: {width: number; height: number};
@@ -134,8 +137,8 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
     typeof timestampsInSeconds === 'function'
       ? await timestampsInSeconds({
           track: {
-            width: videoTrack.displayWidth,
-            height: videoTrack.displayHeight,
+            width: await videoTrack.getDisplayWidth(),
+            height: await videoTrack.getDisplayHeight(),
           },
           container: format.name,
           durationInSeconds,
@@ -207,7 +210,7 @@ In the example above, the [`using`](https://developer.mozilla.org/en-US/docs/Web
 Pass an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel frame extraction:
 
 ```tsx twoslash title="extract-frames.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 type Options = {
   track: {width: number; height: number};
@@ -242,8 +245,8 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
     typeof timestampsInSeconds === 'function'
       ? await timestampsInSeconds({
           track: {
-            width: videoTrack.displayWidth,
-            height: videoTrack.displayHeight,
+            width: await videoTrack.getDisplayWidth(),
+            height: await videoTrack.getDisplayHeight(),
           },
           container: format.name,
           durationInSeconds,
@@ -304,7 +307,7 @@ try {
 Here is how you can set a maximum duration for extracting frames:
 
 ```ts twoslash title="Fail if not able to extract within 10 seconds"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 type Options = {
   track: {width: number; height: number};
@@ -339,8 +342,8 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
     typeof timestampsInSeconds === 'function'
       ? await timestampsInSeconds({
           track: {
-            width: videoTrack.displayWidth,
-            height: videoTrack.displayHeight,
+            width: await videoTrack.getDisplayWidth(),
+            height: await videoTrack.getDisplayHeight(),
           },
           container: format.name,
           durationInSeconds,

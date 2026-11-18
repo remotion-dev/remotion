@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
@@ -11,10 +11,12 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {ActionTooltip} from './ActionTooltip';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {useAudioLevelsMenuItem} from './use-audio-levels-menu-item';
 
 export const PreviewViewOptionsDropdown: React.FC<{
 	readonly showCompositionControls: boolean;
 }> = ({showCompositionControls}) => {
+	const audioLevelsMenuItem = useAudioLevelsMenuItem(null);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
 	);
@@ -81,8 +83,10 @@ export const PreviewViewOptionsDropdown: React.FC<{
 			quickSwitcherLabel: null,
 		});
 
+		items.push(audioLevelsMenuItem);
 		return items;
 	}, [
+		audioLevelsMenuItem,
 		editorShowGuides,
 		editorShowOutlines,
 		editorShowPixelGrid,
@@ -111,7 +115,7 @@ export const PreviewViewOptionsDropdown: React.FC<{
 				renderAction={(color) => <CaretDown color={color} />}
 				values={values}
 				aria-label="View options"
-				unhoveredColor={WHITE_ALPHA_80}
+				unhoveredColor={LIGHT_TEXT}
 			/>
 		</ActionTooltip>
 	);

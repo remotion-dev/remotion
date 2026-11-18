@@ -21,8 +21,12 @@ const willChangeStackingContextProperties = new Set([
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Stacking_context#features_creating_stacking_contexts
 // Every stacking context is an isolated group for mix-blend-mode.
-const createsStackingContext = (element: Element) => {
+export const createsStackingContext = (element: Element) => {
 	const style = getComputedStyle(element);
+
+	// display: contents has no box, so its children participate directly in
+	// the ancestor's stacking context even if these properties are specified.
+	if (style.display === 'contents') return false;
 
 	if (style.zIndex !== 'auto') {
 		if (style.position !== 'static') {
@@ -53,8 +57,6 @@ const createsStackingContext = (element: Element) => {
 		getMaskImageValue(style) !== null ||
 		style.isolation === 'isolate' ||
 		style.mixBlendMode !== 'normal' ||
-		style.containerType === 'size' ||
-		style.containerType === 'inline-size' ||
 		/\b(paint|layout|strict|content)\b/.test(style.contain) ||
 		style.willChange
 			.split(',')

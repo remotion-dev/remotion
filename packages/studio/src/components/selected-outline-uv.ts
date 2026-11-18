@@ -10,6 +10,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {getProjectedEffectPropStatuses} from '../helpers/optimistic-effect-projection';
 import {
 	clamp,
 	type OutlinePoint,
@@ -696,12 +697,15 @@ export const getSelectedUvHandles = ({
 	const handles: SelectedOutlineUvHandle[] = [];
 
 	for (const [effectIndex, selectedFields] of selectedEffects) {
-		const effect = sequence.effects[effectIndex];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			sequence.effects,
+		)[effectIndex]?.definition;
 		if (!effect) {
 			continue;
 		}
 
-		const effectStatus = Internals.getEffectPropStatusesCtx({
+		const effectStatus = getProjectedEffectPropStatuses({
 			propStatuses,
 			nodePath,
 			effectIndex,

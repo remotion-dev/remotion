@@ -4,6 +4,9 @@ import {expect, test} from '@playwright/test';
 import {EXPANDED_SIDEBAR_STATE, STUDIO_URL, exampleDir} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+// Failures here should surface instead of being retried away.
+test.describe.configure({retries: 0});
+
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
 const affineFrameClockFile = path.join(
@@ -13,12 +16,20 @@ const affineFrameClockFile = path.join(
 	'AffineFrameClock.tsx',
 );
 
-const readRotationKeyframes = () => {
+const readRotationKeyframes = async () => {
 	const source = fs.readFileSync(affineFrameClockFile, 'utf-8');
+	// writeFileSync can expose an empty file between truncation and writing.
+	if (source.length === 0) {
+		return null;
+	}
 	const match = /rotate:\s*interpolate\(\s*captureFrame,\s*\[([^\]]*)\]/.exec(
 		source,
 	);
 	if (match === null) {
+		await test.info().attach('affine-frame-clock-source', {
+			contentType: 'text/plain',
+			body: Buffer.from(source),
+		});
 		throw new Error('Could not read affine frame clock keyframes');
 	}
 
@@ -28,13 +39,21 @@ const readRotationKeyframes = () => {
 		.filter((frame) => !Number.isNaN(frame));
 };
 
-const readTranslateKeyframes = () => {
+const readTranslateKeyframes = async () => {
 	const source = fs.readFileSync(affineFrameClockFile, 'utf-8');
+	// writeFileSync can expose an empty file between truncation and writing.
+	if (source.length === 0) {
+		return null;
+	}
 	const match =
 		/translate:\s*interpolate\(\s*frame,\s*\[([^\]]*)\],\s*\[([^\]]*)\]/.exec(
 			source,
 		);
 	if (match === null) {
+		await test.info().attach('affine-frame-clock-source', {
+			contentType: 'text/plain',
+			body: Buffer.from(source),
+		});
 		throw new Error('Could not read affine frame clock translate keyframes');
 	}
 

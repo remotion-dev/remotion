@@ -5,6 +5,7 @@ describe('Pro Res Profile', () => {
 	test("Just a ProRes profile is not enough, because codec doesn't default to ProRes", () => {
 		expect(() => {
 			validateSelectedCodecAndProResCombination({
+				proResBitsPerMacroblock: null,
 				codec: 'aac',
 				proResProfile: '4444-xq',
 			});
@@ -16,6 +17,7 @@ describe('Pro Res Profile', () => {
 	test('Should accept a valid codec and ProRes combination', () => {
 		expect(
 			validateSelectedCodecAndProResCombination({
+				proResBitsPerMacroblock: null,
 				codec: 'prores',
 				proResProfile: '4444',
 			}),
@@ -25,6 +27,7 @@ describe('Pro Res Profile', () => {
 	test('Should throw on invalid ProRes name', () => {
 		expect(() =>
 			validateSelectedCodecAndProResCombination({
+				proResBitsPerMacroblock: null,
 				codec: 'prores',
 				// @ts-expect-error
 				proResProfile: 'typoed',

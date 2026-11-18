@@ -85,6 +85,7 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_fileSystemPlatform: string | null;
+		remotion_supportsNativeFilePicker: boolean;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,
@@ -96,6 +97,10 @@ declare global {
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
 		remotion_videoEnabled: boolean;
+		remotion_setMediaEnabled: (
+			videoEnabled: boolean,
+			audioEnabled: boolean,
+		) => void;
 		remotion_puppeteerTimeout: number;
 		remotion_broadcastChannel: BroadcastChannel | undefined;
 		remotion_inputProps: string;
@@ -114,7 +119,7 @@ declare global {
 		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '11';
+		siteVersion: '12';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}

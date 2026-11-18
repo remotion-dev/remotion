@@ -20,7 +20,7 @@ See: [Comparison of video tags](/docs/video-tags)
 
 ## Concurrency
 
-The [`--concurrency`](/docs/options/concurrency) flag can increase or decrease rendering speed. Use the [`npx remotion benchmark`](/docs/cli/benchmark) command to find the optimal concurrency.
+The [`--concurrency`](/docs/terminology/concurrency) flag can increase or decrease rendering speed. Use the [`npx remotion benchmark`](/docs/cli/benchmark) command to find the optimal concurrency.
 
 ## GPU effects
 
@@ -65,7 +65,7 @@ See [this article](/docs/lambda/optimizing-speed) for tips specifically for Lamb
 
 ## Measuring render speed
 
-- Render using [`--log=verbose`](/docs/troubleshooting/debug-failed-render) to list the slowest frames of a Remotion render. Consider that the first frames rendered in a thread might be slow due to initalization.
+- Render using [`--log=verbose`](/docs/troubleshooting/debug-failed-render) to list the slowest frames of a Remotion render. Consider that the first frames rendered in a thread might be slow due to initialization.
 
 - Use `console.time` to measure how long an operation takes in your code in order to find the slow parts of your render.
 

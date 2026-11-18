@@ -6,7 +6,6 @@ export type ResponseStreamWriter = {
 };
 
 // Ensures that the previous write is finished before the next one is started
-// Genius solution by ChatGPT
 export const streamWriter = (
 	responseStream: ResponseStream,
 ): ResponseStreamWriter => {
@@ -29,13 +28,15 @@ export const streamWriter = (
 	};
 
 	const end = (): Promise<void> => {
-		promiseChain = promiseChain.then(() => {
-			return new Promise<void>((resolve) => {
-				responseStream.end(() => {
-					resolve();
+		promiseChain = promiseChain
+			.catch(() => undefined)
+			.then(() => {
+				return new Promise<void>((resolve) => {
+					responseStream.end(() => {
+						resolve();
+					});
 				});
 			});
-		});
 
 		return promiseChain;
 	};

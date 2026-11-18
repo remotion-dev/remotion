@@ -26,6 +26,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams := renderInternalOptions{
+		StreamProgress:                 false,
 		EnableCancellation:             options.EnableCancellation,
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,
@@ -45,6 +46,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		OffthreadVideoThreads:          options.OffthreadVideoThreads,
 		X264Preset:                     options.X264Preset,
 		GopSize:                        options.GopSize,
+		ProResBitsPerMacroblock:        options.ProResBitsPerMacroblock,
 		DisableSharedMemoryCapture:     options.DisableSharedMemoryCapture,
 		ForceWidth:                     options.ForceWidth,
 		BucketName:                     options.BucketName,
@@ -52,6 +54,8 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		ForceBucketName:                options.ForceBucketName,
 		RendererFunctionName:           &options.RendererFunctionName,
 		DeleteAfter:                    options.DeleteAfter,
+		StorageClass:                   options.StorageClass,
+		IsProduction:                   options.IsProduction,
 		Type:                           "start",
 		Output:                         map[string]interface{}{"type": "media"},
 		JpegQuality:                    jpegQuality,
@@ -129,6 +133,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams.Concurrency = options.Concurrency
+	internalParams.Chunks = options.Chunks
 
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000

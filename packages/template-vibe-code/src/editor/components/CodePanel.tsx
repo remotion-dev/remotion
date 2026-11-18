@@ -319,18 +319,35 @@ export const CodePanel: React.FC = () => {
             path={activeFile}
             language={getMonacoLanguage(activeFile)}
             value={files[activeFile] ?? ""}
-            theme="vibe-dark"
+            theme="remotion-dark-plus"
             beforeMount={(monaco) => {
-              monaco.editor.defineTheme("vibe-dark", {
+              monaco.editor.defineTheme("remotion-dark-plus", {
                 base: "vs-dark",
                 inherit: true,
-                rules: [],
+                rules: [
+                  { token: "", foreground: "D4D4D4" },
+                  { token: "identifier", foreground: "9CDCFE" },
+                  { token: "type.identifier", foreground: "4EC9B0" },
+                  { token: "keyword", foreground: "569CD6" },
+                  { token: "keyword.control", foreground: "C586C0" },
+                  { token: "string", foreground: "CE9178" },
+                  { token: "number", foreground: "B5CEA8" },
+                  { token: "comment", foreground: "6A9955" },
+                  { token: "delimiter", foreground: "D4D4D4" },
+                  { token: "function", foreground: "DCDCAA" },
+                  { token: "tag", foreground: "569CD6" },
+                  { token: "attribute.name", foreground: "9CDCFE" },
+                  { token: "attribute.value", foreground: "CE9178" },
+                  { token: "regexp", foreground: "D16969" },
+                ],
                 colors: {
-                  "editor.background": "#0d1017",
-                  "editorGutter.background": "#0d1017",
-                  "editorLineNumber.foreground": "#3b4354",
-                  "editorLineNumber.activeForeground": "#8b93a7",
-                  "editor.lineHighlightBorder": "#161a23",
+                  "editor.background": "#131414",
+                  "editorGutter.background": "#131414",
+                  "editor.foreground": "#D4D4D4",
+                  "editorLineNumber.foreground": "#858585",
+                  "editorLineNumber.activeForeground": "#C6C6C6",
+                  "editor.lineHighlightBorder": "#282828",
+                  "editor.selectionBackground": "#264F78",
                 },
               });
             }}

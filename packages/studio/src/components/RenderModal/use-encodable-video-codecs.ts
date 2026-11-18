@@ -4,7 +4,7 @@ import type {
 } from '@remotion/web-renderer';
 import {
 	getEncodableVideoCodecs,
-	getSupportedVideoCodecsForContainer,
+	WebRendererInternals,
 } from '@remotion/web-renderer';
 import {useEffect, useRef, useState} from 'react';
 
@@ -25,7 +25,8 @@ export const useEncodableVideoCodecs = (
 	>(() => {
 		// Initialize with fallback for the current container
 		return {
-			[container]: getSupportedVideoCodecsForContainer(container),
+			[container]:
+				WebRendererInternals.getSupportedVideoCodecsForContainer(container),
 		};
 	});
 
@@ -37,7 +38,8 @@ export const useEncodableVideoCodecs = (
 			return;
 		}
 
-		const supported = getSupportedVideoCodecsForContainer(container);
+		const supported =
+			WebRendererInternals.getSupportedVideoCodecsForContainer(container);
 
 		// Mark as fetching to prevent duplicate requests
 		cacheRef.current[container] = {
@@ -69,6 +71,6 @@ export const useEncodableVideoCodecs = (
 	// Return codecs for current container, or fall back to supported codecs
 	return (
 		codecsByContainer[container] ??
-		getSupportedVideoCodecsForContainer(container)
+		WebRendererInternals.getSupportedVideoCodecsForContainer(container)
 	);
 };

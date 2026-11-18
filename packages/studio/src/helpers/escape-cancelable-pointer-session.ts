@@ -3,6 +3,16 @@ import {
 	startDeferredCapturedPointerSession,
 } from './pointer-session';
 
+const activeSessions = new Set<() => void>();
+let cancellationVersion = 0;
+
+export const getPointerSessionCancellationVersion = () => cancellationVersion;
+
+export const cancelActivePointerSessions = () => {
+	cancellationVersion++;
+	for (const cancel of [...activeSessions]) cancel();
+};
+
 export const startEscapeCancelableSession = (
 	startSession: (onEnd: () => void) => () => void,
 ): (() => void) => {
@@ -21,17 +31,21 @@ export const startEscapeCancelableSession = (
 	const onEnd = () => {
 		ended = true;
 		window.removeEventListener('keydown', onKeyDown, true);
+		activeSessions.delete(cancel);
+	};
+
+	const cancel = () => {
+		onEnd();
+		stopSession();
 	};
 
 	const stopSession = startSession(onEnd);
 	if (!ended) {
 		window.addEventListener('keydown', onKeyDown, true);
+		activeSessions.add(cancel);
 	}
 
-	return () => {
-		onEnd();
-		stopSession();
-	};
+	return cancel;
 };
 
 const withEscapeCancellation = <

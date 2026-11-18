@@ -10,11 +10,10 @@ import React, {
 	useState,
 } from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {SetSelectedModalContext} from '../../state/modals';
-import {Flex, Row, Spacing} from '../layout';
+import {Flex, Row} from '../layout';
 import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
@@ -39,11 +38,7 @@ export const CompositionEditFooterPresentation: React.FC<{
 }) => {
 	return (
 		<Row align="center">
-			<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
-				This will edit your codebase.
-			</span>
 			<Flex />
-			<Spacing block x={2} />
 			<ModalButton onClick={trigger} disabled={disabled}>
 				{relativeFilePath
 					? submitLabel({relativeRootPath: relativeFilePath})

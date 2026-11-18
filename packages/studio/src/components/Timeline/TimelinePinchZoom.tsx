@@ -2,10 +2,19 @@ import {useCallback, useContext, useEffect, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
 import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorZoomGesturesContext} from '../../state/editor-zoom-gestures';
-import {TimelineZoomImperativeContext} from '../../state/timeline-zoom';
+import {
+	TimelineZoomImperativeContext,
+	type TimelineSetZoomOptions,
+} from '../../state/timeline-zoom';
+import {getCurrentDuration, getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
-import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
+import {
+	getFrameIncrementFromWidth,
+	getTimelineContentWidth,
+	viewportClientXToScrollContentX,
+} from './timeline-scroll-logic';
 
 /**
  * Maps wheel deltaY to a multiplicative zoom change. Must be large enough that
@@ -14,10 +23,63 @@ import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
  */
 const ZOOM_WHEEL_SENSITIVITY = 0.06;
 
+// A zoom gesture that starts this close to the playhead zooms around the playhead.
+const PLAYHEAD_SNAP_DISTANCE = 8;
+
+// Moving the mouse further than this ends a Cmd/Ctrl + wheel zoom gesture.
+const WHEEL_GESTURE_MOVE_TOLERANCE = 3;
+
 type WebKitGestureEvent = UIEvent & {
 	scale: number;
 	clientX: number;
 	clientY: number;
+};
+
+/**
+ * The frame that stays under the pointer for a whole zoom gesture. Deriving it
+ * again on every step would follow the scroll position, which the browser
+ * clamps when zooming out, so zooming back in would land somewhere else.
+ */
+type ZoomAnchor = {
+	frame: number;
+	offsetFromPointer: number;
+};
+
+const getZoomAnchor = (
+	clientX: number,
+	scrollEl: HTMLDivElement,
+): ZoomAnchor => {
+	const contentX = viewportClientXToScrollContentX({clientX, scrollEl});
+	const frameIncrement = getFrameIncrementFromWidth(
+		getCurrentDuration(),
+		getTimelineContentWidth(),
+	);
+	const playheadFrame = getCurrentFrame();
+	const playheadX = TIMELINE_PADDING + playheadFrame * frameIncrement;
+
+	if (Math.abs(playheadX - contentX) <= PLAYHEAD_SNAP_DISTANCE) {
+		return {frame: playheadFrame, offsetFromPointer: playheadX - contentX};
+	}
+
+	return {
+		frame: (contentX - TIMELINE_PADDING) / frameIncrement,
+		offsetFromPointer: 0,
+	};
+};
+
+const getAnchoredZoomOptions = (
+	anchor: ZoomAnchor,
+	clientX: number,
+	scrollEl: HTMLDivElement,
+): TimelineSetZoomOptions => {
+	return {
+		anchorFrame: anchor.frame,
+		anchorContentX: null,
+		anchorViewportX:
+			viewportClientXToScrollContentX({clientX, scrollEl}) -
+			scrollEl.scrollLeft +
+			anchor.offsetFromPointer,
+	};
 };
 
 export const TimelinePinchZoom: FC = () => {
@@ -40,30 +102,63 @@ export const TimelinePinchZoom: FC = () => {
 	);
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
+	const pinchAnchorRef = useRef<ZoomAnchor | null>(null);
 	const suppressWheelFromWebKitPinchRef = useRef(false);
 	const touchPinchRef = useRef<{
 		initialDistance: number;
 		initialZoom: number;
+		anchor: ZoomAnchor;
 	} | null>(null);
 
-	const onWheel = useCallback(
-		(e: WheelEvent) => {
-			if (!editorZoomGestures || !isVideoComposition) {
-				return;
-			}
+	useEffect(() => {
+		const el = timelineVerticalScroll.current;
+		if (
+			!el ||
+			!editorZoomGestures ||
+			!isVideoComposition ||
+			!videoConfig ||
+			videoConfig.durationInFrames < 2
+		) {
+			return;
+		}
 
+		let wheelAnchor:
+			| (ZoomAnchor & {clientX: number; scrollLeft: number})
+			| null = null;
+
+		const endWheelGesture = () => {
+			wheelAnchor = null;
+			window.removeEventListener('keyup', onKeyUp);
+			window.removeEventListener('pointermove', onPointerMove);
+			window.removeEventListener('blur', endWheelGesture);
+		};
+
+		const onKeyUp = (e: KeyboardEvent) => {
+			if (e.key === 'Meta' || e.key === 'Control') {
+				endWheelGesture();
+			}
+		};
+
+		const onPointerMove = (e: PointerEvent) => {
+			if (
+				wheelAnchor !== null &&
+				Math.abs(e.clientX - wheelAnchor.clientX) > WHEEL_GESTURE_MOVE_TOLERANCE
+			) {
+				endWheelGesture();
+			}
+		};
+
+		const onWheel = (e: WheelEvent) => {
 			const {ctrlKey, metaKey, clientX, deltaY, deltaMode} = e;
 			const wantsToZoom = ctrlKey || metaKey;
 			if (!wantsToZoom) {
+				// Scrolling in between zoom steps ends the gesture.
+				endWheelGesture();
 				return;
 			}
 
 			if (suppressWheelFromWebKitPinchRef.current && wantsToZoom) {
 				e.preventDefault();
-				return;
-			}
-
-			if (!videoConfig || videoConfig.durationInFrames < 2) {
 				return;
 			}
 
@@ -74,10 +169,27 @@ export const TimelinePinchZoom: FC = () => {
 
 			e.preventDefault();
 
-			const anchorContentX = viewportClientXToScrollContentX({
-				clientX,
-				scrollEl,
-			});
+			// If something else scrolled the timeline since the last step (playback
+			// paging, the scrollbar), the anchor no longer matches what is on screen.
+			if (
+				wheelAnchor !== null &&
+				wheelAnchor.scrollLeft !== scrollEl.scrollLeft
+			) {
+				endWheelGesture();
+			}
+
+			if (wheelAnchor === null) {
+				wheelAnchor = {
+					...getZoomAnchor(clientX, scrollEl),
+					clientX,
+					scrollLeft: scrollEl.scrollLeft,
+				};
+				window.addEventListener('keyup', onKeyUp);
+				window.addEventListener('pointermove', onPointerMove);
+				window.addEventListener('blur', endWheelGesture);
+			}
+
+			const anchor = wheelAnchor;
 
 			let scaledDeltaY = deltaY;
 			if (deltaMode === WheelEvent.DOM_DELTA_LINE) {
@@ -89,26 +201,20 @@ export const TimelinePinchZoom: FC = () => {
 			setZoom(
 				videoConfig.id,
 				(z) => z * Math.exp(-scaledDeltaY * ZOOM_WHEEL_SENSITIVITY),
-				{anchorFrame: null, anchorContentX},
+				getAnchoredZoomOptions(anchor, clientX, scrollEl),
 			);
-		},
-		[editorZoomGestures, isVideoComposition, videoConfig, setZoom],
-	);
-
-	const supportsWebKitPinch =
-		typeof window !== 'undefined' && 'GestureEvent' in window;
-
-	useEffect(() => {
-		const el = timelineVerticalScroll.current;
-		if (!el) {
-			return;
-		}
+			anchor.scrollLeft = scrollEl.scrollLeft;
+		};
 
 		el.addEventListener('wheel', onWheel, {passive: false});
 		return () => {
+			endWheelGesture();
 			el.removeEventListener('wheel', onWheel);
 		};
-	}, [onWheel]);
+	}, [editorZoomGestures, isVideoComposition, videoConfig, setZoom]);
+
+	const supportsWebKitPinch =
+		typeof window !== 'undefined' && 'GestureEvent' in window;
 
 	useEffect(() => {
 		const el = timelineVerticalScroll.current;
@@ -122,6 +228,7 @@ export const TimelinePinchZoom: FC = () => {
 			}
 
 			pinchBaseZoomRef.current = null;
+			pinchAnchorRef.current = null;
 			suppressWheelFromWebKitPinchRef.current = false;
 		};
 
@@ -144,14 +251,17 @@ export const TimelinePinchZoom: FC = () => {
 			suppressWheelFromWebKitPinchRef.current = true;
 
 			pinchBaseZoomRef.current = getCurrentTimelineZoom(videoConfig.id);
+			pinchAnchorRef.current = getZoomAnchor(e.clientX, scrollEl);
 			beginZoom();
 		};
 
 		const onGestureChange = (event: Event) => {
 			const e = event as WebKitGestureEvent;
 			const base = pinchBaseZoomRef.current;
+			const anchor = pinchAnchorRef.current;
 			if (
 				base === null ||
+				anchor === null ||
 				!isVideoComposition ||
 				!videoConfig ||
 				videoConfig.durationInFrames < 2
@@ -166,15 +276,11 @@ export const TimelinePinchZoom: FC = () => {
 
 			e.preventDefault();
 
-			const anchorContentX = viewportClientXToScrollContentX({
-				clientX: e.clientX,
-				scrollEl,
-			});
-
-			setZoom(videoConfig.id, () => base * e.scale, {
-				anchorFrame: null,
-				anchorContentX,
-			});
+			setZoom(
+				videoConfig.id,
+				() => base * e.scale,
+				getAnchoredZoomOptions(anchor, e.clientX, scrollEl),
+			);
 		};
 
 		const onGestureEnd = () => {
@@ -237,9 +343,15 @@ export const TimelinePinchZoom: FC = () => {
 				return;
 			}
 
+			const scrollEl = scrollableRef.current;
+			if (!scrollEl) {
+				return;
+			}
+
 			touchPinchRef.current = {
 				initialDistance,
 				initialZoom: getCurrentTimelineZoom(videoConfig.id),
+				anchor: getZoomAnchor((t0.clientX + t1.clientX) / 2, scrollEl),
 			};
 			beginZoom();
 		};
@@ -267,15 +379,11 @@ export const TimelinePinchZoom: FC = () => {
 			const ratio = dist / pinch.initialDistance;
 			const clientX = (t0.clientX + t1.clientX) / 2;
 
-			const anchorContentX = viewportClientXToScrollContentX({
-				clientX,
-				scrollEl,
-			});
-
-			setZoom(videoConfig.id, () => pinch.initialZoom * ratio, {
-				anchorFrame: null,
-				anchorContentX,
-			});
+			setZoom(
+				videoConfig.id,
+				() => pinch.initialZoom * ratio,
+				getAnchoredZoomOptions(pinch.anchor, clientX, scrollEl),
+			);
 		};
 
 		const onTouchEnd = (event: TouchEvent) => {

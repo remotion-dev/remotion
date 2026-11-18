@@ -5,7 +5,7 @@ const cliFlag = 'public-dir' as const;
 let currentPublicDir: string | null = null;
 
 export const publicDirOption = {
-	name: 'Public Directory',
+	name: 'Public directory',
 	addedIn: '3.2.13',
 	cliFlag,
 	description: () => {
@@ -13,10 +13,10 @@ export const publicDirOption = {
 			<>
 				Define the location of the{' '}
 				<a href="/docs/terminology/public-dir">
-					<code>public/ directory</code>
+					<code>public/</code> directory
 				</a>
-				. If not defined, Remotion will assume the location is the `public`
-				folder in your Remotion root.
+				. If not defined, Remotion will assume the location is the{' '}
+				<code>public</code> folder in your Remotion root.
 			</>
 		);
 	},

@@ -25,9 +25,47 @@ const TimelineKeyframeShiftContent = () => {
 					height: 1260,
 					left: '50%',
 					top: '50%',
-					translate: '-1560px -640px',
-					transformOrigin: '1560px 640px',
-					scale: Math.min(width / 2560, height / 1600) * 1.6,
+					translate: interpolate(
+						frame,
+						[75, 86, 94, 104],
+						[
+							'-1560px -640px',
+							'-1950px -640px',
+							'-2050px -640px',
+							'-2060px -640px',
+						],
+						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+					),
+					transformOrigin: interpolate(
+						frame,
+						[75, 86, 94, 104],
+						['1560px 640px', '1950px 640px', '2050px 640px', '2060px 640px'],
+						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+					),
+					scale: interpolate(
+						frame,
+						[75, 86, 94, 104],
+						[
+							Math.min(width / 2560, height / 1600) * 1.6,
+							Math.max(
+								Math.min(width / 2560, height / 1600) * 1.6,
+								width / 1220,
+							) * 1.04,
+							Math.max(
+								Math.min(width / 2560, height / 1600) * 1.6,
+								width / 1020,
+							) * 1.04,
+							Math.max(
+								Math.min(width / 2560, height / 1600) * 1.6,
+								width / 1000,
+							) * 1.04,
+						],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						},
+					),
 				}}
 			>
 				<Video

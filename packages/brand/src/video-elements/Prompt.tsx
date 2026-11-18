@@ -9,6 +9,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {z} from 'zod';
+import {getNaturalTypedCharacterCount} from '../natural-typing';
 import {MESSAGES} from './messages';
 import {Thinking} from './Thinking';
 
@@ -68,12 +69,14 @@ export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 
 	const delayFrames = TYPING_DELAY_SECONDS * fps;
 	const typingFrames = TYPING_DURATION_SECONDS * fps;
-	const framesPerChar = typingFrames / prompt.length;
-	const typingFrame = Math.max(0, frame - delayFrames);
-	const typedChars = Math.min(
-		prompt.length,
-		Math.floor(typingFrame / framesPerChar),
-	);
+	const typedChars = getNaturalTypedCharacterCount({
+		text: prompt,
+		frame,
+		startFrame: delayFrames,
+		durationInFrames: typingFrames,
+		startCharacter: 0,
+		endCharacter: prompt.length,
+	});
 	const typedText = prompt.slice(0, typedChars);
 
 	const typingEndFrame = delayFrames + typingFrames;

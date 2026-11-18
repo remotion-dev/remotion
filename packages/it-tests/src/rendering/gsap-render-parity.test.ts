@@ -9,7 +9,6 @@ import {
 	type HeadlessBrowser,
 } from '@remotion/renderer';
 import execa from 'execa';
-import pixelmatch from 'pixelmatch';
 import {PNG} from 'pngjs';
 
 const SHOWCASE_ID = 'gsap-showcase';
@@ -25,10 +24,6 @@ const serveUrl = path.join(exampleDir, 'build');
 const shuffledFrames = [105, 0, 195, 45, 150, 15, 75];
 const rendererConcurrency = Math.min(8, availableParallelism());
 
-// pixelmatch's types do not accept Buffer directly
-const asUint8Array = (data: Buffer) =>
-	new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-
 const pixelDifference = (leftBuffer: Buffer, rightBuffer: Buffer) => {
 	const left = PNG.sync.read(leftBuffer);
 	const right = PNG.sync.read(rightBuffer);
@@ -36,14 +31,20 @@ const pixelDifference = (leftBuffer: Buffer, rightBuffer: Buffer) => {
 	expect(right.width).toBe(left.width);
 	expect(right.height).toBe(left.height);
 
-	return pixelmatch(
-		asUint8Array(left.data),
-		asUint8Array(right.data),
-		undefined,
-		left.width,
-		left.height,
-		{threshold: 0},
-	);
+	// Chromium re-rasterizes only the damaged part of a reused tile, so
+	// antialiased edges can differ by one channel value depending on which
+	// frame was rendered before. Only count pixels that differ by more.
+	let differing = 0;
+	for (let i = 0; i < left.data.length; i += 4) {
+		for (let channel = 0; channel < 4; channel++) {
+			if (Math.abs(left.data[i + channel] - right.data[i + channel]) > 1) {
+				differing++;
+				break;
+			}
+		}
+	}
+
+	return differing;
 };
 
 const pixelAt = (buffer: Buffer, x: number, y: number) => {

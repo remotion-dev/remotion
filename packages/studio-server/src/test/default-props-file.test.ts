@@ -161,6 +161,7 @@ test('saving default props only writes and undoes the registering file', async (
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 	const handlerOptions = <T>(input: T) => ({
@@ -228,6 +229,7 @@ test('keeps each client subscribed to its own default-props file', async () => {
 		},
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 	});
 

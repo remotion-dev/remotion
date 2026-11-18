@@ -7,6 +7,8 @@ import {
 	getCommandHelp,
 	makeCommandHelpOption,
 } from './command-help';
+import {ELEMENTS_COMMAND} from './elements';
+import {USE_COMMAND} from './elements/use';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
@@ -67,6 +69,33 @@ const options = (
 	});
 };
 
+const compositionImportOptions = [
+	{
+		flag: '--composition <id>',
+		optionIds: [],
+		description: 'New composition ID (default: filename without extension).',
+	},
+	{
+		flag: '--root-file <path>',
+		optionIds: [],
+		description: 'Root file (default: detected automatically).',
+	},
+	{
+		flag: '--dry-run',
+		optionIds: [],
+		description:
+			'Preview the import without installing packages or writing files.',
+	},
+	...options(
+		['width', 'height', 'fps', 'public-dir', 'package-manager', 'log'],
+		{
+			width: 'Composition width (default: 1920).',
+			height: 'Composition height (default: 1080).',
+			fps: 'Composition FPS (default: 60 for Canvas Capture, 30 for OpenTimeline).',
+		},
+	),
+];
+
 const studioOptions = options(
 	[
 		'props',
@@ -81,6 +110,7 @@ const studioOptions = options(
 		'disable-keyboard-shortcuts',
 		'preserve-pitch-on-playback',
 		'disable-canvas-tabs',
+		'show-diagnostics',
 		'disable-interactivity',
 		'sequence-activity-limit',
 		'allow-html-in-canvas',
@@ -101,6 +131,7 @@ const studioOptions = options(
 		'scale',
 		'crf',
 		'prores-profile',
+		'prores-bits-per-macroblock',
 		'x264-preset',
 		'gop',
 		'audio-bitrate',
@@ -116,6 +147,9 @@ const studioOptions = options(
 		'hardware-acceleration',
 		'timeout',
 		'ignore-certificate-errors',
+		'chromium-flags',
+		'chromium-features',
+		'chromium-blink-features',
 		'disable-web-security',
 		'disable-headless',
 		'dark-mode',
@@ -133,6 +167,7 @@ const studioOptions = options(
 		'ipv4',
 		'number-of-shared-audio-tags',
 		'default-premount-in-seconds',
+		'high-contrast',
 		'show-premounting',
 		'show-layer-frame-numbers',
 		'experimental-keep-audio-context-alive',
@@ -191,6 +226,7 @@ export const cliCommandHelp = [
 				'buffer-size',
 				'max-rate',
 				'prores-profile',
+				'prores-bits-per-macroblock',
 				'x264-preset',
 				'gop',
 				'crf',
@@ -214,6 +250,9 @@ export const cliCommandHelp = [
 				'audio-latency-hint',
 				'timeout',
 				'ignore-certificate-errors',
+				'chromium-flags',
+				'chromium-features',
+				'chromium-blink-features',
 				'disable-web-security',
 				'disable-headless',
 				'dark-mode',
@@ -232,7 +271,6 @@ export const cliCommandHelp = [
 				'quiet',
 				'license-key',
 				'is-production',
-				'public-license-key',
 				'sample-rate',
 				'for-seamless-aac-concatenation',
 				'separate-audio-to',
@@ -271,6 +309,9 @@ export const cliCommandHelp = [
 				'audio-latency-hint',
 				'timeout',
 				'ignore-certificate-errors',
+				'chromium-flags',
+				'chromium-features',
+				'chromium-blink-features',
 				'disable-web-security',
 				'disable-headless',
 				'dark-mode',
@@ -289,7 +330,6 @@ export const cliCommandHelp = [
 				'quiet',
 				'license-key',
 				'is-production',
-				'public-license-key',
 			],
 			{},
 			'still',
@@ -313,6 +353,9 @@ export const cliCommandHelp = [
 			'audio-latency-hint',
 			'timeout',
 			'ignore-certificate-errors',
+			'chromium-flags',
+			'chromium-features',
+			'chromium-blink-features',
 			'disable-web-security',
 			'disable-headless',
 			'dark-mode',
@@ -400,11 +443,15 @@ export const cliCommandHelp = [
 				'pixel-format',
 				'props',
 				'prores-profile',
+				'prores-bits-per-macroblock',
 				'x264-preset',
 				'gop',
 				'jpeg-quality',
 				'log',
 				'ignore-certificate-errors',
+				'chromium-flags',
+				'chromium-features',
+				'chromium-blink-features',
 				'disable-web-security',
 				'dark-mode',
 				'disable-headless',
@@ -494,6 +541,80 @@ export const cliCommandHelp = [
 		options: options(['package-manager', 'log']),
 	},
 	{
+		path: [ELEMENTS_COMMAND],
+		args: ' <command>',
+		description: 'Install Elements from Element Libraries.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements',
+		options: [],
+	},
+	{
+		path: [ELEMENTS_COMMAND, USE_COMMAND],
+		args: ' <url>',
+		description: 'Install an Element from an Element Library page.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements/use',
+		options: [
+			{
+				flag: '--element <slug>',
+				optionIds: [],
+				description: 'Element to install if the page contains several.',
+			},
+			{
+				flag: '--composition <id>',
+				optionIds: [],
+				description: 'Composition to add the Element to.',
+			},
+			{
+				flag: '--overwrite',
+				optionIds: [],
+				description:
+					'Replace an existing Element file with different contents.',
+			},
+			{
+				flag: '--yes, -y',
+				description: 'Install without asking for confirmation.',
+				optionIds: [],
+			},
+			{
+				flag: '--dry-run',
+				optionIds: [],
+				description: 'Preview the installation without changing files.',
+			},
+			...options(['public-dir', 'package-manager', 'log']),
+		],
+	},
+	{
+		path: ['canvas-capture'],
+		args: ' <command>',
+		description: 'Import Canvas Capture recordings.',
+		documentation: 'https://www.remotion.dev/docs/cli/canvas-capture',
+		options: [],
+	},
+	{
+		path: ['canvas-capture', 'import'],
+		args: ' <file>',
+		description:
+			'Import a Canvas Capture recording as an editable composition.',
+		documentation: 'https://www.remotion.dev/docs/cli/canvas-capture/import',
+		options: compositionImportOptions,
+	},
+	{
+		path: ['open-timeline'],
+		args: ' <command>',
+		description: 'Import OpenTimelineIO timelines.',
+		documentation: 'https://www.remotion.dev/docs/cli/open-timeline',
+		options: [],
+	},
+	{
+		path: ['open-timeline', 'import'],
+		args: ' <file>',
+		description: 'Import an OpenTimelineIO file as an editable composition.',
+		documentation: 'https://www.remotion.dev/docs/cli/open-timeline/import',
+		options: [
+			...compositionImportOptions,
+			...options(['media-dir', 'binaries-directory']),
+		],
+	},
+	{
 		path: [GPU_COMMAND],
 		args: '',
 		description: 'Print information about how Chrome uses the GPU.',
@@ -506,6 +627,9 @@ export const cliCommandHelp = [
 			'user-agent',
 			'disable-web-security',
 			'ignore-certificate-errors',
+			'chromium-flags',
+			'chromium-features',
+			'chromium-blink-features',
 			'enable-multiprocess-on-linux',
 			'timeout',
 			'disable-headless',

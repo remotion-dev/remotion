@@ -89,6 +89,7 @@ export const ZodNumberEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<InputDragger
+					name={jsonPath.join('.')}
 					onValueChangeCancel={() => {
 						hasUnsavedChanges.current = false;
 						setValue(() => valueOnFocus.current, {shouldSave: false});

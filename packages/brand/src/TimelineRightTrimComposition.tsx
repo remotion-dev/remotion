@@ -9,7 +9,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-const TimelineRightTrimCapture = () => {
+export const TimelineRightTrimCapture = () => {
 	const {fps} = useVideoConfig();
 	const frame = (useCurrentFrame() * 30) / fps;
 

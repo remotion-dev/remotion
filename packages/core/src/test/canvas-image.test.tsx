@@ -273,7 +273,7 @@ test('<CanvasImage> registers an automatic canvas outline', async () => {
 	).toEqual([]);
 });
 
-test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
+test('<CanvasImage> schema exposes src without premounting fields', () => {
 	expect(canvasImageSchema.src).toEqual({
 		type: 'asset',
 		assetType: 'image',
@@ -281,8 +281,8 @@ test('<CanvasImage> schema exposes src and non-keyframable premounting fields', 
 		description: 'Source',
 		keyframable: false,
 	});
-	expect(canvasImageSchema.premountFor.keyframable).toBe(false);
-	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
+	expect(canvasImageSchema).not.toHaveProperty('premountFor');
+	expect(canvasImageSchema).not.toHaveProperty('postmountFor');
 });
 
 test('<CanvasImage> applies crop props to the canvas', async () => {
@@ -731,4 +731,43 @@ test('<CanvasImage> does not reload the source image when effect keys change', a
 	});
 
 	expect(imageLoadCount).toBe(1);
+});
+
+test('<CanvasImage> keeps playing without reloading when advancing frames with an inline onError', async () => {
+	const events: string[] = [];
+	const errors: Error[] = [];
+
+	const atFrame = (frame: number) =>
+		wrapCanvasImage(
+			<>
+				<BufferingEvents events={events} />
+				<CanvasImage
+					src="test.png"
+					pauseWhenLoading
+					width={100}
+					height={50}
+					onError={(err) => {
+						errors.push(err);
+					}}
+				/>
+			</>,
+			frame,
+		);
+
+	const {rerender} = render(atFrame(0));
+
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+	const eventsAfterFirstLoad = [...events];
+
+	for (let frame = 1; frame <= 3; frame++) {
+		rerender(atFrame(frame));
+		await act(() => Promise.resolve());
+	}
+
+	expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	expect(events).toEqual(eventsAfterFirstLoad);
+	expect(imageLoadCount).toBe(1);
+	expect(errors).toEqual([]);
 });

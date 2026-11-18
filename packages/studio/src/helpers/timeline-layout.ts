@@ -22,6 +22,10 @@ import type {
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
+import {
+	projectEffectSequence,
+	projectEffectPropStatuses,
+} from './optimistic-effect-projection';
 
 export {
 	SCHEMA_FIELD_GROUPS,
@@ -89,20 +93,18 @@ export type TimelineTreeNode =
 	  };
 
 export const buildTimelineTree = ({
-	sequence,
+	optimisticEffects,
+	sequence: sourceSequence,
 	nodePathInfo,
 	getDragOverrides,
 	getEffectDragOverrides,
-	propStatuses,
+	propStatuses: sourcePropStatuses,
 	includeTextContent,
 	includeSourceControls,
 	includeInspectorOnlyFields,
 	runtimeValues,
-	pendingEffectDeletion,
 }: {
-	pendingEffectDeletion: ReturnType<
-		typeof Internals.OptimisticEffectDeletion.get
-	>;
+	optimisticEffects: ReturnType<typeof Internals.OptimisticEffects.get>;
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
@@ -113,6 +115,15 @@ export const buildTimelineTree = ({
 	includeInspectorOnlyFields: boolean;
 	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
+	const sequence = projectEffectSequence(
+		sourceSequence,
+		nodePathInfo.sequenceSubscriptionKey,
+		optimisticEffects?.items ?? null,
+	);
+	const propStatuses = projectEffectPropStatuses(
+		sourcePropStatuses,
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
 		nodePathInfo;
@@ -151,16 +162,7 @@ export const buildTimelineTree = ({
 		}
 	}
 
-	const pendingDeletion = pendingEffectDeletion;
-	const hiddenEffects =
-		pendingDeletion &&
-		Internals.OptimisticEffectDeletion.matches(
-			pendingDeletion,
-			sequence.effects,
-		)
-			? new Set(pendingDeletion.effectIndices)
-			: null;
-	if (sequence.effects.length > (hiddenEffects?.size ?? 0)) {
+	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
 			nodePathInfo: {
@@ -170,25 +172,22 @@ export const buildTimelineTree = ({
 				numberOfSequencesWithThisNodePath: 0,
 				supportsEffects,
 			},
-			label: pendingDeletion ? 'Effects (deleting…)' : 'Effects',
+			label: 'Effects',
 			effectInfo: null,
 			children: sequence.effects.flatMap((effect, i): TimelineTreeNode[] => {
-				if (hiddenEffects?.has(i)) return [];
-				const effectFields = pendingDeletion
-					? []
-					: getEffectFieldsToShow({
-							effect,
-							effectIndex: i,
-							nodePath: sequenceSubscriptionKey,
-							propStatuses,
-							getEffectDragOverrides,
-						}).filter(
-							// The Curves inspector preserves input order; the generic array editor cannot.
-							(field) =>
-								includeInspectorOnlyFields ||
-								effect.type !== 'remotion/curves' ||
-								field.key !== 'points',
-						);
+				const effectFields = getEffectFieldsToShow({
+					effect,
+					effectIndex: i,
+					nodePath: sequenceSubscriptionKey,
+					propStatuses,
+					getEffectDragOverrides,
+				}).filter(
+					// The Curves inspector preserves input order; the generic array editor cannot.
+					(field) =>
+						includeInspectorOnlyFields ||
+						effect.type !== 'remotion/curves' ||
+						field.key !== 'points',
+				);
 				return [
 					{
 						kind: 'group',
@@ -286,7 +285,7 @@ export const getExpandedTrackHeight = ({
 	propStatuses: PropStatuses;
 }): number => {
 	const tree = buildTimelineTree({
-		pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+		optimisticEffects: Internals.OptimisticEffects.get(
 			nodePathInfo.sequenceSubscriptionKey,
 		),
 		sequence,

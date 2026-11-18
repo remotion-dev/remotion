@@ -9,7 +9,13 @@ import * as recast from 'recast';
 import {indentInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getImportedName} from './sequence-props/imports';
-import {getEndOfLine, getLineIndent, getPreferredQuote} from './source-style';
+import {
+	getEndOfLine,
+	getLineIndent,
+	getPreferredQuote,
+	getSourceFormattingConfig,
+	type SourceFormattingConfig,
+} from './source-style';
 
 export type SourceEdit = {
 	end: number;
@@ -173,11 +179,13 @@ const getLeadingFileHeaderEnd = ({
 		)
 		.sort((left, right) => left.start - right.start)[0]?.statement;
 	const leadingComments = firstOriginalStatement?.leadingComments ?? [];
-	const lastHeaderCommentIndex = leadingComments.findLastIndex((comment) =>
-		/(?:@ts-(?:no)?check\b|@flow\b|@jsx\b|@license\b|@generated\b|copyright\b|eslint-disable(?!-(?:next-)?line\b)\b|\/\s*<(?:reference|amd-module|amd-dependency)\b)/i.test(
-			comment.value,
-		),
-	);
+	const lastHeaderCommentIndex = leadingComments
+		.map((comment) =>
+			/(?:@ts-(?:no)?check\b|@flow\b|@jsx\b|@license\b|@generated\b|copyright\b|eslint-disable(?!-(?:next-)?line\b)\b|\/\s*<(?:reference|amd-module|amd-dependency)\b)/i.test(
+				comment.value,
+			),
+		)
+		.lastIndexOf(true);
 	if (lastHeaderCommentIndex === -1) {
 		return null;
 	}
@@ -233,14 +241,47 @@ const renderImportSpecifier = (
 	return specifier.importKind === 'type' ? `type ${rendered}` : rendered;
 };
 
+type ImportFormatting = Pick<
+	SourceFormattingConfig,
+	'endOfLine' | 'indentationUnit' | 'printWidth' | 'trailingComma'
+>;
+
+const renderNamedImportBraces = ({
+	bracketSpacing,
+	formatting,
+	multiline,
+	specifiers,
+}: {
+	bracketSpacing: boolean;
+	formatting: ImportFormatting;
+	multiline: boolean;
+	specifiers: string[];
+}) => {
+	if (!multiline) {
+		const space = bracketSpacing ? ' ' : '';
+		return `{${space}${specifiers.join(', ')}${space}}`;
+	}
+
+	const {endOfLine, indentationUnit, trailingComma} = formatting;
+	const lines = specifiers.map(
+		(specifier, index) =>
+			`${indentationUnit}${specifier}${
+				index < specifiers.length - 1 || trailingComma ? ',' : ''
+			}`,
+	);
+	return `{${endOfLine}${lines.join(endOfLine)}${endOfLine}}`;
+};
+
 export const renderImportDeclaration = ({
 	bracketSpacing,
 	declaration,
+	formatting,
 	quote,
 	semicolon,
 }: {
 	bracketSpacing: boolean;
 	declaration: ImportDeclaration;
+	formatting: ImportFormatting;
 	quote: '"' | "'";
 	semicolon: string;
 }) => {
@@ -251,25 +292,41 @@ export const renderImportDeclaration = ({
 	const namespaceSpecifier = specifiers.find(
 		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
 	);
-	const namedSpecifiers = specifiers.filter(
-		(specifier) => specifier.type === 'ImportSpecifier',
-	);
-	const parts = [
-		...(defaultSpecifier ? [renderImportSpecifier(defaultSpecifier)] : []),
-		...(namespaceSpecifier ? [renderImportSpecifier(namespaceSpecifier)] : []),
-		...(namedSpecifiers.length
-			? [
-					`{${bracketSpacing ? ' ' : ''}${namedSpecifiers
-						.map(renderImportSpecifier)
-						.join(', ')}${bracketSpacing ? ' ' : ''}}`,
-				]
-			: []),
-	];
+	const namedSpecifiers = specifiers
+		.filter((specifier) => specifier.type === 'ImportSpecifier')
+		.map(renderImportSpecifier);
 	const source =
 		quote === '"'
 			? JSON.stringify(declaration.source.value)
 			: `'${declaration.source.value.replaceAll("'", "\\'")}'`;
-	return `import ${parts.join(', ')} from ${source}${semicolon}`;
+	const render = (multiline: boolean) => {
+		const parts = [
+			...(defaultSpecifier ? [renderImportSpecifier(defaultSpecifier)] : []),
+			...(namespaceSpecifier
+				? [renderImportSpecifier(namespaceSpecifier)]
+				: []),
+			...(namedSpecifiers.length
+				? [
+						renderNamedImportBraces({
+							bracketSpacing,
+							formatting,
+							multiline,
+							specifiers: namedSpecifiers,
+						}),
+					]
+				: []),
+		];
+		return `import ${parts.join(', ')} from ${source}${semicolon}`;
+	};
+
+	const singleLine = render(false);
+	// Like Prettier, a lone named specifier stays on one line.
+	const canBreak =
+		namedSpecifiers.length > 1 ||
+		(namedSpecifiers.length > 0 && Boolean(defaultSpecifier));
+	return canBreak && singleLine.length > formatting.printWidth
+		? render(true)
+		: singleLine;
 };
 
 export const getImportBracketSpacing = ({
@@ -325,6 +382,7 @@ export const getInsertImportSourceEdits = ({
 		input,
 		prettierConfigOverride,
 	});
+	const formatting = getSourceFormattingConfig({input, prettierConfigOverride});
 	const newDeclarations: ImportDeclaration[] = [];
 
 	for (const statement of ast.program.body) {
@@ -385,6 +443,7 @@ export const getInsertImportSourceEdits = ({
 						prettierConfigOverride,
 					}),
 					declaration: statement,
+					formatting,
 					quote: fullImport.includes('"') ? '"' : "'",
 					semicolon: fullImport.trimEnd().endsWith(';') ? ';' : '',
 				}),
@@ -393,15 +452,97 @@ export const getInsertImportSourceEdits = ({
 			continue;
 		}
 
-		const rendered = addedSpecifiers.map(renderImportSpecifier).join(', ');
-		const lastNamedSpecifier = snapshot.specifiers.findLast(
+		if (!statement.loc) {
+			throw new Error('Could not locate the import to update');
+		}
+
+		const statementStart = recastLocToOffset(input, statement.loc.start);
+		const statementEnd = recastLocToOffset(input, statement.loc.end);
+		// Prettier counts trailing block comments on the same line towards the
+		// width, but not a trailing line comment.
+		const trailingWidth = input
+			.slice(statementEnd)
+			.match(/^[^\r\n]*/)![0]
+			.replace(/^((?:\s*\/\*.*?\*\/)*)\s*\/\/.*$/, '$1')
+			.trimEnd().length;
+		const addedSources = addedSpecifiers.map(renderImportSpecifier);
+		const existingNamedSpecifiers = snapshot.specifiers.filter(
 			(specifier) => specifier.type === 'ImportSpecifier',
 		);
-		if (lastNamedSpecifier?.loc) {
-			const offset = recastLocToOffset(input, lastNamedSpecifier.loc.end);
+		const existingNamedRanges = existingNamedSpecifiers.flatMap((specifier) =>
+			specifier.loc
+				? [
+						{
+							end: recastLocToOffset(input, specifier.loc.end),
+							start: recastLocToOffset(input, specifier.loc.start),
+						},
+					]
+				: [],
+		);
+		if (
+			existingNamedRanges.length > 0 &&
+			existingNamedRanges.length === existingNamedSpecifiers.length
+		) {
+			const openBrace = input.lastIndexOf('{', existingNamedRanges[0].start);
+			const closeBrace = input.indexOf(
+				'}',
+				existingNamedRanges[existingNamedRanges.length - 1].end,
+			);
+			// Only separators may sit between the braces, so that rewriting them
+			// does not drop comments.
+			const onlySeparators = [
+				...existingNamedRanges,
+				{end: closeBrace, start: closeBrace},
+			].every(
+				(range, index) =>
+					!/[^\s,]/.test(
+						input.slice(
+							index === 0 ? openBrace + 1 : existingNamedRanges[index - 1].end,
+							range.start,
+						),
+					),
+			);
+			const specifierSources = [
+				...existingNamedRanges.map((range) =>
+					input.slice(range.start, range.end),
+				),
+				...addedSources,
+			];
+			const renderBraces = (multiline: boolean) =>
+				renderNamedImportBraces({
+					bracketSpacing: getImportBracketSpacing({
+						declaration: statement,
+						input,
+						prettierConfigOverride,
+					}),
+					formatting,
+					multiline,
+					specifiers: specifierSources,
+				});
+			const singleLineLength =
+				openBrace -
+				statementStart +
+				renderBraces(false).length +
+				statementEnd -
+				(closeBrace + 1) +
+				trailingWidth;
+			if (
+				onlySeparators &&
+				(input.slice(openBrace, closeBrace).includes('\n') ||
+					singleLineLength > formatting.printWidth)
+			) {
+				edits.push({
+					end: closeBrace + 1,
+					replacement: renderBraces(true),
+					start: openBrace,
+				});
+				continue;
+			}
+
+			const offset = existingNamedRanges[existingNamedRanges.length - 1].end;
 			edits.push({
 				end: offset,
-				replacement: `, ${rendered}`,
+				replacement: `, ${addedSources.join(', ')}`,
 				start: offset,
 			});
 			continue;
@@ -412,30 +553,37 @@ export const getInsertImportSourceEdits = ({
 		);
 		if (defaultSpecifier?.loc) {
 			const offset = recastLocToOffset(input, defaultSpecifier.loc.end);
+			const renderBraces = (multiline: boolean) =>
+				`, ${renderNamedImportBraces({
+					bracketSpacing: fallbackBracketSpacing,
+					formatting,
+					multiline,
+					specifiers: addedSources,
+				})}`;
+			const singleLineLength =
+				statementEnd -
+				statementStart +
+				renderBraces(false).length +
+				trailingWidth;
 			edits.push({
 				end: offset,
-				replacement: `, {${fallbackBracketSpacing ? ' ' : ''}${rendered}${fallbackBracketSpacing ? ' ' : ''}}`,
+				replacement: renderBraces(singleLineLength > formatting.printWidth),
 				start: offset,
 			});
 			continue;
 		}
 
-		if (!statement.loc) {
-			throw new Error('Could not locate the import to update');
-		}
-
-		const start = recastLocToOffset(input, statement.loc.start);
-		const end = recastLocToOffset(input, statement.loc.end);
-		const original = input.slice(start, end);
+		const original = input.slice(statementStart, statementEnd);
 		edits.push({
-			end,
+			end: statementEnd,
 			replacement: renderImportDeclaration({
 				bracketSpacing: fallbackBracketSpacing,
 				declaration: statement,
+				formatting,
 				quote: original.includes('"') ? '"' : "'",
 				semicolon: original.trimEnd().endsWith(';') ? ';' : '',
 			}),
-			start,
+			start: statementStart,
 		});
 	}
 
@@ -486,6 +634,7 @@ export const getInsertImportSourceEdits = ({
 				renderImportDeclaration({
 					bracketSpacing: fallbackBracketSpacing,
 					declaration,
+					formatting,
 					quote,
 					semicolon,
 				}),

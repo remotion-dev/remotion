@@ -20,7 +20,7 @@ const fasterConfig = {
 	rspackBundler: true,
 	rspackPersistentCache: !isVercel,
 	ssgWorkerThreads: !isVercel,
-	gitEagerVcs: true,
+	gitEagerVcs: !isVercel,
 };
 
 const showGitLastUpdate =
@@ -52,6 +52,30 @@ const config: Config = {
 	markdown: {
 		hooks: {
 			onBrokenMarkdownLinks: 'warn',
+		},
+		parseFrontMatter: async (params) => {
+			const result = await params.defaultParseFrontMatter(params);
+			const slug = params.filePath
+				.replaceAll('\\', '/')
+				.match(/\/elements\/(.+)\/index\.mdx$/)?.[1];
+			if (slug === undefined || !Object.hasOwn(elementRegistry, slug)) {
+				return result;
+			}
+
+			if (result.frontMatter.description !== undefined) {
+				throw new Error(
+					`${params.filePath}: Remove "description" from the frontmatter. Element descriptions come from element-registry.ts.`,
+				);
+			}
+
+			return {
+				...result,
+				frontMatter: {
+					...result.frontMatter,
+					description:
+						elementRegistry[slug as keyof typeof elementRegistry].description,
+				},
+			};
 		},
 	},
 	favicon: 'img/favicon.png',
@@ -129,8 +153,17 @@ const config: Config = {
 					label: 'Commercial',
 					position: 'left',
 					items: [
-						{to: '/docs/license/pricing', label: 'License + Pricing'},
-						{to: 'https://remotion.pro/store', label: 'Store'},
+						{
+							to: 'https://www.remotion.dev/pricing',
+							label: 'License + Pricing',
+							target: '_self',
+						},
+						{
+							to: 'https://www.remotion.dev/dashboard',
+							label: 'Dashboard',
+							target: '_self',
+						},
+						{to: 'https://www.remotion.dev/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
 						{to: 'about', label: 'About us'},
@@ -196,7 +229,7 @@ const config: Config = {
 						},
 						{
 							label: 'Editor Starter',
-							href: 'https://remotion.pro/editor-starter',
+							href: 'https://www.remotion.dev/store/editor-starter',
 						},
 						{
 							label: 'Changelog',
@@ -204,7 +237,8 @@ const config: Config = {
 						},
 						{
 							label: 'License & Pricing',
-							to: '/docs/license/pricing',
+							to: 'https://www.remotion.dev/pricing',
+							target: '_self',
 						},
 					],
 				},
@@ -312,7 +346,7 @@ const config: Config = {
 						},
 						{
 							label: 'Accessibility',
-							to: '/docs/accessibility',
+							to: '/docs/accessibility/dev',
 						},
 					],
 				},
@@ -326,6 +360,9 @@ const config: Config = {
 		[
 			'classic',
 			{
+				sitemap: {
+					filename: 'docs-sitemap.xml',
+				},
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',
