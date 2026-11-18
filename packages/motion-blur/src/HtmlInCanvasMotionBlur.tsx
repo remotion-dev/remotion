@@ -289,8 +289,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			}
 
 			const {compositor} = compositorRef.current;
-			// Canvas2D quantizes globalAlpha to eight bits, including float16 targets.
-			const sampleWeight = Math.round(255 / actualSamples) / 255;
+			const sampleWeight = 1 / actualSamples;
 			for (const [index, sampleElement] of captureElements.slice(1).entries()) {
 				const image = layoutCanvas.captureElementImage(sampleElement);
 				try {

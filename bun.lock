@@ -132,6 +132,7 @@
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/transitions": "workspace:*",
+        "@shikijs/themes": "3.22.0",
         "@types/opentype.js": "1.3.4",
         "@types/styled-components": "5.1.34",
         "codehike": "1.0.4",

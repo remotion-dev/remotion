@@ -1,41 +1,39 @@
-import {Interactive, Sequence, useVideoConfig} from 'remotion';
-import {MotionBlurScrubCaptureComposition} from './MotionBlurScrubCaptureComposition';
+import {Video} from '@remotion/media';
+import {Interactive, useVideoConfig} from 'remotion';
+import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 
 const MotionBlurScrubContent = () => {
 	const {width, height, fps} = useVideoConfig();
 
 	return (
-		<Sequence
-			name="Slow scrub and hold on motion blur"
-			trimBefore={9.8 * fps}
-			durationInFrames={87}
-			width={width}
-			height={height}
-			style={{backgroundColor: '#F8FAFC', overflow: 'hidden'}}
+		<div
+			style={{
+				position: 'absolute',
+				inset: 0,
+				backgroundColor: '#1f2327',
+				overflow: 'hidden',
+				perspective: 1800,
+			}}
 		>
-			<div
+			<Video
+				name="Rotating triangle close-up"
+				src="https://remotion.media/motion-blur-2026-11-17/triangle-motion-blur-capture-75e2182b50ce.mp4"
+				trimBefore={Math.round(13.03 * fps)}
+				cropLeft={0.035}
+				muted
 				style={{
 					position: 'absolute',
-					inset: 0,
-					perspective: 1600,
-					perspectiveOrigin: '50% 60%',
+					width: 1920,
+					height: 1440,
+					left: '50%',
+					top: '50%',
+					translate: '-1050px -750px',
+					transformOrigin: '1050px 750px',
+					rotate: EXPLORE_CAMERA_ANGLE,
+					scale: Math.min(width / 1080, height / 960) * 0.78,
 				}}
-			>
-				<MotionBlurScrubCaptureComposition
-					name="Tilted Studio close-up"
-					width={1904}
-					height={1440}
-					style={{
-						left: '50%',
-						top: '70%',
-						translate: '-952px -994px',
-						scale: Math.max(width / 1080, height / 960) * 1.45,
-						rotate: '0.904608 0.351506 -0.241096 28deg',
-						transformOrigin: '952px 994px',
-					}}
-				/>
-			</div>
-		</Sequence>
+			/>
+		</div>
 	);
 };
 
