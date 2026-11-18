@@ -167,6 +167,7 @@ import {opacityZero} from './fixtures/opacity-zero';
 import {opaqueLayerOverFadingLayer} from './fixtures/opaque-layer-over-fading-layer';
 import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {outline} from './fixtures/outline';
+import {outlineCaptureBounds} from './fixtures/outline-capture-bounds';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
@@ -497,6 +498,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue9736BackgroundPosition} />
 			</Folder>
 			<Composition {...outline} />
+			<Composition {...outlineCaptureBounds} />
 			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
