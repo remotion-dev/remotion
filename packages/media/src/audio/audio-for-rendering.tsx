@@ -180,7 +180,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					handleError(
 						result.error,
 						result.error,
-						`Failed to read ${src}: ${result.error.message}, falling back to <Html5Audio>`,
+						`Failed to read ${src}: ${result.error.message}${result.type === 'network-error' ? ' (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues)' : ''}, falling back to <Html5Audio>`,
 					);
 					return;
 				}
@@ -225,7 +225,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						new Error(
 							`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
 						),
-						`Network error fetching ${src}, falling back to <Html5Audio>`,
+						`Network error fetching ${src} (the resource may not be CORS-enabled, see https://remotion.dev/docs/cors-issues), falling back to <Html5Audio>`,
 					);
 					return;
 				}

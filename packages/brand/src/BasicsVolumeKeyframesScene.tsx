@@ -10,13 +10,10 @@ const BasicsVolumeKeyframesSceneInner = () => {
 			<BasicsVolumeKeyframesPreview
 				trimBefore={25.05 * fps}
 				durationInFrames={3 * fps}
-				premountFor={fps}
 				style={{width: (width * 2) / 3}}
 				captureStyle={{translate: '-1095px -570px'}}
 			/>
-			<BasicsTitlePanel premountFor={fps} style={null}>
-				Volume keyframes
-			</BasicsTitlePanel>
+			<BasicsTitlePanel style={null}>Volume keyframes</BasicsTitlePanel>
 		</AbsoluteFill>
 	);
 };

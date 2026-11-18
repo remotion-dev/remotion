@@ -64,12 +64,18 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		const outlineWidth = includePaintOutsets
+		let outlineWidth = includePaintOutsets
 			? parseOutlineWidth(computedStyle.outlineWidth)
 			: 0;
-		const outlineOffset = includePaintOutsets
+		let outlineOffset = includePaintOutsets
 			? parseOutlineOffset(computedStyle.outlineOffset)
 			: 0;
+		// An entirely inward outline must not shrink the bounds of the element.
+		if (outlineWidth + outlineOffset < 0) {
+			outlineWidth = 0;
+			outlineOffset = 0;
+		}
+
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1
@@ -90,19 +96,27 @@ export const getBiggestBoundingClientRect = (
 			if (!shadow.inset) {
 				shadowLeft = Math.max(
 					shadowLeft,
-					Math.abs(Math.min(shadow.offsetX, 0)) + shadow.blurRadius,
+					Math.abs(Math.min(shadow.offsetX, 0)) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowRight = Math.max(
 					shadowRight,
-					Math.max(shadow.offsetX, 0) + shadow.blurRadius,
+					Math.max(shadow.offsetX, 0) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowTop = Math.max(
 					shadowTop,
-					Math.abs(Math.min(shadow.offsetY, 0)) + shadow.blurRadius,
+					Math.abs(Math.min(shadow.offsetY, 0)) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 				shadowBottom = Math.max(
 					shadowBottom,
-					Math.max(shadow.offsetY, 0) + shadow.blurRadius,
+					Math.max(shadow.offsetY, 0) +
+						shadow.blurRadius +
+						Math.max(0, shadow.spreadRadius),
 				);
 			}
 		}

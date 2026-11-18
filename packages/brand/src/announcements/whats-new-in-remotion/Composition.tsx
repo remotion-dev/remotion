@@ -25,18 +25,10 @@ export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
 			<TransitionSeries>
-				<TransitionSeries.Sequence
-					durationInFrames={114}
-					premountFor={30}
-					name="Intro"
-				>
+				<TransitionSeries.Sequence durationInFrames={114} name="Intro">
 					<Scene1 />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					durationInFrames={763}
-					premountFor={30}
-					name="Light Leaks"
-				>
+				<TransitionSeries.Sequence durationInFrames={763} name="Light Leaks">
 					<Scene2 />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Overlay durationInFrames={15}>
@@ -52,11 +44,7 @@ export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 						volume={0.1}
 					/>
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					durationInFrames={1266}
-					premountFor={30}
-					name="Sound Effects"
-				>
+				<TransitionSeries.Sequence durationInFrames={1266} name="Sound Effects">
 					<Scene3 />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Overlay durationInFrames={15}>
@@ -74,58 +62,38 @@ export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 				</TransitionSeries.Overlay>
 				<TransitionSeries.Sequence
 					durationInFrames={1119}
-					premountFor={30}
 					name="Render on Vercel"
 				>
 					<Scene4 />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					durationInFrames={669}
-					premountFor={30}
-					name="New Skills"
-				>
+				<TransitionSeries.Sequence durationInFrames={669} name="New Skills">
 					<Scene5 />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					durationInFrames={881}
-					premountFor={30}
 					name="Web Renderer Progress"
 				>
 					<Scene6 />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					durationInFrames={1053}
-					premountFor={30}
 					name="Work better with Agents"
 				>
 					<Scene7 />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					durationInFrames={789}
-					premountFor={30}
-					name="Rspack"
-				>
+				<TransitionSeries.Sequence durationInFrames={789} name="Rspack">
 					<Scene8 />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					durationInFrames={510}
-					premountFor={30}
 					name="Preview: Visual Mode"
 				>
 					<Scene9 />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					durationInFrames={421}
-					premountFor={30}
-					name="Mediabunny"
-				>
+				<TransitionSeries.Sequence durationInFrames={421} name="Mediabunny">
 					<Scene10 />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					durationInFrames={742}
-					premountFor={30}
-					name="Outro"
-				>
+				<TransitionSeries.Sequence durationInFrames={742} name="Outro">
 					<Scene11 platform={platform} />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>

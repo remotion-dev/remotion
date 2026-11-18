@@ -727,8 +727,6 @@ export type SaveMultipleEffectPropsResponse = {
 export type AddEffectRequest = {
 	wrapInHtmlInCanvas: {
 		compositionId: string;
-		width: number;
-		height: number;
 		from: number;
 		durationInFrames: number;
 		trimBefore: number;
@@ -1122,8 +1120,6 @@ export type WrapNodeRequest = {
 	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
-	width: number | null;
-	height: number | null;
 	timing: {
 		from: number;
 		durationInFrames: number;
@@ -1135,7 +1131,7 @@ export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
-			canWrapHtmlInCanvas: boolean;
+			canvasWrapBlocker: 'nested' | 'unknown-dimensions' | null;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {success: false; reason: string; stack: string};

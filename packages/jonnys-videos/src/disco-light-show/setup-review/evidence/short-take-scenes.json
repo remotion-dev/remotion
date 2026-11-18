@@ -1,0 +1,170 @@
+{
+	"source": "IMG_0758-rec709.mp4",
+	"durationSeconds": 477.0,
+	"reviewMethod": "Visual review of 15-second samples across full clip, 3-second samples from 00:30 to01:30,3-second samples01:30to02:00,5-second samples02:50to04:05;selected4Kconnectorcloseups. Timings are action windows within about2-3seconds, not frame-accurate cuts.",
+	"summary": "Single-device practice take. Strong product reveals for USB-C adapter, ENTTEC and 3-to-5-pin converter; no multi-device chain or visible terminator.",
+	"scenes": [
+		{
+			"id": "prepare-power",
+			"label": "Prepare power strip",
+			"start": 8,
+			"end": 30,
+			"recommendedIn": 10,
+			"recommendedOut": 22,
+			"confidence": "high",
+			"evidence": "Power strip placed then lead laid on table. Optional context before laptop."
+		},
+		{
+			"id": "laptop",
+			"label": "Get laptop out",
+			"start": 30,
+			"end": 40,
+			"recommendedIn": 31,
+			"recommendedOut": 39,
+			"confidence": "high",
+			"evidence": "Closed laptop enters table by00:33, lid opened by00:39."
+		},
+		{
+			"id": "usb-c",
+			"label": "Attach USB-C adapter",
+			"start": 40,
+			"end": 50,
+			"recommendedIn": 40,
+			"recommendedOut": 50,
+			"confidence": "high",
+			"evidence": "White adapter presented to camera at00:42 then plugged beside laptop00:45-00:48."
+		},
+		{
+			"id": "enttec-reveal",
+			"label": "ENTTEC USB-DMX interface",
+			"start": 50,
+			"end": 57,
+			"recommendedIn": 51,
+			"recommendedOut": 56,
+			"confidence": "high",
+			"evidence": "Clearly readable ENTTEC USB DMX PRO presented toward camera00:54."
+		},
+		{
+			"id": "enttec-connect",
+			"label": "Attach ENTTEC USB-DMX",
+			"start": 62,
+			"end": 82,
+			"recommendedIn": 65,
+			"recommendedOut": 81,
+			"confidence": "high",
+			"evidence": "USB cable inserted into ENTTEC01:06-01:12; other end into white adapter01:14-01:21."
+		},
+		{
+			"id": "first-light-place",
+			"label": "Place first moving-head light",
+			"start": 87,
+			"end": 93,
+			"recommendedIn": 87,
+			"recommendedOut": 93,
+			"confidence": "high",
+			"evidence": "First/only moving-head light brought onto table01:28-01:32."
+		},
+		{
+			"id": "converter",
+			"label": "Attach 3-pin to 5-pin converter",
+			"start": 104,
+			"end": 118,
+			"recommendedIn": 105,
+			"recommendedOut": 117,
+			"confidence": "high",
+			"evidence": "Connector ends presented01:48;4Kcrop confirms3contacts on one end and5on other. Adapter plugged into ENTTEC01:51-01:57."
+		},
+		{
+			"id": "converter-repeat",
+			"label": "Repeat converter demonstration",
+			"start": 190,
+			"end": 213,
+			"recommendedIn": 201,
+			"recommendedOut": 213,
+			"confidence": "high",
+			"evidence": "A second clearer reveal of connector ends03:25 and connection at03:30; useful alternate to initial converter segment."
+		},
+		{
+			"id": "first-dmx",
+			"label": "Connect DMX to first device",
+			"start": 213,
+			"end": 229,
+			"recommendedIn": 213,
+			"recommendedOut": 228,
+			"confidence": "high",
+			"evidence": "Lifts/tilts moving head and inserts cable at its rear03:35-03:45."
+		},
+		{
+			"id": "first-power",
+			"label": "Connect first device power",
+			"start": 235,
+			"end": 245,
+			"recommendedIn": 237,
+			"recommendedOut": 245,
+			"confidence": "medium",
+			"evidence": "Retrieves another cable then attaches at fixture rear04:00, consistent with mains power. Connector itself partly hand-occluded."
+		},
+		{
+			"id": "software",
+			"label": "Operate laptop software",
+			"start": 281,
+			"end": 389,
+			"recommendedIn": 282,
+			"recommendedOut": 293,
+			"confidence": "high",
+			"evidence": "Laptop interaction dominates04:45-06:15; omit most of waiting/configuration in concise assembly."
+		},
+		{
+			"id": "first-result",
+			"label": "First light responds",
+			"start": 393,
+			"end": 455,
+			"recommendedIn": 421,
+			"recommendedOut": 438,
+			"confidence": "high",
+			"evidence": "Moving-head rotates; bright lens visible07:15-07:30 and hand gesture above lamp. Useful brief success shot."
+		}
+	],
+	"missingSteps": [
+		"Adding more devices one by one: only one moving-head light present throughend.",
+		"DMX terminator: no distinct terminator demonstration seen."
+	],
+	"contactSheets": ["overview.jpg", "early.jpg", "connections.jpg", "pins.jpg"],
+	"bestSelects": [
+		{
+			"step": "Laptop",
+			"in": 31,
+			"out": 39
+		},
+		{
+			"step": "USB-C",
+			"in": 40,
+			"out": 50
+		},
+		{
+			"step": "ENTTEC reveal",
+			"in": 51,
+			"out": 56
+		},
+		{
+			"step": "ENTTEC USB cable",
+			"in": 65,
+			"out": 81
+		},
+		{
+			"step": "3-pin to 5-pin converter",
+			"in": 105,
+			"out": 117
+		},
+		{
+			"step": "First fixture DMX",
+			"in": 213,
+			"out": 228
+		},
+		{
+			"step": "Light response",
+			"in": 421,
+			"out": 438
+		}
+	]
+}

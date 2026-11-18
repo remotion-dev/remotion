@@ -8,7 +8,6 @@ import {getHtmlInCanvasWrapperTiming} from './InspectorPanel/get-html-in-canvas-
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from './SequencePropsSubscriptionProvider';
 import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
-import {getCurrentDimensions} from './Timeline/imperative-state';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {wrapNode} from './wrap-node-api';
 
@@ -119,20 +118,22 @@ export const usePrepareHtmlInCanvasWrap = () => {
 				compositionId,
 				nodePath: nodePath.nodePath,
 				wrapper: null,
-				width: null,
-				height: null,
 				timing: null,
 			});
 			if (!eligibility.success) {
 				throw new Error(eligibility.reason);
 			}
 
-			if (eligibility.canWrap && !eligibility.canWrapHtmlInCanvas) {
+			if (eligibility.canvasWrapBlocker === 'nested') {
 				showNotification('HTML-in-canvas components cannot be nested.', 4000);
 				return null;
 			}
 
-			if (!eligibility.canWrap || timing === null) {
+			if (
+				!eligibility.canWrap ||
+				eligibility.canvasWrapBlocker === 'unknown-dimensions' ||
+				timing === null
+			) {
 				const stack = track.sequence.getStack();
 				const location =
 					sourceLocation ??
@@ -156,7 +157,7 @@ export const usePrepareHtmlInCanvasWrap = () => {
 				return null;
 			}
 
-			return {compositionId, ...getCurrentDimensions(), ...timing};
+			return {compositionId, ...timing};
 		},
 		[
 			calculateTimeline,

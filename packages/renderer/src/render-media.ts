@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import type {_InternalTypes} from 'remotion';
@@ -995,8 +996,11 @@ const internalRenderMediaRaw = async ({
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 						})
 						.catch((err) => {
-							Log.error({indent, logLevel}, 'Failed to send usage event');
-							Log.error({indent: true, logLevel}, err);
+							Log.error(
+								{indent, logLevel},
+								LicensingInternals.getUsageEventErrorMessage(err),
+							);
+							Log.verbose({indent: true, logLevel}, inspect(err));
 						})
 						.finally(() => {
 							resolve(result);

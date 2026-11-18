@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.544",
+	"version": "4.0.545",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
@@ -47,7 +47,9 @@
 		"react-dom": "catalog:",
 		"three": "catalog:",
 		"vitest": "catalog:",
-		"zod": "catalog:"
+		"zod": "catalog:",
+		"pngjs": "7.0.0",
+		"@types/pngjs": "6.0.5"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",

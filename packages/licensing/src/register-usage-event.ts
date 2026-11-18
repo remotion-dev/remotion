@@ -158,8 +158,7 @@ export const internalRegisterUsageEvent = async ({
 				const backoffMs = exponentialBackoffMs(attempt);
 				// eslint-disable-next-line no-console
 				console.log(
-					`Failed to send usage event (attempt ${attempt}/${totalAttempts}), retrying in ${backoffMs}ms...`,
-					err,
+					`Failed to send usage event (attempt ${attempt}/${totalAttempts}): ${lastError.message}. Retrying in ${backoffMs}ms...`,
 				);
 				await sleep(backoffMs);
 			}
@@ -167,6 +166,11 @@ export const internalRegisterUsageEvent = async ({
 	}
 
 	throw lastError;
+};
+
+export const getUsageEventErrorMessage = (err: unknown) => {
+	const {message, cause} = err as Error;
+	return `Failed to send usage event: ${message}${cause instanceof Error ? ` (${cause.message})` : ''}. The render was not affected.`;
 };
 
 export const registerUsageEvent = (

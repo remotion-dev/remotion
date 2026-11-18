@@ -19,8 +19,6 @@ export type AddEffectOptions<Project extends CodemodProject> = {
 	importPath: string;
 	props?: Record<string, CodemodValue>;
 	wrapInHtmlInCanvas: {
-		width: number;
-		height: number;
 		from: number;
 		durationInFrames: number;
 		trimBefore: number;
@@ -45,8 +43,6 @@ export const addEffect = <Project extends CodemodProject>({
 						component: 'HtmlInCanvas',
 						importPath: 'remotion',
 						props: {
-							width: wrapInHtmlInCanvas.width,
-							height: wrapInHtmlInCanvas.height,
 							from: wrapInHtmlInCanvas.from,
 							durationInFrames: wrapInHtmlInCanvas.durationInFrames,
 							trimBefore: wrapInHtmlInCanvas.trimBefore,

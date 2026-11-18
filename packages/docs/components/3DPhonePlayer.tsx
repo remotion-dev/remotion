@@ -12,6 +12,8 @@ export const ThreeDPlayer: React.FC = () => {
 			compositionHeight={720}
 			durationInFrames={300}
 			controls
+			clickToPlay={false}
+			spaceKeyToPlayOrPause={false}
 			loop
 			style={{
 				width: '100%',

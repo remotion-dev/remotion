@@ -185,6 +185,11 @@ export const MixedVideo = () => (
 - `presentation` — the visual effect (e.g. `fade()`, `slide()`, `wipe()`).
 - `timing` — controls speed and easing (e.g. `linearTiming()`, `springTiming()`).
 
+## Motion blur
+
+`<TransitionSeries.Transition>` CAN blur presentation movement with `motionBlur={{shutterAngle: 180, samples: 16}}`.
+All built-in presentations support it. For a complete example, custom presentation requirements, scene sampling, and CSS style restrictions, read [motion-blur.md](motion-blur.md#motion-blur-on-transitions).
+
 ## Overlay props
 
 `<TransitionSeries.Overlay>` accepts:

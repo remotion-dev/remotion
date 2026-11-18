@@ -38,7 +38,7 @@ export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 			prompt={
 				state.type === 'unwrap-refactor'
 					? `Unwrap ${target}: remove the wrapper and keep its children.`
-					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'.${effect ? ` Then add ${effect.name} from '${effect.importPath}' to the wrapper's effects prop with this configuration: ${JSON.stringify(effect.config)}.` : ''}`
+					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'. Use the layer’s width and height for the canvas and preserve its positioning.${effect ? ` Then add ${effect.name} from '${effect.importPath}' to the wrapper's effects prop with this configuration: ${JSON.stringify(effect.config)}.` : ''}`
 			}
 			skillId="remotion-markup"
 			sources={source ? [source] : []}
