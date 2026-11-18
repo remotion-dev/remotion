@@ -29,7 +29,7 @@ const MarkupBrollContent = ({
 			}
 			width={1920}
 			height={1080}
-			style={{backgroundColor: '#131414'}}
+			style={{backgroundColor: '#24292e'}}
 			effects={[
 				linearProgressiveBlur({
 					start: [0.5, 0.72],
@@ -48,10 +48,10 @@ const MarkupBrollContent = ({
 				}
 				src={
 					isMove
-						? 'https://remotion.media/agentically-programmatically/higher-level-markup-move-2e59c83aae49.mp4'
+						? 'https://remotion.media/agentically-programmatically/higher-level-markup-move-github-dark-b0ca85235381.mp4'
 						: isPaste
-							? 'https://remotion.media/agentically-programmatically/higher-level-markup-paste-b9c5fc2306d3.mp4'
-							: 'https://remotion.media/agentically-programmatically/higher-level-markup-cut-4410309f992e.mp4'
+							? 'https://remotion.media/agentically-programmatically/higher-level-markup-paste-github-dark-f939741d6575.mp4'
+							: 'https://remotion.media/agentically-programmatically/higher-level-markup-cut-github-dark-606394240ed0.mp4'
 				}
 				durationInFrames={duration}
 				muted

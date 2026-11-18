@@ -1,0 +1,98 @@
+{
+	"sourceDirectory": "/Users/jonathanburger/Movies/ProRes-Rec709-2026-10-31",
+	"method": "Five timestamped samples across each fullclip plus finer samples of promising ranges; times are approximate edit windows.",
+	"reviewedCount": 7,
+	"files": [
+		{
+			"id": "IMG_0776",
+			"durationSeconds": 35.887,
+			"summary": "Laptop / Remotion operation with laser rear panel and cable bundle visible around it.",
+			"recommendedIn": 23,
+			"recommendedOut": 30,
+			"subject": "Remotion cue and keyboard operation",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Samples0.5,8.97,17.94,26.92,34.89 plus20,23,26,29s. A red dot appears in preview around26s. No connection action.",
+			"priority": "alternate"
+		},
+		{
+			"id": "IMG_0777",
+			"durationSeconds": 17.511,
+			"summary": "Near-identical laptop close-up, hand operating keyboard/trackpad.",
+			"recommendedIn": 3,
+			"recommendedOut": 13,
+			"subject": "Laptop control insert",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Five samples across fullclip; no distinct cable or port demonstration.",
+			"priority": "alternate"
+		},
+		{
+			"id": "IMG_0778",
+			"durationSeconds": 22.881,
+			"summary": "Laptop close-up with blue and yellow dot cue in Remotion preview.",
+			"recommendedIn": 14,
+			"recommendedOut": 20,
+			"subject": "Remotion cue playback",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Five samples plus13,15,17,19s; visible two-color cue at17.16s.",
+			"priority": "alternate"
+		},
+		{
+			"id": "IMG_0779",
+			"durationSeconds": 26.382,
+			"summary": "Laptop close-up with yellow dot cue in Remotion preview.",
+			"recommendedIn": 10,
+			"recommendedOut": 17,
+			"subject": "Remotion cue playback",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Five samples plus9,12,15,18s; yellowcuearound13.19\u201319.79s.",
+			"priority": "alternate"
+		},
+		{
+			"id": "IMG_0780",
+			"durationSeconds": 59.2,
+			"summary": "Wider close-up of laptop running edited visuals with physical LED panel and moving heads responding.",
+			"recommendedIn": 12,
+			"recommendedOut": 32,
+			"subject": "Software playback and lights response",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Five fullclip samples plus3,7,11,17,23,29,35,41,47,53s. LED panel bright red at14.8s, blueat29.6; no port insertion.",
+			"priority": "useful-alternate"
+		},
+		{
+			"id": "IMG_0781",
+			"durationSeconds": 23.981,
+			"summary": "Laptop and hardware close-up while using Studio controls; LED panel briefly red.",
+			"recommendedIn": 13,
+			"recommendedOut": 20,
+			"subject": "Adjust control and see light response",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "Five fullclip samples plus3,8,13s; redLEDpanelvisible17.99s.",
+			"priority": "alternate"
+		},
+		{
+			"id": "IMG_0782",
+			"durationSeconds": 36.154,
+			"summary": "Color-gradient control on laptop and matching RGB panel response; camera tilts toward fixtures later.",
+			"recommendedIn": 6,
+			"recommendedOut": 18,
+			"subject": "Choose colors and see LED panel respond",
+			"stepIndex": 5,
+			"confidence": "high",
+			"evidence": "At9.04s gradient color editor and green panel; at18.08s panel blue. At27.12\u201335.15s tilt rises towardpanel/movinghead.",
+			"priority": "best"
+		}
+	],
+	"conclusion": "All seven are close-ups of software control and light response; none clearly demonstrate adapter/cable connection or a DMX terminator.",
+	"missing": [
+		"No USB-C or ENTTEC product close-up",
+		"No verified DMX terminator",
+		"No physical connector insertion in reviewed samples"
+	],
+	"contactSheets": ["contact-1.jpg", "contact-2.jpg", "contact-3.jpg"]
+}

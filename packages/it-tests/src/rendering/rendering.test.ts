@@ -1,5 +1,6 @@
 import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import fs from 'fs';
+import os from 'node:os';
 import path from 'path';
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
@@ -435,10 +436,22 @@ test(
 test(
 	'Should render WAV, MP3, and AAC audio files',
 	async () => {
-		await Promise.all(
-			(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
-				const out = outputPath.replace('mp4', extension);
-				try {
+		const attemptDirectory = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-audio-formats-'),
+		);
+		const processes = new Set<execa.ExecaChildProcess>();
+		let expired = false;
+		const deadline = setTimeout(() => {
+			expired = true;
+			for (const process of processes) {
+				process.kill('SIGTERM', {forceKillAfterTimeout: 1000});
+			}
+		}, 20_000);
+		try {
+			// Leave time for process termination and cleanup before Bun's timeout.
+			const results = await Promise.allSettled(
+				(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
+					const out = path.join(attemptDirectory, `audio.${extension}`);
 					const task = execa(
 						'bun',
 						['x', 'remotion', 'render', 'build', 'audio-testing', out],
@@ -446,11 +459,19 @@ test(
 							cwd: path.join(process.cwd(), '..', 'example'),
 						},
 					);
+					processes.add(task);
 					task.stderr?.pipe(process.stderr);
-					await task;
+					try {
+						await task;
+					} finally {
+						processes.delete(task);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					expect(fs.existsSync(out)).toBe(true);
 
-					const info = await RenderInternals.callFf({
+					const probe = RenderInternals.callFf({
 						bin: 'ffprobe',
 						args: [out],
 						indent: false,
@@ -458,6 +479,16 @@ test(
 						binariesDirectory: null,
 						cancelSignal: undefined,
 					});
+					processes.add(probe);
+					let info;
+					try {
+						info = await probe;
+					} finally {
+						processes.delete(probe);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					const data = info.stderr;
 					expect(data).toContain('Stream #0');
 					expect(data).not.toContain('Stream #1');
@@ -476,11 +507,23 @@ test(
 						expect(data).not.toContain('Kevin MacLeod');
 						expect(data).toMatch(/\d?\d kb\/s/);
 					}
-				} finally {
-					await fs.promises.rm(out, {force: true});
-				}
-			}),
-		);
+				}),
+			);
+			const failures = results.filter((result) => result.status === 'rejected');
+			if (failures.length === 1) {
+				throw failures[0]!.reason;
+			}
+
+			if (failures.length > 1) {
+				throw new AggregateError(
+					failures.map((failure) => failure.reason),
+					'Multiple audio format integration checks failed',
+				);
+			}
+		} finally {
+			clearTimeout(deadline);
+			await fs.promises.rm(attemptDirectory, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000, retry: 3},
 );

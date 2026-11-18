@@ -1,4 +1,4 @@
-import {Audio} from '@remotion/media';
+import {Audio, Video} from '@remotion/media';
 import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import type {ReactNode} from 'react';
 import {
@@ -8,6 +8,33 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+
+export const MOTION_BLUR_OUTRO_START_FRAME = 65;
+const OUTRO_SPIN_WHOOSH_OFFSET_SECONDS = 1.67;
+const OUTRO_SHRINK_START_SECONDS = 4.9;
+const OUTRO_SHRINK_END_SECONDS = 5.27;
+
+export const getMotionBlurOutroTriangleDurationInFrames = (fps: number) => {
+	const lastFrameWithBlur = Math.ceil(OUTRO_SHRINK_END_SECONDS * fps);
+	return lastFrameWithBlur + 2 - MOTION_BLUR_OUTRO_START_FRAME;
+};
+
+export const getMotionBlurOutroScale = (
+	frame: number,
+	fps: number,
+	endScale: number,
+) =>
+	interpolate(
+		frame,
+		[OUTRO_SHRINK_START_SECONDS * fps, OUTRO_SHRINK_END_SECONDS * fps],
+		[1, endScale],
+		{
+			easing: Easing.bezier(0.22, 1, 0.36, 1),
+			output: 'perceptual-scale',
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 
 const getBounceGeometry = (width: number, height: number) => {
 	const portrait = height > width;
@@ -20,6 +47,8 @@ const getBounceGeometry = (width: number, height: number) => {
 	const horizontalRange = width - tileWidth;
 	const verticalRange = height - tileHeight;
 	return {
+		panelWidth,
+		panelHeight,
 		centerX,
 		centerY,
 		tileWidth,
@@ -44,7 +73,7 @@ const BouncingPresenter = ({children}: {readonly children: ReactNode}) => {
 		horizontalSpeed,
 		verticalSpeed,
 	} = getBounceGeometry(width, height);
-	const bounceSeconds = Math.max(0, frame / fps - 5.8);
+	const bounceSeconds = Math.max(0, frame / fps - OUTRO_SHRINK_END_SECONDS);
 	const horizontalTravel =
 		centerX - tileWidth / 2 - bounceSeconds * horizontalSpeed;
 	const verticalTravel =
@@ -65,12 +94,7 @@ const BouncingPresenter = ({children}: {readonly children: ReactNode}) => {
 				inset: 0,
 				transformOrigin: `${centerX}px ${centerY}px`,
 				translate: `${x + tileWidth / 2 - centerX}px ${y + tileHeight / 2 - centerY}px`,
-				scale: interpolate(frame, [5.43 * fps, 5.8 * fps], [1, 0.35], {
-					easing: Easing.bezier(0.22, 1, 0.36, 1),
-					output: 'perceptual-scale',
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
+				scale: getMotionBlurOutroScale(frame, fps, 0.35),
 			}}
 		>
 			{children}
@@ -94,7 +118,7 @@ const BounceSounds = () => {
 		},
 	]
 		.flatMap(({start, range, speed}) => {
-			const firstImpact = 5.8 + start / speed;
+			const firstImpact = OUTRO_SHRINK_END_SECONDS + start / speed;
 			const interval = range / speed;
 			return Array.from(
 				{
@@ -138,20 +162,52 @@ const BounceSounds = () => {
 export const MotionBlurOutro = ({children}: {readonly children: ReactNode}) => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
+	const {panelWidth, panelHeight} = getBounceGeometry(width, height);
+	const shrinkStartFrame = OUTRO_SHRINK_START_SECONDS * fps;
 
 	return (
 		<>
+			<Video
+				name="6 - Spinning Remotion triangle"
+				src="https://remotion.media/motion-blur-2026-11-17/outro-spinning-triangle-f54e5691f7e5.webm"
+				from={MOTION_BLUR_OUTRO_START_FRAME}
+				durationInFrames={getMotionBlurOutroTriangleDurationInFrames(fps)}
+				muted
+				objectFit="contain"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: panelWidth,
+					height: panelHeight,
+				}}
+			/>
 			<HtmlInCanvasMotionBlur
 				name="6 - Bouncing presenter motion blur"
 				width={width}
 				height={height}
 				shutterAngle={285}
 				samples={12}
-				disabled={frame < 5.43 * fps}
+				disabled={frame < shrinkStartFrame}
 				disabledInPreview={false}
 			>
 				<BouncingPresenter>{children}</BouncingPresenter>
 			</HtmlInCanvasMotionBlur>
+			<Audio
+				name="Triangle spin whoosh"
+				src="https://remotion.media/motion-blur-2026-11-17/sound-lab-silk-9afd9eb970ab.wav"
+				from={
+					MOTION_BLUR_OUTRO_START_FRAME +
+					Math.round(OUTRO_SPIN_WHOOSH_OFFSET_SECONDS * fps)
+				}
+				volume={0.18}
+			/>
+			<Audio
+				name="Scale-down dip"
+				src="https://remotion.media/motion-blur-2026-11-17/sound-lab-dip-06a6a3ecd4b3.wav"
+				from={Math.round(shrinkStartFrame)}
+				volume={0.14}
+			/>
 			<BounceSounds />
 		</>
 	);

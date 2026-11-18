@@ -228,14 +228,48 @@ export function setBorderRadius({
 		},
 	};
 
-	drawRoundedRectPath({
-		ctx,
-		x: boundingRect.left,
-		y: boundingRect.top,
-		width: boundingRect.width,
-		height: boundingRect.height,
-		borderRadius: actualBorderRadius,
-	});
+	if (
+		typeof ctx.roundRect === 'function' &&
+		Object.values(actualBorderRadius).some(
+			(corner) => corner.horizontal !== 0 || corner.vertical !== 0,
+		)
+	) {
+		ctx.beginPath();
+		ctx.roundRect(
+			boundingRect.left,
+			boundingRect.top,
+			boundingRect.width,
+			boundingRect.height,
+			[
+				{
+					x: actualBorderRadius.topLeft.horizontal,
+					y: actualBorderRadius.topLeft.vertical,
+				},
+				{
+					x: actualBorderRadius.topRight.horizontal,
+					y: actualBorderRadius.topRight.vertical,
+				},
+				{
+					x: actualBorderRadius.bottomRight.horizontal,
+					y: actualBorderRadius.bottomRight.vertical,
+				},
+				{
+					x: actualBorderRadius.bottomLeft.horizontal,
+					y: actualBorderRadius.bottomLeft.vertical,
+				},
+			],
+		);
+	} else {
+		drawRoundedRectPath({
+			ctx,
+			x: boundingRect.left,
+			y: boundingRect.top,
+			width: boundingRect.width,
+			height: boundingRect.height,
+			borderRadius: actualBorderRadius,
+		});
+	}
+
 	ctx.clip();
 
 	return () => {

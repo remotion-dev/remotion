@@ -1,4 +1,6 @@
+import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import {
+	CanvasImage,
 	Easing,
 	Img,
 	Interactive,
@@ -8,84 +10,95 @@ import {
 } from 'remotion';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 
-const MotionBlurDocumentationContent = () => {
+const scrollStartInSeconds = 0.65;
+const zoomEndInSeconds = 4.1;
+
+const MotionBlurGuide = ({isMoving}: {readonly isMoving: boolean}) => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
+	const pageScale = width / 900;
+	const usageCenterY = 2919 * pageScale;
+	const zoomFrames = [2.5 * fps, zoomEndInSeconds * fps];
+	const easing = Easing.bezier(0.42, 0, 0.58, 1);
+	const GuideImage = isMoving ? Img : CanvasImage;
 
 	return (
 		<div
 			style={{
 				position: 'absolute',
 				inset: 0,
-				backgroundColor: '#F8FAFC',
 				overflow: 'hidden',
 			}}
 		>
 			<div
 				style={{
 					position: 'absolute',
-					left: '50%',
-					top: '50%',
-					width: 1080,
-					height: 960,
-					translate: '-50% -50%',
-					scale: Math.min(width / 1080, height / 960),
-					transformOrigin: '50% 50%',
-					perspective: 1800,
-					perspectiveOrigin: '50% 50%',
+					inset: '-25% 0',
+					overflow: 'hidden',
+					translate: interpolate(
+						frame,
+						zoomFrames,
+						[`${width * 0.166}px -22px`, `${width * 0.292}px -32px`],
+						{
+							easing,
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					rotate: EXPLORE_CAMERA_ANGLE,
+					scale:
+						1.2 *
+						interpolate(frame, zoomFrames, [1.16, 1.55], {
+							easing,
+							output: 'perceptual-scale',
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
 				}}
 			>
-				<Interactive.Div
-					name="Tilted motion blur documentation"
+				<GuideImage
+					name="Motion blur guide"
+					src="https://remotion.media/motion-blur-2026-11-17/motion-blur-guide-e2ee21b8ae72.png"
 					style={{
 						position: 'absolute',
-						inset: 0,
-						backgroundColor: '#FFFFFF',
-						borderRadius: 16,
-						boxShadow: '0 36px 110px rgba(0, 0, 0, 0.22)',
-						overflow: 'hidden',
-						rotate: EXPLORE_CAMERA_ANGLE,
-						scale: interpolate(
+						left: 0,
+						top: height / 4,
+						width,
+						height: 6408 * pageScale,
+						translate: interpolate(
 							frame,
-							[0, 0.5 * fps, 2.2 * fps, 4.8 * fps],
-							[1.08, 1.1, 1.28, 1.6],
+							[scrollStartInSeconds * fps, 2.8 * fps],
+							['0px 0px', `0px ${height / 2 - usageCenterY}px`],
 							{
-								easing: Easing.bezier(0.42, 0, 0.58, 1),
+								easing,
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							},
 						),
-						transformOrigin: '50% 50%',
-						opacity: interpolate(frame, [0, 0.2 * fps], [0, 1], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
 					}}
-				>
-					<Img
-						name="Motion blur guide in light mode"
-						src="https://remotion.media/motion-blur-2026-11-17/documentation-api-light-7cab3e0dc354.png"
-						style={{
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							width: 1080,
-							height: (1080 * 1800) / 860,
-							translate: interpolate(
-								frame,
-								[0, 0.5 * fps, 2.2 * fps, 4.8 * fps],
-								['90px 40px', '90px 40px', '110px -840px', '230px -1220px'],
-								{
-									easing: Easing.bezier(0.42, 0, 0.58, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
-						}}
-					/>
-				</Interactive.Div>
+				/>
 			</div>
 		</div>
+	);
+};
+
+const MotionBlurDocumentationContent = () => {
+	const frame = useCurrentFrame();
+	const {width, height, fps} = useVideoConfig();
+	const isMoving =
+		frame + 1 >= scrollStartInSeconds * fps && frame < zoomEndInSeconds * fps;
+
+	return (
+		<HtmlInCanvasMotionBlur
+			name="Guide scroll and zoom motion blur"
+			width={width}
+			height={height}
+			shutterAngle={240}
+			samples={12}
+			disabled={!isMoving}
+		>
+			<MotionBlurGuide isMoving={isMoving} />
+		</HtmlInCanvasMotionBlur>
 	);
 };
 

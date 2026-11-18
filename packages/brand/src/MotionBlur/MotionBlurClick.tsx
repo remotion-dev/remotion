@@ -34,13 +34,12 @@ const MotionBlurClickContent = () => {
 					name="Motion blur button click"
 					width={1262}
 					height={1184}
-					cropLeft={0.195}
+					cropLeft={0.199}
 					cropRight={0.015}
-					cropTop={0.285}
-					cropBottom={0.498}
+					cropBottom={0.334}
 					style={{
-						translate: '104px -17px',
-						scale: 1.6,
+						translate: '40px -9px',
+						scale: 1.47,
 						rotate: '0.904608 0.351506 -0.241096 27.995464deg',
 						transformOrigin: '52% 42%',
 					}}
