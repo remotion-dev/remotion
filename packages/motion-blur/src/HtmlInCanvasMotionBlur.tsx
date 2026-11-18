@@ -40,6 +40,7 @@ const htmlInCanvasMotionBlurSchema = {
 	shutterAngle: {
 		type: 'number',
 		min: 0,
+		max: 360,
 		step: 1,
 		default: 180,
 		description: 'Shutter angle',
@@ -182,10 +183,11 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	if (
 		typeof shutterAngle !== 'number' ||
 		!Number.isFinite(shutterAngle) ||
-		shutterAngle < 0
+		shutterAngle < 0 ||
+		shutterAngle > 360
 	) {
 		throw new TypeError(
-			`"shutterAngle" must be a non-negative finite number, but got ${String(shutterAngle)}`,
+			`"shutterAngle" must be between 0 and 360, but got ${String(shutterAngle)}`,
 		);
 	}
 

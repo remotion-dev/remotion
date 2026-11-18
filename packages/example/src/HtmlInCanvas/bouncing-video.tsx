@@ -50,7 +50,7 @@ export const BouncingVideoMotionBlur: React.FC = () => {
 				name="Video motion blur"
 				width={1280}
 				height={720}
-				shutterAngle={4000}
+				shutterAngle={360}
 				samples={16}
 				disabled={false}
 				disabledInPreview={false}

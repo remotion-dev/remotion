@@ -41,7 +41,7 @@ export const RemotionTriangleMotionBlur = () => {
 				width={width}
 				height={height}
 				playbackRate={0.25}
-				shutterAngle={2200}
+				shutterAngle={360}
 				samples={15}
 			>
 				<SpinningRemotionTriangle />
