@@ -1,4 +1,3 @@
-import {addEffectWithOptionalWrapper} from './add-effect';
 import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
@@ -209,7 +208,6 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
-	addEffectWithOptionalWrapper,
 	resolveCompositionImportFile,
 	RegistrationRequiresRefactorError,
 	computeEffectPropsStatusesFromContent,

@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals, createElement} from '@remotion/codemods';
+import {addEffect} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddEffectRequest,
@@ -50,25 +50,13 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = CodemodsInternals.addEffectWithOptionalWrapper({
+			const result = addEffect({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
 				importName: effectName,
 				importPath: effectImportPath,
 				props: effectConfig,
-				wrapper: wrapInHtmlInCanvas
-					? createElement({
-							component: 'HtmlInCanvas',
-							importPath: 'remotion',
-							props: {
-								width: wrapInHtmlInCanvas.width,
-								height: wrapInHtmlInCanvas.height,
-								from: wrapInHtmlInCanvas.from,
-								durationInFrames: wrapInHtmlInCanvas.durationInFrames,
-								trimBefore: wrapInHtmlInCanvas.trimBefore,
-							},
-						})
-					: null,
+				wrapInHtmlInCanvas,
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, nodeLabel, logLine} =

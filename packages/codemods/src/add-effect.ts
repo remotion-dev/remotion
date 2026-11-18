@@ -1,6 +1,5 @@
-import type {CodemodElement} from './codemod-element';
-import type {CodemodProject} from './codemod-project';
-import {applyCodemodChanges} from './codemod-project';
+import {createElement} from './codemod-element';
+import {applyCodemodChanges, type CodemodProject} from './codemod-project';
 import type {CodemodValue} from './codemod-value';
 import {addEffect as addEffectInSource} from './effect-operations';
 import {getEffectSource} from './effect-references';
@@ -8,8 +7,8 @@ import {
 	getNodeEditResult,
 	getInsertedNodeReferences,
 	getUnchangedStructureRemappings,
-	getUpdatedNodeReference,
 	type NodeReference,
+	type NodeSourceEdit,
 } from './node-references';
 import {wrapNode} from './wrap-node';
 
@@ -19,6 +18,13 @@ export type AddEffectOptions<Project extends CodemodProject> = {
 	importName: string;
 	importPath: string;
 	props?: Record<string, CodemodValue>;
+	wrapInHtmlInCanvas: {
+		width: number;
+		height: number;
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 };
 
 export const addEffect = <Project extends CodemodProject>({
@@ -27,88 +33,90 @@ export const addEffect = <Project extends CodemodProject>({
 	importName,
 	importPath,
 	props = {},
+	wrapInHtmlInCanvas,
 }: AddEffectOptions<Project>) => {
-	const {filePath, input, length} = getEffectSource({project, node});
+	const wrapped =
+		wrapInHtmlInCanvas === null
+			? null
+			: wrapNode({
+					project,
+					node,
+					wrapper: createElement({
+						component: 'HtmlInCanvas',
+						importPath: 'remotion',
+						props: {
+							width: wrapInHtmlInCanvas.width,
+							height: wrapInHtmlInCanvas.height,
+							from: wrapInHtmlInCanvas.from,
+							durationInFrames: wrapInHtmlInCanvas.durationInFrames,
+							trimBefore: wrapInHtmlInCanvas.trimBefore,
+						},
+					}),
+				});
+	const target = wrapped
+		? getInsertedNodeReferences(wrapped.nodePathRemappings)[0]
+		: node;
+	if (!target) {
+		throw new Error('Could not locate the inserted wrapper');
+	}
+
+	const {filePath, input, length} = getEffectSource({
+		project: wrapped ? applyCodemodChanges(project, wrapped.changes) : project,
+		node: target,
+	});
 	const {output, formatted, effectLabel, nodeLabel, logLine} =
 		addEffectInSource({
 			input,
-			sequenceNodePath: node.nodePath,
+			sequenceNodePath: target.nodePath,
 			effectName: importName,
 			effectImportPath: importPath,
 			effectConfig: props,
 		});
-	const result = getNodeEditResult({
-		project,
-		edits: [
-			{
-				filePath,
-				output,
-				nodePathRemappings: getUnchangedStructureRemappings({
-					input,
-					output,
-				}).map((remapping) => ({...remapping, effectsOnly: true as const})),
-			},
-		],
-	});
+	const effectRemappings = getUnchangedStructureRemappings({input, output});
+	let nodePathRemappings: NodeSourceEdit['nodePathRemappings'] =
+		effectRemappings.map((remapping) => ({
+			...remapping,
+			effectsOnly: true,
+		}));
+	if (wrapped) {
+		const effectsByOldPath = new Map(
+			effectRemappings.map((remapping) => [
+				JSON.stringify(remapping.oldNodePath),
+				remapping,
+			]),
+		);
+		const wrappedPaths = new Set(
+			wrapped.nodePathRemappings.map(({newNodePath}) =>
+				JSON.stringify(newNodePath),
+			),
+		);
+		nodePathRemappings = [
+			...wrapped.nodePathRemappings.map((remapping) => {
+				const next = effectsByOldPath.get(
+					JSON.stringify(remapping.newNodePath),
+				);
+				return next ? {...remapping, newNodePath: next.newNodePath} : remapping;
+			}),
+			...effectRemappings.filter(
+				({oldNodePath}) => !wrappedPaths.has(JSON.stringify(oldNodePath)),
+			),
+		];
+	}
+
+	const effectNodePath = effectRemappings.find(
+		({oldNodePath}) =>
+			JSON.stringify(oldNodePath) === JSON.stringify(target.nodePath),
+	)?.newNodePath;
 	return {
-		...result,
+		...getNodeEditResult({
+			project,
+			edits: [{filePath, output, nodePathRemappings}],
+		}),
 		editDetails: [{filePath, formatted, effectLabel, nodeLabel, logLine}],
 		insertedEffect: {
-			...getUpdatedNodeReference({project, ...result, node}),
+			filePath,
+			nodePath: effectNodePath ?? target.nodePath,
 			effectIndex: length,
 		},
-	};
-};
-
-export const addEffectWithOptionalWrapper = <Project extends CodemodProject>({
-	wrapper,
-	...options
-}: AddEffectOptions<Project> & {wrapper: CodemodElement | null}) => {
-	if (wrapper === null) {
-		return addEffect(options);
-	}
-
-	const wrapped = wrapNode({...options, wrapper});
-	const [insertedNode] = getInsertedNodeReferences(wrapped.nodePathRemappings);
-	if (!insertedNode) {
-		throw new Error('Could not locate the inserted wrapper');
-	}
-
-	const added = addEffect({
-		...options,
-		project: applyCodemodChanges(options.project, wrapped.changes),
-		node: insertedNode,
-	});
-	const effectRemappings = new Map(
-		added.nodePathRemappings.map((remapping) => [
-			JSON.stringify(remapping.oldNodePath),
-			remapping,
-		]),
-	);
-	const wrappedPaths = new Set(
-		wrapped.nodePathRemappings.map(({newNodePath}) =>
-			JSON.stringify(newNodePath),
-		),
-	);
-	const nodePathRemappings = [
-		...wrapped.nodePathRemappings.map((remapping) => {
-			const next = effectRemappings.get(JSON.stringify(remapping.newNodePath));
-			return next ? {...remapping, newNodePath: next.newNodePath} : remapping;
-		}),
-		...added.nodePathRemappings
-			.filter(({oldNodePath}) => !wrappedPaths.has(JSON.stringify(oldNodePath)))
-			.map(({effectsOnly: _effectsOnly, ...remapping}) => remapping),
-	];
-	const output = added.changes[0]?.nextContents;
-	if (output === null || output === undefined) {
-		throw new Error('Could not add the effect to the wrapper');
-	}
-
-	return {
-		...added,
-		...getNodeEditResult({
-			project: options.project,
-			edits: [{filePath: insertedNode.filePath, output, nodePathRemappings}],
-		}),
 	};
 };

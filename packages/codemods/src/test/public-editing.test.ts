@@ -461,6 +461,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	const project = makeProject();
 	const node = findNode(project, 'AbsoluteFill');
 	const first = addEffect({
+		wrapInHtmlInCanvas: null,
 		project,
 		node,
 		importName: 'blur',
@@ -469,6 +470,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	});
 	const afterFirst = applyCodemodChanges(project, first.changes);
 	const second = addEffect({
+		wrapInHtmlInCanvas: null,
 		project: afterFirst,
 		node: first.insertedEffect,
 		importName: 'tint',
