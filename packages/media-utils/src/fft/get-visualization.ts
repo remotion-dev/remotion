@@ -47,6 +47,10 @@ export const getVisualization = ({
 
 	const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
 
+	if (start + sampleSize / 2 <= 0) {
+		return new Array(sampleSize / 2).fill(0);
+	}
+
 	const actualStart = Math.max(0, start - sampleSize / 2);
 
 	const ints = new Int16Array({
