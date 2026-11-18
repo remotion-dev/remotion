@@ -1,0 +1,165 @@
+{
+	"source": "100gb-video-rec709.mp4",
+	"duration": 1185.05,
+	"method": "20-second fullclip contact sheets plus5-second targetedframes; transcripts used asretakecues",
+	"scenes": [
+		{
+			"id": "laptop-power",
+			"title": "Laptop already out; connect power",
+			"start": 22,
+			"end": 52,
+			"recommendedIn": 31,
+			"recommendedOut": 51,
+			"confidence": "high",
+			"evidence": "Laptop present at frame0; power strip and adapter are attached during22\u201351. Getting laptop out is absent."
+		},
+		{
+			"id": "usb-c-adapter",
+			"title": "USB-C to USB-A adapter",
+			"start": 54,
+			"end": 64,
+			"recommendedIn": 54,
+			"recommendedOut": 63,
+			"confidence": "high",
+			"evidence": "Adapter held toward camera at55, plugged at60."
+		},
+		{
+			"id": "usb-cable",
+			"title": "USB cable to the adapter",
+			"start": 73,
+			"end": 82,
+			"recommendedIn": 74,
+			"recommendedOut": 82,
+			"confidence": "high",
+			"evidence": "Both USB cable plugs shown at75, attached at80."
+		},
+		{
+			"id": "enttec",
+			"title": "ENTTEC USB to DMX",
+			"start": 89,
+			"end": 102,
+			"recommendedIn": 90,
+			"recommendedOut": 102,
+			"confidence": "high",
+			"evidence": "USB socket/connector shown at90, brand/interface at95, connected at100."
+		},
+		{
+			"id": "five-three-pin",
+			"title": "5-pin to 3-pin DMX adapter",
+			"start": 125,
+			"end": 140,
+			"recommendedIn": 126.5,
+			"recommendedOut": 139.5,
+			"confidence": "high",
+			"evidence": "Adapter and ENTTEC shown clearly at130; mating at135. Spoken retry starts140.4 so exclude it."
+		},
+		{
+			"id": "dmx-connectors",
+			"title": "Join the 3-pin DMX cable",
+			"start": 171.5,
+			"end": 185.5,
+			"recommendedIn": 171.5,
+			"recommendedOut": 185.5,
+			"confidence": "high",
+			"evidence": "This is the requested retake after do-not-use cue166.7. Connectors held at175, mated180, placed185."
+		},
+		{
+			"id": "first-light",
+			"title": "Connect first moving head",
+			"start": 185.5,
+			"end": 223,
+			"recommendedIn": 185.5,
+			"recommendedOut": 203.5,
+			"confidence": "high",
+			"evidence": "Light held for rear connector view195 then plugged at200. Separate power action206\u2013223."
+		},
+		{
+			"id": "terminator-demo",
+			"title": "DMX terminator demonstration (one-light test)",
+			"start": 225,
+			"end": 246,
+			"recommendedIn": 225,
+			"recommendedOut": 238,
+			"confidence": "high",
+			"evidence": "Terminator shown at230 and inserted235. Removed265 to extend chain; this is not final chain termination."
+		},
+		{
+			"id": "second-light-add",
+			"title": "Add second moving head",
+			"start": 253.5,
+			"end": 338,
+			"recommendedIn": 257,
+			"recommendedOut": 274,
+			"connectionIn": 322,
+			"connectionOut": 338,
+			"confidence": "high",
+			"evidence": "Second light placed260, terminator removed265, newlight connections270; wiring later. Second moving head visibly lit335."
+		},
+		{
+			"id": "led-bar",
+			"title": "Add LED bar",
+			"start": 343,
+			"end": 465,
+			"recommendedIn": 345,
+			"recommendedOut": 365,
+			"connectionIn": 438,
+			"connectionOut": 462,
+			"confidence": "high",
+			"evidence": "Bar rear panel held350, placed360; rear socket connection445 and460. First reliable illuminatedbar seen~950; do not claim it working immediately."
+		},
+		{
+			"id": "wash-panel",
+			"title": "Add rectangular LED wash panel",
+			"start": 489,
+			"end": 552,
+			"recommendedIn": 491,
+			"recommendedOut": 507,
+			"connectionIn": 528,
+			"connectionOut": 544,
+			"confidence": "high",
+			"evidence": "Panel held495 and laidback-up505; hands plugging rear panel535. More rework later~680\u2013740."
+		},
+		{
+			"id": "laser",
+			"title": "Add yellow-label laser fixture",
+			"start": 575,
+			"end": 615,
+			"recommendedIn": 575,
+			"recommendedOut": 607,
+			"connectionIn": 592,
+			"connectionOut": 608,
+			"confidence": "medium",
+			"evidence": "Small yellow-warning-label box placed580, connections around600. Exact model not established."
+		},
+		{
+			"id": "rewire",
+			"title": "Untangle and revise the DMX chain",
+			"start": 615,
+			"end": 950,
+			"recommendedIn": 835,
+			"recommendedOut": 855,
+			"confidence": "high",
+			"evidence": "Repeated panel/bar/laser rewiring; good candidate for timelapse, not another fixtureaddition."
+		},
+		{
+			"id": "completed-setup",
+			"title": "Full setup running",
+			"start": 951,
+			"end": 1185.05,
+			"recommendedIn": 1170,
+			"recommendedOut": 1185,
+			"confidence": "high",
+			"evidence": "LEDbar illuminated950+, allfixtures present; clear final wide1170\u20131185."
+		},
+		{
+			"id": "final-terminator",
+			"title": "Final chain terminator insertion not yet confirmed",
+			"start": 1040,
+			"end": 1170,
+			"recommendedIn": null,
+			"recommendedOut": null,
+			"confidence": "low",
+			"evidence": "Coarse review shows cablehandling and connectors, not a clearly identifiable terminator. Do not label any finalinsertion without detailreview."
+		}
+	]
+}

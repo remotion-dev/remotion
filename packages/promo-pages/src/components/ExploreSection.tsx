@@ -28,7 +28,7 @@ const videoSources: Record<string, string> = {
 };
 
 const imageSources: Record<string, string> = {
-	SDK: 'https://remotion.media/explore-remotion/sdk-code-dark-plus-2026-11-04-785159157fed.png',
+	SDK: 'https://remotion.media/explore-remotion/sdk-code-github-dark-bc9ec0a5370f.png',
 };
 
 export const ExploreSection: React.FC = () => {

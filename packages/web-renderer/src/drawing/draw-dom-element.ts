@@ -31,14 +31,150 @@ const getReadableImageError = (
 	return null;
 };
 
+const drawSvgThroughReadbackCanvas = ({
+	drawable,
+	fitted,
+	context,
+}: {
+	drawable: HTMLImageElement;
+	fitted: ReturnType<typeof fitSvgIntoItsContainer>;
+	context: OffscreenCanvasRenderingContext2D;
+}) => {
+	const {width, height} = context.canvas;
+	const transform = context.getTransform();
+	let left = 0;
+	let top = 0;
+	let right = width;
+	let bottom = height;
+	// Effects can paint outside the image's transformed rectangle. Keep their
+	// existing full-surface transfer until their paint bounds are known.
+	if (
+		(typeof context.filter !== 'string' || context.filter === 'none') &&
+		(context.shadowColor === 'rgba(0, 0, 0, 0)' ||
+			context.shadowColor === 'transparent')
+	) {
+		const corners = [
+			[fitted.left, fitted.top],
+			[fitted.left + fitted.width, fitted.top],
+			[fitted.left, fitted.top + fitted.height],
+			[fitted.left + fitted.width, fitted.top + fitted.height],
+		].map(([x, y]) => ({
+			x: transform.a * x + transform.c * y + transform.e,
+			y: transform.b * x + transform.d * y + transform.f,
+		}));
+		if (
+			corners.every(
+				(point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+			)
+		) {
+			left = Math.max(
+				0,
+				Math.min(
+					width,
+					Math.floor(Math.min(...corners.map((point) => point.x))),
+				),
+			);
+			top = Math.max(
+				0,
+				Math.min(
+					height,
+					Math.floor(Math.min(...corners.map((point) => point.y))),
+				),
+			);
+			right = Math.min(
+				width,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.x)))),
+			);
+			bottom = Math.min(
+				height,
+				Math.max(0, Math.ceil(Math.max(...corners.map((point) => point.y)))),
+			);
+		}
+	}
+
+	const scratchWidth = right - left;
+	const scratchHeight = bottom - top;
+	if (
+		context.globalCompositeOperation !== 'source-over' ||
+		width <= 0 ||
+		height <= 0 ||
+		scratchWidth > 16384 ||
+		scratchHeight > 16384 ||
+		scratchWidth * scratchHeight > 16 * 1024 ** 2
+	)
+		return false;
+	if (scratchWidth <= 0 || scratchHeight <= 0) return true;
+	const scratch = new OffscreenCanvas(scratchWidth, scratchHeight);
+	try {
+		const readbackContext = scratch.getContext('2d', {
+			alpha: true,
+			willReadFrequently: true,
+		});
+		if (!readbackContext) return false;
+		readbackContext.drawImage(
+			context.canvas,
+			left,
+			top,
+			scratchWidth,
+			scratchHeight,
+			0,
+			0,
+			scratchWidth,
+			scratchHeight,
+		);
+		readbackContext.setTransform(
+			transform.a,
+			transform.b,
+			transform.c,
+			transform.d,
+			transform.e - left,
+			transform.f - top,
+		);
+		readbackContext.globalAlpha = context.globalAlpha;
+		readbackContext.filter = context.filter;
+		readbackContext.shadowColor = context.shadowColor;
+		readbackContext.shadowBlur = context.shadowBlur;
+		readbackContext.shadowOffsetX = context.shadowOffsetX;
+		readbackContext.shadowOffsetY = context.shadowOffsetY;
+		readbackContext.drawImage(
+			drawable,
+			fitted.left,
+			fitted.top,
+			fitted.width,
+			fitted.height,
+		);
+		context.save();
+		try {
+			context.resetTransform();
+			const copyBounds = new Path2D();
+			copyBounds.rect(left, top, scratchWidth, scratchHeight);
+			context.clip(copyBounds);
+			context.globalCompositeOperation = 'copy';
+			context.globalAlpha = 1;
+			context.filter = 'none';
+			context.shadowColor = 'transparent';
+			context.drawImage(scratch, left, top);
+		} finally {
+			context.restore();
+		}
+
+		return true;
+	} finally {
+		scratch.width = 0;
+		scratch.height = 0;
+	}
+};
+
 /**
  * Draw an SVG element using "contain" behavior (the default for SVGs).
  */
 const drawSvg = ({
+	readback,
 	drawable,
 	dimensions,
 	contextToDraw,
 }: {
+	readback: boolean;
 	drawable: HTMLImageElement;
 	dimensions: DOMRect;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
@@ -50,6 +186,16 @@ const drawSvg = ({
 			height: drawable.height,
 		},
 	});
+	if (
+		readback &&
+		drawSvgThroughReadbackCanvas({
+			drawable,
+			fitted,
+			context: contextToDraw,
+		})
+	)
+		return;
+
 	contextToDraw.drawImage(
 		drawable,
 		fitted.left,
@@ -211,7 +357,18 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		// Handle SVG elements separately - they use "contain" behavior by default
 		if (node instanceof SVGSVGElement) {
 			const drawable = await turnSvgIntoDrawable(node);
-			drawSvg({drawable, dimensions, contextToDraw});
+			const userAgent =
+				node.ownerDocument.defaultView?.navigator.userAgent ?? '';
+			drawSvg({
+				drawable,
+				dimensions,
+				contextToDraw,
+				readback:
+					/AppleWebKit/.test(userAgent) &&
+					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
+					Boolean(node.querySelector('text')) &&
+					!node.querySelector('feImage'),
+			});
 			return;
 		}
 

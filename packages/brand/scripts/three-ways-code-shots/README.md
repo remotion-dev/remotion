@@ -18,7 +18,7 @@ bun scripts/three-ways-code-shots/capture.ts /tmp/three-ways-code
 
 The shared `../capture-code.ts` pipeline uses Remotion's bundled browser,
 waits for Monaco and fonts, and saves PNGs at 3× density. Both this capture and
-the SDK capture use the same Code Hike `dark-plus` tokens and editor styling.
+the SDK capture use the same Shiki `github-dark` tokens and editor styling.
 
 | Screenshot | Source                                                              | Local frames |
 | ---------- | ------------------------------------------------------------------- | ------------ |
