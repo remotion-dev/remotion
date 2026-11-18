@@ -14,15 +14,22 @@ import {BLUE} from './colors';
 import {transformAroundItself} from './element';
 import {Faces} from './Faces';
 import {extrudeElement} from './join-inbetween-tiles';
-import {rotateX, scaled} from './matrix';
+import {rotateX, rotateY, scaled} from './matrix';
 import {SelectionOutline} from './SelectionOutline';
 
 export const RemotionTriangle: React.FC<{
 	readonly frame?: number;
+	readonly rotationY: number | null;
 	readonly scale: number | null;
 	readonly outlineStrokeWidth: number | null;
 	readonly outlineHandleSize: number | null;
-}> = ({frame: frameOverride, scale, outlineStrokeWidth, outlineHandleSize}) => {
+}> = ({
+	frame: frameOverride,
+	rotationY,
+	scale,
+	outlineStrokeWidth,
+	outlineHandleSize,
+}) => {
 	const currentFrame = useCurrentFrame();
 	const frame = frameOverride ?? currentFrame;
 	const {fps} = useVideoConfig();
@@ -70,6 +77,7 @@ export const RemotionTriangle: React.FC<{
 		[
 			scaled(interpolate(progress, [0, 1], [0, 1])),
 			rotateX(interpolate(progress, [0, 1], [-Math.PI, 0])),
+			rotateY(rotationY ?? 0),
 		],
 	);
 
@@ -113,6 +121,7 @@ export const RemotionTriangleComposition: React.FC = () => {
 			id="RemotionTriangle"
 			component={RemotionTriangle}
 			defaultProps={{
+				rotationY: null,
 				scale: null,
 				outlineStrokeWidth: null,
 				outlineHandleSize: null,
