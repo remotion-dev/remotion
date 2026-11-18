@@ -47,7 +47,9 @@
 		"react-dom": "catalog:",
 		"three": "catalog:",
 		"vitest": "catalog:",
-		"zod": "catalog:"
+		"zod": "catalog:",
+		"pngjs": "7.0.0",
+		"@types/pngjs": "6.0.5"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",
