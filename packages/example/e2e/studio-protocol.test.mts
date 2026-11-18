@@ -151,6 +151,12 @@ const CloseupPlaceholder = () => {
 
 	const studioPort = 3009;
 	const studioUrl = `http://localhost:${studioPort}`;
+	const discoverStudio = () =>
+		nodeFetch(`${studioUrl}/api/studio-protocol`, {
+			method: 'GET',
+			headers: {Origin: 'http://localhost:4000'},
+			body: null,
+		}).then((response) => response.json());
 	const studioProcess = spawn(
 		remotionBin,
 		[
@@ -290,18 +296,10 @@ const CloseupPlaceholder = () => {
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);
 		await expect
-			.poll(
-				() =>
-					nodeFetch(`${studioUrl}/api/studio-protocol`, {
-						method: 'GET',
-						headers: {Origin: 'http://localhost:4000'},
-						body: null,
-					}).then((response) => response.json()),
-				{
-					message: 'Studio should expose MyComp as an installable target',
-					timeout: 30_000,
-				},
-			)
+			.poll(discoverStudio, {
+				message: 'Studio should expose MyComp as an installable target',
+				timeout: 30_000,
+			})
 			.toMatchObject({
 				protocol: 'remotion-studio-protocol',
 				capabilities: [
@@ -702,6 +700,26 @@ const CloseupPlaceholder = () => {
 			),
 		).toContain('ProtocolElement as ProtocolElement2');
 
+		await expect(
+			studioPage
+				.locator('.remotion-studio-composition-container')
+				.getByText('Installed through protocol', {exact: true}),
+		).toHaveCount(2);
+		await expect
+			.poll(discoverStudio, {
+				message: 'Studio should expose MyComp after the previous install',
+				timeout: 30_000,
+			})
+			.toMatchObject({
+				capabilities: expect.arrayContaining([
+					expect.objectContaining({
+						type: 'install-element',
+						target: expect.objectContaining({
+							compositionId: 'MyComp',
+						}),
+					}),
+				]),
+			});
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await newCompositionDialog
 			.getByRole('radio', {name: 'Replace existing'})
@@ -984,19 +1002,19 @@ const CloseupPlaceholder = () => {
 	} catch (error) {
 		throw new Error(`${String(error)}\nTemporary Studio logs:\n${studioLogs}`);
 	} finally {
-		await Promise.race([
-			context.close().catch(() => undefined),
-			new Promise((resolve) => setTimeout(resolve, 1000)),
-		]);
-		senderServer.closeAllConnections();
-		await new Promise<void>((resolve) => senderServer.close(() => resolve()));
-		if (studioProcess.exitCode === null) {
-			studioProcess.kill('SIGTERM');
+		try {
+			await context.close();
+		} finally {
+			senderServer.closeAllConnections();
+			await new Promise<void>((resolve) => senderServer.close(() => resolve()));
+			if (studioProcess.exitCode === null) {
+				studioProcess.kill('SIGTERM');
+			}
+			await new Promise<void>((resolve) => {
+				studioProcess.once('exit', () => resolve());
+				setTimeout(resolve, 5000);
+			});
+			fs.rmSync(temporaryProject, {force: true, recursive: true});
 		}
-		await new Promise<void>((resolve) => {
-			studioProcess.once('exit', () => resolve());
-			setTimeout(resolve, 5000);
-		});
-		fs.rmSync(temporaryProject, {force: true, recursive: true});
 	}
 });
