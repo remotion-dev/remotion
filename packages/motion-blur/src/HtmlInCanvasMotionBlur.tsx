@@ -18,6 +18,11 @@ import {
 	createMotionBlurCompositor,
 	getMotionBlurGpuDevice,
 } from './motion-blur-compositor';
+import {
+	MotionBlurSampleProvider,
+	useMotionBlurRegistry,
+	type MotionBlurRegistry,
+} from './motion-blur-context';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 	InteractivePremountProps & {
@@ -74,6 +79,7 @@ type MotionBlurSampleProps = {
 	readonly shutterInFrames: number;
 	readonly firstFrame: number;
 	readonly lastFrame: number;
+	readonly registry: MotionBlurRegistry;
 };
 
 const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
@@ -85,16 +91,19 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 	shutterInFrames,
 	firstFrame,
 	lastFrame,
+	registry,
 }) => {
 	const frame = useCurrentFrame();
-	const sampleFrame = Math.max(
-		firstFrame,
-		Math.min(
-			lastFrame,
-			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
-		),
-	);
-	const isRepresentativeSample = index === Math.floor(count / 2);
+	const isRepresentativeSample = index === 0;
+	const sampleFrame = isRepresentativeSample
+		? frame
+		: Math.max(
+				firstFrame,
+				Math.min(
+					lastFrame,
+					frame + ((index - 0.5) / count - 0.5) * shutterInFrames,
+				),
+			);
 
 	return (
 		<div
@@ -116,11 +125,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			<Internals.DisableSequenceRegistrationProvider
-				disabled={!isRepresentativeSample}
-			>
-				<Freeze frame={sampleFrame}>{children}</Freeze>
-			</Internals.DisableSequenceRegistrationProvider>
+			<Freeze frame={sampleFrame} active={!isRepresentativeSample}>
+				<MotionBlurSampleProvider sampleIndex={index} registry={registry}>
+					{children}
+				</MotionBlurSampleProvider>
+			</Freeze>
 		</div>
 	);
 };
@@ -156,6 +165,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
+	const registry = useMotionBlurRegistry('HtmlInCanvasMotionBlur');
 	const gpuDeviceRef = useRef<GPUDevice | null>(null);
 	const compositorRef = useRef<{
 		compositor: ReturnType<typeof createMotionBlurCompositor>;
@@ -190,6 +200,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		!videoEnabled
 			? 1
 			: samples;
+	const renderedSampleCount = actualSamples === 1 ? 1 : actualSamples + 1;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(
@@ -229,7 +240,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 
 			const captureElements = Array.from(layoutCanvas.children);
 			if (
-				captureElements.length !== actualSamples ||
+				captureElements.length !== renderedSampleCount ||
 				captureElements[0] !== element
 			) {
 				throw new Error('Motion blur samples are not ready to paint');
@@ -280,32 +291,29 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			const {compositor} = compositorRef.current;
 			// Canvas2D quantizes globalAlpha to eight bits, including float16 targets.
 			const sampleWeight = Math.round(255 / actualSamples) / 255;
-			for (const [index, sampleElement] of captureElements.entries()) {
-				const image =
-					index === 0
-						? elementImage
-						: layoutCanvas.captureElementImage(sampleElement);
+			for (const [index, sampleElement] of captureElements.slice(1).entries()) {
+				const image = layoutCanvas.captureElementImage(sampleElement);
 				try {
 					// ElementImage can only be drawn back to its originating canvas.
 					context.reset();
 					context.drawElementImage(image, 0, 0);
 					compositor.addSample(canvas, index, sampleWeight);
 				} finally {
-					if (index !== 0) {
-						image.close();
-					}
+					image.close();
 				}
 			}
 
 			context.reset();
 			context.drawImage(compositor.finish(), 0, 0);
 		},
-		[actualSamples, preferredBackend],
+		[actualSamples, preferredBackend, renderedSampleCount],
 	);
 
 	const passThrough = Internals.useHtmlInCanvasUnsupportedMessage() !== null;
+	if (registry === null) return null;
+
 	const sampleElements = Array.from(
-		{length: passThrough ? 0 : actualSamples},
+		{length: passThrough ? 0 : renderedSampleCount},
 		(_, index) => {
 			return (
 				<MotionBlurSample
@@ -317,6 +325,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 					shutterInFrames={shutterInFrames}
 					firstFrame={firstFrame}
 					lastFrame={lastFrame}
+					registry={registry}
 				>
 					{children}
 				</MotionBlurSample>

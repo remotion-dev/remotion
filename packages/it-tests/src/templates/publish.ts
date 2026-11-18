@@ -1,5 +1,4 @@
 import {
-	chmodSync,
 	copyFileSync,
 	cpSync,
 	readFileSync,
@@ -265,12 +264,6 @@ const publishCanvasCapture = async () => {
 		path.join(packageDir, 'README.public.md'),
 		path.join(workingDir, 'README.md'),
 	);
-	const installBrowserPath = path.join(workingDir, 'install-browser.sh');
-	copyFileSync(
-		path.join(packageDir, 'scripts', 'install-browser.sh'),
-		installBrowserPath,
-	);
-	chmodSync(installBrowserPath, 0o755);
 	copyFileSync(
 		path.join(monorepoDir, 'LICENSE.md'),
 		path.join(workingDir, 'LICENSE.md'),
