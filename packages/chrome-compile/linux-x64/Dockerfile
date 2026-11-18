@@ -59,9 +59,18 @@ RUN apt-get update && apt-get install -y \
     libpam0g-dev \
     libpci-dev \
     libgbm-dev \
-    libva-dev \
     libxshmfence-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Chromium's AV1 encoder uses refresh_frame_flags, added in libva 2.15.
+# Ubuntu 22.04 ships 2.14. Chromium loads the host's VA driver at runtime.
+RUN cd /tmp && \
+    curl -fsSLO https://github.com/intel/libva/releases/download/2.15.0/libva-2.15.0.tar.bz2 && \
+    echo "258ed409458d3e7a000e1908bc852619615ee6a933359c745fcd93eb3e461eca  libva-2.15.0.tar.bz2" | sha256sum -c - && \
+    tar -xjf libva-2.15.0.tar.bz2 && cd libva-2.15.0 && \
+    ./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --disable-x11 --disable-glx --disable-wayland && \
+    make -j"$(nproc)" && make install && \
+    cd /tmp && rm -rf libva-2.15.0 libva-2.15.0.tar.bz2
 
 # --- Create python symlink (Ubuntu 22.04 has python3 only) ---
 RUN ln -sf /usr/bin/python3 /usr/bin/python

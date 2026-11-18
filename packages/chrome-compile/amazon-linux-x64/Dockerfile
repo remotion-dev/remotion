@@ -55,6 +55,7 @@ RUN dnf install -y \
     libjpeg-devel \
     libuuid-devel \
     libva-devel \
+    mesa-libgbm-devel \
     libXScrnSaver-devel \
     libxkbcommon-x11-devel \
     libxml2-devel \
