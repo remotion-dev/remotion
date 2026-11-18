@@ -11,9 +11,11 @@ import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {parseFilterOutsets} from './filter-outsets';
+import {getFilterCaptureRect} from './get-filter-capture-rect';
 import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
 import {
 	clipSourceRectToViewport,
+	isScaleTooBig,
 	projectSourceRectToViewport,
 } from './get-pretransform-rect';
 import {
@@ -124,6 +126,10 @@ export const processNode = async ({
 			precompositing.needsFilterPrecompositing
 				? parseFilterOutsets(precompositing.needsFilterPrecompositing)
 				: {left: 0, right: 0, top: 0, bottom: 0};
+		const knownFilterFootprint =
+			internalState.experimental3DRendering &&
+			precompositing.needsFilterPrecompositing !== null &&
+			!precompositing.needsFilterPrecompositing.includes('url(');
 		const captureViewport = internalState.experimental3DRendering
 			? new DOMRect(
 					parentRect.left - outsets.right,
@@ -158,20 +164,34 @@ export const processNode = async ({
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
-			const tentativePrecomposeRect = getPrecomposeRectFor3DTransform({
+			const filterPaintBounds =
+				internalState.experimental3DRendering && filterBounds
+					? getWiderRectAndExpand({
+							firstRect: precomposeRect,
+							secondRect: filterBounds,
+						})
+					: null;
+			const initialCapture = getPrecomposeRectFor3DTransform({
 				element,
 				parentRect: captureViewport,
 				matrix: totalMatrix,
 				onlyOwnPlane: preserves3D,
 				experimental3DRendering: internalState.experimental3DRendering,
-				sourceRect:
-					internalState.experimental3DRendering && filterBounds
-						? getWiderRectAndExpand({
-								firstRect: precomposeRect,
-								secondRect: filterBounds,
-							})
-						: null,
+				sourceRect: filterPaintBounds,
 			});
+			const tentativePrecomposeRect =
+				initialCapture ??
+				(knownFilterFootprint &&
+				filterPaintBounds &&
+				!isScaleTooBig(totalMatrix)
+					? getFilterCaptureRect({
+							paintBounds: filterPaintBounds,
+							matrix: totalMatrix,
+							viewport: parentRect,
+							previousCapture: null,
+							outsets,
+						})
+					: null);
 			if (!tentativePrecomposeRect) {
 				return {type: 'continue', cleanupAfterChildren: null};
 			}
@@ -225,11 +245,20 @@ export const processNode = async ({
 		if (internalState.experimental3DRendering) {
 			// Clip after every bounds union, including opacity and filter groups.
 			// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
-			const visibleSourceRect = clipSourceRectToViewport(
+			const previousCapture = clipSourceRectToViewport(
 				precomposeRect,
 				totalMatrix,
 				captureViewport,
 			);
+			const visibleSourceRect = knownFilterFootprint
+				? getFilterCaptureRect({
+						paintBounds: precomposeRect,
+						matrix: totalMatrix,
+						viewport: parentRect,
+						previousCapture,
+						outsets,
+					})
+				: previousCapture;
 			if (!visibleSourceRect)
 				return {
 					type: preserves3D ? 'continue' : 'skip-children',

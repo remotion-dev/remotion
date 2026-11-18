@@ -270,7 +270,9 @@ const planPreserve3DPlanes = ({
 				const paintRect = clipSourceRectToViewport(
 					paintBounds,
 					transforms.totalMatrix,
-					filterViewport,
+					transforms.precompositing.needsFilterPrecompositing?.includes('url(')
+						? filterViewport
+						: parentRect,
 				);
 				if (!paintRect) {
 					// An invisible own plane does not invalidate the other context planes.

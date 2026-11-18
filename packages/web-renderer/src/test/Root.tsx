@@ -184,6 +184,10 @@ import {
 	gridSamplerParent,
 	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
+import {
+	filterInputCases,
+	projectiveFilterInput,
+} from './fixtures/projective-filter-input';
 import {queuedFrameCapturePreview} from './fixtures/queued-frame-capture';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
@@ -691,6 +695,12 @@ export const Root: React.FC = () => {
 						{...backgroundImageMissingFilter(effect, scale)}
 					/>
 				)),
+			)}
+			{filterInputCases.flatMap(({kind}) =>
+				[false, true].map((preserving) => {
+					const fixture = projectiveFilterInput(kind, preserving);
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
 			)}
 			<Composition {...queuedFrameCapturePreview} />
 		</>
