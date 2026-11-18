@@ -623,6 +623,7 @@ test('does not create a nested HTML-in-canvas capture before Chrome 157', async 
 				},
 				layoutCanvas: outerLayoutCanvas,
 				wasDrawable: false,
+				paintTimedOut: false,
 			},
 			internalState,
 			logLevel: 'error',

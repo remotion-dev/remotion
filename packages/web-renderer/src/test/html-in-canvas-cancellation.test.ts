@@ -23,13 +23,15 @@ for (const stage of ['before request', 'waiting for paint', 'after paint']) {
 				controller.abort(reason);
 			}
 
+			const htmlInCanvasContext = {
+				layoutCanvas,
+				ctx: {reset, drawElementImage},
+				wasDrawable: false,
+				paintTimedOut: false,
+			} as unknown as HtmlInCanvasContext;
 			const capture = drawWithHtmlInCanvas({
 				transparent: true,
-				htmlInCanvasContext: {
-					layoutCanvas,
-					ctx: {reset, drawElementImage},
-					wasDrawable: false,
-				} as unknown as HtmlInCanvasContext,
+				htmlInCanvasContext,
 				element: {} as HTMLElement,
 				scaledWidth: 1,
 				scaledHeight: 1,
@@ -47,6 +49,7 @@ for (const stage of ['before request', 'waiting for paint', 'after paint']) {
 			expect(removePaint).toHaveBeenCalledWith('paint', expect.any(Function));
 			expect(removeAbort).toHaveBeenCalledWith('abort', expect.any(Function));
 			expect(vi.getTimerCount()).toBe(0);
+			expect(htmlInCanvasContext.paintTimedOut).toBe(false);
 			expect(reset).not.toHaveBeenCalled();
 			expect(drawElementImage).not.toHaveBeenCalled();
 			expect(layoutCanvas.requestPaint).toHaveBeenCalledTimes(
@@ -77,6 +80,7 @@ test('removes native paint and abort listeners if requestPaint throws', async ()
 				layoutCanvas,
 				ctx: {},
 				wasDrawable: false,
+				paintTimedOut: false,
 			} as unknown as HtmlInCanvasContext,
 			element: {} as HTMLElement,
 			scaledWidth: 1,

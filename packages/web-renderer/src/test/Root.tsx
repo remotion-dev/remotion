@@ -27,7 +27,7 @@ import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
-import {borderRadius} from './fixtures/border-radius';
+import {borderRadius, nativeRoundedClipping} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
@@ -527,6 +527,7 @@ export const Root: React.FC = () => {
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
+				<Composition {...nativeRoundedClipping} />
 				<Composition {...borderRadiusSimple} />
 				<Composition {...borderRadiusElliptical} />
 				<Composition {...borderRadiusDifferent} />
