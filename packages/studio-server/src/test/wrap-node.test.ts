@@ -36,7 +36,7 @@ export const Comp = ({portrait}: {portrait: boolean}) => {
         <Sequence
                 width={portrait ? 1080 : 960}
                 height={portrait ? 960 : 1080}
-                style={{left: 0, top: 0}}
+                style={{left: 24, top: 0, opacity: 0.5}}
             >
                 <div data-role="child" />
             </Sequence>
@@ -93,11 +93,12 @@ export const Comp = ({portrait}: {portrait: boolean}) => {
 				'            from={10}',
 				'            durationInFrames={30}',
 				'            trimBefore={10}',
+				"            style={{position: 'absolute', left: 24, top: 0}}",
 				'        >',
 				'            <Sequence',
 				'                width={portrait ? 1080 : 960}',
 				'                height={portrait ? 960 : 1080}',
-				'                style={{left: 0, top: 0}}',
+				'                style={{opacity: 0.5}}',
 				'            >',
 				'                <div data-role="child" />',
 				'            </Sequence>',

@@ -16,6 +16,7 @@ import {
 	getNodePathRemappings,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
+import {moveCanvasPosition} from './move-canvas-position';
 import {getNodeEditResult, type NodeReference} from './node-references';
 import {printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
@@ -304,7 +305,19 @@ export const wrapNode = <Project extends CodemodProject>({
 			? getLineIndent({input, offset: closingStart})
 			: indent;
 	const childIndent = `${indent}${unit}`;
-	const source = input.slice(start, end);
+	const position =
+		canvas && !('style' in wrapper.props)
+			? moveCanvasPosition(input, original)
+			: null;
+	const omissions = position?.omissions ?? [];
+	const source = applySourceEdits({
+		input: input.slice(start, end),
+		edits: omissions.map((range) => ({
+			start: range.start - start,
+			end: range.end - start,
+			replacement: '',
+		})),
+	});
 	// Keep whitespace that belongs to literal content byte-for-byte.
 	const preservedRanges: {
 		start: number;
@@ -350,8 +363,18 @@ export const wrapNode = <Project extends CodemodProject>({
 		},
 	});
 	let sourceOffset = 0;
+	let omittedLength = 0;
+	let omissionIndex = 0;
 	const childLines = source.split(/\r?\n/).map((line, index) => {
-		const lineStart = start + sourceOffset;
+		while (
+			omissionIndex < omissions.length &&
+			omissions[omissionIndex].start <= start + sourceOffset + omittedLength
+		) {
+			const range = omissions[omissionIndex++];
+			omittedLength += range.end - range.start;
+		}
+
+		const lineStart = start + sourceOffset + omittedLength;
 		const nextLineBreak = source.indexOf('\n', sourceOffset);
 		sourceOffset = nextLineBreak === -1 ? source.length : nextLineBreak + 1;
 		if (index === 0) {
@@ -385,6 +408,10 @@ export const wrapNode = <Project extends CodemodProject>({
 		opening.attributes?.unshift(
 			...(canvas.dimensions as NonNullable<typeof opening.attributes>),
 		);
+	}
+
+	if (position) {
+		opening.attributes?.push(position.wrapperStyle);
 	}
 
 	opening.selfClosing = false;
