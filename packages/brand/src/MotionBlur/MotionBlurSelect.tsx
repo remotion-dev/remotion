@@ -30,9 +30,9 @@ const MotionBlurSelectContent = () => {
 			>
 				<MotionBlurSelectCaptureComposition
 					name="Select the triangle in slow motion"
-					trimBefore={109}
-					durationInFrames={18}
-					playbackRate={0.2}
+					trimBefore={111}
+					durationInFrames={25}
+					playbackRate={25 / 87}
 					width={1572}
 					height={1440}
 					style={{

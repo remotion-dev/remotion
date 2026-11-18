@@ -3,9 +3,13 @@ import {Interactive, useCurrentFrame} from 'remotion';
 import {ChatGPTPrompt} from '../ChatGPTPrompt';
 import {getNaturalTypedCharacterCount} from '../natural-typing';
 
+const defaultHeading = 'What should we work on?';
+
 const MotionBlurAgentPromptContent = ({
 	pastedContext,
 	prompt,
+	heading = defaultHeading,
+	projectName,
 	pasteFrame,
 	typingStartFrame,
 	typingDurationInFrames,
@@ -13,6 +17,8 @@ const MotionBlurAgentPromptContent = ({
 }: {
 	readonly pastedContext: string;
 	readonly prompt: string;
+	readonly heading?: string;
+	readonly projectName?: string;
 	readonly pasteFrame: number;
 	readonly typingStartFrame: number;
 	readonly typingDurationInFrames: number;
@@ -27,19 +33,21 @@ const MotionBlurAgentPromptContent = ({
 		startCharacter: 0,
 		endCharacter: prompt.length,
 	});
+	const typedPrompt = prompt.slice(0, visibleCharacters);
 
 	return (
 		<div style={style}>
 			<ChatGPTPrompt
-				name="Paste context, then type the request"
+				name="Type the request, then paste context"
 				theme="light"
 				pluginName=""
+				projectName={projectName}
 				isInitialPrompt={false}
-				heading="What should we work on?"
+				heading={heading}
 				prompt={
-					frame < pasteFrame
-						? ''
-						: `${pastedContext}\n${prompt.slice(0, visibleCharacters)}`
+					frame >= pasteFrame && pastedContext
+						? `${typedPrompt}\n${pastedContext}`
+						: typedPrompt
 				}
 				typingStartFrame={0}
 				typingDurationInFrames={0}
@@ -65,9 +73,11 @@ export const MotionBlurAgentPrompt = Interactive.create({
 			default: 'add motion blur to this',
 			description: 'Typed request',
 		},
+		heading: {type: 'string', default: defaultHeading},
+		projectName: {type: 'string', default: 'iteration-loop'},
 		pasteFrame: {
 			type: 'number',
-			default: 8,
+			default: 58,
 			min: 0,
 			step: 1,
 			hiddenFromList: false,
@@ -75,7 +85,7 @@ export const MotionBlurAgentPrompt = Interactive.create({
 		},
 		typingStartFrame: {
 			type: 'number',
-			default: 30,
+			default: 8,
 			min: 0,
 			step: 1,
 			hiddenFromList: false,

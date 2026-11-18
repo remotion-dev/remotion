@@ -124,6 +124,8 @@ export const EffectsDemo: React.FC<{
 						inputProps={{...state, darkMode: colorMode === 'dark'}}
 						autoPlay={demo.autoPlay}
 						controls={demo.controls}
+						clickToPlay={false}
+						spaceKeyToPlayOrPause={false}
 						initiallyMuted
 						loop
 					/>

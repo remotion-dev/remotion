@@ -10,10 +10,13 @@ import {PromptText} from './PromptText';
 
 export type ChatGPTTheme = 'dark' | 'light';
 
+const defaultProjectName = 'iteration-loop';
+
 type ChatGPTPromptProps = {
 	readonly theme: ChatGPTTheme;
 	readonly prompt: string;
 	readonly pluginName: string;
+	readonly projectName?: string;
 	readonly isInitialPrompt: boolean;
 	readonly heading: string;
 	readonly typingStartFrame: number;
@@ -27,6 +30,7 @@ const ChatGPTPromptContent = ({
 	theme,
 	prompt,
 	pluginName,
+	projectName = defaultProjectName,
 	isInitialPrompt,
 	heading,
 	typingStartFrame,
@@ -133,7 +137,7 @@ const ChatGPTPromptContent = ({
 						<span>
 							{isInitialPrompt && pluginName === 'Remotion'
 								? 'Choose project'
-								: 'iteration-loop'}
+								: projectName}
 						</span>
 					</div>
 					<div
@@ -256,6 +260,7 @@ export const ChatGPTPrompt = Interactive.create({
 			description: 'Prompt text. Use $skill-name for a Codex skill mention.',
 		},
 		pluginName: {type: 'string', default: 'Remotion'},
+		projectName: {type: 'string', default: defaultProjectName},
 		isInitialPrompt: {type: 'boolean', default: false},
 		heading: {type: 'string', default: 'What should we work on?'},
 		typingStartFrame: {
