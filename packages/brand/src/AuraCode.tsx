@@ -58,8 +58,8 @@ const ChaptersShot = () => {
 						width: 3600,
 						height: 2400,
 						left: -180,
-						top: -190,
-						transformOrigin: '1140px 730px',
+						top: -289,
+						transformOrigin: '1140px 829px',
 						scale: interpolate(frame, [0, durationInFrames - 1], [0.82, 0.94], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -109,14 +109,14 @@ const DuplicateShot = () => {
 					width: 3600,
 					height: 2400,
 					left: 193,
-					top: -172,
-					transformOrigin: '767px 712px',
+					top: -256,
+					transformOrigin: '767px 796px',
 					scale: 1.14,
 					rotate: '-0.5 1 0.3 10deg',
 				}}
 				effects={[
 					radialProgressiveBlur({
-						center: [0.2131, 0.2967],
+						center: [0.2131, 0.3317],
 						width: 0.85,
 						height: 0.85,
 						start: 0.4,
@@ -152,9 +152,9 @@ const StylesShot = () => {
 					width: 3600,
 					height: 2400,
 					left: -790,
-					top: -310,
-					transformOrigin: '1750px 850px',
-					scale: 0.96,
+					top: -436,
+					transformOrigin: '1750px 976px',
+					scale: 0.93,
 					rotate: interpolate(
 						frame,
 						[0, durationInFrames - 1],
@@ -168,7 +168,7 @@ const StylesShot = () => {
 				}}
 				effects={[
 					radialProgressiveBlur({
-						center: [0.4861, 0.3542],
+						center: [0.4861, 0.4067],
 						width: 0.74,
 						height: 0.62,
 						start: 0.2,
@@ -185,7 +185,7 @@ const StylesShot = () => {
 						),
 					}),
 					vignette({
-						center: [0.4861, 0.3542],
+						center: [0.4861, 0.4067],
 						amount: 0.16,
 						radius: 0.24,
 						feather: 0.55,
@@ -220,11 +220,11 @@ const CaptionsShot = () => {
 					position: 'absolute',
 					width: 3600,
 					height: 2400,
-					left: -680,
-					top: -940,
-					transformOrigin: '1040px 1490px',
+					left: -580,
+					top: -1195,
+					transformOrigin: '1040px 1745px',
 					rotate: '0 1 0 34deg',
-					scale: interpolate(frame, [0, durationInFrames - 1], [1.88, 1.98], {
+					scale: interpolate(frame, [0, durationInFrames - 1], [1.58, 1.64], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: Easing.linear,
@@ -235,7 +235,7 @@ const CaptionsShot = () => {
 					lensBlur({radius: 0.75, samples: 128, repeatEdgePixels: true}),
 					oledScreen({pixelSize: 6, strength: 0.65}),
 					radialProgressiveBlur({
-						center: [0.3056, 0.6125],
+						center: [0.3056, 0.7188],
 						width: 0.52,
 						height: 1.2,
 						start: 0.2,
@@ -243,7 +243,7 @@ const CaptionsShot = () => {
 						endBlur: 12,
 					}),
 					vignette({
-						center: [0.3056, 0.6125],
+						center: [0.3056, 0.7188],
 						amount: 0.15,
 						radius: 0.135,
 						feather: 0.28,

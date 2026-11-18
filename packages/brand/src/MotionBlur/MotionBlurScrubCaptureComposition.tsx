@@ -2,8 +2,15 @@ import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {Interactive, Easing, interpolate, useCurrentFrame} from 'remotion';
 
-const MotionBlurScrubCaptureContent = () => {
+const MotionBlurScrubCaptureContent = ({
+	showCursor,
+	cursorHoldFrame,
+}: {
+	readonly showCursor: boolean;
+	readonly cursorHoldFrame: number | null;
+}) => {
 	const frame = useCurrentFrame();
+	const cursorFrame = Math.min(frame, cursorHoldFrame ?? frame);
 
 	return (
 		<>
@@ -19,8 +26,9 @@ const MotionBlurScrubCaptureContent = () => {
 				}}
 			/>
 			<MacOSCursor
+				hidden={!showCursor}
 				cursor={interpolate(
-					frame,
+					cursorFrame,
 					[1, 23, 361, 366, 367, 368, 422, 423],
 					[
 						'auto',
@@ -43,7 +51,7 @@ const MotionBlurScrubCaptureContent = () => {
 					left: 0,
 					top: 0,
 					scale: interpolate(
-						frame,
+						cursorFrame,
 						[0, 22, 361, 445, 449],
 						[
 							2.1256573484638803, 1.9130916136174922, 2.1256573484638803,
@@ -56,7 +64,7 @@ const MotionBlurScrubCaptureContent = () => {
 						},
 					),
 					translate: interpolate(
-						frame,
+						cursorFrame,
 						[
 							1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 							22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
@@ -527,5 +535,15 @@ const MotionBlurScrubCaptureContent = () => {
 export const MotionBlurScrubCaptureComposition = Interactive.create({
 	Component: MotionBlurScrubCaptureContent,
 	layout: 'absolute-fill',
-	schema: {},
+	schema: {
+		showCursor: {type: 'boolean', default: true},
+		cursorHoldFrame: {
+			type: 'number',
+			default: null,
+			min: 0,
+			step: 1,
+			hiddenFromList: false,
+			description: 'Source frame where the cursor stops moving',
+		},
+	},
 });

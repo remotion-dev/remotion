@@ -136,7 +136,7 @@ const createMotionBlurShader =
 					compositor.finish();
 				}
 
-				const sampleWeight = Math.round(255 / sampleCount) / 255;
+				const sampleWeight = 1 / sampleCount;
 				for (let i = 0; i < sampleCount; i++) {
 					const offset = ((i + 0.5) / sampleCount - 0.5) * (shutterAngle / 360);
 					const progress = timing.getProgress({
@@ -287,12 +287,10 @@ export const resolveMotionBlurPresentation = ({
 		throw new TypeError('motionBlur.samples must be a positive integer');
 	}
 
-	if (
-		!Number.isFinite(shutterAngle) ||
-		shutterAngle < 0 ||
-		shutterAngle > 360
-	) {
-		throw new TypeError('motionBlur.shutterAngle must be between 0 and 360');
+	if (!Number.isFinite(shutterAngle) || shutterAngle < 0) {
+		throw new TypeError(
+			'motionBlur.shutterAngle must be a non-negative finite number',
+		);
 	}
 
 	if (!presentation.canvas) {

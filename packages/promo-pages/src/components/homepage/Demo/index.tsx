@@ -142,6 +142,7 @@ export const Demo: React.FC<{
 						autoPlay
 						controls={isFullscreen}
 						clickToPlay={false}
+						spaceKeyToPlayOrPause={false}
 						style={style}
 						initiallyMuted
 						inputProps={props}

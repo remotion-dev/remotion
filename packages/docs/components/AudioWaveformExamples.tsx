@@ -179,6 +179,8 @@ export const AudioWaveFormExample: React.FC<{
 				compositionWidth={1080}
 				compositionHeight={300}
 				controls
+				clickToPlay={false}
+				spaceKeyToPlayOrPause={false}
 				durationInFrames={300}
 				fps={30}
 				style={{

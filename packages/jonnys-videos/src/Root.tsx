@@ -55,6 +55,7 @@ import {Mediabunny} from './disco-light-show/Mediabunny';
 import {OneShot} from './disco-light-show/OneShot';
 import {OpeningScene} from './disco-light-show/OpeningScene';
 import {DiscoLightShowRerecording} from './disco-light-show/recordings/DiscoLightShowRerecording';
+import {ProResRecordings} from './disco-light-show/recordings/prores-2026-10-31/ProResRecordings';
 import {RemotionAssemblyScene} from './disco-light-show/RemotionAssemblyScene';
 import {RemotionSticker} from './disco-light-show/RemotionSticker';
 import {EvacuateDrop} from './disco-light-show/selects/evacuate/EvacuateDrop';
@@ -76,6 +77,7 @@ import {SuperfreakRiff} from './disco-light-show/selects/superfreak/SuperfreakRi
 import {ThreePersonChoreography} from './disco-light-show/selects/ThreePersonChoreography';
 import {Separate} from './disco-light-show/Separate';
 import {Setup} from './disco-light-show/Setup';
+import {SetupReviewCompositions} from './disco-light-show/setup-review/SetupReviewCompositions';
 import {SocialSafeZones} from './disco-light-show/SocialSafeZones';
 import {Text} from './disco-light-show/Text';
 import {TextBehindVideoSeriesFirst20s} from './disco-light-show/TextBehindVideoSeriesFirst20s';
@@ -155,6 +157,7 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="DiscoLightShow">
+				<SetupReviewCompositions />
 				<MyComposition />
 				<Folder name="AnimatingTheLights">
 					<Composition
@@ -237,6 +240,7 @@ export const RemotionRoot: React.FC = () => {
 					/>
 				</Folder>
 				<Folder name="Recordings">
+					<ProResRecordings />
 					<Composition
 						id="DiscoLightShowRerecording"
 						component={DiscoLightShowRerecording}

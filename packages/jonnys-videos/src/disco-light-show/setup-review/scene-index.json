@@ -1,0 +1,348 @@
+{
+	"picks": [
+		{
+			"name": "01 Laptop",
+			"source": "short",
+			"startSeconds": 31,
+			"endSeconds": 41,
+			"step": 1,
+			"title": "Get the laptop out",
+			"notes": "Short take · laptop comes onto the table and opens."
+		},
+		{
+			"name": "02 USB-C adapter",
+			"source": "short",
+			"startSeconds": 41,
+			"endSeconds": 50,
+			"step": 2,
+			"title": "Attach the USB-C adapter",
+			"notes": "Clear product close-up, then the adapter goes into the laptop."
+		},
+		{
+			"name": "03 ENTTEC introduction",
+			"source": "short",
+			"startSeconds": 51,
+			"endSeconds": 56,
+			"step": 3,
+			"title": "ENTTEC USB to DMX",
+			"notes": "The interface is shown to camera; its name is spoken."
+		},
+		{
+			"name": "04 ENTTEC USB connection",
+			"source": "short",
+			"startSeconds": 66,
+			"endSeconds": 82,
+			"step": 3,
+			"title": "Connect the ENTTEC interface",
+			"notes": "USB-B into the ENTTEC, then USB-A into the laptop adapter."
+		},
+		{
+			"name": "05 3-to-5-pin converter",
+			"source": "short",
+			"startSeconds": 106,
+			"endSeconds": 119,
+			"step": 4,
+			"title": "Attach the 3-to-5-pin converter",
+			"notes": "Clear 3-pin / 5-pin adapter close-up, then attachment to the ENTTEC interface."
+		},
+		{
+			"name": "06 DMX cable connectors",
+			"source": "long",
+			"startSeconds": 171.6,
+			"endSeconds": 184,
+			"step": 4,
+			"title": "Join the DMX cable connectors",
+			"notes": "The clean repeat after the explicit “do not use that take” comment."
+		},
+		{
+			"name": "07 First device",
+			"source": "long",
+			"startSeconds": 187,
+			"endSeconds": 204,
+			"step": 5,
+			"title": "Connect the first moving head",
+			"notes": "Close view of the first fixture and its DMX connection."
+		},
+		{
+			"name": "08 Power the first device",
+			"source": "long",
+			"startSeconds": 205,
+			"endSeconds": 221,
+			"step": 5,
+			"title": "Power the first device",
+			"notes": "Connect mains power and switch the first light on."
+		},
+		{
+			"name": "09 Second moving head",
+			"source": "long",
+			"startSeconds": 252,
+			"endSeconds": 273,
+			"step": 6,
+			"title": "Add the second moving head",
+			"notes": "Remove the one-light terminator and bring in the second moving head."
+		},
+		{
+			"name": "10 Connect second moving head",
+			"source": "long",
+			"startSeconds": 309,
+			"endSeconds": 334,
+			"step": 6,
+			"title": "Connect the second moving head",
+			"notes": "Continue the DMX chain and power the second fixture."
+		},
+		{
+			"name": "11 LED bar",
+			"source": "long",
+			"startSeconds": 350,
+			"endSeconds": 368,
+			"step": 6,
+			"title": "Add the LED bar",
+			"notes": "The long LED bar arrives at the front of the table; cable work continues afterward."
+		},
+		{
+			"name": "12 Connect LED bar",
+			"source": "long",
+			"startSeconds": 438,
+			"endSeconds": 462,
+			"step": 6,
+			"title": "Connect the LED bar",
+			"notes": "Rear-panel cabling is visible here. The bar lights up later during troubleshooting."
+		},
+		{
+			"name": "13 LED panel",
+			"source": "long",
+			"startSeconds": 492,
+			"endSeconds": 507,
+			"step": 6,
+			"title": "Add the LED panel",
+			"notes": "The rectangular panel joins the rig; this is the placement shot."
+		},
+		{
+			"name": "14 Connect LED panel",
+			"source": "long",
+			"startSeconds": 528,
+			"endSeconds": 544,
+			"step": 6,
+			"title": "Connect the LED panel",
+			"notes": "Hands connect the rear panel; there is more cable rework later."
+		},
+		{
+			"name": "15 Laser fixture",
+			"source": "long",
+			"startSeconds": 575,
+			"endSeconds": 606,
+			"step": 6,
+			"title": "Add the laser fixture",
+			"notes": "The fixture with the yellow label joins the other lights."
+		},
+		{
+			"name": "16 Terminator example",
+			"source": "long",
+			"startSeconds": 224.8,
+			"endSeconds": 241,
+			"step": 7,
+			"title": "Add a DMX terminator — clear example",
+			"notes": "ONE-LIGHT DEMO · recorded earlier, before the chain expands. See IMG_0774 for the later installed-state close-up."
+		},
+		{
+			"name": "17 Installed terminator close-up",
+			"source": "IMG_0774",
+			"startSeconds": 0,
+			"endSeconds": 6.3,
+			"step": 7,
+			"title": "Terminator installed on the LED bar",
+			"notes": "Capped plug in labeled DMX OUT beside the incoming cable. Installed state; insertion not filmed."
+		},
+		{
+			"name": "18 Running rig",
+			"source": "long",
+			"startSeconds": 1172,
+			"endSeconds": 1185,
+			"step": 6,
+			"title": "The assembled rig",
+			"notes": "Final wide view. The separate IMG_0774 close-up shows the installed terminator."
+		}
+	],
+	"longChapters": [
+		[
+			0,
+			50,
+			0,
+			"Laptop and power",
+			"The laptop is already open when this take starts."
+		],
+		[
+			50,
+			84,
+			1,
+			"USB-C adapter and USB cable",
+			"Adapter demonstration, then the USB cable."
+		],
+		[
+			84,
+			113,
+			2,
+			"ENTTEC USB to DMX",
+			"Interface demonstration and first connection attempt."
+		],
+		[
+			113,
+			126,
+			2,
+			"Retake note: wrong order",
+			"Spoken instruction: omit the previous attempt in the edit."
+		],
+		[
+			126,
+			151,
+			3,
+			"3-to-5-pin converter",
+			"Converter demonstration; a retry is announced around 2:22."
+		],
+		[
+			151,
+			171.6,
+			3,
+			"Connector attempt — skip",
+			"A second take is requested at 2:47."
+		],
+		[
+			171.6,
+			185,
+			3,
+			"Clean connector demonstration",
+			"Female and male three-pin connectors are shown and joined."
+		],
+		[
+			185,
+			224.8,
+			4,
+			"First device and power",
+			"Connect the first moving head, then power it."
+		],
+		[
+			224.8,
+			253.7,
+			6,
+			"Terminator: one-light example",
+			"Clear demonstration. The chain has only one fixture here."
+		],
+		[
+			253.7,
+			350,
+			5,
+			"Second moving head",
+			"Remove the terminator to extend the chain."
+		],
+		[
+			350,
+			488,
+			5,
+			"LED bar and daisy chaining",
+			"At 6:56 the narration suggests speeding up this work."
+		],
+		[488, 575, 5, "LED panel", "Panel placement and cabling."],
+		[
+			575,
+			670,
+			5,
+			"Laser fixture",
+			"Yellow-label fixture joins the rig; cabling continues."
+		],
+		[
+			670,
+			950,
+			5,
+			"Rewire and organize the chain",
+			"Repeated cable work. Treat as setup coverage, not a clean single insertion."
+		],
+		[
+			950,
+			1172,
+			5,
+			"Test and finish cabling",
+			"The LED bar lights up; later narration says connections are still being sorted."
+		],
+		[
+			1172,
+			1185.0666666666666,
+			5,
+			"Assembled rig",
+			"Final wide view. Final terminator location remains unconfirmed."
+		]
+	],
+	"shortChapters": [
+		[
+			0,
+			31,
+			0,
+			"Prepare power",
+			"Power strip and laptop charger before the laptop enters."
+		],
+		[31, 41, 0, "Get the laptop out", "Laptop placement and opening."],
+		[
+			41,
+			51,
+			1,
+			"Attach the USB-C adapter",
+			"Clear close-up followed by attachment."
+		],
+		[
+			51,
+			82,
+			2,
+			"ENTTEC and USB cable",
+			"Interface introduction and USB connections."
+		],
+		[
+			82,
+			106,
+			4,
+			"Bring in the first device",
+			"First moving head and cable preparation."
+		],
+		[
+			106,
+			120,
+			3,
+			"3-to-5-pin converter",
+			"Clear adapter close-up and connection to the ENTTEC."
+		],
+		[
+			120,
+			165,
+			4,
+			"Prepare the first device",
+			"Cable preparation and a pause before connecting the fixture."
+		],
+		[
+			165,
+			281,
+			4,
+			"Wire and power the first device",
+			"Continued cable work around the fixture. Mains connection around 3:57–4:05."
+		],
+		[
+			281,
+			380,
+			4,
+			"Configure on the laptop",
+			"Software and setup adjustments; no additional fixtures."
+		],
+		[
+			380,
+			420,
+			4,
+			"Check the first device",
+			"Fixture adjustments and response."
+		],
+		[
+			420,
+			477,
+			4,
+			"First-light result",
+			"The single light moves and illuminates."
+		]
+	],
+	"keyScenesDurationFrames": 8517
+}
