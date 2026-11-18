@@ -64,6 +64,60 @@ test('Should create a basic filter correctly', () => {
 	});
 });
 
+const stringifyWithToneFrequency = (toneFrequency: number) => {
+	const result = stringifyFfmpegFilter({
+		fps: 30,
+		asset: {
+			...baseAsset,
+			duration: 200,
+			toneFrequency,
+		},
+		channels: 1,
+		assetDuration: 10,
+		chunkLengthInSeconds: 3.3333,
+		trimLeftOffset: 0,
+		trimRightOffset: 0,
+		forSeamlessAacConcatenation: false,
+		volume: flattenVolumeArray(baseAsset.volume),
+		indent: false,
+		logLevel: 'info',
+		presentationTimeOffsetInSeconds: 0,
+		sampleRate: 48000,
+	});
+
+	if (result === null) {
+		throw new Error('Expected a filter for a single channel asset');
+	}
+
+	return result.filter as string;
+};
+
+test('toneFrequency: every atempo stage stays inside the supported rate', () => {
+	// atempo only accepts 0.5 to 2, everything outside must be chained.
+	// https://trac.ffmpeg.org/wiki/How%20to%20speed%20up%20/%20slow%20down%20a%20video
+	// A single `atempo=1/${toneFrequency}` reaches FFmpeg as `atempo=1/0.15`,
+	// which FFmpeg evaluates as a 6.67x speedup and aborts the render with
+	// `Assertion atempo->position[0] <= stop_here failed at af_atempo.c:494`.
+	for (const toneFrequency of [0.01, 0.1, 0.15, 0.2, 0.5, 0.75, 2]) {
+		const filter = stringifyWithToneFrequency(toneFrequency);
+		const atempoRates = [...filter.matchAll(/atempo=([^,[]+)/g)].map((match) =>
+			Number(match[1]),
+		);
+
+		expect(atempoRates.length).toBeGreaterThan(0);
+
+		for (const rate of atempoRates) {
+			expect(Number.isFinite(rate)).toBe(true);
+			expect(rate).toBeGreaterThanOrEqual(0.5);
+			expect(rate).toBeLessThanOrEqual(2);
+		}
+
+		// Chaining every stage must still multiply out to the requested tempo.
+		const reachedFrequency = atempoRates.reduce((acc, rate) => acc * rate, 1);
+		expect(reachedFrequency).toBeCloseTo(1 / toneFrequency, 3);
+	}
+});
+
 test('preservePitch: false uses asetrate/aresample instead of atempo', () => {
 	expect(
 		stringifyFfmpegFilter({
