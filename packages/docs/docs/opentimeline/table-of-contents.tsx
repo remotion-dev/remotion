@@ -7,11 +7,11 @@ export const TableOfContents: React.FC = () => {
 		<Grid>
 			<TOCItem link="/docs/opentimeline/import">
 				<strong>Importing</strong>
-				<div>Import in Studio, via the CLI, or programmatically.</div>
+				<div>In the Studio, via the CLI, or programmatically</div>
 			</TOCItem>
 			<TOCItem link="/docs/opentimeline/export">
 				<strong>Exporting</strong>
-				<div>Export an editable timeline using the Remotion Agent Skill.</div>
+				<div>Export as .otio using the Remotion Agent Skill.</div>
 			</TOCItem>
 		</Grid>
 	);
