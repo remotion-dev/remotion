@@ -300,7 +300,10 @@ const CompositionDefaultPropsSection: React.FC<{
 			<InspectorSectionBody expanded={expanded} keepMounted paddingBottom={8}>
 				{defaultPropsWarnings.length > 0 && showWarning ? (
 					<div style={defaultPropsWarningContainer}>
-						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+						<InspectorDefaultPropsWarnings
+							compositionId={composition.id}
+							warnings={defaultPropsWarnings}
+						/>
 					</div>
 				) : null}
 				<DefaultPropsEditor

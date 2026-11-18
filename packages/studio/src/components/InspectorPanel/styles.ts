@@ -1,7 +1,6 @@
 import type React from 'react';
 import {
 	BACKGROUND,
-	INTERACTIVE_TEXT,
 	LIGHT_TEXT,
 	LINE_COLOR,
 	WHITE,
@@ -106,14 +105,6 @@ export const defaultPropsWarningMessages: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 8,
-};
-
-export const resolveLinkStyle: React.CSSProperties = {
-	color: INTERACTIVE_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	textDecoration: 'underline',
-	whiteSpace: 'nowrap',
 };
 
 export const selectedContainer: React.CSSProperties = {
