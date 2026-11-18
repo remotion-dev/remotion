@@ -38,17 +38,21 @@ For a [parameterized composition](/docs/parameterized-rendering), also specify t
 
 ## What gets exported
 
-The export includes an `.otio` file and the media it references, placed together in an output folder. Keep them together when handing the edit to another person or moving it to another computer.
+The export is a folder with an `.otio` file and the media it references.
 
-Media clips remain individually editable where possible. Text, animations, visual effects, and other elements that cannot be represented faithfully are rendered into media files. Audio processing may also be baked into separate clips or mixed stems.
+Our primary goal is that the timeline can be imported in another program without changing the visuals and audio.
 
-The agent reports which elements remain editable and which have been prerendered. A prerendered element can be trimmed or moved in the destination editor, but its original React properties are not editable there.
+The output tries to be as dynamic as possible, but some elements may need to be prerendered.  
+This can be text, animations and effects and audio.
+
+The agent will report which elements remain editable and which have been prerendered.
 
 ## Open in a video editor
 
-In DaVinci Resolve, choose **File → Import → Timeline...** and select the `.otio` file. In an editor with OpenTimelineIO support, use its timeline import action.
+In DaVinci Resolve, choose **File → Import → Timeline...** and select the `.otio` file.  
+If media appears offline after moving the export folder, relink it to the media files in that folder.
 
-If media appears offline after moving the export folder, relink it to the media files in that folder. Check the imported picture and sound before continuing the edit.
+If you know instructions for other video editing programs, [please send a PR with instructions to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/opentimeline/export.mdx).
 
 ## See also
 
