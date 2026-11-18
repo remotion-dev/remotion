@@ -1,0 +1,31 @@
+{
+	"method": "Local @remotion/whisper-webgpu small.en. Full sources transcribed, then speech-containing windows transcribed independently to reject many silence/handling-noise hallucinations.",
+	"language": "English",
+	"limitations": "Selected captions are an approximate working transcript, not verbatim-certified subtitles. Word timings may drift. Noisy sections and repeated stock phrases were omitted. Brand/technical vocabulary was normalized using user-provided equipment context.",
+	"normalizedPhrases": {
+		"100gb-video": [
+			{
+				"rangeSeconds": [126.6, 135],
+				"machine": "USB 3.25 point adapter",
+				"normalized": "three-to-five-pin adapter",
+				"basis": "User provided the equipment name; verify audio before publishing as a quote."
+			},
+			{
+				"rangeSeconds": [261.82, 267.96],
+				"machine": "I move to the next terminator / I move it out",
+				"normalized": "I remove the DMX terminator. I move it out.",
+				"basis": "Speech recognition ambiguous; context/user steps imply removing terminator for second light."
+			}
+		]
+	},
+	"rawFiles": [
+		"100gb-video-raw.json",
+		"IMG_0758-raw.json",
+		"refined-windows.json"
+	],
+	"selectedFiles": [
+		"100gb-video-selected-captions.json",
+		"IMG_0758-selected-captions.json"
+	],
+	"keepSourceRelativeTimestamps": true
+}

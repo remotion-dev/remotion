@@ -64,6 +64,11 @@ export const MyComposition = () => {
 };
 ```
 
+## Frame reuse<AvailableFrom v="4.0.545" />
+
+When using [`<Video>`](/docs/media/video), [`<Gif>`](/docs/gif/gif), or [`<AnimatedImage>`](/docs/animatedimage), all trail layers share the current media frame, including any applied effects.
+This avoids a separate decoder and effects pass for each layer. Transforms and other animations still use each layer's delayed time.
+
 ## Demo
 
 <TrailExample />

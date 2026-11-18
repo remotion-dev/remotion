@@ -1,7 +1,7 @@
 ---
 name: remotion-license
 description: Find Remotion license information, FAQs, terms, and where to buy a license.
-version: 4.0.544
+version: 4.0.545
 ---
 
 # Remotion License

@@ -1,5 +1,11 @@
 import {describe, expect, test} from 'vitest';
-import {parseLinearGradient} from '../drawing/parse-linear-gradient';
+import {
+	parseLinearGradient,
+	resolveColorStops,
+} from '../drawing/parse-linear-gradient';
+
+const positions = (result: ReturnType<typeof parseLinearGradient>) =>
+	resolveColorStops(result!.colorStops, 100).map((stop) => stop.position);
 import '../symbol-dispose';
 
 describe('parseLinearGradient', () => {
@@ -9,9 +15,9 @@ describe('parseLinearGradient', () => {
 		expect(result!.angle).toBe(90);
 		expect(result!.colorStops).toHaveLength(2);
 		expect(result!.colorStops[0].color).toBe('red');
-		expect(result!.colorStops[0].position).toBe(0);
+		expect(positions(result)[0]).toBe(0);
 		expect(result!.colorStops[1].color).toBe('blue');
-		expect(result!.colorStops[1].position).toBe(1);
+		expect(positions(result)[1]).toBe(1);
 	});
 
 	test('should parse gradient with rgb() colors (browser format)', () => {
@@ -60,10 +66,10 @@ describe('parseLinearGradient', () => {
 		);
 		expect(result).not.toBeNull();
 		expect(result!.colorStops).toHaveLength(4);
-		expect(result!.colorStops[0].position).toBe(0);
-		expect(result!.colorStops[1].position).toBeCloseTo(0.333, 2);
-		expect(result!.colorStops[2].position).toBeCloseTo(0.667, 2);
-		expect(result!.colorStops[3].position).toBe(1);
+		expect(positions(result)[0]).toBe(0);
+		expect(positions(result)[1]).toBeCloseTo(0.333, 2);
+		expect(positions(result)[2]).toBeCloseTo(0.667, 2);
+		expect(positions(result)[3]).toBe(1);
 	});
 
 	test('should parse gradient with explicit positions', () => {
@@ -72,9 +78,9 @@ describe('parseLinearGradient', () => {
 		);
 		expect(result).not.toBeNull();
 		expect(result!.colorStops).toHaveLength(3);
-		expect(result!.colorStops[0].position).toBe(0);
-		expect(result!.colorStops[1].position).toBe(0.5);
-		expect(result!.colorStops[2].position).toBe(1);
+		expect(positions(result)[0]).toBe(0);
+		expect(positions(result)[1]).toBe(0.5);
+		expect(positions(result)[2]).toBe(1);
 	});
 
 	test('should parse "to bottom" direction', () => {
