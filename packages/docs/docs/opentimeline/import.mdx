@@ -7,15 +7,17 @@ crumb: OpenTimelineIO
 
 # Importing OpenTimelineIO
 
-Import an OpenTimelineIO (`.otio`) timeline as an editable Remotion [composition](/docs/terminology/composition). Clips become individual elements with their timing and trims preserved, so you can continue editing in [Remotion Studio](/docs/studio) or in code.
+You can import an OpenTimelineIO (`.otio`) timeline as an editable Remotion [composition](/docs/terminology/composition).
 
 ## In Remotion Studio<AvailableFrom v="4.0.542" />
 
-<Step>1</Step> Open [Remotion Studio](/docs/studio) and choose **File → Import OpenTimeline...**. Select an `.otio` file.
+Open [Remotion Studio](/docs/studio) and choose **File → Import OpenTimeline...**.  
+Select an `.otio` file.
 
-<img src="https://remotion.media/studio/opentimeline/import-menu-crop-53682abef72c.png" alt="The File menu in Remotion Studio with the Import OpenTimeline action." width={420} height={460} style={{width: 320, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}} />
+<img src="https://remotion.media/studio/opentimeline/import-menu-crop-53682abef72c.png" alt="The File menu in Remotion Studio with the Import OpenTimeline action." width={420} height={460} style={{width: 320, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}} /><br/><br/>
 
-<Step>2</Step> Choose a composition name, width, height, and composition folder. Studio detects the frame rate and calculates the duration from the timeline. If no single frame rate can be determined, choose the FPS before importing.
+Choose a composition name, width, height, and composition folder.  
+Frame rate and duration are automatically detected.
 
 <img
   src="https://remotion.media/studio/opentimeline/import-dialog-crop-d1df2687feae.jpg"
@@ -23,9 +25,10 @@ Import an OpenTimelineIO (`.otio`) timeline as an editable Remotion [composition
   width={504}
   height={528}
   style={{width: 504, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
-/>
+/><br/><br/>
 
-<Step>3</Step> Click **Add to root file**. The button may show the name of your project's [root file](/docs/terminology/root-file), such as **Add to Root.tsx**. Studio creates the component, registers the composition, and opens it for editing.
+Click **Add to root file**.  
+A new composition will be created and opened for editing.
 
 <img
   src="https://remotion.media/studio/opentimeline/imported-timeline-e31a03e02b98.png"
@@ -35,47 +38,33 @@ Import an OpenTimelineIO (`.otio`) timeline as an editable Remotion [composition
   style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
 />
 
-### Referenced media
-
-An `.otio` file describes an edit; it does not contain the video, audio, or image files. Keep the referenced media available when importing.
-
-Studio resolves relative media paths from the `.otio` file's folder. Referenced local files are copied into the project's [public folder](/docs/assets); files already there and browser-accessible URLs are reused. If media cannot be found, click **Locate media...** and select its folder.
-
-On macOS and Windows, local Studio uses a native file picker. With the browser file picker, the original file's folder is not available: use the **Media folder** field to resolve relative paths.
-
-[Browser Studio](/docs/studio/remotion-dev-new) supports URLs and existing public assets. Import files from your computer using a local Studio. Importing is unavailable in read-only or disconnected Studios.
-
 ## Via the CLI<AvailableFrom v="4.0.543" />
 
-Run this command from the Remotion project:
+Use the [`npx remotion open-timeline import`](/docs/cli/open-timeline/import) from the Remotion project:
 
 ```bash title="Import a timeline"
-bunx remotion open-timeline import my-edit.otio
+npx remotion open-timeline import my-edit.otio
 ```
 
-The command creates and registers an editable composition, copies referenced local media into the public folder, and installs `@remotion/media` if needed.
-
-Specify the composition ID, output dimensions, and frame rate with flags:
+Specify the composition ID, and where the media files are located with flags:
 
 ```bash title="Choose the composition settings"
-bunx remotion open-timeline import my-edit.otio \
+npx remotion open-timeline import my-edit.otio \
   --composition=MyEdit \
-  --width=1920 \
-  --height=1080 \
-  --fps=30
+  --media-dir=/path/to/media
 ```
 
-Unlike Studio's frame-rate detection, the CLI defaults to 30 FPS. Width and height default to 1920 × 1080. Use `--media-dir=/path/to/media` if the files are stored in another folder, or `--dry-run` to preview the import without writing files or installing packages.
-
-See the [CLI reference](/docs/cli/open-timeline/import) for all flags.
-
 ## Programmatically<AvailableFrom v="4.0.542" />
+
+:::warning
+Experimental: `@remotion/codemods` is not stable and subject to change.
+:::
 
 Install [`@remotion/codemods`](/docs/codemods) at the same version as the other Remotion packages in the project:
 
 <Installation pkg="@remotion/codemods" />
 
-[`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition) creates a component and registers it in the [root file](/docs/terminology/root-file):
+Use [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition) to create a component and register it in the [root file](/docs/terminology/root-file):
 
 ```ts twoslash title="import-timeline.ts"
 import {readFileSync, writeFileSync} from 'node:fs';
@@ -108,17 +97,27 @@ for (const change of result.changes) {
 }
 ```
 
-The function returns file changes, which the example writes to disk. It does not copy media or install dependencies. The generated component uses `remotion` and, when needed, `@remotion/media`. Put local media in the public folder, or map its references to browser-accessible URLs.
+The function does not copy media or install dependencies.
 
-Remote URLs and public-relative paths work by default. For absolute paths, `file:` URLs, or missing media, provide a [`resolveMedia()` callback](/docs/codemods/add-open-timeline-composition#resolvemedia). When source timecode does not start at zero, provide the media's `available_range` in the timeline; Studio and the CLI can probe local media automatically.
+## Referenced media
 
-## Supported features and limitations
+The `.otio` file does not explicitly specify where the media files live.  
+You must explicitly say where they are.
 
-Importing supports clips, gaps, nested tracks, source trims, mixed frame rates, forward retiming, freeze frames, image sequences, and internal `SMPTE_Dissolve` transitions.
+By default, Studio looks in the same folder where the `.otio` file lies.  
+If media cannot be found, Studio shows a button **Locate media...** where you can select its folder.
 
-Other active effects are ignored with warnings. Reverse playback, custom transitions, and unsupported timeline structures can prevent importing. Application-specific crop, scale, and color adjustments are not interpreted. Video tracks import with embedded audio muted; include an audio track for sound.
+[remotion.new](/docs/studio/remotion-dev-new) only supports URLs and existing public assets.
 
-Use `.otio` JSON files. Convert other interchange formats, including AAF, EDL, FCPXML, `.otioz`, and `.otiod`, to `.otio` first.
+Referenced local files are copied into the project's [public folder](/docs/assets).
+
+## Limitations
+
+Not all OpenTimeline effects are supported. Warnings are shown in Studio, CLI and emitted [from the programmatic API](/docs/codemods/add-open-timeline-composition#diagnostics).
+
+Reverse playback, custom transitions, and unsupported timeline structures may throw an error and prevent importing.
+
+Application-specific crop, scale, and color adjustments are not interpreted.
 
 See [supported timelines](/docs/codemods/generate-open-timeline-composition#supported-timelines) for the full compatibility details.
 

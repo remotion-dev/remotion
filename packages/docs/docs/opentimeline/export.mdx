@@ -7,9 +7,16 @@ crumb: OpenTimelineIO
 
 # Exporting OpenTimelineIO<AvailableFrom v="4.0.544" />
 
-Export a Remotion [composition](/docs/terminology/composition) as an OpenTimelineIO (`.otio`) timeline to continue editing in another video editor, such as DaVinci Resolve or Adobe Premiere Pro.
+You can export a Remotion [composition](/docs/terminology/composition) as an OpenTimelineIO (`.otio`) timeline using a skill.  
+This allows you to continue editing in another video editor, such as DaVinci Resolve or Adobe Premiere Pro.
 
-Exporting uses the [`remotion-render` Agent Skill](/docs/ai/skills#remotion-render). The agent inspects the composition, preserves editable clips where possible, and prerenders elements that OpenTimelineIO cannot represent.
+## Using the `/remotion-render` skill
+
+With the [Agent Skills installed](/docs/ai/skills), ask your agent (replace `MyComposition` with your composition name):
+
+<SuggestedPrompt prompt="/remotion-render Export MyComposition as an OpenTimelineIO (.otio) timeline" />
+
+For a [parameterized composition](/docs/parameterized-rendering), also specify the input props to export.
 
 ## From Remotion Studio
 
@@ -28,14 +35,6 @@ Exporting uses the [`remotion-render` Agent Skill](/docs/ai/skills#remotion-rend
   height={664}
   style={{width: 660, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
 />
-
-## Using the skill directly
-
-With the [Agent Skills installed](/docs/ai/skills), ask your agent:
-
-<SuggestedPrompt prompt="/remotion-render Export MyComposition as an OpenTimelineIO (.otio) timeline for DaVinci Resolve." />
-
-For a [parameterized composition](/docs/parameterized-rendering), also specify the input props to export.
 
 ## What gets exported
 
