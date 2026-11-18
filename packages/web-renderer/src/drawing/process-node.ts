@@ -276,15 +276,15 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		// The source cutout is in untransformed layout coordinates. Test its
-		// projected destination against the viewport when applying a 3D matrix.
-		if (
-			!doRectsIntersect(
-				internalState.experimental3DRendering ? projectedRect! : precomposeRect,
-				parentRect,
-			)
-		) {
-			return {type: 'continue', cleanupAfterChildren: null};
+		const visibleRect = internalState.experimental3DRendering
+			? projectedRect!
+			: totalMatrix.is2D
+				? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
+				: precomposeRect;
+		if (!doRectsIntersect(visibleRect, parentRect)) {
+			return totalMatrix.is2D && !preserves3D
+				? {type: 'skip-children'}
+				: {type: 'continue', cleanupAfterChildren: null};
 		}
 
 		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;

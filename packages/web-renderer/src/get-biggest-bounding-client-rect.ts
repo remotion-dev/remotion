@@ -82,12 +82,18 @@ export const getBiggestBoundingClientRect = (
 			(capturePadding ||
 				(computedStyle.outlineStyle !== 'none' &&
 					computedStyle.outlineStyle !== 'hidden'));
-		const outlineWidth = hasOutline
+		let outlineWidth = hasOutline
 			? parseOutlineWidth(computedStyle.outlineWidth)
 			: 0;
-		const outlineOffset = hasOutline
+		let outlineOffset = hasOutline
 			? parseOutlineOffset(computedStyle.outlineOffset)
 			: 0;
+		// An entirely inward outline must not shrink the element's capture.
+		if (outlineWidth + outlineOffset < 0) {
+			outlineWidth = 0;
+			outlineOffset = 0;
+		}
+
 		const boundsOutlineWidth = capturePadding
 			? outlineWidth
 			: Math.max(0, outlineWidth + outlineOffset);

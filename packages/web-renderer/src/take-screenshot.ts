@@ -16,7 +16,7 @@ import type {InternalState} from './internal-state';
 
 export type HtmlInCanvasLayerOutcome =
 	| {native: true}
-	| {native: false; reason: string; shouldWarn: boolean};
+	| {native: false; reason: string; shouldWarn: boolean; paintTimedOut?: true};
 
 const containsPreserve3DDepth = (element: HTMLElement | SVGElement) => {
 	const styles = new WeakMap<Element, CSSStyleDeclaration>();
@@ -96,6 +96,7 @@ export const createLayer = async ({
 		!onlyBackgroundClipText &&
 		element instanceof HTMLElement &&
 		htmlInCanvasContext &&
+		!htmlInCanvasContext.paintTimedOut &&
 		onHtmlInCanvasLayerOutcome
 	) {
 		if (
@@ -147,6 +148,7 @@ export const createLayer = async ({
 					native: false,
 					reason: `drawElementImage failed (${detail}); falling back to the built-in DOM composer.`,
 					shouldWarn: true,
+					...(htmlInCanvasContext.paintTimedOut ? {paintTimedOut: true} : {}),
 				});
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/web-renderer'},

@@ -27,7 +27,7 @@ import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
-import {borderRadius} from './fixtures/border-radius';
+import {borderRadius, nativeRoundedClipping} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
@@ -118,7 +118,11 @@ import {
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
-import {maskImage} from './fixtures/mask-image';
+import {
+	maskImage,
+	maskImageTransformedVisibility,
+	maskImageCulledDescendants,
+} from './fixtures/mask-image';
 import {
 	maskImageLayers,
 	maskImageLayersTransparent,
@@ -167,6 +171,7 @@ import {opacityZero} from './fixtures/opacity-zero';
 import {opaqueLayerOverFadingLayer} from './fixtures/opaque-layer-over-fading-layer';
 import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {outline} from './fixtures/outline';
+import {outlineCaptureBounds} from './fixtures/outline-capture-bounds';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {paintedPlaneBounds} from './fixtures/painted-plane-bounds';
@@ -517,6 +522,8 @@ export const Root: React.FC = () => {
 			<Composition {...stackingContextSiblings} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...maskImageTransformedVisibility} />
+				<Composition {...maskImageCulledDescendants} />
 				<Composition {...mixBlendModeAllModes} />
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
@@ -554,6 +561,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue9736BackgroundPosition} />
 			</Folder>
 			<Composition {...outline} />
+			<Composition {...outlineCaptureBounds} />
 			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
@@ -578,6 +586,7 @@ export const Root: React.FC = () => {
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
+				<Composition {...nativeRoundedClipping} />
 				<Composition {...borderRadiusSimple} />
 				<Composition {...borderRadiusElliptical} />
 				<Composition {...borderRadiusDifferent} />

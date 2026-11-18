@@ -219,7 +219,10 @@ const internalRenderMediaOnWeb = async <
 
 	let htmlInCanvasLayerOutcomeReported = false;
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
-		if (htmlInCanvasLayerOutcomeReported) {
+		if (
+			htmlInCanvasLayerOutcomeReported &&
+			(outcome.native || !outcome.paintTimedOut)
+		) {
 			return;
 		}
 

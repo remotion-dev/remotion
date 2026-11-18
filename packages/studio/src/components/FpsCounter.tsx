@@ -80,7 +80,7 @@ export const FpsCounter: React.FC<{
 			return {};
 		}
 
-		const expectedFps = Math.abs(playbackSpeed) * videoConfig.fps;
+		const expectedFps = Math.min(60, Math.abs(playbackSpeed) * videoConfig.fps);
 
 		return {
 			...label,
