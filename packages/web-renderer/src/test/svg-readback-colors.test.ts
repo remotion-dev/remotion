@@ -13,10 +13,12 @@ import {
 	svgFontFamilyLifetime,
 	svgFontFamilyLifetimeReady,
 } from './fixtures/svg-font-family-lifetime';
+import {svgReadbackMask} from './fixtures/svg-readback-mask';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
 const cases = [
 	...[0, 1, 2].map((frame) => ({composition: svgFontFamilyLifetime, frame})),
+	{composition: svgReadbackMask('important'), frame: 0},
 	...[
 		svgExternalFontSelection,
 		svgExternalStyleSelectors({literal: false}),

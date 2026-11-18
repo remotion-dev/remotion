@@ -255,6 +255,10 @@ import {
 } from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {
+	svgReadbackMask,
+	svgReadbackMaskModes,
+} from './fixtures/svg-readback-mask';
+import {
 	registeredCdataWrappers,
 	svgRegisteredCdataFont,
 } from './fixtures/svg-registered-cdata-font';
@@ -639,6 +643,10 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			{svgReadbackMaskModes.map((mode) => {
+				const composition = svgReadbackMask(mode);
+				return <Composition key={composition.id} {...composition} />;
+			})}
 			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);

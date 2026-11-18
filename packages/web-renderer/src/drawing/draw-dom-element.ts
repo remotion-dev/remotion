@@ -1,7 +1,6 @@
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
-import {getMaskImageValue} from './mask-image';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
 const getReadableImageError = (
@@ -293,7 +292,6 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 				readback:
 					/AppleWebKit/.test(userAgent) &&
 					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
-					!getMaskImageValue(computedStyle) &&
 					Boolean(node.querySelector('text')) &&
 					!node.querySelector('feImage'),
 			});
