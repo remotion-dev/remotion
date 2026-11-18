@@ -54,7 +54,24 @@ test.each(['wav', 'mkv'] as const)(
 					Math.round((videoFrames / 24) * 1_000_000),
 				);
 				const pixels = new Uint8Array(64 * 64 * 4);
-				await frame.copyTo(pixels, {format: 'RGBA'});
+				// Read native packed bytes without requiring a browser color conversion.
+				const {format} = frame;
+				expect(['RGBA', 'RGBX', 'BGRA', 'BGRX']).toContain(format);
+				const native = new Uint8Array(frame.allocationSize());
+				const [plane] = await frame.copyTo(native);
+				const blueFirst = format === 'BGRA' || format === 'BGRX';
+				const opaque = format === 'RGBX' || format === 'BGRX';
+				for (let y = 0; y < 64; y++) {
+					for (let x = 0; x < 64; x++) {
+						const from = plane.offset + y * plane.stride + x * 4;
+						const to = (y * 64 + x) * 4;
+						pixels[to] = native[from + (blueFirst ? 2 : 0)];
+						pixels[to + 1] = native[from + 1];
+						pixels[to + 2] = native[from + (blueFirst ? 0 : 2)];
+						pixels[to + 3] = opaque ? 255 : native[from + 3];
+					}
+				}
+
 				let wrongPixels = 0;
 				for (let i = 0; i < pixels.length; i += 4) {
 					if (
