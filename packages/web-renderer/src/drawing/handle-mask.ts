@@ -77,6 +77,7 @@ export const handleMask = async ({
 			gradientInfo: maskImageInfo.gradientInfo,
 			offsetLeft: 0,
 			offsetTop: 0,
+			cssPixelsPerUnit: scale,
 		});
 
 		tempContext.globalCompositeOperation = 'destination-in';
@@ -93,6 +94,7 @@ export const handleMask = async ({
 	if (maskImageInfo.type === 'radial-gradient') {
 		const fill = createRadialGradientFill({
 			gradientInfo: maskImageInfo.gradientInfo,
+			cssPixelsPerUnit: scale,
 			experimental3DRendering: internalState.experimental3DRendering,
 			contextToDraw: tempContext,
 			rect: rectToFill,

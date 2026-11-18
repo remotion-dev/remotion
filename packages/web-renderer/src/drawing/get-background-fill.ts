@@ -182,6 +182,7 @@ export const getBackgroundFill = async ({
 			});
 			return createRadialGradientFill({
 				gradientInfo: radialGradientInfo,
+				cssPixelsPerUnit: 1,
 				experimental3DRendering: internalState.experimental3DRendering,
 				contextToDraw,
 				rect,
@@ -190,10 +191,7 @@ export const getBackgroundFill = async ({
 			});
 		}
 
-		const gradientInfo = parseLinearGradient(
-			backgroundImage,
-			internalState.experimental3DRendering,
-		);
+		const gradientInfo = parseLinearGradient(backgroundImage);
 		if (gradientInfo) {
 			const backgroundImageRect = getBackgroundImageRect({
 				backgroundPosition,
@@ -207,6 +205,7 @@ export const getBackgroundFill = async ({
 				gradientInfo,
 				offsetLeft,
 				offsetTop,
+				cssPixelsPerUnit: 1,
 			});
 
 			return gradient;

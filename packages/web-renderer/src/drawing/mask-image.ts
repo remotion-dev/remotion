@@ -257,7 +257,7 @@ const parseSingleMaskImage = (
 	}
 
 	const gradientInfo = /^\s*linear-gradient\(/i.test(maskImageValue)
-		? parseLinearGradient(maskImageValue, experimental3DRendering)
+		? parseLinearGradient(maskImageValue)
 		: null;
 	if (gradientInfo) {
 		return {type: 'linear-gradient', gradientInfo};

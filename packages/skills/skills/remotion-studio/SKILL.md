@@ -1,7 +1,7 @@
 ---
 name: remotion-studio
 description: Preview a Remotion video
-version: 4.0.544
+version: 4.0.545
 ---
 
 When creating or editing a video, you SHOULD open Studio once the project can run, so the user can preview changes and steer.

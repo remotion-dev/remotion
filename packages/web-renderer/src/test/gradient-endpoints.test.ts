@@ -1,9 +1,16 @@
 import {expect, test} from 'vitest';
-import {parseLinearGradient} from '../drawing/parse-linear-gradient';
-const positions = (stops: string) =>
-	parseLinearGradient(`linear-gradient(${stops})`, true)?.colorStops.map(
-		(stop) => stop.position,
-	);
+import {
+	parseLinearGradient,
+	resolveColorStops,
+} from '../drawing/parse-linear-gradient';
+const positions = (stops: string) => {
+	const gradient = parseLinearGradient(`linear-gradient(${stops})`);
+
+	return gradient
+		? resolveColorStops(gradient.colorStops, 100).map((stop) => stop.position)
+		: null;
+};
+
 test('omitted endpoint stops span the full gradient (kino-ai/kino#4950)', () => {
 	expect(
 		positions(
