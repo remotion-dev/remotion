@@ -1,4 +1,10 @@
-import type {JSXElement, Node} from '@babel/types';
+import type {
+	Expression,
+	File,
+	JSXAttribute,
+	JSXElement,
+	Node,
+} from '@babel/types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {buildJsxElement} from './build-jsx-element';
@@ -15,6 +21,7 @@ import {printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getImportedName} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {
 	applySourceEdits,
 	captureImportSnapshots,
@@ -51,19 +58,78 @@ const getHtmlInCanvasWrapperName = (wrapper: CodemodElement) => {
 	return null;
 };
 
-export const canWrapNode = ({
-	input,
-	nodePath,
-}: {
-	input: string;
-	nodePath: SequenceNodePath;
-}): {canWrap: boolean; canWrapHtmlInCanvas: boolean} => {
-	const ast = parseAst(input);
-	const path = findJsxElementPathForDeletion(ast, nodePath);
-	if (!path || !(path.node as JSXElement).loc) {
-		return {canWrap: false, canWrapHtmlInCanvas: false};
+// A copied prop is evaluated once for the wrapper and once for the child.
+// Calls, property reads (which may invoke getters), and mutations require a local binding.
+const canCopyExpression = (
+	expression: Expression,
+	asDimension: boolean,
+): boolean => {
+	const value = getStaticNumericValue(expression);
+	if (value !== null) {
+		return !asDimension || (Number.isInteger(value) && value > 0);
 	}
 
+	switch (expression.type) {
+		case 'Identifier':
+			return true;
+		case 'StringLiteral':
+		case 'BooleanLiteral':
+		case 'NullLiteral':
+			return !asDimension;
+		case 'BinaryExpression':
+			return (
+				(!asDimension ||
+					[
+						'+',
+						'-',
+						'*',
+						'/',
+						'%',
+						'**',
+						'|',
+						'&',
+						'^',
+						'<<',
+						'>>',
+						'>>>',
+					].includes(expression.operator)) &&
+				expression.left.type !== 'PrivateName' &&
+				canCopyExpression(expression.left, false) &&
+				canCopyExpression(expression.right, false)
+			);
+		case 'LogicalExpression':
+			return (
+				canCopyExpression(expression.left, asDimension) &&
+				canCopyExpression(expression.right, asDimension)
+			);
+		case 'UnaryExpression':
+			return (
+				expression.operator !== 'delete' &&
+				(!asDimension || ['+', '-', '~'].includes(expression.operator)) &&
+				canCopyExpression(expression.argument, false)
+			);
+		case 'ConditionalExpression':
+			return (
+				canCopyExpression(expression.test, false) &&
+				canCopyExpression(expression.consequent, asDimension) &&
+				canCopyExpression(expression.alternate, asDimension)
+			);
+		case 'TSAsExpression':
+		case 'TSNonNullExpression':
+		case 'TSSatisfiesExpression':
+		case 'ParenthesizedExpression':
+			return canCopyExpression(expression.expression, asDimension);
+		default:
+			return false;
+	}
+};
+
+const getCanvasWrapInfo = (
+	ast: File,
+	path: NonNullable<ReturnType<typeof findJsxElementPathForDeletion>>,
+):
+	| {blocker: 'nested' | 'unknown-dimensions'; dimensions: null}
+	| {blocker: null; dimensions: JSXAttribute[]} => {
 	const htmlInCanvasNames = new Set(['HtmlInCanvas', 'HtmlInCanvasMotionBlur']);
 	for (const statement of ast.program.body) {
 		if (
@@ -100,7 +166,7 @@ export const canWrapNode = ({
 	while (current) {
 		const node = current.node as Node;
 		if (node.type === 'JSXElement' && isHtmlInCanvasElement(node)) {
-			return {canWrap: true, canWrapHtmlInCanvas: false};
+			return {blocker: 'nested', dimensions: null};
 		}
 
 		current = current.parentPath;
@@ -117,7 +183,55 @@ export const canWrapNode = ({
 		},
 	});
 
-	return {canWrap: true, canWrapHtmlInCanvas: !containsHtmlInCanvas};
+	if (containsHtmlInCanvas) {
+		return {blocker: 'nested', dimensions: null};
+	}
+
+	const {attributes} = (path.node as JSXElement).openingElement;
+	const dimensions: JSXAttribute[] = [];
+	for (const name of ['width', 'height']) {
+		const attr = attributes.findLast(
+			(attribute) =>
+				attribute.type === 'JSXSpreadAttribute' || attribute.name.name === name,
+		);
+		if (
+			attr?.type !== 'JSXAttribute' ||
+			attr.value?.type !== 'JSXExpressionContainer'
+		) {
+			return {blocker: 'unknown-dimensions', dimensions: null};
+		}
+
+		const {expression} = attr.value;
+		if (
+			expression.type === 'JSXEmptyExpression' ||
+			!canCopyExpression(expression, true)
+		) {
+			return {blocker: 'unknown-dimensions', dimensions: null};
+		}
+
+		dimensions.push(attr);
+	}
+
+	return {blocker: null, dimensions};
+};
+
+export const canWrapNode = ({
+	input,
+	nodePath,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+}) => {
+	const ast = parseAst(input);
+	const path = findJsxElementPathForDeletion(ast, nodePath);
+	if (!path || !(path.node as JSXElement).loc) {
+		return {canWrap: false, canvasWrapBlocker: null};
+	}
+
+	return {
+		canWrap: true,
+		canvasWrapBlocker: getCanvasWrapInfo(ast, path).blocker,
+	};
 };
 
 export const wrapNode = <Project extends CodemodProject>({
@@ -137,29 +251,6 @@ export const wrapNode = <Project extends CodemodProject>({
 
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const eligibility = canWrapNode({input, nodePath: node.nodePath});
-	const htmlInCanvasWrapper = getHtmlInCanvasWrapperName(wrapper);
-	if (
-		!eligibility.canWrap ||
-		(htmlInCanvasWrapper !== null && !eligibility.canWrapHtmlInCanvas)
-	) {
-		throw new Error('This JSX element cannot be wrapped');
-	}
-
-	if (
-		htmlInCanvasWrapper !== null &&
-		[wrapper.props.width, wrapper.props.height].some(
-			(dimension) =>
-				typeof dimension !== 'number' ||
-				!Number.isInteger(dimension) ||
-				dimension <= 0,
-		)
-	) {
-		throw new Error(
-			`${htmlInCanvasWrapper} requires positive integer dimensions`,
-		);
-	}
-
 	const ast = parseAst(input);
 	const captured = captureJsxNodePaths(ast);
 	const importSnapshots = captureImportSnapshots(ast);
@@ -171,6 +262,24 @@ export const wrapNode = <Project extends CodemodProject>({
 	const original = path.node as JSXElement;
 	if (!original.loc) {
 		throw new Error('Could not locate the JSX element to wrap');
+	}
+
+	const canvasWrapper = getHtmlInCanvasWrapperName(wrapper);
+	const canvas = canvasWrapper === null ? null : getCanvasWrapInfo(ast, path);
+	if (canvas?.blocker === 'nested') {
+		throw new Error('HTML-in-canvas components cannot be nested');
+	}
+
+	if (canvas && ('width' in wrapper.props || 'height' in wrapper.props)) {
+		throw new Error(
+			`${canvasWrapper} inherits width and height from the wrapped element. Omit them from the wrapper props.`,
+		);
+	}
+
+	if (canvas?.blocker === 'unknown-dimensions') {
+		throw new Error(
+			'The wrapped element needs explicit, repeatable width and height expressions that evaluate to positive integers.',
+		);
 	}
 
 	const logLine = original.openingElement.loc?.start.line ?? 1;
@@ -272,6 +381,12 @@ export const wrapNode = <Project extends CodemodProject>({
 	const b = recast.types.builders;
 	const wrapperElement = buildJsxElement({ast, element: wrapper});
 	const opening = wrapperElement.openingElement;
+	if (canvas?.dimensions) {
+		opening.attributes?.unshift(
+			...(canvas.dimensions as NonNullable<typeof opening.attributes>),
+		);
+	}
+
 	opening.selfClosing = false;
 	const localName = recast.print(opening.name).code;
 	const openingLines = printJsxOpeningElement({

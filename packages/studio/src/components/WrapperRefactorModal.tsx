@@ -26,12 +26,14 @@ export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 			description={
 				state.type === 'unwrap-refactor'
 					? 'Studio could not automatically remove this wrapper. Remove it in code while keeping its children, or ask an agent to do it.'
-					: `Studio could not automatically wrap this item in <${state.wrapper}>. Edit the code or ask an agent to do it.`
+					: state.unknownDimensions
+						? 'Studio could not determine the canvas size. Give the layer explicit width and height props in pixels. For computed sizes, assign each result to a local variable and use it as the prop.'
+						: `Studio could not automatically wrap this item in <${state.wrapper}>. Edit the code or ask an agent to do it.`
 			}
 			prompt={
 				state.type === 'unwrap-refactor'
 					? `Unwrap ${target}: remove the wrapper and keep its children.`
-					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'.`
+					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'. Use the layer’s width and height for the canvas and preserve its positioning.`
 			}
 			skillId="remotion-markup"
 			sources={source ? [source] : []}
