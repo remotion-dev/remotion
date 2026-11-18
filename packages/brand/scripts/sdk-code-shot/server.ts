@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {highlightCode} from '../dark-plus';
+import {highlightCode} from '../github-dark';
 
 const monacoRoot = path.resolve(
 	import.meta.dir,
@@ -11,9 +11,9 @@ const server = Bun.serve({
 	port: 3040,
 	async fetch(request) {
 		const {pathname} = new URL(request.url);
-		if (pathname === '/dark-plus-monaco.js') {
+		if (pathname === '/github-dark-monaco.js') {
 			return new Response(
-				Bun.file(path.join(import.meta.dir, '../dark-plus-monaco.js')),
+				Bun.file(path.join(import.meta.dir, '../github-dark-monaco.js')),
 				{headers: {'Content-Type': 'text/javascript'}},
 			);
 		}

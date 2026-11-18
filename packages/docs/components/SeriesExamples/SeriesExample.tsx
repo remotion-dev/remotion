@@ -61,6 +61,8 @@ export const SeriesExample: React.FC<{
 				compositionWidth={1280}
 				compositionHeight={720}
 				controls
+				clickToPlay={false}
+				spaceKeyToPlayOrPause={false}
 				durationInFrames={150}
 				fps={30}
 				style={{

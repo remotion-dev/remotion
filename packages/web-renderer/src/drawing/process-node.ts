@@ -159,8 +159,13 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		if (!doRectsIntersect(precomposeRect, parentRect)) {
-			return {type: 'continue', cleanupAfterChildren: null};
+		const visibleRect = totalMatrix.is2D
+			? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
+			: precomposeRect;
+		if (!doRectsIntersect(visibleRect, parentRect)) {
+			return totalMatrix.is2D
+				? {type: 'skip-children'}
+				: {type: 'continue', cleanupAfterChildren: null};
 		}
 
 		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
