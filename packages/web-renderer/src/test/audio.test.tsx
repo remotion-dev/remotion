@@ -11,6 +11,7 @@ import {AnimatedImage, CanvasImage, Img, Sequence, staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
+import {fractionalAudio} from './fixtures/fractional-audio';
 import {makeToneWav} from './fixtures/pitch-shift-audio';
 
 const getAudioTrackFromBlob = async (blob: Blob): Promise<InputAudioTrack> => {
@@ -35,6 +36,95 @@ const getAudioCodecFromBlob = async (
 	const track = await getAudioTrackFromBlob(blob);
 	return track.codec;
 };
+
+test.each(['wav', 'mkv'] as const)(
+	'preserves fractional audio windows and integer video frames in %s',
+	async (container) => {
+		let videoFrames = 0;
+		const result = await renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition: {...fractionalAudio, calculateMetadata: null},
+			container,
+			audioCodec: 'pcm-s16',
+			videoCodec: 'vp8',
+			sampleRate: 48000,
+			outputTarget: 'arraybuffer',
+			onFrame: async (frame) => {
+				expect(frame.timestamp).toBe(
+					Math.round((videoFrames / 24) * 1_000_000),
+				);
+				const pixels = new Uint8Array(64 * 64 * 4);
+				await frame.copyTo(pixels, {format: 'RGBA'});
+				let wrongPixels = 0;
+				for (let i = 0; i < pixels.length; i += 4) {
+					if (
+						pixels[i] !== 32 + videoFrames * 24 ||
+						pixels[i + 1] !== 64 ||
+						pixels[i + 2] !== 128 ||
+						pixels[i + 3] !== 255
+					)
+						wrongPixels++;
+				}
+
+				expect(wrongPixels).toBe(0);
+				videoFrames++;
+				return frame;
+			},
+		});
+		expect(videoFrames).toBe(container === 'wav' ? 0 : 4);
+		using input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(await result.getBlob()),
+		});
+		const track = await input.getPrimaryAudioTrack();
+		expect(track).not.toBeNull();
+		const channels = [new Float32Array(8000), new Float32Array(8000)];
+		let totalSamples = 0;
+		for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+			for (let channel = 0; channel < 2; channel++) {
+				channels[channel].set(buffer.getChannelData(channel), totalSamples);
+			}
+
+			totalSamples += buffer.length;
+		}
+
+		expect(totalSamples).toBe(8000);
+		// Independent sample-grid oracle from the authored intervals, not exports.
+		const windows = [
+			[0.25, 0.37, 0],
+			[1.125, 1.538008, 0],
+			[1.538008, 1.815008, 2000],
+			[2.1, 2.5, 0],
+			[2.5, 2.9, 0],
+			[2.9, 3.3, 0],
+			[3.3, 3.6, 0],
+		];
+		for (let channel = 0; channel < 2; channel++) {
+			const expected = new Float32Array(8000);
+			for (const [from, to, offset] of windows) {
+				const start = Math.round(from * 2000);
+				for (let sample = start; sample < Math.round(to * 2000); sample++) {
+					expected[sample] =
+						Math.round(
+							Math.sin(
+								((sample - start + offset) / 48000) *
+									(channel === 0 ? 440 : 660) *
+									Math.PI *
+									2,
+							) * 10000,
+						) / 32768;
+				}
+			}
+
+			let wrongSamples = 0;
+			for (let i = 0; i < expected.length; i++) {
+				if (channels[channel][i] !== expected[i]) wrongSamples++;
+			}
+
+			expect(wrongSamples).toBe(0);
+		}
+	},
+);
 
 test('should be able to render 2 audios', async (t) => {
 	if (t.task.file.projectName === 'chromium') {
