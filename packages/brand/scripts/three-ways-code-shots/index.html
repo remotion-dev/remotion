@@ -15,7 +15,7 @@
 				width: 100%;
 				height: 100%;
 				overflow: hidden;
-				background: #131414;
+				background: #24292e;
 			}
 			.tab-bar {
 				height: 64px;
@@ -48,7 +48,7 @@
 		</div>
 		<div id="editor"></div>
 		<script src="/monaco/vs/loader.js"></script>
-		<script src="/dark-plus-monaco.js"></script>
+		<script src="/github-dark-monaco.js"></script>
 		<script>
 			require.config({paths: {vs: '/monaco/vs'}});
 			require(['vs/editor/editor.main'], async () => {
@@ -61,20 +61,20 @@
 					startLine,
 				} = await (await fetch('/snippet?shot=' + shot)).json();
 				document.getElementById('filename').textContent = fileName;
-				window.installDarkPlus(monaco, tokens);
+				window.installGitHubDark(monaco, tokens);
 				window.sdkEditor = monaco.editor.create(
 					document.getElementById('editor'),
 					{
 						model: monaco.editor.createModel(
 							value,
-							'remotion-dark-plus',
+							'remotion-github-dark',
 							monaco.Uri.parse('file:///' + fileName),
 						),
 						wordWrap: 'off',
 						wrappingIndent: 'indent',
 						tabSize: 2,
 						readOnly: true,
-						theme: 'remotion-dark-plus',
+						theme: 'remotion-github-dark',
 						automaticLayout: true,
 						minimap: {enabled: false},
 						fontFamily: 'Menlo, Monaco, Consolas, monospace',
@@ -102,7 +102,7 @@
 						ariaLabel: 'Project code in Monaco',
 					},
 				);
-				await monaco.editor.colorize(value, 'remotion-dark-plus', {});
+				await monaco.editor.colorize(value, 'remotion-github-dark', {});
 				await document.fonts.ready;
 				requestAnimationFrame(() =>
 					requestAnimationFrame(() => {

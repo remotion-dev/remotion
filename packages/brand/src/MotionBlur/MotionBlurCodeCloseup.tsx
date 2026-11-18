@@ -1,80 +1,120 @@
-import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
+import type {HighlightedCode} from 'codehike/code';
+import {highlight, Pre} from 'codehike/code';
+import {useLayoutEffect, useState} from 'react';
 import {
-	HtmlInCanvas,
-	Img,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
+import {brandCodeTheme} from '../code-theme';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
+
+const example = `import {
+  HtmlInCanvasMotionBlur,
+} from '@remotion/motion-blur';
+import {
+  useCurrentFrame, useVideoConfig,
+} from 'remotion';
+
+const MovingText = () => {
+  const translate = \`\${useCurrentFrame() * 10}px 0\`;
+  return <h1 style={{translate}}>Hello!</h1>;
+};
+
+export const MotionBlurExample = () => {
+  const {width, height} = useVideoConfig();
+
+  return (
+    <HtmlInCanvasMotionBlur
+      width={width}
+      height={height}
+      samples={8}
+      shutterAngle={180}
+    >
+      <MovingText />
+    </HtmlInCanvasMotionBlur>
+  );
+};`;
 
 const MotionBlurCodeCloseupContent = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
+	const fitScale = Math.min(width / 1080, height / 960);
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [highlighted, setHighlighted] = useState<{
+		readonly code: HighlightedCode;
+		readonly handle: number;
+	} | null>(null);
+
+	useLayoutEffect(() => {
+		const handle = delayRender('Highlighting the motion blur example');
+		let cancelled = false;
+		highlight({value: example, lang: 'tsx', meta: ''}, brandCodeTheme)
+			.then((code) => {
+				if (!cancelled) setHighlighted({code, handle});
+			})
+			.catch((error) => {
+				if (!cancelled) cancelRender(error);
+			});
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [cancelRender, continueRender, delayRender]);
+
+	useLayoutEffect(() => {
+		if (highlighted) continueRender(highlighted.handle);
+	}, [continueRender, highlighted]);
 
 	return (
-		<HtmlInCanvas
-			name="Tilted motion blur code with moving focus"
-			width={width}
-			height={height}
-			style={{backgroundColor: '#131414'}}
-			effects={[
-				linearProgressiveBlur({
-					start: [
-						0.5,
-						interpolate(frame, [0, 2.6 * fps], [0.2, 0.85], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-					],
-					end: [
-						0.5,
-						interpolate(frame, [0, 2.6 * fps], [0.8, 1.45], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-					],
-					endBlur: 18,
-				}),
-			]}
+		<div
+			style={{
+				position: 'absolute',
+				inset: 0,
+				backgroundColor: '#24292e',
+				overflow: 'hidden',
+			}}
 		>
-			<div
+			<Interactive.Div
+				name="Motion blur React example"
 				style={{
 					position: 'absolute',
-					inset: 0,
-					perspective: 1600,
-					perspectiveOrigin: '50% 50%',
+					left: `calc(50% + ${218 * fitScale}px)`,
+					top: `calc(46% - ${200 * fitScale}px)`,
+					width: 960,
+					translate: '-50% -50%',
+					rotate: EXPLORE_CAMERA_ANGLE,
+					transform: 'perspective(100px)',
+					willChange: 'transform',
+					scale: interpolate(
+						frame,
+						[0, 2.6 * fps],
+						[1.68 * fitScale, 1.76 * fitScale],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						},
+					),
+					boxSizing: 'border-box',
+					padding: '26px 32px',
 				}}
 			>
-				<Img
-					name="Triangle motion blur wrapper in Monaco"
-					src="https://remotion.media/motion-blur-2026-11-17/code-closeup-4ba50e55de98.png"
-					style={{
-						position: 'absolute',
-						left: '50%',
-						top: '60%',
-						width: 1000,
-						height: 760,
-						translate: interpolate(
-							frame,
-							[0, 2.6 * fps],
-							['-410px -380px', '-425px -405px'],
-							{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-						),
-						transformOrigin: '500px 380px',
-						rotate: EXPLORE_CAMERA_ANGLE,
-						scale:
-							Math.min(width / 1080, height / 960) *
-							interpolate(frame, [0, 2.6 * fps], [1.28, 1.4], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-								output: 'perceptual-scale',
-							}),
-					}}
-				/>
-			</div>
-		</HtmlInCanvas>
+				{highlighted ? (
+					<Pre
+						code={highlighted.code}
+						style={{
+							margin: 0,
+							fontFamily: 'Menlo, Monaco, monospace',
+							fontSize: 27,
+							lineHeight: '29px',
+						}}
+					/>
+				) : null}
+			</Interactive.Div>
+		</div>
 	);
 };
 
