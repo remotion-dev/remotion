@@ -9,6 +9,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>createElementPayload()</strong>
 				<div>Create a versioned Element payload</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/static-file-ref">
+				<strong>staticFileRef()</strong>
+				<div>Reference an Element asset in initial props</div>
+			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/build-open-in-remotion-new-url">
 				<strong>buildOpenInRemotionNewUrl()</strong>
 				<div>Build a URL that opens an Element on remotion.new</div>

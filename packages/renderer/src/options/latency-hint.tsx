@@ -5,7 +5,7 @@ const cliFlag = 'audio-latency-hint' as const;
 let value: AudioContextLatencyCategory | null = null;
 
 export const audioLatencyHintOption = {
-	name: 'Audio Latency Hint',
+	name: 'Audio latency hint',
 	addedIn: '4.0.303',
 	cliFlag,
 	description: () => (
@@ -14,8 +14,8 @@ export const audioLatencyHintOption = {
 			<a href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext">
 				audio latency
 			</a>{' '}
-			hint for the global <code>AudioContext</code> context that Remotion uses
-			to play audio.
+			hint for the global <code>AudioContext</code> that Remotion uses to play
+			audio.
 			<br />
 			Possible values: <code>interactive</code>, <code>balanced</code>,{' '}
 			<code>playback</code>

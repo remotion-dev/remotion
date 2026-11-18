@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import type {_InternalTypes} from 'remotion';
@@ -238,6 +239,7 @@ const internalRenderMediaRaw = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	proResBitsPerMacroblock,
 	crf,
 	composition: compositionWithPossibleUnevenDimensions,
 	serializedInputPropsWithCustomSchema,
@@ -333,6 +335,7 @@ const internalRenderMediaRaw = async ({
 	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 
 	validateSelectedCodecAndProResCombination({
+		proResBitsPerMacroblock,
 		codec,
 		proResProfile,
 	});
@@ -596,6 +599,7 @@ const internalRenderMediaRaw = async ({
 				indent,
 				x264Preset: x264Preset ?? null,
 				gopSize,
+				proResBitsPerMacroblock,
 				colorSpace,
 				binariesDirectory,
 				hardwareAcceleration,
@@ -915,6 +919,7 @@ const internalRenderMediaRaw = async ({
 					proResProfile,
 					crf,
 					gopSize,
+					proResBitsPerMacroblock,
 					assetsInfo,
 					onProgress: (frame: number) => {
 						// With seamless AAC concatenation, the amount of rendered frames
@@ -991,8 +996,11 @@ const internalRenderMediaRaw = async ({
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 						})
 						.catch((err) => {
-							Log.error({indent, logLevel}, 'Failed to send usage event');
-							Log.error({indent: true, logLevel}, err);
+							Log.error(
+								{indent, logLevel},
+								LicensingInternals.getUsageEventErrorMessage(err),
+							);
+							Log.verbose({indent: true, logLevel}, inspect(err));
 						})
 						.finally(() => {
 							resolve(result);
@@ -1091,6 +1099,7 @@ export const renderMedia = ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	proResBitsPerMacroblock,
 	crf,
 	composition,
 	inputProps,
@@ -1191,6 +1200,7 @@ export const renderMedia = ({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
+		proResBitsPerMacroblock: proResBitsPerMacroblock ?? null,
 		codec,
 		composition,
 		serveUrl,

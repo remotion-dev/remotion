@@ -42,6 +42,7 @@ test(
 					proResProfile: null,
 					x264Preset: null,
 					gopSize: null,
+					proResBitsPerMacroblock: null,
 					disableSharedMemoryCapture: false,
 					jpegQuality: undefined,
 					scale: 1,

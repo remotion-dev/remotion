@@ -13,19 +13,17 @@ let configSelection: ChromeMode | null = null;
 
 export const chromeModeOption = {
 	cliFlag,
-	name: 'Chrome Mode',
+	name: 'Chrome mode',
 	addedIn: '4.0.248',
 	ssrName: 'chromeMode',
 	description: () => {
 		return (
 			<>
 				One of{' '}
-				{validChromeModeOptions.map((option, i) => (
-					<code key={option}>
-						{option}
-						{i === validChromeModeOptions.length - 1 ? '' : ', '}
-					</code>
-				))}
+				{validChromeModeOptions.flatMap((option, i) => [
+					i === 0 ? '' : ', ',
+					<code key={option}>{option}</code>,
+				])}
 				. Default <code>headless-shell</code>.{' '}
 				<a href="https://remotion.dev/docs/miscellaneous/chrome-headless-shell">
 					Use <code>chrome-for-testing</code> to take advantage of GPU drivers

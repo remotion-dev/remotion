@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # FFmpeg -bufsize flag<AvailableFrom v="4.0.78" />
 
-The value for the `-bufsize` flag of FFmpeg. Should be used in conjunction with the encoding max rate flag. With the VP8, VP9 and AV1 codecs, a video bitrate must also be set.
+The value for the `-bufsize` flag of FFmpeg. Should be used in conjunction with the [encoding max rate flag](/docs/options/max-rate). With the VP8, VP9 and AV1 codecs, a [video bitrate](/docs/options/video-bitrate) must also be set.
 
 ## CLI flag
 
@@ -29,9 +29,9 @@ The following CLI commands accept this option:
 
 The following APIs accept this option:
 
-- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#buffersize)
-- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#buffersize)
-- [`renderMedia()`](/docs/renderer/render-media#buffersize)
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#encodingbuffersize)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#encodingbuffersize)
+- [`renderMedia()`](/docs/renderer/render-media#encodingbuffersize)
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#buffersize)
 - [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#encodingbuffersize)
 

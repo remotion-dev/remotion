@@ -72,23 +72,51 @@ for (const mode of ['graceful', 'no-response', 'disconnect']) {
 	});
 }
 
-for (const mode of ['hang', 'reject']) {
-	test(`force-kills an unresponsive browser and still cleans up (${mode})`, async () => {
-		const {runner, directory, profile, pid} = await startBrowser(mode);
-		const start = Date.now();
-		await runner.closeProcess();
+test('force-kills unresponsive browsers and still cleans up', async () => {
+	const [forced, disposed] = await Promise.all([
+		Promise.all(
+			(['hang', 'reject'] as const).map(async (mode) => {
+				const {runner, directory, profile, pid} = await startBrowser(mode);
+				const start = Date.now();
+				await runner.closeProcess();
 
-		expect(Date.now() - start).toBeGreaterThanOrEqual(1500);
-		expect(Date.now() - start).toBeLessThan(5000);
-		expect(readFileSync(join(directory, 'requests'), 'utf8')).toBe(
-			'Browser.close\n',
-		);
-		expect(existsSync(join(directory, 'closed'))).toBe(false);
-		expect(pidExists(pid)).toBe(false);
-		expect(existsSync(profile)).toBe(false);
-		expect(runner.listeners).toHaveLength(0);
-	});
-}
+				return {
+					mode,
+					duration: Date.now() - start,
+					requests: readFileSync(join(directory, 'requests'), 'utf8'),
+					closed: existsSync(join(directory, 'closed')),
+					pidExists: pidExists(pid),
+					profileExists: existsSync(profile),
+					listeners: runner.listeners.length,
+				};
+			}),
+		),
+		(async () => {
+			const {runner, profile, pid} = await startBrowser('hang');
+			runner.connection.dispose();
+			await runner.closeProcess();
+
+			return {
+				pidExists: pidExists(pid),
+				profileExists: existsSync(profile),
+				listeners: runner.listeners.length,
+			};
+		})(),
+	]);
+	for (const result of forced) {
+		expect(result.duration).toBeGreaterThanOrEqual(1500);
+		expect(result.duration).toBeLessThan(5000);
+		expect(result.requests).toBe('Browser.close\n');
+		expect(result.closed).toBe(false);
+		expect(result.pidExists).toBe(false);
+		expect(result.profileExists).toBe(false);
+		expect(result.listeners).toBe(0);
+	}
+
+	expect(disposed.pidExists).toBe(false);
+	expect(disposed.profileExists).toBe(false);
+	expect(disposed.listeners).toBe(0);
+});
 
 test('cleans up after the browser has already exited', async () => {
 	const {runner, profile, pid} = await startBrowser('graceful');
@@ -99,16 +127,6 @@ test('cleans up after the browser has already exited', async () => {
 
 	expect(pidExists(pid)).toBe(false);
 	await runner.closeProcess();
-	expect(existsSync(profile)).toBe(false);
-	expect(runner.listeners).toHaveLength(0);
-});
-
-test('can close a browser whose CDP connection is already disposed', async () => {
-	const {runner, profile, pid} = await startBrowser('hang');
-	runner.connection.dispose();
-	await runner.closeProcess();
-
-	expect(pidExists(pid)).toBe(false);
 	expect(existsSync(profile)).toBe(false);
 	expect(runner.listeners).toHaveLength(0);
 });

@@ -34,6 +34,7 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {UvCoordinateHandle} from '../UvCoordinateHandle';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './should-clear-selection-on-pointer-down';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import type {TimelineSelection} from './TimelineSelection';
 import type {
@@ -126,6 +127,7 @@ const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
 
 const inlineContainer: React.CSSProperties = {
 	minWidth: 0,
+	outline: 'none',
 	paddingBottom: 12,
 	width: '100%',
 };
@@ -760,10 +762,13 @@ const EasingEditorUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const svgRef = useRef<SVGSVGElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedHandle, setSelectedHandle] = useState<HandleIndex | null>(
 		null,
 	);
-	const [mode, setMode] = useState(() => easingToMode(state.initialEasing));
+	const [mode, setModeState] = useState(() =>
+		easingToMode(state.initialEasing),
+	);
 	const [bezier, setBezier] = useState(() =>
 		easingToBezier(state.initialEasing),
 	);
@@ -776,6 +781,13 @@ const EasingEditorUnmemoized: React.FC<{
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
 	const stopPointerSession = useRef<(() => void) | null>(null);
 
+	const setMode = useCallback((nextMode: EditorMode) => {
+		setModeState(nextMode);
+		if (nextMode !== 'bezier') {
+			setSelectedHandle(null);
+		}
+	}, []);
+
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
 		const nextSpring = easingToSpring(state.initialEasing);
@@ -784,7 +796,7 @@ const EasingEditorUnmemoized: React.FC<{
 		setMode(easingToMode(state.initialEasing));
 		setBezier(nextBezier);
 		setSpring(nextSpring);
-	}, [state.initialEasing]);
+	}, [setMode, state.initialEasing]);
 
 	const getCurrentEasingUpdates = useCallback(() => {
 		return getSelectedEasingUpdates({
@@ -1030,7 +1042,7 @@ const EasingEditorUnmemoized: React.FC<{
 			const version = applyLiveEasing(easing);
 			commitEasing(easing, version);
 		},
-		[applyLiveEasing, commitEasing, mode, previewServerState.type],
+		[applyLiveEasing, commitEasing, mode, previewServerState.type, setMode],
 	);
 
 	const applyPreset = useCallback(
@@ -1064,6 +1076,7 @@ const EasingEditorUnmemoized: React.FC<{
 			commitEasing,
 			previewServerState.type,
 			setBezierAndPreview,
+			setMode,
 			setSpringAndPreview,
 		],
 	);
@@ -1119,8 +1132,9 @@ const EasingEditorUnmemoized: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
-			setSelectedHandle(handle);
 			stopPointerSession.current?.();
+			setSelectedHandle(handle);
+			containerRef.current?.focus({preventScroll: true});
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
 			stopPointerSession.current = startEscapeCancelableCapturedPointerSession({
@@ -1137,6 +1151,7 @@ const EasingEditorUnmemoized: React.FC<{
 							liveOverrideVersionRef.current,
 						);
 					} else {
+						setSelectedHandle(null);
 						clearEasingDragOverrides(pendingOverrideTargetsRef.current);
 						pendingOverrideTargetsRef.current = [];
 						bezierRef.current = bezierBeforeDrag;
@@ -1160,6 +1175,41 @@ const EasingEditorUnmemoized: React.FC<{
 			pendingOverrideTargetsRef.current = [];
 		};
 	}, [clearEasingDragOverrides]);
+
+	useEffect(() => {
+		if (selectedHandle === null) {
+			return;
+		}
+
+		const onPointerDown = (event: PointerEvent) => {
+			if (
+				event.target instanceof Element &&
+				event.target.closest('[data-easing-handle]')
+			) {
+				return;
+			}
+
+			setSelectedHandle(null);
+		};
+
+		window.addEventListener('pointerdown', onPointerDown, true);
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown, true);
+		};
+	}, [selectedHandle]);
+
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (event.key !== 'Escape' || selectedHandle === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			setSelectedHandle(null);
+		},
+		[selectedHandle],
+	);
 
 	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
 	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
@@ -1240,7 +1290,12 @@ const EasingEditorUnmemoized: React.FC<{
 	);
 
 	return (
-		<div style={inlineContainer}>
+		<div
+			ref={containerRef}
+			style={inlineContainer}
+			tabIndex={-1}
+			onKeyDown={onKeyDown}
+		>
 			{renderHeader ? renderHeader(modeItems) : null}
 			<div
 				style={
@@ -1259,7 +1314,10 @@ const EasingEditorUnmemoized: React.FC<{
 			</div>
 			{mode === 'bezier' ? (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							ref={svgRef}
 							width={SVG_WIDTH}
@@ -1302,6 +1360,7 @@ const EasingEditorUnmemoized: React.FC<{
 									height={18}
 									viewBox="0 0 18 18"
 									aria-label={`Bezier control point ${handle + 1}`}
+									data-easing-handle
 									style={{
 										position: 'absolute',
 										left: `${(point.x / SVG_WIDTH) * 100}%`,
@@ -1426,7 +1485,10 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : mode === 'spring' ? (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1587,7 +1649,10 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : (
 				<>
-					<div style={graphWrapperStyle}>
+					<div
+						style={graphWrapperStyle}
+						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+					>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}

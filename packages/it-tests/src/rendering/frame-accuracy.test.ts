@@ -16,11 +16,7 @@ test(
 	{retry: 3, timeout: 90000},
 );
 
-test(
-	'should select the containing OffthreadVideo frame for a fractional trim',
-	async () => {
-		const missedFrames = await getMissedFramesWithFractionalTrimApplied();
-		expect(missedFrames).toBe(0);
-	},
-	{retry: 3},
-);
+test('should select the containing OffthreadVideo frame for a fractional trim', async () => {
+	const missedFrames = await getMissedFramesWithFractionalTrimApplied();
+	expect(missedFrames).toBe(0);
+});

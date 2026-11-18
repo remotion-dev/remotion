@@ -32,7 +32,6 @@ export const SettingsButton: React.FC<{
 	const openModal = useCallback(() => {
 		setSelectedModal({
 			type: 'settings',
-			initialStudioPane: null,
 			initialTab: updateAvailable
 				? 'updates'
 				: canEditConfig

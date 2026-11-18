@@ -43,6 +43,7 @@ export const prepareOpenTimelineImport = async ({
 		}
 	>();
 	const probeErrors = new Map<string, Error>();
+	const missingMedia = new Map<string, string>();
 	const importDirectory = `opentimeline/${randomUUID()}`;
 	const realPublicDir = existsSync(publicDir)
 		? realpathSync(publicDir)
@@ -145,10 +146,17 @@ export const prepareOpenTimelineImport = async ({
 			!path.isAbsolute(targetUrl)
 		)
 			return null;
+		const resolvedPath = resolvePath(targetUrl);
 		let source: string;
 		try {
-			source = realpathSync(resolvePath(targetUrl));
-		} catch {
+			source = realpathSync(resolvedPath);
+		} catch (error) {
+			const {code} = error as NodeJS.ErrnoException;
+			if (code !== 'ENOENT' && code !== 'ENOTDIR') {
+				throw error;
+			}
+
+			missingMedia.set(targetUrl, resolvedPath);
 			throw new Error(`Media not found: ${targetUrl}`);
 		}
 
@@ -326,6 +334,10 @@ export const prepareOpenTimelineImport = async ({
 		result,
 		timeline,
 		copies: [...copies.values()],
+		missingMedia: [...missingMedia].map(([src, resolvedPath]) => ({
+			src,
+			resolvedPath,
+		})),
 		resolveMedia,
 		hasRelativeMedia,
 	};

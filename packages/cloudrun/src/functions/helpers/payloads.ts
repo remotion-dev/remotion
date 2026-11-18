@@ -9,6 +9,9 @@ const stillImageFormat = z.enum(BrowserSafeApis.validStillImageFormats);
 const proResProfile = z.enum(BrowserSafeApis.proResProfileOptions).nullable();
 const x264Preset = z.enum(BrowserSafeApis.x264PresetOptions).nullable();
 const chromiumOptions = z.object({
+	flags: z.record(z.string(), z.union([z.string(), z.boolean()])).optional(),
+	features: z.record(z.string(), z.boolean()).optional(),
+	blinkFeatures: z.record(z.string(), z.boolean()).optional(),
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
 	gl: z.enum(BrowserSafeApis.validOpenGlRenderers).optional().nullable(),
@@ -54,6 +57,13 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		proResProfile,
 		x264Preset,
 		gopSize: z.number().nullable(),
+		proResBitsPerMacroblock: z
+			.number()
+			.int()
+			.min(128)
+			.max(8192)
+			.nullable()
+			.default(null),
 		disableSharedMemoryCapture: z.boolean(),
 		everyNthFrame: z.number(),
 		numberOfGifLoops: z.number().nullable(),

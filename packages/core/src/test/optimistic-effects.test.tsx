@@ -59,7 +59,7 @@ test('chains edits immediately and settles only the installed source prefix', ()
 	const remove = begin({type: 'delete', ids: [first.id]});
 	const duplicateCopy = begin({type: 'duplicate', ids: [copy]});
 	const lastCopy = duplicateCopy.addedIds[0];
-	const reorder = begin({type: 'reorder', id: second.id, beforeId: copy});
+	const reorder = begin({type: 'reorder', ids: [second.id], beforeId: copy});
 	expect(getIds()).toEqual([second.id, copy, lastCopy]);
 	expect(
 		amounts(
@@ -417,16 +417,19 @@ test('undo of an independent edit cannot restore a failed insertion or repeat a 
 });
 
 test('undo of reorder reverses only surviving logical effects', () => {
-	const original = OptimisticEffects.getItems(nodePath, definitions);
+	const original = OptimisticEffects.getItems(nodePath, [
+		...definitions,
+		...definitions,
+	]);
 	const reorder = begin({
 		type: 'reorder',
-		id: original[1].id,
-		beforeId: original[0].id,
+		ids: [original[0].id, original[1].id],
+		beforeId: null,
 	});
 	const reordered = OptimisticEffects.getItems(nodePath, null);
 	begin({
 		type: 'restore',
-		movedIds: [original[1].id],
+		movedIds: [original[0].id, original[1].id],
 		fromItems: reordered,
 		items: original,
 	});
@@ -549,9 +552,13 @@ test('undo of a later reorder preserves the rollback of an earlier reorder', () 
 		...definitions,
 		definitions[0],
 	]);
-	const failed = begin({type: 'reorder', id: original[0].id, beforeId: null});
+	const failed = begin({
+		type: 'reorder',
+		ids: [original[0].id],
+		beforeId: null,
+	});
 	const before = OptimisticEffects.getItems(nodePath, null);
-	begin({type: 'reorder', id: original[1].id, beforeId: null});
+	begin({type: 'reorder', ids: [original[1].id], beforeId: null});
 	const after = OptimisticEffects.getItems(nodePath, null);
 	begin({
 		type: 'restore',

@@ -20,7 +20,7 @@ import {deleteEffects, type CodemodProject, type EffectReference} from '@remotio
 declare const project: CodemodProject;
 declare const effect: EffectReference;
 
-const result = await deleteEffects({
+const result = deleteEffects({
   project,
   effects: [effect],
 });
@@ -31,6 +31,8 @@ console.log(result);
 Indices of later effects shift after deletion. Read effects again with [`getNodeProps()`](/docs/codemods/get-node-props) before using old effect indices. Imports are preserved.
 
 The `effects` attribute must contain an inline array. An attribute followed by a JSX spread is rejected because the spread may override it.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -50,7 +52,7 @@ import {deleteEffects, type CodemodProject, type NodeReference} from '@remotion/
 declare const project: CodemodProject;
 declare const node: NodeReference;
 // ---cut---
-const result = await deleteEffects({
+const result = deleteEffects({
   project,
   effects: [{...node, effectIndex: null}],
 });
@@ -58,7 +60,7 @@ const result = await deleteEffects({
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -90,7 +92,7 @@ Whether the generated edit was formatted.
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

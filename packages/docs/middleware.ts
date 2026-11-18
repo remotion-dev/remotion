@@ -2,7 +2,6 @@ import {rewrite} from '@vercel/functions';
 
 export const config = {
 	matcher: [
-		'/pricing',
 		'/docs/:path*',
 		'/elements',
 		'/elements.md',
@@ -131,13 +130,6 @@ export default async function middleware(request: Request) {
 		}
 
 		return;
-	}
-
-	if (pathname === '/pricing') {
-		return Response.redirect(
-			new URL('/docs/license/pricing', request.url),
-			308,
-		);
 	}
 
 	if (pathname === '/docs/pricing') {

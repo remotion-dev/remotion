@@ -9,7 +9,8 @@ You can embed transparent videos in Remotion.
 
 ## With `@remotion/media`
 
-Transparent videos with an alpha channel are natively supported by [`<Video>` from `@remotion/media`](/docs/media/video).
+Transparent videos with an alpha channel are natively supported by [`<Video>` from `@remotion/media`](/docs/media/video).  
+Decoding the alpha channel requires WebGL. If WebGL is not available, `<Video>` [falls back](/docs/media/fallback) to `<OffthreadVideo>` during rendering.
 
 ```tsx twoslash title="MyComp.tsx"
 import React from 'react';

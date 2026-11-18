@@ -1,5 +1,6 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals, type CodemodProject} from '@remotion/codemods';
 import type {ProjectInfo} from '@remotion/studio-shared';
 
 const getRootFileFromEntryPoint = (entryPoint: string): string | null => {
@@ -29,7 +30,20 @@ const getRootFileFromEntryPoint = (entryPoint: string): string | null => {
 export const getProjectInfo = (
 	remotionRoot: string,
 	entryPoint: string,
+	project: CodemodProject | null = null,
 ): Promise<ProjectInfo> => {
+	if (project !== null) {
+		const sourceRootFile = CodemodsInternals.resolveCompositionImportFile({
+			entryPoint,
+			project,
+			compositionFile: null,
+		});
+		return Promise.resolve({
+			rootFile: sourceRootFile,
+			relativeRootFile: path.relative(remotionRoot, sourceRootFile),
+		});
+	}
+
 	const rootFileFromEntryPoint = getRootFileFromEntryPoint(entryPoint);
 	if (rootFileFromEntryPoint) {
 		return Promise.resolve({

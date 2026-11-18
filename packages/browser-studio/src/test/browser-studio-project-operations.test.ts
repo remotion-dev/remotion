@@ -118,13 +118,15 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(
 		await operations.findInFile({
 			fileName: 'webpack://remotion/./src/Composition.tsx',
-			lineNumber: 1,
+			lineNumber: 11,
 			columnNumber: 1,
 			search: 'durationInFrames',
+			effectIndex: null,
 		}),
 	).toEqual({lineNumber: 14, columnNumber: 7});
 
 	const insertResult = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1192,6 +1194,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 		resolveDependencies: null,
 	});
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1219,7 +1222,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 	expect(packageJson.dependencies['@remotion/media']).toBe('4.0.999');
 });
 
-test('rejects inline SVG importing in Browser Studio', async () => {
+test('rejects inline SVG importing in remotion.new', async () => {
 	const project = createBlankTemplateProject();
 	const operations = createBrowserStudioOperations({
 		dependencyVersions: {},
@@ -1232,6 +1235,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 		resolveDependencies: null,
 	});
 	const result = await operations.insertCompositionElement({
+		track: null,
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1243,7 +1247,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 	});
 
 	expect(result).toMatchObject({
-		reason: 'Importing SVG markup is not supported in Browser Studio',
+		reason: 'Importing SVG markup is not supported in remotion.new',
 		success: false,
 	});
 });

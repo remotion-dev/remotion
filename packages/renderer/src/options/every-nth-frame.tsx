@@ -12,10 +12,10 @@ export const everyNthFrameOption = {
 	cliFlag,
 	description: () => (
 		<>
-			This option may only be set when rendering GIFs. It determines how many
-			frames are rendered, while the other ones get skipped in order to lower
-			the FPS of the GIF. For example, if the <code>fps</code> is 30, and{' '}
-			<code>everyNthFrame</code> is 2, the FPS of the GIF is <code>15</code>.
+			Determines how many frames are rendered, while the other ones get skipped.
+			Commonly used to lower the frame rate of GIFs. For example, if the{' '}
+			<code>fps</code> is 30, and <code>everyNthFrame</code> is 2, the FPS of
+			the output is <code>15</code>.
 		</>
 	),
 	ssrName: 'everyNthFrame' as const,

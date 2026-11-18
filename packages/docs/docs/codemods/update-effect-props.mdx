@@ -20,7 +20,7 @@ import {updateEffectProps, type CodemodProject, type EffectReference} from '@rem
 declare const project: CodemodProject;
 declare const effect: EffectReference;
 
-const result = await updateEffectProps({
+const result = updateEffectProps({
   project,
   effect,
   props: {radius: 12},
@@ -30,6 +30,8 @@ console.log(result);
 ```
 
 Other effect properties are preserved. Use [`updateEffectKeyframes()`](/docs/codemods/update-effect-keyframes) to edit an animation. The effects array and configuration must be inline.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -71,7 +73,7 @@ A Remotion `InteractivitySchema` for schema-specific defaults and enum variants.
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -119,7 +121,7 @@ Whether the generated edit was formatted.
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

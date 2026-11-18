@@ -56,11 +56,11 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 - Change the speed of the animation
 - Playing animation forwards and backwards
 - Playing remote files
+- Rendering with the `svg`, `canvas` or `html` renderer using the [`renderer`](/docs/lottie/lottie#renderer) prop
 - Determining dimensions and duration of a Lottie animation
 
 ## Unsupported features
 
-- Rendering on other renderers as `svg`
 - `setSubFrame()`, `setLocationHref()`
 - Limited expression support: Remotion uses the `.goToAndStop()` method from `lottie-web` to seek through the Lottie file. Depending on the expression, the frame might not render deterministally, leading to [flickering](/docs/flickering) in the Remotion output. Remotion cannot fix this without a change in `lottie-web` upstream. You need to evaluate on a case-by-case basis whether the expression you are using is supported by Remotion.
 

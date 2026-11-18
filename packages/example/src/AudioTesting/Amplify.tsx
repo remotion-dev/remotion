@@ -50,7 +50,6 @@ const Amplify: React.FC = () => {
 			</Sequence>
 			<Sequence
 				from={90}
-				premountFor={100}
 				style={{
 					top: 120,
 				}}

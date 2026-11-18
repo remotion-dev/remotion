@@ -6,6 +6,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import {validateGopSize} from './options/gop-size';
+import {validateProResBitsPerMacroblock} from './options/prores-bits-per-macroblock';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
@@ -13,6 +14,7 @@ import {truthy} from './truthy';
 const firstEncodingStepOnly = ({
 	hasPreencoded,
 	proResProfileName,
+	proResBitsPerMacroblock,
 	pixelFormat,
 	x264Preset,
 	gopSize,
@@ -28,6 +30,7 @@ const firstEncodingStepOnly = ({
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
+	proResBitsPerMacroblock: number | null;
 	pixelFormat: PixelFormat;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
@@ -49,6 +52,9 @@ const firstEncodingStepOnly = ({
 
 	return [
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
+		proResBitsPerMacroblock === null
+			? null
+			: ['-bits_per_mb', String(proResBitsPerMacroblock)],
 		['-pix_fmt', pixelFormat],
 
 		// Without explicitly disabling auto-alt-ref,
@@ -84,6 +90,7 @@ const firstEncodingStepOnly = ({
 export const generateFfmpegArgs = ({
 	hasPreencoded,
 	proResProfileName,
+	proResBitsPerMacroblock,
 	pixelFormat,
 	x264Preset,
 	gopSize,
@@ -101,6 +108,7 @@ export const generateFfmpegArgs = ({
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
+	proResBitsPerMacroblock: number | null;
 	pixelFormat: PixelFormat;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
@@ -116,10 +124,16 @@ export const generateFfmpegArgs = ({
 	cpuCount: number;
 	lambdaMemoryInBytes: number | null;
 }): string[][] => {
+	validateProResBitsPerMacroblock(proResBitsPerMacroblock);
+	if (proResBitsPerMacroblock !== null && codec !== 'prores') {
+		throw new TypeError('proResBitsPerMacroblock requires the prores codec.');
+	}
+
 	const encoderSettings = getCodecName({
 		codec,
 		encodingMaxRate,
 		encodingBufferSize,
+		proResBitsPerMacroblock,
 		crf,
 		hardwareAcceleration,
 		indent,
@@ -192,6 +206,7 @@ export const generateFfmpegArgs = ({
 			hasPreencoded,
 			pixelFormat,
 			proResProfileName,
+			proResBitsPerMacroblock,
 			videoBitrate,
 			encodingMaxRate,
 			encodingBufferSize,

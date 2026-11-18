@@ -30,6 +30,19 @@ export interface UndoEntryDescription {
 	redoMessage: string;
 }
 
+const shouldSkipSequencePropsUpdate = (
+	remappings: readonly SequenceNodePathRemapping[] | null,
+) => {
+	return (
+		remappings !== null &&
+		!remappings.every(
+			({oldNodePath, newNodePath, sourceLocations}) =>
+				sourceLocations &&
+				JSON.stringify(oldNodePath) === JSON.stringify(newNodePath),
+		)
+	);
+};
+
 export type UndoEntryType =
 	| 'visual-control'
 	| 'default-props'
@@ -485,6 +498,7 @@ export function popUndo(): UndoResponse {
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings.map(
 					(remapping): SequenceNodePathRemapping => ({
+						...(remapping.effectsOnly ? {effectsOnly: true as const} : {}),
 						oldNodePath: remapping.newNodePath,
 						newNodePath: remapping.oldNodePath,
 						...(remapping.newJsxName === undefined
@@ -515,7 +529,11 @@ export function popUndo(): UndoResponse {
 					entry.suppressHmrOnFileRestore,
 				);
 
-	for (const snapshot of entry.snapshots) {
+	for (const snapshot of redoSnapshots) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);
@@ -531,10 +549,11 @@ export function popUndo(): UndoResponse {
 				file: snapshot.filePath,
 				content: snapshot.oldContents,
 				originatorClientId: undefined,
-				metadata:
-					snapshot.nodePathRemappings === null
-						? null
-						: {skipSequencePropsUpdate: true},
+				metadata: {
+					skipSequencePropsUpdate: shouldSkipSequencePropsUpdate(
+						snapshot.nodePathRemappings,
+					),
+				},
 			});
 		}
 	}
@@ -627,6 +646,10 @@ export function popRedo(): RedoResponse {
 				);
 
 	for (const snapshot of snapshotsWithNewContents) {
+		if (snapshot.oldContents === snapshot.newContents) {
+			continue;
+		}
+
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
 			suppressBundlerUpdateForFile(snapshot.filePath);
@@ -636,10 +659,11 @@ export function popRedo(): RedoResponse {
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: undefined,
-			metadata:
-				snapshot.nodePathRemappings === null
-					? null
-					: {skipSequencePropsUpdate: true},
+			metadata: {
+				skipSequencePropsUpdate: shouldSkipSequencePropsUpdate(
+					snapshot.nodePathRemappings,
+				),
+			},
 		});
 	}
 

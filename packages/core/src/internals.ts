@@ -20,6 +20,7 @@ import {
 import {useMediaAudioState} from './audio/use-media-audio-state.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
+import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -56,6 +57,10 @@ import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+} from './delay-render.js';
+import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	timeValueRef,
@@ -68,6 +73,7 @@ import {
 } from './effects/create-effect.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {getGpuDevice} from './effects/gpu-device.js';
 import {
 	PreferredEffectBackendContext,
 	validatePreferredEffectBackend,
@@ -163,11 +169,17 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {MotionBlurContext} from './motion-blur-context.js';
 import {OptimisticEffects, useOptimisticEffects} from './optimistic-effects.js';
 import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
+import {
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
+} from './playback-diagnostics.js';
 import {playbackLogging} from './playback-logging.js';
 import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
@@ -288,6 +300,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimelineRegistration as useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import {useMotionBlurCanvas} from './use-motion-blur-canvas.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
@@ -332,6 +345,7 @@ import {
 	isFolderNameValid,
 } from './validation/validate-folder-name.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {useEmitVideoFrame} from './video/emit-video-frame.js';
 import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
 import {VideoForPreview} from './video/VideoForPreview.js';
@@ -369,7 +383,15 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	MotionBlurContext,
+	useMotionBlurCanvas,
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+	bufferingDiagnostics,
+	playbackDiagnostics,
+	registerMediabunnySink,
 	HtmlInCanvasFallback,
+	canPremountInHtmlInCanvas,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticEffects,
 	useOptimisticEffects,
@@ -397,6 +419,7 @@ export const Internals = {
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
 	useIsInsideNonPremountFreeze,
 	useMediaAudioState,
+	useEmitVideoFrame,
 	evaluateVolume,
 	getAbsoluteSrc,
 	getAnimatedImageDurationInSeconds,
@@ -560,6 +583,7 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	getGpuDevice,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	PreferredEffectBackendContext,

@@ -156,6 +156,7 @@ export {
 	ReorderEffectResponse,
 	ReorderSequencePosition,
 	ReorderSequenceRequest,
+	TrackMoveTiming,
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
@@ -190,6 +191,9 @@ export {
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
+	UpdateSequencePropsSubscriptionRequest,
+	SequencePropsSubscriptionUpdate,
+	UpdateSequencePropsSubscriptionBatchRequest,
 	UnsubscribeFromSequencePropsBatchRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
@@ -272,6 +276,7 @@ export {
 	remoteAssetDownloadTimeout,
 } from './remote-asset';
 export {
+	isKeyframeEasing,
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
 	type EasingClipboardData,

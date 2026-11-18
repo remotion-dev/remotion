@@ -169,6 +169,15 @@ export const still = async (
 	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
+		flags: BrowserSafeApis.options.chromiumFlagsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		features: BrowserSafeApis.options.chromiumFeaturesOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		blinkFeatures: BrowserSafeApis.options.chromiumBlinkFeaturesOption.getValue(
+			{commandLine: parsedCli},
+		).value,
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,

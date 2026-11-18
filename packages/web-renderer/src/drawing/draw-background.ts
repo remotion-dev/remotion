@@ -82,6 +82,7 @@ export const drawBackground = async ({
 			boundingRect.height,
 		);
 		const onlyBackgroundClipText = await createLayer({
+			transparent: true,
 			element,
 			cutout: textLayerCutout,
 			logLevel,
@@ -179,7 +180,8 @@ export const drawBackground = async ({
 		(blendMode ||
 			contextToDraw !== context ||
 			(!isColorTransparent(backgroundColor) &&
-				(context.globalAlpha !== 1 || context.filter !== 'none')))
+				(context.globalAlpha !== 1 ||
+					(typeof context.filter === 'string' && context.filter !== 'none'))))
 	) {
 		// Blend inside the background group before applying element opacity, filters and text masks.
 		const backgroundCanvas = new OffscreenCanvas(

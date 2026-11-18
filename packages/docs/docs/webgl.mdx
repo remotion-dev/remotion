@@ -7,10 +7,6 @@ crumb: 'Rendering'
 
 Some Remotion packages and third-party libraries use WebGL or WebGPU during rendering, including [`@remotion/effects`](/docs/effects), [`@remotion/three`](/docs/three), Skia and map libraries.
 
-## Remotion 5.0
-
-In Remotion 5.0, you don't need to specify any option for `--gl`. The renderer does automatically enable WebGL and WebGPU if possible and uses software fallbacks otherwise.
-
 ## Remotion 4.0
 
 In Remotion 4.0, enable WebGL and WebGPU when rendering from the CLI:
@@ -28,3 +24,7 @@ Config.setChromiumOpenGlRenderer('angle');
 ```
 
 See the [`--gl` option](/docs/options/gl) for available renderers.
+
+## Remotion 5.0
+
+In Remotion 5.0, you don't need to specify any option for `--gl`. The renderer does automatically enable WebGL and WebGPU if possible and uses software fallbacks otherwise.

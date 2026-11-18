@@ -73,6 +73,7 @@ const params: ServerlessPayloads['launch'] = {
 	proResProfile: null,
 	x264Preset: null,
 	gopSize: null,
+	proResBitsPerMacroblock: null,
 	disableSharedMemoryCapture: false,
 	jpegQuality: 80,
 	maxRetries: 0,

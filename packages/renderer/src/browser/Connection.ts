@@ -31,11 +31,13 @@ const ConnectionEmittedEvents = {
 	Disconnected: Symbol('Connection.Disconnected'),
 } as const;
 
+type ConnectionState = 'open' | 'closed';
+
 export class Connection extends EventEmitter {
 	transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
-	#closed = false;
+	#state: ConnectionState = 'open';
 	#callbacks: Map<number, ConnectionCallback> = new Map();
 
 	constructor(transport: NodeWebSocketTransport) {
@@ -58,6 +60,15 @@ export class Connection extends EventEmitter {
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
 	): Promise<{value: Commands[T]['returnType']; size: number}> {
+		if (this.#state === 'closed') {
+			return Promise.reject(
+				rewriteError(
+					new ProtocolError(),
+					`Protocol error (${method}): Target closed. https://www.remotion.dev/docs/target-closed`,
+				),
+			);
+		}
+
 		// There is only ever 1 param arg passed, but the Protocol defines it as an
 		// array of 0 or 1 items See this comment:
 		// https://github.com/ChromeDevTools/devtools-protocol/pull/113#issuecomment-412603285
@@ -136,9 +147,11 @@ export class Connection extends EventEmitter {
 	}
 
 	#onClose(): void {
-		if (this.#closed) {
+		if (this.#state === 'closed') {
 			return;
 		}
+
+		this.#state = 'closed';
 
 		this.transport.onmessage = undefined;
 		this.transport.onclose = undefined;

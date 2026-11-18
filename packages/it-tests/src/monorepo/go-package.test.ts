@@ -81,6 +81,7 @@ test(
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				proResBitsPerMacroblock: null,
 				disableSharedMemoryCapture: false,
 				inputProps: {},
 				preferLossless: false,

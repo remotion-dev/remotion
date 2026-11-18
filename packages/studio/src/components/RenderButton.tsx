@@ -208,6 +208,16 @@ const RenderButtonInner: React.FC<{
 	const video = Internals.useVideo();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
+	const openOpenTimelineInstructions = useCallback(() => {
+		if (!video || !canServerRender) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'export-opentimeline',
+			compositionId: video.id,
+		});
+	}, [canServerRender, setSelectedModal, video]);
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
@@ -345,6 +355,22 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
+		const exportOptions: ComboboxValue[] = canServerRender
+			? [
+					{
+						type: 'item',
+						id: 'export-opentimeline',
+						label: 'Export as OpenTimeline...',
+						value: 'export-opentimeline',
+						onClick: openOpenTimelineInstructions,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: null,
+					},
+					{type: 'divider', id: 'export-divider'},
+				]
+			: [];
 		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
@@ -373,6 +399,7 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
+			...exportOptions,
 			...(canServerRender || isBrowserStudio
 				? [
 						{
@@ -408,6 +435,7 @@ const RenderButtonInner: React.FC<{
 		canServerRender,
 		handleRenderTypeChange,
 		isBrowserStudio,
+		openOpenTimelineInstructions,
 		openServerRenderHandoff,
 		readOnlyStudio,
 	]);

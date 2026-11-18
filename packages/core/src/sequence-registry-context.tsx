@@ -65,10 +65,13 @@ export const DisableSequenceRegistrationContext = React.createContext(false);
 
 export const DisableSequenceRegistrationProvider: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly disabled: boolean;
+}> = ({children, disabled}) => {
+	const parentDisabled = useContext(DisableSequenceRegistrationContext);
+
 	return React.createElement(
 		DisableSequenceRegistrationContext.Provider,
-		{value: true},
+		{value: parentDisabled || disabled},
 		children,
 	);
 };

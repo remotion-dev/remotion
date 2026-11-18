@@ -3,7 +3,7 @@ export const validateDefaultAndInputProps = (
 	name: 'defaultProps' | 'inputProps',
 	compositionId: string | null,
 ) => {
-	if (!defaultProps) {
+	if (defaultProps === undefined || defaultProps === null) {
 		return;
 	}
 

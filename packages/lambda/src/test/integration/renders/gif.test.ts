@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createWriteStream, unlinkSync} from 'node:fs';
+import {createWriteStream, mkdtempSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
@@ -24,7 +24,8 @@ test('Should make a distributed GIF', async () => {
 		region: 'eu-central-1',
 	});
 
-	const out = path.join(tmpdir(), 'gif.gif');
+	const outDir = mkdtempSync(path.join(tmpdir(), 'remotion-gif-test-'));
+	const out = path.join(outDir, 'gif.gif');
 
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream(out)).on('close', () => resolve());
@@ -37,7 +38,7 @@ test('Should make a distributed GIF', async () => {
 		binariesDirectory: null,
 		cancelSignal: undefined,
 	});
-	unlinkSync(out);
+	rmSync(outDir, {recursive: true, force: true});
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 270x270/);
 
 	await close();

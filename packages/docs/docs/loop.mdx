@@ -76,6 +76,18 @@ If you would like to disable layout side effects, pass `layout="none"`.
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
+### `className?`
+
+A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting a class name is not allowed.
+
+### `name?`
+
+A label for the loop in the timeline of the Remotion Studio. Default: `"<Loop>"`.
+
+### `showInTimeline?`
+
+Whether the loop should be shown in the timeline of the Remotion Studio. See [`showInTimeline`](/docs/sequence#showintimeline).
+
 ### Inherited props<AvailableFrom v="4.0.528" />
 
 `<Loop>` inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence). These props require `layout="absolute-fill"` (the default). Postmounting the end of the loop requires a finite `times`.
@@ -156,11 +168,6 @@ const MyComp = () => {
 A child component can use the `Loop.useLoop()` hook to get information about the current loop.  
 You should check for `null`, which is the case if the component is not inside a loop.
 
-If inside a loop, an object with two properties is returned:
-
-- `durationInFrames`: The duration of the loop in frames as passed to the `<Loop />` component.
-- `iteration`: The current iteration of the loop, starting at 0.
-
 ```tsx twoslash
 import React from 'react';
 import {Loop, useCurrentFrame} from 'remotion';
@@ -187,6 +194,16 @@ const Child = () => {
   return <div>{frame}</div>;
 };
 ```
+
+If inside a loop, an object with two properties is returned:
+
+### `durationInFrames`
+
+The duration of the loop in frames as passed to the `<Loop />` component.
+
+### `iteration`
+
+The current iteration of the loop, starting at 0.
 
 ## Compatibility
 

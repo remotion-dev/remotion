@@ -33,7 +33,6 @@ const BRAND_FONT_FAMILY = 'GT Planar';
 const SCENE_DURATION = 34;
 const TRANSITION_DURATION = 24;
 const EFFECT_DURATION = SCENE_DURATION * 2 - TRANSITION_DURATION;
-const PREMOUNT_DURATION = 30;
 
 export const htmlInCanvasAllEffectsSchema = z.object({
 	format: z.enum(['widescreen', 'instagram']).default('widescreen'),
@@ -299,7 +298,6 @@ export const HtmlInCanvasAllEffects: React.FC<HtmlInCanvasAllEffectsProps> = ({
 						key={effect.name}
 						from={index * EFFECT_DURATION}
 						durationInFrames={EFFECT_DURATION}
-						premountFor={PREMOUNT_DURATION}
 					>
 						<EffectSlide effect={effect} index={index} layout={layout} />
 					</Sequence>

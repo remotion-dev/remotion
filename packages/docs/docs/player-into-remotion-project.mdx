@@ -9,15 +9,15 @@ If you have a React app that uses the [`<Player>`](/docs/player/player) componen
 
 <Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a><br />
 <Step>2</Step> Render videos locally<br />
-<Step>2</Step> Create a <a href="/docs/terminology/bundle">
-  Remotion Bundle
+<Step>3</Step> Create a <a href="/docs/terminology/bundle">
+  Remotion bundle
 </a> that allows rendering in the cloud
 
 ## Instructions
 
 <Step>1</Step> Ensure that you don't already have a Studio installed - in the following
 templates, the Studio is already installed and can be started using the command <a href="/docs/cli/studio"><code>npx remotion studio</code></a>
-:<br />
+:
 
 - [Next.js](/templates/next)
 - [Next.js (Vercel Sandbox)](/templates/vercel)
@@ -46,7 +46,7 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="Empty"
+        id="MyComp"
         // Import the component and add the properties you had in the `<Player>` before
         component={MyComposition}
         durationInFrames={60}
@@ -111,7 +111,7 @@ npx remotion studio
 
 ## Render a video
 
-Render our a video using
+Render a video using
 
 ```
 npx remotion render remotion/index.ts

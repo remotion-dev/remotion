@@ -4,12 +4,28 @@ title: getLoadedModels()
 crumb: '@remotion/whisper-web'
 ---
 
-:::warning
-**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
+# ~~getLoadedModels()~~
+
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Use [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached) from [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) instead. It checks one model and returns a boolean, so call it for each model you want to check.
 :::
 
 Returns an array of Whisper models that have already been downloaded and stored in the browser's IndexedDB storage.
 
+```tsx twoslash title="app.ts"
+import {getLoadedModels} from '@remotion/whisper-web';
+
+const loadedModels = await getLoadedModels();
+console.log(loadedModels); // ['tiny.en']
+```
+
 ## Return value
 
 Returns a Promise that resolves to an array of `WhisperWebModel` strings, representing the models that are already downloaded and available locally.
+
+## See also
+
+- [Source code for `getLoadedModels()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/get-loaded-models.ts)
+- [`@remotion/whisper-web`](/docs/whisper-web)
+- [`getAvailableModels()`](/docs/whisper-web/get-available-models)
+- [`downloadWhisperModel()`](/docs/whisper-web/download-whisper-model)

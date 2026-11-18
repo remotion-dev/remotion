@@ -66,18 +66,66 @@ type Transform = {
 type TransformStyle = Pick<
 	CSSStyleDeclaration,
 	'display' | 'rotate' | 'scale' | 'transform' | 'transformOrigin'
->;
+> & {matrix: DOMMatrixReadOnly | null};
 
 export type TransformStyleCache = WeakMap<Element, TransformStyle>;
 
+const getTypedTransformMatrix = (
+	element: Element,
+): DOMMatrixReadOnly | null => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in element)
+	)
+		return null;
+	const value = element.computedStyleMap().get('transform');
+	if (!(value instanceof CSSTransformValue)) return null;
+	try {
+		const matrix = value.toMatrix();
+		// Typed OM retains a 3D operation flag even when its coefficients are 2D.
+		// Classify geometry without serializing away native coefficient precision.
+		if (
+			matrix.m13 === 0 &&
+			matrix.m14 === 0 &&
+			matrix.m23 === 0 &&
+			matrix.m24 === 0 &&
+			matrix.m31 === 0 &&
+			matrix.m32 === 0 &&
+			matrix.m33 === 1 &&
+			matrix.m34 === 0 &&
+			matrix.m43 === 0 &&
+			matrix.m44 === 1
+		) {
+			return new DOMMatrixReadOnly([
+				matrix.a,
+				matrix.b,
+				matrix.c,
+				matrix.d,
+				matrix.e,
+				matrix.f,
+			]);
+		}
+
+		return DOMMatrixReadOnly.fromMatrix(matrix);
+	} catch (error) {
+		// Typed OM cannot convert percentage translations to a pixel matrix.
+		if (error instanceof TypeError) return null;
+		throw error;
+	}
+};
+
 const snapshotTransformStyle = (
 	computedStyle: CSSStyleDeclaration,
+	element: Element,
 ): TransformStyle => {
 	return {
 		display: computedStyle.display,
 		rotate: computedStyle.rotate,
 		scale: computedStyle.scale,
 		transform: computedStyle.transform,
+		matrix: hasTransformCssValue(computedStyle)
+			? getTypedTransformMatrix(element)
+			: null,
 		transformOrigin: computedStyle.transformOrigin,
 	};
 };
@@ -115,7 +163,11 @@ const canApplyCssTransforms = ({
 };
 
 const makeTransformResetter = (element: HTMLElement | SVGElement) => {
-	const {transform, scale, rotate} = element.style;
+	const originals = ['transform', 'scale', 'rotate'].map((property) => ({
+		property,
+		value: element.style.getPropertyValue(property),
+		priority: element.style.getPropertyPriority(property),
+	}));
 
 	return (hasApplicableTransformCssValue: boolean) => {
 		if (hasApplicableTransformCssValue) {
@@ -126,9 +178,9 @@ const makeTransformResetter = (element: HTMLElement | SVGElement) => {
 
 		return () => {
 			if (hasApplicableTransformCssValue) {
-				element.style.transform = transform;
-				element.style.scale = scale;
-				element.style.rotate = rotate;
+				for (const {property, value, priority} of originals) {
+					element.style.setProperty(property, value, priority);
+				}
 			}
 		};
 	};
@@ -188,7 +240,23 @@ export const calculateTransforms = ({
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
 		// when we set transform to 'none' for measurement
-		const originalTransition = parent.style.transition;
+		const originallyAbsentStyle = !parent.hasAttribute('style');
+		const parentStyle = parent.style;
+		const originalTransition = parentStyle.getPropertyValue('transition');
+		const originalTransitionPriority =
+			parentStyle.getPropertyPriority('transition');
+		// The shorthand can be empty for authored mixed-priority longhands.
+		const originalTransitions = [
+			'transition-property',
+			'transition-duration',
+			'transition-timing-function',
+			'transition-delay',
+			'transition-behavior',
+		].map((property) => ({
+			property,
+			value: parentStyle.getPropertyValue(property),
+			priority: parentStyle.getPropertyPriority(property),
+		}));
 		parent.style.transition = 'none';
 
 		const computedStyle = shouldReadComputedStyle
@@ -197,7 +265,7 @@ export const calculateTransforms = ({
 		const transformStyle =
 			computedStyle === null
 				? cachedTransformStyle!
-				: snapshotTransformStyle(computedStyle);
+				: snapshotTransformStyle(computedStyle, parent);
 
 		if (computedStyle !== null) {
 			transformStyleCache.set(parent, transformStyle);
@@ -219,7 +287,11 @@ export const calculateTransforms = ({
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated || svgClip !== null;
+			const needsGroup =
+				blendMode !== null ||
+				isolated ||
+				svgClip !== null ||
+				computedStyle.filter.includes('url(');
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'
@@ -237,7 +309,8 @@ export const calculateTransforms = ({
 				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);
 			}
 
-			if (filterForPrecompositing) overrides.push(['filter', 'none']);
+			// Keep the filter's containing block while removing its visual effect.
+			if (filterForPrecompositing) overrides.push(['filter', 'opacity(1)']);
 			const {style} = parent;
 			const originals = overrides.map(([property]) => ({
 				property,
@@ -265,7 +338,10 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = makeDOMMatrix(toParse);
+			const matrix =
+				toParse && transformStyle.matrix
+					? DOMMatrix.fromMatrix(transformStyle.matrix)
+					: makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
 			const {scale, rotate} = parent.style;
@@ -298,17 +374,29 @@ export const calculateTransforms = ({
 				boundingClientRect: null,
 				matrices: additionalMatrices,
 			});
-			const parentRef = parent;
-			toReset.push(() => {
-				cleanup();
-				parentRef!.style.transition = originalTransition;
-			});
-		} else {
-			const parentRef = parent;
-			toReset.push(() => {
-				parentRef!.style.transition = originalTransition;
-			});
+			toReset.push(cleanup);
 		}
+
+		const parentRef = parent;
+		toReset.push(() => {
+			// Pending-substitution shorthands have empty CSSOM longhand values.
+			if (originalTransition) {
+				parentRef.style.setProperty(
+					'transition',
+					originalTransition,
+					originalTransitionPriority,
+				);
+			} else {
+				for (const {property, value, priority} of originalTransitions) {
+					parentRef.style.setProperty(property, value, priority);
+				}
+			}
+
+			// Leave unrelated authored updates intact and preserve explicit style="".
+			if (originallyAbsentStyle && parentRef.getAttribute('style') === '') {
+				parentRef.removeAttribute('style');
+			}
+		});
 
 		if (parent === rootElement) {
 			break;

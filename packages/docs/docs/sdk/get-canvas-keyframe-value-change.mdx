@@ -60,7 +60,7 @@ export const setKeyframeOpacity = async (value: number) => {
 
   try {
     const {absolutePath, nodePath} = change.nodePathInfo.sequenceSubscriptionKey;
-    const result = await updateNodeKeyframes({
+    const result = updateNodeKeyframes({
       project,
       node: {filePath: absolutePath, nodePath},
       updates: [{key: change.key, operation: change.operation}],

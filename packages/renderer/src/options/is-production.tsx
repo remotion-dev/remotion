@@ -5,14 +5,14 @@ const cliFlag = 'is-production' as const;
 let currentIsProductionKey: boolean | null = null;
 
 export const isProductionOption = {
-	name: 'Is Production',
+	name: 'Is production',
 	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>
 			Pass <code>false</code> for a development render so it is not counted as a
-			billable render on remotion.pro. Defaults to <code>true</code>. Only has
-			an effect when a license key is provided.
+			billable render in your Remotion account. Defaults to <code>true</code>.
+			Only has an effect when a license key is provided.
 		</>
 	),
 	ssrName: 'isProduction' as const,

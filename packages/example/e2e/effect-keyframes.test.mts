@@ -237,7 +237,11 @@ test.describe('effect keyframes', () => {
 		);
 
 		const originalContent = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
-		const factorDragger = page.getByRole('button', {name: '0.75', exact: true});
+		const effects = page.getByRole('region', {name: 'Effects', exact: true});
+		const factorDragger = effects.getByRole('button', {
+			name: 'Factor',
+			exact: true,
+		});
 		await expect(async () => {
 			await page
 				.getByRole('group', {name: 'Effect scale precision', exact: true})
@@ -248,12 +252,17 @@ test.describe('effect keyframes', () => {
 			});
 		}).toPass({timeout: 15_000});
 		await expect(factorDragger).toBeVisible();
+		await expect(factorDragger).toHaveText('0.75');
 
 		await factorDragger.click();
-		const factorInput = page.getByRole('textbox');
+		const factorInput = effects.getByRole('textbox', {
+			name: 'Factor',
+			exact: true,
+		});
 		await expect(factorInput).toHaveValue('0.75');
 		await factorInput.press('Enter');
 		await expect(factorDragger).toBeVisible();
+		await expect(factorDragger).toHaveText('0.75');
 		expect(fs.readFileSync(effectKeyframeE2eFile, 'utf-8')).toBe(
 			originalContent,
 		);
@@ -269,17 +278,14 @@ test.describe('effect keyframes', () => {
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toContain('scale: 0.625');
 
-		const preciseFactorDragger = page.getByRole('button', {
-			name: '0.625',
-			exact: true,
-		});
-		await expect(preciseFactorDragger).toBeVisible();
-		await preciseFactorDragger.click();
+		await expect(factorDragger).toBeVisible();
+		await expect(factorDragger).toHaveText('0.625');
+		await factorDragger.click();
 		await expect(factorInput).toHaveValue('0.625');
 		await factorInput.press('Enter');
 
 		// Dragging still increments and snaps to the effect's 0.1 step.
-		const factorBounds = await preciseFactorDragger.boundingBox();
+		const factorBounds = await factorDragger.boundingBox();
 		assert(factorBounds);
 		const factorX = factorBounds.x + factorBounds.width / 2;
 		const factorY = factorBounds.y + factorBounds.height / 2;
@@ -296,9 +302,8 @@ test.describe('effect keyframes', () => {
 				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
-			await expect(
-				page.getByRole('button', {name: '0.8', exact: true}),
-			).toBeVisible({timeout: 1_000});
+			await expect(factorDragger).toBeVisible({timeout: 1_000});
+			await expect(factorDragger).toHaveText('0.8', {timeout: 1_000});
 		}).toPass({timeout: 15_000});
 
 		const timelineExpansionRow = page
@@ -439,8 +444,11 @@ test.describe('effect keyframes', () => {
 			.toBe(true);
 
 		await expect(
-			page.getByRole('button', {name: '0.005', exact: true}),
+			cropRow.getByRole('button', {name: 'Crop left', exact: true}),
 		).toBeVisible();
+		await expect(
+			cropRow.getByRole('button', {name: 'Crop left', exact: true}),
+		).toHaveText('0.005');
 
 		await selectScalePrecisionAndWaitFor({page, locator: waveRow.first()});
 		await waveRow.first().click();
@@ -474,8 +482,11 @@ test.describe('effect keyframes', () => {
 			)
 			.toBe(true);
 		await expect(
-			page.getByRole('button', {name: '60.525', exact: true}),
+			amplitudeRow.getByRole('button', {name: 'Amplitude', exact: true}),
 		).toBeVisible();
+		await expect(
+			amplitudeRow.getByRole('button', {name: 'Amplitude', exact: true}),
+		).toHaveText('60.525');
 
 		const schema = wave().definition.schema;
 		const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');

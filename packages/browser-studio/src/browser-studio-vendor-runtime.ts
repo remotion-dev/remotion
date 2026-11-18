@@ -50,7 +50,7 @@ globalThis.remotion_browserStudioVendor = {
 	remotionVersion: makeMutableNamespace(RemotionVersion),
 	initializeStudioPreview: () => {
 		if (!initializeStudioPreview) {
-			throw new Error('Browser Studio preview bootstrap was not loaded');
+			throw new Error('remotion.new preview bootstrap was not loaded');
 		}
 
 		initializeStudioPreview();

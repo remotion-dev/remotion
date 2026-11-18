@@ -13,7 +13,7 @@ export const findInFileHandler: ApiHandler<
 	FindInFileRequest,
 	FindInFileResponse
 > = async ({input, remotionRoot}) => {
-	const {fileName, lineNumber, columnNumber, search} = input;
+	const {fileName, lineNumber, columnNumber, search, effectIndex} = input;
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
 		fileName,
@@ -26,5 +26,6 @@ export const findInFileHandler: ApiHandler<
 		lineNumber,
 		columnNumber,
 		search,
+		effectIndex,
 	});
 };

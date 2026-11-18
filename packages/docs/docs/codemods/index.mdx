@@ -51,6 +51,56 @@ export const Root = () => <Composition id="Demo" component={Video} width={1920} 
 
 Include the files needed for the edit. A prop edit needs its target file; resolving an imported composition component also needs the files along the import path. Mutations leave the input project unchanged.
 
+## File-backed sources<AvailableFrom v="4.0.544" />
+
+[`addElement()`](/docs/codemods/add-element) and [`resolveCompositionComponent()`](/docs/codemods/resolve-composition-component) can receive `environment` instead of `project`. This `CodemodEnvironment` reads source files on demand without writing them. It works with filesystem adapters and virtual stores.
+
+### rootDir
+
+The source root directory.
+
+### readFile
+
+A synchronous function receiving an absolute filename and returning its contents.
+
+### fileExists
+
+A synchronous function indicating whether a filename refers to a source file.
+
+### dirname
+
+Returns the directory of a filename.
+
+### extname
+
+Returns a filename's extension.
+
+### isAbsolute
+
+Determines whether a path is absolute.
+
+### join
+
+Joins path segments.
+
+### relative
+
+Returns the relative path between two locations.
+
+### resolve
+
+Resolves path segments to an absolute path.
+
+These path functions follow the behavior of the corresponding Node.js `path` functions.
+
+### pathSeparator
+
+The path separator used by the environment, such as `'/'`.
+
+### svgMarkupToJsx
+
+A synchronous function that converts SVG markup to a parsed JSX element. Used only for SVG insertion. It may throw an unsupported-operation error in environments that do not offer SVG conversion.
+
 ## Creating elements<AvailableFrom v="4.0.530" />
 
 Describe elements with [`createElement()`](/docs/codemods/create-element) and insert it with [`addElement()`](/docs/codemods/add-element). Elements are immutable descriptions: methods such as `withProp()` and `withChild()` return new elements. Imports and local names are resolved when the element is inserted.
@@ -82,7 +132,7 @@ console.log(nextProject.files, result.insertedNode);
 
 Elements can also be inserted `inside`, `before`, or `after` an existing node, and [`wrapNode()`](/docs/codemods/wrap-node) wraps an existing node in an element.
 
-## Editing a node<AvailableFrom v="4.0.528" />
+## Editing a node<AvailableFrom v="4.0.530" />
 
 Find a node, inspect the properties you want to edit, and pass its reference to a mutation.
 
@@ -131,13 +181,13 @@ Editors that keep mounted sequences attached to their source nodes, such as [`<C
 
 ## Effect references<AvailableFrom v="4.0.528" />
 
-An `EffectReference` extends a node reference with `effectIndex`, the zero-based position in its inline `effects` array. [`getNodeProps()`](/docs/codemods/get-node-props) inspects effects, and effect mutations return `insertedEffect`, `insertedEffects`, or `updatedEffect` where applicable.
+An `EffectReference` extends a node reference with `effectIndex`, the zero-based position in its inline `effects` array. [`getNodeProps()`](/docs/codemods/get-node-props) inspects effects, and effect mutations return `insertedEffect`, `insertedEffects`, `updatedEffect`, or `updatedEffects` where applicable.
 
 Adding, deleting, duplicating, or reordering effects can shift effect indices. Node-path remappings do not remap effect indices. Inspect the updated effects before reusing other effect references.
 
 ## Mutation results
 
-Every mutation returns a `CodemodResult`, synchronously or through a promise as documented on its page.
+Every mutation synchronously returns a `CodemodResult`. From v4.0.544, node, effect, and keyframe mutations that previously returned promises return their results directly and throw errors immediately.
 
 ### changes
 
@@ -157,7 +207,7 @@ The next source, or `null` if the file was deleted.
 
 ### nodePathRemappings<AvailableFrom v="4.0.528" />
 
-Node, effect, keyframe, and registration mutations return these mappings in addition to the shared result. Registration mutations return them since <AvailableFrom v="4.0.530" inline />. See [node references](#node-references).
+Node, effect, keyframe, and registration mutations return these mappings in addition to the shared result. Registration mutations return them since v4.0.530. See [node references](#node-references).
 
 ## Applying changes
 

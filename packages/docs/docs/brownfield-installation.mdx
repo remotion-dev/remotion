@@ -16,7 +16,7 @@ Remotion can be installed into existing projects, such as [Next.JS](https://next
 
 ## Setting up the folder structure
 
-Create a new folder for the Remotion files. It can be anywhere and assume any name, in this example we name it `remotion` and put it in the root of our project. Inside the folder you created, create 3 files:
+Create a new folder for the Remotion files. It can be anywhere and assume any name, this example names it `remotion` and puts it in the root of the project. Inside the folder you created, create 3 files:
 
 ```tsx twoslash title="remotion/Composition.tsx"
 export const MyComposition = () => {
@@ -39,7 +39,7 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="Empty"
+        id="MyComp"
         component={MyComposition}
         durationInFrames={60}
         fps={30}
@@ -97,17 +97,17 @@ Start the Remotion Studio using the following command:
 npx remotion studio remotion/index.ts
 ```
 
-Replace `remotion/index.ts` with your entrypoint if necessary.
+Replace `remotion/index.ts` with your entry point if necessary.
 
 ## Render a video
 
-Render our a video using
+Render a video using
 
 ```
 npx remotion render remotion/index.ts MyComp out.mp4
 ```
 
-Replace the entrypoint, composition ID and output filename with the values that correspond to your usecase.
+Replace the entry point, composition ID and output filename with the values that correspond to your usecase.
 
 ## Set up ESLint
 

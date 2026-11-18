@@ -1,7 +1,13 @@
+import type {CodemodEnvironment} from './insert-jsx-element';
+
 export type CodemodProject = {
 	files: Record<string, string>;
 	rootDir: string;
 };
+
+export type CodemodSource<Project extends CodemodProject = CodemodProject> =
+	| {project: Project; environment?: never}
+	| {environment: CodemodEnvironment; project?: never};
 
 export type CodemodFileChange = {
 	filePath: string;

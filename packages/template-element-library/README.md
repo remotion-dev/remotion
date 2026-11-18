@@ -102,7 +102,7 @@ npm run preview
 
 The default build prerenders all Element pages from the registry. Publish `build/client` to a static host. See the [React Router prerendering guide](https://reactrouter.com/how-to/pre-rendering) for static hosting and fallback routing.
 
-Serve the website with HTTPS. Allow embedding in Remotion Studio. See the library integration guide for embedding requirements.
+Serve the website with HTTPS. Don't prevent other sites from embedding it in an iframe, because Remotion Studio embeds Element Libraries in Browse Elements. See [Test the integration](https://www.remotion.dev/docs/elements/libraries#5-test-the-integration) in the library integration guide.
 
 ## Markdown and agent discovery
 

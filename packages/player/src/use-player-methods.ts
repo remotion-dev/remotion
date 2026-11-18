@@ -3,6 +3,7 @@ import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useRemotionEnvironment} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
+import {PlaybackRangeContext} from './playback-range-context.js';
 
 export type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -37,6 +38,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const videoId = video?.id ?? null;
 	const videoDurationInFrames = video?.durationInFrames ?? null;
 	const config = Internals.useUnsafeVideoConfig();
+	const {inFrame, outFrame} = useContext(PlaybackRangeContext);
+	const playbackRate =
+		useContext(Internals.PlaybackRateContext)?.playbackRate ?? 1;
 	const emitter = useContext(PlayerEventEmitterContext);
 	const playStart = useRef(0);
 	const fallbackFrame = useRef<number | null>(null);
@@ -106,9 +110,11 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			const lastFrameForPlayback = (config?.durationInFrames ?? 1) - 1;
-			if (getCurrentFrame() === lastFrameForPlayback) {
-				seek(0);
+			const rangeStart = inFrame ?? 0;
+			const rangeEnd = outFrame ?? (config?.durationInFrames ?? 1) - 1;
+			const reverse = playbackRate < 0;
+			if (getCurrentFrame() === (reverse ? rangeStart : rangeEnd)) {
+				seek(reverse ? rangeEnd : rangeStart);
 			}
 
 			if (!muted) {
@@ -143,6 +149,9 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			audioContext,
 			audioTagsContext,
 			config?.durationInFrames,
+			inFrame,
+			outFrame,
+			playbackRate,
 			emitter,
 			getCurrentFrame,
 			muted,

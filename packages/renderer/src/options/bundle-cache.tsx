@@ -5,7 +5,7 @@ const cliFlag = 'bundle-cache' as const;
 let cachingEnabled = true;
 
 export const bundleCacheOption = {
-	name: 'Webpack Bundle Caching',
+	name: 'Webpack bundle caching',
 	addedIn: '2.0.0',
 	cliFlag,
 	description: () => (

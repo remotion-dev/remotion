@@ -28,6 +28,6 @@ different unsymbolicated stacks could lead to the same symbolicated stack, becau
 
 unsymbolicated to symbolicated stack does never change because if it does, it is a different stack due to fast refresh
 
-## Browser Studio route tracking
+## remotion.new route tracking
 
-Whenever adding a new Studio API route, also add it to the Browser Studio parity checklist in [issue #9807](https://github.com/remotion-dev/remotion/issues/9807). Do this in the same change, even if the route is intentionally server-only; place it in either the required Browser Studio operations or the explicitly unsupported routes.
+Whenever adding a new Studio API route, also add it to the remotion.new parity checklist in [issue #9807](https://github.com/remotion-dev/remotion/issues/9807). Do this in the same change, even if the route is intentionally server-only; place it in either the required remotion.new operations or the explicitly unsupported routes.

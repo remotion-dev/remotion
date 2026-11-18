@@ -434,7 +434,8 @@ const SequenceSourceQuickActions: React.FC<{
 const SequenceExpandedInspector: React.FC<{
 	readonly track: TimelineTrackData;
 	readonly readOnlyStudio: boolean;
-}> = ({track, readOnlyStudio}) => {
+	readonly selection: SequenceSectionSelection;
+}> = ({track, readOnlyStudio, selection}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sourceLocation = useSequenceInspectorSourceLocation(track);
 	const {validatedLocation} = sourceLocation;
@@ -469,7 +470,7 @@ const SequenceExpandedInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
+			<SequenceInspectorSections track={track} selection={selection} />
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection
@@ -547,6 +548,10 @@ export const SequenceSelectionInspector: React.FC<{
 	}
 
 	return (
-		<SequenceExpandedInspector track={track} readOnlyStudio={readOnlyStudio} />
+		<SequenceExpandedInspector
+			track={track}
+			readOnlyStudio={readOnlyStudio}
+			selection={selection}
+		/>
 	);
 };

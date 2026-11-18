@@ -797,19 +797,20 @@ export const ElementInstallConfirmation: React.FC<{
 								selectedFolderStack === null ? null : folderSymbolicatedStack,
 						}
 					: null,
+			onInstalled:
+				mode === 'new-composition'
+					? () =>
+							selectComposition(
+								{
+									id: newCompositionId,
+									folderName: newCompositionValues.folder.folderName,
+									parentFolderName: newCompositionValues.folder.parentName,
+								},
+								true,
+							)
+					: null,
 		});
 		if (installed) {
-			if (mode === 'new-composition') {
-				selectComposition(
-					{
-						id: newCompositionId,
-						folderName: newCompositionValues.folder.folderName,
-						parentFolderName: newCompositionValues.folder.parentName,
-					},
-					true,
-				);
-			}
-
 			onClose();
 		} else {
 			setSubmitting(false);

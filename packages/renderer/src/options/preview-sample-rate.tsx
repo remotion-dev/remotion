@@ -5,7 +5,7 @@ const cliFlag = 'preview-sample-rate' as const;
 let currentPreviewSampleRate: number | null = null;
 
 export const previewSampleRateOption = {
-	name: 'Preview Sample Rate',
+	name: 'Preview sample rate',
 	addedIn: '4.0.470',
 	cliFlag,
 	description: () => (

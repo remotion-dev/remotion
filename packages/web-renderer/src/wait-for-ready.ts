@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {DelayRenderScope} from 'remotion';
+import {Internals, type DelayRenderScope} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -17,14 +18,19 @@ export const waitForReady = ({
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb' | 'renderFramesOnWeb';
 	internalState: InternalState | null;
-	keepalive: BackgroundKeepalive | null;
+	keepalive: BackgroundKeepalive;
 }) => {
 	const start = performance.now();
+	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
+	const subscribedFontLoads = new WeakSet<Promise<void>>();
+	let fontLoadFailure: {error: unknown} | null = null;
 
 	const check = () => {
+		const now = performance.now();
+
 		if (cancelled) {
 			return;
 		}
@@ -33,12 +39,6 @@ export const waitForReady = ({
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(new Error(`${apiName}() was cancelled`));
-			return;
-		}
-
-		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
-			resolve();
 			return;
 		}
 
@@ -61,14 +61,49 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (performance.now() - start > timeoutInMilliseconds + 3000) {
+		const pendingFontLoads = NoReactInternals.getPendingFontLoads();
+		for (const fontLoad of pendingFontLoads) {
+			if (!subscribedFontLoads.has(fontLoad)) {
+				subscribedFontLoads.add(fontLoad);
+				fontLoad.catch((error: unknown) => {
+					fontLoadFailure ??= {error};
+					check();
+				});
+			}
+		}
+
+		if (fontLoadFailure !== null) {
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			reject(fontLoadFailure.error);
+			return;
+		}
+
+		if (scope.remotion_renderReady === true && pendingFontLoads.length === 0) {
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			resolve();
+			return;
+		}
+
+		if (
+			now -
+				start -
+				(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) >
+			timeoutInMilliseconds + 3000
+		) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(
 				new Error(
-					Object.values(scope.remotion_delayRenderTimeouts)
-						.map((d) => d.label)
-						.join(', '),
+					[
+						...Object.values(scope.remotion_delayRenderTimeouts).map(
+							(d) => d.label,
+						),
+						...(pendingFontLoads.length > 0
+							? [`${pendingFontLoads.length} font(s) loaded with loadFont()`]
+							: []),
+					].join(', '),
 				),
 			);
 			return;
@@ -84,12 +119,7 @@ export const waitForReady = ({
 			requestAnimationFrame(() => res());
 		});
 
-		// browsers throttle RAF when tab is backgrounded, so race against worker
-		const backgroundSafeTick = keepalive
-			? Promise.race([rafTick, keepalive.waitForTick()])
-			: rafTick;
-
-		backgroundSafeTick.then(check);
+		Promise.race([rafTick, keepalive.waitForTick()]).then(check);
 	};
 
 	// check immediately first - if already ready, don't wait for RAF

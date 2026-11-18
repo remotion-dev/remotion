@@ -13,7 +13,7 @@ export type UpdateEffectKeyframesOptions<Project extends CodemodProject> = Omit<
 	'node'
 > & {effect: EffectReference};
 
-export const updateEffectKeyframes = async <Project extends CodemodProject>({
+export const updateEffectKeyframes = <Project extends CodemodProject>({
 	project,
 	effect,
 	updates,
@@ -30,7 +30,7 @@ export const updateEffectKeyframes = async <Project extends CodemodProject>({
 	}
 
 	const {filePath, input} = getEffectSource({project, node: effect});
-	const {output, ...details} = await updateEffectKeyframesInSource({
+	const {output, ...details} = updateEffectKeyframesInSource({
 		input,
 		sequenceNodePath: effect.nodePath,
 		effectIndex: effect.effectIndex,

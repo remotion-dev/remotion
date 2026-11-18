@@ -29,6 +29,7 @@ import {saveEffectPropsHandler} from '../preview-server/routes/save-effect-props
 import {updateDefaultPropsHandler} from '../preview-server/routes/update-default-props';
 import {
 	clearUndoStackForTests,
+	getUndoStack,
 	popRedo,
 	popUndo,
 } from '../preview-server/undo-stack';
@@ -159,13 +160,43 @@ export const Comp = () => <>
 		expect(
 			readFileSync(filePath, 'utf-8').match(/brightness\(\{/g),
 		).toHaveLength(2);
+		const beforeIdenticalReorder = readFileSync(filePath, 'utf-8');
+		const changesBeforeIdenticalReorder = sourceChanges.length;
+		const modifiedBeforeIdenticalReorder = statSync(filePath).mtimeMs;
+		const historyBeforeIdenticalReorder = getUndoStack().length;
+		const identicalReorder = await reorderEffectHandler({
+			...context,
+			input: {
+				fileName: filePath,
+				sequenceNodePath,
+				fromIndices: [0],
+				toIndex: 1,
+				clientId: 'effect-routes-test',
+			},
+		});
+		if (!identicalReorder.success) throw new Error(identicalReorder.reason);
+		acceptMutation(identicalReorder.nodePathMutation);
+		expect(identicalReorder.nodePathMutation?.applyWithoutFastRefresh).toBe(
+			true,
+		);
+		expect(getUndoStack()).toHaveLength(historyBeforeIdenticalReorder + 1);
+		for (const restore of [popUndo, popRedo]) {
+			const restored = restore();
+			if (!restored.success) throw new Error(restored.reason);
+			acceptMutation(restored.nodePathMutation);
+			expect(restored.nodePathMutation?.applyWithoutFastRefresh).toBe(true);
+		}
+
+		expect(readFileSync(filePath, 'utf-8')).toBe(beforeIdenticalReorder);
+		expect(statSync(filePath).mtimeMs).toBe(modifiedBeforeIdenticalReorder);
+		expect(sourceChanges).toHaveLength(changesBeforeIdenticalReorder);
 
 		const reorder = await reorderEffectHandler({
 			...context,
 			input: {
 				fileName: filePath,
 				sequenceNodePath,
-				fromIndex: 1,
+				fromIndices: [1],
 				toIndex: 2,
 				clientId: 'effect-routes-test',
 			},
@@ -181,19 +212,21 @@ export const Comp = () => <>
 		);
 		expect(reordered).toContain("const untouched  = { value : 'keep' };");
 		const changesBeforeNoopReorder = sourceChanges.length;
+		const historyBeforeNoopReorder = getUndoStack().length;
 		expect(
 			await reorderEffectHandler({
 				...context,
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 0,
+					fromIndices: [0],
 					toIndex: 0,
 					clientId: 'effect-routes-test',
 				},
 			}),
 		).toEqual({success: true, nodePathMutation: null});
 		expect(sourceChanges).toHaveLength(changesBeforeNoopReorder);
+		expect(getUndoStack()).toHaveLength(historyBeforeNoopReorder);
 
 		const pathBeforePaste = sequenceNodePath.nodePath;
 		const pasted = await pasteEffectsHandler({
@@ -397,7 +430,7 @@ export const Comp = () => <>
 	}
 });
 
-test('external changes reject queued and in-flight codemods without overwriting source or undo history', async () => {
+test('external changes reject queued codemods and preserve later source after completed writes', async () => {
 	const {withSourceMutationGuard} =
 		await import('../preview-server/source-mutation-guard');
 	const {withSourceFileWriteQueue} =
@@ -487,17 +520,18 @@ test('external changes reject queued and in-flight codemods without overwriting 
 		);
 		expect(independent.success).toBe(true);
 		expect(readFileSync(otherFile, 'utf8')).toContain('brightness({');
+		expect(popUndo().success).toBe(true);
+		expect(readFileSync(otherFile, 'utf8')).toBe(original);
 		const fresh = guard(filePath);
-		const inFlight = withSourceMutationGuard(fresh, () => add(filePath));
+		const completed = withSourceMutationGuard(fresh, () => add(filePath));
 		await Promise.resolve();
+		expect(readFileSync(filePath, 'utf8')).toContain('brightness({');
 		const newest = original.replace('width={100}', 'width={300}');
 		writeFileSync(filePath, newest);
-		const result = await inFlight;
-		expect(result.success).toBe(false);
-		if (!result.success)
-			expect(result.reason).toContain('edited outside Studio');
+		const result = await completed;
+		expect(result.success).toBe(true);
 		expect(readFileSync(filePath, 'utf8')).toBe(newest);
-		expect(popUndo().success).toBe(true);
+		expect(popUndo().success).toBe(false);
 		expect(readFileSync(otherFile, 'utf8')).toBe(original);
 		expect(readFileSync(filePath, 'utf8')).toBe(newest);
 
@@ -851,7 +885,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 1,
+					fromIndices: [1],
 					toIndex: 2,
 					clientId: 'effect-routes-test',
 				},

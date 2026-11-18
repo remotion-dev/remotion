@@ -6,7 +6,7 @@ export const TitleStep: React.FC<{
 	readonly error?: boolean;
 }> = ({children, error}) => {
 	return (
-		<div
+		<span
 			style={{
 				backgroundColor: error ? RED : 'var(--ifm-color-primary)',
 				height: '1em',
@@ -26,7 +26,7 @@ export const TitleStep: React.FC<{
 			}}
 		>
 			{children}
-		</div>
+		</span>
 	);
 };
 
@@ -36,7 +36,7 @@ export const InlineStep: React.FC<{
 	readonly style?: React.CSSProperties;
 }> = ({children, error, style}) => {
 	return (
-		<div
+		<span
 			style={{
 				backgroundColor: error ? RED : 'var(--ifm-color-primary)',
 				height: 24,
@@ -54,7 +54,7 @@ export const InlineStep: React.FC<{
 			}}
 		>
 			{children}
-		</div>
+		</span>
 	);
 };
 

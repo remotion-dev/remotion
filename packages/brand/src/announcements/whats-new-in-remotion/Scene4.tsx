@@ -94,12 +94,7 @@ export const Scene4: React.FC = () => {
 					/>
 				</AbsoluteFill>
 			</Interactive.Div>
-			<Sequence
-				name="Vercel announcement"
-				from={160}
-				durationInFrames={90}
-				premountFor={30}
-			>
+			<Sequence name="Vercel announcement" from={160} durationInFrames={90}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: 'black',

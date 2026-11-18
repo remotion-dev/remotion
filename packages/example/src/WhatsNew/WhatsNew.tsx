@@ -22,21 +22,13 @@ const WhatsNewInner: React.FC = () => {
 	return (
 		<>
 			<TransitionSeries name="Chapters">
-				<TransitionSeries.Sequence
-					name="Intro"
-					durationInFrames={208}
-					premountFor={60}
-				>
+				<TransitionSeries.Sequence name="Intro" durationInFrames={208}>
 					<IntroScene style={{overflow: 'visible', flexDirection: 'column'}} />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Overlay durationInFrames={32}>
 					<LightLeakFx seed={1} hueShift={0} />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="Light leaks"
-					durationInFrames={720}
-					premountFor={60}
-				>
+				<TransitionSeries.Sequence name="Light leaks" durationInFrames={720}>
 					<LightLeaksScene
 						style={{overflow: 'visible', flexDirection: 'column'}}
 					/>
@@ -44,11 +36,7 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Overlay durationInFrames={32}>
 					<LightLeakFx seed={4} hueShift={135} />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="Sound effects"
-					durationInFrames={1152}
-					premountFor={60}
-				>
+				<TransitionSeries.Sequence name="Sound effects" durationInFrames={1152}>
 					<SoundEffectsScene
 						style={{overflow: 'visible', flexDirection: 'column'}}
 					/>
@@ -59,18 +47,13 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Render on Vercel"
 					durationInFrames={1040}
-					premountFor={60}
 				>
 					<VercelScene style={{overflow: 'visible', flexDirection: 'column'}} />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Overlay durationInFrames={32}>
 					<LightLeakFx seed={10} hueShift={245} />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="New skills"
-					durationInFrames={608}
-					premountFor={60}
-				>
+				<TransitionSeries.Sequence name="New skills" durationInFrames={608}>
 					<SkillsScene style={{overflow: 'visible', flexDirection: 'column'}} />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Overlay durationInFrames={32}>
@@ -79,7 +62,6 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Client-side rendering"
 					durationInFrames={832}
-					premountFor={60}
 				>
 					<ClientSideScene
 						style={{overflow: 'visible', flexDirection: 'column'}}
@@ -91,7 +73,6 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Better with agents"
 					durationInFrames={976}
-					premountFor={60}
 				>
 					<AgentsScene style={{overflow: 'visible', flexDirection: 'column'}} />
 				</TransitionSeries.Sequence>
@@ -101,7 +82,6 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Faster bundling"
 					durationInFrames={720}
-					premountFor={60}
 				>
 					<BundlingScene
 						style={{overflow: 'visible', flexDirection: 'column'}}
@@ -110,11 +90,7 @@ const WhatsNewInner: React.FC = () => {
 				<TransitionSeries.Overlay durationInFrames={32}>
 					<LightLeakFx seed={22} hueShift={120} />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="Sneak peek"
-					durationInFrames={912}
-					premountFor={60}
-				>
+				<TransitionSeries.Sequence name="Sneak peek" durationInFrames={912}>
 					<SneakPeekScene
 						style={{overflow: 'visible', flexDirection: 'column'}}
 					/>

@@ -113,6 +113,30 @@ const expectValidSkills = (skillsRoot: string) => {
 		expect(sections[2].trim()).not.toBe('');
 		expect(contents.split(/\r?\n/).length).toBeLessThanOrEqual(500);
 	}
+
+	const canonicalLicense = readFileSync(
+		path.join(
+			packageRoot,
+			'..',
+			'skills',
+			'skills',
+			'remotion-license',
+			'SKILL.md',
+		),
+		'utf-8',
+	);
+	expect(canonicalLicense).toContain(
+		'https://www.remotion.dev/docs/license/pricing',
+	);
+	expect(canonicalLicense).not.toContain('remotion.pro');
+	for (const licensePath of [
+		'remotion-license/SKILL.md',
+		'remotion-best-practices/remotion-license/REFERENCE.md',
+	]) {
+		expect(readFileSync(path.join(skillsRoot, licensePath), 'utf-8')).toBe(
+			canonicalLicense,
+		);
+	}
 };
 
 test('generated Agent Plugin skills have valid metadata and content', () => {

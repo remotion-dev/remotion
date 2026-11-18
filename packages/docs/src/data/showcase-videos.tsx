@@ -198,7 +198,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		links: [
 			{
 				type: 'source_code',
-				url: 'https://www.remotion.pro/watercolor-map',
+				url: 'https://www.remotion.dev/store/watercolor-map',
 			},
 		],
 		author: {

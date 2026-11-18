@@ -336,10 +336,15 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const makeNewPage = async (frame: number, pageIndex: number) => {
+	const makeNewPage = async (
+		frame: number,
+		pageIndex: number,
+		attempt: number,
+	) => {
 		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
+			attempt,
 			// A replacement tab may first render an audio-only padding frame.
 			videoEnabled: imageFormat !== 'none' && framesToRender.includes(frame),
 			browserReplacer,
@@ -373,7 +378,7 @@ const innerRenderFrames = async ({
 			.fill(true)
 			// Tabs start on the frames they are likely to render first, so a tab
 			// that begins with an audio-only padding frame skips the visual work.
-			.map((_, i) => makeNewPage(allFramesAndExtraFrames[i], i));
+			.map((_, i) => makeNewPage(allFramesAndExtraFrames[i], i, 1));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -429,7 +434,7 @@ const innerRenderFrames = async ({
 		allFramesAndExtraFrames.map(() => {
 			return renderFrameAndRetryTargetClose({
 				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
+				retry: null,
 				assets,
 				assetIndex,
 				binariesDirectory,
@@ -582,6 +587,7 @@ const internalRenderFramesRaw = ({
 	const resolvedConcurrency = resolveConcurrency(concurrency);
 
 	const openedPages: Page[] = [];
+	let browserReplacer: BrowserReplacer | null = null;
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
@@ -621,7 +627,12 @@ const internalRenderFramesRaw = ({
 			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
 				const {serveUrl, offthreadPort, sourceMap, downloadMap} = openedServer;
 
-				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
+				browserReplacer = handleBrowserCrash(
+					pInstance,
+					!puppeteerInstance,
+					logLevel,
+					indent,
+				);
 
 				const cycle = cycleBrowserTabs({
 					puppeteerInstance: browserReplacer,
@@ -706,11 +717,11 @@ const internalRenderFramesRaw = ({
 			})
 			.catch((err) => reject(err))
 			.finally(() => {
-				// If browser instance was passed in, we close all the pages
-				// we opened.
-				// If new browser was opened, then closing the browser as a cleanup.
-
-				if (puppeteerInstance) {
+				if (browserReplacer) {
+					browserReplacer.close(openedPages);
+				} else if (puppeteerInstance) {
+					// If browser instance was passed in, we close all the pages
+					// we opened.
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
 						if (isTargetClosedErr(err)) {
 							return;
@@ -719,6 +730,7 @@ const internalRenderFramesRaw = ({
 						Log.error({indent, logLevel}, 'Unable to close browser tab', err);
 					});
 				} else {
+					// If new browser was opened, then closing the browser as a cleanup.
 					Promise.resolve(browserInstance)
 						.then((instance) => {
 							return instance.close({silent: true});

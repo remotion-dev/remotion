@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {execSync} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -119,17 +120,18 @@ test('renderFrames() should render selected frames with HTML-in-canvas motion bl
 			const probes =
 				frame === 0
 					? [
-							[left + 1, 128],
-							[left + 17, 255],
-							[left + 29, 64],
+							[left + 1, 4],
+							[left + 17, 8],
+							[left + 29, 2],
 						]
 					: [
-							[left - 13, 32],
-							[left - 9, 64],
-							[left + 3, 160],
+							[left - 13, 1],
+							[left - 9, 2],
+							[left + 3, 5],
 						];
-			for (const [x, red] of probes) {
+			for (const [x, coveredSamples] of probes) {
 				const offset = (30 * png.width + x) * 4;
+				const red = Math.round((coveredSamples * 255) / 8);
 				expect(
 					Array.from(png.data.subarray(offset, offset + 4)),
 					`motion blur at frame ${frame}, x=${x}`,
@@ -203,3 +205,63 @@ test('renderFrames() should await async frame buffer callbacks', async () => {
 		await puppeteerInstance.close({silent: false});
 	}
 });
+
+const getChildChromeProcesses = () =>
+	execSync(`ps -o pid=,args= --ppid ${process.pid}`, {encoding: 'utf8'})
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => /chrom/i.test(line))
+		.map((line) => Number(line.split(' ')[0]));
+
+test.skipIf(process.platform !== 'linux')(
+	'renderFrames() should close the replacement browser after Chrome crashes',
+	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
+		const tenFrameTester = await selectComposition({
+			id: 'ten-frame-tester',
+			serveUrl: exampleBuild,
+			puppeteerInstance,
+			inputProps: {},
+		});
+		await puppeteerInstance.close({silent: false});
+		expect(getChildChromeProcesses()).toEqual([]);
+
+		let crashedPid: number | null = null;
+		const {frameCount} = await renderFrames({
+			composition: tenFrameTester,
+			imageFormat: 'jpeg',
+			inputProps: {},
+			serveUrl: exampleBuild,
+			concurrency: 1,
+			outputDir: null,
+			onFrameBuffer: () => undefined,
+			onStart: () => undefined,
+			onFrameUpdate: () => {
+				if (crashedPid !== null) {
+					return;
+				}
+
+				const [pid] = getChildChromeProcesses();
+				crashedPid = pid;
+				process.kill(pid, 'SIGKILL');
+			},
+		});
+
+		expect(crashedPid).not.toBe(null);
+		expect(frameCount).toBe(10);
+
+		let remaining = getChildChromeProcesses();
+		for (let i = 0; i < 50 && remaining.length > 0; i++) {
+			await new Promise((resolve) => {
+				setTimeout(resolve, 100);
+			});
+			remaining = getChildChromeProcesses();
+		}
+
+		for (const pid of remaining) {
+			process.kill(pid, 'SIGKILL');
+		}
+
+		expect(remaining).toEqual([]);
+	},
+);

@@ -103,7 +103,7 @@ export const shotTools: {
 		name: 'save_recording',
 		title: 'Save completed Canvas Capture recording',
 		description:
-			'Download a completed recording or open it in Remotion Browser Studio or Convert. The user must have stopped recording manually first. This tool cannot start or stop recording.',
+			'Download a completed recording or open it in remotion.new or Convert. The user must have stopped recording manually first. This tool cannot start or stop recording.',
 		inputSchema: {
 			type: 'object',
 			properties: {

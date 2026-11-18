@@ -56,6 +56,14 @@ export const TableOfContents: React.FC = () => {
 					<strong>combineChunks()</strong>
 					<div>Combine chunks of partial renders</div>
 				</TOCItem>
+				<TOCItem link="/docs/renderer/extract-audio">
+					<strong>extractAudio()</strong>
+					<div>Extract the audio track of a video file</div>
+				</TOCItem>
+				<TOCItem link="/docs/renderer/types">
+					<strong>Types</strong>
+					<div>TypeScript types of @remotion/renderer</div>
+				</TOCItem>
 				<TOCItem link="/docs/renderer/ensure-ffmpeg">
 					<strong style={{textDecoration: 'line-through'}}>
 						ensureFfmpeg()

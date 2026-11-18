@@ -8,7 +8,6 @@ import {
 	Freeze,
 	HtmlInCanvas,
 	Interactive,
-	Internals,
 	interpolate,
 	Solid,
 	useCurrentFrame,
@@ -691,7 +690,7 @@ const TimelineAudioRollingEditContent = ({
 				trimBefore={((plainAngle ? 190 : cursorSpin ? 345 : 245) / 60) * fps}
 				playbackRate={plainAngle ? 347 / 140 : cursorSpin ? 70 / 51 : 1}
 			>
-				{!cursorSpin && HtmlInCanvas.isSupported() ? (
+				{!cursorSpin ? (
 					<HtmlInCanvas
 						name="Full capture before camera transform"
 						// Rasterize the full source before rotating it, avoiding an inner crop.
@@ -759,55 +758,31 @@ const AudioRollingCursorMotionBlur = () => {
 		);
 	}
 
-	if (HtmlInCanvas.isSupported()) {
-		return (
-			<div style={{position: 'absolute', left: -320, top: -320}}>
-				<HtmlInCanvasMotionBlur
-					name="Cursor-centered half turn - padded capture"
-					width={2560}
-					height={Math.ceil((height * 1920) / width) + 640}
-					durationInFrames={(552 / 60) * fps}
-					shutterAngle={360}
-					samples={12}
+	return (
+		<div style={{position: 'absolute', left: -320, top: -320}}>
+			<HtmlInCanvasMotionBlur
+				name="Cursor-centered half turn - padded capture"
+				width={2560}
+				height={Math.ceil((height * 1920) / width) + 640}
+				durationInFrames={(552 / 60) * fps}
+				shutterAngle={360}
+				samples={12}
+			>
+				<div
+					style={{
+						position: 'absolute',
+						left: 320,
+						top: 320,
+						width: 1920,
+						height: (height * 1920) / width,
+						overflow: 'visible',
+					}}
 				>
-					<div
-						style={{
-							position: 'absolute',
-							left: 320,
-							top: 320,
-							width: 1920,
-							height: (height * 1920) / width,
-							overflow: 'visible',
-						}}
-					>
-						<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
-					</div>
-				</HtmlInCanvasMotionBlur>
-			</div>
-		);
-	}
-
-	const samples = 8;
-
-	// Average shutter samples in browsers without HTML-in-canvas.
-	// Later opaque samples use 1/n opacity to keep every sample weighted equally.
-	return Array.from({length: samples}, (_, sample) => (
-		<AbsoluteFill
-			key={sample}
-			showInTimeline={false}
-			style={{opacity: 1 / (sample + 1)}}
-		>
-			<Freeze frame={Math.max(0, motionFrame + (sample + 0.5) / samples - 0.5)}>
-				{sample === Math.floor(samples / 2) ? (
 					<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
-				) : (
-					<Internals.DisableSequenceRegistrationProvider>
-						<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
-					</Internals.DisableSequenceRegistrationProvider>
-				)}
-			</Freeze>
-		</AbsoluteFill>
-	));
+				</div>
+			</HtmlInCanvasMotionBlur>
+		</div>
+	);
 };
 
 const TimelineAudioRollingEditCompositionContent = ({

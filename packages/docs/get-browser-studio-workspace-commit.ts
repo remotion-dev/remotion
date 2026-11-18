@@ -13,7 +13,7 @@ export const getBrowserStudioWorkspaceCommit = () => {
 	}
 
 	if (!commit || !/^[a-f0-9]{40}$/.test(commit)) {
-		throw new Error(`Invalid Browser Studio workspace commit: ${commit}`);
+		throw new Error(`Invalid remotion.new workspace commit: ${commit}`);
 	}
 
 	return commit;

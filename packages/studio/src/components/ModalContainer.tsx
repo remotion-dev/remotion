@@ -1,9 +1,9 @@
 import React, {useCallback} from 'react';
 import {
 	BACKGROUND,
+	BLACK_ALPHA_30,
 	SHADOW_BLACK,
 	WHITE,
-	WHITE_ALPHA_20,
 } from '../helpers/colors';
 import {HigherZIndex} from '../state/z-index';
 
@@ -22,8 +22,7 @@ export const getMaxModalHeight = (height: number) => {
 };
 
 const backgroundOverlay: React.CSSProperties = {
-	backgroundColor: WHITE_ALPHA_20,
-	backdropFilter: `blur(1px)`,
+	backgroundColor: BLACK_ALPHA_30,
 	position: 'fixed',
 	height: '100%',
 	width: '100%',

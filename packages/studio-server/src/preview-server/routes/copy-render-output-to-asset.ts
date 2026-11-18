@@ -4,19 +4,35 @@ import path from 'node:path';
 import type {
 	CopyRenderOutputToAssetRequest,
 	CopyRenderOutputToAssetResponse,
+	RenderJob,
 } from '@remotion/studio-shared';
-import {resolveOutputPath} from '../../helpers/resolve-output-path';
+import {resolveReadableOutputPath} from '../../helpers/resolve-readable-output-path';
 import type {ApiHandler} from '../api-types';
 
-export const copyRenderOutputToAssetHandler: ApiHandler<
-	CopyRenderOutputToAssetRequest,
-	CopyRenderOutputToAssetResponse
-> = async ({input: {assetPath, outputPath}, publicDir, remotionRoot}) => {
+export const copyRenderOutputToAssetHandler = async ({
+	input: {assetPath, outputPath},
+	publicDir,
+	remotionRoot,
+	getRenderQueue,
+}: Parameters<
+	ApiHandler<CopyRenderOutputToAssetRequest, CopyRenderOutputToAssetResponse>
+>[0] & {
+	getRenderQueue: () => RenderJob[];
+}): Promise<CopyRenderOutputToAssetResponse> => {
 	if (assetPath.length === 0) {
 		throw new Error('Asset path cannot be empty');
 	}
 
-	const source = resolveOutputPath(remotionRoot, outputPath);
+	const resolvedOutput = resolveReadableOutputPath({
+		remotionRoot,
+		outputPath,
+		getRenderQueue,
+	});
+	if (resolvedOutput === null) {
+		throw new Error('Output file not found');
+	}
+
+	const source = resolvedOutput.filePath;
 	const destination = path.join(publicDir, assetPath);
 	const relativeToPublicDir = path.relative(publicDir, destination);
 	if (

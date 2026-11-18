@@ -1,5 +1,9 @@
 import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
+import {
+	MotionBlurSampleProvider,
+	useMotionBlurRegistry,
+} from './motion-blur-context';
 
 export type CameraMotionBlurProps = {
 	readonly children: React.ReactNode;
@@ -44,6 +48,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	samples = 10,
 }: CameraMotionBlurProps) => {
 	const currentFrame = useCurrentFrame();
+	const registry = useMotionBlurRegistry('CameraMotionBlur');
 
 	if (
 		typeof samples !== 'number' ||
@@ -95,26 +100,39 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 		shutterFraction,
 	});
 
+	if (registry === null) return null;
+
 	return (
 		<AbsoluteFill style={{isolation: 'isolate'}}>
-			{new Array(actualSamples).fill(true).map((_, i) => {
-				const sample = i + 1;
-				const sampleFrameOffset = shutterFraction * (sample / actualSamples);
+			<AbsoluteFill style={{opacity: actualSamples > 1 ? 0 : 1}}>
+				<MotionBlurSampleProvider sampleIndex={0} registry={registry}>
+					{children}
+				</MotionBlurSampleProvider>
+			</AbsoluteFill>
+			{new Array(actualSamples > 1 ? actualSamples : 0)
+				.fill(true)
+				.map((_, i) => {
+					const sampleFrameOffset = shutterFraction * ((i + 1) / actualSamples);
 
-				return (
-					<AbsoluteFill
-						key={`frame-${i.toString()}`}
-						style={{
-							mixBlendMode: 'plus-lighter',
-							filter: `opacity(${1 / actualSamples})`,
-						}}
-					>
-						<Freeze frame={currentFrame - sampleFrameOffset + 1}>
-							{children}
-						</Freeze>
-					</AbsoluteFill>
-				);
-			})}
+					return (
+						<AbsoluteFill
+							key={`frame-${i.toString()}`}
+							style={{
+								mixBlendMode: 'plus-lighter',
+								filter: `opacity(${1 / actualSamples})`,
+							}}
+						>
+							<Freeze frame={currentFrame - sampleFrameOffset + 1}>
+								<MotionBlurSampleProvider
+									sampleIndex={i + 1}
+									registry={registry}
+								>
+									{children}
+								</MotionBlurSampleProvider>
+							</Freeze>
+						</AbsoluteFill>
+					);
+				})}
 		</AbsoluteFill>
 	);
 };

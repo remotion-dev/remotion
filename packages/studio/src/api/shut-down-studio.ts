@@ -14,7 +14,7 @@ export const shutDownStudio = (): Promise<ShutdownStudioResponse> => {
 	}
 
 	if (getBrowserStudioOperations() !== null) {
-		throw new Error('shutDownStudio() is not supported in Browser Studio');
+		throw new Error('shutDownStudio() is not supported in remotion.new');
 	}
 
 	if (window.remotion_isReadOnlyStudio) {

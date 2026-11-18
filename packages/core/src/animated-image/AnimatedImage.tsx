@@ -1,6 +1,7 @@
 import type React from 'react';
 import {
 	forwardRef,
+	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -13,7 +14,10 @@ import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
-import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	getStackForControls,
+} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {getCanvasPropsFromSequenceProps} from '../get-canvas-props-from-sequence-props.js';
 import {
@@ -29,10 +33,12 @@ import {
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
+import {useMotionBlurCanvas} from '../use-motion-blur-canvas.js';
 import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -67,6 +73,7 @@ type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
 	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
+	readonly onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null;
 };
 
 const AnimatedImageContent = forwardRef<
@@ -86,6 +93,7 @@ const AnimatedImageContent = forwardRef<
 			effects,
 			effectsOutputSize,
 			controls,
+			onCanvasUpdated,
 			...props
 		},
 		canvasRef,
@@ -279,6 +287,7 @@ const AnimatedImageContent = forwardRef<
 				fit={fit}
 				effects={memoizedEffects}
 				effectsOutputSize={effectsOutputSize ?? null}
+				onCanvasUpdated={onCanvasUpdated}
 				{...props}
 			/>
 		);
@@ -312,13 +321,14 @@ const AnimatedImageInner = ({
 	effects = [],
 	effectsOutputSize,
 	controls,
+	motionBlur,
 	ref,
 	...sequenceProps
 }: AnimatedImageProps & {
 	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
+	readonly motionBlur: ReturnType<typeof useMotionBlurCanvas>;
 }) => {
-	const actualRef = useRef<HTMLCanvasElement | null>(null);
 	const isMedia = useMemo(
 		() => ({
 			type: 'image' as const,
@@ -333,9 +343,6 @@ const AnimatedImageInner = ({
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
-	useImperativeHandle(ref, () => {
-		return actualRef.current as HTMLCanvasElement;
-	}, []);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -408,13 +415,26 @@ const AnimatedImageInner = ({
 				{/* Hidden Activity cleans up effects but retains state. Unmount the
 				decoder so reactivation cannot reuse one that cleanup has closed. */}
 				<SequenceContent>
-					<AnimatedImageContent
-						{...animatedImageProps}
-						ref={actualRef}
-						effects={effects}
-						effectsOutputSize={effectsOutputSize ?? null}
-						controls={controls}
-					/>
+					{motionBlur.primary ? (
+						<AnimatedImageContent
+							{...animatedImageProps}
+							ref={ref}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							controls={controls}
+							onCanvasUpdated={motionBlur.onCanvasUpdated}
+						/>
+					) : (
+						<canvas
+							{...canvasProps}
+							ref={ref}
+							id={id}
+							className={className}
+							width={width}
+							height={height}
+							style={{width, height, ...croppedStyle}}
+						/>
+					)}
 				</SequenceContent>
 			</Sequence>
 		</Freeze>
@@ -425,6 +445,7 @@ const AnimatedImageWithIntrinsicDuration = (
 	props: AnimatedImageProps & {
 		readonly controls?: SequenceControls | undefined;
 		readonly ref?: React.Ref<HTMLCanvasElement>;
+		readonly motionBlur: ReturnType<typeof useMotionBlurCanvas>;
 	},
 ) => {
 	const {fps} = useVideoConfig();
@@ -510,8 +531,65 @@ const AnimatedImageComponent = (
 	},
 ) => {
 	const videoEnabled = useVideoEnabled();
+	const parentSequence = useContext(SequenceContext);
+	const sourceStack = props.controls
+		? getStackForControls(props.controls)
+		: null;
+	const sourceKey = useMemo(
+		() =>
+			JSON.stringify([
+				'animated-image',
+				resolveAnimatedImageSource(props.src),
+				serializeRequestInit(props.requestInit),
+				sourceStack,
+				parentSequence?.absoluteFrom,
+				parentSequence?.playbackRate,
+				props.from,
+				props.trimBefore,
+				props.durationInFrames,
+				props.playbackRate,
+				props.loop,
+				props.loopBehavior,
+				props.freeze,
+			]),
+		[
+			sourceStack,
+			parentSequence?.absoluteFrom,
+			parentSequence?.playbackRate,
+			props.src,
+			props.requestInit,
+			props.from,
+			props.trimBefore,
+			props.durationInFrames,
+			props.playbackRate,
+			props.loop,
+			props.loopBehavior,
+			props.freeze,
+		],
+	);
+	const motionBlur = useMotionBlurCanvas({
+		sourceKey,
+		contentKey: JSON.stringify([
+			resolveAnimatedImageSource(props.src),
+			serializeRequestInit(props.requestInit),
+		]),
+		forwardedRef: props.ref ?? null,
+		onVideoFrame: null,
+	});
 	if (videoEnabled === false) {
 		return null;
+	}
+
+	if (!motionBlur.primary) {
+		return (
+			<AnimatedImageInner
+				{...props}
+				ref={motionBlur.canvasRef}
+				motionBlur={motionBlur}
+				loop={false}
+				durationInFrames={props.loop ? undefined : props.durationInFrames}
+			/>
+		);
 	}
 
 	if (props.loop && props.durationInFrames === undefined) {
@@ -521,11 +599,19 @@ const AnimatedImageComponent = (
 			<AnimatedImageWithIntrinsicDuration
 				{...props}
 				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
+				ref={motionBlur.canvasRef}
+				motionBlur={motionBlur}
 			/>
 		);
 	}
 
-	return <AnimatedImageInner {...props} />;
+	return (
+		<AnimatedImageInner
+			{...props}
+			ref={motionBlur.canvasRef}
+			motionBlur={motionBlur}
+		/>
+	);
 };
 
 export const AnimatedImage = withInteractivitySchema({
