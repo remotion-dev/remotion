@@ -19,21 +19,35 @@ export const expandSvgCornerStyle = (
 		cornerLonghands.some((property) => !style.getPropertyValue(property))
 	)
 		return null;
-	const remainder = document.createElement('div').style;
-	remainder.cssText = style.cssText;
-	remainder.removeProperty('corner');
-	return [
-		remainder.cssText,
-		...cornerLonghands.map(
+	const text = style.cssText;
+	const declaration = `corner: ${style.getPropertyValue('corner')}${style.getPropertyPriority('corner') ? ' !important' : ''};`;
+	const longhands = cornerLonghands
+		.map(
 			(property) =>
 				`${property}: ${style.getPropertyValue(property)}${style.getPropertyPriority(property) ? ' !important' : ''};`,
-		),
-	].join(' ');
+		)
+		.join(' ');
+	const probe = document.createElement('div').style;
+	// Expand in place so later logical declarations keep their cascade order.
+	// Let the native parser reject matches inside custom-property values or strings.
+	let index = text.indexOf(declaration);
+	while (index !== -1) {
+		const expanded =
+			text.slice(0, index) + longhands + text.slice(index + declaration.length);
+		probe.cssText = expanded;
+		if (probe.cssText === text) return expanded;
+		index = text.indexOf(declaration, index + declaration.length);
+	}
+
+	return null;
 };
 
 const serializeSvgStyleRule = (rule: CSSRule): string => {
 	const style = 'style' in rule ? (rule.style as CSSStyleDeclaration) : null;
 	const expanded = style ? expandSvgCornerStyle(style) : null;
+	// CSSNestedDeclarations has a declaration list without an outer block.
+	// Custom-property values can contain braces, so detect it before scanning.
+	if (style && rule.cssText === style.cssText) return expanded ?? rule.cssText;
 	const children =
 		'cssRules' in rule ? Array.from(rule.cssRules as CSSRuleList) : [];
 	const serializedChildren = children.map(serializeSvgStyleRule);
