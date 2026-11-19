@@ -79,10 +79,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		!svg.hasAttribute('viewBox') &&
 		originalWidth !== null &&
 		originalHeight !== null &&
-		authoredWidth &&
-		authoredHeight &&
-		authoredWidth > 0 &&
-		authoredHeight > 0 &&
+		authoredWidth !== null &&
+		authoredHeight !== null &&
+		authoredWidth >= 0 &&
+		authoredHeight >= 0 &&
 		Number.isFinite(authoredWidth) &&
 		Number.isFinite(authoredHeight) &&
 		resolvedWidth &&
