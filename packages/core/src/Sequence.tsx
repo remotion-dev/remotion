@@ -1164,7 +1164,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const boundary =
 		absoluteFrame < start && !contentVisible
 			? start
-			: nextIteration < end
+			: end - nextIteration > boundaryTolerance / parentPlaybackRate
 				? nextIteration
 				: absoluteFrame < end && !props._remotionInternalClientAudioLoop
 					? end
