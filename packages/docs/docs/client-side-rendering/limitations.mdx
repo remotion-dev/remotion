@@ -102,7 +102,7 @@ Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
-WebKit exports preserve native SVG text colors, including under CSS gradient masks. Colors can differ at raster-mask edges, with `<feImage>` or non-default blend modes, or when the affected area exceeds 16,384 pixels on either axis or 16,777,216 pixels in total. For SVG text with filters or shadows, the limit can apply to the full export area.
+WebKit exports preserve native SVG text and `foreignObject` paint colors, including text under CSS gradient masks. Colors can differ at raster-mask edges, with `<feImage>` or non-default blend modes, or when the affected area exceeds 16,384 pixels on either axis or 16,777,216 pixels in total. For SVG text or `foreignObject` content with filters or shadows, the limit can apply to the full export area.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 

@@ -8,6 +8,45 @@ import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
+test('preserves native foreignObject pixels at fractional render scale', async () => {
+	const Component = svgViewportMedia.component;
+	const reference = await captureNativeReference(
+		{
+			...svgViewportMedia,
+			id: 'svg-viewport-media-fractional',
+			width: 500,
+			height: 200,
+			component: () => (
+				<div
+					style={{
+						position: 'absolute',
+						width: 400,
+						height: 160,
+						transform: 'scale(1.25)',
+						transformOrigin: '0 0',
+					}}
+				>
+					<Component />
+				</div>
+			),
+		},
+		0,
+		{omitBackground: false},
+	);
+	const still = await renderStillOnWeb({
+		composition: svgViewportMedia,
+		frame: 0,
+		inputProps: {},
+		licenseKey: 'free-license',
+		allowHtmlInCanvas: false,
+		scale: 1.25,
+	});
+	const actual = await still.blob({format: 'png'});
+	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
+		0,
+	);
+});
+
 test('keeps foreignObject used sizes detached and refreshes them after layout changes', async () => {
 	const host = document.createElement('div');
 	host.style.cssText = 'position:relative;width:400px;height:160px';
