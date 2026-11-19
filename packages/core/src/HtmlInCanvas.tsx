@@ -1099,7 +1099,10 @@ const HtmlInCanvasContent = forwardRef<
 									// Hide the source canvas while keeping its drawable children
 									// visible to captureElementImage. opacity: 0 drops paint records.
 									visibility: 'hidden',
-									pointerEvents: 'none',
+									pointerEvents:
+										!isRendering && !ancestorPaintState
+											? canvasStyle.pointerEvents
+											: 'none',
 								}
 							: canvasStyle
 					}
@@ -1126,7 +1129,11 @@ const HtmlInCanvasContent = forwardRef<
 						ref={setVisibleCanvasRef}
 						width={canvasWidth}
 						height={canvasHeight}
-						style={canvasStyle}
+						style={
+							!isRendering && !ancestorPaintState
+								? {...canvasStyle, pointerEvents: 'none'}
+								: canvasStyle
+						}
 					/>
 				) : null}
 			</HtmlInCanvasAncestorContext.Provider>
