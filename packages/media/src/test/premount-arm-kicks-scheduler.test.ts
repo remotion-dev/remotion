@@ -28,6 +28,7 @@ const makePlayer = ({
 			delayPlayback: () => ({unblock: () => undefined}),
 		} as unknown as ReturnType<typeof useBufferState>,
 		isPremounting,
+		getPremountBufferingTime: null,
 		isPostmounting,
 		durationInFrames: 100,
 		onVideoFrameCallback: null,
@@ -80,7 +81,7 @@ test('ending premounting gives deferred audio waiters a turn', async () => {
 	await sleep(50);
 	expect(events).toEqual([]);
 
-	mediaPlayer.setIsPremounting(false);
+	mediaPlayer.setIsPremounting(false, null);
 	await sleep(50);
 	expect(events).toEqual(['done']);
 });
@@ -102,12 +103,12 @@ test('the kick keeps deferring waiters beyond the horizon and sweeps stale ones'
 	const {events, setPriority} = parkWaiter();
 	const mediaPlayer = makePlayer({isPremounting: true, isPostmounting: false});
 
-	mediaPlayer.setIsPremounting(false);
+	mediaPlayer.setIsPremounting(false, null);
 	await sleep(50);
 	expect(events).toEqual([]);
 
 	setPriority(null);
-	mediaPlayer.setIsPremounting(true);
+	mediaPlayer.setIsPremounting(true, null);
 	await sleep(50);
 	expect(events).toEqual(['StaleWaiterError']);
 });

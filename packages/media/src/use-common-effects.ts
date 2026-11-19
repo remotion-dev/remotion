@@ -23,6 +23,7 @@ export const useCommonEffects = ({
 	loop,
 	durationInFrames,
 	isPremounting,
+	getPremountBufferingTime,
 	isPostmounting,
 	currentTime,
 	logLevel,
@@ -46,6 +47,7 @@ export const useCommonEffects = ({
 	readonly loop: boolean;
 	readonly durationInFrames: number;
 	readonly isPremounting: boolean;
+	readonly getPremountBufferingTime: (() => number | null) | null;
 	readonly isPostmounting: boolean;
 	readonly currentTime: number;
 	readonly logLevel: LogLevel;
@@ -173,8 +175,13 @@ export const useCommonEffects = ({
 			return;
 		}
 
-		mediaPlayer.setIsPremounting(isPremounting);
-	}, [isPremounting, mediaPlayerReady, mediaPlayerRef]);
+		mediaPlayer.setIsPremounting(isPremounting, getPremountBufferingTime);
+	}, [
+		isPremounting,
+		getPremountBufferingTime,
+		mediaPlayerReady,
+		mediaPlayerRef,
+	]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

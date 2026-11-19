@@ -149,6 +149,9 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	}
 
 	const parentSequence = useContext(SequenceContext);
+	const absoluteTime = useContext(Internals.AbsoluteTimeContext);
+	const {isBuffering} = useContext(Internals.SetTimelineContext);
+	const {outFrame} = useContext(Internals.PlaybackRangeContext);
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
 	const effectiveToneFrequency =
@@ -181,6 +184,34 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		muted,
 		volume: userPreferredVolume,
 	});
+
+	// Audio may already be due before the next visual frame activates the Sequence.
+	// Keep its premount clock while allowing the pending audio to hold playback.
+	const absoluteFrame = absoluteTime?.frame[videoConfig.id];
+	const audibleStart = parentSequence
+		? parentSequence.absoluteFrom -
+			parentSequence.cumulatedNegativeFrom / sequencePlaybackRate
+		: null;
+	const imminentPremountTime =
+		isPremounting &&
+		!mediaPlayerMuted &&
+		globalPlaybackRate > 0 &&
+		absoluteFrame !== undefined &&
+		audibleStart !== null &&
+		audibleStart > absoluteFrame &&
+		audibleStart <= absoluteFrame + 1 &&
+		(outFrame === null || audibleStart < outFrame + 1)
+			? absoluteFrame / videoConfig.fps - sequenceOffset
+			: null;
+	const getPremountBufferingTime = useMemo(
+		() =>
+			imminentPremountTime === null
+				? null
+				: () => (isBuffering() ? imminentPremountTime : null),
+		[imminentPremountTime, isBuffering],
+	);
+	const getPremountBufferingTimeRef = useRef(getPremountBufferingTime);
+	getPremountBufferingTimeRef.current = getPremountBufferingTime;
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -216,6 +247,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		loop,
 		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
+		getPremountBufferingTime,
 		isPostmounting,
 		currentTime,
 		logLevel,
@@ -261,6 +293,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				bufferState: buffer,
 				isPostmounting: initialIsPostmounting.current,
 				isPremounting: initialIsPremounting.current,
+				getPremountBufferingTime: getPremountBufferingTimeRef.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
 				durationInFrames: initialDurationInFrames.current,
 				onVideoFrameCallback: null,
