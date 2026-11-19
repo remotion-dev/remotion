@@ -41,7 +41,7 @@ import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {useDelayRender} from './use-delay-render.js';
+import {useDelayRender, useReportRenderError} from './use-delay-render.js';
 import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -531,6 +531,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasSizeKey = `${canvasWidth}x${canvasHeight}@${resolvedPixelDensity}`;
 		const committedCanvasSizeRef = useRef(canvasSizeKey);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const reportRenderError = useReportRenderError();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -625,16 +626,48 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedSizeRef = useRef<string | null>(null);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const pendingPaintReleases = useRef(new Set<() => void>());
+		const paintOwnerRef = useRef({reportRenderError, retired: false});
+		const initializingOwnerRef = useRef<typeof paintOwnerRef.current | null>(
+			null,
+		);
 		const effectScratchCanvasesRef = useRef<{
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
 		} | null>(null);
 		const resizeSnapshotRef = useRef<HTMLCanvasElement | null>(null);
 		const paintingTargets = useRef(
-			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
+			new WeakMap<
+				HtmlInCanvasPaintTarget,
+				{repaint: boolean; owner: typeof paintOwnerRef.current}
+			>(),
 		);
 
+		useLayoutEffect(() => {
+			const owner = {reportRenderError, retired: false};
+			paintOwnerRef.current = owner;
+			const paintReleases = pendingPaintReleases.current;
+			const paintTargets = paintingTargets.current;
+			return () => {
+				owner.retired = true;
+				if (initializingOwnerRef.current === owner) {
+					initializingOwnerRef.current = null;
+					initializedSizeRef.current = null;
+				}
+
+				for (const release of paintReleases) release();
+				const target = paintTargetRef.current;
+				if (target && paintTargets.get(target)?.owner === owner)
+					paintTargets.delete(target);
+			};
+		}, [reportRenderError]);
+
 		const onPaintCb = useCallback(async () => {
+			const owner = paintOwnerRef.current;
+			if (owner.retired || owner.reportRenderError !== reportRenderError)
+				return;
+			const isCurrentOwner = () =>
+				paintOwnerRef.current === owner && !owner.retired;
 			if (isRendering && paintState.pendingChildren > 0) {
 				return;
 			}
@@ -662,7 +695,7 @@ const HtmlInCanvasContent = forwardRef<
 				return;
 			}
 
-			const painting = {repaint: false};
+			const painting = {repaint: false, owner};
 			if (serializePaint) {
 				paintingTargets.current.set(paintTarget, painting);
 			}
@@ -677,6 +710,21 @@ const HtmlInCanvasContent = forwardRef<
 				? ancestorPaintState?.blockPaint()
 				: null;
 			let canReleasePaint = false;
+			let handle: number | null = null;
+			// Retain the allocating scope's continuation until this paint finishes
+			// or its subtree is removed after a handled failure.
+			const releasePaint = () => {
+				if (handle !== null) {
+					continueRender(handle);
+					handle = null;
+				}
+
+				// Ancestor barriers belong to this paint too; retirement must not
+				// leave its replacement waiting for an obsolete promise.
+				releaseAncestor?.();
+				pendingPaintReleases.current.delete(releasePaint);
+			};
+
 			try {
 				const placeholderCanvas = canvas2dRef.current;
 				if (!placeholderCanvas) {
@@ -684,7 +732,8 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				const outputCanvas = outputCanvasRef.current;
-				const handle = delayRender('onPaint');
+				handle = delayRender('onPaint');
+				pendingPaintReleases.current.add(releasePaint);
 				if (initializedSizeRef.current !== canvasSizeKey) {
 					onInitCleanupRef.current?.();
 					onInitCleanupRef.current = null;
@@ -707,7 +756,7 @@ const HtmlInCanvasContent = forwardRef<
 								// The web renderer explicitly drives additional paint cycles, so a
 								// transient missing record can be retried without failing the render.
 								canReleasePaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
@@ -726,6 +775,7 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
+							initializingOwnerRef.current = owner;
 							const cleanup = await currentOnInit({
 								canvas: paintTarget,
 								element,
@@ -739,20 +789,26 @@ const HtmlInCanvasContent = forwardRef<
 							}
 
 							if (
+								!isCurrentOwner() ||
 								unmountedRef.current ||
 								paintTargetRef.current !== paintTarget ||
 								committedCanvasSizeRef.current !== canvasSizeKey
 							) {
 								cleanup();
-								if (paintTargetRef.current === paintTarget) {
+								if (
+									initializingOwnerRef.current === owner &&
+									paintTargetRef.current === paintTarget
+								) {
+									initializingOwnerRef.current = null;
 									initializedSizeRef.current = null;
 								}
 
 								painting.repaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
+							initializingOwnerRef.current = null;
 							onInitCleanupRef.current = cleanup;
 						} finally {
 							initImage.close();
@@ -769,7 +825,7 @@ const HtmlInCanvasContent = forwardRef<
 					// Skip this paint cycle — the canvas retains its last state.
 					if (isMissingPaintRecordError(error) && canRetryMissingPaintRecord) {
 						canReleasePaint = true;
-						continueRender(handle);
+						releasePaint();
 						return;
 					}
 
@@ -800,9 +856,12 @@ const HtmlInCanvasContent = forwardRef<
 							await paintResult;
 						}
 
-						if (committedCanvasSizeRef.current !== canvasSizeKey) {
+						if (
+							!isCurrentOwner() ||
+							committedCanvasSizeRef.current !== canvasSizeKey
+						) {
 							painting.repaint = true;
-							continueRender(handle);
+							releasePaint();
 							return;
 						}
 					} else if (
@@ -879,6 +938,11 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				if (!isCurrentOwner()) {
+					releasePaint();
+					return;
+				}
+
 				if (
 					paintTargetMode === 'copied' &&
 					paintTargetRef.current === paintTarget &&
@@ -899,12 +963,21 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				canReleasePaint = true;
-				continueRender(handle);
+				releasePaint();
 			} catch (error) {
-				cancelRender(error);
+				if (
+					!isCurrentOwner() ||
+					unmountedRef.current ||
+					paintTargetRef.current !== paintTarget
+				) {
+					releasePaint();
+				} else {
+					reportRenderError(error);
+				}
 			} finally {
 				if (
 					canReleasePaint &&
+					isCurrentOwner() &&
 					paintState.pendingChildren === 0 &&
 					paintState.generation === childrenGeneration
 				) {
@@ -914,8 +987,13 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				releaseAncestor?.();
-				paintingTargets.current.delete(paintTarget);
-				if (painting.repaint && paintTargetRef.current === paintTarget) {
+				if (paintingTargets.current.get(paintTarget) === painting)
+					paintingTargets.current.delete(paintTarget);
+				if (
+					isCurrentOwner() &&
+					painting.repaint &&
+					paintTargetRef.current === paintTarget
+				) {
 					canvas2dRef.current?.requestPaint?.();
 				}
 			}
@@ -925,7 +1003,7 @@ const HtmlInCanvasContent = forwardRef<
 			canvasSizeKey,
 			chainState,
 			continueRender,
-			cancelRender,
+			reportRenderError,
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
@@ -965,11 +1043,16 @@ const HtmlInCanvasContent = forwardRef<
 			paintTargetRef.current = paintTarget;
 			initializedSizeRef.current = null;
 			unmountedRef.current = false;
+			const paintReleases = pendingPaintReleases.current;
 
 			return () => {
 				paintTargetRef.current = null;
 				initializedSizeRef.current = null;
 				unmountedRef.current = true;
+				for (const release of paintReleases) {
+					release();
+				}
+
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};

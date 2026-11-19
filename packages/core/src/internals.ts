@@ -293,8 +293,15 @@ import {
 	CurrentScaleContext,
 	PreviewSizeContext,
 } from './use-current-scale.js';
-import {DelayRenderContextType} from './use-delay-render.js';
-import {useLazyComponent} from './use-lazy-component.js';
+import {
+	CancelRenderContext,
+	DelayRenderContextType,
+	useReportRenderError,
+} from './use-delay-render.js';
+import {
+	useLazyComponent,
+	useLazyComponentWithOwner,
+} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
@@ -477,6 +484,7 @@ export const Internals = {
 	usePlayerMutedState,
 	useMediaInTimeline,
 	useLazyComponent,
+	useLazyComponentWithOwner,
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
@@ -570,6 +578,8 @@ export const Internals = {
 	TimelinePosition,
 	useTimelineSeek,
 	DelayRenderContextType,
+	CancelRenderContext,
+	useReportRenderError,
 	TimelineContext,
 	usePlaying,
 	PlaybackPitchContext,

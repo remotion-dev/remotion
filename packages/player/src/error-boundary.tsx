@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {Internals} from 'remotion';
 
 const errorStyle: React.CSSProperties = {
 	display: 'flex',
@@ -9,9 +10,104 @@ const errorStyle: React.CSSProperties = {
 	width: '100%',
 };
 
+// Cancellation ownership is separate from the renderer's shared readiness scope.
+const useOwnerLayoutEffect =
+	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
+type CancellationOwner = {
+	renderingOwner: object | null;
+	active: boolean;
+	firstError: Error | null;
+	generation: number;
+	onCancel: (error: Error) => void;
+};
+
+const AsyncRenderErrorScope = ({
+	children,
+	renderingOwner,
+	isReplacingComponent,
+}: {
+	readonly children: React.ReactNode;
+	readonly renderingOwner: object | null;
+	readonly isReplacingComponent: boolean;
+}) => {
+	const [failure, setFailure] = useState<{
+		owner: CancellationOwner;
+		generation: number;
+		error: Error;
+	} | null>(null);
+	const currentOwner = React.useRef<CancellationOwner | null>(null);
+	const createOwner = (): CancellationOwner => {
+		const createdOwner: CancellationOwner = {
+			renderingOwner,
+			active: false,
+			firstError: null,
+			generation: 0,
+			onCancel: (error) => {
+				// Descendant render/layout work can report before this owner commits.
+				const beforeFirstCommit =
+					!createdOwner.active && createdOwner.generation === 0;
+				if (
+					(!createdOwner.active && !beforeFirstCommit) ||
+					createdOwner.firstError !== null
+				)
+					return;
+				createdOwner.firstError = error;
+				const {generation} = createdOwner;
+				queueMicrotask(() => {
+					if (
+						!createdOwner.active ||
+						currentOwner.current !== createdOwner ||
+						(!beforeFirstCommit && generation !== createdOwner.generation)
+					)
+						return;
+					const committedGeneration = createdOwner.generation;
+					setFailure((previous) =>
+						previous?.owner === createdOwner &&
+						previous.generation === committedGeneration
+							? previous
+							: {owner: createdOwner, generation: committedGeneration, error},
+					);
+				});
+			},
+		};
+		return createdOwner;
+	};
+
+	const [owner, setOwner] = useState(createOwner);
+	useOwnerLayoutEffect(() => {
+		owner.active = true;
+		currentOwner.current = owner;
+		return () => {
+			owner.active = false;
+			owner.generation++;
+			owner.firstError = null;
+			if (currentOwner.current === owner) currentOwner.current = null;
+		};
+	}, [owner]);
+	if (!Object.is(owner.renderingOwner, renderingOwner)) {
+		setOwner(createOwner());
+	}
+
+	if (
+		!isReplacingComponent &&
+		Object.is(owner.renderingOwner, renderingOwner) &&
+		failure?.owner === owner &&
+		failure.generation === owner.generation
+	)
+		throw failure.error;
+	return (
+		<Internals.CancelRenderContext.Provider value={owner.onCancel}>
+			{children}
+		</Internals.CancelRenderContext.Provider>
+	);
+};
+
 export class ErrorBoundary extends React.Component<
 	{
 		onError: (error: Error) => void;
+		renderingOwner: object | null;
+		isReplacingComponent: boolean;
 		children: React.ReactNode;
 		errorFallback: (info: {error: Error}) => React.ReactNode;
 	},
@@ -39,6 +135,13 @@ export class ErrorBoundary extends React.Component<
 			);
 		}
 
-		return this.props.children;
+		return (
+			<AsyncRenderErrorScope
+				renderingOwner={this.props.renderingOwner}
+				isReplacingComponent={this.props.isReplacingComponent}
+			>
+				{this.props.children}
+			</AsyncRenderErrorScope>
+		);
 	}
 }
