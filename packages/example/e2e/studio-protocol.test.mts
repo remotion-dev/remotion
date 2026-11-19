@@ -984,10 +984,9 @@ const CloseupPlaceholder = () => {
 	} catch (error) {
 		throw new Error(`${String(error)}\nTemporary Studio logs:\n${studioLogs}`);
 	} finally {
-		await Promise.race([
-			context.close().catch(() => undefined),
-			new Promise((resolve) => setTimeout(resolve, 1000)),
-		]);
+		// Closing disposes the request context before removing the browser context.
+		// Finish both before the next test starts tracing existing contexts.
+		await context.close().catch(() => undefined);
 		senderServer.closeAllConnections();
 		await new Promise<void>((resolve) => senderServer.close(() => resolve()));
 		if (studioProcess.exitCode === null) {
