@@ -120,26 +120,61 @@ const valueEnd = (text: string, index: number) => {
 	return index;
 };
 
-export const getSvgStyleDeclarations = (text: string): string[] => {
-	const declarations: string[] = [];
+// Rewrite only rule headers. Declarations stay byte-for-byte authored, including
+// pending var() shorthands that CSSOM serialization can discard after overrides.
+export const rewriteSvgStyleHeaders = (
+	text: string,
+	rewrite: (header: string) => string,
+): string => {
+	const edits: {start: number; end: number; text: string}[] = [];
+	let start = 0;
+	let depth = 0;
 	let index = 0;
 	while (index < text.length) {
-		index = triviaEnd(text, index);
-		if (text[index] === ';') {
-			index++;
-			continue;
-		}
+		const char = text[index];
+		if (text.startsWith('/*', index)) index = commentEnd(text, index);
+		else if (char === '"' || char === "'") index = stringEnd(text, index);
+		else {
+			const name = nameAt(text, index);
+			if (name.end > index) {
+				const colon = triviaEnd(text, name.end);
+				if (
+					depth === 0 &&
+					triviaEnd(text, start) === index &&
+					name.value.startsWith('--') &&
+					text[colon] === ':'
+				) {
+					index = valueEnd(text, colon + 1);
+					continue;
+				}
 
-		const start = index;
-		const name = nameAt(text, index);
-		const colon = triviaEnd(text, name.end);
-		if (name.end === index || text[colon] !== ':') break;
-		const end = valueEnd(text, colon + 1);
-		declarations.push(`${text.slice(start, end)};`);
-		index = end + 1;
+				index =
+					name.value.toLowerCase() === 'url' && text[name.end] === '('
+						? (unquotedUrlEnd(text, name.end + 1) ?? name.end)
+						: name.end;
+				continue;
+			}
+
+			if (char === '(' || char === '[') depth++;
+			else if (char === ')' || char === ']') depth = Math.max(0, depth - 1);
+			else if (depth === 0 && char === '{') {
+				const header = text.slice(start, index);
+				const replacement = rewrite(header);
+				if (replacement !== header)
+					edits.push({start, end: index, text: replacement});
+				start = index + 1;
+			} else if (depth === 0 && (char === ';' || char === '}'))
+				start = index + 1;
+			index++;
+		}
 	}
 
-	return declarations;
+	let result = text;
+	for (const edit of edits.reverse()) {
+		result = result.slice(0, edit.start) + edit.text + result.slice(edit.end);
+	}
+
+	return result;
 };
 
 // Constructed-sheet parsing drops imports, and the selector walker cannot yet

@@ -1,123 +1,11 @@
 import {
-	getSvgStyleDeclarations,
+	rewriteSvgStyleHeaders,
 	hasExcludedSvgStyleAtRule,
 } from './has-excluded-svg-style-at-rule';
 
 // Match authored attribute and emptiness predicates, skipping quoted values and escapes.
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media|width|height)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
-
-const serializeSvgDeclarations = (
-	style: CSSStyleDeclaration,
-	scratch: CSSStyleDeclaration,
-): string => {
-	const properties = Array.from(style);
-	// Native property order retains physical overrides that cssText can fold
-	// into an earlier shorthand across an intervening logical declaration.
-	const pending = new Map<string, string>();
-	if (
-		properties.some(
-			(property) =>
-				!property.startsWith('--') && !style.getPropertyValue(property),
-		)
-	) {
-		// Pending var() shorthands have empty longhand values. Keep their opaque
-		// declaration instead of dropping them or resolving against mounted DOM.
-		for (const declaration of getSvgStyleDeclarations(style.cssText)) {
-			scratch.cssText = declaration;
-			for (const property of Array.from(scratch)) {
-				if (!scratch.getPropertyValue(property))
-					pending.set(property, declaration);
-			}
-		}
-	}
-
-	const emitted = new Set<string>();
-	const declarations: string[] = [];
-	for (const property of properties) {
-		const value = style.getPropertyValue(property);
-		if (!value && !property.startsWith('--')) {
-			const declaration = pending.get(property);
-			if (!declaration) return style.cssText;
-			if (!emitted.has(declaration)) declarations.push(declaration);
-			emitted.add(declaration);
-			continue;
-		}
-
-		declarations.push(
-			`${property}: ${value}${style.getPropertyPriority(property) ? ' !important' : ''};`,
-		);
-	}
-
-	return declarations.join(' ');
-};
-
-const serializeSvgStyleRule = (
-	rule: CSSRule,
-	scratch: CSSStyleDeclaration,
-): string => {
-	const style = 'style' in rule ? (rule.style as CSSStyleDeclaration) : null;
-	const expanded = style ? serializeSvgDeclarations(style, scratch) : null;
-	// CSSNestedDeclarations has a declaration list without an outer block.
-	// Custom-property values can contain braces, so detect it before scanning.
-	if (style && rule.cssText === style.cssText) return expanded ?? rule.cssText;
-	const children =
-		'cssRules' in rule ? Array.from(rule.cssRules as CSSRuleList) : [];
-	const serializedChildren = children.map((child) =>
-		serializeSvgStyleRule(child, scratch),
-	);
-	if (
-		expanded === null &&
-		serializedChildren.every(
-			(serialized, index) => serialized === children[index].cssText,
-		)
-	)
-		return rule.cssText;
-
-	// Locate the declaration block without treating braces inside a quoted
-	// selector, escaped identifier or grouping condition as its opening brace.
-	const text = rule.cssText;
-	let quote: string | null = null;
-	let comment = false;
-	let depth = 0;
-	let opening = -1;
-	for (let index = 0; index < text.length; index++) {
-		const char = text[index];
-		if (comment) {
-			if (char === '*' && text[index + 1] === '/') {
-				comment = false;
-				index++;
-			}
-
-			continue;
-		}
-
-		if (char === '\\') {
-			index++;
-			continue;
-		}
-
-		if (quote !== null) {
-			if (char === quote) quote = null;
-			continue;
-		}
-
-		if (char === '"' || char === "'") quote = char;
-		else if (char === '/' && text[index + 1] === '*') {
-			comment = true;
-			index++;
-		} else if (char === '(' || char === '[') depth++;
-		else if (char === ')' || char === ']') depth--;
-		else if (char === '{' && depth === 0) {
-			opening = index;
-			break;
-		}
-	}
-
-	// Nested declaration rules have no surrounding block of their own.
-	if (opening === -1) return expanded ?? text;
-	return `${text.slice(0, opening + 1)} ${expanded ?? style?.cssText ?? ''} ${serializedChildren.join(' ')} }`;
-};
 
 export const preserveSvgAttributeSelectors = ({
 	svg,
@@ -217,51 +105,37 @@ export const preserveSvgAttributeSelectors = ({
 			changed = true;
 		}
 
-		let rewritten = false;
-		const visit = (rules: CSSRuleList) => {
-			for (const rule of rules) {
-				if (preserveMediaQueries && rule instanceof ownerWindow.CSSMediaRule) {
-					const resolvedMedia = ownerWindow.matchMedia(rule.conditionText)
-						.matches
-						? 'all'
-						: 'not all';
-					if (rule.media.mediaText !== resolvedMedia) {
-						rule.media.mediaText = resolvedMedia;
-						rewritten = true;
-					}
-				}
-
-				if (rule instanceof ownerWindow.CSSStyleRule) {
-					const selector = rule.selectorText.replace(
-						attributeSelector,
-						(
-							match,
-							prefix: string | undefined,
-							name: string | undefined,
-							empty: string | undefined,
-						) => {
-							if (empty && authoredEmpty) return `[${emptyAttribute}]`;
-							if (prefix === undefined) return match;
-							const original = aliases.find((entry) => entry.name === name);
-							return original?.values ? `[${prefix}${original.alias}` : match;
-						},
-					);
-					if (selector !== rule.selectorText) {
-						rule.selectorText = selector;
-						rewritten = true;
-					}
-				}
-
-				if ('cssRules' in rule) visit(rule.cssRules as CSSRuleList);
+		const namespaces = Array.from(sheet.cssRules)
+			.filter((rule) => rule.type === CSSRule.NAMESPACE_RULE)
+			.map((rule) => rule.cssText)
+			.join('');
+		const headerSheet = new ownerWindow.CSSStyleSheet();
+		const rewritten = rewriteSvgStyleHeaders(text, (header) => {
+			headerSheet.replaceSync(`${namespaces}${header}{}`);
+			const rule = Array.from(headerSheet.cssRules).at(-1);
+			if (preserveMediaQueries && rule instanceof ownerWindow.CSSMediaRule) {
+				return `@media ${ownerWindow.matchMedia(rule.conditionText).matches ? 'all' : 'not all'} `;
 			}
-		};
 
-		visit(sheet.cssRules);
-		if (rewritten) {
-			const scratch = svg.ownerDocument.createElement('div').style;
-			style.textContent = Array.from(sheet.cssRules, (rule) =>
-				serializeSvgStyleRule(rule, scratch),
-			).join('');
+			if (!(rule instanceof ownerWindow.CSSStyleRule)) return header;
+			const selector = rule.selectorText.replace(
+				attributeSelector,
+				(
+					match,
+					prefix: string | undefined,
+					name: string | undefined,
+					empty: string | undefined,
+				) => {
+					if (empty && authoredEmpty) return `[${emptyAttribute}]`;
+					if (prefix === undefined) return match;
+					const original = aliases.find((entry) => entry.name === name);
+					return original?.values ? `[${prefix}${original.alias}` : match;
+				},
+			);
+			return selector === rule.selectorText ? header : selector;
+		});
+		if (rewritten !== text) {
+			style.textContent = rewritten;
 			changed = true;
 		}
 	}
