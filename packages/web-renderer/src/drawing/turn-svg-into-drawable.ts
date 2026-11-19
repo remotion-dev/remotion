@@ -57,19 +57,37 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
-	const absoluteLength = /^([0-9]+(?:\.[0-9]+)?)(?:px)?$/;
 	const resolvedWidth = width.endsWith('px') && parseFloat(width);
 	const resolvedHeight = height.endsWith('px') && parseFloat(height);
-	const authoredWidth = originalWidth?.match(absoluteLength);
-	const authoredHeight = originalHeight?.match(absoluteLength);
+	const [authoredWidth, authoredHeight] = [
+		svg.width.baseVal,
+		svg.height.baseVal,
+	].map((length) =>
+		[
+			SVGLength.SVG_LENGTHTYPE_NUMBER,
+			SVGLength.SVG_LENGTHTYPE_PX,
+			SVGLength.SVG_LENGTHTYPE_CM,
+			SVGLength.SVG_LENGTHTYPE_MM,
+			SVGLength.SVG_LENGTHTYPE_IN,
+			SVGLength.SVG_LENGTHTYPE_PT,
+			SVGLength.SVG_LENGTHTYPE_PC,
+		].some((unit) => unit === length.unitType)
+			? length.value
+			: null,
+	);
 	const resizedWithoutViewBox =
 		!svg.hasAttribute('viewBox') &&
+		originalWidth !== null &&
+		originalHeight !== null &&
 		authoredWidth &&
 		authoredHeight &&
+		authoredWidth > 0 &&
+		authoredHeight > 0 &&
+		Number.isFinite(authoredWidth) &&
+		Number.isFinite(authoredHeight) &&
 		resolvedWidth &&
 		resolvedHeight &&
-		(resolvedWidth !== Number(authoredWidth[1]) ||
-			resolvedHeight !== Number(authoredHeight[1]));
+		(resolvedWidth !== authoredWidth || resolvedHeight !== authoredHeight);
 	const needsExplicitDimensions =
 		resizedWithoutViewBox ||
 		svg.preserveAspectRatio.baseVal.align ===
