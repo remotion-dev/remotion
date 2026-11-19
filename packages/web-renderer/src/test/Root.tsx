@@ -94,6 +94,7 @@ import {
 	fractionalFreezeLifetime,
 	fractionalRevokedImage,
 	fractionalCanvasResource,
+	fractionalTimedImage,
 	fractionalLoopedVideo,
 	fractionalShortVideo,
 	fractionalNestedAudio,
@@ -595,6 +596,7 @@ export const Root: React.FC = () => {
 				<Composition {...fractionalFreezeLifetime} />
 				<Composition {...fractionalRevokedImage} />
 				<Composition {...fractionalCanvasResource} />
+				<Composition {...fractionalTimedImage} />
 				<Composition {...fractionalUnusedCanvas} />
 				<Composition {...fractionalUnusedImage} />
 				<Composition {...unwrapped} />

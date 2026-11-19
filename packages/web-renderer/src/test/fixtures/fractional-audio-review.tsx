@@ -373,3 +373,96 @@ export const fractionalCanvasResource = {
 		onImageLoad: null,
 	} as CanvasResourceProps,
 };
+
+type TimedImageProps = {
+	readonly kind: FractionalResourceKind | 'native';
+	readonly unused: boolean;
+	readonly revokeEarly: boolean;
+	readonly onResourceReady: ((revoke: () => void) => void) | null;
+	readonly onImageLoad: (() => void) | null;
+};
+
+const TimedImage = ({
+	kind,
+	unused,
+	revokeEarly,
+	onResourceReady,
+	onImageLoad,
+}: TimedImageProps) => {
+	const frame = useCurrentFrame();
+	const [tone] = useState(makeToneWav);
+	const [sources] = useState(() =>
+		Array.from({length: 2}, () =>
+			URL.createObjectURL(
+				new Blob(
+					[
+						Uint8Array.from(
+							atob('R0lGODlhAQABAIAAABAoUAAAACwAAAAAAQABAAACAkQBADs='),
+							(char) => char.charCodeAt(0),
+						),
+					],
+					{type: 'image/gif'},
+				),
+			),
+		),
+	);
+	useEffect(() => {
+		onResourceReady?.(() => URL.revokeObjectURL(sources[0]!));
+		return () => sources.forEach((source) => URL.revokeObjectURL(source));
+	}, [onResourceReady, sources]);
+	const props = {
+		src: unused
+			? 'http://127.0.0.1:1/fractional-internal-unused-image'
+			: sources[revokeEarly && frame < 1 ? 0 : 1]!,
+		from: 0.25,
+		durationInFrames: unused ? 0.12 : 1.5,
+		width: 64,
+		height: 64,
+	};
+	return (
+		<>
+			<AbsoluteFill style={{backgroundColor: 'red'}} />
+			{kind === 'canvas' ? (
+				<CanvasImage {...props} maxRetries={0} />
+			) : kind === 'effects' ? (
+				<Img
+					{...props}
+					maxRetries={0}
+					effects={[linearGradientTint({amount: 0})]}
+				/>
+			) : kind === 'native' ? (
+				<Img {...props} maxRetries={0} onLoad={() => onImageLoad?.()} />
+			) : kind === 'animated' ? (
+				<AnimatedImage
+					{...props}
+					loop={false}
+					loopBehavior="pause-after-finish"
+				/>
+			) : (
+				<Gif
+					{...props}
+					loop={false}
+					loopBehavior="pause-after-finish"
+					onLoad={() => onImageLoad?.()}
+				/>
+			)}
+			<Sequence from={0.25} durationInFrames={0.12}>
+				<Audio src={tone} volume={0} />
+			</Sequence>
+		</>
+	);
+};
+
+export const fractionalTimedImage = {
+	...dimensions,
+	durationInFrames: 3,
+	component: TimedImage,
+	id: 'fractional-timed-image',
+	defaultProps: {
+		kind: 'canvas',
+		unused: false,
+		revokeEarly: false,
+		onResourceReady: null,
+		onImageLoad: null,
+	} as TimedImageProps,
+};

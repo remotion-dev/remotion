@@ -14,6 +14,7 @@ import {
 	fractionalFreezeLifetime,
 	fractionalRevokedImage,
 	fractionalCanvasResource,
+	fractionalTimedImage,
 	fractionalLoopedVideo,
 	fractionalNestedAudio,
 	fractionalLoopingSequence,
@@ -547,5 +548,98 @@ test.each(['wav', 'mkv'] as const)(
 
 		expect(samples).toBe(8000);
 		expect(wrong).toBe(0);
+	},
+);
+
+test.for(['canvas', 'effects', 'animated', 'gif', 'native'] as const)(
+	'defers initial %s loading with built-in fractional timing until a video sample',
+	async (kind, {skip}) => {
+		if (kind === 'animated' && typeof ImageDecoder === 'undefined') {
+			skip();
+			return;
+		}
+
+		for (const unused of [true, false]) {
+			for (const revokeEarly of [true, false]) {
+				for (const muted of [true, false]) {
+					let revoke: (() => void) | null = null;
+					let loads = 0;
+					let frames = 0;
+					let wrongPixels = 0;
+					const result = await renderMediaOnWeb({
+						licenseKey: 'free-license',
+						composition: {...fractionalTimedImage, calculateMetadata: null},
+						inputProps: {
+							kind,
+							unused,
+							revokeEarly,
+							onResourceReady: (callback) => {
+								revoke = callback;
+							},
+							onImageLoad: () => loads++,
+						},
+						container: 'mkv',
+						videoCodec: 'vp8',
+						audioCodec: 'pcm-s16',
+						sampleRate: 48000,
+						muted,
+						onFrame: (frame) => {
+							expect(frame.timestamp).toBe(
+								Math.round((frames / 24) * 1_000_000),
+							);
+							const expected =
+								!unused && frames === 1 ? [16, 40, 80, 255] : [255, 0, 0, 255];
+							for (const [index, byte] of readFrame(frame).entries()) {
+								if (byte !== expected[index % 4]) wrongPixels++;
+							}
+
+							if (frames === 0 && revokeEarly) {
+								expect(revoke).not.toBeNull();
+								revoke?.();
+							}
+
+							frames++;
+							return frame;
+						},
+					});
+					expect(frames).toBe(3);
+					expect(wrongPixels).toBe(0);
+					if (kind === 'gif' || kind === 'native')
+						expect(loads).toBe(unused ? 0 : 1);
+					const input = new Input({
+						source: new BlobSource(await result.getBlob()),
+						formats: ALL_FORMATS,
+					});
+					try {
+						const track = await input.getPrimaryAudioTrack();
+						if (muted) expect(track).toBeNull();
+						else {
+							expect(track).not.toBeNull();
+							let samples = 0;
+							for await (const {buffer} of new AudioBufferSink(
+								track!,
+							).buffers()) {
+								samples += buffer.length;
+								for (
+									let channel = 0;
+									channel < buffer.numberOfChannels;
+									channel++
+								) {
+									expect(
+										buffer
+											.getChannelData(channel)
+											.every((value) => value === 0),
+									).toBe(true);
+								}
+							}
+
+							expect(samples).toBe(6000);
+						}
+					} finally {
+						input.dispose();
+					}
+				}
+			}
+		}
 	},
 );
