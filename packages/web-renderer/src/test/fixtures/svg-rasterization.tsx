@@ -132,6 +132,26 @@ const ClipComponent = () => (
 	</div>
 );
 
+const PseudoComponent = () => (
+	<div
+		style={{position: 'absolute', width: 400, height: 160, background: 'white'}}
+	>
+		<svg
+			width={320}
+			height={96}
+			style={{position: 'absolute', left: 8, top: 88, width: 160, height: 48}}
+		>
+			<style>{`@media (min-width:1px) {
+				.panel {position:relative;width:160px;height:48px;background:#123355;}
+				svg .panel::before {content:"";position:absolute;left:16px;top:12px;width:60px;height:8px;background:blue;}
+			}`}</style>
+			<foreignObject width={160} height={48}>
+				<div {...{xmlns: 'http://www.w3.org/1999/xhtml'}} className="panel" />
+			</foreignObject>
+		</svg>
+	</div>
+);
+
 const dimensions = {
 	width: 400,
 	height: 160,
@@ -139,6 +159,7 @@ const dimensions = {
 	durationInFrames: 1,
 } as const;
 export const svgRasterizationScenes = [
+	{...dimensions, id: 'svg-rasterization-pseudo', component: PseudoComponent},
 	{component: ScopeComponent, id: 'svg-rasterization-scope'},
 	{component: RootComponent, id: 'svg-rasterization-root'},
 	{component: AuthoredScopeComponent, id: 'svg-rasterization-authored-scope'},
