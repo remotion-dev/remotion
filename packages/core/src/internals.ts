@@ -60,6 +60,7 @@ import {
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 } from './delay-render.js';
+import {disposeMediabunnyInput} from './dispose-mediabunny-input.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -405,6 +406,7 @@ export const Internals = {
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
+	disposeMediabunnyInput,
 	getMediabunnyInputResourceKey,
 	globalMediaResourceManager,
 	makeMediaResourceManager,
