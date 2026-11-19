@@ -1,5 +1,6 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {disposeMediaInput} from './dispose-media-input';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {getMaxSourceCacheSize} from './max-cache-size';
 import {makeOfflineMediaFetch} from './offline-media-fetch';
@@ -89,7 +90,7 @@ export const acquireSharedInput = ({
 				resource: input,
 				dispose: () => {
 					recovery.dispose();
-					input.dispose();
+					disposeMediaInput(input, logLevel);
 				},
 			};
 		},

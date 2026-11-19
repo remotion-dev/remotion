@@ -12,6 +12,7 @@ import {
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
+import {disposeMediaInput} from '../dispose-media-input';
 import {getDurationOrCompute} from '../get-duration-or-compute';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 import {isNetworkError} from '../is-type-of-error';
@@ -234,7 +235,7 @@ export const makeSinks = (
 		promise: getSinks(),
 		dispose: () => {
 			recovery.dispose();
-			input.dispose();
+			disposeMediaInput(input, logLevel);
 			for (const release of releaseSinks) {
 				release();
 			}
