@@ -24,6 +24,8 @@ import {ResponseStream} from '../../functions/streaming/response-stream';
 import {streamWriter} from '../../functions/streaming/stream-writer';
 import {trackMockInvocation} from './mock-invocations';
 
+export const pendingLambdaInvocations: Promise<void>[] = [];
+
 export const getMockCallFunctionStreaming: CallFunctionStreaming = async <
 	T extends ServerlessRoutines,
 >(
@@ -154,7 +156,7 @@ export const getMockInvokeWithResponseStream: typeof callLambdaStreaming.invokeW
 			wake = null;
 		};
 
-		innerHandler({
+		const invocation = innerHandler({
 			params,
 			responseWriter: {
 				write(message) {
@@ -179,6 +181,7 @@ export const getMockInvokeWithResponseStream: typeof callLambdaStreaming.invokeW
 				finished = true;
 				notify();
 			});
+		pendingLambdaInvocations.push(invocation);
 
 		const events =
 			async function* (): AsyncGenerator<InvokeWithResponseStreamResponseEvent> {
