@@ -277,7 +277,7 @@ python3 /root/probe-fast-path.py out/Headless/headless_shell
 echo ">>> Step 15: Strip and package"
 cd /root/chromium/src
 
-for bin in out/Headless/headless_shell out/Headless/libEGL.so out/Headless/libGLESv2.so out/Headless/libminigbm.so \
+for bin in out/Headless/headless_shell out/Headless/libEGL.so out/Headless/libGLESv2.so \
            out/Headless/libvk_swiftshader.so out/Headless/libvulkan.so.1; do
   # libEGL.so and libGLESv2.so can be zero-byte placeholders, which strip rejects.
   if [ -s "$bin" ]; then
@@ -291,7 +291,6 @@ mkdir -p "final/${OUTPUT_DIR}"
 cp out/Headless/headless_shell "final/${OUTPUT_DIR}/"
 cp out/Headless/libEGL.so "final/${OUTPUT_DIR}/"
 cp out/Headless/libGLESv2.so "final/${OUTPUT_DIR}/"
-cp out/Headless/libminigbm.so "final/${OUTPUT_DIR}/"
 cp out/Headless/libvk_swiftshader.so "final/${OUTPUT_DIR}/"
 cp out/Headless/libvulkan.so.1 "final/${OUTPUT_DIR}/"
 cp out/Headless/vk_swiftshader_icd.json "final/${OUTPUT_DIR}/"
