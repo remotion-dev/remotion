@@ -360,8 +360,11 @@ const drawSvg = async ({
 		[fitted.left, fitted.top, fitted.width, fitted.height].some(
 			(value) => !Number.isInteger(value),
 		);
+	const fractionalViewport =
+		metadata !== undefined &&
+		(!Number.isInteger(metadata.width) || !Number.isInteger(metadata.height));
 	if (
-		rasterize &&
+		(rasterize || readback || fractionalViewport) &&
 		needsRasterization &&
 		(await drawSvgAtOutputResolution({
 			drawable,
@@ -547,7 +550,7 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 			const userAgent =
 				node.ownerDocument.defaultView?.navigator.userAgent ?? '';
 			await drawSvg({
-				rasterize: true,
+				rasterize: /Firefox\//.test(userAgent),
 				alwaysReadback: Boolean(node.querySelector('text, foreignObject')),
 				drawable,
 				dimensions,

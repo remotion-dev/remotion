@@ -56,6 +56,8 @@ export const svgDrawableMetadata = new WeakMap<
 const drawableBySvg = new WeakMap<
 	SVGSVGElement,
 	{
+		width: string;
+		height: string;
 		fontStyleKey: string | null;
 		serializedSvg: string;
 		drawable: Promise<HTMLImageElement>;
@@ -367,6 +369,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
+		cached.width === width &&
+		cached.height === height &&
 		cached.fontStyleKey === fontStyleKey
 	) {
 		return cached.drawable;
@@ -427,7 +431,13 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			}
 		});
 	})();
-	drawableBySvg.set(svg, {fontStyleKey, serializedSvg, drawable});
+	drawableBySvg.set(svg, {
+		width,
+		height,
+		fontStyleKey,
+		serializedSvg,
+		drawable,
+	});
 	drawable.catch(() => {
 		if (drawableBySvg.get(svg)?.drawable === drawable) {
 			drawableBySvg.delete(svg);

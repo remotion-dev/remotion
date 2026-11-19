@@ -444,3 +444,32 @@ test('preserves SVG viewport coordinates for native numeric forms and absolute u
 		0,
 	);
 });
+
+test('refreshes cached SVG drawables when the used viewport changes without changing markup', async () => {
+	const host = document.createElement('div');
+	host.style.cssText = 'position:relative;width:200px;height:100px';
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('width', '100%');
+	svg.setAttribute('height', '100%');
+	svg.setAttribute('viewBox', '0 0 320 100');
+	svg.style.cssText = 'width:100%;height:100%';
+	svg.innerHTML = '<rect width="320" height="100" fill="blue"/>';
+	host.appendChild(svg);
+	document.body.appendChild(host);
+	try {
+		const mounted = svg.outerHTML;
+		expect(getComputedStyle(svg).width).toBe('200px');
+		const first = turnSvgIntoDrawable(svg);
+		await first;
+		expect(turnSvgIntoDrawable(svg)).toBe(first);
+		host.style.width = '320px';
+		expect(getComputedStyle(svg).width).toBe('320px');
+		const second = turnSvgIntoDrawable(svg);
+		expect(second).not.toBe(first);
+		await second;
+		expect(turnSvgIntoDrawable(svg)).toBe(second);
+		expect(svg.outerHTML).toBe(mounted);
+	} finally {
+		host.remove();
+	}
+});
