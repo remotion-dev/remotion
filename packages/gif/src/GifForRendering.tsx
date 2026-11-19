@@ -37,6 +37,7 @@ export const GifForRendering = forwardRef<
 		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
+		const visualLoadEnabled = Internals.useVisualLoadEnabled();
 		const requestInitRef = useRef(requestInit);
 		requestInitRef.current = requestInit;
 		const cacheKey = getGifCacheKey({resolvedSrc, requestInit});
@@ -71,6 +72,8 @@ export const GifForRendering = forwardRef<
 		currentOnError.current = onError;
 
 		useLayoutEffect(() => {
+			if (!visualLoadEnabled) return;
+
 			const controller = new AbortController();
 			let done = false;
 			let aborted = false;
@@ -129,6 +132,7 @@ export const GifForRendering = forwardRef<
 				continueRender(newHandle);
 			};
 		}, [
+			visualLoadEnabled,
 			logLevel,
 			cacheKey,
 			resolvedSrc,

@@ -36,7 +36,7 @@ import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useVideoEnabled} from '../use-media-enabled.js';
+import {useVideoEnabled, useVisualLoadEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {LoadedImage} from './canvas-image-load-state.js';
@@ -253,6 +253,7 @@ const CanvasImageContent = forwardRef<
 	) => {
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const videoEnabled = useVideoEnabled();
+		const visualLoadEnabled = useVisualLoadEnabled();
 		const {delayPlayback} = useBufferState();
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
@@ -320,6 +321,8 @@ const CanvasImageContent = forwardRef<
 		]);
 
 		useLayoutEffect(() => {
+			if (!visualLoadEnabled) return;
+
 			const handle = delayRender(
 				`Rendering <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}"`,
 				{
@@ -384,6 +387,7 @@ const CanvasImageContent = forwardRef<
 				releasePendingLoadDelay();
 			};
 		}, [
+			visualLoadEnabled,
 			actualSrc,
 			cancelRender,
 			releasePendingLoadDelay,

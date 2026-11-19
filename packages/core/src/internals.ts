@@ -295,7 +295,11 @@ import {
 } from './use-current-scale.js';
 import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
-import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
+import {
+	useAudioEnabled,
+	useVideoEnabled,
+	useVisualLoadEnabled,
+} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
 	useMediaInTimelineRegistration as useMediaInTimeline,
@@ -565,6 +569,7 @@ export const Internals = {
 	getInputPropsOverride,
 	setInputPropsOverride,
 	useVideoEnabled,
+	useVisualLoadEnabled,
 	useAudioEnabled,
 	useBuffering,
 	TimelinePosition,

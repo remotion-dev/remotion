@@ -37,7 +37,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useVideoEnabled} from '../use-media-enabled.js';
+import {useVideoEnabled, useVisualLoadEnabled} from '../use-media-enabled.js';
 import {useMotionBlurCanvas} from '../use-motion-blur-canvas.js';
 import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
@@ -108,6 +108,7 @@ const AnimatedImageContent = forwardRef<
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const videoEnabled = useVideoEnabled();
+		const visualLoadEnabled = useVisualLoadEnabled();
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
 		const currentTime = getCurrentTime({frame, playbackRate, fps});
@@ -138,6 +139,8 @@ const AnimatedImageContent = forwardRef<
 		const [initialLoopBehavior] = useState(() => loopBehavior);
 
 		useLayoutEffect(() => {
+			if (!visualLoadEnabled) return;
+
 			const decodeHandle = delayRender(
 				`Rendering <AnimatedImage/> with src="${resolvedSrc}"`,
 			);
@@ -199,6 +202,7 @@ const AnimatedImageContent = forwardRef<
 				continueRenderOnce();
 			};
 		}, [
+			visualLoadEnabled,
 			resolvedSrc,
 			onError,
 			requestInitKey,

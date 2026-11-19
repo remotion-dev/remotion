@@ -1,4 +1,11 @@
-import {createContext, useContext, useMemo} from 'react';
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from 'react';
 
 export const MediaEnabledContext = createContext<{
 	videoEnabled: boolean | null;
@@ -15,6 +22,20 @@ export const useVideoEnabled = (): boolean => {
 	return typeof window === 'undefined'
 		? true
 		: window.remotion_videoEnabled !== false;
+};
+
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+// A sequence can first mount during an audio-only sample. Defer its initial
+// visual load, then retain the resource across later audio-only samples.
+export const useVisualLoadEnabled = (): boolean => {
+	const videoEnabled = useVideoEnabled();
+	const hasVideoSample = useRef(false);
+	useIsomorphicLayoutEffect(() => {
+		if (videoEnabled) hasVideoSample.current = true;
+	}, [videoEnabled]);
+	return videoEnabled || hasVideoSample.current;
 };
 
 export const useAudioEnabled = () => {

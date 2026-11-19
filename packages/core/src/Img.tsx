@@ -47,7 +47,7 @@ import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
-import {useVideoEnabled} from './use-media-enabled.js';
+import {useVideoEnabled, useVisualLoadEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {resolveV5Default} from './v5-flag.js';
@@ -330,6 +330,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	ref,
 	...props
 }) => {
+	const visualLoadEnabled = useVisualLoadEnabled();
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
@@ -410,6 +411,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				setIsLoading,
 			}),
 			[
+				visualLoadEnabled,
 				actualSrc,
 				crossOriginValue,
 				delayRenderRetries,
@@ -420,6 +422,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			],
 		);
 	}
+
+	if (!visualLoadEnabled) return null;
 
 	// `src` is assigned imperatively to this element in the layout effect above.
 	// The element may paint while `decode()` is pending; `delayRender()` only
