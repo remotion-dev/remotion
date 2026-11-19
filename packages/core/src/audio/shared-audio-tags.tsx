@@ -763,26 +763,33 @@ export const useSharedAudio = ({aud, premounting}: AudioTagOptions) => {
 	localSource?.setAudioContext(audioContext);
 
 	useAudioLayoutEffect(() => {
-		if (!registerAudio || !unregisterAudio) {
+		if (!registerAudio) {
 			return;
 		}
 
-		const registeredTag = registerAudio();
+		const registeredTag = tag.current ?? registerAudio();
 		tag.current = registeredTag;
 		el.current = registeredTag.ref.current;
+	}, [registerAudio]);
 
+	const effectToUse = React.useInsertionEffect ?? useAudioLayoutEffect;
+	// Suspense can disconnect layout effects while passive subscriptions stay attached.
+	effectToUse(() => {
 		return () => {
-			el.current = null;
-			tag.current = null;
-			unregisterAudio(registeredTag);
+			const registeredTag = tag.current;
+			if (registeredTag) {
+				el.current = null;
+				tag.current = null;
+				unregisterAudio?.(registeredTag);
+			}
 		};
-	}, [registerAudio, unregisterAudio]);
+	}, [unregisterAudio]);
 
 	useAudioLayoutEffect(() => {
 		if (tag.current) {
 			updateAudio?.(tag.current, {aud, premounting});
 		}
-	}, [aud, premounting, registerAudio, unregisterAudio, updateAudio]);
+	}, [aud, premounting, registerAudio, updateAudio]);
 
 	const getSource = useCallback(
 		() => tag.current?.mediaElementSourceNode ?? localSource,
