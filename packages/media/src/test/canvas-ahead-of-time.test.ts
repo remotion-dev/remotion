@@ -132,3 +132,68 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 		await iterator.closeIterator();
 	}
 });
+
+const makeSolidSampleSink = (
+	width: number,
+	height: number,
+	count: number,
+): VideoSampleSink => {
+	const canvas = new OffscreenCanvas(width, height);
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get canvas context');
+	}
+
+	return {
+		async *samples() {
+			for (let i = 0; i < count; i++) {
+				context.fillStyle = 'red';
+				context.fillRect(0, 0, width, height);
+				await Promise.resolve();
+
+				yield new VideoSample(canvas, {duration: 1, timestamp: i});
+			}
+		},
+	} as unknown as VideoSampleSink;
+};
+
+test('reuses a canvas released by a closed iterator in the next iterator', async () => {
+	const first = canvasesAheadOfTime(makeSolidSampleSink(3, 3, 2));
+	const firstFrame = await waitForFrame(first.next());
+	const firstCanvas = firstFrame!.canvas;
+	releaseStableFrame(firstFrame);
+	await first.closeIterator();
+
+	const second = canvasesAheadOfTime(makeSolidSampleSink(3, 3, 2));
+	const secondFrame = await waitForFrame(second.next());
+	try {
+		expect(secondFrame!.canvas).toBe(firstCanvas);
+	} finally {
+		releaseStableFrame(secondFrame);
+		await second.closeIterator();
+	}
+});
+
+test('frees released canvases past the pool cap', async () => {
+	const iterator = canvasesAheadOfTime(makeSolidSampleSink(5, 5, 8));
+	const frames: (WrappedCanvas | null)[] = [];
+
+	try {
+		for (let i = 0; i < 8; i++) {
+			const frame = await waitForFrame(iterator.next());
+			// Reading the canvas allocates it.
+			expect(frame!.canvas.width).toBe(5);
+			frames.push(frame);
+		}
+
+		frames.forEach(releaseStableFrame);
+		const canvases = frames.map((frame) => frame!.canvas as OffscreenCanvas);
+		expect(canvases.slice(0, 6).map((canvas) => canvas.width)).toEqual([
+			5, 5, 5, 5, 5, 5,
+		]);
+		expect(canvases.slice(6).map((canvas) => canvas.width)).toEqual([0, 0]);
+	} finally {
+		frames.forEach(releaseStableFrame);
+		await iterator.closeIterator();
+	}
+});
