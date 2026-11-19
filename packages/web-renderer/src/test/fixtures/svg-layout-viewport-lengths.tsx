@@ -14,18 +14,22 @@ const dimensions = [
 	['240pt', '75pt'],
 	['20pc', '6.25pc'],
 	['320.0000', '100.0000'],
+	[0, 100],
+	[320, 0],
 ] as const;
 
 const Component = () => (
 	<AbsoluteFill style={{background: 'white'}}>
+		<style>{'.svg-zero-dimension svg { width: 320px; height: 100px; }'}</style>
 		{dimensions.map(([width, height], index) => (
 			<div
-				key={`${typeof width}:${width}`}
+				key={`${typeof width}:${width}:${height}`}
+				className={width === 0 || height === 0 ? 'svg-zero-dimension' : ''}
 				data-svg-length-case={index}
 				style={{
 					position: 'absolute',
-					left: (index % 4) * 196,
-					top: Math.floor(index / 4) * 216,
+					left: (index % 5) * 196,
+					top: Math.floor(index / 5) * 216,
 					width: 196,
 					height: 216,
 				}}
@@ -39,7 +43,7 @@ const Component = () => (
 export const svgViewportLengthValues = {
 	component: Component,
 	id: 'svg-viewport-length-values',
-	width: 784,
+	width: 980,
 	height: 648,
 	fps: 30,
 	durationInFrames: 1,
