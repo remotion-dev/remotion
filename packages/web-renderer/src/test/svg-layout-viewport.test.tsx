@@ -3,7 +3,27 @@ import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {svgLayoutViewport} from './fixtures/svg-layout-viewport';
 import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
+import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
+
+test('preserves owning-document media queries when resolving the SVG viewport', async () => {
+	expect(matchMedia('(min-width: 300px)').matches).toBe(true);
+	expect(matchMedia('(max-width: 200px)').matches).toBe(false);
+	const reference = await captureNativeReference(svgViewportMedia, 0, {
+		omitBackground: false,
+	});
+	const still = await renderStillOnWeb({
+		composition: svgViewportMedia,
+		frame: 0,
+		inputProps: {},
+		licenseKey: 'free-license',
+		allowHtmlInCanvas: false,
+	});
+	const actual = await still.blob({format: 'png'});
+	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
+		0,
+	);
+});
 
 test.for([1, 1.25])(
 	'preserves user coordinates when flex layout resizes an SVG at scale %s',
