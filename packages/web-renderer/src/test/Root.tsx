@@ -96,6 +96,7 @@ import {
 	fractionalNestedAudio,
 	fractionalLoopingSequence,
 	fractionalUnusedImage,
+	fractionalUnusedCanvas,
 } from './fixtures/fractional-audio-review';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
@@ -588,6 +589,7 @@ export const Root: React.FC = () => {
 				<Composition {...fractionalNestedAudio} />
 				<Composition {...fractionalLoopingSequence} />
 				<Composition {...fractionalHtmlAudio} />
+				<Composition {...fractionalUnusedCanvas} />
 				<Composition {...fractionalUnusedImage} />
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />

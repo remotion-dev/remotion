@@ -108,6 +108,40 @@ export const fractionalHtmlAudio = {
 	defaultProps: {boundary: true, onLifetime: null} as HtmlAudioProps,
 };
 
+const UnusedCanvas = ({
+	onUnexpectedPaint,
+}: {
+	readonly onUnexpectedPaint: (() => void) | null;
+}) => {
+	const [src] = useState(makeToneWav);
+	return (
+		<AbsoluteFill style={{backgroundColor: 'rgb(16, 40, 80)'}}>
+			<Sequence from={0.25} durationInFrames={0.12}>
+				<HtmlInCanvas
+					width={64}
+					height={64}
+					onInit={() => {
+						onUnexpectedPaint?.();
+						return () => {};
+					}}
+					onPaint={() => {
+						onUnexpectedPaint?.();
+					}}
+				>
+					<Audio src={src} />
+				</HtmlInCanvas>
+			</Sequence>
+		</AbsoluteFill>
+	);
+};
+
+export const fractionalUnusedCanvas = {
+	...dimensions,
+	component: UnusedCanvas,
+	id: 'fractional-unused-canvas',
+	defaultProps: {onUnexpectedPaint: null as (() => void) | null},
+};
+
 export const fractionalLoopedVideo = {
 	...dimensions,
 	component: LoopedVideo,

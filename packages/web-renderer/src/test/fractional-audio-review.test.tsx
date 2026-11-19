@@ -17,6 +17,7 @@ import {
 	fractionalRgbSource,
 	fractionalShortVideo,
 	fractionalUnusedImage,
+	fractionalUnusedCanvas,
 } from './fixtures/fractional-audio-review';
 
 const readFrame = (frame: VideoFrame) => {
@@ -27,6 +28,71 @@ const readFrame = (frame: VideoFrame) => {
 	context.drawImage(frame, 0, 0);
 	return context.getImageData(0, 0, 64, 64).data;
 };
+
+test('does not paint a canvas that exists only during fractional audio passes', async () => {
+	let paints = 0;
+	let frames = 0;
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {...fractionalUnusedCanvas, calculateMetadata: null},
+		inputProps: {
+			onUnexpectedPaint: () => {
+				paints++;
+			},
+		},
+		container: 'mkv',
+		videoCodec: 'vp8',
+		audioCodec: 'pcm-s16',
+		sampleRate: 48000,
+		onFrame: (frame) => {
+			expect(frame.timestamp).toBe(Math.round((frames / 24) * 1_000_000));
+			const pixels = readFrame(frame);
+			let wrong = 0;
+			for (let index = 0; index < pixels.length; index++) {
+				if (pixels[index] !== [16, 40, 80, 255][index % 4]) wrong++;
+			}
+
+			expect(wrong).toBe(0);
+			frames++;
+			return frame;
+		},
+	});
+	expect(frames).toBe(4);
+	expect(paints).toBe(0);
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(await result.getBlob()),
+	});
+	const track = await input.getPrimaryAudioTrack();
+	expect(track).not.toBeNull();
+	let samples = 0;
+	let wrongSamples = 0;
+	for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+		for (let channel = 0; channel < 2; channel++) {
+			const pcm = buffer.getChannelData(channel);
+			for (let index = 0; index < pcm.length; index++) {
+				const absolute = samples + index;
+				const expected =
+					absolute >= 500 && absolute < 740
+						? Math.round(
+								Math.sin(
+									((absolute - 500) / 48000) *
+										(channel === 0 ? 440 : 660) *
+										Math.PI *
+										2,
+								) * 10000,
+							) / 32768
+						: 0;
+				if (pcm[index] !== expected) wrongSamples++;
+			}
+		}
+
+		samples += buffer.length;
+	}
+
+	expect(samples).toBe(8000);
+	expect(wrongSamples).toBe(0);
+});
 
 test.for(['wav', 'mkv'] as const)(
 	'preserves canvas descendant lifetime and pitched PCM across unrelated audio boundaries in %s',

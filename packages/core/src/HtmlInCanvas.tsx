@@ -39,6 +39,7 @@ import {
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
@@ -517,9 +518,14 @@ const HtmlInCanvasContent = forwardRef<
 	) => {
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const inheritedPremountInSeconds = useContext(DefaultPremountContext);
+		const videoEnabled = useVideoEnabled();
 		const canPremount = useMemo(canPremountInHtmlInCanvas, []);
 		assertHtmlInCanvasDimensions(width, height);
-		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
+		if (
+			videoEnabled &&
+			ancestorPaintState &&
+			!isHtmlInCanvasNestingSupported()
+		) {
 			throw new Error(
 				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
 			);
@@ -545,7 +551,7 @@ const HtmlInCanvasContent = forwardRef<
 					? 'copied'
 					: 'transferred';
 
-		if (!isHtmlInCanvasSupported()) {
+		if (videoEnabled && !isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
@@ -635,6 +641,7 @@ const HtmlInCanvasContent = forwardRef<
 		);
 
 		const onPaintCb = useCallback(async () => {
+			if (!videoEnabled) return;
 			if (isRendering && paintState.pendingChildren > 0) {
 				return;
 			}
@@ -933,6 +940,7 @@ const HtmlInCanvasContent = forwardRef<
 			isRendering,
 			paintState,
 			ancestorPaintState,
+			videoEnabled,
 		]);
 
 		useLayoutEffect(() => {
@@ -942,12 +950,24 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [paintState]);
 
+		useLayoutEffect(() => {
+			unmountedRef.current = false;
+			return () => {
+				paintTargetRef.current = null;
+				initializedSizeRef.current = null;
+				unmountedRef.current = true;
+				onInitCleanupRef.current?.();
+				onInitCleanupRef.current = null;
+			};
+		}, [paintTargetMode]);
+
 		// Non-nested default handlers paint directly on the layout canvas. Nested
 		// canvases and custom handlers retain a transferred target because an
 		// ElementImage can only be drawn into its associated canvas. Nested canvases
 		// and rendering copy it to a separate visible canvas without waiting for
 		// the transferred canvas to present.
 		useLayoutEffect(() => {
+			if (!videoEnabled || paintTargetRef.current) return;
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
 				throw new Error('Canvas not found');
@@ -964,18 +984,10 @@ const HtmlInCanvasContent = forwardRef<
 
 			paintTargetRef.current = paintTarget;
 			initializedSizeRef.current = null;
-			unmountedRef.current = false;
-
-			return () => {
-				paintTargetRef.current = null;
-				initializedSizeRef.current = null;
-				unmountedRef.current = true;
-				onInitCleanupRef.current?.();
-				onInitCleanupRef.current = null;
-			};
-		}, [paintTargetMode]);
+		}, [paintTargetMode, videoEnabled]);
 
 		useLayoutEffect(() => {
+			if (!videoEnabled) return;
 			committedCanvasSizeRef.current = canvasSizeKey;
 			const paintTarget = paintTargetRef.current!;
 			let snapshot: HTMLCanvasElement | null = null;
@@ -1013,18 +1025,26 @@ const HtmlInCanvasContent = forwardRef<
 
 				context.drawImage(snapshot, 0, 0, canvasWidth, canvasHeight);
 			}
-		}, [canvasWidth, canvasHeight, canvasSizeKey, paintTargetMode]);
+		}, [
+			canvasWidth,
+			canvasHeight,
+			canvasSizeKey,
+			paintTargetMode,
+			videoEnabled,
+		]);
 
 		useLayoutEffect(() => {
+			if (!videoEnabled) return;
 			const placeholder = canvas2dRef.current!;
 			placeholder.addEventListener('paint', onPaintCb);
 			return () => {
 				placeholder.removeEventListener('paint', onPaintCb);
 			};
-		}, [onPaintCb, paintTargetMode]);
+		}, [onPaintCb, paintTargetMode, videoEnabled]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
+			if (!videoEnabled) return;
 			if (!onPaintChangedRef.current) {
 				onPaintChangedRef.current = true;
 				return;
@@ -1036,9 +1056,10 @@ const HtmlInCanvasContent = forwardRef<
 			}
 
 			canvas.requestPaint?.();
-		}, [onPaint, memoizedEffects]);
+		}, [onPaint, memoizedEffects, videoEnabled]);
 
 		useLayoutEffect(() => {
+			if (!videoEnabled) return;
 			const canvas = canvas2dRef.current;
 			if (!canvas) {
 				return;
@@ -1074,6 +1095,7 @@ const HtmlInCanvasContent = forwardRef<
 			renderFrame,
 			isRendering,
 			ancestorPaintState,
+			videoEnabled,
 		]);
 
 		const innerStyle = useMemo(() => {
@@ -1189,6 +1211,8 @@ const HtmlInCanvasInner = forwardRef<
 	) => {
 		const {isRendering} = useRemotionEnvironment();
 		const videoEnabled = useVideoEnabled();
+		const hasVideoOutput =
+			useContext(TimelineContext)?.clientAudioVideoEnabled ?? videoEnabled;
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const isNestedUnsupported = Boolean(
@@ -1263,9 +1287,9 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					{!videoEnabled ? (
-						// Audio-only frame: keep the children mounted for their audio, but
-						// skip the canvas paint and effect chain.
+					{!hasVideoOutput ? (
+						// Audio-only output never needs a native canvas. Mixed output keeps
+						// Content mounted while audio-only passes suppress its visual work.
 						<DefaultPremountContext.Provider value={0}>
 							{children}
 						</DefaultPremountContext.Provider>

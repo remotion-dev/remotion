@@ -232,6 +232,7 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		isInsideFreeze: false,
 		clientAudioOutputFrame: null,
 		clientAudioSampleFrame: null,
+		clientAudioVideoEnabled: null,
 		audioAndVideoTags: {current: []},
 	};
 	let rendered: ReturnType<typeof render> | null = null;

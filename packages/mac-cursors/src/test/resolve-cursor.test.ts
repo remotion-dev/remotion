@@ -111,6 +111,7 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 		isInsideFreeze: false,
 		clientAudioOutputFrame: null,
 		clientAudioSampleFrame: null,
+		clientAudioVideoEnabled: null,
 		audioAndVideoTags: {current: []},
 	} as React.ContextType<typeof Internals.TimelineContext>;
 	const markup = renderToString(

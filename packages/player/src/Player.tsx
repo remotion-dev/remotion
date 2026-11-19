@@ -462,6 +462,7 @@ const PlayerFn = <
 			frame,
 			clientAudioOutputFrame: null,
 			clientAudioSampleFrame: null,
+			clientAudioVideoEnabled: null,
 			isPlaying: readIsPlaying,
 			isInsideFreeze: false,
 			audioAndVideoTags,

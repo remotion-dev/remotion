@@ -25,8 +25,17 @@ const AudioClock: React.FC<{
 	readonly timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	readonly update: TimeUpdaterRef['update'];
 	readonly enabled: boolean;
+	readonly videoEnabled: boolean;
 	readonly setAudioOnly: TimeUpdaterRef['setAudioOnly'];
-}> = ({children, frame, update, timeUpdater, enabled, setAudioOnly}) => {
+}> = ({
+	children,
+	frame,
+	update,
+	timeUpdater,
+	enabled,
+	videoEnabled,
+	setAudioOnly,
+}) => {
 	const timeline = Internals.useTimelineContext();
 	const sequences = useContext(Internals.SequenceManagerRefContext);
 	useImperativeHandle(
@@ -39,8 +48,12 @@ const AudioClock: React.FC<{
 		[sequences, update, setAudioOnly],
 	);
 	const audioTimeline = useMemo(
-		() => ({...timeline, clientAudioOutputFrame: frame}),
-		[frame, timeline],
+		() => ({
+			...timeline,
+			clientAudioOutputFrame: frame,
+			clientAudioVideoEnabled: videoEnabled,
+		}),
+		[frame, timeline, videoEnabled],
 	);
 
 	return enabled ? (
@@ -103,6 +116,7 @@ export const UpdateTime: React.FC<{
 			<AudioClock
 				frame={frame}
 				enabled={audioEnabled}
+				videoEnabled={videoEnabled}
 				update={update}
 				setAudioOnly={setAudioOnly}
 				timeUpdater={timeUpdater}

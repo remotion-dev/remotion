@@ -155,6 +155,7 @@ export const WrapSequenceContext: React.FC<{
 			isInsideFreeze: false,
 			clientAudioOutputFrame: null,
 			clientAudioSampleFrame: null,
+			clientAudioVideoEnabled: null,
 			audioAndVideoTags: {current: []},
 		}),
 		[currentFrame],
