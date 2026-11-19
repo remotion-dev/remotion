@@ -181,10 +181,12 @@ const drawSvgAtOutputResolution = async ({
 	drawable,
 	fitted,
 	context,
+	readback,
 }: {
 	drawable: HTMLImageElement;
 	fitted: ReturnType<typeof fitSvgIntoItsContainer>;
 	context: OffscreenCanvasRenderingContext2D;
+	readback: boolean;
 }) => {
 	const {width, height} = context.canvas;
 	const transform = context.getTransform();
@@ -234,11 +236,8 @@ const drawSvgAtOutputResolution = async ({
 		svg.setAttribute(
 			'style',
 			(svg.getAttribute('style') ?? '') +
-				`;x:0px!important;y:0px!important;width:${logicalWidth}px!important;height:${logicalHeight}px!important;`,
+				`;position:absolute!important;left:0px!important;top:0px!important;right:auto!important;bottom:auto!important;x:0px!important;y:0px!important;width:${logicalWidth}px!important;height:${logicalHeight}px!important;`,
 		);
-		const matrix = transform
-			.translate(fitted.left, fitted.top)
-			.scale(fitted.width / logicalWidth, fitted.height / logicalHeight);
 		const document = svg.ownerDocument.implementation.createDocument(
 			'http://www.w3.org/2000/svg',
 			'svg',
@@ -246,18 +245,45 @@ const drawSvgAtOutputResolution = async ({
 		);
 		document.documentElement.setAttribute('width', String(width));
 		document.documentElement.setAttribute('height', String(height));
-		const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+		const foreignObject = document.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'foreignObject',
+		);
+		foreignObject.setAttribute('width', String(width));
+		foreignObject.setAttribute('height', String(height));
+		const html = document.createElementNS(
+			'http://www.w3.org/1999/xhtml',
+			'div',
+		);
+		html.setAttribute(
+			'style',
+			`position:absolute;left:0;top:0;width:${width}px;height:${height}px;transform-origin:0 0;transform:matrix(${transform.a},${transform.b},${transform.c},${transform.d},${transform.e},${transform.f});`,
+		);
+		const placement = document.createElementNS(
+			'http://www.w3.org/1999/xhtml',
+			'div',
+		);
+		const scaleX = fitted.width / logicalWidth;
+		const scaleY = fitted.height / logicalHeight;
+		placement.setAttribute(
+			'style',
+			`position:absolute;left:${fitted.left}px;top:${fitted.top}px;width:${logicalWidth}px;height:${logicalHeight}px;transform-origin:0 0;transform:${scaleX === 1 && scaleY === 1 ? 'none' : `scale(${scaleX},${scaleY})`};`,
+		);
 		if (wrapperAttribute) {
-			document.documentElement.setAttribute(wrapperAttribute, '');
-			group.setAttribute(wrapperAttribute, '');
+			for (const wrapper of [
+				document.documentElement,
+				foreignObject,
+				html,
+				placement,
+			])
+				wrapper.setAttribute(wrapperAttribute, '');
 		}
 
-		group.setAttribute(
-			'transform',
-			`matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`,
-		);
-		group.appendChild(document.importNode(svg, true));
-		document.documentElement.appendChild(group);
+		placement.appendChild(document.importNode(svg, true));
+		html.appendChild(placement);
+		foreignObject.appendChild(html);
+		document.documentElement.appendChild(foreignObject);
+
 		const paddedMarkup = new XMLSerializer().serializeToString(document);
 		const image = new Promise<HTMLImageElement>((resolve, reject) => {
 			const loaded = new Image();
@@ -280,6 +306,15 @@ const drawSvgAtOutputResolution = async ({
 	context.save();
 	try {
 		context.resetTransform();
+		if (
+			readback &&
+			drawSvgThroughReadbackCanvas({
+				drawable: rasterized,
+				fitted: {left: 0, top: 0, width, height},
+				context,
+			})
+		)
+			return true;
 		context.drawImage(rasterized, 0, 0);
 	} finally {
 		context.restore();
@@ -332,6 +367,7 @@ const drawSvg = async ({
 			drawable,
 			fitted,
 			context: contextToDraw,
+			readback,
 		}))
 	)
 		return;
@@ -511,7 +547,7 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 			const userAgent =
 				node.ownerDocument.defaultView?.navigator.userAgent ?? '';
 			await drawSvg({
-				rasterize: /Firefox\//.test(userAgent),
+				rasterize: true,
 				alwaysReadback: Boolean(node.querySelector('text, foreignObject')),
 				drawable,
 				dimensions,
