@@ -93,6 +93,20 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		svg.preserveAspectRatio.baseVal.align ===
 			SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
 
+	// HTML percentages in a foreignObject can resolve against its owning page.
+	// Capture used sizes before changing the SVG viewport for its image document.
+	const foreignObjectSizes = resizedWithoutViewBox
+		? Array.from(
+				svg.querySelectorAll<HTMLElement>('foreignObject > *'),
+				(child) => {
+					if (child.namespaceURI !== 'http://www.w3.org/1999/xhtml')
+						return null;
+					const computed = getComputedStyle(child);
+					return {width: computed.width, height: computed.height};
+				},
+			)
+		: null;
+
 	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
@@ -191,6 +205,22 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		!needsExplicitDimensions
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
+	if (foreignObjectSizes) {
+		const children =
+			svgForSerialization.querySelectorAll<HTMLElement>('foreignObject > *');
+		foreignObjectSizes.forEach((size, index) => {
+			if (size === null) return;
+			let declarations = children[index].getAttribute('style') ?? '';
+			for (const property of ['width', 'height'] as const) {
+				if (size[property].endsWith('px')) {
+					declarations += `;${property}:${size[property]} !important;`;
+				}
+			}
+
+			children[index].setAttribute('style', declarations);
+		});
+	}
+
 	if (hasDisabledStyles) {
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		for (let i = 0; i < styles.length; i++) {
