@@ -289,6 +289,7 @@ const GifComponent = (
 	},
 ) => {
 	const videoEnabled = Internals.useVideoEnabled();
+	const lastVideoContent = useRef<React.ReactElement | null>(null);
 	const parentSequence = useContext(Internals.SequenceContext);
 	const sourceStack = props.controls
 		? Internals.getStackForControls(props.controls)
@@ -336,12 +337,10 @@ const GifComponent = (
 		forwardedRef: props.ref ?? null,
 		onVideoFrame: null,
 	});
-	if (!videoEnabled) {
-		return null;
-	}
+	if (!videoEnabled) return lastVideoContent.current;
 
 	if (!motionBlur.primary) {
-		return (
+		lastVideoContent.current = (
 			<GifInner
 				{...props}
 				ref={motionBlur.canvasRef}
@@ -350,15 +349,13 @@ const GifComponent = (
 				durationInFrames={props.loop ? undefined : props.durationInFrames}
 			/>
 		);
-	}
-
-	if (props.loop && props.durationInFrames === undefined) {
+	} else if (props.loop && props.durationInFrames === undefined) {
 		const resolvedSrc = resolveGifSource(props.src);
 		const cacheKey = getGifCacheKey({
 			resolvedSrc,
 			requestInit: props.requestInit,
 		});
-		return (
+		lastVideoContent.current = (
 			<GifWithIntrinsicDuration
 				{...props}
 				key={`${cacheKey}-${props.trimBefore ?? 0}`}
@@ -366,11 +363,13 @@ const GifComponent = (
 				motionBlur={motionBlur}
 			/>
 		);
+	} else {
+		lastVideoContent.current = (
+			<GifInner {...props} ref={motionBlur.canvasRef} motionBlur={motionBlur} />
+		);
 	}
 
-	return (
-		<GifInner {...props} ref={motionBlur.canvasRef} motionBlur={motionBlur} />
-	);
+	return lastVideoContent.current;
 };
 
 export const Gif = Interactive.withSchema({

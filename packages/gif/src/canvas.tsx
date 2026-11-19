@@ -128,6 +128,7 @@ export const Canvas = forwardRef(
 		}: Props,
 		ref,
 	) => {
+		const videoEnabled = Internals.useVideoEnabled();
 		const canvasRef = useRef<HTMLCanvasElement>(null);
 		const [tempCtx] = useState(() => {
 			return makeCanvas();
@@ -158,7 +159,7 @@ export const Canvas = forwardRef(
 			return canvasRef.current as HTMLCanvasElement;
 		}, []);
 		useLayoutEffect(() => {
-			if (!size) {
+			if (!videoEnabled || !size) {
 				return;
 			}
 
@@ -286,6 +287,7 @@ export const Canvas = forwardRef(
 				continueRender(effectChainHandle);
 			};
 		}, [
+			videoEnabled,
 			index,
 			frames,
 			fit,

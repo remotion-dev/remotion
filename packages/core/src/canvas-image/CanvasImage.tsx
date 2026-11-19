@@ -1,7 +1,6 @@
 import {
 	forwardRef,
 	useContext,
-	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useReducer,
@@ -253,6 +252,7 @@ const CanvasImageContent = forwardRef<
 		ref,
 	) => {
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const videoEnabled = useVideoEnabled();
 		const {delayPlayback} = useBufferState();
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
@@ -395,7 +395,7 @@ const CanvasImageContent = forwardRef<
 		]);
 
 		useLayoutEffect(() => {
-			if (!loadedImage || !outputCanvas || !sourceCanvas) {
+			if (!videoEnabled || !loadedImage || !outputCanvas || !sourceCanvas) {
 				return;
 			}
 
@@ -511,6 +511,7 @@ const CanvasImageContent = forwardRef<
 			fit,
 			height,
 			loadedImage,
+			videoEnabled,
 			memoizedEffects,
 			outputCanvas,
 			sourceCanvas,
@@ -593,12 +594,8 @@ const CanvasImageInner = forwardRef<
 		);
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
-		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		const videoEnabled = useVideoEnabled();
-		// No canvas is mounted during audio-only frames; it remounts afterwards.
-		useImperativeHandle(ref, () => {
-			return (videoEnabled ? actualRef.current : null) as HTMLCanvasElement;
-		}, [videoEnabled]);
+		const lastVideoContent = useRef<React.ReactElement | null>(null);
 		const {
 			effectivePostmountFor,
 			effectivePremountFor,
@@ -630,11 +627,9 @@ const CanvasImageInner = forwardRef<
 			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
 
-		if (videoEnabled === false) {
-			return null;
-		}
+		if (videoEnabled === false) return lastVideoContent.current;
 
-		return (
+		lastVideoContent.current = (
 			<Freeze
 				frame={freezeFrame}
 				active={isPremountingOrPostmounting}
@@ -664,7 +659,7 @@ const CanvasImageInner = forwardRef<
 				>
 					<SequenceContent>
 						<CanvasImageContent
-							ref={actualRef}
+							ref={ref}
 							src={src}
 							crossOrigin={crossOrigin}
 							width={width}
@@ -689,6 +684,7 @@ const CanvasImageInner = forwardRef<
 				</Sequence>
 			</Freeze>
 		);
+		return lastVideoContent.current;
 	},
 );
 
