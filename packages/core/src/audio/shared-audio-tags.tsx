@@ -108,7 +108,8 @@ type SharedAudioTagsContextValue = {
 		premounting: boolean;
 		postmounting: boolean;
 	}) => AudioElem;
-	unregisterAudio: (id: number) => void;
+	claimAudio: (elem: AudioElem, owner: symbol) => void;
+	unregisterAudio: (id: number, owner: symbol) => void;
 	updateAudio: (options: {
 		id: number;
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
@@ -680,6 +681,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	const takenAudios = useRef<(false | number)[]>(
 		new Array(numberOfAudioTags).fill(false),
 	);
+	const audioOwners = useRef<Map<number, Set<symbol>>>(new Map());
 
 	const rerenderAudios = useCallback(() => {
 		refs.forEach(({ref, id}) => {
@@ -760,8 +762,55 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		[numberOfAudioTags, refs, rerenderAudios],
 	);
 
+	const claimAudio = useCallback(
+		(elem: AudioElem, owner: symbol) => {
+			let owners = audioOwners.current.get(elem.id);
+			if (!owners) {
+				owners = new Set();
+				audioOwners.current.set(elem.id, owners);
+			}
+
+			owners.add(owner);
+
+			const alreadyRegistered = audios.current.some((a) => a.id === elem.id);
+			if (alreadyRegistered) {
+				return;
+			}
+
+			const index = refs.findIndex((r) => r.id === elem.id);
+			if (index === -1) {
+				throw new TypeError(
+					`Unknown audio ref ${elem.id}; refs: ${refs.map((r) => r.id).join(', ')}`,
+				);
+			}
+
+			const cloned = [...takenAudios.current];
+			cloned[index] = elem.id;
+			takenAudios.current = cloned;
+			audios.current = [
+				...audios.current,
+				{
+					...elem,
+					audioMounted: Boolean(elem.el.current),
+				},
+			];
+			rerenderAudios();
+		},
+		[refs, rerenderAudios],
+	);
+
 	const unregisterAudio = useCallback(
-		(id: number) => {
+		(id: number, owner: symbol) => {
+			const owners = audioOwners.current.get(id);
+			if (owners) {
+				owners.delete(owner);
+				if (owners.size > 0) {
+					return;
+				}
+
+				audioOwners.current.delete(id);
+			}
+
 			const cloned = [...takenAudios.current];
 			const index = refs.findIndex((r) => r.id === id);
 			if (index === -1) {
@@ -863,12 +912,14 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	const audioTagsValue: SharedAudioTagsContextValue = useMemo(() => {
 		return {
 			registerAudio,
+			claimAudio,
 			unregisterAudio,
 			updateAudio,
 			playAllAudios,
 			numberOfAudioTags,
 		};
 	}, [
+		claimAudio,
 		numberOfAudioTags,
 		playAllAudios,
 		registerAudio,
@@ -907,8 +958,11 @@ export const useSharedAudio = ({
 }) => {
 	const audioCtx = useContext(SharedAudioContext);
 	const tagsCtx = useContext(SharedAudioTagsContext);
+	const claimAudio =
+		tagsCtx && tagsCtx.numberOfAudioTags > 0 ? tagsCtx.claimAudio : null;
 	const unregisterAudio =
 		tagsCtx && tagsCtx.numberOfAudioTags > 0 ? tagsCtx.unregisterAudio : null;
+	const [owner] = useState(() => Symbol('shared-audio-owner'));
 
 	/**
 	 * We work around this in React 18 so an audio tag will only register itself once
@@ -952,6 +1006,12 @@ export const useSharedAudio = ({
 
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
+			// Readiness changes the context value, but not the registration's owner.
+			claimAudio?.(elem, owner);
+			return () => unregisterAudio?.(elem.id, owner);
+		}, [claimAudio, unregisterAudio, elem, owner]);
+
+		effectToUse(() => {
 			if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
 				tagsCtx.updateAudio({
 					id: elem.id,
@@ -962,11 +1022,6 @@ export const useSharedAudio = ({
 				});
 			}
 		}, [aud, tagsCtx, elem.id, audioId, premounting, postmounting]);
-
-		effectToUse(() => {
-			// Readiness changes the context value, but not the registration's owner.
-			return () => unregisterAudio?.(elem.id);
-		}, [unregisterAudio, elem.id]);
 	}
 
 	return elem;
