@@ -261,6 +261,7 @@ import {
 	svgPreferredFontModes,
 } from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgRasterizationScenes} from './fixtures/svg-rasterization';
 import {
 	svgReadbackBounds,
 	svgReadbackBoundsModes,
@@ -456,6 +457,9 @@ export const Root: React.FC = () => {
 			<Composition {...svgLayoutViewport} />
 			<Composition {...svgViewportLengthValues} />
 			<Composition {...svgViewportMedia} />
+			{svgRasterizationScenes.map((scene) => (
+				<Composition key={scene.id} {...scene} />
+			))}
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
