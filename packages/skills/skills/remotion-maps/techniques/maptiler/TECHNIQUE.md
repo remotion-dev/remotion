@@ -1,6 +1,6 @@
 # MapTiler maps in Remotion
 
-MapTiler is a good solution for map animations where geographics features should be drawn as annotations on top of the map: Country borders, rivers, labels for POIs.
+MapTiler is a good solution for map animations where geographic features should be drawn as annotations on top of the map: Country borders, rivers, labels for POIs.
 
 ## MapTiler SDK (`@maptiler/sdk`)
 
@@ -52,7 +52,7 @@ For the implementation, read **`references/render-stability.md`** before buildin
 - Keep pitch and bearing constant for a fixed plate. This technique does not implement a genuine changing 3D camera.
 - Verify the moving preview and a short rendered MP4 before approving a beat. If any basemap detail wavers, switch to the fixed-plate pattern; do not try to solve it with tile retries or camera easing.
 
-## Keep it minmal
+## Keep it minimal
 
 Strip clutter on `load`: remove `symbol` layers (place labels) and `/other border/i` (admin-1 inner borders); hide the logo via CSS. Keep country + disputed borders.
 
