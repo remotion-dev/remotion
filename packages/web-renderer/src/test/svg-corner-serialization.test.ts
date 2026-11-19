@@ -1,8 +1,62 @@
 import '../symbol-dispose';
 import {expect, test} from 'vitest';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
-import {svgCornerShapeValues} from './fixtures/svg-corner-styles';
+import {
+	svgCornerDeclarationMarkup,
+	svgCornerShapeValues,
+} from './fixtures/svg-corner-styles';
 import {svgForeignObjectFontReady} from './fixtures/svg-foreign-object-font';
+
+test.each(['inline', 'stylesheet'] as const)(
+	'preserves %s declarations when corner expansion rewrites style selectors',
+	async (kind) => {
+		const host = document.createElement('div');
+		host.innerHTML = svgCornerDeclarationMarkup;
+		document.body.appendChild(host);
+		const svg = host.querySelector('svg')!;
+		const box = svg.querySelector<HTMLElement>('[data-inline-corner]')!;
+		const expected = ['padding', 'background', 'border'].map((property) => ({
+			property,
+			value: box.style.getPropertyValue(property),
+			priority: box.style.getPropertyPriority(property),
+		}));
+		const original = svg.outerHTML;
+		let image: HTMLImageElement | null = null;
+		try {
+			for (const declaration of expected)
+				expect(declaration.value).toContain('var(');
+			const pending = turnSvgIntoDrawable(svg);
+			expect(turnSvgIntoDrawable(svg)).toBe(pending);
+			image = await pending;
+			const parsed = new DOMParser().parseFromString(
+				decodeURIComponent(
+					image.src.slice('data:image/svg+xml;charset=utf-8,'.length),
+				),
+				'image/svg+xml',
+			);
+			expect(parsed.querySelector('parsererror')).toBe(null);
+			if (kind === 'inline') {
+				const encoded = parsed.querySelector<HTMLElement>(
+					'[data-inline-corner]',
+				)!;
+				for (const {property, value, priority} of expected) {
+					expect(encoded.style.getPropertyValue(property)).toBe(value);
+					expect(encoded.style.getPropertyPriority(property)).toBe(priority);
+				}
+			} else {
+				expect(parsed.querySelector('style')!.textContent).not.toMatch(
+					/(?:^|[;{])\s*corner\s*:/,
+				);
+			}
+
+			expect(svg.outerHTML).toBe(original);
+			expect(svg.querySelector('[data-inline-corner]')).toBe(box);
+		} finally {
+			image?.removeAttribute('src');
+			host.remove();
+		}
+	},
+);
 
 test('preserves authored corner styles, selectors and drawable cache without mutating mounted HTML', async () => {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

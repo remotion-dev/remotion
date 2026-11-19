@@ -199,7 +199,10 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
-import {svgCornerStyles} from './fixtures/svg-corner-styles';
+import {
+	svgCornerDeclarations,
+	svgCornerStyles,
+} from './fixtures/svg-corner-styles';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -392,6 +395,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgForeignObjectFont} />
 			<Composition {...svgCornerStyles} />
+			<Composition {...svgCornerDeclarations} />
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition
