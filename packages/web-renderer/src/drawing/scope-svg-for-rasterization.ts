@@ -141,9 +141,11 @@ const scopeStylesIncludingRoot = (text: string, attribute: string) => {
 		// Keep the original root eligible without raising specificity, including
 		// when another member of the selector list has a higher specificity.
 		return selectors
-			.flatMap((item) => {
+			.map((item) => {
 				const guarded = excludeRasterAncestors(item, wrapper);
-				return [guarded, `:where(:scope):is(${guarded})`];
+				// An explicit zero-specificity scope predicate keeps the selector
+				// absolute, so the root may also occur as a matching ancestor.
+				return `:where(:scope,:not(:scope)):is(${guarded})`;
 			})
 			.join(',');
 	});
