@@ -1296,10 +1296,10 @@ export const Index: React.FC = () => {
 					<Composition
 						id="BouncingVideoMotionBlur"
 						component={BouncingVideoMotionBlur}
-						fps={30}
+						fps={120}
 						height={720}
 						width={1280}
-						durationInFrames={600}
+						durationInFrames={2400}
 					/>
 					<Composition
 						id="BouncingImagesMotionBlur"

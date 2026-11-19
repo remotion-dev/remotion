@@ -1840,8 +1840,6 @@ export const createBrowserStudioOperations = ({
 		compositionId,
 		nodePath,
 		wrapper,
-		width,
-		height,
 		timing,
 	}) => {
 		try {
@@ -1870,11 +1868,7 @@ export const createBrowserStudioOperations = ({
 							: 'remotion',
 					props:
 						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
-							? {
-									width: width ?? 0,
-									height: height ?? 0,
-									...(timing ?? {}),
-								}
+							? (timing ?? {})
 							: {},
 				}),
 			});

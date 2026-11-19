@@ -7,6 +7,7 @@ import {
 	Interactive,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	Internals,
 	type SequenceControls,
@@ -25,7 +26,8 @@ import {
 } from './motion-blur-context';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
-	InteractivePremountProps & {
+	InteractivePremountProps &
+	InteractiveTransformProps & {
 		readonly children: React.ReactNode;
 		readonly width: number;
 		readonly height: number;
@@ -37,6 +39,7 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 
 const htmlInCanvasMotionBlurSchema = {
 	...Interactive.baseSchema,
+	...Interactive.transformSchema,
 	shutterAngle: {
 		type: 'number',
 		min: 0,
@@ -157,6 +160,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	premountFor,
 	postmountFor,
 	showInTimeline,
+	style,
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	controls,
@@ -289,8 +293,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			}
 
 			const {compositor} = compositorRef.current;
-			// Canvas2D quantizes globalAlpha to eight bits, including float16 targets.
-			const sampleWeight = Math.round(255 / actualSamples) / 255;
+			const sampleWeight = 1 / actualSamples;
 			for (const [index, sampleElement] of captureElements.slice(1).entries()) {
 				const image = layoutCanvas.captureElementImage(sampleElement);
 				try {
@@ -350,6 +353,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			premountFor={premountFor}
 			postmountFor={postmountFor}
 			showInTimeline={showInTimeline}
+			style={style}
 			styleWhilePremounted={styleWhilePremounted}
 			styleWhilePostmounted={styleWhilePostmounted}
 			{...{controls}}

@@ -1,7 +1,8 @@
 import {getThemeColors} from '@code-hike/lighter';
 import {highlight} from 'codehike/code';
-import React, {useEffect, useState} from 'react';
-import {AbsoluteFill} from 'remotion';
+import React, {useLayoutEffect, useState} from 'react';
+import {AbsoluteFill, useDelayRender} from 'remotion';
+import {brandCodeTheme} from '../../code-theme';
 import type {ThemeColors} from './calculate-metadata/theme';
 import {ThemeProvider} from './calculate-metadata/theme';
 import {CodeTransition} from './CodeTransition';
@@ -35,24 +36,38 @@ import { LightLeak } from "@remotion/light-leaks";
 </TransitionSeries>
 `.trim();
 
-const THEME = 'github-light';
-
 export const CodeTransitionDemo: React.FC = () => {
+	const {cancelRender, continueRender, delayRender} = useDelayRender();
 	const [data, setData] = useState<{
 		before: Awaited<ReturnType<typeof highlight>>;
 		after: Awaited<ReturnType<typeof highlight>>;
 		themeColors: ThemeColors;
+		handle: number;
 	} | null>(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const handle = delayRender('Highlighting the code transition');
+		let cancelled = false;
 		Promise.all([
-			highlight({value: CODE_BEFORE, lang: 'tsx', meta: ''}, THEME),
-			highlight({value: CODE_AFTER, lang: 'tsx', meta: ''}, THEME),
-			getThemeColors(THEME),
-		]).then(([before, after, themeColors]) => {
-			setData({before, after, themeColors});
-		});
-	}, []);
+			highlight({value: CODE_BEFORE, lang: 'tsx', meta: ''}, brandCodeTheme),
+			highlight({value: CODE_AFTER, lang: 'tsx', meta: ''}, brandCodeTheme),
+			getThemeColors(brandCodeTheme),
+		])
+			.then(([before, after, themeColors]) => {
+				if (!cancelled) setData({before, after, themeColors, handle});
+			})
+			.catch((error) => {
+				if (!cancelled) cancelRender(error);
+			});
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [cancelRender, continueRender, delayRender]);
+
+	useLayoutEffect(() => {
+		if (data) continueRender(data.handle);
+	}, [continueRender, data]);
 
 	if (!data) return null;
 

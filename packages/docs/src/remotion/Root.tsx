@@ -196,8 +196,9 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="transition-motion-blur-demo"
 				component={TransitionMotionBlurLiveDemo}
-				durationInFrames={160}
-				fps={30}
+				defaultProps={{shutterAngle: 1000}}
+				durationInFrames={640}
+				fps={120}
 				width={540}
 				height={280}
 			/>

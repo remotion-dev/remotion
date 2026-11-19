@@ -222,6 +222,7 @@ import {KeyframeMove} from './KeyframeMove';
 import {LevelsStudioRecordingComposition} from './LevelsStudioRecordingComposition';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {MotionBlurCompositions} from './MotionBlur/MotionBlurCompositions';
 import {NestingCompositions} from './NestingCompositions';
 import {ParameterizationRecordingComposition} from './ParameterizationRecordingComposition';
 import {PitchCorrection} from './PitchCorrection';
@@ -337,6 +338,7 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<AgenticallyProgrammaticallyCompositions />
+			<MotionBlurCompositions />
 			<Folder name="VideoElements">
 				<Composition
 					id="CodexUI"

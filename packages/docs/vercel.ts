@@ -173,6 +173,15 @@ const siteConfig: VercelConfig = {
 				});
 			}),
 		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
+		...[
+			['/opentimeline', '/docs/opentimeline'],
+			['/docs/import-opentimeline', '/docs/opentimeline/import'],
+			['/docs/export-opentimeline', '/docs/opentimeline/export'],
+		].flatMap(([source, destination]) => [
+			routes.redirect(source, destination, {permanent: true}),
+			routes.redirect(`${source}/`, destination, {permanent: true}),
+			routes.redirect(`${source}.md`, `${destination}.md`, {permanent: true}),
+		]),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',

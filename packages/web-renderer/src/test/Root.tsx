@@ -27,7 +27,7 @@ import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
-import {borderRadius} from './fixtures/border-radius';
+import {borderRadius, nativeRoundedClipping} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
@@ -95,6 +95,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
@@ -118,7 +119,11 @@ import {
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
-import {maskImage} from './fixtures/mask-image';
+import {
+	maskImage,
+	maskImageTransformedVisibility,
+	maskImageCulledDescendants,
+} from './fixtures/mask-image';
 import {
 	maskImageLayers,
 	maskImageLayersTransparent,
@@ -167,6 +172,7 @@ import {opacityZero} from './fixtures/opacity-zero';
 import {opaqueLayerOverFadingLayer} from './fixtures/opaque-layer-over-fading-layer';
 import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {outline} from './fixtures/outline';
+import {outlineCaptureBounds} from './fixtures/outline-capture-bounds';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
@@ -255,6 +261,14 @@ import {
 	svgPreferredFontModes,
 } from './fixtures/svg-preferred-font-carrier';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {
+	svgReadbackBounds,
+	svgReadbackBoundsModes,
+} from './fixtures/svg-readback-bounds';
+import {
+	svgReadbackMask,
+	svgReadbackMaskModes,
+} from './fixtures/svg-readback-mask';
 import {
 	registeredCdataWrappers,
 	svgRegisteredCdataFont,
@@ -348,6 +362,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasInteraction} />
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
@@ -462,6 +477,8 @@ export const Root: React.FC = () => {
 			<Composition {...stackingContextSiblings} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...maskImageTransformedVisibility} />
+				<Composition {...maskImageCulledDescendants} />
 				<Composition {...mixBlendModeAllModes} />
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
@@ -499,6 +516,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue9736BackgroundPosition} />
 			</Folder>
 			<Composition {...outline} />
+			<Composition {...outlineCaptureBounds} />
 			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
@@ -523,6 +541,7 @@ export const Root: React.FC = () => {
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
+				<Composition {...nativeRoundedClipping} />
 				<Composition {...borderRadiusSimple} />
 				<Composition {...borderRadiusElliptical} />
 				<Composition {...borderRadiusDifferent} />
@@ -641,6 +660,14 @@ export const Root: React.FC = () => {
 					/>
 				)),
 			)}
+			{svgReadbackMaskModes.map((mode) => {
+				const composition = svgReadbackMask(mode);
+				return <Composition key={composition.id} {...composition} />;
+			})}
+			{svgReadbackBoundsModes.map((mode) => {
+				const fixture = svgReadbackBounds(mode);
+				return <Composition key={fixture.id} {...fixture} />;
+			})}
 			<Composition {...queuedFrameCapturePreview} />
 		</>
 	);
