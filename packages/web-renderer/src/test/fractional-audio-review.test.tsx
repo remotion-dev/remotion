@@ -44,6 +44,7 @@ test.for(['canvas', 'effects', 'animated', 'gif'] as const)(
 			for (const muted of [true, false]) {
 				let revoke: (() => void) | null = null;
 				let loads = 0;
+				const canvases = new Set<HTMLCanvasElement>();
 				let frames = 0;
 				let wrongPixels = 0;
 				const result = await renderMediaOnWeb({
@@ -54,6 +55,9 @@ test.for(['canvas', 'effects', 'animated', 'gif'] as const)(
 						unused,
 						onResourceReady: (callback) => {
 							revoke = callback;
+						},
+						onResourceCanvas: (canvas) => {
+							if (canvas) canvases.add(canvas);
 						},
 						onImageLoad: () => loads++,
 					},
@@ -79,6 +83,7 @@ test.for(['canvas', 'effects', 'animated', 'gif'] as const)(
 				});
 				expect(frames).toBe(4);
 				expect(wrongPixels).toBe(0);
+				if (kind === 'canvas') expect(canvases.size).toBe(unused ? 0 : 1);
 				if (kind === 'gif') expect(loads).toBe(unused ? 0 : 1);
 				using input = new Input({
 					formats: ALL_FORMATS,

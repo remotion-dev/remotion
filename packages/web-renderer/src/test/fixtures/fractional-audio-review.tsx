@@ -273,6 +273,9 @@ type CanvasResourceProps = {
 	readonly kind: FractionalResourceKind;
 	readonly unused: boolean;
 	readonly onResourceReady: ((revoke: () => void) => void) | null;
+	readonly onResourceCanvas:
+		| ((canvas: HTMLCanvasElement | null) => void)
+		| null;
 	readonly onImageLoad: (() => void) | null;
 };
 
@@ -280,6 +283,7 @@ const CanvasResource = ({
 	kind,
 	unused,
 	onResourceReady,
+	onResourceCanvas,
 	onImageLoad,
 }: CanvasResourceProps) => {
 	const [tone] = useState(makeToneWav);
@@ -303,7 +307,13 @@ const CanvasResource = ({
 	const imageSrc = unused ? 'http://127.0.0.1:1/fractional-unused-image' : src;
 	const visual =
 		kind === 'canvas' ? (
-			<CanvasImage src={imageSrc} width={64} height={64} maxRetries={0} />
+			<CanvasImage
+				ref={onResourceCanvas}
+				src={imageSrc}
+				width={64}
+				height={64}
+				maxRetries={0}
+			/>
 		) : kind === 'effects' ? (
 			<Img
 				src={imageSrc}
@@ -359,6 +369,7 @@ export const fractionalCanvasResource = {
 		kind: 'canvas',
 		unused: false,
 		onResourceReady: null,
+		onResourceCanvas: null,
 		onImageLoad: null,
 	} as CanvasResourceProps,
 };
