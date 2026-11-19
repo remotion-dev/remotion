@@ -1,6 +1,13 @@
 import {Audio, Video} from '@remotion/media';
-import {useState} from 'react';
-import {AbsoluteFill, Img, Loop, Sequence, staticFile} from 'remotion';
+import {useEffect, useState} from 'react';
+import {
+	AbsoluteFill,
+	HtmlInCanvas,
+	Img,
+	Loop,
+	Sequence,
+	staticFile,
+} from 'remotion';
 import {makeToneWav} from './pitch-shift-audio';
 
 export const fractionalRgbSource = () => staticFile('fractional-rgb-loop.webm');
@@ -58,6 +65,48 @@ const LoopingSequenceAudio = () => {
 };
 
 const dimensions = {width: 64, height: 64, fps: 24, durationInFrames: 4};
+
+type HtmlAudioProps = {
+	readonly boundary: boolean;
+	readonly onLifetime: ((event: 'mount' | 'unmount') => void) | null;
+};
+
+const ContinuousPitchedAudio = ({
+	onLifetime,
+}: Pick<HtmlAudioProps, 'onLifetime'>) => {
+	const [src] = useState(makeToneWav);
+	useEffect(() => {
+		onLifetime?.('mount');
+		return () => onLifetime?.('unmount');
+	}, [onLifetime]);
+	return <Audio src={src} toneFrequency={1.5} />;
+};
+
+const HtmlAudio = ({boundary, onLifetime}: HtmlAudioProps) => {
+	const [src] = useState(makeToneWav);
+	return (
+		<>
+			<HtmlInCanvas width={64} height={64}>
+				<AbsoluteFill style={{backgroundColor: 'rgb(16, 40, 80)'}}>
+					<ContinuousPitchedAudio onLifetime={onLifetime} />
+				</AbsoluteFill>
+			</HtmlInCanvas>
+			{boundary ? (
+				<Sequence from={0.25} durationInFrames={0.12}>
+					<Audio src={src} volume={0} />
+				</Sequence>
+			) : null}
+		</>
+	);
+};
+
+export const fractionalHtmlAudio = {
+	...dimensions,
+	durationInFrames: 12,
+	component: HtmlAudio,
+	id: 'fractional-html-audio',
+	defaultProps: {boundary: true, onLifetime: null} as HtmlAudioProps,
+};
 
 export const fractionalLoopedVideo = {
 	...dimensions,

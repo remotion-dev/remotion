@@ -6,9 +6,11 @@ import {
 	VideoSampleSink,
 } from 'mediabunny';
 import {expect, test} from 'vitest';
+import {supportsNativeHtmlInCanvas} from '../html-in-canvas';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
 import {
+	fractionalHtmlAudio,
 	fractionalLoopedVideo,
 	fractionalNestedAudio,
 	fractionalLoopingSequence,
@@ -25,6 +27,84 @@ const readFrame = (frame: VideoFrame) => {
 	context.drawImage(frame, 0, 0);
 	return context.getImageData(0, 0, 64, 64).data;
 };
+
+test.for(['wav', 'mkv'] as const)(
+	'preserves canvas descendant lifetime and pitched PCM across unrelated audio boundaries in %s',
+	async (container, t) => {
+		if (container === 'mkv' && !supportsNativeHtmlInCanvas()) {
+			t.skip();
+			return;
+		}
+
+		const outputs: number[][] = [];
+		for (const boundary of [false, true]) {
+			const lifetime: string[] = [];
+			let frames = 0;
+			const result = await renderMediaOnWeb({
+				licenseKey: 'free-license',
+				composition: {...fractionalHtmlAudio, calculateMetadata: null},
+				inputProps: {
+					boundary,
+					onLifetime: (event) => {
+						lifetime.push(event);
+					},
+				},
+				container,
+				videoCodec: 'vp8',
+				audioCodec: 'pcm-s16',
+				sampleRate: 48000,
+				onFrame:
+					container === 'mkv'
+						? (frame) => {
+								expect(frame.timestamp).toBe(
+									Math.round((frames / 24) * 1_000_000),
+								);
+								const pixels = readFrame(frame);
+								let wrong = 0;
+								for (let index = 0; index < pixels.length; index++) {
+									if (pixels[index] !== [16, 40, 80, 255][index % 4]) wrong++;
+								}
+
+								expect(wrong).toBe(0);
+								frames++;
+								return frame;
+							}
+						: undefined,
+			});
+			expect(frames).toBe(container === 'mkv' ? 12 : 0);
+			using input = new Input({
+				formats: ALL_FORMATS,
+				source: new BlobSource(await result.getBlob()),
+			});
+			const track = await input.getPrimaryAudioTrack();
+			expect(track).not.toBeNull();
+			const pcm: number[] = [];
+			let samples = 0;
+			for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+				for (let index = 0; index < buffer.length; index++) {
+					pcm.push(
+						buffer.getChannelData(0)[index],
+						buffer.getChannelData(1)[index],
+					);
+				}
+
+				samples += buffer.length;
+			}
+
+			expect(samples).toBe(24000);
+			expect(pcm.filter((sample) => sample !== 0).length).toBeGreaterThan(1000);
+			expect(lifetime).toEqual(['mount', 'unmount']);
+			outputs.push(pcm);
+		}
+
+		let wrongSamples = 0;
+		for (let index = 0; index < outputs[0].length; index++) {
+			if (outputs[0][index] !== outputs[1][index]) wrongSamples++;
+		}
+
+		expect(wrongSamples).toBe(0);
+	},
+);
 
 test.each([fractionalLoopedVideo, fractionalShortVideo])(
 	'keeps every decoded video pixel independent of export audio in $id',
