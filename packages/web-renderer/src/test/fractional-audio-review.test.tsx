@@ -551,15 +551,15 @@ test.each(['wav', 'mkv'] as const)(
 	},
 );
 
-test.for(['canvas', 'effects', 'animated', 'gif', 'native'] as const)(
-	'defers initial %s loading with built-in fractional timing until a video sample',
-	async (kind, {skip}) => {
-		if (kind === 'animated' && typeof ImageDecoder === 'undefined') {
-			skip();
-			return;
-		}
+for (const unused of [true, false]) {
+	test.for(['canvas', 'effects', 'animated', 'gif', 'native'] as const)(
+		`defers initial %s loading with built-in ${unused ? 'wholly fractional' : 'spanning fractional'} timing until a video sample`,
+		async (kind, {skip}) => {
+			if (kind === 'animated' && typeof ImageDecoder === 'undefined') {
+				skip();
+				return;
+			}
 
-		for (const unused of [true, false]) {
 			for (const revokeEarly of [true, false]) {
 				for (const muted of [true, false]) {
 					let revoke: (() => void) | null = null;
@@ -640,6 +640,6 @@ test.for(['canvas', 'effects', 'animated', 'gif', 'native'] as const)(
 					}
 				}
 			}
-		}
-	},
-);
+		},
+	);
+}
