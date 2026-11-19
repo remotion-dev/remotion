@@ -90,11 +90,7 @@ Text pixels may differ on transparent output, including LCD text on Linux Chromi
 
 SVG elements with fixed width and height and no viewBox retain their resolved CSS viewport when flex layout resizes them.
 Fixed dimensions include SVG numeric forms such as `+320` and `3.2e2`, and `px`, `cm`, `mm`, `in`, `pt` and `pc` units.
-Embedded media queries and stylesheet `media` attributes preserve their owning-document matches. Stylesheet rewriting retains authored declarations, including logical/physical property order, pending custom-property shorthands and unquoted URL tokens. Resized SVGs retain the used width and height of direct HTML children in `foreignObject` when becoming images. Nested declaration lists with custom-property braces retain their scope. This does not establish full native corner pixel parity.
-
-Fractional SVG viewport sizes and 2D transforms retain their used CSS dimensions. SVG images refresh after used viewport dimensions or owning-document media matches change, even if their authored markup is unchanged. Internal SVG selector matching retains root rules, namespaces, pseudo-elements and indexed selectors.
-
-The corrected rasterization path is limited to source-over composition and an export surface of at most 16,384 pixels on either axis and 16,777,216 pixels in total. Stylesheets containing `@import` or `@scope`, and SVGs using viewport-, root-font- or container-relative lengths such as `vw`, `rem` and `cqw`, retain the existing image path. These cases can still differ from native rendering. Relative-length text in comments, strings or URLs does not impose this restriction.
+For resized SVGs, embedded media queries and stylesheet `media` attributes preserve their owning-document matches. Stylesheet rewriting retains authored declarations, including logical/physical property order, pending custom-property shorthands and unquoted URL tokens. Resized SVGs retain the used width and height of direct HTML children in `foreignObject` when becoming images. Nested declaration lists with custom-property braces retain their scope. This does not establish full native corner pixel parity. Stylesheets containing `@import` or `@scope` retain the existing conservative serialization path.
 
 ### Inline SVG stylesheet state
 

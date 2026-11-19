@@ -44,20 +44,9 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 	return templates;
 };
 
-export const svgDrawableMetadata = new WeakMap<
-	HTMLImageElement,
-	{
-		markup: string;
-		width: number;
-		height: number;
-	}
->();
-
 const drawableBySvg = new WeakMap<
 	SVGSVGElement,
 	{
-		width: string;
-		height: string;
 		fontStyleKey: string | null;
 		serializedSvg: string;
 		drawable: Promise<HTMLImageElement>;
@@ -143,9 +132,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
-	const hasEmbeddedStyles = svg.querySelector('style') !== null;
 	const authoredElements =
-		textElements.length > 0 || needsExplicitDimensions || hasEmbeddedStyles
+		textElements.length > 0 || needsExplicitDimensions
 			? [svg, ...svg.querySelectorAll('*')]
 			: null;
 	const authoredStyles =
@@ -214,7 +202,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		textStyles.length === 0 &&
 		embeddedFontStyle === null &&
 		!hasDisabledStyles &&
-		!hasEmbeddedStyles &&
 		!needsExplicitDimensions
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
@@ -320,7 +307,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			authoredEmpty,
 			authoredWidths,
 			authoredHeights,
-			preserveMediaQueries: true,
+			preserveMediaQueries: Boolean(resizedWithoutViewBox),
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
@@ -371,8 +358,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const cached = drawableBySvg.get(svg);
 	if (
 		cached?.serializedSvg === serializedSvg &&
-		cached.width === width &&
-		cached.height === height &&
 		cached.fontStyleKey === fontStyleKey
 	) {
 		return cached.drawable;
@@ -407,11 +392,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				: URL.createObjectURL(blob);
 
 			image.onload = function () {
-				svgDrawableMetadata.set(image, {
-					markup,
-					width: width.endsWith('px') ? parseFloat(width) : image.width,
-					height: height.endsWith('px') ? parseFloat(height) : image.height,
-				});
 				if (url !== null) URL.revokeObjectURL(url);
 				resolve(image);
 			};
@@ -433,13 +413,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			}
 		});
 	})();
-	drawableBySvg.set(svg, {
-		width,
-		height,
-		fontStyleKey,
-		serializedSvg,
-		drawable,
-	});
+	drawableBySvg.set(svg, {fontStyleKey, serializedSvg, drawable});
 	drawable.catch(() => {
 		if (drawableBySvg.get(svg)?.drawable === drawable) {
 			drawableBySvg.delete(svg);

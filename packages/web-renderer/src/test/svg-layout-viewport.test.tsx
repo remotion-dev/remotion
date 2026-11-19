@@ -1,4 +1,4 @@
-import {expect, test, vi} from 'vitest';
+import {expect, test} from 'vitest';
 import {preserveSvgAttributeSelectors} from '../drawing/preserve-svg-style-selectors';
 import '../symbol-dispose';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
@@ -7,45 +7,6 @@ import {svgLayoutViewport} from './fixtures/svg-layout-viewport';
 import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
-
-test('preserves native foreignObject pixels at fractional render scale', async () => {
-	const Component = svgViewportMedia.component;
-	const reference = await captureNativeReference(
-		{
-			...svgViewportMedia,
-			id: 'svg-viewport-media-fractional',
-			width: 500,
-			height: 200,
-			component: () => (
-				<div
-					style={{
-						position: 'absolute',
-						width: 400,
-						height: 160,
-						transform: 'scale(1.25)',
-						transformOrigin: '0 0',
-					}}
-				>
-					<Component />
-				</div>
-			),
-		},
-		0,
-		{omitBackground: false},
-	);
-	const still = await renderStillOnWeb({
-		composition: svgViewportMedia,
-		frame: 0,
-		inputProps: {},
-		licenseKey: 'free-license',
-		allowHtmlInCanvas: false,
-		scale: 1.25,
-	});
-	const actual = await still.blob({format: 'png'});
-	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
-		0,
-	);
-});
 
 test('keeps foreignObject used sizes detached and refreshes them after layout changes', async () => {
 	const host = document.createElement('div');
@@ -443,73 +404,4 @@ test('preserves SVG viewport coordinates for native numeric forms and absolute u
 	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
 		0,
 	);
-});
-
-test('refreshes cached SVG drawables when the used viewport changes without changing markup', async () => {
-	const host = document.createElement('div');
-	host.style.cssText = 'position:relative;width:200px;height:100px';
-	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.setAttribute('width', '100%');
-	svg.setAttribute('height', '100%');
-	svg.setAttribute('viewBox', '0 0 320 100');
-	svg.style.cssText = 'width:100%;height:100%';
-	svg.innerHTML = '<rect width="320" height="100" fill="blue"/>';
-	host.appendChild(svg);
-	document.body.appendChild(host);
-	try {
-		const mounted = svg.outerHTML;
-		expect(getComputedStyle(svg).width).toBe('200px');
-		const first = turnSvgIntoDrawable(svg);
-		await first;
-		expect(turnSvgIntoDrawable(svg)).toBe(first);
-		host.style.width = '320px';
-		expect(getComputedStyle(svg).width).toBe('320px');
-		const second = turnSvgIntoDrawable(svg);
-		expect(second).not.toBe(first);
-		await second;
-		expect(turnSvgIntoDrawable(svg)).toBe(second);
-		expect(svg.outerHTML).toBe(mounted);
-	} finally {
-		host.remove();
-	}
-});
-
-test('refreshes SVG viewBox paint when owner-document media matches change', async () => {
-	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.setAttribute('width', '320');
-	svg.setAttribute('height', '96');
-	svg.setAttribute('viewBox', '0 0 320 96');
-	svg.style.cssText = 'width:160px;height:48px';
-	svg.innerHTML =
-		'<style>.paint {fill:blue;} @media (min-width:1px) { .paint {fill:red;} }</style><rect class="paint" width="320" height="96"/>';
-	document.body.appendChild(svg);
-	const nativeMatch = window.matchMedia.bind(window);
-	let matches = true;
-	const media = vi.spyOn(window, 'matchMedia').mockImplementation((query) => {
-		const result = nativeMatch(query);
-		if (query.replace(/\s+/g, '') === '(min-width:1px)')
-			Object.defineProperty(result, 'matches', {value: matches});
-		return result;
-	});
-	try {
-		const mounted = svg.outerHTML;
-		const canvas = new OffscreenCanvas(160, 48);
-		const context = canvas.getContext('2d')!;
-		const first = turnSvgIntoDrawable(svg);
-		context.drawImage(await first, 0, 0);
-		const firstPixel = Array.from(context.getImageData(4, 4, 1, 1).data);
-		matches = false;
-		const second = turnSvgIntoDrawable(svg);
-		context.clearRect(0, 0, 160, 48);
-		context.drawImage(await second, 0, 0);
-		const secondPixel = Array.from(context.getImageData(4, 4, 1, 1).data);
-		expect(second).not.toBe(first);
-		expect(firstPixel).toEqual([255, 0, 0, 255]);
-		expect(secondPixel).toEqual([0, 0, 255, 255]);
-		expect(turnSvgIntoDrawable(svg)).toBe(second);
-		expect(svg.outerHTML).toBe(mounted);
-	} finally {
-		media.mockRestore();
-		svg.remove();
-	}
 });
