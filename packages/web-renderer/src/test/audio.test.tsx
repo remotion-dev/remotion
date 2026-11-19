@@ -37,13 +37,19 @@ const getAudioCodecFromBlob = async (
 	return track.codec;
 };
 
-test.each(['wav', 'mkv'] as const)(
-	'preserves fractional audio windows and integer video frames in %s',
-	async (container) => {
+test.each([
+	{container: 'wav', startFrame: 0},
+	{container: 'mkv', startFrame: 0},
+	{container: 'wav', startFrame: 2},
+	{container: 'mkv', startFrame: 2},
+] as const)(
+	'preserves fractional audio windows and integer video frames in $container from frame $startFrame',
+	async ({container, startFrame}) => {
 		let videoFrames = 0;
 		const result = await renderMediaOnWeb({
 			licenseKey: 'free-license',
 			composition: {...fractionalAudio, calculateMetadata: null},
+			frameRange: [startFrame, 3],
 			container,
 			audioCodec: 'pcm-s16',
 			videoCodec: 'vp8',
@@ -72,12 +78,18 @@ test.each(['wav', 'mkv'] as const)(
 					}
 				}
 
+				const absoluteFrame = startFrame + videoFrames;
+				const background = [32 + absoluteFrame * 24, 64, 128];
+				const loopColor = [224, 32, 96];
 				let wrongPixels = 0;
 				for (let i = 0; i < pixels.length; i += 4) {
+					const inLoop =
+						absoluteFrame === 3 && (i / 4) % 64 < 16 && i < 16 * 64 * 4;
+					const expected = inLoop ? loopColor : background;
 					if (
-						pixels[i] !== 32 + videoFrames * 24 ||
-						pixels[i + 1] !== 64 ||
-						pixels[i + 2] !== 128 ||
+						pixels[i] !== expected[0] ||
+						pixels[i + 1] !== expected[1] ||
+						pixels[i + 2] !== expected[2] ||
 						pixels[i + 3] !== 255
 					)
 						wrongPixels++;
@@ -88,14 +100,15 @@ test.each(['wav', 'mkv'] as const)(
 				return frame;
 			},
 		});
-		expect(videoFrames).toBe(container === 'wav' ? 0 : 4);
+		expect(videoFrames).toBe(container === 'wav' ? 0 : 4 - startFrame);
 		using input = new Input({
 			formats: ALL_FORMATS,
 			source: new BlobSource(await result.getBlob()),
 		});
 		const track = await input.getPrimaryAudioTrack();
 		expect(track).not.toBeNull();
-		const channels = [new Float32Array(8000), new Float32Array(8000)];
+		const samples = (4 - startFrame) * 2000;
+		const channels = [new Float32Array(samples), new Float32Array(samples)];
 		let totalSamples = 0;
 		for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
 			for (let channel = 0; channel < 2; channel++) {
@@ -105,7 +118,7 @@ test.each(['wav', 'mkv'] as const)(
 			totalSamples += buffer.length;
 		}
 
-		expect(totalSamples).toBe(8000);
+		expect(totalSamples).toBe(samples);
 		// Independent sample-grid oracle from the authored intervals, not exports.
 		const windows = [
 			[0.25, 0.37, 0],
@@ -134,8 +147,9 @@ test.each(['wav', 'mkv'] as const)(
 			}
 
 			let wrongSamples = 0;
-			for (let i = 0; i < expected.length; i++) {
-				if (channels[channel][i] !== expected[i]) wrongSamples++;
+			for (let i = 0; i < samples; i++) {
+				if (channels[channel][i] !== expected[startFrame * 2000 + i])
+					wrongSamples++;
 			}
 
 			expect(wrongSamples).toBe(0);
