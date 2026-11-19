@@ -9,7 +9,7 @@ const ScopeComponent = () => (
 				height={100}
 				style={{position: 'absolute', left, top: 88, width: 160, height: 50}}
 			>
-				<style>{`@media (min-width:1px) { .scope-marker {fill:lime;} ${index === 0 ? 'g > svg .scope-marker, svg svg .scope-marker' : ':is(g svg, .absent) > .scope-marker, g:has(> svg) .scope-marker'} {fill:red;} }`}</style>
+				<style>{`@media (min-width:1px) { .scope-marker {fill:lime;} ${index === 0 ? 'g > svg .scope-marker, svg svg .scope-marker' : ':is(g svg, .absent) > .scope-marker, g:has(> svg) .scope-marker, svg:nth-last-child(1 of svg svg) > .scope-marker, :is(:-webkit-any(:is(svg svg), .absent), :-moz-any(:is(svg svg), .absent)) > .scope-marker'} {fill:red;} }`}</style>
 				<rect className="scope-marker" width={160} height={50} />
 			</svg>
 		))}
@@ -32,7 +32,7 @@ const RootComponent = () => (
  :is(s|svg.root-painted[data-info="a,b:root"], .absent), #absent {stroke:red;stroke-width:4px;}
  s|svg.root-painted[data-info="a,b:root"] {stroke:blue;}
  .root-marker {fill:lime;}
- g > s|svg.root-painted, s|svg s|svg.root-painted {stroke:red!important;}
+ g > s|svg.root-painted, s|svg s|svg.root-painted, s|svg.root-painted:nth-child(1 of s|svg s|svg) {stroke:red!important;}
  [data-remotion-raster-root=""], [data-remotion-raster-root\\-] {stroke:red!important;}
  }`}</style>
 			<rect className="root-marker" x={8} y={8} width={144} height={34} />

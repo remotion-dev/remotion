@@ -52,10 +52,22 @@ const excludeRasterAncestors = (
 			}
 
 			const contents = selector.slice(start + 1, index - 1);
-			const functional = char === '(' && /:(?:is|where|not|has)$/i.test(result);
+			const functional =
+				char === '(' &&
+				/:(?:is|where|not|has|matches|-webkit-any|-moz-any)$/i.test(result);
+			// The selector list after `of` also sees ancestors and contributes to
+			// specificity. Keep its An+B prefix and guard only that selector list.
+			const indexed =
+				char === '(' && /:nth-(?:last-)?child$/i.test(result)
+					? /^([\s\S]*?\bof)([\s\S]+)$/i.exec(contents)
+					: null;
 			result +=
 				char +
-				(functional ? excludeRasterAncestors(contents, attribute) : contents) +
+				(functional
+					? excludeRasterAncestors(contents, attribute)
+					: indexed
+						? indexed[1] + excludeRasterAncestors(indexed[2]!, attribute)
+						: contents) +
 				closing;
 			compound = true;
 			continue;
