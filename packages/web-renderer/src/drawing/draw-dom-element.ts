@@ -1,7 +1,11 @@
 import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
-import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
+import {scopeSvgForRasterization} from './scope-svg-for-rasterization';
+import {
+	svgDrawableMetadata,
+	turnSvgIntoDrawable,
+} from './turn-svg-into-drawable';
 
 const getReadableImageError = (
 	err: unknown,
@@ -165,29 +169,170 @@ const drawSvgThroughReadbackCanvas = ({
 	}
 };
 
+const rasterizedSvgByDrawable = new WeakMap<
+	HTMLImageElement,
+	{
+		key: string;
+		image: Promise<HTMLImageElement> | null;
+	}
+>();
+
+const drawSvgAtOutputResolution = async ({
+	drawable,
+	fitted,
+	context,
+}: {
+	drawable: HTMLImageElement;
+	fitted: ReturnType<typeof fitSvgIntoItsContainer>;
+	context: OffscreenCanvasRenderingContext2D;
+}) => {
+	const {width, height} = context.canvas;
+	const transform = context.getTransform();
+	if (
+		context.globalCompositeOperation !== 'source-over' ||
+		width <= 0 ||
+		height <= 0 ||
+		width > 16384 ||
+		height > 16384 ||
+		width * height > 16 * 1024 ** 2
+	)
+		return false;
+	const key = JSON.stringify([
+		width,
+		height,
+		transform.a,
+		transform.b,
+		transform.c,
+		transform.d,
+		transform.e,
+		transform.f,
+		fitted.left,
+		fitted.top,
+		fitted.width,
+		fitted.height,
+	]);
+	let entry = rasterizedSvgByDrawable.get(drawable);
+	if (entry?.key !== key) {
+		const metadata = svgDrawableMetadata.get(drawable);
+		if (metadata === undefined)
+			throw new Error('SVG source markup is unavailable');
+		const svg = new DOMParser().parseFromString(
+			metadata.markup,
+			'image/svg+xml',
+		).documentElement as unknown as SVGSVGElement;
+		if (!scopeSvgForRasterization(svg)) {
+			rasterizedSvgByDrawable.set(drawable, {key, image: null});
+			return false;
+		}
+
+		const logicalWidth = metadata.width;
+		const logicalHeight = metadata.height;
+		if (!(logicalWidth > 0) || !(logicalHeight > 0)) return false;
+		// An outermost SVG ignores x/y. Keep that behavior after it becomes nested,
+		// and freeze its viewport without changing authored geometry attributes.
+		svg.setAttribute(
+			'style',
+			(svg.getAttribute('style') ?? '') +
+				`;x:0px!important;y:0px!important;width:${logicalWidth}px!important;height:${logicalHeight}px!important;`,
+		);
+		const matrix = transform
+			.translate(fitted.left, fitted.top)
+			.scale(fitted.width / logicalWidth, fitted.height / logicalHeight);
+		const document = svg.ownerDocument.implementation.createDocument(
+			'http://www.w3.org/2000/svg',
+			'svg',
+			null,
+		);
+		document.documentElement.setAttribute('width', String(width));
+		document.documentElement.setAttribute('height', String(height));
+		const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+		group.setAttribute(
+			'transform',
+			`matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`,
+		);
+		group.appendChild(document.importNode(svg, true));
+		document.documentElement.appendChild(group);
+		const paddedMarkup = new XMLSerializer().serializeToString(document);
+		const image = new Promise<HTMLImageElement>((resolve, reject) => {
+			const loaded = new Image();
+			loaded.onload = () => resolve(loaded);
+			loaded.onerror = () =>
+				reject(new Error('Failed to rasterize SVG at output resolution'));
+			loaded.src =
+				'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(paddedMarkup);
+		});
+		entry = {key, image};
+		rasterizedSvgByDrawable.set(drawable, entry);
+		image.catch(() => {
+			if (rasterizedSvgByDrawable.get(drawable)?.image === image)
+				rasterizedSvgByDrawable.delete(drawable);
+		});
+	}
+
+	if (entry.image === null) return false;
+	const rasterized = await entry.image;
+	context.save();
+	try {
+		context.resetTransform();
+		context.drawImage(rasterized, 0, 0);
+	} finally {
+		context.restore();
+	}
+
+	return true;
+};
+
 /**
  * Draw an SVG element using "contain" behavior (the default for SVGs).
  */
-const drawSvg = ({
+const drawSvg = async ({
+	rasterize,
+	alwaysReadback,
 	readback,
 	drawable,
 	dimensions,
 	contextToDraw,
 }: {
+	rasterize: boolean;
+	alwaysReadback: boolean;
 	readback: boolean;
 	drawable: HTMLImageElement;
 	dimensions: DOMRect;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
 }) => {
+	const metadata = svgDrawableMetadata.get(drawable);
 	const fitted = fitSvgIntoItsContainer({
 		containerSize: dimensions,
 		elementSize: {
-			width: drawable.width,
-			height: drawable.height,
+			width: metadata?.width ?? drawable.width,
+			height: metadata?.height ?? drawable.height,
 		},
 	});
+	const transform = contextToDraw.getTransform();
+	const needsRasterization =
+		transform.a !== 1 ||
+		transform.b !== 0 ||
+		transform.c !== 0 ||
+		transform.d !== 1 ||
+		!Number.isInteger(transform.e) ||
+		!Number.isInteger(transform.f) ||
+		[fitted.left, fitted.top, fitted.width, fitted.height].some(
+			(value) => !Number.isInteger(value),
+		);
+	if (
+		rasterize &&
+		needsRasterization &&
+		(await drawSvgAtOutputResolution({
+			drawable,
+			fitted,
+			context: contextToDraw,
+		}))
+	)
+		return;
+
 	if (
 		readback &&
+		(alwaysReadback || needsRasterization) &&
 		drawSvgThroughReadbackCanvas({
 			drawable,
 			fitted,
@@ -359,14 +504,15 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 			const drawable = await turnSvgIntoDrawable(node);
 			const userAgent =
 				node.ownerDocument.defaultView?.navigator.userAgent ?? '';
-			drawSvg({
+			await drawSvg({
+				rasterize: /Firefox\//.test(userAgent),
+				alwaysReadback: Boolean(node.querySelector('text, foreignObject')),
 				drawable,
 				dimensions,
 				contextToDraw,
 				readback:
 					/AppleWebKit/.test(userAgent) &&
 					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
-					Boolean(node.querySelector('text, foreignObject')) &&
 					!node.querySelector('feImage'),
 			});
 			return;
