@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {preserveSvgAttributeSelectors} from '../drawing/preserve-svg-style-selectors';
 import '../symbol-dispose';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
@@ -471,5 +471,45 @@ test('refreshes cached SVG drawables when the used viewport changes without chan
 		expect(svg.outerHTML).toBe(mounted);
 	} finally {
 		host.remove();
+	}
+});
+
+test('refreshes SVG viewBox paint when owner-document media matches change', async () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('width', '320');
+	svg.setAttribute('height', '96');
+	svg.setAttribute('viewBox', '0 0 320 96');
+	svg.style.cssText = 'width:160px;height:48px';
+	svg.innerHTML =
+		'<style>.paint {fill:blue;} @media (min-width:1px) { .paint {fill:red;} }</style><rect class="paint" width="320" height="96"/>';
+	document.body.appendChild(svg);
+	const nativeMatch = window.matchMedia.bind(window);
+	let matches = true;
+	const media = vi.spyOn(window, 'matchMedia').mockImplementation((query) => {
+		const result = nativeMatch(query);
+		if (query.replace(/\s+/g, '') === '(min-width:1px)')
+			Object.defineProperty(result, 'matches', {value: matches});
+		return result;
+	});
+	try {
+		const mounted = svg.outerHTML;
+		const canvas = new OffscreenCanvas(160, 48);
+		const context = canvas.getContext('2d')!;
+		const first = turnSvgIntoDrawable(svg);
+		context.drawImage(await first, 0, 0);
+		const firstPixel = Array.from(context.getImageData(4, 4, 1, 1).data);
+		matches = false;
+		const second = turnSvgIntoDrawable(svg);
+		context.clearRect(0, 0, 160, 48);
+		context.drawImage(await second, 0, 0);
+		const secondPixel = Array.from(context.getImageData(4, 4, 1, 1).data);
+		expect(second).not.toBe(first);
+		expect(firstPixel).toEqual([255, 0, 0, 255]);
+		expect(secondPixel).toEqual([0, 0, 255, 255]);
+		expect(turnSvgIntoDrawable(svg)).toBe(second);
+		expect(svg.outerHTML).toBe(mounted);
+	} finally {
+		media.mockRestore();
+		svg.remove();
 	}
 });

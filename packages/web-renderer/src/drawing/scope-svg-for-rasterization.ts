@@ -1,5 +1,6 @@
 import {
 	hasExcludedSvgStyleAtRule,
+	hasSvgDocumentRelativeLength,
 	rewriteSvgStyleHeaders,
 } from './has-excluded-svg-style-at-rule';
 import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
@@ -172,6 +173,43 @@ export const scopeSvgForRasterization = (svg: SVGSVGElement) => {
 		const type = style.getAttribute('type')?.trim().toLowerCase();
 		return !type || type === 'text/css';
 	});
+	const elements = [svg, ...svg.querySelectorAll('*')];
+	const values = styles
+		.filter(
+			(style) =>
+				style.namespaceURI === 'http://www.w3.org/2000/svg' ||
+				(style.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+					style.closest('foreignObject')),
+		)
+		.map((style) => style.textContent ?? '');
+	for (const element of elements) {
+		if (
+			element.namespaceURI !== 'http://www.w3.org/2000/svg' &&
+			!(
+				element.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+				element.closest('foreignObject')
+			)
+		)
+			continue;
+		if (element.namespaceURI === 'http://www.w3.org/1999/xhtml') {
+			values.push(element.getAttribute('style') ?? '');
+			continue;
+		}
+
+		for (const sourceAttribute of Array.from(element.attributes)) {
+			const name = sourceAttribute.localName.toLowerCase();
+			if (
+				sourceAttribute.namespaceURI !== null ||
+				/^(?:id|class|href|src|role|title)$/.test(name) ||
+				name.startsWith('data-') ||
+				name.startsWith('aria-')
+			)
+				continue;
+			values.push(sourceAttribute.value);
+		}
+	}
+
+	if (values.some(hasSvgDocumentRelativeLength)) return null;
 	if (styles.length === 0) return '';
 	if (
 		typeof CSSStyleSheet === 'undefined' ||
@@ -185,7 +223,6 @@ export const scopeSvgForRasterization = (svg: SVGSVGElement) => {
 	const support = new CSSStyleSheet();
 	support.replaceSync('@scope (svg) {}');
 	if (support.cssRules[0]?.constructor.name !== 'CSSScopeRule') return null;
-	const elements = [svg, ...svg.querySelectorAll('*')];
 	preserveSvgAttributeSelectors({
 		svg,
 		authoredStyles: elements.map((element) => element.getAttribute('style')),

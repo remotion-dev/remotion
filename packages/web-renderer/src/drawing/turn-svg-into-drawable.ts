@@ -143,8 +143,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		Boolean(style.sheet),
 	).lastIndexOf(true);
 
+	const hasEmbeddedStyles = svg.querySelector('style') !== null;
 	const authoredElements =
-		textElements.length > 0 || needsExplicitDimensions
+		textElements.length > 0 || needsExplicitDimensions || hasEmbeddedStyles
 			? [svg, ...svg.querySelectorAll('*')]
 			: null;
 	const authoredStyles =
@@ -213,6 +214,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		textStyles.length === 0 &&
 		embeddedFontStyle === null &&
 		!hasDisabledStyles &&
+		!hasEmbeddedStyles &&
 		!needsExplicitDimensions
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
@@ -318,7 +320,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			authoredEmpty,
 			authoredWidths,
 			authoredHeights,
-			preserveMediaQueries: Boolean(resizedWithoutViewBox),
+			preserveMediaQueries: true,
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
