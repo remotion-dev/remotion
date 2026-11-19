@@ -120,6 +120,28 @@ const valueEnd = (text: string, index: number) => {
 	return index;
 };
 
+export const getSvgStyleDeclarations = (text: string): string[] => {
+	const declarations: string[] = [];
+	let index = 0;
+	while (index < text.length) {
+		index = triviaEnd(text, index);
+		if (text[index] === ';') {
+			index++;
+			continue;
+		}
+
+		const start = index;
+		const name = nameAt(text, index);
+		const colon = triviaEnd(text, name.end);
+		if (name.end === index || text[colon] !== ':') break;
+		const end = valueEnd(text, colon + 1);
+		declarations.push(`${text.slice(start, end)};`);
+		index = end + 1;
+	}
+
+	return declarations;
+};
+
 // Constructed-sheet parsing drops imports, and the selector walker cannot yet
 // preserve scope roots. Only actual at-rule statements require that exclusion.
 export const hasExcludedSvgStyleAtRule = (text: string) => {

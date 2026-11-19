@@ -1,83 +1,71 @@
-import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
+import {
+	getSvgStyleDeclarations,
+	hasExcludedSvgStyleAtRule,
+} from './has-excluded-svg-style-at-rule';
 
 // Match authored attribute and emptiness predicates, skipping quoted values and escapes.
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media|width|height)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
 
-const cornerLonghands = [
-	'top-left',
-	'top-right',
-	'bottom-right',
-	'bottom-left',
-].flatMap((corner) => [`border-${corner}-radius`, `corner-${corner}-shape`]);
-
-const expandSvgCornerStyle = (style: CSSStyleDeclaration): string | null => {
+const serializeSvgDeclarations = (
+	style: CSSStyleDeclaration,
+	scratch: CSSStyleDeclaration,
+): string => {
+	const properties = Array.from(style);
+	// Native property order retains physical overrides that cssText can fold
+	// into an earlier shorthand across an intervening logical declaration.
+	const pending = new Map<string, string>();
 	if (
-		!/(?:^|;)\s*corner\s*:/.test(style.cssText) ||
-		cornerLonghands.some((property) => !style.getPropertyValue(property))
-	)
-		return null;
-	const text = style.cssText;
-	const longhands = cornerLonghands
-		.map(
+		properties.some(
 			(property) =>
-				`${property}: ${style.getPropertyValue(property)}${style.getPropertyPriority(property) ? ' !important' : ''};`,
+				!property.startsWith('--') && !style.getPropertyValue(property),
 		)
-		.join(' ');
-	// WebKit emits a folded declaration that its parser may not accept again.
-	// Replace that declaration in place, preserving later logical overrides.
-	let start = 0;
-	let depth = 0;
-	let quote: string | null = null;
-	let comment = false;
-	for (let index = 0; index < text.length; index++) {
-		const char = text[index];
-		if (comment) {
-			if (char === '*' && text[index + 1] === '/') {
-				comment = false;
-				index++;
+	) {
+		// Pending var() shorthands have empty longhand values. Keep their opaque
+		// declaration instead of dropping them or resolving against mounted DOM.
+		for (const declaration of getSvgStyleDeclarations(style.cssText)) {
+			scratch.cssText = declaration;
+			for (const property of Array.from(scratch)) {
+				if (!scratch.getPropertyValue(property))
+					pending.set(property, declaration);
 			}
-
-			continue;
-		}
-
-		if (char === '\\') {
-			index++;
-			continue;
-		}
-
-		if (quote !== null) {
-			if (char === quote) quote = null;
-			continue;
-		}
-
-		if (char === '"' || char === "'") quote = char;
-		else if (char === '/' && text[index + 1] === '*') {
-			comment = true;
-			index++;
-		} else if (char === '(' || char === '[' || char === '{') depth++;
-		else if (char === ')' || char === ']' || char === '}') depth--;
-		else if (char === ';' && depth === 0) {
-			if (/^\s*corner\s*:/.test(text.slice(start, index + 1))) {
-				return `${text.slice(0, start)} ${longhands}${text.slice(index + 1)}`;
-			}
-
-			start = index + 1;
 		}
 	}
 
-	return null;
+	const emitted = new Set<string>();
+	const declarations: string[] = [];
+	for (const property of properties) {
+		const value = style.getPropertyValue(property);
+		if (!value && !property.startsWith('--')) {
+			const declaration = pending.get(property);
+			if (!declaration) return style.cssText;
+			if (!emitted.has(declaration)) declarations.push(declaration);
+			emitted.add(declaration);
+			continue;
+		}
+
+		declarations.push(
+			`${property}: ${value}${style.getPropertyPriority(property) ? ' !important' : ''};`,
+		);
+	}
+
+	return declarations.join(' ');
 };
 
-const serializeSvgStyleRule = (rule: CSSRule): string => {
+const serializeSvgStyleRule = (
+	rule: CSSRule,
+	scratch: CSSStyleDeclaration,
+): string => {
 	const style = 'style' in rule ? (rule.style as CSSStyleDeclaration) : null;
-	const expanded = style ? expandSvgCornerStyle(style) : null;
+	const expanded = style ? serializeSvgDeclarations(style, scratch) : null;
 	// CSSNestedDeclarations has a declaration list without an outer block.
 	// Custom-property values can contain braces, so detect it before scanning.
 	if (style && rule.cssText === style.cssText) return expanded ?? rule.cssText;
 	const children =
 		'cssRules' in rule ? Array.from(rule.cssRules as CSSRuleList) : [];
-	const serializedChildren = children.map(serializeSvgStyleRule);
+	const serializedChildren = children.map((child) =>
+		serializeSvgStyleRule(child, scratch),
+	);
 	if (
 		expanded === null &&
 		serializedChildren.every(
@@ -270,9 +258,9 @@ export const preserveSvgAttributeSelectors = ({
 
 		visit(sheet.cssRules);
 		if (rewritten) {
-			style.textContent = Array.from(
-				sheet.cssRules,
-				serializeSvgStyleRule,
+			const scratch = svg.ownerDocument.createElement('div').style;
+			style.textContent = Array.from(sheet.cssRules, (rule) =>
+				serializeSvgStyleRule(rule, scratch),
 			).join('');
 			changed = true;
 		}
