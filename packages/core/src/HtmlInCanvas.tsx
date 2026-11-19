@@ -537,13 +537,8 @@ const HtmlInCanvasContent = forwardRef<
 			onPaint === undefined && onInit === undefined;
 		// Keep a nested drawable canvas separate from the bitmap captured by its
 		// parent. Reusing it for both can crash Chromium during raster invalidation.
-		const paintTargetMode = ancestorPaintState
-			? 'copied'
-			: usesDirectLayoutCanvas
-				? 'direct'
-				: isRendering
-					? 'copied'
-					: 'transferred';
+		const paintTargetMode =
+			ancestorPaintState || !usesDirectLayoutCanvas ? 'copied' : 'direct';
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
@@ -945,7 +940,7 @@ const HtmlInCanvasContent = forwardRef<
 		// Non-nested default handlers paint directly on the layout canvas. Nested
 		// canvases and custom handlers retain a transferred target because an
 		// ElementImage can only be drawn into its associated canvas. Nested canvases
-		// and rendering copy it to a separate visible canvas without waiting for
+		// and custom handlers copy it to a separate visible canvas without waiting for
 		// the transferred canvas to present.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
