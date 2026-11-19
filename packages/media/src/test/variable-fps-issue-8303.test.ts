@@ -26,7 +26,7 @@ test('variable FPS video can be sought forward one frame at a time', async () =>
 	const cache = makePrewarmedVideoIteratorCache(
 		canvasSink,
 		await videoTrack.getTimeResolution(),
-		{width: 160, height: 160, fit: 'contain'},
+		() => ({width: 160, height: 160}),
 	);
 	const iterator = await createVideoIterator(0, cache);
 

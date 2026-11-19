@@ -3,8 +3,13 @@ import {
 	type VideoSampleSink,
 	type WrappedCanvas,
 } from 'mediabunny';
-import {expect, test} from 'vitest';
-import {canvasesAheadOfTime, releaseStableFrame} from '../canvas-ahead-of-time';
+import {expect, test, vi} from 'vitest';
+import {
+	canvasesAheadOfTime,
+	drawStableFrame,
+	getStableEffectSource,
+	releaseStableFrame,
+} from '../canvas-ahead-of-time';
 
 const makeCanvas = () => {
 	const canvas = new OffscreenCanvas(2, 2);
@@ -132,3 +137,114 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 		await iterator.closeIterator();
 	}
 });
+
+test('rerasterizes a retained sample when its live size grows, without losing source pixels', async () => {
+	const {canvas, context} = makeCanvas();
+	context.fillStyle = 'red';
+	context.fillRect(0, 0, 1, 2);
+	context.fillStyle = 'blue';
+	context.fillRect(1, 0, 1, 2);
+	const sample = new VideoSample(canvas, {timestamp: 0, duration: 1});
+	const sink = {
+		async *samples() {
+			yield sample;
+		},
+	} as unknown as VideoSampleSink;
+	let size = {width: 1};
+	const iterator = canvasesAheadOfTime(sink, 0, () => size);
+	const frame = await waitForFrame(iterator.next());
+	try {
+		expect(frame!.canvas.width).toBe(1);
+		size = {width: 2};
+		expect(frame!.canvas.width).toBe(2);
+		expect(getPixel(frame!.canvas as OffscreenCanvas)).toEqual([
+			255, 0, 0, 255,
+		]);
+	} finally {
+		releaseStableFrame(frame);
+		await iterator.closeIterator();
+	}
+});
+
+test.each([{width: 2}, {height: 2}, {width: 4, height: 4}])(
+	'draws samples directly when a size limit does not reduce the source (%o)',
+	async (size) => {
+		const {canvas} = makeCanvas();
+		const target = makeCanvas();
+		const sample = new VideoSample(canvas, {timestamp: 0, duration: 1});
+		const draw = vi.spyOn(sample, 'draw');
+		const source = vi.spyOn(sample, 'toCanvasImageSource');
+		const sink = {
+			async *samples() {
+				yield sample;
+			},
+		} as unknown as VideoSampleSink;
+		const iterator = canvasesAheadOfTime(sink, 0, () => size);
+		const frame = await waitForFrame(iterator.next());
+		try {
+			drawStableFrame(target.context, frame!, 2, 2);
+			expect(draw).toHaveBeenCalledWith(target.context, 0, 0, 2, 2);
+			source.mockClear();
+			getStableEffectSource(frame!, {
+				width: 2,
+				height: 2,
+				allowDirectSource: true,
+			});
+			expect(source).toHaveBeenCalledOnce();
+		} finally {
+			releaseStableFrame(frame);
+			await iterator.closeIterator();
+		}
+	},
+);
+
+test.each([false, true])(
+	'preserves transform downsampling quality for striped sources (VideoFrame: %s)',
+	async (native) => {
+		const canvas = new OffscreenCanvas(1920, 1080);
+		const context = canvas.getContext('2d')!;
+		context.fillStyle = 'white';
+		context.fillRect(0, 0, 1920, 1080);
+		context.fillStyle = 'black';
+		for (let x = 0; x < 1920; x += 3) context.fillRect(x, 0, 1, 1080);
+		const sample = native
+			? new VideoSample(new VideoFrame(canvas, {timestamp: 0}))
+			: new VideoSample(canvas, {timestamp: 0});
+		const reference = await sample.transform({width: 320, fit: 'fill'});
+		const expected = new OffscreenCanvas(
+			reference.displayWidth,
+			reference.displayHeight,
+		);
+		reference.draw(
+			expected.getContext('2d')!,
+			0,
+			0,
+			expected.width,
+			expected.height,
+		);
+		const sink = {
+			async *samples() {
+				yield sample;
+			},
+		} as unknown as VideoSampleSink;
+		const iterator = canvasesAheadOfTime(sink, 0, () => ({width: 320}));
+		const frame = await waitForFrame(iterator.next());
+		try {
+			const actualPixels = (frame!.canvas as OffscreenCanvas)
+				.getContext('2d')!
+				.getImageData(0, 0, 320, 1).data;
+			const expectedPixels = expected
+				.getContext('2d')!
+				.getImageData(0, 0, 320, 1).data;
+			const differences = actualPixels.reduce(
+				(sum, value, index) => sum + (value !== expectedPixels[index] ? 1 : 0),
+				0,
+			);
+			expect(differences).toBe(0);
+		} finally {
+			reference.close();
+			releaseStableFrame(frame);
+			await iterator.closeIterator();
+		}
+	},
+);
