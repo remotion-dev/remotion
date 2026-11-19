@@ -196,8 +196,10 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
-		if (!mediaRef.current) {
-			throw new Error(`No ${mediaType} ref found`);
+		const {current} = mediaRef;
+		if (!current) {
+			// React can still run passive effects after a layout effect throws.
+			return;
 		}
 
 		if (!src) {
@@ -206,7 +208,6 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const {current} = mediaRef;
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 		let pauseReason: 'not-playing' | 'buffering' | null = null;
 		if (!playing) {
