@@ -89,6 +89,12 @@ import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {fractionalAudio} from './fixtures/fractional-audio';
+import {
+	fractionalLoopedVideo,
+	fractionalShortVideo,
+	fractionalNestedAudio,
+	fractionalUnusedImage,
+} from './fixtures/fractional-audio-review';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
 import {
@@ -575,6 +581,10 @@ export const Root: React.FC = () => {
 			<Folder name="Projects">
 				<Composition {...pitchShiftAudio} />
 				<Composition {...fractionalAudio} />
+				<Composition {...fractionalLoopedVideo} />
+				<Composition {...fractionalShortVideo} />
+				<Composition {...fractionalNestedAudio} />
+				<Composition {...fractionalUnusedImage} />
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />
