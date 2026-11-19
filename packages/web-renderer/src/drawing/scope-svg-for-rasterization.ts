@@ -10,7 +10,7 @@ const excludeRasterAncestors = (
 	selector: string,
 	attribute: string,
 ): string => {
-	const guard = `:where(:not([${attribute}]))`;
+	const guard = `:where(:not([${attribute}])):where(:scope,:not(:scope))`;
 	let result = '';
 	let compound = false;
 	let guarded = false;
@@ -69,7 +69,13 @@ const excludeRasterAncestors = (
 			continue;
 		}
 
-		if (selector.startsWith('::', index) && compound && !guarded) {
+		if (
+			!guarded &&
+			(selector.startsWith('::', index) ||
+				/^:(?:before|after|first-line|first-letter)(?![\w-])/i.test(
+					selector.slice(index),
+				))
+		) {
 			result += guard;
 			guarded = true;
 		}
@@ -140,13 +146,10 @@ const scopeStylesIncludingRoot = (text: string, attribute: string) => {
 		selectors.push(selector.slice(start).trim());
 		// Keep the original root eligible without raising specificity, including
 		// when another member of the selector list has a higher specificity.
+		// Each compound has an explicit zero-specificity scope predicate, keeping
+		// root ancestors eligible without placing pseudo-elements inside :is().
 		return selectors
-			.map((item) => {
-				const guarded = excludeRasterAncestors(item, wrapper);
-				// An explicit zero-specificity scope predicate keeps the selector
-				// absolute, so the root may also occur as a matching ancestor.
-				return `:where(:scope,:not(:scope)):is(${guarded})`;
-			})
+			.map((item) => excludeRasterAncestors(item, wrapper))
 			.join(',');
 	});
 	return namespaces + `@scope ([${attribute}]) {` + rewritten + '}';
