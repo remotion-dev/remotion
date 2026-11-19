@@ -11,6 +11,7 @@ import '../symbol-dispose';
 import {
 	fractionalLoopedVideo,
 	fractionalNestedAudio,
+	fractionalLoopingSequence,
 	fractionalRgbSource,
 	fractionalShortVideo,
 	fractionalUnusedImage,
@@ -178,3 +179,77 @@ test('does not load an unused visual asset during fractional audio passes', asyn
 	expect(samples).toBe(8000);
 	expect(wrong).toBe(0);
 });
+
+test.each(['wav', 'mkv'] as const)(
+	'excludes roundoff-only final wraps in looping Sequences for %s',
+	async (container) => {
+		let captured = 0;
+		const options = {
+			licenseKey: 'free-license' as const,
+			composition: {...fractionalLoopingSequence, calculateMetadata: null},
+			inputProps: {},
+			container,
+			videoCodec: 'vp8' as const,
+			audioCodec: 'pcm-s16' as const,
+			sampleRate: 48000,
+			onFrame:
+				container === 'mkv'
+					? (frame: VideoFrame) => {
+							expect(frame.timestamp).toBe(
+								Math.round((captured / 24) * 1_000_000),
+							);
+							const pixels = readFrame(frame);
+							let wrongPixels = 0;
+							for (let index = 0; index < pixels.length; index++)
+								if (pixels[index] !== [16, 40, 80, 255][index % 4])
+									wrongPixels++;
+							expect(wrongPixels).toBe(0);
+							captured++;
+							return frame;
+						}
+					: undefined,
+		};
+		if (container === 'mkv') {
+			await renderMediaOnWeb({...options, muted: true});
+			expect(captured).toBe(4);
+			captured = 0;
+		}
+
+		const result = await renderMediaOnWeb(options);
+		expect(captured).toBe(container === 'mkv' ? 4 : 0);
+		using input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(await result.getBlob()),
+		});
+		const track = await input.getPrimaryAudioTrack();
+		expect(track).not.toBeNull();
+		let samples = 0;
+		let wrong = 0;
+		for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+			for (let channel = 0; channel < 2; channel++) {
+				const pcm = buffer.getChannelData(channel);
+				for (let index = 0; index < pcm.length; index++) {
+					const absolute = samples + index;
+					const offset = (absolute - 500) % 1400;
+					const expected =
+						absolute >= 500 && absolute < 4700
+							? Math.round(
+									Math.sin(
+										(offset / 48000) *
+											(channel === 0 ? 440 : 660) *
+											Math.PI *
+											2,
+									) * 10000,
+								) / 32768
+							: 0;
+					if (pcm[index] !== expected) wrong++;
+				}
+			}
+
+			samples += buffer.length;
+		}
+
+		expect(samples).toBe(8000);
+		expect(wrong).toBe(0);
+	},
+);

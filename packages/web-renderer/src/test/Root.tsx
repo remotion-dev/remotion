@@ -93,6 +93,7 @@ import {
 	fractionalLoopedVideo,
 	fractionalShortVideo,
 	fractionalNestedAudio,
+	fractionalLoopingSequence,
 	fractionalUnusedImage,
 } from './fixtures/fractional-audio-review';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
@@ -584,6 +585,7 @@ export const Root: React.FC = () => {
 				<Composition {...fractionalLoopedVideo} />
 				<Composition {...fractionalShortVideo} />
 				<Composition {...fractionalNestedAudio} />
+				<Composition {...fractionalLoopingSequence} />
 				<Composition {...fractionalUnusedImage} />
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />

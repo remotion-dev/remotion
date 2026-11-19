@@ -44,6 +44,19 @@ const UnusedImage = () => {
 	);
 };
 
+const LoopingSequenceAudio = () => {
+	const [src] = useState(makeToneWav);
+	return (
+		<AbsoluteFill style={{backgroundColor: 'rgb(16, 40, 80)'}}>
+			<Sequence from={0.25} durationInFrames={2.1}>
+				<Sequence durationInFrames={0.7} loop>
+					<Audio src={src} />
+				</Sequence>
+			</Sequence>
+		</AbsoluteFill>
+	);
+};
+
 const dimensions = {width: 64, height: 64, fps: 24, durationInFrames: 4};
 
 export const fractionalLoopedVideo = {
@@ -72,4 +85,10 @@ export const fractionalUnusedImage = {
 	...dimensions,
 	component: UnusedImage,
 	id: 'fractional-unused-image',
+};
+
+export const fractionalLoopingSequence = {
+	...dimensions,
+	component: LoopingSequenceAudio,
+	id: 'fractional-looping-sequence',
 };
