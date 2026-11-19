@@ -53,15 +53,23 @@ const {results} = await simulatePermissions({
 });
 ```
 
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
+
 ## Return value
 
-**An array of objects** containing simulation results of each necessary permission. The objects contain the following keys:
+An object with the following property:
 
-### `decision`
+### `results`
+
+An array of objects containing simulation results of each necessary permission. The objects contain the following keys:
+
+#### `decision`
 
 Either `"allowed"`, `"implicitDeny"` or `"explicitDeny"`.
 
-### `name`
+#### `name`
 
 The identifier of the required permission. See the [Permissions page](/docs/lambda/permissions) to see a list of required permissions.
 
@@ -72,6 +80,6 @@ The identifier of the required permission. See the [Permissions page](/docs/lamb
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/simulate.ts)
-- [getUserPolicy()](/docs/lambda/getuserpolicy)
-- [getRolePolicy()](/docs/lambda/getrolepolicy)
+- [`getUserPolicy()`](/docs/lambda/getuserpolicy)
+- [`getRolePolicy()`](/docs/lambda/getrolepolicy)
 - [Permissions](/docs/lambda/permissions)

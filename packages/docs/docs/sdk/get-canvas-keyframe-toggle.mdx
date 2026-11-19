@@ -109,7 +109,7 @@ A `CanvasKeyframeToggle` object with the following properties.
 
 ### keyframable
 
-Whether a keyframe can be added: the field type supports interpolation and the value is not computed in code.
+Whether a keyframe can be added. This is `true` if the field type supports interpolation, the value is not computed in code and its frame clock can be mapped to the timeline. Inside a looping parent [`<Sequence>`](/docs/sequence), a static value cannot be keyframed.
 
 ### hasKeyframe
 

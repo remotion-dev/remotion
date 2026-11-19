@@ -12,13 +12,17 @@ import {TableOfContents} from './three/TableOfContents';
 
 is a package for integrating [React Three Fiber](https://github.com/pmndrs/react-three-fiber) with Remotion.
 
-- [`<ThreeCanvas />`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook, but directly rendered into the markup.
+- [`<ThreeCanvas>`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook, but directly rendered into the markup.
 
-- [`<ThreeWebGPUCanvas />`](/docs/three-webgpu-canvas) uses Three.js's `WebGPURenderer` and supports TSL node materials.
+- [`<ThreeWebGPUCanvas>`](/docs/three-webgpu-canvas) uses Three.js's `WebGPURenderer` and supports TSL node materials.
 
-- [`useVideoTexture()`](/docs/use-video-texture) allows you to use a Remotion [`<Html5Video />`](/docs/html5-video) as a texture map.
+- [`useVideoTexture()`](/docs/use-video-texture) (deprecated) allows you to use a Remotion [`<Html5Video>`](/docs/html5-video) as a texture map.
 
-- [`useOffthreadVideoTexture()`](/docs/use-offthread-video-texture) is an equivalent to [`useVideoTexture()`](/docs/use-video-texture), but displays the exact frame as an `Three.ImageTexture` during rendering, similarly to [`<OffthreadVideo />`](/docs/offthreadvideo).
+- [`useOffthreadVideoTexture()`](/docs/use-offthread-video-texture) (deprecated) is an equivalent to [`useVideoTexture()`](/docs/use-video-texture), but displays the exact frame as a `THREE.Texture` during rendering, similarly to [`<OffthreadVideo>`](/docs/offthreadvideo).
+
+:::info Deprecated
+`useVideoTexture()` and `useOffthreadVideoTexture()` are deprecated. Use [`@remotion/media`](/docs/videos/as-threejs-texture) to use a video as a Three.js texture instead.
+:::
 
 For everything else, you can use the standard [React Three Fiber](https://github.com/pmndrs/react-three-fiber) APIs.
 
@@ -28,9 +32,9 @@ Check out [remotion-template-three](https://github.com/remotion-dev/template-thr
 
 <ThreeDPlayer />
 
-The template features a 3D phone with a video inside which you can effortlessly swap out. Just as easily, you can change properties like the color, size, thickness, corner radius of the phone.
+The template features a 3D phone with a video inside which you can swap out. You can also change properties like the color, size, thickness, corner radius of the phone.
 
-The template serves as a soft introduction on how to use `<ThreeCanvas />` and `useVideoTexture()`. You can easily delete everything inside the canvas to start working on a different idea.
+The template serves as a soft introduction on how to use `<ThreeCanvas>` and `useVideoTexture()`. You can delete everything inside the canvas to start working on a different idea.
 
 ## Installation
 
@@ -66,7 +70,7 @@ pnpm i three @react-three/fiber @remotion/three @types/three
   </TabItem>
 </Tabs>
 
-You are now set up and can render a [`<ThreeCanvas />`](/docs/three-canvas) in your project.
+You are now set up and can render a [`<ThreeCanvas>`](/docs/three-canvas) in your project.
 
 ## Note on `<Sequence>`
 

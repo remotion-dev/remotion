@@ -52,7 +52,7 @@ Exporting a video component without registering a root is not sufficient. Use th
 
 The registered root component, typed as `React.FC`.
 
-Registration is captured separately for each bundle. Loading a bundle does not replace the host app's global Remotion root registration. React, React DOM, and Remotion imports are shared with the host app.
+Registration is captured separately for each bundle. Loading a bundle does not replace the host app's global root component registration. React, React DOM, and Remotion imports are shared with the host app.
 
 The returned root registers compositions; it is not the video component to pass to [`<Player>`](/docs/player/player). Use [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) to select a composition by ID and obtain its `component`, `props`, and video configuration.
 

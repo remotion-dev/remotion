@@ -20,7 +20,7 @@ import {
 	formatFileLocation,
 } from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
+import {openSourceInEditor} from '../../helpers/open-in-editor';
 import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
@@ -657,13 +657,20 @@ export const TimelineEffectPropItem: React.FC<{
 			}
 
 			event.stopPropagation();
-			openOriginalPositionInEditorAtProperty({
+			openSourceInEditor({
 				editorId: defaultEditorId,
 				originalPosition: validatedLocation,
 				property: field.key,
+				effectIndex: field.effectIndex,
 			}).catch(() => undefined);
 		},
-		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
+		[
+			canOpenInEditor,
+			defaultEditorId,
+			field.key,
+			field.effectIndex,
+			validatedLocation,
+		],
 	);
 
 	const row = (

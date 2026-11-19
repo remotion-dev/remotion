@@ -398,6 +398,11 @@ test('parent previews keep source subscriptions stable while mounted instances e
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 		expect(subscriptions).toHaveLength(4);
+		// Every sequence releases its old location in the same commit as the stack
+		// change, not once its new stack resolves. Releases that wait for separate
+		// resolutions can straddle the batch timer and send an extra batch.
+		expect(unsubscriptionBatches).toHaveLength(1);
+		expect(unsubscriptionBatches[0]).toHaveLength(4);
 		expect(rendered.getByRole('textbox', {name: 'Inspector draft'})).toBe(
 			inspectorDraft,
 		);
@@ -441,6 +446,8 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
+		expect(unsubscriptionBatches).toHaveLength(2);
+		expect(unsubscriptionBatches[1]).toHaveLength(4);
 		expect(rendered.getByRole('textbox', {name: 'Inspector draft'})).toBe(
 			inspectorDraft,
 		);

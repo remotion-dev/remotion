@@ -1,5 +1,9 @@
 import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
+import {
+	MotionBlurSampleProvider,
+	useMotionBlurRegistry,
+} from './motion-blur-context';
 
 export type TrailProps = {
 	readonly children: React.ReactNode;
@@ -19,6 +23,7 @@ export const Trail: React.FC<TrailProps> = ({
 	trailOpacity,
 }: TrailProps) => {
 	const frame = useCurrentFrame();
+	const registry = useMotionBlurRegistry('Trail');
 
 	if (
 		typeof layers !== 'number' ||
@@ -64,6 +69,8 @@ export const Trail: React.FC<TrailProps> = ({
 		);
 	}
 
+	if (registry === null) return null;
+
 	return (
 		<AbsoluteFill>
 			{new Array(layers).fill(true).map((_, i) => {
@@ -75,12 +82,16 @@ export const Trail: React.FC<TrailProps> = ({
 						}}
 					>
 						<Freeze frame={frame - lagInFrames * (layers - i)}>
-							{children}
+							<MotionBlurSampleProvider sampleIndex={i + 1} registry={registry}>
+								{children}
+							</MotionBlurSampleProvider>
 						</Freeze>
 					</AbsoluteFill>
 				);
 			})}
-			{children}
+			<MotionBlurSampleProvider sampleIndex={0} registry={registry}>
+				{children}
+			</MotionBlurSampleProvider>
 		</AbsoluteFill>
 	);
 };

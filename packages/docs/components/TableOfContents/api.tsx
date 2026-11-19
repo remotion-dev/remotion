@@ -138,7 +138,7 @@ export const TableOfContents: React.FC = () => {
 				videos.
 			</p>
 			<NewVideoTableOfContents />
-			<h2>@remotion/media-parser</h2>
+			<h2>@remotion/media-parser (deprecated)</h2>
 			<p>A pure JavaScript library for parsing video files</p>
 			<MediaParserTableOfContents />
 			<h2>@remotion/media-utils</h2>
@@ -204,7 +204,7 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/video-matting</h2>
 			<p>Separate video into base and foreground layers</p>
 			<VideoMattingTableOfContents />
-			<h2>@remotion/webcodecs</h2>
+			<h2>@remotion/webcodecs (deprecated)</h2>
 			<p>Converting media using WebCodecs</p>
 			<WebcodecsTableOfContents />
 			<h2>@remotion/whisper-webgpu</h2>

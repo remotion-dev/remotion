@@ -63,8 +63,11 @@ export const RenderModalBasic: React.FC<{
 	logLevel,
 	showOutputName,
 }) => {
-	const {exists: existence, checkFailed: existenceCheckFailed} =
-		useFileExistence(outName);
+	const {
+		exists: existence,
+		checkFailed: existenceCheckFailed,
+		canOpenInFileExplorer,
+	} = useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validCodecs
 			.filter((c) => {
@@ -195,7 +198,7 @@ export const RenderModalBasic: React.FC<{
 			{showOutputName ? (
 				<RenderModalOutputName
 					ariaLabel={null}
-					existingOutputPath={null}
+					existingOutputPath={canOpenInFileExplorer ? outName : null}
 					existence={existence}
 					existenceCheckFailed={existenceCheckFailed}
 					inputStyle={input}

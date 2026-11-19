@@ -126,7 +126,11 @@ const SelectItem = React.forwardRef<
 			</SelectPrimitive.ItemIndicator>
 		</span>
 
-		<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+		<SelectPrimitive.ItemText>
+			{/* Radix portals this content into the trigger. Keep the portal's
+			    element stable when browser translation replaces its text. */}
+			<span>{children}</span>
+		</SelectPrimitive.ItemText>
 	</SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;

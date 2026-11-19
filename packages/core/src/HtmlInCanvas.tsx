@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
@@ -515,6 +516,8 @@ const HtmlInCanvasContent = forwardRef<
 		ref,
 	) => {
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
+		const inheritedPremountInSeconds = useContext(DefaultPremountContext);
+		const canPremount = useMemo(canPremountInHtmlInCanvas, []);
 		assertHtmlInCanvasDimensions(width, height);
 		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
@@ -626,6 +629,7 @@ const HtmlInCanvasContent = forwardRef<
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
 		} | null>(null);
+		const resizeSnapshotRef = useRef<HTMLCanvasElement | null>(null);
 		const paintingTargets = useRef(
 			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
 		);
@@ -973,11 +977,42 @@ const HtmlInCanvasContent = forwardRef<
 
 		useLayoutEffect(() => {
 			committedCanvasSizeRef.current = canvasSizeKey;
+			const paintTarget = paintTargetRef.current!;
+			let snapshot: HTMLCanvasElement | null = null;
+			if (
+				paintTargetMode === 'direct' &&
+				(paintTarget.width !== canvasWidth ||
+					paintTarget.height !== canvasHeight)
+			) {
+				resizeSnapshotRef.current ??= document.createElement('canvas');
+				snapshot = resizeSnapshotRef.current;
+				resizePaintTarget({
+					target: snapshot,
+					width: paintTarget.width,
+					height: paintTarget.height,
+				});
+				const context = snapshot.getContext('2d');
+				if (!context) {
+					throw new Error('Failed to acquire 2D context for canvas resize');
+				}
+
+				context.reset();
+				context.drawImage(paintTarget, 0, 0);
+			}
+
 			resizePaintTarget({
-				target: paintTargetRef.current!,
+				target: paintTarget,
 				width: canvasWidth,
 				height: canvasHeight,
 			});
+			if (snapshot) {
+				const context = paintTarget.getContext('2d');
+				if (!context) {
+					throw new Error('Failed to acquire 2D context for canvas resize');
+				}
+
+				context.drawImage(snapshot, 0, 0, canvasWidth, canvasHeight);
+			}
 		}, [canvasWidth, canvasHeight, canvasSizeKey, paintTargetMode]);
 
 		useLayoutEffect(() => {
@@ -1074,7 +1109,9 @@ const HtmlInCanvasContent = forwardRef<
 							: canvasStyle
 					}
 				>
-					<DefaultPremountContext.Provider value={0}>
+					<DefaultPremountContext.Provider
+						value={canPremount ? inheritedPremountInSeconds : 0}
+					>
 						<div
 							ref={divRef}
 							style={

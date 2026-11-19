@@ -1,5 +1,6 @@
 import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import fs from 'fs';
+import os from 'node:os';
 import path from 'path';
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
@@ -208,7 +209,10 @@ test(
 				reject: false,
 			},
 		);
-		expect(task.exitCode).toBe(0);
+		expect(
+			task.exitCode,
+			`stdout:\n${task.stdout}\nstderr:\n${task.stderr}`,
+		).toBe(0);
 
 		const exists = fs.existsSync(out);
 		expect(exists).toBe(true);
@@ -432,10 +436,22 @@ test(
 test(
 	'Should render WAV, MP3, and AAC audio files',
 	async () => {
-		await Promise.all(
-			(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
-				const out = outputPath.replace('mp4', extension);
-				try {
+		const attemptDirectory = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-audio-formats-'),
+		);
+		const processes = new Set<execa.ExecaChildProcess>();
+		let expired = false;
+		const deadline = setTimeout(() => {
+			expired = true;
+			for (const process of processes) {
+				process.kill('SIGTERM', {forceKillAfterTimeout: 1000});
+			}
+		}, 20_000);
+		try {
+			// Leave time for process termination and cleanup before Bun's timeout.
+			const results = await Promise.allSettled(
+				(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
+					const out = path.join(attemptDirectory, `audio.${extension}`);
 					const task = execa(
 						'bun',
 						['x', 'remotion', 'render', 'build', 'audio-testing', out],
@@ -443,11 +459,19 @@ test(
 							cwd: path.join(process.cwd(), '..', 'example'),
 						},
 					);
+					processes.add(task);
 					task.stderr?.pipe(process.stderr);
-					await task;
+					try {
+						await task;
+					} finally {
+						processes.delete(task);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					expect(fs.existsSync(out)).toBe(true);
 
-					const info = await RenderInternals.callFf({
+					const probe = RenderInternals.callFf({
 						bin: 'ffprobe',
 						args: [out],
 						indent: false,
@@ -455,6 +479,16 @@ test(
 						binariesDirectory: null,
 						cancelSignal: undefined,
 					});
+					processes.add(probe);
+					let info;
+					try {
+						info = await probe;
+					} finally {
+						processes.delete(probe);
+					}
+
+					if (expired)
+						throw new Error('Audio format attempt deadline exceeded');
 					const data = info.stderr;
 					expect(data).toContain('Stream #0');
 					expect(data).not.toContain('Stream #1');
@@ -473,11 +507,23 @@ test(
 						expect(data).not.toContain('Kevin MacLeod');
 						expect(data).toMatch(/\d?\d kb\/s/);
 					}
-				} finally {
-					await fs.promises.rm(out, {force: true});
-				}
-			}),
-		);
+				}),
+			);
+			const failures = results.filter((result) => result.status === 'rejected');
+			if (failures.length === 1) {
+				throw failures[0]!.reason;
+			}
+
+			if (failures.length > 1) {
+				throw new AggregateError(
+					failures.map((failure) => failure.reason),
+					'Multiple audio format integration checks failed',
+				);
+			}
+		} finally {
+			clearTimeout(deadline);
+			await fs.promises.rm(attemptDirectory, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000, retry: 3},
 );
@@ -538,10 +584,7 @@ test(
 
 		fs.unlinkSync(outputPath);
 	},
-	{
-		timeout: 30000,
-		retry: 3,
-	},
+	{timeout: 30000},
 );
 
 test(
@@ -581,10 +624,7 @@ test(
 		expect(data).toContain('48000 Hz, stereo');
 		fs.unlinkSync(out);
 	},
-	{
-		timeout: 90000,
-		retry: 3,
-	},
+	{timeout: 90000},
 );
 
 test(
@@ -620,7 +660,10 @@ test(
 		expect(data).toContain('Audio: mp3, 48000 Hz');
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -651,7 +694,10 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -724,7 +770,10 @@ test(
 		);
 		fs.unlinkSync(audio);
 	},
-	{timeout: 20000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -748,7 +797,10 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 20000, retry: 3},
+	// Must exceed the CLI's own 30s timeouts: on slow Windows runners a Bun
+	// timeout kills only the CLI wrapper, and the orphaned render then
+	// overlaps with whatever runs next.
+	{timeout: 60000},
 );
 
 test(
@@ -792,12 +844,21 @@ test(
 			},
 		);
 
+		if (!task.stdout.includes('The following compositions')) {
+			console.log({
+				exitCode: task.exitCode,
+				signal: task.signal,
+				stdout: task.stdout,
+				stderr: task.stderr,
+			});
+		}
+
 		expect(task.stdout).toContain('The following compositions');
 	},
-	{
-		timeout: 30000,
-		retry: 3,
-	},
+	// Must exceed the CLI's own 30s composition timeout. When Bun's test timeout
+	// fires first, it kills the CLI's browser, the CLI only prints a
+	// target-closed docs link, and a retry would overlap the killed attempt.
+	{timeout: 60000},
 );
 
 test(

@@ -1,0 +1,105 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-insert-basic-captions.png
+title: 'insertBasicCaptions()'
+crumb: '@remotion/codemods'
+---
+
+# insertBasicCaptions()<AvailableFrom v="4.0.544" />
+
+Inserts captions beside an audio or video node and preserves its timing. Creates a reusable Basic captions component file when needed.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="insert-basic-captions.ts"
+import {insertBasicCaptions, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = insertBasicCaptions({
+  project, node,
+  captions: [{text: 'Hello', startMs: 0, endMs: 1000, timestampMs: 0, confidence: null}],
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model).
+
+### node
+
+The target [`NodeReference`](/docs/codemods#node-references).
+
+### captions
+
+Caption objects with `text`, `startMs`, `endMs`, `timestampMs`, `confidence`, and optional `pageBreakAfter`. See [the Caption type](/docs/captions/caption).
+
+### durationInFrames?
+
+Fallback duration when the media node does not specify one. Defaults to `null`.
+
+### importPath?
+
+The module exporting `BasicCaptions`, or the custom `element`. When omitted, the result includes a new `basic-captions.element.tsx` file beside the media source, or reuses an existing matching component. An unrelated file with that name is preserved and another name is selected.
+
+### element?
+
+A custom caption component description, or `null` for Basic captions. Defaults to `null`. Requires an explicit `importPath`.
+
+#### componentName
+
+The component's exported name.
+
+#### initialProps
+
+Initial values for the component's props, or `null`. Captions and media timing are filled by this operation.
+
+### prettierConfigOverride?
+
+Formatting options for generated source. Defaults to `null`, which follows the existing source style.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+File changes to apply with [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes). The input project is not mutated.
+
+### nodePathRemappings
+
+Mappings from the original node paths to their new paths. See [node references](/docs/codemods#node-references).
+
+### insertedNodes
+
+References to the newly inserted root nodes.
+
+### updatedNode
+
+The media node's reference after insertion.
+
+### editDetails
+
+The edited media source file and line.
+
+## Errors
+
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/insert-basic-captions.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

@@ -12,6 +12,7 @@ import {Notification} from './Notification';
 
 const container: React.CSSProperties = {
 	position: 'absolute',
+	zIndex: 1,
 	justifyContent: 'center',
 	alignItems: 'center',
 	display: 'flex',

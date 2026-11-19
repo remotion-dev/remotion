@@ -22,11 +22,11 @@ import {
 	PREDEFINED_RULER_SCALE_GAPS,
 	RULER_WIDTH,
 } from '../../state/editor-rulers';
+import {useRemoveGuide} from '../EditorGuides/use-remove-guide';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {useCurrentTimelineSelectionStateAsRef} from '../Timeline/TimelineSelection';
 import Ruler from './Ruler';
 
 const originBlockStyles: React.CSSProperties = {
@@ -66,7 +66,7 @@ export const EditorRulers: React.FC<{
 		moveGuidePointerRef,
 		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
-	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const removeGuide = useRemoveGuide();
 
 	const rulerMarkingGaps = useMemo(() => {
 		const minimumGap = MINIMUM_RULER_MARKING_GAP_PX;
@@ -217,24 +217,13 @@ export const EditorRulers: React.FC<{
 
 			const shouldDeleteGuide = shouldDeleteGuideRef.current;
 
-			setGuidesList((prevState) => {
-				const newGuides = prevState.filter((selected) => {
-					if (!shouldDeleteGuide) {
-						return true;
-					}
-
-					return selected.id !== guideId;
+			if (shouldDeleteGuide) {
+				removeGuide(guideId);
+			} else {
+				setGuidesList((guides) => {
+					persistGuidesList(guides);
+					return guides;
 				});
-				persistGuidesList(newGuides);
-				return newGuides;
-			});
-
-			const deletedGuideWasSelected =
-				currentSelection.current.selectedItems.some(
-					(item) => item.type === 'guide' && item.guideId === guideId,
-				);
-			if (shouldDeleteGuide && deletedGuideWasSelected) {
-				currentSelection.current.clearSelection();
 			}
 
 			shouldDeleteGuideRef.current = false;
@@ -243,7 +232,7 @@ export const EditorRulers: React.FC<{
 			setDraggingGuideId(() => null);
 		},
 		[
-			currentSelection,
+			removeGuide,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,
 			setDraggingGuideId,

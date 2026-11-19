@@ -2,8 +2,13 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
+		"types": ["bun", "deno", "@webgpu/types"],
 		"outDir": "dist"
 	},
 	"include": ["./src"],
-	"references": [{"path": "../core"}, {"path": "../test-utils"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../motion-blur"},
+		{"path": "../test-utils"}
+	]
 }

@@ -17,9 +17,7 @@ declare const __BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__:
 
 export const getBrowserStudioWorkspacePackageExports = () => {
 	if (typeof __BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__ === 'undefined') {
-		throw new Error(
-			'Browser Studio workspace package exports were not injected',
-		);
+		throw new Error('remotion.new workspace package exports were not injected');
 	}
 
 	return __BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__;
@@ -75,7 +73,7 @@ export const resolveBrowserStudioWorkspacePackage = ({
 
 	if (!target || !target.startsWith('./')) {
 		throw new Error(
-			`The repository package ${packageName} does not expose ${subpath} to Browser Studio.`,
+			`The repository package ${packageName} does not expose ${subpath} to remotion.new.`,
 		);
 	}
 

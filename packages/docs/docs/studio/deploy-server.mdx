@@ -48,7 +48,7 @@ COPY src ./src
 # If you have a public folder:
 COPY public ./public
 
-# Install the right package manager and dependencies - see below for Yarn/PNPM
+# Install the right package manager and dependencies - for Yarn/PNPM, see https://www.remotion.dev/docs/docker#line-by-line
 RUN npm i
 
 # Install Chrome
@@ -123,7 +123,7 @@ To deploy the [Scaleway Serverless Container](https://www.scaleway.com/en/server
 - Build your docker image and publish it to a Docker registry (for example a [Scaleway Docker Registry](https://www.scaleway.com/en/docs/containers/container-registry/quickstart/))
 - Then [create your Serverless container namespace](https://www.scaleway.com/en/docs/serverless/containers/how-to/create-a-containers-namespace/) and use [your published docker image](https://www.scaleway.com/en/docs/serverless/containers/how-to/deploy-a-container-from-scaleway-container-registry/).
 
-You can find [an example of a github action workflow that deploy Remotion Studio to Scaleway Serverless Container](https://github.com/lyonjs/shortvid.io/blob/main/.github/workflows/deploy-editor.yml).
+You can find [an example of a GitHub Actions workflow that deploys Remotion Studio to Scaleway Serverless Container](https://github.com/lyonjs/shortvid.io/blob/main/.github/workflows/deploy-editor.yml).
 
 ## Example for deployment
 
@@ -131,4 +131,4 @@ A test project to deploy the Remotion Studio is available [here](https://github.
 
 ## See also
 
-- [Dockerizing an Remotion app](/docs/docker)
+- [Dockerizing a Remotion app](/docs/docker)

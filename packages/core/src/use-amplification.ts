@@ -140,18 +140,25 @@ export const useVolume = ({
 		}
 	}
 
-	const safariCase =
-		isSafari() && mediaRef.current && mediaRef.current?.playbackRate !== 1;
+	if (typeof window !== 'undefined') {
+		// Apply after commit: on the first render of a freshly mounted <video>,
+		// mediaRef.current is still null, and a paused Player may not re-render.
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			const media = mediaRef.current;
+			if (!media) {
+				return;
+			}
 
-	const shouldUseTraditionalVolume = safariCase || !shouldUseWebAudioApi;
-
-	// [1]
-	if (
-		shouldUseTraditionalVolume &&
-		mediaRef.current &&
-		!isApproximatelyTheSame(volume, mediaRef.current?.volume)
-	) {
-		mediaRef.current.volume = Math.min(volume, 1);
+			const safariCase = isSafari() && media.playbackRate !== 1;
+			// [1]
+			if (
+				(safariCase || !shouldUseWebAudioApi) &&
+				!isApproximatelyTheSame(volume, media.volume)
+			) {
+				media.volume = Math.min(volume, 1);
+			}
+		});
 	}
 
 	return audioStuffRef;

@@ -1,13 +1,23 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {useZIndex} from '../../state/z-index';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
 import {getSplitterFlexBounds, SplitterContext} from './SplitterContext';
+import {SplitterImperativeContext} from './SplitterImperativeContext';
+import type {SplitterState} from './SplitterImperativeContext';
 
 export const SPLITTER_HANDLE_SIZE = 1;
 
@@ -25,13 +35,16 @@ const containerColumn: React.CSSProperties = {
 };
 
 export const SplitterHandle: React.FC<{
+	readonly label: string | null;
 	readonly allowToCollapse: 'right' | 'left' | 'none';
 	readonly onCollapse: () => void;
 	readonly onCollapseDuringDrag:
 		| ((side: 'left' | 'right' | null) => void)
 		| null;
-}> = ({allowToCollapse, onCollapse, onCollapseDuringDrag}) => {
+}> = ({label, allowToCollapse, onCollapse, onCollapseDuringDrag}) => {
 	const context = useContext(SplitterContext);
+	const {registerSplitter} = useContext(SplitterImperativeContext);
+	const {tabIndex} = useZIndex();
 	if (!context) {
 		throw new Error('Cannot find splitter context');
 	}
@@ -42,11 +55,109 @@ export const SplitterHandle: React.FC<{
 	// listener without re-subscribing it on every render.
 	const latest = useRef({
 		context,
+		label,
 		allowToCollapse,
 		onCollapse,
 		onCollapseDuringDrag,
 	});
-	latest.current = {context, allowToCollapse, onCollapse, onCollapseDuringDrag};
+	latest.current = {
+		context,
+		label,
+		allowToCollapse,
+		onCollapse,
+		onCollapseDuringDrag,
+	};
+
+	const getState = useCallback((): SplitterState | null => {
+		const {current} = latest;
+		if (current.label === null || !ref.current?.isConnected) {
+			return null;
+		}
+
+		const position = current.context.getPosition();
+		return position === null
+			? null
+			: {
+					...position,
+					id: current.context.id,
+					label: current.label,
+					orientation: current.context.orientation,
+					isDragging: current.context.isDragging.current !== false,
+				};
+	}, []);
+	const setPosition = useCallback(
+		(positionInPixels: number): SplitterState => {
+			const state = getState();
+			if (state === null) {
+				throw new Error('Splitter is unavailable.');
+			}
+
+			return {
+				...state,
+				...latest.current.context.setPosition(positionInPixels),
+			};
+		},
+		[getState],
+	);
+
+	useLayoutEffect(() => {
+		if (label === null) {
+			return;
+		}
+
+		return registerSplitter(context.id, {getState, setPosition});
+	}, [context.id, getState, label, registerSplitter, setPosition]);
+
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			const {current} = latest;
+			if (current.label === null) {
+				return;
+			}
+
+			const decrease =
+				current.context.orientation === 'horizontal' ? 'ArrowUp' : 'ArrowLeft';
+			const increase =
+				current.context.orientation === 'horizontal'
+					? 'ArrowDown'
+					: 'ArrowRight';
+			if (
+				event.key !== decrease &&
+				event.key !== increase &&
+				event.key !== 'Home' &&
+				event.key !== 'End'
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			if (
+				current.context.isDragging.current ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.altKey
+			) {
+				return;
+			}
+
+			const position = current.context.getPosition();
+			if (position === null) {
+				return;
+			}
+
+			const step = event.shiftKey ? 10 : 1;
+			current.context.setPosition(
+				event.key === 'Home'
+					? position.minPositionInPixels
+					: event.key === 'End'
+						? position.maxPositionInPixels
+						: position.positionInPixels +
+							(event.key === decrease ? -step : step),
+			);
+		},
+		[],
+	);
 
 	useEffect(() => {
 		const {current} = ref;
@@ -192,8 +303,30 @@ export const SplitterHandle: React.FC<{
 	return (
 		<div
 			ref={ref}
+			role={label === null ? undefined : 'separator'}
+			aria-hidden={label === null ? true : undefined}
+			aria-label={label ?? undefined}
+			aria-controls={label === null ? undefined : context.firstPaneId}
+			aria-orientation={label === null ? undefined : context.orientation}
+			aria-valuenow={
+				label === null ? undefined : context.position?.positionInPixels
+			}
+			aria-valuemin={
+				label === null ? undefined : context.position?.minPositionInPixels
+			}
+			aria-valuemax={
+				label === null ? undefined : context.position?.maxPositionInPixels
+			}
+			aria-valuetext={
+				label === null || context.position === null
+					? undefined
+					: `${context.position.positionInPixels} pixels`
+			}
+			tabIndex={label === null ? undefined : tabIndex}
+			onKeyDown={onKeyDown}
 			className={[
 				'remotion-splitter',
+				FOCUS_VISIBLE_ONLY_CLASS_NAME,
 				context.orientation === 'horizontal'
 					? 'remotion-splitter-horizontal'
 					: 'remotion-splitter-vertical',

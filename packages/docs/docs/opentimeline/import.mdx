@@ -1,0 +1,129 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-opentimeline-import.png
+title: Importing OpenTimelineIO
+sidebar_label: Importing
+crumb: OpenTimelineIO
+---
+
+# Importing OpenTimelineIO
+
+You can import an [OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO) (`.otio`) timeline as an editable Remotion [composition](/docs/terminology/composition).
+
+## In Remotion Studio<AvailableFrom v="4.0.542" />
+
+Open [Remotion Studio](/docs/studio) and choose **File → Import OpenTimeline...**.  
+Select an `.otio` file.
+
+<img src="https://remotion.media/studio/opentimeline/import-menu-crop-53682abef72c.png" alt="The File menu in Remotion Studio with the Import OpenTimeline action." width={420} height={460} style={{width: 320, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}} /><br/><br/>
+
+Choose a composition name, width, height, and composition folder.  
+Frame rate and duration are automatically detected.
+
+<img
+  src="https://remotion.media/studio/opentimeline/import-dialog-crop-d1df2687feae.jpg"
+  alt="OpenTimeline import settings with a composition ID, dimensions, detected frame rate, and duration."
+  width={504}
+  height={528}
+  style={{width: 504, maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/><br/><br/>
+
+Click **Add to root file**.  
+A new composition will be created and opened for editing.
+
+<img
+  src="https://remotion.media/studio/opentimeline/imported-timeline-e31a03e02b98.png"
+  alt="The imported MyEdit composition in Remotion Studio, with three individually editable clips on the timeline."
+  width={2560}
+  height={1440}
+  style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+## Via the CLI<AvailableFrom v="4.0.543" />
+
+Use the [`npx remotion open-timeline import`](/docs/cli/open-timeline/import) from the Remotion project:
+
+```bash title="Import a timeline"
+npx remotion open-timeline import my-edit.otio
+```
+
+Specify the composition ID, and where the media files are located with flags:
+
+```bash title="Choose the composition settings"
+npx remotion open-timeline import my-edit.otio \
+  --composition=MyEdit \
+  --media-dir=/path/to/media
+```
+
+## Programmatically<AvailableFrom v="4.0.542" />
+
+:::warning
+Experimental: `@remotion/codemods` is not stable and subject to change.
+:::
+
+Install [`@remotion/codemods`](/docs/codemods) at the same version as the other Remotion packages in the project:
+
+<Installation pkg="@remotion/codemods" />
+
+Use [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition) to create a component and register it in the [root file](/docs/terminology/root-file):
+
+```ts twoslash title="import-timeline.ts"
+import {readFileSync, writeFileSync} from 'node:fs';
+import {addOpenTimelineComposition} from '@remotion/codemods';
+
+const result = addOpenTimelineComposition({
+  project: {
+    rootDir: process.cwd(),
+    files: {
+      'src/Root.tsx': readFileSync('src/Root.tsx', 'utf8'),
+    },
+  },
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyEdit',
+  component: {
+    filePath: 'src/MyEdit.tsx',
+    importName: 'MyEdit',
+    importPath: './MyEdit',
+  },
+  timeline: readFileSync('my-edit.otio', 'utf8'),
+  width: 1920,
+  height: 1080,
+  fps: 30,
+});
+
+for (const change of result.changes) {
+  if (change.nextContents !== null) {
+    writeFileSync(change.filePath, change.nextContents);
+  }
+}
+```
+
+The function does not copy media or install dependencies.
+
+## Referenced media
+
+The `.otio` file does not explicitly specify where the media files live.  
+You must explicitly say where they are.
+
+By default, Studio looks in the same folder where the `.otio` file lies.  
+If media cannot be found, Studio shows a button **Locate media...** where you can select its folder.
+
+[remotion.new](/docs/studio/remotion-dev-new) only supports URLs and existing public assets.
+
+Referenced local files are copied into the project's [public folder](/docs/assets).
+
+## Limitations
+
+Not all OpenTimeline effects are supported. Warnings are shown in Studio, CLI and emitted [from the programmatic API](/docs/codemods/add-open-timeline-composition#diagnostics).
+
+Reverse playback, custom transitions, and unsupported timeline structures may throw an error and prevent importing.
+
+Application-specific crop, scale, and color adjustments are not interpreted.
+
+See [supported timelines](/docs/codemods/generate-open-timeline-composition#supported-timelines) for the full compatibility details.
+
+## See also
+
+- [Exporting OpenTimelineIO](/docs/opentimeline/export)
+- [`remotion open-timeline import`](/docs/cli/open-timeline/import)
+- [`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition)
+- [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition)

@@ -1,3 +1,4 @@
+import {getSharedWebGpuResources} from './shared-webgpu-resources.js';
 import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
 export type WebGpuMeshState = {
@@ -88,72 +89,91 @@ export const applyWebGpuMesh = ({
 	if (!state.resources) {
 		const format = navigator.gpu.getPreferredCanvasFormat();
 		state.context.configure({device, format, alphaMode: 'premultiplied'});
-		const module = device.createShaderModule({
-			code: shader,
-			label: state.label,
-		});
-		const blendComponent: GPUBlendComponent = {
-			srcFactor: 'one',
-			dstFactor: 'one-minus-src-alpha',
-			operation: 'add',
-		};
-		const pipeline = device.createRenderPipeline({
-			label: state.label,
-			layout: device.createPipelineLayout({
-				bindGroupLayouts: [
-					device.createBindGroupLayout({
-						entries: [
-							{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
-							{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
-							{
-								binding: 2,
-								visibility: GPUShaderStage.VERTEX,
-								buffer: {type: 'uniform'},
-							},
-							{
-								binding: 3,
-								visibility: GPUShaderStage.VERTEX,
-								buffer: {type: 'read-only-storage'},
-							},
+		const shared = getSharedWebGpuResources({
+			device,
+			key: JSON.stringify(['mesh', shader, format, topology, blend]),
+			create: () => {
+				const module = device.createShaderModule({
+					code: shader,
+					label: state.label,
+				});
+				const blendComponent: GPUBlendComponent = {
+					srcFactor: 'one',
+					dstFactor: 'one-minus-src-alpha',
+					operation: 'add',
+				};
+				const pipeline = device.createRenderPipeline({
+					label: state.label,
+					layout: device.createPipelineLayout({
+						bindGroupLayouts: [
+							device.createBindGroupLayout({
+								entries: [
+									{
+										binding: 0,
+										visibility: GPUShaderStage.FRAGMENT,
+										texture: {},
+									},
+									{
+										binding: 1,
+										visibility: GPUShaderStage.FRAGMENT,
+										sampler: {},
+									},
+									{
+										binding: 2,
+										visibility: GPUShaderStage.VERTEX,
+										buffer: {type: 'uniform'},
+									},
+									{
+										binding: 3,
+										visibility: GPUShaderStage.VERTEX,
+										buffer: {type: 'read-only-storage'},
+									},
+								],
+							}),
 						],
 					}),
-				],
-			}),
-			vertex: {module, entryPoint: 'vertex'},
-			fragment: {
-				module,
-				entryPoint: 'fragment',
-				targets: [
-					{
-						format,
-						...(blend
-							? {blend: {color: blendComponent, alpha: blendComponent}}
-							: {}),
+					vertex: {module, entryPoint: 'vertex'},
+					fragment: {
+						module,
+						entryPoint: 'fragment',
+						targets: [
+							{
+								format,
+								...(blend
+									? {blend: {color: blendComponent, alpha: blendComponent}}
+									: {}),
+							},
+						],
 					},
-				],
-			},
-			primitive: {topology},
-			multisample: {count: 4},
-		});
-		// Mesh shaders invert clip-space Y so the multisample raster positions match
-		// WebGL. Resolve the image, then restore its top-left orientation.
-		const flipModule = device.createShaderModule({
-			code: `${WEBGPU_SINGLE_PASS_VERTEX}
+					primitive: {topology},
+					multisample: {count: 4},
+				});
+				// Mesh shaders invert clip-space Y so the multisample raster positions match
+				// WebGL. Resolve the image, then restore its top-left orientation.
+				const flipModule = device.createShaderModule({
+					code: `${WEBGPU_SINGLE_PASS_VERTEX}
 @group(0) @binding(0) var source: texture_2d<f32>;
 @group(0) @binding(1) var sourceSampler: sampler;
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  return textureSampleLevel(source,sourceSampler,vec2f(input.uv.x,1.0-input.uv.y),0);
 }`,
-		});
-		const flipPipeline = device.createRenderPipeline({
-			layout: 'auto',
-			vertex: {module: flipModule, entryPoint: 'vertex'},
-			fragment: {
-				module: flipModule,
-				entryPoint: 'fragment',
-				targets: [{format}],
+				});
+				const flipPipeline = device.createRenderPipeline({
+					layout: 'auto',
+					vertex: {module: flipModule, entryPoint: 'vertex'},
+					fragment: {
+						module: flipModule,
+						entryPoint: 'fragment',
+						targets: [{format}],
+					},
+					primitive: {topology: 'triangle-list'},
+				});
+				const sampler = device.createSampler({
+					magFilter: 'linear',
+					minFilter: 'linear',
+				});
+				return {pipeline, flipPipeline, sampler};
 			},
-			primitive: {topology: 'triangle-list'},
 		});
 
 		state.resources = {
@@ -162,9 +182,9 @@ export const applyWebGpuMesh = ({
 			uniformSize,
 			topology,
 			blend,
-			pipeline,
-			flipPipeline,
-			sampler: device.createSampler({magFilter: 'linear', minFilter: 'linear'}),
+			pipeline: shared.pipeline,
+			flipPipeline: shared.flipPipeline,
+			sampler: shared.sampler,
 			uniforms: device.createBuffer({
 				size: uniformSize,
 				usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,

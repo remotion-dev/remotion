@@ -317,8 +317,28 @@ export const createOptimisticEffectPropUpdate = ({
 		rollbackRevision(nodePath, revision, changedKeys);
 	};
 
+	const applyKeyframeResponse = (props: Props) => {
+		if (!item || fieldRevisions.get(item.id) !== revisions) return;
+		pendingRevisions.delete(revision);
+		afterProps = props;
+		const overrides = {
+			...Internals.OptimisticEffects.getPropStatuses(nodePath, item.id),
+		};
+		for (const key of changedKeys) {
+			if (revisions?.get(key) !== revision) continue;
+			overrides[key] = props[key] ?? {
+				status: 'static',
+				codeValue: undefined,
+				keyframeDisplayOffsetAdjustment: null,
+			};
+		}
+
+		Internals.OptimisticEffects.setPropStatuses(nodePath, item.id, overrides);
+	};
+
 	return {
 		optimistic: Boolean(item),
+		applyKeyframeResponse,
 		acknowledge: () => {
 			pendingRevisions.delete(revision);
 			for (const observed of observedStatuses.values())
@@ -451,20 +471,7 @@ export const createOptimisticEffectPropUpdate = ({
 				return previous;
 			}
 
-			afterProps = response.props;
-			const overrides = {
-				...Internals.OptimisticEffects.getPropStatuses(nodePath, item.id),
-			};
-			for (const key of changedKeys) {
-				if (revisions?.get(key) !== revision) continue;
-				overrides[key] = response.props[key] ?? {
-					status: 'static',
-					codeValue: undefined,
-					keyframeDisplayOffsetAdjustment: null,
-				};
-			}
-
-			Internals.OptimisticEffects.setPropStatuses(nodePath, item.id, overrides);
+			applyKeyframeResponse(response.props);
 			return previous;
 		},
 		rollback,

@@ -52,88 +52,27 @@ export const Presentations: React.FC<{
 					<div>Implement your own effect</div>
 				</TOCItem>
 			)}
-			<TOCItem link="/docs/transitions/presentations/fade">
+			<TOCItem link="/docs/transitions/presentations/blur-slide">
 				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={fade()}
-						firstSceneDurationInFrames={null}
-						secondSceneDurationInFrames={null}
-						transition={null}
-					/>
+					<BlurSlideTocPreview />
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
-							<code>{'fade()'}</code>
+							<code>{'blurSlide()'}</code>
 						</strong>
-						<div>Animate the opacity of the scenes</div>
+						<HtmlInCanvasLabel />
+						<div>Whip both scenes sideways with a motion blur</div>
 					</div>
 				</div>
 			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/push-cut">
+			<TOCItem link="/docs/transitions/presentations/book-flip">
 				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={pushCut()}
-						firstSceneDurationInFrames={35}
-						secondSceneDurationInFrames={36}
-						transition={linearTiming({durationInFrames: 11})}
-					/>
+					<BookFlipTocPreview />
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
-							<code>{'pushCut()'}</code>
+							<code>{'bookFlip()'}</code>
 						</strong>
-						<div>Punch into a hard cut with a brief flash</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/slide">
-				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={slide()}
-						firstSceneDurationInFrames={null}
-						secondSceneDurationInFrames={null}
-						transition={null}
-					/>
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'slide()'}</code>
-						</strong>
-						<div>Slide in and push out the previous scene</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/wipe">
-				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={wipe()}
-						firstSceneDurationInFrames={null}
-						secondSceneDurationInFrames={null}
-						transition={null}
-					/>
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'wipe()'}</code>
-						</strong>
-						<div>Slide over the previous scene</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/flip">
-				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={flip()}
-						firstSceneDurationInFrames={null}
-						secondSceneDurationInFrames={null}
-						transition={null}
-					/>
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'flip()'}</code>
-						</strong>
-						<div>Rotate the previous scene</div>
+						<HtmlInCanvasLabel />
+						<div>Turn the scenes like a shaded book page</div>
 					</div>
 				</div>
 			</TOCItem>
@@ -154,122 +93,6 @@ export const Presentations: React.FC<{
 							<code>{'clockWipe()'}</code>
 						</strong>
 						<div>Reveal the new scene in a circular movement</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/iris">
-				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={iris({
-							width: presentationCompositionWidth,
-							height: presentationCompositionHeight,
-						})}
-						firstSceneDurationInFrames={null}
-						secondSceneDurationInFrames={null}
-						transition={null}
-					/>
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'iris()'}</code>
-						</strong>
-						<div>Reveal the scene through a circular mask from center</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/zoom-blur">
-				<div style={row}>
-					<ZoomBlurTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'zoomBlur()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Zoom and rotate scenes with a radial blur</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/dreamy-zoom">
-				<div style={row}>
-					<DreamyZoomTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'dreamyZoom()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Zoom through a white flash with gentle rotation</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/film-burn">
-				<div style={row}>
-					<FilmBurnTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'filmBurn()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Burn through scenes with procedural glow and blur</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/linear-blur">
-				<div style={row}>
-					<LinearBlurTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'linearBlur()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Blend scenes with a directional multi-sample blur</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/book-flip">
-				<div style={row}>
-					<BookFlipTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'bookFlip()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Turn the scenes like a shaded book page</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/zoom-in-out">
-				<div style={row}>
-					<ZoomInOutTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'zoomInOut()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Zoom one scene in, crossfade, zoom the next out</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/dissolve">
-				<div style={row}>
-					<DissolveTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'dissolve()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Burn through the previous scene with a glowing edge</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/ripple">
-				<div style={row}>
-					<RippleTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'ripple()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Ripple the outgoing scene with a sinusoidal wave</div>
 					</div>
 				</div>
 			</TOCItem>
@@ -297,31 +120,6 @@ export const Presentations: React.FC<{
 					</div>
 				</div>
 			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/swap">
-				<div style={row}>
-					<SwapTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'swap()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Swap scenes with perspective and reflections</div>
-					</div>
-				</div>
-			</TOCItem>
-			<TOCItem link="/docs/transitions/presentations/blur-slide">
-				<div style={row}>
-					<BlurSlideTocPreview />
-					<div style={{flex: 1, marginLeft: 10}}>
-						<strong>
-							<code>{'blurSlide()'}</code>
-						</strong>
-						<HtmlInCanvasLabel />
-						<div>Whip both scenes sideways with a motion blur</div>
-					</div>
-				</div>
-			</TOCItem>
-
 			<TOCItem link="/docs/transitions/presentations/cube">
 				<div style={row}>
 					<PresentationPreview
@@ -338,6 +136,108 @@ export const Presentations: React.FC<{
 							<code>{'cube()'}</code>
 						</strong>
 						<div>Rotate both scenes with 3D perspective</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dissolve">
+				<div style={row}>
+					<DissolveTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dissolve()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through the previous scene with a glowing edge</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dreamy-zoom">
+				<div style={row}>
+					<DreamyZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dreamyZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom through a white flash with gentle rotation</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/fade">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={fade()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'fade()'}</code>
+						</strong>
+						<div>Animate the opacity of the scenes</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/film-burn">
+				<div style={row}>
+					<FilmBurnTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'filmBurn()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through scenes with procedural glow and blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/flip">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={flip()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'flip()'}</code>
+						</strong>
+						<div>Rotate the previous scene</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/iris">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={iris({
+							width: presentationCompositionWidth,
+							height: presentationCompositionHeight,
+						})}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'iris()'}</code>
+						</strong>
+						<div>Reveal the scene through a circular mask from center</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/linear-blur">
+				<div style={row}>
+					<LinearBlurTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'linearBlur()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Blend scenes with a directional multi-sample blur</div>
 					</div>
 				</div>
 			</TOCItem>
@@ -358,16 +258,105 @@ export const Presentations: React.FC<{
 					</div>
 				</div>
 			</TOCItem>
-			{apisOnly ? null : (
-				<TOCItem link="/docs/transitions/audio-transitions">
-					<div style={row}>
-						<div style={{flex: 1}}>
-							<strong>Audio transitions</strong>
-							<div>Add a sound effect to a transition</div>
-						</div>
+			<TOCItem link="/docs/transitions/presentations/push-cut">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={pushCut()}
+						firstSceneDurationInFrames={35}
+						secondSceneDurationInFrames={36}
+						transition={linearTiming({durationInFrames: 11})}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'pushCut()'}</code>
+						</strong>
+						<div>Punch into a hard cut with a brief flash</div>
 					</div>
-				</TOCItem>
-			)}
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/ripple">
+				<div style={row}>
+					<RippleTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'ripple()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Ripple the outgoing scene with a sinusoidal wave</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/slide">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={slide()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'slide()'}</code>
+						</strong>
+						<div>Slide in and push out the previous scene</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/swap">
+				<div style={row}>
+					<SwapTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'swap()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Swap scenes with perspective and reflections</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/wipe">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={wipe()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'wipe()'}</code>
+						</strong>
+						<div>Slide over the previous scene</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/zoom-blur">
+				<div style={row}>
+					<ZoomBlurTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'zoomBlur()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom and rotate scenes with a radial blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/zoom-in-out">
+				<div style={row}>
+					<ZoomInOutTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'zoomInOut()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom one scene in, crossfade, zoom the next out</div>
+					</div>
+				</div>
+			</TOCItem>
 		</Grid>
 	);
 };

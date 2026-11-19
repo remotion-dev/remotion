@@ -1,3 +1,4 @@
+import {OpenTimelineImportError} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
@@ -7,6 +8,11 @@ import {createOverwriteableCliOutput} from './progress-bar';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 
 export const printError = async (err: Error, logLevel: LogLevel) => {
+	if (err instanceof OpenTimelineImportError) {
+		Log.error({indent: false, logLevel}, err.message);
+		return;
+	}
+
 	if (err instanceof RenderInternals.SymbolicateableError) {
 		const updatesDoOverwrite = !shouldUseNonOverlayingLogger({logLevel});
 		const output = createOverwriteableCliOutput({

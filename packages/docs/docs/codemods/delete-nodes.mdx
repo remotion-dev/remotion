@@ -21,7 +21,7 @@ import type {SequenceNodePath} from 'remotion';
 declare const project: CodemodProject;
 declare const nodePath: SequenceNodePath;
 
-const result = await deleteNodes({
+const result = deleteNodes({
   project,
   nodes: [{filePath: 'src/Video.tsx', nodePath}],
 });
@@ -29,15 +29,13 @@ const result = await deleteNodes({
 console.log(result.changes);
 ```
 
-The input project is not mutated.
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
-Pass an object with the following properties.
-
 ### project
 
-An in-memory Remotion project containing `rootDir` and a `files` record.
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
 
 ### nodes
 
@@ -53,7 +51,7 @@ The `SequenceNodePath` identifying the node to delete. Obtain it from [`getNodes
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -63,6 +61,10 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 
 File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
 
+## Errors
+
+Throws when a reference cannot be resolved or a node cannot be deleted. Failed edits leave the input project unchanged.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
@@ -70,5 +72,6 @@ File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-nodes.ts)
+- [`@remotion/codemods`](/docs/codemods)
 - [`addElement()`](/docs/codemods/add-element)
 - [`<Sequence>`](/docs/sequence)

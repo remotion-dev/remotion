@@ -12,11 +12,11 @@ Update the existing public Remotion plugin, whose identity is
 - Public listing: https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762
 - Release source: https://github.com/remotion-dev/codex-plugin
 
-The monorepo release pipeline updates this GitHub repository but does not update
-the public directory. `codex plugin add` and marketplace upgrades manage local
-installations, not the public listing. Do not use the old `packages/codex-plugin`
-build directory, `openai/plugins`, or the portable `cursor-plugin` package for this
-upload.
+The monorepo release pipeline builds Codex skills from `packages/skills` through
+`packages/agent-plugin` and publishes them to this GitHub repository. Updating the
+public directory requires the upload and publication workflow below.
+`codex plugin add` and marketplace upgrades manage local installations.
+Use the released Codex package from this repository as the source for the upload.
 
 As checked on 2026-10-08, OpenAI documents a dashboard ZIP upload workflow, and
 the available CLI has no public-directory publishing command. Use browser tools

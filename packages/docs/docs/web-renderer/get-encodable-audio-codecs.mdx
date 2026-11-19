@@ -5,6 +5,8 @@ title: getEncodableAudioCodecs()
 crumb: '@remotion/web-renderer'
 ---
 
+# getEncodableAudioCodecs()<AvailableFrom v="4.0.403" />
+
 _Part of the `@remotion/web-renderer` package._
 
 Returns the audio codecs that the current browser can encode for a given container format.
@@ -24,7 +26,7 @@ console.log(codecs); // e.g. ['aac', 'opus']
 
 _string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" /> - required
 
-The container format: `"mp4"` or `"webm"`.
+The container format: `"mp4"`, `"webm"`, `"mkv"`, `"mov"`, `"wav"`, `"mp3"`, `"aac"`, `"ogg"` or `"flac"`.
 
 ### `options?`
 
@@ -42,7 +44,11 @@ A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`,
 
 Returns a `Promise<WebRendererAudioCodec[]>` - an array of audio codec identifiers that the browser can encode.
 
-Possible values: `"aac"`, `"opus"`
+Possible values: `"aac"`, `"opus"`, `"mp3"`, `"vorbis"`, `"pcm-s16"`, `"flac"`
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
 
 ## See also
 

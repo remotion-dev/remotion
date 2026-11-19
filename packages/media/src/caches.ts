@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, type LogLevel} from 'remotion';
+import {Internals, type DelayRenderScope, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeSinkManager} from './get-sink';
 import {getMaxVideoCacheSize} from './max-cache-size';
@@ -10,7 +10,26 @@ import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 export const getSafeWindowOfMonotonicity = (fps: number) => (0.2 * 30) / fps;
 
 export const makeMediaCache = () => {
-	const sinkManager = makeSinkManager();
+	let offlineWaits = 0;
+	const renderHandles = new Set<{
+		scope: DelayRenderScope;
+		handle: number;
+		resume: (() => void) | null;
+	}>();
+	const sinkManager = makeSinkManager((waiting) => {
+		offlineWaits += waiting ? 1 : -1;
+		for (const entry of renderHandles) {
+			if (offlineWaits > 0 && entry.resume === null) {
+				entry.resume = Internals.suspendDelayRenderTimeout(
+					entry.scope,
+					entry.handle,
+				);
+			} else if (offlineWaits === 0 && entry.resume !== null) {
+				entry.resume();
+				entry.resume = null;
+			}
+		}
+	});
 	const managerInstances: {
 		keyframe: ReturnType<typeof makeKeyframeManager> | null;
 		audio: ReturnType<typeof makeAudioManager> | null;
@@ -50,6 +69,21 @@ export const makeMediaCache = () => {
 
 	return {
 		sinkManager,
+		trackRenderHandle: (scope: DelayRenderScope, handle: number) => {
+			const entry = {
+				scope,
+				handle,
+				resume:
+					offlineWaits > 0
+						? Internals.suspendDelayRenderTimeout(scope, handle)
+						: null,
+			};
+			renderHandles.add(entry);
+			return () => {
+				entry.resume?.();
+				renderHandles.delete(entry);
+			};
+		},
 		keyframeManager: keyframeManagerInstance,
 		audioManager: audioManagerInstance,
 		getTotalCacheStats: getCacheStats,
@@ -62,6 +96,11 @@ export const makeMediaCache = () => {
 			}
 
 			disposed = true;
+			for (const entry of renderHandles) {
+				entry.resume?.();
+			}
+
+			renderHandles.clear();
 			try {
 				keyframeManagerInstance.dispose(logLevel);
 			} finally {

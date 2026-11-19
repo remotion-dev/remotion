@@ -18,9 +18,11 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {copySourcePathProvenance} from '../../helpers/rebase-source-request';
 import {hasSourceOnlyRemappings} from '../../helpers/sequence-node-path-mutations';
+import {acceptSequencePropsSourceVersion} from '../../helpers/sequence-props-source-version';
 import {reconcileCanvasDragPreviewStatuses} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
@@ -73,11 +75,25 @@ export const useSequencePropsSubscription = ({
 	} | null>(null);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
-	const effectsSignature = useMemo(
-		() =>
-			effects.map((effect) => getAllSchemaKeys(effect).join('\0')).join('\0\0'),
+	const effectKeys = useMemo(
+		() => effects.map((effect) => getAllSchemaKeys(effect)),
 		[effects],
 	);
+	const [refresh, setRefresh] = useState<{
+		preserveSource: boolean;
+		refreshing: boolean;
+		sourceRevision: string | null;
+	}>({preserveSource: false, refreshing: false, sourceRevision: null});
+	const identity = useMemo(
+		() => ({clientId, componentIdentity, overrideId, schema, pendingDeletions}),
+		[clientId, componentIdentity, overrideId, schema, pendingDeletions],
+	);
+	const subscription = useRef<{
+		identity: typeof identity;
+		sourceKey: string;
+		effects: InteractivitySchema[];
+		handle: ReturnType<typeof acquireSequencePropsSubscription>;
+	} | null>(null);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -100,16 +116,97 @@ export const useSequencePropsSubscription = ({
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
-		return subscribeToSequencePropsRefresh(overrideId, (nodePath) => {
+		return subscribeToSequencePropsRefresh(overrideId, (event) => {
+			if (event.type === 'refresh-start') {
+				if (event.mutationId === null) setRefreshToken((token) => token + 1);
+				setRefresh((previous) => ({
+					preserveSource:
+						previous.preserveSource &&
+						previous.sourceRevision !== null &&
+						previous.sourceRevision === event.mutationId,
+					refreshing: true,
+					sourceRevision:
+						previous.sourceRevision === event.mutationId
+							? previous.sourceRevision
+							: null,
+				}));
+				return;
+			}
+
+			if (event.type === 'refresh-finished') {
+				setRefresh((previous) => ({...previous, refreshing: false}));
+				return;
+			}
+
+			if (event.type === 'effects' || event.type === 'preserve-source') {
+				const browser = getBrowserStudioOperations();
+				if (!browser || browser.updateSequencePropsSubscription) {
+					setRefresh({
+						preserveSource: true,
+						refreshing: event.type === 'preserve-source' || event.refreshing,
+						sourceRevision: event.type === 'effects' ? event.mutationId : null,
+					});
+					return;
+				}
+			}
+
+			setRefresh((previous) => ({...previous, preserveSource: false}));
+			const nodePath = event.type === 'source' ? event.nodePath : null;
 			remappedSource.current = nodePath ? {nodePath, stack} : null;
 			setRefreshToken((token) => token + 1);
 		});
 	}, [overrideId, stack]);
 
+	useEffect(
+		() => () => {
+			subscription.current?.handle.release();
+			subscription.current = null;
+		},
+		[],
+	);
+
 	useEffect(() => {
+		const sourceKey = JSON.stringify([
+			locationSource,
+			locationLine,
+			locationColumn,
+			stack,
+			preferMappedNodePath,
+			refreshToken,
+			effectKeys,
+		]);
+		const {current} = subscription;
+		if (
+			current &&
+			(current.identity !== identity ||
+				(!refresh.preserveSource &&
+					(current.sourceKey !== sourceKey || current.effects !== effects)))
+		) {
+			current.handle.release();
+			subscription.current = null;
+		}
+
+		if (subscription.current) {
+			subscription.current.sourceKey = sourceKey;
+			subscription.current.effects = effects;
+			if (
+				!refresh.refreshing &&
+				originalLocation &&
+				(!refresh.preserveSource || refresh.sourceRevision !== null)
+			) {
+				subscription.current.handle.updateMetadata({
+					effects: effectKeys,
+					sourceRevision: refresh.sourceRevision,
+				});
+			}
+
+			return;
+		}
+
 		// Optimistic deletion can remount siblings with stacks from the old source.
 		// Wait for HMR before resolving those locations against the updated file.
 		if (
+			refresh.refreshing ||
 			pendingDeletions.size > 0 ||
 			!clientId ||
 			!locationSource ||
@@ -132,13 +229,14 @@ export const useSequencePropsSubscription = ({
 		const liveStack = hasSourceOnlyRemappings(locationSource)
 			? getStackRef.current()
 			: null;
-		const {release} = acquireSequencePropsSubscription({
+		const handle = acquireSequencePropsSubscription({
 			fileName: locationSource,
 			line: locationLine,
 			column: locationColumn,
 			schema,
 			componentIdentity,
 			effects,
+			sourceRevision: refresh.sourceRevision,
 			nodePath:
 				requestedNodePath ??
 				(preferMappedNodePath
@@ -151,7 +249,14 @@ export const useSequencePropsSubscription = ({
 					: stack,
 
 			applyOnce: (result) => {
-				if (!result.success) {
+				if (
+					!result.success ||
+					!acceptSequencePropsSourceVersion(
+						updateDragOverrides,
+						result.nodePath,
+						result.sourceVersion ?? null,
+					)
+				) {
 					return;
 				}
 
@@ -208,14 +313,15 @@ export const useSequencePropsSubscription = ({
 			},
 		});
 
-		return () => {
-			release();
-		};
+		subscription.current = {identity, sourceKey, effects, handle};
 	}, [
 		clientId,
 		componentIdentity,
 		effects,
-		effectsSignature,
+		effectKeys,
+		identity,
+		refresh,
+		originalLocation,
 		locationColumn,
 		locationLine,
 		locationSource,

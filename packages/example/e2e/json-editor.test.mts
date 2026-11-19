@@ -4,6 +4,9 @@ import {EXPANDED_SIDEBAR_STATE, rootFile} from './constants.mts';
 import {navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+// Failures here should surface instead of being retried away.
+test.describe.configure({retries: 0});
+
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
 test.describe('visual mode', () => {

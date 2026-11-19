@@ -5,7 +5,7 @@ const cliFlag = 'sample-rate' as const;
 let currentSampleRate: number = 48000;
 
 export const sampleRateOption = {
-	name: 'Sample Rate',
+	name: 'Sample rate',
 	addedIn: '4.0.448',
 	cliFlag,
 	description: () => (

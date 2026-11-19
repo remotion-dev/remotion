@@ -592,7 +592,7 @@ export const KeyframeInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
+			<SequenceInspectorSections track={track} selection={null} />
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}

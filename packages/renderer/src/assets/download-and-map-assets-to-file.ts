@@ -8,7 +8,7 @@ import type {LogLevel} from '../log-level';
 import type {CancelSignal} from '../make-cancel-signal';
 import {getExt} from '../mime-types';
 import {downloadFile} from './download-file';
-import type {DownloadMap} from './download-map';
+import type {AssetDownloadState, DownloadMap} from './download-map';
 import {getAudioChannelsAndDuration} from './get-audio-channels';
 import {sanitizeFilePath} from './sanitize-filepath';
 
@@ -23,88 +23,32 @@ export type RenderMediaOnDownload = (
 	| undefined
 	| void;
 
-const waitForAssetToBeDownloaded = ({
-	src,
-	downloadDir,
-	downloadMap,
-}: {
-	src: string;
-	downloadDir: string;
-	downloadMap: DownloadMap;
-}): Promise<string> => {
-	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
-		return Promise.resolve(
-			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string,
-		);
+type AssetDownloadEvent =
+	| {type: 'start'; promise: Promise<string>}
+	| {type: 'succeeded'; path: string}
+	| {type: 'failed'; promise: Promise<string>}
+	| {type: 'file-missing'};
+
+export const assetDownloadTransition = (
+	state: AssetDownloadState | null,
+	event: AssetDownloadEvent,
+): AssetDownloadState | null => {
+	switch (event.type) {
+		case 'start':
+			return {type: 'downloading', promise: event.promise};
+		case 'succeeded':
+			return {type: 'downloaded', path: event.path};
+		case 'failed':
+			return state?.type === 'downloading' && state.promise === event.promise
+				? null
+				: state;
+		case 'file-missing':
+			return state?.type === 'downloaded' ? null : state;
+		default:
+			throw new Error(
+				'Unknown asset download event ' + (event satisfies never),
+			);
 	}
-
-	if (!downloadMap.listeners[src]) {
-		downloadMap.listeners[src] = {};
-	}
-
-	if (!downloadMap.listeners[src][downloadDir]) {
-		downloadMap.listeners[src][downloadDir] = [];
-	}
-
-	return new Promise<string>((resolve, reject) => {
-		downloadMap.listeners[src][downloadDir].push((err) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-
-			const srcMap = downloadMap.hasBeenDownloadedMap[src];
-			if (!srcMap?.[downloadDir]) {
-				throw new Error(
-					'Expected file for ' + src + 'to be available in ' + downloadDir,
-				);
-			}
-
-			resolve(srcMap[downloadDir] as string);
-		});
-	});
-};
-
-const notifyAssetIsDownloaded = ({
-	src,
-	downloadDir,
-	to,
-	downloadMap,
-}: {
-	src: string;
-	downloadDir: string;
-	to: string;
-	downloadMap: DownloadMap;
-}) => {
-	if (!downloadMap.listeners[src]) {
-		downloadMap.listeners[src] = {};
-	}
-
-	if (!downloadMap.listeners[src][downloadDir]) {
-		downloadMap.listeners[src][downloadDir] = [];
-	}
-
-	if (!downloadMap.isDownloadingMap[src]) {
-		downloadMap.isDownloadingMap[src] = {};
-	}
-
-	(
-		downloadMap.isDownloadingMap[src] as {
-			[downloadDir: string]: boolean;
-		}
-	)[downloadDir] = false;
-
-	if (!downloadMap.hasBeenDownloadedMap[src]) {
-		downloadMap.hasBeenDownloadedMap[src] = {};
-	}
-
-	(
-		downloadMap.hasBeenDownloadedMap[src] as {
-			[downloadDir: string]: string | null;
-		}
-	)[downloadDir] = to;
-
-	downloadMap.listeners[src][downloadDir].forEach((fn) => fn(null));
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -176,100 +120,114 @@ export const downloadAsset = async ({
 
 	const {downloadDir} = downloadMap;
 
-	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
-		const claimedDownloadLocation = downloadMap.hasBeenDownloadedMap[src]?.[
-			downloadDir
-		] as string;
+	const apply = (event: AssetDownloadEvent) => {
+		const next = assetDownloadTransition(
+			downloadMap.assetDownloads.get(src) ?? null,
+			event,
+		);
+		if (next === null) {
+			downloadMap.assetDownloads.delete(src);
+		} else {
+			downloadMap.assetDownloads.set(src, next);
+		}
+	};
+
+	const existing = downloadMap.assetDownloads.get(src) ?? null;
+	if (existing?.type === 'downloaded') {
 		// The OS might have deleted the file since even though we marked it as downloaded. In that case we reset the state and download it again
-		if (fs.existsSync(claimedDownloadLocation)) {
-			return claimedDownloadLocation;
+		if (fs.existsSync(existing.path)) {
+			return existing.path;
 		}
 
-		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
-		if (!downloadMap.isDownloadingMap[src]) {
-			downloadMap.isDownloadingMap[src] = {};
-		}
-
-		downloadMap.isDownloadingMap[src]![downloadDir] = false;
+		apply({type: 'file-missing'});
 	}
 
-	if (downloadMap.isDownloadingMap[src]?.[downloadDir]) {
-		return waitForAssetToBeDownloaded({downloadMap, src, downloadDir});
+	if (existing?.type === 'downloading') {
+		return existing.promise;
 	}
 
-	if (!downloadMap.isDownloadingMap[src]) {
-		downloadMap.isDownloadingMap[src] = {};
-	}
+	let resolveDownload: (path: string) => void = () => undefined;
+	let rejectDownload: (err: unknown) => void = () => undefined;
+	const promise = new Promise<string>((resolve, reject) => {
+		resolveDownload = resolve;
+		rejectDownload = reject;
+	});
+	// Avoid an unhandled rejection if nobody else waits
+	promise.catch(() => undefined);
 
-	(
-		downloadMap.isDownloadingMap[src] as {
-			[downloadDir: string]: boolean;
-		}
-	)[downloadDir] = true;
-
+	apply({type: 'start', promise});
 	downloadMap.emitter.dispatchDownload(src);
 
-	if (src.startsWith('data:')) {
-		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
-		if (!assetDetails.includes(';')) {
-			const errMessage = [
-				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
-				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
-				'The data that was received is (truncated to 100 characters):',
-				src.substring(0, 100),
-			].join(' ');
-			throw new TypeError(errMessage);
-		}
+	const isDataUrl = src.startsWith('data:');
+	let to: string;
+	try {
+		if (isDataUrl) {
+			const [assetDetails, assetData] = src
+				.substring('data:'.length)
+				.split(',');
+			if (!assetDetails.includes(';')) {
+				const errMessage = [
+					'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+					'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+					'The data that was received is (truncated to 100 characters):',
+					src.substring(0, 100),
+				].join(' ');
+				throw new TypeError(errMessage);
+			}
 
-		const [mimeType, encoding] = assetDetails.split(';');
+			const [mimeType, encoding] = assetDetails.split(';');
 
-		validateMimeType(mimeType, src);
-		validateBufferEncoding(encoding, src);
+			validateMimeType(mimeType, src);
+			validateBufferEncoding(encoding, src);
 
-		const output = getSanitizedFilenameForAssetUrl({
-			contentDisposition: null,
-			downloadDir,
-			src,
-			contentType: mimeType,
-		});
-		ensureOutputDirectory(output);
-
-		const buff = Buffer.from(assetData, encoding);
-		await fs.promises.writeFile(output, buff as never as Uint8Array);
-		notifyAssetIsDownloaded({src, downloadMap, downloadDir, to: output});
-		return output;
-	}
-
-	const {to} = await downloadFile({
-		url: src,
-		onProgress: (progress) => {
-			downloadMap.emitter.dispatchDownloadProgress(
-				src,
-				progress.percent,
-				progress.downloaded,
-				progress.totalSize,
-			);
-		},
-		to: (contentDisposition, contentType) =>
-			getSanitizedFilenameForAssetUrl({
-				contentDisposition,
+			to = getSanitizedFilenameForAssetUrl({
+				contentDisposition: null,
 				downloadDir,
 				src,
-				contentType,
-			}),
-		indent,
-		logLevel,
-		abortSignal: downloadMap.cleanupController.signal,
-	}).catch((err: Error) => {
-		// https://github.com/remotion-dev/remotion/issues/12817
-		delete downloadMap.isDownloadingMap[src]?.[downloadDir];
-		const listeners = downloadMap.listeners[src]?.[downloadDir] ?? [];
-		delete downloadMap.listeners[src]?.[downloadDir];
-		listeners.forEach((fn) => fn(err));
-		throw err;
-	});
+				contentType: mimeType,
+			});
+			ensureOutputDirectory(to);
 
-	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});
+			const buff = Buffer.from(assetData, encoding);
+			await fs.promises.writeFile(to, buff as never as Uint8Array);
+		} else {
+			const result = await downloadFile({
+				url: src,
+				onProgress: (progress) => {
+					downloadMap.emitter.dispatchDownloadProgress(
+						src,
+						progress.percent,
+						progress.downloaded,
+						progress.totalSize,
+					);
+				},
+				to: (contentDisposition, contentType) =>
+					getSanitizedFilenameForAssetUrl({
+						contentDisposition,
+						downloadDir,
+						src,
+						contentType,
+					}),
+				indent,
+				logLevel,
+				abortSignal: downloadMap.cleanupController.signal,
+			});
+			to = result.to;
+		}
+	} catch (err) {
+		// https://github.com/remotion-dev/remotion/issues/12817
+		apply({type: 'failed', promise});
+		rejectDownload(err);
+		throw err;
+	}
+
+	apply({type: 'succeeded', path: to});
+	resolveDownload(to);
+
+	if (isDataUrl) {
+		return to;
+	}
+
 	if (shouldAnalyzeAudioImmediately) {
 		await getAudioChannelsAndDuration({
 			binariesDirectory,
@@ -286,13 +244,7 @@ export const downloadAsset = async ({
 };
 
 export const markAllAssetsAsDownloaded = (downloadMap: DownloadMap) => {
-	Object.keys(downloadMap.hasBeenDownloadedMap).forEach((key) => {
-		delete downloadMap.hasBeenDownloadedMap[key];
-	});
-
-	Object.keys(downloadMap.isDownloadingMap).forEach((key) => {
-		delete downloadMap.isDownloadingMap[key];
-	});
+	downloadMap.assetDownloads.clear();
 };
 
 const getFilename = ({

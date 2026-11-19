@@ -22,7 +22,7 @@ Remember that if you want to render a video with said font, you also need to loa
 
 ## Show all fonts in a font picker
 
-The following snippet renders a dropdown with all Google Fonts, and loads one it it has been selected. The list is approximately 1400 fonts.
+The following snippet renders a dropdown with all Google Fonts, and loads one if it has been selected. The list is approximately 1400 fonts.
 
 ```tsx twoslash
 import {getAvailableFonts} from '@remotion/google-fonts';
@@ -76,7 +76,7 @@ export const FontPicker: React.FC = () => {
 
 ## Show only the 250 most popular Google Fonts
 
-To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array:
+To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array. The entries only have `family` and `load`, so use `f.family` instead of `f.importName` and `f.fontFamily` in the picker:
 
 ```ts twoslash
 import type {GoogleFont} from '@remotion/google-fonts';
@@ -1087,7 +1087,7 @@ export const top250 = [
 
 ## Show only the 100 most popular Google Fonts
 
-To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array:
+To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array. The entries only have `family` and `load`, so use `f.family` instead of `f.importName` and `f.fontFamily` in the picker:
 
 ```ts twoslash
 import type {GoogleFont} from '@remotion/google-fonts';
@@ -1498,7 +1498,7 @@ export const top100 = [
 
 ## Show only the 25 most popular Google Fonts
 
-To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array:
+To reduce bundle size, you can limit the selection. Instead of calling `getAvailableFonts()`, create a file with the following contents and use it as the fonts array. The entries only have `family` and `load`, so use `f.family` instead of `f.importName` and `f.fontFamily` in the picker:
 
 ```ts twoslash
 import type {GoogleFont} from '@remotion/google-fonts';

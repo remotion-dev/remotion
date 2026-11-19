@@ -1,0 +1,106 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-paste-effects.png
+title: 'pasteEffects()'
+crumb: '@remotion/codemods'
+---
+
+# pasteEffects()<AvailableFrom v="4.0.544" />
+
+Copies effect descriptions onto a node, adding their imports and animation helpers.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="paste-effects.ts"
+import {pasteEffects, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = pasteEffects({
+  project, node,
+  effects: [{callee: 'blur', importPath: '@remotion/effects/blur', params: {radius: {type: 'static', value: 12}}}],
+  mode: 'append',
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model).
+
+### node
+
+The target [`NodeReference`](/docs/codemods#node-references).
+
+### effects
+
+An array of `PasteEffect` descriptions. It must be nonempty unless `mode` is `'replace'`.
+
+#### callee
+
+The effect's exported function name.
+
+#### importPath
+
+The module exporting the effect.
+
+#### params
+
+A record of parameter descriptions. A static parameter has the shape `{type: 'static', value}`. Keyframed parameters use `{type: 'keyframed', interpolationFunction, keyframes, easing, clamping, output, posterize}` and preserve their animation when pasted.
+
+### mode?
+
+`'append'` adds to the existing inline array. `'replace'` replaces it, or removes the effects attribute when `effects` is empty. Defaults to `'append'`.
+
+### insertAtIndices?
+
+Insertion positions for the effects, in input order. Positions are applied in ascending order and clamped to the current array length. Must contain one distinct nonnegative integer per effect. Available with `'append'` only. Defaults to `null`, which appends the effects.
+
+### prettierConfigOverride?
+
+Formatting options for generated source. Defaults to `null`, which follows the existing source style.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+File changes to apply with [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes). The input project is not mutated.
+
+### nodePathRemappings
+
+Mappings from the original node paths to their new paths. See [node references](/docs/codemods#node-references).
+
+### insertedEffects
+
+References to the pasted effects, in input order.
+
+### updatedNode
+
+The destination node's reference after the edit.
+
+### editDetails
+
+The file path, formatting status, effect labels and source line.
+
+## Errors
+
+Throws when the target cannot be resolved or the requested edit is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/paste-effects.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

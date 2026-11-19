@@ -29,6 +29,7 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
+import {prepareOpenTimelineImport} from './codemods/prepare-open-timeline-import';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -65,6 +66,7 @@ import {
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
+import {getProjectInfo} from './preview-server/project-info';
 import {getElementInstallPlan} from './preview-server/routes/element-install-plan';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
@@ -85,6 +87,8 @@ export {
 };
 
 export const StudioServerInternals = {
+	getProjectInfo,
+	prepareOpenTimelineImport,
 	startStudio,
 	getRemotionVersion,
 	waitForLiveEventsListener,

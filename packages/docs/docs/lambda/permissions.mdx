@@ -82,7 +82,7 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
     </td>
     <td><code>*</code></td>
     <td>
-      Allows for <code>npx remotion lambda permissions validate</code>.
+      Allows for <code>npx remotion lambda policies validate</code>.
     </td>
   </tr>
   <tr>
@@ -108,12 +108,13 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>s3:PutBucketOwnershipControls</code> <br />
       <code>s3:PutBucketPublicAccessBlock</code> <br />
       <code>s3:PutBucketPolicy</code> <br />
+      <code>s3:PutLifecycleConfiguration</code> <br />
     </td>
     <td>
       <code>{'arn:aws:s3:::remotionlambda-*'}</code>
     </td>
     <td>
-      Allows to create and delete buckets and objects in your account, make objects public and configure them as websites. Only buckets that start with <code>remotionlambda-</code> can be accessed. <code>s3:PutBucketPolicy</code> is used to apply a bucket policy that restricts public access to <code>s3:GetObject</code> only (see <a href="/docs/lambda/bucket-security">Bucket Security</a>).
+      Allows to create and delete buckets and objects in your account, make objects public and configure them as websites. Only buckets that start with <code>remotionlambda-</code> can be accessed. <code>s3:PutBucketPolicy</code> is used to apply a bucket policy that restricts public access to <code>s3:GetObject</code> only (see <a href="/docs/lambda/bucket-security">Bucket Security</a>). <code>s3:PutLifecycleConfiguration</code> is used to apply the lifecycle rules for <a href="/docs/lambda/autodelete">auto-deleting renders</a>.
     </td>
   </tr>
   <tr>
@@ -121,7 +122,7 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>s3:ListAllMyBuckets</code>
     </td>
     <td>
-      <code>{'arn:aws:s3:::*'}</code>
+      <code>{'*'}</code>
     </td>
     <td>
       Allows listing the names of all buckets in your account, in order to detect an already existing Remotion bucket.
@@ -133,10 +134,11 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>lambda:GetLayerVersion</code>
     </td>
     <td>
-      <code>{"arn:aws:lambda:*:678892195805:layer:remotion-binaries-*"}</code>
+      <code>{"arn:aws:lambda:*:678892195805:layer:remotion-binaries-*"}</code> <br/>
+      <code>{"arn:aws:lambda:*:580247275435:layer:LambdaInsightsExtension*"}</code>
     </td>
     <td>
-    Allows to read Chromium and FFMPEG binaries. These binaries are hosted in an account hosted by Remotion specifically dedicated to hosting those layers in all supported regions.
+    Allows to read Chromium and FFMPEG binaries. These binaries are hosted in an account hosted by Remotion specifically dedicated to hosting those layers in all supported regions. Also allows to read the AWS Lambda Insights extension layer.
     </td>
   </tr>
   <tr>
@@ -212,7 +214,7 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
   </tr>
   <tr>
     <td>
-      <code>s3.ListAllMyBuckets</code>
+      <code>s3:ListAllMyBuckets</code>
     </td>
     <td>
       <code>{"*"}</code>
@@ -244,7 +246,7 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>lambda:InvokeFunction</code> <br/>
     </td>
     <td>
-      <code>{"arn:aws:lambda:*:*:function:remotion-render*"}</code>
+      <code>{"arn:aws:lambda:*:*:function:remotion-render-*"}</code>
     </td>
     <td>
 Allow the function to recursively invoke itself. A render involves multiple function calls, which is to be orchestrated by the first function call.
@@ -253,11 +255,23 @@ Allow the function to recursively invoke itself. A render involves multiple func
   </tr>
   <tr>
     <td>
-      <code>lambda:CreateLogStream</code> <br/>
-      <code>lambda:PutLogEvents</code> <br/>
+      <code>logs:CreateLogGroup</code>
     </td>
     <td>
-      <code>{"arn:aws:logs:*:*:log-group:/aws/lambda/remotion-render*"}</code>
+      <code>{"arn:aws:logs:*:*:log-group:/aws/lambda-insights"}</code>
+    </td>
+    <td>
+Allows creating the log group for AWS Lambda Insights.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <code>logs:CreateLogStream</code> <br/>
+      <code>logs:PutLogEvents</code> <br/>
+    </td>
+    <td>
+      <code>{"arn:aws:logs:*:*:log-group:/aws/lambda/remotion-render-*"}</code> <br/>
+      <code>{"arn:aws:logs:*:*:log-group:/aws/lambda-insights:*"}</code>
     </td>
     <td>
 Allows to write the function logs to CloudWatch for easier debugging.

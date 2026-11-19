@@ -133,7 +133,7 @@ const youtubeSubscribeNudgeAssets = {
 	},
 } as const satisfies Record<string, ElementAsset>;
 
-// Array order defines the order of categories and cards in the Element Library.
+// Array order defines the order of cards within each category. Category order comes from element-registry.ts.
 const elementImplementations = [
 	{
 		slug: 'audio/oscilloscope',
@@ -143,7 +143,6 @@ const elementImplementations = [
 		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description: 'Suitable for visualizing speech.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -175,7 +174,6 @@ const elementImplementations = [
 		} as ElementInitialProps,
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
-		description: 'A static audio waveform with playback progress.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -207,7 +205,6 @@ const elementImplementations = [
 		} as ElementInitialProps,
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
-		description: 'Suitable for both music and speech visualization.',
 		dependencies: [
 			{name: '@remotion/media', version: null},
 			{name: '@remotion/media-utils', version: null},
@@ -237,7 +234,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: NotebookPaper,
 		contributors: [],
-		description: 'A white paper background with subtle blue gridlines.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -264,8 +260,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: PaperTexture,
 		contributors: [],
-		description:
-			'A white paper texture background with a slowly changing posterized seed.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -292,7 +286,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: RotatingStarburst,
 		contributors: [],
-		description: 'A solid background with a slowly rotating starburst effect.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 240,
 		elementHeight: null,
@@ -319,7 +312,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: MovingWaves,
 		contributors: [],
-		description: 'A seamless wave background that flows upward.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 240,
 		elementHeight: null,
@@ -346,7 +338,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: MovingZigzags,
 		contributors: [],
-		description: 'A seamless zigzag background that flows upward.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 240,
 		elementHeight: null,
@@ -373,8 +364,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: LiquidContours,
 		contributors: [],
-		description:
-			'A flowing two-color background made from animated liquid contour bands.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 240,
 		elementHeight: null,
@@ -401,8 +390,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: BasicCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description:
-			'Simple synchronized captions with white text on a translucent gray background.',
 		dependencies: [{name: '@remotion/captions', version: null}],
 		durationInFrames: 210,
 		elementHeight: null,
@@ -429,8 +416,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: RoundedCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description:
-			'Static synchronized captions with a rounded background that follows each line.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
@@ -462,8 +447,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: MovingPillCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description:
-			'Synchronized captions with a pill that moves between spoken words.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
@@ -494,7 +477,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: PoppingWordCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description: 'Synchronized captions that pop each spoken word into focus.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
@@ -525,7 +507,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: WordHighlightCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description: 'Synchronized captions that highlight each spoken word.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
@@ -556,7 +537,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: ProductCollection,
 		contributors: [],
-		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 150,
 		elementHeight: 1020,
@@ -583,7 +563,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: ProductDiscountCallout,
 		contributors: [],
-		description: 'An attention-grabbing speech bubble.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/shapes', version: null},
@@ -613,7 +592,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: Peel,
 		contributors: [],
-		description: 'Peels any content away with a curled paper edge.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 60,
 		elementHeight: 720,
@@ -640,7 +618,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: Shine,
 		contributors: [],
-		description: 'Adds a diagonal shine sweep to any content.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 45,
 		elementHeight: 720,
@@ -665,7 +642,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: Tear,
 		contributors: [],
-		description: 'A tear effect that can be applied to any content.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 45,
 		elementHeight: 720,
@@ -690,7 +666,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: HorizontalBarChart,
 		contributors: [],
-		description: 'A bold bar chart with three directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -717,7 +692,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: LineChart,
 		contributors: [],
-		description: 'A bold animated line chart with a directly labeled trend.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -747,8 +721,6 @@ const elementImplementations = [
 				contribution: 'Author',
 			},
 		],
-		description:
-			'A simple animated counter that smoothly counts from a start value to an end value.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: 200,
@@ -775,8 +747,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: PieChart,
 		contributors: [],
-		description:
-			'A bold animated pie chart with four directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -801,8 +771,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: VerticalBarChart,
 		contributors: [],
-		description:
-			'A bold vertical bar chart with three directly labeled data points.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: null,
@@ -829,8 +797,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: PictureInPictureTransition,
 		contributors: [],
-		description:
-			'Animates an element from being fullscreen to being displayed in a box.',
 		dependencies: [],
 		durationInFrames: 150,
 		elementHeight: null,
@@ -857,8 +823,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: SlideToSplitScreen,
 		contributors: [],
-		description:
-			'A fullscreen scene that opens into a 60/40 split-screen layout.',
 		dependencies: [],
 		durationInFrames: 150,
 		elementHeight: null,
@@ -885,8 +849,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: MapFlyover,
 		contributors: [],
-		description:
-			'An animated map flyover from point A to point B, with editable coordinates, location labels, and a camera that follows the route.',
 		dependencies: [
 			{name: '@turf/turf', version: '7.3.2'},
 			{name: 'maplibre-gl', version: '6.4.1'},
@@ -916,8 +878,6 @@ const elementImplementations = [
 		} as ElementInitialProps,
 		component: SpinningGlobe,
 		contributors: [],
-		description:
-			'A globe rotating around its vertical axis, with editable speed, longitude, and shading.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 240,
 		elementHeight: 840,
@@ -947,8 +907,6 @@ const elementImplementations = [
 			{username: 'JonnyBurger', contribution: 'Author'},
 			{username: 'MehmetAdemi', contribution: 'Author'},
 		],
-		description:
-			'A watercolor map journey between two editable locations, with animated labels, markers, and a hand-drawn route.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 200,
 		elementHeight: null,
@@ -975,7 +933,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: LocationLowerThird,
 		contributors: [],
-		description: 'An animated lower third for an event location and venue.',
 		dependencies: [],
 		durationInFrames: 120,
 		elementHeight: 138,
@@ -1002,8 +959,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: NameLowerThird,
 		contributors: [],
-		description:
-			'A clean animated lower third for introducing a speaker, guest, or host.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: 132,
@@ -1030,8 +985,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: SocialSafeZones,
 		contributors: [],
-		description:
-			'Preview TikTok and Instagram Reels interfaces to keep important content visible.',
 		dependencies: [],
 		durationInFrames: 120,
 		elementHeight: 1920,
@@ -1058,7 +1011,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: NewsArticleHighlight,
 		contributors: [],
-		description: 'A centered news headline with animated passage highlights.',
 		dependencies: [{name: '@remotion/rough-notation', version: null}],
 		durationInFrames: 150,
 		elementHeight: null,
@@ -1085,7 +1037,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: SpeedLines,
 		contributors: [],
-		description: 'A burst of animated radial speed lines around a subject.',
 		dependencies: [],
 		durationInFrames: 45,
 		elementHeight: null,
@@ -1112,8 +1063,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: OnScreenMessages,
 		contributors: [],
-		description:
-			'An iMessage-inspired text exchange with staggered reveals and familiar blue and gray chat bubbles.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 162,
 		elementHeight: 680,
@@ -1140,8 +1089,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: PolaroidPictures,
 		contributors: [],
-		description:
-			'A staggered instant-photo montage with handwritten captions, paper shadows, and developing-photo accents.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 150,
 		elementHeight: 640,
@@ -1168,8 +1115,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: CircleMarker,
 		contributors: [],
-		description:
-			'An animated hand-drawn circle with posterized drawing progress and shape changes.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/rough-notation', version: null},
@@ -1199,8 +1144,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: CrossedOffText,
 		contributors: [],
-		description:
-			'An animated hand-drawn cross for removing a word or phrase with emphasis.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/rough-notation', version: null},
@@ -1228,8 +1171,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: CylinderText,
 		contributors: [],
-		description:
-			'Editable text spinning around a tilted cylinder using WebGPU.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 180,
 		elementHeight: null,
@@ -1256,8 +1197,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: SpinningTextWheel,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description:
-			'A 3D text wheel that spins through options and decelerates onto a highlighted selection.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 120,
 		elementHeight: 200,
@@ -1284,8 +1223,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: StrikeThroughText,
 		contributors: [],
-		description:
-			'An animated hand-drawn line for striking through a word or phrase.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/rough-notation', version: null},
@@ -1315,8 +1252,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: TextMarker,
 		contributors: [],
-		description:
-			'A hand-drawn animated text marker for calling attention to one phrase.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/rough-notation', version: null},
@@ -1344,7 +1279,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: YouTubeCommentHighlight,
 		contributors: [],
-		description: 'A YouTube-style card for featuring a viewer comment.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 180,
 		elementHeight: 360,
@@ -1371,8 +1305,6 @@ const elementImplementations = [
 		installationProps: null,
 		component: YouTubeEndCard,
 		contributors: [],
-		description:
-			'A clean YouTube endcard with social links and space for recommended videos.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		durationInFrames: 150,
 		elementHeight: null,
@@ -1407,8 +1339,6 @@ const elementImplementations = [
 		} as ElementInitialProps,
 		component: YouTubeSubscribeNudge,
 		contributors: [],
-		description:
-			'An animated creator-branded subscribe prompt with a subscribed-state confirmation.',
 		dependencies: [
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/media', version: null},
@@ -1439,7 +1369,11 @@ const elementImplementations = [
 	},
 ] satisfies readonly (Omit<
 	ElementDefinition,
-	'category' | 'displayName' | 'previewUsesHtmlInCanvas' | 'slug'
+	| 'category'
+	| 'description'
+	| 'displayName'
+	| 'previewUsesHtmlInCanvas'
+	| 'slug'
 > & {
 	readonly slug: ElementSlug;
 })[];

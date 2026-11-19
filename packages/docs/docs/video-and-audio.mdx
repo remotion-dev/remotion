@@ -14,7 +14,7 @@ Put `video.mp4` and `music.mp3` in your [`public` folder](/docs/terminology/publ
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Audio, Video} from '@remotion/media';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 
 export const MyComposition = () => (
   <>
@@ -38,15 +38,15 @@ The video's own audio is included. Add `muted` to `<Video>` to hear only the bac
     <div>Select a source range and place it on the timeline.</div>
   </TOCItem>
   <TOCItem link="/docs/audio/speed">
-    <strong>Controlling playback speed</strong>
+    <strong>Playback speed</strong>
     <div>Speed up or slow down media and preserve its pitch.</div>
   </TOCItem>
   <TOCItem link="/docs/audio/volume">
-    <strong>Controlling volume and muting</strong>
+    <strong>Volume and muting</strong>
     <div>Adjust levels, fade sound in and out, or mute it.</div>
   </TOCItem>
   <TOCItem link="/docs/audio/pitch">
-    <strong>Controlling pitch</strong>
+    <strong>Pitch</strong>
     <div>Raise or lower the pitch of a video's or audio file's sound.</div>
   </TOCItem>
   <TOCItem link="/docs/videos/align-duration">

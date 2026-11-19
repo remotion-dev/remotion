@@ -34,6 +34,8 @@ const item: React.CSSProperties = {
 	flex: 1,
 	justifyContent: 'center',
 	whiteSpace: 'nowrap',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const compactItem: React.CSSProperties = {

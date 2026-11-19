@@ -9,6 +9,11 @@ import {
 } from './browser-studio-operations';
 import {recordExternalSourceChange} from './external-source-changes';
 import {observeCompositionOperationsBuild} from './optimistic-composition-operations';
+import type {
+	PreviewServerTransport,
+	PreviewServerTransportEvent,
+} from './preview-server-transport-state';
+import {transitionPreviewServerTransport} from './preview-server-transport-state';
 import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 import {
 	getSequencePropsSourceSession,
@@ -30,8 +35,7 @@ export type PreviewServerConnectionState =
 type MessageListener = (event: EventSourceEvent) => void;
 type ConnectionStateListener = (state: PreviewServerConnectionState) => void;
 
-let source: EventSource | null = null;
-let unsubscribeFromBrowserStudio: (() => void) | null = null;
+let transport: PreviewServerTransport = {type: 'idle'};
 let browserStudioReadyListenerInstalled = false;
 let connectionState: PreviewServerConnectionState = {type: 'init'};
 let lastInitEvent: Extract<EventSourceEvent, {type: 'init'}> | null = null;
@@ -91,8 +95,37 @@ const dispatch = (event: EventSourceEvent) => {
 	}
 };
 
+const applyTransportEvent = (event: PreviewServerTransportEvent) => {
+	const prev = transport;
+	const next = transitionPreviewServerTransport(prev, event);
+	transport = next;
+
+	if (next === prev) {
+		if (event.type === 'event-source-created') {
+			event.source.close();
+		} else if (event.type === 'event-source-failed') {
+			clearTimeout(event.timeout);
+		} else if (event.type === 'browser-studio-connected') {
+			event.unsubscribe();
+		}
+
+		return;
+	}
+
+	if (
+		prev.type === 'event-source' &&
+		(next.type !== 'event-source' || next.source !== prev.source)
+	) {
+		prev.source.close();
+	}
+
+	if (prev.type === 'retry-scheduled' && event.type !== 'retry-fired') {
+		clearTimeout(prev.timeout);
+	}
+};
+
 const connectToBrowserStudio = () => {
-	if (unsubscribeFromBrowserStudio) {
+	if (transport.type === 'browser-studio') {
 		return true;
 	}
 
@@ -101,26 +134,26 @@ const connectToBrowserStudio = () => {
 		return false;
 	}
 
-	if (source) {
-		source.close();
-		source = null;
-	}
-
-	unsubscribeFromBrowserStudio =
-		browserStudioOperations.subscribeToEvent(dispatch);
+	applyTransportEvent({
+		type: 'browser-studio-connected',
+		unsubscribe: browserStudioOperations.subscribeToEvent(dispatch),
+	});
 	return true;
 };
 
 const openEventSource = () => {
-	if (source) {
+	if (transport.type !== 'idle') {
 		return;
 	}
 
 	const eventSource = new EventSource('/events');
-	source = eventSource;
+	applyTransportEvent({type: 'event-source-created', source: eventSource});
 
 	eventSource.addEventListener('message', (event) => {
-		if (source !== eventSource) return;
+		if (transport.type !== 'event-source' || transport.source !== eventSource) {
+			return;
+		}
+
 		try {
 			const newEvent = JSON.parse(event.data) as EventSourceEvent;
 			dispatch(newEvent);
@@ -130,22 +163,35 @@ const openEventSource = () => {
 	});
 
 	eventSource.addEventListener('open', () => {
-		if (source !== eventSource) return;
-		eventSource.addEventListener(
-			'error',
-			() => {
-				if (source !== eventSource) return;
-				connectionState = {type: 'disconnected'};
-				notifyConnectionState();
-				source?.close();
-				source = null;
+		applyTransportEvent({type: 'event-source-opened', source: eventSource});
+	});
 
-				setTimeout(() => {
-					openEventSource();
-				}, 1000);
-			},
-			{once: true},
-		);
+	// A non-2xx or non-event-stream response closes the EventSource without
+	// ever firing 'open', and the browser does not retry it.
+	eventSource.addEventListener('error', () => {
+		if (transport.type !== 'event-source' || transport.source !== eventSource) {
+			return;
+		}
+
+		// Before the first 'open', the browser natively retries network errors
+		if (
+			!transport.opened &&
+			eventSource.readyState === EventSource.CONNECTING
+		) {
+			return;
+		}
+
+		connectionState = {type: 'disconnected'};
+		notifyConnectionState();
+
+		applyTransportEvent({
+			type: 'event-source-failed',
+			source: eventSource,
+			timeout: setTimeout(() => {
+				applyTransportEvent({type: 'retry-fired'});
+				openEventSource();
+			}, 1000),
+		});
 	});
 };
 

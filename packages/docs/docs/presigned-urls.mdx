@@ -107,7 +107,7 @@ export const generatePresignedUrl = async (contentType: string, contentLength: n
 
 Explanation:
 
-- First, the upload request gets checked for constraints. In this example, we reject uploads that are over 200MB. You could add more constraints or add rate-limiting.
+- First, the upload request gets checked for constraints. This example rejects uploads that are over 200MB. You could add more constraints or add rate-limiting.
 - The AWS SDK gets imported using [getAwsClient()](/docs/lambda/getawsclient). If you don't use Remotion Lambda, install the [`@aws-sdk/client-s3`](https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-s3) package directly.
 - A [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) gets used as the filename to avoid name clashes.
 - Finally, the presigned URL and output URL get calculated and returned.

@@ -19,7 +19,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
+import {openSourceInEditor} from '../../helpers/open-in-editor';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -920,10 +920,11 @@ export const TimelineSequencePropItem: React.FC<{
 			}
 
 			event.stopPropagation();
-			openOriginalPositionInEditorAtProperty({
+			openSourceInEditor({
 				editorId: defaultEditorId,
 				originalPosition: validatedLocation,
-				property: field.key.split('.').at(-1) ?? field.key,
+				property: field.key,
+				effectIndex: null,
 			}).catch(() => undefined);
 		},
 		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],

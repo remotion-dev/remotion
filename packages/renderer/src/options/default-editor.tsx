@@ -111,7 +111,12 @@ export const defaultEditorOption = {
 	description: () => (
 		<>
 			Set the default editor for opening files from Remotion Studio. Available
-			editors: <code>{defaultEditorIds.join(', ')}</code>.
+			editors:{' '}
+			{defaultEditorIds.flatMap((id, i) => [
+				i === 0 ? '' : ', ',
+				<code key={id}>{id}</code>,
+			])}
+			.
 		</>
 	),
 	ssrName: null,

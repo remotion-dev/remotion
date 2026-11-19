@@ -10,7 +10,7 @@ TypeScript path aliases are not resolved by default. Add the matching aliases to
 
 Assuming you have a file:
 
-```
+```diff
  └── src/
    ├── lib/
    │   ├── one.ts
@@ -77,7 +77,7 @@ Config.overrideWebpackConfig((config) => {
 ```
 
 :::warning
-A common problem when enabling TypeScript aliases is that `import {} from "remotion"` will start mapping to the `remotion` folder that you may have in your project, like is the case in some of our templates.
+A common problem when enabling TypeScript aliases is that `import {} from "remotion"` will start mapping to the `remotion` folder that you may have in your project, like is the case in some of the Remotion templates.
 
 We recommend that you don't use TypeScript aliases.
 :::

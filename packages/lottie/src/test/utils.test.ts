@@ -34,6 +34,16 @@ describe('getNextFrame', () => {
 	});
 
 	describe('when direction is reverse and loop is falsy', () => {
+		it('starts on the last frame', () => {
+			expect(
+				getLottieFrame({
+					currentFrame: 0,
+					totalFrames: 20,
+					direction: 'backward',
+				}),
+			).toBe(19);
+		});
+
 		it('returns the correct frame if current frame is smaller than total frames', () => {
 			expect(
 				getLottieFrame({
@@ -41,7 +51,7 @@ describe('getNextFrame', () => {
 					totalFrames: 20,
 					direction: 'backward',
 				}),
-			).toBe(5);
+			).toBe(4);
 		});
 
 		it('returns frame zero if current frame is bigger than total frames', () => {
@@ -51,11 +61,22 @@ describe('getNextFrame', () => {
 					totalFrames: 20,
 					direction: 'backward',
 				}),
-			).toBe(1);
+			).toBe(0);
 		});
 	});
 
 	describe('when direction is reverse and loop is truthy', () => {
+		it('starts every loop on the last frame', () => {
+			expect(
+				getLottieFrame({
+					currentFrame: 20,
+					totalFrames: 20,
+					direction: 'backward',
+					loop: true,
+				}),
+			).toBe(19);
+		});
+
 		it('returns the correct frame if current frame is smaller than total frames', () => {
 			expect(
 				getLottieFrame({
@@ -64,10 +85,10 @@ describe('getNextFrame', () => {
 					direction: 'backward',
 					loop: true,
 				}),
-			).toBe(5);
+			).toBe(4);
 		});
 
-		it('returns (total-overflow) if current frame is bigger than total frames', () => {
+		it('returns (last frame - overflow) if current frame is bigger than total frames', () => {
 			expect(
 				getLottieFrame({
 					currentFrame: 23,
@@ -75,7 +96,7 @@ describe('getNextFrame', () => {
 					direction: 'backward',
 					loop: true,
 				}),
-			).toBe(17);
+			).toBe(16);
 		});
 	});
 });

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
 	},
 	"name": "@remotion/eslint-plugin",
-	"version": "4.0.542",
+	"version": "4.0.545",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "node src/tests/execute.mjs",
@@ -14,7 +14,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "ISC",
+	"license": "MIT",
 	"dependencies": {
 		"@typescript-eslint/utils": "5.19.0",
 		"typescript": "5.9.3"

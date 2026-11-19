@@ -4,7 +4,10 @@ import type {
 	PasteEffectsRequest,
 	ReorderEffectRequest,
 } from '@remotion/studio-shared';
-import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	getRequiredPackageForEffectImportPath,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropSource,
 	EffectDefinition,
@@ -28,9 +31,6 @@ import {
 } from './source-mutation-queue';
 
 type EffectOperation = ReturnType<typeof Internals.OptimisticEffects.begin>;
-type EffectItem = ReturnType<
-	typeof Internals.OptimisticEffects.getItems
->[number];
 type Target = {
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
@@ -38,8 +38,6 @@ type Target = {
 };
 type Change = {
 	operation: EffectOperation;
-	before: readonly EffectItem[];
-	after: readonly EffectItem[];
 };
 type HistoryEntry = {
 	files: string[];
@@ -304,11 +302,7 @@ export const captureOptimisticEffectMutation = (
 			definitions: [],
 			action,
 		});
-		changes.push({
-			operation,
-			before,
-			after: Internals.OptimisticEffects.getItems(nodePath, null),
-		});
+		changes.push({operation});
 		return operation;
 	};
 
@@ -347,38 +341,28 @@ export const captureOptimisticEffectMutation = (
 			prop.restore(entry.type as 'undo' | 'redo'),
 		);
 		const targetChanges = entry.target?.changes ?? [];
-		const byNode = new Map<
-			string,
-			{
-				operation: EffectOperation;
-				before: readonly EffectItem[];
-				after: readonly EffectItem[];
-				movedIds: string[];
-			}
-		>();
+		const byNode = new Map<string, EffectOperation[]>();
 		for (const change of targetChanges) {
 			const key =
 				JSON.stringify(change.operation.nodePath.nodePath) +
 				change.operation.nodePath.absolutePath;
-			byNode.set(key, {
-				operation: change.operation,
-				before: byNode.get(key)?.before ?? change.before,
-				after: change.after,
-				movedIds: [
-					...(byNode.get(key)?.movedIds ?? []),
-					...(change.operation.action.type === 'reorder'
-						? [change.operation.action.id]
-						: []),
-				],
-			});
+			byNode.set(key, [...(byNode.get(key) ?? []), change.operation]);
 		}
 
-		for (const {operation, before, after, movedIds} of byNode.values()) {
-			addChange(operation.nodePath, {
+		for (const operations of byNode.values()) {
+			const first = operations[0];
+			const last = operations[operations.length - 1];
+			addChange(first.nodePath, {
 				type: 'restore',
-				items: entry.type === 'undo' ? before : after,
-				fromItems: entry.type === 'undo' ? after : before,
-				movedIds,
+				get items() {
+					return entry.type === 'undo' ? first.beforeItems : last.afterItems;
+				},
+				get fromItems() {
+					return entry.type === 'undo' ? last.afterItems : first.beforeItems;
+				},
+				movedIds: operations.flatMap((operation) =>
+					operation.action.type === 'reorder' ? operation.action.ids : [],
+				),
 			});
 		}
 	} else {
@@ -428,15 +412,20 @@ export const captureOptimisticEffectMutation = (
 			const request = body as ReorderEffectRequest;
 			const state = Internals.OptimisticEffects.get(request.sequenceNodePath);
 			if (state) {
-				const id = state.items[request.fromIndex]?.id;
-				if (!id)
-					throw new Error(
-						'This effect was removed before the edit could be saved.',
-					);
-				const remaining = state.items.filter((item) => item.id !== id);
+				const ids = request.fromIndices.map((index) => {
+					const id = state.items[index]?.id;
+					if (!id) {
+						throw new Error(
+							'This effect was removed before the edit could be saved.',
+						);
+					}
+
+					return id;
+				});
+				const remaining = state.items.filter((item) => !ids.includes(item.id));
 				reorderOperation = addChange(request.sequenceNodePath, {
 					type: 'reorder',
-					id,
+					ids,
 					beforeId: remaining[request.toIndex]?.id ?? null,
 				});
 			}
@@ -573,6 +562,26 @@ export const captureOptimisticEffectMutation = (
 
 	return {
 		files: entry.files,
+		getEffectMetadata: () => {
+			const nodes = new Map<
+				string,
+				{nodePath: SequencePropsSubscriptionKey; effects: string[][]}
+			>();
+			for (const {operation} of changes) {
+				const items =
+					Internals.OptimisticEffects.getItemsAfterOperation(operation);
+				if (items === null) continue;
+				const {nodePath} = operation;
+				nodes.set(JSON.stringify([nodePath.absolutePath, nodePath.nodePath]), {
+					nodePath,
+					effects: items.map((item) =>
+						getAllSchemaKeys(item.definition.schema),
+					),
+				});
+			}
+
+			return [...nodes.values()];
+		},
 		rollback,
 		prepare: async () => {
 			if (entry.status === 'failed')
@@ -615,15 +624,16 @@ export const captureOptimisticEffectMutation = (
 			});
 			if (reorderOperation?.action.type === 'reorder') {
 				const {action, nodePath} = reorderOperation;
-				const fromIndex = resolveIndex(nodePath, action.id);
+				const fromIndices = action.ids.map((id) => resolveIndex(nodePath, id));
 				const before =
 					action.beforeId === null
 						? Internals.OptimisticEffects.get(nodePath)!.persistedItems.length
 						: resolveIndex(nodePath, action.beforeId);
 				return {
 					...(mapped as object),
-					fromIndex,
-					toIndex: before - (fromIndex < before ? 1 : 0),
+					fromIndices,
+					toIndex:
+						before - fromIndices.filter((index) => index < before).length,
 				};
 			}
 

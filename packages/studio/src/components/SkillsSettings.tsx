@@ -156,7 +156,7 @@ export const SkillSettingsRow: React.FC<{
 				value: 'delete',
 				type: 'item',
 				label: 'Delete',
-				leftItem: <TrashIcon color={LIGHT_TEXT} style={actionIcon} />,
+				leftItem: null,
 				disabled: skillAction !== null,
 				onClick: () => removeSkill(skill.name),
 				keyHint: null,

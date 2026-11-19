@@ -28,11 +28,7 @@ const PortfolioInner: React.FC = () => {
 	return (
 		<>
 			<TransitionSeries name="Portfolio scenes">
-				<TransitionSeries.Sequence
-					name="Intro"
-					durationInFrames={150}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Intro" durationInFrames={150}>
 					<Intro
 						style={{
 							backgroundColor: '#0B0B0F',
@@ -42,11 +38,7 @@ const PortfolioInner: React.FC = () => {
 						}}
 					/>
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Kinetic type"
-					durationInFrames={255}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Kinetic type" durationInFrames={255}>
 					<KineticType
 						style={{backgroundColor: '#FF4A1C', overflow: 'visible'}}
 					/>
@@ -55,11 +47,7 @@ const PortfolioInner: React.FC = () => {
 					presentation={slabWipe({colors: ['#FF4A1C', '#F3EFE6']})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
-				<TransitionSeries.Sequence
-					name="Shape & path"
-					durationInFrames={207}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Shape & path" durationInFrames={207}>
 					<ShapeMorph
 						style={{backgroundColor: '#0B0B0F', overflow: 'visible'}}
 					/>
@@ -77,7 +65,6 @@ const PortfolioInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Data visualization"
 					durationInFrames={204}
-					premountFor={30}
 				>
 					<DataViz style={{backgroundColor: '#F3EFE6', overflow: 'visible'}} />
 				</TransitionSeries.Sequence>
@@ -85,11 +72,7 @@ const PortfolioInner: React.FC = () => {
 					presentation={slide({direction: 'from-bottom'})}
 					timing={springTiming({config: {damping: 200}, durationInFrames: 24})}
 				/>
-				<TransitionSeries.Sequence
-					name="Interface"
-					durationInFrames={252}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Interface" durationInFrames={252}>
 					<Interface
 						style={{
 							backgroundColor: '#0E0F13',
@@ -102,11 +85,7 @@ const PortfolioInner: React.FC = () => {
 				<TransitionSeries.Overlay durationInFrames={36}>
 					<LightLeakOverlay />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="Generative"
-					durationInFrames={195}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Generative" durationInFrames={195}>
 					<Generative
 						style={{backgroundColor: '#0B0B0F', overflow: 'visible'}}
 					/>
@@ -115,11 +94,7 @@ const PortfolioInner: React.FC = () => {
 					presentation={blinds({count: 12, width: 1920, height: 1080})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
-				<TransitionSeries.Sequence
-					name="Dimension"
-					durationInFrames={210}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Dimension" durationInFrames={210}>
 					<CubeWave style={{backgroundColor: '#F3EFE6', overflow: 'visible'}} />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
@@ -129,11 +104,7 @@ const PortfolioInner: React.FC = () => {
 					})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
-				<TransitionSeries.Sequence
-					name="Outro"
-					durationInFrames={195}
-					premountFor={30}
-				>
+				<TransitionSeries.Sequence name="Outro" durationInFrames={195}>
 					<Outro style={{backgroundColor: '#0B0B0F', overflow: 'visible'}} />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>

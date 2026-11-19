@@ -62,7 +62,7 @@ const isForbiddenIpv6Address = (address: string) => {
 	);
 };
 
-const ensureRemoteUrlIsAllowed = async (url: URL) => {
+export const ensureRemoteUrlIsAllowed = async (url: URL) => {
 	if (url.protocol !== 'http:' && url.protocol !== 'https:') {
 		throw new Error('Only HTTP(S) URLs can be imported');
 	}

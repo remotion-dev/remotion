@@ -149,6 +149,7 @@ export type ServerlessStartPayload = {
 	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
+	proResBitsPerMacroblock: number | null;
 	disableSharedMemoryCapture: boolean;
 	jpegQuality: number | undefined;
 	maxRetries: number;
@@ -220,6 +221,7 @@ export type ServerlessPayloads = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		proResBitsPerMacroblock: number | null;
 		disableSharedMemoryCapture: boolean;
 		jpegQuality: number | undefined;
 		maxRetries: number;
@@ -285,6 +287,7 @@ export type ServerlessPayloads = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		proResBitsPerMacroblock: number | null;
 		disableSharedMemoryCapture: boolean;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;

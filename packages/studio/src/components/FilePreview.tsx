@@ -11,6 +11,7 @@ import {
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import {LutPreview} from './LutPreview';
+import {showNotification} from './Notifications/NotificationCenter';
 import {RenderOutputKeyboardShortcuts} from './RenderOutputKeyboardShortcuts';
 import {TextViewer} from './TextViewer';
 
@@ -122,12 +123,30 @@ const NativeMediaPreview: React.FC<{
 	const clockRef = useRef(outputPlayback?.clock ?? null);
 	clockRef.current = outputPlayback?.clock ?? null;
 	const content = outputPlayback?.content ?? null;
+	const nativeSrc = content?.type === 'output' ? undefined : src;
+	const playback = useRef<ReturnType<
+		typeof registerRenderOutputPlayback
+	> | null>(null);
 	useLayoutEffect(() => {
 		if (content === null || ref.current === null) return;
-		return registerRenderOutputPlayback({
+		const registration = registerRenderOutputPlayback({
 			content,
 			element: ref.current,
 			getClock: () => clockRef.current,
+		});
+		playback.current = registration;
+		return () => {
+			playback.current = null;
+			registration.unregister();
+		};
+	}, [content, fileType]);
+	useLayoutEffect(() => {
+		if (content?.type !== 'output') return;
+		playback.current?.setSource(src).catch((error: unknown) => {
+			showNotification(
+				`Could not resume output playback: ${error instanceof Error ? error.message : String(error)}`,
+				3000,
+			);
 		});
 	}, [content, fileType, src]);
 	return (
@@ -136,13 +155,13 @@ const NativeMediaPreview: React.FC<{
 			{fileType === 'audio' ? (
 				<audio
 					ref={ref as React.RefObject<HTMLAudioElement>}
-					src={src}
+					src={nativeSrc}
 					controls
 				/>
 			) : (
 				<video
 					ref={ref as React.RefObject<HTMLVideoElement>}
-					src={src}
+					src={nativeSrc}
 					controls
 				/>
 			)}
@@ -172,7 +191,11 @@ export const FilePreview: React.FC<{
 	if (fileType === 'audio' || fileType === 'video') {
 		return (
 			<NativeMediaPreview
-				key={src}
+				key={
+					outputPlayback?.content.type === 'output'
+						? outputPlayback.content.path
+						: src
+				}
 				src={src}
 				fileType={fileType}
 				outputPlayback={outputPlayback}

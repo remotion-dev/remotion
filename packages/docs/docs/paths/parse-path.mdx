@@ -10,7 +10,7 @@ _Part of the [`@remotion/paths`](/docs/paths) package._
 
 Parses an SVG string path into an array of `Instruction`'s.
 
-```tsx twoslash title="reset-path.ts"
+```tsx twoslash title="parse-path.ts"
 import { parsePath } from "@remotion/paths";
 
 const newPath = parsePath("M 10 10 L 20 20");
@@ -25,7 +25,7 @@ const newPath = parsePath("M 10 10 L 20 20");
 
 This function will throw if the SVG path is invalid.
 
-## Return type type
+## Return type
 
 An array of `Instruction`'s. The `Instruction` type can also be imported from `@remotion/paths`:
 
@@ -151,9 +151,6 @@ export type Instruction =
     }
   | {
       type: "Z";
-    }
-  | {
-      type: "z";
     };
 ```
 

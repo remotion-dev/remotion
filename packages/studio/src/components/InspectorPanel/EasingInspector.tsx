@@ -370,7 +370,7 @@ export const EasingInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
+			<SequenceInspectorSections track={track} selection={null} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}

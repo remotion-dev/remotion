@@ -2,6 +2,7 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -22,6 +23,7 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
+	setInsertedElementSelectionBaselineGetter,
 	subscribeToInsertedElementSelection,
 	type PendingInsertedElementSelection,
 } from '../../helpers/inserted-element-selection';
@@ -36,9 +38,11 @@ import {importAssets, pickFilesToImport} from '../import-assets';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {getCurrentFrame} from './imperative-state';
 import {reconcilePendingSequenceSplits} from './pending-sequence-splits';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
@@ -87,6 +91,11 @@ import {TimelineTrackOverlapValidation} from './TimelineTrackOverlapValidation';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
+import {
+	getTrackDropTarget,
+	insertElementIntoTimelineTrack,
+	type TrackDropTarget,
+} from './track-drop';
 import {useCompactSeries} from './use-compact-series';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
@@ -108,17 +117,28 @@ const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const assetDropFrame = useTimelineAssetDrop();
+	const calculateDropTracks = useTimelineCalculator();
+	const dropSequences = useContext(Internals.SequenceManagerRefContext);
+	const dropMappings = useContext(OverrideIdToNodePathMappingsRefContext);
+	const getDropTracks = useCallback(
+		() =>
+			calculateDropTracks({
+				sequences: dropSequences.current,
+				overrideIdsToNodePaths: dropMappings.current,
+			}).tracks,
+		[calculateDropTracks, dropSequences, dropMappings],
+	);
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [isAddingSolid, setIsAddingSolid] = useState(false);
+	const [isAddingElement, setIsAddingElement] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const browserStudioOperations = getBrowserStudioOperations();
-	const browserStudioCanInsertSolid = browserStudioOperations !== null;
+	const browserStudioCanInsertElement = browserStudioOperations !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -146,13 +166,14 @@ const TimelineContextMenuArea: React.FC<{
 		compositionId: currentCompositionId,
 	});
 
-	const canInsertSolid =
-		(previewInteractive || browserStudioCanInsertSolid) &&
+	const canInsertElement =
+		(previewInteractive || browserStudioCanInsertElement) &&
+		(!window.remotion_isReadOnlyStudio || browserStudioCanInsertElement) &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
 		videoConfig !== null &&
-		!isAddingSolid;
+		!isAddingElement;
 
 	const canInsertAsset =
 		previewInteractive &&
@@ -162,112 +183,185 @@ const TimelineContextMenuArea: React.FC<{
 		compositionFile !== null &&
 		!isAddingAsset;
 
-	const insertSolid = useCallback(async () => {
-		if (
-			!canInsertSolid ||
-			currentCompositionId === null ||
-			compositionFile === null ||
-			videoConfig === null
-		) {
-			return;
-		}
-
-		setIsAddingSolid(true);
-		try {
-			const request: InsertCompositionElementRequest = {
-				compositionFile,
-				compositionId: currentCompositionId,
-				from: null,
-				element: {
-					type: 'solid',
-					width: videoConfig.width,
-					height: videoConfig.height,
-					position: null,
-				},
-			};
-			const result = browserStudioOperations
-				? await browserStudioOperations.insertCompositionElement(request)
-				: await callApi('/api/insert-composition-element', request);
-
-			if (result.success) {
+	const insertElement = useCallback(
+		async (type: 'solid' | 'track', target: TrackDropTarget | null) => {
+			if (
+				!canInsertElement ||
+				currentCompositionId === null ||
+				compositionFile === null ||
+				videoConfig === null
+			) {
 				return;
 			}
 
-			showNotification(result.reason, 4000);
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		} finally {
-			setIsAddingSolid(false);
-		}
-	}, [
-		browserStudioOperations,
-		canInsertSolid,
-		compositionFile,
-		currentCompositionId,
-		videoConfig,
-	]);
+			setIsAddingElement(true);
+			const notification = showNotification(
+				type === 'track' ? 'Adding track...' : 'Adding solid...',
+				null,
+			);
+			try {
+				const request: InsertCompositionElementRequest = {
+					track: null,
+					compositionFile,
+					compositionId: currentCompositionId,
+					from: null,
+					element:
+						type === 'track'
+							? {type: 'track', position: null}
+							: {
+									type: 'solid',
+									width: videoConfig.width,
+									height: videoConfig.height,
+									position: null,
+								},
+				};
+				if (type === 'solid' && target) {
+					await insertElementIntoTimelineTrack({
+						target,
+						tracks: getDropTracks(),
+						element: request.element,
+						from: Math.max(getCurrentFrame(), target.track.sequence.from),
+						fps: videoConfig.fps,
+						compositionFile,
+						compositionId: currentCompositionId,
+					});
+					return;
+				}
 
-	const insertAsset = useCallback(async () => {
-		if (
-			!canInsertAsset ||
-			currentCompositionId === null ||
-			compositionFile === null ||
-			videoConfig === null
-		) {
-			return;
-		}
+				const result = browserStudioOperations
+					? await browserStudioOperations.insertCompositionElement(request)
+					: await callApi('/api/insert-composition-element', request);
 
-		const files = await pickFilesToImport();
-		if (files.length === 0) {
-			return;
-		}
+				if (result.success) {
+					return;
+				}
 
-		setIsAddingAsset(true);
-		try {
-			await importAssets({
-				files,
-				fps: videoConfig.fps,
-				compositionFile,
-				compositionId: currentCompositionId,
-				destinationDimensions: null,
-				dropPosition: null,
-				from: null,
-				preferCompositionStart: null,
-				svgImportMode: 'image',
-			});
-		} finally {
-			setIsAddingAsset(false);
-		}
-	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
+				showNotification(result.reason, 4000);
+			} catch (err) {
+				showNotification((err as Error).message, 4000);
+			} finally {
+				notification.dismiss();
+				setIsAddingElement(false);
+			}
+		},
+		[
+			browserStudioOperations,
+			canInsertElement,
+			getDropTracks,
+			compositionFile,
+			currentCompositionId,
+			videoConfig,
+		],
+	);
 
-	const getContextMenuItems = useCallback((): ComboboxValue[] => {
-		return [
-			{
-				type: 'item',
-				id: 'insert-solid',
-				label: 'Add <Solid>',
-				value: 'insert-solid',
-				onClick: insertSolid,
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-				disabled: !canInsertSolid,
-			},
-			{
-				type: 'item',
-				id: 'insert-asset',
-				label: 'Add asset',
-				value: 'insert-asset',
-				onClick: insertAsset,
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-				disabled: !canInsertAsset,
-			},
-		];
-	}, [insertSolid, canInsertSolid, insertAsset, canInsertAsset]);
+	const insertAsset = useCallback(
+		async (target: TrackDropTarget | null) => {
+			if (
+				!canInsertAsset ||
+				currentCompositionId === null ||
+				compositionFile === null ||
+				videoConfig === null
+			) {
+				return;
+			}
+
+			const files = await pickFilesToImport();
+			if (files.length === 0) {
+				return;
+			}
+
+			setIsAddingAsset(true);
+			try {
+				await importAssets({
+					insert: target
+						? ({element}) =>
+								insertElementIntoTimelineTrack({
+									target,
+									tracks: getDropTracks(),
+									element,
+									from: Math.max(getCurrentFrame(), target.track.sequence.from),
+									fps: videoConfig.fps,
+									compositionFile,
+									compositionId: currentCompositionId,
+								})
+						: null,
+					files,
+					fps: videoConfig.fps,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions: null,
+					dropPosition: null,
+					from: null,
+					preferCompositionStart: null,
+					svgImportMode: 'image',
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[
+			canInsertAsset,
+			compositionFile,
+			currentCompositionId,
+			videoConfig,
+			getDropTracks,
+		],
+	);
+
+	const getContextMenuItems = useCallback(
+		(event: MouseEvent): ComboboxValue[] => {
+			const target = getTrackDropTarget(
+				event.clientX,
+				event.clientY,
+				getDropTracks(),
+			);
+			return [
+				{
+					type: 'item',
+					id: 'insert-track',
+					label: 'Add Track',
+					value: 'insert-track',
+					onClick: () => insertElement('track', null),
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+					disabled: !canInsertElement,
+				},
+				{
+					type: 'item',
+					id: 'insert-solid',
+					label: 'Add Solid',
+					value: 'insert-solid',
+					onClick: () => insertElement('solid', target),
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+					disabled: !canInsertElement,
+				},
+				{
+					type: 'item',
+					id: 'insert-asset',
+					label: 'Add asset',
+					value: 'insert-asset',
+					onClick: () => insertAsset(target),
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+					disabled: !canInsertAsset,
+				},
+			];
+		},
+		[
+			insertElement,
+			canInsertElement,
+			insertAsset,
+			canInsertAsset,
+			getDropTracks,
+		],
+	);
 
 	return (
 		<ContextMenu
@@ -533,6 +627,16 @@ const TimelineInner: React.FC = () => {
 	} | null>(null);
 	const selectionBaselineRef = useRef({fastRefreshes, timeline});
 	selectionBaselineRef.current = {fastRefreshes, timeline};
+	useEffect(() => {
+		const getBaseline = () => ({
+			fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+			existingSequenceIds: new Set(
+				selectionBaselineRef.current.timeline.map((track) => track.sequence.id),
+			),
+		});
+		setInsertedElementSelectionBaselineGetter(getBaseline);
+		return () => setInsertedElementSelectionBaselineGetter(null);
+	}, []);
 	const subscribeToPendingSelection = useCallback((listener: () => void) => {
 		return subscribeToInsertedElementSelection(() => {
 			const selection = getInsertedElementSelection();
@@ -541,12 +645,14 @@ const TimelineInner: React.FC = () => {
 				// already committed the inserted sequence by the next layout effect.
 				pendingSelectionStart.current = {
 					selection,
-					fastRefreshes: selectionBaselineRef.current.fastRefreshes,
-					existingSequenceIds: new Set(
-						selectionBaselineRef.current.timeline.map(
-							(track) => track.sequence.id,
+					...(selection.baseline ?? {
+						fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+						existingSequenceIds: new Set(
+							selectionBaselineRef.current.timeline.map(
+								(track) => track.sequence.id,
+							),
 						),
-					),
+					}),
 				};
 			}
 
@@ -667,12 +773,16 @@ const TimelineInner: React.FC = () => {
 		) {
 			pendingSelectionStart.current = {
 				selection: pendingInsertedElementSelection,
-				fastRefreshes,
-				existingSequenceIds: new Set(
-					timeline.map((track) => track.sequence.id),
-				),
+				...(pendingInsertedElementSelection.baseline ?? {
+					fastRefreshes,
+					existingSequenceIds: new Set(
+						timeline.map((track) => track.sequence.id),
+					),
+				}),
 			};
-			return;
+			if (pendingInsertedElementSelection.baseline === null) {
+				return;
+			}
 		}
 
 		if (pendingSelectionStart.current.fastRefreshes === fastRefreshes) {
@@ -836,6 +946,7 @@ const TimelineInner: React.FC = () => {
 												<TimelineList />
 											</SplitterElement>
 											<SplitterHandle
+												label="Timeline labels width"
 												onCollapse={noop}
 												onCollapseDuringDrag={null}
 												allowToCollapse="none"

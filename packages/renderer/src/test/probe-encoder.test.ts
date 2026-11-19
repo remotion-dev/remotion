@@ -38,6 +38,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				proResBitsPerMacroblock: null,
 				onLog: null,
 			}),
 		).toBe('disable');
@@ -54,6 +55,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				proResBitsPerMacroblock: null,
 				onLog: null,
 			}),
 		).toBe('if-possible');
@@ -70,6 +72,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				proResBitsPerMacroblock: null,
 				onLog: null,
 			}),
 		).toBe('required');
@@ -86,6 +89,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				proResBitsPerMacroblock: null,
 				onLog: null,
 			}),
 		).toBe('if-possible');
@@ -107,6 +111,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: 20,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					proResBitsPerMacroblock: null,
 					onLog,
 				}),
 			).toBe('disable');
@@ -131,6 +136,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					proResBitsPerMacroblock: null,
 					onLog: null,
 				}),
 			).toBe('if-possible');
@@ -148,6 +154,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					proResBitsPerMacroblock: null,
 					onLog: null,
 				}),
 			).toBe('if-possible');
@@ -165,6 +172,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					proResBitsPerMacroblock: null,
 					onLog: null,
 				}),
 			).toBe('disable');

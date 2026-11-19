@@ -33,6 +33,24 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [Client-side rendering](https://www.remotion.dev/docs/client-side-rendering/index.md)
 - [@remotion/lambda](https://www.remotion.dev/docs/lambda.md)
 
+## Rendering from data and servers
+
+- [Passing props](https://www.remotion.dev/docs/passing-props.md)
+- [Parameterized videos](https://www.remotion.dev/docs/parameterized-rendering.md)
+- [Defining a schema](https://www.remotion.dev/docs/schemas.md)
+- [calculateMetadata()](https://www.remotion.dev/docs/calculate-metadata.md)
+- [Server-side rendering](https://www.remotion.dev/docs/ssr.md): Includes the Render Server template (`npx create-video@latest --render-server`).
+- [Rendering using SSR APIs (Node.js and Bun)](https://www.remotion.dev/docs/ssr-node.md)
+- [All options](https://www.remotion.dev/docs/options.md)
+- [Docker](https://www.remotion.dev/docs/docker.md)
+- [Linux dependencies](https://www.remotion.dev/docs/miscellaneous/linux-dependencies.md)
+- [Chrome Headless Shell](https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell.md)
+
+## License
+
+- [License and terms](https://www.remotion.dev/docs/license.md)
+- [Telemetry and license keys](https://www.remotion.dev/docs/telemetry.md)
+
 ## Elements
 
 - [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown includes its install command and source code.

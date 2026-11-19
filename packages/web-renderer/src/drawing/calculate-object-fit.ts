@@ -34,16 +34,18 @@ export const calculateObjectFit = ({
 		width = containerSize.width;
 		height = containerSize.height;
 	} else if (objectFit !== 'none') {
+		const widthScale = containerSize.width / width;
+		const heightScale = containerSize.height / height;
 		const scale =
 			objectFit === 'cover'
-				? Math.max(containerSize.width / width, containerSize.height / height)
+				? Math.max(widthScale, heightScale)
 				: Math.min(
-						containerSize.width / width,
-						containerSize.height / height,
+						widthScale,
+						heightScale,
 						objectFit === 'scale-down' ? 1 : Infinity,
 					);
-		width *= scale;
-		height *= scale;
+		width = scale === widthScale ? containerSize.width : width * scale;
+		height = scale === heightScale ? containerSize.height : height * scale;
 	}
 
 	const position = parsePosition(objectPosition);
@@ -67,8 +69,15 @@ export const calculateObjectFit = ({
 	return {
 		sourceX: ((clippedLeft - left) * intrinsicSize.width) / width,
 		sourceY: ((clippedTop - top) * intrinsicSize.height) / height,
-		sourceWidth: (destWidth * intrinsicSize.width) / width,
-		sourceHeight: (destHeight * intrinsicSize.height) / height,
+		// Keep exact intrinsic extents when the corresponding destination edges were not clipped.
+		sourceWidth:
+			clippedLeft === left && clippedRight === left + width
+				? intrinsicSize.width
+				: (destWidth * intrinsicSize.width) / width,
+		sourceHeight:
+			clippedTop === top && clippedBottom === top + height
+				? intrinsicSize.height
+				: (destHeight * intrinsicSize.height) / height,
 		destX: containerSize.left + clippedLeft,
 		destY: containerSize.top + clippedTop,
 		destWidth,

@@ -14,11 +14,7 @@ import {
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
 import {AvailableFrom} from '../../src/components/AvailableFrom';
-import {
-	DebugOption,
-	RectEdgeRoundness,
-	TriangleEdgeRoundness,
-} from './edge-roundness';
+import {RectEdgeRoundness, TriangleEdgeRoundness} from './edge-roundness';
 
 type Param = {
 	name: string;
@@ -85,7 +81,7 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'cornerRadius',
 				type: 'number',
 				description:
-					"Rounds the corner using an arc. Similar to CSS's border-radius.",
+					"Rounds the corner using an arc. Similar to CSS's border-radius. Default 0.",
 				hiddenFromList: false,
 			},
 		],
@@ -105,6 +101,17 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description: 'The height of the rectangle.',
 				hiddenFromList: false,
+			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description: (
+					<>
+						Rounds the corner using an arc. Similar to {"CSS's"}{' '}
+						<code>border-radius</code>. Cannot be used together with{' '}
+						<code>edgeRoundness</code>. Default <code>0</code>.
+					</>
+				),
 			},
 		],
 	},
@@ -155,6 +162,17 @@ export const shapeComponents: ShapeComponent[] = [
 				description:
 					'Allows to modify the shape by rounding the edges using bezier curves. Default null.',
 			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description: (
+					<>
+						Rounds the corner using an arc. Similar to {"CSS's"}{' '}
+						<code>border-radius</code>. Cannot be used together with{' '}
+						<code>edgeRoundness</code>. Default <code>0</code>.
+					</>
+				),
+			},
 		],
 	},
 	{
@@ -189,14 +207,14 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'bottomRoundnessAdjustment',
 				type: 'number',
 				description:
-					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder.',
+					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder. Default 0.',
 				hiddenFromList: false,
 			},
 			{
 				name: 'depthAdjustment',
 				type: 'number',
 				description:
-					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower.',
+					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower. Default 0.',
 				hiddenFromList: false,
 			},
 		],
@@ -244,7 +262,8 @@ export const shapeComponents: ShapeComponent[] = [
 				description: (
 					<>
 						Add rotation to the path. <code>0</code> means no rotation,{' '}
-						<code>Math.PI * 2</code> means 1 full clockwise rotation{' '}
+						<code>Math.PI * 2</code> means 1 full clockwise rotation. Default{' '}
+						<code>0</code>.
 					</>
 				),
 				hiddenFromList: false,
@@ -284,6 +303,17 @@ export const shapeComponents: ShapeComponent[] = [
 				type: '"left" | "right" | "up" | "down"',
 				description: 'The direction of the triangle.',
 			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description: (
+					<>
+						Rounds the corner using an arc. Similar to {"CSS's"}{' '}
+						<code>border-radius</code>. Cannot be used together with{' '}
+						<code>edgeRoundness</code>. Default <code>0</code>.
+					</>
+				),
+			},
 		],
 	},
 	{
@@ -307,6 +337,23 @@ export const shapeComponents: ShapeComponent[] = [
 				type: 'number',
 				description: 'The outer radius of the star.',
 				hiddenFromList: false,
+			},
+			{
+				name: 'edgeRoundness',
+				type: 'number | null',
+				description:
+					'Allows to modify the shape by rounding the edges using bezier curves. Default null.',
+			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description: (
+					<>
+						Rounds the corner using an arc. Similar to {"CSS's"}{' '}
+						<code>border-radius</code>. Cannot be used together with{' '}
+						<code>edgeRoundness</code>. Default <code>0</code>.
+					</>
+				),
 			},
 		],
 	},
@@ -367,7 +414,7 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'cornerRadius',
 				type: 'number',
 				description:
-					"Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.",
+					"Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness. Default 0.",
 				hiddenFromList: false,
 			},
 		],
@@ -396,7 +443,7 @@ const globalParams: Param[] = [
 	},
 	{
 		name: 'strokeWidth',
-		type: 'string',
+		type: 'number | string',
 		description: (
 			<>
 				The width of the stroke. Should be used together with{' '}
@@ -406,7 +453,7 @@ const globalParams: Param[] = [
 	},
 	{
 		name: 'style',
-		type: 'string',
+		type: 'React.CSSProperties',
 		description: (
 			<>
 				CSS properties that will be applied to the <code>{'<svg>'}</code> tag,
@@ -417,7 +464,7 @@ const globalParams: Param[] = [
 	},
 	{
 		name: 'pathStyle',
-		type: 'string',
+		type: 'React.CSSProperties',
 		description: (
 			<>
 				CSS properties that will be applied to the <code>{'<path>'}</code> tag.
@@ -450,6 +497,12 @@ const globalParams: Param[] = [
 		),
 	},
 	{
+		name: 'debug',
+		type: 'boolean',
+		description:
+			'If enabled, draws the lines for Bézier curves. This is meant for debugging, note that the visuals may change in any version.',
+	},
+	{
 		name: 'effects',
 		type: 'EffectsProp',
 		description: (
@@ -461,6 +514,17 @@ const globalParams: Param[] = [
 					<code>{'<HtmlInCanvas>'}</code>
 				</a>
 				.
+			</>
+		),
+	},
+	{
+		name: 'effectsOutputSize',
+		type: 'EffectsOutputSize',
+		description: (
+			<>
+				The pixel dimensions used by the effect chain. See{' '}
+				<a href="/docs/effects/api#effect-resolution">Effect resolution</a>.
+				Available from v4.0.536.
 			</>
 		),
 	},
@@ -506,34 +570,8 @@ export const ShapeOptions: React.FC<{
 					</React.Fragment>
 				);
 			})}
-			{all &&
-			(shapeComponent.shape === 'Rect' ||
-				shapeComponent.shape === 'Callout' ||
-				shapeComponent.shape === 'Triangle' ||
-				shapeComponent.shape === 'Polygon') ? (
-				<>
-					<h3>
-						<code>cornerRadius</code>
-					</h3>
-					<p>
-						<em>number</em>
-					</p>
-					<p>
-						Rounds the corner using an arc. Similar to {"CSS's"}{' '}
-						<code>border-radius</code>. Cannot be used together with{' '}
-						<code>edgeRoundness</code>.
-					</p>
-				</>
-			) : null}
-
 			{shapeComponent.shape === 'Rect' ? <RectEdgeRoundness /> : null}
 			{shapeComponent.shape === 'Triangle' ? <TriangleEdgeRoundness /> : null}
-			{all &&
-			(shapeComponent.shape === 'Rect' ||
-				shapeComponent.shape === 'Callout' ||
-				shapeComponent.shape === 'Triangle') ? (
-				<DebugOption />
-			) : null}
 			{all ? (
 				<>
 					<h3>
@@ -552,10 +590,18 @@ export const ShapeOptions: React.FC<{
 						,{' '}
 						<a href="/docs/sequence#trimbefore">
 							<code>trimBefore</code>
-						</a>
-						<AvailableFrom v="4.0.482" inline />,{' '}
+						</a>{' '}
+						(from v4.0.482),{' '}
 						<a href="/docs/sequence#playbackrate">
 							<code>playbackRate</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#loop">
+							<code>loop</code>
+						</a>
+						,{' '}
+						<a href="/docs/sequence#freeze">
+							<code>freeze</code>
 						</a>
 						,{' '}
 						<a href="/docs/sequence#name">
@@ -572,7 +618,7 @@ export const ShapeOptions: React.FC<{
 						from <a href="/docs/sequence">{'<Sequence>'}</a>.
 					</p>
 					<p>
-						From <AvailableFrom v="4.0.528" inline />, it also inherits{' '}
+						From v4.0.528, it also inherits{' '}
 						<a href="/docs/sequence#premountfor">
 							<code>premountFor</code>
 						</a>
@@ -611,8 +657,7 @@ export const ShapeOptions: React.FC<{
 
 export const MakeShapeReturnType: React.FC<{
 	readonly shape: string;
-	readonly includeComponentLink?: boolean;
-}> = ({shape, includeComponentLink = true}) => {
+}> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
 	);
@@ -659,23 +704,15 @@ export const MakeShapeReturnType: React.FC<{
 				A string representing the point of origin if a shape should be rotated
 				around itself.
 			</p>
-			{includeComponentLink ? (
-				<p>
-					If you want to rotate the shape around its center, use the{' '}
-					<code>transform-origin</code> CSS property and pass this value, and
-					also add <code>transform-box: fill-box</code>. This is the default for{' '}
-					<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
-						<code>{`<${shapeComponent.shape} />`}</code>
-					</a>
-					.
-				</p>
-			) : (
-				<p>
-					If you want to rotate the shape around its center, use the{' '}
-					<code>transform-origin</code> CSS property and pass this value, and
-					also add <code>transform-box: fill-box</code>.
-				</p>
-			)}
+			<p>
+				If you want to rotate the shape around its center, use the{' '}
+				<code>transform-origin</code> CSS property and pass this value, and also
+				add <code>transform-box: fill-box</code>. This is the default for{' '}
+				<a href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}>
+					<code>{`<${shapeComponent.shape} />`}</code>
+				</a>
+				.
+			</p>
 		</div>
 	);
 };
@@ -728,9 +765,9 @@ export const ShapeSeeAlso: React.FC<{
 	return (
 		<ul>
 			<li>
-				<a
-					href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
-				>{`make${shapeComponent.shape}()`}</a>
+				<a href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}>
+					<code>{`make${shapeComponent.shape}()`}</code>
+				</a>
 			</li>
 			<li>
 				<a href={`/docs/shapes`}>
@@ -741,7 +778,7 @@ export const ShapeSeeAlso: React.FC<{
 				<a
 					href={`https://github.com/remotion-dev/remotion/blob/main/packages/shapes/src/components/${shape.toLowerCase()}.tsx`}
 				>
-					Source code for this function
+					Source code for this component
 				</a>
 			</li>
 		</ul>

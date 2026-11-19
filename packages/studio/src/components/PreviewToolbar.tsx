@@ -169,6 +169,7 @@ export const PreviewToolbar: React.FC<{
 		>
 			<div className="remotion-preview-toolbar-splitter" style={splitter}>
 				<SplitterHandle
+					label={null}
 					allowToCollapse="none"
 					onCollapse={noop}
 					onCollapseDuringDrag={null}

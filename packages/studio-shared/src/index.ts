@@ -3,6 +3,7 @@ export type {
 	SourceMutationGuard,
 } from './source-file-version';
 export {getConflictingOutputPaths} from './get-conflicting-output-paths';
+export {getOpenTimelineFrameRate} from './get-open-timeline-frame-rate';
 export {
 	getPortableDownloadFilename,
 	validateStudioArtifactFilename,
@@ -156,6 +157,7 @@ export {
 	ReorderEffectResponse,
 	ReorderSequencePosition,
 	ReorderSequenceRequest,
+	TrackMoveTiming,
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
@@ -190,6 +192,9 @@ export {
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
+	UpdateSequencePropsSubscriptionRequest,
+	SequencePropsSubscriptionUpdate,
+	UpdateSequencePropsSubscriptionBatchRequest,
 	UnsubscribeFromSequencePropsBatchRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
@@ -272,6 +277,7 @@ export {
 	remoteAssetDownloadTimeout,
 } from './remote-asset';
 export {
+	isKeyframeEasing,
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
 	type EasingClipboardData,

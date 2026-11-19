@@ -19,7 +19,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes default prop subscriptions through Browser Studio operations', async () => {
+test('routes default prop subscriptions through remotion.new operations', async () => {
 	const calls: string[] = [];
 	const operations = makeBrowserStudioOperations({
 		subscribeToDefaultProps: ({clientId, compositionId}) => {

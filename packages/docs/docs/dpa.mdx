@@ -3,33 +3,33 @@ image: https://remotion.media/docs/generated/articles-docs-dpa.png
 title: DPA Statement
 sidebar_label: DPA Statement
 crumb: 'Legal'
-description: Statement explaining how Remotion AG handles personal data as an independent controller for the licensing platform and why a separate GDPR Article 28 Data Processing Addendum is generally not required.
+description: Statement explaining how Remotion AG handles personal data as an independent controller for its online services and why a separate GDPR Article 28 Data Processing Addendum is generally not required.
 ---
 
 [Download PDF](/docs/dpa.pdf)
 
 :::info Transparency statement
-Although published in the Remotion documentation, this statement concerns the [Remotion licensing platform](https://www.remotion.pro/) and its licensing telemetry. It does not cover the infrastructure or provider arrangements of remotion.dev itself.
+This statement concerns Remotion's [online services](https://www.remotion.dev/), including its website, user accounts, Store, billing, and license-management services, and their associated usage telemetry.
 
 It explains why a separate GDPR Article 28 Data Processing Addendum is generally not required. It is provided for transparency and is not a contract or legal advice.
 :::
 
 **Version 1.0. Effective July 6, 2026**
 
-This DPA Statement explains how **Remotion AG**, Neunbrunnenstrasse 38, 8050 Zürich, Switzerland ("**Remotion**", "**we**", "**us**") handles personal data in connection with its license sales and usage telemetry system, and why a separate GDPR Article 28 Data Processing Addendum (a "**DPA**") is generally not required for the Remotion licensing platform in its current form.
+This DPA Statement explains how **Remotion AG**, Neunbrunnenstrasse 38, 8050 Zürich, Switzerland ("**Remotion**", "**we**", "**us**") handles personal data in connection with its online services and usage telemetry, and why a separate GDPR Article 28 Data Processing Addendum (a "**DPA**") is generally not required for the processing described here.
 
-This statement is provided for transparency. It is not a contract and does not create rights or obligations beyond those set out in the [Terms and Conditions](/docs/terms) ("**Main Agreement**") and the [Privacy Policy](/docs/privacy). A related [DPIA Statement](/docs/dpia) explains why the licensing platform and its telemetry are not likely to result in a high risk and why a formal Data Protection Impact Assessment is not required. Where there is any conflict, the Main Agreement and Privacy Policy prevail. This statement is not legal advice.
+This statement is provided for transparency. It is not a contract and does not create rights or obligations beyond those set out in the [Terms and Conditions](/docs/terms) ("**Main Agreement**") and the [Privacy Policy](/docs/privacy). A related [DPIA Statement](/docs/dpia) explains why the account, billing, store, license-management, and usage-telemetry processing assessed there is not likely to result in a high risk and why a formal Data Protection Impact Assessment is not required. Where there is any conflict, the Main Agreement and Privacy Policy prevail. This statement is not legal advice.
 
 ## 1. Why a separate Article 28 DPA is generally not required {#Why-No-DPA}
 
 A DPA under GDPR Article 28 (and equivalent provisions under UK GDPR and the Swiss nFADP) is required where a **processor** processes personal data **on behalf of** a **controller**, acting only on that controller's documented instructions.
 
-For the Remotion licensing platform in its current form, that relationship does not arise:
+For the online services described here, that relationship does not arise:
 
-- Remotion does **not** offer a hosted rendering service. Server rendering runs in the customer's own infrastructure, and client-side rendering runs in the end user's browser. Rendered media, project source code, and customer end-user content remain under the customer's control and are not transmitted to Remotion.
+- Remotion does **not** offer a hosted rendering service. Server rendering runs in the customer's own infrastructure, and client-side rendering runs in the end user's browser. Rendered media, project source code, and customer end-user content remain under the customer's control and are not transmitted to Remotion through its account, billing, and license-management services.
 - The personal data Remotion does handle (account, billing, store, support, license verification, and telemetry data) is processed for **Remotion's own purposes**, not on customer instructions.
 
-Because Remotion does not process customer-controlled personal data on customer instructions, Remotion acts as an **independent controller** for this data rather than as the customer's processor. An Article 28 processor DPA is therefore not the appropriate instrument for the current platform.
+Because Remotion does not process this personal data on customer instructions, Remotion acts as an **independent controller** for this data rather than as the customer's processor. An Article 28 processor DPA is therefore not the appropriate instrument for the processing described here.
 
 This does not mean data protection law is irrelevant: GDPR, UK GDPR, and the Swiss nFADP may still apply to Remotion's own controller activities, and Remotion meets those obligations through its [Privacy Policy](/docs/privacy) and the practices described below.
 
@@ -43,21 +43,21 @@ Remotion determines the purposes and means of processing for the following and a
 - Issuing and validating license keys and managing licensing relationships.
 - Collecting limited usage telemetry to verify license compliance, calculate usage-based billing, and give customers visibility into their own rendering activity.
 - Providing customer and community support (including via Discord for priority support customers).
-- Preventing abuse and fraud and ensuring the security of the licensing system.
+- Preventing abuse and fraud and ensuring the security of the online services.
 - Complying with legal obligations (tax, accounting, and valid law enforcement requests).
 
 The categories of personal data, legal bases, retention, and data subject rights for this processing are described in the [Privacy Policy](/docs/privacy).
 
 ## 3. What Remotion does not process {#What-We-Do-Not-Process}
 
-As part of the licensing platform, Remotion does **not** receive or process:
+Through its account, billing, and license-management services, Remotion does **not** receive or process:
 
 - Customer-rendered media or its content or metadata.
 - Customer project source code or Remotion project content.
 - Rendered output or media assets generated by the customer.
 - End-user content, datasets, or uploads belonging to the customer or the customer's own users.
 
-Because Remotion has no access to this content, Remotion is not processing it on the customer's behalf, either as a controller or as a processor.
+For content that remains solely in the customer's own environment, Remotion is not processing it, either as a controller or as a processor. Customers may separately choose to submit files or other content to Remotion, for example when requesting support; those submissions are not covered by the exclusions above.
 
 ## 4. Telemetry {#Telemetry}
 
@@ -76,11 +76,9 @@ If a customer's integration causes personal data of the customer's own end users
 
 ## 6. Service providers {#Service-Providers}
 
-To operate its licensing and usage telemetry system, Remotion relies on the service providers listed below. This list is derived from actual integrations in the remotion.pro codebase (environment variables, SDK dependencies, and deployment configuration). It is provided for transparency.
+To operate its online services and usage telemetry, Remotion relies on the service providers listed below. This list is derived from actual integrations in Remotion's applications (environment variables, SDK dependencies, and deployment configuration). It is provided for transparency.
 
 Most of these providers process personal data **on Remotion's behalf and on Remotion's instructions** as processors engaged by Remotion (i.e. they are Remotion's subprocessors, not the customer's). Some providers, such as payment processors, additionally act as **Independent Controllers** for their own legal, fraud-prevention, and compliance purposes. Where a provider acts as an Independent Controller, that processing is governed by the provider's own terms, not by Remotion.
-
-**Note on remotion.dev**: The remotion.dev website contains developer documentation, it is operated by the same legal entity (Remotion AG) but maintained in a separate repository. Its infrastructure and provider arrangement is not covered by this list.
 
 | Service provider                            | Location     | Service / Purpose                                                                   |
 | ------------------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
@@ -128,7 +126,7 @@ Several of the U.S.-based service providers listed above also self-certify under
 
 ## 9. Enterprise and custom arrangements {#Enterprise}
 
-Some Enterprise customers, or customers whose integration or contractual setup differs from the standard licensing platform, may have specific data protection requirements. If your organization requires a separate data processing agreement or a tailored arrangement, contact privacy@remotion.dev and we will assess what is appropriate for your use case.
+Some Enterprise customers, or customers whose integration or contractual setup differs from the standard online services described here, may have specific data protection requirements. If your organization requires a separate data processing agreement or a tailored arrangement, contact privacy@remotion.dev and we will assess what is appropriate for your use case.
 
 ## 10. Contact {#Contact}
 

@@ -47,9 +47,8 @@ const externalLinkIndicator: React.CSSProperties = {
 };
 
 export const SettingsModalFooter: React.FC<{
-	readonly showAboutElements: boolean;
 	readonly showLicenseFaq: boolean;
-}> = ({showAboutElements, showLicenseFaq}) => {
+}> = ({showLicenseFaq}) => {
 	const {restartRequired} = useContext(StudioServerConnectionCtx);
 	const [restarting, setRestarting] = useState(false);
 	const configFileLocation = useMemo(() => {
@@ -62,13 +61,6 @@ export const SettingsModalFooter: React.FC<{
 	const openLicenseFaq = useCallback(() => {
 		window.open(
 			'https://www.remotion.dev/docs/license/faq',
-			'_blank',
-			'noopener,noreferrer',
-		);
-	}, []);
-	const openAboutElements = useCallback(() => {
-		window.open(
-			'https://www.remotion.dev/elements',
 			'_blank',
 			'noopener,noreferrer',
 		);
@@ -92,6 +84,7 @@ export const SettingsModalFooter: React.FC<{
 							Changes save to
 							<Spacing x={0.5} />
 							<InspectorOpenInEditor
+								sourceTarget={null}
 								menuTrigger={null}
 								annotationName={null}
 								locationType={null}
@@ -113,18 +106,14 @@ export const SettingsModalFooter: React.FC<{
 					>
 						{restarting ? 'Restarting...' : 'Restart Studio'}
 					</ModalButton>
-				) : showLicenseFaq || showAboutElements ? (
+				) : showLicenseFaq ? (
 					<InspectorQuickAction
 						disabled={false}
-						onClick={showLicenseFaq ? openLicenseFaq : openAboutElements}
+						onClick={openLicenseFaq}
 						style={{flex: 'none', width: 'fit-content'}}
-						aria-label={
-							showLicenseFaq
-								? 'Open the Remotion License FAQ in a new tab'
-								: 'Open Remotion Elements in a new tab'
-						}
+						aria-label="Open the Remotion License FAQ in a new tab"
 					>
-						{showLicenseFaq ? 'License FAQ' : 'About Elements'}
+						License FAQ
 						<svg
 							aria-hidden="true"
 							viewBox="0 0 16 16"

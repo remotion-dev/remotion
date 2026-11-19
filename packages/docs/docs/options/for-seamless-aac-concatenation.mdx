@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # For seamless AAC concatenation<AvailableFrom v="4.0.123" />
 
-If enabled, the audio is trimmed to the nearest AAC frame, which is required for seamless concatenation of AAC files. This is a requirement if you later want to combine multiple video snippets seamlessly.<br /><br /> This option is used internally. There is currently no documentation yet for to concatenate the audio chunks.
+If enabled, the audio is trimmed to the nearest AAC frame, which is required for seamless concatenation of AAC files. This is a requirement if you later want to combine multiple video snippets seamlessly.<br /><br /> See [Distributed rendering](/docs/distributed-rendering) and [`combineChunks()`](/docs/renderer/combine-chunks) for how to concatenate the chunks.
 
 ## CLI flag
 
@@ -27,6 +27,7 @@ The following CLI commands accept this option:
 
 The following APIs accept this option:
 
+- [`renderFrames()`](/docs/renderer/render-frames#forseamlessaacconcatenation)
 - [`renderMedia()`](/docs/renderer/render-media#forseamlessaacconcatenation)
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#forseamlessaacconcatenation)
 - [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#forseamlessaacconcatenation)

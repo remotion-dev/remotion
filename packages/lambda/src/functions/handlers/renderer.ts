@@ -354,6 +354,7 @@ const renderHandler = async ({
 			proResProfile: params.proResProfile ?? undefined,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			proResBitsPerMacroblock: params.proResBitsPerMacroblock ?? null,
 			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,
 			chromiumOptions,

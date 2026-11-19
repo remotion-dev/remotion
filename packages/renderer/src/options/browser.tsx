@@ -8,8 +8,8 @@ export const browserOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Specify the browser which should be used for opening a tab. The default
-			browser will be used by default. Pass an absolute path or{' '}
+			Specify the browser which should be used for opening a tab. If not set,
+			the system default browser is used. Pass an absolute path or{' '}
 			<code>&quot;chrome&quot;</code> to use Chrome. If Chrome is selected as
 			the browser and you are on macOS, Remotion will try to reuse an existing
 			tab.

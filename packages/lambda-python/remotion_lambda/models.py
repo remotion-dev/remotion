@@ -415,6 +415,7 @@ class RenderMediaParams:
     disable_shared_memory_capture: bool = False
     separate_audio_to: Optional[Union[str, OutNameInputObject]] = None
     preferred_effect_backend: Literal["auto", "webgpu", "webgl2", "2d"] = "auto"
+    pro_res_bits_per_macroblock: Optional[int] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -481,6 +482,7 @@ class RenderMediaParams:
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'gopSize': self.gop_size,
+            'proResBitsPerMacroblock': self.pro_res_bits_per_macroblock,
             'disableSharedMemoryCapture': self.disable_shared_memory_capture,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,

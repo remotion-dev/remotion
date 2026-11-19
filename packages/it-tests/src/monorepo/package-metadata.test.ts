@@ -104,7 +104,13 @@ test('All packages should have a README.md file', () => {
 				.filter((t) => t !== null)
 				.join('\n') + '\n';
 
-		if (pkg === 'convert' || pkg === 'remotion-media' || pkg === 'skills') {
+		if (
+			pkg === 'convert' ||
+			pkg === 'remotion-media' ||
+			pkg === 'skills' ||
+			pkg === 'agent-plugin' ||
+			pkg === 'claude-code-plugin'
+		) {
 			continue;
 		}
 

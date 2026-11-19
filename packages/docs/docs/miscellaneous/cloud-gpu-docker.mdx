@@ -25,8 +25,7 @@ We recommend to first follow these instructions and make changes once you have a
 
 ## Setup EC2 for Docker with GPU
 
-<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing Chrome, Node.js and cloning the repo to render a video.
-
+<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing Chrome, Node.js and cloning the repo to render a video.<br />
 <Step>2</Step> Install NVIDIA Container toolkit:
 
 ```bash title="Add keyring"
@@ -39,7 +38,7 @@ sudo apt-get update
 sudo apt-get install -y nvidia-container-toolkit
 ```
 
-<Step>3</Step>Install Docker: <br />
+<Step>3</Step> Install Docker:
 
 ```bash title="Add Docker's official GPG key"
 sudo apt-get update
@@ -58,7 +57,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-<Step>4</Step>Configure Docker to use the NVIDIA runtime <br />
+<Step>4</Step> Configure Docker to use the NVIDIA runtime
 
 ```bash title="Configure the NVIDIA container runtime"
 sudo nvidia-ctk runtime configure --runtime=docker
@@ -66,7 +65,7 @@ sudo systemctl restart docker
 ```
 
 <Step>5</Step> Create two files, <code>Dockerfile</code> and <code>entrypoint.sh</code>. You can for example create them using the <code>nano ./file-to-create</code> command. Use <kbd>Ctrl</kbd>
-<kbd>X</kbd> to save and quit. <br />
+<kbd>X</kbd> to save and quit.
 
 ```bash title="Dockerfile"
 FROM node:20-bookworm
@@ -91,7 +90,7 @@ CMD ["sh", "./entrypoint.sh"]
 npx remotion render --gl=angle-egl Scene out/video.mp4
 ```
 
-<Step>6</Step> Build the container and run a sample render: <br />
+<Step>6</Step> Build the container and run a sample render:
 
 ```bash
 sudo docker build . -t remotion-docker-gpu

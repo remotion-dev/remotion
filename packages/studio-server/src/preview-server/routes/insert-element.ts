@@ -26,5 +26,6 @@ export const insertElementHandler: ApiHandler<
 		// Studio installs missing dependencies from the browser beforehand, so it
 		// can show progress notifications and queue them with other installations.
 		installDependencies: false,
+		packageManager: null,
 		studio: true,
 	});

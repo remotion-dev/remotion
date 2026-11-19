@@ -72,13 +72,9 @@ export const downloadWhisperModel = async ({
 			return Promise.resolve({alreadyExisted: true});
 		}
 
-		if (printOutput) {
-			throw new Error(
-				`Model ${model} already exists at ${filePath}, but the size is ${size} bytes (expected ${modelSizes[model]} bytes). Delete ${filePath} and try again.`,
-			);
-		}
-
-		return Promise.resolve({alreadyExisted: false});
+		throw new Error(
+			`Model ${model} already exists at ${filePath}, but the size is ${size} bytes (expected ${modelSizes[model]} bytes). Delete ${filePath} and try again.`,
+		);
 	}
 
 	const baseModelUrl = `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`;
@@ -88,13 +84,19 @@ export const downloadWhisperModel = async ({
 
 	const fileStream = fs.createWriteStream(filePath);
 
-	await downloadFile({
-		fileStream,
-		url: baseModelUrl,
-		printOutput,
-		onProgress,
-		signal: signal ?? null,
-	});
+	try {
+		await downloadFile({
+			fileStream,
+			url: baseModelUrl,
+			printOutput,
+			onProgress,
+			signal: signal ?? null,
+		});
+	} catch (e) {
+		// A partial model would be mistaken for a downloaded one on the next run.
+		fs.rmSync(filePath, {force: true});
+		throw e;
+	}
 
 	return {alreadyExisted: false};
 };

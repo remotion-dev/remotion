@@ -2,7 +2,6 @@ import {Internals} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {getNodeProps} from './get-node-props';
 import {getNodes} from './get-nodes';
-import type {ResolveCompositionComponentOptions} from './resolve-composition-component';
 
 export type CompositionTarget = {
 	compositionFile: string;
@@ -53,7 +52,7 @@ export const requireComposition = ({
 	project,
 	compositionFile,
 	compositionId,
-}: ResolveCompositionComponentOptions) => {
+}: CompositionTarget & {project: CodemodProject}) => {
 	const matches = getCompositionNodes({project, compositionFile}).filter(
 		({id}) => id === compositionId,
 	);
@@ -70,7 +69,7 @@ export const assertNewCompositionId = ({
 	project,
 	compositionFile,
 	compositionId,
-}: ResolveCompositionComponentOptions) => {
+}: CompositionTarget & {project: CodemodProject}) => {
 	if (!Internals.isCompositionIdValid(compositionId)) {
 		throw new Error(Internals.invalidCompositionErrorMessage);
 	}
