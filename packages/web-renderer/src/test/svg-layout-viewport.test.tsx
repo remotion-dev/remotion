@@ -40,6 +40,7 @@ test('preserves logical corner precedence when expanding SVG declarations', () =
 		.corner { border-radius: 12px; corner-shape: bevel; border-start-start-radius: 30px; }
 		.important { border-radius: 12px !important; corner-shape: bevel !important; border-start-start-radius: 30px !important; }
 		.before { border-start-start-radius: 30px; border-radius: 12px; corner-shape: bevel; }
+		.tokens { --tokens: {a:b; nested:{corner: 2px round;}}; --quote: "; corner: 4px round;"; border-radius: 12px; corner-shape: bevel; border-start-start-radius: 30px; }
 	}</style><foreignObject width="200" height="200">
 		<div xmlns="http://www.w3.org/1999/xhtml"></div>
 	</foreignObject>`;
@@ -50,10 +51,11 @@ test('preserves logical corner precedence when expanding SVG declarations', () =
 		'bottom-right',
 		'bottom-left',
 	].flatMap((corner) => [`border-${corner}-radius`, `corner-${corner}-shape`]);
+	properties.push('--tokens', '--quote');
 	document.body.appendChild(svg);
 	try {
 		const expected: string[][] = [];
-		for (const className of ['corner', 'important', 'before']) {
+		for (const className of ['corner', 'important', 'before', 'tokens']) {
 			for (const direction of ['ltr', 'rtl']) {
 				for (const writingMode of ['horizontal-tb', 'vertical-rl']) {
 					element.className = className;
@@ -77,7 +79,7 @@ test('preserves logical corner precedence when expanding SVG declarations', () =
 			preserveMediaQueries: true,
 		});
 		let index = 0;
-		for (const className of ['corner', 'important', 'before']) {
+		for (const className of ['corner', 'important', 'before', 'tokens']) {
 			for (const direction of ['ltr', 'rtl']) {
 				for (const writingMode of ['horizontal-tb', 'vertical-rl']) {
 					element.className = className;

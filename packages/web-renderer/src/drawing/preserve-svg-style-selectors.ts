@@ -18,23 +18,52 @@ const expandSvgCornerStyle = (style: CSSStyleDeclaration): string | null => {
 	)
 		return null;
 	const text = style.cssText;
-	const declaration = `corner: ${style.getPropertyValue('corner')}${style.getPropertyPriority('corner') ? ' !important' : ''};`;
 	const longhands = cornerLonghands
 		.map(
 			(property) =>
 				`${property}: ${style.getPropertyValue(property)}${style.getPropertyPriority(property) ? ' !important' : ''};`,
 		)
 		.join(' ');
-	const probe = document.createElement('div').style;
-	// Expand in place so later logical declarations keep their cascade order.
-	// Let the native parser reject matches inside custom-property values or strings.
-	let index = text.indexOf(declaration);
-	while (index !== -1) {
-		const expanded =
-			text.slice(0, index) + longhands + text.slice(index + declaration.length);
-		probe.cssText = expanded;
-		if (probe.cssText === text) return expanded;
-		index = text.indexOf(declaration, index + declaration.length);
+	// WebKit emits a folded declaration that its parser may not accept again.
+	// Replace that declaration in place, preserving later logical overrides.
+	let start = 0;
+	let depth = 0;
+	let quote: string | null = null;
+	let comment = false;
+	for (let index = 0; index < text.length; index++) {
+		const char = text[index];
+		if (comment) {
+			if (char === '*' && text[index + 1] === '/') {
+				comment = false;
+				index++;
+			}
+
+			continue;
+		}
+
+		if (char === '\\') {
+			index++;
+			continue;
+		}
+
+		if (quote !== null) {
+			if (char === quote) quote = null;
+			continue;
+		}
+
+		if (char === '"' || char === "'") quote = char;
+		else if (char === '/' && text[index + 1] === '*') {
+			comment = true;
+			index++;
+		} else if (char === '(' || char === '[' || char === '{') depth++;
+		else if (char === ')' || char === ']' || char === '}') depth--;
+		else if (char === ';' && depth === 0) {
+			if (/^\s*corner\s*:/.test(text.slice(start, index + 1))) {
+				return `${text.slice(0, start)} ${longhands}${text.slice(index + 1)}`;
+			}
+
+			start = index + 1;
+		}
 	}
 
 	return null;
