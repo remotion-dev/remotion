@@ -11,6 +11,8 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
 import {
 	fractionalHtmlAudio,
+	fractionalFreezeLifetime,
+	fractionalRevokedImage,
 	fractionalLoopedVideo,
 	fractionalNestedAudio,
 	fractionalLoopingSequence,
@@ -28,6 +30,70 @@ const readFrame = (frame: VideoFrame) => {
 	context.drawImage(frame, 0, 0);
 	return context.getImageData(0, 0, 64, 64).data;
 };
+
+test.for(['sequence', 'loop'] as const)(
+	'preserves state when Freeze restores the audio clock around a %s',
+	async (kind) => {
+		let wrongPixels = 0;
+		for (const muted of [true, false]) {
+			const lifetime: string[] = [];
+			let frames = 0;
+			await renderMediaOnWeb({
+				licenseKey: 'free-license',
+				composition: {...fractionalFreezeLifetime, calculateMetadata: null},
+				inputProps: {kind, onLifetime: (event) => lifetime.push(event)},
+				container: 'mkv',
+				videoCodec: 'vp8',
+				audioCodec: 'pcm-s16',
+				sampleRate: 48000,
+				muted,
+				onFrame: (frame) => {
+					expect(frame.timestamp).toBe(Math.round((frames / 24) * 1_000_000));
+					for (const [index, byte] of readFrame(frame).entries()) {
+						if (byte !== [16, 40, 80, 255][index % 4]) wrongPixels++;
+					}
+
+					frames++;
+					return frame;
+				},
+			});
+			expect(frames).toBe(4);
+			expect(lifetime).toEqual(['mount', 'unmount']);
+		}
+
+		expect(wrongPixels).toBe(0);
+	},
+);
+
+test('retains a loaded revoked blob image during unrelated fractional audio passes', async () => {
+	for (const muted of [true, false]) {
+		let loads = 0;
+		let frames = 0;
+		let wrongPixels = 0;
+		await renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition: {...fractionalRevokedImage, calculateMetadata: null},
+			inputProps: {onImageLoad: () => loads++},
+			container: 'mkv',
+			videoCodec: 'vp8',
+			audioCodec: 'pcm-s16',
+			sampleRate: 48000,
+			muted,
+			onFrame: (frame) => {
+				expect(frame.timestamp).toBe(Math.round((frames / 24) * 1_000_000));
+				for (const [index, byte] of readFrame(frame).entries()) {
+					if (byte !== [16, 40, 80, 255][index % 4]) wrongPixels++;
+				}
+
+				frames++;
+				return frame;
+			},
+		});
+		expect(frames).toBe(4);
+		expect(loads).toBe(1);
+		expect(wrongPixels).toBe(0);
+	}
+});
 
 test('does not paint a canvas that exists only during fractional audio passes', async () => {
 	let paints = 0;

@@ -2,11 +2,13 @@ import {Audio, Video} from '@remotion/media';
 import {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
+	Freeze,
 	HtmlInCanvas,
 	Img,
 	Loop,
 	Sequence,
 	staticFile,
+	useCurrentFrame,
 } from 'remotion';
 import {makeToneWav} from './pitch-shift-audio';
 
@@ -174,4 +176,89 @@ export const fractionalLoopingSequence = {
 	...dimensions,
 	component: LoopingSequenceAudio,
 	id: 'fractional-looping-sequence',
+};
+
+type FreezeLifetimeProps = {
+	readonly kind: 'sequence' | 'loop';
+	readonly onLifetime: ((event: 'mount' | 'unmount') => void) | null;
+};
+
+const FrozenState = ({onLifetime}: Pick<FreezeLifetimeProps, 'onLifetime'>) => {
+	const frame = useCurrentFrame();
+	const [initialFrame] = useState(frame);
+	useEffect(() => {
+		onLifetime?.('mount');
+		return () => onLifetime?.('unmount');
+	}, [onLifetime]);
+	return (
+		<AbsoluteFill
+			style={{backgroundColor: initialFrame === 0 ? 'rgb(16, 40, 80)' : 'red'}}
+		/>
+	);
+};
+
+const FreezeLifetime = ({kind, onLifetime}: FreezeLifetimeProps) => {
+	const [src] = useState(makeToneWav);
+	const child = <FrozenState onLifetime={onLifetime} />;
+	return (
+		<>
+			<Freeze frame={0} active={(frame) => frame < 1}>
+				{kind === 'sequence' ? (
+					<Sequence durationInFrames={4}>{child}</Sequence>
+				) : (
+					<Loop durationInFrames={4}>{child}</Loop>
+				)}
+			</Freeze>
+			<Audio src={src} />
+		</>
+	);
+};
+
+export const fractionalFreezeLifetime = {
+	...dimensions,
+	component: FreezeLifetime,
+	id: 'fractional-freeze-lifetime',
+	defaultProps: {kind: 'sequence', onLifetime: null} as FreezeLifetimeProps,
+};
+
+const RevokedImage = ({
+	onImageLoad,
+}: {
+	readonly onImageLoad: (() => void) | null;
+}) => {
+	const [tone] = useState(makeToneWav);
+	const [src] = useState(() =>
+		URL.createObjectURL(
+			new Blob(
+				[
+					'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="rgb(16,40,80)" /></svg>',
+				],
+				{type: 'image/svg+xml'},
+			),
+		),
+	);
+	useEffect(() => () => URL.revokeObjectURL(src), [src]);
+	return (
+		<>
+			<Img
+				src={src}
+				maxRetries={0}
+				onLoad={() => {
+					URL.revokeObjectURL(src);
+					onImageLoad?.();
+				}}
+				style={{width: 64, height: 64}}
+			/>
+			<Sequence from={0.25} durationInFrames={0.12}>
+				<Audio src={tone} volume={0} />
+			</Sequence>
+		</>
+	);
+};
+
+export const fractionalRevokedImage = {
+	...dimensions,
+	component: RevokedImage,
+	id: 'fractional-revoked-image',
+	defaultProps: {onImageLoad: null} as {onImageLoad: (() => void) | null},
 };

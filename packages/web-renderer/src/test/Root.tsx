@@ -91,6 +91,8 @@ import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {fractionalAudio} from './fixtures/fractional-audio';
 import {
 	fractionalHtmlAudio,
+	fractionalFreezeLifetime,
+	fractionalRevokedImage,
 	fractionalLoopedVideo,
 	fractionalShortVideo,
 	fractionalNestedAudio,
@@ -589,6 +591,8 @@ export const Root: React.FC = () => {
 				<Composition {...fractionalNestedAudio} />
 				<Composition {...fractionalLoopingSequence} />
 				<Composition {...fractionalHtmlAudio} />
+				<Composition {...fractionalFreezeLifetime} />
+				<Composition {...fractionalRevokedImage} />
 				<Composition {...fractionalUnusedCanvas} />
 				<Composition {...fractionalUnusedImage} />
 				<Composition {...unwrapped} />
