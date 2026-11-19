@@ -21,6 +21,26 @@ const Component = () => (
 			<rect className="does-not-match" y={30} width={100} height={20} />
 			<rect className="nested" x={100} y={30} width={60} height={20} />
 		</svg>
+		<svg
+			width={320}
+			height={100}
+			style={{position: 'absolute', left: 208, top: 8, width: 160, height: 50}}
+		>
+			<style media="(min-width: 300px)">
+				{'.outer-active { fill: lime; }'}
+			</style>
+			<style media="(max-width: 200px)">
+				{'.outer-inactive { fill: red; }'}
+			</style>
+			<rect className="outer-active" fill="blue" width={160} height={25} />
+			<rect
+				className="outer-inactive"
+				fill="blue"
+				y={25}
+				width={160}
+				height={25}
+			/>
+		</svg>
 	</AbsoluteFill>
 );
 

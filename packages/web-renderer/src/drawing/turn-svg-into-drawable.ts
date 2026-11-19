@@ -277,6 +277,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			authoredEmpty,
 			authoredWidths,
 			authoredHeights,
+			preserveMediaQueries: Boolean(resizedWithoutViewBox),
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 
