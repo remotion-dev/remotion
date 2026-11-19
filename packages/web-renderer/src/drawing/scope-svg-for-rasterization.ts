@@ -4,7 +4,87 @@ import {
 } from './has-excluded-svg-style-at-rule';
 import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
 
+// New viewport ancestors must not satisfy selectors inside functional pseudos,
+// including explicit :scope variants that can otherwise see beyond the scope root.
+const excludeRasterAncestors = (
+	selector: string,
+	attribute: string,
+): string => {
+	const guard = `:where(:not([${attribute}]))`;
+	let result = '';
+	let compound = false;
+	let guarded = false;
+	let index = 0;
+	const finish = () => {
+		if (compound && !guarded) result += guard;
+		compound = false;
+		guarded = false;
+	};
+
+	while (index < selector.length) {
+		const char = selector[index]!;
+		if (char === '\\') {
+			const escaped =
+				/^\\(?:[0-9a-f]{1,6}(?:\r\n|[\t\n\f\r ])?|[^\n\r\f])/i.exec(
+					selector.slice(index),
+				);
+			const token = escaped?.[0] ?? char;
+			result += token;
+			index += token.length;
+			compound = true;
+			continue;
+		}
+
+		if (char === '[' || char === '(') {
+			const start = index;
+			const closing = char === '[' ? ']' : ')';
+			let depth = 1;
+			let quote: string | null = null;
+			index++;
+			while (index < selector.length && depth > 0) {
+				const current = selector[index++]!;
+				if (current === '\\') index++;
+				else if (quote) {
+					if (current === quote) quote = null;
+				} else if (current === '"' || current === "'") quote = current;
+				else if (current === char) depth++;
+				else if (current === closing) depth--;
+			}
+
+			const contents = selector.slice(start + 1, index - 1);
+			const functional = char === '(' && /:(?:is|where|not|has)$/i.test(result);
+			result +=
+				char +
+				(functional ? excludeRasterAncestors(contents, attribute) : contents) +
+				closing;
+			compound = true;
+			continue;
+		}
+
+		if (/[\t\n\f\r >+~,]/.test(char) || selector.startsWith('||', index)) {
+			finish();
+			const token = selector.startsWith('||', index) ? '||' : char;
+			result += token;
+			index += token.length;
+			continue;
+		}
+
+		if (selector.startsWith('::', index) && compound && !guarded) {
+			result += guard;
+			guarded = true;
+		}
+
+		result += char;
+		compound = true;
+		index++;
+	}
+
+	finish();
+	return result;
+};
+
 const scopeStylesIncludingRoot = (text: string, attribute: string) => {
+	const wrapper = attribute + '-wrapper';
 	const sheet = new CSSStyleSheet();
 	sheet.replaceSync(text);
 	const namespaces = Array.from(sheet.cssRules)
@@ -61,7 +141,10 @@ const scopeStylesIncludingRoot = (text: string, attribute: string) => {
 		// Keep the original root eligible without raising specificity, including
 		// when another member of the selector list has a higher specificity.
 		return selectors
-			.flatMap((item) => [item, `:where(:scope):is(${item})`])
+			.flatMap((item) => {
+				const guarded = excludeRasterAncestors(item, wrapper);
+				return [guarded, `:where(:scope):is(${guarded})`];
+			})
 			.join(',');
 	});
 	return namespaces + `@scope ([${attribute}]) {` + rewritten + '}';
@@ -72,19 +155,19 @@ export const scopeSvgForRasterization = (svg: SVGSVGElement) => {
 		const type = style.getAttribute('type')?.trim().toLowerCase();
 		return !type || type === 'text/css';
 	});
-	if (styles.length === 0) return true;
+	if (styles.length === 0) return '';
 	if (
 		typeof CSSStyleSheet === 'undefined' ||
 		typeof CSSStyleSheet.prototype.replaceSync !== 'function'
 	)
-		return false;
+		return null;
 	if (
 		styles.some((style) => hasExcludedSvgStyleAtRule(style.textContent ?? ''))
 	)
-		return false;
+		return null;
 	const support = new CSSStyleSheet();
 	support.replaceSync('@scope (svg) {}');
-	if (support.cssRules[0]?.constructor.name !== 'CSSScopeRule') return false;
+	if (support.cssRules[0]?.constructor.name !== 'CSSScopeRule') return null;
 	const elements = [svg, ...svg.querySelectorAll('*')];
 	preserveSvgAttributeSelectors({
 		svg,
@@ -116,7 +199,9 @@ export const scopeSvgForRasterization = (svg: SVGSVGElement) => {
 	while (
 		elements.some((element) =>
 			Array.from(element.attributes).some(
-				(attr) => attr.localName === attribute,
+				(attr) =>
+					attr.localName === attribute ||
+					attr.localName === attribute + '-wrapper',
 			),
 		) ||
 		text.includes(attribute)
@@ -146,5 +231,5 @@ export const scopeSvgForRasterization = (svg: SVGSVGElement) => {
 			style.textContent = scopeStylesIncludingRoot(original, attribute);
 	}
 
-	return true;
+	return attribute + '-wrapper';
 };

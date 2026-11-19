@@ -220,7 +220,8 @@ const drawSvgAtOutputResolution = async ({
 			metadata.markup,
 			'image/svg+xml',
 		).documentElement as unknown as SVGSVGElement;
-		if (!scopeSvgForRasterization(svg)) {
+		const wrapperAttribute = scopeSvgForRasterization(svg);
+		if (wrapperAttribute === null) {
 			rasterizedSvgByDrawable.set(drawable, {key, image: null});
 			return false;
 		}
@@ -246,6 +247,11 @@ const drawSvgAtOutputResolution = async ({
 		document.documentElement.setAttribute('width', String(width));
 		document.documentElement.setAttribute('height', String(height));
 		const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+		if (wrapperAttribute) {
+			document.documentElement.setAttribute(wrapperAttribute, '');
+			group.setAttribute(wrapperAttribute, '');
+		}
+
 		group.setAttribute(
 			'transform',
 			`matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`,
