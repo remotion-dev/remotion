@@ -8,6 +8,65 @@ import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
+test('preserves an authored physical radius override after a logical radius', () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.innerHTML = `<style>@media (min-width: 1px) {
+		.physical { direction: rtl; border-radius: 12px; border-start-start-radius: 30px; border-top-right-radius: 12px; }
+	}</style><foreignObject width="160" height="50"><div xmlns="http://www.w3.org/1999/xhtml" class="physical"></div></foreignObject>`;
+	document.body.appendChild(svg);
+	try {
+		const element = svg.querySelector('div')!;
+		expect(getComputedStyle(element).borderTopRightRadius).toBe('12px');
+		preserveSvgAttributeSelectors({
+			svg,
+			authoredStyles: null,
+			authoredEmpty: null,
+			authoredMedia: null,
+			authoredWidths: null,
+			authoredHeights: null,
+			preserveMediaQueries: true,
+		});
+		expect(getComputedStyle(element).borderTopRightRadius).toBe('12px');
+	} finally {
+		svg.remove();
+	}
+});
+
+test('preserves unquoted URL tokens while expanding stylesheet corner declarations', () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	const image =
+		'data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2264%22%20height=%2264%22%3E%3C!--];corner:2px;--%3E%3Crect%20width=%2264%22%20height=%2264%22%20fill=%22lime%22/%3E%3C/svg%3E';
+	svg.innerHTML = `<style>@media (min-width: 1px) {
+		.url { --paint: url(${image}); background: var(--paint); border-radius: 12px; corner-shape: bevel; }
+	}</style><foreignObject width="64" height="64"><div xmlns="http://www.w3.org/1999/xhtml" class="url"></div></foreignObject>`;
+	document.body.appendChild(svg);
+	try {
+		const element = svg.querySelector('div')!;
+		const properties = ['--paint', 'background-image'];
+		const before = properties.map((name) =>
+			getComputedStyle(element).getPropertyValue(name),
+		);
+		expect(before[0]).toContain('];corner:2px;');
+		expect(before[1]).not.toBe('none');
+		preserveSvgAttributeSelectors({
+			svg,
+			authoredStyles: null,
+			authoredEmpty: null,
+			authoredMedia: null,
+			authoredWidths: null,
+			authoredHeights: null,
+			preserveMediaQueries: true,
+		});
+		expect(
+			properties.map((name) =>
+				getComputedStyle(element).getPropertyValue(name),
+			),
+		).toEqual(before);
+	} finally {
+		svg.remove();
+	}
+});
+
 test('retains unrelated declarations while freezing nested SVG media queries', () => {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.innerHTML = `<style>
