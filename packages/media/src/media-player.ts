@@ -946,10 +946,8 @@ export class MediaPlayer {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(
-			mediaTimestamp,
-			this.sharedAudioContext.audioContext.currentTime,
-		);
+		const {currentTime} = this.sharedAudioContext.audioContext;
+		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
 		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
@@ -982,7 +980,7 @@ export class MediaPlayer {
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
-			currentTime: this.sharedAudioContext.audioContext.currentTime,
+			currentTime,
 		});
 
 		return this.sharedAudioContext.scheduleAudioNode({
@@ -991,6 +989,14 @@ export class MediaPlayer {
 			sourceOffset: sourceOffsetInSeconds,
 			scheduledTime,
 			duration,
+			// Map the source endpoint once instead of adding a rounded node duration.
+			// Null depends only on the captured playback position, already checked above.
+			endTime:
+				currentTime +
+				this.getTargetTime(
+					mediaTimestamp + sourceDurationInSeconds,
+					currentTime,
+				)!,
 			offset,
 			originalUnloopedMediaTimestamp,
 		});

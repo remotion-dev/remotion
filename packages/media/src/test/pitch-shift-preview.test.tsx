@@ -2,7 +2,7 @@ import {Player} from '@remotion/player';
 import React from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
-import {Sequence} from 'remotion';
+import {Internals, Sequence, type ScheduleAudioNodeOptions} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {Audio} from '../audio/audio';
 import {Video} from '../video/video';
@@ -96,6 +96,7 @@ test('Audio and Video independently control authored and viewing-speed pitch', a
 	});
 	const originalCreateBufferSource = AudioContext.prototype.createBufferSource;
 	const createdNodes: AudioBufferSourceNode[] = [];
+	const scheduled = new Map<AudioBufferSourceNode, ScheduleAudioNodeOptions>();
 	const createBufferSourceSpy = vi
 		.spyOn(AudioContext.prototype, 'createBufferSource')
 		.mockImplementation(function (this: AudioContext) {
@@ -131,14 +132,28 @@ test('Audio and Video independently control authored and viewing-speed pitch', a
 		const StatefulComposition: React.FC = () => {
 			const [toneFrequency, setCurrentToneFrequency] = React.useState(1);
 			setToneFrequency = setCurrentToneFrequency;
+			const shared = React.useContext(Internals.SharedAudioContext);
+			const observed = React.useMemo(
+				() =>
+					shared && {
+						...shared,
+						scheduleAudioNode: (options: ScheduleAudioNodeOptions) => {
+							scheduled.set(options.node, options);
+							return shared.scheduleAudioNode(options);
+						},
+					},
+				[shared],
+			);
 			return (
-				<Sequence playbackRate={parentRate}>
-					{React.createElement(component, {
-						toneFrequency,
-						playbackRate,
-						preservePitch,
-					})}
-				</Sequence>
+				<Internals.SharedAudioContext.Provider value={observed}>
+					<Sequence playbackRate={parentRate}>
+						{React.createElement(component, {
+							toneFrequency,
+							playbackRate,
+							preservePitch,
+						})}
+					</Sequence>
+				</Internals.SharedAudioContext.Provider>
 			);
 		};
 
@@ -177,20 +192,30 @@ test('Audio and Video independently control authored and viewing-speed pitch', a
 				}
 
 				const buffers = createdNodes
-					.map((node) => node.buffer)
-					.filter((buffer): buffer is AudioBuffer => buffer !== null);
+					.filter((node) => scheduled.has(node))
+					.map((node) => {
+						const {offset: sourceOffset, duration} = scheduled.get(node)!;
+						const buffer = node.buffer!;
+						return buffer
+							.getChannelData(0)
+							.subarray(
+								Math.round(sourceOffset * buffer.sampleRate),
+								Math.round((sourceOffset + duration) * buffer.sampleRate),
+							);
+					});
 				const samples = new Float32Array(
 					buffers.reduce((sum, buffer) => sum + buffer.length, 0),
 				);
 				let offset = 0;
 				for (const buffer of buffers) {
-					samples.set(buffer.getChannelData(0), offset);
+					samples.set(buffer, offset);
 					offset += buffer.length;
 				}
 
 				return estimateFrequency({
 					audio: samples,
-					sampleRate: buffers[0].sampleRate,
+					sampleRate: createdNodes.find((node) => scheduled.has(node))!.buffer!
+						.sampleRate,
 				});
 			};
 

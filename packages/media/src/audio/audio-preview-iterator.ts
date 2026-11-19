@@ -81,24 +81,90 @@ export const makeAudioIterator = ({
 		node.addEventListener('ended', onEnded, {once: true});
 	};
 
-	const getNextFn = async () => {
-		const next = await iterator.next();
-		waitingForFirstChunk = false;
-
-		if (next.value) {
-			mostRecentTimestamp = Math.max(
-				mostRecentTimestamp,
-				next.value.timelineTimestamp + next.value.sourceDurationInSeconds,
-			);
+	let pendingChunk: IteratorResult<AudioBufferSlice, void> | null = null;
+	let pendingError: {error: unknown} | null = null;
+	const getNextFn = async (): Promise<
+		IteratorResult<AudioBufferSlice, void>
+	> => {
+		if (destroyed) return {done: true, value: undefined};
+		if (pendingError) {
+			const {error} = pendingError;
+			pendingError = null;
+			throw error;
 		}
 
-		return next;
+		const current = pendingChunk ?? (await iterator.next());
+		if (destroyed) return {done: true, value: undefined};
+		if (current.done) {
+			pendingChunk = null;
+			waitingForFirstChunk = false;
+			return current;
+		}
+
+		let next: IteratorResult<AudioBufferSlice, void>;
+		try {
+			next = await iterator.next();
+		} catch (error) {
+			if (destroyed) return {done: true, value: undefined};
+			// Deliver the decoded window before reporting a failed neighboring read.
+			pendingError = {error};
+			next = {done: true, value: undefined};
+		}
+
+		if (destroyed) return {done: true, value: undefined};
+		pendingChunk = next;
+		const slice = current.value;
+		const {buffer} = slice.buffer;
+		// Preserve the resampling neighborhood without extending audible ownership.
+		// Source continuity excludes looping resets even on a continuous timeline.
+		const nextSlice = next.value;
+		const after = nextSlice?.buffer.buffer;
+		let value = slice;
+		if (
+			nextSlice &&
+			after &&
+			nextSlice.sourceOffsetInSeconds === 0 &&
+			buffer.sampleRate === after.sampleRate &&
+			buffer.numberOfChannels === after.numberOfChannels &&
+			Math.round(
+				(nextSlice.buffer.timestamp - slice.buffer.timestamp) *
+					buffer.sampleRate,
+			) === buffer.length &&
+			Math.round(
+				(nextSlice.timelineTimestamp -
+					slice.timelineTimestamp -
+					slice.sourceDurationInSeconds) *
+					buffer.sampleRate,
+			) === 0
+		) {
+			const combined = new AudioBuffer({
+				numberOfChannels: buffer.numberOfChannels,
+				sampleRate: buffer.sampleRate,
+				length: buffer.length + after.length,
+			});
+			for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+				const plane = combined.getChannelData(channel);
+				plane.set(buffer.getChannelData(channel));
+				plane.set(after.getChannelData(channel), buffer.length);
+			}
+
+			value = {...slice, buffer: {...slice.buffer, buffer: combined}};
+		}
+
+		waitingForFirstChunk = false;
+		mostRecentTimestamp = Math.max(
+			mostRecentTimestamp,
+			slice.timelineTimestamp + slice.sourceDurationInSeconds,
+		);
+		return {value, done: false};
 	};
 
 	return {
 		destroy: () => {
 			clearSchedule();
 			destroyed = true;
+			pendingChunk = null;
+			pendingError = null;
 			// Returning an async generator can reject if its underlying media input
 			// was disposed. Destruction is fire-and-forget and has no caller to
 			// propagate to, so intentionally consume that teardown-only rejection.
