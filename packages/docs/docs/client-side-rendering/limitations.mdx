@@ -164,7 +164,7 @@ The following Remotion components are supported:
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 Client exports include audio from fractional [`<Sequence>`](/docs/sequence) intervals (including `loop`) and nested [`<Loop>`](/docs/loop) intervals, including intervals shorter than one video frame. Video decoding retains its own frame clock when audio is enabled. Extra audio-boundary passes skip visual media that is not used by an output frame.<br />
-`<HtmlInCanvas>` descendants retain their mounted state during those audio-only passes. Canvas painting is suspended until the next video frame; a canvas present only between video frames does not initialize or paint.<br />
+Loaded `<Img>` elements stay mounted across extra audio-only passes; visual source changes wait until the next video frame. `<Sequence>` and `<Loop>` retain descendant state when `<Freeze>` activation changes. `<HtmlInCanvas>` descendants retain their mounted state during those audio-only passes. Canvas painting is suspended until the next video frame; a canvas present only between video frames does not initialize or paint.<br />
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
 SVG blob URLs preserve file-source content for uncropped `object-fit: fill` and `contain` images. Cropped SVG blob URLs and exact native SVG pixel parity remain limited.
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  

@@ -877,11 +877,14 @@ const ImgInner: React.FC<
 	}
 > = (props) => {
 	const videoEnabled = useVideoEnabled();
-	if (videoEnabled === false) {
-		return null;
+	const lastVideoContent = useRef<React.ReactElement | null>(null);
+	if (videoEnabled) {
+		lastVideoContent.current = <ImgWithPreview {...props} />;
 	}
 
-	return <ImgWithPreview {...props} />;
+	// Audio-only passes keep existing image resources without loading visual
+	// props that belong only to a fractional audio sample.
+	return lastVideoContent.current;
 };
 
 /*

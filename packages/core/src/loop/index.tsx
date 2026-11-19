@@ -189,12 +189,10 @@ export const Loop: React.FC<LoopProps> & {
 			</LoopContext.Provider>
 		</LoopTimelineContext.Provider>
 	);
-	return enabled ? (
+	return (
 		<TimelineContext.Provider value={audioSample.timeline}>
 			{content}
 		</TimelineContext.Provider>
-	) : (
-		content
 	);
 };
 

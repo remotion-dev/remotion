@@ -1239,12 +1239,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			<RegularSequenceContent {...props} ref={ref} timing={timing} />
 		</React.Fragment>
 	);
-	return audioSample.enabled ? (
+	return (
 		<TimelineContext.Provider value={audioSample.timeline}>
 			{content}
 		</TimelineContext.Provider>
-	) : (
-		content
 	);
 };
 
