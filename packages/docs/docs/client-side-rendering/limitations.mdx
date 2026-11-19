@@ -90,7 +90,7 @@ Text pixels may differ on transparent output, including LCD text on Linux Chromi
 
 SVG elements with fixed width and height and no viewBox retain their resolved CSS viewport when flex layout resizes them.
 Fixed dimensions include SVG numeric forms such as `+320` and `3.2e2`, and `px`, `cm`, `mm`, `in`, `pt` and `pc` units.
-For resized SVGs, embedded media queries and stylesheet `media` attributes preserve their owning-document matches. Expanding folded corner declarations preserves the order of logical radius overrides, including in nested declaration lists with custom-property braces. This does not establish full native corner pixel parity. Stylesheets containing `@import` or `@scope` retain the existing conservative serialization path.
+For resized SVGs, embedded media queries and stylesheet `media` attributes preserve their owning-document matches. Rewritten declarations preserve native logical/physical property order, including physical values repeated after a logical override, pending custom-property shorthands, and unquoted URL tokens. Nested declaration lists with custom-property braces retain their scope. This does not establish full native corner pixel parity. Stylesheets containing `@import` or `@scope` retain the existing conservative serialization path.
 
 ### Inline SVG stylesheet state
 

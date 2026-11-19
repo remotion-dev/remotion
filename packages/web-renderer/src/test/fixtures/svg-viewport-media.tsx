@@ -24,6 +24,24 @@ const Component = () => (
 		<svg
 			width={320}
 			height={100}
+			style={{position: 'absolute', left: 8, top: 88, width: 160, height: 50}}
+		>
+			<style>{`
+				@media (min-width: 1px) {
+					.physical-radius {
+						width: 100%; height: 100%; background: red; direction: rtl;
+						border-radius: 10%; border-start-start-radius: 30%;
+						border-top-right-radius: 10%;
+					}
+				}
+			`}</style>
+			<foreignObject width="100%" height="100%">
+				<div className="physical-radius" />
+			</foreignObject>
+		</svg>
+		<svg
+			width={320}
+			height={100}
 			style={{position: 'absolute', left: 208, top: 8, width: 160, height: 50}}
 		>
 			<style media="(min-width: 300px)">
@@ -48,7 +66,7 @@ export const svgViewportMedia = {
 	component: Component,
 	id: 'svg-viewport-media',
 	width: 400,
-	height: 80,
+	height: 160,
 	fps: 30,
 	durationInFrames: 1,
 } as const;

@@ -8,6 +8,56 @@ import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
+test('preserves pending shorthands and priorities in native declaration order', () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	const cases = [
+		'--space: 12px; padding: var(--space); padding-inline-start: 30px; padding-left: 12px;',
+		'--space: 30px; padding: 12px; padding-inline-start: var(--space);',
+		'--space: 12px; padding: var(--space) !important; padding-inline-start: 30px !important; padding-left: 12px !important;',
+		'--radius: 12px; direction: rtl; border-radius: var(--radius); border-start-start-radius: 30px; border-top-right-radius: 12px;',
+		'--space: 12px; margin: var(--space); margin-left: 30px; margin-inline-start: 12px;',
+		'--payload: { red; nested: { blue; } }; --blank: ; background: var(--missing, lime); border-radius: 12px; corner-shape: bevel;',
+	];
+	svg.innerHTML = `<style>@media (min-width: 1px) { ${cases.map((declaration, index) => `.pending-${index} { ${declaration} }`).join(' ')} }</style><foreignObject width="160" height="50">${cases.map((_, index) => `<div xmlns="http://www.w3.org/1999/xhtml" class="pending-${index}"></div>`).join('')}</foreignObject>`;
+	document.body.appendChild(svg);
+	try {
+		const properties = [
+			'padding-left',
+			'padding-right',
+			'padding-top',
+			'padding-bottom',
+			'margin-left',
+			'margin-right',
+			'border-top-right-radius',
+			'background-color',
+			'--payload',
+			'--blank',
+		];
+		const values = () =>
+			Array.from(svg.querySelectorAll('div'), (element) =>
+				properties.map((property) =>
+					getComputedStyle(element).getPropertyValue(property),
+				),
+			);
+		const before = values();
+		expect(before[0][0]).toBe('12px');
+		expect(before[1][0]).toBe('30px');
+		expect(before[2][0]).toBe('12px');
+		preserveSvgAttributeSelectors({
+			svg,
+			authoredStyles: null,
+			authoredEmpty: null,
+			authoredMedia: null,
+			authoredWidths: null,
+			authoredHeights: null,
+			preserveMediaQueries: true,
+		});
+		expect(values()).toEqual(before);
+	} finally {
+		svg.remove();
+	}
+});
+
 test('preserves an authored physical radius override after a logical radius', () => {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.innerHTML = `<style>@media (min-width: 1px) {
