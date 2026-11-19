@@ -66,6 +66,7 @@ const prepare = async (options?: {
 			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: {
+			isResuming: () => false,
 			audioContext,
 			gainNode: audioContext.createGain(),
 			audioSyncAnchor,
