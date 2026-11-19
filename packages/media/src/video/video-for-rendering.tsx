@@ -217,7 +217,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		}
 
 		const {timestamp, durationInSeconds} = audioWindow;
-		if (audioWindow.sampleCount === 0) {
+		if (audioWindow.sampleCount === 0 && !videoEnabled) {
 			return;
 		}
 
@@ -238,12 +238,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		extractFrameViaBroadcastChannel({
 			sampleRate,
 			src,
-			timeInSeconds: timestamp,
-			audioTimeInSeconds: null,
+			timeInSeconds: frame / sequencePlaybackRate / fps,
+			audioTimeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,
-			includeAudio: shouldUseAudio,
+			includeAudio: shouldUseAudio && audioWindow.sampleCount !== 0,
 			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,

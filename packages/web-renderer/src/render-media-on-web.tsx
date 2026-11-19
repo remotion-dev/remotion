@@ -808,7 +808,10 @@ const internalRenderMediaOnWeb = async <
 
 						advanced.set(next.id, next.boundary.frame);
 						resets.add(next.boundary.reset);
-						flushSync(next.boundary.advance);
+						flushSync(() => {
+							timeUpdater.current!.setAudioOnly(true);
+							next.boundary.advance();
+						});
 						await waitForRenderReady();
 						if (signal?.aborted)
 							throw new Error('renderMediaOnWeb() was cancelled');

@@ -144,16 +144,26 @@ export const Loop: React.FC<LoopProps> & {
 		loopStartFrame +
 		((iteration + 1) * iterationDurationInFrames) / parentPlaybackRate;
 	const {enabled, sampleAt, reset} = audioSample;
+	const boundaryTolerance =
+		Number.EPSILON * Math.max(1, Math.abs(boundary), Math.abs(endFrame)) * 4;
 	const audioBoundary = useMemo(
 		() =>
-			enabled && boundary < endFrame
+			enabled && endFrame - boundary > boundaryTolerance
 				? {
 						frame: boundary,
 						advance: () => sampleAt(boundary, iteration + 1),
 						reset,
 					}
 				: null,
-		[enabled, boundary, endFrame, sampleAt, iteration, reset],
+		[
+			enabled,
+			boundary,
+			endFrame,
+			boundaryTolerance,
+			sampleAt,
+			iteration,
+			reset,
+		],
 	);
 
 	if (actualTimes === 0) {

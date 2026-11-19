@@ -15,6 +15,7 @@ type Sequence = React.ContextType<
 
 export type TimeUpdaterRef = {
 	update: (frame: number, reset: Iterable<() => void> | null) => void;
+	setAudioOnly: (audioOnly: boolean) => void;
 	getSequences: () => readonly Sequence[];
 };
 
@@ -24,16 +25,18 @@ const AudioClock: React.FC<{
 	readonly timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	readonly update: TimeUpdaterRef['update'];
 	readonly enabled: boolean;
-}> = ({children, frame, update, timeUpdater, enabled}) => {
+	readonly setAudioOnly: TimeUpdaterRef['setAudioOnly'];
+}> = ({children, frame, update, timeUpdater, enabled, setAudioOnly}) => {
 	const timeline = Internals.useTimelineContext();
 	const sequences = useContext(Internals.SequenceManagerRefContext);
 	useImperativeHandle(
 		timeUpdater,
 		() => ({
 			update,
+			setAudioOnly,
 			getSequences: () => sequences.current,
 		}),
-		[sequences, update],
+		[sequences, update, setAudioOnly],
 	);
 	const audioTimeline = useMemo(
 		() => ({...timeline, clientAudioOutputFrame: frame}),
@@ -71,11 +74,13 @@ export const UpdateTime: React.FC<{
 	timeUpdater,
 }) => {
 	const [frame, setFrame] = useState(initialFrame);
+	const [audioOnly, setAudioOnly] = useState(false);
 
 	const update = useCallback(
 		(nextFrame: number, reset: Iterable<() => void> | null) => {
 			flushSync(() => {
 				for (const callback of reset ?? []) callback();
+				setAudioOnly(false);
 				setFrame(nextFrame);
 			});
 		},
@@ -86,7 +91,7 @@ export const UpdateTime: React.FC<{
 		<Internals.RemotionRootContexts
 			_experimentalKeepAudioContextAlive={false}
 			audioEnabled={audioEnabled}
-			videoEnabled={videoEnabled}
+			videoEnabled={videoEnabled && !audioOnly}
 			logLevel={logLevel}
 			numberOfAudioTags={0}
 			audioLatencyHint="interactive"
@@ -99,6 +104,7 @@ export const UpdateTime: React.FC<{
 				frame={frame}
 				enabled={audioEnabled}
 				update={update}
+				setAudioOnly={setAudioOnly}
 				timeUpdater={timeUpdater}
 			>
 				{children}
