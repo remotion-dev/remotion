@@ -59,6 +59,19 @@ const Component = () => (
 				height={25}
 			/>
 		</svg>
+		<svg
+			width={320}
+			height={100}
+			style={{position: 'absolute', left: 208, top: 88, width: 160, height: 50}}
+		>
+			<style>{`@media (min-width: 1px) {
+				.explicit-radius { width: 160px; height: 50px; background: red; direction: rtl;
+				border-radius: 10%; border-start-start-radius: 30%; border-top-right-radius: 10%; }
+			}`}</style>
+			<foreignObject width="100%" height="100%">
+				<div className="explicit-radius" />
+			</foreignObject>
+		</svg>
 	</AbsoluteFill>
 );
 

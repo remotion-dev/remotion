@@ -8,6 +8,43 @@ import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
+test('keeps foreignObject used sizes detached and refreshes them after layout changes', async () => {
+	const host = document.createElement('div');
+	host.style.cssText = 'position:relative;width:400px;height:160px';
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('width', '320');
+	svg.setAttribute('height', '100');
+	svg.style.cssText = 'position:absolute;width:160px;height:50px';
+	svg.innerHTML =
+		'<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;background:red;direction:rtl;border-radius:10%;border-start-start-radius:30%;border-top-right-radius:10%"></div></foreignObject>';
+	host.appendChild(svg);
+	document.body.appendChild(host);
+	try {
+		const child = svg.querySelector('div')!;
+		const mounted = svg.outerHTML;
+		const {height} = getComputedStyle(child);
+		const first = turnSvgIntoDrawable(svg);
+		expect(turnSvgIntoDrawable(svg)).toBe(first);
+		const canvas = new OffscreenCanvas(160, 50);
+		const context = canvas.getContext('2d')!;
+		context.drawImage(await first, 0, 0);
+		expect(Array.from(context.getImageData(150, 5, 1, 1).data)).toEqual([
+			255, 0, 0, 255,
+		]);
+		expect(svg.outerHTML).toBe(mounted);
+		expect(getComputedStyle(child).height).toBe(height);
+		host.style.height = '100px';
+		const nextHeight = getComputedStyle(child).height;
+		const next = turnSvgIntoDrawable(svg);
+		expect(next === first).toBe(nextHeight === height);
+		await next;
+		expect(svg.outerHTML).toBe(mounted);
+		expect(getComputedStyle(child).height).toBe(nextHeight);
+	} finally {
+		host.remove();
+	}
+});
+
 test('preserves pending shorthands and priorities in native declaration order', () => {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	const cases = [
