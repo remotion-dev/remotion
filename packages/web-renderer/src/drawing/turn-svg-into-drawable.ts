@@ -3,7 +3,10 @@ import {
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
-import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
+import {
+	expandSvgCornerStyle,
+	preserveSvgAttributeSelectors,
+} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -74,32 +77,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	});
 	// WebKit's image document does not parse the corner shorthand emitted by
 	// its page CSSOM. Keep authored longhands instead of resolving their cascade.
-	const cornerLonghands = [
-		'top-left',
-		'top-right',
-		'bottom-right',
-		'bottom-left',
-	].flatMap((corner) => [`border-${corner}-radius`, `corner-${corner}-shape`]);
 	const cornerStyles = Array.from(
 		svg.querySelectorAll<HTMLElement | SVGElement>('foreignObject [style]'),
-		(element) => {
-			const {style} = element;
-			if (
-				!canPreserveCornerSelectors ||
-				!/(?:^|;)\s*corner\s*:/.test(style.cssText) ||
-				cornerLonghands.some((property) => !style.getPropertyValue(property))
-			)
-				return null;
-			return Array.from(style)
-				.flatMap((property) =>
-					property === 'corner' ? cornerLonghands : [property],
-				)
-				.map(
-					(property) =>
-						`${property}: ${style.getPropertyValue(property)}${style.getPropertyPriority(property) ? ' !important' : ''};`,
-				)
-				.join(' ');
-		},
+		(element) =>
+			canPreserveCornerSelectors ? expandSvgCornerStyle(element.style) : null,
 	);
 	const hasCornerStyles = cornerStyles.some((style) => style !== null);
 	const referencedTemplates = textElements.length

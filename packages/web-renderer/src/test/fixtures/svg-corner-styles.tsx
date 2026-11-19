@@ -62,7 +62,7 @@ export const svgCornerStyles = {
 } as const;
 
 export const svgCornerDeclarationMarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40">
-<style>[style] { box-sizing: border-box; } .rule-corner { width: 40px; height: 40px; background: red; border-radius: 12px; corner-shape: bevel; }</style>
+<style>[style] { box-sizing: border-box; } .rule-corner { width: 40px; height: 40px; background: red; border-radius: 12px; corner-shape: bevel; } @media all { .unused[data-token="{"] { padding: var(--gap); content: "{not a block}"; border-radius: 12px; corner-shape: bevel; } }</style>
 <foreignObject width="40" height="40"><div xmlns="http://www.w3.org/1999/xhtml" data-inline-corner="" style="--gap: 4px; --paint: green; --edge: 2px solid blue; width: 40px; height: 40px; padding: var(--gap); background: var(--paint) !important; border: var(--edge); border-radius: 12px; corner-shape: bevel;"><div style="width: 100%; height: 100%; background: white;" /></div></foreignObject>
 <foreignObject x="40" width="40" height="40"><div xmlns="http://www.w3.org/1999/xhtml" class="rule-corner" /></foreignObject>
 </svg>`;
