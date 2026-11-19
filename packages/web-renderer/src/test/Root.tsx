@@ -255,6 +255,7 @@ import {
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
 import {svgLayoutViewport} from './fixtures/svg-layout-viewport';
+import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {
 	svgPreferredFontCarrier,
 	svgPreferredFontModes,
@@ -452,6 +453,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...svgLayoutViewport} />
+			<Composition {...svgViewportLengthValues} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />

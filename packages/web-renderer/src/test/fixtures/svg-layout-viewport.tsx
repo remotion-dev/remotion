@@ -1,11 +1,16 @@
 import {AbsoluteFill} from 'remotion';
 
-const Shapes = () => (
-	<svg width={320} height={100} style={{minWidth: 0, minHeight: 0}}>
+type Dimensions = {
+	readonly width: number | string;
+	readonly height: number | string;
+};
+
+const Shapes = ({width, height}: Dimensions) => (
+	<svg width={width} height={height} style={{minWidth: 0, minHeight: 0}}>
 		<style>{`
 			rect.width-marker, rect.height-marker { fill: blue; }
-			svg[width="320"] > rect.width-marker { fill: #ee7755; }
-			svg[height="100"] > rect.height-marker { fill: #33aacc; }
+			svg[width="${width}"] > rect.width-marker { fill: #ee7755; }
+			svg[height="${height}"] > rect.height-marker { fill: #33aacc; }
 		`}</style>
 		<rect width={320} height={100} fill="#113355" />
 		<rect x={8} y={16} width={140} height={20} fill="#33aacc" />
@@ -15,7 +20,7 @@ const Shapes = () => (
 	</svg>
 );
 
-const Component = () => (
+export const SvgLayoutViewportCase = ({width, height}: Dimensions) => (
 	<AbsoluteFill style={{background: 'white'}}>
 		<div
 			style={{
@@ -29,7 +34,7 @@ const Component = () => (
 				overflow: 'hidden',
 			}}
 		>
-			<Shapes />
+			<Shapes width={width} height={height} />
 		</div>
 		<div
 			style={{
@@ -43,10 +48,12 @@ const Component = () => (
 				overflow: 'hidden',
 			}}
 		>
-			<Shapes />
+			<Shapes width={width} height={height} />
 		</div>
 	</AbsoluteFill>
 );
+
+const Component = () => <SvgLayoutViewportCase width={320} height={100} />;
 
 export const svgLayoutViewport = {
 	component: Component,

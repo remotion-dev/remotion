@@ -2,6 +2,7 @@ import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {svgLayoutViewport} from './fixtures/svg-layout-viewport';
+import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
 test.for([1, 1.25])(
@@ -44,3 +45,20 @@ test.for([1, 1.25])(
 		).toBe(0);
 	},
 );
+
+test('preserves SVG viewport coordinates for native numeric forms and absolute units', async () => {
+	const reference = await captureNativeReference(svgViewportLengthValues, 0, {
+		omitBackground: false,
+	});
+	const still = await renderStillOnWeb({
+		composition: svgViewportLengthValues,
+		frame: 0,
+		inputProps: {},
+		licenseKey: 'free-license',
+		allowHtmlInCanvas: false,
+	});
+	const actual = await still.blob({format: 'png'});
+	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
+		0,
+	);
+});
