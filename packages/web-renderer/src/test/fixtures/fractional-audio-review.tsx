@@ -1,7 +1,11 @@
+import {linearGradientTint} from '@remotion/effects';
+import {Gif} from '@remotion/gif';
 import {Audio, Video} from '@remotion/media';
 import {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
+	AnimatedImage,
+	CanvasImage,
 	Freeze,
 	HtmlInCanvas,
 	Img,
@@ -261,4 +265,100 @@ export const fractionalRevokedImage = {
 	component: RevokedImage,
 	id: 'fractional-revoked-image',
 	defaultProps: {onImageLoad: null} as {onImageLoad: (() => void) | null},
+};
+
+export type FractionalResourceKind = 'canvas' | 'effects' | 'animated' | 'gif';
+
+type CanvasResourceProps = {
+	readonly kind: FractionalResourceKind;
+	readonly unused: boolean;
+	readonly onResourceReady: ((revoke: () => void) => void) | null;
+	readonly onImageLoad: (() => void) | null;
+};
+
+const CanvasResource = ({
+	kind,
+	unused,
+	onResourceReady,
+	onImageLoad,
+}: CanvasResourceProps) => {
+	const [tone] = useState(makeToneWav);
+	const [src] = useState(() =>
+		URL.createObjectURL(
+			new Blob(
+				[
+					Uint8Array.from(
+						atob('R0lGODlhAQABAIAAABAoUAAAACwAAAAAAQABAAACAkQBADs='),
+						(char) => char.charCodeAt(0),
+					),
+				],
+				{type: 'image/gif'},
+			),
+		),
+	);
+	useEffect(() => {
+		onResourceReady?.(() => URL.revokeObjectURL(src));
+		return () => URL.revokeObjectURL(src);
+	}, [onResourceReady, src]);
+	const imageSrc = unused ? 'http://127.0.0.1:1/fractional-unused-image' : src;
+	const visual =
+		kind === 'canvas' ? (
+			<CanvasImage src={imageSrc} width={64} height={64} maxRetries={0} />
+		) : kind === 'effects' ? (
+			<Img
+				src={imageSrc}
+				width={64}
+				height={64}
+				maxRetries={0}
+				effects={[linearGradientTint({amount: 0})]}
+			/>
+		) : kind === 'animated' ? (
+			<AnimatedImage
+				src={imageSrc}
+				width={64}
+				height={64}
+				loop={false}
+				durationInFrames={4}
+				loopBehavior="pause-after-finish"
+			/>
+		) : (
+			<Gif
+				src={imageSrc}
+				width={64}
+				height={64}
+				loop={false}
+				durationInFrames={4}
+				loopBehavior="pause-after-finish"
+				onLoad={() => onImageLoad?.()}
+			/>
+		);
+	return (
+		<>
+			<AbsoluteFill
+				style={{backgroundColor: unused ? 'rgb(16,40,80)' : 'red'}}
+			/>
+			{unused ? (
+				<Sequence from={0.25} durationInFrames={0.12}>
+					{visual}
+				</Sequence>
+			) : (
+				visual
+			)}
+			<Sequence from={0.25} durationInFrames={0.12}>
+				<Audio src={tone} volume={0} />
+			</Sequence>
+		</>
+	);
+};
+
+export const fractionalCanvasResource = {
+	...dimensions,
+	component: CanvasResource,
+	id: 'fractional-canvas-resource',
+	defaultProps: {
+		kind: 'canvas',
+		unused: false,
+		onResourceReady: null,
+		onImageLoad: null,
+	} as CanvasResourceProps,
 };

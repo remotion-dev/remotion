@@ -13,6 +13,7 @@ import {
 	fractionalHtmlAudio,
 	fractionalFreezeLifetime,
 	fractionalRevokedImage,
+	fractionalCanvasResource,
 	fractionalLoopedVideo,
 	fractionalNestedAudio,
 	fractionalLoopingSequence,
@@ -30,6 +31,80 @@ const readFrame = (frame: VideoFrame) => {
 	context.drawImage(frame, 0, 0);
 	return context.getImageData(0, 0, 64, 64).data;
 };
+
+test.for(['canvas', 'effects', 'animated', 'gif'] as const)(
+	'retains loaded %s resources and skips unused images during fractional audio passes',
+	async (kind, {skip}) => {
+		if (kind === 'animated' && typeof ImageDecoder === 'undefined') {
+			skip();
+			return;
+		}
+
+		for (const unused of [true, false]) {
+			for (const muted of [true, false]) {
+				let revoke: (() => void) | null = null;
+				let loads = 0;
+				let frames = 0;
+				let wrongPixels = 0;
+				const result = await renderMediaOnWeb({
+					licenseKey: 'free-license',
+					composition: {...fractionalCanvasResource, calculateMetadata: null},
+					inputProps: {
+						kind,
+						unused,
+						onResourceReady: (callback) => {
+							revoke = callback;
+						},
+						onImageLoad: () => loads++,
+					},
+					container: 'mkv',
+					videoCodec: 'vp8',
+					audioCodec: 'pcm-s16',
+					sampleRate: 48000,
+					muted,
+					onFrame: (frame) => {
+						expect(frame.timestamp).toBe(Math.round((frames / 24) * 1_000_000));
+						for (const [index, byte] of readFrame(frame).entries()) {
+							if (byte !== [16, 40, 80, 255][index % 4]) wrongPixels++;
+						}
+
+						if (frames === 0) revoke?.();
+						frames++;
+						return frame;
+					},
+				});
+				expect(frames).toBe(4);
+				expect(wrongPixels).toBe(0);
+				if (kind === 'gif') expect(loads).toBe(unused ? 0 : 1);
+				using input = new Input({
+					formats: ALL_FORMATS,
+					source: new BlobSource(await result.getBlob()),
+				});
+				const track = await input.getPrimaryAudioTrack();
+				if (muted) {
+					expect(track).toBeNull();
+					continue;
+				}
+
+				expect(track).not.toBeNull();
+				let samples = 0;
+				let wrongSamples = 0;
+				for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+					for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+						for (const sample of buffer.getChannelData(channel)) {
+							if (sample !== 0) wrongSamples++;
+						}
+					}
+
+					samples += buffer.length;
+				}
+
+				expect(samples).toBe(8000);
+				expect(wrongSamples).toBe(0);
+			}
+		}
+	},
+);
 
 test.for(['sequence', 'loop'] as const)(
 	'preserves state when Freeze restores the audio clock around a %s',
