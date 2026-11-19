@@ -7,6 +7,7 @@ const params = {
 	src: '/bigbuckbunny.mp4',
 	sampleRate: 48000,
 	timeInSeconds: 0,
+	audioTimeInSeconds: null,
 	durationInSeconds: 1 / 30,
 	playbackRate: 1,
 	logLevel: 'error' as const,

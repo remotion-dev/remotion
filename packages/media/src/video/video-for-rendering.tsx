@@ -239,6 +239,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			sampleRate,
 			src,
 			timeInSeconds: timestamp,
+			audioTimeInSeconds: null,
 			durationInSeconds,
 			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,

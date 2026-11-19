@@ -53,6 +53,7 @@ export type ExtractFrameRequest = {
 	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
+	audioTimeInSeconds: number | null;
 	durationInSeconds: number;
 	playbackRate: number;
 	id: string;
@@ -106,6 +107,7 @@ export const addBroadcastChannelListener = () => {
 						sampleRate: data.sampleRate,
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
+						audioTimeInSeconds: data.audioTimeInSeconds ?? null,
 						logLevel: data.logLevel,
 						durationInSeconds: data.durationInSeconds,
 						playbackRate: data.playbackRate,

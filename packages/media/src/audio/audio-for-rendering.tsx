@@ -134,6 +134,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			sampleRate,
 			src,
 			timeInSeconds: timestamp,
+			audioTimeInSeconds: null,
 			durationInSeconds,
 			playbackRate: (playbackRate ?? 1) * sequencePlaybackRate,
 			logLevel,

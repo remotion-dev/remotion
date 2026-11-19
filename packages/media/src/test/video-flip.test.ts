@@ -37,6 +37,7 @@ const renderFrame = async (src: string) => {
 		src,
 		sampleRate: 48000,
 		timeInSeconds: 0,
+		audioTimeInSeconds: null,
 		durationInSeconds: 1 / 30,
 		includeAudio: false,
 		includeVideo: true,
