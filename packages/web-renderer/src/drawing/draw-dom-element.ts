@@ -366,7 +366,7 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 				readback:
 					/AppleWebKit/.test(userAgent) &&
 					!/Chrome\/|Chromium\/|Android/.test(userAgent) &&
-					Boolean(node.querySelector('text')) &&
+					Boolean(node.querySelector('text, foreignObject')) &&
 					!node.querySelector('feImage'),
 			});
 			return;
