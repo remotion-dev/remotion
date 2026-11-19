@@ -68,7 +68,11 @@ test.for(['canvas', 'effects', 'animated', 'gif'] as const)(
 							if (byte !== [16, 40, 80, 255][index % 4]) wrongPixels++;
 						}
 
-						if (frames === 0) revoke?.();
+						if (frames === 0) {
+							expect(revoke).not.toBeNull();
+							revoke?.();
+						}
+
 						frames++;
 						return frame;
 					},
