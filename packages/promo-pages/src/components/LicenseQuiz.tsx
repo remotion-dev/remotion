@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 const FAQ = '/docs/license/faq';
 const CONTACT = '/contact';
-const BUY = 'https://remotion.pro/dashboard';
+const BUY = 'https://www.remotion.dev/dashboard';
 const GET_STARTED = '/docs';
 
 type StepId = 'holder' | 'collab' | 'size' | 'how';
