@@ -1,5 +1,6 @@
 import '../symbol-dispose';
 import {expect, test} from 'vitest';
+import {preserveSvgAttributeSelectors} from '../drawing/preserve-svg-style-selectors';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
 import {
 	svgCornerDeclarationMarkup,
@@ -238,5 +239,108 @@ test('retains authored style matching when scoped selectors cannot be rewritten'
 			image?.removeAttribute('src');
 			svg.remove();
 		}
+	}
+});
+
+test('preserves logical corner precedence when expanding SVG declarations', () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.innerHTML = `<style>svg[style] { color: black; } @media (min-width: 300px) {
+		.corner { border-radius: 12px; corner-shape: bevel; border-start-start-radius: 30px; }
+		.important { border-radius: 12px !important; corner-shape: bevel !important; border-start-start-radius: 30px !important; }
+		.before { border-start-start-radius: 30px; border-radius: 12px; corner-shape: bevel; }
+	}</style><foreignObject width="200" height="200">
+		<div xmlns="http://www.w3.org/1999/xhtml"></div>
+	</foreignObject>`;
+	const element = svg.querySelector('div')!;
+	const properties = [
+		'top-left',
+		'top-right',
+		'bottom-right',
+		'bottom-left',
+	].flatMap((corner) => [`border-${corner}-radius`, `corner-${corner}-shape`]);
+	document.body.appendChild(svg);
+	try {
+		const expected: string[][] = [];
+		for (const className of ['corner', 'important', 'before']) {
+			for (const direction of ['ltr', 'rtl']) {
+				for (const writingMode of ['horizontal-tb', 'vertical-rl']) {
+					element.className = className;
+					element.style.direction = direction;
+					element.style.writingMode = writingMode;
+					const computed = getComputedStyle(element);
+					expected.push(
+						properties.map((property) => computed.getPropertyValue(property)),
+					);
+				}
+			}
+		}
+
+		preserveSvgAttributeSelectors({
+			svg,
+			authoredStyles: [svg, ...svg.querySelectorAll('*')].map((node) =>
+				node.getAttribute('style'),
+			),
+			authoredEmpty: null,
+			authoredMedia: null,
+		});
+		let index = 0;
+		for (const className of ['corner', 'important', 'before']) {
+			for (const direction of ['ltr', 'rtl']) {
+				for (const writingMode of ['horizontal-tb', 'vertical-rl']) {
+					element.className = className;
+					element.style.direction = direction;
+					element.style.writingMode = writingMode;
+					const computed = getComputedStyle(element);
+					expect(
+						properties.map((property) => computed.getPropertyValue(property)),
+					).toEqual(expected[index++]);
+				}
+			}
+		}
+	} finally {
+		svg.remove();
+	}
+});
+
+test('preserves blockless nested SVG declarations with custom-property braces', () => {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.innerHTML = `<style>svg[style] { color: black; } @media (min-width: 300px) {
+		.nested {
+			& > rect { fill: blue; }
+			--tokens: {a:b}; border-radius: 12px; corner-shape: bevel; fill: red;
+		}
+	}</style><g class="nested"><rect width="20" height="20" /></g>`;
+	document.body.appendChild(svg);
+	try {
+		const element = svg.querySelector('g')!;
+		const properties = [
+			'--tokens',
+			'fill',
+			'border-top-left-radius',
+			'corner-top-left-shape',
+		];
+		const expected = properties.map((property) =>
+			getComputedStyle(element).getPropertyValue(property),
+		);
+		expect(expected[0]).toContain('a:b');
+		expect(expected[1]).toBe('rgb(255, 0, 0)');
+		preserveSvgAttributeSelectors({
+			svg,
+			authoredStyles: [svg, ...svg.querySelectorAll('*')].map((node) =>
+				node.getAttribute('style'),
+			),
+			authoredEmpty: null,
+			authoredMedia: null,
+		});
+		expect(
+			properties.map((property) =>
+				getComputedStyle(element).getPropertyValue(property),
+			),
+		).toEqual(expected);
+		expect(getComputedStyle(svg.querySelector('rect')!).fill).toBe(
+			'rgb(0, 0, 255)',
+		);
+	} finally {
+		svg.remove();
 	}
 });
