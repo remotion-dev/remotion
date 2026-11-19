@@ -52,6 +52,8 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 		},
 		isPlaying: () => false,
 		isInsideFreeze: false,
+		clientAudioOutputFrame: null,
+		clientAudioSampleFrame: null,
 		audioAndVideoTags: {current: []},
 	};
 

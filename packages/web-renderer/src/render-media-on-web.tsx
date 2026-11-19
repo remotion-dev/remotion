@@ -833,7 +833,7 @@ const internalRenderMediaOnWeb = async <
 				if (audioSampleSource) {
 					audioMixer.addFrame({
 						assets: audioAssets,
-						outputFrame: sampleAudioBoundaries ? frame : undefined,
+						outputFrame: sampleAudioBoundaries ? frame : null,
 						timestamp: sampleAudioBoundaries
 							? Math.round(
 									((Math.round(frame * samplesPerFrame) - rangeStartSample) /

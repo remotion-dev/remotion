@@ -109,6 +109,8 @@ export const SequenceActivityBoundary: React.FC<{
 			frame: {[id]: frame},
 			isPlaying: () => false,
 			isInsideFreeze: true,
+			clientAudioOutputFrame: null,
+			clientAudioSampleFrame: null,
 			audioAndVideoTags,
 		}),
 		[audioAndVideoTags, frame, id],

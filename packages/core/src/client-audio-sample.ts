@@ -15,7 +15,7 @@ export const useClientAudioSample = () => {
 	const frame = useTimelinePosition();
 	const {id} = useVideoConfig();
 	const parent = useContext(SequenceContext);
-	const outputFrame = inherited?.clientAudioOutputFrame;
+	const outputFrame = inherited?.clientAudioOutputFrame ?? null;
 	const clockOrigin = parent?.absoluteFrom ?? 0;
 	const [sample, setSample] = useState<{
 		readonly outputFrame: number;
@@ -32,7 +32,7 @@ export const useClientAudioSample = () => {
 	const evaluationFrame = active ? sample.frame : inheritedFrame;
 	const sampleAt = useCallback(
 		(sampleFrame: number, iteration: number | null) => {
-			if (outputFrame !== undefined) {
+			if (outputFrame !== null) {
 				setSample({outputFrame, clockOrigin, frame: sampleFrame, iteration});
 			}
 		},
@@ -51,7 +51,7 @@ export const useClientAudioSample = () => {
 		[active, evaluationFrame, id, inherited],
 	);
 	return {
-		enabled: outputFrame !== undefined && inherited?.isInsideFreeze !== true,
+		enabled: outputFrame !== null && inherited?.isInsideFreeze !== true,
 		frame: evaluationFrame,
 		iteration: active ? sample.iteration : null,
 		timeline,

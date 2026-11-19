@@ -66,6 +66,7 @@ const makeSequence = ({
 	timelineOrder: number;
 }): TSequence => ({
 	type: 'sequence',
+	clientAudioBoundary: null,
 	sequencePlaybackRate: 1,
 	from,
 	trimBefore,
@@ -285,6 +286,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 					trimBefore: 10,
 					timelineOrder: 0,
 				}),
+				clientAudioBoundary: null,
 				sequencePlaybackRate: 2,
 			},
 			{
@@ -295,6 +297,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 					parent: 'outer',
 					timelineOrder: 1,
 				}),
+				clientAudioBoundary: null,
 				sequencePlaybackRate: 0.75,
 			},
 			{
@@ -306,6 +309,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 					overrideId: 'child',
 					timelineOrder: 2,
 				}),
+				clientAudioBoundary: null,
 				sequencePlaybackRate: 3,
 			},
 		],

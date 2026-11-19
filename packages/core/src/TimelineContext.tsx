@@ -18,8 +18,8 @@ import {useTimelineSeek, type TimelineSeek} from './use-timeline-seek';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	clientAudioOutputFrame?: number;
-	clientAudioSampleFrame?: number;
+	clientAudioOutputFrame: number | null;
+	clientAudioSampleFrame: number | null;
 	isPlaying: () => boolean;
 	isInsideFreeze: boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
@@ -158,6 +158,8 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
+			clientAudioOutputFrame: null,
+			clientAudioSampleFrame: null,
 			isPlaying: readIsPlaying,
 			isInsideFreeze: false,
 			audioAndVideoTags,

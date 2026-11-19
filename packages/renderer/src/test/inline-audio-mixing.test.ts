@@ -24,6 +24,7 @@ const makeAsset = ({
 	startInVideo: number | null;
 }): InlineAudioAsset => ({
 	type: 'inline-audio',
+	startSample: null,
 	id,
 	audio: new Int16Array(SAMPLES_PER_FRAME * 2).fill(1000),
 	frame,

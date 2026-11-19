@@ -14,7 +14,7 @@ type Sequence = React.ContextType<
 >['current'][number];
 
 export type TimeUpdaterRef = {
-	update: (frame: number, reset?: Iterable<() => void>) => void;
+	update: (frame: number, reset: Iterable<() => void> | null) => void;
 	getSequences: () => readonly Sequence[];
 };
 
@@ -73,9 +73,9 @@ export const UpdateTime: React.FC<{
 	const [frame, setFrame] = useState(initialFrame);
 
 	const update = useCallback(
-		(nextFrame: number, reset: Iterable<() => void> = []) => {
+		(nextFrame: number, reset: Iterable<() => void> | null) => {
 			flushSync(() => {
-				for (const callback of reset) callback();
+				for (const callback of reset ?? []) callback();
 				setFrame(nextFrame);
 			});
 		},

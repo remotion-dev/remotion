@@ -46,6 +46,7 @@ const makeSequence = ({
 	from: 0,
 	trimBefore: 0,
 	type: 'sequence',
+	clientAudioBoundary: null,
 	sequencePlaybackRate: 1,
 	displayName: id,
 	documentationLink: null,
@@ -240,6 +241,7 @@ export const App = () => <Video from={0} trimBefore={${trimBefore}} trimAfter={3
 		}),
 		from: 60,
 		trimBefore: 30,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: parentPlaybackRate,
 	});
 	const node = getNodes({
@@ -669,6 +671,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 		parent: 'outer',
 		from: 10,
 		duration: 45,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: 2,
 	};
 	fixture.sequences.unshift(

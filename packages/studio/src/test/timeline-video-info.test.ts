@@ -374,6 +374,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		postmountDisplay: null,
 		premountDisplay: null,
 		refForOutline: null,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: 1.5,
 		showInTimeline: true,
 		timelineOrder: null,
@@ -386,6 +387,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		parent: 'outer',
 		from: 30,
 		duration: 60,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: 2,
 		trimBefore: 8,
 	};
@@ -395,6 +397,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		parent: 'inner',
 		from: 0,
 		duration: 180,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: 1,
 		trimBefore: null,
 		type: 'video',
@@ -452,6 +455,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		...outer,
 		from: 30,
 		duration: 90,
+		clientAudioBoundary: null,
 		sequencePlaybackRate: 2,
 		trimBefore: 75,
 	};
@@ -484,6 +488,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 			parent: 'outer',
 			from: (iteration ?? 0) * cycle,
 			duration: cycle,
+			clientAudioBoundary: null,
 			sequencePlaybackRate: 1,
 			trimBefore: null,
 			loopDisplay: {

@@ -182,7 +182,7 @@ test('nested Sequence rates preserve source trims when collecting media for rend
 
 		let assets: ReturnType<CollectAssetsRef['collectAssets']> = [];
 		act(() => {
-			assets = collectAssets.current!.collectAssets();
+			assets = collectAssets.current!.collectAssets(null);
 		});
 		expect(assets, `frame ${frame}`).toHaveLength(frame === 30 ? 0 : 3);
 		for (const asset of assets) {

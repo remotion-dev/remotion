@@ -85,6 +85,8 @@ export const Freeze: React.FC<FreezeProps> = ({
 			audioAndVideoTags,
 			isPlaying: () => false,
 			isInsideFreeze: true,
+			clientAudioOutputFrame: null,
+			clientAudioSampleFrame: null,
 			frame: {
 				[videoConfig.id]: frameToFreeze / playbackRate + relativeFrom,
 			},

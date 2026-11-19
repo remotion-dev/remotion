@@ -40,6 +40,7 @@ const makeSequence = ({
 				componentName: '<Sequence>',
 			}
 		: null,
+	clientAudioBoundary: null,
 	displayName: id,
 	documentationLink: null,
 	duration,

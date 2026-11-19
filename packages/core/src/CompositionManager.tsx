@@ -123,7 +123,7 @@ export type SequenceControls = SequenceRegistrationControls & {
 };
 
 export type TSequence = {
-	readonly clientAudioBoundary?: ClientAudioBoundary | null;
+	readonly clientAudioBoundary: ClientAudioBoundary | null;
 	/** This sequence's clock multiplier; ancestor rates are applied by the timeline. */
 	sequencePlaybackRate: number;
 	from: number;
@@ -175,7 +175,7 @@ export type AudioOrVideoAsset = {
 export type InlineAudioAsset = {
 	type: 'inline-audio';
 	/** Absolute PCM start for an audio-only browser render window. */
-	startSample?: number;
+	startSample: number | null;
 	id: string;
 	audio: Int16Array | number[];
 	frame: number;

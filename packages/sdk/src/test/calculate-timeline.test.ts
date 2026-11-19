@@ -12,6 +12,7 @@ const makeSequence = ({
 	from: number;
 }): TSequence => ({
 	controls: null,
+	clientAudioBoundary: null,
 	displayName: id,
 	documentationLink: null,
 	duration: 100,

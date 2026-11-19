@@ -153,6 +153,8 @@ export const WrapSequenceContext: React.FC<{
 			frame: {'my-comp': currentFrame},
 			isPlaying: () => false,
 			isInsideFreeze: false,
+			clientAudioOutputFrame: null,
+			clientAudioSampleFrame: null,
 			audioAndVideoTags: {current: []},
 		}),
 		[currentFrame],

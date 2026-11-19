@@ -12,7 +12,7 @@ export const useRenderingAudioWindow = ({
 }) => {
 	const sequence = useContext(Internals.SequenceContext);
 	const timeline = Internals.useTimelineContext();
-	const outputFrame = timeline.clientAudioOutputFrame;
+	const outputFrame = timeline.clientAudioOutputFrame ?? null;
 	const sampleFrame = timeline.clientAudioSampleFrame ?? outputFrame;
 	const sequenceRate = sequence?.playbackRate ?? 1;
 	const firstAudioFrame = Math.max(0, -(sequence?.cumulatedNegativeFrom ?? 0));
@@ -20,7 +20,7 @@ export const useRenderingAudioWindow = ({
 	const sourceOrigin = sequence?.absoluteFrom ?? 0;
 
 	return useMemo(() => {
-		if (outputFrame === undefined || sampleFrame === undefined) {
+		if (outputFrame === null || sampleFrame === null) {
 			return {
 				timestamp: frame / sequenceRate / fps,
 				durationInSeconds: 1 / fps,

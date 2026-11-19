@@ -71,7 +71,7 @@ export const createAudioMixer = ({
 		}: {
 			assets: TRenderAsset[];
 			timestamp: number;
-			outputFrame?: number;
+			outputFrame: number | null;
 			isLastFrame: boolean;
 		}) => {
 			const inlineAudio = assets.filter(
@@ -89,11 +89,11 @@ export const createAudioMixer = ({
 			// frame do not accumulate into audio/video drift.
 			const samplesPerFrame = sampleRate / fps;
 			const firstSample =
-				outputFrame === undefined
+				outputFrame === null
 					? Math.round((frameIndex * sampleRate) / fps)
 					: Math.round(outputFrame * samplesPerFrame);
 			const endSample =
-				outputFrame === undefined
+				outputFrame === null
 					? Math.round(((frameIndex + 1) * sampleRate) / fps)
 					: Math.round((outputFrame + 1) * samplesPerFrame);
 			const numberOfFrames = endSample - firstSample;
@@ -118,9 +118,9 @@ export const createAudioMixer = ({
 
 				toneFrequencies.set(asset.id, asset.toneFrequency);
 				const start =
-					asset.startSample === undefined ? 0 : asset.startSample - firstSample;
+					asset.startSample === null ? 0 : asset.startSample - firstSample;
 				const length =
-					asset.startSample === undefined
+					asset.startSample === null
 						? numberOfFrames
 						: Math.min(
 								asset.audio.length / TARGET_NUMBER_OF_CHANNELS,

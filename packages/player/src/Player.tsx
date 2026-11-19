@@ -460,6 +460,8 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
+			clientAudioOutputFrame: null,
+			clientAudioSampleFrame: null,
 			isPlaying: readIsPlaying,
 			isInsideFreeze: false,
 			audioAndVideoTags,

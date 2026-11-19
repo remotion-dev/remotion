@@ -237,7 +237,7 @@ async function internalRenderImagesOnWeb<
 			}
 
 			if (index > 0) {
-				timeUpdater.current!.update(frame);
+				timeUpdater.current!.update(frame, null);
 			}
 
 			await waitForRenderReady();
@@ -263,7 +263,7 @@ async function internalRenderImagesOnWeb<
 
 			const {canvas} = capturedFrame;
 
-			const assets = collectAssets.current!.collectAssets();
+			const assets = collectAssets.current!.collectAssets(null);
 			if (onArtifact) {
 				await artifactsHandler.handle({
 					imageData: canvas,

@@ -684,10 +684,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		]);
 
 	const sequenceForRegistration = useMemo((): TSequence => {
-		const audioRegistration =
-			timing.audioBoundary === null
-				? {}
-				: {clientAudioBoundary: timing.audioBoundary};
+		const audioRegistration = {clientAudioBoundary: timing.audioBoundary};
 		const trackRegistration = timelineTrack
 			? {
 					...audioRegistration,

@@ -451,9 +451,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					applyVolume(audio.data, volume);
 					registerRenderAsset({
 						type: 'inline-audio',
-						...(audioWindow.startSample === null
-							? {}
-							: {startSample: audioWindow.startSample}),
+						startSample: audioWindow.startSample,
 						id,
 						audio: environment.isClientSideRendering
 							? audioWindow.sampleCount === null

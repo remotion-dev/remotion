@@ -24,7 +24,7 @@ export const RenderAssetManager = createContext<RenderAssetManagerContext>({
 });
 
 export type CollectAssetsRef = {
-	collectAssets: (retainAudio?: boolean) => TRenderAsset[];
+	collectAssets: (retainAudio: boolean | null) => TRenderAsset[];
 	snapshotAssets: () => TRenderAsset[];
 };
 
@@ -46,7 +46,7 @@ export const RenderAssetManagerProvider: React.FC<{
 		useImperativeHandle(collectAssets, () => {
 			return {
 				snapshotAssets: () => renderAssetsRef.current,
-				collectAssets: (retainAudio = false) => {
+				collectAssets: (retainAudio: boolean | null) => {
 					const assets = renderAssetsRef.current;
 					const remaining = retainAudio
 						? assets.filter((asset) => asset.type === 'inline-audio')

@@ -138,6 +138,7 @@ export const useMediaInTimelineRegistration = ({
 
 		return {
 			effectRuntimeValues: null,
+			clientAudioBoundary: null,
 			...(timelineTrack
 				? {
 						timelineTrack: {
