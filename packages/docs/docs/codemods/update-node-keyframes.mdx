@@ -20,7 +20,7 @@ import {updateNodeKeyframes, type CodemodProject, type NodeReference} from '@rem
 declare const project: CodemodProject;
 declare const node: NodeReference;
 
-const result = await updateNodeKeyframes({
+const result = updateNodeKeyframes({
   project,
   node,
   updates: [
@@ -35,6 +35,8 @@ console.log(result);
 Adds the required interpolation imports and frame hook. Supports recognized inline interpolation expressions; unsupported dynamic expressions throw. Frame coordinates belong to the interpolation expression's local frame clock.
 
 Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static prop edits outside functions remain supported by [`updateNodeProps()`](/docs/codemods/update-node-props).
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -68,7 +70,7 @@ Formatting options for generated source. Defaults to `null`, which follows the e
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -84,7 +86,7 @@ The edited node reference. Adding a frame hook can change node paths throughout 
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

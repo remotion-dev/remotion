@@ -1,194 +1,51 @@
 import {expect, test} from 'vitest';
+import {page} from 'vitest/browser';
 import {calculateTransforms} from '../drawing/calculate-transforms';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
-import {clipPathCircle} from './fixtures/clip-path-circle';
-import {
-	clipPathDescendantFilter,
-	clipPathDescendantFilterObjectBox,
-} from './fixtures/clip-path-descendant-filter';
-import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import '../symbol-dispose';
-import {clipPathInset} from './fixtures/clip-path-inset';
-import {clipPathPath} from './fixtures/clip-path-path';
-import {clipPathPolygon} from './fixtures/clip-path-polygon';
+import {clipPathShapes, clipPathReferences} from './fixtures/clip-path';
+import {clipPathDescendantFilterObjectBox} from './fixtures/clip-path-descendant-filter';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
-import {
-	clipPathRectangleDescendantFilter,
-	clipPathRectangleDescendantFilterObjectBox,
-} from './fixtures/clip-path-rectangle-descendant-filter';
-import {
-	clipPathRectangleUnion,
-	clipDescendantFilter,
-	clipTransformedDescendantFilter,
-	clipDescendantBlur,
-	clipNestedDescendantFilter,
-	clipScaledFilter,
-	clipScaledFilterNative,
-	clipPathRectangleUnionOpaque,
-	clipPathRectangleUnionSvgTarget,
-	clipPathRectangleUnionFilterOutsets,
-} from './fixtures/clip-path-rectangle-union';
-import {clipPathReference} from './fixtures/clip-path-reference';
-import {
-	clipPathReferenceFilterOutsets,
-	clipPathReferenceReview,
-	clipPathReferenceReviewOpaque,
-} from './fixtures/clip-path-reference-review';
-import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
-import {
-	clipPathShapeReview,
-	clipPathShapeReviewOpaque,
-} from './fixtures/clip-path-shape-review';
-import {
-	captureNativeReference,
-	compareNativePixels,
-	savePixelEvidence,
-} from './native-reference';
-import {testImage} from './utils';
+import {clipPathRectangleDescendantFilter} from './fixtures/clip-path-rectangle-descendant-filter';
+import {clipScaledFilter} from './fixtures/clip-path-rectangle-union';
+import {testCompositions, testImage} from './utils';
 
-test('Should render clip-path: polygon()', async () => {
-	const still = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: clipPathPolygon,
-		frame: 0,
-		inputProps: {},
-	});
-	const blob = await still.blob({format: 'png'});
-
-	await testImage({
-		blob,
-		testId: 'clip-path-polygon',
-		allowedMismatchedPixelRatio: 0.02,
-	});
-});
-
-test('Should render clip-path: path()', async () => {
-	const still = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: clipPathPath,
-		frame: 0,
-		inputProps: {},
-	});
-	const blob = await still.blob({format: 'png'});
-
-	await testImage({
-		blob,
-		testId: 'clip-path-path',
-		allowedMismatchedPixelRatio: 0.02,
-	});
-});
-
-test('Should render clip-path: circle()', async () => {
-	const still = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: clipPathCircle,
-		frame: 0,
-		inputProps: {},
-	});
-	const blob = await still.blob({format: 'png'});
-
-	await testImage({
-		blob,
-		testId: 'clip-path-circle',
-		allowedMismatchedPixelRatio: 0.02,
-	});
-});
-
-test('Should render clip-path: inset()', async () => {
-	const still = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: clipPathInset,
-		frame: 0,
-		inputProps: {},
-	});
-	const blob = await still.blob({format: 'png'});
-
-	await testImage({
-		blob,
-		testId: 'clip-path-inset',
-		allowedMismatchedPixelRatio: 0.02,
-	});
-});
-
-test('Should render clip-path: ellipse()', async () => {
-	const still = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: clipPathEllipse,
-		frame: 0,
-		inputProps: {},
-	});
-	const blob = await still.blob({format: 'png'});
-
-	await testImage({
-		blob,
-		testId: 'clip-path-ellipse',
-		allowedMismatchedPixelRatio: 0.02,
-	});
-});
-
-// KINO-7772: referenced SVG clip paths were ignored by the DOM composer.
-for (const fixture of [
-	clipPathReference,
-	clipPathShapeReference,
-	clipPathShapeReview,
-	clipPathShapeReviewOpaque,
-	clipPathReferenceFilterOutsets,
-	clipPathReferenceReview,
-	clipPathReferenceReviewOpaque,
-]) {
-	for (const frame of [0, 1]) {
-		test(`${fixture.id} clips all descendants at frame ${frame}`, async (t) => {
-			const opaque =
-				fixture === clipPathReferenceReviewOpaque ||
-				fixture === clipPathShapeReviewOpaque;
-			if ((t.task.file.projectName === 'firefox') !== opaque) {
-				// Firefox: native transparent element capture is unsupported in this engine.
-				// Other engines: the transparent variant already compares alpha strictly.
-				t.skip();
-				return;
-			}
-
-			if (
-				fixture === clipPathReferenceFilterOutsets &&
-				!('filter' in OffscreenCanvasRenderingContext2D.prototype)
-			) {
-				t.skip();
-				return;
-			}
-
-			const reference = await captureNativeReference(fixture, frame, {
-				omitBackground: !opaque,
-			});
-			const actual = await (
-				await renderStillOnWeb({
-					licenseKey: 'free-license',
-					composition: fixture,
-					frame,
-					inputProps: {},
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-			const diff = await compareNativePixels(reference, actual);
-
-			if (diff.mismatchedPixels !== 0) {
-				await Promise.all([
-					savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
-						omitBackground: !opaque,
-					}),
-					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
-						omitBackground: !opaque,
-					}),
-					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
-						omitBackground: !opaque,
-					}),
-				]);
-			}
-
-			expect(diff.mismatchedPixels).toBe(0);
+test.for([clipPathShapes, clipPathReferences])(
+	'renders $id',
+	async (composition) => {
+		await page.viewport(composition.width, composition.height);
+		const still = await renderStillOnWeb({
+			composition,
+			frame: composition.durationInFrames - 1,
+			inputProps: {},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
 		});
+		await testImage({
+			blob: await still.blob({format: 'png'}),
+			testId: composition.id,
+		});
+	},
+);
+
+test('preserves descendant filter paint through referenced clips', async (t) => {
+	if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
+		t.skip();
+		return;
 	}
-}
+
+	await testCompositions({
+		scale: null,
+		cases: [
+			clipPathDescendantFilterObjectBox,
+			clipPathRectangleDescendantFilter,
+			clipScaledFilter,
+		].map((composition) => ({composition, frame: 1})),
+		columns: 3,
+		testId: 'clip-path-descendant-filters',
+	});
+});
 
 // A fill-rule prefix must not be parsed as a coordinate pair.
 test.each(['evenodd', 'nonzero'] as const)(
@@ -277,112 +134,6 @@ test('restores inline group properties and important priorities after clipping',
 	}
 });
 
-// PR #13100: capture bounds must include a child's filter beyond its layout box.
-for (const fixture of [
-	clipPathDescendantFilter,
-	clipPathDescendantFilterObjectBox,
-]) {
-	for (const frame of [0, 1]) {
-		test(`${fixture.id} preserves descendant filter paint at frame ${frame}`, async (t) => {
-			if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
-				t.skip();
-				return;
-			}
-
-			const reference = await captureNativeReference(fixture, frame, {
-				omitBackground: false,
-			});
-			const actual = await (
-				await renderStillOnWeb({
-					licenseKey: 'free-license',
-					composition: fixture,
-					frame,
-					inputProps: {},
-					allowHtmlInCanvas: false,
-				})
-			).blob({format: 'png'});
-			const diff = await compareNativePixels(reference, actual);
-			if (diff.mismatchedPixels !== 0) {
-				await Promise.all([
-					savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
-						omitBackground: false,
-					}),
-					savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
-						omitBackground: false,
-					}),
-					savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
-						omitBackground: false,
-					}),
-				]);
-			}
-
-			expect(diff.mismatchedPixels).toBe(0);
-		});
-	}
-}
-
-// KINO-7772: referenced SVG clip paths were ignored by the DOM composer.
-for (const {fixture, frame} of [
-	clipPathRectangleUnion,
-	clipPathRectangleUnionOpaque,
-	clipPathRectangleUnionSvgTarget,
-	clipPathRectangleUnionFilterOutsets,
-].flatMap((selectedFixture) =>
-	[0, 1].map((selectedFrame) => ({
-		fixture: selectedFixture,
-		frame: selectedFrame,
-	})),
-)) {
-	test(`${fixture.id} clips all descendants at frame ${frame}`, async (t) => {
-		if (
-			fixture === clipPathRectangleUnionFilterOutsets &&
-			!('filter' in OffscreenCanvasRenderingContext2D.prototype)
-		) {
-			// Native CSS filters exist, but the Canvas filter API is unavailable.
-			t.skip();
-			return;
-		}
-
-		const omitBackground =
-			fixture !== clipPathRectangleUnionOpaque &&
-			fixture !== clipPathRectangleUnionSvgTarget;
-		if (t.task.file.projectName === 'firefox' && omitBackground) {
-			// Native transparent element capture is unsupported in this engine.
-			t.skip();
-			return;
-		}
-
-		const reference = await captureNativeReference(fixture, frame, {
-			omitBackground,
-		});
-		const actual = await (
-			await renderStillOnWeb({
-				licenseKey: 'free-license',
-				composition: fixture,
-				frame,
-				inputProps: {},
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const diff = await compareNativePixels(reference, actual);
-		if (diff.mismatchedPixels !== 0) {
-			await Promise.all([
-				savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
-					omitBackground,
-				}),
-				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
-					omitBackground,
-				}),
-				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
-					omitBackground,
-				}),
-			]);
-		}
-
-		expect(diff.mismatchedPixels).toBe(0);
-	});
-}
-
 test('restores multi-rectangle clip group properties and important priorities (KINO-7772)', () => {
 	const host = document.createElement('div');
 	host.innerHTML =
@@ -434,41 +185,3 @@ test('restores multi-rectangle clip group properties and important priorities (K
 		host.remove();
 	}
 });
-
-for (const [fixture, referenceFixture, scale] of [
-	[clipDescendantFilter, clipDescendantFilter, 1],
-	[clipPathRectangleDescendantFilter, clipPathRectangleDescendantFilter, 1],
-	[
-		clipPathRectangleDescendantFilterObjectBox,
-		clipPathRectangleDescendantFilterObjectBox,
-		1,
-	],
-	[clipTransformedDescendantFilter, clipTransformedDescendantFilter, 1],
-	[clipDescendantBlur, clipDescendantBlur, 1],
-	[clipNestedDescendantFilter, clipNestedDescendantFilter, 1],
-	[clipScaledFilter, clipScaledFilterNative, 2],
-] as const) {
-	test(`preserves filter paint for ${fixture.id}`, async (t) => {
-		if (!('filter' in new OffscreenCanvas(1, 1).getContext('2d')!)) {
-			t.skip();
-			return;
-		}
-
-		for (const frame of [0, 1]) {
-			const actual = await (
-				await renderStillOnWeb({
-					licenseKey: 'free-license',
-					composition: fixture,
-					frame,
-					inputProps: {},
-					scale,
-				})
-			).blob({format: 'png'});
-			const reference = await captureNativeReference(referenceFixture, frame, {
-				omitBackground: false,
-			});
-			const comparison = await compareNativePixels(reference, actual);
-			expect(comparison.mismatchedPixels).toBe(0);
-		}
-	});
-}

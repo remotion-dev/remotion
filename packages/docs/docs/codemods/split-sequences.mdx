@@ -20,7 +20,7 @@ import {splitSequences, type CodemodProject, type NodeReference} from '@remotion
 declare const project: CodemodProject;
 declare const node: NodeReference;
 
-const result = await splitSequences({
+const result = splitSequences({
   project,
   splits: [{node, frame: 45}],
 });
@@ -29,6 +29,8 @@ console.log(result);
 ```
 
 Adjusts `from`, `durationInFrames`, and `trimBefore`. Timing must be static; dynamic timing and spreads that may override it are rejected. Supported expressions such as `4 * fps` are kept when the new value can be written in the same form exactly. The media file itself is unchanged.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -54,7 +56,7 @@ The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -70,7 +72,7 @@ References to the new second halves. Each first half keeps its original identity
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

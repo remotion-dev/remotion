@@ -22,7 +22,6 @@ const GifTest: React.FC = () => {
 				delayRenderTimeoutInMilliseconds={60000}
 				durationInFrames={50}
 				trimBefore={28}
-				premountFor={30}
 				freeze={null}
 			/>
 			<Gif
@@ -66,7 +65,6 @@ const GifTest: React.FC = () => {
 				style={{
 					backgroundColor: 'white',
 				}}
-				premountFor={15}
 			/>
 		</div>
 	);

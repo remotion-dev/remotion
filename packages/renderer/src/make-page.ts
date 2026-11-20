@@ -16,6 +16,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 export const makePage = async ({
 	context,
 	initialFrame,
+	attempt,
 	videoEnabled,
 	browserReplacer,
 	logLevel,
@@ -41,6 +42,7 @@ export const makePage = async ({
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
+	attempt: number;
 	videoEnabled: boolean;
 	browserReplacer: BrowserReplacer;
 	logLevel: LogLevel;
@@ -80,6 +82,7 @@ export const makePage = async ({
 		page,
 		serveUrl,
 		initialFrame,
+		attempt,
 		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,

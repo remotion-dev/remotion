@@ -2,10 +2,7 @@ import {expect, test} from 'bun:test';
 import {getTimelineRenderWindow} from '../components/Timeline/TimelineViewport';
 
 const getRenderWindow = (scrollLeft: number) => {
-	return getTimelineRenderWindow({
-		clientWidth: 100,
-		scrollLeft,
-	} as HTMLDivElement);
+	return getTimelineRenderWindow(scrollLeft, 100);
 };
 
 test('advances the render window half a viewport before its right edge', () => {

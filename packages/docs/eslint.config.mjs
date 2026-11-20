@@ -14,6 +14,7 @@ export default {
 		'option-description.ts',
 		'option-references.ts',
 		'check-toc-sync.ts',
+		'check-toc-sync.test.ts',
 	],
 	rules: {
 		...config.rules,

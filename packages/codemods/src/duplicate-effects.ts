@@ -13,35 +13,33 @@ export type DuplicateEffectsOptions<Project extends CodemodProject> = {
 	effects: EffectReference[];
 };
 
-export const duplicateEffects = async <Project extends CodemodProject>({
+export const duplicateEffects = <Project extends CodemodProject>({
 	project,
 	effects,
 }: DuplicateEffectsOptions<Project>) => {
 	const groups = groupEffects({project, effects});
-	const edits = await Promise.all(
-		[...groups].map(async ([filePath, group]) => {
-			const input = project.files[filePath];
-			const {output, formatted, effectLabels, logLines} =
-				await duplicateEffectsInSource({
-					input,
-					effects: group.map((effect) => ({
-						sequenceNodePath: effect.nodePath,
-						effectIndex: effect.effectIndex,
-					})),
-				});
-			return {
-				filePath,
+	const edits = [...groups].map(([filePath, group]) => {
+		const input = project.files[filePath];
+		const {output, formatted, effectLabels, logLines} =
+			duplicateEffectsInSource({
+				input,
+				effects: group.map((effect) => ({
+					sequenceNodePath: effect.nodePath,
+					effectIndex: effect.effectIndex,
+				})),
+			});
+		return {
+			filePath,
+			output,
+			formatted,
+			effectLabels,
+			logLines,
+			nodePathRemappings: getUnchangedStructureRemappings({
+				input,
 				output,
-				formatted,
-				effectLabels,
-				logLines,
-				nodePathRemappings: getUnchangedStructureRemappings({
-					input,
-					output,
-				}).map((remapping) => ({...remapping, effectsOnly: true as const})),
-			};
-		}),
-	);
+			}).map((remapping) => ({...remapping, effectsOnly: true as const})),
+		};
+	});
 	const result = getNodeEditResult({project, edits});
 	return {
 		...result,

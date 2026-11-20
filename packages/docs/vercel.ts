@@ -163,7 +163,25 @@ const siteConfig: VercelConfig = {
 		})),
 	],
 	redirects: [
+		...accountPaths
+			.filter((source) => source !== '/pricing')
+			.map((source) => {
+				const path = source.replace(/:path\*$/, ':path+');
+				return routes.redirect(`${path}/`, path, {
+					permanent: true,
+					has: accountHosts,
+				});
+			}),
 		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
+		...[
+			['/opentimeline', '/docs/opentimeline'],
+			['/docs/import-opentimeline', '/docs/opentimeline/import'],
+			['/docs/export-opentimeline', '/docs/opentimeline/export'],
+		].flatMap(([source, destination]) => [
+			routes.redirect(source, destination, {permanent: true}),
+			routes.redirect(`${source}/`, destination, {permanent: true}),
+			routes.redirect(`${source}.md`, `${destination}.md`, {permanent: true}),
+		]),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',
@@ -212,12 +230,16 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/docs/audio/muting.md', '/docs/audio/volume.md#muting', {
 			permanent: true,
 		}),
-		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
-			permanent: true,
-		}),
-		routes.redirect('/docs/studio/creating-elements.md', '/docs/elements.md', {
-			permanent: true,
-		}),
+		routes.redirect(
+			'/docs/studio/creating-elements',
+			'/docs/elements/creating',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio/creating-elements.md',
+			'/docs/elements/creating.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/docs/studio/element-libraries',
 			'/docs/elements/libraries',
@@ -265,10 +287,10 @@ const siteConfig: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect('/elements/guidelines', '/docs/elements', {
+		routes.redirect('/elements/guidelines', '/docs/elements/creating', {
 			permanent: true,
 		}),
-		routes.redirect('/elements/guidelines.md', '/docs/elements.md', {
+		routes.redirect('/elements/guidelines.md', '/docs/elements/creating.md', {
 			permanent: true,
 		}),
 		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
@@ -325,7 +347,9 @@ const siteConfig: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md',
 			{permanent: false},
 		),
-		routes.redirect('/license', '/pricing', {permanent: false}),
+		...['/license', '/license/'].map((source) =>
+			routes.redirect(source, '/pricing', {permanent: false}),
+		),
 		routes.redirect('/pricing/', '/pricing', {permanent: true}),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
 		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {

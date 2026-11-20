@@ -98,11 +98,15 @@ const ShapeTOCItem: React.FC<{
 	);
 };
 
+const sortedShapeComponents = [...shapeComponents].sort((a, b) =>
+	a.shape.localeCompare(b.shape),
+);
+
 export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				{shapeComponents.map((c) => {
+				{sortedShapeComponents.map((c) => {
 					return (
 						<React.Fragment key={c.shape}>
 							<TOCItem link={'/docs/shapes/make-' + c.shape.toLowerCase()}>

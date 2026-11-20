@@ -26,7 +26,6 @@ const BasicsPlaybackRateInner = ({
 		<>
 			<Video
 				name="Screen recording"
-				premountFor={fps}
 				muted
 				effects={
 					HtmlInCanvas.isSupported() || blurEdges === false
@@ -52,7 +51,6 @@ const BasicsPlaybackRateInner = ({
 			/>
 			<MacOSCursor
 				name="Recorded cursor"
-				premountFor={fps}
 				cursor={interpolate(
 					frame,
 					[11, 19, 20, 23, 24, 26, 52, 56, 313, 316, 317],
@@ -384,7 +382,6 @@ const BasicsPlaybackRateInner = ({
 								]
 					}
 					durationInFrames={(368 / 60) * fps}
-					premountFor={fps}
 					style={{
 						translate: '150px -430px',
 						scale: 0.92,
@@ -399,7 +396,6 @@ const BasicsPlaybackRateInner = ({
 				<AbsoluteFill
 					name="Canvas Capture"
 					durationInFrames={(368 / 60) * fps}
-					premountFor={fps}
 					style={{
 						width: 3794,
 						height: 2144,

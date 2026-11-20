@@ -70,7 +70,7 @@ test('hides model and server-backed settings in deployed read-only Studio', () =
 	expect(getSafeSettingsTab('license', availableTabs)).toBe('shortcuts');
 });
 
-test('keeps virtual filesystem actions in Browser Studio', () => {
+test('keeps virtual filesystem actions in remotion.new', () => {
 	const studioMode = {
 		isBrowserStudio: true,
 		previewServerConnected: true,

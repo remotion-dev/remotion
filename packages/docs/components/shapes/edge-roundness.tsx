@@ -18,23 +18,6 @@ const Header: React.FC = () => {
 	);
 };
 
-export const DebugOption: React.FC = () => {
-	return (
-		<>
-			<h3>
-				<code>debug</code>
-			</h3>
-			<p>
-				<em>boolean</em>
-			</p>
-			<p>
-				If enabled, draws the lines for Bézier curves. This is meant for
-				debugging, note that the visuals may change in any version.
-			</p>
-		</>
-	);
-};
-
 export const RectEdgeRoundness: React.FC = () => {
 	return (
 		<>

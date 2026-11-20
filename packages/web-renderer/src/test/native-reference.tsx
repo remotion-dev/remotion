@@ -7,6 +7,17 @@ import {createRoot} from 'react-dom/client';
 import {Internals, type DelayRenderScope} from 'remotion';
 import {expect} from 'vitest';
 import {page, server} from 'vitest/browser';
+import type {NativePngComparison} from './compare-native-png';
+
+declare module 'vitest/browser' {
+	interface BrowserCommands {
+		compareNativePngs: (
+			reference: string,
+			actual: string,
+			createDiff: boolean,
+		) => Promise<NativePngComparison>;
+	}
+}
 
 type Fixture = {
 	component: ComponentType;
@@ -22,10 +33,7 @@ type Fixture = {
 export const captureNativeReference = async (
 	fixture: Fixture,
 	frame = 0,
-	{
-		omitBackground = true,
-		screenshotTimeout,
-	}: {omitBackground?: boolean; screenshotTimeout?: number} = {},
+	{omitBackground = true}: {omitBackground?: boolean} = {},
 ) => {
 	const host = document.createElement('div');
 	host.dataset.testid = `${fixture.id}-native-${frame}`;
@@ -139,7 +147,6 @@ export const captureNativeReference = async (
 				base64: true,
 				save: false,
 				omitBackground,
-				timeout: screenshotTimeout,
 				scale: 'css',
 				style:
 					'html, body, iframe[data-vitest] { background: transparent !important; }',
@@ -166,86 +173,25 @@ export const captureNativeReference = async (
 	}
 };
 
-// The first paint of some content in a fresh page is much slower than later
-// ones. On macOS CI runners (ANGLE Metal on a paravirtual GPU), screenshotting
-// blend modes for the first time blocked the page for up to 5s. Paint each
-// fixture once in beforeAll() so that cost is not charged to a test's timeout.
-export const warmUpNativeReferences = async (
-	fixtures: Parameters<typeof captureNativeReference>[0][],
-) => {
-	for (const fixture of fixtures) {
-		// The test browser's 5s action timeout would otherwise also cap this
-		// slow first screenshot, whatever the hook timeout is.
-		await captureNativeReference(fixture, 0, {screenshotTimeout: 30_000});
-	}
-};
-
-const decodePixels = async (blob: Blob) => {
-	const bitmap = await createImageBitmap(blob);
-	try {
-		const canvas = document.createElement('canvas');
-		canvas.width = bitmap.width;
-		canvas.height = bitmap.height;
-		const context = canvas.getContext('2d', {willReadFrequently: true})!;
-		context.drawImage(bitmap, 0, 0);
-		return context.getImageData(0, 0, bitmap.width, bitmap.height);
-	} finally {
-		bitmap.close();
-	}
-};
-
-// No perceptual threshold, antialias exclusion, or alpha-channel exception.
+// Compare decoded PNG bytes before canvas can round translucent RGB values.
 const compareNativePixelData = async (
 	reference: Blob,
 	actual: Blob,
 	createDiff: boolean,
 ) => {
-	const [expected, received] = await Promise.all([
-		decodePixels(reference),
-		decodePixels(actual),
-	]);
-	if (
-		expected.width !== received.width ||
-		expected.height !== received.height
-	) {
-		throw new Error(
-			`Dimensions differ: ${expected.width}x${expected.height} vs ${received.width}x${received.height}`,
-		);
-	}
-
-	let diff: ImageData | null = null;
-	let mismatchedPixels = 0;
-	let maxChannelDelta = 0;
-	for (let offset = 0; offset < expected.data.length; offset += 4) {
-		let differs = false;
-		for (let channel = 0; channel < 4; channel++) {
-			const delta = Math.abs(
-				expected.data[offset + channel] - received.data[offset + channel],
-			);
-			if (delta !== 0) differs = true;
-			maxChannelDelta = Math.max(maxChannelDelta, delta);
-		}
-
-		if (differs) {
-			mismatchedPixels++;
-			if (createDiff) {
-				diff ??= new ImageData(expected.width, expected.height);
-				diff.data.set([255, 0, 255, 255], offset);
-			}
-		}
-	}
-
-	return {
-		mismatchedPixels,
-		maxChannelDelta,
-		diff,
-		width: expected.width,
-		height: expected.height,
+	const encode = async (blob: Blob) => {
+		let binary = '';
+		for (const byte of new Uint8Array(await blob.arrayBuffer()))
+			binary += String.fromCharCode(byte);
+		return btoa(binary);
 	};
-};
 
-// A matching comparison has an all-transparent diff, so encode it once per size.
-const emptyDiffs = new Map<string, Promise<Blob>>();
+	const [expected, received] = await Promise.all([
+		encode(reference),
+		encode(actual),
+	]);
+	return server.commands.compareNativePngs(expected, received, createDiff);
+};
 
 export const countNativePixels = async (reference: Blob, actual: Blob) => {
 	const {mismatchedPixels, maxChannelDelta} = await compareNativePixelData(
@@ -259,22 +205,10 @@ export const countNativePixels = async (reference: Blob, actual: Blob) => {
 export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 	const {mismatchedPixels, maxChannelDelta, diff, width, height} =
 		await compareNativePixelData(reference, actual, true);
-	const encodeDiff = (imageData: ImageData | null) => {
-		const canvas = document.createElement('canvas');
-		canvas.width = width;
-		canvas.height = height;
-		if (imageData) canvas.getContext('2d')!.putImageData(imageData, 0, 0);
-		return new Promise<Blob>((resolve) =>
-			canvas.toBlob((blob) => resolve(blob!), 'image/png'),
-		);
-	};
-
-	const emptyKey = `${width}x${height}`;
-	if (!diff && !emptyDiffs.has(emptyKey)) {
-		emptyDiffs.set(emptyKey, encodeDiff(null));
-	}
-
-	const diffBlob = await (diff ? encodeDiff(diff) : emptyDiffs.get(emptyKey)!);
+	const diffBlob = new Blob(
+		[Uint8Array.from(atob(diff!), (character) => character.charCodeAt(0))],
+		{type: 'image/png'},
+	);
 	let evidence: string | null = null;
 	if (mismatchedPixels > 0) {
 		const testName = expect.getState().currentTestName ?? 'native-pixels';

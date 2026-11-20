@@ -724,7 +724,21 @@ export type SaveMultipleEffectPropsResponse = {
 	results: SaveMultipleEffectPropsResult[];
 };
 
+export type MeasuredCanvasSize = {
+	width: number;
+	height: number;
+	display: 'inline' | 'inline-block' | 'block';
+	verticalAlign: string | null;
+};
+
 export type AddEffectRequest = {
+	wrapInHtmlInCanvas: {
+		compositionId: string;
+		measuredSize: MeasuredCanvasSize | null;
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -754,7 +768,7 @@ export type ReorderEffectRequest = {
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
-	fromIndex: number;
+	fromIndices: readonly number[];
 	toIndex: number;
 	clientId: string;
 };
@@ -1114,8 +1128,7 @@ export type WrapNodeRequest = {
 	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
-	width: number | null;
-	height: number | null;
+	measuredSize: MeasuredCanvasSize | null;
 	timing: {
 		from: number;
 		durationInFrames: number;
@@ -1127,7 +1140,7 @@ export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
-			canWrapHtmlInCanvas: boolean;
+			canvasWrapBlocker: 'nested' | 'unknown-dimensions' | null;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {success: false; reason: string; stack: string};
@@ -1596,6 +1609,17 @@ export type ConfigValue =
 
 export type ConfigUpdate =
 	| {
+			setter: 'addElementLibrary';
+			type: 'update';
+			previousUrl: string;
+			value: {url: string; displayName: string | null};
+	  }
+	| {
+			setter: 'addElementLibrary';
+			type: 'reorder';
+			value: string[];
+	  }
+	| {
 			setter: string;
 			type: 'delete';
 			value?: string;
@@ -1706,7 +1730,7 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
-// When adding a route, also update the Browser Studio parity checklist:
+// When adding a route, also update the remotion.new parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export const studioOperations = {
 	'/api/shared-memory-capture-support': new StudioOperation<
@@ -2043,6 +2067,10 @@ export const studioOperations = {
 	'/api/update-config': new StudioOperation<
 		UpdateConfigRequest,
 		UpdateConfigResponse
+	>({mutatesSource: false}),
+	'/api/element-library-favicon': new StudioOperation<
+		{url: string},
+		{head: string; url: string} | null
 	>({mutatesSource: false}),
 	'/api/install-package': new StudioOperation<
 		InstallPackageRequest,

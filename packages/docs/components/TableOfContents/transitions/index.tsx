@@ -40,6 +40,17 @@ export const TableOfContents: React.FC<{
 			<h3>Presentations</h3>
 			<p>Hover over an effect to see the preview.</p>
 			<Presentations apisOnly={Boolean(apisOnly)} />
+			{apisOnly ? null : (
+				<>
+					<h3>Guides</h3>
+					<Grid>
+						<TOCItem link="/docs/transitions/audio-transitions">
+							<strong>Audio transitions</strong>
+							<div>Add a sound effect to a transition</div>
+						</TOCItem>
+					</Grid>
+				</>
+			)}
 		</div>
 	);
 };

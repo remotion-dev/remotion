@@ -94,8 +94,17 @@ export const moveNodesIntoTrack = ({
 		}
 	}
 
-	const wrappers = sources.map((source, index) => {
-		const timing = timings[index];
+	const moving = sources
+		.map((source, index) => ({source, timing: timings[index]}))
+		.sort((a, b) => {
+			const aStart = a.source.node.loc?.start;
+			const bStart = b.source.node.loc?.start;
+			return (
+				(aStart?.line ?? 0) - (bStart?.line ?? 0) ||
+				(aStart?.column ?? 0) - (bStart?.column ?? 0)
+			);
+		});
+	const wrappers = moving.map(({source, timing}) => {
 		if (
 			!Number.isFinite(timing.from) ||
 			timing.from < 0 ||
@@ -189,7 +198,7 @@ export const moveNodesIntoTrack = ({
 	return {
 		output,
 		nodePathRemappings,
-		sequenceLabel: timings.map(({name}) => name).join(', '),
+		sequenceLabel: moving.map(({timing}) => timing.name).join(', '),
 		logLine: target.loc?.start.line ?? 1,
 	};
 };

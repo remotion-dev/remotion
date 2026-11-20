@@ -1,6 +1,6 @@
 import {getThemeColors} from '@code-hike/lighter';
 import {highlight} from 'codehike/code';
-import React, {useEffect, useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import type {InteractivitySchema} from 'remotion';
 import {
 	AbsoluteFill,
@@ -8,13 +8,13 @@ import {
 	Sequence,
 	interpolate,
 	useCurrentFrame,
+	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
+import {brandCodeTheme} from '../../code-theme';
 import type {ThemeColors} from './calculate-metadata/theme';
 import {ThemeProvider} from './calculate-metadata/theme';
 import {CodeTransition} from './CodeTransition';
-
-const THEME = 'github-light';
 
 type CodeBRollProps = {
 	readonly code: string;
@@ -34,32 +34,42 @@ const CodeBRollInner: React.FC<CodeBRollProps> = ({
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const {cancelRender, continueRender, delayRender} = useDelayRender();
 
 	const [data, setData] = useState<{
 		highlighted: Awaited<ReturnType<typeof highlight>>;
 		previousHighlighted: Awaited<ReturnType<typeof highlight>> | null;
 		themeColors: ThemeColors;
+		handle: number;
 	} | null>(null);
 
-	useEffect(() => {
-		const promises: Promise<unknown>[] = [
-			highlight({value: code, lang, meta: ''}, THEME),
-			getThemeColors(THEME),
-		];
-		if (previousCode) {
-			promises.push(highlight({value: previousCode, lang, meta: ''}, THEME));
-		}
-
-		Promise.all(promises).then((results) => {
-			setData({
-				highlighted: results[0] as Awaited<ReturnType<typeof highlight>>,
-				themeColors: results[1] as ThemeColors,
-				previousHighlighted: results[2]
-					? (results[2] as Awaited<ReturnType<typeof highlight>>)
-					: null,
+	useLayoutEffect(() => {
+		const handle = delayRender('Highlighting the promo code example');
+		let cancelled = false;
+		Promise.all([
+			highlight({value: code, lang, meta: ''}, brandCodeTheme),
+			getThemeColors(brandCodeTheme),
+			previousCode
+				? highlight({value: previousCode, lang, meta: ''}, brandCodeTheme)
+				: null,
+		])
+			.then(([highlighted, themeColors, previousHighlighted]) => {
+				if (!cancelled) {
+					setData({highlighted, themeColors, previousHighlighted, handle});
+				}
+			})
+			.catch((error) => {
+				if (!cancelled) cancelRender(error);
 			});
-		});
-	}, [code, previousCode, lang]);
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [cancelRender, code, continueRender, delayRender, lang, previousCode]);
+
+	useLayoutEffect(() => {
+		if (data) continueRender(data.handle);
+	}, [continueRender, data]);
 
 	if (!data) return null;
 

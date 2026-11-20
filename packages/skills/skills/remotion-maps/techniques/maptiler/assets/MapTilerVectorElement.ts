@@ -1,6 +1,6 @@
 // Surface an existing MapTiler Planet feature without maintaining duplicate GeoJSON.
 // Paint animation is deterministic; geometry slicing is not. For a source-to-end line draw,
-// bake the selected feature to ordered GeoJSON and use RiverReveal.tsx instead.
+// bake the selected feature to ordered GeoJSON first.
 
 type VectorLayerType = 'fill' | 'line' | 'circle' | 'symbol';
 
@@ -19,14 +19,13 @@ const SOURCE_ID = 'maptiler-planet';
 
 export const addMapTilerVectorElement = (
 	map: any,
-	apiKey: string,
 	element: MapTilerVectorElement,
 	beforeId?: string,
 ) => {
 	if (!map.getSource(SOURCE_ID)) {
 		map.addSource(SOURCE_ID, {
 			type: 'vector',
-			url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${apiKey}`,
+			url: 'https://api.maptiler.com/tiles/v3/tiles.json?key=YOUR_API_KEY',
 		});
 	}
 
@@ -57,24 +56,3 @@ export const setVectorElementPaint = (
 		map.setPaintProperty(layerId, property, value);
 	}
 };
-
-// Example:
-//
-// addMapTilerVectorElement(map, process.env.REMOTION_MAPTILER_KEY!, {
-//   id: "story-river",
-//   sourceLayer: "waterway",
-//   type: "line",
-//   filter: [
-//     "all",
-//     ["==", ["get", "class"], "river"],
-//     ["==", ["coalesce", ["get", "name_en"], ["get", "name"]], "Yarlung Tsangpo"],
-//   ],
-//   layout: {"line-cap": "round", "line-join": "round"},
-//   paint: {"line-color": "#E8F7FF", "line-width": 3, "line-opacity": 0},
-// });
-//
-// Per Remotion frame:
-// setVectorElementPaint(map, "story-river", {
-//   "line-opacity": reveal,
-//   "line-width": 2 + reveal * 2,
-// });

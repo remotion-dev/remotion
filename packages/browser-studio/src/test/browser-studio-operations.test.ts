@@ -76,7 +76,7 @@ test('consumes an initial Element payload only once', () => {
 	expect(operations.consumeInitialElement()).toBe(null);
 });
 
-test('adds a Solid to the blank Browser Studio project', () => {
+test('adds a Solid to the blank remotion.new project', () => {
 	const project = createBlankTemplateProject();
 	const updated = insertSolid(project);
 	const composition = updated.files['/project/src/Composition.tsx'];
@@ -1000,9 +1000,9 @@ const makeOperationsForProject = (project: VirtualProject) => {
 test('wraps JSX as an undoable virtual project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const compositionId = 'MyComp';
-	const initialContents = `import {AbsoluteFill} from 'remotion';
+	const initialContents = `import {Sequence} from 'remotion';
 
-export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
+export const Component = ({portrait}: {portrait: boolean}) => <Sequence width={portrait ? 1080 : 960} height={portrait ? 960 : 1080}><div /></Sequence>;`;
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: fileName,
@@ -1010,19 +1010,18 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 	};
 	const {operations, getProject} = makeOperationsForProject(project);
 	const nodePath = getNodes({project, filePath: fileName}).find(
-		({tagName}) => tagName === 'AbsoluteFill',
+		({tagName}) => tagName === 'Sequence',
 	)?.nodePath;
 	if (!nodePath) {
-		throw new Error('Expected an AbsoluteFill node');
+		throw new Error('Expected a Sequence node');
 	}
 
 	const result = await operations.wrapNode({
 		fileName,
 		compositionId,
 		nodePath,
-		wrapper: 'Sequence',
-		width: null,
-		height: null,
+		wrapper: 'HtmlInCanvasMotionBlur',
+		measuredSize: null,
 		timing: null,
 	});
 	expect(result).toMatchObject({
@@ -1032,17 +1031,19 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 				compositionId,
 				absolutePath: fileName,
 				nodePath: getNodes({project: getProject(), filePath: fileName}).find(
-					({tagName}) => tagName === 'Sequence',
+					({tagName}) => tagName === 'HtmlInCanvasMotionBlur',
 				)?.nodePath,
 			},
 		},
 	});
-	expect(getProject().files[fileName]).toContain('<Sequence>');
-	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
+	expect(getProject().files[fileName]).toContain('@remotion/motion-blur');
+	const wrapped = getProject().files[fileName];
+	expect(wrapped.match(/width=\{portrait \? 1080 : 960\}/g)).toHaveLength(2);
+	expect(wrapped.match(/height=\{portrait \? 960 : 1080\}/g)).toHaveLength(2);
 	expect(await operations.undo()).toMatchObject({success: true});
 	expect(getProject().files[fileName]).toBe(initialContents);
 	expect(await operations.redo()).toMatchObject({success: true});
-	expect(getProject().files[fileName]).toContain('<Sequence>');
+	expect(getProject().files[fileName]).toBe(wrapped);
 });
 
 test('duplicates a JSX sequence as an undoable project mutation', async () => {
@@ -1483,7 +1484,7 @@ test('renames a composition by resolving the file from the composition id', asyn
 	);
 });
 
-test('updates composition metadata in Browser Studio', async () => {
+test('updates composition metadata in remotion.new', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
@@ -1652,7 +1653,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 	);
 });
 
-test('creates, renames and deletes a folder in Browser Studio', async () => {
+test('creates, renames and deletes a folder in remotion.new', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
@@ -2116,6 +2117,7 @@ export const Comp = () => (
 
 	const {effects} = operations;
 	const addResult = await effects.addEffect({
+		wrapInHtmlInCanvas: null,
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
 		effectName: 'tint',
@@ -2180,7 +2182,7 @@ export const Comp = () => (
 		],
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
-		fromIndex: 3,
+		fromIndices: [3],
 		toIndex: 0,
 		clientId: 'browser-studio',
 	});
@@ -2232,7 +2234,7 @@ export const Comp = () => (
 		await effects.reorderEffect({
 			fileName: 'src/Comp.tsx',
 			sequenceNodePath,
-			fromIndex: 0,
+			fromIndices: [0],
 			toIndex: 0,
 			clientId: 'browser-studio',
 		}),
@@ -2445,6 +2447,7 @@ export const Comp = () => (
 	});
 	expect(
 		await effects.addEffect({
+			wrapInHtmlInCanvas: null,
 			fileName: 'src/Comp.tsx',
 			sequenceNodePath,
 			effectName: 'unsafe',

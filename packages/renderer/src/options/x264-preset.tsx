@@ -52,7 +52,7 @@ const cliFlag = 'x264-preset' as const;
 const DEFAULT_PRESET: X264Preset = 'medium' as const;
 
 export const x264Option = {
-	name: 'x264 Preset',
+	name: 'x264 preset',
 	addedIn: '4.0.22',
 	cliFlag,
 	description: () => (

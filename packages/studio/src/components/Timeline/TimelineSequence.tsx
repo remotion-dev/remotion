@@ -1752,7 +1752,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 						? () => {
 								setSelectedModal({
 									type: 'settings',
-									initialStudioPane: null,
 									initialTab: 'apps',
 									initialPublicLicenseKey:
 										window.remotion_renderDefaults?.publicLicenseKey ?? null,

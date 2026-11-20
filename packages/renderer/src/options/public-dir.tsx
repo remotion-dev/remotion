@@ -5,7 +5,7 @@ const cliFlag = 'public-dir' as const;
 let currentPublicDir: string | null = null;
 
 export const publicDirOption = {
-	name: 'Public Directory',
+	name: 'Public directory',
 	addedIn: '3.2.13',
 	cliFlag,
 	description: () => {

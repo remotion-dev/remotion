@@ -385,3 +385,18 @@ test('Should apply easing to colors', () => {
 		),
 	).toEqual({color: 'rgba(50, 50, 50, 1)', opacity: 50});
 });
+
+test('Should repeat all keyframes with extrapolate: "wrap"', () => {
+	const styles = [
+		{opacity: 0, transform: 'translateX(0px)'},
+		{opacity: 100, transform: 'translateX(100px)'},
+		{opacity: 200, transform: 'translateX(200px)'},
+	];
+
+	expect(
+		interpolateStyles(35, [0, 10, 30], styles, {extrapolateRight: 'wrap'}),
+	).toEqual({opacity: 50, transform: 'translateX(50px)'});
+	expect(
+		interpolateStyles(-5, [0, 10, 30], styles, {extrapolateLeft: 'wrap'}),
+	).toEqual({opacity: 175, transform: 'translateX(175px)'});
+});

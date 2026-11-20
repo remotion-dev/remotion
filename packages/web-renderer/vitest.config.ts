@@ -1,8 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {availableParallelism} from 'node:os';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import {playwright} from '@vitest/browser-playwright';
 import {defineConfig} from 'vitest/config';
+import {compareNativePngs} from './src/test/compare-native-png';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 
@@ -13,9 +15,19 @@ function truthy<T>(value: T): value is Truthy<T> {
 export default defineConfig({
 	test: {
 		include: ['src/test/**/*.test.{ts,tsx}'],
-		maxWorkers: process.env.CI ? 1 : 5,
+		maxWorkers: process.env.CI
+			? Math.min(2, Math.max(1, Math.floor(availableParallelism() / 2)))
+			: 5,
 		browser: {
 			enabled: true,
+			commands: {
+				compareNativePngs: (
+					_context,
+					reference: string,
+					actual: string,
+					createDiff: boolean,
+				) => compareNativePngs(reference, actual, createDiff),
+			},
 			provider: playwright(),
 			instances: [
 				{

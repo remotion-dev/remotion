@@ -61,13 +61,13 @@ The amount of seconds the audio is offset, pass this parameter if you are using 
 
 An array of values describing the amplitude of each frequency range. Each value is between 0 and 1. The array is of length defined by the `numberOfSamples` parameter.
 
-The values on the left of the array are low frequencies (for example bass) and as we move towards the right, we go through the mid and high frequencies like drums and vocals.
+The values on the left of the array are low frequencies (for example bass) and further to the right are the mid and high frequencies like drums and vocals.
 
 Usually the values on left side of the array can become much larger than the values on the right. This is not a mistake, but for some visualizations you might have to apply some postprocessing to it, you can flatten the curve by for example mapping each value to a logarithm of the original function.
 
 ## Example
 
-In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
+This example renders a bar chart visualizing the audio spectrum of an audio file imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash title="MyComponent.tsx"
 import {Audio} from '@remotion/media';

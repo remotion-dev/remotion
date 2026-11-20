@@ -221,11 +221,7 @@ const IntroSceneInner: React.FC = () => {
 				showInTimeline={false}
 			>
 				<Series>
-					<Series.Sequence
-						name="Opening line"
-						durationInFrames={208}
-						premountFor={30}
-					>
+					<Series.Sequence name="Opening line" durationInFrames={208}>
 						<Punch zoom={1.1}>
 							<Video
 								src={

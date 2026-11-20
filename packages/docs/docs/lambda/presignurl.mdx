@@ -66,6 +66,14 @@ If `checkIfObjectExists` is `true` and the object does not exist, `null` is retu
 
 If `checkIfObjectExists` is `false`, no check is made and a URL is always returned, even if the object does not exist.
 
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client.
+
+### `requestHandler?`<AvailableFrom v="4.0.315" />
+
+A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/proxy).
+
 ## Compatibility
 
 <CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering="" player="" studio="" hideBrowsers />

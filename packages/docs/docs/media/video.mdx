@@ -61,6 +61,8 @@ For more information on HLS support, see the [HLS documentation](/docs/hls).
 
 The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
+A remote URL must be [CORS-enabled](/docs/media/support#cors). Otherwise, a [fallback](/docs/media/fallback) to [`<OffthreadVideo>`](/docs/offthreadvideo) is attempted during server-side rendering.
+
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
@@ -132,7 +134,7 @@ CSS styles applied to the video while it is postmounted. These styles override t
 
 Will remove a portion of the video at the beginning (left side).
 
-In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+The following example assumes that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
 By passing `durationInFrames={60}`, the video plays for 60 source frames.
@@ -166,7 +168,7 @@ Removes a portion of the video at the end (right side). If `durationInFrames` en
 ### `volume?`
 
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
-Read the page on [controlling volume and muting](/docs/audio/volume) to learn more.
+Read the page on [volume and muting](/docs/audio/volume) to learn more.
 
 The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
 

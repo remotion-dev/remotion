@@ -12,9 +12,7 @@ export const SwapDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return (
-			<HtmlInCanvasDocsVideoFallback relativeSrc="img/swap-transition.mp4" />
-		);
+		return <HtmlInCanvasDocsVideoFallback src="img/swap-transition.mp4" />;
 	}
 
 	return <SwapTransitionPreview />;

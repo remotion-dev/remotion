@@ -1,4 +1,4 @@
-import {CodemodsInternals} from '@remotion/codemods';
+import {replaceJsxElementWithSource} from '@remotion/codemods';
 import type {
 	RestorePrerenderedSceneRequest,
 	RestorePrerenderedSceneResponse,
@@ -26,7 +26,7 @@ export const restorePrerenderedSceneHandler: ApiHandler<
 		fileName,
 		nodePath,
 		codemod: ({project, node}) =>
-			CodemodsInternals.replaceJsxElementWithSource({
+			replaceJsxElementWithSource({
 				project,
 				node,
 				source: sidecar.source,

@@ -1,4 +1,5 @@
-import {useEffect, useRef} from 'react';
+import {useRef} from 'react';
+import {useIsomorphicLayoutEffect} from './use-isomorphic-layout-effect.js';
 
 type OnDuration = (src: string, durationInSeconds: number) => void;
 
@@ -38,8 +39,7 @@ export const useMediaDuration = (
 
 	// The listener and its cleanup must not share the component render scope.
 	// Binding prevents production minifiers from inlining that scope back in.
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect(
+	useIsomorphicLayoutEffect(
 		subscribeToMediaDuration.bind(
 			null,
 			mediaRef,

@@ -75,15 +75,15 @@ Pass an object with the following properties. You can also call `turbulentDispla
 
 ### `displacement?`
 
-Distortion mode. Defaults to `"turbulent"`.
+Distortion mode. Defaults to `'turbulent'`.
 
-- `"turbulent"`: Displace horizontally and vertically using independent noise fields.
-- `"bulge"`: Push pixels along the slope of the noise field.
-- `"twist"`: Push pixels perpendicular to that slope.
-- `"turbulent-smoother"`, `"bulge-smoother"`, `"twist-smoother"`: Reduce the strength of finer noise layers for smoother distortion.
-- `"vertical"`: Move pixels vertically.
-- `"horizontal"`: Move pixels horizontally.
-- `"cross"`: Apply the same displacement to both axes, producing diagonal movement.
+- `'turbulent'`: Displace horizontally and vertically using independent noise fields.
+- `'bulge'`: Push pixels along the slope of the noise field.
+- `'twist'`: Push pixels perpendicular to that slope.
+- `'turbulent-smoother'`, `'bulge-smoother'`, `'twist-smoother'`: Reduce the strength of finer noise layers for smoother distortion.
+- `'vertical'`: Move pixels vertically.
+- `'horizontal'`: Move pixels horizontally.
+- `'cross'`: Apply the same displacement to both axes, producing diagonal movement.
 
 ### `amount?`
 
@@ -123,15 +123,15 @@ Integer from `0` to `4294967295` selecting a repeatable noise pattern. Defaults 
 
 ### `pinning?`
 
-Edges that stay in place. Defaults to `"all"`. The distortion fades out near pinned edges.
+Edges that stay in place. Defaults to `'all'`. The distortion fades out near pinned edges.
 
-- `"none"`: Do not pin edges.
-- `"all"`: Pin all four edges.
-- `"horizontal"`: Pin the top and bottom edges.
-- `"vertical"`: Pin the left and right edges.
-- `"left"`, `"top"`, `"right"`, `"bottom"`: Pin one edge.
+- `'none'`: Do not pin edges.
+- `'all'`: Pin all four edges.
+- `'horizontal'`: Pin the top and bottom edges.
+- `'vertical'`: Pin the left and right edges.
+- `'left'`, `'top'`, `'right'`, `'bottom'`: Pin one edge.
 
-The variants `"all-locked"`, `"horizontal-locked"`, `"vertical-locked"`, `"left-locked"`, `"top-locked"`, `"right-locked"` and `"bottom-locked"` also clamp source sampling to the canvas bounds. This prevents transparent gaps caused by sampling outside the source, with a wider fade near pinned edges.
+The variants `'all-locked'`, `'horizontal-locked'`, `'vertical-locked'`, `'left-locked'`, `'top-locked'`, `'right-locked'` and `'bottom-locked'` also clamp source sampling to the canvas bounds. This prevents transparent gaps caused by sampling outside the source, with a wider fade near pinned edges.
 
 The canvas size stays unchanged. Pixels moved outside it are cropped.
 
@@ -146,8 +146,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
 ## See also
 
+- [`@remotion/effects`](/docs/effects/api)
 - [`fractalNoise()`](/docs/effects/fractal-noise)
 - [`noiseDisplacement()`](/docs/effects/noise-displacement)
 - [`wave()`](/docs/effects/wave)

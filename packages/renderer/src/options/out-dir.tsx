@@ -5,7 +5,7 @@ const cliFlag = 'out-dir' as const;
 let currentOutDir: string | null = null;
 
 export const outDirOption = {
-	name: 'Output Directory',
+	name: 'Output directory',
 	addedIn: '4.0.426',
 	cliFlag,
 	description: () => {

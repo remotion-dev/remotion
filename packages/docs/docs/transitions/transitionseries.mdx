@@ -7,7 +7,7 @@ title: '<TransitionSeries>'
 
 import {TransitionsDuration} from '../../components/TransitionsDuration';
 
-# &lt;TransitionSeries&gt;<AvailableFrom v="4.0.59" />
+# &lt;TransitionSeries&gt;<AvailableFrom v="4.0.53" />
 
 The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for [`<TransitionSeries.Transition>`](#transitionseriestransition) and [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) components to be rendered between [`<TransitionSeries.Sequence>`](#transitionseriessequence) components.
 
@@ -16,7 +16,7 @@ Between any two sequences, you can place either a transition or an overlay:
 - A [`<TransitionSeries.Transition>`](#transitionseriestransition) crossfades, slides, or otherwise animates between two scenes.  
   It [shortens](#duration-of-a-transitionseries) the total duration because both scenes overlap during the transition.
 - A [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) renders children on top of the cut point without affecting timing.  
-  The sequences remain at full length — useful for effects like [light leaks](/docs/light-leaks/light-leak) or flashes.
+  The sequences remain at full length. This is useful for effects like [light leaks](/docs/effects/light-leak) or flashes.
 
 ### Transition example
 
@@ -52,13 +52,36 @@ export const TransitionExample: React.FC = () => {
 
 ### Overlay example<AvailableFrom v="4.0.415" />
 
+This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';
 const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
 
 // ---cut---
-import {LightLeak} from '@remotion/light-leaks';
+import {lightLeak} from '@remotion/effects/light-leak';
 import {TransitionSeries} from '@remotion/transitions';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const LightLeakOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      effects={[
+        lightLeak({
+          progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        }),
+      ]}
+    />
+  );
+};
 
 export const OverlayExample: React.FC = () => {
   return (
@@ -67,7 +90,7 @@ export const OverlayExample: React.FC = () => {
         <Fill color="blue" />
       </TransitionSeries.Sequence>
       <TransitionSeries.Overlay durationInFrames={20}>
-        <LightLeak />
+        <LightLeakOverlay />
       </TransitionSeries.Overlay>
       <TransitionSeries.Sequence durationInFrames={60}>
         <Fill color="black" />
@@ -116,7 +139,7 @@ During the transition, both scenes are rendered simultaneously and the total dur
 Must be a direct child of `<TransitionSeries>`.
 At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
 
-Takes two props:
+Accepts the following props.
 
 #### `timing`
 
@@ -125,6 +148,13 @@ A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) fo
 #### `presentation?`
 
 A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
+
+#### `motionBlur?`<AvailableFrom v="4.0.545" />
+
+An object with optional `shutterAngle` and `samples` properties that enables motion blur for the presentation.  
+Defaults to [`180` degrees and `16` samples](/docs/motion-blur#shutterangle-and-samples) when enabled.  
+A transition must have a [HTML-in-canvas based implementation](/docs/transitions/presentations/custom-html-in-canvas) for this to work.  
+See also: [Transition motion blur](/docs/motion-blur#motion-blur-on-transitions)
 
 ### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
 
@@ -305,13 +335,7 @@ const BasicTransition = () => {
 
 ## Getting the duration of a transition
 
-You can get the duration of a transition by calling `getDurationInFrames()` on the timing:
-
-```tsx twoslash title="Assuming a framerate of 30fps"
-import {springTiming} from '@remotion/transitions';
-
-springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
-```
+Call `getDurationInFrames({fps})` on the timing. See [Getting the duration of a timing](/docs/transitions/timings#getting-the-duration-of-a-timing).
 
 ## Rules
 

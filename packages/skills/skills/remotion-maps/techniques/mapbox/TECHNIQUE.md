@@ -60,15 +60,14 @@ Import the Mapbox CSS once in the component or an app-level stylesheet:
 import 'mapbox-gl/dist/mapbox-gl.css';
 ```
 
-Mapbox requires a public access token. Prefer passing it as an input prop or reading it from an environment variable that is available to the bundled Remotion code.
+Mapbox requires a public access token. Replace `YOUR_MAPBOX_ACCESS_TOKEN` in the examples with a public token for your Mapbox account.
 
 ```ts
-const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
-
-if (!mapboxAccessToken) {
-	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
-}
+const mapboxAccessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
 ```
+
+When using the Remotion CLI, environment variables prefixed with `REMOTION_` are passed to the composition.
+See the [environment variables documentation](https://www.remotion.dev/docs/env-variables).
 
 ## Basic map example
 
@@ -80,11 +79,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 const zurich: [number, number] = [8.5417, 47.3769];
 
-const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
-
-if (!mapboxAccessToken) {
-	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
-}
+const mapboxAccessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
 
 export const MyComposition = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -156,11 +151,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const zurich: [number, number] = [8.5417, 47.3769];
 const newYork: [number, number] = [-74.006, 40.7128];
 
-const mapboxAccessToken = process.env.REMOTION_MAPBOX_TOKEN;
-
-if (!mapboxAccessToken) {
-	throw new Error('Set REMOTION_MAPBOX_TOKEN to render Mapbox maps.');
-}
+const mapboxAccessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
 
 const greatCircleLine = (from: [number, number], to: [number, number]) => {
 	const route = turf.greatCircle(from, to, {npoints: 100});

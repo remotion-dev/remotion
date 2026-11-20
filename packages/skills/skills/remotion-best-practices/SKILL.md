@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.543
+version: 4.0.545
 ---
 
 ## Preserve user changes
@@ -39,9 +39,7 @@ New markup is editable in Studio by default. When writing or restructuring marku
 
 ## Open the preview
 
-If the user asks to "make" a video, "create" a video, etc.
-Don't render the video by default unless they are very explicit. They want to instead see an interactive preview.
-As soon as the project can run, start Studio and open the preview in the browser before building or editing the composition. Keep it open while you work so the user can watch progress and steer.
+When creating or editing a video, you SHOULD open Studio once the project can run, so the user can preview changes and steer.
 
 ### If you are using Cursor
 

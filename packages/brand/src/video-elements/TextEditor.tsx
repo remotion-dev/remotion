@@ -3,6 +3,7 @@ import {highlight, InnerLine, Pre} from 'codehike/code';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
+import {brandCodeTheme} from '../code-theme';
 import {ReactFileIcon, VscodeIcon} from './vscode-icons';
 
 export const textEditorSchema = z.object({
@@ -49,7 +50,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	useEffect(() => {
 		let cancelled = false;
 
-		highlight({value: code, lang: 'tsx', meta: ''}, 'dark-plus')
+		highlight({value: code, lang: 'tsx', meta: ''}, brandCodeTheme)
 			.then((result) => {
 				if (!cancelled) {
 					setHighlighted(result);
@@ -158,7 +159,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 			<Interactive.Div
 				name="Editor window"
 				style={{
-					backgroundColor: '#131414',
+					backgroundColor: '#24292e',
 					border: `${scale}px solid #454545`,
 					borderRadius,
 					boxSizing: 'border-box',
@@ -225,7 +226,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				<Interactive.Div
 					name="Editor tabs"
 					style={{
-						backgroundColor: '#131414',
+						backgroundColor: '#24292e',
 						height: tabBarHeight,
 						left: 0,
 						position: 'absolute',
@@ -239,7 +240,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 								key={tab.label}
 								style={{
 									alignItems: 'center',
-									backgroundColor: tab.active ? '#131414' : '#181919',
+									backgroundColor: tab.active ? '#24292e' : '#181919',
 									borderLeft: index === 0 ? 'none' : `${scale}px solid #2b2b2b`,
 									boxSizing: 'border-box',
 									color: tab.active ? '#e7e7e7' : '#8e8e8e',
@@ -286,7 +287,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 					name="Breadcrumbs"
 					style={{
 						alignItems: 'center',
-						backgroundColor: '#131414',
+						backgroundColor: '#24292e',
 						color: '#9c9c9c',
 						display: 'flex',
 						fontSize: 12 * scale,
@@ -313,7 +314,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				<Interactive.Div
 					name="Code editor"
 					style={{
-						backgroundColor: '#131414',
+						backgroundColor: '#24292e',
 						height: editorHeight + 2 * scale,
 						left: 0,
 						overflow: 'hidden',
@@ -328,7 +329,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							handlers={[lineHandler]}
 							style={{
 								backgroundColor: 'transparent',
-								color: '#d4d4d4',
+								color: '#e1e4e8',
 								fontFamily: 'Menlo, Monaco, "Courier New", monospace',
 								fontSize: 14 * scale,
 								fontVariantLigatures: 'none',

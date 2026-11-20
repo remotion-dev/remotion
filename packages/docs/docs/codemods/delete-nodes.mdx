@@ -21,13 +21,15 @@ import type {SequenceNodePath} from 'remotion';
 declare const project: CodemodProject;
 declare const nodePath: SequenceNodePath;
 
-const result = await deleteNodes({
+const result = deleteNodes({
   project,
   nodes: [{filePath: 'src/Video.tsx', nodePath}],
 });
 
 console.log(result.changes);
 ```
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -49,7 +51,7 @@ The `SequenceNodePath` identifying the node to delete. Obtain it from [`getNodes
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -61,7 +63,7 @@ File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node 
 
 ## Errors
 
-Throws or rejects when a reference cannot be resolved or a node cannot be deleted. Failed edits leave the input project unchanged.
+Throws when a reference cannot be resolved or a node cannot be deleted. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

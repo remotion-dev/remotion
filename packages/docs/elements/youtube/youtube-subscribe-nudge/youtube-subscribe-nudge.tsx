@@ -30,7 +30,8 @@ const YouTubeSubscribeNudgeInner: React.FC<
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames: sequenceDurationInFrames} = useVideoConfig();
+	const durationInFrames = Math.max(sequenceDurationInFrames, 41);
 
 	return (
 		<div

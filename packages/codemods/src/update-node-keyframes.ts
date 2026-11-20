@@ -24,7 +24,7 @@ export type UpdateNodeKeyframesOptions<Project extends CodemodProject> = {
 	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
-export const updateNodeKeyframes = async <Project extends CodemodProject>({
+export const updateNodeKeyframes = <Project extends CodemodProject>({
 	project,
 	node,
 	updates,
@@ -38,7 +38,7 @@ export const updateNodeKeyframes = async <Project extends CodemodProject>({
 
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const {output, ...details} = await updateSequenceKeyframes({
+	const {output, ...details} = updateSequenceKeyframes({
 		input,
 		nodePath: node.nodePath,
 		updates,

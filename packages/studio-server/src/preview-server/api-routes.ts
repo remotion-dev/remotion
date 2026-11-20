@@ -23,6 +23,7 @@ import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateCompositionHandler} from './routes/duplicate-composition';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateNodesHandler} from './routes/duplicate-nodes';
+import {elementLibraryFaviconHandler} from './routes/element-library-favicon';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertBasicCaptionsHandler} from './routes/insert-basic-captions';
 import {insertCompositionElementHandler} from './routes/insert-composition-element';
@@ -188,6 +189,7 @@ export const allApiRoutes: {
 	'/api/prepare-element-install': prepareElementInstallHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
+	'/api/element-library-favicon': elementLibraryFaviconHandler,
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 	'/api/log-studio-error': logStudioErrorHandler,

@@ -11,7 +11,6 @@ export const AudioWaveformProgressComposition: React.FC = () => {
 			durationInFrames={271}
 			name="Voice Note"
 			style={{position: 'absolute'}}
-			premountFor={30}
 		/>
 	);
 };

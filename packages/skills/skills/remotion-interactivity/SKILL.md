@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structures Remotion markup so layers, timing and styles are editable in Remotion Studio. Use when writing a new composition or restructuring existing markup.
-version: 4.0.543
+version: 4.0.545
 ---
 
 Make markup editable in Studio by default. Keep a part programmatic only if it is
@@ -215,7 +215,10 @@ Use `<Interactive.Path>` from `remotion` instead of `<path>` inside an SVG to ma
 Install `@remotion/paths` for path interpolation and Studio path keyframes:
 
 ```sh
-bunx remotion add @remotion/paths
+npx remotion add @remotion/paths # If project uses npm
+bunx remotion add @remotion/paths # If project uses bun
+yarn remotion add @remotion/paths # If project uses yarn
+pnpm exec remotion add @remotion/paths # If project uses pnpm
 ```
 
 If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant.

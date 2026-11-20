@@ -249,6 +249,7 @@ const getSelectedSuites = (plan: CiPlan) => ({
 	nextjs: plan.nextjs,
 	browser: plan.browser,
 	webrenderer: plan.webrenderer,
+	browser_studio: plan.webrenderer,
 	ssr: plan.ssr,
 	monorepo: plan.monorepo,
 	templates: plan.templates,
@@ -264,6 +265,7 @@ export type RequiredCiResults = {
 	nextjs: string;
 	browser: string;
 	webrenderer: string;
+	browser_studio: string;
 	webrenderer_flake_test: string;
 	ssr: string;
 	monorepo: string;

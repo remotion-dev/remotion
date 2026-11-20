@@ -39,6 +39,7 @@ import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
+import {useReleaseCanvas} from '../use-release-canvas.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {LoadedImage} from './canvas-image-load-state.js';
 import {canvasImageLoadReducer} from './canvas-image-load-state.js';
@@ -299,6 +300,8 @@ const CanvasImageContent = forwardRef<
 			() => setCanvasRef.bind(null, setOutputCanvas, ref),
 			[ref],
 		);
+		useReleaseCanvas(sourceCanvas);
+		useReleaseCanvas(outputCanvas);
 
 		useLayoutEffect(() => {
 			if (
@@ -426,15 +429,18 @@ const CanvasImageContent = forwardRef<
 				const error = new Error(
 					'Could not get 2D context for <CanvasImage> source canvas',
 				);
-				if (onErrorRef.current) {
-					onErrorRef.current(error);
-					dispatchLoad({type: 'presented'});
-					releasePendingLoadDelay();
-				} else {
-					cancelRender(error);
+				try {
+					if (onErrorRef.current) {
+						onErrorRef.current(error);
+						dispatchLoad({type: 'presented'});
+						releasePendingLoadDelay();
+					} else {
+						cancelRender(error);
+					}
+				} finally {
+					continueRenderOnce();
 				}
 
-				continueRenderOnce();
 				return () => {
 					continueRenderOnce();
 				};

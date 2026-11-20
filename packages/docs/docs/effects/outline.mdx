@@ -45,13 +45,13 @@ Effects run in array order. Place `outline()` after an effect that creates trans
 
 ## API
 
-All parameters are optional. You can call `outline()` without arguments.
+Pass an object with the following properties. You can also call `outline()` without arguments.
 
-### width?
+### `width?`
 
 Width of the outline in pixels. Defaults to `8`. Must be at least `0`.
 
-### edgeSimplification?
+### `edgeSimplification?`
 
 Pixel tolerance used to simplify the alpha contour into straight edges. Larger values remove more contour points and make the outline more polygonal. `0` disables simplification and is the default.
 
@@ -59,19 +59,19 @@ The source remains unchanged. With `outlineOnly: true`, the simplified contour i
 
 Values above `0` extract and simplify the alpha contour on the CPU for every frame, which is more expensive than the default outline.
 
-### color?
+### `color?`
 
-Color of the outline. Accepts any CSS color string. Defaults to white.
+Color of the outline. Accepts any CSS color string. Defaults to `'#ffffff'`.
 
-### opacity?
+### `opacity?`
 
 Opacity of the outline from `0` to `1`. Defaults to `1`.
 
-### outlineOnly?
+### `outlineOnly?`
 
 When `true`, replaces the source with a filled mask in the outline color. The mask includes both the original alpha silhouette and the outline around it. Defaults to `false`.
 
-### disabled?
+### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.
 
@@ -85,6 +85,10 @@ The outline is clipped at the canvas boundary. Leave transparent space around th
 - WebGPU (from v4.0.540)
 
 See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

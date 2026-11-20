@@ -131,6 +131,7 @@ export const Comp = () => <>
 			const result = await addEffectHandler({
 				...context,
 				input: {
+					wrapInHtmlInCanvas: null,
 					fileName: filePath,
 					sequenceNodePath,
 					effectName,
@@ -169,7 +170,7 @@ export const Comp = () => <>
 			input: {
 				fileName: filePath,
 				sequenceNodePath,
-				fromIndex: 0,
+				fromIndices: [0],
 				toIndex: 1,
 				clientId: 'effect-routes-test',
 			},
@@ -196,7 +197,7 @@ export const Comp = () => <>
 			input: {
 				fileName: filePath,
 				sequenceNodePath,
-				fromIndex: 1,
+				fromIndices: [1],
 				toIndex: 2,
 				clientId: 'effect-routes-test',
 			},
@@ -219,7 +220,7 @@ export const Comp = () => <>
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 0,
+					fromIndices: [0],
 					toIndex: 0,
 					clientId: 'effect-routes-test',
 				},
@@ -267,6 +268,7 @@ export const Comp = () => <>
 		const overridden = await addEffectHandler({
 			...context,
 			input: {
+				wrapInHtmlInCanvas: null,
 				fileName: filePath,
 				sequenceNodePath: {
 					...sequenceNodePath,
@@ -430,7 +432,7 @@ export const Comp = () => <>
 	}
 });
 
-test('external changes reject queued and in-flight codemods without overwriting source or undo history', async () => {
+test('external changes reject queued codemods and preserve later source after completed writes', async () => {
 	const {withSourceMutationGuard} =
 		await import('../preview-server/source-mutation-guard');
 	const {withSourceFileWriteQueue} =
@@ -483,6 +485,7 @@ test('external changes reject queued and in-flight codemods without overwriting 
 		addEffectHandler({
 			...context,
 			input: {
+				wrapInHtmlInCanvas: null,
 				fileName,
 				sequenceNodePath: {...sequenceNodePath, absolutePath: fileName},
 				effectName: 'brightness',
@@ -520,17 +523,18 @@ test('external changes reject queued and in-flight codemods without overwriting 
 		);
 		expect(independent.success).toBe(true);
 		expect(readFileSync(otherFile, 'utf8')).toContain('brightness({');
+		expect(popUndo().success).toBe(true);
+		expect(readFileSync(otherFile, 'utf8')).toBe(original);
 		const fresh = guard(filePath);
-		const inFlight = withSourceMutationGuard(fresh, () => add(filePath));
+		const completed = withSourceMutationGuard(fresh, () => add(filePath));
 		await Promise.resolve();
+		expect(readFileSync(filePath, 'utf8')).toContain('brightness({');
 		const newest = original.replace('width={100}', 'width={300}');
 		writeFileSync(filePath, newest);
-		const result = await inFlight;
-		expect(result.success).toBe(false);
-		if (!result.success)
-			expect(result.reason).toContain('edited outside Studio');
+		const result = await completed;
+		expect(result.success).toBe(true);
 		expect(readFileSync(filePath, 'utf8')).toBe(newest);
-		expect(popUndo().success).toBe(true);
+		expect(popUndo().success).toBe(false);
 		expect(readFileSync(otherFile, 'utf8')).toBe(original);
 		expect(readFileSync(filePath, 'utf8')).toBe(newest);
 
@@ -811,6 +815,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 				const result = await addEffectHandler({
 					...context,
 					input: {
+						wrapInHtmlInCanvas: null,
 						fileName: filePath,
 						sequenceNodePath,
 						effectName,
@@ -884,7 +889,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 				input: {
 					fileName: filePath,
 					sequenceNodePath,
-					fromIndex: 1,
+					fromIndices: [1],
 					toIndex: 2,
 					clientId: 'effect-routes-test',
 				},
@@ -941,6 +946,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 			const overridden = await addEffectHandler({
 				...context,
 				input: {
+					wrapInHtmlInCanvas: null,
 					fileName: filePath,
 					sequenceNodePath: {
 						...sequenceNodePath,

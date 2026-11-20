@@ -12,13 +12,10 @@ const BasicsPlaybackRateSceneInner = () => {
 				trimBefore={0.9 * fps}
 				durationInFrames={4.5 * fps}
 				playbackRate={1.5}
-				premountFor={fps}
 				style={{width: (width * 2) / 3}}
 				captureStyle={{translate: '-140px -460px'}}
 			/>
-			<BasicsTitlePanel premountFor={fps} style={null}>
-				Playback rate
-			</BasicsTitlePanel>
+			<BasicsTitlePanel style={null}>Playback rate</BasicsTitlePanel>
 		</AbsoluteFill>
 	);
 };

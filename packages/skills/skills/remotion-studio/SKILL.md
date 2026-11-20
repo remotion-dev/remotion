@@ -1,10 +1,10 @@
 ---
 name: remotion-studio
 description: Preview a Remotion video
-version: 4.0.543
+version: 4.0.545
 ---
 
-When creating or editing a video, start Studio and open its preview as soon as the project can run, before building the composition. Keep it open while you work so the user can see changes and steer.
+When creating or editing a video, you SHOULD open Studio once the project can run, so the user can preview changes and steer.
 
 In Cursor, run Studio without `--no-open` so the browser opens automatically:
 

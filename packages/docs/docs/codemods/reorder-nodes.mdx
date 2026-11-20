@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # reorderNodes()<AvailableFrom v="4.0.533" />
 
-Moves one or more nodes as a group before or after a sibling. The moved nodes keep their source order. For ordinary `<Sequence>` siblings, this changes stacking order. For `<Series.Sequence>` and `<TransitionSeries.Sequence>` siblings, it also changes their calculated timing.
+Moves one or more nodes as a group before or after a sibling, or inside a Track. The moved nodes keep their source order. For ordinary `<Sequence>` siblings, this changes stacking order. For `<Series.Sequence>` and `<TransitionSeries.Sequence>` siblings, it also changes their calculated timing.
 
 :::warning
 
@@ -22,7 +22,7 @@ declare const first: NodeReference;
 declare const second: NodeReference;
 declare const target: NodeReference;
 
-const result = await reorderNodes({
+const result = reorderNodes({
   project,
   nodes: [first, second],
   target,
@@ -32,7 +32,9 @@ const result = await reorderNodes({
 console.log(result.changes);
 ```
 
-All moved nodes and the target must be direct JSX siblings in the same file. A target in the moved group is invalid. The edit is atomic, so an invalid node leaves the input project unchanged.
+For before/after moves, all moved nodes and the target must be direct JSX siblings in the same file. A target in the moved group is invalid. The edit is atomic, so an invalid node leaves the input project unchanged.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -46,15 +48,39 @@ A nonempty array of [`NodeReference`](/docs/codemods#node-references) values for
 
 ### target
 
-The sibling node to position the group relative to.
+The sibling node to position the group relative to, or the destination Track for an inside move.
 
 ### position
 
-Either `'before'` or `'after'`.
+Either `'before'`, `'after'`, or `'inside'`. From v4.0.544, `'inside'` moves nodes into a Track and wraps each in a Sequence with the supplied timing. The nodes and Track must be in the same file and source scope.
+
+### timings<AvailableFrom v="4.0.544" />
+
+Required when `position` is `'inside'`. One `NodeMoveTiming` object per input node, in input order. The timings stay attached to their nodes when they are sorted into source order.
+
+#### from
+
+A finite, nonnegative start frame relative to the destination Track.
+
+#### durationInFrames
+
+A finite, positive duration.
+
+#### playbackRate
+
+A finite, positive playback rate. Use `1` for normal speed.
+
+#### trimBefore
+
+A finite, nonnegative trim offset. Use `0` for no trim.
+
+#### name
+
+The name for the inserted Sequence wrapper.
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -74,7 +100,7 @@ The source location and label for the edit.
 
 ## Errors
 
-Throws or rejects when a reference cannot be resolved, the nodes and target are not direct siblings in the same file, or the nodes are already in the requested position. Failed edits leave the input project unchanged.
+Throws when a reference cannot be resolved, the nodes and target are not direct siblings in the same file, or the nodes are already in the requested position. Failed edits leave the input project unchanged.
 
 ## Compatibility
 

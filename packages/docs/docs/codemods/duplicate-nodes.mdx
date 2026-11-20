@@ -20,7 +20,7 @@ import {duplicateNodes, type CodemodProject, type NodeReference} from '@remotion
 declare const project: CodemodProject;
 declare const node: NodeReference;
 
-const result = await duplicateNodes({
+const result = duplicateNodes({
   project,
   nodes: [node],
 });
@@ -31,6 +31,8 @@ console.log(result);
 Copies the node's source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
 
 Since v4.0.540, a clip directly inside a [`<Track>`](/docs/track), optionally grouped with anonymous fragments (`<>...</>`), is copied into a new sibling `<Track>` with its timing preserved. Multiple selected clips from one track share one new track. The new track preserves the original track's props except its explicit React `key` and adds `-copy` to a static `name`.
+
+From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
 ## Options
 
@@ -44,7 +46,7 @@ The node references to duplicate. They may belong to different files. All refere
 
 ## Return value
 
-A promise resolving to an object with the following properties.
+An object with the following properties.
 
 ### changes
 
@@ -64,7 +66,7 @@ References to the copies of the requested nodes. For clips copied into a new `<T
 
 ## Errors
 
-Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
 
 Clips inside an intervening element or expression within a `<Track>`, including named React fragments, cannot be copied into a separate track. Duplicate the enclosing track instead, or make the clip a direct child of the track.
 

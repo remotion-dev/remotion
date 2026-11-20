@@ -396,15 +396,15 @@ export const splitVideoFromAudio = ({
 	formatFile?: (input: {
 		contents: string;
 		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
+	}) => {output: string; formatted: boolean};
 	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
 	const importSnapshots = captureImportSnapshots(ast);
@@ -538,7 +538,7 @@ export const splitVideoFromAudio = ({
 		output,
 	});
 
-	return Promise.resolve({
+	return {
 		output,
 		formatted: true,
 		nodeLabel,
@@ -547,5 +547,5 @@ export const splitVideoFromAudio = ({
 			jsxElement.loc?.start.line ??
 			1,
 		nodePathRemappings,
-	});
+	};
 };

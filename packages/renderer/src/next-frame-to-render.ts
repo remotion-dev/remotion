@@ -4,6 +4,7 @@ export const nextFrameToRenderState = ({
 	allFramesAndExtraFrames: number[];
 }) => {
 	const rendered = new Map<number, boolean>();
+	const attempts = new Map<number, number>();
 
 	return {
 		getNextFrame: () => {
@@ -15,10 +16,11 @@ export const nextFrameToRenderState = ({
 			}
 
 			rendered.set(nextFrame, true);
-			return nextFrame;
+			return {frame: nextFrame, attempt: attempts.get(nextFrame) ?? 1};
 		},
-		returnFrame: (frame: number) => {
+		returnFrame: (frame: number, attempt: number) => {
 			rendered.delete(frame);
+			attempts.set(frame, attempt);
 		},
 	};
 };

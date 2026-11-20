@@ -4,10 +4,8 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {parseAst} from '../codemods/parse-ast';
 
-export const svgMarkupToJsx = async (
-	markup: string,
-): Promise<namedTypes.JSXElement> => {
-	const componentCode = await transform(
+export const svgMarkupToJsx = (markup: string): namedTypes.JSXElement => {
+	const componentCode = transform.sync(
 		markup,
 		{
 			expandProps: false,

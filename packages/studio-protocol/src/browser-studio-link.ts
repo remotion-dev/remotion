@@ -69,7 +69,7 @@ export const makeBrowserStudioUrl = ({
 	const url = new URL(endpoint ?? defaultBrowserStudioEndpoint);
 
 	if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-		throw new TypeError('Browser Studio endpoint must use HTTP or HTTPS');
+		throw new TypeError('remotion.new endpoint must use HTTP or HTTPS');
 	}
 
 	const encoded = toBase64Url(
@@ -81,7 +81,7 @@ export const makeBrowserStudioUrl = ({
 	);
 
 	if (encoded.length > maxEncodedPayloadLength) {
-		throw new TypeError('Browser Studio payload is too large');
+		throw new TypeError('remotion.new payload is too large');
 	}
 
 	url.hash = new URLSearchParams({[browserStudioHashKey]: encoded}).toString();
@@ -140,7 +140,7 @@ export const openInBrowserStudio = ({
 	readonly payload: StudioElementPayload;
 }) => {
 	if (typeof window === 'undefined') {
-		throw new Error('Browser Studio can only be opened in a browser');
+		throw new Error('remotion.new can only be opened in a browser');
 	}
 
 	window.open(makeBrowserStudioUrl({endpoint, payload}), '_blank', 'noopener');

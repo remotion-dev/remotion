@@ -17,6 +17,7 @@ import type {
 	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	EffectDefinition,
 	NodeWrapper,
 	PrecomposeJsxNodesRequest,
 	RenderDefaults,
@@ -137,6 +138,7 @@ export type RenderModalState = {
 export type ConfirmationDialogState = {
 	type: 'confirmation-dialog';
 	id: string;
+	library: ElementLibraryModalState | null;
 	title: string;
 	message: React.ReactNode;
 	confirmLabel: string;
@@ -282,7 +284,6 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -350,6 +351,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'wrap-refactor';
+			effect: EffectDefinition | null;
 			displayName: string | null;
 			location: {
 				source: string;

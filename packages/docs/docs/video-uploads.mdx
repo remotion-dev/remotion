@@ -5,7 +5,7 @@ title: Handling user video uploads
 crumb: 'Building video apps'
 ---
 
-In an app where users can upload videos and edit them, we can create a better user experience by loading the video into a player even before the upload is finished.
+In an app where users can upload videos and edit them, you can create a better user experience by loading the video into a player even before the upload is finished.
 
 ## Allowing user uploads
 
@@ -31,8 +31,8 @@ export const MyComponent: React.FC<VideoProps> = ({videoUrl}) => {
 };
 ```
 
-The video URL will be passed from the Remotion Player to our component.  
-Using a `<input type="file">` element, we allow a user upload.  
+The video URL will be passed from the Remotion Player to the component.  
+Using a `<input type="file">` element, the user can upload a file.  
 As soon as a file is fully uploaded to the cloud, the URL will be set and can be used by the component to display the video.
 
 ```tsx twoslash title="App.tsx"
@@ -73,11 +73,11 @@ export const RemotionPlayer: React.FC = () => {
 };
 ```
 
-The implementation of the `upload()` function is provider-specific and we do not show an implementation in this article. We assume it is a function that takes a file, uploads it and returns a URL.
+The implementation of the `upload()` function is provider-specific and this article does not show one. Assume it is a function that takes a file, uploads it and returns a URL.
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component should use the remote URL as its source.
+When the upload of the file starts, you can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and the remote URL is available, the component should use the remote URL as its source.
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
