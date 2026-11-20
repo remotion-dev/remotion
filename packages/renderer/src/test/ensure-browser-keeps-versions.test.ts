@@ -125,8 +125,13 @@ test('Installing another Chrome version keeps the installed one', async () => {
 	expect(fs.existsSync(fallback.path)).toBe(true);
 	expect(custom.path).not.toBe(fallback.path);
 
-	await ensureBrowser({logLevel: 'error', onBrowserDownload: pinCustomVersion});
-	await ensureBrowser({logLevel: 'error'});
+	expect(
+		await ensureBrowser({
+			logLevel: 'error',
+			onBrowserDownload: pinCustomVersion,
+		}),
+	).toEqual(custom);
+	expect(await ensureBrowser({logLevel: 'error'})).toEqual(fallback);
 	expect(downloadedUrls).toHaveLength(2);
 	expect(downloadedUrls[0]).toContain(CUSTOM_VERSION);
 });

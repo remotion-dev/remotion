@@ -1,5 +1,4 @@
 import fs from 'fs';
-import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
@@ -28,6 +27,7 @@ type InternalEnsureBrowserOptions = {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
 	chromeMode: ChromeMode;
+	preferRequestedVersion: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>;
 
 export type EnsureBrowserOptions = Partial<
@@ -44,6 +44,7 @@ const internalEnsureBrowserUncapped = async ({
 	browserExecutable,
 	onBrowserDownload,
 	chromeMode,
+	preferRequestedVersion,
 }: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
 	const defaultStatus = getBrowserStatus({
 		browserExecutable,
@@ -53,7 +54,7 @@ const internalEnsureBrowserUncapped = async ({
 	if (
 		defaultStatus.type === 'user-defined-path' ||
 		(defaultStatus.type === 'local-puppeteer-browser' &&
-			!NoReactInternals.ENABLE_V5_BREAKING_CHANGES)
+			!preferRequestedVersion)
 	) {
 		return defaultStatus;
 	}
@@ -128,5 +129,6 @@ export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 				logLevel,
 			}),
 		chromeMode: options?.chromeMode ?? 'headless-shell',
+		preferRequestedVersion: true,
 	});
 };

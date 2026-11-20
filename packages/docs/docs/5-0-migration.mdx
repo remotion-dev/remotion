@@ -135,14 +135,6 @@ The `shouldDumpIo` option of [`openBrowser()`](/docs/renderer/open-browser) has 
 
 **Required action**: Replace `shouldDumpIo: true` with `logLevel: "verbose"`.
 
-## `onBrowserDownload()` is called on every browser check
-
-In 4.x, Remotion calls [`onBrowserDownload()`](/docs/renderer/ensure-browser#onbrowserdownload) only if its default Chrome version is not installed. If the default version is installed, the `version` you return is ignored.
-
-In 5.0, Remotion calls `onBrowserDownload()` every time it ensures a browser, unless [`browserExecutable`](/docs/renderer/ensure-browser#browserexecutable) is passed. The returned `version` is used even if the default version is installed. `onProgress` is only called if that version has to be downloaded.
-
-**Required action**: Log download messages in `onProgress` instead of in the body of `onBrowserDownload()`, and don't throw from `onBrowserDownload()` to prevent downloads. If you return a custom `version`, check that you still want it, or return `null` to use Remotion's default build.
-
 ## `getVideoMetadata()` has been removed from `@remotion/renderer`
 
 Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
