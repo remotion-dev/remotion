@@ -1,5 +1,6 @@
 import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
+	createContext,
 	useCallback,
 	useContext,
 	useEffect,
@@ -32,6 +33,8 @@ import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
+import {AudioLevelsContext} from '../../state/audio-levels';
+import {AUDIO_LEVELS_PANEL_WIDTH} from '../AudioLevels';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -40,6 +43,7 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
+import {SplitterLayoutContext} from '../Splitter/SplitterContext';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {getCurrentFrame} from './imperative-state';
@@ -101,6 +105,7 @@ import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
 const MIN_TIMELINE_LABELS_WIDTH = 240;
+const TimelineSplitterWidthContext = createContext<number | null>(null);
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -116,6 +121,29 @@ const noop = () => undefined;
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const rowWidth = useContext(SplitterLayoutContext)?.width ?? null;
+	const {visible: audioLevelsVisible} = useContext(AudioLevelsContext);
+	const [scrollbarGutter, setScrollbarGutter] = useState(0);
+
+	useLayoutEffect(() => {
+		const element = timelineVerticalScroll.current;
+		if (!element) {
+			return;
+		}
+
+		setScrollbarGutter(element.offsetWidth - element.clientWidth);
+	}, [rowWidth]);
+
+	const splitterWidth =
+		rowWidth === null
+			? null
+			: Math.max(
+					0,
+					rowWidth -
+						scrollbarGutter -
+						(audioLevelsVisible ? AUDIO_LEVELS_PANEL_WIDTH : 0),
+				);
+
 	const assetDropFrame = useTimelineAssetDrop();
 	const calculateDropTracks = useTimelineCalculator();
 	const dropSequences = useContext(Internals.SequenceManagerRefContext);
@@ -371,9 +399,63 @@ const TimelineContextMenuArea: React.FC<{
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			<TimelineAssetDropFrameContext.Provider value={assetDropFrame}>
-				{children}
+				<TimelineSplitterWidthContext.Provider value={splitterWidth}>
+					{children}
+				</TimelineSplitterWidthContext.Provider>
 			</TimelineAssetDropFrameContext.Provider>
 		</ContextMenu>
+	);
+};
+
+const TimelineSplitter: React.FC<{readonly hasBeenCut: boolean}> = ({
+	hasBeenCut,
+}) => {
+	const width = useContext(TimelineSplitterWidthContext);
+
+	return (
+		<SplitterContainer
+			orientation="vertical"
+			width={width}
+			defaultFlex={0.2}
+			id="names-to-timeline"
+			maxFlex={0.5}
+			minFlex={0.15}
+			maxFlexerSize={null}
+			minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+			maxAntiFlexerSize={null}
+			minAntiFlexerSize={null}
+		>
+			<TimelineWidthProvider>
+				<TimelinePinchZoom />
+				<SplitterElement type="flexer" sticky={<TimelineTimePlaceholders />}>
+					<TimelineList />
+				</SplitterElement>
+				<SplitterHandle
+					label="Timeline labels width"
+					onCollapse={noop}
+					onCollapseDuringDrag={null}
+					allowToCollapse="none"
+				/>
+				<SplitterElement
+					type="anti-flexer"
+					sticky={
+						<>
+							<TimelineTimeIndicators />
+							<TimelineSlider />
+						</>
+					}
+				>
+					<TimelineScrollable>
+						<TimelineTracks hasBeenCut={hasBeenCut} />
+						<TimelineInOutPointer />
+						<TimelineDragHandler />
+						{isStudioInteractivityEnabled() ? (
+							<TimelineInOutDragHandler />
+						) : null}
+					</TimelineScrollable>
+				</SplitterElement>
+			</TimelineWidthProvider>
+		</SplitterContainer>
 	);
 };
 
@@ -926,51 +1008,7 @@ const TimelineInner: React.FC = () => {
 								{isStill ? (
 									<TimelineList />
 								) : (
-									<TimelineWidthProvider>
-										<TimelinePinchZoom />
-										<SplitterContainer
-											orientation="vertical"
-											defaultFlex={0.2}
-											id="names-to-timeline"
-											maxFlex={0.5}
-											minFlex={0.15}
-											maxFlexerSize={null}
-											minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-											maxAntiFlexerSize={null}
-											minAntiFlexerSize={null}
-										>
-											<SplitterElement
-												type="flexer"
-												sticky={<TimelineTimePlaceholders />}
-											>
-												<TimelineList />
-											</SplitterElement>
-											<SplitterHandle
-												label="Timeline labels width"
-												onCollapse={noop}
-												onCollapseDuringDrag={null}
-												allowToCollapse="none"
-											/>
-											<SplitterElement
-												type="anti-flexer"
-												sticky={
-													<>
-														<TimelineTimeIndicators />
-														<TimelineSlider />
-													</>
-												}
-											>
-												<TimelineScrollable>
-													<TimelineTracks hasBeenCut={hasBeenCut} />
-													<TimelineInOutPointer />
-													<TimelineDragHandler />
-													{isStudioInteractivityEnabled() ? (
-														<TimelineInOutDragHandler />
-													) : null}
-												</TimelineScrollable>
-											</SplitterElement>
-										</SplitterContainer>
-									</TimelineWidthProvider>
+									<TimelineSplitter hasBeenCut={hasBeenCut} />
 								)}
 							</TimelineHeightContainer>
 						</TimelineVirtualizationProvider>
