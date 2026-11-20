@@ -26,6 +26,7 @@ chrome_pgo_phase = 0
 
 use_sysroot = false
 use_qt = false
+use_vaapi = false
 
 use_on_device_model_service = false
 enable_print_preview = true

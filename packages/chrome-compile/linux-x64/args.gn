@@ -29,6 +29,8 @@ chrome_pgo_phase = 0
 
 use_sysroot = false
 use_qt = false
+# Chromium's default requires an X11 or Wayland build.
+use_vaapi = true
 
 use_on_device_model_service = false
 enable_print_preview = true

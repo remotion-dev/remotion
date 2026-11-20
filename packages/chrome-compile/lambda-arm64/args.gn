@@ -26,6 +26,7 @@ chrome_pgo_phase = 0
 
 use_sysroot = false
 use_qt = false
+use_vaapi = false
 # System libgbm-devel isn't installed in our builder image; use the bundled copy.
 use_system_minigbm = false
 

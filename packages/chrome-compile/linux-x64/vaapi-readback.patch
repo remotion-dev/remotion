@@ -1,0 +1,191 @@
+diff --git a/media/base/media_switches.cc b/media/base/media_switches.cc
+index 58d3453..fb8c3c6 100644
+--- a/media/base/media_switches.cc
++++ b/media/base/media_switches.cc
+@@ -1532,6 +1532,7 @@ BASE_FEATURE(kPulseaudioLoopbackForScreenShare,
+ // Intended for manual usage only in order to gauge the status of newer driver
+ // implementations.
+ BASE_FEATURE(kVaapiIgnoreDriverChecks, base::FEATURE_DISABLED_BY_DEFAULT);
++BASE_FEATURE(kRemotionVaapiReadback, base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ #endif  // BUILDFLAG(IS_LINUX)
+ 
+diff --git a/media/base/media_switches.h b/media/base/media_switches.h
+index b85c5e7..03a54a0 100644
+--- a/media/base/media_switches.h
++++ b/media/base/media_switches.h
+@@ -476,6 +476,7 @@ MEDIA_EXPORT BASE_DECLARE_FEATURE(kPreferV4L2VideoAcceleration);
+ MEDIA_EXPORT BASE_DECLARE_FEATURE(kPulseaudioLoopbackForCast);
+ MEDIA_EXPORT BASE_DECLARE_FEATURE(kPulseaudioLoopbackForScreenShare);
+ MEDIA_EXPORT BASE_DECLARE_FEATURE(kVaapiIgnoreDriverChecks);
++MEDIA_EXPORT BASE_DECLARE_FEATURE(kRemotionVaapiReadback);
+ #endif  // BUILDFLAG(IS_LINUX)
+ 
+ #if BUILDFLAG(IS_MAC)
+diff --git a/media/gpu/chromeos/video_decoder_pipeline.cc b/media/gpu/chromeos/video_decoder_pipeline.cc
+index 0b9f7f4..3526d47 100644
+--- a/media/gpu/chromeos/video_decoder_pipeline.cc
++++ b/media/gpu/chromeos/video_decoder_pipeline.cc
+@@ -580,6 +580,14 @@ int VideoDecoderPipeline::GetMaxDecodeRequests() const {
+ 
+ bool VideoDecoderPipeline::FramesHoldExternalResources() const {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(client_sequence_checker_);
++#if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_VAAPI)
++  // Each downloaded frame owns its pixels. The client can release it without
++  // sending a mailbox release token or retaining the decoder surface.
++  if (GetDecoderType() == VideoDecoderType::kVaapi &&
++      base::FeatureList::IsEnabled(kRemotionVaapiReadback)) {
++    return false;
++  }
++#endif
+   return true;
+ }
+ 
+@@ -1188,6 +1196,11 @@ VideoDecoderPipeline::PickDecoderOutputFormat(
+     // attached to a PlatformVideoFramePool. Frames will be backed by
+     // NativePixmap with VideoFrame::STORAGE_DMABUFS.
+     CHECK(main_frame_pool_->AsPlatformVideoFramePool());
++    if (base::FeatureList::IsEnabled(kRemotionVaapiReadback)) {
++      // The VA context and its surface map have been recreated. Even when the
++      // layout matches, a cached pixmap belongs to the previous context.
++      main_frame_pool_->ReleaseAllFrames();
++    }
+     main_frame_pool_->AsPlatformVideoFramePool()->SetCustomFrameAllocator(
+         *allocator, VideoFrame::STORAGE_DMABUFS);
+ #else
+diff --git a/media/gpu/vaapi/vaapi_video_decoder.cc b/media/gpu/vaapi/vaapi_video_decoder.cc
+index 64a6ac2..5dd936c 100644
+--- a/media/gpu/vaapi/vaapi_video_decoder.cc
++++ b/media/gpu/vaapi/vaapi_video_decoder.cc
+@@ -15,10 +15,12 @@
+ #include <vector>
+ 
+ #include "base/command_line.h"
++#include "base/compiler_specific.h"
+ #include "base/containers/fixed_flat_map.h"
+ #include "base/functional/bind.h"
+ #include "base/functional/callback_helpers.h"
+ #include "base/memory/ptr_util.h"
++#include "base/memory/read_only_shared_memory_region.h"
+ #include "base/metrics/histogram_macros.h"
+ #include "base/not_fatal_until.h"
+ #include "base/strings/stringprintf.h"
+@@ -36,6 +38,7 @@
+ #include "media/gpu/chromeos/dmabuf_video_frame_pool.h"
+ #include "media/gpu/chromeos/native_pixmap_frame_resource.h"
+ #include "media/gpu/chromeos/platform_video_frame_utils.h"
++#include "media/gpu/chromeos/video_frame_resource.h"
+ #include "media/gpu/gpu_video_decode_accelerator_helpers.h"
+ #include "media/gpu/macros.h"
+ #include "media/gpu/vaapi/av1_vaapi_video_decoder_delegate.h"
+@@ -79,6 +82,70 @@ std::optional<VideoPixelFormat> GetPixelFormatForBitDepth(uint8_t bit_depth) {
+       kSupportedBitDepthAndVizFormats.at(bit_depth));
+ }
+ 
++#if BUILDFLAG(IS_LINUX)
++scoped_refptr<VideoFrame> DownloadVaSurface(VaapiWrapper& wrapper,
++                                            VASurfaceID surface,
++                                            const FrameResource& frame) {
++  const auto format = frame.format();
++  const auto& size = frame.coded_size();
++  if (format != PIXEL_FORMAT_NV12 && format != PIXEL_FORMAT_P010LE) {
++    return nullptr;
++  }
++  const VAImageFormat image_format =
++      format == PIXEL_FORMAT_NV12
++          ? VAImageFormat{.fourcc = VA_FOURCC_NV12, .byte_order = VA_LSB_FIRST,
++                          .bits_per_pixel = 12}
++          : VAImageFormat{.fourcc = VA_FOURCC_P010, .byte_order = VA_LSB_FIRST,
++                          .bits_per_pixel = 16};
++  // CreateVaImage synchronizes the original decoder surface before vaGetImage.
++  auto mapped = wrapper.CreateVaImage(surface, image_format, size);
++  if (!mapped) {
++    return nullptr;
++  }
++  const VAImage& image = *mapped->image();
++  if (image.format.fourcc != image_format.fourcc || image.num_planes != 2 ||
++      image.width != size.width() || image.height != size.height()) {
++    return nullptr;
++  }
++  // SAFETY: libva maps image.buf for image.data_size bytes until mapped dies.
++  auto source = UNSAFE_BUFFERS(base::span(
++      static_cast<const uint8_t*>(mapped->va_buffer()->data()), image.data_size));
++  auto region = base::ReadOnlySharedMemoryRegion::Create(
++      VideoFrame::AllocationSize(format, size));
++  if (!region.IsValid()) {
++    return nullptr;
++  }
++  auto destination = region.mapping.GetMemoryAsSpan<uint8_t>();
++  for (size_t plane = 0; plane < 2; ++plane) {
++    const size_t rows = VideoFrame::Rows(plane, format, size.height());
++    const size_t bytes = VideoFrame::RowBytes(plane, format, size.width());
++    const size_t pitch = base::span(image.pitches)[plane];
++    const size_t offset = base::span(image.offsets)[plane];
++    if (pitch < bytes || offset > source.size() || rows == 0 ||
++        bytes > source.size() - offset ||
++        rows - 1 > (source.size() - offset - bytes) / pitch) {
++      return nullptr;
++    }
++    for (size_t row = 0; row < rows; ++row) {
++      destination.take_first(bytes).copy_from(
++          source.subspan(offset + row * pitch, bytes));
++    }
++  }
++  auto mapping = region.region.Map();
++  if (!mapping.IsValid()) {
++    return nullptr;
++  }
++  auto result = VideoFrame::WrapExternalData(
++      format, size, frame.visible_rect(), frame.natural_size(),
++      mapping.GetMemoryAsSpan<const uint8_t>(), frame.timestamp());
++  if (result) {
++    result->BackWithOwnedSharedMemory(std::move(region.region),
++                                      std::move(mapping));
++  }
++  return result;
++}
++#endif  // BUILDFLAG(IS_LINUX)
++
+ inline int RoundDownToEven(int x) {
+   DCHECK_GE(x, 0);
+   return x - (x % 2);
+@@ -617,6 +684,17 @@ void VaapiVideoDecoder::SurfaceReady(
+   }
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ 
++#if BUILDFLAG(IS_LINUX)
++  if (base::FeatureList::IsEnabled(kRemotionVaapiReadback)) {
++    auto downloaded = DownloadVaSurface(*vaapi_wrapper_, va_surface_id, *frame);
++    if (!downloaded) {
++      SetState({DecoderStatus::Codes::kFailed, "VA surface readback failed"});
++      return;
++    }
++    frame = VideoFrameResource::Create(std::move(downloaded));
++  }
++#endif
++
+   const auto gfx_color_space = color_space.ToGfxColorSpace();
+   if (gfx_color_space.IsValid()) {
+     frame->set_color_space(gfx_color_space);
+diff --git a/media/mojo/services/gpu_mojo_media_client_linux.cc b/media/mojo/services/gpu_mojo_media_client_linux.cc
+index 1694ea2..abb9427 100644
+--- a/media/mojo/services/gpu_mojo_media_client_linux.cc
++++ b/media/mojo/services/gpu_mojo_media_client_linux.cc
+@@ -183,6 +183,17 @@ class GpuMojoMediaClientLinux final : public GpuMojoMediaClient {
+             /*in_video_decoder_process=*/false);
+       }
+       case VideoDecoderType::kVaapi:
++        if (base::FeatureList::IsEnabled(kRemotionVaapiReadback)) {
++          // VA surfaces are downloaded before reaching the frame converter.
++          return VideoDecoderPipeline::Create(
++              gpu_workarounds_, traits.task_runner,
++              std::make_unique<PlatformVideoFramePool>(),
++              SimpleVideoFrameConverter::Create(),
++              {Fourcc(Fourcc::NV12), Fourcc(Fourcc::P010)},
++              traits.media_log->Clone(), /*oop_video_decoder=*/{},
++              /*in_video_decoder_process=*/false);
++        }
++        [[fallthrough]];
+       case VideoDecoderType::kV4L2: {
+         auto frame_pool = std::make_unique<PlatformVideoFramePool>();
+         auto frame_converter = MailboxVideoFrameConverter::Create(
