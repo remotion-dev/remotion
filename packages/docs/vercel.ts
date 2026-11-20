@@ -230,12 +230,16 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/docs/audio/muting.md', '/docs/audio/volume.md#muting', {
 			permanent: true,
 		}),
-		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
-			permanent: true,
-		}),
-		routes.redirect('/docs/studio/creating-elements.md', '/docs/elements.md', {
-			permanent: true,
-		}),
+		routes.redirect(
+			'/docs/studio/creating-elements',
+			'/docs/elements/creating',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio/creating-elements.md',
+			'/docs/elements/creating.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/docs/studio/element-libraries',
 			'/docs/elements/libraries',
@@ -283,10 +287,10 @@ const siteConfig: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect('/elements/guidelines', '/docs/elements', {
+		routes.redirect('/elements/guidelines', '/docs/elements/creating', {
 			permanent: true,
 		}),
-		routes.redirect('/elements/guidelines.md', '/docs/elements.md', {
+		routes.redirect('/elements/guidelines.md', '/docs/elements/creating.md', {
 			permanent: true,
 		}),
 		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
