@@ -52,8 +52,11 @@ Pass the same path to any other API that supports the `browserExecutable` option
 
 ### `onBrowserDownload?`
 
-Specify a specific version of Chrome that should be used and hook into the download progress.  
+Hook into the browser download progress, and optionally specify which Chrome version to use.  
 See the example below for the function signature.
+
+Most projects don't need to pass `onBrowserDownload`, or only use it to show the download progress and return `version: null`. Remotion then uses its default Chrome Headless Shell build, which includes optimizations such as [shared-memory capture](/docs/shared-memory-capture).  
+Only return a `version` if your environment needs a specific Chrome build, for example one that contains a fix for your platform. Custom versions are stock builds from Google without Remotion's optimizations.
 
 `ensureBrowser()` calls this function every time and uses the `version` you return, downloading it if it is not installed yet. `onProgress` is only called if a download happens.
 
@@ -89,8 +92,6 @@ await renderMedia({
 ```
 
 From v4.0.544, Remotion installs each version into its own folder, so installing one version does not delete another.
-
-We recommend returning `null` as the `version`. Remotion's default Chrome Headless Shell builds include optimizations such as [shared-memory capture](/docs/shared-memory-capture). Custom versions are stock builds from Google without them.
 
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
