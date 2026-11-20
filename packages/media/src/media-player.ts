@@ -946,10 +946,8 @@ export class MediaPlayer {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(
-			mediaTimestamp,
-			this.sharedAudioContext.audioContext.currentTime,
-		);
+		const {currentTime, sampleRate} = this.sharedAudioContext.audioContext;
+		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
 		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
@@ -958,7 +956,7 @@ export class MediaPlayer {
 					'no target for' +
 					mediaTimestamp.toFixed(3) +
 					',' +
-					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
+					currentTime.toFixed(3),
 			};
 		}
 
@@ -982,16 +980,50 @@ export class MediaPlayer {
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
-			currentTime: this.sharedAudioContext.audioContext.currentTime,
+			currentTime,
 		});
+
+		const isSampleAligned = (seconds: number) => {
+			const samples = seconds * sampleRate;
+			return Math.abs(samples - Math.round(samples)) < 1e-7;
+		};
+
+		// Unit-rate slices already on the device sample grid can use one
+		// output interval without changing the source phase.
+		const targetEndTime = currentTime + targetTime + sourceDurationInSeconds;
+		const alignToSampleGrid =
+			combinedPlaybackRate === 1 &&
+			node.playbackRate.value === 1 &&
+			this.toneFrequency === 1 &&
+			node.buffer?.sampleRate === sampleRate &&
+			isSampleAligned(sequenceStartTime) &&
+			isSampleAligned(originalUnloopedMediaTimestamp + sourceOffsetInSeconds) &&
+			isSampleAligned(offset) &&
+			!(isSampleAligned(scheduledTime) && isSampleAligned(targetEndTime));
+
+		const roundSample = (seconds: number) => {
+			const sample = seconds * sampleRate;
+			// Cancellation in the clock translation can move a half-sample by
+			// one or two representable values.
+			const roundoff = 4 * Number.EPSILON * Math.max(1, Math.abs(sample));
+			return Math.round(sample + roundoff);
+		};
+
+		const startSample = alignToSampleGrid ? roundSample(scheduledTime) : null;
+		const endSample = alignToSampleGrid ? roundSample(targetEndTime) : null;
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
 			sourceOffset: sourceOffsetInSeconds,
-			scheduledTime,
-			duration,
-			offset,
+			scheduledTime:
+				startSample === null ? scheduledTime : startSample / sampleRate,
+			duration:
+				startSample === null || endSample === null
+					? duration
+					: Math.max(0, endSample - startSample) / sampleRate,
+			offset: alignToSampleGrid ? roundSample(offset) / sampleRate : offset,
+			endTime: endSample === null ? null : endSample / sampleRate,
 			originalUnloopedMediaTimestamp,
 		});
 	};
