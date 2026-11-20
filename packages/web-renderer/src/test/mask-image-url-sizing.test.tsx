@@ -323,20 +323,20 @@ for (const unsupported of [
 	});
 }
 
-test(
-	'renders positioned masks, compositing operators and CSS math sizes',
+test.each([
+	maskImageUrlCalcPosition,
+	createMaskImageLayersGridFixture(false),
+	maskMathExtendedTransparent,
+	maskMathExtendedMultipleTransparent,
+])(
+	'renders positioned masks, compositing operators and CSS math sizes for $id',
 	{timeout: 15_000},
-	async () => {
+	async (composition) => {
 		await testCompositions({
 			scale: null,
-			cases: [
-				maskImageUrlCalcPosition,
-				createMaskImageLayersGridFixture(false),
-				maskMathExtendedTransparent,
-				maskMathExtendedMultipleTransparent,
-			].map((composition) => ({composition, frame: 1})),
-			columns: 2,
-			testId: 'mask-image-position-layers-math',
+			cases: [{composition, frame: 1}],
+			columns: 1,
+			testId: composition.id,
 		});
 	},
 );

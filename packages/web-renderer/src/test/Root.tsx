@@ -95,6 +95,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
@@ -118,6 +119,18 @@ import {
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
+import {
+	maskGradientLayers,
+	maskGradientLayersTransparent,
+	maskGradientLayersUrl,
+	maskGradientLayersUrlTransparent,
+	maskGradientLayersTokenUrl,
+	maskGradientLayersTokenUrlTransparent,
+	maskGradientPalette,
+	maskGradientPaletteTransparent,
+	maskGradientLayersBlob,
+	maskGradientLayersBlobTransparent,
+} from './fixtures/mask-gradient-layers';
 import {
 	maskImage,
 	maskImageTransformedVisibility,
@@ -360,6 +373,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasInteraction} />
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
@@ -491,6 +505,16 @@ export const Root: React.FC = () => {
 				<Composition {...maskMathExtendedLiteralMultipleTransparent} />
 
 				<Composition {...maskImageLayers} />
+				<Composition {...maskGradientLayers} />
+				<Composition {...maskGradientLayersTransparent} />
+				<Composition {...maskGradientLayersUrl} />
+				<Composition {...maskGradientLayersUrlTransparent} />
+				<Composition {...maskGradientLayersBlob} />
+				<Composition {...maskGradientLayersBlobTransparent} />
+				<Composition {...maskGradientLayersTokenUrl} />
+				<Composition {...maskGradientLayersTokenUrlTransparent} />
+				<Composition {...maskGradientPalette} />
+				<Composition {...maskGradientPaletteTransparent} />
 				<Composition {...maskImageLayersTransparent} />
 				<Composition {...maskImageLayersUrl} />
 				<Composition {...maskImageLayersUrlTransparent} />
