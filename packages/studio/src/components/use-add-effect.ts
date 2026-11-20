@@ -69,7 +69,7 @@ export const useAddEffect = () => {
 					if (prepared === null) return;
 					const confirmed = await confirm({
 						title: 'Add effect with HTML-in-canvas',
-						message: `To apply ${effect.name}(), Studio will wrap this element in <HtmlInCanvas> and add the effect to the wrapper. This changes your source code and can be undone.`,
+						message: `To apply ${effect.name}() to this element, it needs to be wrapped in <HtmlInCanvas>.`,
 						confirmLabel: 'Wrap and add effect',
 						cancelLabel: 'Cancel',
 					});
