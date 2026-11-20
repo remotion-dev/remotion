@@ -55,6 +55,58 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
+	const originalWidth = svg.getAttribute('width');
+	const originalHeight = svg.getAttribute('height');
+	const resolvedWidth = width.endsWith('px') && parseFloat(width);
+	const resolvedHeight = height.endsWith('px') && parseFloat(height);
+	const [authoredWidth, authoredHeight] = [
+		svg.width.baseVal,
+		svg.height.baseVal,
+	].map((length) =>
+		[
+			SVGLength.SVG_LENGTHTYPE_NUMBER,
+			SVGLength.SVG_LENGTHTYPE_PX,
+			SVGLength.SVG_LENGTHTYPE_CM,
+			SVGLength.SVG_LENGTHTYPE_MM,
+			SVGLength.SVG_LENGTHTYPE_IN,
+			SVGLength.SVG_LENGTHTYPE_PT,
+			SVGLength.SVG_LENGTHTYPE_PC,
+		].some((unit) => unit === length.unitType)
+			? length.value
+			: null,
+	);
+	const resizedWithoutViewBox =
+		!svg.hasAttribute('viewBox') &&
+		originalWidth !== null &&
+		originalHeight !== null &&
+		authoredWidth !== null &&
+		authoredHeight !== null &&
+		authoredWidth >= 0 &&
+		authoredHeight >= 0 &&
+		Number.isFinite(authoredWidth) &&
+		Number.isFinite(authoredHeight) &&
+		resolvedWidth &&
+		resolvedHeight &&
+		(resolvedWidth !== authoredWidth || resolvedHeight !== authoredHeight);
+	const needsExplicitDimensions =
+		resizedWithoutViewBox ||
+		svg.preserveAspectRatio.baseVal.align ===
+			SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
+
+	// HTML percentages in a foreignObject can resolve against its owning page.
+	// Capture used sizes before changing the SVG viewport for its image document.
+	const foreignObjectSizes = resizedWithoutViewBox
+		? Array.from(
+				svg.querySelectorAll<HTMLElement>('foreignObject > *'),
+				(child) => {
+					if (child.namespaceURI !== 'http://www.w3.org/1999/xhtml')
+						return null;
+					const computed = getComputedStyle(child);
+					return {width: computed.width, height: computed.height};
+				},
+			)
+		: null;
+
 	const textElements = getSvgTextElements(svg);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
@@ -81,13 +133,21 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	).lastIndexOf(true);
 
 	const authoredElements =
-		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
+		textElements.length > 0 || needsExplicitDimensions
+			? [svg, ...svg.querySelectorAll('*')]
+			: null;
 	const authoredStyles =
 		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
 	const authoredMedia =
 		authoredElements?.map((element) => element.getAttribute('media')) ?? null;
 	const authoredEmpty =
 		authoredElements?.map((element) => element.matches(':empty')) ?? null;
+	const authoredWidths = needsExplicitDimensions
+		? authoredElements!.map((element) => element.getAttribute('width'))
+		: null;
+	const authoredHeights = needsExplicitDimensions
+		? authoredElements!.map((element) => element.getAttribute('height'))
+		: null;
 
 	// Only direct children can inherit the root opacity. Preserve their computed
 	// values before neutralizing the root; descendants then inherit as authored.
@@ -104,14 +164,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	}
 
 	const originalStyle = svg.getAttribute('style');
-	const originalWidth = svg.getAttribute('width');
-	const originalHeight = svg.getAttribute('height');
-	const needsExplicitDimensions =
-		svg.preserveAspectRatio.baseVal.align ===
-		SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
 
-	// SVG images need explicit dimensions to preserve their viewport when
-	// preserveAspectRatio="none" removes the intrinsic aspect ratio.
+	// Without a viewBox, layout sizes the viewport without scaling SVG user
+	// coordinates. Give the detached image the same viewport to preserve them.
 	if (needsExplicitDimensions) {
 		svg.setAttribute('width', width);
 		svg.setAttribute('height', height);
@@ -144,9 +199,28 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 && embeddedFontStyle === null && !hasDisabledStyles
+		textStyles.length === 0 &&
+		embeddedFontStyle === null &&
+		!hasDisabledStyles &&
+		!needsExplicitDimensions
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
+	if (foreignObjectSizes) {
+		const children =
+			svgForSerialization.querySelectorAll<HTMLElement>('foreignObject > *');
+		foreignObjectSizes.forEach((size, index) => {
+			if (size === null) return;
+			let declarations = children[index].getAttribute('style') ?? '';
+			for (const property of ['width', 'height'] as const) {
+				if (size[property].endsWith('px')) {
+					declarations += `;${property}:${size[property]} !important;`;
+				}
+			}
+
+			children[index].setAttribute('style', declarations);
+		});
+	}
+
 	if (hasDisabledStyles) {
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		for (let i = 0; i < styles.length; i++) {
@@ -231,6 +305,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			authoredStyles,
 			authoredMedia,
 			authoredEmpty,
+			authoredWidths,
+			authoredHeights,
+			preserveMediaQueries: Boolean(resizedWithoutViewBox),
 		});
 	const serializedSvg = serializeSvg(svgForSerialization);
 

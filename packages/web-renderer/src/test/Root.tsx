@@ -254,6 +254,8 @@ import {
 	svgInactiveTitleModes,
 	svgInactiveTitledFont,
 } from './fixtures/svg-inactive-titled-font';
+import {svgLayoutViewport} from './fixtures/svg-layout-viewport';
+import {svgViewportLengthValues} from './fixtures/svg-layout-viewport-lengths';
 import {
 	svgPreferredFontCarrier,
 	svgPreferredFontModes,
@@ -273,6 +275,7 @@ import {
 } from './fixtures/svg-registered-cdata-font';
 import {svgRootOpacity} from './fixtures/svg-root-opacity';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
+import {svgViewportMedia} from './fixtures/svg-viewport-media';
 import {svgXmlMetadataModes, svgXmlMetadata} from './fixtures/svg-xml-metadata';
 import {textDecorationLengths} from './fixtures/text-decoration-length';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -450,6 +453,9 @@ export const Root: React.FC = () => {
 			<Composition {...svgFullSourceUrlContainFractional} />
 			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
+			<Composition {...svgLayoutViewport} />
+			<Composition {...svgViewportLengthValues} />
+			<Composition {...svgViewportMedia} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
