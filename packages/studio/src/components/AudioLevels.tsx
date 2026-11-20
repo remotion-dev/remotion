@@ -17,27 +17,20 @@ const MIN_DB = -60;
 // Rendered audio is 16-bit and hard clips everything above 0 dBFS.
 const MAX_DB = 6;
 const WARNING_DB = -6;
+const PEAK_HOLD_MS = 500;
 const SCALE_LABELS = [6, 0, -6, -12, -24, -36, -48, -60];
+const LABEL_HEIGHT = 14;
+const CHANNEL_LABEL_GAP = 6;
 
 const toPercent = (db: number) => ((db - MIN_DB) / (MAX_DB - MIN_DB)) * 100;
 
 const gradient = `linear-gradient(to top, #36c26b ${toPercent(WARNING_DB)}%, ${WARNING_COLOR} ${toPercent(WARNING_DB)}%, ${WARNING_COLOR} ${toPercent(0)}%, ${FAIL_COLOR} ${toPercent(0)}%)`;
 const textStyle: React.CSSProperties = {
 	fontSize: 10,
-	lineHeight: '14px',
+	lineHeight: LABEL_HEIGHT + 'px',
 	color: LIGHT_TEXT,
 	fontVariantNumeric: 'tabular-nums',
 	textAlign: 'center',
-};
-
-const peakButtonStyle: React.CSSProperties = {
-	...textStyle,
-	height: 14,
-	padding: 0,
-	border: 'none',
-	background: 'none',
-	cursor: 'default',
-	whiteSpace: 'nowrap',
 };
 
 const formatDb = (db: number) => {
@@ -55,8 +48,6 @@ const AudioLevelsInner: React.FC = () => {
 	const meterRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const fillRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const peakRefs = useRef<(HTMLDivElement | null)[]>([]);
-	const maxPeakRefs = useRef<(HTMLButtonElement | null)[]>([]);
-	const resetMaxPeaks = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
 		if (!audioContext || !gainNode) {
@@ -80,40 +71,12 @@ const AudioLevelsInner: React.FC = () => {
 				peak: MIN_DB,
 				peakTime: 0,
 				clipUntil: 0,
-				maxPeak: MIN_DB,
-				maxPeakText: '',
 			};
 		});
 		let animationFrame = 0;
 		let lastTime = performance.now();
 		const currentLevels = {left: MIN_DB, right: MIN_DB};
 		levels.current = currentLevels;
-
-		const updateMaxPeak = (channel: number) => {
-			const data = channels[channel];
-			const button = maxPeakRefs.current[channel];
-			const text =
-				data.maxPeak <= MIN_DB || !Number.isFinite(data.maxPeak)
-					? ''
-					: formatDb(data.maxPeak);
-			if (!button || text === data.maxPeakText) {
-				return;
-			}
-
-			data.maxPeakText = text;
-			button.textContent = text;
-			button.style.color =
-				data.maxPeak > MIN_DB && Math.round(data.maxPeak * 10) >= 0
-					? FAIL_COLOR
-					: LIGHT_TEXT;
-		};
-
-		resetMaxPeaks.current = () => {
-			for (let channel = 0; channel < channels.length; channel++) {
-				channels[channel].maxPeak = MIN_DB;
-				updateMaxPeak(channel);
-			}
-		};
 
 		const draw = (time: number) => {
 			const elapsed = (time - lastTime) / 1000;
@@ -134,16 +97,13 @@ const AudioLevelsInner: React.FC = () => {
 				if (db >= data.peak) {
 					data.peak = Math.min(MAX_DB, db);
 					data.peakTime = time;
-				} else if (time - data.peakTime > 1000) {
+				} else if (time - data.peakTime > PEAK_HOLD_MS) {
 					data.peak = Math.max(data.level, data.peak - elapsed * 18);
 				}
 
 				if (db >= 0) {
 					data.clipUntil = time + 1000;
 				}
-
-				data.maxPeak = Math.max(data.maxPeak, db);
-				updateMaxPeak(channel);
 
 				currentLevels[channel === 0 ? 'left' : 'right'] = db;
 				const fill = fillRefs.current[channel];
@@ -192,7 +152,6 @@ const AudioLevelsInner: React.FC = () => {
 				analyser.disconnect();
 			}
 
-			resetMaxPeaks.current = null;
 			levels.current = null;
 		};
 	}, [audioContext, gainNode, isPlaying, levels, subscribePlaying]);
@@ -211,7 +170,6 @@ const AudioLevelsInner: React.FC = () => {
 				display: 'flex',
 				flexDirection: 'column',
 				padding: '8px 10px',
-				gap: 8,
 				overflow: 'hidden',
 			}}
 		>
@@ -220,8 +178,7 @@ const AudioLevelsInner: React.FC = () => {
 					style={{
 						position: 'relative',
 						width: 20,
-						marginTop: 14,
-						marginBottom: 14,
+						marginBottom: LABEL_HEIGHT + CHANNEL_LABEL_GAP,
 					}}
 				>
 					{SCALE_LABELS.map((db) => (
@@ -245,20 +202,11 @@ const AudioLevelsInner: React.FC = () => {
 						style={{
 							display: 'flex',
 							flexDirection: 'column',
+							gap: CHANNEL_LABEL_GAP,
 							flex: 1,
 							minWidth: 0,
 						}}
 					>
-						<button
-							ref={(node) => {
-								maxPeakRefs.current[channel] = node;
-							}}
-							type="button"
-							title="Highest peak. Above 0 dBFS clips when rendered. Click to reset."
-							aria-label={`${label} highest peak, click to reset`}
-							style={peakButtonStyle}
-							onClick={() => resetMaxPeaks.current?.()}
-						/>
 						<div
 							ref={(node) => {
 								meterRefs.current[channel] = node;
