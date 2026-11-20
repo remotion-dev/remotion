@@ -39,6 +39,32 @@ The build script handles:
 - `setup-ec2.sh` keeps the container running and starts the build with
   `docker exec`, so a failed step can be fixed and resumed in place.
 
+## Experimental VA-API readback
+
+The x64 shell accepts the Chromium feature `RemotionVaapiReadback`. When enabled
+with VA-API hardware decoding, it copies each decoded NV12 or P010 surface
+into shared memory so WebCodecs can deliver it to a headless canvas. The feature
+is disabled by default. We verified H.264 frame delivery on Debian 12 with an
+NVIDIA T4 and the NVIDIA VA-API driver. To try the rebuilt shell, pass its
+executable path as `browserExecutable` and use these `chromiumOptions`:
+
+```ts
+{
+  gl: 'angle-egl',
+  flags: {
+    'enable-gpu': true,
+    'hardware-video-device-path': '/dev/dri/renderD128',
+  },
+  features: {
+    AcceleratedVideoDecoder: true,
+    AcceleratedVideoDecodeLinuxGL: true,
+    VaapiOnNvidiaGPUs: true,
+    VaapiIgnoreDriverChecks: true,
+    RemotionVaapiReadback: true,
+  },
+}
+```
+
 ## Prerequisites
 
 - **Instance**: `c6i.8xlarge` (32 x86_64 vCPU, 64 GiB RAM, Intel)

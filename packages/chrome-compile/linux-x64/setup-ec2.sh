@@ -27,6 +27,7 @@ cp /root/build-chromium.sh "$BUILD_DIR/"
 cp /root/.gclient "$BUILD_DIR/dot-gclient"
 cp /root/args.gn "$BUILD_DIR/"
 cp /root/remotion-shared-memory-v3.patch "$BUILD_DIR/"
+cp /root/vaapi-readback.patch "$BUILD_DIR/"
 cp /root/probe-fast-path.py "$BUILD_DIR/"
 
 cd "$BUILD_DIR"

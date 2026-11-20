@@ -80,6 +80,8 @@ gclient runhooks
 cd /root/chromium/src
 git apply --check /root/remotion-shared-memory-v3.patch
 git apply /root/remotion-shared-memory-v3.patch
+git apply --check /root/vaapi-readback.patch
+git apply /root/vaapi-readback.patch
 
 # =============================================================================
 # 5.5. Replace system Python 3.10 with Python 3.11 from vpython cache

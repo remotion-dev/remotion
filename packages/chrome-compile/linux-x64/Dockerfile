@@ -80,6 +80,7 @@ COPY build-chromium.sh /root/build-chromium.sh
 COPY dot-gclient /root/dot-gclient
 COPY args.gn /root/args.gn
 COPY remotion-shared-memory-v3.patch /root/remotion-shared-memory-v3.patch
+COPY vaapi-readback.patch /root/vaapi-readback.patch
 COPY probe-fast-path.py /root/probe-fast-path.py
 
 RUN chmod +x /root/build-chromium.sh

@@ -160,6 +160,10 @@ builds pin Chromium 158 by commit independently; they do not use
 cd <platform-directory>
 # Replace this example with the public IPv4 address allowed to connect.
 SSH_CIDR=203.0.113.10/32 ./launch-ec2.sh
+if [ -f vaapi-readback.patch ]; then
+  scp -i <key>.pem vaapi-readback.patch ec2-user@<IP>:/home/ec2-user/
+  ssh -i <key>.pem ec2-user@<IP> 'sudo cp /home/ec2-user/vaapi-readback.patch /root/'
+fi
 scp -i <key>.pem Dockerfile build-chromium.sh args.gn setup-ec2.sh \
   ../shared/.gclient ../mac-arm64/remotion-shared-memory-v3.patch \
   ../mac-arm64/probe-fast-path.py ec2-user@<IP>:/home/ec2-user/
