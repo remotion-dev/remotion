@@ -48,7 +48,7 @@ const STEPS: Record<StepId, Step> = {
 		hint: null,
 		options: [
 			{
-				code: 'me',
+				code: 'individual',
 				label: 'An individual',
 				description:
 					'For their own projects, including freelance work where clients only get the finished videos.',
