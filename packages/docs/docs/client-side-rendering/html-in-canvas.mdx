@@ -7,9 +7,12 @@ sidebar_label: HTML-in-canvas
 
 # HTML-in-canvas for client-side rendering<AvailableFrom v="4.0.447" />
 
-In Chrome 157 and later, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using [HTML-in-canvas](/docs/html-in-canvas).
+On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
 
-The renderer uses the [default frame capture mechanism](/docs/client-side-rendering/how-it-works) if HTML-in-canvas is unavailable or disabled. It also falls back if the composition contains an [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) returns `false`.
+Currently, HTML-in-canvas is only available in Chrome.
+
+Enabling the option does not guarantee that HTML-in-canvas client-side rendering is being used.
+If [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) returns `false`, it falls back to the [default frame capturing mechanism](/docs/client-side-rendering/how-it-works).
 
 ## Enabling
 
@@ -63,6 +66,8 @@ If native capture starts but fails while capturing a frame, a warning is printed
 ```
 Not using HTML-in-canvas: drawElementImage failed (...); falling back to the built-in DOM composer.
 ```
+
+If HTML-in-canvas is unavailable, disabled, or would require a nested capture in a browser without nesting support, the built-in DOM composer is selected.
 
 ## Compatibility
 
