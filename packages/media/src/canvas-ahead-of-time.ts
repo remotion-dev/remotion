@@ -1,5 +1,8 @@
-import type {VideoSampleTransformOptions, WrappedCanvas} from 'mediabunny';
-import type {VideoSample, VideoSampleSink} from 'mediabunny';
+import type {VideoSample, VideoSampleSink, WrappedCanvas} from 'mediabunny';
+import {
+	makePreviewSampleResizer,
+	type PreviewFrameResize,
+} from './resize-preview-sample';
 
 export type CanvasAheadOfTimeNext =
 	| {type: 'ready'; frame: WrappedCanvas | null}
@@ -178,9 +181,10 @@ type Slot = {
 export const canvasesAheadOfTime = (
 	videoSink: VideoSampleSink,
 	startTimestamp?: number,
-	resize: VideoSampleTransformOptions | null = null,
+	resize: PreviewFrameResize | null = null,
 ) => {
 	const iterator = videoSink.samples(startTimestamp);
+	const resizer = resize ? makePreviewSampleResizer(resize) : null;
 
 	const buffer: Slot[] = [];
 	let chaining = false;
@@ -219,15 +223,13 @@ export const canvasesAheadOfTime = (
 
 		chaining = true;
 		const nextSample = iterator.next();
-		const promise = resize
-			? nextSample.then(async (result) => {
+		const promise = resizer
+			? nextSample.then((result) => {
 					if (result.done || closed) return result;
 					try {
-						// transform() uses Mediabunny's pooled, quality-preserving resampling.
-						// The returned sample owns its pixels independently of that scratch canvas.
 						return {
 							done: false as const,
-							value: await result.value.transform(resize),
+							value: resizer.resize(result.value),
 						};
 					} finally {
 						result.value.close();
@@ -306,6 +308,7 @@ export const canvasesAheadOfTime = (
 
 	const closeIterator = async () => {
 		closed = true;
+		resizer?.dispose();
 		stableFramePool.dispose();
 		// A caller may abandon a pending next() after its slot leaves the buffer.
 		// Keep ownership until wait() actually hands the frame to that caller.

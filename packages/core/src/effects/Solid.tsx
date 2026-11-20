@@ -36,6 +36,7 @@ import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
+import {useReleaseCanvas} from '../use-release-canvas.js';
 import type {VideoConfigValues} from '../video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp, EffectsOutputSize} from './effect-types.js';
@@ -178,6 +179,7 @@ const SolidInner: React.FC<
 	}, []);
 
 	const chainState = useEffectChainState(effectsOutputSize);
+	useReleaseCanvas(outputCanvas);
 
 	const canvasRef = useCallback(
 		(canvas: HTMLCanvasElement | null) => {

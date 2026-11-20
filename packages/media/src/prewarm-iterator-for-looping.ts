@@ -1,12 +1,13 @@
-import type {VideoSampleSink, VideoSampleTransformOptions} from 'mediabunny';
+import type {VideoSampleSink} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
 import {canvasesAheadOfTime} from './canvas-ahead-of-time';
 import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
+import type {PreviewFrameResize} from './resize-preview-sample';
 
 export const makePrewarmedVideoIteratorCache = (
 	videoSink: VideoSampleSink,
 	timeResolution: number,
-	resize: VideoSampleTransformOptions | null = null,
+	resize: PreviewFrameResize | null = null,
 ) => {
 	const prewarmedVideoIterators: Map<number, CanvasAheadOfTimeIterator> =
 		new Map();
