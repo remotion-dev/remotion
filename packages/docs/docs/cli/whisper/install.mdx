@@ -7,13 +7,16 @@ sidebar_label: install
 
 # npx remotion whisper install<AvailableFrom v="4.0.546" />
 
-Download a named model to the local cache. Use [`whisper ls`](/docs/cli/whisper/ls) for model names and download sizes.
+Download a Whisper model to the local cache.  
+The cache is shared with [`@remotion/whisper-webgpu`](/docs/whisper-webgpu).  
+Use [`npx remotion whisper ls`](/docs/cli/whisper/ls) for model names and download sizes.
 
 ```bash title="Download the tiny English model"
 bunx remotion whisper install tiny.en
 ```
 
-Progress shows the amount downloaded and the estimated total model size. An existing cached model is reused. [`whisper transcribe`](/docs/cli/whisper/transcribe) also downloads its model automatically when needed.
+An existing cached model is not downloaded again.  
+[`npx remotion whisper transcribe`](/docs/cli/whisper/transcribe) also downloads its model automatically when needed.
 
 ## Flags
 

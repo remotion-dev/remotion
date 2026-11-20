@@ -7,43 +7,41 @@ crumb: CLI Reference
 
 # npx remotion whisper transcribe<AvailableFrom v="4.0.546" />
 
-Transcribe a local audio or video file into [timestamped caption JSON](/docs/captions/caption). Inference runs locally in Node.js using WebGPU. The first run downloads the selected Whisper model.
+Transcribe a local audio or video file into a [`Caption[]`](/docs/captions/caption) array.  
+Transcriptions runs locally in Node.js using WebGPU.
 
-Install [Whisper support](/docs/cli/whisper) in the project before running the command.
+Install [the required packages](/docs/cli/whisper) before you run this command.
+
+If not already done, the selected Whisper model will be downloaded automatically.
 
 ```bash title="Transcribe a file"
-bunx remotion whisper transcribe public/interview.mp4
-```
-
-The example writes `public/interview-captions.json`. Timestamps are relative to the start of the media file.
-
-Progress updates in place in an interactive terminal. Redirected output and `--log=verbose` or `--log=trace` use separate log lines.
-
-```bash title="Transcribe German audio to a custom path"
-bunx remotion whisper transcribe interview.mp4 --language de --output public/interview-de.json
+npx remotion whisper transcribe public/interview.mp4
 ```
 
 ## Flags
 
 ### `--output`
 
-Path to the JSON output file. The default is `<media-name>-captions.json` next to the input file, or `<media-name>-transcript.json` with `--raw`.
+Path to the output file.  
+The default is:
 
-Use `--output -` to write JSON to stdout. Progress and diagnostics go to stderr.
+- `<media-name>-transcript.json` next to the input file with `--raw`
+- `<media-name>-captions.json` next to the input file otherwise
+
+Use `-` to write to `stdout`. Then progress and diagnostics go to `stderr`.
 
 ```bash title="Pipe Whisper's transcript to jq"
-bunx remotion whisper transcribe interview.mp4 --raw --output - | jq -r '.text'
+npx remotion whisper transcribe interview.mp4 --raw --output - | jq -r '.text'
 ```
 
 ### `--raw`
 
-Write the [Whisper transcription result](/docs/whisper-webgpu/transcribe#return-value) directly. It contains the full text, word timestamps in seconds, and the model name. The default output is an array of [`Caption`](/docs/captions/caption) objects with timestamps in milliseconds.
+Write the [Whisper transcription result](/docs/whisper-webgpu/transcribe#return-value) directly instead of [`Caption[]`](/docs/captions/caption).
 
 ### `--overwrite`
 
-<Options id="overwrite" />
-
-Transcription overwrites existing output files by default. Use `--no-overwrite` or `--overwrite=false` to keep an existing file.
+Transcription overwrites existing output files by default.  
+Use `--no-overwrite` or `--overwrite=false` to prevent overwriting an existing file.
 
 ### `--model`
 
