@@ -58,7 +58,7 @@ const STEPS: Record<StepId, Step> = {
 				code: 'company',
 				label: 'A company',
 				description:
-					'Including single-person companies, agencies and people making videos for their employer.',
+					'Including single-person companies, agencies and employees making videos for the company they work at.',
 				next: 'collab',
 				joint: null,
 			},
