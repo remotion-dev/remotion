@@ -2260,6 +2260,15 @@ export const articles = [
 		slug: 'cli/whisper/rm',
 	},
 	{
+		id: 'cli/whisper/rmall',
+		title: 'npx remotion whisper rmall',
+		relativePath: 'docs/cli/whisper/rmall.mdx',
+		compId: 'articles-docs-cli-whisper-rmall',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/whisper/rmall',
+	},
+	{
 		id: 'cli/whisper/transcribe',
 		title: 'npx remotion whisper transcribe',
 		relativePath: 'docs/cli/whisper/transcribe.mdx',

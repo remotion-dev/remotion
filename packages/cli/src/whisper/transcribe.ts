@@ -97,6 +97,30 @@ const decodeAudio = async ({
 	}
 };
 
+export const parseWhisperTranscribeArgs = (argv: string[]) => {
+	const args: string[] = [];
+	for (const [index, arg] of argv.entries()) {
+		if (arg === '--') {
+			args.push(...argv.slice(index));
+			break;
+		}
+
+		// Minimist treats a standalone dash as a positional argument.
+		if (arg === '--output' && argv[index + 1] === '-') {
+			args.push('--output=-');
+		} else if (arg !== '-' || argv[index - 1] !== '--output') {
+			args.push(arg);
+		}
+	}
+
+	return minimist(args, {
+		string: ['_', 'output', 'model', 'language', 'binaries-directory', 'log'],
+		boolean: ['overwrite', 'quiet', 'raw'],
+		default: {overwrite: null},
+		alias: {q: 'quiet'},
+	});
+};
+
 export const transcribeCommand = async ({
 	remotionRoot,
 	argv,
@@ -105,21 +129,16 @@ export const transcribeCommand = async ({
 	remotionRoot: string;
 	argv: string[];
 	logLevel: LogLevel;
-}) => {
-	const commandLine = minimist(argv, {
-		string: ['_', 'output', 'model', 'language', 'binaries-directory', 'log'],
-		boolean: ['overwrite', 'quiet'],
-		default: {overwrite: null},
-		alias: {q: 'quiet'},
-	});
+}): Promise<string | null> => {
+	const commandLine = parseWhisperTranscribeArgs(argv);
 	const [mediaFile, ...extraArgs] = commandLine._;
 	if (!mediaFile || extraArgs.length > 0) {
 		throw new Error(
-			'Usage: bunx remotion whisper transcribe <media-file> [--output <path>] [--model <name>] [--language <language>]',
+			'Usage: bunx remotion whisper transcribe <media-file> [--output <path>] [--model <name>] [--language <language>] [--raw]',
 		);
 	}
 
-	const {output, model: modelFlag, language: languageFlag} = commandLine;
+	const {output, model: modelFlag, language: languageFlag, raw} = commandLine;
 	for (const [flag, value] of Object.entries({
 		output,
 		model: modelFlag,
@@ -140,25 +159,28 @@ export const transcribeCommand = async ({
 	}
 
 	const outputPath =
-		output === undefined
-			? path.join(
-					path.dirname(inputPath),
-					`${path.parse(inputPath).name}-captions.json`,
-				)
-			: path.resolve(output);
+		output === '-'
+			? null
+			: output === undefined
+				? path.join(
+						path.dirname(inputPath),
+						`${path.parse(inputPath).name}-${raw ? 'transcript' : 'captions'}.json`,
+					)
+				: path.resolve(output);
 	const {value: overwrite} = BrowserSafeApis.options.overwriteOption.getValue(
 		{commandLine},
 		true,
 	);
-	const outputFile = await stat(outputPath).catch(
-		(error: NodeJS.ErrnoException) => {
-			if (error.code === 'ENOENT') {
-				return null;
-			}
+	const outputFile =
+		outputPath === null
+			? null
+			: await stat(outputPath).catch((error: NodeJS.ErrnoException) => {
+					if (error.code === 'ENOENT') {
+						return null;
+					}
 
-			throw error;
-		},
-	);
+					throw error;
+				});
 	if (outputFile !== null) {
 		if (
 			inputPath === outputPath ||
@@ -167,7 +189,7 @@ export const transcribeCommand = async ({
 				inputFile.dev === outputFile.dev)
 		) {
 			throw new Error(
-				`The caption output must be different from the input media file: ${outputPath}.`,
+				`The output must be different from the input media file: ${outputPath}.`,
 			);
 		}
 
@@ -216,10 +238,14 @@ export const transcribeCommand = async ({
 		});
 	}
 
-	const progress = createWhisperProgress({quiet, logLevel});
+	const progress = createWhisperProgress({
+		quiet,
+		logLevel,
+		outputToStdout: outputPath === null,
+	});
 	const {runWithProgress} = progress;
 
-	let captionCount: number;
+	let outputSummary: string;
 	try {
 		const channelWaveform = await runWithProgress(
 			'Decoding audio',
@@ -244,10 +270,16 @@ export const transcribeCommand = async ({
 			'Transcribed audio',
 			() => whisper.transcribe({channelWaveform, model: model.name, language}),
 		);
-		const {captions} = whisper.toCaptions({whisperWebGpuOutput: transcription});
+		const outputData = raw
+			? transcription
+			: whisper.toCaptions({whisperWebGpuOutput: transcription}).captions;
+		const json = `${JSON.stringify(outputData, null, 2)}\n`;
+		if (outputPath === null) {
+			return json;
+		}
+
 		const outputDirectory = path.dirname(outputPath);
 		await mkdir(outputDirectory, {recursive: true});
-		const json = `${JSON.stringify(captions, null, 2)}\n`;
 		if (overwrite) {
 			const temporaryFile = path.join(
 				outputDirectory,
@@ -266,7 +298,11 @@ export const transcribeCommand = async ({
 			await writeFile(outputPath, json, {flag: 'wx'});
 		}
 
-		captionCount = captions.length;
+		const count = Array.isArray(outputData)
+			? outputData.length
+			: outputData.words.length;
+		const unit = raw ? 'word' : 'caption';
+		outputSummary = `${count} ${unit}${count === 1 ? '' : 's'}`;
 	} finally {
 		progress.finish();
 	}
@@ -282,8 +318,7 @@ export const transcribeCommand = async ({
 		chalk.blue(
 			`${(outputFile === null ? '+' : '○').padEnd(LABEL_WIDTH)} ${outputLink}`,
 		),
-		chalk.gray(
-			`${captionCount} ${captionCount === 1 ? 'caption' : 'captions'}`,
-		),
+		chalk.gray(outputSummary),
 	);
+	return null;
 };

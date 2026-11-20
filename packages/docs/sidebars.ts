@@ -147,6 +147,7 @@ const sidebars: SidebarsConfig = {
 						'cli/whisper/transcribe',
 						'cli/whisper/install',
 						'cli/whisper/rm',
+						'cli/whisper/rmall',
 						'cli/whisper/ls',
 					],
 				},

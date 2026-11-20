@@ -624,14 +624,20 @@ export const cliCommandHelp = [
 	{
 		path: ['whisper', 'transcribe'],
 		args: ' <media-file>',
-		description: 'Transcribe an audio or video file to captions using Whisper.',
+		description: 'Transcribe an audio or video file using Whisper.',
 		documentation: 'https://www.remotion.dev/docs/cli/whisper/transcribe',
 		options: [
 			{
 				flag: '--output <path>',
 				optionIds: [],
 				description:
-					'Caption JSON path (default: <media-name>-captions.json next to the input).',
+					'JSON output path. Use - for stdout. Defaults to <media-name>-captions.json or <media-name>-transcript.json with --raw.',
+			},
+			{
+				flag: '--raw',
+				optionIds: [],
+				description:
+					'Write the Whisper result with text, word timestamps, and model.',
 			},
 			{
 				flag: '--model <name>',
@@ -646,7 +652,7 @@ export const cliCommandHelp = [
 					'Spoken language name or code. Required for multilingual models.',
 			},
 			...options(['overwrite', 'binaries-directory', 'log', 'quiet'], {
-				overwrite: 'Overwrite existing caption files (default: true).',
+				overwrite: 'Overwrite existing output files (default: true).',
 			}),
 		],
 	},
@@ -663,6 +669,20 @@ export const cliCommandHelp = [
 		description: 'Remove a Whisper model from the local cache.',
 		documentation: 'https://www.remotion.dev/docs/cli/whisper/rm',
 		options: options(['log']),
+	},
+	{
+		path: ['whisper', 'rmall'],
+		args: '',
+		description: 'Remove all Whisper models from the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/rmall',
+		options: [
+			{
+				flag: '--yes, -y',
+				optionIds: [],
+				description: 'Remove all models without asking for confirmation.',
+			},
+			...options(['log']),
+		],
 	},
 	{
 		path: ['whisper', 'ls'],

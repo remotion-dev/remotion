@@ -5,6 +5,7 @@ import {chalk} from '../chalk';
 import {Log} from '../log';
 import {printHelp} from '../print-help';
 import {LABEL_WIDTH} from '../progress-bar';
+import {yesOrNo} from '../yes-or-no';
 import {ensureWhisperModel, getWhisperModel, loadWhisperWebGpu} from './models';
 import {createWhisperProgress} from './progress';
 import {transcribeCommand} from './transcribe';
@@ -17,19 +18,23 @@ export const whisperCommand = async ({
 	remotionRoot: string;
 	argv: string[];
 	logLevel: LogLevel;
-}) => {
+}): Promise<string | null> => {
 	const [command, ...args] = argv;
 	if (command === undefined || command === 'help') {
 		printHelp(logLevel, ['whisper', ...args]);
-		return;
+		return null;
 	}
 
 	if (command === 'transcribe') {
-		await transcribeCommand({remotionRoot, argv: args, logLevel});
-		return;
+		return transcribeCommand({remotionRoot, argv: args, logLevel});
 	}
 
-	if (command !== 'ls' && command !== 'install' && command !== 'rm') {
+	if (
+		command !== 'ls' &&
+		command !== 'install' &&
+		command !== 'rm' &&
+		command !== 'rmall'
+	) {
 		throw new Error(
 			`Unknown Whisper command "${command}". Run bunx remotion whisper --help to list the commands.`,
 		);
@@ -37,10 +42,45 @@ export const whisperCommand = async ({
 
 	const commandLine = minimist(args, {
 		string: ['_', 'log'],
-		boolean: ['quiet', 'installed'],
-		alias: {q: 'quiet'},
+		boolean: ['quiet', 'installed', 'yes'],
+		alias: {q: 'quiet', y: 'yes'},
 	});
 	const logOptions = {indent: false, logLevel};
+	if (command === 'rmall') {
+		if (commandLine._.length !== 0) {
+			throw new Error('Usage: bunx remotion whisper rmall [--yes]');
+		}
+
+		const {getAvailableModels, removeWhisperModel} =
+			await loadWhisperWebGpu(remotionRoot);
+		if (!commandLine.yes) {
+			if (!process.stdin.isTTY || !process.stdout.isTTY || process.env.CI) {
+				throw new Error(
+					'Pass --yes to remove all cached Whisper models in a non-interactive terminal.',
+				);
+			}
+
+			const confirmed = await yesOrNo({
+				question: 'Remove all Whisper models from the local CLI cache? (y/N)',
+				defaultValue: false,
+			});
+			if (!confirmed) {
+				Log.info(logOptions, 'Cancelled.');
+				return null;
+			}
+		}
+
+		for (const {name} of getAvailableModels()) {
+			await removeWhisperModel({model: name});
+		}
+
+		Log.info(
+			logOptions,
+			'Cleared all Whisper models from the local CLI cache.',
+		);
+		return null;
+	}
+
 	if (command === 'ls') {
 		if (commandLine._.length !== 0) {
 			throw new Error('Usage: bunx remotion whisper ls [--installed]');
@@ -60,7 +100,7 @@ export const whisperCommand = async ({
 			: models;
 		if (visibleModels.length === 0) {
 			Log.info(logOptions, 'No Whisper models installed.');
-			return;
+			return null;
 		}
 
 		Log.info(
@@ -76,7 +116,7 @@ export const whisperCommand = async ({
 			);
 		}
 
-		return;
+		return null;
 	}
 
 	const [requestedModel, ...extras] = commandLine._;
@@ -89,10 +129,14 @@ export const whisperCommand = async ({
 	if (command === 'rm') {
 		await whisper.removeWhisperModel({model});
 		Log.info(logOptions, `Cleared cached files for ${model}.`);
-		return;
+		return null;
 	}
 
-	const progress = createWhisperProgress({quiet: commandLine.quiet, logLevel});
+	const progress = createWhisperProgress({
+		quiet: commandLine.quiet,
+		logLevel,
+		outputToStdout: false,
+	});
 	let alreadyDownloaded: boolean;
 	try {
 		({alreadyDownloaded} = await ensureWhisperModel({
@@ -110,4 +154,5 @@ export const whisperCommand = async ({
 			`${(alreadyDownloaded ? '○' : '+').padEnd(LABEL_WIDTH)} ${model}`,
 		),
 	);
+	return null;
 };

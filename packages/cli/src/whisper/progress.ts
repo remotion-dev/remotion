@@ -9,11 +9,14 @@ import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger'
 export const createWhisperProgress = ({
 	quiet,
 	logLevel,
+	outputToStdout,
 }: {
 	quiet: boolean;
 	logLevel: LogLevel;
+	outputToStdout: boolean;
 }) => {
-	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+	const updatesDontOverwrite =
+		outputToStdout || shouldUseNonOverlayingLogger({logLevel});
 	const progressOutput = createOverwriteableCliOutput({
 		quiet,
 		cancelSignal: null,

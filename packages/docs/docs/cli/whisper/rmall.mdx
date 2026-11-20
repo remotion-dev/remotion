@@ -1,0 +1,24 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-rmall.png
+title: npx remotion whisper rmall
+crumb: CLI Reference
+sidebar_label: rmall
+---
+
+# npx remotion whisper rmall<AvailableFrom v="4.0.546" />
+
+Remove all Whisper models from the local CLI cache, including partially downloaded models. The command asks for confirmation in an interactive terminal.
+
+```bash title="Clear the local Whisper model cache"
+bunx remotion whisper rmall
+```
+
+## Flags
+
+### `--yes`, `-y`
+
+Skip confirmation. Pass this flag to clear the cache in scripts or CI.
+
+### `--log`
+
+<Options id="log" />
