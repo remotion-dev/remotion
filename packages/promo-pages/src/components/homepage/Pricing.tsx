@@ -37,7 +37,7 @@ export const Pricing: React.FC<{
 				marginBottom: 40,
 			}}
 		>
-			<FreePricing termsHref={termsHref} faqHref={faqHref} />
+			<FreePricing termsHref={termsHref} eligibilityHref={quizHref} />
 			<CompanyPricing purchaseHref={purchaseHref} />
 			<EnterpriseLicense />
 			<div
