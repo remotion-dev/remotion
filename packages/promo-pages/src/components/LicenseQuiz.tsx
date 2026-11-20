@@ -34,7 +34,7 @@ type Step = {
 type Result = {
 	readonly kind: 'free' | 'paid' | 'ask';
 	readonly title: string;
-	readonly option: string | null;
+	readonly options: string[];
 	readonly price: [string, string][] | null;
 	readonly why: (joint: boolean) => string;
 	readonly learnMore: string;
@@ -167,7 +167,7 @@ const RESULTS: Record<ResultId, Result> = {
 	individual: {
 		kind: 'free',
 		title: 'Free License',
-		option: null,
+		options: [],
 		price: [['$0', 'for personal and commercial use']],
 		why: () =>
 			"Individuals using Remotion for their own projects don't need to buy anything.",
@@ -176,7 +176,7 @@ const RESULTS: Record<ResultId, Result> = {
 	evaluation: {
 		kind: 'free',
 		title: 'Free License',
-		option: null,
+		options: [],
 		price: [['$0', 'during evaluation']],
 		why: () =>
 			'Trying Remotion out is free until it is put to use. Building a product with Remotion counts as using it, even before it ships.',
@@ -185,7 +185,7 @@ const RESULTS: Record<ResultId, Result> = {
 	nonprofit: {
 		kind: 'free',
 		title: 'Free License',
-		option: null,
+		options: [],
 		price: [['$0', 'for non-profits of any size']],
 		why: () =>
 			'Non-profits can use Remotion for free. We may ask for proof of non-profit status.',
@@ -194,7 +194,7 @@ const RESULTS: Record<ResultId, Result> = {
 	public: {
 		kind: 'ask',
 		title: 'Free License or Company License',
-		option: null,
+		options: [],
 		price: null,
 		why: () =>
 			"Tell us about the organization and we'll confirm in writing which one applies.",
@@ -203,7 +203,7 @@ const RESULTS: Record<ResultId, Result> = {
 	small: {
 		kind: 'free',
 		title: 'Free License',
-		option: null,
+		options: [],
 		price: [['$0', 'including automations and the Player']],
 		why: (joint) =>
 			joint
@@ -214,7 +214,7 @@ const RESULTS: Record<ResultId, Result> = {
 	creators: {
 		kind: 'paid',
 		title: 'Company License',
-		option: 'Remotion for Creators option',
+		options: ['Remotion for Creators'],
 		price: [['$25', 'per Seat per month']],
 		why: (joint) =>
 			'One Seat is needed for each person who makes videos.' +
@@ -224,7 +224,7 @@ const RESULTS: Record<ResultId, Result> = {
 	automators: {
 		kind: 'paid',
 		title: 'Company License',
-		option: 'Remotion for Automators option',
+		options: ['Remotion for Automators'],
 		price: [['$0.01', 'per render, $100 minimum per month']],
 		why: (joint) =>
 			'Renders started by software, or an embedded Player, count as automation.' +
@@ -234,7 +234,7 @@ const RESULTS: Record<ResultId, Result> = {
 	both: {
 		kind: 'paid',
 		title: 'Company License',
-		option: 'Remotion for Creators and Remotion for Automators options',
+		options: ['Remotion for Creators', 'Remotion for Automators'],
 		price: [
 			['$25', 'per Seat per month'],
 			['$0.01', 'per render, $100 minimum per month'],
@@ -424,8 +424,20 @@ export const LicenseQuiz: React.FC = () => {
 							<div className="text-3xl font-bold text-balance">
 								{result.title}
 							</div>
-							{result.option ? (
-								<div className="font-medium">with the {result.option}</div>
+							{result.options.length === 1 ? (
+								<div className="font-medium">
+									with the {result.options[0]} option
+								</div>
+							) : null}
+							{result.options.length > 1 ? (
+								<div className="font-medium">
+									with these options:
+									<ul className="m-0 mt-1 pl-5">
+										{result.options.map((o) => (
+											<li key={o}>{o}</li>
+										))}
+									</ul>
+								</div>
 							) : null}
 						</div>
 						<div className="text-[var(--subtitle)] text-pretty max-w-[52ch]">
