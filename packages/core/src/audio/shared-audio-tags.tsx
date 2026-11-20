@@ -3,8 +3,6 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -13,6 +11,7 @@ import React, {
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useIsomorphicLayoutEffect} from '../use-isomorphic-layout-effect.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
@@ -71,9 +70,6 @@ export type AudioSyncAnchorEmitter = {
 	dispatch: (event: AudioSyncAnchorEvent) => void;
 	subscribe: (listener: AudioSyncAnchorListener) => {remove: () => void};
 };
-
-const useAudioLayoutEffect =
-	typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 type SharedAudioContextValue = {
 	audioContextPending: boolean;
@@ -491,7 +487,7 @@ export const SharedAudioContextProvider: React.FC<{
 	// `no-user-gesture-required`), the mount attempt succeeds immediately;
 	// in a browser the first user gesture starts it. suspend() never reaches
 	// the native context in this mode, so once running it stays running.
-	useAudioLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		if (!_experimentalKeepAudioContextAlive) {
 			return;
 		}
@@ -566,7 +562,7 @@ export const SharedAudioContextProvider: React.FC<{
 		_experimentalKeepAudioContextAlive,
 	]);
 
-	useAudioLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		const queuedNodes = nodesToResume.current;
 		// Autoplay may request playback before the context commits. A replacement
 		// context must also resume when the Player is already playing.
@@ -762,34 +758,27 @@ export const useSharedAudio = ({aud, premounting}: AudioTagOptions) => {
 	);
 	localSource?.setAudioContext(audioContext);
 
-	useAudioLayoutEffect(() => {
-		if (!registerAudio) {
+	useIsomorphicLayoutEffect(() => {
+		if (!registerAudio || !unregisterAudio) {
 			return;
 		}
 
-		const registeredTag = tag.current ?? registerAudio();
+		const registeredTag = registerAudio();
 		tag.current = registeredTag;
 		el.current = registeredTag.ref.current;
-	}, [registerAudio]);
 
-	const effectToUse = React.useInsertionEffect ?? useAudioLayoutEffect;
-	// Suspense can disconnect layout effects while passive subscriptions stay attached.
-	effectToUse(() => {
 		return () => {
-			const registeredTag = tag.current;
-			if (registeredTag) {
-				el.current = null;
-				tag.current = null;
-				unregisterAudio?.(registeredTag);
-			}
+			el.current = null;
+			tag.current = null;
+			unregisterAudio(registeredTag);
 		};
-	}, [unregisterAudio]);
+	}, [registerAudio, unregisterAudio]);
 
-	useAudioLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		if (tag.current) {
 			updateAudio?.(tag.current, {aud, premounting});
 		}
-	}, [aud, premounting, registerAudio, updateAudio]);
+	}, [aud, premounting, registerAudio, unregisterAudio, updateAudio]);
 
 	const getSource = useCallback(
 		() => tag.current?.mediaElementSourceNode ?? localSource,
