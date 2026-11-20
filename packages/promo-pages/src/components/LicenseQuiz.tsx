@@ -49,14 +49,14 @@ const STEPS: Record<StepId, Step> = {
 		options: [
 			{
 				code: 'individual',
-				label: 'An individual',
+				label: 'Individual',
 				description: 'Including freelancers.',
 				next: 'individual',
 				joint: null,
 			},
 			{
 				code: 'company',
-				label: 'A company',
+				label: 'Company',
 				description:
 					'Including single-person companies, agencies and employees making videos for the company they work at.',
 				next: 'collab',
@@ -64,14 +64,14 @@ const STEPS: Record<StepId, Step> = {
 			},
 			{
 				code: 'nonprofit',
-				label: 'A non-profit',
+				label: 'Non-profit',
 				description: 'A registered charity or foundation.',
 				next: 'nonprofit',
 				joint: null,
 			},
 			{
 				code: 'public',
-				label: 'A government body, school or university',
+				label: 'Government body, school or university',
 				description: 'Public or private, even if it is a non-profit.',
 				next: 'public',
 				joint: null,
