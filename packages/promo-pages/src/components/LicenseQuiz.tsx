@@ -49,60 +49,59 @@ const STEPS: Record<StepId, Step> = {
 		options: [
 			{
 				code: 'me',
-				label: 'Me, for my own projects',
+				label: 'An individual',
 				description:
-					'Freelance work too, as long as my clients only get the finished videos.',
+					'For their own projects, including freelance work where clients only get the finished videos.',
 				next: 'individual',
 				joint: null,
 			},
 			{
 				code: 'company',
-				label: 'My company',
+				label: 'A company',
 				description:
-					'The videos are for a company that employs me or that I own. This includes single-person companies and agencies.',
+					'Including single-person companies, agencies and people making videos for their employer.',
 				next: 'collab',
 				joint: null,
 			},
 			{
 				code: 'nonprofit',
-				label: 'Our non-profit',
-				description: "We're a registered charity or foundation.",
+				label: 'A non-profit',
+				description: 'A registered charity or foundation.',
 				next: 'nonprofit',
 				joint: null,
 			},
 			{
 				code: 'public',
-				label: 'Our government body, school or university',
-				description: "Public or private, even if we're a non-profit.",
+				label: 'A government body, school or university',
+				description: 'Public or private, even if it is a non-profit.',
 				next: 'public',
 				joint: null,
 			},
 			{
 				code: 'eval',
-				label: "Nobody yet, we're trying it out",
-				description: "We haven't decided to use Remotion yet.",
+				label: 'Nobody yet, Remotion is being evaluated',
+				description: 'No decision to use Remotion has been made yet.',
 				next: 'evaluation',
 				joint: null,
 			},
 		],
 	},
 	collab: {
-		question: () => 'Does another company work on your Remotion code?',
+		question: () => 'Does another company work on the Remotion code?',
 		hint: null,
 		options: [
 			{
 				code: 'own',
 				label: 'No',
 				description:
-					'Our clients only get the finished videos. Our customers only use or buy our app or templates.',
+					'Clients only get the finished videos. Customers only use or buy the app or templates.',
 				next: 'size',
 				joint: false,
 			},
 			{
 				code: 'joint',
 				label: 'Yes',
-				description:
-					'A client owns our code, or a partner develops it with us.',
+				description: 'A client owns the code, or a partner helps develop it.',
 				next: 'size',
 				joint: true,
 			},
@@ -112,7 +111,7 @@ const STEPS: Record<StepId, Step> = {
 		question: (joint) =>
 			joint
 				? 'How many employees do both companies have together?'
-				: 'How many employees does your company have?',
+				: 'How many employees does the company have?',
 		hint: "Count every employee, including part-time ones, whether or not they use Remotion. Under the current license, freelancers and contractors don't count.",
 		options: [
 			{
@@ -139,7 +138,7 @@ const STEPS: Record<StepId, Step> = {
 				code: 'person',
 				label: 'A person',
 				description:
-					'We start each video ourselves, in the Studio, on the command line, with a script or with an AI agent.',
+					'Someone starts each video in the Studio, on the command line, with a script or with an AI agent.',
 				next: 'creators',
 				joint: null,
 			},
@@ -147,7 +146,7 @@ const STEPS: Record<StepId, Step> = {
 				code: 'software',
 				label: 'Software',
 				description:
-					'Our app, a schedule or our users start renders, or our website embeds the Player.',
+					'An app, a schedule or end users start renders, or a website embeds the Player.',
 				next: 'automators',
 				joint: null,
 			},
@@ -171,7 +170,7 @@ const RESULTS: Record<ResultId, Result> = {
 		option: null,
 		price: ['$0', 'for personal and commercial use'],
 		why: () =>
-			"You use Remotion for your own projects, so you don't need to buy anything.",
+			"Individuals using Remotion for their own projects don't need to buy anything.",
 		learnMore: `${FAQ}#who-is-eligible-for-the-free-license`,
 	},
 	evaluation: {
@@ -180,7 +179,7 @@ const RESULTS: Record<ResultId, Result> = {
 		option: null,
 		price: ['$0', 'while you evaluate'],
 		why: () =>
-			'Trying Remotion out is free until you decide to use it. Building a product with Remotion counts as using it, even before it ships.',
+			'Trying Remotion out is free until it is put to use. Building a product with Remotion counts as using it, even before it ships.',
 		learnMore: `${FAQ}#who-is-eligible-for-the-free-license`,
 	},
 	nonprofit: {
@@ -189,7 +188,7 @@ const RESULTS: Record<ResultId, Result> = {
 		option: null,
 		price: ['$0', 'for non-profits of any size'],
 		why: () =>
-			'Non-profits can use Remotion for free. We may ask for proof of your status.',
+			'Non-profits can use Remotion for free. We may ask for proof of non-profit status.',
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
 	},
 	public: {
@@ -198,7 +197,7 @@ const RESULTS: Record<ResultId, Result> = {
 		option: null,
 		price: null,
 		why: () =>
-			"Tell us about your organization and we'll confirm in writing which one applies.",
+			"Tell us about the organization and we'll confirm in writing which one applies.",
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
 	},
 	small: {
@@ -218,7 +217,7 @@ const RESULTS: Record<ResultId, Result> = {
 		option: 'Remotion for Creators option',
 		price: ['$25', 'per Seat per month'],
 		why: (joint) =>
-			'You need one Seat for each person who makes videos.' +
+			'One Seat is needed for each person who makes videos.' +
 			(joint ? OWNER_NOTE : ''),
 		learnMore: `${FAQ}#how-much-does-a-company-license-cost`,
 	},
@@ -245,9 +244,9 @@ const RESULTS: Record<ResultId, Result> = {
 };
 
 const LEAD: Record<Result['kind'], string> = {
-	free: 'You qualify for the',
-	paid: 'You need a',
-	ask: 'Depending on your organization',
+	free: 'Eligible for the',
+	paid: 'Requires a',
+	ask: 'Depending on the organization',
 };
 
 const isStepId = (id: StepId | ResultId): id is StepId => id in STEPS;

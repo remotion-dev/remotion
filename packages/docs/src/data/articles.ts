@@ -6140,7 +6140,7 @@ export const articles = [
 	},
 	{
 		id: 'license/which-license',
-		title: 'Which license do I need?',
+		title: 'Which license is needed?',
 		relativePath: 'docs/license/which-license.mdx',
 		compId: 'articles-docs-license-which-license',
 		crumb: 'License and terms',
