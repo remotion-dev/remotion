@@ -1,0 +1,45 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-transcribe.png
+title: npx remotion transcribe
+sidebar_label: transcribe
+crumb: CLI Reference
+---
+
+# npx remotion transcribe<AvailableFrom v="4.0.546" />
+
+Transcribe a local audio or video file into [timestamped caption JSON](/docs/captions/caption). Inference runs locally in Node.js using WebGPU. The first run downloads the selected Whisper model.
+
+Install the optional transcription packages in the project before running the command.
+
+```bash title="Install transcription support and transcribe a file"
+bunx remotion add @remotion/whisper-webgpu @huggingface/transformers
+bunx remotion transcribe public/interview.mp4
+```
+
+The example writes `public/interview-captions.json`. Timestamps are relative to the start of the media file. If the output file already exists, choose a different path.
+
+```bash title="Transcribe German audio to a custom path"
+bunx remotion transcribe interview.mp4 --language de --output public/interview-de.json
+```
+
+## Flags
+
+### `--output`
+
+Path to the caption JSON file. By default, the command writes `<media-name>-captions.json` next to the input file.
+
+### `--model`
+
+The [Whisper model](/docs/whisper-webgpu/get-available-models) to use. Defaults to `small.en` for English or `small` when `--language` is set.
+
+### `--language`
+
+The spoken language name or code, such as `german` or `de`. Required for multilingual models.
+
+### `--binaries-directory`
+
+<Options id="binaries-directory" />
+
+### `--log`
+
+<Options id="log" />

@@ -2206,6 +2206,15 @@ export const articles = [
 		slug: 'cli/studio',
 	},
 	{
+		id: 'cli/transcribe',
+		title: 'npx remotion transcribe',
+		relativePath: 'docs/cli/transcribe.mdx',
+		compId: 'articles-docs-cli-transcribe',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/transcribe',
+	},
+	{
 		id: 'cli/upgrade',
 		title: 'npx remotion upgrade',
 		relativePath: 'docs/cli/upgrade.mdx',

@@ -55,8 +55,14 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
+		"@remotion/whisper-webgpu": "workspace:*",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
+	},
+	"peerDependenciesMeta": {
+		"@remotion/whisper-webgpu": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@types/minimist": "1.2.2",
@@ -68,6 +74,7 @@
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"zod": "catalog:",

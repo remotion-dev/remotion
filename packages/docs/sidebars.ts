@@ -139,6 +139,7 @@ const sidebars: SidebarsConfig = {
 					link: {type: 'doc', id: 'cli/open-timeline/index'},
 					items: ['cli/open-timeline/import'],
 				},
+				'cli/transcribe',
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',

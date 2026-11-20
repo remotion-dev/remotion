@@ -34,7 +34,8 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs"
+			"import": "./dist/esm/index.mjs",
+			"node": "./dist/esm/index.mjs"
 		},
 		"./package.json": "./package.json"
 	},

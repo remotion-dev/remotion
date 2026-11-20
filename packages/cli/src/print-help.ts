@@ -615,6 +615,33 @@ export const cliCommandHelp = [
 		],
 	},
 	{
+		path: ['transcribe'],
+		args: ' <media-file>',
+		description: 'Transcribe an audio or video file to captions using Whisper.',
+		documentation: 'https://www.remotion.dev/docs/cli/transcribe',
+		options: [
+			{
+				flag: '--output <path>',
+				optionIds: [],
+				description:
+					'Caption JSON path (default: <media-name>-captions.json next to the input).',
+			},
+			{
+				flag: '--model <name>',
+				optionIds: [],
+				description:
+					'Whisper model (default: small.en, or small with --language).',
+			},
+			{
+				flag: '--language <language>',
+				optionIds: [],
+				description:
+					'Spoken language name or code. Required for multilingual models.',
+			},
+			...options(['binaries-directory', 'log']),
+		],
+	},
+	{
 		path: [GPU_COMMAND],
 		args: '',
 		description: 'Print information about how Chrome uses the GPU.',
