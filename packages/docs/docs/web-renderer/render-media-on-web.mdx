@@ -468,6 +468,14 @@ _boolean — default `false`_
 
 <Options id="allow-html-in-canvas" />
 
+### `experimental3DRendering?`
+
+_boolean — default `false`_
+
+Opt into experimental perspective, bounded `preserve-3d` plane ordering, flattening groups and related grouped effects in the DOM composer. The option belongs to this render; it does not change other render calls or require an application-wide global flag.
+
+This path has bounded Chromium qualification. It does not guarantee pixel-for-pixel parity for arbitrary 3D scenes, magnified text or other engines. Leaving it off preserves the existing rendering path. See [3D limitations](/docs/client-side-rendering/limitations#transformations).
+
 ## Return value
 
 Returns a promise resolving to an object with the following properties:

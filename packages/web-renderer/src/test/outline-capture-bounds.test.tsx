@@ -27,8 +27,16 @@ test.for([
 		});
 		document.body.appendChild(element);
 		try {
-			const paintBounds = getBiggestBoundingClientRect(element);
-			const layoutBounds = getBiggestBoundingClientRect(element, false);
+			const paintBounds = getBiggestBoundingClientRect(element, true, false, {
+				onlyOwnPlane: null,
+				experimental3DRendering: null,
+				includeCapturePadding: null,
+			});
+			const layoutBounds = getBiggestBoundingClientRect(element, false, false, {
+				onlyOwnPlane: null,
+				experimental3DRendering: null,
+				includeCapturePadding: null,
+			});
 			expect([
 				layoutBounds.left,
 				layoutBounds.top,

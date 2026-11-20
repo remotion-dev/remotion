@@ -77,6 +77,7 @@ export const drawElement = async ({
 		rect,
 		borderRadius,
 		inset: false,
+		logLevel,
 	});
 	let finishBorderRadius = setBorderRadius({
 		ctx: context,
@@ -112,6 +113,7 @@ export const drawElement = async ({
 			rect,
 			borderRadius,
 			inset: true,
+			logLevel,
 		});
 
 		finishBorderRadius = setBorderRadius({
