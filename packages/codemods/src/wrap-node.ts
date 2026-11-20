@@ -416,13 +416,22 @@ export const wrapNode = <Project extends CodemodProject>({
 
 		return `${childIndent}${line.startsWith(closingIndent) ? line.slice(closingIndent.length) : line.trimStart()}`;
 	});
+	let wrapperToInsert = wrapper;
+	if (canvas !== null) {
+		for (const prop of ['from', 'trimBefore']) {
+			if (wrapper.props[prop] === 0) {
+				wrapperToInsert = wrapperToInsert.withoutProp(prop);
+			}
+		}
+	}
+
 	const b = recast.types.builders;
 	const wrapperElement = buildJsxElement({
 		ast,
 		element:
 			fallbackSize === null
-				? wrapper
-				: wrapper.withProps({
+				? wrapperToInsert
+				: wrapperToInsert.withProps({
 						width: fallbackSize.width,
 						height: fallbackSize.height,
 						...(position || 'style' in wrapper.props
