@@ -304,6 +304,7 @@ import {useMotionBlurCanvas} from './use-motion-blur-canvas.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
+import {useReleaseCanvas} from './use-release-canvas.js';
 import type {
 	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusFalse,
@@ -385,6 +386,7 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	MotionBlurContext,
 	useMotionBlurCanvas,
+	useReleaseCanvas,
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 	bufferingDiagnostics,

@@ -143,6 +143,20 @@ const VideoForPreviewAssertedShowing: React.FC<
 	...props
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
+		const previousCanvas = canvasRef.current;
+		canvasRef.current = canvas;
+		if (!previousCanvas || previousCanvas === canvas) {
+			return;
+		}
+
+		queueMicrotask(() => {
+			if (!previousCanvas.isConnected && canvasRef.current !== previousCanvas) {
+				previousCanvas.width = 0;
+				previousCanvas.height = 0;
+			}
+		});
+	}, []);
 	const {isStudio} = useRemotionEnvironment();
 	const [staticFiles, setStaticFiles] = useState<StaticFile[] | null>(() =>
 		isStudio ? (window.remotion_staticFiles ?? null) : null,
@@ -935,7 +949,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			{...props}
-			ref={canvasRef}
+			ref={setCanvasRef}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.
