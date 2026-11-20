@@ -274,6 +274,7 @@ export const renderVideoFlow = async ({
 			logLevel,
 			onBrowserDownload,
 			chromeMode,
+			preferRequestedVersion: false,
 		});
 	} catch (err) {
 		updateBrowserProgress({
