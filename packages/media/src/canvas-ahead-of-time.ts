@@ -59,7 +59,16 @@ export const getStableEffectSource = (
 };
 
 const makeStableFramePool = () => {
-	const availableCanvases: OffscreenCanvas[] = [];
+	let availableCanvases: OffscreenCanvas[] | null = [];
+
+	const releaseFrameCanvas = (canvas: OffscreenCanvas) => {
+		if (availableCanvases) {
+			availableCanvases.push(canvas);
+		} else {
+			canvas.width = 0;
+			canvas.height = 0;
+		}
+	};
 
 	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
 		let sampleCanvas: OffscreenCanvas | null = null;
@@ -74,7 +83,7 @@ const makeStableFramePool = () => {
 			get canvas() {
 				if (!sampleCanvas) {
 					sampleCanvas =
-						availableCanvases.pop() ??
+						availableCanvases?.pop() ??
 						new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
 					if (sampleCanvas.width !== frame.displayWidth)
 						sampleCanvas.width = frame.displayWidth;
@@ -103,7 +112,7 @@ const makeStableFramePool = () => {
 			[effectSource]: ({width, height, allowDirectSource}) => {
 				if (width !== frame.displayWidth || height !== frame.displayHeight) {
 					effectCanvas ??=
-						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
+						availableCanvases?.pop() ?? new OffscreenCanvas(width, height);
 					if (effectCanvas.width !== width) effectCanvas.width = width;
 					if (effectCanvas.height !== height) effectCanvas.height = height;
 					const effectContext = effectCanvas.getContext('2d');
@@ -144,14 +153,21 @@ const makeStableFramePool = () => {
 				)
 					retainedSource.close();
 				frame.close();
-				if (sampleCanvas) availableCanvases.push(sampleCanvas);
-				if (effectCanvas) availableCanvases.push(effectCanvas);
+				if (sampleCanvas) releaseFrameCanvas(sampleCanvas);
+				if (effectCanvas) releaseFrameCanvas(effectCanvas);
 			},
 		};
 		return sampleFrame;
 	};
 
-	return {makeStableFrame};
+	return {
+		makeStableFrame,
+		dispose: () => {
+			const canvases = availableCanvases;
+			availableCanvases = null;
+			canvases?.forEach(releaseFrameCanvas);
+		},
+	};
 };
 
 type Slot = {
@@ -290,6 +306,7 @@ export const canvasesAheadOfTime = (
 
 	const closeIterator = async () => {
 		closed = true;
+		stableFramePool.dispose();
 		// A caller may abandon a pending next() after its slot leaves the buffer.
 		// Keep ownership until wait() actually hands the frame to that caller.
 		unclaimedFrames.forEach(releaseStableFrame);
