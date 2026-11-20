@@ -5,6 +5,13 @@ const isKeyframeInTimelineRange = (
 	return frame >= 0 && frame < durationInFrames;
 };
 
+// Keyframes can sit on fractional display frames, for example when a
+// <Sequence playbackRate={2}> maps source frame 15 to display frame 7.5.
+// The playhead must stay on whole frames, so navigation snaps to the closest
+// whole frame in the direction of travel.
+const getLastFrame = (durationInFrames: number) =>
+	Math.max(0, Math.ceil(durationInFrames) - 1);
+
 export const getPreviousKeyframeDisplayFrame = (
 	keyframes: readonly {frame: number}[],
 	currentDisplayFrame: number,
@@ -12,12 +19,19 @@ export const getPreviousKeyframeDisplayFrame = (
 ): number | null => {
 	let previous: number | null = null;
 	for (const keyframe of keyframes) {
+		if (!isKeyframeInTimelineRange(keyframe.frame, durationInFrames)) {
+			continue;
+		}
+
+		const frame = Math.min(
+			Math.floor(keyframe.frame),
+			getLastFrame(durationInFrames),
+		);
 		if (
-			isKeyframeInTimelineRange(keyframe.frame, durationInFrames) &&
-			keyframe.frame < currentDisplayFrame &&
-			(previous === null || keyframe.frame > previous)
+			frame < currentDisplayFrame &&
+			(previous === null || frame > previous)
 		) {
-			previous = keyframe.frame;
+			previous = frame;
 		}
 	}
 
@@ -31,12 +45,16 @@ export const getNextKeyframeDisplayFrame = (
 ): number | null => {
 	let next: number | null = null;
 	for (const keyframe of keyframes) {
-		if (
-			isKeyframeInTimelineRange(keyframe.frame, durationInFrames) &&
-			keyframe.frame > currentDisplayFrame &&
-			(next === null || keyframe.frame < next)
-		) {
-			next = keyframe.frame;
+		if (!isKeyframeInTimelineRange(keyframe.frame, durationInFrames)) {
+			continue;
+		}
+
+		const frame = Math.min(
+			Math.ceil(keyframe.frame),
+			getLastFrame(durationInFrames),
+		);
+		if (frame > currentDisplayFrame && (next === null || frame < next)) {
+			next = frame;
 		}
 	}
 
