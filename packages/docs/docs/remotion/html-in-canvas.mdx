@@ -8,9 +8,9 @@ crumb: 'API'
 
 This component renders its children into a `<canvas>` using the browser’s [HTML-in-canvas](https://github.com/WICG/html-in-canvas) API and allows you to draw an effect using the Canvas 2D API, WebGL or WebGPU.
 
-For an overview, examples and how to enable the Chrome flag, see the [HTML-in-canvas guide](/docs/html-in-canvas).
+For an overview and examples, see the [HTML-in-canvas guide](/docs/html-in-canvas).
 
-HTML-in-canvas is only available in Chrome 149 and later and if the `chrome://flags/#canvas-draw-element` flag is enabled.
+Chrome 157 and later enable HTML-in-canvas by default.
 
 ```tsx twoslash title="MyComp.tsx"
 import {HtmlInCanvas} from 'remotion';
@@ -28,7 +28,8 @@ export const MyComp: React.FC = () => {
 
 Return value: _boolean_
 
-If HTML-in-canvas is not available, the component throws a fatal error during rendering.  
+If HTML-in-canvas is unavailable, the component throws an error during rendering. In preview, it shows the content without canvas effects and overlays a warning.
+
 Use `HtmlInCanvas.isSupported()` to check if HTML-in-canvas is supported.  
 Buggy implementations such as the one in Chrome 147 are not considered supported.
 
@@ -46,17 +47,13 @@ if (HtmlInCanvas.isSupported()) {
 
 Return value: _boolean_
 
-Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
-
-From Remotion v4.0.534, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
+Returns `true` when the browser supports nested `<HtmlInCanvas>` components. This includes Chrome 157 and later and the browser bundled for server-side rendering from Remotion v4.0.534.
 
 ## Premounting<AvailableFrom v="4.0.537" />
 
 To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, from v4.0.537 we default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds).
 
-From v4.0.544, `<HtmlInCanvas>` inherits `defaultPremountInSeconds` when the browser's user agent reports Chromium 158.0.8127.2 or newer. If Chrome hides its build number as `158.0.0.0`, automatic premounting stays disabled; Chrome 159 and newer do not need the full build number.
-
-You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
+From v4.0.544, `<HtmlInCanvas>` respects `defaultPremountInSeconds` in Chrome 159 and later, or in Chrome 158 when the user agent reports a build of 158.0.8127.2 or later. Pass [`premountFor`](/docs/sequence#premountfor) to override the default.
 
 ## Using WebGL and WebGPU during renders
 
@@ -860,9 +857,7 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
 
 ## Nested HTML-in-canvas
 
-You can nest `<HtmlInCanvas>` components in Chrome 157.0.8080.0 or newer when HTML-in-canvas is enabled. Check [`HtmlInCanvas.isNestingSupported()`](#htmlincanvasisnestingsupported) before rendering nested components. Unsupported browsers throw an error when components are nested.
-
-Server-side rendering supports nested compositions from Remotion v4.0.534, which uses Chromium 157.0.8080.0.
+Check [`HtmlInCanvas.isNestingSupported()`](#htmlincanvasisnestingsupported) before rendering nested components. Rendering them in an unsupported browser throws an error. In preview, the component shows the content without canvas effects and overlays a warning.
 
 ## Compatibility
 
@@ -879,8 +874,6 @@ Server-side rendering supports nested compositions from Remotion v4.0.534, which
   studio
   hideServers
 />
-
-Only works in Chrome 149 and later with the flag enabled, as mentioned on the top of the page.
 
 ## See also
 
