@@ -21,6 +21,8 @@ const PEAK_HOLD_MS = 500;
 const SCALE_LABELS = [6, 0, -6, -12, -24, -36, -48, -60];
 const LABEL_HEIGHT = 14;
 const CHANNEL_LABEL_GAP = 6;
+const TOP_LABEL_PADDING = 5;
+const BOTTOM_LABEL_PADDING = 4;
 
 const toPercent = (db: number) => ((db - MIN_DB) / (MAX_DB - MIN_DB)) * 100;
 
@@ -169,7 +171,9 @@ const AudioLevelsInner: React.FC = () => {
 				backgroundColor: BACKGROUND,
 				display: 'flex',
 				flexDirection: 'column',
-				padding: '8px 10px',
+				paddingBlockStart: TOP_LABEL_PADDING + LABEL_HEIGHT / 2,
+				paddingBlockEnd: BOTTOM_LABEL_PADDING,
+				paddingInline: 10,
 				overflow: 'hidden',
 			}}
 		>
