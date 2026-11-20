@@ -24,6 +24,24 @@ const decodeAudio = async ({
 	binariesDirectory: string | null;
 	logLevel: LogLevel;
 }) => {
+	const env = dynamicLibEnv(false, logLevel, binariesDirectory);
+	const {stdout: formatName} = await RenderInternals.callFf({
+		bin: 'ffprobe',
+		args: [
+			'-v',
+			'error',
+			'-show_entries',
+			'format=format_name',
+			'-of',
+			'default=noprint_wrappers=1:nokey=1',
+			inputPath,
+		],
+		indent: false,
+		logLevel,
+		binariesDirectory,
+		cancelSignal: undefined,
+		options: {env},
+	});
 	const binary = RenderInternals.getExecutablePath({
 		type: 'ffmpeg',
 		indent: false,
@@ -38,6 +56,8 @@ const decodeAudio = async ({
 			'-nostdin',
 			'-loglevel',
 			'error',
+			// MP3 start timestamps include encoder delay already handled by the decoder.
+			...(formatName.trim() === 'mp3' ? [] : ['-copyts']),
 			'-i',
 			inputPath,
 			'-map',
@@ -58,7 +78,7 @@ const decodeAudio = async ({
 			encoding: null,
 			stripFinalNewline: false,
 			maxBuffer: Infinity,
-			env: dynamicLibEnv(false, logLevel, binariesDirectory),
+			env,
 		},
 	);
 
