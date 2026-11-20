@@ -139,7 +139,17 @@ const sidebars: SidebarsConfig = {
 					link: {type: 'doc', id: 'cli/open-timeline/index'},
 					items: ['cli/open-timeline/import'],
 				},
-				'cli/transcribe',
+				{
+					type: 'category',
+					label: 'whisper',
+					link: {type: 'doc', id: 'cli/whisper/index'},
+					items: [
+						'cli/whisper/transcribe',
+						'cli/whisper/install',
+						'cli/whisper/rm',
+						'cli/whisper/ls',
+					],
+				},
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',

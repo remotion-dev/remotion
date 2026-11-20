@@ -1,0 +1,23 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-index.png
+title: npx remotion whisper
+crumb: CLI Reference
+sidebar_label: whisper
+---
+
+# npx remotion whisper<AvailableFrom v="4.0.546" />
+
+Transcribe local media with Whisper and manage downloaded models. Install the optional packages in the project to use the commands.
+
+```bash title="Install Whisper support"
+bunx remotion add @remotion/whisper-webgpu @huggingface/transformers
+```
+
+The CLI uses the Transformers.js filesystem cache. Studio manages its browser cache from its Models settings.
+
+## Commands
+
+- [`transcribe`](/docs/cli/whisper/transcribe) generates caption JSON from an audio or video file.
+- [`install`](/docs/cli/whisper/install) downloads a model to the local cache.
+- [`rm`](/docs/cli/whisper/rm) removes a cached model.
+- [`ls`](/docs/cli/whisper/ls) lists available models and shows which are cached.

@@ -70,9 +70,9 @@ export const TableOfContents: React.FC = () => {
 					<strong>open-timeline</strong>
 					<div>Import OpenTimelineIO timelines</div>
 				</TOCItem>
-				<TOCItem link="/docs/cli/transcribe">
-					<strong>transcribe</strong>
-					<div>Transcribe audio or video to captions</div>
+				<TOCItem link="/docs/cli/whisper">
+					<strong>whisper</strong>
+					<div>Transcribe media and manage Whisper models</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/skills">
 					<strong>skills</strong>

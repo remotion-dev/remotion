@@ -615,10 +615,17 @@ export const cliCommandHelp = [
 		],
 	},
 	{
-		path: ['transcribe'],
+		path: ['whisper'],
+		args: ' <command>',
+		description: 'Transcribe media and manage local Whisper models.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper',
+		options: [],
+	},
+	{
+		path: ['whisper', 'transcribe'],
 		args: ' <media-file>',
 		description: 'Transcribe an audio or video file to captions using Whisper.',
-		documentation: 'https://www.remotion.dev/docs/cli/transcribe',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/transcribe',
 		options: [
 			{
 				flag: '--output <path>',
@@ -638,8 +645,31 @@ export const cliCommandHelp = [
 				description:
 					'Spoken language name or code. Required for multilingual models.',
 			},
-			...options(['binaries-directory', 'log']),
+			...options(['overwrite', 'binaries-directory', 'log', 'quiet'], {
+				overwrite: 'Overwrite existing caption files (default: true).',
+			}),
 		],
+	},
+	{
+		path: ['whisper', 'install'],
+		args: ' <model>',
+		description: 'Download a Whisper model to the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/install',
+		options: options(['log', 'quiet']),
+	},
+	{
+		path: ['whisper', 'rm'],
+		args: ' <model>',
+		description: 'Remove a Whisper model from the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/rm',
+		options: options(['log']),
+	},
+	{
+		path: ['whisper', 'ls'],
+		args: '',
+		description: 'List available Whisper models and their local cache status.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/ls',
+		options: options(['log']),
 	},
 	{
 		path: [GPU_COMMAND],

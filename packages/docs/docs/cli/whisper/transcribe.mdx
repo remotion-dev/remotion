@@ -1,0 +1,56 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-transcribe.png
+title: npx remotion whisper transcribe
+sidebar_label: transcribe
+crumb: CLI Reference
+---
+
+# npx remotion whisper transcribe<AvailableFrom v="4.0.546" />
+
+Transcribe a local audio or video file into [timestamped caption JSON](/docs/captions/caption). Inference runs locally in Node.js using WebGPU. The first run downloads the selected Whisper model.
+
+Install [Whisper support](/docs/cli/whisper) in the project before running the command.
+
+```bash title="Transcribe a file"
+bunx remotion whisper transcribe public/interview.mp4
+```
+
+The example writes `public/interview-captions.json`. Timestamps are relative to the start of the media file.
+
+Progress updates in place in an interactive terminal. Redirected output and `--log=verbose` or `--log=trace` use separate log lines.
+
+```bash title="Transcribe German audio to a custom path"
+bunx remotion whisper transcribe interview.mp4 --language de --output public/interview-de.json
+```
+
+## Flags
+
+### `--output`
+
+Path to the caption JSON file. By default, the command writes `<media-name>-captions.json` next to the input file.
+
+### `--overwrite`
+
+<Options id="overwrite" />
+
+Transcription overwrites existing caption files by default. Use `--no-overwrite` or `--overwrite=false` to keep an existing file.
+
+### `--model`
+
+The [Whisper model](/docs/cli/whisper/ls) to use. Defaults to `small.en` for English or `small` when `--language` is set.
+
+### `--language`
+
+The spoken language name or code, such as `german` or `de`. Required for multilingual models.
+
+### `--binaries-directory`
+
+<Options id="binaries-directory" />
+
+### `--log`
+
+<Options id="log" />
+
+### `--quiet`
+
+Suppress progress updates. `-q` is an alias.

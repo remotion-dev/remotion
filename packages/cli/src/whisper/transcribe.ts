@@ -1,14 +1,17 @@
-import {existsSync} from 'node:fs';
-import {mkdir, stat, writeFile} from 'node:fs/promises';
+import {randomUUID} from 'node:crypto';
+import {mkdir, rename, rm, stat, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type * as WhisperWebGpu from '@remotion/whisper-webgpu';
 import minimist from 'minimist';
-import {dynamicLibEnv} from './ffmpeg';
-import {Log} from './log';
-import {resolveFrom} from './resolve-from';
+import {chalk} from '../chalk';
+import {dynamicLibEnv} from '../ffmpeg';
+import {makeHyperlink} from '../hyperlinks/make-link';
+import {Log} from '../log';
+import {LABEL_WIDTH, printFact} from '../progress-bar';
+import {ensureWhisperModel, getWhisperModel, loadWhisperWebGpu} from './models';
+import {createWhisperProgress} from './progress';
 
 const decodeAudio = async ({
 	inputPath,
@@ -105,11 +108,14 @@ export const transcribeCommand = async ({
 }) => {
 	const commandLine = minimist(argv, {
 		string: ['_', 'output', 'model', 'language', 'binaries-directory', 'log'],
+		boolean: ['overwrite', 'quiet'],
+		default: {overwrite: null},
+		alias: {q: 'quiet'},
 	});
 	const [mediaFile, ...extraArgs] = commandLine._;
 	if (!mediaFile || extraArgs.length > 0) {
 		throw new Error(
-			'Usage: bunx remotion transcribe <media-file> [--output <path>] [--model <name>] [--language <language>]',
+			'Usage: bunx remotion whisper transcribe <media-file> [--output <path>] [--model <name>] [--language <language>]',
 		);
 	}
 
@@ -128,7 +134,8 @@ export const transcribeCommand = async ({
 	}
 
 	const inputPath = path.resolve(mediaFile);
-	if (!(await stat(inputPath)).isFile()) {
+	const inputFile = await stat(inputPath);
+	if (!inputFile.isFile()) {
 		throw new Error(`The input must be a media file: ${inputPath}`);
 	}
 
@@ -139,45 +146,51 @@ export const transcribeCommand = async ({
 					`${path.parse(inputPath).name}-captions.json`,
 				)
 			: path.resolve(output);
-	if (existsSync(outputPath)) {
-		throw new Error(
-			`The output already exists: ${outputPath}. Specify a different path with --output.`,
-		);
-	}
+	const {value: overwrite} = BrowserSafeApis.options.overwriteOption.getValue(
+		{commandLine},
+		true,
+	);
+	const outputFile = await stat(outputPath).catch(
+		(error: NodeJS.ErrnoException) => {
+			if (error.code === 'ENOENT') {
+				return null;
+			}
 
-	let whisperPath: string;
-	try {
-		whisperPath = resolveFrom(remotionRoot, '@remotion/whisper-webgpu');
-	} catch (err) {
-		if ((err as NodeJS.ErrnoException).code !== 'MODULE_NOT_FOUND') {
-			throw err;
+			throw error;
+		},
+	);
+	if (outputFile !== null) {
+		if (
+			inputPath === outputPath ||
+			(inputFile.ino !== 0 &&
+				inputFile.ino === outputFile.ino &&
+				inputFile.dev === outputFile.dev)
+		) {
+			throw new Error(
+				`The caption output must be different from the input media file: ${outputPath}.`,
+			);
 		}
 
-		throw new Error(
-			'Transcription requires @remotion/whisper-webgpu. Install it in your project with: bunx remotion add @remotion/whisper-webgpu @huggingface/transformers',
-		);
+		if (!overwrite) {
+			throw new Error(
+				`File at ${outputPath} already exists. Use --overwrite to overwrite.`,
+			);
+		}
+
+		if (!outputFile.isFile()) {
+			throw new Error(`The output path must be a file: ${outputPath}`);
+		}
 	}
 
-	// Keep native ESM import semantics when compiling the CLI to CommonJS.
-	// eslint-disable-next-line no-new-func
-	const importWhisper = new Function(
-		'specifier',
-		'return import(specifier)',
-	) as (specifier: string) => Promise<typeof WhisperWebGpu>;
-	const whisper = await importWhisper(pathToFileURL(whisperPath).href);
+	const whisper = await loadWhisperWebGpu(remotionRoot);
+
 	const language =
 		typeof languageFlag === 'string'
 			? languageFlag.trim().toLowerCase()
 			: undefined;
 	const requestedModel =
 		modelFlag ?? (language === undefined ? 'small.en' : 'small');
-	const availableModels = whisper.getAvailableModels();
-	const model = availableModels.find(({name}) => name === requestedModel);
-	if (model === undefined) {
-		throw new Error(
-			`Unknown Whisper model "${requestedModel}". Available models: ${availableModels.map(({name}) => name).join(', ')}.`,
-		);
-	}
+	const model = getWhisperModel(whisper, requestedModel);
 
 	if (model.multilingual && (language === undefined || language === 'auto')) {
 		throw new Error(
@@ -192,34 +205,85 @@ export const transcribeCommand = async ({
 
 	const {value: binariesDirectory} =
 		BrowserSafeApis.options.binariesDirectoryOption.getValue({commandLine});
-	Log.info({indent: false, logLevel}, 'Decoding audio…');
-	const channelWaveform = await decodeAudio({
-		inputPath,
-		sampleRate: whisper.WHISPER_WEBGPU_SAMPLE_RATE,
-		binariesDirectory,
-		logLevel,
-	});
+	const {quiet} = commandLine;
+	if (!quiet) {
+		printFact('info')({
+			indent: false,
+			logLevel,
+			left: 'Model',
+			right: model.name,
+			color: 'gray',
+		});
+	}
 
-	Log.info(
-		{indent: false, logLevel},
-		`Preparing Whisper model "${model.name}"…`,
-	);
-	await whisper.downloadWhisperModel({model: model.name});
-	Log.info({indent: false, logLevel}, 'Transcribing audio…');
-	const transcription = await whisper
-		.transcribe({
-			channelWaveform,
-			model: model.name,
-			language,
-		})
-		.finally(() => whisper.disposeWhisperModel({model: model.name}));
-	const {captions} = whisper.toCaptions({whisperWebGpuOutput: transcription});
-	await mkdir(path.dirname(outputPath), {recursive: true});
-	await writeFile(outputPath, `${JSON.stringify(captions, null, 2)}\n`, {
-		flag: 'wx',
+	const progress = createWhisperProgress({quiet, logLevel});
+	const {runWithProgress} = progress;
+
+	let captionCount: number;
+	try {
+		const channelWaveform = await runWithProgress(
+			'Decoding audio',
+			'Decoded audio',
+			() =>
+				decodeAudio({
+					inputPath,
+					sampleRate: whisper.WHISPER_WEBGPU_SAMPLE_RATE,
+					binariesDirectory,
+					logLevel,
+				}),
+		);
+		await ensureWhisperModel({whisper, model: model.name, progress});
+
+		await using _modelHandle = await runWithProgress(
+			'Loading model',
+			'Loaded model',
+			() => whisper.loadWhisperModel({model: model.name}),
+		);
+		const transcription = await runWithProgress(
+			'Transcribing audio',
+			'Transcribed audio',
+			() => whisper.transcribe({channelWaveform, model: model.name, language}),
+		);
+		const {captions} = whisper.toCaptions({whisperWebGpuOutput: transcription});
+		const outputDirectory = path.dirname(outputPath);
+		await mkdir(outputDirectory, {recursive: true});
+		const json = `${JSON.stringify(captions, null, 2)}\n`;
+		if (overwrite) {
+			const temporaryFile = path.join(
+				outputDirectory,
+				`.remotion-transcribe-${randomUUID()}.tmp`,
+			);
+			try {
+				await writeFile(temporaryFile, json, {
+					flag: 'wx',
+					mode: outputFile?.mode,
+				});
+				await rename(temporaryFile, outputPath);
+			} finally {
+				await rm(temporaryFile, {force: true});
+			}
+		} else {
+			await writeFile(outputPath, json, {flag: 'wx'});
+		}
+
+		captionCount = captions.length;
+	} finally {
+		progress.finish();
+	}
+
+	const relativeOutputPath = path.relative(process.cwd(), outputPath);
+	const outputLink = makeHyperlink({
+		url: pathToFileURL(outputPath).href,
+		text: relativeOutputPath,
+		fallback: relativeOutputPath,
 	});
 	Log.info(
 		{indent: false, logLevel},
-		`Wrote ${captions.length} captions to ${outputPath}`,
+		chalk.blue(
+			`${(outputFile === null ? '+' : '○').padEnd(LABEL_WIDTH)} ${outputLink}`,
+		),
+		chalk.gray(
+			`${captionCount} ${captionCount === 1 ? 'caption' : 'captions'}`,
+		),
 	);
 };

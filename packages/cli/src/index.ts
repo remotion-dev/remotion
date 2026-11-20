@@ -51,13 +51,13 @@ import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {skillsCommand} from './skills';
 import {still} from './still';
 import {studioCommand} from './studio';
-import {transcribeCommand} from './transcribe';
 import {upgradeCommand} from './upgrade';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
 	versionsCommand,
 } from './versions';
+import {whisperCommand} from './whisper';
 
 const {packageManagerOption, skipSkillsOption, versionFlagOption} =
 	BrowserSafeApis.options;
@@ -139,8 +139,8 @@ export const cli = async () => {
 			await render(remotionRoot, args, logLevel);
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
-		} else if (command === 'transcribe') {
-			await transcribeCommand({
+		} else if (command === 'whisper') {
+			await whisperCommand({
 				remotionRoot,
 				argv: process.argv.slice(3),
 				logLevel,
