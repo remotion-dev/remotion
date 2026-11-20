@@ -9,14 +9,9 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {
-	getTimelineWidth,
-	getTimelineZoom,
-} from '../../helpers/get-timeline-max-zoom';
-import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {
 	forceSpecificCursor,
@@ -46,6 +41,7 @@ import {
 import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -74,41 +70,23 @@ const getClientXWithScroll = (x: number) => {
 
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
-	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
-
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
+	// Same width as the tracks, so the playhead moves in the same frame
+	const timelineWidth = useContext(TimelineWidthContext);
 	const {canvasContent, currentAssetMetadata} = useContext(
 		Internals.CompositionManager,
 	);
-	const videoId = video?.id;
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		if (!canvasContent) {
 			return {};
 		}
 
-		const durationInFrames = video?.durationInFrames ?? 1;
-		const zoom = getTimelineZoom({
-			durationInFrames,
-			timelineViewportWidth:
-				timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
-			zoom: videoId ? (zoomMap[videoId] ?? null) : null,
-		});
 		return {
 			...container,
-			width: getTimelineWidth({durationInFrames, zoom}),
+			width: timelineWidth ?? undefined,
 			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [
-		canvasContent,
-		timelineSize?.width,
-		video?.durationInFrames,
-		videoId,
-		zoomMap,
-	]);
+	}, [canvasContent, timelineWidth]);
 
 	const hasPlayableContent =
 		canvasContent?.type === 'composition' ||
