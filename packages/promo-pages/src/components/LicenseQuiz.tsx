@@ -6,7 +6,7 @@ const CONTACT = '/contact';
 const BUY = 'https://www.remotion.dev/dashboard';
 const GET_STARTED = '/docs';
 
-type StepId = 'holder' | 'collab' | 'size' | 'how';
+type StepId = 'holder' | 'nonprofitKind' | 'collab' | 'size' | 'how';
 type ResultId =
 	| 'individual'
 	| 'evaluation'
@@ -61,7 +61,7 @@ const STEPS: Record<StepId, Step> = {
 			{
 				code: 'nonprofit',
 				label: 'Non-profit',
-				next: 'nonprofit',
+				next: 'nonprofitKind',
 				joint: null,
 			},
 			{
@@ -74,6 +74,24 @@ const STEPS: Record<StepId, Step> = {
 				code: 'eval',
 				label: 'Nobody yet, still evaluating',
 				next: 'evaluation',
+				joint: null,
+			},
+		],
+	},
+	nonprofitKind: {
+		question: () => 'Does the non-profit mainly serve commercial interests?',
+		hint: 'For example, a trade association, an industry group or a subsidiary of a company.',
+		options: [
+			{
+				code: 'charity',
+				label: 'No',
+				next: 'nonprofit',
+				joint: null,
+			},
+			{
+				code: 'commercial',
+				label: 'Yes',
+				next: 'public',
 				joint: null,
 			},
 		],
@@ -179,7 +197,7 @@ const RESULTS: Record<ResultId, Result> = {
 		options: [],
 		price: null,
 		why: () =>
-			"This applies to public and private institutions, even non-profit ones. Tell us about the organization and we'll confirm in writing which one applies.",
+			"Government bodies, schools and universities, even non-profit ones, and non-profits serving commercial interests need written permission to use the Free License. Tell us about the organization and we'll confirm in writing which one applies.",
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
 	},
 	small: {
