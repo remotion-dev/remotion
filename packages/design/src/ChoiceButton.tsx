@@ -29,7 +29,12 @@ export const ChoiceButton = React.forwardRef<
 		>
 			<span className="font-medium">{children}</span>
 			{description ? (
-				<span className={cn(selected ? 'text-white/85' : 'opacity-70')}>
+				<span
+					className={cn(
+						'text-pretty',
+						selected ? 'text-white/85' : 'opacity-70',
+					)}
+				>
 					{description}
 				</span>
 			) : null}

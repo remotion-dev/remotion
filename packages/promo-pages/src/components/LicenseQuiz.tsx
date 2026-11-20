@@ -361,7 +361,7 @@ export const LicenseQuiz: React.FC = () => {
 	}, []);
 
 	return (
-		<div className="font-brand text-text flex flex-col gap-10 my-8">
+		<div className="font-brand text-text flex flex-col gap-10 my-8 max-w-2xl">
 			{steps.map((s, i) => {
 				const step = STEPS[s.id];
 				const hasDescriptions = step.options.some(
@@ -390,7 +390,7 @@ export const LicenseQuiz: React.FC = () => {
 							aria-labelledby={`license-quiz-q-${i}`}
 							className={
 								hasDescriptions
-									? 'grid grid-cols-1 gap-3 max-w-lg'
+									? 'grid grid-cols-1 gap-3'
 									: 'flex flex-wrap gap-3'
 							}
 						>
