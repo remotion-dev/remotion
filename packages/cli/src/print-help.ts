@@ -615,6 +615,90 @@ export const cliCommandHelp = [
 		],
 	},
 	{
+		path: ['whisper'],
+		args: ' <command>',
+		description: 'Transcribe media and manage local Whisper models.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper',
+		options: [],
+	},
+	{
+		path: ['whisper', 'transcribe'],
+		args: ' <media-file>',
+		description: 'Transcribe an audio or video file using Whisper.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/transcribe',
+		options: [
+			{
+				flag: '--output <path>',
+				optionIds: [],
+				description:
+					'JSON output path. Use - for stdout. Defaults to <media-name>-captions.json or <media-name>-transcript.json with --raw.',
+			},
+			{
+				flag: '--raw',
+				optionIds: [],
+				description:
+					'Write the Whisper result with text, word timestamps, and model.',
+			},
+			{
+				flag: '--model <name>',
+				optionIds: [],
+				description:
+					'Whisper model (default: small.en, or small with --language).',
+			},
+			{
+				flag: '--language <language>',
+				optionIds: [],
+				description:
+					'Spoken language name or code. Required for multilingual models.',
+			},
+			...options(['overwrite', 'binaries-directory', 'log', 'quiet'], {
+				overwrite: 'Overwrite existing output files (default: true).',
+			}),
+		],
+	},
+	{
+		path: ['whisper', 'install'],
+		args: ' <model>',
+		description: 'Download a Whisper model to the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/install',
+		options: options(['log', 'quiet']),
+	},
+	{
+		path: ['whisper', 'rm'],
+		args: ' <model>',
+		description: 'Remove a Whisper model from the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/rm',
+		options: options(['log']),
+	},
+	{
+		path: ['whisper', 'rmall'],
+		args: '',
+		description: 'Remove all Whisper models from the local cache.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/rmall',
+		options: [
+			{
+				flag: '--yes, -y',
+				optionIds: [],
+				description: 'Remove all models without asking for confirmation.',
+			},
+			...options(['log']),
+		],
+	},
+	{
+		path: ['whisper', 'ls'],
+		args: '',
+		description: 'List available Whisper models and their local cache status.',
+		documentation: 'https://www.remotion.dev/docs/cli/whisper/ls',
+		options: [
+			{
+				flag: '--installed',
+				optionIds: [],
+				description: 'Show only installed models.',
+			},
+			...options(['log']),
+		],
+	},
+	{
 		path: [GPU_COMMAND],
 		args: '',
 		description: 'Print information about how Chrome uses the GPU.',

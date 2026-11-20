@@ -4,13 +4,13 @@ import {chalk} from './chalk';
 const full = '━';
 const half = '╸';
 const half_right = '╺';
-const totalBars = 18;
+export const PROGRESS_BAR_WIDTH = 18;
 
 export const makeProgressBar = (percentage: number, noColor: boolean) => {
 	const color = noColor ? false : RenderInternals.isColorSupported();
-	const barsToShow = Math.floor(percentage * totalBars);
-	const extraBar = (percentage * totalBars) % barsToShow;
-	const grayBars = totalBars - barsToShow;
+	const barsToShow = Math.floor(percentage * PROGRESS_BAR_WIDTH);
+	const extraBar = (percentage * PROGRESS_BAR_WIDTH) % barsToShow;
+	const grayBars = PROGRESS_BAR_WIDTH - barsToShow;
 
 	const showHalf = extraBar > 0.5;
 

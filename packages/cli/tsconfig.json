@@ -19,6 +19,7 @@
 		{"path": "../media-utils"},
 		{"path": "../studio-server"},
 		{"path": "../studio-protocol"},
+		{"path": "../whisper-webgpu"},
 		{"path": "../zod-types"}
 	],
 	"exclude": ["dist"]

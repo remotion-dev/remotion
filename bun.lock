@@ -313,6 +313,7 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/skia": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
+        "@remotion/whisper-webgpu": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "@types/minimist": "1.2.2",
         "@types/node": "catalog:",
@@ -326,9 +327,13 @@
         "zod": "catalog:",
       },
       "peerDependencies": {
+        "@remotion/whisper-webgpu": "workspace:*",
         "react": ">=16.8.0",
         "react-dom": ">=16.8.0",
       },
+      "optionalPeers": [
+        "@remotion/whisper-webgpu",
+      ],
     },
     "packages/cloudrun": {
       "name": "@remotion/cloudrun",
