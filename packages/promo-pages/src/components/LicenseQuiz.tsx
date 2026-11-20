@@ -20,7 +20,6 @@ type ResultId =
 type Option = {
 	readonly code: string;
 	readonly label: string;
-	readonly description: string | null;
 	readonly next: StepId | ResultId;
 	readonly joint: boolean | null;
 };
@@ -49,37 +48,31 @@ const STEPS: Record<StepId, Step> = {
 		options: [
 			{
 				code: 'individual',
-				label: 'Individual',
-				description: 'Including freelancers.',
+				label: 'Individual or freelancer',
 				next: 'individual',
 				joint: null,
 			},
 			{
 				code: 'company',
-				label: 'Company',
-				description:
-					'Including single-person companies, agencies and employees making videos for the company they work at.',
+				label: 'Company or agency',
 				next: 'collab',
 				joint: null,
 			},
 			{
 				code: 'nonprofit',
 				label: 'Non-profit',
-				description: 'A registered charity or foundation.',
 				next: 'nonprofit',
 				joint: null,
 			},
 			{
 				code: 'public',
 				label: 'Government body, school or university',
-				description: 'Public or private, even if it is a non-profit.',
 				next: 'public',
 				joint: null,
 			},
 			{
 				code: 'eval',
-				label: 'Nobody yet, Remotion is being evaluated',
-				description: 'No decision to use Remotion has been made yet.',
+				label: 'Nobody yet, still evaluating',
 				next: 'evaluation',
 				joint: null,
 			},
@@ -87,20 +80,17 @@ const STEPS: Record<StepId, Step> = {
 	},
 	collab: {
 		question: () => 'Does another company work on the Remotion code?',
-		hint: null,
+		hint: "For example, a client owns the code or a partner helps develop it. Delivering finished videos, or selling an app or templates, doesn't count.",
 		options: [
 			{
 				code: 'own',
 				label: 'No',
-				description:
-					'Clients only get the finished videos. Customers only use or buy the app or templates.',
 				next: 'size',
 				joint: false,
 			},
 			{
 				code: 'joint',
 				label: 'Yes',
-				description: 'A client owns the code, or a partner helps develop it.',
 				next: 'size',
 				joint: true,
 			},
@@ -116,14 +106,12 @@ const STEPS: Record<StepId, Step> = {
 			{
 				code: 'small',
 				label: '1 to 3',
-				description: null,
 				next: 'small',
 				joint: null,
 			},
 			{
 				code: 'large',
 				label: '4 or more',
-				description: null,
 				next: 'how',
 				joint: null,
 			},
@@ -131,28 +119,23 @@ const STEPS: Record<StepId, Step> = {
 	},
 	how: {
 		question: () => 'Who starts each render?',
-		hint: null,
+		hint: 'A person starts renders in the Studio, on the command line, with a script or with an AI agent. Software means an app, a schedule or end users start renders, or a website embeds the Player.',
 		options: [
 			{
 				code: 'person',
 				label: 'A person',
-				description:
-					'Someone starts each video in the Studio, on the command line, with a script or with an AI agent.',
 				next: 'creators',
 				joint: null,
 			},
 			{
 				code: 'software',
 				label: 'Software',
-				description:
-					'An app, a schedule or end users start renders, or a website embeds the Player.',
 				next: 'automators',
 				joint: null,
 			},
 			{
 				code: 'both',
 				label: 'Both',
-				description: 'Some videos are made by people, others by software.',
 				next: 'both',
 				joint: null,
 			},
@@ -187,7 +170,7 @@ const RESULTS: Record<ResultId, Result> = {
 		options: [],
 		price: [['$0', 'for non-profits of any size']],
 		why: () =>
-			'Non-profits can use Remotion for free. We may ask for proof of non-profit status.',
+			'Registered charities and foundations can use Remotion for free. We may ask for proof of non-profit status.',
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
 	},
 	public: {
@@ -196,7 +179,7 @@ const RESULTS: Record<ResultId, Result> = {
 		options: [],
 		price: null,
 		why: () =>
-			"Tell us about the organization and we'll confirm in writing which one applies.",
+			"This applies to public and private institutions, even non-profit ones. Tell us about the organization and we'll confirm in writing which one applies.",
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
 	},
 	small: {
@@ -363,9 +346,6 @@ export const LicenseQuiz: React.FC = () => {
 		<div className="font-brand text-text flex flex-col gap-10 my-8 max-w-2xl">
 			{steps.map((s, i) => {
 				const step = STEPS[s.id];
-				const hasDescriptions = step.options.some(
-					(o) => o.description !== null,
-				);
 				return (
 					<div
 						key={s.id}
@@ -387,20 +367,14 @@ export const LicenseQuiz: React.FC = () => {
 						<div
 							role="group"
 							aria-labelledby={`license-quiz-q-${i}`}
-							className={
-								hasDescriptions
-									? 'grid grid-cols-1 sm:grid-cols-2 gap-3'
-									: 'flex flex-wrap gap-3'
-							}
+							className="flex flex-wrap gap-3"
 						>
 							{step.options.map((o) => (
 								<ChoiceButton
 									key={o.code}
 									selected={s.picked === o.code}
-									description={o.description}
-									className={
-										hasDescriptions ? undefined : 'min-h-12 py-0 justify-center'
-									}
+									description={null}
+									className="min-h-12 py-0 justify-center"
 									onClick={() => pick(i, o.code)}
 								>
 									{o.label}
