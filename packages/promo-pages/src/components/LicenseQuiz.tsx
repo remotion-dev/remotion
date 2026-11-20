@@ -339,12 +339,6 @@ export const LicenseQuiz: React.FC = () => {
 		setAnswers((prev) => [...prev.slice(0, stepIndex), optionCode]);
 	}, []);
 
-	const restart = useCallback(() => {
-		setCopyState('idle');
-		setAnswers([]);
-		stepRefs.current[0]?.scrollIntoView({block: 'nearest'});
-	}, []);
-
 	const copyLink = useCallback(() => {
 		const link = window.location.href;
 		try {
@@ -488,21 +482,12 @@ export const LicenseQuiz: React.FC = () => {
 							</label>
 						) : null}
 					</Card>
-					<div className="flex flex-wrap justify-between items-center gap-x-6 gap-y-3 text-[var(--subtitle)]">
-						<div>
-							This is not a written confirmation.{' '}
-							<a className="bluelink" href={CONTACT}>
-								Contact us
-							</a>{' '}
-							if you&apos;re unsure.
-						</div>
-						<button
-							type="button"
-							onClick={restart}
-							className="font-brand font-medium text-[1em] text-text bg-transparent border-0 p-0 cursor-pointer underline underline-offset-4"
-						>
-							Start over
-						</button>
+					<div className="text-[var(--subtitle)]">
+						This is not a written confirmation.{' '}
+						<a className="bluelink" href={CONTACT}>
+							Contact us
+						</a>{' '}
+						if you&apos;re unsure.
 					</div>
 				</div>
 			) : null}
