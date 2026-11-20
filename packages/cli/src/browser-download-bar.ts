@@ -48,8 +48,6 @@ export const defaultBrowserDownloadProgress = ({
 	onProgress: (progress: BrowserDownloadState) => void;
 }): OnBrowserDownload => {
 	return ({chromeMode}) => {
-		// onBrowserDownload() is also called when the browser is already
-		// installed, so only log once a download starts.
 		let started = false;
 		const logStart = () => {
 			if (started) {

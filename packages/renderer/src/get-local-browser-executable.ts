@@ -28,8 +28,8 @@ const getBrowserStatus = ({
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
 
-	const revision = getRevisionInfo({chromeMode, version: null});
-	if (revision.local) {
+	const revision = getRevisionInfo(chromeMode);
+	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 
@@ -53,7 +53,7 @@ export const getLocalBrowserExecutable = ({
 		logLevel,
 		chromeMode,
 	});
-	if (status.type === 'no-browser') {
+	if (status.type === 'no-browser' || status.type === 'version-mismatch') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
 				'how you reached this error: https://remotion.dev/issue',
