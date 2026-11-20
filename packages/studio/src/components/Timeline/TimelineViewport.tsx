@@ -1,9 +1,11 @@
 import React, {
 	createContext,
 	useCallback,
+	useContext,
 	useLayoutEffect,
 	useState,
 } from 'react';
+import {TimelineViewportWidthContext} from './TimelineWidthProvider';
 
 type TimelineRenderWindow = {
 	readonly left: number;
@@ -20,9 +22,9 @@ export const syncTimelineViewport = () => {
 };
 
 export const getTimelineRenderWindow = (
-	scrollable: HTMLDivElement,
+	scrollLeft: number,
+	viewportWidth: number,
 ): TimelineRenderWindow => {
-	const viewportWidth = scrollable.clientWidth;
 	if (viewportWidth === 0) {
 		return {left: 0, width: 0};
 	}
@@ -31,7 +33,7 @@ export const getTimelineRenderWindow = (
 	// its right edge. This keeps at least half a viewport rendered ahead while
 	// retaining the three-viewport-wide window.
 	const currentSection = Math.floor(
-		(scrollable.scrollLeft + viewportWidth / 2) / viewportWidth,
+		(scrollLeft + viewportWidth / 2) / viewportWidth,
 	);
 	const left = Math.max(0, (currentSection - 1) * viewportWidth);
 
@@ -45,10 +47,10 @@ export const TimelineViewportProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly scrollable: React.RefObject<HTMLDivElement | null>;
 }> = ({children, scrollable}) => {
-	const [renderWindow, setRenderWindow] = useState<TimelineRenderWindow>({
-		left: 0,
-		width: window.innerWidth * 3,
-	});
+	const viewportWidth = useContext(TimelineViewportWidthContext) ?? 0;
+	const [renderWindow, setRenderWindow] = useState(() =>
+		getTimelineRenderWindow(0, viewportWidth),
+	);
 
 	const update = useCallback(() => {
 		const element = scrollable.current;
@@ -56,7 +58,7 @@ export const TimelineViewportProvider: React.FC<{
 			return;
 		}
 
-		const next = getTimelineRenderWindow(element);
+		const next = getTimelineRenderWindow(element.scrollLeft, viewportWidth);
 		setRenderWindow((previous) => {
 			if (previous.left === next.left && previous.width === next.width) {
 				return previous;
@@ -64,31 +66,19 @@ export const TimelineViewportProvider: React.FC<{
 
 			return next;
 		});
-	}, [scrollable]);
+	}, [scrollable, viewportWidth]);
 
 	useLayoutEffect(() => {
-		let element: HTMLDivElement | null = null;
-		let resizeObserver: ResizeObserver | null = null;
+		const element = scrollable.current;
 		updateTimelineViewport = update;
-		const animationFrame = requestAnimationFrame(() => {
-			element = scrollable.current;
-			if (!element) {
-				return;
-			}
-
-			resizeObserver = new ResizeObserver(update);
-			resizeObserver.observe(element);
-			update();
-			element.addEventListener('scroll', update);
-		});
+		update();
+		element?.addEventListener('scroll', update);
 
 		return () => {
 			if (updateTimelineViewport === update) {
 				updateTimelineViewport = null;
 			}
 
-			cancelAnimationFrame(animationFrame);
-			resizeObserver?.disconnect();
 			element?.removeEventListener('scroll', update);
 		};
 	}, [scrollable, update]);

@@ -157,4 +157,6 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 });
 
 // Propagate layout changes only through the affected splitter subtree.
-export const SplitterLayoutContext = React.createContext<object | null>(null);
+export const SplitterLayoutContext = React.createContext<{
+	readonly width: number | null;
+} | null>(null);

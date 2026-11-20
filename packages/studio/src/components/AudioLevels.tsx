@@ -2,12 +2,15 @@ import React, {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
+	BORDER_BLACK,
 	FAIL_COLOR,
 	LIGHT_TEXT,
 	WARNING_COLOR,
 	WHITE,
 } from '../helpers/colors';
 import {AudioLevelsContext} from '../state/audio-levels';
+
+export const AUDIO_LEVELS_PANEL_WIDTH = 105;
 
 const MIN_DB = -60;
 // Web Audio mixes in floating point, so the preview can exceed 0 dBFS.
@@ -200,7 +203,9 @@ const AudioLevelsInner: React.FC = () => {
 			aria-label="Audio levels"
 			className="css-reset"
 			style={{
-				width: 104,
+				width: AUDIO_LEVELS_PANEL_WIDTH,
+				boxSizing: 'border-box',
+				borderLeft: BORDER_BLACK,
 				flexShrink: 0,
 				backgroundColor: BACKGROUND,
 				display: 'flex',

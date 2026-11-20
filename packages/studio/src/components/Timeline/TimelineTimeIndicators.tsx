@@ -18,7 +18,10 @@ import {scrollableRef, timelineRulerRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
-import {TimelineWidthContext} from './TimelineWidthProvider';
+import {
+	TimelineViewportWidthContext,
+	TimelineWidthContext,
+} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
@@ -220,9 +223,10 @@ export const getTimelineTickScale = ({
 
 export const TimelineTimeIndicators: React.FC = () => {
 	const sliderTrack = useContext(TimelineWidthContext);
+	const viewportWidth = useContext(TimelineViewportWidthContext);
 	const video = Internals.useVideo();
 
-	if (sliderTrack === null) {
+	if (sliderTrack === null || viewportWidth === null) {
 		return null;
 	}
 
@@ -234,6 +238,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 		<TimelineTimeIndicatorsInner
 			durationInFrames={video.durationInFrames}
 			fps={video.fps}
+			viewportWidth={viewportWidth}
 			windowWidth={sliderTrack}
 		/>
 	);
@@ -241,9 +246,10 @@ export const TimelineTimeIndicators: React.FC = () => {
 
 const TimelineTimeIndicatorsInner = React.memo<{
 	readonly windowWidth: number;
+	readonly viewportWidth: number;
 	readonly fps: number;
 	readonly durationInFrames: number;
-}>(({windowWidth, durationInFrames, fps}) => {
+}>(({windowWidth, viewportWidth, durationInFrames, fps}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {showFrames} = useContext(TimelineTickFormatContext);
 
@@ -282,15 +288,15 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			const computedStyle = getComputedStyle(canvas);
 			const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
 			const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
-			const {clientWidth: width, scrollLeft} = scrollable;
+			const {scrollLeft} = scrollable;
 			const pixelRatio = getStudioPixelRatio();
-			const canvasWidth = Math.ceil(width * pixelRatio);
+			const canvasWidth = Math.ceil(viewportWidth * pixelRatio);
 			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
 
 			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
-				canvas.style.width = `${width}px`;
+				canvas.style.width = `${viewportWidth}px`;
 				canvas.style.height = `${TIMELINE_TIME_INDICATOR_HEIGHT}px`;
 			}
 
@@ -312,7 +318,9 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			);
 			const lastFrame = Math.min(
 				durationInFrames - 1,
-				Math.ceil((scrollLeft + width - TIMELINE_PADDING) / frameInterval),
+				Math.ceil(
+					(scrollLeft + viewportWidth - TIMELINE_PADDING) / frameInterval,
+				),
 			);
 			const xForFrame = (frame: number) =>
 				Math.round(frameInterval * frame + TIMELINE_PADDING - scrollLeft) + 0.5;
@@ -398,16 +406,12 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			draw();
 		};
 
-		const resizeObserver = new ResizeObserver(draw);
-
 		draw();
 		scrollable.addEventListener('scroll', onScroll);
-		resizeObserver.observe(scrollable);
 		return () => {
 			scrollable.removeEventListener('scroll', onScroll);
-			resizeObserver.disconnect();
 		};
-	}, [durationInFrames, fps, showFrames, windowWidth]);
+	}, [durationInFrames, fps, showFrames, viewportWidth, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
