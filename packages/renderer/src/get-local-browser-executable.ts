@@ -28,8 +28,8 @@ const getBrowserStatus = ({
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
 
-	const revision = getRevisionInfo(chromeMode);
-	if (revision.local && fs.existsSync(revision.executablePath)) {
+	const revision = getRevisionInfo({chromeMode, version: null});
+	if (revision.local) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 

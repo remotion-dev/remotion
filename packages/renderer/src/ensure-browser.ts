@@ -1,16 +1,9 @@
 import fs from 'fs';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {
-	downloadBrowser,
-	getExpectedVersion,
-	getPlatform,
-	getRevisionInfo,
-	isCustomVersionInstalled,
-	readVersionFile,
-} from './browser/BrowserFetcher';
+import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
 import type {BrowserSafeApis} from './client';
-import {Log} from './logger';
 import type {ChromeMode} from './options/chrome-mode';
 import type {ToOptions} from './options/option';
 
@@ -58,28 +51,14 @@ const internalEnsureBrowserUncapped = async ({
 		version: null,
 	});
 	if (
-		defaultStatus.type === 'local-puppeteer-browser' ||
-		defaultStatus.type === 'user-defined-path'
+		defaultStatus.type === 'user-defined-path' ||
+		(defaultStatus.type === 'local-puppeteer-browser' &&
+			!NoReactInternals.ENABLE_V5_BREAKING_CHANGES)
 	) {
 		return defaultStatus;
 	}
 
 	const {onProgress, version} = onBrowserDownload({chromeMode});
-	if (
-		version === null &&
-		defaultStatus.type === 'version-mismatch' &&
-		isCustomVersionInstalled(chromeMode)
-	) {
-		Log.warn(
-			{indent, logLevel},
-			`Using the installed Chrome ${defaultStatus.actualVersion}, which was downloaded through onBrowserDownload(), instead of Remotion's default version ${getExpectedVersion({version: null, chromeMode, platform: getPlatform()})}. Remotion's default build includes optimizations such as shared-memory capture. To use the same version everywhere, pass the same onBrowserDownload() to every API.`,
-		);
-		return {
-			type: 'local-puppeteer-browser',
-			path: getRevisionInfo(chromeMode).executablePath,
-		};
-	}
-
 	const status = version
 		? getBrowserStatus({browserExecutable, chromeMode, version})
 		: defaultStatus;
@@ -87,24 +66,7 @@ const internalEnsureBrowserUncapped = async ({
 		return status;
 	}
 
-	if (status.type === 'version-mismatch') {
-		const expectedVersion = getExpectedVersion({
-			version,
-			chromeMode,
-			platform: getPlatform(),
-		});
-		const versionInfo = status.actualVersion
-			? ` (installed: ${status.actualVersion})`
-			: '';
-		Log.info(
-			{indent, logLevel},
-			`This version of Remotion uses Chrome version ${expectedVersion}, but the installed one differs${versionInfo}. Re-downloading.`,
-		);
-	}
-
-	if (status.type === 'no-browser' || status.type === 'version-mismatch') {
-		await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
-	}
+	await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
 
 	const newStatus = getBrowserStatus({browserExecutable, chromeMode, version});
 	return newStatus;
@@ -138,21 +100,9 @@ const getBrowserStatus = ({
 		return {path: browserExecutable, type: 'user-defined-path'};
 	}
 
-	const revision = getRevisionInfo(chromeMode);
-	if (revision.local && fs.existsSync(revision.executablePath)) {
-		const actualVersion = readVersionFile(chromeMode);
-		if (
-			actualVersion ===
-			getExpectedVersion({
-				version,
-				chromeMode,
-				platform: getPlatform(),
-			})
-		) {
-			return {path: revision.executablePath, type: 'local-puppeteer-browser'};
-		}
-
-		return {type: 'version-mismatch', actualVersion};
+	const revision = getRevisionInfo({chromeMode, version});
+	if (revision.local) {
+		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 
 	return {type: 'no-browser'};

@@ -56,7 +56,7 @@ Specify a specific version of Chrome that should be used and hook into the downl
 See the example below for the function signature.
 
 Remotion only calls this function if the Chrome Headless Shell version that your Remotion version uses by default is not installed. If that version is already installed, the `version` you return is ignored.  
-If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, those calls keep using the installed custom version instead of downloading Remotion's default version, and log a warning.
+If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, those calls download and use Remotion's default version. From v4.0.544, Remotion installs each version into its own folder, so this does not delete the custom version.
 
 We recommend returning `null` as the `version`. Remotion's default Chrome Headless Shell builds include optimizations such as [shared-memory capture](/docs/shared-memory-capture). Custom versions are stock builds from Google without them.
 
