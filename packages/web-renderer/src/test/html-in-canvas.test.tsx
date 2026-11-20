@@ -4,6 +4,7 @@ import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {HtmlInCanvas, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {page} from 'vitest/browser';
 import {createScaffold} from '../create-scaffold';
 import {
 	drawWithHtmlInCanvas,
@@ -23,6 +24,7 @@ import {
 	htmlInCanvasFrameMatrix,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {
 	htmlInCanvasResize,
 	htmlInCanvasResizeFrames,
@@ -64,6 +66,73 @@ const countDifferentPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
 
 	return different;
 };
+
+test('keeps custom preview children interactive at their painted position', async (t) => {
+	if (!supportsNativeHtmlInCanvas()) {
+		t.skip();
+		return;
+	}
+
+	const {width, height} = htmlInCanvasInteraction;
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	const events: string[] = [];
+	let painted: Uint8ClampedArray | null = null;
+	try {
+		root.render(
+			<Player
+				acknowledgeRemotionLicense
+				component={htmlInCanvasInteraction.component}
+				compositionWidth={width}
+				compositionHeight={height}
+				fps={30}
+				durationInFrames={1}
+				inputProps={{
+					onEvent: (event) => events.push(event),
+					onPainted: (canvas) => {
+						painted = readPixels(canvas, width, height);
+					},
+				}}
+				style={{width, height}}
+			/>,
+		);
+		const visibleCanvas = () =>
+			Array.from(container.querySelectorAll('canvas')).find(
+				(canvas) => getComputedStyle(canvas).visibility !== 'hidden',
+			)!;
+		await vi.waitFor(() => {
+			expect(painted).not.toBeNull();
+			expect(
+				countDifferentPixels(
+					readPixels(visibleCanvas(), width, height),
+					painted!,
+				),
+			).toBe(0);
+		});
+		const button = container.querySelector('button')!;
+		const bounds = visibleCanvas().getBoundingClientRect();
+		expect(document.elementFromPoint(bounds.left + 69, bounds.top + 42)).toBe(
+			button,
+		);
+		const target = page.getByRole('button', {name: 'Canvas interaction'});
+		await target.hover();
+		expect(events).toEqual(['enter']);
+		await target.click();
+		expect(events).toEqual(['enter', 'click']);
+		await vi.waitFor(() => {
+			const pixels = readPixels(visibleCanvas(), width, height);
+			const offset = (42 * width + 69) * 4;
+			expect(Array.from(pixels.slice(offset, offset + 4))).toEqual([
+				0, 255, 0, 255,
+			]);
+			expect(countDifferentPixels(pixels, painted!)).toBe(0);
+		});
+	} finally {
+		root.unmount();
+		container.remove();
+	}
+});
 
 test('preserves the displayed frame while HtmlInCanvas resizes in preview', async (t) => {
 	if (!HtmlInCanvas.isSupported()) {
@@ -376,6 +445,10 @@ for (const allowHtmlInCanvas of [false, true]) {
 				const container = document.createElement('div');
 				document.body.appendChild(container);
 				const root = createRoot(container);
+				const visibleCanvas = () =>
+					Array.from(container.querySelectorAll('canvas')).find(
+						(canvas) => getComputedStyle(canvas).visibility !== 'hidden',
+					) ?? null;
 				let painted: Uint8ClampedArray | null = null;
 				const onPainted = (canvas: OffscreenCanvas) => {
 					painted = readPixels(canvas, width, height);
@@ -400,7 +473,7 @@ for (const allowHtmlInCanvas of [false, true]) {
 						expect(
 							painted!.filter((value, i) => i % 4 === 0 && value < 250).length,
 						).toBeGreaterThan(1000);
-						const canvas = container.querySelector('canvas');
+						const canvas = visibleCanvas();
 						expect(canvas).not.toBeNull();
 						expect(
 							countDifferentPixels(
@@ -409,11 +482,7 @@ for (const allowHtmlInCanvas of [false, true]) {
 							),
 						).toBe(0);
 					});
-					preview = readPixels(
-						container.querySelector('canvas')!,
-						width,
-						height,
-					);
+					preview = readPixels(visibleCanvas()!, width, height);
 				} finally {
 					root.unmount();
 					container.remove();
