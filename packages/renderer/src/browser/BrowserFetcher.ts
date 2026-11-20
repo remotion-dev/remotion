@@ -220,6 +220,10 @@ export const downloadBrowser = async ({
 	);
 
 	try {
+		// Under the lock so that no other process removes the adopted browser
+		// before its VERSION file is moved.
+		adoptLegacyInstall(chromeMode, expectedVersion);
+
 		const installedMeanwhile = getRevisionInfo({chromeMode, version});
 		if (installedMeanwhile.local) {
 			return installedMeanwhile;
@@ -364,8 +368,6 @@ export const getRevisionInfo = ({
 }): BrowserFetcherRevisionInfo => {
 	const platform = getPlatform();
 	const expectedVersion = getExpectedVersion({version, chromeMode, platform});
-	adoptLegacyInstall(chromeMode, expectedVersion);
-
 	const versionFolder = getVersionFolder(chromeMode, expectedVersion);
 	const folderPath = getFolderPath(versionFolder, platform);
 	const executablePath = getExecutablePath(chromeMode, folderPath);
