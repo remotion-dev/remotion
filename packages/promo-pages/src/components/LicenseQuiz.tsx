@@ -50,8 +50,7 @@ const STEPS: Record<StepId, Step> = {
 			{
 				code: 'individual',
 				label: 'An individual',
-				description:
-					'For their own projects, including freelance work where clients only get the finished videos.',
+				description: 'Including freelancers.',
 				next: 'individual',
 				joint: null,
 			},
@@ -170,7 +169,7 @@ const RESULTS: Record<ResultId, Result> = {
 		options: [],
 		price: [['$0', 'for personal and commercial use']],
 		why: () =>
-			"Individuals using Remotion for their own projects don't need to buy anything.",
+			"Individuals don't need to buy anything. This includes freelance work, as long as clients only get the finished videos.",
 		learnMore: `${FAQ}#who-is-eligible-for-the-free-license`,
 	},
 	evaluation: {
