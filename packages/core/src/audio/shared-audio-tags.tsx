@@ -3,8 +3,6 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -13,6 +11,7 @@ import React, {
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useIsomorphicLayoutEffect} from '../use-isomorphic-layout-effect.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
@@ -35,16 +34,9 @@ import {
  * The behavior can be disabled by passing `0` as the number of shared audio tracks.
  */
 
-type AudioElem = {
-	id: number;
-	props: AudioHTMLAttributes<HTMLAudioElement>;
-	el: React.RefObject<HTMLAudioElement | null>;
-	audioId: string;
-	mediaElementSourceNode: SharedElementSourceNode | null;
+type AudioTagOptions = {
+	aud: AudioHTMLAttributes<HTMLAudioElement>;
 	premounting: boolean;
-	postmounting: boolean;
-	audioMounted: boolean;
-	cleanupOnMediaTagUnmount: () => void;
 };
 
 const EMPTY_AUDIO =
@@ -79,9 +71,6 @@ export type AudioSyncAnchorEmitter = {
 	subscribe: (listener: AudioSyncAnchorListener) => {remove: () => void};
 };
 
-const useAudioContextLayoutEffect =
-	typeof window === 'undefined' ? useEffect : useLayoutEffect;
-
 type SharedAudioContextValue = {
 	audioContextPending: boolean;
 	sampleRate: number;
@@ -102,47 +91,25 @@ type SharedAudioContextValue = {
 };
 
 type SharedAudioTagsContextValue = {
-	registerAudio: (options: {
-		aud: AudioHTMLAttributes<HTMLAudioElement>;
-		audioId: string;
-		premounting: boolean;
-		postmounting: boolean;
-	}) => AudioElem;
-	unregisterAudio: (id: number) => void;
-	updateAudio: (options: {
-		id: number;
-		aud: AudioHTMLAttributes<HTMLAudioElement>;
-		audioId: string;
-		premounting: boolean;
-		postmounting: boolean;
-	}) => void;
+	registerAudio: () => SharedAudioTag;
+	unregisterAudio: (tag: SharedAudioTag) => void;
+	updateAudio: (tag: SharedAudioTag, options: AudioTagOptions) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 };
 
 const compareProps = (
-	obj1: Record<string, unknown>,
-	obj2: Record<string, unknown>,
+	a: AudioHTMLAttributes<HTMLAudioElement>,
+	b: AudioHTMLAttributes<HTMLAudioElement>,
 ) => {
-	const keysA = Object.keys(obj1).sort();
-	const keysB = Object.keys(obj2).sort();
-	if (keysA.length !== keysB.length) {
-		return false;
-	}
-
-	for (let i = 0; i < keysA.length; i++) {
-		// Not the same keys
-		if (keysA[i] !== keysB[i]) {
-			return false;
-		}
-
-		// Not the same values
-		if (obj1[keysA[i]] !== obj2[keysB[i]]) {
-			return false;
-		}
-	}
-
-	return true;
+	const keys = Object.keys(a) as (keyof typeof a)[];
+	return (
+		keys.length === Object.keys(b).length &&
+		keys.every(
+			(key) =>
+				Object.prototype.hasOwnProperty.call(b, key) && a[key] === b[key],
+		)
+	);
 };
 
 const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
@@ -165,10 +132,10 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 	return true;
 };
 
-type Ref = {
+type SharedAudioTag = {
 	id: number;
 	ref: React.RefObject<HTMLAudioElement | null>;
-	mediaElementSourceNode: SharedElementSourceNode | null;
+	mediaElementSourceNode: SharedElementSourceNode;
 };
 
 export const SharedAudioContext = createContext<SharedAudioContextValue | null>(
@@ -520,7 +487,7 @@ export const SharedAudioContextProvider: React.FC<{
 	// `no-user-gesture-required`), the mount attempt succeeds immediately;
 	// in a browser the first user gesture starts it. suspend() never reaches
 	// the native context in this mode, so once running it stays running.
-	useAudioContextLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		if (!_experimentalKeepAudioContextAlive) {
 			return;
 		}
@@ -595,7 +562,7 @@ export const SharedAudioContextProvider: React.FC<{
 		_experimentalKeepAudioContextAlive,
 	]);
 
-	useAudioContextLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		const queuedNodes = nodesToResume.current;
 		// Autoplay may request playback before the context commits. A replacement
 		// context must also resume when the Player is already playing.
@@ -620,7 +587,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
 }> = ({children, numberOfAudioTags}) => {
-	const audios = useRef<AudioElem[]>([]);
+	const registrations = useRef(
+		new Map<SharedAudioTag, AudioTagOptions | null>(),
+	);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
 	if (numberOfAudioTags !== initialNumberOfAudioTags) {
@@ -637,7 +606,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	const resume = audioCtx?.resume;
 
 	const [refs] = useState(() => {
-		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
+		return new Array(numberOfAudioTags).fill(true).map((): SharedAudioTag => {
 			const ref = createRef<HTMLAudioElement>();
 			return {
 				id: Math.random(),
@@ -651,7 +620,7 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	});
 
 	for (const {mediaElementSourceNode} of refs) {
-		mediaElementSourceNode?.setAudioContext(audioContext);
+		mediaElementSourceNode.setAudioContext(audioContext);
 	}
 
 	/**
@@ -671,178 +640,58 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		return () => {
 			requestAnimationFrame(() => {
 				refs.forEach(({mediaElementSourceNode}) => {
-					mediaElementSourceNode?.cleanup();
+					mediaElementSourceNode.cleanup();
 				});
 			});
 		};
 	}, [refs]);
 
-	const takenAudios = useRef<(false | number)[]>(
-		new Array(numberOfAudioTags).fill(false),
-	);
+	const registerAudio = useCallback(() => {
+		const tag = refs.find((ref) => !registrations.current.has(ref));
+		if (!tag) {
+			throw new Error(
+				`Tried to simultaneously mount ${
+					numberOfAudioTags + 1
+				} <Html5Audio /> tags at the same time. With the current settings, the maximum amount of <Html5Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
+			);
+		}
 
-	const rerenderAudios = useCallback(() => {
-		refs.forEach(({ref, id}) => {
-			const data = audios.current?.find((a) => a.id === id);
-			const {current} = ref;
-			if (!current) {
-				// Whole player has been unmounted, the refs don't exist anymore.
-				// It is not an error anymore though
-				return;
-			}
+		registrations.current.set(tag, null);
+		return tag;
+	}, [numberOfAudioTags, refs]);
 
-			if (data === undefined) {
-				if (current.src !== EMPTY_AUDIO) {
-					current.src = EMPTY_AUDIO;
-				}
-
-				return;
-			}
-
-			if (!data) {
-				throw new TypeError('Expected audio data to be there');
-			}
-
-			Object.keys(data.props).forEach((key) => {
-				// @ts-expect-error
-				if (didPropChange(key, data.props[key], current[key])) {
-					// @ts-expect-error
-					current[key] = data.props[key];
-				}
-			});
-		});
-	}, [refs]);
-
-	const registerAudio = useCallback(
-		(options: {
-			aud: AudioHTMLAttributes<HTMLAudioElement>;
-			audioId: string;
-			premounting: boolean;
-			postmounting: boolean;
-		}) => {
-			const {aud, audioId, premounting, postmounting} = options;
-			const found = audios.current?.find((a) => a.audioId === audioId);
-			if (found) {
-				return found;
-			}
-
-			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
-			if (firstFreeAudio === -1) {
-				throw new Error(
-					`Tried to simultaneously mount ${
-						numberOfAudioTags + 1
-					} <Html5Audio /> tags at the same time. With the current settings, the maximum amount of <Html5Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
-				);
-			}
-
-			const {id, ref, mediaElementSourceNode} = refs[firstFreeAudio];
-			const cloned = [...takenAudios.current];
-			cloned[firstFreeAudio] = id;
-			takenAudios.current = cloned;
-
-			const newElem: AudioElem = {
-				props: aud,
-				id,
-				el: ref,
-				audioId,
-				mediaElementSourceNode,
-				premounting,
-				audioMounted: Boolean(ref.current),
-				postmounting,
-				cleanupOnMediaTagUnmount: () => {
-					// Don't disconnect here, only when the Player unmounts.
-				},
-			};
-			audios.current?.push(newElem);
-			rerenderAudios();
-			return newElem;
-		},
-		[numberOfAudioTags, refs, rerenderAudios],
-	);
-
-	const unregisterAudio = useCallback(
-		(id: number) => {
-			const cloned = [...takenAudios.current];
-			const index = refs.findIndex((r) => r.id === id);
-			if (index === -1) {
-				throw new TypeError(
-					`Unknown audio ref ${id}; refs: ${refs.map((r) => r.id).join(', ')}`,
-				);
-			}
-
-			cloned[index] = false;
-
-			takenAudios.current = cloned;
-			audios.current = audios.current?.filter((a) => a.id !== id);
-
-			rerenderAudios();
-		},
-		[refs, rerenderAudios],
-	);
+	const unregisterAudio = useCallback((tag: SharedAudioTag) => {
+		registrations.current.delete(tag);
+		const audio = tag.ref.current;
+		if (audio && audio.src !== EMPTY_AUDIO) {
+			audio.src = EMPTY_AUDIO;
+		}
+	}, []);
 
 	const updateAudio = useCallback(
-		({
-			aud,
-			audioId,
-			id,
-			premounting,
-			postmounting,
-		}: {
-			id: number;
-			aud: AudioHTMLAttributes<HTMLAudioElement>;
-			audioId: string;
-			premounting: boolean;
-			postmounting: boolean;
-		}) => {
-			let changed = false;
+		(tag: SharedAudioTag, options: AudioTagOptions) => {
+			const previous = registrations.current.get(tag);
+			registrations.current.set(tag, options);
 
-			audios.current = audios.current?.map((prevA): AudioElem => {
-				const audioMounted = Boolean(prevA.el.current);
-				if (prevA.audioMounted !== audioMounted) {
-					changed = true;
-				}
-
-				if (prevA.id === id) {
-					const isTheSame =
-						compareProps(
-							aud as Record<string, unknown>,
-							prevA.props as Record<string, unknown>,
-						) &&
-						prevA.premounting === premounting &&
-						prevA.postmounting === postmounting;
-					if (isTheSame) {
-						return prevA.audioMounted === audioMounted
-							? prevA
-							: {...prevA, audioMounted};
-					}
-
-					changed = true;
-
-					return {
-						...prevA,
-						props: aud,
-						premounting,
-						postmounting,
-						audioId,
-						audioMounted,
-					};
-				}
-
-				return prevA.audioMounted === audioMounted
-					? prevA
-					: {...prevA, audioMounted};
-			});
-
-			if (changed) {
-				rerenderAudios();
+			const audio = tag.ref.current;
+			if (!audio || (previous && compareProps(options.aud, previous.aud))) {
+				return;
 			}
+
+			Object.keys(options.aud).forEach((key) => {
+				// @ts-expect-error
+				if (didPropChange(key, options.aud[key], audio[key])) {
+					// @ts-expect-error
+					audio[key] = options.aud[key];
+				}
+			});
 		},
-		[rerenderAudios],
+		[],
 	);
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
-			const audio = audios.current.find((a) => a.el === ref.ref);
+			const audio = registrations.current.get(ref);
 			if (audio?.premounting) {
 				return;
 			}
@@ -894,80 +743,51 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = ({
-	aud,
-	audioId,
-	premounting,
-	postmounting,
-}: {
-	aud: AudioHTMLAttributes<HTMLAudioElement>;
-	audioId: string;
-	premounting: boolean;
-	postmounting: boolean;
-}) => {
+export const useSharedAudio = ({aud, premounting}: AudioTagOptions) => {
 	const audioCtx = useContext(SharedAudioContext);
 	const tagsCtx = useContext(SharedAudioTagsContext);
-	const unregisterAudio =
-		tagsCtx && tagsCtx.numberOfAudioTags > 0 ? tagsCtx.unregisterAudio : null;
+	const pool = tagsCtx && tagsCtx.numberOfAudioTags > 0 ? tagsCtx : null;
+	const registerAudio = pool?.registerAudio ?? null;
+	const unregisterAudio = pool?.unregisterAudio ?? null;
+	const updateAudio = pool?.updateAudio ?? null;
+	const el = useRef<HTMLAudioElement | null>(null);
+	const tag = useRef<SharedAudioTag | null>(null);
+	const audioContext = audioCtx?.audioContext ?? null;
+	const [localSource] = useState(() =>
+		pool ? null : makeSharedElementSourceNode({audioContext, ref: el}),
+	);
+	localSource?.setAudioContext(audioContext);
 
-	/**
-	 * We work around this in React 18 so an audio tag will only register itself once
-	 */
-	const [elem] = useState((): AudioElem => {
-		if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
-			return tagsCtx.registerAudio({aud, audioId, premounting, postmounting});
+	useIsomorphicLayoutEffect(() => {
+		if (!registerAudio || !unregisterAudio) {
+			return;
 		}
 
-		// numberOfSharedAudioTags is 0
-		const el = React.createRef<HTMLAudioElement>();
-		const mediaElementSourceNode = makeSharedElementSourceNode({
-			audioContext: audioCtx?.audioContext ?? null,
-			ref: el,
-		});
+		const registeredTag = registerAudio();
+		tag.current = registeredTag;
+		el.current = registeredTag.ref.current;
 
-		return {
-			el,
-			id: Math.random(),
-			props: aud,
-			audioId,
-			mediaElementSourceNode,
-			premounting,
-			audioMounted: Boolean(el.current),
-			postmounting,
-			cleanupOnMediaTagUnmount: () => {
-				mediaElementSourceNode?.cleanup();
-			},
+		return () => {
+			el.current = null;
+			tag.current = null;
+			unregisterAudio(registeredTag);
 		};
-	});
-	elem.mediaElementSourceNode?.setAudioContext(audioCtx?.audioContext ?? null);
+	}, [registerAudio, unregisterAudio]);
 
-	/**
-	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
-	 * - useInsertionEffect only fires once. If it's available we are in React 18.
-	 * - useLayoutEffect only fires once in React 17.
-	 *
-	 * Need to import it from React to fix React 17 ESM support.
-	 */
-	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
+	useIsomorphicLayoutEffect(() => {
+		if (tag.current) {
+			updateAudio?.(tag.current, {aud, premounting});
+		}
+	}, [aud, premounting, registerAudio, unregisterAudio, updateAudio]);
 
-	if (typeof document !== 'undefined') {
-		effectToUse(() => {
-			if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
-				tagsCtx.updateAudio({
-					id: elem.id,
-					aud,
-					audioId,
-					premounting,
-					postmounting,
-				});
-			}
-		}, [aud, tagsCtx, elem.id, audioId, premounting, postmounting]);
+	const getSource = useCallback(
+		() => tag.current?.mediaElementSourceNode ?? localSource,
+		[localSource],
+	);
 
-		effectToUse(() => {
-			// Readiness changes the context value, but not the registration's owner.
-			return () => unregisterAudio?.(elem.id);
-		}, [unregisterAudio, elem.id]);
-	}
-
-	return elem;
+	return {
+		el,
+		getSource,
+		cleanupOnMediaTagUnmount: localSource?.cleanup ?? null,
+	};
 };

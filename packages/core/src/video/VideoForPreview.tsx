@@ -83,6 +83,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			ref: videoRef,
 		});
 	}, [context.audioContext]);
+	const getSource = useCallback(() => sharedSource, [sharedSource]);
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
@@ -184,7 +185,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		logLevel,
 		mediaRef: videoRef,
 		volume: userPreferredVolume,
-		source: sharedSource,
+		getSource,
 		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 

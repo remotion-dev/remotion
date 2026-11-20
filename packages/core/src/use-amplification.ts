@@ -42,11 +42,11 @@ export const useVolume = ({
 	mediaRef,
 	volume,
 	logLevel,
-	source,
+	getSource,
 	shouldUseWebAudioApi,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
-	source: SharedElementSourceNode | null;
+	getSource: () => SharedElementSourceNode | null;
 	volume: number;
 	logLevel: LogLevel;
 	shouldUseWebAudioApi: boolean;
@@ -85,6 +85,7 @@ export const useVolume = ({
 				return;
 			}
 
+			const source = getSource();
 			if (!source) {
 				return;
 			}
@@ -118,7 +119,7 @@ export const useVolume = ({
 			logLevel,
 			mediaRef,
 			audioContext,
-			source,
+			getSource,
 			shouldUseWebAudioApi,
 			masterGainNode,
 		]);
