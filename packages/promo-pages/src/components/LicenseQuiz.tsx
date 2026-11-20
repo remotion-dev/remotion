@@ -482,13 +482,6 @@ export const LicenseQuiz: React.FC = () => {
 							</label>
 						) : null}
 					</Card>
-					<div className="text-[var(--subtitle)]">
-						This is not a written confirmation.{' '}
-						<a className="bluelink" href={CONTACT}>
-							Contact us
-						</a>{' '}
-						if you&apos;re unsure.
-					</div>
 				</div>
 			) : null}
 		</div>
