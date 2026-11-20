@@ -107,11 +107,6 @@ export const cli = async () => {
 				throw new Error('Please upgrade to at least Bun 1.0.3');
 			}
 		}
-
-		Log.info(
-			{indent: false, logLevel},
-			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
-		);
 	}
 
 	const isStudio = command === 'studio' || command === 'preview';
