@@ -285,6 +285,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 						getStringAttribute({attributes, name}) ?? defaultHref,
 					);
 				const faqHref = href('faqHref', '/docs/license/faq');
+				const quizHref = href('quizHref', '/docs/license/which-license');
 				const termsHref = href(
 					'termsHref',
 					'https://www.remotion.dev/docs/terms',
@@ -295,7 +296,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 				return [
 					'## Free License',
 					'',
-					`For individuals and companies of up to 3 people. Create and automate, all features included, unlimited commercial use. [Terms](${termsHref}) apply. [Check eligibility](${faqHref}).`,
+					`For individuals and companies of up to 3 people. Create and automate, all features included, unlimited commercial use. [Terms](${termsHref}) apply. [Check eligibility](${quizHref}).`,
 					'',
 					'## Company License',
 					'',

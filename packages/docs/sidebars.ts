@@ -1881,7 +1881,13 @@ const sidebars: SidebarsConfig = {
 				id: 'license',
 			},
 			collapsed: true,
-			items: ['license/pricing', 'license/faq', 'terms', 'telemetry'],
+			items: [
+				'license/pricing',
+				'license/which-license',
+				'license/faq',
+				'terms',
+				'telemetry',
+			],
 		},
 		{
 			type: 'category',
