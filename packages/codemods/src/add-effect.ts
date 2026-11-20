@@ -1,3 +1,4 @@
+import type {MeasuredCanvasSize} from '@remotion/studio-shared';
 import {createElement} from './codemod-element';
 import {applyCodemodChanges, type CodemodProject} from './codemod-project';
 import type {CodemodValue} from './codemod-value';
@@ -19,6 +20,7 @@ export type AddEffectOptions<Project extends CodemodProject> = {
 	importPath: string;
 	props?: Record<string, CodemodValue>;
 	wrapInHtmlInCanvas: {
+		measuredSize: MeasuredCanvasSize | null;
 		from: number;
 		durationInFrames: number;
 		trimBefore: number;
@@ -39,6 +41,7 @@ export const addEffect = <Project extends CodemodProject>({
 			: wrapNode({
 					project,
 					node,
+					measuredSize: wrapInHtmlInCanvas.measuredSize,
 					wrapper: createElement({
 						component: 'HtmlInCanvas',
 						importPath: 'remotion',

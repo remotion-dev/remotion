@@ -1,4 +1,9 @@
-import type {EffectDefinition, NodeWrapper} from '@remotion/studio-shared';
+import {
+	stringifySequenceExpandedRowKey,
+	type EffectDefinition,
+	type MeasuredCanvasSize,
+	type NodeWrapper,
+} from '@remotion/studio-shared';
 import {useCallback, useContext} from 'react';
 import {Internals, isHtmlInCanvasSupported, type TSequence} from 'remotion';
 import {useTimelineCalculator} from '../helpers/calculate-timeline';
@@ -8,6 +13,7 @@ import {getHtmlInCanvasWrapperTiming} from './InspectorPanel/get-html-in-canvas-
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from './SequencePropsSubscriptionProvider';
 import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {wrapNode} from './wrap-node-api';
 
@@ -28,6 +34,36 @@ export const canApplyEffects = (
 	nodePathInfo !== null &&
 	sequence.type !== 'audio' &&
 	sequence.timelineTrack?.role !== 'transition';
+
+const measureCanvasSize = (
+	ref: NonNullable<TSequence['refForOutline']>,
+): MeasuredCanvasSize | null => {
+	const nodes = Internals.SequenceOutlineInternals.getNodes(ref);
+	const element =
+		nodes === null ? ref.current : nodes.length === 1 ? nodes[0] : null;
+	if (!element?.isConnected || !(element instanceof HTMLElement)) {
+		return null;
+	}
+
+	const {display, visibility} = getComputedStyle(element);
+	const {offsetWidth, offsetHeight} = element;
+	if (visibility !== 'visible' || offsetWidth <= 0 || offsetHeight <= 0) {
+		return null;
+	}
+
+	return {
+		// offsetWidth rounds to a whole pixel. Leave room for the fraction so
+		// placing an inline fragment in the canvas does not break its line.
+		width: display === 'inline' ? offsetWidth + 1 : offsetWidth,
+		height: offsetHeight,
+		display:
+			display === 'inline'
+				? 'inline'
+				: display.startsWith('inline-')
+					? 'inline-block'
+					: 'block',
+	};
+};
 
 export const usePrepareHtmlInCanvasWrap = () => {
 	const calculateTimeline = useTimelineCalculator();
@@ -118,6 +154,7 @@ export const usePrepareHtmlInCanvasWrap = () => {
 				compositionId,
 				nodePath: nodePath.nodePath,
 				wrapper: null,
+				measuredSize: null,
 				timing: null,
 			});
 			if (!eligibility.success) {
@@ -129,9 +166,33 @@ export const usePrepareHtmlInCanvasWrap = () => {
 				return null;
 			}
 
+			let measuredSize: MeasuredCanvasSize | null = null;
+			if (eligibility.canvasWrapBlocker === 'unknown-dimensions') {
+				const {from, duration, refForOutline} = track.sequence;
+				const frame = getCurrentFrame();
+				const sourceKey = stringifySequenceExpandedRowKey(nodePath);
+				const hasOtherInstances = tracks.some(
+					(candidate) =>
+						candidate !== track &&
+						candidate.nodePathInfo !== null &&
+						stringifySequenceExpandedRowKey(
+							candidate.nodePathInfo.sequenceSubscriptionKey,
+						) === sourceKey,
+				);
+				if (
+					refForOutline !== null &&
+					frame >= from &&
+					frame < from + duration &&
+					!hasOtherInstances
+				) {
+					measuredSize = measureCanvasSize(refForOutline);
+				}
+			}
+
 			if (
 				!eligibility.canWrap ||
-				eligibility.canvasWrapBlocker === 'unknown-dimensions' ||
+				(eligibility.canvasWrapBlocker === 'unknown-dimensions' &&
+					measuredSize === null) ||
 				timing === null
 			) {
 				const stack = track.sequence.getStack();
@@ -157,7 +218,7 @@ export const usePrepareHtmlInCanvasWrap = () => {
 				return null;
 			}
 
-			return {compositionId, ...timing};
+			return {compositionId, measuredSize, ...timing};
 		},
 		[
 			calculateTimeline,

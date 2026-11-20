@@ -1021,6 +1021,7 @@ export const Component = ({portrait}: {portrait: boolean}) => <Sequence width={p
 		compositionId,
 		nodePath,
 		wrapper: 'HtmlInCanvasMotionBlur',
+		measuredSize: null,
 		timing: null,
 	});
 	expect(result).toMatchObject({

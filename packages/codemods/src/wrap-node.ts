@@ -5,6 +5,7 @@ import type {
 	JSXElement,
 	Node,
 } from '@babel/types';
+import type {MeasuredCanvasSize} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {buildJsxElement} from './build-jsx-element';
@@ -35,6 +36,7 @@ export type WrapNodeOptions<Project extends CodemodProject> = {
 	project: Project;
 	node: NodeReference;
 	wrapper: CodemodElement;
+	measuredSize?: MeasuredCanvasSize | null;
 };
 
 // Recognizes canvas wrappers whether they are imported by the wrapper or
@@ -239,6 +241,7 @@ export const wrapNode = <Project extends CodemodProject>({
 	project,
 	node,
 	wrapper,
+	measuredSize = null,
 }: WrapNodeOptions<Project>) => {
 	if (!(wrapper instanceof CodemodElement)) {
 		throw new Error('wrapper must be created with createElement()');
@@ -277,10 +280,22 @@ export const wrapNode = <Project extends CodemodProject>({
 		);
 	}
 
-	if (canvas?.blocker === 'unknown-dimensions') {
+	const fallbackSize =
+		canvas?.blocker === 'unknown-dimensions' ? measuredSize : null;
+	if (canvas?.blocker === 'unknown-dimensions' && fallbackSize === null) {
 		throw new Error(
 			'The wrapped element needs explicit, repeatable width and height expressions that evaluate to positive integers.',
 		);
+	}
+
+	if (
+		fallbackSize !== null &&
+		(![fallbackSize.width, fallbackSize.height].every(
+			(size) => Number.isSafeInteger(size) && size > 0,
+		) ||
+			!['inline', 'inline-block', 'block'].includes(fallbackSize.display))
+	) {
+		throw new Error('Invalid measured canvas size');
 	}
 
 	const logLine = original.openingElement.loc?.start.line ?? 1;
@@ -402,7 +417,24 @@ export const wrapNode = <Project extends CodemodProject>({
 		return `${childIndent}${line.startsWith(closingIndent) ? line.slice(closingIndent.length) : line.trimStart()}`;
 	});
 	const b = recast.types.builders;
-	const wrapperElement = buildJsxElement({ast, element: wrapper});
+	const wrapperElement = buildJsxElement({
+		ast,
+		element:
+			fallbackSize === null
+				? wrapper
+				: wrapper.withProps({
+						width: fallbackSize.width,
+						height: fallbackSize.height,
+						...(position || 'style' in wrapper.props
+							? {}
+							: {
+									style:
+										fallbackSize.display === 'inline'
+											? {verticalAlign: 'top'}
+											: {display: fallbackSize.display},
+								}),
+					}),
+	});
 	const opening = wrapperElement.openingElement;
 	if (canvas?.dimensions) {
 		opening.attributes?.unshift(

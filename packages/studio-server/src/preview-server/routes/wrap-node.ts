@@ -18,7 +18,7 @@ import {
 } from './source-file-write-queue';
 
 export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
-	input: {fileName, compositionId, nodePath, wrapper, timing},
+	input: {fileName, compositionId, nodePath, wrapper, measuredSize, timing},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -42,6 +42,7 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 			const result = wrapNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
+				measuredSize,
 				wrapper: createElement({
 					component: wrapper,
 					importPath:

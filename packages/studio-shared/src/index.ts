@@ -70,6 +70,7 @@ export {
 	DuplicateNodesRequest,
 	DuplicateNodesRequestItem,
 	DuplicateNodesResponse,
+	MeasuredCanvasSize,
 	NodeWrapper,
 	UnwrapNodeRequest,
 	UnwrapNodeResponse,

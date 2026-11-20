@@ -66,7 +66,7 @@ export const SequenceWrapAction: React.FC<{
 					sourceLocation,
 				});
 				if (prepared === null) return;
-				const {compositionId, ...timing} = prepared;
+				const {compositionId, measuredSize, ...timing} = prepared;
 				const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
 				if (wrapper === 'HtmlInCanvasMotionBlur') {
@@ -80,6 +80,7 @@ export const SequenceWrapAction: React.FC<{
 					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
+					measuredSize,
 					timing,
 				});
 				if (!result.success) {

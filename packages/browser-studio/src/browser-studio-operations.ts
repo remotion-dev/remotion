@@ -1841,6 +1841,7 @@ export const createBrowserStudioOperations = ({
 		compositionId,
 		nodePath,
 		wrapper,
+		measuredSize,
 		timing,
 	}) => {
 		try {
@@ -1861,6 +1862,7 @@ export const createBrowserStudioOperations = ({
 			const result = wrapNodeCodemod({
 				project,
 				node: {filePath, nodePath},
+				measuredSize,
 				wrapper: createElement({
 					component: wrapper,
 					importPath:
