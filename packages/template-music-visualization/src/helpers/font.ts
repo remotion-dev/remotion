@@ -5,6 +5,7 @@ export const BOLD_FONT_WEIGHT = "700" as const;
 
 const font = loadFont("normal", {
   weights: [MEDIUM_FONT_WEIGHT, BOLD_FONT_WEIGHT],
+  subsets: ["latin"],
 });
 
 export const FONT_FAMILY = fontFamily;

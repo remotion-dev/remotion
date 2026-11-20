@@ -1,3 +1,4 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useContext, useState} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, random} from 'remotion';
@@ -149,7 +150,7 @@ export const SequencePrerenderAction: React.FC<{
 			inputProps: callSiteProps,
 			offthreadVideoCacheSizeInBytes: defaults.offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads: defaults.offthreadVideoThreads,
-			colorSpace: 'default',
+			colorSpace: BrowserSafeApis.DEFAULT_COLOR_SPACE,
 			multiProcessOnLinux: defaults.multiProcessOnLinux,
 			encodingMaxRate: null,
 			encodingBufferSize: null,

@@ -12,6 +12,7 @@ import {
 } from 'remotion';
 
 loadFont('normal', {
+	subsets: ['latin'],
 	weights: ['500'],
 });
 

@@ -7,7 +7,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-loadFont();
+loadFont('normal', {weights: ['400'], subsets: ['latin']});
 
 export const MoneyBurn: React.FC = () => {
 	const {fps} = useVideoConfig();

@@ -171,7 +171,7 @@ test('resolves pre-render outputs inside the public folder', async () => {
 				everyNthFrame: 1,
 				numberOfGifLoops: null,
 				disallowParallelEncoding: false,
-				colorSpace: 'default',
+				colorSpace: 'bt709',
 				repro: false,
 				forSeamlessAacConcatenation: false,
 				separateAudioTo: null,

@@ -22,6 +22,7 @@ console.log('Starting to render composition');
 
 await renderMedia({
 	codec: 'h264',
+	licenseKey: null,
 	composition,
 	serveUrl: bundled,
 	outputLocation: `out/${composition.id}.mp4`,

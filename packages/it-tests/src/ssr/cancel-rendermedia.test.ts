@@ -48,6 +48,7 @@ test('Renderer APIs should handle cancellation throughout a render', async () =>
 		});
 		const mediaRender = renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition,
 			outputLocation: path.join(outputDir, 'cancelled-media.mp4'),

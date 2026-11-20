@@ -571,6 +571,7 @@ test('TransitionSeries drops a dangling overlay while a sequence deletion is pen
 						</TransitionSeries.Overlay>
 						<TransitionSeries.Sequence
 							durationInFrames={60}
+							premountFor={0}
 							{...withStack('s3')}
 						>
 							C

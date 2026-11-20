@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RspackConfiguration, WebpackConfiguration} from '../config';
 import {Config, ConfigInternals} from '../config';
 import {getRenderDefaults} from '../get-render-defaults';
@@ -212,7 +213,7 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(ConfigInternals.getElementLibraries()).toEqual([]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
-	).toBeNull();
+	).toBe(NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 'angle' : null);
 	expect(getRenderDefaults('info').crf).toBeNull();
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({

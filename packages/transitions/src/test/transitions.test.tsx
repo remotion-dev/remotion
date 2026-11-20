@@ -84,7 +84,7 @@ test('Should allow empty TransitionSeries.Sequence', () => {
 				<Letter color="green">C</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence durationInFrames={60} />
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.Sequence durationInFrames={60} premountFor={0}>
 				<Letter color="blue">D</Letter>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>,

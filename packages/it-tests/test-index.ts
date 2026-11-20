@@ -1,6 +1,6 @@
-const {getVideoMetadata} = require('@remotion/renderer');
+const {getSilentParts} = require('@remotion/renderer');
 
 // @ts-expect-error cjs
-getVideoMetadata(process.argv[2]).then((metadata) => {
-	console.log(metadata.codec);
+getSilentParts({src: process.argv[2]}).then((result) => {
+	console.log(String(result.durationInSeconds));
 });
