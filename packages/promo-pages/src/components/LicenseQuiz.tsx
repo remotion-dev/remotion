@@ -35,7 +35,7 @@ type Result = {
 	readonly kind: 'free' | 'paid' | 'ask';
 	readonly title: string;
 	readonly option: string | null;
-	readonly price: [string, string] | null;
+	readonly price: [string, string][] | null;
 	readonly why: (joint: boolean) => string;
 	readonly learnMore: string;
 };
@@ -168,7 +168,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'free',
 		title: 'Free License',
 		option: null,
-		price: ['$0', 'for personal and commercial use'],
+		price: [['$0', 'for personal and commercial use']],
 		why: () =>
 			"Individuals using Remotion for their own projects don't need to buy anything.",
 		learnMore: `${FAQ}#who-is-eligible-for-the-free-license`,
@@ -177,7 +177,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'free',
 		title: 'Free License',
 		option: null,
-		price: ['$0', 'while you evaluate'],
+		price: [['$0', 'during evaluation']],
 		why: () =>
 			'Trying Remotion out is free until it is put to use. Building a product with Remotion counts as using it, even before it ships.',
 		learnMore: `${FAQ}#who-is-eligible-for-the-free-license`,
@@ -186,7 +186,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'free',
 		title: 'Free License',
 		option: null,
-		price: ['$0', 'for non-profits of any size'],
+		price: [['$0', 'for non-profits of any size']],
 		why: () =>
 			'Non-profits can use Remotion for free. We may ask for proof of non-profit status.',
 		learnMore: `${FAQ}#are-non-profit-organizations-eligible-for-the-free-license`,
@@ -204,7 +204,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'free',
 		title: 'Free License',
 		option: null,
-		price: ['$0', 'including automations and the Player'],
+		price: [['$0', 'including automations and the Player']],
 		why: (joint) =>
 			joint
 				? 'Both companies together have 3 employees or fewer.'
@@ -215,7 +215,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'paid',
 		title: 'Company License',
 		option: 'Remotion for Creators option',
-		price: ['$25', 'per Seat per month'],
+		price: [['$25', 'per Seat per month']],
 		why: (joint) =>
 			'One Seat is needed for each person who makes videos.' +
 			(joint ? OWNER_NOTE : ''),
@@ -225,7 +225,7 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'paid',
 		title: 'Company License',
 		option: 'Remotion for Automators option',
-		price: ['$0.01', 'per render, $100 minimum per month'],
+		price: [['$0.01', 'per render, $100 minimum per month']],
 		why: (joint) =>
 			'Renders started by software, or an embedded Player, count as automation.' +
 			(joint ? OWNER_NOTE : ''),
@@ -235,7 +235,10 @@ const RESULTS: Record<ResultId, Result> = {
 		kind: 'paid',
 		title: 'Company License',
 		option: 'Remotion for Creators and Remotion for Automators options',
-		price: ['$25 + $0.01', 'per Seat and per render, $100 minimum per month'],
+		price: [
+			['$25', 'per Seat per month'],
+			['$0.01', 'per render, $100 minimum per month'],
+		],
 		why: (joint) =>
 			'Seats count toward the $100 monthly minimum.' +
 			(joint ? OWNER_NOTE : ''),
@@ -432,13 +435,18 @@ export const LicenseQuiz: React.FC = () => {
 							</a>
 						</div>
 						{result.price ? (
-							<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 pt-5 border-t border-black/10 dark:border-white/10">
-								<span className="text-4xl font-bold tabular-nums">
-									{result.price[0]}
-								</span>
-								<span className="text-[var(--subtitle)]">
-									{result.price[1]}
-								</span>
+							<div className="flex flex-col gap-1 pt-5 border-t border-black/10 dark:border-white/10">
+								{result.price.map(([amount, unit]) => (
+									<div
+										key={amount}
+										className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1"
+									>
+										<span className="text-4xl font-bold tabular-nums">
+											{amount}
+										</span>
+										<span className="text-[var(--subtitle)]">{unit}</span>
+									</div>
+								))}
 							</div>
 						) : null}
 						<div className="flex flex-wrap gap-3">
