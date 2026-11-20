@@ -6,6 +6,5 @@ export const {fontFamily, waitUntilDone} = loadFont('normal', {
 });
 export const fontSize = 34;
 export const tabSize = 3;
-export const lineHeight = 1.5;
 export const horizontalPadding = 60;
 export const verticalPadding = 84;
