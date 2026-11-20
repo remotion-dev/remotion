@@ -13,7 +13,8 @@ export const loadWhisperWebGpu = (remotionRoot: string) => {
 		}
 
 		throw new Error(
-			'Whisper commands require @remotion/whisper-webgpu. Install it in your project with: bunx remotion add @remotion/whisper-webgpu @huggingface/transformers',
+			'Whisper commands require @remotion/whisper-webgpu. Install it in your project.\n' +
+				'  bunx remotion add @remotion/whisper-webgpu @huggingface/transformers',
 		);
 	}
 
@@ -58,10 +59,6 @@ export const ensureWhisperModel = async ({
 	return progress.runWithProgress(
 		'Downloading model',
 		'Downloaded model',
-		(onProgress) =>
-			whisper.downloadWhisperModel({
-				model,
-				onProgress: ({progress: value}) => onProgress(value),
-			}),
+		(onProgress) => whisper.downloadWhisperModel({model, onProgress}),
 	);
 };

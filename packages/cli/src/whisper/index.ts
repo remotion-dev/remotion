@@ -37,13 +37,13 @@ export const whisperCommand = async ({
 
 	const commandLine = minimist(args, {
 		string: ['_', 'log'],
-		boolean: ['quiet'],
+		boolean: ['quiet', 'installed'],
 		alias: {q: 'quiet'},
 	});
 	const logOptions = {indent: false, logLevel};
 	if (command === 'ls') {
 		if (commandLine._.length !== 0) {
-			throw new Error('Usage: bunx remotion whisper ls');
+			throw new Error('Usage: bunx remotion whisper ls [--installed]');
 		}
 
 		const {getAvailableModels, isWhisperModelCached} =
@@ -55,13 +55,21 @@ export const whisperCommand = async ({
 				cached: await isWhisperModelCached({model: name}),
 			})),
 		);
+		const visibleModels = commandLine.installed
+			? models.filter(({cached}) => cached)
+			: models;
+		if (visibleModels.length === 0) {
+			Log.info(logOptions, 'No Whisper models installed.');
+			return;
+		}
+
 		Log.info(
 			logOptions,
 			chalk.gray(
 				`${'Model'.padEnd(LABEL_WIDTH)} ${'Download size'.padEnd(16)} Cache`,
 			),
 		);
-		for (const {name, size, cached} of models) {
+		for (const {name, size, cached} of visibleModels) {
 			Log.info(
 				logOptions,
 				`${name.padEnd(LABEL_WIDTH)} ${size.padEnd(16)} ${cached ? 'Installed' : 'Not installed'}`,
@@ -101,6 +109,5 @@ export const whisperCommand = async ({
 		chalk.blue(
 			`${(alreadyDownloaded ? '○' : '+').padEnd(LABEL_WIDTH)} ${model}`,
 		),
-		chalk.gray(alreadyDownloaded ? 'Already installed' : 'Installed'),
 	);
 };

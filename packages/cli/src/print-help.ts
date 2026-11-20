@@ -669,7 +669,14 @@ export const cliCommandHelp = [
 		args: '',
 		description: 'List available Whisper models and their local cache status.',
 		documentation: 'https://www.remotion.dev/docs/cli/whisper/ls',
-		options: options(['log']),
+		options: [
+			{
+				flag: '--installed',
+				optionIds: [],
+				description: 'Show only installed models.',
+			},
+			...options(['log']),
+		],
 	},
 	{
 		path: [GPU_COMMAND],
