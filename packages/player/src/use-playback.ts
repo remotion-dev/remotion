@@ -230,6 +230,65 @@ export const usePlayback = ({
 		updateAudioAnchor,
 	]);
 
+	useLayoutEffect(() => {
+		if (!sharedAudioContext || fps === null || durationInFrames === null) {
+			return;
+		}
+
+		const updateEnd = () => {
+			sharedAudioContext.setPlaybackEnd(
+				!playing || muted
+					? 0
+					: !loop && playbackRate > 0
+						? sharedAudioContext.audioSyncAnchor.value +
+							((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
+						: null,
+				() => {
+					if (
+						muted ||
+						loop ||
+						playbackRate <= 0 ||
+						!sharedAudioContext.audioContext
+					) {
+						return null;
+					}
+
+					if (playing) {
+						return (
+							sharedAudioContext.audioSyncAnchor.value +
+							((outFrame ?? durationInFrames - 1) + 1) / fps / playbackRate
+						);
+					}
+
+					// play() resumes audio before the playing React commit. Compute
+					// the deadline from the live playhead before queued nodes start.
+					return (
+						sharedAudioContext.audioContext.currentTime +
+						((outFrame ?? durationInFrames - 1) + 1 - getCurrentFrame()) /
+							fps /
+							playbackRate
+					);
+				},
+			);
+		};
+
+		updateEnd();
+		const subscription =
+			sharedAudioContext.audioSyncAnchorEmitter.subscribe(updateEnd);
+
+		return () => subscription.remove();
+	}, [
+		sharedAudioContext,
+		fps,
+		durationInFrames,
+		playing,
+		muted,
+		loop,
+		playbackRate,
+		outFrame,
+		getCurrentFrame,
+	]);
+
 	// Native pauses, resumes and interruptions are clock boundaries too.
 	useLayoutEffect(() => {
 		const audioContext = sharedAudioContext?.audioContext;
@@ -404,7 +463,7 @@ export const usePlayback = ({
 					: nextFrame;
 
 			const didJump = frameToDisplay !== currentFrame + framesToAdvance;
-			if (didJump) {
+			if (didJump && !hasEnded) {
 				// Re-anchor after the jump's target frame commits.
 				playbackJumpRevision.current++;
 			}
@@ -412,7 +471,8 @@ export const usePlayback = ({
 			clock.frame = frameToDisplay;
 			if (frameToDisplay !== currentFrame) {
 				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
-			} else if (didJump) {
+			} else if (didJump && !hasEnded) {
+				// A terminal anchor would re-arm the expired audio cutoff before pause.
 				// A jump can land on the same frame without a React commit.
 				updateAudioAnchor();
 				if (previousAudioBoundary.current !== null) {
