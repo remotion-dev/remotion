@@ -728,6 +728,7 @@ export type MeasuredCanvasSize = {
 	width: number;
 	height: number;
 	display: 'inline' | 'inline-block' | 'block';
+	verticalAlign: string | null;
 };
 
 export type AddEffectRequest = {

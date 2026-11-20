@@ -425,25 +425,22 @@ export const wrapNode = <Project extends CodemodProject>({
 		}
 	}
 
+	if (fallbackSize !== null) {
+		const {width, height, display, verticalAlign} = fallbackSize;
+		wrapperToInsert = wrapperToInsert.withProps({width, height});
+		if (!position && !('style' in wrapper.props)) {
+			const style = {
+				...(display === 'inline' ? {} : {display}),
+				...(verticalAlign === null ? {} : {verticalAlign}),
+			};
+			if (Object.keys(style).length > 0) {
+				wrapperToInsert = wrapperToInsert.withProp('style', style);
+			}
+		}
+	}
+
 	const b = recast.types.builders;
-	const wrapperElement = buildJsxElement({
-		ast,
-		element:
-			fallbackSize === null
-				? wrapperToInsert
-				: wrapperToInsert.withProps({
-						width: fallbackSize.width,
-						height: fallbackSize.height,
-						...(position || 'style' in wrapper.props
-							? {}
-							: {
-									style:
-										fallbackSize.display === 'inline'
-											? {verticalAlign: 'top'}
-											: {display: fallbackSize.display},
-								}),
-					}),
-	});
+	const wrapperElement = buildJsxElement({ast, element: wrapperToInsert});
 	const opening = wrapperElement.openingElement;
 	if (canvas?.dimensions) {
 		opening.attributes?.unshift(

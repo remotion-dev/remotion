@@ -35,6 +35,51 @@ export const canApplyEffects = (
 	sequence.type !== 'audio' &&
 	sequence.timelineTrack?.role !== 'transition';
 
+const occupiesOwnLines = (element: HTMLElement) => {
+	const fragments = Array.from(element.getClientRects()).filter(
+		(rect) => rect.width > 0 && rect.height > 0,
+	);
+	const first = fragments[0];
+	const last = fragments.at(-1);
+	if (!first || !last || last.top <= first.top) {
+		return false;
+	}
+
+	let container = element.parentElement;
+	while (container) {
+		const {display} = getComputedStyle(container);
+		if (display !== 'inline' && display !== 'contents') {
+			break;
+		}
+
+		container = container.parentElement;
+	}
+
+	if (!container) {
+		return false;
+	}
+
+	const range = element.ownerDocument.createRange();
+	const sharesEdgeLine = () =>
+		Array.from(range.getClientRects()).some(
+			(rect) =>
+				rect.width > 0 &&
+				rect.height > 0 &&
+				[first, last].some(
+					(line) => rect.top < line.bottom && rect.bottom > line.top,
+				),
+		);
+	range.selectNodeContents(container);
+	range.setEndBefore(element);
+	if (sharesEdgeLine()) {
+		return false;
+	}
+
+	range.selectNodeContents(container);
+	range.setStartAfter(element);
+	return !sharesEdgeLine();
+};
+
 const measureCanvasSize = (
 	ref: NonNullable<TSequence['refForOutline']>,
 ): MeasuredCanvasSize | null => {
@@ -45,10 +90,29 @@ const measureCanvasSize = (
 		return null;
 	}
 
-	const {display, visibility} = getComputedStyle(element);
+	const {display, verticalAlign, visibility, writingMode} =
+		getComputedStyle(element);
 	const {offsetWidth, offsetHeight} = element;
 	if (visibility !== 'visible' || offsetWidth <= 0 || offsetHeight <= 0) {
 		return null;
+	}
+
+	const canvasDisplay =
+		display === 'inline'
+			? 'inline'
+			: display.startsWith('inline-')
+				? 'inline-block'
+				: 'block';
+	let canvasVerticalAlign: string | null = null;
+	if (canvasDisplay !== 'block' && verticalAlign !== 'baseline') {
+		canvasVerticalAlign = verticalAlign;
+	} else if (
+		canvasDisplay === 'inline' &&
+		writingMode === 'horizontal-tb' &&
+		element.style.verticalAlign !== 'baseline' &&
+		occupiesOwnLines(element)
+	) {
+		canvasVerticalAlign = 'top';
 	}
 
 	return {
@@ -56,12 +120,8 @@ const measureCanvasSize = (
 		// placing an inline fragment in the canvas does not break its line.
 		width: display === 'inline' ? offsetWidth + 1 : offsetWidth,
 		height: offsetHeight,
-		display:
-			display === 'inline'
-				? 'inline'
-				: display.startsWith('inline-')
-					? 'inline-block'
-					: 'block',
+		display: canvasDisplay,
+		verticalAlign: canvasVerticalAlign,
 	};
 };
 
