@@ -20,18 +20,25 @@ export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 			? '@remotion/motion-blur'
 			: 'remotion';
 	const source = resolvedStackToSymbolicated({...state.location, column: null});
+	const effect = state.type === 'wrap-refactor' ? state.effect : null;
 	return (
 		<CodeChangeModal
-			title={state.type === 'unwrap-refactor' ? 'Unwrap item' : 'Wrap item'}
+			title={
+				effect
+					? 'Add effect with HTML-in-canvas'
+					: state.type === 'unwrap-refactor'
+						? 'Unwrap item'
+						: 'Wrap item'
+			}
 			description={
 				state.type === 'unwrap-refactor'
 					? 'Studio could not automatically remove this wrapper. Remove it in code while keeping its children, or ask an agent to do it.'
-					: `Studio could not automatically wrap this item in <${state.wrapper}>. Edit the code or ask an agent to do it.`
+					: `Studio could not automatically wrap this item in <${state.wrapper}>${effect ? ' to apply the effect' : ''}. Edit the code or ask an agent to do it.`
 			}
 			prompt={
 				state.type === 'unwrap-refactor'
 					? `Unwrap ${target}: remove the wrapper and keep its children.`
-					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'. Use the layer’s width and height for the canvas and preserve its positioning.`
+					: `Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'. Use the layer’s width and height for the canvas and preserve its positioning.${effect ? ` Then add ${effect.name} from '${effect.importPath}' to the wrapper's effects prop with this configuration: ${JSON.stringify(effect.config)}.` : ''}`
 			}
 			skillId="remotion-markup"
 			sources={source ? [source] : []}

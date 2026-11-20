@@ -2,12 +2,20 @@ import {
 	StudioProtocolInternals,
 	type EffectDragData,
 } from '@remotion/studio-protocol';
-import {type EffectDefinition} from '@remotion/studio-shared';
+import {
+	type AddEffectRequest,
+	type EffectDefinition,
+} from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
 import {parseCubeLut} from '../helpers/cube-lut';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {
+	captureInsertedElementSelectionBaseline,
+	requestInsertedElementSelection,
+} from '../helpers/inserted-element-selection';
 import {selectOptimisticEffects} from '../helpers/optimistic-effect-selection';
+import {getTimelineSelectionRevision} from '../helpers/timeline-selection-revision';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {useTimelineSelection} from './Timeline/TimelineSelection';
@@ -71,17 +79,16 @@ export const getEffectDragData = (
 };
 
 export const addEffectFromDrop = async ({
-	clientId,
 	dataTransfer,
-	fileName,
 	nodePathInfo,
-	selectItems,
+	addEffect: applyEffect,
 }: {
-	readonly clientId: string;
 	readonly dataTransfer: DataTransfer;
-	readonly fileName: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
+	readonly addEffect: (options: {
+		effect: EffectDefinition;
+		nodePathInfo: SequenceNodePathInfo;
+	}) => Promise<void>;
 }) => {
 	try {
 		const dragData = getEffectDragData(dataTransfer);
@@ -129,12 +136,9 @@ export const addEffectFromDrop = async ({
 			};
 		}
 
-		await addEffectToSequence({
-			clientId,
+		await applyEffect({
 			effect,
-			fileName,
 			nodePathInfo,
-			selectItems,
 		});
 	} catch (err) {
 		showNotification((err as Error).message, 4000);
@@ -147,13 +151,20 @@ export const addEffectToSequence = async ({
 	fileName,
 	nodePathInfo,
 	selectItems,
+	wrapInHtmlInCanvas,
 }: {
 	readonly clientId: string;
 	readonly effect: EffectDefinition;
 	readonly fileName: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
+	readonly wrapInHtmlInCanvas: AddEffectRequest['wrapInHtmlInCanvas'];
 }) => {
+	const selectionRevision = getTimelineSelectionRevision();
+	const baseline =
+		wrapInHtmlInCanvas === null
+			? null
+			: captureInsertedElementSelectionBaseline();
 	try {
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
 		const previous = new Set(
@@ -168,6 +179,7 @@ export const addEffectToSequence = async ({
 			effectImportPath: effect.importPath,
 			effectConfig: effect.config,
 			clientId,
+			wrapInHtmlInCanvas,
 		});
 
 		const inserted = Internals.OptimisticEffects.getItems(nodePath, null)
@@ -178,6 +190,22 @@ export const addEffectToSequence = async ({
 
 		if (!result.success) {
 			showNotification(result.reason, 4000);
+			return;
+		}
+
+		if (getTimelineSelectionRevision() !== selectionRevision) return;
+
+		if (wrapInHtmlInCanvas !== null) {
+			requestInsertedElementSelection({
+				compositionId: wrapInHtmlInCanvas.compositionId,
+				nodePath: {
+					absolutePath: fileName,
+					nodePath: result.insertedEffect.nodePath,
+				},
+				notification: null,
+				baseline,
+				effect: {index: result.insertedEffect.effectIndex, selectionRevision},
+			});
 			return;
 		}
 

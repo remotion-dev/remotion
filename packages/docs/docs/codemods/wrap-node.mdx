@@ -53,6 +53,10 @@ The wrapper element, created with [`createElement()`](/docs/codemods/create-elem
 
 When the child has an inline style object, the canvas wrapper takes its CSS `position` and inset properties such as `left` and `top`. A component with explicit offsets and an implicit position gets an absolutely positioned canvas. Other styles, including transforms and opacity, stay on the child. Style references, objects with spreads or computed keys, and an explicitly styled wrapper keep the child’s style intact.
 
+### measuredSize
+
+Optional fallback for canvas wrappers when the wrapped element lacks dimensions the codemod can copy. Supply `width` and `height` as positive integers and `display` as `'inline'`, `'inline-block'` or `'block'`. Set `verticalAlign` to a CSS alignment value or `null` to use the default. Studio measures the layer at the current frame. Explicit source dimensions take precedence.
+
 ## Return value
 
 An object with the following properties.

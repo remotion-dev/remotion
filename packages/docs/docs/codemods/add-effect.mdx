@@ -26,12 +26,13 @@ const result = addEffect({
   importName: 'blur',
   importPath: '@remotion/effects/blur',
   props: {radius: 8},
+  wrapInHtmlInCanvas: null,
 });
 
 console.log(result);
 ```
 
-Creates the `effects` attribute if missing. The component must support effects at runtime. Computed effects arrays and potentially overriding spreads are rejected; packages are not installed.
+Creates the `effects` attribute if missing. The component receiving the effect must support effects at runtime. Throws for computed effects arrays and spreads that can override the `effects` attribute. Install effect packages separately.
 
 From v4.0.544, this function returns its result synchronously and throws errors immediately.
 
@@ -56,6 +57,26 @@ The effect module. Supports `@remotion/effects/*`, `@remotion/light-leaks`, and 
 ### props?
 
 Serializable effect configuration. Defaults to `{}`.
+
+### wrapInHtmlInCanvas<AvailableFrom v="4.0.546" />
+
+Pass `null` to apply the effect directly to the node. Pass the props below to wrap the node in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and apply the effect to the wrapper in one edit. The wrapper inherits the node’s explicit `width` and `height` props. See [`wrapNode()`](/docs/codemods/wrap-node) for dimension and positioning rules.
+
+#### measuredSize
+
+Fallback dimensions for a layer without explicit `width` and `height` props. Use `null` to require explicit dimensions in the source. See [`wrapNode()`](/docs/codemods/wrap-node#measuredsize) for the object shape.
+
+#### from
+
+The wrapper start frame relative to its parent.
+
+#### durationInFrames
+
+The duration of the wrapper in frames.
+
+#### trimBefore
+
+The number of frames to trim from the start of the wrapper.
 
 ## Return value
 

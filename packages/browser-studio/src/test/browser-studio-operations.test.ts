@@ -1021,6 +1021,7 @@ export const Component = ({portrait}: {portrait: boolean}) => <Sequence width={p
 		compositionId,
 		nodePath,
 		wrapper: 'HtmlInCanvasMotionBlur',
+		measuredSize: null,
 		timing: null,
 	});
 	expect(result).toMatchObject({
@@ -2116,6 +2117,7 @@ export const Comp = () => (
 
 	const {effects} = operations;
 	const addResult = await effects.addEffect({
+		wrapInHtmlInCanvas: null,
 		fileName: 'src/Comp.tsx',
 		sequenceNodePath,
 		effectName: 'tint',
@@ -2445,6 +2447,7 @@ export const Comp = () => (
 	});
 	expect(
 		await effects.addEffect({
+			wrapInHtmlInCanvas: null,
 			fileName: 'src/Comp.tsx',
 			sequenceNodePath,
 			effectName: 'unsafe',

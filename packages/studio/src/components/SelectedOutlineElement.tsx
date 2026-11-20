@@ -53,6 +53,7 @@ import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
 } from './use-default-editor-info';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 import {useSelectAsset} from './use-select-asset';
 import {useSelectEffects} from './use-select-effects';
 import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
@@ -319,7 +320,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const isProgrammaticallyDuplicated =
 			contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
-			contextMenuTarget.nodePathInfo.supportsEffects &&
+			canApplyEffects(
+				contextMenuTarget.sequence,
+				contextMenuTarget.nodePathInfo,
+			) &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
@@ -499,7 +503,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 								subMenu: null,
 								value: 'rotate',
 							},
-							...(contextMenuTarget.nodePathInfo.supportsEffects
+							...(canApplyEffects(
+								contextMenuTarget.sequence,
+								contextMenuTarget.nodePathInfo,
+							)
 								? [
 										{
 											type: 'item' as const,

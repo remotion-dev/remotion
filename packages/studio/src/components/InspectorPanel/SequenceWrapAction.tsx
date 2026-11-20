@@ -1,7 +1,5 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useState} from 'react';
-import {Internals, isHtmlInCanvasSupported} from 'remotion';
-import {useTimelineCalculator} from '../../helpers/calculate-timeline';
+import React, {useCallback, useState} from 'react';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -9,16 +7,14 @@ import type {
 import {installRequiredPackages} from '../../helpers/install-required-package';
 import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
-import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {usePrepareHtmlInCanvasWrap} from '../use-prepare-html-in-canvas-wrap';
 import {wrapNode} from '../wrap-node-api';
 import {
 	InspectorQuickAction,
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
-import {getHtmlInCanvasWrapperTiming} from './get-html-in-canvas-wrapper-timing';
 
 type HtmlInCanvasWrapper = Extract<
 	NodeWrapper,
@@ -39,13 +35,7 @@ export const SequenceWrapAction: React.FC<{
 		readonly line: number;
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
-	const calculateTimeline = useTimelineCalculator();
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const overrideIdToNodePathMappingsRef = useContext(
-		OverrideIdToNodePathMappingsRefContext,
-	);
+	const prepareWrap = usePrepareHtmlInCanvasWrap();
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
 	const isTransition = sequence.timelineTrack?.role === 'transition';
@@ -62,118 +52,22 @@ export const SequenceWrapAction: React.FC<{
 				busy ||
 				isTransition ||
 				!canWrapInHtmlInCanvas ||
-				sourceActionsDisabled ||
-				canvasContent?.type !== 'composition'
+				sourceActionsDisabled
 			) {
 				return;
 			}
 
-			const {compositionId} = canvasContent;
-
-			if (!isHtmlInCanvasSupported()) {
-				setSelectedModal({
-					type: 'html-in-canvas-unavailable',
-					action:
-						wrapper === 'HtmlInCanvasMotionBlur' ? 'motion-blur' : 'effects',
-				});
-				return;
-			}
-
-			const sequences = sequencesRef.current;
-			const overrideIdToNodePathMappings =
-				overrideIdToNodePathMappingsRef.current;
-			const sequencesById = new Map(
-				sequences.map((registeredSequence) => [
-					registeredSequence.id,
-					registeredSequence,
-				]),
-			);
-			let ancestorId: string | null = sequence.id;
-			while (ancestorId !== null) {
-				const ancestor = sequencesById.get(ancestorId);
-				if (!ancestor) {
-					break;
-				}
-
-				if (
-					ancestor.controls?.componentIdentity &&
-					htmlInCanvasComponentIdentities.has(
-						ancestor.controls.componentIdentity,
-					)
-				) {
-					showNotification('HTML-in-canvas components cannot be nested.', 4000);
-					return;
-				}
-
-				ancestorId = ancestor.parent;
-			}
-
-			for (const registeredSequence of sequences) {
-				if (
-					!registeredSequence.controls?.componentIdentity ||
-					!htmlInCanvasComponentIdentities.has(
-						registeredSequence.controls.componentIdentity,
-					)
-				) {
-					continue;
-				}
-
-				let descendantParentId = registeredSequence.parent;
-				while (descendantParentId !== null) {
-					if (descendantParentId === sequence.id) {
-						showNotification(
-							'HTML-in-canvas components cannot be nested.',
-							4000,
-						);
-						return;
-					}
-
-					descendantParentId =
-						sequencesById.get(descendantParentId)?.parent ?? null;
-				}
-			}
-
-			const nodePath = nodePathInfo.sequenceSubscriptionKey;
-			const timing = getHtmlInCanvasWrapperTiming({
-				tracks: calculateTimeline({
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				}).tracks,
-				sequenceSubscriptionKey: nodePath,
-			});
 			setBusy(true);
 			try {
-				const eligibility = await wrapNode({
-					fileName: nodePath.absolutePath,
-					compositionId,
-					nodePath: nodePath.nodePath,
-					wrapper: null,
-					timing: null,
+				const prepared = await prepareWrap({
+					nodePathInfo,
+					wrapper,
+					effect: null,
+					sourceLocation,
 				});
-				if (!eligibility.success) {
-					showNotification(eligibility.reason, 4000);
-					return;
-				}
-
-				if (eligibility.canvasWrapBlocker === 'nested') {
-					showNotification('HTML-in-canvas components cannot be nested.', 4000);
-					return;
-				}
-
-				if (
-					!eligibility.canWrap ||
-					eligibility.canvasWrapBlocker === 'unknown-dimensions' ||
-					timing === null
-				) {
-					setSelectedModal({
-						type: 'wrap-refactor',
-						displayName:
-							sequence.displayName || sequence.controls?.componentName || null,
-						location: sourceLocation,
-						wrapper,
-					});
-					return;
-				}
+				if (prepared === null) return;
+				const {compositionId, measuredSize, ...timing} = prepared;
+				const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
 				if (wrapper === 'HtmlInCanvasMotionBlur') {
 					await installRequiredPackages([
@@ -186,6 +80,7 @@ export const SequenceWrapAction: React.FC<{
 					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
+					measuredSize,
 					timing,
 				});
 				if (!result.success) {
@@ -199,27 +94,16 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			calculateTimeline,
 			isTransition,
 			canWrapInHtmlInCanvas,
-			canvasContent,
-			nodePathInfo.sequenceSubscriptionKey,
-			overrideIdToNodePathMappingsRef,
-			sequence.controls?.componentName,
-			sequence.displayName,
-			sequence.id,
-			sequencesRef,
-			setSelectedModal,
+			nodePathInfo,
+			prepareWrap,
 			sourceActionsDisabled,
 			sourceLocation,
 		],
 	);
 
-	if (
-		!canWrapInHtmlInCanvas ||
-		sourceActionsDisabled ||
-		canvasContent?.type !== 'composition'
-	) {
+	if (!canWrapInHtmlInCanvas || sourceActionsDisabled) {
 		return null;
 	}
 

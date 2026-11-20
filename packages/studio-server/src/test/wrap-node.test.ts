@@ -51,6 +51,7 @@ export const Comp = ({portrait}: {portrait: boolean}) => {
 				compositionId,
 				nodePath: lineContainingToNodePath(input, '<Sequence'),
 				wrapper: 'HtmlInCanvas',
+				measuredSize: null,
 				timing: {
 					from: 10,
 					durationInFrames: 30,

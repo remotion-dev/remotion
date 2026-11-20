@@ -1368,6 +1368,7 @@ export const createBrowserStudioOperations = ({
 					props: request.effectConfig,
 					importPath: request.effectImportPath,
 					importName: request.effectName,
+					wrapInHtmlInCanvas: request.wrapInHtmlInCanvas,
 					node: {
 						filePath: absolutePath,
 						nodePath: request.sequenceNodePath.nodePath,
@@ -1840,6 +1841,7 @@ export const createBrowserStudioOperations = ({
 		compositionId,
 		nodePath,
 		wrapper,
+		measuredSize,
 		timing,
 	}) => {
 		try {
@@ -1860,6 +1862,7 @@ export const createBrowserStudioOperations = ({
 			const result = wrapNodeCodemod({
 				project,
 				node: {filePath, nodePath},
+				measuredSize,
 				wrapper: createElement({
 					component: wrapper,
 					importPath:

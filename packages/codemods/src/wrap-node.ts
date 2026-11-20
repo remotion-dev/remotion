@@ -5,6 +5,7 @@ import type {
 	JSXElement,
 	Node,
 } from '@babel/types';
+import type {MeasuredCanvasSize} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {buildJsxElement} from './build-jsx-element';
@@ -35,6 +36,7 @@ export type WrapNodeOptions<Project extends CodemodProject> = {
 	project: Project;
 	node: NodeReference;
 	wrapper: CodemodElement;
+	measuredSize?: MeasuredCanvasSize | null;
 };
 
 // Recognizes canvas wrappers whether they are imported by the wrapper or
@@ -239,6 +241,7 @@ export const wrapNode = <Project extends CodemodProject>({
 	project,
 	node,
 	wrapper,
+	measuredSize = null,
 }: WrapNodeOptions<Project>) => {
 	if (!(wrapper instanceof CodemodElement)) {
 		throw new Error('wrapper must be created with createElement()');
@@ -277,10 +280,22 @@ export const wrapNode = <Project extends CodemodProject>({
 		);
 	}
 
-	if (canvas?.blocker === 'unknown-dimensions') {
+	const fallbackSize =
+		canvas?.blocker === 'unknown-dimensions' ? measuredSize : null;
+	if (canvas?.blocker === 'unknown-dimensions' && fallbackSize === null) {
 		throw new Error(
 			'The wrapped element needs explicit, repeatable width and height expressions that evaluate to positive integers.',
 		);
+	}
+
+	if (
+		fallbackSize !== null &&
+		(![fallbackSize.width, fallbackSize.height].every(
+			(size) => Number.isSafeInteger(size) && size > 0,
+		) ||
+			!['inline', 'inline-block', 'block'].includes(fallbackSize.display))
+	) {
+		throw new Error('Invalid measured canvas size');
 	}
 
 	const logLine = original.openingElement.loc?.start.line ?? 1;
@@ -401,8 +416,31 @@ export const wrapNode = <Project extends CodemodProject>({
 
 		return `${childIndent}${line.startsWith(closingIndent) ? line.slice(closingIndent.length) : line.trimStart()}`;
 	});
+	let wrapperToInsert = wrapper;
+	if (canvas !== null) {
+		for (const prop of ['from', 'trimBefore']) {
+			if (wrapper.props[prop] === 0) {
+				wrapperToInsert = wrapperToInsert.withoutProp(prop);
+			}
+		}
+	}
+
+	if (fallbackSize !== null) {
+		const {width, height, display, verticalAlign} = fallbackSize;
+		wrapperToInsert = wrapperToInsert.withProps({width, height});
+		if (!position && !('style' in wrapper.props)) {
+			const style = {
+				...(display === 'inline' ? {} : {display}),
+				...(verticalAlign === null ? {} : {verticalAlign}),
+			};
+			if (Object.keys(style).length > 0) {
+				wrapperToInsert = wrapperToInsert.withProp('style', style);
+			}
+		}
+	}
+
 	const b = recast.types.builders;
-	const wrapperElement = buildJsxElement({ast, element: wrapper});
+	const wrapperElement = buildJsxElement({ast, element: wrapperToInsert});
 	const opening = wrapperElement.openingElement;
 	if (canvas?.dimensions) {
 		opening.attributes?.unshift(
