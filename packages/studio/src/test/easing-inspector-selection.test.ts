@@ -35,6 +35,7 @@ const makeKeyframedStatus = (
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
 	output: undefined,
+	overlap: null,
 });
 
 test('derives easing selection endpoints from current keyframes', () => {

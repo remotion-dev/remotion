@@ -81,9 +81,10 @@ export const prepareNumericKeyframedStatus = ({
 		return null;
 	}
 
-	const sortedKeyframes = [...status.keyframes].sort(
-		(a, b) => a.frame - b.frame,
-	);
+	const sortedKeyframes =
+		status.overlap === 'compress'
+			? status.keyframes
+			: [...status.keyframes].sort((a, b) => a.frame - b.frame);
 	const inputRange = sortedKeyframes.map((keyframe) => keyframe.frame);
 	const outputRange = sortedKeyframes.map((keyframe) => keyframe.value);
 	if (
@@ -103,6 +104,7 @@ export const prepareNumericKeyframedStatus = ({
 				extrapolateLeft: status.clamping.left,
 				extrapolateRight: status.clamping.right,
 				output: status.output,
+				overlap: status.overlap ?? undefined,
 				posterize: status.posterize,
 			},
 		});
@@ -132,7 +134,10 @@ export const interpolateKeyframedStatus = ({
 		return null;
 	}
 
-	const sortedKeyframes = [...keyframes].sort((a, b) => a.frame - b.frame);
+	const sortedKeyframes =
+		status.overlap === 'compress'
+			? keyframes
+			: [...keyframes].sort((a, b) => a.frame - b.frame);
 	const inputRange = sortedKeyframes.map((k) => k.frame);
 	const outputs = sortedKeyframes.map((k) => k.value);
 
@@ -204,6 +209,7 @@ export const interpolateKeyframedStatus = ({
 				extrapolateLeft: clamping.left,
 				extrapolateRight: clamping.right,
 				output: status.output,
+				overlap: status.overlap ?? undefined,
 				posterize: status.posterize,
 			},
 		);

@@ -1366,6 +1366,7 @@ export const Example: React.FC = () => {
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -1542,6 +1543,7 @@ export default CenteredSolid;
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 

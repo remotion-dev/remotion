@@ -22,6 +22,7 @@ const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
 	output: undefined,
+	overlap: null,
 });
 
 test('makeKeyframedDragOverride inserts a new keyframe and preserves easing length', () => {

@@ -46,6 +46,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					),
 					translate: interpolate(
@@ -56,6 +57,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					),
 					scale: interpolate(
@@ -66,6 +68,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					),
 					transformOrigin: '52px 126px',
@@ -82,6 +85,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					)}
 					stroke="#2563eb"
@@ -94,6 +98,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					)}
 					strokeLinecap="round"
@@ -111,6 +116,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							overlap: 'compress',
 						},
 					)}
 					fill="#eff6ff"
@@ -144,6 +150,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 							{
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
+								overlap: 'compress',
 
 								easing: [
 									Easing.spring({
@@ -183,6 +190,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 								{
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
+									overlap: 'compress',
 								},
 							),
 						}}

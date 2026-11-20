@@ -677,6 +677,7 @@ test('animated paste and duplication preserve keyframes through settlement', asy
 		easing: param.easing,
 		clamping: param.clamping,
 		output: param.output,
+		overlap: null,
 		posterize: param.posterize,
 		keyframeDisplayOffsetAdjustment: null,
 	};
