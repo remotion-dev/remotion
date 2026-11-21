@@ -49,6 +49,7 @@ import {
 import {resolveHardwareAcceleration} from './probe-encoder';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
+import {getHevcCopyArgs} from './vaapi-copy';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -445,6 +446,21 @@ const innerStitchFramesToVideo = async (
 				onLog,
 			});
 
+	const hevcCopyArgs =
+		preEncodedFileLocation &&
+		codec === 'h265' &&
+		['mp4', 'mov', 'm4v'].includes(outputExtension)
+			? await getHevcCopyArgs({
+					file: preEncodedFileLocation,
+					width,
+					height,
+					binariesDirectory,
+					indent: indent ?? false,
+					logLevel,
+					cancelSignal: cancelSignal ?? undefined,
+				})
+			: [];
+
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
 			? [['-i', preEncodedFileLocation]]
@@ -493,6 +509,7 @@ const innerStitchFramesToVideo = async (
 			cpuCount: getCpuCount(),
 			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
+		...hevcCopyArgs,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		// VP8/VP9 store alpha in additional blocks. Stream copying cannot infer

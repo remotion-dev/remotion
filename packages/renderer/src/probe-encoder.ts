@@ -1,4 +1,5 @@
 import {execFileSync} from 'node:child_process';
+import fs from 'node:fs';
 import path from 'path';
 import type {OnLog} from './browser/BrowserPage';
 import type {Codec} from './codec';
@@ -12,6 +13,7 @@ import {
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
+import {getVaapiDevice, isVaapiEncoder} from './vaapi';
 
 /**
  * Probes FFmpeg to check if a specific encoder is available.
@@ -65,6 +67,18 @@ export const probeEncoderAvailability = ({
 		);
 		return false;
 	}
+};
+
+/**
+ * A VA-API encoder needs its render node (REMOTION_VAAPI_DEVICE) to exist.
+ */
+export const vaapiDeviceIsMissing = (encoderName: string): boolean => {
+	if (!isVaapiEncoder(encoderName)) {
+		return false;
+	}
+
+	const device = getVaapiDevice();
+	return device === null || !fs.existsSync(device);
 };
 
 /**
@@ -134,12 +148,21 @@ export const resolveHardwareAcceleration = ({
 		return hardwareAcceleration;
 	}
 
-	const encoderAvailable = probeEncoderAvailability({
-		encoderName: preferred.encoderName,
-		binariesDirectory,
-		indent,
-		logLevel,
-	});
+	if (vaapiDeviceIsMissing(preferred.encoderName)) {
+		Log.verbose(
+			{indent, logLevel, tag: 'resolveHardwareAcceleration()'},
+			`The VA-API device "${getVaapiDevice()}" does not exist.`,
+		);
+	}
+
+	const encoderAvailable =
+		!vaapiDeviceIsMissing(preferred.encoderName) &&
+		probeEncoderAvailability({
+			encoderName: preferred.encoderName,
+			binariesDirectory,
+			indent,
+			logLevel,
+		});
 
 	if (encoderAvailable) {
 		return hardwareAcceleration;
