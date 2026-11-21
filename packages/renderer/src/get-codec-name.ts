@@ -3,7 +3,8 @@ import type {Codec} from './codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
-import {getVaapiDevice, getVaapiEncoderName} from './vaapi';
+import type {PixelFormat} from './pixel-format';
+import {getVaapiEncoderFor} from './vaapi';
 
 export type CodecSettings = {
 	encoderName: string;
@@ -50,6 +51,7 @@ export const getCodecName = ({
 	logLevel,
 	indent,
 	onLog,
+	pixelFormat = null,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -60,17 +62,18 @@ export const getCodecName = ({
 	logLevel: LogLevel;
 	indent: boolean;
 	onLog: OnLog | null;
+	pixelFormat?: PixelFormat | null;
 }): CodecSettings | null => {
 	const preferredHwAcceleration =
 		hardwareAcceleration === 'required' ||
 		hardwareAcceleration === 'if-possible';
 
 	// VA-API (AMD and Intel on Linux, REMOTION_VAAPI_DEVICE) takes the CRF as
-	// its constant quantizer, so a CRF does not turn it off
-	const vaapiEncoderName =
-		preferredHwAcceleration && getVaapiDevice() !== null
-			? getVaapiEncoderName(codec)
-			: null;
+	// its constant quantizer, so a CRF does not turn it off; it is only chosen
+	// for what it can encode exactly (vaapi.ts: 8-bit 4:2:0, a CRF of 1 or more)
+	const vaapiEncoderName = preferredHwAcceleration
+		? getVaapiEncoderFor({codec, pixelFormat, crf})
+		: null;
 
 	const unsupportedQualityOption =
 		hasSpecifiedUnsupportedHardwareQualifySettings({

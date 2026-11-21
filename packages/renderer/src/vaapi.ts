@@ -1,4 +1,5 @@
 import type {Codec} from './codec';
+import type {PixelFormat} from './pixel-format';
 
 /**
  * VA-API hardware encoding on Linux (AMD and Intel GPUs), next to NVENC.
@@ -7,8 +8,8 @@ import type {Codec} from './codec';
  * (for example `/dev/dri/renderD128`) and setting `hardwareAcceleration` to
  * `"if-possible"` or `"required"`. The FFmpeg in use must be built with VA-API
  * (`h264_vaapi`, `hevc_vaapi` and the `hwupload` filter); the encoder probe
- * falls back to software encoding when it is not, or when the device does not
- * exist (probe-encoder.ts).
+ * falls back to software encoding when it is not, or when the device cannot
+ * start an encode (probe-encoder.ts).
  *
  * No Node.js module is imported here: crf.ts, which is part of the browser
  * build (pure.ts), uses this file.
@@ -34,6 +35,39 @@ export const getVaapiEncoderName = (codec: Codec): string | null => {
 	}
 
 	return null;
+};
+
+/**
+ * The VA-API encoder for a render, or null when VA-API cannot produce exactly
+ * what was asked for:
+ * - only 8-bit 4:2:0 (`yuv420p`): the frames are uploaded as NV12, so a 10-bit
+ *   or 4:4:4 request would silently be encoded as 8-bit 4:2:0
+ * - a CRF of 1 or more: FFmpeg treats `-qp 0` as unset and uses its default
+ *   quantizer (25 for HEVC), so CRF 0 stays on the software encoder
+ * `pixelFormat: null` skips the pixel format check (when it is not known yet).
+ */
+export const getVaapiEncoderFor = ({
+	codec,
+	pixelFormat,
+	crf,
+}: {
+	codec: Codec;
+	pixelFormat: PixelFormat | null;
+	crf: unknown;
+}): string | null => {
+	if (getVaapiDevice() === null) {
+		return null;
+	}
+
+	if (pixelFormat !== null && pixelFormat !== 'yuv420p') {
+		return null;
+	}
+
+	if (crf !== null && typeof crf !== 'undefined' && crf === 0) {
+		return null;
+	}
+
+	return getVaapiEncoderName(codec);
 };
 
 export const isVaapiEncoder = (encoderName: string): boolean => {

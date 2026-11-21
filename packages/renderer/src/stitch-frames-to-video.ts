@@ -49,7 +49,8 @@ import {
 import {resolveHardwareAcceleration} from './probe-encoder';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
-import {getHevcCopyArgs} from './vaapi-copy';
+import {isVaapiEncoder} from './vaapi';
+import {finishVaapiHevcOutput} from './vaapi-output';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -444,21 +445,16 @@ const innerStitchFramesToVideo = async (
 				encodingBufferSize: bufferSize,
 				proResBitsPerMacroblock,
 				onLog,
+				pixelFormat,
 			});
 
+	// a pre-encoded H.265 stream copied into MP4/MOV is tagged hvc1, the tag
+	// QuickTime and Safari read (FFmpeg writes hev1 by default)
 	const hevcCopyArgs =
 		preEncodedFileLocation &&
 		codec === 'h265' &&
 		['mp4', 'mov', 'm4v'].includes(outputExtension)
-			? await getHevcCopyArgs({
-					file: preEncodedFileLocation,
-					width,
-					height,
-					binariesDirectory,
-					indent: indent ?? false,
-					logLevel,
-					cancelSignal: cancelSignal ?? undefined,
-				})
+			? [['-tag:v', 'hvc1']]
 			: [];
 
 	const ffmpegArgs = [
@@ -595,6 +591,35 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+
+	// this stitch encoded with VA-API HEVC itself (no pre-encode): its file may
+	// be coded larger than the composition without a crop, and it is tagged hvc1
+	// here, on a copy, not on the encode (vaapi-output.ts)
+	const stitchVideoEncoder =
+		(
+			ffmpegArgs.find((arg) => Array.isArray(arg) && arg[0] === '-c:v') as
+				| string[]
+				| undefined
+		)?.[1] ?? null;
+	const writtenFile = fastStartIntermediate ?? outputLocation ?? tempFile;
+	if (
+		!preEncodedFileLocation &&
+		codec === 'h265' &&
+		stitchVideoEncoder &&
+		isVaapiEncoder(stitchVideoEncoder) &&
+		writtenFile
+	) {
+		await finishVaapiHevcOutput({
+			file: path.resolve(remotionRoot, writtenFile),
+			width,
+			height,
+			tagHvc1: ['mp4', 'mov', 'm4v'].includes(outputExtension),
+			binariesDirectory,
+			indent: indent ?? false,
+			logLevel,
+			cancelSignal: cancelSignal ?? undefined,
+		});
+	}
 
 	if (separateAudioTo && audio) {
 		const finalDestination = path.resolve(remotionRoot, separateAudioTo);

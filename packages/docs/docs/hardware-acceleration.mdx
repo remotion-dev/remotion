@@ -105,19 +105,23 @@ To encode on an AMD or Intel GPU on Linux, you need:
 - A VA-API driver for the GPU (Mesa's `radeonsi` for AMD, `iHD` for recent Intel GPUs)
 - FFmpeg compiled with VA-API: the `h264_vaapi` or `hevc_vaapi` encoder and the `hwupload` filter
 
-The FFmpeg binaries bundled with Remotion do not include VA-API. Point [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) at a folder with an FFmpeg built with `--enable-vaapi`.
+The FFmpeg binaries bundled with Remotion do not include VA-API. [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) replaces all of Remotion's binaries at once (`ffmpeg`, `ffprobe`, Remotion's compositor and their shared libraries), so prepare a complete folder:
 
-Then set the render node in the environment and enable hardware acceleration:
+1. Copy the folder of your platform's compositor package, for example `node_modules/@remotion/compositor-linux-x64-gnu`.
+2. Replace `ffmpeg` and `ffprobe` in it with a build that has VA-API (`--enable-vaapi`: the `h264_vaapi` and `hevc_vaapi` encoders and the `hwupload` filter) and `libfdk_aac`, which Remotion uses for AAC audio.
+3. Pass that folder to the render.
 
 ```bash
-REMOTION_VAAPI_DEVICE=/dev/dri/renderD128 npx remotion render --hardware-acceleration if-possible
+REMOTION_VAAPI_DEVICE=/dev/dri/renderD128 npx remotion render --hardware-acceleration if-possible --binaries-directory ./vaapi-binaries
 ```
 
-With the variable set, H.264 is encoded with `h264_vaapi` and H.265 with `hevc_vaapi`; without it, Linux uses NVENC as before. If the FFmpeg in use lacks the encoder, `"if-possible"` falls back to software encoding and `"required"` throws an error.
+Without `--binaries-directory`, the bundled FFmpeg is used: it has no VA-API, so `"if-possible"` falls back to software encoding.
 
-Unlike NVENC, VA-API accepts the [`crf`](/docs/options/crf): it is passed as the constant quantizer (`-rc_mode CQP -qp <crf>`). The frames are uploaded to the GPU as NV12 after every other filter (`format=nv12,hwupload`).
+With the variable set, H.264 is encoded with `h264_vaapi` and H.265 with `hevc_vaapi`; without it, Linux uses NVENC as before. Before the render, Remotion encodes one frame with the selected encoder on the device. If that fails (no VA-API in the FFmpeg, a device the process cannot open, a GPU without an encoder for the codec), `"if-possible"` falls back to software encoding and `"required"` throws an error.
 
-For H.265 in MP4 or MOV, the final mux tags the stream `hvc1`, the tag QuickTime and Safari read. Some VA-API drivers (Mesa's `radeonsi`) code a 1920x1080 HEVC stream at 1920x1088 without writing the crop; the final mux writes it when the encoded stream is larger than the composition.
+VA-API is only selected for what it encodes exactly: the `yuv420p` pixel format (the frames are uploaded as NV12, so other pixel formats such as `yuv420p10le` stay on the software encoder) and a [`crf`](/docs/options/crf) of 1 or more. Unlike NVENC, VA-API accepts the CRF: it is passed as the constant quantizer (`-rc_mode CQP -qp <crf>`). CRF 0 stays on the software encoder, because FFmpeg treats `-qp 0` as unset.
+
+Some VA-API drivers (Mesa's `radeonsi`) code a 1920x1080 HEVC stream at 1920x1088 without writing the crop. After an `hevc_vaapi` encode, Remotion reads the stream's size and writes the crop with a stream copy when it is larger than the composition. H.265 in MP4 or MOV is tagged `hvc1`, the tag QuickTime and Safari read.
 
 Measured on an AMD Radeon RX 7900 XTX and an RX 6800 XT (Mesa 25.0.7, FFmpeg 8.1): a 568-frame 1080p composition was encoded in under 2 s of GPU time with `hevc_vaapi` against about 127 s of CPU time with `libx264` (`faster`). At `-qp 18` (7900 XTX) and `-qp 16` (6800 XT) the SSIM against a near-lossless reference matched `libx264` at CRF 16 (0.986 against 0.986) at a similar file size.
 

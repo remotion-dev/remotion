@@ -13,7 +13,8 @@ import {
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
-import {getVaapiDevice, isVaapiEncoder} from './vaapi';
+import type {PixelFormat} from './pixel-format';
+import {VAAPI_UPLOAD_FILTER, getVaapiDevice, isVaapiEncoder} from './vaapi';
 
 /**
  * Probes FFmpeg to check if a specific encoder is available.
@@ -69,16 +70,97 @@ export const probeEncoderAvailability = ({
 	}
 };
 
+const vaapiProbeCache = new Map<string, boolean>();
+
+// a VA-API encoder needs a frame of at least this size on every driver
+const VAAPI_PROBE_SIZE = 256;
+
 /**
- * A VA-API encoder needs its render node (REMOTION_VAAPI_DEVICE) to exist.
+ * Whether the VA-API encoder can start on the configured render node
+ * (REMOTION_VAAPI_DEVICE): one frame is encoded to nowhere. That `ffmpeg
+ * -encoders` lists `hevc_vaapi` only says it was compiled in; a GPU without
+ * that codec's encode profile, or a node this process cannot open, fails here.
+ * The answer is kept per FFmpeg, device and encoder.
  */
-export const vaapiDeviceIsMissing = (encoderName: string): boolean => {
-	if (!isVaapiEncoder(encoderName)) {
+export const probeVaapiEncoder = ({
+	encoderName,
+	binariesDirectory,
+	indent,
+	logLevel,
+}: {
+	encoderName: string;
+	binariesDirectory: string | null;
+	indent: boolean;
+	logLevel: LogLevel;
+}): boolean => {
+	const device = getVaapiDevice();
+	if (device === null || !fs.existsSync(device)) {
+		Log.verbose(
+			{indent, logLevel, tag: 'probeVaapiEncoder()'},
+			`The VA-API device "${device}" does not exist.`,
+		);
 		return false;
 	}
 
-	const device = getVaapiDevice();
-	return device === null || !fs.existsSync(device);
+	const key = `${binariesDirectory ?? ''}|${device}|${encoderName}`;
+	const cached = vaapiProbeCache.get(key);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	let works = false;
+	try {
+		const executablePath = getExecutablePath({
+			type: 'ffmpeg',
+			indent,
+			logLevel,
+			binariesDirectory,
+		});
+		makeFileExecutableIfItIsNot(executablePath);
+		const cwd = path.dirname(executablePath);
+		execFileSync(
+			executablePath,
+			[
+				'-hide_banner',
+				'-v',
+				'error',
+				'-vaapi_device',
+				device,
+				'-f',
+				'rawvideo',
+				'-pix_fmt',
+				'nv12',
+				'-s',
+				`${VAAPI_PROBE_SIZE}x${VAAPI_PROBE_SIZE}`,
+				'-i',
+				'-',
+				'-vf',
+				VAAPI_UPLOAD_FILTER,
+				'-c:v',
+				encoderName,
+				'-frames:v',
+				'1',
+				'-f',
+				'null',
+				'-',
+			],
+			{
+				input: new Uint8Array((VAAPI_PROBE_SIZE * VAAPI_PROBE_SIZE * 3) / 2),
+				env: getExplicitEnv(cwd),
+				stdio: ['pipe', 'pipe', 'pipe'],
+				timeout: 10000,
+			},
+		);
+		works = true;
+	} catch (err) {
+		Log.verbose(
+			{indent, logLevel, tag: 'probeVaapiEncoder()'},
+			`"${encoderName}" could not start on the VA-API device "${device}": ${err}`,
+		);
+	}
+
+	vaapiProbeCache.set(key, works);
+	return works;
 };
 
 /**
@@ -98,6 +180,7 @@ export const resolveHardwareAcceleration = ({
 	encodingBufferSize,
 	proResBitsPerMacroblock,
 	onLog,
+	pixelFormat = null,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -109,6 +192,7 @@ export const resolveHardwareAcceleration = ({
 	encodingBufferSize: string | null;
 	proResBitsPerMacroblock: number | null;
 	onLog: OnLog | null;
+	pixelFormat?: PixelFormat | null;
 }): HardwareAccelerationOption => {
 	if (hardwareAcceleration === 'disable') {
 		return 'disable';
@@ -124,6 +208,7 @@ export const resolveHardwareAcceleration = ({
 		logLevel,
 		indent,
 		onLog,
+		pixelFormat,
 	});
 
 	// Audio codecs return null, no probing needed
@@ -148,21 +233,21 @@ export const resolveHardwareAcceleration = ({
 		return hardwareAcceleration;
 	}
 
-	if (vaapiDeviceIsMissing(preferred.encoderName)) {
-		Log.verbose(
-			{indent, logLevel, tag: 'resolveHardwareAcceleration()'},
-			`The VA-API device "${getVaapiDevice()}" does not exist.`,
-		);
-	}
-
+	const vaapi = isVaapiEncoder(preferred.encoderName);
 	const encoderAvailable =
-		!vaapiDeviceIsMissing(preferred.encoderName) &&
 		probeEncoderAvailability({
 			encoderName: preferred.encoderName,
 			binariesDirectory,
 			indent,
 			logLevel,
-		});
+		}) &&
+		(!vaapi ||
+			probeVaapiEncoder({
+				encoderName: preferred.encoderName,
+				binariesDirectory,
+				indent,
+				logLevel,
+			}));
 
 	if (encoderAvailable) {
 		return hardwareAcceleration;
@@ -178,6 +263,13 @@ export const resolveHardwareAcceleration = ({
 	}
 
 	// hardwareAcceleration === 'required'
+	if (vaapi) {
+		throw new Error(
+			`Hardware encoder "${preferred.encoderName}" could not start on the VA-API device "${getVaapiDevice()}". ` +
+				`Check that the device exists and is readable, that the GPU can encode ${codec} and that your FFmpeg is built with VA-API, or use "if-possible" mode instead of "required".`,
+		);
+	}
+
 	throw new Error(
 		`Hardware encoder "${preferred.encoderName}" is not available in your FFmpeg build. ` +
 			`Install an FFmpeg with ${preferred.encoderName} support, or use "if-possible" mode instead of "required".`,

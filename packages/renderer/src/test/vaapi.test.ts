@@ -5,6 +5,7 @@ import path from 'node:path';
 import type {Codec} from '../codec';
 import type {ColorSpace} from '../options/color-space';
 import type {HardwareAccelerationOption} from '../options/hardware-acceleration';
+import type {PixelFormat} from '../pixel-format';
 
 mock.module('remotion/version', () => ({
 	VERSION: '4.0.0-test',
@@ -13,7 +14,8 @@ mock.module('remotion/version', () => ({
 const {getCodecName} = require('../get-codec-name');
 const {generateFfmpegArgs} = require('../ffmpeg-args');
 const {validateQualitySettings} = require('../crf');
-const {vaapiDeviceIsMissing} = require('../probe-encoder');
+const {probeVaapiEncoder} = require('../probe-encoder');
+const {getVaapiHevcRemuxArgs} = require('../vaapi-output');
 const {
 	VAAPI_DEVICE_ENV,
 	getHevcCropBitstreamFilter,
@@ -46,11 +48,13 @@ const codecName = (
 	codec: Codec,
 	hardwareAcceleration: HardwareAccelerationOption,
 	crf: number | null = null,
+	pixelFormat: PixelFormat | null = 'yuv420p',
 ) =>
 	getCodecName({
 		codec,
 		hardwareAcceleration,
 		crf,
+		pixelFormat,
 		encodingMaxRate: null,
 		encodingBufferSize: null,
 		proResBitsPerMacroblock: null,
@@ -65,17 +69,19 @@ const ffmpegArgs = ({
 	hasPreencoded = false,
 	colorSpace = 'default',
 	x264Preset = null,
+	pixelFormat = 'yuv420p',
 }: {
 	codec?: Codec;
 	crf?: number | null;
 	hasPreencoded?: boolean;
 	colorSpace?: ColorSpace;
 	x264Preset?: string | null;
+	pixelFormat?: PixelFormat;
 }): string[][] =>
 	generateFfmpegArgs({
 		hasPreencoded,
 		proResProfileName: null,
-		pixelFormat: 'yuv420p',
+		pixelFormat,
 		x264Preset,
 		gopSize: null,
 		proResBitsPerMacroblock: null,
@@ -115,11 +121,43 @@ describe('getCodecName - VA-API on Linux', () => {
 		expect(codecName('h265', 'if-possible').encoderName).toBe('hevc_nvenc');
 	});
 
-	test('a device that does not exist: the probe counts the VA-API encoder as unavailable', () => {
-		expect(vaapiDeviceIsMissing('h264_vaapi')).toBe(false);
+	test('only what VA-API encodes exactly: 8-bit 4:2:0', () => {
+		expect(
+			codecName('h265', 'if-possible', null, 'yuv420p10le').encoderName,
+		).toBe('hevc_nvenc');
+		expect(codecName('h264', 'if-possible', null, 'yuv444p').encoderName).toBe(
+			'h264_nvenc',
+		);
+		expect(codecName('h265', 'if-possible', null, 'yuv420p').encoderName).toBe(
+			'hevc_vaapi',
+		);
+	});
+
+	test('CRF 0 stays on the software encoder (FFmpeg treats -qp 0 as unset)', () => {
+		expect(codecName('h265', 'if-possible', 0).encoderName).toBe('libx265');
+		expect(() => codecName('h265', 'required', 0)).toThrow();
+	});
+
+	test('the probe starts a real encode on the device: none there, or no VA-API FFmpeg, is unavailable', () => {
 		process.env[VAAPI_DEVICE_ENV] = path.join(path.dirname(device), 'nope');
-		expect(vaapiDeviceIsMissing('hevc_vaapi')).toBe(true);
-		expect(vaapiDeviceIsMissing('h264_nvenc')).toBe(false);
+		expect(
+			probeVaapiEncoder({
+				encoderName: 'hevc_vaapi',
+				binariesDirectory: null,
+				indent: false,
+				logLevel: 'error',
+			}),
+		).toBe(false);
+		// the stand-in is a plain file: nothing can encode on it
+		process.env[VAAPI_DEVICE_ENV] = device;
+		expect(
+			probeVaapiEncoder({
+				encoderName: 'h264_vaapi',
+				binariesDirectory: null,
+				indent: false,
+				logLevel: 'error',
+			}),
+		).toBe(false);
 	});
 
 	test('hardware acceleration disabled: software encoding', () => {
@@ -167,6 +205,12 @@ describe('generateFfmpegArgs - VA-API', () => {
 		expect(flat).not.toContain('-crf');
 	});
 
+	test('a 10-bit request is not encoded by VA-API (no upload, its pixel format kept)', () => {
+		const flat = ffmpegArgs({codec: 'h265', pixelFormat: 'yuv420p10le'}).flat();
+		expect(flat).not.toContain('-vaapi_device');
+		expect(flat).toContain('yuv420p10le');
+	});
+
 	test('a copy of the pre-encoded stream needs no device', () => {
 		const flat = ffmpegArgs({hasPreencoded: true}).flat();
 		expect(flat).toContain('copy');
@@ -206,6 +250,22 @@ describe('validateQualitySettings - VA-API', () => {
 	});
 });
 
+describe('validateQualitySettings - CRF 0', () => {
+	test('"required" with CRF 0 is refused even with a device', () => {
+		expect(() =>
+			validateQualitySettings({
+				crf: 0,
+				codec: 'h265',
+				videoBitrate: null,
+				encodingMaxRate: null,
+				encodingBufferSize: null,
+				hardwareAcceleration: 'required',
+				hardwareAccelerated: false,
+			}),
+		).toThrow();
+	});
+});
+
 describe('VA-API helpers', () => {
 	test('withVaapiUpload appends to an existing -vf or adds one', () => {
 		expect(withVaapiUpload([['-c:v', 'h264_vaapi']])).toEqual([
@@ -215,6 +275,41 @@ describe('VA-API helpers', () => {
 		expect(withVaapiUpload([['-vf', 'copy']])).toEqual([
 			['-vf', 'copy,format=nv12,hwupload'],
 		]);
+	});
+
+	test('the finishing copy: the crop and the tag, each only when asked', () => {
+		expect(
+			getVaapiHevcRemuxArgs({
+				input: 'in.mp4',
+				output: 'out.mp4',
+				crop: ['-bsf:v', 'hevc_metadata=crop_right=0:crop_bottom=8'],
+				tagHvc1: true,
+			}),
+		).toEqual([
+			'-hide_banner',
+			'-v',
+			'error',
+			'-y',
+			'-i',
+			'in.mp4',
+			'-map',
+			'0',
+			'-c',
+			'copy',
+			'-bsf:v',
+			'hevc_metadata=crop_right=0:crop_bottom=8',
+			'-tag:v',
+			'hvc1',
+			'out.mp4',
+		]);
+		const plain = getVaapiHevcRemuxArgs({
+			input: 'in.mkv',
+			output: 'out.mkv',
+			crop: null,
+			tagHvc1: false,
+		});
+		expect(plain).not.toContain('-bsf:v');
+		expect(plain).not.toContain('-tag:v');
 	});
 
 	test('the HEVC crop only for a stream larger than the composition', () => {

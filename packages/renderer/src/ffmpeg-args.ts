@@ -143,6 +143,7 @@ export const generateFfmpegArgs = ({
 		indent,
 		logLevel,
 		onLog: null,
+		pixelFormat,
 	});
 
 	if (encoderSettings === null) {

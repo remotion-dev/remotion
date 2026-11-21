@@ -198,6 +198,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		encodingBufferSize: options.encodingBufferSize,
 		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
 		onLog: options.onLog,
+		pixelFormat,
 	});
 
 	const encodingArgs = generateFfmpegArgs({
@@ -344,6 +345,10 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 
 	return {
 		task,
+		// the video encoder this pre-encode runs (a VA-API HEVC file is finished
+		// after it: render-media.ts, vaapi-output.ts)
+		videoEncoder:
+			encodingArgsWithOwnedPixels.find((arg) => arg[0] === '-c:v')?.[1] ?? null,
 		getLogs: () => ffmpegOutput,
 		getExitStatus: () => exitCode,
 		writeFrame: async ({

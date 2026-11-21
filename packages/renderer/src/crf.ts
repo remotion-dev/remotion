@@ -2,7 +2,7 @@
 import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
-import {getVaapiDevice, getVaapiEncoderName} from './vaapi';
+import {getVaapiEncoderFor} from './vaapi';
 
 export type Crf = number | undefined;
 
@@ -72,11 +72,12 @@ export const validateQualitySettings = ({
 	hardwareAccelerated: boolean;
 }): string[] => {
 	const hasExplicitCrf = crf !== null && typeof crf !== 'undefined';
-	// VA-API takes the CRF as its constant quantizer (CQP)
+	// VA-API takes the CRF as its constant quantizer (CQP); not a CRF of 0
+	// (vaapi.ts). With hardware acceleration and a CRF, the encoder chosen is
+	// the VA-API one: NVENC is never chosen with a CRF.
 	const vaapi =
 		hardwareAcceleration !== 'disable' &&
-		getVaapiDevice() !== null &&
-		getVaapiEncoderName(codec) !== null;
+		getVaapiEncoderFor({codec, pixelFormat: null, crf}) !== null;
 
 	if (hasExplicitCrf && videoBitrate) {
 		throw new Error(

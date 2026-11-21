@@ -79,6 +79,8 @@ import {
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
+import {isVaapiEncoder} from './vaapi';
+import {finishVaapiHevcOutput} from './vaapi-output';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
@@ -636,6 +638,26 @@ const internalRenderMediaRaw = async ({
 				await stitcherFfmpeg;
 			} catch {
 				throw new Error(preStitcher?.getLogs());
+			}
+
+			// a VA-API HEVC pre-encode may be coded larger than the composition
+			// without a crop (vaapi-output.ts); the final copy tags it hvc1
+			if (
+				preEncodedFileLocation &&
+				preStitcher?.videoEncoder &&
+				isVaapiEncoder(preStitcher.videoEncoder) &&
+				codec === 'h265'
+			) {
+				await finishVaapiHevcOutput({
+					file: preEncodedFileLocation,
+					width: Math.round(actualWidth),
+					height: Math.round(actualHeight),
+					tagHvc1: false,
+					binariesDirectory,
+					indent,
+					logLevel,
+					cancelSignal: cancelPrestitcher.cancelSignal,
+				});
 			}
 		}
 
