@@ -1,10 +1,8 @@
 import {parseLengthPercentage, splitAtTopLevel} from './background-image-rect';
-import type {LinearGradientInfo} from './parse-linear-gradient';
-import {parseLinearGradient} from './parse-linear-gradient';
 
-type LinearGradientMaskImageInfo = {
-	type: 'linear-gradient';
-	gradientInfo: LinearGradientInfo;
+type GradientMaskImageInfo = {
+	type: 'gradient';
+	value: string;
 };
 
 export type UrlMaskImageInfo = {
@@ -15,7 +13,7 @@ export type UrlMaskImageInfo = {
 	maskPosition: string;
 };
 
-type SingleMaskImageInfo = LinearGradientMaskImageInfo | UrlMaskImageInfo;
+type SingleMaskImageInfo = GradientMaskImageInfo | UrlMaskImageInfo;
 type MaskLayerStyle = Pick<
 	CSSStyleDeclaration,
 	| 'maskComposite'
@@ -27,10 +25,10 @@ type MaskLayerStyle = Pick<
 	| 'maskMode'
 >;
 export type MaskImageInfo =
-	| SingleMaskImageInfo
+	| UrlMaskImageInfo
 	| {
 			type: 'layers';
-			layers: (UrlMaskImageInfo | null)[];
+			layers: (SingleMaskImageInfo | null)[];
 			style: MaskLayerStyle;
 	  };
 
@@ -246,11 +244,10 @@ const parseSingleMaskImage = (
 		};
 	}
 
-	const gradientInfo = /^\s*linear-gradient\(/i.test(maskImageValue)
-		? parseLinearGradient(maskImageValue)
-		: null;
-	if (gradientInfo) {
-		return {type: 'linear-gradient', gradientInfo};
+	if (
+		/^\s*(repeating-)?(linear|radial|conic)-gradient\(/i.test(maskImageValue)
+	) {
+		return {type: 'gradient', value: maskImageValue.trim()};
 	}
 
 	if (maskImageValue.trim().toLowerCase().startsWith('url(')) {
@@ -267,13 +264,17 @@ export const parseMaskImage = (
 	computedStyle: CSSStyleDeclaration,
 ): MaskImageInfo | null => {
 	const images = splitAtTopLevel(value, ',');
-	if (images.length === 1) return parseSingleMaskImage(value, computedStyle, 0);
+	const layers = images.map((image, index) =>
+		image === 'none' ? null : parseSingleMaskImage(image, computedStyle, index),
+	);
+	if (layers.length === 1 && layers[0]?.type === 'url') return layers[0];
 	if (!CSS.supports('mask-composite', computedStyle.maskComposite)) {
 		throw new Error(
 			`Unsupported mask-composite value: ${computedStyle.maskComposite}. Use add, subtract, intersect, or exclude.`,
 		);
 	}
 
+	// Gradients and multiple layers are drawn by the browser's own CSS masking.
 	return {
 		type: 'layers',
 		style: {
@@ -285,15 +286,7 @@ export const parseMaskImage = (
 			maskClip: computedStyle.maskClip,
 			maskMode: computedStyle.maskMode,
 		},
-		layers: images.map((image, index) => {
-			if (image === 'none') return null;
-			const parsed = parseSingleMaskImage(image, computedStyle, index);
-			if (parsed.type !== 'url')
-				throw new Error(
-					'Multiple mask-image layers require raster URL or none sources',
-				);
-			return parsed;
-		}),
+		layers,
 	};
 };
 

@@ -7,6 +7,7 @@ export const createNativeMaskSvg = ({
 	referenceRect,
 	width,
 	height,
+	scale,
 }: {
 	ownerDocument: Document;
 	maskRect: DOMRect;
@@ -14,32 +15,33 @@ export const createNativeMaskSvg = ({
 	referenceRect: DOMRect;
 	width: number;
 	height: number;
+	scale: number;
 }) => {
 	const namespace = 'http://www.w3.org/2000/svg';
 	const svg = ownerDocument.createElementNS(namespace, 'svg');
 	svg.setAttribute('width', String(width));
 	svg.setAttribute('height', String(height));
-	svg.setAttribute(
-		'viewBox',
-		`0 0 ${precomposeRect.width} ${precomposeRect.height}`,
-	);
+	svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
 	const foreignObject = ownerDocument.createElementNS(
 		namespace,
 		'foreignObject',
 	);
 	foreignObject.setAttribute('x', '0');
 	foreignObject.setAttribute('y', '0');
-	foreignObject.setAttribute('width', String(precomposeRect.width));
-	foreignObject.setAttribute('height', String(precomposeRect.height));
+	foreignObject.setAttribute('width', String(width));
+	foreignObject.setAttribute('height', String(height));
 	const htmlNamespace = 'http://www.w3.org/1999/xhtml';
 	const viewport = ownerDocument.createElementNS(
 		htmlNamespace,
 		'div',
 	) as HTMLDivElement;
+	// Lay out at the content's scale so the browser snaps to canvas pixels.
+	// Snapping in CSS pixels and scaling afterwards shifts fractional edges.
 	Object.assign(viewport.style, {
 		position: 'relative',
 		width: `${precomposeRect.width}px`,
 		height: `${precomposeRect.height}px`,
+		zoom: String(scale),
 	});
 	const target = ownerDocument.createElementNS(
 		htmlNamespace,
