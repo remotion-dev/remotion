@@ -10,6 +10,7 @@ type TrackedDelayHandle = {
 export class PremountAwareDelayPlayback {
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
+	private pauseWhenBuffering: boolean;
 	private disposed = false;
 	private readonly activeHandles = new Set<TrackedDelayHandle>();
 	private readonly delayPlayback: ReturnType<
@@ -20,18 +21,26 @@ export class PremountAwareDelayPlayback {
 		bufferState,
 		isPremounting,
 		isPostmounting,
+		pauseWhenBuffering,
 	}: {
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
 		isPostmounting: boolean;
+		pauseWhenBuffering: boolean;
 	}) {
 		this.delayPlayback = bufferState.delayPlayback;
 		this.isPremounting = isPremounting;
 		this.isPostmounting = isPostmounting;
+		this.pauseWhenBuffering = pauseWhenBuffering;
 	}
 
 	private shouldDelayPlayback(): boolean {
-		return !this.disposed && !this.isPremounting && !this.isPostmounting;
+		return (
+			!this.disposed &&
+			!this.isPremounting &&
+			!this.isPostmounting &&
+			this.pauseWhenBuffering
+		);
 	}
 
 	public dispose(): void {
@@ -58,6 +67,11 @@ export class PremountAwareDelayPlayback {
 
 	public setIsPostmounting(isPostmounting: boolean): void {
 		this.isPostmounting = isPostmounting;
+		this.syncHandles();
+	}
+
+	public setPauseWhenBuffering(pauseWhenBuffering: boolean): void {
+		this.pauseWhenBuffering = pauseWhenBuffering;
 		this.syncHandles();
 	}
 

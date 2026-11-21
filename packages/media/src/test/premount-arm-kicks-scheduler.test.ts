@@ -39,6 +39,7 @@ const makePlayer = ({
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
+		pauseWhenBuffering: true,
 		onError: null,
 	});
 };
