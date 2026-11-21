@@ -90,7 +90,8 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
-	readonly pauseWhenBuffering: boolean;
+	// null when the prop is omitted: the decoder holds, the native fallback keeps its own default.
+	readonly pauseWhenBuffering: boolean | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -338,8 +339,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
 	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
 
-	const pauseWhenBufferingRef = useRef(pauseWhenBuffering);
-	pauseWhenBufferingRef.current = pauseWhenBuffering;
+	const pauseWhenBufferingRef = useRef(pauseWhenBuffering ?? true);
+	pauseWhenBufferingRef.current = pauseWhenBuffering ?? true;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
@@ -813,14 +814,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
 
+	// Applied as soon as the player exists: a change during a slow
+	// initialization must be able to release its buffering handle.
 	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setPauseWhenBuffering(pauseWhenBuffering);
-	}, [pauseWhenBuffering, mediaPlayerReady]);
+		mediaPlayerRef.current?.setPauseWhenBuffering(pauseWhenBuffering ?? true);
+	}, [pauseWhenBuffering]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -949,6 +947,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				loop={loop}
 				showInTimeline={showInTimeline}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
+				{...(pauseWhenBuffering === null ? {} : {pauseWhenBuffering})}
 				{...fallbackOffthreadVideoProps}
 				preservePitch={
 					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true

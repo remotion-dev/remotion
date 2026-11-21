@@ -111,10 +111,14 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects' | 'preservePitch' | 'audioStreamIndex'> &
+	Omit<
+		OptionalVideoProps,
+		'effects' | 'preservePitch' | 'audioStreamIndex' | 'pauseWhenBuffering'
+	> &
 	NativeVideoProps & {
 		preservePitch: boolean | null;
 		audioStreamIndex: number | null;
+		pauseWhenBuffering: boolean | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};

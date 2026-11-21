@@ -66,8 +66,8 @@ export const videoIteratorManager = async ({
 	getEffects,
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
-	getDecodesAhead = () => false,
-	getGlobalPlaybackRate = () => 1,
+	getDecodesAhead,
+	getGlobalPlaybackRate,
 }: {
 	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
@@ -86,8 +86,8 @@ export const videoIteratorManager = async ({
 		height: number,
 	) => EffectChainState | null;
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
-	getDecodesAhead?: () => boolean;
-	getGlobalPlaybackRate?: () => number;
+	getDecodesAhead: () => boolean;
+	getGlobalPlaybackRate: () => number;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -366,6 +366,9 @@ export const videoIteratorManager = async ({
 	// late. It decodes to a frame the clock has not reached yet instead, and
 	// resumes drawing when the clock gets there.
 	let aheadTarget: number | null = null;
+	// The timeline seek revision of the playback run that planned aheadTarget.
+	// null until the first seek of a run started during initialization.
+	let aheadRevision: number | null = null;
 	// Wall seconds to decode one second of media, learned from each decode ahead.
 	let decodeSecondsPerMediaSecond = 1 / 12;
 	let keyPacketSink: EncodedPacketSink | null = null;
@@ -432,20 +435,39 @@ export const videoIteratorManager = async ({
 		);
 	};
 
-	const startVideoIteratorAhead = async (
-		time: number,
-		rate: number,
-	): Promise<void> => {
+	const startVideoIteratorAhead = async ({
+		time,
+		rate,
+		revision,
+		nonce,
+	}: {
+		time: number;
+		rate: number;
+		revision: number | null;
+		nonce: Nonce;
+	}): Promise<void> => {
 		const lead = await estimateAheadLead(time, rate);
 		if (destroyed) {
 			return;
 		}
 
 		const target = time + lead * rate;
+		// A target the clock cannot reach before the loop wraps or the sequence
+		// ends would never be drawn. Decode the requested frame instead; with
+		// pauseWhenBuffering off, that does not hold playback either.
+		if (target >= getLoopSegmentMediaEndTimestamp()) {
+			aheadTarget = null;
+			await startVideoIterator(time, nonce, true);
+			return;
+		}
+
 		const keyTimestamp = (await getKeyPacket(target))?.timestamp ?? target;
+		// The destroyed iterator releases the frame these still point to.
+		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
 		videoFrameIterator = null;
 		aheadTarget = target;
+		aheadRevision = revision;
 		currentSeek = target;
 		const startedAt = performance.now();
 
@@ -487,6 +509,8 @@ export const videoIteratorManager = async ({
 		playbackRate,
 		isPlaying,
 		continuousPlayback,
+		seekRevision,
+		mappingChanged,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -494,12 +518,36 @@ export const videoIteratorManager = async ({
 		playbackRate: number;
 		isPlaying: boolean;
 		continuousPlayback: boolean | null;
+		seekRevision: number | null;
+		mappingChanged: boolean;
 	}) => {
 		const decodesAhead = isPlaying && getDecodesAhead();
+		const restartIterator = (retryReclaimed: boolean) =>
+			decodesAhead
+				? startVideoIteratorAhead({
+						time: newTime,
+						rate: playbackRate * getGlobalPlaybackRate(),
+						revision: seekRevision,
+						nonce,
+					})
+				: startVideoIterator(newTime, nonce, retryReclaimed);
+
 		let arrivedAhead = false;
 		if (!decodesAhead) {
 			aheadTarget = null;
 		} else if (aheadTarget !== null) {
+			// A target belongs to the uninterrupted playback run that planned it.
+			// An explicit seek or a mapping change plans again from the new time.
+			aheadRevision ??= seekRevision;
+			if (
+				mappingChanged ||
+				(seekRevision !== null && seekRevision !== aheadRevision)
+			) {
+				aheadTarget = null;
+				await restartIterator(true);
+				return;
+			}
+
 			// Nothing to draw until the clock reaches the frame decoded ahead.
 			if (newTime < aheadTarget) {
 				return;
@@ -508,14 +556,6 @@ export const videoIteratorManager = async ({
 			aheadTarget = null;
 			arrivedAhead = true;
 		}
-
-		const restartIterator = (retryReclaimed: boolean) =>
-			decodesAhead
-				? startVideoIteratorAhead(
-						newTime,
-						playbackRate * getGlobalPlaybackRate(),
-					)
-				: startVideoIterator(newTime, nonce, retryReclaimed);
 
 		if (!videoFrameIterator) {
 			// The previous iterator failed to start, or was discarded after its
@@ -655,6 +695,7 @@ export const videoIteratorManager = async ({
 		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
 			startVideoIterator(timeToSeek, nonce, true),
 		startVideoIteratorAhead,
+		hasPendingAhead: () => aheadTarget !== null,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {

@@ -140,7 +140,7 @@ export class MediaPlayer {
 		getEffects,
 		getEffectChainState,
 		maxCanvasSinkFrameSize,
-		pauseWhenBuffering = true,
+		pauseWhenBuffering,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -172,7 +172,7 @@ export class MediaPlayer {
 			height: number,
 		) => EffectChainState | null;
 		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
-		pauseWhenBuffering?: boolean;
+		pauseWhenBuffering: boolean;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -538,10 +538,12 @@ export class MediaPlayer {
 						: Promise.resolve(),
 					this.videoIteratorManager
 						? this.playing && !this.pauseWhenBuffering
-							? this.videoIteratorManager.startVideoIteratorAhead(
-									startTime,
-									this.playbackRate * this.globalPlaybackRate,
-								)
+							? this.videoIteratorManager.startVideoIteratorAhead({
+									time: startTime,
+									rate: this.playbackRate * this.globalPlaybackRate,
+									revision: null,
+									nonce,
+								})
 							: this.videoIteratorManager.startVideoIterator(startTime, nonce)
 						: Promise.resolve(),
 				]);
@@ -666,6 +668,11 @@ export class MediaPlayer {
 							: intent !== 'discontinuity' &&
 								intent.playing &&
 								intent.revision === this.satisfiedSeekRevision,
+					seekRevision:
+						intent === null || intent === 'discontinuity'
+							? null
+							: intent.revision,
+					mappingChanged: intent === 'discontinuity',
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -723,6 +730,14 @@ export class MediaPlayer {
 
 		this.playing = false;
 		this.drawDebugOverlay();
+		// A frame decoded ahead is not drawn until the clock reaches it. Pausing
+		// usually keeps the same time, which issues no new seek, so request the
+		// current frame here.
+		if (this.videoIteratorManager?.hasPendingAhead()) {
+			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
+				this.reportTerminalError(error),
+			);
+		}
 	}
 
 	public setMuted(muted: boolean): void {

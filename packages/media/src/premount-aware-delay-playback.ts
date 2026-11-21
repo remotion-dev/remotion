@@ -21,12 +21,12 @@ export class PremountAwareDelayPlayback {
 		bufferState,
 		isPremounting,
 		isPostmounting,
-		pauseWhenBuffering = true,
+		pauseWhenBuffering,
 	}: {
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
 		isPostmounting: boolean;
-		pauseWhenBuffering?: boolean;
+		pauseWhenBuffering: boolean;
 	}) {
 		this.delayPlayback = bufferState.delayPlayback;
 		this.isPremounting = isPremounting;

@@ -520,7 +520,7 @@ const VideoInner: React.FC<
 						controls={controls}
 						objectFit={objectFit ?? 'contain'}
 						maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
-						pauseWhenBuffering={pauseWhenBuffering ?? true}
+						pauseWhenBuffering={pauseWhenBuffering ?? null}
 						_experimentalInitiallyDrawCachedFrame={
 							_experimentalInitiallyDrawCachedFrame ?? false
 						}
