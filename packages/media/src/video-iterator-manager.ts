@@ -366,6 +366,8 @@ export const videoIteratorManager = async ({
 	// late. It decodes to a frame the clock has not reached yet instead, and
 	// resumes drawing when the clock gets there.
 	let aheadTarget: number | null = null;
+	// Set while a decode ahead is choosing its target, before aheadTarget exists.
+	let aheadPlanning = false;
 	// The timeline seek revision of the playback run that planned aheadTarget.
 	// null until the first seek of a run started during initialization.
 	let aheadRevision: number | null = null;
@@ -446,22 +448,32 @@ export const videoIteratorManager = async ({
 		revision: number | null;
 		nonce: Nonce;
 	}): Promise<void> => {
-		const lead = await estimateAheadLead(time, rate);
-		if (destroyed) {
-			return;
+		// Planning counts as pending until aheadTarget is set, so a pause during
+		// these lookups still asks for the current frame.
+		aheadPlanning = true;
+		let target: number;
+		let keyTimestamp: number;
+		try {
+			const lead = await estimateAheadLead(time, rate);
+			if (destroyed) {
+				return;
+			}
+
+			target = time + lead * rate;
+			// A target the clock cannot reach before the loop wraps or the sequence
+			// ends would never be drawn. Decode the requested frame instead; with
+			// pauseWhenBuffering off, that does not hold playback either.
+			if (target >= getLoopSegmentMediaEndTimestamp()) {
+				aheadTarget = null;
+				await startVideoIterator(time, nonce, true);
+				return;
+			}
+
+			keyTimestamp = (await getKeyPacket(target))?.timestamp ?? target;
+		} finally {
+			aheadPlanning = false;
 		}
 
-		const target = time + lead * rate;
-		// A target the clock cannot reach before the loop wraps or the sequence
-		// ends would never be drawn. Decode the requested frame instead; with
-		// pauseWhenBuffering off, that does not hold playback either.
-		if (target >= getLoopSegmentMediaEndTimestamp()) {
-			aheadTarget = null;
-			await startVideoIterator(time, nonce, true);
-			return;
-		}
-
-		const keyTimestamp = (await getKeyPacket(target))?.timestamp ?? target;
 		// The destroyed iterator releases the frame these still point to.
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
@@ -534,7 +546,12 @@ export const videoIteratorManager = async ({
 
 		let arrivedAhead = false;
 		if (!decodesAhead) {
-			aheadTarget = null;
+			if (aheadTarget !== null) {
+				// The pending target was decoded but never drawn, so this request must
+				// not be skipped as a repeat of it.
+				aheadTarget = null;
+				currentSeek = null;
+			}
 		} else if (aheadTarget !== null) {
 			// A target belongs to the uninterrupted playback run that planned it.
 			// An explicit seek or a mapping change plans again from the new time.
@@ -695,7 +712,7 @@ export const videoIteratorManager = async ({
 		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
 			startVideoIterator(timeToSeek, nonce, true),
 		startVideoIteratorAhead,
-		hasPendingAhead: () => aheadTarget !== null,
+		hasPendingAhead: () => aheadTarget !== null || aheadPlanning,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
