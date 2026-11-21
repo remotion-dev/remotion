@@ -78,8 +78,10 @@ const prepare = async () => {
 const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
 	onVideoFrame: (() => void) | null = null,
+	decodesAhead = false,
 ) =>
 	videoIteratorManager({
+		getDecodesAhead: () => decodesAhead,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
@@ -479,6 +481,44 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 
 		expect(manager.getVideoIteratorsCreated()).toBe(2);
 		expect(manager.getFramesRendered()).toBe(2);
+	} finally {
+		manager.destroy();
+	}
+});
+
+test('decodes ahead of the clock instead of restarting at it when playback is not held', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+	const seekWhilePlaying = (newTime: number) =>
+		manager.seek({
+			newTime,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: true,
+			continuousPlayback: null,
+		});
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		const framesBefore = manager.getFramesRendered();
+
+		// A jump while playing starts a decoder ahead of the clock and draws nothing yet.
+		await seekWhilePlaying(2);
+		const iteratorsAfterJump = manager.getVideoIteratorsCreated();
+		expect(iteratorsAfterJump).toBe(2);
+		expect(manager.getFramesRendered()).toBe(framesBefore);
+
+		// Before the clock reaches that frame, it waits without restarting.
+		await seekWhilePlaying(2 + 1 / 30);
+		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
+		expect(manager.getFramesRendered()).toBe(framesBefore);
+
+		// Once the clock is past it (the lead is at most 3 seconds), it draws from the same decoder.
+		await seekWhilePlaying(5.1);
+		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
+		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
 	} finally {
 		manager.destroy();
 	}

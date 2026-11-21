@@ -1,5 +1,5 @@
-import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
-import {VideoSampleSink} from 'mediabunny';
+import type {EncodedPacket, InputVideoTrack, WrappedCanvas} from 'mediabunny';
+import {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
@@ -20,6 +20,11 @@ import {
 } from './video/video-preview-iterator';
 
 const {runEffectChain} = Internals;
+
+const AHEAD_SETUP_SECONDS = 0.08;
+const AHEAD_SAFETY_FACTOR = 1.3;
+const AHEAD_MIN_LEAD_SECONDS = 0.1;
+const AHEAD_MAX_LEAD_SECONDS = 3;
 
 export const isSequentialMediaTimeAdvance = ({
 	previousTime,
@@ -61,6 +66,8 @@ export const videoIteratorManager = async ({
 	getEffects,
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
+	getDecodesAhead = () => false,
+	getGlobalPlaybackRate = () => 1,
 }: {
 	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
@@ -79,6 +86,8 @@ export const videoIteratorManager = async ({
 		height: number,
 	) => EffectChainState | null;
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	getDecodesAhead?: () => boolean;
+	getGlobalPlaybackRate?: () => number;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -351,6 +360,126 @@ export const videoIteratorManager = async ({
 		await drawFrame(iterator.initialFrame, timeToSeek);
 	};
 
+	// With `pauseWhenBuffering: false`, the player may not hold the clock. It
+	// cannot catch the clock by restarting at the current time: the clock moves
+	// on while the decoder works from the keyframe, so every restart is already
+	// late. It decodes to a frame the clock has not reached yet instead, and
+	// resumes drawing when the clock gets there.
+	let aheadTarget: number | null = null;
+	// Wall seconds to decode one second of media, learned from each decode ahead.
+	let decodeSecondsPerMediaSecond = 1 / 12;
+	let keyPacketSink: EncodedPacketSink | null = null;
+
+	const getKeyPacket = async (time: number): Promise<EncodedPacket | null> => {
+		try {
+			keyPacketSink ??= new EncodedPacketSink(videoTrack);
+			return await keyPacketSink.getKeyPacket(time, {metadataOnly: true});
+		} catch {
+			return null;
+		}
+	};
+
+	// The shortest lead (in seconds of playback) whose target the decoder
+	// reaches before the clock does. A target at the next keyframe costs almost
+	// nothing to decode, so it can beat a closer target deep in the current GOP.
+	const estimateAheadLead = async (time: number, rate: number) => {
+		const key = await getKeyPacket(time);
+		const keyTimestamp = key?.timestamp ?? time;
+		let nextKeyTimestamp: number | null = null;
+		if (key && keyPacketSink) {
+			try {
+				nextKeyTimestamp =
+					(await keyPacketSink.getNextKeyPacket(key, {metadataOnly: true}))
+						?.timestamp ?? null;
+			} catch {
+				nextKeyTimestamp = null;
+			}
+		}
+
+		const denominator =
+			1 - AHEAD_SAFETY_FACTOR * decodeSecondsPerMediaSecond * rate;
+		const withinGop =
+			denominator > 0
+				? (AHEAD_SAFETY_FACTOR *
+						(AHEAD_SETUP_SECONDS +
+							(time - keyTimestamp) * decodeSecondsPerMediaSecond)) /
+					denominator
+				: Infinity;
+		const leads: number[] = [];
+		if (
+			nextKeyTimestamp === null ||
+			time + withinGop * rate < nextKeyTimestamp
+		) {
+			leads.push(withinGop);
+		}
+
+		if (nextKeyTimestamp !== null) {
+			leads.push(
+				Math.max(
+					(nextKeyTimestamp - time) / rate,
+					AHEAD_SAFETY_FACTOR * AHEAD_SETUP_SECONDS,
+				),
+			);
+		}
+
+		const lead = Math.min(...leads);
+		return Math.min(
+			AHEAD_MAX_LEAD_SECONDS,
+			Math.max(
+				AHEAD_MIN_LEAD_SECONDS,
+				Number.isFinite(lead) ? lead : AHEAD_MAX_LEAD_SECONDS,
+			),
+		);
+	};
+
+	const startVideoIteratorAhead = async (
+		time: number,
+		rate: number,
+	): Promise<void> => {
+		const lead = await estimateAheadLead(time, rate);
+		if (destroyed) {
+			return;
+		}
+
+		const target = time + lead * rate;
+		const keyTimestamp = (await getKeyPacket(target))?.timestamp ?? target;
+		videoFrameIterator?.destroy();
+		videoFrameIterator = null;
+		aheadTarget = target;
+		currentSeek = target;
+		const startedAt = performance.now();
+
+		let iterator: VideoIterator;
+		try {
+			iterator = await createVideoIterator(target, prewarmedVideoIteratorCache);
+		} catch (error) {
+			if (!isCodecReclaimedError(error)) {
+				aheadTarget = null;
+				currentSeek = null;
+				throw error;
+			}
+
+			prewarmedVideoIteratorCache.destroy();
+			iterator = await createVideoIterator(target, prewarmedVideoIteratorCache);
+		}
+
+		videoIteratorsCreated++;
+		if (destroyed || aheadTarget !== target) {
+			iterator.destroy();
+			return;
+		}
+
+		videoFrameIterator = iterator;
+		const decodedSeconds = target - keyTimestamp;
+		const elapsedSeconds = (performance.now() - startedAt) / 1000;
+		if (decodedSeconds > 0.25 && elapsedSeconds > AHEAD_SETUP_SECONDS) {
+			decodeSecondsPerMediaSecond =
+				(decodeSecondsPerMediaSecond +
+					(elapsedSeconds - AHEAD_SETUP_SECONDS) / decodedSeconds) /
+				2;
+		}
+	};
+
 	const seek = async ({
 		newTime,
 		nonce,
@@ -366,17 +495,40 @@ export const videoIteratorManager = async ({
 		isPlaying: boolean;
 		continuousPlayback: boolean | null;
 	}) => {
+		const decodesAhead = isPlaying && getDecodesAhead();
+		let arrivedAhead = false;
+		if (!decodesAhead) {
+			aheadTarget = null;
+		} else if (aheadTarget !== null) {
+			// Nothing to draw until the clock reaches the frame decoded ahead.
+			if (newTime < aheadTarget) {
+				return;
+			}
+
+			aheadTarget = null;
+			arrivedAhead = true;
+		}
+
+		const restartIterator = (retryReclaimed: boolean) =>
+			decodesAhead
+				? startVideoIteratorAhead(
+						newTime,
+						playbackRate * getGlobalPlaybackRate(),
+					)
+				: startVideoIterator(newTime, nonce, retryReclaimed);
+
 		if (!videoFrameIterator) {
 			// The previous iterator failed to start, or was discarded after its
 			// decoder was reclaimed by a seek that was then superseded.
 			if (!destroyed) {
-				await startVideoIterator(newTime, nonce, true);
+				await restartIterator(true);
 			}
 
 			return;
 		}
 
 		if (
+			!arrivedAhead &&
 			currentSeek !== null &&
 			roundTo4Digits(currentSeek) === roundTo4Digits(newTime)
 		) {
@@ -408,17 +560,20 @@ export const videoIteratorManager = async ({
 			}
 		}
 
+		// Arriving at a frame decoded ahead continues forward from it, even if the
+		// clock is already past it.
 		const pendingFrameBehavior =
-			previousTime !== null &&
-			newTime >= previousTime &&
-			(continuousPlayback ??
-				isSequentialMediaTimeAdvance({
-					previousTime,
-					newTime,
-					fps,
-					playbackRate,
-					isPlaying,
-				}))
+			arrivedAhead ||
+			(previousTime !== null &&
+				newTime >= previousTime &&
+				(continuousPlayback ??
+					isSequentialMediaTimeAdvance({
+						previousTime,
+						newTime,
+						fps,
+						playbackRate,
+						isPlaying,
+					})))
 				? 'wait'
 				: 'restart-iterator';
 		const iterator = videoFrameIterator;
@@ -464,7 +619,7 @@ export const videoIteratorManager = async ({
 				currentDelayHandle = null;
 				// A single attempt: if the fresh decoder fails as well, the error
 				// propagates.
-				await startVideoIterator(newTime, nonce, false);
+				await restartIterator(false);
 				return;
 			}
 
@@ -482,7 +637,7 @@ export const videoIteratorManager = async ({
 			pending.handle?.unblock();
 			pending.handle = null;
 			currentDelayHandle = null;
-			await startVideoIterator(newTime, nonce, true);
+			await restartIterator(true);
 		} finally {
 			pending.handle?.unblock();
 			if (currentDelayHandle === pending.handle) {
@@ -499,6 +654,7 @@ export const videoIteratorManager = async ({
 		},
 		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
 			startVideoIterator(timeToSeek, nonce, true),
+		startVideoIteratorAhead,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {

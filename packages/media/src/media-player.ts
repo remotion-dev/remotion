@@ -104,6 +104,7 @@ export class MediaPlayer {
 	) => EffectChainState | null;
 
 	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	private pauseWhenBuffering: boolean;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -139,6 +140,7 @@ export class MediaPlayer {
 		getEffects,
 		getEffectChainState,
 		maxCanvasSinkFrameSize,
+		pauseWhenBuffering = true,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -170,6 +172,7 @@ export class MediaPlayer {
 			height: number,
 		) => EffectChainState | null;
 		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+		pauseWhenBuffering?: boolean;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -185,10 +188,12 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
+		this.pauseWhenBuffering = pauseWhenBuffering;
 		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
 			bufferState,
 			isPremounting,
 			isPostmounting,
+			pauseWhenBuffering,
 		});
 		this.sequenceDurationInFrames = durationInFrames;
 		this.nonceManager = makeNonceManager();
@@ -490,6 +495,8 @@ export class MediaPlayer {
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
+					getDecodesAhead: () => !this.pauseWhenBuffering,
+					getGlobalPlaybackRate: () => this.globalPlaybackRate,
 				});
 				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
@@ -530,7 +537,12 @@ export class MediaPlayer {
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
-						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
+						? this.playing && !this.pauseWhenBuffering
+							? this.videoIteratorManager.startVideoIteratorAhead(
+									startTime,
+									this.playbackRate * this.globalPlaybackRate,
+								)
+							: this.videoIteratorManager.startVideoIterator(startTime, nonce)
 						: Promise.resolve(),
 				]);
 			} catch (error) {
@@ -810,6 +822,11 @@ export class MediaPlayer {
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
+	}
+
+	public setPauseWhenBuffering(pauseWhenBuffering: boolean): void {
+		this.pauseWhenBuffering = pauseWhenBuffering;
+		this.premountAwareDelayPlayback.setPauseWhenBuffering(pauseWhenBuffering);
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {

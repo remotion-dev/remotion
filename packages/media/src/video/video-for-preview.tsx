@@ -90,6 +90,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	readonly pauseWhenBuffering: boolean;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -136,6 +137,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	requestInit,
 	objectFit: objectFitProp,
 	maxCanvasSinkFrameSize,
+	pauseWhenBuffering,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	effectsOutputSize,
@@ -335,6 +337,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
 	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
+
+	const pauseWhenBufferingRef = useRef(pauseWhenBuffering);
+	pauseWhenBufferingRef.current = pauseWhenBuffering;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
@@ -567,6 +572,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
 				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
+				pauseWhenBuffering: pauseWhenBufferingRef.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -806,6 +812,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPauseWhenBuffering(pauseWhenBuffering);
+	}, [pauseWhenBuffering, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
