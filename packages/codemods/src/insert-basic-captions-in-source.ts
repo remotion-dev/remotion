@@ -10,7 +10,12 @@ import {
 	getNodePathRemappings,
 } from './get-node-path-remappings';
 import {createElementFromInsertable} from './insertable-element';
-import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
+import {canExtractJsxWithoutCapturedValues} from './precompose-jsx-nodes';
+import {
+	captureJsxAttributeSources,
+	indentInsertedJsx,
+	printInsertedJsx,
+} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	ensureOfficialNamedImport,
@@ -101,6 +106,16 @@ export const insertBasicCaptions = ({
 		throw new Error('The selected element is not a Remotion Video or Audio');
 	}
 
+	const extractSource =
+		!media.openingElement.attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				['ref', 'loop', 'freeze', 'trimAfter', 'startFrom', 'endAt'].includes(
+					attribute.name.name,
+				),
+		) && canExtractJsxWithoutCapturedValues({input, nodePath});
+
 	let owningTrackTag: string | null = null;
 	let ancestor = mediaPath.parentPath;
 	while (ancestor) {
@@ -147,14 +162,16 @@ export const insertBasicCaptions = ({
 			attribute.name.type === 'JSXIdentifier' &&
 			timingProps.includes(attribute.name.name),
 	);
-	const copiedAttributes = mediaAttributes.map(
-		(attribute) => recast.print(attribute).code,
-	);
+	const copiedAttributes = extractSource
+		? []
+		: mediaAttributes.map((attribute) => recast.print(attribute).code);
 	const fallbackTimingProps = [
 		...(Number.isFinite(durationInFrames) &&
 		durationInFrames !== null &&
-		!copiedAttributes.some((attribute) =>
-			attribute.startsWith('durationInFrames'),
+		!mediaAttributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.name === 'durationInFrames',
 		)
 			? [{name: 'durationInFrames', value: durationInFrames}]
 			: []),
@@ -169,7 +186,9 @@ export const insertBasicCaptions = ({
 			sourcePath: importPath,
 		});
 		copiedAttributes.push(
-			...fallbackTimingProps.map(({name, value}) => `${name}={${value}}`),
+			...(extractSource
+				? []
+				: fallbackTimingProps.map(({name, value}) => `${name}={${value}}`)),
 		);
 		const formattingConfig = getSourceFormattingConfig({
 			input,
@@ -264,7 +283,7 @@ export const insertBasicCaptions = ({
 							)
 							.map(([name, value]) => ({name, value})),
 						{name: 'captions', value: captions},
-						...fallbackTimingProps,
+						...(extractSource ? [] : fallbackTimingProps),
 						{
 							name: 'style',
 							value: {
@@ -282,7 +301,7 @@ export const insertBasicCaptions = ({
 		});
 		jsx.openingElement.attributes = [
 			...(jsx.openingElement.attributes ?? []),
-			...(mediaAttributes as never[]),
+			...((extractSource ? [] : mediaAttributes) as never[]),
 		];
 		elementSource = printInsertedJsx({
 			element: jsx,
@@ -292,7 +311,7 @@ export const insertBasicCaptions = ({
 		});
 	}
 
-	if (owningTrackTag !== null) {
+	if (!extractSource && owningTrackTag !== null) {
 		const {endOfLine, indentationUnit} = getSourceFormattingConfig({
 			input,
 			prettierConfigOverride,
@@ -314,6 +333,162 @@ export const insertBasicCaptions = ({
 	}
 
 	const inserted = parsedElement.declarations[0].init;
+	if (extractSource) {
+		const occupiedNames = new Set<string>();
+		recast.visit(ast, {
+			visitIdentifier(path) {
+				occupiedNames.add(path.node.name);
+				this.traverse(path);
+			},
+			visitJSXIdentifier(path) {
+				occupiedNames.add(path.node.name);
+				this.traverse(path);
+			},
+		});
+		const identity = getJsxComponentIdentity({
+			ast,
+			jsxElement: media.openingElement,
+		});
+		const baseName = identity?.endsWith('Audio')
+			? 'CaptionedAudio'
+			: 'CaptionedVideo';
+		let componentName = baseName;
+		for (
+			let suffix = 2;
+			occupiedNames.has(componentName) ||
+			occupiedNames.has(`${componentName}Inner`);
+			suffix++
+		) {
+			componentName = `${baseName}${suffix}`;
+		}
+
+		const interactiveName = ensureOfficialNamedImport({
+			ast,
+			importedName: 'Interactive',
+			preferredLocalName: 'Interactive',
+			sourcePath: 'remotion',
+		});
+		const originalAttributeSources = captureJsxAttributeSources(media);
+		media.openingElement.attributes = media.openingElement.attributes.filter(
+			(attribute) => !mediaAttributes.includes(attribute),
+		);
+		const mediaSource = printInsertedJsx({
+			element: media as never,
+			input,
+			originalAttributeSources,
+			prettierConfigOverride,
+			compactLiteralProps: false,
+		});
+		const {endOfLine, indentationUnit, quote, semi, trailingComma} =
+			getSourceFormattingConfig({input, prettierConfigOverride});
+		const indent = (insertion: string) =>
+			indentInsertedJsx({indent: indentationUnit, insertion});
+		const semicolon = semi ? ';' : '';
+		const quoteCharacter = quote === 'single' ? "'" : '"';
+		const componentSource = [
+			`const ${componentName}Inner = () => {`,
+			indent(
+				[
+					'return (',
+					indent(
+						['<>', indent(mediaSource), indent(elementSource), '</>'].join(
+							endOfLine,
+						),
+					),
+					`)${semicolon}`,
+				].join(endOfLine),
+			),
+			`}${semicolon}`,
+			'',
+			`const ${componentName} = ${interactiveName}.create({`,
+			indent(`Component: ${componentName}Inner,`),
+			indent(
+				`layout: ${quoteCharacter}absolute-fill${quoteCharacter}${trailingComma ? ',' : ''}`,
+			),
+			`})${semicolon}`,
+		].join(endOfLine);
+		const declarations = parseAst(componentSource).program.body;
+		const contentDeclaration = declarations[0];
+		if (
+			contentDeclaration.type !== 'VariableDeclaration' ||
+			contentDeclaration.declarations[0].init?.type !==
+				'ArrowFunctionExpression' ||
+			contentDeclaration.declarations[0].init.body.type !== 'BlockStatement'
+		) {
+			throw new Error('Could not create the captioned source component');
+		}
+
+		const returnStatement =
+			contentDeclaration.declarations[0].init.body.body[0];
+		if (
+			returnStatement.type !== 'ReturnStatement' ||
+			returnStatement.argument?.type !== 'JSXFragment'
+		) {
+			throw new Error('Could not create the captioned source contents');
+		}
+
+		returnStatement.argument.children = [media, inserted];
+		const instanceSource = `<${componentName}${[
+			...mediaAttributes.map((attribute) => recast.print(attribute).code),
+			...fallbackTimingProps.map(({name, value}) => `${name}={${value}}`),
+		]
+			.map((attribute) => ` ${attribute}`)
+			.join('')} />`;
+		const instanceDeclaration = parseAst(
+			`const instance = (${instanceSource});`,
+		).program.body[0];
+		if (
+			instanceDeclaration.type !== 'VariableDeclaration' ||
+			instanceDeclaration.declarations[0].init?.type !== 'JSXElement' ||
+			!media.loc
+		) {
+			throw new Error('Could not create the captioned source instance');
+		}
+
+		mediaPath.replace(instanceDeclaration.declarations[0].init);
+		ast.program.body.push(...declarations);
+		const start = recastLocToOffset(input, media.loc.start);
+		const outputWithSource = applySourceEdits({
+			input,
+			edits: [
+				...getInsertImportSourceEdits({
+					ast,
+					input,
+					prettierConfigOverride,
+					snapshots: importSnapshots,
+				}),
+				{
+					start,
+					end: recastLocToOffset(input, media.loc.end),
+					replacement: indentContinuationLines({
+						input,
+						indent: getLineIndent({input, offset: start}),
+						printed: printInsertedJsx({
+							element: instanceDeclaration.declarations[0].init as never,
+							input,
+							prettierConfigOverride,
+							compactLiteralProps: false,
+						}),
+					}),
+				},
+				{
+					start: input.length,
+					end: input.length,
+					replacement: `${input.endsWith(endOfLine) ? endOfLine : endOfLine + endOfLine}${componentSource}${endOfLine}`,
+				},
+			],
+		});
+		return {
+			output: outputWithSource,
+			logLine: media.openingElement.loc?.start.line ?? 1,
+			nodePathRemappings: getNodePathRemappings({
+				ast,
+				captured,
+				output: outputWithSource,
+			}).nodePathRemappings,
+		};
+	}
+
 	const parent = mediaPath.parentPath?.node;
 	if (!parent) {
 		throw new Error('Could not locate the media element parent');

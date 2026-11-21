@@ -3,7 +3,7 @@ import {insertBasicCaptions} from '../insert-basic-captions-in-source';
 import {parseAst} from '../sequence-props/parse-ast';
 import {lineContainingToNodePath} from './node-path-test-utils';
 
-test('caption imports avoid parameters, local declarations and destructuring', () => {
+test('caption imports avoid shadowed names and fall back for captured values', () => {
 	const fixtures = [
 		{
 			declarations: '',
@@ -41,7 +41,7 @@ test('caption imports avoid parameters, local declarations and destructuring', (
 ${declarations}
 export const Comp = (${parameter}) => {
   ${local}
-  return <Video src="video.mp4" />;
+  return <Video src={BasicCaptions ? "video.mp4" : "fallback.mp4"} />;
 };`;
 			const {output} = insertBasicCaptions({
 				element,
@@ -60,6 +60,7 @@ export const Comp = (${parameter}) => {
 			}
 
 			expect(output).toContain(`export const Comp = (${parameter}) => {`);
+			expect(output).not.toContain('Interactive.create');
 			parseAst(output);
 		}
 	}
@@ -89,7 +90,7 @@ const untouched   = {keep : "this spacing"};
 
 export const Comp = () => (
   <>
-    <Video src="video.mp4" />
+    <Video src="video.mp4" from={30} trimBefore={15} playbackRate={1.5} />
   </>
 );
 `;
@@ -102,34 +103,52 @@ export const Comp = () => (
 	});
 
 	expect(output).toBe(`import { BasicCaptions } from "./basic-captions.element";
+import { Interactive } from "remotion";
 import { Video } from "@remotion/media";
 
 const untouched   = {keep : "this spacing"};
 
 export const Comp = () => (
   <>
-    <Video src="video.mp4" />
-    <BasicCaptions
-      captions={[
-        {
-          text: "Here",
-          startMs: 1440,
-          endMs: 1620,
-          timestampMs: 1530,
-          confidence: null,
-        },
-        {
-          text: " are",
-          startMs: 1620,
-          endMs: 1820,
-          timestampMs: 1720,
-          confidence: null,
-        },
-      ]}
+    <CaptionedVideo
+      from={30}
+      trimBefore={15}
+      playbackRate={1.5}
       durationInFrames={177.45}
     />
   </>
 );
+
+const CaptionedVideoInner = () => {
+  return (
+    <>
+      <Video src="video.mp4" />
+      <BasicCaptions
+        captions={[
+          {
+            text: "Here",
+            startMs: 1440,
+            endMs: 1620,
+            timestampMs: 1530,
+            confidence: null,
+          },
+          {
+            text: " are",
+            startMs: 1620,
+            endMs: 1820,
+            timestampMs: 1720,
+            confidence: null,
+          },
+        ]}
+      />
+    </>
+  );
+};
+
+const CaptionedVideo = Interactive.create({
+  Component: CaptionedVideoInner,
+  layout: "absolute-fill",
+});
 `);
 });
 
@@ -162,26 +181,39 @@ test('uses the source whitespace and configured trailing comma style', () => {
 	expect(output).toBe(
 		[
 			"import {BasicCaptions} from './basic-captions.element'",
+			"import {Interactive} from 'remotion'",
 			"import {Video} from '@remotion/media'",
 			'',
 			'export const Comp = () => (',
 			'\t<>',
-			'\t\t<Video src="video.mp4" />',
-			'\t\t<BasicCaptions',
-			'\t\t\tcaptions={[',
-			'\t\t\t\t{',
-			'\t\t\t\t\ttext: "Jonny\'s video",',
-			'\t\t\t\t\tstartMs: 1440,',
-			'\t\t\t\t\tendMs: 1620,',
-			'\t\t\t\t\ttimestampMs: 1530,',
-			'\t\t\t\t\tconfidence: null,',
-			'\t\t\t\t\tpageBreakAfter: true',
-			'\t\t\t\t}',
-			'\t\t\t]}',
-			'\t\t\tdurationInFrames={90}',
-			'\t\t/>',
+			'\t\t<CaptionedVideo durationInFrames={90} />',
 			'\t</>',
 			')',
+			'',
+			'const CaptionedVideoInner = () => {',
+			'\treturn (',
+			'\t\t<>',
+			'\t\t\t<Video src="video.mp4" />',
+			'\t\t\t<BasicCaptions',
+			'\t\t\t\tcaptions={[',
+			'\t\t\t\t\t{',
+			'\t\t\t\t\t\ttext: "Jonny\'s video",',
+			'\t\t\t\t\t\tstartMs: 1440,',
+			'\t\t\t\t\t\tendMs: 1620,',
+			'\t\t\t\t\t\ttimestampMs: 1530,',
+			'\t\t\t\t\t\tconfidence: null,',
+			'\t\t\t\t\t\tpageBreakAfter: true',
+			'\t\t\t\t\t}',
+			'\t\t\t\t]}',
+			'\t\t\t/>',
+			'\t\t</>',
+			'\t)',
+			'}',
+			'',
+			'const CaptionedVideo = Interactive.create({',
+			'\tComponent: CaptionedVideoInner,',
+			"\tlayout: 'absolute-fill'",
+			'})',
 			'',
 		].join('\r\n'),
 	);

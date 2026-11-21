@@ -1,6 +1,5 @@
 import React, {useCallback, useLayoutEffect, useRef} from 'react';
 import {
-	AbsoluteFill,
 	Internals,
 	Interactive,
 	Sequence,
@@ -221,11 +220,7 @@ const LightLeakCanvas: React.FC<{
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}, [frame, durationInFrames, seed, hueShift, width, height]);
 
-	return (
-		<AbsoluteFill>
-			<canvas ref={canvasRef} width={width} height={height} />
-		</AbsoluteFill>
-	);
+	return <canvas ref={canvasRef} width={width} height={height} />;
 };
 
 /*

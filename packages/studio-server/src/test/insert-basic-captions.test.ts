@@ -45,7 +45,7 @@ const insertBasicCaptions = ({
 	};
 };
 
-test('transcription inserts inline Basic captions beside selected Video and Audio tags', async () => {
+test('transcription groups static Video and Audio with inline captions', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-captions-'));
 	const entryPoint = path.join(remotionRoot, 'Root.tsx');
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -137,9 +137,13 @@ export const Comp = () => (
 		expect(written.replace(/\s+/g, ' ')).toContain(
 			'<BasicCaptions captions={[',
 		);
-		expect(written).toContain('trimBefore={5} playbackRate={2}');
-		expect(written).toContain('durationInFrames={90}');
-		expect(written).toContain('durationInFrames={60}');
+		expect(written.replace(/\s+/g, ' ')).toContain(
+			'<CaptionedVideo from={10} trimBefore={5} playbackRate={2} durationInFrames={90} />',
+		);
+		expect(written).toContain('<CaptionedAudio durationInFrames={60} />');
+		expect(written).toContain('<Video src="video.mp4" />');
+		expect(written).toContain('<Audio src="voice.mp3" />');
+		expect(written.match(/Interactive\.create\(/g)).toHaveLength(2);
 		expect(getUndoStack()).toHaveLength(2);
 	} finally {
 		cleanupFileWatcher();
@@ -148,7 +152,7 @@ export const Comp = () => (
 	}
 });
 
-test('wraps a root Audio in a fragment when adding captions', () => {
+test('groups a root Audio in a reusable component when adding captions', () => {
 	const input = `import {Audio} from 'remotion';
 export const Comp = () => <Audio src="voice.mp3" />;`;
 	const {output} = insertBasicCaptions({
@@ -167,7 +171,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		durationInFrames: 30,
 	});
 
-	expect(output).toContain('<>');
+	expect(output).toContain('<CaptionedAudio durationInFrames={30} />');
 	expect(output).toContain('<Audio src="voice.mp3" />');
 	expect(output.replace(/\s+/g, ' ')).toContain('<BasicCaptions captions={[');
 	expect(output).toContain('durationInFrames={30}');
