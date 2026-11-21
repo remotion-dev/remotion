@@ -77,9 +77,9 @@ const prepare = async () => {
 
 const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
-	onVideoFrame: (() => void) | null = null,
-	decodesAhead = false,
-	segmentEnd: number | null = null,
+	onVideoFrame: (() => void) | null,
+	decodesAhead: boolean,
+	segmentEnd: number | null,
 ) =>
 	videoIteratorManager({
 		getDecodesAhead: () => decodesAhead,
@@ -113,7 +113,7 @@ const makeManager = (
 
 test('plays at a high playback rate without restarting the iterator', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -141,7 +141,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 
 test('paused forward scrubs do not wait for pending frames', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -373,7 +373,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 test('same-time seeks without changed effects do not emit another frame', async () => {
 	const {videoTrack} = await prepare();
 	const onVideoFrame = vi.fn();
-	const manager = await makeManager(videoTrack, onVideoFrame);
+	const manager = await makeManager(videoTrack, onVideoFrame, false, null);
 	const nonceManager = makeNonceManager();
 	const seek = () =>
 		manager.seek({
@@ -401,7 +401,7 @@ const makeReclaimedError = () =>
 
 test('recreates the iterator once when the decoder was reclaimed', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -435,7 +435,7 @@ test('recreates the iterator once when the decoder was reclaimed', async () => {
 
 test('does not recreate the iterator for quota errors that are not reclaims', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -472,7 +472,7 @@ test('does not recreate the iterator for quota errors that are not reclaims', as
 
 test('a superseded seek leaves recreating a reclaimed decoder to the next seek', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
