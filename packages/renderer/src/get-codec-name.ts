@@ -3,6 +3,7 @@ import type {Codec} from './codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
+import {getVaapiDevice, getVaapiEncoderName} from './vaapi';
 
 export type CodecSettings = {
 	encoderName: string;
@@ -64,12 +65,19 @@ export const getCodecName = ({
 		hardwareAcceleration === 'required' ||
 		hardwareAcceleration === 'if-possible';
 
+	// VA-API (AMD and Intel on Linux, REMOTION_VAAPI_DEVICE) takes the CRF as
+	// its constant quantizer, so a CRF does not turn it off
+	const vaapiEncoderName =
+		preferredHwAcceleration && getVaapiDevice() !== null
+			? getVaapiEncoderName(codec)
+			: null;
+
 	const unsupportedQualityOption =
 		hasSpecifiedUnsupportedHardwareQualifySettings({
 			encodingMaxRate,
 			encodingBufferSize,
 			proResBitsPerMacroblock,
-			crf,
+			crf: vaapiEncoderName ? null : crf,
 		});
 
 	if (hardwareAcceleration === 'required' && unsupportedQualityOption) {
@@ -129,6 +137,11 @@ export const getCodecName = ({
 			return {encoderName: 'h264_videotoolbox', hardwareAccelerated: true};
 		}
 
+		// VA-API for Linux, when a render device is given
+		if (vaapiEncoderName && !unsupportedQualityOption) {
+			return {encoderName: vaapiEncoderName, hardwareAccelerated: true};
+		}
+
 		// NVENC for Linux/Windows
 		if (
 			preferredHwAcceleration &&
@@ -150,6 +163,11 @@ export const getCodecName = ({
 			!unsupportedQualityOption
 		) {
 			return {encoderName: 'hevc_videotoolbox', hardwareAccelerated: true};
+		}
+
+		// VA-API for Linux, when a render device is given
+		if (vaapiEncoderName && !unsupportedQualityOption) {
+			return {encoderName: vaapiEncoderName, hardwareAccelerated: true};
 		}
 
 		// NVENC for Linux/Windows

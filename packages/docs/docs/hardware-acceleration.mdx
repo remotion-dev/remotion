@@ -14,6 +14,7 @@ Since encoding is platform- and codec-specific, only a few scenarios are support
 
 - macOS: Acceleration using VideoToolbox
 - Linux and Windows: Acceleration using NVENC (requires an NVIDIA GPU) (from v4.0.484)
+- Linux: Acceleration using VA-API (AMD and Intel GPUs) when `REMOTION_VAAPI_DEVICE` is set (from v4.0.546)
 - ProRes is supported from v4.0.228, H.264 and H.265 are supported from v4.0.236
 
 ## Enable hardware accelerated encoding
@@ -96,6 +97,30 @@ Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the con
 
 Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs fall back to software encoding, with these exceptions when hardware acceleration is `"required"`: `h264-mkv` and `h264-ts` throw an error on every platform, and ProRes throws an error on Linux and Windows.
 
+## Prerequisites for VA-API (Linux, AMD and Intel)
+
+To encode on an AMD or Intel GPU on Linux, you need:
+
+- A VA-API render node, for example `/dev/dri/renderD128` (in Docker: `--device /dev/dri`)
+- A VA-API driver for the GPU (Mesa's `radeonsi` for AMD, `iHD` for recent Intel GPUs)
+- FFmpeg compiled with VA-API: the `h264_vaapi` or `hevc_vaapi` encoder and the `hwupload` filter
+
+The FFmpeg binaries bundled with Remotion do not include VA-API. Point [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) at a folder with an FFmpeg built with `--enable-vaapi`.
+
+Then set the render node in the environment and enable hardware acceleration:
+
+```bash
+REMOTION_VAAPI_DEVICE=/dev/dri/renderD128 npx remotion render --hardware-acceleration if-possible
+```
+
+With the variable set, H.264 is encoded with `h264_vaapi` and H.265 with `hevc_vaapi`; without it, Linux uses NVENC as before. If the FFmpeg in use lacks the encoder, `"if-possible"` falls back to software encoding and `"required"` throws an error.
+
+Unlike NVENC, VA-API accepts the [`crf`](/docs/options/crf): it is passed as the constant quantizer (`-rc_mode CQP -qp <crf>`). The frames are uploaded to the GPU as NV12 after every other filter (`format=nv12,hwupload`).
+
+For H.265 in MP4 or MOV, the final mux tags the stream `hvc1`, the tag QuickTime and Safari read. Some VA-API drivers (Mesa's `radeonsi`) code a 1920x1080 HEVC stream at 1920x1088 without writing the crop; the final mux writes it when the encoded stream is larger than the composition.
+
+Measured on an AMD Radeon RX 7900 XTX and an RX 6800 XT (Mesa 25.0.7, FFmpeg 8.1): a 568-frame 1080p composition was encoded in under 2 s of GPU time with `hevc_vaapi` against about 127 s of CPU time with `libx264` (`faster`). At `-qp 18` (7900 XTX) and `-qp 16` (6800 XT) the SSIM against a near-lossless reference matched `libx264` at CRF 16 (0.986 against 0.986) at a similar file size.
+
 ## Quality using `--video-bitrate` {#controlling-quality-using---video-bitrate}
 
 Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
@@ -103,7 +128,7 @@ We recommend that you use the `--video-bitrate` flag to control the file size.
 
 We find that `--video-bitrate=8M` achieves a similar file size than software encoding when exporting a H.264 Full HD video.
 
-The [`crf`](/docs/options/crf), `encodingMaxRate` and `encodingBufferSize` options are not compatible with hardware-accelerated encoders. If you set one of them, a render with `"required"` throws an error, and a render with `"if-possible"` falls back to software encoding. Instead, use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the quality and file size of the output video.
+The [`crf`](/docs/options/crf), `encodingMaxRate` and `encodingBufferSize` options are not compatible with hardware-accelerated encoders (VA-API takes the `crf` as its quantizer, see above). If you set one of them, a render with `"required"` throws an error, and a render with `"if-possible"` falls back to software encoding. Instead, use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the quality and file size of the output video.
 
 ## Tell if hardware acceleration is being used
 
@@ -113,6 +138,7 @@ If the render is using hardware acceleration, you will see a log message like th
 ```
 Encoder: prores_videotoolbox, hardware accelerated: true
 Encoder: h264_nvenc, hardware accelerated: true
+Encoder: hevc_vaapi, hardware accelerated: true
 ```
 
 Don't rely on the exact wording of the log message to determine if hardware acceleration is being used.

@@ -2,6 +2,7 @@
 import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import {getVaapiDevice, getVaapiEncoderName} from './vaapi';
 
 export type Crf = number | undefined;
 
@@ -71,6 +72,11 @@ export const validateQualitySettings = ({
 	hardwareAccelerated: boolean;
 }): string[] => {
 	const hasExplicitCrf = crf !== null && typeof crf !== 'undefined';
+	// VA-API takes the CRF as its constant quantizer (CQP)
+	const vaapi =
+		hardwareAcceleration !== 'disable' &&
+		getVaapiDevice() !== null &&
+		getVaapiEncoderName(codec) !== null;
 
 	if (hasExplicitCrf && videoBitrate) {
 		throw new Error(
@@ -78,11 +84,11 @@ export const validateQualitySettings = ({
 		);
 	}
 
-	if (hasExplicitCrf && hardwareAcceleration === 'required') {
+	if (hasExplicitCrf && hardwareAcceleration === 'required' && !vaapi) {
 		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
-	if (hasExplicitCrf && hardwareAccelerated) {
+	if (hasExplicitCrf && hardwareAccelerated && !vaapi) {
 		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
@@ -171,6 +177,17 @@ export const validateQualitySettings = ({
 	if (isAudioCodec(codec)) {
 		console.warn(`${codec} does not support the "crf" option. Ignoring.`);
 		return [];
+	}
+
+	if (vaapi && hardwareAccelerated) {
+		return [
+			'-rc_mode',
+			'CQP',
+			'-qp',
+			String(crf),
+			...bufSizeArray,
+			...maxRateArray,
+		];
 	}
 
 	return ['-crf', String(crf), ...bufSizeArray, ...maxRateArray];
