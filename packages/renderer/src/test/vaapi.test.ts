@@ -355,12 +355,13 @@ describe('VA-API helpers', () => {
 	});
 
 	test('the raw stream is written next to the file it becomes', () => {
-		expect(getVaapiRawStreamLocation('/tmp/r/pre-encode.mp4', 'hevc')).toBe(
-			'/tmp/r/pre-encode.vaapi.hevc',
-		);
-		expect(getVaapiRawStreamLocation('/tmp/r/pre-encode.mp4', 'h264')).toBe(
-			'/tmp/r/pre-encode.vaapi.h264',
-		);
+		const dir = path.join(os.tmpdir(), 'render');
+		expect(
+			getVaapiRawStreamLocation(path.join(dir, 'pre-encode.mp4'), 'hevc'),
+		).toBe(path.join(dir, 'pre-encode.vaapi.hevc'));
+		expect(
+			getVaapiRawStreamLocation(path.join(dir, 'pre-encode.mp4'), 'h264'),
+		).toBe(path.join(dir, 'pre-encode.vaapi.h264'));
 	});
 
 	test('the coded size is read from the SPS (FFmpeg 8.1 trace_headers, Mesa 25.0 at 800x450)', () => {
