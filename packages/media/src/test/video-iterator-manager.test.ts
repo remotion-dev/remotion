@@ -78,12 +78,10 @@ const prepare = async () => {
 const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
 	onVideoFrame: (() => void) | null,
-	decodesAhead: boolean,
-	segmentEnd: number | null,
+	catchesUp: boolean,
 ) =>
 	videoIteratorManager({
-		getDecodesAhead: () => decodesAhead,
-		getGlobalPlaybackRate: () => 1,
+		getCatchesUp: () => catchesUp,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
@@ -96,10 +94,6 @@ const makeManager = (
 		logLevel: 'error',
 		drawDebugOverlay: () => {},
 		getLoopSegmentMediaEndTimestamp: () => {
-			if (segmentEnd !== null) {
-				return segmentEnd;
-			}
-
 			throw new Error('not implemented');
 		},
 		getStartTime: () => {
@@ -113,7 +107,7 @@ const makeManager = (
 
 test('plays at a high playback rate without restarting the iterator', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false, null);
+	const manager = await makeManager(videoTrack, null, false);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -141,7 +135,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 
 test('paused forward scrubs do not wait for pending frames', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false, null);
+	const manager = await makeManager(videoTrack, null, false);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -213,8 +207,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
-		getDecodesAhead: () => false,
-		getGlobalPlaybackRate: () => 1,
+		getCatchesUp: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -298,8 +291,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
-		getDecodesAhead: () => false,
-		getGlobalPlaybackRate: () => 1,
+		getCatchesUp: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -354,8 +346,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
-		getDecodesAhead: () => false,
-		getGlobalPlaybackRate: () => 1,
+		getCatchesUp: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -373,7 +364,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 test('same-time seeks without changed effects do not emit another frame', async () => {
 	const {videoTrack} = await prepare();
 	const onVideoFrame = vi.fn();
-	const manager = await makeManager(videoTrack, onVideoFrame, false, null);
+	const manager = await makeManager(videoTrack, onVideoFrame, false);
 	const nonceManager = makeNonceManager();
 	const seek = () =>
 		manager.seek({
@@ -401,7 +392,7 @@ const makeReclaimedError = () =>
 
 test('recreates the iterator once when the decoder was reclaimed', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false, null);
+	const manager = await makeManager(videoTrack, null, false);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -435,7 +426,7 @@ test('recreates the iterator once when the decoder was reclaimed', async () => {
 
 test('does not recreate the iterator for quota errors that are not reclaims', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false, null);
+	const manager = await makeManager(videoTrack, null, false);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -472,7 +463,7 @@ test('does not recreate the iterator for quota errors that are not reclaims', as
 
 test('a superseded seek leaves recreating a reclaimed decoder to the next seek', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false, null);
+	const manager = await makeManager(videoTrack, null, false);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -520,132 +511,111 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 	}
 });
 
-test('decodes ahead of the clock instead of restarting at it when playback is not held', async () => {
+const seekCatchingUp = (
+	manager: Awaited<ReturnType<typeof makeManager>>,
+	nonceManager: ReturnType<typeof makeNonceManager>,
+	newTime: number,
+	{isPlaying, seekRevision}: {isPlaying: boolean; seekRevision: number | null},
+) =>
+	manager.seek({
+		newTime,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+		isPlaying,
+		continuousPlayback: null,
+		seekRevision,
+		mappingChanged: false,
+	});
+
+test('catches up from the playhead instead of restarting on every tick when playback is not held', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true, Infinity);
+	const manager = await makeManager(videoTrack, null, true);
 	const nonceManager = makeNonceManager();
-	const seekWhilePlaying = (newTime: number) =>
-		manager.seek({
-			newTime,
-			nonce: nonceManager.createAsyncOperation(),
-			fps: 30,
-			playbackRate: 1,
-			isPlaying: true,
-			continuousPlayback: null,
-			seekRevision: null,
-			mappingChanged: false,
-		});
+	const playing = {isPlaying: true, seekRevision: null};
 
 	try {
 		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
 		const framesBefore = manager.getFramesRendered();
 
-		// A jump while playing starts a decoder ahead of the clock and draws nothing yet.
-		await seekWhilePlaying(2);
+		// A jump while playing starts one decoder at the playhead and draws nothing yet.
+		await seekCatchingUp(manager, nonceManager, 2, playing);
 		const iteratorsAfterJump = manager.getVideoIteratorsCreated();
-		expect(iteratorsAfterJump).toBe(2);
+		expect(manager.isCatchingUp()).toBe(true);
 		expect(manager.getFramesRendered()).toBe(framesBefore);
 
-		// Before the clock reaches that frame, it waits without restarting.
-		await seekWhilePlaying(2 + 1 / 30);
-		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
-		expect(manager.getFramesRendered()).toBe(framesBefore);
-
-		// Once the clock is past it (the lead is at most 3 seconds), it draws from the same decoder.
-		await seekWhilePlaying(5.1);
-		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
-		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
-	} finally {
-		manager.destroy();
-	}
-});
-
-test('draws the requested frame when a decode-ahead target is past the segment end', async () => {
-	const {videoTrack} = await prepare();
-	// The minimum lead already puts the target past this end.
-	const manager = await makeManager(videoTrack, null, true, 2.05);
-	const nonceManager = makeNonceManager();
-
-	try {
-		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
-		const framesBefore = manager.getFramesRendered();
-		await manager.seek({
-			newTime: 2,
-			nonce: nonceManager.createAsyncOperation(),
-			fps: 30,
-			playbackRate: 1,
-			isPlaying: true,
-			continuousPlayback: null,
-			seekRevision: null,
-			mappingChanged: false,
-		});
-		expect(manager.hasPendingAhead()).toBe(false);
-		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
-	} finally {
-		manager.destroy();
-	}
-});
-
-test('plans again when an explicit seek interrupts a pending decode-ahead target', async () => {
-	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true, Infinity);
-	const nonceManager = makeNonceManager();
-	const seekWhilePlaying = (newTime: number, seekRevision: number) =>
-		manager.seek({
-			newTime,
-			nonce: nonceManager.createAsyncOperation(),
-			fps: 30,
-			playbackRate: 1,
-			isPlaying: true,
-			continuousPlayback: null,
-			seekRevision,
-			mappingChanged: false,
-		});
-
-	try {
-		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
-		await seekWhilePlaying(4, 1);
-		expect(manager.hasPendingAhead()).toBe(true);
-		const iteratorsAfterJump = manager.getVideoIteratorsCreated();
-
-		// A tick of the same playback run keeps waiting for that target.
-		await seekWhilePlaying(4 + 1 / 30, 1);
-		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
-
-		// A seek back to an earlier time plans a new target instead of waiting.
-		await seekWhilePlaying(1, 2);
-		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump + 1);
-		expect(manager.hasPendingAhead()).toBe(true);
-	} finally {
-		manager.destroy();
-	}
-});
-
-test('a paused seek draws the current frame instead of waiting for a decode-ahead target', async () => {
-	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true, Infinity);
-	const nonceManager = makeNonceManager();
-
-	try {
-		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
-		const framesBefore = manager.getFramesRendered();
-		const seek = (isPlaying: boolean) =>
-			manager.seek({
-				newTime: 2,
-				nonce: nonceManager.createAsyncOperation(),
-				fps: 30,
-				playbackRate: 1,
-				isPlaying,
-				continuousPlayback: null,
-				seekRevision: null,
-				mappingChanged: false,
+		// Later ticks, a frame apart as in playback, keep decoding forward on that
+		// decoder until it draws, in sync.
+		let frame = 1;
+		while (manager.isCatchingUp() && frame < 30) {
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1000 / 30);
 			});
-		await seek(true);
-		expect(manager.hasPendingAhead()).toBe(true);
+			await seekCatchingUp(manager, nonceManager, 2 + frame / 30, playing);
+			frame++;
+		}
 
-		// What MediaPlayer.pause() requests when a target is pending.
-		await seek(false);
-		expect(manager.hasPendingAhead()).toBe(false);
+		expect(manager.isCatchingUp()).toBe(false);
+		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsAfterJump);
+		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
+	} finally {
+		manager.destroy();
+	}
+});
+
+test('starts catching up again after an explicit seek or a jump back', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		await seekCatchingUp(manager, nonceManager, 4, {
+			isPlaying: true,
+			seekRevision: 1,
+		});
+		const iterators = manager.getVideoIteratorsCreated();
+
+		// An explicit seek (a new revision) starts again at the new time.
+		await seekCatchingUp(manager, nonceManager, 4.5, {
+			isPlaying: true,
+			seekRevision: 2,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(iterators + 1);
+		expect(manager.isCatchingUp()).toBe(true);
+
+		// So does a jump back within the same run, such as a loop wrapping.
+		await seekCatchingUp(manager, nonceManager, 1, {
+			isPlaying: true,
+			seekRevision: 2,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(iterators + 2);
+		expect(manager.isCatchingUp()).toBe(true);
+	} finally {
+		manager.destroy();
+	}
+});
+
+test('a paused seek draws the current frame instead of continuing to catch up', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		const framesBefore = manager.getFramesRendered();
+		await seekCatchingUp(manager, nonceManager, 2, {
+			isPlaying: true,
+			seekRevision: null,
+		});
+		expect(manager.isCatchingUp()).toBe(true);
+
+		// What MediaPlayer.pause() requests while catching up.
+		await seekCatchingUp(manager, nonceManager, 2, {
+			isPlaying: false,
+			seekRevision: null,
+		});
+		expect(manager.isCatchingUp()).toBe(false);
 		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
 	} finally {
 		manager.destroy();

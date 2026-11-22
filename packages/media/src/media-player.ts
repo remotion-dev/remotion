@@ -495,8 +495,7 @@ export class MediaPlayer {
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
-					getDecodesAhead: () => !this.pauseWhenBuffering,
-					getGlobalPlaybackRate: () => this.globalPlaybackRate,
+					getCatchesUp: () => !this.pauseWhenBuffering,
 				});
 				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
@@ -538,11 +537,9 @@ export class MediaPlayer {
 						: Promise.resolve(),
 					this.videoIteratorManager
 						? this.playing && !this.pauseWhenBuffering
-							? this.videoIteratorManager.startVideoIteratorAhead({
+							? this.videoIteratorManager.startCatchUp({
 									time: startTime,
-									rate: this.playbackRate * this.globalPlaybackRate,
 									revision: null,
-									nonce,
 								})
 							: this.videoIteratorManager.startVideoIterator(startTime, nonce)
 						: Promise.resolve(),
@@ -730,10 +727,9 @@ export class MediaPlayer {
 
 		this.playing = false;
 		this.drawDebugOverlay();
-		// A frame decoded ahead is not drawn until the clock reaches it. Pausing
-		// usually keeps the same time, which issues no new seek, so request the
-		// current frame here.
-		if (this.videoIteratorManager?.hasPendingAhead()) {
+		// A player catching up has drawn nothing yet. Pausing usually keeps the
+		// same time, which issues no new seek, so request the current frame here.
+		if (this.videoIteratorManager?.isCatchingUp()) {
 			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
 				this.reportTerminalError(error),
 			);

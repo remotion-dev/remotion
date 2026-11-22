@@ -381,7 +381,7 @@ Changing either limit recreates the preview player, so prefer a few fixed sizes 
 
 Whether the Player enters the [buffering state](/docs/player/buffer-state) while this video cannot show the current frame in Studio and Player previews. Default: `true`.
 
-If set to `false`, playback continues while the video loads. When the video falls behind playback, for example because it was mounted while playing or because playback jumped to a point between keyframes, it decodes to a frame slightly ahead of the playhead instead of the current one. It draws nothing until playback reaches that frame, then continues in sync. The lead is based on the distance to the previous keyframe and on how fast earlier frames of this video decoded.
+If set to `false`, playback continues while the video loads. When the video falls behind playback, for example because it was mounted while playing or because playback jumped to a point between keyframes, it starts decoding at the playhead and keeps decoding forward as playback moves on, instead of starting over at each new frame. It draws nothing until it has caught up with playback, then continues in sync. A decoder that cannot decode faster than playback does not catch up and keeps showing its last frame.
 
 This is useful when something else covers the video until it is ready, such as a lower-resolution copy of the same footage. The prop can change while the video is mounted. Setting it back to `true` resumes buffering.
 

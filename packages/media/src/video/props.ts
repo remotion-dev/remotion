@@ -90,8 +90,8 @@ type OptionalVideoProps = {
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	/**
 	 * Pause the Player while this video cannot show the current frame. Default: true.
-	 * When false, playback continues. A decoder that falls behind decodes to a frame
-	 * ahead of the playhead and resumes drawing when playback reaches it.
+	 * When false, playback continues. A decoder that falls behind keeps decoding forward
+	 * without drawing and resumes drawing once it has caught up with playback.
 	 * Can change while mounted. Has no effect during rendering.
 	 */
 	pauseWhenBuffering: boolean;
