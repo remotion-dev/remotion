@@ -103,12 +103,12 @@ To encode on an AMD or Intel GPU on Linux, you need:
 
 - A VA-API render node, for example `/dev/dri/renderD128` (in Docker: `--device /dev/dri`)
 - A VA-API driver for the GPU (Mesa's `radeonsi` for AMD, `iHD` for recent Intel GPUs)
-- FFmpeg compiled with VA-API: the `h264_vaapi` or `hevc_vaapi` encoder and the `hwupload` filter
+- FFmpeg compiled with VA-API: the `h264_vaapi` encoder and the `hwupload` filter
 
 The FFmpeg binaries bundled with Remotion do not include VA-API. [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) replaces all of Remotion's binaries at once (`ffmpeg`, `ffprobe`, Remotion's compositor and their shared libraries), so prepare a complete folder:
 
 1. Copy the folder of your platform's compositor package, for example `node_modules/@remotion/compositor-linux-x64-gnu`.
-2. Replace `ffmpeg` and `ffprobe` in it with a build that has VA-API (`--enable-vaapi`: the `h264_vaapi` and `hevc_vaapi` encoders and the `hwupload` filter) and `libfdk_aac`, which Remotion uses for AAC audio.
+2. Replace `ffmpeg` and `ffprobe` in it with a build that has VA-API (`--enable-vaapi`: the `h264_vaapi` encoder and the `hwupload` filter) and `libfdk_aac`, which Remotion uses for AAC audio.
 3. Pass that folder to the render.
 
 ```bash
@@ -117,13 +117,15 @@ REMOTION_VAAPI_DEVICE=/dev/dri/renderD128 npx remotion render --hardware-acceler
 
 Without `--binaries-directory`, the bundled FFmpeg is used: it has no VA-API, so `"if-possible"` falls back to software encoding.
 
-With the variable set, H.264 is encoded with `h264_vaapi` and H.265 with `hevc_vaapi`; without it, Linux uses NVENC as before. Before the render, Remotion encodes one frame with the selected encoder on the device. If that fails (no VA-API in the FFmpeg, a device the process cannot open, a GPU without an encoder for the codec), `"if-possible"` falls back to software encoding and `"required"` throws an error.
+With the variable set, H.264 is encoded with `h264_vaapi`; H.265 and every other codec keep their encoders, and without the variable Linux uses NVENC as before. Before the render, Remotion encodes one frame with the selected encoder on the device. If that fails (no VA-API in the FFmpeg, a device the process cannot open, a GPU without an encoder for the codec), `"if-possible"` falls back to software encoding and `"required"` throws an error.
 
 VA-API is only selected for what it encodes exactly: the `yuv420p` pixel format (the frames are uploaded as NV12, so other pixel formats such as `yuv420p10le` stay on the software encoder) and a [`crf`](/docs/options/crf) of 1 or more. Unlike NVENC, VA-API accepts the CRF: it is passed as the constant quantizer (`-rc_mode CQP -qp <crf>`). CRF 0 stays on the software encoder, because FFmpeg treats `-qp 0` as unset.
 
-Some VA-API drivers (Mesa's `radeonsi`) code a 1920x1080 HEVC stream at 1920x1088 without writing the crop. After an `hevc_vaapi` encode, Remotion reads the stream's size and writes the crop with a stream copy when it is larger than the composition. H.265 in MP4 or MOV is tagged `hvc1`, the tag QuickTime and Safari read.
+The encode has no B-frames (`-bf 0`), and after it Remotion rewraps the file once with two stream copies: the video is extracted to Annex B and wrapped again at the composition's frame rate, with the audio copied from the original. Mesa's `radeonsi` writes its own parameter sets into the stream, and they differ from the ones FFmpeg puts into the container (in the H.264 PPS: `transform_8x8_mode_flag` and `pic_init_qp_minus26`); a decoder that sets itself up from the container can then decode the picture wrongly. The rewrap builds the container's header from the stream's own sets, and without B-frames the frame rate gives back every timestamp.
 
-Measured on an AMD Radeon RX 7900 XTX and an RX 6800 XT (Mesa 25.0.7, FFmpeg 8.1): a 568-frame 1080p composition was encoded in under 2 s of GPU time with `hevc_vaapi` against about 127 s of CPU time with `libx264` (`faster`). At `-qp 18` (7900 XTX) and `-qp 16` (6800 XT) the SSIM against a near-lossless reference matched `libx264` at CRF 16 (0.986 against 0.986) at a similar file size.
+H.265 is not encoded with VA-API. With `radeonsi` the HEVC parameter sets differ even more (the coded size, rounded to 64 by 16, without a conformance window, and coding tools), and even a consistent file would carry a conformance window, which Apple's decoders (QuickTime, Safari, AVFoundation) do not apply: a 1080p file would show 8 padding rows there.
+
+Measured on an AMD Radeon RX 7900 XTX and an RX 6800 XT (Mesa 25.0.7, FFmpeg 8.1), on a 568-frame 1080p composition against a near-lossless reference: `h264_vaapi` without B-frames at `-qp 15` reached the SSIM of `libx264` at CRF 16 (`faster`): 0.9866 against 0.9858, with a file about 1.45 times the size, while the encode left the CPU free (about 127 s of CPU time for `libx264`). FFmpeg and AVFoundation decode the result at exactly 1920x1080, and 800x450 at 800x450.
 
 ## Quality using `--video-bitrate` {#controlling-quality-using---video-bitrate}
 

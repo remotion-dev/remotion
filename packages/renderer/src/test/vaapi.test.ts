@@ -15,12 +15,8 @@ const {getCodecName} = require('../get-codec-name');
 const {generateFfmpegArgs} = require('../ffmpeg-args');
 const {validateQualitySettings} = require('../crf');
 const {probeVaapiEncoder} = require('../probe-encoder');
-const {getVaapiHevcRemuxArgs} = require('../vaapi-output');
-const {
-	VAAPI_DEVICE_ENV,
-	getHevcCropBitstreamFilter,
-	withVaapiUpload,
-} = require('../vaapi');
+const {getVaapiRewrapArgs} = require('../vaapi-output');
+const {VAAPI_DEVICE_ENV, withVaapiUpload} = require('../vaapi');
 
 const originalPlatform = process.platform;
 const setPlatform = (platform: string) => {
@@ -99,20 +95,20 @@ const ffmpegArgs = ({
 	});
 
 describe('getCodecName - VA-API on Linux', () => {
-	test('h264 and h265 pick the VA-API encoders when a render device is given', () => {
+	test('h264 picks the VA-API encoder when a render device is given', () => {
 		expect(codecName('h264', 'if-possible')).toEqual({
 			encoderName: 'h264_vaapi',
 			hardwareAccelerated: true,
 		});
-		expect(codecName('h265', 'required')).toEqual({
-			encoderName: 'hevc_vaapi',
-			hardwareAccelerated: true,
-		});
+	});
+
+	test('h265 keeps NVENC: VA-API HEVC from Mesa cannot be made right for every decoder', () => {
+		expect(codecName('h265', 'if-possible').encoderName).toBe('hevc_nvenc');
 	});
 
 	test('a CRF keeps VA-API on (it becomes the constant quantizer)', () => {
 		expect(codecName('h264', 'if-possible', 18).encoderName).toBe('h264_vaapi');
-		expect(codecName('h265', 'required', 18).encoderName).toBe('hevc_vaapi');
+		expect(codecName('h264', 'required', 18).encoderName).toBe('h264_vaapi');
 	});
 
 	test('without a device, NVENC as before', () => {
@@ -123,19 +119,19 @@ describe('getCodecName - VA-API on Linux', () => {
 
 	test('only what VA-API encodes exactly: 8-bit 4:2:0', () => {
 		expect(
-			codecName('h265', 'if-possible', null, 'yuv420p10le').encoderName,
-		).toBe('hevc_nvenc');
+			codecName('h264', 'if-possible', null, 'yuv420p10le').encoderName,
+		).toBe('h264_nvenc');
 		expect(codecName('h264', 'if-possible', null, 'yuv444p').encoderName).toBe(
 			'h264_nvenc',
 		);
-		expect(codecName('h265', 'if-possible', null, 'yuv420p').encoderName).toBe(
-			'hevc_vaapi',
+		expect(codecName('h264', 'if-possible', null, 'yuv420p').encoderName).toBe(
+			'h264_vaapi',
 		);
 	});
 
 	test('CRF 0 stays on the software encoder (FFmpeg treats -qp 0 as unset)', () => {
-		expect(codecName('h265', 'if-possible', 0).encoderName).toBe('libx265');
-		expect(() => codecName('h265', 'required', 0)).toThrow();
+		expect(codecName('h264', 'if-possible', 0).encoderName).toBe('libx264');
+		expect(() => codecName('h264', 'required', 0)).toThrow();
 	});
 
 	test('the probe starts a real encode on the device: none there, or no VA-API FFmpeg, is unavailable', () => {
@@ -185,6 +181,12 @@ describe('generateFfmpegArgs - VA-API', () => {
 		expect(args).toContainEqual(['-vf', 'format=nv12,hwupload']);
 	});
 
+	test('no B-frames, so the rewrap keeps every timestamp', () => {
+		const flat = ffmpegArgs({}).flat();
+		const i = flat.indexOf('-bf');
+		expect(flat.slice(i, i + 2)).toEqual(['-bf', '0']);
+	});
+
 	test('no -pix_fmt and no x264 preset for the VA-API encoder', () => {
 		const flat = ffmpegArgs({x264Preset: 'faster'}).flat();
 		expect(flat).not.toContain('-pix_fmt');
@@ -198,15 +200,15 @@ describe('generateFfmpegArgs - VA-API', () => {
 	});
 
 	test('a CRF is the constant quantizer', () => {
-		const flat = ffmpegArgs({codec: 'h265', crf: 18}).flat();
-		expect(flat).toContain('hevc_vaapi');
+		const flat = ffmpegArgs({codec: 'h264', crf: 18}).flat();
+		expect(flat).toContain('h264_vaapi');
 		const i = flat.indexOf('-rc_mode');
 		expect(flat.slice(i, i + 4)).toEqual(['-rc_mode', 'CQP', '-qp', '18']);
 		expect(flat).not.toContain('-crf');
 	});
 
 	test('a 10-bit request is not encoded by VA-API (no upload, its pixel format kept)', () => {
-		const flat = ffmpegArgs({codec: 'h265', pixelFormat: 'yuv420p10le'}).flat();
+		const flat = ffmpegArgs({codec: 'h264', pixelFormat: 'yuv420p10le'}).flat();
 		expect(flat).not.toContain('-vaapi_device');
 		expect(flat).toContain('yuv420p10le');
 	});
@@ -277,65 +279,59 @@ describe('VA-API helpers', () => {
 		]);
 	});
 
-	test('the finishing copy: the crop and the tag, each only when asked', () => {
-		expect(
-			getVaapiHevcRemuxArgs({
-				input: 'in.mp4',
-				output: 'out.mp4',
-				crop: ['-bsf:v', 'hevc_metadata=crop_right=0:crop_bottom=8'],
-				tagHvc1: true,
-			}),
-		).toEqual([
+	test('the rewrap: Annex B from the stream, then wrapped again at the frame rate with the audio', () => {
+		const {extract, wrap} = getVaapiRewrapArgs({
+			input: 'out.mp4',
+			annexB: 'out.vaapi.h264',
+			output: 'out.vaapi.mp4',
+			fps: 30,
+		});
+		expect(extract).toEqual([
 			'-hide_banner',
 			'-v',
 			'error',
 			'-y',
 			'-i',
-			'in.mp4',
+			'out.mp4',
 			'-map',
-			'0',
+			'0:v',
 			'-c',
 			'copy',
 			'-bsf:v',
-			'hevc_metadata=crop_right=0:crop_bottom=8',
-			'-tag:v',
-			'hvc1',
-			'out.mp4',
+			'h264_mp4toannexb',
+			'-f',
+			'h264',
+			'out.vaapi.h264',
 		]);
-		const plain = getVaapiHevcRemuxArgs({
-			input: 'in.mkv',
-			output: 'out.mkv',
-			crop: null,
-			tagHvc1: false,
+		expect(wrap).toEqual([
+			'-hide_banner',
+			'-v',
+			'error',
+			'-y',
+			'-r',
+			'30',
+			'-f',
+			'h264',
+			'-i',
+			'out.vaapi.h264',
+			'-i',
+			'out.mp4',
+			'-map',
+			'0:v',
+			'-map',
+			'1:a?',
+			'-c',
+			'copy',
+			'-video_track_timescale',
+			'90000',
+			'out.vaapi.mp4',
+		]);
+		const mkv = getVaapiRewrapArgs({
+			input: 'out.mkv',
+			annexB: 'out.vaapi.h264',
+			output: 'out.vaapi.mkv',
+			fps: 25,
 		});
-		expect(plain).not.toContain('-bsf:v');
-		expect(plain).not.toContain('-tag:v');
-	});
-
-	test('the HEVC crop only for a stream larger than the composition', () => {
-		expect(
-			getHevcCropBitstreamFilter({
-				codedWidth: 1920,
-				codedHeight: 1088,
-				width: 1920,
-				height: 1080,
-			}),
-		).toEqual(['-bsf:v', 'hevc_metadata=crop_right=0:crop_bottom=8']);
-		expect(
-			getHevcCropBitstreamFilter({
-				codedWidth: 1920,
-				codedHeight: 1080,
-				width: 1920,
-				height: 1080,
-			}),
-		).toBe(null);
-		expect(
-			getHevcCropBitstreamFilter({
-				codedWidth: 1280,
-				codedHeight: 720,
-				width: 1920,
-				height: 1080,
-			}),
-		).toBe(null);
+		expect(mkv.wrap).not.toContain('-video_track_timescale');
 	});
 });

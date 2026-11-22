@@ -80,7 +80,7 @@ import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
 import {isVaapiEncoder} from './vaapi';
-import {finishVaapiHevcOutput} from './vaapi-output';
+import {finishVaapiOutput} from './vaapi-output';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
@@ -640,19 +640,16 @@ const internalRenderMediaRaw = async ({
 				throw new Error(preStitcher?.getLogs());
 			}
 
-			// a VA-API HEVC pre-encode may be coded larger than the composition
-			// without a crop (vaapi-output.ts); the final copy tags it hvc1
+			// a VA-API pre-encode is rewrapped from the stream's own parameter sets
+			// (vaapi-output.ts)
 			if (
 				preEncodedFileLocation &&
 				preStitcher?.videoEncoder &&
-				isVaapiEncoder(preStitcher.videoEncoder) &&
-				codec === 'h265'
+				isVaapiEncoder(preStitcher.videoEncoder)
 			) {
-				await finishVaapiHevcOutput({
+				await finishVaapiOutput({
 					file: preEncodedFileLocation,
-					width: Math.round(actualWidth),
-					height: Math.round(actualHeight),
-					tagHvc1: false,
+					fps,
 					binariesDirectory,
 					indent,
 					logLevel,

@@ -7,9 +7,22 @@ import type {PixelFormat} from './pixel-format';
  * Enabled by pointing `REMOTION_VAAPI_DEVICE` at a render node
  * (for example `/dev/dri/renderD128`) and setting `hardwareAcceleration` to
  * `"if-possible"` or `"required"`. The FFmpeg in use must be built with VA-API
- * (`h264_vaapi`, `hevc_vaapi` and the `hwupload` filter); the encoder probe
- * falls back to software encoding when it is not, or when the device cannot
- * start an encode (probe-encoder.ts).
+ * (`h264_vaapi` and the `hwupload` filter); the encoder probe falls back to
+ * software encoding when it is not, or when the device cannot start an encode
+ * (probe-encoder.ts).
+ *
+ * H.264 only. Mesa's radeonsi (measured on an RX 6800 XT and an RX 7900 XTX,
+ * Mesa 25.0) writes its own parameter sets into the stream and they differ
+ * from FFmpeg's, which the container carries: for H.264 in the PPS
+ * (`transform_8x8_mode_flag`, `pic_init_qp_minus26`), for HEVC in the coded
+ * size (the width rounded to 64, the height to 16, without a conformance
+ * window) and in coding tools, so a decoder that sets itself up from the
+ * container shows garbage or refuses the file (Apple's AVFoundation does). An
+ * H.264 file is therefore rewrapped once after the encode, from the stream's
+ * own parameter sets (vaapi-output.ts), and encoded without B-frames so that
+ * the rewrap keeps every timestamp. HEVC cannot be repaired that way for
+ * Apple's decoders, which ignore an HEVC conformance window (a 1080p file shows
+ * the padding rows), so `h265` keeps its encoder (NVENC or software).
  *
  * No Node.js module is imported here: crf.ts, which is part of the browser
  * build (pure.ts), uses this file.
@@ -28,10 +41,6 @@ export const getVaapiDevice = (): string | null => {
 export const getVaapiEncoderName = (codec: Codec): string | null => {
 	if (codec === 'h264') {
 		return 'h264_vaapi';
-	}
-
-	if (codec === 'h265') {
-		return 'hevc_vaapi';
 	}
 
 	return null;
@@ -94,31 +103,4 @@ export const withVaapiUpload = (args: string[][]): string[][] => {
 	});
 
 	return found ? mapped : [...mapped, ['-vf', VAAPI_UPLOAD_FILTER]];
-};
-
-/**
- * Some VA-API drivers (Mesa's radeonsi, measured on an RX 6800 XT and an
- * RX 7900 XTX) code an HEVC stream at the 16-aligned size without writing the
- * conformance window: a 1920x1080 render comes out 1920x1088. When the
- * pre-encoded stream is larger than the composition, the copy step writes the
- * missing crop into the bitstream. A stream of the right size is left alone.
- */
-export const getHevcCropBitstreamFilter = ({
-	codedWidth,
-	codedHeight,
-	width,
-	height,
-}: {
-	codedWidth: number;
-	codedHeight: number;
-	width: number;
-	height: number;
-}): string[] | null => {
-	const right = codedWidth - width;
-	const bottom = codedHeight - height;
-	if (right < 0 || bottom < 0 || (right === 0 && bottom === 0)) {
-		return null;
-	}
-
-	return ['-bsf:v', `hevc_metadata=crop_right=${right}:crop_bottom=${bottom}`];
 };

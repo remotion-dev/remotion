@@ -75,6 +75,9 @@ const firstEncodingStepOnly = ({
 			? ['-row-mt', '1']
 			: null,
 		x264Preset && !vaapi ? ['-preset', x264Preset] : null,
+		// VA-API: no B-frames, so the rewrap after the encode keeps every timestamp
+		// (vaapi-output.ts)
+		vaapi ? ['-bf', '0'] : null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
 		// https://discord.com/channels/809501355504959528/817306238811111454/1437471619089170613

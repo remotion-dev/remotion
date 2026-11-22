@@ -3,112 +3,117 @@ import path from 'node:path';
 import {callFf} from './call-ffmpeg';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
-import {getHevcCropBitstreamFilter} from './vaapi';
 
 /**
- * The stream copy that finishes a VA-API HEVC file: the missing crop (when the
- * driver coded it larger than the composition) and the `hvc1` tag for MP4/MOV.
- * Tagging the VA-API encode itself broke the stream with Mesa's radeonsi; a
- * copy afterwards does not.
+ * The two stream copies that finish a VA-API H.264 file (vaapi.ts): the
+ * stream is extracted to Annex B, which carries only the parameter sets the
+ * driver wrote into it (`h264_mp4toannexb` inserts none where the stream has
+ * them), and wrapped again at the composition's frame rate, so the container's
+ * header is built from those sets and not from FFmpeg's. The encode has no
+ * B-frames, so the frame rate gives back every timestamp. The audio, if any, is
+ * copied from the original file.
  */
-export const getVaapiHevcRemuxArgs = ({
+export const getVaapiRewrapArgs = ({
 	input,
+	annexB,
 	output,
-	crop,
-	tagHvc1,
+	fps,
 }: {
 	input: string;
+	annexB: string;
 	output: string;
-	crop: string[] | null;
-	tagHvc1: boolean;
-}): string[] => {
-	return [
-		'-hide_banner',
-		'-v',
-		'error',
-		'-y',
-		'-i',
-		input,
-		'-map',
-		'0',
-		'-c',
-		'copy',
-		...(crop ?? []),
-		...(tagHvc1 ? ['-tag:v', 'hvc1'] : []),
-		output,
-	];
+	fps: number;
+}): {extract: string[]; wrap: string[]} => {
+	const mp4Family = ['.mp4', '.mov', '.m4v'].includes(
+		path.extname(output).toLowerCase(),
+	);
+	return {
+		extract: [
+			'-hide_banner',
+			'-v',
+			'error',
+			'-y',
+			'-i',
+			input,
+			'-map',
+			'0:v',
+			'-c',
+			'copy',
+			'-bsf:v',
+			'h264_mp4toannexb',
+			'-f',
+			'h264',
+			annexB,
+		],
+		wrap: [
+			'-hide_banner',
+			'-v',
+			'error',
+			'-y',
+			'-r',
+			String(fps),
+			'-f',
+			'h264',
+			'-i',
+			annexB,
+			'-i',
+			input,
+			'-map',
+			'0:v',
+			'-map',
+			'1:a?',
+			'-c',
+			'copy',
+			...(mp4Family ? ['-video_track_timescale', '90000'] : []),
+			output,
+		],
+	};
 };
 
 /**
- * Run right after a `hevc_vaapi` encode, on whichever file it wrote: reads its
- * coded size and, when it is larger than the composition or the file is
- * MP4/MOV, copies it once with the crop and the tag, in place.
+ * Run right after an `h264_vaapi` encode, on whichever file it wrote: the
+ * file is rewrapped once from the stream's own parameter sets, in place.
  */
-export const finishVaapiHevcOutput = async ({
+export const finishVaapiOutput = async ({
 	file,
-	width,
-	height,
-	tagHvc1,
+	fps,
 	binariesDirectory,
 	indent,
 	logLevel,
 	cancelSignal,
 }: {
 	file: string;
-	width: number;
-	height: number;
-	tagHvc1: boolean;
+	fps: number;
 	binariesDirectory: string | null;
 	indent: boolean;
 	logLevel: LogLevel;
 	cancelSignal: CancelSignal | undefined;
 }): Promise<void> => {
-	const {stdout} = await callFf({
-		bin: 'ffprobe',
-		args: [
-			'-v',
-			'error',
-			'-select_streams',
-			'v:0',
-			'-show_entries',
-			'stream=width,height',
-			'-of',
-			'csv=p=0',
-			file,
-		],
-		indent,
-		logLevel,
-		binariesDirectory,
-		cancelSignal,
-	});
-	const [codedWidth, codedHeight] = stdout.trim().split(',').map(Number);
-	const crop = getHevcCropBitstreamFilter({
-		codedWidth,
-		codedHeight,
-		width,
-		height,
-	});
-	if (!crop && !tagHvc1) {
-		return;
-	}
-
 	const extension = path.extname(file);
-	const temporary = path.join(
-		path.dirname(file),
-		`${path.basename(file, extension)}.vaapi${extension}`,
-	);
-	await callFf({
-		bin: 'ffmpeg',
-		args: getVaapiHevcRemuxArgs({
-			input: file,
-			output: temporary,
-			crop,
-			tagHvc1,
-		}),
-		indent,
-		logLevel,
-		binariesDirectory,
-		cancelSignal,
+	const base = path.join(path.dirname(file), path.basename(file, extension));
+	const annexB = `${base}.vaapi.h264`;
+	const temporary = `${base}.vaapi${extension}`;
+	const {extract, wrap} = getVaapiRewrapArgs({
+		input: file,
+		annexB,
+		output: temporary,
+		fps,
 	});
-	fs.renameSync(temporary, file);
+	try {
+		for (const args of [extract, wrap]) {
+			await callFf({
+				bin: 'ffmpeg',
+				args,
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal,
+			});
+		}
+
+		fs.renameSync(temporary, file);
+	} finally {
+		fs.rmSync(annexB, {force: true});
+		fs.rmSync(temporary, {force: true});
+	}
 };
