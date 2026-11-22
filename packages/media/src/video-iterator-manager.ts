@@ -379,6 +379,10 @@ export const videoIteratorManager = async ({
 		catchUpStart = time;
 		catchUpRevision = revision;
 		currentSeek = time;
+		// Disarmed while the option is off. Switching it on while this decode runs
+		// arms it, so playback is delayed right away instead of after the decode.
+		using delayHandle = delayPlaybackHandleIfNotPremounting();
+		currentDelayHandle = delayHandle;
 
 		let iterator: VideoIterator;
 		try {
@@ -450,15 +454,19 @@ export const videoIteratorManager = async ({
 				return;
 			}
 
-			const iterator = videoFrameIterator;
+			const catchUpIterator = videoFrameIterator;
 			let waited = false;
-			const result = await iterator
+			// Disarmed while the option is off, like the handle in startCatchUp().
+			let waitHandle: DelayPlaybackIfNotPremounting | null = null;
+			const result = await catchUpIterator
 				.tryToSatisfySeek(newTime, {
 					pendingFrameBehavior: 'wait',
 					onWait: () => {
 						waited = true;
+						waitHandle ??= delayPlaybackHandleIfNotPremounting();
 					},
-					shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
+					shouldContinue: () =>
+						!nonce.isStale() && !catchUpIterator.isDestroyed(),
 				})
 				.catch((error: unknown) => {
 					if (isCodecReclaimedError(error)) {
@@ -466,6 +474,9 @@ export const videoIteratorManager = async ({
 					}
 
 					throw error;
+				})
+				.finally(() => {
+					waitHandle?.unblock();
 				});
 			if (result.type === 'decoder-reclaimed') {
 				prewarmedVideoIteratorCache.destroy();
@@ -475,7 +486,7 @@ export const videoIteratorManager = async ({
 
 			// Superseded by a newer tick: the decoder keeps its place and continues
 			// from there.
-			if (nonce.isStale() || iterator.isDestroyed()) {
+			if (nonce.isStale() || catchUpIterator.isDestroyed()) {
 				return;
 			}
 

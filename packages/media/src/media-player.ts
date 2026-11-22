@@ -78,6 +78,10 @@ export class MediaPlayer {
 	private lastRequestedTime = 0;
 	private lastSeekIntent: MediaSeekIntent = null;
 	private satisfiedSeekRevision: number | null = null;
+	// Set by a mapping change (intent 'discontinuity') until a seek that is not
+	// superseded has passed it to the iterators, so a newer tick that supersedes
+	// the queued discontinuity still carries it.
+	private pendingMappingChange = false;
 	private loop = false;
 	private fps: number;
 
@@ -495,7 +499,10 @@ export class MediaPlayer {
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
-					getCatchesUp: () => !this.pauseWhenBuffering,
+					// Catching up moves forward; reverse playback keeps the normal path.
+					getCatchesUp: () =>
+						!this.pauseWhenBuffering &&
+						this.playbackRate * this.globalPlaybackRate > 0,
 				});
 				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
@@ -536,7 +543,9 @@ export class MediaPlayer {
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
-						? this.playing && !this.pauseWhenBuffering
+						? this.playing &&
+							!this.pauseWhenBuffering &&
+							this.playbackRate * this.globalPlaybackRate > 0
 							? this.videoIteratorManager.startCatchUp({
 									time: startTime,
 									revision: null,
@@ -619,6 +628,7 @@ export class MediaPlayer {
 		if (intent === 'discontinuity') {
 			// A mapping change may supersede a queued timeline request.
 			this.satisfiedSeekRevision = null;
+			this.pendingMappingChange = true;
 		}
 
 		await this.seekToWithQueue(newTime, time, intent);
@@ -669,7 +679,8 @@ export class MediaPlayer {
 						intent === null || intent === 'discontinuity'
 							? null
 							: intent.revision,
-					mappingChanged: intent === 'discontinuity',
+					mappingChanged:
+						intent === 'discontinuity' || this.pendingMappingChange,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -693,6 +704,10 @@ export class MediaPlayer {
 			// Superseded work must not consume an explicit seek boundary.
 			if (!nonce.isStale() && intent !== null && intent !== 'discontinuity') {
 				this.satisfiedSeekRevision = intent.revision;
+			}
+
+			if (!nonce.isStale()) {
+				this.pendingMappingChange = false;
 			}
 		} catch (error) {
 			if (this.isDisposalError()) {
