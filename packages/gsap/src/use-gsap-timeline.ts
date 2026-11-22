@@ -646,10 +646,11 @@ export const useGsapTimeline = <T extends Element>(
 
 	// Runs every commit: re-arm the build effect if the scope element is not
 	// the one the timeline was built for, or if a selector query now matches
-	// different elements (a child mounted or unmounted since the build). A
-	// rebuild lands where a fresh mount at this frame would, which is how a
-	// render that starts mid-composition already sees it. Identities and
-	// matches agree after the rebuild, so the update chain is finite.
+	// different elements (a child mounted or unmounted since the build). It
+	// only runs when this component renders, which every frame change does,
+	// so an element a child mounts through its own state is picked up on the
+	// next frame. Identities and matches agree after the rebuild, so the
+	// update chain is finite.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useLayoutEffect(() => {
 		const targets = targetsRef.current;
