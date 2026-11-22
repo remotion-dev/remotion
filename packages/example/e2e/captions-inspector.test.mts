@@ -60,7 +60,9 @@ test.describe('captions inspector', () => {
 		);
 	});
 
-	test('persists caption edits at their inline definitions', async ({page}) => {
+	test('persists inline caption edits and imports missing captions', async ({
+		page,
+	}) => {
 		await page.goto(`${STUDIO_URL}/captions-inspector-e2e`);
 		await expect(page).toHaveURL(/captions-inspector-e2e/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -197,11 +199,7 @@ test.describe('captions inspector', () => {
 		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
 			elementSourceBefore,
 		);
-	});
 
-	test('imports captions when the schema-declared prop is missing', async ({
-		page,
-	}) => {
 		await page.goto(`${STUDIO_URL}/missing-captions-inspector-e2e`);
 		await expect(page).toHaveURL(/missing-captions-inspector-e2e/, {
 			timeout: 15_000,
@@ -211,16 +209,16 @@ test.describe('captions inspector', () => {
 			{timeout: 30_000},
 		);
 
-		const captionsSequence = page
+		const missingCaptionsSequence = page
 			.getByText('<MissingCaptions>', {exact: true})
 			.first();
-		const importCaptionsButton = page.getByRole('button', {
+		const missingImportCaptionsButton = page.getByRole('button', {
 			name: 'Import transcript',
 			exact: true,
 		});
 		await expect(async () => {
-			await captionsSequence.click();
-			await expect(importCaptionsButton).toBeVisible({timeout: 1_000});
+			await missingCaptionsSequence.click();
+			await expect(missingImportCaptionsButton).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
 
 		await page.getByLabel('Import captions file').setInputFiles({
