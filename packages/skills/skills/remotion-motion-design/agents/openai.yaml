@@ -1,0 +1,7 @@
+interface:
+  display_name: '/remotion-motion-design'
+  short_description: 'Timing, easing, choreography, style and self-review for motion'
+  icon_small: './assets/remotion-icon.svg'
+  icon_large: './assets/remotion-icon.svg'
+  brand_color: '#0B84F3'
+  default_prompt: '$remotion-motion-design: Make this intro feel designed, not generated'

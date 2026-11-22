@@ -22,6 +22,10 @@ If no Remotion project currently exists, load [Create a new Remotion project](./
 
 If you are writing Remotion React Markup, load [Remotion Markup Best Practices](./remotion-markup/SKILL.md)
 
+## Motion design
+
+When designing how a video should look and move, such as choosing durations, easing, the order of entrances or a visual style, or reviewing a video before handing it off, load [Remotion Motion Design](./remotion-motion-design/SKILL.md).
+
 ## Maps
 
 For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](./remotion-maps/SKILL.md).
