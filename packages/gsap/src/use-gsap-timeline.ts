@@ -442,6 +442,12 @@ export const useGsapTimeline = <T extends Element>(
 	// Element the current timeline was built for. A conditionally unmounted
 	// scope runs no cleanup, leaving a stale timeline on the detached element.
 	const builtForRef = useRef<Element | null>(null);
+	// Each selector query the builder made, with the elements it matched.
+	const targetsRef = useRef<{
+		select: (query: string) => Element[];
+		queries: string[];
+		matched: Element[][];
+	} | null>(null);
 	const buildRef = useRef(build);
 	const frameRef = useRef(frame);
 	const fpsRef = useRef(fps);
@@ -464,12 +470,26 @@ export const useGsapTimeline = <T extends Element>(
 			controls: TimelineControls | null;
 		} = {timeline: null, controls: null};
 		const context = gsap.context(() => undefined, scope);
+		// A selector resolves once, when the builder runs. Record every query,
+		// including bare string targets, which GSAP resolves through the
+		// context's selector, so a child that mounts later (a Sequence that
+		// starts after this timeline was built) can trigger a rebuild. GSAP
+		// passes element targets through the context's selector too.
+		const select = gsap.utils.selector(scope);
+		const queries = new Set<string>();
+		const selector = ((query: unknown) => {
+			if (typeof query === 'string') {
+				queries.add(query);
+			}
+
+			return select(query as string);
+		}) as gsap.utils.SelectorFunc;
+		context.selector = selector;
 
 		try {
 			context.add(() => {
 				state.timeline = gsap.timeline({paused: true});
 				state.controls = guardTimelineMethods(state.timeline);
-				const selector = gsap.utils.selector(scope);
 
 				const preexisting = new Set<gsap.core.Animation>(
 					gsap.globalTimeline.getChildren(true, true, true),
@@ -594,6 +614,11 @@ export const useGsapTimeline = <T extends Element>(
 			}
 
 			controlsRef.current = state.controls;
+			targetsRef.current = {
+				select,
+				queries: [...queries],
+				matched: [...queries].map((query) => select(query)),
+			};
 		} catch (error) {
 			state.controls?.restoreForContextRevert();
 			context.revert();
@@ -603,6 +628,7 @@ export const useGsapTimeline = <T extends Element>(
 
 		return () => {
 			controlsRef.current = null;
+			targetsRef.current = null;
 			state.controls?.restoreForContextRevert();
 			context.revert();
 			state.controls?.kill();
@@ -619,11 +645,25 @@ export const useGsapTimeline = <T extends Element>(
 	}, [fps, frame, videoEnabled]);
 
 	// Runs every commit: re-arm the build effect if the scope element is not
-	// the one the timeline was built for. Identities match after the rebuild,
-	// so the update chain is finite.
+	// the one the timeline was built for, or if a selector query now matches
+	// different elements (a child mounted or unmounted since the build). A
+	// rebuild lands where a fresh mount at this frame would, which is how a
+	// render that starts mid-composition already sees it. Identities and
+	// matches agree after the rebuild, so the update chain is finite.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useLayoutEffect(() => {
-		if (scopeRef.current !== builtForRef.current) {
+		const targets = targetsRef.current;
+		const targetsChanged =
+			targets !== null &&
+			targets.queries.some((query, index) => {
+				const now = targets.select(query);
+				const before = targets.matched[index];
+				return (
+					now.length !== before.length ||
+					now.some((element, position) => element !== before[position])
+				);
+			});
+		if (scopeRef.current !== builtForRef.current || targetsChanged) {
 			setRemountNonce((nonce) => nonce + 1);
 		}
 	});
