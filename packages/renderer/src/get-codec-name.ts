@@ -52,6 +52,7 @@ export const getCodecName = ({
 	indent,
 	onLog,
 	pixelFormat = null,
+	vaapiRawStream = false,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -63,6 +64,9 @@ export const getCodecName = ({
 	indent: boolean;
 	onLog: OnLog | null;
 	pixelFormat?: PixelFormat | null;
+	// the encode writes the video alone as a raw stream, finished after it
+	// (vaapi-output.ts): only then can H.265 be encoded with VA-API (vaapi.ts)
+	vaapiRawStream?: boolean;
 }): CodecSettings | null => {
 	const preferredHwAcceleration =
 		hardwareAcceleration === 'required' ||
@@ -70,9 +74,10 @@ export const getCodecName = ({
 
 	// VA-API (AMD and Intel on Linux, REMOTION_VAAPI_DEVICE) takes the CRF as
 	// its constant quantizer, so a CRF does not turn it off; it is only chosen
-	// for what it can encode exactly (vaapi.ts: 8-bit 4:2:0, a CRF of 1 or more)
+	// for what it can encode exactly (vaapi.ts: 8-bit 4:2:0, a CRF of 1 or more,
+	// H.265 only into a raw stream)
 	const vaapiEncoderName = preferredHwAcceleration
-		? getVaapiEncoderFor({codec, pixelFormat, crf})
+		? getVaapiEncoderFor({codec, pixelFormat, crf, rawStream: vaapiRawStream})
 		: null;
 
 	const unsupportedQualityOption =

@@ -138,6 +138,10 @@ export const probeVaapiEncoder = ({
 				VAAPI_UPLOAD_FILTER,
 				'-c:v',
 				encoderName,
+				// an HEVC stream is finished with these two (vaapi-output.ts)
+				...(encoderName === 'hevc_vaapi'
+					? ['-bsf:v', 'trace_headers,hevc_metadata']
+					: []),
 				'-frames:v',
 				'1',
 				'-f',
@@ -181,6 +185,7 @@ export const resolveHardwareAcceleration = ({
 	proResBitsPerMacroblock,
 	onLog,
 	pixelFormat = null,
+	vaapiRawStream = false,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -193,6 +198,7 @@ export const resolveHardwareAcceleration = ({
 	proResBitsPerMacroblock: number | null;
 	onLog: OnLog | null;
 	pixelFormat?: PixelFormat | null;
+	vaapiRawStream?: boolean;
 }): HardwareAccelerationOption => {
 	if (hardwareAcceleration === 'disable') {
 		return 'disable';
@@ -209,6 +215,7 @@ export const resolveHardwareAcceleration = ({
 		indent,
 		onLog,
 		pixelFormat,
+		vaapiRawStream,
 	});
 
 	// Audio codecs return null, no probing needed

@@ -75,8 +75,8 @@ const firstEncodingStepOnly = ({
 			? ['-row-mt', '1']
 			: null,
 		x264Preset && !vaapi ? ['-preset', x264Preset] : null,
-		// VA-API: no B-frames, so the rewrap after the encode keeps every timestamp
-		// (vaapi-output.ts)
+		// VA-API: no B-frames, so the wrap after the encode, at the frame rate,
+		// gives back every timestamp (vaapi-output.ts)
 		vaapi ? ['-bf', '0'] : null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
@@ -112,6 +112,7 @@ export const generateFfmpegArgs = ({
 	logLevel,
 	cpuCount,
 	lambdaMemoryInBytes,
+	vaapiRawStream = false,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -130,6 +131,9 @@ export const generateFfmpegArgs = ({
 	logLevel: LogLevel;
 	cpuCount: number;
 	lambdaMemoryInBytes: number | null;
+	// the output is written as a raw stream and finished after the encode
+	// (Remotion's pre-encode with VA-API: vaapi.ts, vaapi-output.ts)
+	vaapiRawStream?: boolean;
 }): string[][] => {
 	validateProResBitsPerMacroblock(proResBitsPerMacroblock);
 	if (proResBitsPerMacroblock !== null && codec !== 'prores') {
@@ -147,6 +151,7 @@ export const generateFfmpegArgs = ({
 		logLevel,
 		onLog: null,
 		pixelFormat,
+		vaapiRawStream,
 	});
 
 	if (encoderSettings === null) {
