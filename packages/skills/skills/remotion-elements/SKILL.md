@@ -1,6 +1,6 @@
 ---
 name: remotion-elements
-description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, into a Remotion project with `npx remotion elements use`. Registers Element libraries in Remotion Studio. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
+description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, into a Remotion project with `npx remotion elements use`. Registers Element libraries in Remotion Studio with `npx remotion elements add-library`. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
 version: 4.0.546
 ---
 
@@ -21,35 +21,30 @@ For an Element library that is not listed, find its Markdown index at `/llms.txt
 ## Install an Element library
 
 Installing an Element library lists it in Browse Elements in Remotion Studio, where the user can preview its Elements and drag them into a composition.
-Add one `Config.addElementLibrary()` call per Element library to `remotion.config.ts`:
+Before adding an Element from an Element library, install the library. Run exactly:
 
-```ts title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-
-Config.addElementLibrary({
-  url: '<library-url>',
-  displayName: '<library-name>',
-});
+```bash
+npx remotion elements add-library <library-url>
 ```
 
 - Use the library URL from the list of Element libraries, or the URL the user gave.
-- Skip Element libraries that Studio already lists in Browse Elements.
-- Requires Remotion 4.0.517 or later.
-
-Installing an Element library is not required to add an Element.
+- The command adds a `Config.addElementLibrary()` call to `remotion.config.ts`. If the library is already in the config, it changes nothing.
+- It reads the display name from the library's page. Pass `--display-name <name>` to override it.
+- **`No Remotion config file found`:** create `remotion.config.ts` with `import {Config} from '@remotion/cli/config';` and run the command again.
+- Requires Remotion 4.0.547 or later. On older versions, add the `Config.addElementLibrary({url: '<library-url>'})` call to `remotion.config.ts` yourself.
 
 ## Add an Element
 
 Copy this checklist and track progress:
 
 ```
-- [ ] 1. Get the Element page URL
+- [ ] 1. Get the Element page URL and install its Element library
 - [ ] 2. Dry run succeeds
 - [ ] 3. Element installed
 - [ ] 4. Element adapted and previewed
 ```
 
-### 1. Get the Element page URL
+### 1. Get the Element page URL and install its Element library
 
 - **Given an Element page URL:** use it.
 - **Given an Element library URL or a name:** fetch the library's Markdown index, pick the Element the user asked for, and use its Element page URL.
@@ -58,6 +53,8 @@ Copy this checklist and track progress:
 Markdown indexes link to Markdown documents, which the installer cannot use.
 Fetch the Element's Markdown document and use the Element page URL it names near the top, for example after `Element page:` or `URL:`.
 If it names none, remove `.md` from the document's URL.
+
+If the Element comes from a known Element library, [install the library](#install-an-element-library). Given only an Element page URL, skip this.
 
 ### 2. Dry run
 
