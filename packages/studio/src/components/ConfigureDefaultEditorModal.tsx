@@ -12,8 +12,9 @@ import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import {rightRow} from './RenderModal/layout';
 import {useSettings} from './SettingsContext';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -240,8 +241,7 @@ export const DefaultEditorSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<div style={content}>
-				<div style={optionRow}>
-					<div style={label}>Default editor</div>
+				<SettingsRow settingId="defaultEditor">
 					<div style={rightColumn}>
 						{editorInfo === null && displayedError === null ? (
 							<p style={rightDescription}>Loading installed editors...</p>
@@ -260,9 +260,8 @@ export const DefaultEditorSettings: React.FC = () => {
 							/>
 						)}
 					</div>
-				</div>
-				<div style={optionRow}>
-					<div style={label}>Default coding agent</div>
+				</SettingsRow>
+				<SettingsRow settingId="defaultCodingAgent">
 					<div style={rightColumn}>
 						{codingAgentInfo === null && displayedError === null ? (
 							<p style={rightDescription}>Loading installed coding agents...</p>
@@ -281,7 +280,7 @@ export const DefaultEditorSettings: React.FC = () => {
 							/>
 						)}
 					</div>
-				</div>
+				</SettingsRow>
 				{displayedError ? (
 					<>
 						<Spacing y={1.5} />

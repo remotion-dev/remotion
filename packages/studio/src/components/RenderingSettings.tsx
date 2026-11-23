@@ -18,13 +18,13 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {CrfSetting} from './RenderModal/CrfSetting';
 import {humanReadableCodec} from './RenderModal/human-readable-codec';
-import {input, label, optionRow, rightRow} from './RenderModal/layout';
-import {NumberSetting} from './RenderModal/NumberSetting';
+import {input, rightRow} from './RenderModal/layout';
 import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
 import {useSettings} from './SettingsContext';
+import {SettingsNumber} from './SettingsNumber';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -447,8 +447,7 @@ export const RenderingSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Output</p>
-			<div style={optionRow}>
-				<div style={label}>Default codec</div>
+			<SettingsRow settingId="codec">
 				<div style={rightRow}>
 					<Combobox
 						values={codecValues}
@@ -456,16 +455,16 @@ export const RenderingSettings: React.FC = () => {
 						aria-label="Codec"
 					/>
 				</div>
-			</div>
-			<NumberSetting
-				name="Scale"
+			</SettingsRow>
+			<SettingsNumber
+				settingId="scale"
+				max={null}
 				value={scale}
 				onValueChanged={changeScale}
 				min={0.1}
 				step={0.1}
 			/>
-			<div style={optionRow}>
-				<div style={label}>Still image format</div>
+			<SettingsRow settingId="stillImageFormat">
 				<div style={rightRow}>
 					<Combobox
 						values={stillFormatValues}
@@ -473,9 +472,8 @@ export const RenderingSettings: React.FC = () => {
 						aria-label="Still image format"
 					/>
 				</div>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>Video frame format</div>
+			</SettingsRow>
+			<SettingsRow settingId="videoImageFormat">
 				<div style={rightRow}>
 					<Combobox
 						values={videoFormatValues}
@@ -483,32 +481,31 @@ export const RenderingSettings: React.FC = () => {
 						aria-label="Video frame format"
 					/>
 				</div>
-			</div>
+			</SettingsRow>
 			<p style={sectionTitle}>Encoding</p>
 			{BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
 			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
-				<div style={optionRow}>
-					<div style={label}>Quality control</div>
+				<SettingsRow settingId="qualityControl">
 					<div style={rightRow}>
 						<SegmentedControl items={qualityModeValues} needsWrapping />
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{qualityMode === 'crf' &&
 			BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
 			BrowserSafeApis.getValidCrfRanges(resolvedCodec) ? (
-				<CrfSetting
-					crf={crf}
-					setCrf={changeCrf}
+				<SettingsNumber
+					settingId="crf"
+					value={crf}
+					onValueChanged={changeCrf}
 					min={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[0]}
 					max={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[1]}
-					option="crfOption"
+					step={1}
 				/>
 			) : null}
 			{qualityMode === 'bitrate' &&
 			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
-				<div style={optionRow}>
-					<div style={label}>Video bitrate</div>
+				<SettingsRow settingId="videoBitrate">
 					<div style={rightRow}>
 						<RemotionInput
 							style={{...input, ...fullWidth}}
@@ -519,11 +516,10 @@ export const RenderingSettings: React.FC = () => {
 							rightAlign
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{resolvedCodec === 'prores' ? (
-				<div style={optionRow}>
-					<div style={label}>ProRes profile</div>
+				<SettingsRow settingId="proResProfile">
 					<div style={rightRow}>
 						<Combobox
 							values={profileValues}
@@ -531,11 +527,10 @@ export const RenderingSettings: React.FC = () => {
 							aria-label="ProRes profile"
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{resolvedCodec === 'h264' ? (
-				<div style={optionRow}>
-					<div style={label}>x264 preset</div>
+				<SettingsRow settingId="x264Preset">
 					<div style={rightRow}>
 						<Combobox
 							values={presetValues}
@@ -543,12 +538,11 @@ export const RenderingSettings: React.FC = () => {
 							aria-label="x264 preset"
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 
 			<p style={sectionTitle}>Audio</p>
-			<div style={optionRow}>
-				<div style={label}>Audio codec</div>
+			<SettingsRow settingId="audioCodec">
 				<div style={rightRow}>
 					<Combobox
 						values={audioCodecValues}
@@ -556,10 +550,10 @@ export const RenderingSettings: React.FC = () => {
 						aria-label="Audio codec"
 					/>
 				</div>
-			</div>
+			</SettingsRow>
 			<p style={sectionTitle}>Performance</p>
-			<NumberSetting
-				name="Concurrency"
+			<SettingsNumber
+				settingId="concurrency"
 				value={concurrency}
 				onValueChanged={changeConcurrency}
 				min={renderDefaults.minConcurrency}
@@ -567,10 +561,10 @@ export const RenderingSettings: React.FC = () => {
 				step={1}
 			/>
 			<p style={sectionTitle}>Notifications</p>
-			<label style={optionRow}>
-				<div style={label}>Beep when render finishes</div>
+			<SettingsRow settingId="beepOnFinish">
 				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-beepOnFinish-control"
 						checked={beepOnFinish}
 						name="Beep when render finishes"
 						onChange={(event) => {
@@ -579,7 +573,7 @@ export const RenderingSettings: React.FC = () => {
 						}}
 					/>
 				</div>
-			</label>
+			</SettingsRow>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

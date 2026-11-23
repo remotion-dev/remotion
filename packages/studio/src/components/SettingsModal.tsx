@@ -4,11 +4,13 @@ import React, {
 	useEffect,
 	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {SELECTED_BACKGROUND, TRANSPARENT} from '../helpers/colors';
 import {
 	canEditStudioConfig,
 	getAvailableSettingsTabs,
@@ -40,8 +42,11 @@ import {
 	leftSidebar,
 	optionsPanel,
 } from './RenderModal/render-modals';
+import {getSettingDomId} from './settings-catalog';
+import type {SettingsSearchTarget} from './settings-search';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
+import {SettingsSearch} from './SettingsSearch';
 import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
@@ -121,11 +126,16 @@ export const SettingsModal: React.FC<{
 	);
 	const safeInitialTab = getSafeSettingsTab(initialTab, availableTabs);
 	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
+	const panels = useRef<HTMLDivElement>(null);
+	const [searchTarget, setSearchTarget] = useState<SettingsSearchTarget | null>(
+		null,
+	);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([safeInitialTab]);
 	const [packagesFooterContainer, setPackagesFooterContainer] =
 		useState<HTMLDivElement | null>(null);
 
 	const selectTab = useCallback((newTab: SettingsTab) => {
+		setSearchTarget(null);
 		setTab(newTab);
 		setOpenedTabs((currentOpenedTabs) => {
 			if (currentOpenedTabs.includes(newTab)) {
@@ -135,6 +145,63 @@ export const SettingsModal: React.FC<{
 			return [...currentOpenedTabs, newTab];
 		});
 	}, []);
+	const navigateToSetting = useCallback(
+		(target: SettingsSearchTarget) => {
+			selectTab(target.tab);
+			setSearchTarget(target);
+		},
+		[selectTab],
+	);
+	useEffect(() => {
+		const root = panels.current;
+		if (searchTarget === null || root === null || tab !== searchTarget.tab)
+			return;
+		let animation: Animation | null = null;
+		const reveal = () => {
+			const element = root.querySelector<HTMLElement>(
+				`[id="${getSettingDomId(searchTarget.id)}"]`,
+			);
+			if (element === null) return false;
+			if (searchTarget.id.startsWith('tab-')) element.scrollTop = 0;
+			element.scrollIntoView({
+				block: searchTarget.id.startsWith('tab-') ? 'start' : 'center',
+			});
+			const controls =
+				element.querySelector('[data-setting-control]') ?? element;
+			const control = searchTarget.focusControl
+				? controls.querySelector<HTMLElement>(
+						'input:not(:disabled), button:not(:disabled), select:not(:disabled), [tabindex="0"]',
+					)
+				: null;
+			(control ?? element).focus({preventScroll: true});
+			const reduceMotion = window.matchMedia(
+				'(prefers-reduced-motion: reduce)',
+			).matches;
+			animation = element.animate(
+				[
+					{backgroundColor: SELECTED_BACKGROUND, offset: 0},
+					{backgroundColor: SELECTED_BACKGROUND, offset: 0.6},
+					{
+						backgroundColor: reduceMotion ? SELECTED_BACKGROUND : TRANSPARENT,
+						offset: 1,
+					},
+				],
+				{
+					duration: 1800,
+				},
+			);
+			return true;
+		};
+
+		const observer = new MutationObserver(() => {
+			if (reveal()) observer.disconnect();
+		});
+		if (!reveal()) observer.observe(root, {childList: true, subtree: true});
+		return () => {
+			observer.disconnect();
+			animation?.cancel();
+		};
+	}, [searchTarget, tab]);
 	useLayoutEffect(() => {
 		const safeTab = getSafeSettingsTab(tab, availableTabs);
 		if (safeTab !== tab) {
@@ -148,12 +215,17 @@ export const SettingsModal: React.FC<{
 	return (
 		<FullscreenPanel
 			ariaLabel="Settings"
-			headerContent={null}
+			headerContent={
+				<SettingsSearch
+					availableTabs={availableTabs}
+					onSelect={navigateToSetting}
+				/>
+			}
 			rightAction={null}
 			sidebarWidth={null}
 		>
 			<>
-				<div style={horizontalLayout}>
+				<div ref={panels} style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
 						{availableTabs.includes('studio') ? (
 							<VerticalTab
@@ -291,7 +363,11 @@ export const SettingsModal: React.FC<{
 					</div>
 					{availableTabs.includes('packages') &&
 					openedTabs.includes('packages') ? (
-						<div style={tab === 'packages' ? optionsPanel : hiddenPanel}>
+						<div
+							id={getSettingDomId('tab-packages')}
+							tabIndex={-1}
+							style={tab === 'packages' ? optionsPanel : hiddenPanel}
+						>
 							<InstallPackageSettings
 								footerContainer={packagesFooterContainer}
 								packageManager={packageManager}
@@ -301,6 +377,8 @@ export const SettingsModal: React.FC<{
 					{availableTabs.includes('apps') && openedTabs.includes('apps') ? (
 						<div
 							style={tab === 'apps' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-apps')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<DefaultEditorSettings />
@@ -309,6 +387,8 @@ export const SettingsModal: React.FC<{
 					{availableTabs.includes('models') && openedTabs.includes('models') ? (
 						<div
 							style={tab === 'models' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-models')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<ModelsSettings />
@@ -318,6 +398,8 @@ export const SettingsModal: React.FC<{
 					openedTabs.includes('license') ? (
 						<div
 							style={tab === 'license' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-license')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<LicenseSettings />
@@ -326,6 +408,8 @@ export const SettingsModal: React.FC<{
 					{availableTabs.includes('skills') && openedTabs.includes('skills') ? (
 						<div
 							style={tab === 'skills' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-skills')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<SkillsSettings />
@@ -334,6 +418,8 @@ export const SettingsModal: React.FC<{
 					{openedTabs.includes('shortcuts') ? (
 						<div
 							style={tab === 'shortcuts' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-shortcuts')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<KeyboardShortcutsSettings />
@@ -343,6 +429,8 @@ export const SettingsModal: React.FC<{
 					openedTabs.includes('rendering') ? (
 						<div
 							style={tab === 'rendering' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-rendering')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<RenderingSettings />
@@ -351,6 +439,8 @@ export const SettingsModal: React.FC<{
 					{availableTabs.includes('studio') && openedTabs.includes('studio') ? (
 						<div
 							style={tab === 'studio' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-studio')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<StudioSettings />
@@ -360,6 +450,8 @@ export const SettingsModal: React.FC<{
 					openedTabs.includes('updates') ? (
 						<div
 							style={tab === 'updates' ? settingsOptionsPanel : hiddenPanel}
+							id={getSettingDomId('tab-updates')}
+							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<UpdatesSettings />

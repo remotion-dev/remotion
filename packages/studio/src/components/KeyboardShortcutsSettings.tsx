@@ -42,8 +42,10 @@ import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import {rightRow} from './RenderModal/layout';
+import {getSettingDomId} from './settings-catalog';
 import {useSettings} from './SettingsContext';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -280,16 +282,16 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			{canEdit ? (
 				<>
 					<p style={dividerLabel}>General</p>
-					<label style={optionRow}>
-						<div style={label}>Keyboard shortcuts</div>
+					<SettingsRow settingId="keyboardShortcutsEnabled">
 						<div style={rightRow}>
 							<Checkbox
+								inputId="remotion-setting-keyboardShortcutsEnabled-control"
 								checked={enabled}
 								name="keyboard-shortcuts"
 								onChange={onEnabledChange}
 							/>
 						</div>
-					</label>
+					</SettingsRow>
 				</>
 			) : null}
 			{visibleShortcutGroups.map((group, groupIndex) => (
@@ -384,6 +386,8 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 							return (
 								<div
 									key={shortcut.action}
+									id={getSettingDomId(`shortcut-${shortcut.action}`)}
+									tabIndex={-1}
 									role="listitem"
 									style={
 										groupIndex === displayedShortcutGroups.length - 1 &&

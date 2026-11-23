@@ -2,9 +2,9 @@ import React from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
-import {InfoBubble} from './RenderModal/InfoBubble';
-import {INFO_TOOLTIP_FONT_SIZE} from './RenderModal/InfoTooltip';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import type {SettingId} from './settings-catalog';
+import {settingsCatalog} from './settings-catalog';
+import {SettingsRow} from './SettingsRow';
 
 const DEFAULT_VALUE = 'studio-default';
 
@@ -20,19 +20,18 @@ export const booleanOptions = [
 
 export const ConfigSelect = <T extends string | boolean>({
 	defaultLabel,
-	description,
-	name,
+	settingId,
 	onChange,
 	options,
 	value,
 }: {
 	readonly defaultLabel: string;
-	readonly description: React.ReactNode;
-	readonly name: string;
+	readonly settingId: SettingId;
 	readonly onChange: (value: T | null) => void;
 	readonly options: readonly {label: string; value: T}[];
 	readonly value: T | null;
 }) => {
+	const {name} = settingsCatalog[settingId];
 	const values: ComboboxValue[] = [
 		{
 			id: DEFAULT_VALUE,
@@ -63,37 +62,13 @@ export const ConfigSelect = <T extends string | boolean>({
 	];
 
 	return (
-		<div style={optionRow}>
-			<div style={label}>
-				{name}
-				{description === null ? null : (
-					<InfoBubble
-						aria-label={`About ${name.toLowerCase()}`}
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							{description}
-						</div>
-					</InfoBubble>
-				)}
-			</div>
-			<div style={rightRow}>
-				<Combobox
-					values={values}
-					selectedId={
-						value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
-					}
-					style={controlWidth}
-					aria-label={name}
-				/>
-			</div>
-		</div>
+		<SettingsRow settingId={settingId}>
+			<Combobox
+				values={values}
+				selectedId={value === null ? DEFAULT_VALUE : `${name}-${String(value)}`}
+				style={controlWidth}
+				aria-label={name}
+			/>
+		</SettingsRow>
 	);
 };
