@@ -299,7 +299,7 @@ export const videoIteratorManager = async ({
 			}
 
 			// A cached loop iterator can already be reclaimed before its first read.
-			prewarmedVideoIteratorCache.destroy();
+			prewarmedVideoIteratorCache.clear();
 			currentSeek = null;
 			if (destroyed || nonce.isStale()) {
 				return;
@@ -450,7 +450,7 @@ export const videoIteratorManager = async ({
 				);
 				// Prewarmed loop iterators were idle as well, so their decoders are
 				// likely reclaimed too.
-				prewarmedVideoIteratorCache.destroy();
+				prewarmedVideoIteratorCache.clear();
 				iterator.destroy();
 				clearLastDrawnFrame();
 				videoFrameIterator = null;

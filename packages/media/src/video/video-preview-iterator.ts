@@ -6,7 +6,7 @@ import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping'
 
 export const createVideoIterator = async (
 	timeToSeek: number,
-	cache: PrewarmedVideoIteratorCache,
+	cache: Pick<PrewarmedVideoIteratorCache, 'makeIteratorOrUsePrewarmed'>,
 ) => {
 	let destroyed = false;
 	const iterator = cache.makeIteratorOrUsePrewarmed(timeToSeek);

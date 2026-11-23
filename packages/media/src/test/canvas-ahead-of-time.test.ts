@@ -4,7 +4,11 @@ import {
 	type WrappedCanvas,
 } from 'mediabunny';
 import {expect, test} from 'vitest';
-import {canvasesAheadOfTime, releaseStableFrame} from '../canvas-ahead-of-time';
+import {
+	canvasesAheadOfTime,
+	makeStableFramePool,
+	releaseStableFrame,
+} from '../canvas-ahead-of-time';
 
 const makeCanvas = () => {
 	const canvas = new OffscreenCanvas(2, 2);
@@ -60,7 +64,13 @@ const waitForFrame = (
 };
 
 test('keeps already-returned canvases stable when samples are created from a reused scratch canvas', async () => {
-	const iterator = canvasesAheadOfTime(makeReusingSampleSink());
+	const pool = makeStableFramePool();
+	const iterator = canvasesAheadOfTime(
+		makeReusingSampleSink(),
+		undefined,
+		null,
+		pool,
+	);
 	const frames: (WrappedCanvas | null)[] = [];
 
 	try {
@@ -87,6 +97,7 @@ test('keeps already-returned canvases stable when samples are created from a reu
 		]);
 	} finally {
 		frames.forEach(releaseStableFrame);
+		pool.dispose();
 		await iterator.closeIterator();
 	}
 });
@@ -110,7 +121,8 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 			}
 		},
 	} as unknown as VideoSampleSink;
-	const iterator = canvasesAheadOfTime(sink);
+	const pool = makeStableFramePool();
+	const iterator = canvasesAheadOfTime(sink, undefined, null, pool);
 	const frames: (WrappedCanvas | null)[] = [];
 
 	try {
@@ -129,6 +141,7 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 		expect(getPixel(fourth!.canvas as OffscreenCanvas)).toEqual([0, 0, 0, 0]);
 	} finally {
 		frames.forEach(releaseStableFrame);
+		pool.dispose();
 		await iterator.closeIterator();
 	}
 });

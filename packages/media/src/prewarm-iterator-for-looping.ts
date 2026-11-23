@@ -1,6 +1,6 @@
 import type {VideoSampleSink} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
-import {canvasesAheadOfTime} from './canvas-ahead-of-time';
+import {canvasesAheadOfTime, makeStableFramePool} from './canvas-ahead-of-time';
 import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
 import type {PreviewFrameResize} from './resize-preview-sample';
 
@@ -9,6 +9,7 @@ export const makePrewarmedVideoIteratorCache = (
 	timeResolution: number,
 	resize: PreviewFrameResize | null = null,
 ) => {
+	const stableFramePool = makeStableFramePool();
 	const prewarmedVideoIterators: Map<number, CanvasAheadOfTimeIterator> =
 		new Map();
 
@@ -26,7 +27,7 @@ export const makePrewarmedVideoIteratorCache = (
 		if (!prewarmedVideoIterators.has(snapped)) {
 			prewarmedVideoIterators.set(
 				snapped,
-				canvasesAheadOfTime(videoSink, snapped, resize),
+				canvasesAheadOfTime(videoSink, snapped, resize, stableFramePool),
 			);
 		}
 	};
@@ -39,10 +40,10 @@ export const makePrewarmedVideoIteratorCache = (
 			return prewarmedIterator;
 		}
 
-		return canvasesAheadOfTime(videoSink, snapped, resize);
+		return canvasesAheadOfTime(videoSink, snapped, resize, stableFramePool);
 	};
 
-	const destroy = () => {
+	const clear = () => {
 		for (const iterator of prewarmedVideoIterators.values()) {
 			// Closing an iterator whose decoder was reclaimed rejects.
 			iterator.closeIterator().catch(() => undefined);
@@ -54,7 +55,11 @@ export const makePrewarmedVideoIteratorCache = (
 	return {
 		prewarmIteratorForLooping,
 		makeIteratorOrUsePrewarmed,
-		destroy,
+		clear,
+		destroy: () => {
+			stableFramePool.dispose();
+			clear();
+		},
 	};
 };
 
