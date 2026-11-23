@@ -22,6 +22,11 @@ If no Remotion project currently exists, load [Create a new Remotion project](./
 
 If you are writing Remotion React Markup, load [Remotion Markup Best Practices](./remotion-markup/SKILL.md)
 
+## Elements
+
+To install Elements, reusable video components from Element libraries, load [Elements](./remotion-elements/SKILL.md).
+Also load it when given an Element page URL or an Element library URL.
+
 ## Maps
 
 For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](./remotion-maps/SKILL.md).
