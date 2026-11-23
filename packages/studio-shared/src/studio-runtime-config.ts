@@ -8,7 +8,7 @@ import type {PreferredEffectBackend} from 'remotion';
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
-	readonly doubleClickAction?: DoubleClickAction | null;
+	readonly doubleClickAction: DoubleClickAction | null;
 	readonly showDiagnostics: boolean | null;
 	readonly highContrast: boolean | null;
 	readonly preservePitchOnPlayback: boolean | null;
@@ -36,10 +36,10 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly doubleClickAction?: {
+	readonly doubleClickAction: {
 		readonly value: DoubleClickAction;
 		readonly source: 'cli' | 'config';
-	};
+	} | null;
 	readonly showDiagnostics: {
 		readonly value: boolean;
 		readonly source: 'cli' | 'config';
