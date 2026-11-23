@@ -1,4 +1,4 @@
-import React, {useEffect, useId, useState} from 'react';
+import React, {useEffect, useId, useRef, useState} from 'react';
 import styles from './StudioFallbackAlternatives.module.css';
 
 const SKILL_COMMAND = '/remotion-elements';
@@ -10,9 +10,10 @@ export const CopyField: React.FC<{
 	const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>(
 		'idle',
 	);
+	const codeRef = useRef<HTMLElement>(null);
 
 	useEffect(() => {
-		if (copyState === 'idle') {
+		if (copyState !== 'copied') {
 			return;
 		}
 
@@ -21,60 +22,76 @@ export const CopyField: React.FC<{
 	}, [copyState]);
 
 	return (
-		<div className={styles.field}>
-			<code className={styles.code}>
-				{value.startsWith(`${SKILL_COMMAND} `) ? (
-					<>
-						<span className={styles.skill}>{SKILL_COMMAND}</span>
-						{value.slice(SKILL_COMMAND.length)}
-					</>
-				) : (
-					value
-				)}
-			</code>
-			<button
-				aria-label={`Copy ${label}`}
-				className={styles.copyButton}
-				onClick={async () => {
-					try {
-						await navigator.clipboard.writeText(value);
-						setCopyState('copied');
-					} catch {
-						setCopyState('error');
+		<>
+			<div className={styles.field}>
+				<code
+					ref={codeRef}
+					aria-label={label}
+					className={styles.code}
+					onFocus={(event) =>
+						window.getSelection()?.selectAllChildren(event.currentTarget)
 					}
-				}}
-				title={copyState === 'error' ? 'Could not copy' : `Copy ${label}`}
-				type="button"
-			>
-				<svg
-					aria-hidden="true"
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
+					tabIndex={0}
 				>
-					{copyState === 'copied' ? (
-						<path d="m5 12 4 4L19 6" />
-					) : (
+					{value.startsWith(`${SKILL_COMMAND} `) ? (
 						<>
-							<rect x="9" y="9" width="13" height="13" rx="2" />
-							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+							<span className={styles.skill}>{SKILL_COMMAND}</span>
+							{value.slice(SKILL_COMMAND.length)}
 						</>
+					) : (
+						value
 					)}
-				</svg>
-			</button>
-			<span aria-live="polite" className={styles.visuallyHidden}>
+				</code>
+				<button
+					aria-label={`Copy ${label}`}
+					className={styles.copyButton}
+					onClick={async () => {
+						try {
+							await navigator.clipboard.writeText(value);
+							setCopyState('copied');
+						} catch {
+							setCopyState('error');
+							codeRef.current?.focus();
+						}
+					}}
+					title={`Copy ${label}`}
+					type="button"
+				>
+					<svg
+						aria-hidden="true"
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						{copyState === 'copied' ? (
+							<path d="m5 12 4 4L19 6" />
+						) : (
+							<>
+								<rect x="9" y="9" width="13" height="13" rx="2" />
+								<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+							</>
+						)}
+					</svg>
+				</button>
+			</div>
+			<p
+				aria-live="polite"
+				className={
+					copyState === 'error' ? styles.copyError : styles.visuallyHidden
+				}
+			>
 				{copyState === 'copied'
 					? 'Copied.'
 					: copyState === 'error'
-						? 'Could not copy.'
+						? 'Could not copy. The text is selected, copy it with your keyboard.'
 						: null}
-			</span>
-		</div>
+			</p>
+		</>
 	);
 };
 
