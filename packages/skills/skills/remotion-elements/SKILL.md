@@ -16,7 +16,7 @@ If no Remotion project exists yet, load [Create a new Remotion video](../remotio
 
 Any website can be an Element library, and all Element libraries are peers.
 Fetch https://www.remotion.dev/elements/libraries.md for the current list of Element libraries, with each library URL and Markdown index.
-For an Element library that is not listed, find its Markdown index at `/llms.txt` on its domain, or append `.md` to its pages.
+The CLI needs an Element page URL. To find one in an Element library that is not listed, fetch its Markdown index, usually at `/llms.txt` on its domain or by appending `.md` to a page.
 
 ## Install an Element library
 
