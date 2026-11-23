@@ -70,6 +70,7 @@ export class MediaPlayer {
 	private muted = false;
 	private volume = 1;
 	private audioInitialized = false;
+	private deferredAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
@@ -369,20 +370,19 @@ export class MediaPlayer {
 			return null;
 		}
 
-		// Nothing can be heard at volume 0, so undecodable audio is not an error.
-		// The picture keeps playing without audio.
-		if (!canDecode && this.volume <= 0) {
-			this.audioInitialized = true;
-			return null;
-		}
-
 		if (!canDecode) {
-			return {
-				type: 'cannot-decode',
-				error: new Error(
-					`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
-				),
-			};
+			const error = new Error(
+				`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+			);
+			// Nothing can be heard at volume 0, so the picture keeps playing. The
+			// error is reported once the clip becomes audible.
+			if (this.volume <= 0) {
+				this.audioInitialized = true;
+				this.deferredAudioError = error;
+				return null;
+			}
+
+			return {type: 'cannot-decode', error};
 		}
 
 		this.audioIteratorManager = audioIteratorManager({
@@ -723,6 +723,7 @@ export class MediaPlayer {
 	public setMuted(muted: boolean): void {
 		this.muted = muted;
 		this.audioIteratorManager?.setMuted(muted);
+		this.reportDeferredAudioErrorIfAudible();
 		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
 			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
 				this.reportTerminalError(error),
@@ -733,6 +734,17 @@ export class MediaPlayer {
 	public setVolume(volume: number): void {
 		this.volume = volume;
 		this.audioIteratorManager?.setVolume(volume);
+		this.reportDeferredAudioErrorIfAudible();
+	}
+
+	private reportDeferredAudioErrorIfAudible(): void {
+		if (!this.deferredAudioError || this.muted || this.volume <= 0) {
+			return;
+		}
+
+		const error = this.deferredAudioError;
+		this.deferredAudioError = null;
+		this.reportTerminalError(error);
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {

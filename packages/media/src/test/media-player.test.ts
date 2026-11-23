@@ -196,6 +196,39 @@ test('keeps the audio iterator through mute and volume changes', async () => {
 	}
 });
 
+test('a muted seek prepares audio without holding playback', async () => {
+	let holds = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			holds++;
+			return {unblock: () => {}};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		const heldWhileAudible = holds;
+		expect(heldWhileAudible).toBeGreaterThan(0);
+
+		player.setMuted(true);
+		await player.seekTo(5, null);
+		expect(manager.getAudioIteratorsCreated()).toBeGreaterThan(created);
+		expect(holds).toBe(heldWhileAudible);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
 test('dispose should immediately unblock a pending playback catch-up', async () => {
 	let activeBlocks = 0;
 	let delayPlaybackCalled: () => void = () => {};
@@ -589,6 +622,37 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
 		player.setMuted(false);
+		expect(errors).toHaveLength(1);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+		support.mockRestore();
+	}
+});
+
+test('reports unsupported audio at volume 0 once the volume rises', async () => {
+	const support = vi
+		.spyOn(InputAudioTrack.prototype, 'canDecode')
+		.mockResolvedValue(false);
+	const errors: Error[] = [];
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(
+		sharedAudioContext,
+		(error) => errors.push(error),
+		'video',
+		{
+			src: '/bigbuckbunny.mp4',
+			canvas: document.createElement('canvas'),
+			onVideoFrameCallback: null,
+		},
+	);
+	try {
+		expect((await player.initialize(0, false, 0)).type).toBe('success');
+		expect(errors).toHaveLength(0);
+		player.setVolume(0.5);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('Cannot decode audio');
+		player.setVolume(1);
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();

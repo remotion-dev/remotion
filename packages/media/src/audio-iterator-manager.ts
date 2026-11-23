@@ -401,7 +401,12 @@ export const audioIteratorManager = ({
 		audioBufferIterator?.destroy();
 		unblockCurrentDelayHandle();
 
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		// An iterator that cannot be heard buffers in the background instead of
+		// holding playback.
+		const delayHandle: DelayPlaybackIfNotPremounting =
+			muted || currentVolume <= 0
+				? {unblock: () => {}, [Symbol.dispose]: () => {}}
+				: delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
 		currentAnchor = {
