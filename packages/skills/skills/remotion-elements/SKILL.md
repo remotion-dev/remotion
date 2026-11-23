@@ -1,34 +1,34 @@
 ---
 name: remotion-elements
-description: Find, install and use Elements, reusable video components published by Element libraries. Use when given an Element or Element library URL, or when adding a ready-made title, background, chart, caption style or transition to a video.
+description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, from Element libraries like Remotion Elements, snapcn and remocn into a Remotion project with `npx remotion elements use`, and registers Element libraries in Remotion Studio. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
 version: 4.0.546
 ---
 
 # Remotion Elements
 
-An Element is a reusable video component written in React, such as a title, background, chart or caption style.
-Element libraries publish Elements on web pages so they can be shared.
-Installing an Element copies its source code into the project. From then on, it is ordinary code that the user owns: edit it, and compose it with other Elements and markup.
+An Element is a reusable video component written in React.
+Element libraries publish each Element on its own page, the Element page.
+Installing an Element copies its source code into the project, where the user owns it: edit it like any other component and compose it with other Elements.
 
 If no Remotion project exists yet, load [Create a new Remotion video](../remotion-create/SKILL.md) first.
 
 ## Element libraries
 
-Any website can be an Element library. These libraries are equal choices:
+Any website can be an Element library. These libraries are peers:
 
-| Library           | Library URL                          | Markdown index                             |
+| Element library   | Library URL                          | Markdown index                             |
 | ----------------- | ------------------------------------ | ------------------------------------------ |
 | Remotion Elements | `https://www.remotion.dev/elements`  | https://www.remotion.dev/elements/index.md |
 | snapcn            | `https://snapcn.dev/docs/components` | https://snapcn.dev/llms-components.txt     |
 | remocn            | `https://remocn.dev/docs/typography` | https://remocn.dev/llms-components.txt     |
 
-More libraries are listed at https://www.remotion.dev/elements/libraries.md.
-For a library that is not listed, look for its Markdown index at `/llms.txt` on its domain, or append `.md` to its pages.
+More Element libraries are listed at https://www.remotion.dev/elements/libraries.md.
+For any other Element library, find its Markdown index at `/llms.txt` on its domain, or append `.md` to its pages.
 
 ## Install an Element library
 
-Installing a library adds it to Browse Elements in Remotion Studio, so the user can preview its Elements and add them with the mouse.
-Add it to `remotion.config.ts`:
+Installing an Element library lists it in Browse Elements in Remotion Studio, where the user can preview its Elements and drag them into a composition.
+Add one `Config.addElementLibrary()` call per Element library to `remotion.config.ts`:
 
 ```ts title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -39,58 +39,67 @@ Config.addElementLibrary({
 });
 ```
 
-Use the library URL from the table above, or the URL the user gave.
-Skip libraries that Studio already lists. Studio lists Remotion Elements without configuration.
+- Use the library URL from the table, or the URL the user gave.
+- Studio lists Remotion Elements without configuration. Do not add it.
+- Requires Remotion 4.0.517 or later.
 
-Requires Remotion 4.0.517 or later.
-Installing a library is optional when adding a single Element from the command line.
+Installing an Element library is not required to add an Element.
 
 ## Add an Element
 
-1. Find the Element. Fetch the library's Markdown index, pick an Element that fits, and get the URL of its page.
-2. Preview the installation:
+Copy this checklist and track progress:
 
-```bash
-npx remotion elements use <element-url> --composition <composition-id> --dry-run
+```
+- [ ] 1. Get the Element page URL
+- [ ] 2. Dry run succeeds
+- [ ] 3. Element installed
+- [ ] 4. Element adapted and previewed
 ```
 
-3. Install it:
+### 1. Get the Element page URL
+
+- **Given an Element page URL:** use it.
+- **Given an Element library URL or a name:** fetch the library's Markdown index, pick the Element the user asked for, and use its Element page URL.
+- **Not given anything:** search the Markdown indexes of the Element libraries above for an Element that fits the video.
+
+### 2. Dry run
+
+Run exactly:
 
 ```bash
-npx remotion elements use <element-url> --composition <composition-id> --yes
+npx remotion elements use <element-page-url> --composition <composition-id> --dry-run
 ```
 
-The command installs missing npm packages, saves assets to `public/`, writes an `.element.tsx` file next to the composition's component, and inserts the Element at frame 0 of the composition.
+Read the output and fix the cause before continuing:
 
-- Requires Remotion 4.0.542 or later, and 4.0.543 or later for `--dry-run`. For older versions, load [Remotion Upgrade](../remotion-upgrade/SKILL.md) or ask the user.
-- Omit `--composition` if the project has one composition. If the user did not name one and there are several, use the composition being worked on or ask.
-- If the page contains several Elements, pass `--element <slug>`.
-- If the `.element.tsx` file already exists with different contents, the command fails. Pass `--overwrite` only if the user agrees.
-- The Element's source code runs in the project. Install only from URLs the user gave or from libraries they trust.
+- **`No Element found`:** search the page's HTML for `application/vnd.remotion.element+json`. If a `<link>` with that type has an `href`, resolve the `href` against the Element page URL and dry run that JSON URL instead. If there is no payload, the component is not an Element: follow the install instructions on its Markdown page instead, for example a `shadcn` command, and skip to step 4.
+- **Several Elements on the page:** add `--element <slug>`.
+- **Composition IDs listed:** pass the composition the user is working on. If that is unclear, ask.
+- **`elements use` or `--dry-run` not recognized:** Remotion is older than 4.0.543. Load [Remotion Upgrade](../remotion-upgrade/SKILL.md) or ask the user.
 
-See [`npx remotion elements use`](https://www.remotion.dev/docs/cli/elements/use.md) for all flags.
+Repeat until the dry run prints the Element, the files it creates and changes, the packages and the assets.
 
-## Given a URL
+### 3. Install
 
-A URL alone is enough to install an Element. Find out what it points to:
+Run the same command with `--yes` instead of `--dry-run`:
 
-1. Run `npx remotion elements use <url> --composition <composition-id> --dry-run`. If it prints an Element, the URL is an Element page. Install it.
-2. If it prints `No Element found`, search the page's HTML for `application/vnd.remotion.element+json`. If it appears in a `<link>` with an `href`, the library links a JSON payload. Resolve the `href` against the page URL and pass that URL to `elements use`.
-3. Otherwise, the URL is a library or a component page without a payload. Fetch its Markdown (`.md` on the URL, or `/llms.txt` on the domain), find the Element the user named and use its page URL.
-4. If the component is not available as an Element, follow the install instructions on its Markdown page, for example a `shadcn` command.
+```bash
+npx remotion elements use <element-page-url> --composition <composition-id> --yes
+```
 
-If the user asks for a library URL to be installed or browsed in Studio, add it with `Config.addElementLibrary()`.
+The command installs missing packages, saves assets to `public/`, writes an `.element.tsx` file next to the composition's component and inserts the Element at frame 0.
 
-## After installing
+- If the `.element.tsx` file already exists with different contents, the command fails. Add `--overwrite` only if the user agrees.
+- The Element's source code runs in the project. Install only from Element page URLs the user gave or from Element libraries the user trusts.
 
-Import and edit the `.element.tsx` file like any other component:
+### 4. Adapt and preview
 
-- Adapt text, colors and props to the video. Elements may expose `Interactive` controls for Studio.
-- Adjust the wrapping `<Sequence>` for timing, placement and duration.
-- Combine several Elements into a scene, or wrap them in your own components.
+- Adapt the text, colors and props to the video.
+- Adjust the wrapping `<Sequence>` for timing and placement.
+- Load [Remotion Markup Best Practices](../remotion-markup/SKILL.md) before editing the markup.
+- Open the composition in Studio and check that the Element renders. Fix errors and check again.
 
-For markup, load [Remotion Markup Best Practices](../remotion-markup/SKILL.md). Open Studio so the user can preview the result.
+## Reference
 
-## Creating Elements
-
-To build an Element or an Element library, read [Creating Elements](https://www.remotion.dev/docs/elements/creating.md) and [Building Element Libraries](https://www.remotion.dev/docs/elements/libraries.md).
+- [`npx remotion elements use`](https://www.remotion.dev/docs/cli/elements/use.md): all flags
+- [Creating Elements](https://www.remotion.dev/docs/elements/creating.md) and [Building Element Libraries](https://www.remotion.dev/docs/elements/libraries.md): for publishing Elements

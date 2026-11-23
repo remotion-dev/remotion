@@ -24,7 +24,7 @@ If you are writing Remotion React Markup, load [Remotion Markup Best Practices](
 
 ## Elements
 
-To find, install or use Elements, reusable video components from Element libraries, or when given an Element or Element library URL, load [Remotion Elements](./remotion-elements/SKILL.md).
+To install Elements, reusable video components from Element libraries, or when given an Element page URL or an Element library URL, load [Remotion Elements](./remotion-elements/SKILL.md).
 
 ## Maps
 
