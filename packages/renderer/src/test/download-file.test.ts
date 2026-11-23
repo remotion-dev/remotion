@@ -12,16 +12,24 @@ import {downloadFile} from '../assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 
 test(
-	'Should be able to download file',
+	'Should download a file after following a relative 308 redirect',
 	async () => {
 		const downloadDir = await fs.promises.mkdtemp(
 			path.join(tmpdir(), 'remotion-download-test-'),
 		);
 		const content =
 			'<!doctype html><html><body>Download fixture: café</body></html>';
-		let requests = 0;
-		const server = http.createServer((_request, response) => {
-			requests++;
+		const server = http.createServer((request, response) => {
+			if (request.url === '/') {
+				response.writeHead(308, {Location: '/fixture'}).end();
+				return;
+			}
+
+			if (request.url !== '/fixture') {
+				response.writeHead(404).end();
+				return;
+			}
+
 			response.writeHead(200, {
 				'Content-Type': 'text/html; charset=utf-8',
 				Connection: 'close',
@@ -36,7 +44,7 @@ test(
 				server.once('error', reject);
 				server.listen(0, '127.0.0.1', resolve);
 			});
-			const src = `http://127.0.0.1:${(server.address() as AddressInfo).port}/fixture`;
+			const src = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
 			const {to, sizeInBytes} = await downloadFile({
 				url: src,
 				to: (contentDisposition, contentType) =>
@@ -56,7 +64,6 @@ test(
 			expect(sizeInBytes).toBe(Buffer.byteLength(content));
 			expect(path.dirname(to)).toBe(downloadDir);
 			expect(path.extname(to)).toBe('.html');
-			expect(requests).toBe(1);
 		} finally {
 			await new Promise<void>((resolve) => server.close(() => resolve()));
 			await fs.promises.rm(downloadDir, {recursive: true, force: true});
