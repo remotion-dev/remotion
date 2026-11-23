@@ -12,16 +12,14 @@ Use a [caption Element](/elements/captions/) such as Basic Captions or Word High
 ## Choose a style in Studio<AvailableFrom v="4.0.535" />
 
 <Step>1</Step> Select a video or audio layer and click <kbd>Generate captions</kbd> in the inspector.
-<br />
-<Step>2</Step> Open <kbd>Styles</kbd> and select a caption Element. Basic Captions is the default.
-<br />
+<Step>2</Step> Open <kbd>Styles</kbd> and select a caption Element. Basic Captions is the default.<br/>
 <Step>3</Step> Click <kbd>Generate captions</kbd> to transcribe the audio and add a caption layer with the selected style.
 
 To use an existing transcript, install a [caption Element](/elements/captions/) and [import the transcript into the caption layer](/docs/captions/editing#import-a-replacement-transcript).
 
 ## Customize a caption component
 
-Caption styles are React components. Edit the installed Element's source, or style the `CaptionPage` component from the [displaying guide](/docs/captions/displaying#rendering-a-caption-page).
+Caption styles are React components. Edit the installed Element's source, or style the [caption component from the displaying guide](/docs/captions/displaying#make-captions-editable-in-studio).
 
 This example positions a caption page near the bottom of the video and adds a dark outline for contrast. `whiteSpace: 'pre-wrap'` preserves spaces and allows the caption to wrap.
 
