@@ -1895,7 +1895,11 @@ const sidebars: SidebarsConfig = {
 			collapsed: true,
 			items: [
 				'license/pricing',
-				'license/which-license',
+				{
+					type: 'link',
+					href: '/license/quiz',
+					label: 'Which license is needed?',
+				},
 				'license/faq',
 				'terms',
 				'telemetry',
