@@ -82,6 +82,7 @@ import {
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
+	getEffectChainLink,
 	runEffectChain,
 } from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -586,6 +587,7 @@ export const Internals = {
 	createEffectChainState,
 	cleanupEffectChainState,
 	runEffectChain,
+	getEffectChainLink,
 	useMemoizedEffects,
 	getGpuDevice,
 	subscribeToEffectSource,
