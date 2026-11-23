@@ -10,6 +10,7 @@ export type ParsedElementPayloadsFromHtml = {
 	readonly payloads: StudioElementPayload[];
 	readonly invalidPayloadCount: number;
 	readonly alternateHrefs: string[];
+	readonly siteName: string | null;
 };
 
 export const serializeElementPayloadForHtml = (
@@ -88,12 +89,28 @@ export const parseElementPayloadsFromHtml = (
 	const payloads: StudioElementPayload[] = [];
 	const alternateHrefs: string[] = [];
 	let invalidPayloadCount = 0;
+	let siteName: string | null = null;
 
 	const tokenRegex =
-		/<!--[\s\S]*?(?:-->|$)|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<link\b([^>]*)>/gi;
+		/<!--[\s\S]*?(?:-->|$)|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<link\b([^>]*)>|<meta\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi;
 
 	for (const match of html.matchAll(tokenRegex)) {
-		const [, scriptAttributes, scriptContent, linkAttributes] = match;
+		const [, scriptAttributes, scriptContent, linkAttributes, metaAttributes] =
+			match;
+
+		if (metaAttributes !== undefined) {
+			const attributes = parseHtmlAttributes(metaAttributes);
+			const content = attributes.get('content')?.trim();
+			if (
+				siteName === null &&
+				attributes.get('property')?.toLowerCase() === 'og:site_name' &&
+				content
+			) {
+				siteName = content;
+			}
+
+			continue;
+		}
 
 		if (scriptAttributes !== undefined) {
 			if (
@@ -137,5 +154,5 @@ export const parseElementPayloadsFromHtml = (
 		}
 	}
 
-	return {payloads, invalidPayloadCount, alternateHrefs};
+	return {payloads, invalidPayloadCount, alternateHrefs, siteName};
 };

@@ -60,7 +60,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/cli/elements">
 					<strong>elements</strong>
-					<div>Install Elements from Element Libraries</div>
+					<div>Add Element Libraries and install their Elements</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/canvas-capture">
 					<strong>canvas-capture</strong>
