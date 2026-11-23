@@ -29,12 +29,8 @@ export type WebGpuSinglePassState = {
 			readonly height: number;
 			readonly format: GPUTextureFormat;
 		} | null;
-		upstream: {
-			readonly image: PreciseImage;
-			readonly bindGroup: GPUBindGroup;
-		} | null;
+		readonly upstreamBindGroups: WeakMap<PreciseImage, GPUBindGroup>;
 		precise: PreciseImage | null;
-		preciseValidated: boolean;
 	} | null;
 };
 
@@ -317,9 +313,8 @@ export const applyWebGpuSinglePass = (
 			sampler: shared.sampler,
 			bindGroupLayout: shared.bindGroupLayout,
 			source: null,
-			upstream: null,
+			upstreamBindGroups: new WeakMap(),
 			precise: null,
-			preciseValidated: false,
 		};
 	}
 
@@ -373,38 +368,52 @@ export const applyWebGpuSinglePass = (
 			],
 		});
 
-	// rgba16float render targets, filtering and copy destinations are core
-	// WebGPU. Check the first float frame of each setup anyway, and keep the
-	// 8-bit path on a device that rejects it.
-	const validate = float && !resources.preciseValidated;
-	if (validate) device.pushErrorScope('validation');
+	const sourceFormat = float ? 'rgba16float' : 'rgba8unorm';
+	if (
+		!upstream &&
+		resources.source &&
+		(resources.source.width !== width ||
+			resources.source.height !== height ||
+			resources.source.format !== sourceFormat)
+	) {
+		resources.source.texture.destroy();
+		resources.source = null;
+	}
+
+	if (
+		resources.precise &&
+		(!float ||
+			resources.precise.width !== target.width ||
+			resources.precise.height !== target.height)
+	) {
+		releasePrecise(resources);
+	}
+
+	const upstreamBindGroup = upstream
+		? (resources.upstreamBindGroups.get(upstream) ?? null)
+		: null;
+	const canvasVariant = variant === 'dither' ? 'dither' : 'plain';
+	const validationLink =
+		float &&
+		((upstream ? upstreamBindGroup === null : resources.source === null) ||
+			(variant === 'float' &&
+				(resources.precise === null || !resources.pipelines.has('float'))) ||
+			!resources.pipelines.has(canvasVariant))
+			? link
+			: null;
+	if (validationLink) {
+		device.pushErrorScope('out-of-memory');
+		device.pushErrorScope('validation');
+	}
 
 	try {
 		let bindGroup: GPUBindGroup;
 		if (upstream) {
-			if (resources.upstream?.image !== upstream) {
-				resources.upstream = {
-					image: upstream,
-					bindGroup: createBindGroup(upstream.texture.createView()),
-				};
+			bindGroup = upstreamBindGroup ?? createBindGroup(upstream.view);
+			if (!upstreamBindGroup) {
+				resources.upstreamBindGroups.set(upstream, bindGroup);
 			}
-
-			bindGroup = resources.upstream.bindGroup;
 		} else {
-			resources.upstream = null;
-			const sourceFormat: GPUTextureFormat = float
-				? 'rgba16float'
-				: 'rgba8unorm';
-			if (
-				resources.source &&
-				(resources.source.width !== width ||
-					resources.source.height !== height ||
-					resources.source.format !== sourceFormat)
-			) {
-				resources.source.texture.destroy();
-				resources.source = null;
-			}
-
 			if (!resources.source) {
 				const texture = device.createTexture({
 					size: [width, height],
@@ -470,14 +479,6 @@ export const applyWebGpuSinglePass = (
 		};
 
 		if (variant === 'float' && link) {
-			if (
-				resources.precise &&
-				(resources.precise.width !== target.width ||
-					resources.precise.height !== target.height)
-			) {
-				releasePrecise(resources);
-			}
-
 			if (!resources.precise) {
 				const texture = device.createTexture({
 					size: [target.width, target.height],
@@ -497,29 +498,27 @@ export const applyWebGpuSinglePass = (
 
 			draw(resources.precise.view, pipelineFor('float', 'rgba16float'));
 			link.precise = resources.precise;
-		} else {
-			releasePrecise(resources);
 		}
 
 		// Bridges to other backends, effect source observers and the chain's
 		// output still read the canvas, so it is always written.
 		draw(
 			state.context.getCurrentTexture().createView(),
-			pipelineFor(variant === 'dither' ? 'dither' : 'plain', resources.format),
+			pipelineFor(canvasVariant, resources.format),
 		);
 		device.queue.submit([encoder.finish()]);
 	} finally {
-		if (validate) {
-			resources.preciseValidated = true;
-			const check = device.popErrorScope().then(
-				(error) => {
-					if (!error) return true;
-					floatRejected.add(device);
-					return false;
-				},
-				() => true,
-			);
-			if (link) link.check = check;
+		if (validationLink) {
+			validationLink.check = Promise.allSettled([
+				device.popErrorScope(),
+				device.popErrorScope(),
+			]).then((results) => {
+				const valid = results.every(
+					(result) => result.status === 'fulfilled' && result.value === null,
+				);
+				if (!valid) floatRejected.add(device);
+				return valid;
+			});
 		}
 	}
 };

@@ -244,11 +244,11 @@ const runEffectChainWithoutResize = async (
 	prepared: {
 		resolved: ResolvedEffect[];
 		gpuDevice: unknown | null;
-		rerunIfInvalid?: boolean;
+		rerunIfInvalid: boolean;
 	},
 ): Promise<boolean> => {
 	const {state, source, output, width, height} = options;
-	const {resolved, gpuDevice, rerunIfInvalid = true} = prepared;
+	const {resolved, gpuDevice, rerunIfInvalid} = prepared;
 	const isCancelled = () => state.currentRunId !== runId;
 	const {webglGeneration} = state;
 	const assertWebGLValid = () => {
@@ -292,6 +292,7 @@ const runEffectChainWithoutResize = async (
 	// Only bridge bitmaps are owned here; the original source belongs to the caller.
 	let bridgeBitmap: ImageBitmap | null = null;
 	const checks: Promise<boolean>[] = [];
+	let valid = true;
 
 	try {
 		for (let runIndex = 0; runIndex < runs.length; runIndex++) {
@@ -320,17 +321,21 @@ const runEffectChainWithoutResize = async (
 					check: null,
 				};
 				chainLinks.set(dst, link);
-				def.apply({
-					source: currentImage,
-					target: dst,
-					state: setupState,
-					params: eff.params,
-					width: state.width,
-					height: state.height,
-					gpuDevice,
-					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
-				});
-				if (link.check) checks.push(link.check);
+				try {
+					def.apply({
+						source: currentImage,
+						target: dst,
+						state: setupState,
+						params: eff.params,
+						width: state.width,
+						height: state.height,
+						gpuDevice,
+						flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
+					});
+				} finally {
+					if (link.check) checks.push(link.check);
+				}
+
 				if (run.backend === 'webgl2') canvasPool.assertContextNotLost(dst);
 				if (isCancelled()) return false;
 				// Effects consume their source synchronously. Release it before the
@@ -347,6 +352,12 @@ const runEffectChainWithoutResize = async (
 
 				currentImage = dst;
 				canvasIndex = canvasIndex === 0 ? 1 : 0;
+			}
+
+			if (checks.length > 0) {
+				valid = (await Promise.all(checks)).every(Boolean);
+				checks.length = 0;
+				if (!valid || isCancelled()) break;
 			}
 
 			lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
@@ -387,22 +398,19 @@ const runEffectChainWithoutResize = async (
 	} finally {
 		// Also release a bridge if setup/apply throws or the run is cancelled.
 		bridgeBitmap?.close();
+		if (checks.length > 0) await Promise.all(checks);
 	}
 
 	if (isCancelled()) return false;
-	if (checks.length > 0) {
-		const valid = (await Promise.all(checks)).every(Boolean);
-		if (isCancelled()) return false;
-		// The effect that failed has switched to a fallback. Render the frame
-		// again instead of writing its output.
-		if (!valid && rerunIfInvalid) {
-			return runEffectChainWithoutResize(
-				options,
-				initialFlipSourceY,
-				runId,
-				{...prepared, rerunIfInvalid: false},
-			);
+	if (!valid) {
+		if (!rerunIfInvalid) {
+			throw new Error('Effect chain validation failed after retrying in 8-bit');
 		}
+
+		return runEffectChainWithoutResize(options, initialFlipSourceY, runId, {
+			...prepared,
+			rerunIfInvalid: false,
+		});
 	}
 
 	assertWebGLValid();
@@ -587,6 +595,7 @@ const runEffectChainWithResize = async (
 		return runEffectChainWithoutResize(options, true, runId, {
 			resolved,
 			gpuDevice,
+			rerunIfInvalid: true,
 		});
 	}
 
@@ -607,7 +616,7 @@ const runEffectChainWithResize = async (
 			{...options, source: resized},
 			false,
 			runId,
-			{resolved, gpuDevice},
+			{resolved, gpuDevice, rerunIfInvalid: true},
 		);
 	} finally {
 		resized.close();
