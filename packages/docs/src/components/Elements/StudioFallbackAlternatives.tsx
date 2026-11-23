@@ -95,7 +95,7 @@ export const StudioFallbackAlternatives: React.FC<{
 	return (
 		<div className={styles.container}>
 			<div
-				aria-label="Ways to add"
+				aria-label="Install method"
 				className={styles.tabList}
 				onKeyDown={(event) => {
 					if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
