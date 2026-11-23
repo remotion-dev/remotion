@@ -126,6 +126,9 @@ export const audioIteratorManager = ({
 	let audioIteratorsCreated = 0;
 	let totalAudioScheduledInSeconds = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
+	// Re-evaluates the current iterator's startup hold after mute or volume
+	// changes. Null once that iterator has buffered enough to play.
+	let syncStartupHold: (() => void) | null = null;
 
 	const unblockCurrentDelayHandle = () => {
 		if (currentDelayHandle) {
@@ -140,6 +143,7 @@ export const audioIteratorManager = ({
 		// The anchor and seek describe this decoder's media timeline.
 		currentAnchor = null;
 		currentSeek = null;
+		syncStartupHold = null;
 		unblockCurrentDelayHandle();
 	};
 
@@ -401,13 +405,28 @@ export const audioIteratorManager = ({
 		audioBufferIterator?.destroy();
 		unblockCurrentDelayHandle();
 
-		// An iterator that cannot be heard buffers in the background instead of
-		// holding playback.
-		const delayHandle: DelayPlaybackIfNotPremounting =
-			muted || currentVolume <= 0
-				? {unblock: () => {}, [Symbol.dispose]: () => {}}
-				: delayPlaybackHandleIfNotPremounting();
-		currentDelayHandle = delayHandle;
+		// Playback waits for this iterator's first audio only while the clip can
+		// be heard. Audio nobody can hear buffers in the background, and the hold
+		// follows mute and volume changes until the first audio is ready.
+		let delayHandle: DelayPlaybackIfNotPremounting | null = null;
+		let hasUnblockedPlayback = false;
+		const syncHold = () => {
+			const shouldHold = !hasUnblockedPlayback && !muted && currentVolume > 0;
+			if (shouldHold && !delayHandle) {
+				delayHandle = delayPlaybackHandleIfNotPremounting();
+				currentDelayHandle = delayHandle;
+			} else if (!shouldHold && delayHandle) {
+				delayHandle.unblock();
+				if (currentDelayHandle === delayHandle) {
+					currentDelayHandle = null;
+				}
+
+				delayHandle = null;
+			}
+		};
+
+		syncHold();
+		syncStartupHold = syncHold;
 
 		currentAnchor = {
 			unloopedStartInSeconds: unloopedStartFromSecond,
@@ -467,14 +486,16 @@ export const audioIteratorManager = ({
 		audioBufferIterator = iterator;
 
 		let bufferedUntil = startFromSecond;
-		let hasUnblockedPlayback = false;
 		const unblockPlayback = () => {
 			if (hasUnblockedPlayback) {
 				return;
 			}
 
 			hasUnblockedPlayback = true;
-			delayHandle.unblock();
+			syncHold();
+			if (syncStartupHold === syncHold) {
+				syncStartupHold = null;
+			}
 		};
 
 		proceedScheduling({
@@ -686,10 +707,12 @@ export const audioIteratorManager = ({
 			// Only the gain changes. Destroying the iterator here would make the
 			// next unmute wait for a new one to buffer, which stalls playback.
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			syncStartupHold?.();
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			syncStartupHold?.();
 		},
 		setToneFrequency: (newToneFrequency: number) => {
 			currentToneFrequency = newToneFrequency;

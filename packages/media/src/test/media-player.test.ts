@@ -229,6 +229,54 @@ test('a muted seek prepares audio without holding playback', async () => {
 	}
 });
 
+test('the startup hold follows mute while audio is still loading', async () => {
+	let activeBlocks = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			activeBlocks++;
+			let unblocked = false;
+			return {
+				unblock: () => {
+					if (!unblocked) {
+						unblocked = true;
+						activeBlocks--;
+					}
+				},
+			};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1)).type).toBe('success');
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		// Muting releases a hold that an audible seek is still waiting on.
+		await player.seekTo(5, null);
+		expect(activeBlocks).toBe(1);
+		player.setMuted(true);
+		expect(activeBlocks).toBe(0);
+
+		// Becoming audible before the first audio arrives waits for it again.
+		player.setMuted(false);
+		expect(activeBlocks).toBe(1);
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		// Once the audio is ready, unmuting does not hold playback.
+		player.setMuted(true);
+		player.setMuted(false);
+		expect(activeBlocks).toBe(0);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
 test('dispose should immediately unblock a pending playback catch-up', async () => {
 	let activeBlocks = 0;
 	let delayPlaybackCalled: () => void = () => {};
