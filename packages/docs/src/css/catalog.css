@@ -29,7 +29,8 @@
 	padding: 32px clamp(20px, 3.33vw, 48px) 64px !important;
 }
 
-.catalog-layout article:has(.catalog-hero) > .elements-embed-breadcrumbs {
+.catalog-layout article:has(.catalog-hero) > .elements-embed-breadcrumbs,
+.catalog-layout .elements-embed-breadcrumbs:not(:has(nav)) {
 	display: none;
 }
 
