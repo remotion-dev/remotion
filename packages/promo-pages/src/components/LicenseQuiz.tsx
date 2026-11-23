@@ -353,7 +353,7 @@ export const LicenseQuiz: React.FC = () => {
 	}, []);
 
 	return (
-		<div className="font-brand text-text flex flex-col gap-10 my-8 max-w-2xl">
+		<div className="license-quiz font-brand text-text flex flex-col gap-10 my-8 max-w-2xl">
 			{steps.map((s, i) => {
 				const step = STEPS[s.id];
 				const questionId = `license-quiz-q-${i}`;
