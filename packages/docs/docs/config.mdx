@@ -207,7 +207,7 @@ The [`--log`](/docs/options/log) flag takes precedence over this option.
 
 ## `addElementLibrary()`<AvailableFrom v="4.0.517" />
 
-Adds a third-party Element Library to Remotion Studio from an externally hosted URL.
+Adds an Element Library to Remotion Studio from an externally hosted URL.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -219,11 +219,11 @@ Config.addElementLibrary({
 });
 ```
 
-Call `addElementLibrary()` once for each third-party Element Library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
+Call `addElementLibrary()` once for each Element Library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
 
-The Browse Elements dropdown lists Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+Browse Elements lists every configured library in the order of the calls. All libraries open in an embedded Studio modal. [Remotion Elements](/elements) is a library like any other. To show it, add it with `url: 'https://www.remotion.dev/elements'`.
 
-Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL.
 
 ### captionStylesUrl?<AvailableFrom v="4.0.535" />
 

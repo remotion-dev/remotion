@@ -5,13 +5,13 @@ import {
 } from '@remotion/studio-protocol';
 import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
-import {ElementLibraryInstallFallbackModal} from './ElementLibraryInstallFallbackModal';
 import {
-	thirdPartyElementLibraries,
-	type ThirdPartyElementLibrary,
-} from './third-party-element-library-data';
+	elementLibraries,
+	type ElementLibraryEntry,
+} from './element-libraries-data';
+import {ElementLibraryInstallFallbackModal} from './ElementLibraryInstallFallbackModal';
 import {useStudioInstallFallback} from './use-studio-install-fallback';
-import styles from './ThirdPartyElementLibraries.module.css';
+import styles from './ElementLibraries.module.css';
 
 type AddState =
 	| {readonly type: 'idle'}
@@ -23,9 +23,9 @@ type AddState =
 			readonly type: 'error';
 	  };
 
-const ThirdPartyElementLibraryItem: React.FC<{
+const ElementLibraryItem: React.FC<{
 	readonly isEmbeddedInStudio: boolean;
-	readonly library: ThirdPartyElementLibrary;
+	readonly library: ElementLibraryEntry;
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
 }> = ({isEmbeddedInStudio, library, requestLibraryAddition}) => {
 	const [addState, setAddState] = useState<AddState>({type: 'idle'});
@@ -42,6 +42,9 @@ const ThirdPartyElementLibraryItem: React.FC<{
 			const result = await requestLibraryAddition({
 				displayName: library.displayName,
 				url: library.libraryUrl,
+				...(library.captionStylesUrl === null
+					? {}
+					: {captionStylesUrl: library.captionStylesUrl}),
 			});
 			if (!result.success) {
 				setAddState({
@@ -66,6 +69,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 		}
 	}, [
 		closeFallback,
+		library.captionStylesUrl,
 		library.libraryUrl,
 		library.displayName,
 		requestLibraryAddition,
@@ -113,7 +117,11 @@ const ThirdPartyElementLibraryItem: React.FC<{
 						className={styles.libraryLink}
 						href={library.browseUrl}
 						rel="noreferrer"
-						target={isEmbeddedInStudio ? '_self' : '_blank'}
+						target={
+							isEmbeddedInStudio || library.browseUrl.startsWith('/')
+								? '_self'
+								: '_blank'
+						}
 					>
 						{library.displayName}
 					</a>
@@ -134,7 +142,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 	);
 };
 
-export const ThirdPartyElementLibraryList: React.FC<{
+export const ElementLibraryList: React.FC<{
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
 }> = ({requestLibraryAddition}) => {
 	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
@@ -146,8 +154,8 @@ export const ThirdPartyElementLibraryList: React.FC<{
 	return (
 		<div className={styles.library}>
 			<ul className={styles.list} role="list">
-				{thirdPartyElementLibraries.map((library) => (
-					<ThirdPartyElementLibraryItem
+				{elementLibraries.map((library) => (
+					<ElementLibraryItem
 						key={library.libraryUrl}
 						isEmbeddedInStudio={isEmbeddedInStudio}
 						library={library}
@@ -159,10 +167,8 @@ export const ThirdPartyElementLibraryList: React.FC<{
 	);
 };
 
-export const ThirdPartyElementLibraries: React.FC = () => {
+export const ElementLibraries: React.FC = () => {
 	return (
-		<ThirdPartyElementLibraryList
-			requestLibraryAddition={addElementLibraryToStudio}
-		/>
+		<ElementLibraryList requestLibraryAddition={addElementLibraryToStudio} />
 	);
 };

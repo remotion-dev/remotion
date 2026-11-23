@@ -5,11 +5,11 @@ sidebar_label: Browse Elements
 crumb: 'Remotion Studio'
 ---
 
-[Remotion Elements](/elements) are available directly inside Remotion Studio.
+Browse and install Elements from [Element Libraries](/elements/libraries) directly inside Remotion Studio.
 
 ## Open Browse Elements
 
-Select Browse Elements in the Actions section of the right inspector.
+Select Browse Elements in the Actions section of the right inspector. Studio opens the first library of your project. If no library is added yet, Studio opens Explore, where you can discover libraries.
 
 <video
   src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4"
@@ -22,11 +22,11 @@ Select Browse Elements in the Actions section of the right inspector.
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
 />
 
-## Add more libraries
+## Add libraries
 
 ### In Studio
 
-Select Explore at the top of the Elements sidebar to discover libraries. Right-click empty space in the sidebar and choose Add library… to add a library by URL.
+Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library. Right-click empty space in the sidebar and choose Add library… to add a library by URL.
 
 Right-click an installed library to edit its name and URL or remove it. Drag libraries to reorder them, or focus a library and press Alt+Up/Down.
 
@@ -38,10 +38,12 @@ Add an Element Library with [`Config.addElementLibrary()`](/docs/config#addeleme
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.addElementLibrary({
-  url: 'https://example.com/elements',
-  displayName: 'Acme Elements',
+  url: 'https://www.remotion.dev/elements',
+  displayName: 'Remotion Elements',
 });
 ```
+
+Each call adds one library. The order of the calls is the order in the sidebar.
 
 ### From the command line<AvailableFrom v="4.0.547" />
 
@@ -53,5 +55,5 @@ npx remotion elements add-library https://example.com/elements
 
 ## See also
 
-- [Remotion Elements](/elements)
-- [Third-party Element Libraries](/elements/libraries)
+- [Elements](/docs/elements)
+- [Element Libraries](/elements/libraries)
