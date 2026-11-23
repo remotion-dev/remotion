@@ -377,6 +377,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
+	// A player that does not hold the clock starts by catching up even while the
+	// clock is buffering: drawing its mount-time frame would show a stale picture
+	// once the clock moves on without it.
+	const initialCatchesUp = useRef(playing && pauseWhenBuffering === false);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
@@ -574,6 +578,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					effectChainStateRef.current?.get(width, height)!,
 				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
 				pauseWhenBuffering: pauseWhenBufferingRef.current,
+				catchUpOnStart: initialCatchesUp.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,

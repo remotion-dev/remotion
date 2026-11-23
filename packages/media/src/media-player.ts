@@ -109,6 +109,7 @@ export class MediaPlayer {
 
 	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	private pauseWhenBuffering: boolean;
+	private catchUpOnStart: boolean;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -145,6 +146,7 @@ export class MediaPlayer {
 		getEffectChainState,
 		maxCanvasSinkFrameSize,
 		pauseWhenBuffering,
+		catchUpOnStart = false,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -177,6 +179,7 @@ export class MediaPlayer {
 		) => EffectChainState | null;
 		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 		pauseWhenBuffering: boolean;
+		catchUpOnStart?: boolean;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -193,6 +196,7 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.pauseWhenBuffering = pauseWhenBuffering;
+		this.catchUpOnStart = catchUpOnStart;
 		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
 			bufferState,
 			isPremounting,
@@ -543,7 +547,7 @@ export class MediaPlayer {
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
-						? this.playing &&
+						? (this.playing || this.catchUpOnStart) &&
 							!this.pauseWhenBuffering &&
 							this.playbackRate * this.globalPlaybackRate > 0
 							? this.videoIteratorManager.startCatchUp({
@@ -679,8 +683,8 @@ export class MediaPlayer {
 						intent === null || intent === 'discontinuity'
 							? null
 							: intent.revision,
-					mappingChanged:
-						intent === 'discontinuity' || this.pendingMappingChange,
+					// seekTo() sets this for a discontinuity too.
+					mappingChanged: this.pendingMappingChange,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,

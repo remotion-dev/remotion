@@ -596,6 +596,38 @@ test('starts catching up again after an explicit seek or a jump back', async () 
 	}
 });
 
+// Start-up catches up without a revision, and a seek made during start-up only
+// reaches the player once it is ready. It must restart at the new time.
+test('restarts start-up catch-up for a seek made during start-up', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startCatchUp({time: 4, revision: null});
+		const iterators = manager.getVideoIteratorsCreated();
+
+		// Playback continuing from start-up keeps decoding forward.
+		await seekCatchingUp(manager, nonceManager, 4.1, {
+			isPlaying: true,
+			seekRevision: 5,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(iterators);
+
+		await manager.startCatchUp({time: 4, revision: null});
+		const restarted = manager.getVideoIteratorsCreated();
+		// A jump far beyond the playback since start-up starts again there.
+		await seekCatchingUp(manager, nonceManager, 20, {
+			isPlaying: true,
+			seekRevision: 5,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(restarted + 1);
+		expect(manager.isCatchingUp()).toBe(true);
+	} finally {
+		manager.destroy();
+	}
+});
+
 test('a paused seek draws the current frame instead of continuing to catch up', async () => {
 	const {videoTrack} = await prepare();
 	const manager = await makeManager(videoTrack, null, true);

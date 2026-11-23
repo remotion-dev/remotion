@@ -363,6 +363,7 @@ export const videoIteratorManager = async ({
 	// The timeline seek revision of the playback run being caught up with. null
 	// until the first seek of a run that started during initialization.
 	let catchUpRevision: number | null = null;
+	let catchUpStartedAt = 0;
 
 	const startCatchUp = async ({
 		time,
@@ -378,6 +379,7 @@ export const videoIteratorManager = async ({
 		catchingUp = true;
 		catchUpStart = time;
 		catchUpRevision = revision;
+		catchUpStartedAt = performance.now();
 		currentSeek = time;
 		// Disarmed while the option is off. Switching it on while this decode runs
 		// arms it, so playback is delayed right away instead of after the decode.
@@ -399,7 +401,9 @@ export const videoIteratorManager = async ({
 		}
 
 		videoIteratorsCreated++;
-		if (destroyed || !catchingUp || catchUpStart !== time) {
+		// Callers run on the seek queue, so only disposal can intervene during the
+		// decode.
+		if (destroyed) {
 			iterator.destroy();
 			return;
 		}
@@ -443,9 +447,22 @@ export const videoIteratorManager = async ({
 			// Catching up belongs to the uninterrupted playback run that started it.
 			// An explicit seek, a mapping change or a jump back (a loop wrapping)
 			// starts again at the new time.
+			// Start-up catches up without a revision, and a seek made during start-up
+			// reaches the player only once it is ready. It shows up as a forward jump
+			// larger than the playback since start-up: restart there instead of
+			// adopting its revision.
+			const seekedDuringStartUp =
+				catchUpRevision === null &&
+				seekRevision !== null &&
+				catchUpStart !== null &&
+				newTime - catchUpStart >
+					((performance.now() - catchUpStartedAt) / 1000) *
+						Math.abs(playbackRate) +
+						1;
 			catchUpRevision ??= seekRevision;
 			if (
 				!videoFrameIterator ||
+				seekedDuringStartUp ||
 				mappingChanged ||
 				(seekRevision !== null && seekRevision !== catchUpRevision) ||
 				(catchUpStart !== null && newTime < catchUpStart)
