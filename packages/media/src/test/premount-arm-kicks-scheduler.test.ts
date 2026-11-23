@@ -40,6 +40,7 @@ const makePlayer = ({
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		pauseWhenBuffering: true,
+		catchUpOnStart: null,
 		onError: null,
 	});
 };

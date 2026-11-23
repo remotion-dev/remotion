@@ -63,6 +63,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 	await manager.seek({
 		newTime: 1,
@@ -73,6 +74,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 	await manager.seek({
 		newTime: 2,
@@ -83,6 +85,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 
 	const iteratorsCreated = manager.getVideoIteratorsCreated();
@@ -97,6 +100,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();

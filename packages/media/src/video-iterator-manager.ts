@@ -364,6 +364,9 @@ export const videoIteratorManager = async ({
 	// until the first seek of a run that started during initialization.
 	let catchUpRevision: number | null = null;
 	let catchUpStartedAt = 0;
+	// The last requested time while catching up, to tell a jump back (a loop
+	// wrapping) from playback moving forward.
+	let catchUpLastTime: number | null = null;
 
 	const startCatchUp = async ({
 		time,
@@ -380,6 +383,7 @@ export const videoIteratorManager = async ({
 		catchUpStart = time;
 		catchUpRevision = revision;
 		catchUpStartedAt = performance.now();
+		catchUpLastTime = time;
 		currentSeek = time;
 		// Disarmed while the option is off. Switching it on while this decode runs
 		// arms it, so playback is delayed right away instead of after the decode.
@@ -420,6 +424,7 @@ export const videoIteratorManager = async ({
 		continuousPlayback,
 		seekRevision,
 		mappingChanged,
+		onMappingApplied,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -429,6 +434,9 @@ export const videoIteratorManager = async ({
 		continuousPlayback: boolean | null;
 		seekRevision: number | null;
 		mappingChanged: boolean;
+		// Called once a restart has picked up the current mapping, even if the
+		// seek is then superseded.
+		onMappingApplied: () => void;
 	}) => {
 		const catchesUp = isPlaying && getCatchesUp();
 		const restartIterator = (retryReclaimed: boolean) =>
@@ -465,12 +473,16 @@ export const videoIteratorManager = async ({
 				seekedDuringStartUp ||
 				mappingChanged ||
 				(seekRevision !== null && seekRevision !== catchUpRevision) ||
-				(catchUpStart !== null && newTime < catchUpStart)
+				(catchUpLastTime !== null &&
+					roundTo4Digits(newTime) < roundTo4Digits(catchUpLastTime))
 			) {
-				await restartIterator(true);
+				const restart = restartIterator(true);
+				onMappingApplied();
+				await restart;
 				return;
 			}
 
+			catchUpLastTime = newTime;
 			const catchUpIterator = videoFrameIterator;
 			let waited = false;
 			// Disarmed while the option is off, like the handle in startCatchUp().

@@ -273,6 +273,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				getEffectChainState: () => null,
 				maxCanvasSinkFrameSize: null,
 				pauseWhenBuffering: true,
+				catchUpOnStart: null,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,

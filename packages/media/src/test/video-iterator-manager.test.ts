@@ -123,6 +123,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 				continuousPlayback: null,
 				seekRevision: null,
 				mappingChanged: false,
+				onMappingApplied: () => {},
 			});
 		}
 
@@ -163,6 +164,7 @@ test('paused forward scrubs do not wait for pending frames', async () => {
 			isPlaying: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 
 		expect(pendingFrameBehavior).toBe('restart-iterator');
@@ -227,6 +229,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 	await manager.seek({
 		continuousPlayback: null,
@@ -237,6 +240,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 	await manager.seek({
 		continuousPlayback: null,
@@ -247,6 +251,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		isPlaying: false,
 		seekRevision: null,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 
 	// With the fix, max concurrent blocks should be 1
@@ -313,6 +318,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 			isPlaying: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 	}
 
@@ -376,6 +382,7 @@ test('same-time seeks without changed effects do not emit another frame', async 
 			continuousPlayback: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 	try {
 		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
@@ -413,6 +420,7 @@ test('recreates the iterator once when the decoder was reclaimed', async () => {
 			isPlaying: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 
 		expect(iterator.isDestroyed()).toBe(true);
@@ -452,6 +460,7 @@ test('does not recreate the iterator for quota errors that are not reclaims', as
 				isPlaying: false,
 				seekRevision: null,
 				mappingChanged: false,
+				onMappingApplied: () => {},
 			}),
 		).rejects.toBe(failure);
 
@@ -488,6 +497,7 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 			isPlaying: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 
 		expect(manager.getVideoFrameIterator()).toBe(null);
@@ -502,6 +512,7 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 			isPlaying: false,
 			seekRevision: null,
 			mappingChanged: false,
+			onMappingApplied: () => {},
 		});
 
 		expect(manager.getVideoIteratorsCreated()).toBe(2);
@@ -526,6 +537,7 @@ const seekCatchingUp = (
 		continuousPlayback: null,
 		seekRevision,
 		mappingChanged: false,
+		onMappingApplied: () => {},
 	});
 
 test('catches up from the playhead instead of restarting on every tick when playback is not held', async () => {
@@ -591,6 +603,61 @@ test('starts catching up again after an explicit seek or a jump back', async () 
 		});
 		expect(manager.getVideoIteratorsCreated()).toBe(iterators + 2);
 		expect(manager.isCatchingUp()).toBe(true);
+	} finally {
+		manager.destroy();
+	}
+});
+
+// A looping video starts catching up at its loop start. Wrapping back to that
+// same time must start again instead of reusing a decoder near the end.
+test('starts catching up again when a loop wraps back to where it started', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startCatchUp({time: 2, revision: 1});
+		await seekCatchingUp(manager, nonceManager, 5, {
+			isPlaying: true,
+			seekRevision: 1,
+		});
+		const iterators = manager.getVideoIteratorsCreated();
+		await seekCatchingUp(manager, nonceManager, 2, {
+			isPlaying: true,
+			seekRevision: 1,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(iterators + 1);
+		expect(manager.isCatchingUp()).toBe(true);
+	} finally {
+		manager.destroy();
+	}
+});
+
+// A mapping change restarts catch-up once. The player clears its pending flag
+// when the restart begins, even if a newer tick supersedes this seek.
+test('reports a mapping change as applied when catch-up restarts for it', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startCatchUp({time: 2, revision: 1});
+		const onMappingApplied = vi.fn();
+		const seek = manager.seek({
+			newTime: 2.1,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: true,
+			continuousPlayback: null,
+			seekRevision: 1,
+			mappingChanged: true,
+			onMappingApplied,
+		});
+		// A newer tick supersedes the seek before its decode finishes.
+		nonceManager.createAsyncOperation();
+		expect(onMappingApplied).toHaveBeenCalledOnce();
+		await seek;
 	} finally {
 		manager.destroy();
 	}

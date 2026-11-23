@@ -30,6 +30,7 @@ test('setTrimRange should atomically update trims when paused', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		pauseWhenBuffering: true,
+		catchUpOnStart: null,
 		onError: null,
 	});
 

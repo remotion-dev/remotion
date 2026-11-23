@@ -146,7 +146,7 @@ export class MediaPlayer {
 		getEffectChainState,
 		maxCanvasSinkFrameSize,
 		pauseWhenBuffering,
-		catchUpOnStart = false,
+		catchUpOnStart,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -179,7 +179,7 @@ export class MediaPlayer {
 		) => EffectChainState | null;
 		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 		pauseWhenBuffering: boolean;
-		catchUpOnStart?: boolean;
+		catchUpOnStart: boolean | null;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -196,7 +196,7 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.pauseWhenBuffering = pauseWhenBuffering;
-		this.catchUpOnStart = catchUpOnStart;
+		this.catchUpOnStart = catchUpOnStart ?? false;
 		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
 			bufferState,
 			isPremounting,
@@ -685,6 +685,9 @@ export class MediaPlayer {
 							: intent.revision,
 					// seekTo() sets this for a discontinuity too.
 					mappingChanged: this.pendingMappingChange,
+					onMappingApplied: () => {
+						this.pendingMappingChange = false;
+					},
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
