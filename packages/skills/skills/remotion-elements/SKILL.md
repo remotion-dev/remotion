@@ -1,6 +1,6 @@
 ---
 name: remotion-elements
-description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, from Element libraries into a Remotion project with `npx remotion elements use`, and registers Element libraries in Remotion Studio. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
+description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, into a Remotion project with `npx remotion elements use`. Registers Element libraries in Remotion Studio. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
 version: 4.0.546
 ---
 
@@ -8,7 +8,7 @@ version: 4.0.546
 
 An Element is a reusable video component written in React.
 Element libraries publish each Element on its own page, the Element page.
-Installing an Element copies its source code into the project, where the user owns it: edit it like any other component and compose it with other Elements.
+Installing an Element copies its source code into the project. The user owns that copy and can edit it and combine it with other Elements like any other component.
 
 If no Remotion project exists yet, load [Create a new Remotion video](../remotion-create/SKILL.md) first.
 
@@ -65,7 +65,7 @@ npx remotion elements use <element-page-url> --composition <composition-id> --dr
 
 Read the output and fix the cause before continuing:
 
-- **`No Element found`:** search the page's HTML for `application/vnd.remotion.element+json`. If a `<link>` with that type has an `href`, resolve the `href` against the Element page URL and dry run that JSON URL instead. If there is no payload, the component is not an Element: follow the install instructions on its Markdown page instead, for example a `shadcn` command, and skip to step 4.
+- **`No Element found`:** search the page's HTML for `application/vnd.remotion.element+json`. If a `<link>` with that type has an `href`, resolve the `href` against the Element page URL and dry run that JSON URL instead. If there is no payload, the component is not an Element. Follow the install instructions on its Markdown page, for example a `shadcn` command, and skip to step 4.
 - **Several Elements on the page:** add `--element <slug>`.
 - **Composition IDs listed:** pass the composition the user is working on. If that is unclear, ask.
 - **`elements use` or `--dry-run` not recognized:** Remotion is older than 4.0.543. Load [Remotion Upgrade](../remotion-upgrade/SKILL.md) or ask the user.
