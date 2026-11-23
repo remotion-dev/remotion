@@ -129,6 +129,9 @@ export const processNext = (): void => {
 			}
 
 			next.onError(err);
+			// A failed read does not end playback when its clip can't be heard, so
+			// hand the slot to the next waiter.
+			processNext();
 		},
 	);
 };
