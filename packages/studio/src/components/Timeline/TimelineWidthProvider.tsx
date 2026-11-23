@@ -1,47 +1,56 @@
-import {PlayerInternals} from '@remotion/player';
-import {createContext, useContext, useMemo} from 'react';
+import {createContext, useContext} from 'react';
 import {Internals} from 'remotion';
 import {
 	getTimelineWidth,
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
-import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {
+	SplitterContext,
+	SplitterLayoutContext,
+} from '../Splitter/SplitterContext';
+import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 
-type TimelineWidthContextType = number | null;
-
-export const TimelineWidthContext =
-	createContext<TimelineWidthContextType>(null);
+export const TimelineWidthContext = createContext<number | null>(null);
+export const TimelineViewportWidthContext = createContext<number | null>(null);
 
 export const TimelineWidthProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const size = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
+	const splitterWidth = useContext(SplitterLayoutContext)?.width ?? null;
+	const {position} = useContext(SplitterContext);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
-	const width = useMemo(() => {
-		const scrollableWidth = size?.width ?? scrollableRef.current?.clientWidth;
-		if (scrollableWidth === undefined) {
-			return sliderAreaRef.current?.clientWidth ?? null;
-		}
+	const viewportWidth =
+		splitterWidth === null || position === null
+			? null
+			: Math.max(
+					0,
+					Math.round(
+						splitterWidth - SPLITTER_HANDLE_SIZE - position.positionInPixels,
+					),
+				);
 
-		const durationInFrames = videoConfig?.durationInFrames ?? 1;
-		const zoom = getTimelineZoom({
-			durationInFrames,
-			timelineViewportWidth: scrollableWidth,
-			zoom: videoConfig ? (zoomMap[videoConfig.id] ?? null) : null,
-		});
-
-		return getTimelineWidth({durationInFrames, zoom});
-	}, [size?.width, videoConfig, zoomMap]);
+	const durationInFrames = videoConfig?.durationInFrames ?? 1;
+	const contentWidth =
+		viewportWidth === null
+			? null
+			: getTimelineWidth({
+					durationInFrames,
+					zoom: getTimelineZoom({
+						durationInFrames,
+						timelineViewportWidth: viewportWidth,
+						zoom:
+							videoConfig === null ? null : (zoomMap[videoConfig.id] ?? null),
+					}),
+				});
 
 	return (
-		<TimelineWidthContext.Provider value={width}>
-			{children}
-		</TimelineWidthContext.Provider>
+		<TimelineViewportWidthContext.Provider value={viewportWidth}>
+			<TimelineWidthContext.Provider value={contentWidth}>
+				{children}
+			</TimelineWidthContext.Provider>
+		</TimelineViewportWidthContext.Provider>
 	);
 };

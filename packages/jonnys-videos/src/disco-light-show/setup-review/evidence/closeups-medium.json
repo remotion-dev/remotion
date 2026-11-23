@@ -1,0 +1,71 @@
+{
+	"reviewed": ["IMG_0765-rec709.mp4", "IMG_0767-rec709.mp4"],
+	"method": "Full clips sampled every 15 seconds; IMG_0765 hardware windows sampled every 3 seconds and IMG_0767 handling at 5 seconds. Still-based action windows are accurate to approximately 2–3 seconds, not frame-accurate cuts.",
+	"findings": [
+		{
+			"source": "IMG_0765",
+			"title": "ENTTEC USB-B socket and USB plug",
+			"in": 130,
+			"out": 138,
+			"bestFrame": 134,
+			"stepIndex": 2,
+			"kind": "held-to-camera close-up",
+			"confidence": "high",
+			"notes": "Shows the square USB-B socket on the ENTTEC and the cable plug side by side, then plugging. Useful technical insert."
+		},
+		{
+			"source": "IMG_0765",
+			"title": "3-pin / 5-pin adapter ends",
+			"in": 147,
+			"out": 153,
+			"bestFrame": 149,
+			"stepIndex": 3,
+			"kind": "held-to-camera close-up",
+			"confidence": "high",
+			"notes": "Both round connector ends held toward camera. Adapter attachment continues at 155–160 seconds if needed."
+		},
+		{
+			"source": "IMG_0765",
+			"title": "Moving-head rear connections",
+			"in": 176,
+			"out": 183,
+			"bestFrame": 180,
+			"stepIndex": 4,
+			"kind": "held-to-camera close-up",
+			"confidence": "high",
+			"notes": "Whole light lifted toward camera; rear DMX IN/OUT and mains input panel visible. Excellent port establishing shot."
+		},
+		{
+			"source": "IMG_0765",
+			"title": "Three-pin male/female DMX cable ends",
+			"in": 193,
+			"out": 201,
+			"bestFrame": 195,
+			"stepIndex": 3,
+			"kind": "held-to-camera close-up",
+			"confidence": "high",
+			"notes": "Male and female ends held side by side, then mated. This is a cable join, not a terminator."
+		},
+		{
+			"source": "IMG_0767",
+			"title": "Assembled rig running",
+			"in": 12,
+			"out": 28,
+			"bestFrame": 15,
+			"stepIndex": 5,
+			"kind": "wide only",
+			"confidence": "high",
+			"notes": "Five fixtures and laptop visible; moving heads and LED bar lit. Useful result coverage, not a close-up."
+		}
+	],
+	"notFound": [
+		"No DMX terminator shot in eitherclip",
+		"No fixed-camera closeup angle inIMG_0767"
+	],
+	"contactSheets": [
+		"0765-overview.jpg",
+		"0765-fine.jpg",
+		"0767-overview.jpg",
+		"0767-fine.jpg"
+	]
+}

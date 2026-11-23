@@ -136,6 +136,7 @@ export type {
 	DefaultEditor,
 } from './options/default-editor';
 export type {DeleteAfter} from './options/delete-after';
+export type {DoubleClickAction} from './options/double-click-action';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';
 export {

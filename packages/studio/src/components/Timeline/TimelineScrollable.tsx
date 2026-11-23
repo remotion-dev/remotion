@@ -44,29 +44,29 @@ export const TimelineScrollable: React.FC<{
 	}, []);
 
 	return (
-		<div
-			ref={scrollableRef}
-			data-timeline-scrollable="true"
-			style={outer}
-			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
-			onPointerDownCapture={onPointerDownCapture}
-		>
-			<TimelineViewportProvider scrollable={scrollableRef}>
+		<TimelineViewportProvider scrollable={scrollableRef}>
+			<div
+				ref={scrollableRef}
+				data-timeline-scrollable="true"
+				style={outer}
+				className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+				onPointerDownCapture={onPointerDownCapture}
+			>
 				<div style={containerStyle}>{children}</div>
-			</TimelineViewportProvider>
-			<TimelineAssetDropIndicator />
-			<TimelineSnapIndicator />
-			{marqueeRect === null ? null : (
-				<div
-					style={{
-						...marqueeStyle,
-						height: marqueeRect.bottom - marqueeRect.top,
-						left: marqueeRect.left,
-						top: marqueeRect.top,
-						width: marqueeRect.right - marqueeRect.left,
-					}}
-				/>
-			)}
-		</div>
+				<TimelineAssetDropIndicator />
+				<TimelineSnapIndicator />
+				{marqueeRect === null ? null : (
+					<div
+						style={{
+							...marqueeStyle,
+							height: marqueeRect.bottom - marqueeRect.top,
+							left: marqueeRect.left,
+							top: marqueeRect.top,
+							width: marqueeRect.right - marqueeRect.left,
+						}}
+					/>
+				)}
+			</div>
+		</TimelineViewportProvider>
 	);
 };

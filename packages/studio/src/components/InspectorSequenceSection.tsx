@@ -82,6 +82,7 @@ import {
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 import {useSelectAsset} from './use-select-asset';
 import {useSelectEffects} from './use-select-effects';
 
@@ -1013,9 +1014,10 @@ export const InspectorSequenceSection: React.FC<{
 		revealPendingCaption();
 	}, [inlineCaptions, revealPendingCaption]);
 
-	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
+	const showEffectsSection =
+		canApplyEffects(sequence, nodePathInfo) || hasEffects;
 	const canAddEffect =
-		nodePathInfo.supportsEffects &&
+		canApplyEffects(sequence, nodePathInfo) &&
 		previewServerState.type === 'connected' &&
 		isStudioInteractivityEnabled() &&
 		Boolean(validatedLocation.source);

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
 	},
 	"name": "@remotion/eslint-plugin",
-	"version": "4.0.544",
+	"version": "4.0.545",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "node src/tests/execute.mjs",
@@ -30,8 +30,8 @@
 		"vitest": "catalog:",
 		"eslint": "8.57.0",
 		"eslint-v9": "npm:eslint@9.39.5",
-		"eslint-v10": "npm:eslint@10.12.0",
-		"typescript-eslint": "8.71.2"
+		"eslint-v10": "npm:eslint@10.15.0",
+		"typescript-eslint": "8.73.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

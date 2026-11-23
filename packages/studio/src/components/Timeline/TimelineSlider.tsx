@@ -9,9 +9,8 @@ import React, {
 import {Internals, useVideoConfig} from 'remotion';
 import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration, getCurrentFrame} from './imperative-state';
-import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {scrollableRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -74,33 +73,21 @@ export const TimelineSlider: React.FC = () => {
 		return null;
 	}
 
-	return <TimelineSliderInner />;
+	return <TimelineSliderInner timelineWidth={timelineWidth} />;
 };
 
-const TimelineSliderInner: React.FC = () => {
+const TimelineSliderInner: React.FC<{
+	readonly timelineWidth: number;
+}> = ({timelineWidth}) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const ref = useRef<HTMLDivElement>(null);
-	const timelineWidth = useContext(TimelineWidthContext);
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-
-	if (timelineWidth === null) {
-		throw new Error('Unexpectedly did not have timeline width');
-	}
-
-	const zoomLevel = zoomMap[videoConfig.id] ?? null;
 
 	const draw = useCallback(
 		(frame: number) => {
 			const el = ref.current;
-			const measuredWidth = sliderAreaRef.current?.clientWidth;
 			const scrollable = scrollableRef.current;
-			if (
-				!el ||
-				!scrollable ||
-				measuredWidth === undefined ||
-				measuredWidth === 0
-			) {
+			if (!el || !scrollable) {
 				return;
 			}
 
@@ -108,15 +95,15 @@ const TimelineSliderInner: React.FC = () => {
 				durationInFrames: videoConfig.durationInFrames,
 				frame,
 				scrollLeft: scrollable.scrollLeft,
-				width: measuredWidth,
+				width: timelineWidth,
 			});
 		},
-		[videoConfig.durationInFrames],
+		[timelineWidth, videoConfig.durationInFrames],
 	);
 
 	useLayoutEffect(() => {
 		draw(timelinePosition);
-	}, [draw, timelinePosition, timelineWidth, zoomLevel]);
+	}, [draw, timelinePosition]);
 
 	useLayoutEffect(() => {
 		const scrollable = scrollableRef.current;
@@ -146,11 +133,11 @@ const TimelineSliderInner: React.FC = () => {
 					durationInFrames: getCurrentDuration(),
 					frame,
 					scrollLeft: scrollableRef.current?.scrollLeft ?? 0,
-					width: width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
+					width: width ?? timelineWidth,
 				});
 			},
 		};
-	}, []);
+	}, [timelineWidth]);
 
 	return (
 		<div style={clippingContainer}>

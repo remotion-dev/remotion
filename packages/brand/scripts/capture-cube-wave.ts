@@ -2,7 +2,7 @@ import path from 'node:path';
 import {format, resolveConfig} from 'prettier';
 import ts from '../../example/node_modules/typescript/lib/typescript.js';
 import {captureCode} from './capture-code';
-import {highlightCode} from './dark-plus';
+import {highlightCode} from './github-dark';
 
 const sourcePath = path.resolve(
 	import.meta.dir,
@@ -54,9 +54,9 @@ const server = Bun.serve({
 		if (pathname === '/')
 			return new Response(html, {headers: {'Content-Type': 'text/html'}});
 		if (pathname === '/snippet') return Response.json(snippet);
-		if (pathname === '/dark-plus-monaco.js') {
+		if (pathname === '/github-dark-monaco.js') {
 			return new Response(
-				Bun.file(path.join(import.meta.dir, 'dark-plus-monaco.js')),
+				Bun.file(path.join(import.meta.dir, 'github-dark-monaco.js')),
 			);
 		}
 		if (pathname.startsWith('/monaco/')) {

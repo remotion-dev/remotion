@@ -1002,19 +1002,18 @@ const CloseupPlaceholder = () => {
 	} catch (error) {
 		throw new Error(`${String(error)}\nTemporary Studio logs:\n${studioLogs}`);
 	} finally {
-		try {
-			await context.close();
-		} finally {
-			senderServer.closeAllConnections();
-			await new Promise<void>((resolve) => senderServer.close(() => resolve()));
-			if (studioProcess.exitCode === null) {
-				studioProcess.kill('SIGTERM');
-			}
-			await new Promise<void>((resolve) => {
-				studioProcess.once('exit', () => resolve());
-				setTimeout(resolve, 5000);
-			});
-			fs.rmSync(temporaryProject, {force: true, recursive: true});
+		// Closing disposes the request context before removing the browser context.
+		// Finish both before the next test starts tracing existing contexts.
+		await context.close().catch(() => undefined);
+		senderServer.closeAllConnections();
+		await new Promise<void>((resolve) => senderServer.close(() => resolve()));
+		if (studioProcess.exitCode === null) {
+			studioProcess.kill('SIGTERM');
 		}
+		await new Promise<void>((resolve) => {
+			studioProcess.once('exit', () => resolve());
+			setTimeout(resolve, 5000);
+		});
+		fs.rmSync(temporaryProject, {force: true, recursive: true});
 	}
 });

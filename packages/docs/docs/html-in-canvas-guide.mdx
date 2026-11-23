@@ -14,25 +14,18 @@ crumb: 'Designing visuals'
   muted
   playsInline
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
-/>
+/><br/><br/>
 
 Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
-[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API available in Chrome and other Chromium-based browsers behind a flag, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
+[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API available in Chrome, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
 
-Remotion offers a [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, [transitions](#with-remotiontransitions) and HTML-in-canvas-based client-side rendering.
+Remotion embraces HTML-in-canvas by offering a [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, [transitions](#with-remotiontransitions), [motion blur](/docs/motion-blur) and [HTML-in-canvas-based client-side rendering](/docs/client-side-rendering/html-in-canvas).
 
-## Enabling the flag in Chrome
+## Enabling HTML-in-canvas in Chrome
 
-To preview HTML-in-canvas effects in the [Remotion Studio](/docs/studio), use [Google Chrome](https://www.google.com/chrome/) v149 or later and enable a flag:
-
-1. Install or update [Google Chrome](https://www.google.com/chrome/).
-2. Open `chrome://flags/#canvas-draw-element`.
-3. Set the `HTML-in-Canvas` flag to `Enabled` and restart.
-
-To check at runtime whether HTML-in-canvas is supported, you can use [`HtmlInCanvas.isSupported()`](/docs/remotion/html-in-canvas#htmlincanvasissupported).
-
-For rendering, you don't need to do anything — see [Rendering](#rendering) below.
+As of time of writing, HTML-in-canvas is now available in stable Chrome!  
+Remotion's bundled Chrome version for rendering also support it.
 
 ## The `<HtmlInCanvas>` component
 
@@ -97,10 +90,10 @@ You can also build your own — see [Making a custom HTML-in-canvas presentation
 
 ## Limitations
 
-HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flags/#canvas-draw-element` flag enabled.  
 The API is unstable - Chrome may change the API or even remove it in the future.
 
-Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components requires Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. See [Nested HTML-in-canvas](#nested-html-in-canvas).
+Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components requires Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled.  
+See [Nested HTML-in-canvas](#nested-html-in-canvas).
 
 ### Cross-origin content
 
@@ -116,9 +109,7 @@ For native `<img>` and `<video>` elements, set `crossOrigin="anonymous"` yoursel
 
 From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455), render is supported locally via [`npx remotion render`](/docs/cli/render) and Studio, on [Lambda](/docs/lambda), on [Vercel](/docs/vercel) and through [server-side rendering](/docs/ssr) APIs.
 
-We compiled a version of Chrome and made it the default, and enabled the flag for you.
-
-Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion v4.0.534, which uses Chromium 157.0.8080.0.
+Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion v4.0.534.
 
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 
@@ -154,7 +145,10 @@ This is opt-in. In browsers without nesting support, compositions containing [`<
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is supported in Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Unsupported browsers throw an error when components are nested. Server-side rendering supports nesting from Remotion v4.0.534.
+Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check if nested HTML-in-canvas is supported.  
+Unsupported browsers throw an error when components are nested.
+
+In current and future versions of Chrome stable, this returns `true`.
 
 ## See also
 

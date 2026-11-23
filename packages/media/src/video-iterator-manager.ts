@@ -12,6 +12,7 @@ import {roundTo4Digits} from './helpers/round-to-4-digits';
 import {isCodecReclaimedError} from './is-type-of-error';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
+import type {PreviewFrameResize} from './resize-preview-sample';
 import type {MaxCanvasSinkFrameSize} from './video/props';
 import {
 	createVideoIterator,
@@ -120,22 +121,19 @@ export const videoIteratorManager = async ({
 
 	const maxWidth = maxCanvasSinkFrameSize?.width ?? Infinity;
 	const maxHeight = maxCanvasSinkFrameSize?.height ?? Infinity;
-	// Only pass the side that limits the size, Mediabunny derives the other one
-	// from the aspect ratio. Never upscale. 'fill' stretches over the rounding of
-	// the derived side instead of leaving a semi-transparent edge.
-	const frameSize =
+	const frameSize: PreviewFrameResize | null =
 		maxWidth / displayWidth < Math.min(1, maxHeight / displayHeight)
-			? {width: maxWidth, fit: 'fill' as const}
+			? {axis: 'width', size: maxWidth}
 			: maxHeight < displayHeight
-				? {height: maxHeight, fit: 'fill' as const}
-				: {};
+				? {axis: 'height', size: maxHeight}
+				: null;
 
 	const videoSink = new VideoSampleSink(videoTrack);
 
 	const prewarmedVideoIteratorCache = makePrewarmedVideoIteratorCache(
 		videoSink,
 		await videoTrack.getTimeResolution(),
-		Object.keys(frameSize).length === 0 ? null : frameSize,
+		frameSize,
 	);
 
 	const releaseSink = Internals.registerMediabunnySink(videoTrack.input);

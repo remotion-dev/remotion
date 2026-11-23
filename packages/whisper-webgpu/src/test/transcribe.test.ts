@@ -1,6 +1,13 @@
 import {expect, mock, test} from 'bun:test';
 import {existsSync} from 'node:fs';
-import {mkdtemp, readFile, rm, unlink} from 'node:fs/promises';
+import {
+	mkdir,
+	mkdtemp,
+	readFile,
+	rm,
+	unlink,
+	writeFile,
+} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
@@ -846,22 +853,49 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 
 test('removes a downloaded model from memory and the persistent cache', async () => {
 	const {loadWhisperModel, removeWhisperModel} = await import('../index');
-	const disposalsBeforeRemoval = disposeCalls;
-	await loadWhisperModel({model: 'large-v3-turbo'});
-	await removeWhisperModel({model: 'large-v3-turbo'});
+	const cacheEnvironment =
+		transformersEnvironment as typeof transformersEnvironment & {
+			cacheDir: string;
+			useCustomCache: boolean;
+		};
+	const {cacheDir: previousCacheDir, useCustomCache} = cacheEnvironment;
+	const cacheDir = await mkdtemp(join(tmpdir(), 'remotion-whisper-remove-'));
+	try {
+		cacheEnvironment.cacheDir = cacheDir;
+		const modelDirectory = join(
+			cacheDir,
+			'whisper-large-v3-turbo_timestamped-v1',
+		);
+		await mkdir(modelDirectory);
+		await writeFile(
+			join(modelDirectory, 'encoder_model.onnx.tmp'),
+			'partial download',
+		);
 
-	expect(disposeCalls).toBe(disposalsBeforeRemoval + 1);
-	expect(cacheClear).toEqual({
-		task: 'automatic-speech-recognition',
-		modelId: 'whisper-large-v3-turbo_timestamped-v1',
-		options: {
-			device: 'webgpu',
-			dtype: {
-				decoder_model_merged: 'q4',
-				encoder_model: 'fp16',
+		const disposalsBeforeRemoval = disposeCalls;
+		await loadWhisperModel({model: 'large-v3-turbo'});
+		await removeWhisperModel({model: 'large-v3-turbo'});
+		expect(disposeCalls).toBe(disposalsBeforeRemoval + 1);
+		expect(existsSync(modelDirectory)).toBe(false);
+
+		cacheEnvironment.useCustomCache = true;
+		await removeWhisperModel({model: 'large-v3-turbo'});
+		expect(cacheClear).toEqual({
+			task: 'automatic-speech-recognition',
+			modelId: 'whisper-large-v3-turbo_timestamped-v1',
+			options: {
+				device: 'webgpu',
+				dtype: {
+					decoder_model_merged: 'q4',
+					encoder_model: 'fp16',
+				},
 			},
-		},
-	});
+		});
+	} finally {
+		cacheEnvironment.cacheDir = previousCacheDir;
+		cacheEnvironment.useCustomCache = useCustomCache;
+		await rm(cacheDir, {recursive: true, force: true});
+	}
 });
 
 test('only restores Transformers environment fields left unchanged by the consumer', async () => {

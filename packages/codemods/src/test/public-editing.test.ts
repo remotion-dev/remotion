@@ -461,6 +461,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	const project = makeProject();
 	const node = findNode(project, 'AbsoluteFill');
 	const first = addEffect({
+		wrapInHtmlInCanvas: null,
 		project,
 		node,
 		importName: 'blur',
@@ -469,6 +470,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', () => {
 	});
 	const afterFirst = applyCodemodChanges(project, first.changes);
 	const second = addEffect({
+		wrapInHtmlInCanvas: null,
 		project: afterFirst,
 		node: first.insertedEffect,
 		importName: 'tint',
@@ -727,7 +729,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 				props: {width: 0, height: 0},
 			}),
 		}),
-	).toThrow('positive integer dimensions');
+	).toThrow('inherits width and height');
 	const conflicting = {
 		rootDir: '/',
 		files: {

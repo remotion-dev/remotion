@@ -139,6 +139,18 @@ const sidebars: SidebarsConfig = {
 					link: {type: 'doc', id: 'cli/open-timeline/index'},
 					items: ['cli/open-timeline/import'],
 				},
+				{
+					type: 'category',
+					label: 'whisper',
+					link: {type: 'doc', id: 'cli/whisper/index'},
+					items: [
+						'cli/whisper/transcribe',
+						'cli/whisper/install',
+						'cli/whisper/rm',
+						'cli/whisper/rmall',
+						'cli/whisper/ls',
+					],
+				},
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',
@@ -1255,7 +1267,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'elements',
 			},
-			items: ['elements/libraries'],
+			items: ['elements/creating', 'elements/libraries'],
 		},
 		{
 			type: 'category',
@@ -1567,6 +1579,12 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'OpenTimelineIO',
+			link: {type: 'doc', id: 'opentimeline/index'},
+			items: ['opentimeline/import', 'opentimeline/export'],
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1699,7 +1717,6 @@ const sidebars: SidebarsConfig = {
 				'testing',
 				'figma',
 				'after-effects',
-				'export-opentimeline',
 			],
 		},
 		'resources',
@@ -1876,7 +1893,13 @@ const sidebars: SidebarsConfig = {
 				id: 'license',
 			},
 			collapsed: true,
-			items: ['license/pricing', 'license/faq', 'terms', 'telemetry'],
+			items: [
+				'license/pricing',
+				'license/which-license',
+				'license/faq',
+				'terms',
+				'telemetry',
+			],
 		},
 		{
 			type: 'category',

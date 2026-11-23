@@ -9,14 +9,9 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {
-	getTimelineWidth,
-	getTimelineZoom,
-} from '../../helpers/get-timeline-max-zoom';
-import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {
 	forceSpecificCursor,
@@ -46,6 +41,10 @@ import {
 import {TIMELINE_SCRUBBER_ATTR} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {
+	TimelineViewportWidthContext,
+	TimelineWidthContext,
+} from './TimelineWidthProvider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -68,47 +67,29 @@ const style: React.CSSProperties = {
 	position: 'absolute',
 };
 
-const getClientXWithScroll = (x: number) => {
-	return x + (scrollableRef.current?.scrollLeft as number);
+const getTimelineX = (clientX: number) => {
+	const scrollable = scrollableRef.current;
+	return (
+		clientX +
+		(scrollable?.scrollLeft ?? 0) -
+		(scrollable?.getBoundingClientRect().left ?? 0)
+	);
 };
 
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
-	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
-
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const timelineWidth = useContext(TimelineWidthContext);
 	const {canvasContent, currentAssetMetadata} = useContext(
 		Internals.CompositionManager,
 	);
-	const videoId = video?.id;
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!canvasContent) {
-			return {};
-		}
-
-		const durationInFrames = video?.durationInFrames ?? 1;
-		const zoom = getTimelineZoom({
-			durationInFrames,
-			timelineViewportWidth:
-				timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0,
-			zoom: videoId ? (zoomMap[videoId] ?? null) : null,
-		});
 		return {
 			...container,
-			width: getTimelineWidth({durationInFrames, zoom}),
+			width: timelineWidth ?? undefined,
 			height: TIMELINE_TIME_INDICATOR_HEIGHT,
 		};
-	}, [
-		canvasContent,
-		timelineSize?.width,
-		video?.durationInFrames,
-		videoId,
-		zoomMap,
-	]);
+	}, [timelineWidth]);
 
 	const hasPlayableContent =
 		canvasContent?.type === 'composition' ||
@@ -131,14 +112,9 @@ export const TimelineDragHandler: React.FC = () => {
 
 const TimelineDragHandlerInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-	const size = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
+	const viewportWidth = useContext(TimelineViewportWidthContext);
 	const {isHighestContext} = useZIndex();
 	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
-
-	const left = size?.left ?? 0;
 
 	const [dragging, setDragging] = useState<
 		| {
@@ -179,7 +155,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			forceSpecificCursor('default');
 
 			const frame = getFrameFromX({
-				clientX: getClientXWithScroll(e.clientX) - left,
+				clientX: getTimelineX(e.clientX),
 				durationInFrames: videoConfig.durationInFrames,
 				// Composition switches render before the new timeline width is
 				// committed. Read the live width when seeking, not during render.
@@ -197,7 +173,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			e.currentTarget.setPointerCapture?.(e.pointerId);
 			pause();
 		},
-		[isHighestContext, videoConfig, left, seek, isPlaying, pause],
+		[isHighestContext, videoConfig, seek, isPlaying, pause],
 	);
 
 	const onEdgeScrollTick = useCallback(
@@ -262,7 +238,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			}
 
 			const frame = getFrameFromX({
-				clientX: getClientXWithScroll(e.clientX) - left,
+				clientX: getTimelineX(e.clientX),
 				durationInFrames: videoConfig.durationInFrames,
 				width: getTimelineContentWidth(),
 				extrapolate: 'clamp',
@@ -270,7 +246,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 			seek(frame);
 		},
-		[videoConfig, dragging.dragging, left, seek],
+		[videoConfig, dragging.dragging, seek],
 	);
 
 	const onPointerUpScrubbing = useCallback(
@@ -292,7 +268,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			const frame = getFrameFromX({
-				clientX: getClientXWithScroll(e.clientX) - left,
+				clientX: getTimelineX(e.clientX),
 				durationInFrames: videoConfig.durationInFrames,
 				width: getTimelineContentWidth(),
 				extrapolate: 'clamp',
@@ -312,7 +288,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, seekFrame],
+		[dragging, play, videoConfig, seekFrame],
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {
@@ -398,7 +374,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	return (
 		<div
 			ref={ref}
-			style={{...style, minWidth: size?.width ?? 0}}
+			style={{...style, minWidth: viewportWidth ?? 0}}
 			onPointerDown={onPointerDown}
 		>
 			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />

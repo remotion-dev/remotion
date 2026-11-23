@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-flat"
 	},
 	"name": "@remotion/eslint-config-flat",
-	"version": "4.0.544",
+	"version": "4.0.545",
 	"description": "Default configuration for Remotion templates (ESLint >= 9)",
 	"main": "dist/esm/index.mjs",
 	"type": "module",
@@ -23,7 +23,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"eslint-plugin-react-hooks": "7.1.1",
-		"typescript-eslint": "8.71.2",
+		"typescript-eslint": "8.73.0",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {

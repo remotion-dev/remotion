@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/whisper-webgpu",
-	"version": "4.0.544",
+	"version": "4.0.545",
 	"description": "Transcribe audio in the browser using Whisper and WebGPU",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -34,7 +34,8 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs"
+			"import": "./dist/esm/index.mjs",
+			"node": "./dist/esm/index.mjs"
 		},
 		"./package.json": "./package.json"
 	},

@@ -2,6 +2,7 @@ import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {formatContextForAgents} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {
 	getDefaultOpenInTarget,
@@ -19,6 +20,7 @@ import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
+import {getSourceDoubleClickHandler} from './get-source-double-click-handler';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
@@ -53,6 +55,7 @@ import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
 } from './use-default-editor-info';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 import {useSelectAsset} from './use-select-asset';
 import {useSelectEffects} from './use-select-effects';
 import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
@@ -230,9 +233,33 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return true;
 			}
 
+			const openTargetSource = async () => {
+				const originalLocation =
+					await resolveOriginalLocation(doubleClickTarget);
+				if (originalLocation === null) return;
+				if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+					await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+				} else if (defaultOpenInTarget === 'git-source') {
+					openGitSource({folder: false, location: originalLocation});
+				}
+			};
+
+			const onSourceDoubleClick = getSourceDoubleClickHandler({
+				codingAgentInfo,
+				getContextForAgents: async () =>
+					formatContextForAgents({
+						location: await resolveOriginalLocation(doubleClickTarget),
+						name:
+							doubleClickTarget.sequence.displayName ||
+							doubleClickTarget.sequence.controls?.componentName ||
+							'Sequence',
+						root: window.remotion_cwd,
+					}),
+				openSource: defaultOpenInTarget === null ? null : openTargetSource,
+			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenSource: defaultOpenInTarget !== null,
+				canOpenSource: onSourceDoubleClick !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged,
 			});
@@ -246,30 +273,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return true;
 			}
 
-			const openTargetSource = async () => {
-				const originalLocation =
-					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null) {
-					return;
-				}
-
-				if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
-					await openOriginalPositionInEditor(originalLocation, defaultEditorId);
-					return;
-				}
-
-				if (defaultOpenInTarget === 'git-source') {
-					openGitSource({folder: false, location: originalLocation});
-				}
-			};
-
-			openTargetSource().catch((err) => {
-				showNotification((err as Error).message, 2000);
-			});
+			onSourceDoubleClick?.();
 
 			return true;
 		},
 		[
+			codingAgentInfo,
 			compositionManagerRef,
 			currentSelection,
 			defaultEditorId,
@@ -319,7 +328,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const isProgrammaticallyDuplicated =
 			contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
-			contextMenuTarget.nodePathInfo.supportsEffects &&
+			canApplyEffects(
+				contextMenuTarget.sequence,
+				contextMenuTarget.nodePathInfo,
+			) &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
@@ -499,7 +511,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 								subMenu: null,
 								value: 'rotate',
 							},
-							...(contextMenuTarget.nodePathInfo.supportsEffects
+							...(canApplyEffects(
+								contextMenuTarget.sequence,
+								contextMenuTarget.nodePathInfo,
+							)
 								? [
 										{
 											type: 'item' as const,

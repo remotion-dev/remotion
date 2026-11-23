@@ -724,7 +724,21 @@ export type SaveMultipleEffectPropsResponse = {
 	results: SaveMultipleEffectPropsResult[];
 };
 
+export type MeasuredCanvasSize = {
+	width: number;
+	height: number;
+	display: 'inline' | 'inline-block' | 'block';
+	verticalAlign: string | null;
+};
+
 export type AddEffectRequest = {
+	wrapInHtmlInCanvas: {
+		compositionId: string;
+		measuredSize: MeasuredCanvasSize | null;
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 	sequenceProps?: UpdateSequencePropsSubscriptionRequest[];
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -1114,8 +1128,7 @@ export type WrapNodeRequest = {
 	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
-	width: number | null;
-	height: number | null;
+	measuredSize: MeasuredCanvasSize | null;
 	timing: {
 		from: number;
 		durationInFrames: number;
@@ -1127,7 +1140,7 @@ export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
-			canWrapHtmlInCanvas: boolean;
+			canvasWrapBlocker: 'nested' | 'unknown-dimensions' | null;
 			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {success: false; reason: string; stack: string};

@@ -206,6 +206,7 @@ export const renderStillFlow = async ({
 			logLevel,
 			onBrowserDownload,
 			chromeMode,
+			preferRequestedVersion: false,
 		});
 	} catch (err) {
 		updateBrowserProgress({

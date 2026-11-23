@@ -26,7 +26,6 @@ import {isStudioSelectionEnabled} from '../helpers/interactivity-enabled';
 import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {ContextMenu} from './ContextMenu';
-import {addEffectToSequence} from './effect-drag-and-drop';
 import {getEffectPickerConfig} from './effect-picker-config';
 import {filterEffectCatalog} from './effect-picker-search';
 import type {EffectPreviewFactory} from './effect-preview-loaders';
@@ -45,6 +44,8 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
+import {useAddEffect} from './use-add-effect';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 
 const content: React.CSSProperties = {
 	padding: '4px 8px',
@@ -206,6 +207,7 @@ export const EffectPicker: React.FC<{
 	const {setPreview} = previewStore;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectItems} = useTimelineSelection();
+	const addEffect = useAddEffect();
 	const nodePathInfo = useMemo(
 		() => ({...selection.nodePathInfo, auxiliaryKeys: []}),
 		[selection.nodePathInfo],
@@ -219,10 +221,12 @@ export const EffectPicker: React.FC<{
 		previewServerState.type === 'connected' &&
 		isStudioSelectionEnabled() &&
 		canUseEffectOperations() &&
-		nodePathInfo.supportsEffects;
-	const runtimeValues = canAddEffects
-		? (track?.sequence.controls?.runtimeValues ?? null)
-		: null;
+		track !== null &&
+		canApplyEffects(track.sequence, nodePathInfo);
+	const runtimeValues =
+		canAddEffects && nodePathInfo.supportsEffects
+			? (track?.sequence.controls?.runtimeValues ?? null)
+			: null;
 	const outlineRef = track?.sequence.refForOutline ?? null;
 	const [capture, setCapture] = useState<{
 		readonly runtimeValues: RuntimeValueStore;
@@ -374,16 +378,13 @@ export const EffectPicker: React.FC<{
 				return;
 			}
 
-			onBack();
-			addEffectToSequence({
-				clientId: previewServerState.clientId,
+			if (nodePathInfo.supportsEffects) onBack();
+			addEffect({
 				effect: {...item.effect, config: getEffectPickerConfig(item)},
-				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				nodePathInfo,
-				selectItems,
 			});
 		},
-		[canAddEffects, nodePathInfo, onBack, previewServerState, selectItems],
+		[addEffect, canAddEffects, nodePathInfo, onBack, previewServerState],
 	);
 
 	const onResultFocus = useCallback(

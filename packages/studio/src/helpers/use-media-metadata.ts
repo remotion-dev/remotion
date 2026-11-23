@@ -119,7 +119,12 @@ const acquireMetadataInput = (src: string) => {
 
 				return {
 					resource: createdInput,
-					dispose: () => createdInput.dispose(),
+					dispose: () =>
+						Internals.disposeMediabunnyInput(
+							createdInput,
+							'info',
+							'@remotion/studio',
+						),
 				};
 			},
 		});

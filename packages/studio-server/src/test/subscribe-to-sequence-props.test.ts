@@ -165,6 +165,7 @@ export const Second = () => {
 					? await addEffectHandler({
 							...handlerOptions,
 							input: {
+								wrapInHtmlInCanvas: null,
 								...target,
 								clientId,
 								sequenceProps,

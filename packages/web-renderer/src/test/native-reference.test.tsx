@@ -189,3 +189,40 @@ test('retains the original PNG bytes and runtime for a pixel mismatch', async ()
 		);
 	}
 });
+
+const rawPngCases = [
+	{
+		name: 'translucent RGB',
+		reference:
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4AWNIMZJkBAACXgCxvTQfxwAAAABJRU5ErkJggg==',
+		actual:
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4AWNINZJkBAACYgCyVKADhQAAAABJRU5ErkJggg==',
+	},
+	{
+		name: 'RGB behind zero alpha',
+		reference:
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4AWPgEFBgAAAAlQA5EfxfdQAAAABJRU5ErkJggg==',
+		actual:
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4AWPgFFBgAAAAmQA63AOmpwAAAABJRU5ErkJggg==',
+	},
+];
+
+test.for(rawPngCases)(
+	'detects distinct PNG $name values before canvas conversion',
+	async ({reference, actual}) => {
+		const blob = (base64: string) =>
+			new Blob(
+				[Uint8Array.from(atob(base64), (character) => character.charCodeAt(0))],
+				{type: 'image/png'},
+			);
+		const expected = blob(reference);
+		const received = blob(actual);
+		expect(await countNativePixels(expected, received)).toEqual({
+			mismatchedPixels: 1,
+			maxChannelDelta: 1,
+		});
+		expect(
+			(await compareNativePixels(expected, received)).mismatchedPixels,
+		).toBe(1);
+	},
+);

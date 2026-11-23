@@ -47,10 +47,9 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
-import {
-	isTimelineSelectionModifierEvent,
-	useCurrentTimelineSelectionStateAsRef,
-} from './Timeline/TimelineSelection';
+import {isTimelineSelectionModifierEvent} from './Timeline/TimelineSelection';
+import {useAddEffect} from './use-add-effect';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 
 const {
 	CanvasOutlinePolygon,
@@ -139,7 +138,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			stopPointerSessionRef.current = null;
 		};
 	}, []);
-	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const addEffect = useAddEffect();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
 		if (!effectDropHovered) {
@@ -168,7 +167,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		}
 
 		const target = getLayoutTarget();
-		if (target?.sequence.controls?.supportsEffects !== true) {
+		if (!target || !canApplyEffects(target.sequence, target.nodePathInfo)) {
 			return null;
 		}
 
@@ -478,13 +477,11 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 			await addEffectFromDrop({
 				dataTransfer: event.dataTransfer,
-				fileName: effectDrop.fileName,
 				nodePathInfo: effectDrop.nodePathInfo,
-				clientId: effectDrop.clientId,
-				selectItems: currentSelection.current.selectItems,
+				addEffect,
 			});
 		},
-		[currentSelection, getEffectDropTarget],
+		[addEffect, getEffectDropTarget],
 	);
 
 	return (

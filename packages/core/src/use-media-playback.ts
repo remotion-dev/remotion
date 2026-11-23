@@ -1,11 +1,5 @@
 import type {RefObject} from 'react';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-} from 'react';
+import {useCallback, useContext, useRef} from 'react';
 import {Html5MediaTrimContext} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
@@ -23,6 +17,7 @@ import {
 } from './timeline-position-state.js';
 import {useBuffering} from './use-buffering.js';
 import {useCurrentFrame} from './use-current-frame.js';
+import {useIsomorphicLayoutEffect} from './use-isomorphic-layout-effect.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
@@ -172,7 +167,7 @@ export const useMediaPlayback = ({
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
-	useLayoutEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		const playbackRateToSet = Math.max(0, playbackRate);
 		// Loading a resource resets playbackRate to defaultPlaybackRate.
 		if (
@@ -194,10 +189,11 @@ export const useMediaPlayback = ({
 		}
 	}, [mediaRef, playbackRate, preservePitch]);
 
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
-		if (!mediaRef.current) {
-			throw new Error(`No ${mediaType} ref found`);
+		const {current} = mediaRef;
+		if (!current) {
+			return;
 		}
 
 		if (!src) {
@@ -206,7 +202,6 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const {current} = mediaRef;
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 		let pauseReason: 'not-playing' | 'buffering' | null = null;
 		if (!playing) {

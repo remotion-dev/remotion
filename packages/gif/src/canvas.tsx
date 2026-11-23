@@ -12,7 +12,7 @@ import {Internals, useDelayRender} from 'remotion';
 import type {GifFillMode} from './props';
 import {useElementSize} from './use-element-size';
 
-const {runEffectChain, useEffectChainState} = Internals;
+const {runEffectChain, useEffectChainState, useReleaseCanvas} = Internals;
 
 const calcArgs = (
 	fit: GifFillMode,
@@ -150,6 +150,10 @@ export const Canvas = forwardRef(
 		}, []);
 
 		const chainState = useEffectChainState(effectsOutputSize);
+		useReleaseCanvas(canvasRef);
+		useReleaseCanvas(tempCtx?.canvas ?? null);
+		useReleaseCanvas(sourceCanvas);
+		useReleaseCanvas(effectOutputCanvas);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const size = useElementSize(canvasRef);

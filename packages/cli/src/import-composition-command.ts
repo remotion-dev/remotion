@@ -11,6 +11,7 @@ import {
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {getOpenTimelineFrameRate} from '@remotion/studio-shared';
 import minimist from 'minimist';
 import {Internals} from 'remotion';
 import {applyCompositionImport} from './apply-composition-import';
@@ -183,9 +184,9 @@ export const importCompositionCommand = async ({
 						? path.dirname(file)
 						: path.resolve(mediaDirectory),
 				componentName,
-				fps: fps ?? 30,
-				width: width ?? 1920,
-				height: height ?? 1080,
+				fps: fps ?? getOpenTimelineFrameRate(contents) ?? 30,
+				width,
+				height,
 			},
 			publicDir: path.resolve(remotionRoot, publicDir ?? 'public'),
 			remotionRoot,

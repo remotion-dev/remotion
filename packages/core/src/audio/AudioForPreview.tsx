@@ -14,7 +14,6 @@ import {
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
-import {random} from '../random.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
@@ -134,34 +133,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		preloadedSrc,
 		crossOriginValue,
 	]);
-	// Generate a string that's as unique as possible for this asset
-	// but at the same time deterministic. We use it to combat strict mode issues.
-	const id = useMemo(
-		() =>
-			`audio-${random(
-				src ?? '',
-			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}-muted:${
-				props.muted
-			}-loop:${props.loop}`,
-		[
-			src,
-			sequenceContext?.relativeFrom,
-			sequenceContext?.cumulatedFrom,
-			sequenceContext?.durationInFrames,
-			props.muted,
-			props.loop,
-		],
-	);
-
 	const {
 		el: audioRef,
-		mediaElementSourceNode,
+		getSource,
 		cleanupOnMediaTagUnmount,
 	} = useSharedAudio({
 		aud: propsToPass,
-		audioId: id,
 		premounting: Boolean(sequenceContext?.premounting),
-		postmounting: Boolean(sequenceContext?.postmounting),
 	});
 
 	// putting playback before useVolume
@@ -192,7 +170,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	useVolume({
 		logLevel,
 		mediaRef: audioRef,
-		source: mediaElementSourceNode,
+		getSource,
 		volume: userPreferredVolume,
 		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});

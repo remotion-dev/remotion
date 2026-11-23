@@ -245,7 +245,16 @@ export const stringifyFfmpegFilter = ({
 					? null
 					: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 				toneFrequency && toneFrequency !== 1
-					? `asetrate=${sampleRate}*${toneFrequency},aresample=${sampleRate},atempo=1/${toneFrequency}`
+					? [
+							`asetrate=${sampleRate}*${toneFrequency}`,
+							`aresample=${sampleRate}`,
+							// Same as `applyToneFrequencyUsingFfmpeg()`: a single atempo
+							// stage only covers 0.5 to 2, so low tone frequencies have to
+							// be chained or FFmpeg aborts with an af_atempo assertion.
+							calculateATempo(1 / toneFrequency),
+						]
+							.filter(truthy)
+							.join(',')
 					: null,
 			]
 				.filter(truthy)
