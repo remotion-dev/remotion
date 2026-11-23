@@ -398,7 +398,7 @@ export class MediaPlayer {
 			initialVolume: this.volume,
 			toneFrequency: this.toneFrequency,
 			drawDebugOverlay: this.drawDebugOverlay,
-			onError: (error) => this.reportTerminalError(error),
+			onError: (error) => this.handleAudioError(error),
 			getSequenceDurationInSeconds: () => this.getSequenceDurationInSeconds(),
 		});
 		this.audioInitialized = true;
@@ -735,6 +735,20 @@ export class MediaPlayer {
 		this.volume = volume;
 		this.audioIteratorManager?.setVolume(volume);
 		this.reportDeferredAudioErrorIfAudible();
+	}
+
+	// While nothing can be heard, a failed audio read only stops the audio. The
+	// picture keeps playing, and the error is reported once the clip becomes
+	// audible.
+	private handleAudioError(error: Error): void {
+		if (!this.muted && this.volume > 0) {
+			this.reportTerminalError(error);
+			return;
+		}
+
+		this.audioIteratorManager?.dispose();
+		this.audioIteratorManager = null;
+		this.deferredAudioError = error;
 	}
 
 	private reportDeferredAudioErrorIfAudible(): void {

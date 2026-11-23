@@ -464,6 +464,33 @@ test.each(['audio', 'video'] as const)(
 	},
 );
 
+test('defers a failed audio read at volume 0 until the volume rises', async () => {
+	const onError = vi.fn();
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, onError);
+	const error = new TypeError('Failed to fetch');
+	const buffers = vi
+		.spyOn(AudioBufferSink.prototype, 'buffers')
+		.mockImplementation(
+			// eslint-disable-next-line require-yield
+			async function* () {
+				throw error;
+			},
+		);
+	try {
+		await player.initialize(0, false, 0);
+		await player.seekTo(1, null);
+		await vi.waitFor(() => expect(player.audioIteratorManager).toBeNull());
+		expect(onError).not.toHaveBeenCalled();
+		player.setVolume(1);
+		expect(onError).toHaveBeenCalledWith(error);
+	} finally {
+		buffers.mockRestore();
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
 test('ignores pending seek failures after disposal and skips new seeks', async () => {
 	const onError = vi.fn();
 	const player = makeAudioPlayer(null, onError);
