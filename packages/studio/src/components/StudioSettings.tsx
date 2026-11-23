@@ -322,6 +322,20 @@ export const StudioSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Interface</p>
+			<ConfigSelect
+				settingId="doubleClickAction"
+				cliFlag={
+					cliDoubleClickAction === null
+						? null
+						: BrowserSafeApis.options.doubleClickActionOption.cliFlag
+				}
+				defaultLabel="Open in editor"
+				options={doubleClickActions}
+				value={cliDoubleClickAction ?? configuredDoubleClickAction ?? null}
+				onChange={(value) =>
+					changeSetting('doubleClickAction', 'setDoubleClickAction', value)
+				}
+			/>
 			<SettingsRow settingId="highContrast">
 				<div style={{...rightRow, gap: 8}}>
 					{studioRuntimeConfig.highContrast?.source === 'cli' ? (
@@ -524,6 +538,7 @@ export const StudioSettings: React.FC = () => {
 			/>
 			<ConfigSelect
 				defaultLabel="Playback"
+				cliFlag={null}
 				settingId="audioLatencyHint"
 				onChange={(value) =>
 					changeSetting('audioLatencyHint', 'setAudioLatencyHint', value)
@@ -556,6 +571,7 @@ export const StudioSettings: React.FC = () => {
 			<p style={sectionTitle}>Development</p>
 			<ConfigSelect
 				defaultLabel="Webpack"
+				cliFlag={null}
 				settingId="rspack"
 				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
 				options={[
@@ -582,6 +598,7 @@ export const StudioSettings: React.FC = () => {
 			</SettingsRow>
 			<ConfigSelect<LogLevel>
 				defaultLabel="Info"
+				cliFlag={null}
 				settingId="logLevel"
 				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
 				options={BrowserSafeApis.logLevels.map((value) => ({

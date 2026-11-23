@@ -10,6 +10,15 @@ export type SettingDefinition = {
 };
 
 export const settingsCatalog = {
+	doubleClickAction: {
+		tab: 'studio',
+		section: 'Interface',
+		name: 'Double-click action',
+		description:
+			'Choose what happens when double-clicking a layer, effect, or property. Connected compositions open their timeline, and editable text on the canvas opens in the Inspector.',
+		keywords: 'source editor coding agent copy context',
+		documentation: 'https://www.remotion.dev/docs/options/double-click-action',
+	},
 	highContrast: {
 		tab: 'studio',
 		section: 'Interface',

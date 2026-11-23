@@ -66,12 +66,21 @@ export const ConfigSelect = <T extends string | boolean>({
 
 	return (
 		<SettingsRow settingId={settingId}>
-			<Combobox
-				values={values}
-				selectedId={value === null ? DEFAULT_VALUE : `${name}-${String(value)}`}
-				style={controlWidth}
-				aria-label={name}
-			/>
+			{cliFlag === null ? (
+				<Combobox
+					values={values}
+					selectedId={
+						value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
+					}
+					style={controlWidth}
+					aria-label={name}
+				/>
+			) : (
+				<span style={{color: LIGHT_TEXT, fontSize: 12}}>
+					{options.find((option) => option.value === value)?.label} (set by --
+					{cliFlag})
+				</span>
+			)}
 		</SettingsRow>
 	);
 };
