@@ -55,6 +55,10 @@ Copy this checklist and track progress:
 - **Given an Element library URL or a name:** fetch the library's Markdown index, pick the Element the user asked for, and use its Element page URL.
 - **Not given anything:** search the Markdown indexes of the Element libraries for an Element that fits the video.
 
+Markdown indexes link to Markdown documents, which the installer cannot use.
+Fetch the Element's Markdown document and use the Element page URL it names near the top, for example after `Element page:` or `URL:`.
+If it names none, remove `.md` from the document's URL.
+
 ### 2. Dry run
 
 Run exactly:
