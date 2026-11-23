@@ -242,7 +242,7 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(duplicateResponse).toEqual({success: true});
+		expect(duplicateResponse).toEqual({success: true, sourceVersion: null});
 		expect(readFileSync(configFile, 'utf8')).toBe(configContents);
 		expect(configChangeEvent).toBe(null);
 
@@ -264,7 +264,13 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(additionResponse).toEqual({success: true});
+		expect(additionResponse).toEqual({
+			success: true,
+			sourceVersion: {
+				sessionId: fileWatcherRegistry.sourceVersionSessionId,
+				revision: 1,
+			},
+		});
 		const addedContents = readFileSync(configFile, 'utf8');
 		expect(addedContents).toContain("'url': 'https://new.example.com/'");
 		expect(addedContents).toContain("'displayName': 'New library'");
@@ -289,7 +295,7 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(repeatedResponse).toEqual({success: true});
+		expect(repeatedResponse).toEqual({success: true, sourceVersion: null});
 		expect(readFileSync(configFile, 'utf8')).toBe(addedContents);
 		expect(configChangeEvent).toBe(null);
 	} finally {
@@ -341,7 +347,13 @@ test('persists Studio keyboard shortcuts through the config route', async () => 
 			remotionRoot: directory,
 		});
 
-		expect(response).toEqual({success: true});
+		expect(response).toEqual({
+			success: true,
+			sourceVersion: {
+				sessionId: fileWatcherRegistry.sourceVersionSessionId,
+				revision: 1,
+			},
+		});
 		const updatedConfig = readFileSync(configFile, 'utf8');
 		expect(updatedConfig).toContain('Config.setKeyboardShortcuts({');
 		expect(updatedConfig).toContain("'playPause': {");

@@ -1,20 +1,22 @@
+import type {DoubleClickAction} from '@remotion/renderer';
 import type {GetDefaultCodingAgentInfoResponse} from '@remotion/studio-shared';
 import {copyContextForAgents} from '../helpers/copy-text';
 import {openInCodingAgent} from '../helpers/open-in-editor';
-import {getStudioDoubleClickAction} from '../helpers/studio-runtime-config';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getPreferredCodingAgent} from './use-default-editor-info';
 
 export const getSourceDoubleClickHandler = ({
 	codingAgentInfo,
+	doubleClickAction,
 	getContextForAgents,
 	openSource,
 }: {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
+	readonly doubleClickAction: DoubleClickAction | null;
 	readonly getContextForAgents: () => string | null | Promise<string | null>;
 	readonly openSource: (() => void | Promise<void>) | null;
 }): (() => void) | null => {
-	const action = getStudioDoubleClickAction();
+	const action = doubleClickAction ?? 'open-in-editor';
 	if (
 		(action === 'open-in-editor' && openSource === null) ||
 		(action === 'open-in-agent' && codingAgentInfo === null)

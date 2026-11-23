@@ -35,10 +35,19 @@ import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
+	border: 0,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
+	margin: 0,
 	minWidth: 0,
+	padding: 0,
+};
+
+const disabledContainer: React.CSSProperties = {
+	...container,
+	opacity: 0.6,
+	pointerEvents: 'none',
 };
 
 const dividerLabel: React.CSSProperties = {
@@ -157,6 +166,8 @@ const ConfigNumber = ({
 
 export const StudioSettings: React.FC = () => {
 	const {
+		doubleClickAction,
+		setDoubleClickAction,
 		error: settingsError,
 		revision,
 		studioRuntimeConfig,
@@ -261,7 +272,6 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
-			update('setDoubleClickAction', settings.doubleClickAction),
 			update('setHighContrast', settings.highContrast),
 			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
@@ -302,7 +312,7 @@ export const StudioSettings: React.FC = () => {
 
 	const ready = studioRuntimeConfig !== null && syncedRevision === revision;
 	useAutoSaveConfig({
-		enabled: ready,
+		enabled: ready && studioRuntimeConfig.configFileStudioSettings !== null,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
@@ -330,32 +340,25 @@ export const StudioSettings: React.FC = () => {
 		return null;
 	}
 
-	const cliDoubleClickAction =
-		studioRuntimeConfig.doubleClickAction?.source === 'cli'
-			? studioRuntimeConfig.doubleClickAction.value
-			: null;
-	const configuredDoubleClickAction =
-		error === null
-			? settings.doubleClickAction
-			: studioRuntimeConfig.configFileStudioSettings?.doubleClickAction;
-
+	const hasConfigFile = studioRuntimeConfig.configFileStudioSettings !== null;
 	return (
-		<div style={container}>
+		<fieldset
+			disabled={!hasConfigFile}
+			style={hasConfigFile ? container : disabledContainer}
+		>
 			<p style={dividerLabel}>Interface</p>
 			<ConfigSelect
 				name="Double-click action"
 				description="Applies to layers, effects, and properties. Connected compositions open their timeline, and editable text on the canvas opens in the Inspector."
 				cliFlag={
-					cliDoubleClickAction === null
-						? null
-						: BrowserSafeApis.options.doubleClickActionOption.cliFlag
+					studioRuntimeConfig.doubleClickAction?.source === 'cli'
+						? BrowserSafeApis.options.doubleClickActionOption.cliFlag
+						: null
 				}
 				defaultLabel="Open in editor"
 				options={doubleClickActions}
-				value={cliDoubleClickAction ?? configuredDoubleClickAction ?? null}
-				onChange={(value) =>
-					changeSetting('doubleClickAction', 'setDoubleClickAction', value)
-				}
+				value={doubleClickAction}
+				onChange={setDoubleClickAction}
 			/>
 			<div style={optionRow}>
 				<label htmlFor="remotion-high-contrast" style={label}>
@@ -879,6 +882,6 @@ export const StudioSettings: React.FC = () => {
 				</>
 			) : null}
 			<Spacing y={2} block />
-		</div>
+		</fieldset>
 	);
 };

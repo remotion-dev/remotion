@@ -35,6 +35,7 @@ import {
 } from './selected-outline-types';
 import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
+import {useSettings} from './SettingsContext';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {
@@ -110,6 +111,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const {doubleClickAction} = useSettings();
 	const defaultOpenInTarget = getDefaultOpenInTarget({
 		canOpenInEditor: editorAvailable,
 	});
@@ -246,6 +248,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 
 			const onSourceDoubleClick = getSourceDoubleClickHandler({
 				codingAgentInfo,
+				doubleClickAction,
 				getContextForAgents: async () =>
 					formatContextForAgents({
 						location: await resolveOriginalLocation(doubleClickTarget),
@@ -283,6 +286,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
+			doubleClickAction,
 			getDragOverrides,
 			previewServerState.type,
 			propStatusesRef,

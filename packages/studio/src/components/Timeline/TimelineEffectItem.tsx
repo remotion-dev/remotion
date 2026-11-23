@@ -248,7 +248,7 @@ export const TimelineEffectItem: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {openInApps} = useOpenInMenuApps();
 	const annotationTarget = useRef<HTMLDivElement>(null);
-	const {remotionSkillsInfo} = useSettings();
+	const {doubleClickAction, remotionSkillsInfo} = useSettings();
 	const markupSkill = remotionSkillsInfo?.skills.find(
 		({name}) => name === 'remotion-markup',
 	);
@@ -843,6 +843,7 @@ export const TimelineEffectItem: React.FC<{
 			onDoubleClick={(event) => {
 				const handle = getSourceDoubleClickHandler({
 					codingAgentInfo: openInApps.codingAgentInfo,
+					doubleClickAction,
 					getContextForAgents,
 					openSource: openInApps.canOpenInEditor
 						? () => openInEditor(null)
