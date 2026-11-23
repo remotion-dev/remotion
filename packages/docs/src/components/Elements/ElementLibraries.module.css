@@ -1,5 +1,5 @@
 .library {
-	container: third-party-libraries / inline-size;
+	container: element-libraries / inline-size;
 }
 
 .list {
@@ -106,13 +106,13 @@
 	--blue-underlay: var(--ifm-color-primary);
 }
 
-@container third-party-libraries (min-width: 440px) {
+@container element-libraries (min-width: 440px) {
 	.list {
 		grid-template-columns: repeat(2, minmax(0, 320px));
 	}
 }
 
-@container third-party-libraries (min-width: 640px) {
+@container element-libraries (min-width: 640px) {
 	.list {
 		grid-template-columns: repeat(3, minmax(0, 320px));
 		gap: 24px;
@@ -124,5 +124,11 @@
 
 	.libraryTitle {
 		font-size: 1rem;
+	}
+}
+
+@container element-libraries (min-width: 1100px) {
+	.list {
+		grid-template-columns: repeat(4, minmax(0, 320px));
 	}
 }

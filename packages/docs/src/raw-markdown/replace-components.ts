@@ -5,12 +5,12 @@ import {VERSION} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
 import {optionDescriptionToMarkdown} from '../../option-description';
+import {elementLibraries} from '../components/Elements/element-libraries-data';
 import {
 	getElementLibrarySections,
 	isElementCategory,
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
-import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
 import {articles} from '../data/articles';
 import {getElementMarkdownUrl} from './element-markdown';
 
@@ -165,7 +165,7 @@ const getInstallationMarkdown = (pkg: string) => {
 };
 
 const studioApiPath = path.join('docs', 'studio', 'api.mdx');
-const thirdPartyElementsPath = path.resolve(
+const elementLibrariesPath = path.resolve(
 	__dirname,
 	'..',
 	'..',
@@ -217,17 +217,16 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 				/^import\s+\{\s*ElementLibrary\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibrary['"];?\s*\n/m,
 		},
 		{
-			componentName: 'ThirdPartyElementLibraries',
+			componentName: 'ElementLibraries',
 			appliesTo: (sourcePath) =>
-				path.resolve(sourcePath) === thirdPartyElementsPath,
+				path.resolve(sourcePath) === elementLibrariesPath,
 			render: () =>
 				[
-					'For the Elements made by Remotion, see the [Remotion Elements index](https://www.remotion.dev/elements/index.md).',
 					'To install an Element from a page that embeds its payload, run [`npx remotion elements use <url> --composition <composition-id> --yes`](https://www.remotion.dev/docs/cli/elements/use.md).',
-					thirdPartyElementLibraries
+					elementLibraries
 						.map((library) =>
 							[
-								`- [${library.displayName}](${library.browseUrl})`,
+								`- [${library.displayName}](${new URL(library.browseUrl, 'https://www.remotion.dev').href})`,
 								`  - Element Library: \`${library.libraryUrl}\``,
 								...(library.markdownIndexUrl === null
 									? []
@@ -237,7 +236,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 						.join('\n'),
 				].join('\n\n'),
 			removeImport:
-				/^import\s+\{\s*ThirdPartyElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ThirdPartyElementLibraries['"];?\s*\n/m,
+				/^import\s+\{\s*ElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibraries['"];?\s*\n/m,
 			required: true,
 		},
 		{
