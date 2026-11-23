@@ -1,0 +1,52 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-captions-styling.png
+sidebar_label: Styling
+title: Styling captions
+crumb: Captions
+---
+
+# Styling captions
+
+Use a [caption Element](/elements/captions/) such as Basic Captions or Word Highlight Captions, or style your own caption component with CSS.
+
+## Choose a style in Studio<AvailableFrom v="4.0.535" />
+
+<Step>1</Step> Select a video or audio layer and click <kbd>Generate captions</kbd> in the inspector.
+<br />
+<Step>2</Step> Open <kbd>Styles</kbd> and select a caption Element. Basic Captions is the default.
+<br />
+<Step>3</Step> Click <kbd>Generate captions</kbd> to transcribe the audio and add a caption layer with the selected style.
+
+To use an existing transcript, install a [caption Element](/elements/captions/) and [import the transcript into the caption layer](/docs/captions/editing#import-a-replacement-transcript).
+
+## Customize a caption component
+
+Caption styles are React components. Edit the installed Element's source, or style the `CaptionPage` component from the [displaying guide](/docs/captions/displaying#rendering-a-caption-page).
+
+This example positions a caption page near the bottom of the video and adds a dark outline for contrast. `whiteSpace: 'pre-wrap'` preserves spaces and allows the caption to wrap.
+
+```tsx twoslash title="CaptionPage.tsx"
+import {AbsoluteFill} from 'remotion';
+import type {TikTokPage} from '@remotion/captions';
+
+export const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => (
+  <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', boxSizing: 'border-box', padding: '0 48px 64px'}}>
+    <div
+      style={{
+        color: 'white',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: 64,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        whiteSpace: 'pre-wrap',
+        WebkitTextStroke: '4px black',
+        paintOrder: 'stroke',
+      }}
+    >
+      {page.text}
+    </div>
+  </AbsoluteFill>
+);
+```
+
+Use [`fitText()`](/docs/layout-utils/fit-text) to size a line to the available width. For enter or exit effects, [animate properties](/docs/animating-properties) like opacity or scale.

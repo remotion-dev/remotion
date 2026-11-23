@@ -1945,6 +1945,15 @@ export const articles = [
 		slug: 'captions/displaying',
 	},
 	{
+		id: 'captions/editing',
+		title: 'Editing captions',
+		relativePath: 'docs/captions/editing.mdx',
+		compId: 'articles-docs-captions-editing',
+		crumb: 'Captions',
+		noAi: false,
+		slug: 'captions/editing',
+	},
+	{
 		id: 'captions/exporting',
 		title: 'Exporting subtitles',
 		relativePath: 'docs/captions/exporting.mdx',
@@ -1997,6 +2006,15 @@ export const articles = [
 		crumb: '@remotion/captions',
 		noAi: false,
 		slug: 'captions/serialize-srt',
+	},
+	{
+		id: 'captions/styling',
+		title: 'Styling captions',
+		relativePath: 'docs/captions/styling.mdx',
+		compId: 'articles-docs-captions-styling',
+		crumb: 'Captions',
+		noAi: false,
+		slug: 'captions/styling',
 	},
 	{
 		id: 'captions/transcribing',

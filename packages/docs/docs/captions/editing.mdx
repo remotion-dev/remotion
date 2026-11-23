@@ -1,0 +1,34 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-captions-editing.png
+sidebar_label: Editing
+title: Editing captions
+crumb: Captions
+---
+
+# Editing captions
+
+Edit the wording and grouping of generated or [imported captions](/docs/captions/importing).
+
+## Edit text in Studio<AvailableFrom v="4.0.500" />
+
+Select a caption layer and expand <kbd>Captions</kbd> in the inspector. Edit a row and click outside the text field to save it. Keep the leading spaces between words so adjacent captions display correctly.
+
+For custom components, include [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema) in the [interactivity schema](/docs/studio/make-component-interactive#caption-fields) and pass the caption array directly as an inline JSX prop to make it editable in Studio.
+
+### Add a page break<AvailableFrom v="4.0.517" />
+
+Click <kbd>Break after this</kbd> on a caption row to start a new page with the next caption. Click the same control again to remove the break.
+
+### Split a caption row<AvailableFrom v="4.0.531" />
+
+Place the cursor where the caption should split and press <kbd>Enter</kbd>. Studio divides the row's time range between the two new rows based on the cursor position.
+
+## Import a replacement transcript<AvailableFrom v="4.0.521" />
+
+Select the caption layer and click <kbd>Import transcript</kbd> next to the <kbd>Captions</kbd> heading. Choose an SRT file, a Remotion [`Caption[]`](/docs/captions/caption) JSON file, an ElevenLabs transcript, or an OpenAI Whisper verbose JSON transcript. The selected file replaces the layer's captions.
+
+## Edit captions in code
+
+When captions come from a file or an API, edit the source data before rendering it. In the [`Caption`](/docs/captions/caption) array, use `text` to correct the wording and `startMs` and `endMs` to adjust when a caption appears. Keep the rows in chronological order and keep any `timestampMs` value aligned with the adjusted timing.
+
+Set [`pageBreakAfter`](/docs/captions/caption#pagebreakafter) to `true` on a row to force a new page after it when grouping captions with [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions).

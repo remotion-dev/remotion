@@ -18,6 +18,14 @@ export const GuideTableOfContents: React.FC = () => {
 					<strong>{'Displaying captions'}</strong>
 					<div>Render captions in your Remotion video</div>
 				</TOCItem>
+				<TOCItem link="/docs/captions/styling">
+					<strong>{'Styling captions'}</strong>
+					<div>Choose a caption style or customize it in React</div>
+				</TOCItem>
+				<TOCItem link="/docs/captions/editing">
+					<strong>{'Editing captions'}</strong>
+					<div>Correct text and change where caption pages break</div>
+				</TOCItem>
 				<TOCItem link="/docs/captions/exporting">
 					<strong>{'Exporting subtitles'}</strong>
 					<div>Export subtitles as burned-in or .srt files</div>

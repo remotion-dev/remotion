@@ -1,13 +1,18 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-captions-importing.png
-sidebar_label: Importing from .srt or .vtt
+sidebar_label: Importing
 title: Importing .srt or .vtt subtitles into Remotion
 crumb: Captions
 ---
 
 # Importing .srt or .vtt subtitles into Remotion
 
-If you have an existing subtitle file, you can import it into Remotion using [`parseSrt()`](/docs/captions/parse-srt) for `.srt` files or [`parseVtt()`](/docs/captions/parse-vtt) for WebVTT (`.vtt`) files from `@remotion/captions`.
+If you have an existing subtitle file, you can import it into Remotion:
+
+- using [`parseSrt()`](/docs/captions/parse-srt) for `.srt` files
+- using [`parseVtt()`](/docs/captions/parse-vtt) for `.vtt` WebVTT files.
+
+These APIs take a string. Read the subtitle file as text before calling either function. Both APIs return captions in the standard Remotion [`Caption[]`](/docs/captions/caption) format.
 
 ## Reading an .srt file
 
@@ -63,18 +68,47 @@ const text = await response.text();
 const {captions} = parseVtt({input: text});
 ```
 
-## Using imported captions
+## Fetching dynamically in a component
 
-Once parsed, the captions are in the recommended [`Caption`](/docs/captions/caption) format and can be used with all `@remotion/captions` utilities.
+```tsx twoslash title="Importing captions from .srt"
+import {useState, useEffect, useCallback} from 'react';
+import {staticFile, useDelayRender} from 'remotion';
+import {parseSrt} from '@remotion/captions';
+import type {Caption} from '@remotion/captions';
 
-Possible next steps:
+export const MyComponent: React.FC = () => {
+  const [captions, setCaptions] = useState<Caption[] | null>(null);
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
+  const [handle] = useState(() => delayRender());
 
-- [Displaying captions](/docs/captions/displaying) - Render captions in your video
-- [Exporting captions](/docs/captions/exporting) - Export captions to a file
+  const fetchCaptions = useCallback(async () => {
+    try {
+      const response = await fetch(staticFile('subtitles.srt'));
+      const text = await response.text();
+      const {captions: parsed} = parseSrt({input: text});
+      setCaptions(parsed);
+      continueRender(handle);
+    } catch (e) {
+      cancelRender(e);
+    }
+  }, [continueRender, cancelRender, handle]);
+
+  useEffect(() => {
+    fetchCaptions();
+  }, [fetchCaptions]);
+
+  if (!captions) {
+    return null;
+  }
+
+  return <>{/* Use captions here */}</>;
+};
+```
 
 ## See also
 
-- [`parseSrt()`](/docs/captions/parse-srt) - API reference
-- [`parseVtt()`](/docs/captions/parse-vtt) - API reference
-- [Displaying captions](/docs/captions/displaying) - Render captions in your video
-- [`Caption`](/docs/captions/caption) - The caption data structure
+- [Captions guide](/docs/captions)
+- [`parseSrt()`](/docs/captions/parse-srt)
+- [`parseVtt()`](/docs/captions/parse-vtt)
+- [Displaying captions](/docs/captions/displaying)
+- [`Caption` type](/docs/captions/caption)
