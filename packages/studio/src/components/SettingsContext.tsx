@@ -1,9 +1,11 @@
+import type {DoubleClickAction} from '@remotion/renderer';
 import type {
 	ConfigUpdate,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 	GetRemotionSkillsInfoResponse,
 	RenderDefaults,
+	SourceFileVersion,
 	StudioElementLibrary,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
@@ -31,6 +33,7 @@ import {
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
+import {useDoubleClickActionSetting} from './use-double-click-action-setting';
 
 type SkillAction = {
 	readonly skill: string;
@@ -46,6 +49,8 @@ type SettingsContextValue = {
 	readonly renderDefaults: RenderDefaults | null;
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
+	readonly doubleClickAction: DoubleClickAction | null;
+	readonly setDoubleClickAction: (value: DoubleClickAction | null) => void;
 	readonly showDiagnostics: boolean;
 	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
@@ -81,6 +86,8 @@ export const SettingsProvider: React.FC<{
 			| 'removeSkill'
 			| 'upgradeSkill'
 			| 'showDiagnostics'
+			| 'doubleClickAction'
+			| 'setDoubleClickAction'
 			| 'setShowDiagnostics'
 			| 'addElementLibrary'
 			| 'updateElementLibrary'
@@ -125,23 +132,36 @@ export const SettingsProvider: React.FC<{
 	const [orderedElementLibraryUrls, setOrderedElementLibraryUrls] = useState<
 		string[] | null
 	>(null);
-	const elementLibrarySaveQueue = useRef<Promise<unknown>>(Promise.resolve());
-	const saveElementLibraryUpdates = useCallback(
+	const configSaveQueue = useRef<Promise<unknown>>(Promise.resolve());
+	const saveConfigUpdates = useCallback(
 		(updates: ConfigUpdate[]) => {
 			if (previewServerState.type !== 'connected') {
 				return Promise.reject(new Error('Studio is disconnected.'));
 			}
 
-			const save = elementLibrarySaveQueue.current.then(() =>
+			const save = configSaveQueue.current.then(() =>
 				callApi('/api/update-config', {
 					clientId: previewServerState.clientId,
 					updates,
 				}),
 			);
-			elementLibrarySaveQueue.current = save.catch(() => {});
+			configSaveQueue.current = save.catch(() => {});
 			return save;
 		},
 		[previewServerState],
+	);
+	const [reloadedConfigVersion, setReloadedConfigVersion] =
+		useState<SourceFileVersion | null>(null);
+	const {doubleClickAction, setDoubleClickAction} = useDoubleClickActionSetting(
+		{
+			clientId:
+				previewServerState.type === 'connected'
+					? previewServerState.clientId
+					: null,
+			config: settings.studioRuntimeConfig,
+			reloadedVersion: reloadedConfigVersion,
+			saveConfigUpdates,
+		},
 	);
 	const [removedElementLibraryUrls, setRemovedElementLibraryUrls] = useState<
 		string[]
@@ -176,7 +196,7 @@ export const SettingsProvider: React.FC<{
 				),
 			);
 			try {
-				const response = await saveElementLibraryUpdates([
+				const response = await saveConfigUpdates([
 					{
 						setter: 'addElementLibrary',
 						type: 'set',
@@ -225,7 +245,7 @@ export const SettingsProvider: React.FC<{
 				return false;
 			}
 		},
-		[previewServerState.type, saveElementLibraryUpdates],
+		[previewServerState.type, saveConfigUpdates],
 	);
 	const updateElementLibrary = useCallback(
 		async (previousUrl: string, library: StudioElementLibrary) => {
@@ -250,7 +270,7 @@ export const SettingsProvider: React.FC<{
 				})),
 			);
 			try {
-				const response = await saveElementLibraryUpdates([
+				const response = await saveConfigUpdates([
 					{
 						setter: 'addElementLibrary',
 						type: 'update',
@@ -296,7 +316,7 @@ export const SettingsProvider: React.FC<{
 				return false;
 			}
 		},
-		[previewServerState.type, saveElementLibraryUpdates],
+		[previewServerState.type, saveConfigUpdates],
 	);
 	const removeElementLibrary = useCallback(
 		async (url: string) => {
@@ -323,7 +343,7 @@ export const SettingsProvider: React.FC<{
 			elementLibraryRemovals.current.set(url, request);
 			setRemovedElementLibraryUrls([...elementLibraryRemovals.current.keys()]);
 			try {
-				const response = await saveElementLibraryUpdates([
+				const response = await saveConfigUpdates([
 					{setter: 'addElementLibrary', type: 'delete', value: url},
 				]);
 				if (!response.success) throw new Error(response.reason);
@@ -351,7 +371,7 @@ export const SettingsProvider: React.FC<{
 				);
 			}
 		},
-		[previewServerState, saveElementLibraryUpdates],
+		[previewServerState, saveConfigUpdates],
 	);
 	const reorderElementLibraries = useCallback(
 		async (urls: readonly string[]) => {
@@ -394,7 +414,7 @@ export const SettingsProvider: React.FC<{
 			elementLibraryOrder.current = request;
 			setOrderedElementLibraryUrls(request.urls);
 			try {
-				const response = await saveElementLibraryUpdates([
+				const response = await saveConfigUpdates([
 					{setter: 'addElementLibrary', type: 'reorder', value: request.urls},
 				]);
 				if (!response.success) throw new Error(response.reason);
@@ -419,7 +439,7 @@ export const SettingsProvider: React.FC<{
 				);
 			}
 		},
-		[previewServerState.type, saveElementLibraryUpdates],
+		[previewServerState.type, saveConfigUpdates],
 	);
 	const diagnosticsSave = useRef<{
 		value: boolean;
@@ -591,6 +611,7 @@ export const SettingsProvider: React.FC<{
 			}
 
 			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			if (event.sourceVersion) setReloadedConfigVersion(event.sourceVersion);
 			for (const [url, edit] of elementLibraryEdits.current) {
 				if (
 					edit.saved &&
@@ -693,6 +714,7 @@ export const SettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (event.sourceVersion) setReloadedConfigVersion(event.sourceVersion);
 				if (elementLibraryEdits.current.size > 0) {
 					elementLibraryEdits.current.clear();
 					setEditedElementLibraries([]);
@@ -868,6 +890,8 @@ export const SettingsProvider: React.FC<{
 		return {
 			...settings,
 			studioRuntimeConfig,
+			doubleClickAction,
+			setDoubleClickAction,
 			addElementLibrary,
 			updateElementLibrary,
 			removeElementLibrary,
@@ -887,6 +911,8 @@ export const SettingsProvider: React.FC<{
 		removeSkill,
 		setPublicLicenseKey,
 		settings,
+		doubleClickAction,
+		setDoubleClickAction,
 		upgradeSkill,
 		showDiagnosticsPreview,
 		setShowDiagnostics,

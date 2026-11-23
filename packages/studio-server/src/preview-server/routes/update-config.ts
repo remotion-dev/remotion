@@ -477,15 +477,15 @@ export const updateConfigHandler = async ({
 			};
 		}
 
-		return {success: true};
+		return {success: true, sourceVersion: null};
 	}
 
-	writeFileAndNotifyFileWatchers({
+	const sourceVersion = writeFileAndNotifyFileWatchers({
 		file: configFile,
 		content: updatedConfig,
 		originatorClientId: input.clientId,
 		metadata: null,
 	});
 
-	return {success: true};
+	return {success: true, sourceVersion};
 };
