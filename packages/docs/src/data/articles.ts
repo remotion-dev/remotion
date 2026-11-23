@@ -2125,6 +2125,15 @@ export const articles = [
 		slug: 'cli/canvas-capture/index',
 	},
 	{
+		id: 'cli/elements/add-library',
+		title: 'npx remotion elements add-library',
+		relativePath: 'docs/cli/elements/add-library.mdx',
+		compId: 'articles-docs-cli-elements-add-library',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/elements/add-library',
+	},
+	{
 		id: 'cli/elements/index',
 		title: 'npx remotion elements',
 		relativePath: 'docs/cli/elements/index.mdx',
