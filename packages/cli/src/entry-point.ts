@@ -1,4 +1,4 @@
-import {existsSync} from 'node:fs';
+import {existsSync, statSync} from 'node:fs';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -77,6 +77,16 @@ const isBundledCode = (p: string) => {
 	return existsSync(p) && existsSync(path.join(p, 'index.html'));
 };
 
+// A folder that happens to have the same name as a composition ID (e.g. `punch/` and the
+// composition `Punch` on a case-insensitive file system) must not be mistaken for the entry point.
+const isPlainDirectory = (p: string) => {
+	try {
+		return statSync(p).isDirectory() && !isBundledCode(p);
+	} catch {
+		return false;
+	}
+};
+
 const findEntryPointInner = (
 	args: (string | number)[],
 	remotionRoot: string,
@@ -99,7 +109,7 @@ const findEntryPointInner = (
 		const cwdResolution = path.resolve(process.cwd(), file);
 		const remotionRootResolution = path.resolve(remotionRoot, file);
 		// Checking if file was found in CWD
-		if (existsSync(cwdResolution)) {
+		if (existsSync(cwdResolution) && !isPlainDirectory(cwdResolution)) {
 			return {
 				file: cwdResolution,
 				remainingArgs: args.slice(1),
@@ -109,7 +119,10 @@ const findEntryPointInner = (
 		}
 
 		// Checking if file was found in remotion root
-		if (existsSync(remotionRootResolution)) {
+		if (
+			existsSync(remotionRootResolution) &&
+			!isPlainDirectory(remotionRootResolution)
+		) {
 			return {
 				file: remotionRootResolution,
 				remainingArgs: args.slice(1),
