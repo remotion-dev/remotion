@@ -147,12 +147,12 @@ test('reads the Open Graph site name', () => {
 			'<!-- <meta property="og:site_name" content="Commented"> -->',
 			'<meta name="og:site_name" content="Wrong attribute">',
 			'<meta property="og:site_name" content="  ">',
-			'<meta property="OG:SITE_NAME" content=" Studio &amp; Supply ">',
+			'<meta property="OG:SITE_NAME" content=" Studio > Supply ">',
 			'<meta property="og:site_name" content="Second">',
 		].join(''),
 	);
 
-	expect(parseElementPayloadsFromHtml(html).siteName).toBe('Studio & Supply');
+	expect(parseElementPayloadsFromHtml(html).siteName).toBe('Studio > Supply');
 });
 
 test('rejects payloads that were not created with createElementPayload()', () => {

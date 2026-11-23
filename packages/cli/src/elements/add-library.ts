@@ -43,14 +43,13 @@ export const elementsAddLibraryCommand = async ({
 		return fail(`"${libraryUrl}" is not a valid http:// or https:// URL.`);
 	}
 
-	const requestedDisplayName = commandLine['display-name'] as
-		| string
-		| undefined;
+	const requestedDisplayName: unknown = commandLine['display-name'];
 	if (
 		requestedDisplayName !== undefined &&
-		requestedDisplayName.trim() === ''
+		(typeof requestedDisplayName !== 'string' ||
+			requestedDisplayName.trim() === '')
 	) {
-		return fail('--display-name must not be empty.');
+		return fail('--display-name must be passed once and must not be empty.');
 	}
 
 	const configFile = getLoadedConfigFile();
@@ -79,10 +78,12 @@ export const elementsAddLibraryCommand = async ({
 	const page = await fetchElementPage(new URL(url)).catch((err: Error) =>
 		fail(err.message),
 	);
-	const {siteName} = StudioProtocolInternals.parseElementPayloadsFromHtml(
-		page.text,
-	);
-	const displayName = requestedDisplayName?.trim() ?? siteName;
+	const displayName =
+		requestedDisplayName?.trim() ??
+		(page.isJson
+			? null
+			: StudioProtocolInternals.parseElementPayloadsFromHtml(page.text)
+					.siteName);
 	const configContents = readFileSync(configFile, 'utf-8');
 	let updatedConfig: string;
 	try {

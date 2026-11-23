@@ -92,7 +92,7 @@ export const parseElementPayloadsFromHtml = (
 	let siteName: string | null = null;
 
 	const tokenRegex =
-		/<!--[\s\S]*?(?:-->|$)|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<link\b([^>]*)>|<meta\b([^>]*)>/gi;
+		/<!--[\s\S]*?(?:-->|$)|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<link\b([^>]*)>|<meta\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi;
 
 	for (const match of html.matchAll(tokenRegex)) {
 		const [, scriptAttributes, scriptContent, linkAttributes, metaAttributes] =

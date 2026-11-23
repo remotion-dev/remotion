@@ -203,6 +203,39 @@ test('adds Element Libraries without replacing or duplicating existing calls', (
 	).toBe(configContents);
 });
 
+test('keeps the imported Config name and CRLF line endings', () => {
+	const configContents = [
+		"import {Config as RemotionConfig} from '@remotion/cli/config';",
+		'RemotionConfig.setOverwriteOutput(true);',
+		"RemotionConfig.addElementLibrary({url: 'https://existing.example.com/'});",
+		'',
+	].join('\r\n');
+	const update = (url: string) =>
+		updateConfigFile({
+			configContents,
+			existingElementLibraryUrls: [],
+			updates: [
+				{setter: 'addElementLibrary', type: 'set', value: {url}},
+				{setter: 'setOverwriteOutput', type: 'set', value: false},
+			],
+		});
+
+	expect(update('https://new.example.com/')).toBe(
+		[
+			"import {Config as RemotionConfig} from '@remotion/cli/config';",
+			"RemotionConfig.addElementLibrary({url: 'https://existing.example.com/'});",
+			'RemotionConfig.addElementLibrary({',
+			"    'url': 'https://new.example.com/'",
+			'});',
+			'RemotionConfig.setOverwriteOutput(false);',
+			'',
+		].join('\r\n'),
+	);
+	expect(update('https://existing.example.com')).not.toContain(
+		"'url': 'https://existing.example.com/'",
+	);
+});
+
 test('uses runtime Element Libraries for dynamic config deduplication and skips no-op writes', async () => {
 	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
 	const configFile = join(directory, 'remotion.config.ts');

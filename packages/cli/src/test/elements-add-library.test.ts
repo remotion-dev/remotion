@@ -156,8 +156,10 @@ const serveLibrary = () => {
 				return html('<title>Unnamed</title>');
 			}
 
-			if (pathname === '/payload.json') {
-				return Response.json(titleCard);
+			if (pathname === '/catalog.json') {
+				return Response.json({
+					template: '<meta property="og:site_name" content="Example">',
+				});
 			}
 
 			return new Response('Not found', {status: 404});
@@ -234,9 +236,9 @@ test(
 test(
 	'creates the first library call, validates the URL and accepts any page',
 	async () => {
-		const initialConfig = `import {Config} from '@remotion/cli/config';
+		const initialConfig = `import {Config as RemotionConfig} from '@remotion/cli/config';
 
-Config.setVideoImageFormat('jpeg');
+RemotionConfig.setVideoImageFormat('jpeg');
 `;
 		const project = makeProject(initialConfig);
 		const library = serveLibrary();
@@ -274,9 +276,25 @@ Config.setVideoImageFormat('jpeg');
 
 			const json = await project.run([
 				'add-library',
-				`${library.origin}/payload.json`,
+				`${library.origin}/catalog.json`,
 			]);
+			expect(json.output).toContain(
+				`Added ${library.origin}/catalog.json to remotion.config.ts.`,
+			);
 			expect(json.exitCode).toBe(0);
+
+			const twoNames = await project.run([
+				'add-library',
+				`${library.origin}/studio-supply`,
+				'--display-name',
+				'A',
+				'--display-name',
+				'B',
+			]);
+			expect(twoNames.exitCode).toBe(1);
+			expect(twoNames.output).toContain(
+				'--display-name must be passed once and must not be empty.',
+			);
 
 			const renamed = await project.run([
 				'add-library',
@@ -287,13 +305,13 @@ Config.setVideoImageFormat('jpeg');
 			expect(renamed.exitCode).toBe(0);
 			expect(project.readConfig()).toBe(
 				initialConfig +
-					`Config.addElementLibrary({
+					`RemotionConfig.addElementLibrary({
     'url': '${library.origin}/unnamed'
 });
-Config.addElementLibrary({
-    'url': '${library.origin}/payload.json'
+RemotionConfig.addElementLibrary({
+    'url': '${library.origin}/catalog.json'
 });
-Config.addElementLibrary({
+RemotionConfig.addElementLibrary({
     'url': '${library.origin}/studio-supply',
     'displayName': 'My Supply'
 });
