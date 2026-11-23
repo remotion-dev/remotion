@@ -4520,12 +4520,21 @@ export const articles = [
 	},
 	{
 		id: 'elements',
-		title: 'Creating Elements',
+		title: 'Elements',
 		relativePath: 'docs/elements.mdx',
 		compId: 'articles-docs-elements',
 		crumb: null,
 		noAi: false,
 		slug: 'elements',
+	},
+	{
+		id: 'elements/creating',
+		title: 'Element best practices',
+		relativePath: 'docs/elements/creating.mdx',
+		compId: 'articles-docs-elements-creating',
+		crumb: null,
+		noAi: false,
+		slug: 'elements/creating',
 	},
 	{
 		id: 'elements/libraries',
