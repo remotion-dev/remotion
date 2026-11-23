@@ -483,7 +483,7 @@ test('defers a failed audio read at volume 0 until the volume rises', async () =
 		await vi.waitFor(() => expect(player.audioIteratorManager).toBeNull());
 		expect(onError).not.toHaveBeenCalled();
 		player.setVolume(1);
-		expect(onError).toHaveBeenCalledWith(error);
+		await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
 	} finally {
 		buffers.mockRestore();
 		await player.dispose();
@@ -724,10 +724,20 @@ test('reports unsupported audio at volume 0 once the volume rises', async () => 
 	try {
 		expect((await player.initialize(0, false, 0)).type).toBe('success');
 		expect(errors).toHaveLength(0);
+		// Muted at a positive volume, then one render unmutes and sets volume 0.
+		// The mute effect runs before the volume effect; neither is audible.
+		player.setMuted(true);
+		player.setVolume(1);
+		await Promise.resolve();
+		player.setMuted(false);
+		player.setVolume(0);
+		await Promise.resolve();
+		expect(errors).toHaveLength(0);
 		player.setVolume(0.5);
-		expect(errors).toHaveLength(1);
+		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
 		player.setVolume(1);
+		await Promise.resolve();
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();

@@ -751,14 +751,23 @@ export class MediaPlayer {
 		this.deferredAudioError = error;
 	}
 
+	// Checked in a microtask, because one render can change mute and
+	// volume in separate effects: `muted={false}` with `volume={0}` must not
+	// report the error in between.
 	private reportDeferredAudioErrorIfAudible(): void {
-		if (!this.deferredAudioError || this.muted || this.volume <= 0) {
+		if (!this.deferredAudioError) {
 			return;
 		}
 
-		const error = this.deferredAudioError;
-		this.deferredAudioError = null;
-		this.reportTerminalError(error);
+		queueMicrotask(() => {
+			if (!this.deferredAudioError || this.muted || this.volume <= 0) {
+				return;
+			}
+
+			const error = this.deferredAudioError;
+			this.deferredAudioError = null;
+			this.reportTerminalError(error);
+		});
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
