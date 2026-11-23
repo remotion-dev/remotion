@@ -79,27 +79,10 @@ export const elementsAddLibraryCommand = async ({
 	const page = await fetchElementPage(new URL(url)).catch((err: Error) =>
 		fail(err.message),
 	);
-	const parsed = StudioProtocolInternals.parseElementPayloadsFromHtml(
+	const {siteName} = StudioProtocolInternals.parseElementPayloadsFromHtml(
 		page.text,
 	);
-	if (
-		page.isJson ||
-		parsed.payloads.length > 0 ||
-		parsed.alternateHrefs.length > 0 ||
-		parsed.invalidPayloadCount > 0
-	) {
-		return fail(
-			`${url} is the page of an Element, not an Element Library. Install the Element with "npx remotion elements ${USE_COMMAND} ${url}", or pass the URL of the library's gallery.`,
-		);
-	}
-
-	if (!page.isHtml) {
-		return fail(
-			`${url} does not serve an HTML page. An Element Library must be a website that lists its Elements: https://www.remotion.dev/docs/elements/libraries`,
-		);
-	}
-
-	const displayName = requestedDisplayName?.trim() ?? parsed.siteName;
+	const displayName = requestedDisplayName?.trim() ?? siteName;
 	const configContents = readFileSync(configFile, 'utf-8');
 	let updatedConfig: string;
 	try {

@@ -37,11 +37,9 @@ export const fetchElementPage = async (url: URL) => {
 		);
 	}
 
-	const contentType = response.headers['content-type'] ?? '';
 	return {
 		text: new TextDecoder().decode(response.body),
 		url: response.url,
-		isJson: /json/i.test(contentType),
-		isHtml: /html/i.test(contentType),
+		isJson: /json/i.test(response.headers['content-type'] ?? ''),
 	};
 };

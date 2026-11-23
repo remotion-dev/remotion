@@ -21,7 +21,7 @@ npx remotion elements add-library https://example.com/elements
 
 The URL is the library's gallery page. The command:
 
-1. Fetches the page and checks that it is an HTML page and not the page of a single Element
+1. Fetches the page to check that it is reachable and to read its name
 2. Adds a [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the end of `remotion.config.ts`, keeping the rest of the file unchanged
 
 ```ts title="remotion.config.ts"

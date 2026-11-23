@@ -160,10 +160,6 @@ const serveLibrary = () => {
 				return Response.json(titleCard);
 			}
 
-			if (pathname === '/logo.png') {
-				return new Response('png', {headers: {'content-type': 'image/png'}});
-			}
-
 			return new Response('Not found', {status: 404});
 		},
 	});
@@ -236,7 +232,7 @@ test(
 );
 
 test(
-	'creates the first library call and validates the URL',
+	'creates the first library call, validates the URL and accepts any page',
 	async () => {
 		const initialConfig = `import {Config} from '@remotion/cli/config';
 
@@ -265,30 +261,6 @@ Config.setVideoImageFormat('jpeg');
 				`Could not fetch ${library.origin}/missing: The server responded with HTTP 404.`,
 			);
 
-			const elementPage = await project.run([
-				'add-library',
-				`${library.origin}/studio-supply/elements/title-card`,
-			]);
-			expect(elementPage.exitCode).toBe(1);
-			expect(elementPage.output).toContain(
-				`${library.origin}/studio-supply/elements/title-card is the page of an Element, not an Element Library. Install the Element with "npx remotion elements use ${library.origin}/studio-supply/elements/title-card"`,
-			);
-
-			const json = await project.run([
-				'add-library',
-				`${library.origin}/payload.json`,
-			]);
-			expect(json.exitCode).toBe(1);
-			expect(json.output).toContain('is the page of an Element');
-
-			const image = await project.run([
-				'add-library',
-				`${library.origin}/logo.png`,
-			]);
-			expect(image.exitCode).toBe(1);
-			expect(image.output).toContain(
-				`${library.origin}/logo.png does not serve an HTML page.`,
-			);
 			expect(project.readConfig()).toBe(initialConfig);
 
 			const unnamed = await project.run([
@@ -299,6 +271,12 @@ Config.setVideoImageFormat('jpeg');
 				`Added ${library.origin}/unnamed to remotion.config.ts.`,
 			);
 			expect(unnamed.exitCode).toBe(0);
+
+			const json = await project.run([
+				'add-library',
+				`${library.origin}/payload.json`,
+			]);
+			expect(json.exitCode).toBe(0);
 
 			const renamed = await project.run([
 				'add-library',
@@ -311,6 +289,9 @@ Config.setVideoImageFormat('jpeg');
 				initialConfig +
 					`Config.addElementLibrary({
     'url': '${library.origin}/unnamed'
+});
+Config.addElementLibrary({
+    'url': '${library.origin}/payload.json'
 });
 Config.addElementLibrary({
     'url': '${library.origin}/studio-supply',
