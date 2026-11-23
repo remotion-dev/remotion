@@ -7,44 +7,58 @@ crumb: Captions
 
 # Styling captions
 
-Use a [caption Element](/elements/captions/) such as Basic Captions or Word Highlight Captions, or style your own caption component with CSS.
+Captions in Remotion can be styled however you like using HTML and CSS.  
+Or you can use pre-made caption styles:
 
-## Choose a style in Studio<AvailableFrom v="4.0.535" />
+- [Remotion Elements - Captions](/elements/captions/)
+- [Remocn - Captions](https://remocn.dev/docs/captions/getting-started/introduction#all-caption-styles)
 
-<Step>1</Step> Select a video or audio layer and click <kbd>Generate captions</kbd> in the inspector.
-<Step>2</Step> Open <kbd>Styles</kbd> and select a caption Element. Basic Captions is the default.<br/>
-<Step>3</Step> Click <kbd>Generate captions</kbd> to transcribe the audio and add a caption layer with the selected style.
+## Choose a style when transcribing<AvailableFrom v="4.0.535" />
 
-To use an existing transcript, install a [caption Element](/elements/captions/) and [import the transcript into the caption layer](/docs/captions/editing#import-a-replacement-transcript).
+If you [transcribe](/docs/captions/transcribing) a video or audio in the [Studio](/docs/studio), you get the chance to choose a preset by picking from caption [elements](/docs/elements).
 
-## Customize a caption component
+<Step>1</Step> Select a video or audio layer and click `Generate captions` in the inspector.
 
-Caption styles are React components. Edit the installed Element's source, or style the [caption component from the displaying guide](/docs/captions/displaying#make-captions-editable-in-studio).
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/generate-captions-inspector-v2.png"
+  alt="Generate captions highlighted in the video layer inspector."
+  width={303}
+  height={38}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0}}
+/>
 
-This example positions a caption page near the bottom of the video and adds a dark outline for contrast. `whiteSpace: 'pre-wrap'` preserves spaces and allows the caption to wrap.
+<br/>
+<br/>
 
-```tsx twoslash title="CaptionPage.tsx"
-import {AbsoluteFill} from 'remotion';
-import type {TikTokPage} from '@remotion/captions';
+<Step>2</Step> Open `Styles` and select a caption <a href="/docs/elements">element</a>.
 
-export const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => (
-  <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', boxSizing: 'border-box', padding: '0 48px 64px'}}>
-    <div
-      style={{
-        color: 'white',
-        fontFamily: 'Arial, sans-serif',
-        fontSize: 64,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        whiteSpace: 'pre-wrap',
-        WebkitTextStroke: '4px black',
-        paintOrder: 'stroke',
-      }}
-    >
-      {page.text}
-    </div>
-  </AbsoluteFill>
-);
-```
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/open-caption-styles-v3.png"
+  alt="The Styles button in the Generate captions dialog."
+  width={162}
+  height={45}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
 
-Use [`fitText()`](/docs/layout-utils/fit-text) to size a line to the available width. For enter or exit effects, [animate properties](/docs/animating-properties) like opacity or scale.
+<br/>
+<br/>
+
+<Step>3</Step> Click <code>Generate captions</code> in the top-right of the dialog to transcribe the audio and add a caption layer with the selected style.
+
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/generate-captions-dialog-v2.png"
+  alt="The blue Generate captions button in the transcription dialog."
+  width={147}
+  height={53}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<br/>
+<br/>
+
+If you already have captions and you want to switch to a different style, we recommend you to do so using the <Skill>/remotion-captions</Skill> skill:
+
+<SuggestedPrompt prompt="/remotion-captions use this caption style: https://www.remotion.dev/elements/captions/rounded-captions/" />
