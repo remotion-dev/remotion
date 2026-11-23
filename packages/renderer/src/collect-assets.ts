@@ -1,4 +1,5 @@
 import type {ArtifactAsset, TRenderAsset} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
@@ -25,6 +26,8 @@ export const collectAssets = async ({
 		if (asset.type !== 'artifact') {
 			return asset;
 		}
+
+		NoReactInternals.validateArtifactFilename(asset.filename);
 
 		if (asset.contentType === 'binary' || asset.contentType === 'text') {
 			if (typeof asset.content !== 'string') {

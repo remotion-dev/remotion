@@ -17,9 +17,13 @@ export const validateArtifactFilename = (filename: unknown) => {
 		);
 	}
 
-	if (filename.split('/').includes('..')) {
+	if (
+		filename.startsWith('/') ||
+		/^[a-z]:/i.test(filename) ||
+		filename.split('/').includes('..')
+	) {
 		throw new Error(
-			'The `filename` must not contain `..` path segments. The artifact is written inside the output directory.',
+			'The `filename` must be a relative path without `..` segments.',
 		);
 	}
 };
