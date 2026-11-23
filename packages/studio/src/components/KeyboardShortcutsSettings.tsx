@@ -187,7 +187,10 @@ const ShortcutChords: React.FC<{
 	);
 };
 
-export const KeyboardShortcutsSettings: React.FC = () => {
+export const KeyboardShortcutsSettings: React.FC<{
+	readonly enabled: boolean;
+	readonly setEnabled: (enabled: boolean) => void;
+}> = ({enabled, setEnabled}) => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -196,7 +199,6 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 		previewServerConnected: previewServerState.type === 'connected',
 		readOnlyStudio: window.remotion_isReadOnlyStudio,
 	});
-	const [enabled, setEnabled] = useState(true);
 	const [configuredShortcuts, setConfiguredShortcuts] =
 		useState<StudioKeyboardShortcuts>({});
 	const [enabledEdited, setEnabledEdited] = useState(false);
@@ -215,10 +217,6 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			return;
 		}
 
-		setEnabled(
-			studioRuntimeConfig.configFileStudioSettings?.keyboardShortcutsEnabled !==
-				false,
-		);
 		setConfiguredShortcuts(studioRuntimeConfig.keyboardShortcuts ?? {});
 		setEnabledEdited(false);
 		setShortcutsEdited(false);
@@ -232,7 +230,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			setEnabled(event.target.checked);
 			setEnabledEdited(true);
 		},
-		[],
+		[setEnabled],
 	);
 
 	const updates = useMemo((): ConfigUpdate[] => {

@@ -66,7 +66,7 @@ export const settingsCatalog = {
 		section: 'Playback',
 		name: 'Preserve pitch',
 		description:
-			'Keep audio pitch unchanged when adjusting the playback speed.',
+			'Keep audio pitch unchanged when adjusting the Studio playback speed. Applies to Audio and Video from @remotion/media.',
 		keywords: 'audio speed rate',
 		documentation: null,
 	},

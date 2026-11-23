@@ -1,4 +1,3 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	BACKGROUND,
@@ -13,25 +12,14 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
-import type {SettingsTab} from '../helpers/settings-tab-availability';
-import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
-import {
-	askAIKeyboardShortcutGroup,
-	keyboardShortcutGroups,
-} from './keyboard-shortcuts';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RemotionInput} from './NewComposition/RemInput';
-import {
-	getSettingDomId,
-	settingsCatalog,
-	settingsTabLabels,
-} from './settings-catalog';
+import {getSettingDomId} from './settings-catalog';
 import type {
 	SettingsSearchResult,
 	SettingsSearchTarget,
 } from './settings-search';
 import {searchSettings} from './settings-search';
-import {useSettings} from './SettingsContext';
 
 const container: React.CSSProperties = {
 	position: 'relative',
@@ -71,96 +59,14 @@ const detailStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const tabDescriptions: Record<SettingsTab, string> = {
-	studio:
-		'Configure the Studio interface, timeline, playback, and development tools.',
-	rendering:
-		'Configure default output, encoding, audio, and rendering performance.',
-	shortcuts: 'View and configure keyboard shortcuts.',
-	packages: 'Install and manage Remotion packages.',
-	skills: 'Install and manage Remotion Agent Skills.',
-	models: 'Manage transcription and video matting models.',
-	apps: 'Choose your default editor and coding agent.',
-	license: 'Configure your Remotion license and license key.',
-	updates: 'Check for Remotion updates and read release notes.',
-};
-
 export const SettingsSearch: React.FC<{
-	readonly availableTabs: readonly SettingsTab[];
+	readonly entries: readonly SettingsSearchResult[];
 	readonly onSelect: (target: SettingsSearchTarget) => void;
-}> = ({availableTabs, onSelect}) => {
-	const {renderDefaults, studioRuntimeConfig} = useSettings();
+}> = ({entries, onSelect}) => {
 	const [query, setQuery] = useState('');
 	const [open, setOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const list = useRef<HTMLDivElement>(null);
-	const entries = useMemo((): SettingsSearchResult[] => {
-		const codec = renderDefaults?.configFileRenderDefaults?.codec ?? 'h264';
-		const qualityMode =
-			(renderDefaults?.videoBitrate ?? null) === null ? 'crf' : 'bitrate';
-		const settings = Object.entries(settingsCatalog)
-			.filter(([id, entry]) => {
-				if (!availableTabs.includes(entry.tab)) return false;
-				if (id === 'keyboardShortcutsEnabled')
-					return availableTabs.includes('studio');
-				if (id === 'proResProfile') return codec === 'prores';
-				if (id === 'x264Preset') return codec === 'h264';
-				if (id === 'qualityControl')
-					return (
-						BrowserSafeApis.codecSupportsCrf(codec) &&
-						BrowserSafeApis.codecSupportsVideoBitrate(codec)
-					);
-				if (id === 'crf')
-					return (
-						qualityMode === 'crf' && BrowserSafeApis.codecSupportsCrf(codec)
-					);
-				if (id === 'videoBitrate')
-					return (
-						qualityMode === 'bitrate' &&
-						BrowserSafeApis.codecSupportsVideoBitrate(codec)
-					);
-				return true;
-			})
-			.map(([id, entry]) => ({
-				id,
-				tab: entry.tab,
-				name: entry.name,
-				description: entry.description,
-				keywords: entry.keywords,
-				category: [settingsTabLabels[entry.tab], entry.section]
-					.filter(Boolean)
-					.join(' › '),
-			}));
-		const groups = getStudioAskAIEnabled()
-			? [...keyboardShortcutGroups, askAIKeyboardShortcutGroup]
-			: keyboardShortcutGroups;
-		const shortcuts: SettingsSearchResult[] =
-			studioRuntimeConfig?.configFileStudioSettings
-				?.keyboardShortcutsEnabled === false
-				? []
-				: groups.flatMap((group) =>
-						group.shortcuts.map((shortcut) => ({
-							id: `shortcut-${shortcut.action}`,
-							tab: 'shortcuts',
-							name: shortcut.action,
-							description: 'View keyboard shortcut bindings.',
-							category: `Shortcuts › ${group.name}`,
-							keywords: 'keyboard hotkeys keybindings',
-						})),
-					);
-		return [
-			...settings,
-			...shortcuts,
-			...availableTabs.map((tab) => ({
-				id: `tab-${tab}`,
-				tab,
-				name: settingsTabLabels[tab],
-				description: tabDescriptions[tab],
-				category: 'Settings',
-				keywords: '',
-			})),
-		];
-	}, [availableTabs, renderDefaults, studioRuntimeConfig]);
 	const results = useMemo(
 		() => searchSettings(entries, query),
 		[entries, query],

@@ -17,6 +17,7 @@ import {
 	getSafeSettingsTab,
 	type SettingsTab,
 } from '../helpers/settings-tab-availability';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
@@ -43,7 +44,11 @@ import {
 	optionsPanel,
 } from './RenderModal/render-modals';
 import {getSettingDomId} from './settings-catalog';
-import type {SettingsSearchTarget} from './settings-search';
+import type {
+	RenderingSettingsDisplayState,
+	SettingsSearchTarget,
+} from './settings-search';
+import {getSettingsSearchEntries} from './settings-search';
 import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
 import {SettingsSearch} from './SettingsSearch';
@@ -92,7 +97,8 @@ export const SettingsModal: React.FC<{
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey, initialTab}) => {
-	const {setPublicLicenseKey} = useSettings();
+	const {setPublicLicenseKey, renderDefaults, studioRuntimeConfig, revision} =
+		useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {upgradeState} = useUpdateStatus();
@@ -125,8 +131,47 @@ export const SettingsModal: React.FC<{
 		[isBrowserStudio, packageManager, previewServerConnected, showUpdates],
 	);
 	const safeInitialTab = getSafeSettingsTab(initialTab, availableTabs);
+	const [renderingState, setRenderingState] =
+		useState<RenderingSettingsDisplayState>(() => ({
+			codec: renderDefaults?.configFileRenderDefaults?.codec ?? null,
+			qualityMode:
+				(renderDefaults?.videoBitrate ?? null) === null ? 'crf' : 'bitrate',
+		}));
+	const [shortcutsEnabled, setShortcutsEnabled] = useState(
+		() =>
+			studioRuntimeConfig?.configFileStudioSettings
+				?.keyboardShortcutsEnabled !== false,
+	);
+	useEffect(() => {
+		if (renderDefaults !== null) {
+			setRenderingState({
+				codec: renderDefaults.configFileRenderDefaults?.codec ?? null,
+				qualityMode: renderDefaults.videoBitrate === null ? 'crf' : 'bitrate',
+			});
+		}
+	}, [renderDefaults, revision]);
+	useEffect(() => {
+		if (studioRuntimeConfig !== null) {
+			setShortcutsEnabled(
+				studioRuntimeConfig.configFileStudioSettings
+					?.keyboardShortcutsEnabled !== false,
+			);
+		}
+	}, [studioRuntimeConfig, revision]);
+	const askAIEnabled = getStudioAskAIEnabled();
+	const searchEntries = useMemo(
+		() =>
+			getSettingsSearchEntries({
+				availableTabs,
+				renderingState,
+				shortcutsEnabled,
+				askAIEnabled,
+			}),
+		[availableTabs, renderingState, shortcutsEnabled, askAIEnabled],
+	);
 	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
 	const panels = useRef<HTMLDivElement>(null);
+	const revealAnimation = useRef<Animation | null>(null);
 	const [searchTarget, setSearchTarget] = useState<SettingsSearchTarget | null>(
 		null,
 	);
@@ -136,6 +181,7 @@ export const SettingsModal: React.FC<{
 
 	const selectTab = useCallback((newTab: SettingsTab) => {
 		setSearchTarget(null);
+		revealAnimation.current?.cancel();
 		setTab(newTab);
 		setOpenedTabs((currentOpenedTabs) => {
 			if (currentOpenedTabs.includes(newTab)) {
@@ -147,21 +193,46 @@ export const SettingsModal: React.FC<{
 	}, []);
 	const navigateToSetting = useCallback(
 		(target: SettingsSearchTarget) => {
+			if (
+				!searchEntries.some(
+					(entry) => entry.id === target.id && entry.tab === target.tab,
+				)
+			)
+				return;
 			selectTab(target.tab);
 			setSearchTarget(target);
 		},
-		[selectTab],
+		[searchEntries, selectTab],
 	);
-	useEffect(() => {
+	useEffect(() => () => revealAnimation.current?.cancel(), []);
+	useLayoutEffect(() => {
 		const root = panels.current;
 		if (searchTarget === null || root === null || tab !== searchTarget.tab)
 			return;
-		let animation: Animation | null = null;
+		if (
+			!searchEntries.some(
+				(entry) =>
+					entry.id === searchTarget.id && entry.tab === searchTarget.tab,
+			)
+		) {
+			setSearchTarget(null);
+			return;
+		}
+
+		let cancelled = false;
+		const cancelPendingReveal = () => {
+			cancelled = true;
+			observer.disconnect();
+			setSearchTarget(null);
+		};
+
 		const reveal = () => {
+			if (cancelled) return false;
 			const element = root.querySelector<HTMLElement>(
 				`[id="${getSettingDomId(searchTarget.id)}"]`,
 			);
 			if (element === null) return false;
+			cancelPendingReveal();
 			if (searchTarget.id.startsWith('tab-')) element.scrollTop = 0;
 			element.scrollIntoView({
 				block: searchTarget.id.startsWith('tab-') ? 'start' : 'center',
@@ -177,7 +248,8 @@ export const SettingsModal: React.FC<{
 			const reduceMotion = window.matchMedia(
 				'(prefers-reduced-motion: reduce)',
 			).matches;
-			animation = element.animate(
+			revealAnimation.current?.cancel();
+			revealAnimation.current = element.animate(
 				[
 					{backgroundColor: SELECTED_BACKGROUND, offset: 0},
 					{backgroundColor: SELECTED_BACKGROUND, offset: 0.6},
@@ -193,15 +265,22 @@ export const SettingsModal: React.FC<{
 			return true;
 		};
 
-		const observer = new MutationObserver(() => {
-			if (reveal()) observer.disconnect();
-		});
-		if (!reveal()) observer.observe(root, {childList: true, subtree: true});
+		const observer = new MutationObserver(reveal);
+		if (!reveal()) {
+			observer.observe(root, {childList: true, subtree: true});
+			document.addEventListener('pointerdown', cancelPendingReveal, true);
+			document.addEventListener('keydown', cancelPendingReveal, true);
+			document.addEventListener('focusin', cancelPendingReveal, true);
+		}
+
 		return () => {
+			cancelled = true;
 			observer.disconnect();
-			animation?.cancel();
+			document.removeEventListener('pointerdown', cancelPendingReveal, true);
+			document.removeEventListener('keydown', cancelPendingReveal, true);
+			document.removeEventListener('focusin', cancelPendingReveal, true);
 		};
-	}, [searchTarget, tab]);
+	}, [searchEntries, searchTarget, tab]);
 	useLayoutEffect(() => {
 		const safeTab = getSafeSettingsTab(tab, availableTabs);
 		if (safeTab !== tab) {
@@ -216,10 +295,7 @@ export const SettingsModal: React.FC<{
 		<FullscreenPanel
 			ariaLabel="Settings"
 			headerContent={
-				<SettingsSearch
-					availableTabs={availableTabs}
-					onSelect={navigateToSetting}
-				/>
+				<SettingsSearch entries={searchEntries} onSelect={navigateToSetting} />
 			}
 			rightAction={null}
 			sidebarWidth={null}
@@ -422,7 +498,10 @@ export const SettingsModal: React.FC<{
 							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
-							<KeyboardShortcutsSettings />
+							<KeyboardShortcutsSettings
+								enabled={shortcutsEnabled}
+								setEnabled={setShortcutsEnabled}
+							/>
 						</div>
 					) : null}
 					{availableTabs.includes('rendering') &&
@@ -433,7 +512,10 @@ export const SettingsModal: React.FC<{
 							tabIndex={-1}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
-							<RenderingSettings />
+							<RenderingSettings
+								displayState={renderingState}
+								setDisplayState={setRenderingState}
+							/>
 						</div>
 					) : null}
 					{availableTabs.includes('studio') && openedTabs.includes('studio') ? (

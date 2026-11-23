@@ -22,6 +22,7 @@ import {humanReadableCodec} from './RenderModal/human-readable-codec';
 import {input, rightRow} from './RenderModal/layout';
 import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
+import type {RenderingSettingsDisplayState} from './settings-search';
 import {useSettings} from './SettingsContext';
 import {SettingsNumber} from './SettingsNumber';
 import {SettingsRow} from './SettingsRow';
@@ -57,11 +58,16 @@ const DEFAULT_VIDEO_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
 const DEFAULT_PRO_RES_PROFILE: ProResProfile = 'hq';
 const DEFAULT_X264_PRESET: X264Preset = 'medium';
 type ProResProfile = (typeof BrowserSafeApis.proResProfileOptions)[number];
-type QualityMode = 'crf' | 'bitrate';
+type QualityMode = RenderingSettingsDisplayState['qualityMode'];
 
-export const RenderingSettings: React.FC = () => {
+export const RenderingSettings: React.FC<{
+	readonly displayState: RenderingSettingsDisplayState;
+	readonly setDisplayState: React.Dispatch<
+		React.SetStateAction<RenderingSettingsDisplayState>
+	>;
+}> = ({displayState, setDisplayState}) => {
 	const {error: settingsError, renderDefaults, revision} = useSettings();
-	const [codec, setCodec] = useState<Codec | null>(null);
+	const {codec, qualityMode} = displayState;
 	const [scale, setScale] = useState(1);
 	const [stillImageFormat, setStillImageFormat] =
 		useState<StillImageFormat | null>(null);
@@ -71,7 +77,6 @@ export const RenderingSettings: React.FC = () => {
 		null,
 	);
 	const [x264Preset, setX264Preset] = useState<X264Preset | null>(null);
-	const [qualityMode, setQualityMode] = useState<QualityMode>('crf');
 	const [crf, setCrf] = useState(18);
 	const [videoBitrate, setVideoBitrate] = useState('1M');
 	const [audioCodec, setAudioCodec] = useState<AudioCodec | null>(null);
@@ -88,7 +93,6 @@ export const RenderingSettings: React.FC = () => {
 			return;
 		}
 
-		setCodec(renderDefaults.configFileRenderDefaults?.codec ?? null);
 		setScale(renderDefaults.scale);
 		setStillImageFormat(
 			renderDefaults.configFileRenderDefaults?.stillImageFormat ?? null,
@@ -100,7 +104,6 @@ export const RenderingSettings: React.FC = () => {
 			renderDefaults.configFileRenderDefaults?.proResProfile ?? null,
 		);
 		setX264Preset(renderDefaults.configFileRenderDefaults?.x264Preset ?? null);
-		setQualityMode(renderDefaults.videoBitrate === null ? 'crf' : 'bitrate');
 		setCrf(
 			renderDefaults.crf ??
 				BrowserSafeApis.getDefaultCrfForCodec(renderDefaults.codec) ??
@@ -119,10 +122,10 @@ export const RenderingSettings: React.FC = () => {
 	}, []);
 	const selectCodec = useCallback(
 		(value: Codec | null) => {
-			setCodec(value);
+			setDisplayState((current) => ({...current, codec: value}));
 			markEdited('setCodec');
 		},
-		[markEdited],
+		[markEdited, setDisplayState],
 	);
 	const selectStillImageFormat = useCallback(
 		(value: StillImageFormat | null) => {
@@ -154,11 +157,11 @@ export const RenderingSettings: React.FC = () => {
 	);
 	const selectQualityMode = useCallback(
 		(value: QualityMode) => {
-			setQualityMode(value);
+			setDisplayState((current) => ({...current, qualityMode: value}));
 			markEdited('setCrf');
 			markEdited('setVideoBitrate');
 		},
-		[markEdited],
+		[markEdited, setDisplayState],
 	);
 	const changeCrf = useCallback<React.Dispatch<React.SetStateAction<number>>>(
 		(value) => {
