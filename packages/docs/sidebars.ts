@@ -125,7 +125,7 @@ const sidebars: SidebarsConfig = {
 						type: 'doc',
 						id: 'cli/elements/index',
 					},
-					items: ['cli/elements/use'],
+					items: ['cli/elements/use', 'cli/elements/add-library'],
 				},
 				{
 					type: 'category',
