@@ -1006,10 +1006,13 @@ export class MediaPlayer {
 	}
 
 	public async redrawVideoEffects(): Promise<void> {
+		const nonce = this.nonceManager.getCurrentNonce();
 		// A seek can recycle the source canvas once the redraw finishes.
-		const redraw = this.seekPromiseChain.then(() =>
-			this.videoIteratorManager?.redrawCurrentFrame(),
-		);
+		const redraw = this.seekPromiseChain.then(() => {
+			if (!nonce.isStale()) {
+				return this.videoIteratorManager?.redrawCurrentFrame();
+			}
+		});
 		this.seekPromiseChain = redraw.catch(() => undefined);
 		await redraw;
 	}
