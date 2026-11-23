@@ -2125,6 +2125,15 @@ export const articles = [
 		slug: 'cli/canvas-capture/index',
 	},
 	{
+		id: 'cli/elements/add-library',
+		title: 'npx remotion elements add-library',
+		relativePath: 'docs/cli/elements/add-library.mdx',
+		compId: 'articles-docs-cli-elements-add-library',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/elements/add-library',
+	},
+	{
 		id: 'cli/elements/index',
 		title: 'npx remotion elements',
 		relativePath: 'docs/cli/elements/index.mdx',
@@ -6200,15 +6209,6 @@ export const articles = [
 		crumb: 'License and terms',
 		noAi: false,
 		slug: 'license/faq',
-	},
-	{
-		id: 'license/which-license',
-		title: 'Which license is needed?',
-		relativePath: 'docs/license/which-license.mdx',
-		compId: 'articles-docs-license-which-license',
-		crumb: 'License and terms',
-		noAi: false,
-		slug: 'license/which-license',
 	},
 	{
 		id: 'license/pricing',

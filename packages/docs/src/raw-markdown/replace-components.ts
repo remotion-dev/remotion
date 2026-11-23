@@ -285,7 +285,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 						getStringAttribute({attributes, name}) ?? defaultHref,
 					);
 				const faqHref = href('faqHref', '/docs/license/faq');
-				const quizHref = href('quizHref', '/docs/license/which-license');
+				const quizHref = href('quizHref', '/license/quiz');
 				const termsHref = href(
 					'termsHref',
 					'https://www.remotion.dev/docs/terms',

@@ -125,7 +125,7 @@ const sidebars: SidebarsConfig = {
 						type: 'doc',
 						id: 'cli/elements/index',
 					},
-					items: ['cli/elements/use'],
+					items: ['cli/elements/use', 'cli/elements/add-library'],
 				},
 				{
 					type: 'category',
@@ -1895,7 +1895,11 @@ const sidebars: SidebarsConfig = {
 			collapsed: true,
 			items: [
 				'license/pricing',
-				'license/which-license',
+				{
+					type: 'link',
+					href: '/license/quiz',
+					label: 'Which license is needed?',
+				},
 				'license/faq',
 				'terms',
 				'telemetry',
