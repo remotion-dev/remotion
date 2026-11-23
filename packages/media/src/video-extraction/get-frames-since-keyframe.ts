@@ -234,7 +234,7 @@ export const makeSinks = (
 		promise: getSinks(),
 		dispose: () => {
 			recovery.dispose();
-			input.dispose();
+			Internals.disposeMediabunnyInput(input, logLevel, '@remotion/media');
 			for (const release of releaseSinks) {
 				release();
 			}
