@@ -62,3 +62,15 @@ export const copyText = async (
 
 	copyTextWithExecCommand(await text);
 };
+
+export const copyContextForAgents = (
+	context: string | null | Promise<string | null>,
+) =>
+	copyText(
+		typeof context === 'string'
+			? context
+			: Promise.resolve(context).then((resolved) => {
+					if (!resolved) throw new Error('No source location found');
+					return resolved;
+				}),
+	);

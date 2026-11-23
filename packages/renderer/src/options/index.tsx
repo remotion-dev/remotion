@@ -29,6 +29,7 @@ import {disableGitSourceOption} from './disable-git-source';
 import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disableWebSecurityOption} from './disable-web-security';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
+import {doubleClickActionOption} from './double-click-action';
 import {enableCancellationOption} from './enable-cancellation';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
@@ -188,6 +189,7 @@ export const allOptions = {
 	preferredEffectBackendOption,
 	darkModeOption,
 	defaultCodingAgentOption,
+	doubleClickActionOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	publicLicenseKeyOption,

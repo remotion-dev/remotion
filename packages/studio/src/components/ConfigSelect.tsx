@@ -1,4 +1,5 @@
 import React from 'react';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
@@ -19,6 +20,7 @@ export const booleanOptions = [
 ] as const;
 
 export const ConfigSelect = <T extends string | boolean>({
+	cliFlag,
 	defaultLabel,
 	description,
 	name,
@@ -26,6 +28,7 @@ export const ConfigSelect = <T extends string | boolean>({
 	options,
 	value,
 }: {
+	readonly cliFlag: string | null;
 	readonly defaultLabel: string;
 	readonly description: React.ReactNode;
 	readonly name: string;
@@ -85,14 +88,21 @@ export const ConfigSelect = <T extends string | boolean>({
 				)}
 			</div>
 			<div style={rightRow}>
-				<Combobox
-					values={values}
-					selectedId={
-						value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
-					}
-					style={controlWidth}
-					aria-label={name}
-				/>
+				{cliFlag === null ? (
+					<Combobox
+						values={values}
+						selectedId={
+							value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
+						}
+						style={controlWidth}
+						aria-label={name}
+					/>
+				) : (
+					<span style={{color: LIGHT_TEXT, fontSize: 12}}>
+						{options.find((option) => option.value === value)?.label} (set by --
+						{cliFlag})
+					</span>
+				)}
 			</div>
 		</div>
 	);

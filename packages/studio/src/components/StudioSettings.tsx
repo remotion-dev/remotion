@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
 import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
@@ -58,6 +58,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	doubleClickAction: null,
 	highContrast: null,
 	preservePitchOnPlayback: null,
 	showLayerFrameNumbers: null,
@@ -260,6 +261,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setDoubleClickAction', settings.doubleClickAction),
 			update('setHighContrast', settings.highContrast),
 			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
@@ -328,9 +330,33 @@ export const StudioSettings: React.FC = () => {
 		return null;
 	}
 
+	const cliDoubleClickAction =
+		studioRuntimeConfig.doubleClickAction?.source === 'cli'
+			? studioRuntimeConfig.doubleClickAction.value
+			: null;
+	const configuredDoubleClickAction =
+		error === null
+			? settings.doubleClickAction
+			: studioRuntimeConfig.configFileStudioSettings?.doubleClickAction;
+
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Interface</p>
+			<ConfigSelect
+				name="Double-click action"
+				description="Applies to layers, effects, and properties. Connected compositions open their timeline, and editable text on the canvas opens in the Inspector."
+				cliFlag={
+					cliDoubleClickAction === null
+						? null
+						: BrowserSafeApis.options.doubleClickActionOption.cliFlag
+				}
+				defaultLabel="Open in editor"
+				options={doubleClickActions}
+				value={cliDoubleClickAction ?? configuredDoubleClickAction ?? null}
+				onChange={(value) =>
+					changeSetting('doubleClickAction', 'setDoubleClickAction', value)
+				}
+			/>
 			<div style={optionRow}>
 				<label htmlFor="remotion-high-contrast" style={label}>
 					High contrast
@@ -687,6 +713,7 @@ export const StudioSettings: React.FC = () => {
 			/>
 			<ConfigSelect
 				defaultLabel="Playback"
+				cliFlag={null}
 				description={
 					<>
 						Remotion runs an{' '}
@@ -743,6 +770,7 @@ export const StudioSettings: React.FC = () => {
 			<p style={sectionTitle}>Development</p>
 			<ConfigSelect
 				defaultLabel="Webpack"
+				cliFlag={null}
 				description="Chooses the tool that compiles your project for Studio and rendering. Webpack is the default; Rspack is an alternative. Changing this setting restarts Studio."
 				name="Bundler"
 				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
@@ -808,6 +836,7 @@ export const StudioSettings: React.FC = () => {
 			</div>
 			<ConfigSelect<LogLevel>
 				defaultLabel="Info"
+				cliFlag={null}
 				description="Controls how much detail Remotion writes to the console. Use Info for normal output, Warn or Error for fewer messages, and Verbose or Trace for debugging."
 				name="Log level"
 				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
