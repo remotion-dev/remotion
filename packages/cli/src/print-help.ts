@@ -116,6 +116,7 @@ const studioOptions = options(
 		'allow-html-in-canvas',
 		'editor',
 		'coding-agent',
+		'double-click-action',
 		'rspack',
 		'webpack-poll',
 		'no-open',

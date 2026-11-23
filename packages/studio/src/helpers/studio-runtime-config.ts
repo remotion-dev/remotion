@@ -38,6 +38,10 @@ export const getStudioAskAIEnabled = () => {
 	return getStudioRuntimeConfig().askAIEnabled;
 };
 
+export const getStudioDoubleClickAction = () => {
+	return getStudioRuntimeConfig().doubleClickAction?.value ?? 'open-in-editor';
+};
+
 export const getStudioInteractivityEnabled = () => {
 	return getStudioRuntimeConfig().interactivityEnabled;
 };

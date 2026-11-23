@@ -15,6 +15,16 @@ Remotion Studio can quickly open various things in your code editor:
 
 If no preference was set, Remotion will try to detect an already running editor.
 
+## Double-click action<AvailableFrom v="4.0.546" />
+
+Open Settings → Studio → Interface and choose a **Double-click action**. The choice is saved in `remotion.config.ts` and applies immediately.
+
+- **Open in editor** opens the item's source in the preferred code editor. This is the default.
+- **Open in coding agent** opens the preferred installed agent. Agents that accept a prompt receive the item's name and source location. Choose the coding agent in Settings → Apps.
+- **Copy context for agents** copies text such as `Title in src/Intro.tsx:24` to the clipboard.
+
+Double-clicking a [connected composition](/docs/composing) opens its timeline. Double-clicking editable text on the canvas selects it in the Inspector. These gestures take precedence over the [double-click action](/docs/options/double-click-action).
+
 ## Setting your preferred editor
 
 ### In the Studio

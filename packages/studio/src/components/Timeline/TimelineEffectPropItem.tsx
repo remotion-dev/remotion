@@ -15,12 +15,8 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getPointerSessionCancellationVersion} from '../../helpers/escape-cancelable-pointer-session';
-import {
-	formatContextForAgents,
-	formatFileLocation,
-} from '../../helpers/format-file-location';
+import {formatFileLocation} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {openSourceInEditor} from '../../helpers/open-in-editor';
 import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
@@ -28,7 +24,6 @@ import {ContextMenu} from '../ContextMenu';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useSettings} from '../SettingsContext';
-import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {
@@ -56,6 +51,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {useTimelinePropertySource} from './use-timeline-property-source';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -463,9 +459,13 @@ export const TimelineEffectPropItem: React.FC<{
 	const markupSkillAvailable = Boolean(
 		markupSkill?.installedInProject || markupSkill?.installedGlobally,
 	);
-	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
-		previewServerState.type === 'connected',
-	);
+	const {getContextForAgents, onPropertyDoubleClick} =
+		useTimelinePropertySource({
+			effectIndex: field.effectIndex,
+			location: validatedLocation,
+			previewServerConnected: previewServerState.type === 'connected',
+			property: field.key,
+		});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getEffectDragOverrides} = useContext(
@@ -595,11 +595,7 @@ export const TimelineEffectPropItem: React.FC<{
 
 		return [
 			getCopyContextForAgentsMenuItem({
-				contextForAgents: formatContextForAgents({
-					location: validatedLocation,
-					name: `Effect property "${field.key}"`,
-					root: window.remotion_cwd,
-				}),
+				contextForAgents: getContextForAgents,
 			}),
 			...getAnnotateWithChatGPTMenuItems({
 				id: 'annotate-effect-property',
@@ -642,36 +638,12 @@ export const TimelineEffectPropItem: React.FC<{
 		field.effectIndex,
 		field.key,
 		markupSkillAvailable,
+		getContextForAgents,
 		nodePath,
 		onReset,
 		selection,
 		validatedLocation,
 	]);
-
-	const onPropertyDoubleClick = useCallback<
-		React.MouseEventHandler<HTMLDivElement>
-	>(
-		(event) => {
-			if (!canOpenInEditor || !defaultEditorId) {
-				return;
-			}
-
-			event.stopPropagation();
-			openSourceInEditor({
-				editorId: defaultEditorId,
-				originalPosition: validatedLocation,
-				property: field.key,
-				effectIndex: field.effectIndex,
-			}).catch(() => undefined);
-		},
-		[
-			canOpenInEditor,
-			defaultEditorId,
-			field.key,
-			field.effectIndex,
-			validatedLocation,
-		],
-	);
 
 	const row = (
 		<TimelineRowChrome

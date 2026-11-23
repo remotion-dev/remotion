@@ -61,6 +61,7 @@ const {
 	browserOption,
 	previewSampleRateOption,
 	defaultCodingAgentOption,
+	doubleClickActionOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showDiagnosticsOption,
@@ -230,6 +231,9 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			highContrast: highContrastOption.getValue({commandLine: parsedCli}),
+			doubleClickAction: doubleClickActionOption.getValue({
+				commandLine: parsedCli,
+			}),
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -269,6 +273,7 @@ export const studioCommand = async (
 			configFileStudioSettings: {
 				showDiagnostics: showDiagnosticsOption.getConfigValue(),
 				highContrast: highContrastOption.getConfigValue(),
+				doubleClickAction: doubleClickActionOption.getConfigValue(),
 				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
 				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
 				showPremounting: showPremountingOption.getConfigValue(),

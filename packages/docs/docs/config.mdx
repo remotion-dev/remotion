@@ -408,6 +408,18 @@ Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
 
 The [`--coding-agent`](/docs/options/coding-agent) flag takes precedence over this option.
 
+## `setDoubleClickAction()`<AvailableFrom v="4.0.546" />
+
+<Options id="double-click-action" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDoubleClickAction('copy-context');
+```
+
+The [`--double-click-action`](/docs/options/double-click-action) flag takes precedence over this option.
+
 ## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
 
 <Options id="allow-html-in-canvas" />
