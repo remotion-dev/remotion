@@ -168,6 +168,34 @@ test('uses the initial volume before audio playback is ready', async () => {
 	}
 });
 
+// Muting, or a volume that reaches 0, used to destroy the audio iterator. The
+// next seek then had to wait for a new one to buffer, which stalled playback.
+test('keeps the audio iterator through mute and volume changes', async () => {
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext);
+	try {
+		expect((await player.initialize(0, false, 1)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		expect(created).toBeGreaterThan(0);
+
+		player.setMuted(true);
+		await player.seekTo(0, null);
+		player.setMuted(false);
+		await player.seekTo(0, null);
+		player.setVolume(0);
+		await player.seekTo(0, null);
+		player.setVolume(1);
+		await player.seekTo(0, null);
+
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
 test('dispose should immediately unblock a pending playback catch-up', async () => {
 	let activeBlocks = 0;
 	let delayPlaybackCalled: () => void = () => {};

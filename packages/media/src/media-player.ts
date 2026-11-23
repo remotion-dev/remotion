@@ -369,6 +369,13 @@ export class MediaPlayer {
 			return null;
 		}
 
+		// Nothing can be heard at volume 0, so undecodable audio is not an error.
+		// The picture keeps playing without audio.
+		if (!canDecode && this.volume <= 0) {
+			this.audioInitialized = true;
+			return null;
+		}
+
 		if (!canDecode) {
 			return {
 				type: 'cannot-decode',

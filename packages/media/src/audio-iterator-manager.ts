@@ -191,10 +191,6 @@ export const audioIteratorManager = ({
 		buffer: AudioBufferSlice;
 		iterator: AudioIterator;
 	}) => {
-		if (muted) {
-			return;
-		}
-
 		const startTime = getStartTime();
 		const sequenceEndTime = getSequenceEndTimestamp();
 
@@ -390,7 +386,7 @@ export const audioIteratorManager = ({
 	}) => {
 		// Audio iterators only schedule forward. Studio's reverse playback must
 		// stay silent instead of producing negative AudioBufferSourceNode offsets.
-		if (muted || playbackRate <= 0) {
+		if (playbackRate <= 0) {
 			return;
 		}
 
@@ -437,7 +433,6 @@ export const audioIteratorManager = ({
 			iterator: source,
 			unscheduleAudioNode,
 			scheduleChunk: (chunk: PreparedAudioChunk) => {
-				if (muted) return null;
 				const node = sharedAudioContext.audioContext.createBufferSource();
 				node.buffer = chunk.buffer;
 				node.playbackRate.value = playbackRate;
@@ -560,7 +555,8 @@ export const audioIteratorManager = ({
 			currentSeek.sequenceDurationInFrames === sequenceDurationInFrames &&
 			currentSeek.loop === loop &&
 			currentSeek.fps === fps &&
-			(muted || (audioBufferIterator && !audioBufferIterator.isDestroyed()))
+			audioBufferIterator &&
+			!audioBufferIterator.isDestroyed()
 		) {
 			return;
 		}
@@ -575,10 +571,6 @@ export const audioIteratorManager = ({
 			loop,
 			fps,
 		};
-
-		if (muted) {
-			return;
-		}
 
 		if (audioBufferIterator && !audioBufferIterator.isDestroyed()) {
 			// When looping, queued nodes carry continuous timestamps that don't
@@ -686,13 +678,9 @@ export const audioIteratorManager = ({
 			}
 
 			muted = newMuted;
+			// Only the gain changes. Destroying the iterator here would make the
+			// next unmute wait for a new one to buffer, which stalls playback.
 			gainNode.gain.value = muted ? 0 : currentVolume;
-			if (muted) {
-				destroyIterator();
-			}
-
-			// An unmute at the same frame still needs a fresh iterator.
-			currentSeek = null;
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);

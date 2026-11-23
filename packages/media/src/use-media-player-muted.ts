@@ -1,21 +1,13 @@
 import {Internals} from 'remotion';
 
-export const useMediaPlayerMuted = ({
-	muted,
-	volume,
-}: {
-	readonly muted: boolean;
-	readonly volume: number;
-}) => {
+// Volume is not part of this: a volume of 0 is a gain of 0, and the audio keeps
+// decoding so that a fade-in from 0 does not have to wait for a new iterator.
+export const useMediaPlayerMuted = ({muted}: {readonly muted: boolean}) => {
 	const [playerMuted] = Internals.usePlayerMutedState();
 	const audioEnabled = Internals.useAudioEnabled();
 	const isInsideNonPremountFreeze = Internals.useIsInsideNonPremountFreeze();
 
 	return (
-		audioEnabled === false ||
-		muted ||
-		playerMuted ||
-		volume <= 0 ||
-		isInsideNonPremountFreeze
+		audioEnabled === false || muted || playerMuted || isInsideNonPremountFreeze
 	);
 };

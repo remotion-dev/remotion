@@ -364,10 +364,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		volume: userPreferredVolume,
 		audioEnabled: audioEnabled !== false,
 	});
-	const mediaPlayerMuted = useMediaPlayerMuted({
-		muted,
-		volume: userPreferredVolume,
-	});
+	const mediaPlayerMuted = useMediaPlayerMuted({muted});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
