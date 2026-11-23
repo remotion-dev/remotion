@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {defaultCodingAgentIds, defaultEditorIds} from '@remotion/renderer';
+import {doubleClickActions} from '@remotion/renderer/client';
 import {
 	configMethodLifecycles,
 	type ConfigUpdate,
@@ -405,6 +406,16 @@ export const updateConfigHandler = async ({
 			return {
 				success: false,
 				reason: `Unknown coding agent: ${JSON.stringify(update.value)}`,
+			};
+		}
+
+		if (
+			update.setter === 'setDoubleClickAction' &&
+			!doubleClickActions.some(({value}) => value === update.value)
+		) {
+			return {
+				success: false,
+				reason: `Unknown double-click action: ${JSON.stringify(update.value)}`,
 			};
 		}
 

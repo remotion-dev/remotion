@@ -3,6 +3,7 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import {
 	getDefaultOpenInTarget,
 	openGitSource,
@@ -11,6 +12,7 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../../helpers/open-in-editor';
+import {getSourceDoubleClickHandler} from '../get-source-double-click-handler';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	useDefaultCodingAgentInfo,
@@ -40,9 +42,6 @@ export const useOpenSequenceInApps = (
 		[editorAvailable, originalLocation],
 	);
 	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
-	const canOpenSource =
-		defaultOpenInTarget !== null && originalLocation !== null;
-
 	const openInEditor = useCallback(
 		async (editorId: EditorPickerId | null) => {
 			const resolvedEditorId = editorId ?? defaultEditorId;
@@ -58,20 +57,36 @@ export const useOpenSequenceInApps = (
 		},
 		[canOpenInEditor, defaultEditorId, originalLocation],
 	);
-	const openSource = useCallback(() => {
+	const getSequenceSourceDoubleClickHandler = useCallback(() => {
 		if (!originalLocation) {
-			return;
+			return null;
 		}
 
-		if (defaultOpenInTarget === 'editor') {
-			openInEditor(null);
-			return;
-		}
-
-		if (defaultOpenInTarget === 'git-source') {
-			openGitSource({folder: false, location: originalLocation});
-		}
-	}, [defaultOpenInTarget, openInEditor, originalLocation]);
+		return getSourceDoubleClickHandler({
+			codingAgentInfo,
+			getContextForAgents: () =>
+				formatContextForAgents({
+					location: originalLocation,
+					name:
+						sequence.displayName ||
+						sequence.controls?.componentName ||
+						'Sequence',
+					root: window.remotion_cwd,
+				}),
+			openSource:
+				defaultOpenInTarget === 'editor'
+					? () => openInEditor(null)
+					: defaultOpenInTarget === 'git-source'
+						? () => openGitSource({folder: false, location: originalLocation})
+						: null,
+		});
+	}, [
+		codingAgentInfo,
+		defaultOpenInTarget,
+		openInEditor,
+		originalLocation,
+		sequence,
+	]);
 	const openInCodingAgent = useCallback(
 		async (
 			codingAgentId: DefaultCodingAgent,
@@ -94,14 +109,13 @@ export const useOpenSequenceInApps = (
 	);
 
 	return {
-		canOpenSource,
+		getSequenceSourceDoubleClickHandler,
 		canOpenInEditor,
 		canConfigureApps,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
-		openSource,
 		originalLocation,
 	};
 };

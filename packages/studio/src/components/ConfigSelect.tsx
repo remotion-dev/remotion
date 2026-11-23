@@ -1,4 +1,5 @@
 import React from 'react';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
@@ -19,12 +20,14 @@ export const booleanOptions = [
 ] as const;
 
 export const ConfigSelect = <T extends string | boolean>({
+	cliFlag,
 	defaultLabel,
 	settingId,
 	onChange,
 	options,
 	value,
 }: {
+	readonly cliFlag: string | null;
 	readonly defaultLabel: string;
 	readonly settingId: SettingId;
 	readonly onChange: (value: T | null) => void;

@@ -955,6 +955,15 @@ export const articles = [
 		slug: 'options/disallow-parallel-encoding',
 	},
 	{
+		id: 'options/double-click-action',
+		title: 'Double-click action',
+		relativePath: 'docs/options/double-click-action.mdx',
+		compId: 'articles-docs-options-double-click-action',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/double-click-action',
+	},
+	{
 		id: 'options/duration',
 		title: 'Override Duration',
 		relativePath: 'docs/options/duration.mdx',

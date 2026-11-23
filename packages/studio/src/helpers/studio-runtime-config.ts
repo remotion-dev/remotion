@@ -4,6 +4,7 @@ import {NoReactInternals} from 'remotion/no-react';
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
+	doubleClickAction: null,
 	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
@@ -36,6 +37,10 @@ const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
 
 export const getStudioAskAIEnabled = () => {
 	return getStudioRuntimeConfig().askAIEnabled;
+};
+
+export const getStudioDoubleClickAction = () => {
+	return getStudioRuntimeConfig().doubleClickAction?.value ?? 'open-in-editor';
 };
 
 export const getStudioInteractivityEnabled = () => {

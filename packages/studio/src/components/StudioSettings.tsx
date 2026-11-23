@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
 import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
@@ -59,6 +59,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	doubleClickAction: null,
 	highContrast: null,
 	preservePitchOnPlayback: null,
 	showLayerFrameNumbers: null,
@@ -240,6 +241,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setDoubleClickAction', settings.doubleClickAction),
 			update('setHighContrast', settings.highContrast),
 			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
@@ -307,6 +309,15 @@ export const StudioSettings: React.FC = () => {
 	if (studioRuntimeConfig === null) {
 		return null;
 	}
+
+	const cliDoubleClickAction =
+		studioRuntimeConfig.doubleClickAction?.source === 'cli'
+			? studioRuntimeConfig.doubleClickAction.value
+			: null;
+	const configuredDoubleClickAction =
+		error === null
+			? settings.doubleClickAction
+			: studioRuntimeConfig.configFileStudioSettings?.doubleClickAction;
 
 	return (
 		<div style={container}>

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import type {AddressInfo} from 'node:net';
 import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {
 	downloadAsset,
 	getSanitizedFilenameForAssetUrl,
@@ -11,27 +12,62 @@ import {downloadFile} from '../assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 
 test(
-	'Should be able to download file',
+	'Should download a file after following a relative 308 redirect',
 	async () => {
-		const downloadDir = tmpdir();
-		const {to} = await downloadFile({
-			url: 'https://remotion.dev/',
-			to: (contentDisposition, contentType) => {
-				return getSanitizedFilenameForAssetUrl({
-					contentDisposition,
-					downloadDir,
-					src: 'https://remotion.dev/',
-					contentType,
-				});
-			},
-			onProgress: () => undefined,
-			indent: false,
-			logLevel: 'info',
-			abortSignal: new AbortController().signal,
-		});
-		const data = await fs.promises.readFile(to, 'utf8');
+		const downloadDir = await fs.promises.mkdtemp(
+			path.join(tmpdir(), 'remotion-download-test-'),
+		);
+		const content =
+			'<!doctype html><html><body>Download fixture: café</body></html>';
+		const server = http.createServer((request, response) => {
+			if (request.url === '/') {
+				response.writeHead(308, {Location: '/fixture'}).end();
+				return;
+			}
 
-		expect(data).toMatch(/<!doctype/);
+			if (request.url !== '/fixture') {
+				response.writeHead(404).end();
+				return;
+			}
+
+			response.writeHead(200, {
+				'Content-Type': 'text/html; charset=utf-8',
+				Connection: 'close',
+				'Content-Length': Buffer.byteLength(content),
+				'Content-Disposition': 'attachment; filename="fixture.html"',
+			});
+			response.write(content.slice(0, 15));
+			response.end(content.slice(15));
+		});
+		try {
+			await new Promise<void>((resolve, reject) => {
+				server.once('error', reject);
+				server.listen(0, '127.0.0.1', resolve);
+			});
+			const src = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
+			const {to, sizeInBytes} = await downloadFile({
+				url: src,
+				to: (contentDisposition, contentType) =>
+					getSanitizedFilenameForAssetUrl({
+						contentDisposition,
+						contentType,
+						downloadDir,
+						src,
+					}),
+				onProgress: () => undefined,
+				indent: false,
+				logLevel: 'info',
+				abortSignal: new AbortController().signal,
+			});
+			const data = await fs.promises.readFile(to, 'utf8');
+			expect(data).toBe(content);
+			expect(sizeInBytes).toBe(Buffer.byteLength(content));
+			expect(path.dirname(to)).toBe(downloadDir);
+			expect(path.extname(to)).toBe('.html');
+		} finally {
+			await new Promise<void>((resolve) => server.close(() => resolve()));
+			await fs.promises.rm(downloadDir, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000},
 );
