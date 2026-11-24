@@ -610,9 +610,8 @@ export const installElement = async ({
 				readFileSync(extendedComposition.fileName, 'utf-8') !==
 					extendedComposition.oldContents
 			) {
-				throw new Error(
-					'Composition source changed during Element installation',
-				);
+				extendedComposition = null;
+				extendedCompositionLog = null;
 			}
 
 			const assetsToCreate: Array<{
