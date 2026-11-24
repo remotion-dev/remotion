@@ -76,6 +76,7 @@ export const validateComposition = async ({
 		binariesDirectory: null,
 		onBrowserDownload,
 		onServeUrlVisited,
+		cancelSignal: null,
 		chromeMode: 'headless-shell',
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,

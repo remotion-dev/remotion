@@ -11,6 +11,8 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {Log} from './logger';
+import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -37,6 +39,7 @@ type InternalSelectCompositionsConfig = {
 	serveUrl: string;
 	id: string;
 	onServeUrlVisited: () => void;
+	cancelSignal: CancelSignal | null;
 } & ToOptions<typeof optionsMap.selectComposition>;
 
 type Prettify<T> = {
@@ -51,6 +54,7 @@ export type SelectCompositionOptions = Prettify<
 		browserExecutable?: BrowserExecutable;
 		chromiumOptions?: ChromiumOptions;
 		port?: number | null;
+		cancelSignal?: CancelSignal;
 		/**
 		 * @deprecated Use `logLevel` instead.
 		 */
@@ -64,7 +68,7 @@ type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
-	'port' | 'offthreadVideoThreads' | 'onBrowserLog'
+	'port' | 'offthreadVideoThreads' | 'onBrowserLog' | 'cancelSignal'
 > & {
 	page: Page;
 	port: number;
@@ -227,6 +231,7 @@ export const internalSelectCompositionRaw = async (
 		chromeMode,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
+		cancelSignal,
 	} = options;
 
 	const [pageResult, serverResult] = await Promise.allSettled([
@@ -285,6 +290,13 @@ export const internalSelectCompositionRaw = async (
 
 	return new Promise<InternalReturnType>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
+		const runCleanup = () => {
+			cleanup.splice(0).forEach((c) => {
+				c().catch((err) => {
+					Log.error({indent, logLevel}, 'Cleanup error:', err);
+				});
+			});
+		};
 
 		cleanup.push(
 			handleJavascriptException({
@@ -294,6 +306,11 @@ export const internalSelectCompositionRaw = async (
 			}),
 		);
 		page.setBrowserSourceMapGetter(serverUsed.server.sourceMap);
+
+		cancelSignal?.(() => {
+			reject(new Error(cancelErrorMessages.selectComposition));
+			runCleanup();
+		});
 
 		innerSelectComposition({
 			serveUrl: serverUsed.server.serveUrl,
@@ -324,13 +341,7 @@ export const internalSelectCompositionRaw = async (
 				reject(err);
 			})
 			.finally(() => {
-				cleanup.forEach((c) => {
-					// Must prevent unhandled exception in cleanup function.
-					// Promise has already been resolved, so we can't reject it.
-					c().catch((err) => {
-						Log.error({indent, logLevel}, 'Cleanup error:', err);
-					});
-				});
+				runCleanup();
 			});
 	});
 };
@@ -358,6 +369,7 @@ export const selectComposition = async (
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		verbose,
+		cancelSignal,
 		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
@@ -385,6 +397,7 @@ export const selectComposition = async (
 			}).serializedString,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
+		cancelSignal: cancelSignal ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,
