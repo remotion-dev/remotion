@@ -10,6 +10,7 @@ const makeSineWave = (): Float32Array => {
 	for (let i = 0; i < data.length; i++) {
 		data[i] = Math.sin((2 * Math.PI * 440 * i) / sampleRate);
 	}
+
 	return data;
 };
 
