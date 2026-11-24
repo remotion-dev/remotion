@@ -213,6 +213,7 @@ type SequenceTiming = {
 	readonly contentDurationInFrames: number;
 	readonly effectiveDurationInFrames: number;
 	readonly actualDurationInFrames: number;
+	readonly unclippedDurationInFrames: number;
 	readonly loopPeriod: number | null;
 	readonly loopIteration: number;
 	readonly contentVisible: boolean;
@@ -319,6 +320,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		contentDurationInFrames,
 		effectiveDurationInFrames,
 		actualDurationInFrames,
+		unclippedDurationInFrames,
 		loopPeriod,
 		loopIteration,
 		contentVisible,
@@ -421,11 +423,6 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			: Math.min(loopPeriod, actualDurationInFrames - loopOffset) *
 					playbackRate +
 				trimBefore;
-	const unclippedDurationInFrames =
-		(Number.isFinite(contentDurationInFrames)
-			? contentDurationInFrames
-			: Math.max(0, videoConfig.durationInFrames - from) * playbackRate) +
-		trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
@@ -1040,7 +1037,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
-	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const {durationInFrames: parentDurationInFrames} = useVideoConfig();
 	const contentDurationInFrames = resolveSequenceContentDuration({
 		durationInFrames,
 	});
@@ -1073,12 +1070,16 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		loop,
 	});
-	const parentDurationInFrames =
-		parentSequence?.durationInFrames ?? compositionDurationInFrames;
+	const visibleParentDuration =
+		parentSequence?.durationInFrames ?? parentDurationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
-		Math.min(parentDurationInFrames - from, effectiveDurationInFrames),
+		Math.min(visibleParentDuration - from, effectiveDurationInFrames),
 	);
+	const unclippedDurationInFrames =
+		(Number.isFinite(contentDurationInFrames)
+			? contentDurationInFrames
+			: Math.max(0, parentDurationInFrames - from) * playbackRate) + trimBefore;
 
 	// A looped sequence repeats the child range selected by `durationInFrames`. Each
 	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
@@ -1145,6 +1146,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
+			unclippedDurationInFrames,
 			loopPeriod,
 			loopIteration,
 			contentVisible,
@@ -1155,6 +1157,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
+			unclippedDurationInFrames,
 			loopPeriod,
 			loopIteration,
 			contentVisible,
