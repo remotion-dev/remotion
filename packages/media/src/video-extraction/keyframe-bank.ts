@@ -1,7 +1,10 @@
 import type {VideoSample, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
-import {hasFrameStarted} from '../helpers/has-frame-started';
+import {
+	FRAME_START_TOLERANCE,
+	hasFrameStarted,
+} from '../helpers/has-frame-started';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {isCodecReclaimedError} from '../is-type-of-error';
 import {renderTimestampRange} from '../render-timestamp-range';
@@ -62,8 +65,17 @@ export const makeKeyframeBank = async ({
 	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
 	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
 	// MP4 timescales like 30000 keep fractional keyframes such as 61061/30000 exact.
+	// Floor rather than round: the bank must start at the last frame that began
+	// at the request (same semantics as hasFrameStarted), not the nearest frame.
+	const snapToTrackTimeResolution = (timeToSeek: number) => {
+		return (
+			Math.floor((timeToSeek + FRAME_START_TOLERANCE) * timeResolution) /
+			timeResolution
+		);
+	};
+
 	let sampleIterator = videoSampleSink.samples(
-		Math.round(initialTimestampRequest * timeResolution) / timeResolution,
+		snapToTrackTimeResolution(initialTimestampRequest),
 	);
 
 	const frames: Record<number, VideoSampleWithoutDuration> = {};
@@ -99,9 +111,7 @@ export const makeKeyframeBank = async ({
 				}
 
 				sampleIterator = videoSampleSink.samples(
-					lastTimestamp ??
-						Math.round(initialTimestampRequest * timeResolution) /
-							timeResolution,
+					lastTimestamp ?? snapToTrackTimeResolution(initialTimestampRequest),
 				);
 				let sample = await sampleIterator.next();
 				// Restart from a decodable boundary without retaining duplicate frames.
