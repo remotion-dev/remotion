@@ -7,7 +7,7 @@
     "outDir": "./dist",
     "types": ["web"],
     "strict": true,
-    "lib": ["es2015"],
+    "lib": ["ES2022"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

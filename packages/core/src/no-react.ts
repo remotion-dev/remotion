@@ -70,6 +70,7 @@ import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
 import {validateSelectedFrames} from './validate-selected-frames';
+import {validateArtifactFilename} from './validation/validate-artifact';
 import {validateCodec} from './validation/validate-default-codec';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
@@ -94,6 +95,7 @@ export const NoReactInternals = {
 	validateDefaultAndInputProps,
 	validateFrame,
 	validateSelectedFrames,
+	validateArtifactFilename,
 	serializeJSONWithSpecialTypes,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',

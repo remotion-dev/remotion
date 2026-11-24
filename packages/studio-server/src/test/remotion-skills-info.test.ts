@@ -49,6 +49,7 @@ test('the skills info endpoint reports project skills', async () => {
 			'remotion-captions',
 			'remotion-create',
 			'remotion-docs',
+			'remotion-elements',
 			'remotion-interactivity',
 			'remotion-license',
 			'remotion-maps',

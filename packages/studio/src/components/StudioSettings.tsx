@@ -36,10 +36,19 @@ import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
+	border: 0,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
+	margin: 0,
 	minWidth: 0,
+	padding: 0,
+};
+
+const disabledContainer: React.CSSProperties = {
+	...container,
+	opacity: 0.6,
+	pointerEvents: 'none',
 };
 
 const dividerLabel: React.CSSProperties = {
@@ -282,7 +291,7 @@ export const StudioSettings: React.FC = () => {
 
 	const ready = studioRuntimeConfig !== null && syncedRevision === revision;
 	useAutoSaveConfig({
-		enabled: ready,
+		enabled: ready && studioRuntimeConfig.configFileStudioSettings !== null,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
@@ -310,8 +319,12 @@ export const StudioSettings: React.FC = () => {
 		return null;
 	}
 
+	const hasConfigFile = studioRuntimeConfig.configFileStudioSettings !== null;
 	return (
-		<div style={container}>
+		<fieldset
+			disabled={!hasConfigFile}
+			style={hasConfigFile ? container : disabledContainer}
+		>
 			<p style={dividerLabel}>Interface</p>
 			<SettingsRow settingId="interactivityEnabled">
 				<div style={rightRow}>
@@ -616,6 +629,6 @@ export const StudioSettings: React.FC = () => {
 				</>
 			) : null}
 			<Spacing y={2} block />
-		</div>
+		</fieldset>
 	);
 };

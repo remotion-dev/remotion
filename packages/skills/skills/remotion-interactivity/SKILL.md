@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structures Remotion markup so layers, timing and styles are editable in Remotion Studio. Use when writing a new composition or restructuring existing markup.
-version: 4.0.545
+version: 4.0.546
 ---
 
 Make markup editable in Studio by default. Keep a part programmatic only if it is

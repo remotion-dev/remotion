@@ -16,6 +16,13 @@
 	-moz-osx-font-smoothing: grayscale; /* Firefox */
 }
 
+:where(.license-quiz, .license-quiz *) {
+	font-feature-settings:
+		'kern' 1,
+		'ss02' 1,
+		'ss03' on;
+}
+
 html {
 	scroll-padding-top: 80px;
 }

@@ -780,6 +780,11 @@ const internalRenderMediaOnWeb = async <
 				await waitForPageResponsiveness();
 			} finally {
 				frameToEncode?.close();
+				if (layerCanvas) {
+					// Encoding and artifact handling are done with this frame's canvas.
+					layerCanvas.width = 0;
+					layerCanvas.height = 0;
+				}
 			}
 		}
 

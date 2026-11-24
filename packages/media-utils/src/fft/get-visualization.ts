@@ -45,15 +45,24 @@ export const getVisualization = ({
 		);
 	}
 
-	const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
+	const centerSample = Math.floor(
+		(frame / fps - dataOffsetInSeconds) * sampleRate,
+	);
+	const windowStart = centerSample - sampleSize / 2;
+	const windowEnd = centerSample + sampleSize / 2;
 
-	const actualStart = Math.max(0, start - sampleSize / 2);
+	if (windowEnd <= 0) {
+		return new Array(sampleSize / 2).fill(0);
+	}
+
+	const dataStart = Math.max(0, windowStart);
 
 	const ints = new Int16Array({
 		length: sampleSize,
 	});
 	ints.set(
-		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x)),
+		data.subarray(dataStart, windowEnd).map((x) => toInt16(x)),
+		dataStart - windowStart,
 	);
 	const alg = optimizeFor === 'accuracy' ? fftAccurate : fftFast;
 

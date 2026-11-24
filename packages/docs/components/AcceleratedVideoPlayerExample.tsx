@@ -11,7 +11,7 @@ const remapSpeed = ({
 }) => {
 	let framesPassed = 0;
 
-	for (let i = 0; i <= frame; i++) {
+	for (let i = 0; i < frame; i++) {
 		framesPassed += speed(i);
 	}
 

@@ -76,6 +76,14 @@ Use this for static maps, animated routes and markers, geographic explainers, Ma
 
 > Example prompt: `/remotion-maps Animate a route from Los Angeles to New York and make the camera follow it.`
 
+### `/remotion-elements`
+
+Find, install and use Elements, reusable video components from Element libraries.
+
+Use this to add an Element from an Element page or library URL.
+
+> Example prompt: `/remotion-elements Add a lower third to my video.`
+
 ### `/remotion-captions`
 
 Guidance for captions and subtitles.

@@ -1,0 +1,38 @@
+.previewTable {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.previewTable td {
+	vertical-align: top;
+}
+
+.previewTable figure {
+	margin: 0;
+}
+
+.previewTable img,
+.previewTable video {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.previewTable figcaption {
+	margin-top: 8px;
+	font-size: calc(1em - 1px);
+}
+
+@media (max-width: 640px) {
+	.previewTable,
+	.previewTable tbody,
+	.previewTable tr,
+	.previewTable td {
+		display: block;
+	}
+
+	.previewTable td + td {
+		border-top: 0;
+	}
+}

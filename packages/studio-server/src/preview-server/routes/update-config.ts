@@ -236,6 +236,27 @@ export const updateConfigFile = ({
 
 	let changed = false;
 	const ast = parseAst(configContents);
+	const lineTerminator = configContents.includes('\r\n') ? '\r\n' : '\n';
+	let configBinding = 'Config';
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== '@remotion/cli/config'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				specifier.imported.type === 'Identifier' &&
+				specifier.imported.name === 'Config'
+			) {
+				configBinding = specifier.local.name;
+			}
+		}
+	}
+
 	recast.types.visit(ast.program, {
 		visitExpressionStatement(path) {
 			const {expression} = path.node;
@@ -244,7 +265,7 @@ export const updateConfigFile = ({
 				expression.callee.type !== 'MemberExpression' ||
 				expression.callee.computed ||
 				expression.callee.object.type !== 'Identifier' ||
-				expression.callee.object.name !== 'Config' ||
+				expression.callee.object.name !== configBinding ||
 				expression.callee.property.type !== 'Identifier'
 			) {
 				this.traverse(path);
@@ -308,7 +329,7 @@ export const updateConfigFile = ({
 		},
 	});
 
-	let updatedConfig = recast.print(ast, {lineTerminator: '\n'}).code;
+	let updatedConfig = recast.print(ast, {lineTerminator}).code;
 	for (const update of updates) {
 		if (update.type !== 'set') {
 			continue;
@@ -343,16 +364,17 @@ export const updateConfigFile = ({
 		const serializedValue = JSON.stringify(value)
 			.replaceAll('\u2028', '\\u2028')
 			.replaceAll('\u2029', '\\u2029');
-		const statement = parseAst(`Config.${setter}(${serializedValue});`).program
-			.body[0];
-		const separator = updatedConfig.endsWith('\n') ? '' : '\n';
+		const statement = parseAst(
+			`${configBinding}.${setter}(${serializedValue});`,
+		).program.body[0];
+		const separator = updatedConfig.endsWith('\n') ? '' : lineTerminator;
 		updatedConfig += `${separator}${
 			recast.prettyPrint(statement, {
-				lineTerminator: '\n',
+				lineTerminator,
 				quote: 'single',
 				useTabs: true,
 			}).code
-		}\n`;
+		}${lineTerminator}`;
 		changed = true;
 	}
 
@@ -477,15 +499,15 @@ export const updateConfigHandler = async ({
 			};
 		}
 
-		return {success: true, changed: false};
+		return {success: true, sourceVersion: null};
 	}
 
-	writeFileAndNotifyFileWatchers({
+	const sourceVersion = writeFileAndNotifyFileWatchers({
 		file: configFile,
 		content: updatedConfig,
 		originatorClientId: input.clientId,
 		metadata: null,
 	});
 
-	return {success: true, changed: true};
+	return {success: true, sourceVersion};
 };

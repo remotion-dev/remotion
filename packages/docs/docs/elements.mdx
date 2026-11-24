@@ -1,30 +1,52 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-elements.png
-title: Using Elements
-description: Discover and add reusable video building blocks in Studio, with the CLI, or with an AI agent.
+title: Elements
+description: Reusable, sharable and composable video components, published in Element Libraries.
 ---
 
-# Using Elements
+# Elements
 
-An Element is a reusable video building block written as a React component, such as an animated title, background, chart, or caption style.
+An Element is a video building block written as a React component, such as an animated title, background, chart, or caption style.
 
-## Find an Element
+Elements are reusable, sharable, and composable. An Element is self-contained, so it works in any composition. Creators publish Elements on websites called [Element Libraries](/elements/libraries), and anyone can publish a library. Each Element does one thing, so you can combine several of them into a larger video.
 
-**[Browse the Elements catalog](/elements)**
+Adding an Element copies its source code into your project. You own the copy and can edit it like any other component.
 
-Preview titles, backgrounds, charts, captions, and more in the catalog. You can also discover [third-party Element Libraries](/elements/libraries).
+## Find Elements
 
-## In Remotion Studio
+**[Browse Element Libraries](/elements/libraries)**
+
+## Add an Element Library to Studio
+
+Libraries that you add appear in [Browse Elements](/docs/studio/browse-elements) in Remotion Studio.
+
+- On [Element Libraries](/elements/libraries), select Add to Studio on a library while Studio is running.
+- In Studio, select Browse Elements, then right-click the sidebar and choose Add library… to enter a URL.
+- From the command line, run [`npx remotion elements add-library`](/docs/cli/elements/add-library) with the library's URL.
+- In `remotion.config.ts`, call [`Config.addElementLibrary()`](/docs/config#addelementlibrary).
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://www.remotion.dev/elements',
+  displayName: 'Remotion Elements',
+});
+```
+
+You can rename, reorder, and remove libraries in Studio or in the config file.
+
+## Add an Element
+
+### In Remotion Studio
 
 1. Open your composition in Remotion Studio.
 2. Select **Browse Elements** in the **Actions** section of the right inspector.
-3. Browse the library and choose an Element to add to your composition.
+3. Pick a library and choose an Element to add to your composition.
 
 Studio copies the Element's source code into your project and installs its dependencies. Edit the copied code to customize it, or use its Inspector controls if it exposes them.
 
-See [Browse Elements in Studio](/docs/studio/browse-elements) for a demonstration and instructions for adding more libraries.
-
-## With the CLI
+### With the CLI
 
 Use [`remotion elements use`](/docs/cli/elements/use) from your Remotion project with the URL of an Element's page. Replace the example URL with that URL and `MyVideo` with your composition ID.
 
@@ -38,17 +60,20 @@ The command asks for confirmation, copies the source, installs missing dependenc
 
 See the [CLI reference](/docs/cli/elements/use) for supported URLs, version requirements, and flags.
 
-## With an AI agent
+### With an AI agent
 
 [Install the Remotion Agent Skills](/docs/ai/skills), then use `/remotion-markup` when asking your agent to work on your video's content:
 
 ```text
-/remotion-markup Add a lower third from the Elements catalog to my composition.
+/remotion-markup Add a lower third from https://www.remotion.dev/elements to my composition.
 Use the Element's source code and adapt the text and colors to my video.
 ```
 
 Give the agent the Element's page URL and your composition ID for a specific choice. Review the resulting code and preview it in Studio.
 
-## Create your own Elements
+## Make your own Element Library
 
-See [Creating Elements](/docs/elements/creating) for design, portability, assets, and Studio integration guidance. To distribute Elements from your own website, see [Building Element Libraries](/docs/elements/libraries).
+We encourage you to publish Elements in your own library instead of contributing them to ours. Your library is your own website, with your own design and selection of Elements.
+
+- [Building Element Libraries](/docs/elements/libraries) explains how to publish Elements that install into Studio.
+- [Element best practices](/docs/elements/creating) covers design, portability, assets, and Studio integration.

@@ -6,6 +6,7 @@ import {
 	resolveSourceLocation,
 } from '../../helpers/open-in-editor';
 import {getSourceDoubleClickHandler} from '../get-source-double-click-handler';
+import {useSettings} from '../SettingsContext';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -26,6 +27,7 @@ export const useTimelinePropertySource = ({
 		previewServerConnected,
 	);
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const {doubleClickAction} = useSettings();
 	const getContextForAgents = useCallback(async () => {
 		const sourceLocation =
 			previewServerConnected || window.remotion_isReadOnlyStudio
@@ -51,6 +53,7 @@ export const useTimelinePropertySource = ({
 		(event) => {
 			const handle = getSourceDoubleClickHandler({
 				codingAgentInfo,
+				doubleClickAction,
 				getContextForAgents,
 				openSource:
 					defaultEditorId === null
@@ -71,6 +74,7 @@ export const useTimelinePropertySource = ({
 		[
 			codingAgentInfo,
 			defaultEditorId,
+			doubleClickAction,
 			effectIndex,
 			getContextForAgents,
 			location,

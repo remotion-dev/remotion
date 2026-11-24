@@ -14,6 +14,7 @@ import {
 } from '../../helpers/open-in-editor';
 import {getSourceDoubleClickHandler} from '../get-source-double-click-handler';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {useSettings} from '../SettingsContext';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -37,6 +38,7 @@ export const useOpenSequenceInApps = (
 		editorInfo,
 	} = useEditorOpening(previewConnected);
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const {doubleClickAction} = useSettings();
 	const canOpenInEditor = useMemo(
 		() => Boolean(editorAvailable && originalLocation),
 		[editorAvailable, originalLocation],
@@ -64,6 +66,7 @@ export const useOpenSequenceInApps = (
 
 		return getSourceDoubleClickHandler({
 			codingAgentInfo,
+			doubleClickAction,
 			getContextForAgents: () =>
 				formatContextForAgents({
 					location: originalLocation,
@@ -83,6 +86,7 @@ export const useOpenSequenceInApps = (
 	}, [
 		codingAgentInfo,
 		defaultOpenInTarget,
+		doubleClickAction,
 		openInEditor,
 		originalLocation,
 		sequence,

@@ -1,0 +1,65 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-captions-editing.png
+sidebar_label: Editing
+title: Editing captions
+crumb: Captions
+---
+
+import {EnterIcon} from '../../../studio/src/icons/enter';
+import {UploadIcon} from '../../../studio/src/icons/upload';
+
+# Editing captions
+
+If you need to make a correction to the transcript, you can edit [captions](/docs/captions).
+
+## Interactively in Studio {#edit-text-in-studio}
+
+[If set up the right way](/docs/captions/displaying#make-captions-editable-in-studio), captions appear as orange layers in the Studio timeline.
+
+<img
+  src="https://remotion.media/docs/captions/studio-editing/orange-caption-timeline-forest-selected.webp"
+  alt="A selected orange caption layer showing the transcript below an animated forest clip."
+  width={772}
+  height={114}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/><br/><br/>
+
+You can select it and edit the transcript.
+
+<img
+  src="https://remotion.media/docs/captions/studio-editing/edit-caption-in-inspector-forest.png"
+  alt="The Captions inspector with timing ranges and the word bunny in a focused text field."
+  width={308}
+  height={226}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+### Add a page break
+
+Click the <EnterIcon role="img" aria-label="Break after this" color="currentColor" width={16} height={16} style={{verticalAlign: 'middle'}} /> icon on a caption row to [start a new page with the next caption](/docs/captions/caption#pagebreakafter).
+
+### Split a caption
+
+Place the cursor where the caption should split and press <kbd>Enter</kbd>.
+
+### Replace the transcript
+
+Select the caption layer and click the <UploadIcon role="img" aria-label="Import transcript" color="currentColor" width={14} height={14} style={{verticalAlign: 'middle'}} /> icon next to `Captions`. The following formats are supported:
+
+- `.srt`
+- `.json` with [`Caption[]`](/docs/captions/caption) array
+- [ElevenLabs transcript](/docs/elevenlabs/detect-elevenlabs-transcript-format)
+- [OpenAI Whisper verbose JSON transcript](/docs/openai-whisper/is-openai-whisper-transcript)
+
+## Agentically
+
+Since captions are stored in your codebase, it should be easy for your agent to find captions and edit them.
+
+<SuggestedPrompt prompt="In the ForestScene composition, change 'rabbit' to 'bunny' in the captions." />
+
+## Programmatically {#edit-captions-in-code}
+
+Double-click a caption component to jump to it in the your code editor.  
+You can edit captions in the code and fetch them [programmatically](/docs/captions/importing#fetching-captions-in-a-component).

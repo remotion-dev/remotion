@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.545",
+	"version": "4.0.546",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

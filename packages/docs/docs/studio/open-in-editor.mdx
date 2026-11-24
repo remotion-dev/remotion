@@ -15,16 +15,6 @@ Remotion Studio can quickly open various things in your code editor:
 
 If no preference was set, Remotion will try to detect an already running editor.
 
-## Double-click action<AvailableFrom v="4.0.546" />
-
-Open Settings → Apps and choose a **Double-click action**. The choice is saved in `remotion.config.ts` and applies immediately.
-
-- **Open in editor** opens the item's source in the preferred code editor. This is the default.
-- **Open in coding agent** opens the preferred installed agent. Agents that accept a prompt receive the item's name and source location. Choose the coding agent in Settings → Apps.
-- **Copy context for agents** copies text such as `Title in src/Intro.tsx:24` to the clipboard.
-
-Double-clicking a [connected composition](/docs/composing) opens its timeline. Double-clicking editable text on the canvas selects it in the Inspector. These gestures take precedence over the [double-click action](/docs/options/double-click-action).
-
 ## Setting your preferred editor
 
 ### In the Studio
@@ -101,6 +91,18 @@ At least one item must include `%TARGET_PATH%`. Remotion replaces these placehol
 | `%TARGET_PATH%`   | Absolute source file or project directory path. Windows editors launched through WSL receive a relative path. |
 | `%LINE_NUMBER%`   | One-based source line.                                                                                        |
 | `%COLUMN_NUMBER%` | One-based source column.                                                                                      |
+
+## Double-click action<AvailableFrom v="4.0.546" />
+
+By default, double-clicking something in Remotion Studio opens the item's source in the preferred code editor.
+To customize this, open Settings → Apps and choose a **Double-click action**:
+
+- **Open in coding agent** opens the preferred installed agent. Agents that accept a prompt receive the item's name and source location. Choose the coding agent in Settings → Apps.
+- **Copy context for agents** copies text such as `Title in src/Intro.tsx:24` to the clipboard.
+
+Some exceptions: 
+- Double-clicking a [connected composition](/docs/composing) opens its timeline.  
+- Double-clicking editable text on the canvas selects it in the Inspector.  
 
 ## See also
 

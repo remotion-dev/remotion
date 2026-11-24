@@ -20,10 +20,19 @@ import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
+	border: 0,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
+	margin: 0,
 	minWidth: 0,
+	padding: 0,
+};
+
+const disabledContainer: React.CSSProperties = {
+	...container,
+	opacity: 0.6,
+	pointerEvents: 'none',
 };
 
 const content: React.CSSProperties = {
@@ -83,7 +92,6 @@ export const DefaultEditorSettings: React.FC = () => {
 	const {
 		codingAgentInfo,
 		doubleClickAction,
-		doubleClickActionError,
 		editorInfo,
 		error: settingsError,
 		revision,
@@ -235,33 +243,35 @@ export const DefaultEditorSettings: React.FC = () => {
 		editorInfo !== null &&
 		codingAgentInfo !== null &&
 		syncedRevision === revision;
+	const hasConfigFile =
+		studioRuntimeConfig !== null &&
+		studioRuntimeConfig.configFileStudioSettings !== null;
 	useAutoSaveConfig({
-		enabled: ready,
+		enabled: ready && hasConfigFile,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
 		updates,
 	});
-	const cliDoubleClickAction =
-		studioRuntimeConfig?.doubleClickAction?.source === 'cli'
-			? studioRuntimeConfig.doubleClickAction.value
-			: null;
-	const displayedError = doubleClickActionError ?? error ?? settingsError;
+	const displayedError = error ?? settingsError;
 
 	return (
-		<div style={container}>
+		<fieldset
+			disabled={!hasConfigFile}
+			style={hasConfigFile ? container : disabledContainer}
+		>
 			<div style={content}>
 				{studioRuntimeConfig === null ? null : (
 					<ConfigSelect
 						settingId="doubleClickAction"
 						cliFlag={
-							cliDoubleClickAction === null
-								? null
-								: BrowserSafeApis.options.doubleClickActionOption.cliFlag
+							studioRuntimeConfig.doubleClickAction?.source === 'cli'
+								? BrowserSafeApis.options.doubleClickActionOption.cliFlag
+								: null
 						}
 						defaultLabel="Open in editor"
 						options={doubleClickActions}
-						value={cliDoubleClickAction ?? doubleClickAction}
+						value={doubleClickAction}
 						onChange={setDoubleClickAction}
 					/>
 				)}
@@ -318,6 +328,6 @@ export const DefaultEditorSettings: React.FC = () => {
 					</>
 				) : null}
 			</div>
-		</div>
+		</fieldset>
 	);
 };

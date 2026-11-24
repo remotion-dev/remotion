@@ -1,4 +1,3 @@
-import type {DoubleClickAction} from '@remotion/renderer';
 import type {StudioRuntimeConfig} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -38,25 +37,6 @@ const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
 
 export const getStudioAskAIEnabled = () => {
 	return getStudioRuntimeConfig().askAIEnabled;
-};
-
-let doubleClickActionPreview: {
-	readonly value: DoubleClickAction | null;
-} | null = null;
-
-export const setStudioDoubleClickActionPreview = (
-	preview: typeof doubleClickActionPreview,
-) => {
-	doubleClickActionPreview = preview;
-};
-
-export const getStudioDoubleClickAction = () => {
-	const action = getStudioRuntimeConfig().doubleClickAction;
-	if (action?.source !== 'cli' && doubleClickActionPreview !== null) {
-		return doubleClickActionPreview.value ?? 'open-in-editor';
-	}
-
-	return action?.value ?? 'open-in-editor';
 };
 
 export const getStudioInteractivityEnabled = () => {

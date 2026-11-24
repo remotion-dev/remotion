@@ -147,6 +147,15 @@ export default async function middleware(request: Request) {
 		return Response.redirect(new URL('/docs/license/faq', request.url), 308);
 	}
 
+	if (
+		pathname === '/docs/license/which-license' ||
+		pathname === '/docs/license/which-license/' ||
+		pathname === '/docs/license/which-license.md'
+	) {
+		url.pathname = '/license/quiz';
+		return Response.redirect(url, 308);
+	}
+
 	if (pathname === '/elements.md') {
 		return rewrite(new URL('/_raw/elements/index.md', request.url));
 	}

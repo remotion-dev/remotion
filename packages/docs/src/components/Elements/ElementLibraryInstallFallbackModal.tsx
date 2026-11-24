@@ -1,13 +1,13 @@
 import type {AddElementLibraryToStudioErrorCode} from '@remotion/studio-protocol';
 import React, {type RefObject, useEffect, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
+import type {ElementLibraryEntry} from './element-libraries-data';
 import {StudioInstallFallbackDialog} from './StudioInstallFallbackDialog';
-import type {ThirdPartyElementLibrary} from './third-party-element-library-data';
 import styles from './ElementLibraryInstallFallbackModal.module.css';
 
 export const ElementLibraryInstallFallbackModal: React.FC<{
 	readonly buttonLabel: string;
-	readonly library: ThirdPartyElementLibrary;
+	readonly library: ElementLibraryEntry;
 	readonly failure: {
 		readonly code: AddElementLibraryToStudioErrorCode | null;
 		readonly message: string;
