@@ -47,14 +47,18 @@ type OptionalParameters = {
 	forceFps: number | null;
 	forceDurationInFrames: number | null;
 	indent: boolean;
-	isProduction: boolean | null;
 	downloadBehavior: DownloadBehavior;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
-	MandatoryParameters;
+	MandatoryParameters & {
+		/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+		licenseKey?: string | null;
+		/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+		isProduction?: boolean | null;
+	};
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
@@ -111,8 +115,6 @@ const internalRenderStillOnCloudRun = async ({
 	renderStatusWebhook,
 	mediaCacheSizeInBytes,
 	preferredEffectBackend,
-	licenseKey,
-	isProduction,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -161,8 +163,8 @@ const internalRenderStillOnCloudRun = async ({
 		renderStatusWebhook,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
-		licenseKey,
-		isProduction,
+		licenseKey: null,
+		isProduction: null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -243,6 +245,14 @@ const internalRenderStillOnCloudRun = async ({
 const errorHandled = wrapWithErrorHandling(internalRenderStillOnCloudRun);
 
 export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
+	const logLevel = options.logLevel ?? 'info';
+	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: options.licenseKey ?? null,
+		api: 'renderStillOnCloudrun()',
+		option: 'licenseKey',
+		logLevel,
+	});
+
 	return errorHandled({
 		chromiumOptions: options.chromiumOptions ?? {},
 		cloudRunUrl: options.cloudRunUrl ?? null,
@@ -260,7 +270,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		indent: options.indent ?? false,
 		inputProps: options.inputProps ?? {},
 		jpegQuality: options.jpegQuality ?? BrowserSafeApis.DEFAULT_JPEG_QUALITY,
-		logLevel: options.logLevel ?? 'info',
+		logLevel,
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
@@ -275,7 +285,5 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
-		licenseKey: options.licenseKey ?? null,
-		isProduction: options.isProduction ?? null,
 	});
 };

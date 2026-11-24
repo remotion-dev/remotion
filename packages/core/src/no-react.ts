@@ -64,6 +64,7 @@ import {
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {sequenceSchema} from './interactivity-schema';
 import {colorNames, processColor} from './interpolate-colors';
+import {logDeprecatedStillRenderLicenseKey} from './log-deprecated-still-render-license-key';
 import {proResProfileOptions} from './prores-profile';
 import {parseScaleValue, serializeScaleValue} from './scale-value';
 import {truthy} from './truthy';
@@ -95,6 +96,7 @@ export const NoReactInternals = {
 	validateDefaultAndInputProps,
 	validateFrame,
 	validateSelectedFrames,
+	logDeprecatedStillRenderLicenseKey,
 	validateArtifactFilename,
 	serializeJSONWithSpecialTypes,
 	bundleName: 'bundle.js',

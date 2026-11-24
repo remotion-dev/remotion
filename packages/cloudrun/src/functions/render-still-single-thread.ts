@@ -34,6 +34,13 @@ export const renderStillSingleThread = async (
 		);
 	}
 
+	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: body.licenseKey,
+		api: 'renderStillOnCloudrun()',
+		option: 'licenseKey',
+		logLevel: body.logLevel,
+	});
+
 	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
 	try {
@@ -118,8 +125,6 @@ export const renderStillSingleThread = async (
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			preferredEffectBackend: body.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
-			licenseKey: body.licenseKey,
-			isProduction: body.isProduction,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
+import logging
 from enum import Enum
 from typing import Optional, Dict, Any, Union, Literal, List
 from dataclasses import dataclass, field
@@ -584,7 +585,7 @@ class RenderFramesParams(RenderMediaParams):
 @dataclass
 class RenderStillParams:
     """
-    Parameters for video rendering.
+    Parameters for still image rendering.
     """
 
     composition: str
@@ -607,8 +608,9 @@ class RenderStillParams:
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
     force_width: Optional[int] = None
-    # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
+    # Deprecated: Still renders do not send usage telemetry.
     api_key: Optional[int] = None
+    # Deprecated: Still renders do not send usage telemetry.
     license_key: Optional[str] = None
     storage_class: Optional[str] = None
     force_height: Optional[int] = None
@@ -622,6 +624,7 @@ class RenderStillParams:
     media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
+    # Deprecated: Still renders do not send usage telemetry.
     is_production: Optional[bool] = None
     preferred_effect_backend: Literal["auto", "webgpu", "webgl2", "2d"] = "auto"
 
@@ -643,6 +646,15 @@ class RenderStillParams:
         Returns:
             Dict: A dictionary containing all the serialized parameters of the object.
         """
+        license_key = self.license_key if self.license_key is not None else self.api_key
+        if license_key is not None and license_key != 'free-license':
+            option = 'license_key' if self.license_key is not None else 'api_key'
+            logging.getLogger(__name__).info(
+                "Still renders don't need to be tracked anymore, an unlimited amount is now included "
+                "in any Remotion License. You can now remove `%s` from RenderStillParams.",
+                option,
+            )
+
         parameters = {
             'type': 'still',
             'composition': self.composition,
@@ -668,7 +680,7 @@ class RenderStillParams:
             'downloadBehavior': self.download_behavior
             or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
-            'licenseKey': self.license_key if self.license_key is not None else self.api_key,
+            'licenseKey': None,
             'forceHeight': self.force_height,
             'forceFps': self.force_fps,
             'forceDurationInFrames': self.force_duration_in_frames,
@@ -680,7 +692,7 @@ class RenderStillParams:
             'preferredEffectBackend': self.preferred_effect_backend,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
-            'isProduction': self.is_production,
+            'isProduction': None,
         }
 
         if self.force_path_style is not None:

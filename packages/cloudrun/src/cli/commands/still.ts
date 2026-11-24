@@ -264,6 +264,15 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
+	const licenseKey =
+		CliInternals.parsedCli[BrowserSafeApis.options.licenseKeyOption.cliFlag];
+	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
+		api: 'remotion cloudrun still',
+		option: '--license-key',
+		logLevel,
+	});
+
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,
 		serveUrl,
@@ -285,12 +294,6 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outName,
 		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
-		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value,
-		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value,
 	});
 	if (res.type === 'crash') {
 		displayCrashLogs(res, logLevel);

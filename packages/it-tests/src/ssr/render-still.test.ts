@@ -8,7 +8,6 @@ import {
 	renderStill,
 	selectComposition,
 } from '@remotion/renderer';
-import {NoReactInternals} from 'remotion/no-react';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
@@ -16,7 +15,7 @@ beforeAll(async () => {
 	await ensureBrowser();
 });
 
-test('Render video with browser instance open', async () => {
+test('Render still with a legacy license key and an open browser', async () => {
 	const puppeteerInstance = await openBrowser('chrome');
 	try {
 		const reactSvg = await selectComposition({
@@ -28,7 +27,7 @@ test('Render video with browser instance open', async () => {
 
 		const tmpDir = os.tmpdir();
 
-		const outPath = path.join(tmpDir, 'out.mp4');
+		const outPath = path.join(tmpDir, 'out.png');
 		const originalFetch = globalThis.fetch;
 		const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(((
 			input,
@@ -48,7 +47,7 @@ test('Render video with browser instance open', async () => {
 
 			return originalFetch(input, init);
 		}) as typeof fetch);
-		const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
+		const infoSpy = spyOn(console, 'log');
 
 		try {
 			const {buffer} = await renderStill({
@@ -56,35 +55,26 @@ test('Render video with browser instance open', async () => {
 				serveUrl: exampleBuild,
 				composition: reactSvg,
 				puppeteerInstance,
-				licenseKey: 'free-license',
-				logLevel: 'warn',
+				licenseKey: 'rm_sec_test',
 			});
 			expect(buffer).toBe(null);
 			const licensingCall = fetchSpy.mock.calls.find(([input]) =>
 				String(input).startsWith('https://www.remotion.pro/api/track/'),
 			);
-			expect(licensingCall).toBeDefined();
-			expect(JSON.parse(String(licensingCall?.[1]?.body))).toMatchObject({
-				apiKey: null,
-				event: 'cloud-render',
-				host: null,
-				isStill: true,
-			});
-			expect(
-				warnSpy.mock.calls.some((args) =>
-					args.join(' ').includes('Pass "licenseKey" to renderStill()'),
-				),
-			).toBe(false);
+			expect(licensingCall).toBeUndefined();
+			expect(infoSpy).toHaveBeenCalledWith(
+				"Still renders don't need to be tracked anymore, an unlimited amount is now included in any Remotion License. You can now remove `licenseKey` from renderStill().",
+			);
 		} finally {
 			fetchSpy.mockRestore();
-			warnSpy.mockRestore();
+			infoSpy.mockRestore();
 		}
 	} finally {
 		await puppeteerInstance.close({silent: false});
 	}
 });
 
-test('Render still with browser instance not open and legacy webpack config', async () => {
+test('Render still without a license key or an open browser', async () => {
 	const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
 	const reactSvg = await selectComposition({
 		id: 'react-svg',
@@ -108,7 +98,7 @@ test('Render still with browser instance not open and legacy webpack config', as
 			warnSpy.mock.calls.some((args) =>
 				args.join(' ').includes('Pass "licenseKey" to renderStill()'),
 			),
-		).toBe(NoReactInternals.ENABLE_V5_BREAKING_CHANGES);
+		).toBe(false);
 	} finally {
 		warnSpy.mockRestore();
 	}

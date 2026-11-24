@@ -6,7 +6,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {DownloadBehavior} from 'remotion/no-react';
+import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
 import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
 import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {DEFAULT_MAX_RETRIES} from './constants';
@@ -56,15 +56,18 @@ type OptionalParameters = {
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null | undefined;
-	isProduction: boolean | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
-	Omit<OptionalParameters, 'apiKey'>;
+	OptionalParameters;
 
 export type RenderStillOnLambdaInput = MandatoryParameters &
-	Partial<Omit<OptionalParameters, 'apiKey'>> & {
+	Partial<OptionalParameters> & {
 		requestHandler?: RequestHandler;
+		/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+		licenseKey?: string | null;
+		/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+		isProduction?: boolean | null;
 	};
 
 export type RenderStillOnLambdaOutput = {
@@ -200,11 +203,21 @@ export function renderStillOnLambda(
 		 */
 		dumpBrowserLogs?: boolean;
 		/**
-		 * @deprecated Use `licenseKey` instead
+		 * @deprecated Still renders are included in every Remotion License and do not send usage telemetry.
 		 */
 		apiKey?: string | null;
 	},
 ): Promise<RenderStillOnLambdaOutput> {
+	const logLevel = input.dumpBrowserLogs
+		? 'verbose'
+		: (input.logLevel ?? 'info');
+	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: input.licenseKey ?? input.apiKey ?? null,
+		api: 'renderStillOnLambda()',
+		option: typeof input.licenseKey === 'string' ? 'licenseKey' : 'apiKey',
+		logLevel,
+	});
+
 	return internalRenderStillOnLambda({
 		chromiumOptions: input.chromiumOptions ?? {},
 		composition: input.composition,
@@ -228,18 +241,16 @@ export function renderStillOnLambda(
 		region: input.region,
 		serveUrl: input.serveUrl,
 		jpegQuality: input.jpegQuality ?? input.quality ?? 80,
-		logLevel: input.dumpBrowserLogs ? 'verbose' : (input.logLevel ?? 'info'),
+		logLevel,
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		forcePathStyle: input.forcePathStyle ?? false,
-		licenseKey: input.licenseKey ?? input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
 		mediaCacheSizeInBytes: input.mediaCacheSizeInBytes ?? null,
 		preferredEffectBackend: input.preferredEffectBackend ?? 'auto',
-		isProduction: input.isProduction ?? null,
 	});
 }

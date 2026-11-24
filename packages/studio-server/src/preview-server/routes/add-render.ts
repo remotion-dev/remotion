@@ -172,7 +172,6 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				offthreadVideoThreads: input.offthreadVideoThreads,
 				mediaCacheSizeInBytes: input.mediaCacheSizeInBytes,
 				preferredEffectBackend: input.preferredEffectBackend,
-				licenseKey: input.licenseKey,
 			},
 			entryPoint,
 			remotionRoot,

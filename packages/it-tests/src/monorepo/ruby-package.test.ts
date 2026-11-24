@@ -195,13 +195,11 @@ test('Render Still payload', async () => {
 			indent: false,
 			onInit: () => undefined,
 			forcePathStyle: false,
-			licenseKey: null,
 			offthreadVideoThreads: null,
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
 			preferredEffectBackend: 'auto',
-			isProduction: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});
