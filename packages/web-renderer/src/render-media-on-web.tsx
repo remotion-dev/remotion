@@ -531,6 +531,13 @@ const internalRenderMediaOnWeb = async <
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
 						alpha: transparent ? 'keep' : 'discard',
+						onEncoderConfig: () => {
+							// A crop can resume after a sibling audio add failed and canceled
+							// the output, before the first video encoder has been initialized.
+							if (outputWithCleanup.output.state === 'canceled') {
+								throw new Error('The output has been canceled.');
+							}
+						},
 					})
 				: null;
 
@@ -753,6 +760,8 @@ const internalRenderMediaOnWeb = async <
 							1 / resolved.fps,
 						),
 					);
+					// The pending add owns the frame even if the audio add rejects first.
+					frameToEncode = null;
 				}
 
 				encodingPromises.push(encodeReadyAudio());
