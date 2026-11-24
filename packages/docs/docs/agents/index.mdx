@@ -1,0 +1,49 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-ai-coding-agents.png
+title: Make videos with coding agents
+---
+
+import {TableOfContents} from './TableOfContents';
+
+Coding agents can create and edit Remotion videos.
+
+<YouTube minutes={5} href="https://www.youtube.com/watch?v=5NRAOnKc3c8" thumb="https://i.ytimg.com/vi/5NRAOnKc3c8/hqdefault.jpg" title="Create motion graphics with AI – Simple tutorial for beginners" />
+
+## From a terminal
+
+Install [Node.js](https://nodejs.org/en) and a coding agent such as [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex), [Kimi Code](https://www.kimi.com/code), or [OpenCode](https://opencode.ai).
+
+From the project directory, install the [Remotion Agent Skills](/docs/agents/skills) and start Remotion Studio.
+
+```bash title="Terminal"
+npx create-video@latest --yes --blank my-video
+cd my-video
+npx remotion skills add
+npm run dev
+```
+
+Open the URL printed in the terminal and leave Studio running while you work.<br />
+In a second terminal, open the same project directory and launch your agent.
+
+```bash title="Terminal"
+cd my-video
+claude # or: codex / kimi / opencode
+```
+
+Try this prompt and watch the result in Studio.
+
+<SuggestedPrompt prompt="/remotion-best-practices Make a 10-second title animation for a coffee shop called Morning Press. Use a cream background and dark green text. Slide the title up into view and hold it on screen." />
+
+## From ChatGPT or Claude Code
+
+Use our [plugins](/docs/agents/plugins) and invoke <Skill>/remotion-create</Skill> to make a video.
+
+## Tools and resources
+
+<TableOfContents />
+
+## Documentation for agents {#ai-ready-documentation}
+
+- Use the copy button on a docs page to copy its Markdown.
+- Append `.md` to a docs URL to fetch Markdown directly, for example `remotion.dev/docs/agents.md`.
+- Send `Accept: text/markdown` when requesting a docs URL to receive Markdown. Claude Code and OpenCode can also get Markdown from the regular page URL.

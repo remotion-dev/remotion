@@ -34,7 +34,7 @@ and [optimistic composition metadata](../../../packages/studio/src/components/In
   registrations in [WebMcp.tsx](../../../packages/studio/src/components/WebMcp.tsx)
   and the relevant feature's tools.
 - Document every new WebMCP tool and changes to its inputs or outputs in the
-  [WebMCP documentation](../../../packages/docs/docs/ai/webmcp.mdx), including
+  [WebMCP documentation](../../../packages/docs/docs/agents/webmcp.mdx), including
   pending state, results, and mode availability.
 - Every source-backed edit must work interactively and by editing project code,
   which also provides agentic access. Direct code changes must appear correctly

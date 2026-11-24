@@ -372,7 +372,7 @@ const siteConfig: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
-		routes.redirect('/webmcp', '/docs/ai/webmcp', {permanent: false}),
+		routes.redirect('/webmcp', '/docs/agents/webmcp', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
@@ -569,8 +569,8 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/design-systems', '/docs/design-systems', {
 			permanent: false,
 		}),
-		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
-		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
+		routes.redirect('/skills', '/docs/agents/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/agents/plugins', {permanent: false}),
 		routes.redirect(
 			'/codex',
 			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',
@@ -764,9 +764,6 @@ const siteConfig: VercelConfig = {
 			'/docs/accessibility/dev.md',
 			{permanent: true},
 		),
-		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
-			permanent: false,
-		}),
 	],
 };
 

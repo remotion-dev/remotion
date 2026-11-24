@@ -32,7 +32,7 @@ Pass [`--skills`](https://www.remotion.dev/docs/cli/create-video#--skills) to in
 npx create-video@latest --skills
 ```
 
-For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).
+For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/agents/skills).
 
 ## Available skills
 
