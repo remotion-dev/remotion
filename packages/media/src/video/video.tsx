@@ -5,7 +5,6 @@ import {
 	Interactive,
 	Sequence,
 	useRemotionEnvironment,
-	useVideoConfig,
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
@@ -353,7 +352,7 @@ const VideoInner: React.FC<
 		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
 	const mediaStartsAt = Internals.useMediaStartsAt();
-	const videoConfig = useVideoConfig();
+	const videoConfig = Internals.useVideoConfigWithClippedDuration();
 	const effectiveTrimAfter = getMediaTrimAfter({
 		durationInFrames,
 		trimAfter,

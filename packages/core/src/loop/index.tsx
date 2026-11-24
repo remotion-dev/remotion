@@ -4,7 +4,7 @@ import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
-import {useVideoConfig} from '../use-video-config.js';
+import {useVideoConfigWithClippedDuration} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {LoopContext, type LoopContextType} from './loop-context.js';
 
@@ -45,7 +45,7 @@ export const Loop: React.FC<LoopProps> & {
 	...props
 }) => {
 	const currentFrame = useCurrentFrame();
-	const {durationInFrames: compDuration} = useVideoConfig();
+	const {durationInFrames: compDuration} = useVideoConfigWithClippedDuration();
 	const parentSequence = useContext(SequenceContext);
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const playbackRateValue = playbackRate ?? 1;

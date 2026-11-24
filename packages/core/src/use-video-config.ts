@@ -4,12 +4,10 @@ import {useIsPlayer} from './is-player.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
-/*
- * @description Retrieves information about the composition context in which it is used, including dimensions, frame rate, duration, and more.
- * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
- */
-export const useVideoConfig = (): VideoConfig => {
-	const videoConfig = useUnsafeVideoConfig();
+const useVideoConfigWithDuration = (
+	duration: 'clipped' | 'unclipped',
+): VideoConfig => {
+	const videoConfig = useUnsafeVideoConfig(duration);
 	const context = useContext(CanUseRemotionHooks);
 	const isPlayer = useIsPlayer();
 
@@ -38,3 +36,13 @@ export const useVideoConfig = (): VideoConfig => {
 
 	return videoConfig;
 };
+
+/*
+ * @description Retrieves information about the composition context in which it is used, including dimensions, frame rate, duration, and more.
+ * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
+ */
+export const useVideoConfig = (): VideoConfig =>
+	useVideoConfigWithDuration('unclipped');
+
+export const useVideoConfigWithClippedDuration = (): VideoConfig =>
+	useVideoConfigWithDuration('clipped');

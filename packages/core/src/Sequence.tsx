@@ -70,7 +70,10 @@ import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
-import {useVideoConfig} from './use-video-config.js';
+import {
+	useVideoConfig,
+	useVideoConfigWithClippedDuration,
+} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
@@ -421,6 +424,13 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			: Math.min(loopPeriod, actualDurationInFrames - loopOffset) *
 					playbackRate +
 				trimBefore;
+	const parentUnclippedDuration =
+		parentSequence?.unclippedDurationInFrames ?? null;
+	const unclippedDurationInFrames = Number.isFinite(contentDurationInFrames)
+		? contentDurationInFrames + trimBefore
+		: parentUnclippedDuration === null
+			? null
+			: Math.max(0, parentUnclippedDuration - from) * playbackRate + trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
@@ -488,6 +498,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			relativeFrom,
 			cumulatedNegativeFrom,
 			durationInFrames: localClockEnd,
+			unclippedDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
 			height: height ?? parentSequence?.height ?? null,
@@ -503,6 +514,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		relativeFrom,
 		cumulativePlaybackRate,
 		localClockEnd,
+		unclippedDurationInFrames,
 		parentSequence,
 		id,
 		height,
@@ -1033,7 +1045,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
-	const videoConfig = useVideoConfig();
+	const videoConfig = useVideoConfigWithClippedDuration();
 	const contentDurationInFrames = resolveSequenceContentDuration({
 		durationInFrames,
 	});

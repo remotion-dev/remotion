@@ -44,9 +44,9 @@ test('nested rates scale child clocks, trims and durations within parent-frame w
 	const view = render(content(34));
 	expect(view.container.textContent).toBe('');
 	view.rerender(content(35));
-	expect(view.getByText('Frame 3, duration 18')).toBeTruthy();
+	expect(view.getByText('Frame 3, duration 23')).toBeTruthy();
 	view.rerender(content(44));
-	expect(view.getByText('Frame 12, duration 18')).toBeTruthy();
+	expect(view.getByText('Frame 12, duration 23')).toBeTruthy();
 	view.rerender(content(50));
 	expect(view.container.textContent).toBe('');
 });

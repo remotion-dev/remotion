@@ -5,7 +5,6 @@ import {
 	Interactive,
 	Sequence,
 	useRemotionEnvironment,
-	useVideoConfig,
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
@@ -93,7 +92,7 @@ const AudioInner: React.FC<
 	const sourceStack = controls ? Internals.getStackForControls(controls) : null;
 
 	const mediaStartsAt = Internals.useMediaStartsAt();
-	const videoConfig = useVideoConfig();
+	const videoConfig = Internals.useVideoConfigWithClippedDuration();
 	const effectiveTrimAfter = getMediaTrimAfter({
 		durationInFrames,
 		trimAfter: props.trimAfter,

@@ -332,6 +332,7 @@ import {
 import {useSyncExternalStore} from './use-sync-external-store.js';
 import {useTimelineSeek} from './use-timeline-seek.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import {useVideoConfigWithClippedDuration} from './use-video-config.js';
 import {useVideo, VideoProvider} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
 import {
@@ -418,6 +419,7 @@ export const Internals = {
 	RenderResourceManagerContext,
 	createRuntimeValueStore,
 	useUnsafeVideoConfig,
+	useVideoConfigWithClippedDuration,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,

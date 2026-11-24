@@ -657,7 +657,7 @@ test.each([
 	}
 });
 
-test('converts descendant constraints through offsets and playback rates', () => {
+test('applies descendant constraints to ancestor trims when the child clock depends on its parent', () => {
 	const fixture = makeFixture(
 		'[10, 21, durationInFrames - 18, durationInFrames - 8]',
 		'child',
@@ -702,7 +702,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 	expect(
 		getTimelineSequenceDurationDragChanges({targets, deltaFrames: -1000})[0]
 			.value,
-	).toBe(30);
+	).toBe(1);
 });
 
 test('trims synchronously while affected source loads and refreshes cached constraints after changes', async () => {

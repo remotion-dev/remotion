@@ -13,7 +13,6 @@ import {
 	type SequenceControls,
 	useCurrentFrame,
 	useRemotionEnvironment,
-	useVideoConfig,
 } from 'remotion';
 import {
 	createMotionBlurCompositor,
@@ -165,7 +164,8 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	styleWhilePostmounted,
 	controls,
 }) => {
-	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const {durationInFrames: compositionDurationInFrames} =
+		Internals.useVideoConfigWithClippedDuration();
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);

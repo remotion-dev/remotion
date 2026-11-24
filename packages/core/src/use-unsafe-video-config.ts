@@ -3,11 +3,16 @@ import {SequenceContext} from './SequenceContext.js';
 import {useVideo} from './use-video.js';
 import type {VideoConfig} from './video-config.js';
 
-export const useUnsafeVideoConfig = (): VideoConfig | null => {
+export const useUnsafeVideoConfig = (
+	duration: 'clipped' | 'unclipped' = 'clipped',
+): VideoConfig | null => {
 	const context = useContext(SequenceContext);
 	const ctxWidth = context?.width ?? null;
 	const ctxHeight = context?.height ?? null;
-	const ctxDuration = context?.durationInFrames ?? null;
+	const ctxDuration =
+		(duration === 'unclipped' ? context?.unclippedDurationInFrames : null) ??
+		context?.durationInFrames ??
+		null;
 	const video = useVideo();
 
 	return useMemo(() => {

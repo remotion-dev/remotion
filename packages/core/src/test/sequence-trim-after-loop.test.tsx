@@ -100,8 +100,8 @@ test('loop repeats durationInFrames and exposes a partial final iteration', () =
 		[3, 'clock: frame 10, duration 16, iteration 0, period 6'],
 		[5, 'clock: frame 14, duration 16, iteration 0, period 6'],
 		[6, 'clock: frame 10, duration 16, iteration 1, period 6'],
-		[9, 'clock: frame 10, duration 14, iteration 2, period 6'],
-		[10, 'clock: frame 12, duration 14, iteration 2, period 6'],
+		[9, 'clock: frame 10, duration 16, iteration 2, period 6'],
+		[10, 'clock: frame 12, duration 16, iteration 2, period 6'],
 	] as const) {
 		view.rerender(renderFrame({frame, children: content}));
 		expect(view.container.textContent).toBe(expected);
@@ -138,7 +138,7 @@ test('loop respects nested playback rates and a parent cutting an iteration shor
 	view.unmount();
 	const cutoffView = render(renderFrame({frame: 6, children: parentCutoff}));
 	expect(cutoffView.container.textContent).toBe(
-		'cutoff: frame 2, duration 3, iteration 1, period 4',
+		'cutoff: frame 2, duration 4, iteration 1, period 4',
 	);
 	cutoffView.rerender(renderFrame({frame: 7, children: parentCutoff}));
 	expect(cutoffView.container.textContent).toBe('');
@@ -205,7 +205,7 @@ test('Sequence loop matches Loop and timed wrappers forward the props', () => {
 	);
 	view.rerender(renderFrame({frame: 4, children: series}));
 	expect(view.container.textContent).toBe(
-		'first: frame 0, duration 1, iteration 2, period 2',
+		'first: frame 0, duration 2, iteration 2, period 2',
 	);
 	view.rerender(renderFrame({frame: 5, children: series}));
 	expect(view.container.textContent).toBe(

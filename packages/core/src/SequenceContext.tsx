@@ -12,8 +12,9 @@ export type SequenceContextType = {
 	cumulatedNegativeFrom: number;
 	relativeFrom: number;
 	parentFrom: number;
-	/** Exclusive end of the local clock, including trimBefore. */
+	/** Exclusive end of the visible range in local frames, including trimBefore. */
 	durationInFrames: number;
+	unclippedDurationInFrames: number | null;
 	id: string;
 	width: number | null;
 	height: number | null;
