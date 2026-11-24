@@ -1,38 +1,19 @@
-.previewTable {
-	display: table;
-	table-layout: fixed;
-	width: 100%;
+.previews {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-bottom: var(--ifm-spacing-vertical);
 }
 
-.previewTable td {
-	vertical-align: top;
-}
-
-.previewTable figure {
-	margin: 0;
-}
-
-.previewTable img,
-.previewTable video {
+.previews img,
+.previews video {
 	display: block;
 	width: 100%;
 	height: auto;
 }
 
-.previewTable figcaption {
-	margin-top: 8px;
-	font-size: calc(1em - 1px);
-}
-
 @media (max-width: 640px) {
-	.previewTable,
-	.previewTable tbody,
-	.previewTable tr,
-	.previewTable td {
-		display: block;
-	}
-
-	.previewTable td + td {
-		border-top: 0;
+	.previews {
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
