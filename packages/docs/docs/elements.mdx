@@ -4,19 +4,116 @@ title: Elements
 description: Reusable, sharable and composable video components, published in Element Libraries.
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {ElementLibraryStrip, ElementsComposeDemo, ElementsFlow, ElementsShowcase} from '@site/src/components/Elements/ElementsOverview';
+
 # Elements
 
 An Element is a video building block written as a React component, such as an animated title, background, chart, or caption style.
 
-Elements are reusable, sharable, and composable. An Element is self-contained, so it works in any composition. Creators publish Elements on websites called [Element Libraries](/elements/libraries), and anyone can publish a library. Each Element does one thing, so you can combine several of them into a larger video.
+<ElementsShowcase />
 
-Adding an Element copies its source code into your project. You own the copy and can edit it like any other component.
+Creators publish Elements on websites called [Element Libraries](/elements/libraries). Adding an Element copies its source code into your project.
 
-## Find Elements
+<ElementsFlow />
 
-**[Browse Element Libraries](/elements/libraries)**
+## Why Elements
 
-## Add an Element Library to Studio
+### Taste is the hard part
+
+An AI agent can generate any animation from a prompt. Whether the result looks good is a different question: timing, easing, spacing and typography are judgment calls, and getting them right takes iterations.
+
+An Element is the result of those iterations. Someone with an eye for motion design made the decisions, and the Element shares them. Sharing taste is what makes Elements valuable when code is cheap to generate.
+
+Agents benefit too. An agent that adapts a well-made Element has a reference to match, instead of inventing a style on every prompt. The result is more predictable, and it looks the same in the next video.
+
+### You own the code
+
+An Element is not an npm package. Its source is copied into your project as a regular component, so you can restyle it, retime it or rewrite it, and no update can change it afterwards.
+
+### Elements compose
+
+An Element is small and does one thing: a lower third, a marker stroke, a caption style. It is self-contained, so it works in any composition.
+
+- Layer Elements as overlays on top of an existing video.
+- Reuse the same Elements across projects to keep a consistent look.
+- Collect them into a [design system](/docs/design-systems) for a brand or a team.
+- Mix Elements from different libraries in one video.
+
+In this video, the captions and the lower third are Elements layered over a recording. Toggle them to compare.
+
+<ElementsComposeDemo />
+
+### Editable without code
+
+Elements can expose controls to the Inspector of Remotion Studio, so text, colors and timing can be changed visually. The code stays available for everything else.
+
+### Open to any publisher
+
+Any website can be an Element Library. Studio, the CLI and AI agents install from it by URL, and no approval from us is needed. See [Build Elements](#build-elements).
+
+## Use Elements
+
+### Find Elements
+
+[Browse Element Libraries](/elements/libraries) to see what creators have published.
+
+### Add an Element
+
+<Tabs
+defaultValue="studio"
+values={[
+{ label: 'Remotion Studio', value: 'studio', },
+{ label: 'CLI', value: 'cli', },
+{ label: 'AI agent', value: 'agent', },
+]
+}>
+<TabItem value="studio">
+
+<Step>1</Step> Open your composition in Remotion Studio.<br />
+<Step>2</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
+<Step>3</Step> Pick a library and choose an Element to add to your composition.
+
+<video src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4" autoPlay loop muted playsInline controls aria-label="Browsing Remotion Elements in Studio" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginTop: 12}} />
+
+Studio copies the Element's source code into your project and installs its dependencies. Edit the copied code to customize it, or use its Inspector controls if it exposes them.
+
+See [Browse Elements in Studio](/docs/studio/browse-elements).
+
+  </TabItem>
+  <TabItem value="cli">
+
+Run [`remotion elements use`](/docs/cli/elements/use) from your Remotion project with the URL of an Element's page. Replace the example URL with that URL and `MyVideo` with your composition ID.
+
+```bash
+npx remotion elements use https://example.com/elements/lower-third --composition MyVideo --dry-run
+```
+
+The dry run (available in Remotion 4.0.543 and later) previews files, dependencies, and assets without changing your project. To install the Element, run the command again without `--dry-run`.
+
+The command asks for confirmation, copies the source, installs missing dependencies, and adds the Element to the composition at frame 0.
+
+See the [CLI reference](/docs/cli/elements/use) for supported URLs, version requirements, and flags.
+
+  </TabItem>
+  <TabItem value="agent">
+
+[Install the Remotion Agent Skills](/docs/agents/skills), then use `/remotion-markup` when asking your agent to work on your video's content:
+
+```text
+/remotion-markup Add a lower third from https://www.remotion.dev/elements to my composition.
+Use the Element's source code and adapt the text and colors to my video.
+```
+
+Give the agent the Element's page URL and your composition ID for a specific choice. Review the resulting code and preview it in Studio.
+
+  </TabItem>
+</Tabs>
+
+Install Elements only from websites you trust, since their source code runs in your project.
+
+### Add an Element Library to Studio
 
 Libraries that you add appear in [Browse Elements](/docs/studio/browse-elements) in Remotion Studio.
 
@@ -36,44 +133,53 @@ Config.addElementLibrary({
 
 You can rename, reorder, and remove libraries in Studio or in the config file.
 
-## Add an Element
+## Build Elements
 
-### In Remotion Studio
+Elements are an open ecosystem. An Element Library is your own website, with your own design and selection of Elements, and publishing one does not need our approval.
 
-1. Open your composition in Remotion Studio.
-2. Select **Browse Elements** in the **Actions** section of the right inspector.
-3. Pick a library and choose an Element to add to your composition.
+### Why build Elements
 
-Studio copies the Element's source code into your project and installs its dependencies. Edit the copied code to customize it, or use its Inspector controls if it exposes them.
+- Your taste becomes reusable. Animations that you already made for your own videos can be published as Elements with a page and a payload.
+- Your work is one click away from people making videos, because a library installs from Remotion Studio, the CLI and AI agents.
+- A library carries your name. Good Elements get used in other people's videos, which builds a reputation and an audience.
+- We point to libraries instead of collecting Elements in ours, and feature good ones in the [official listing](#get-listed).
 
-### With the CLI
+<ElementLibraryStrip />
 
-Use [`remotion elements use`](/docs/cli/elements/use) from your Remotion project with the URL of an Element's page. Replace the example URL with that URL and `MyVideo` with your composition ID.
+### Distributing Elements
 
-```bash
-npx remotion elements use https://example.com/elements/lower-third --composition MyVideo --dry-run
-```
+How you distribute Elements is your decision, as with any app built with Remotion. Libraries can be free and open source, funded by sponsorships, or paid.
 
-The dry run (available in Remotion 4.0.543 and later) previews files, dependencies, and assets without changing your project. To install the Element, run the command again without `--dry-run`.
+Most libraries are public. [Embedding the payload](/docs/elements/libraries#4-embed-the-payload) in each Element's page makes it installable for everyone, including agents.
 
-The command asks for confirmation, copies the source, installs missing dependencies, and adds the Element to the composition at frame 0. Install Elements only from websites you trust, since their source code runs in your project.
+To restrict access, for example for paid Elements, keep in mind that Studio receives only the [payload](/docs/studio-protocol/create-element-payload) that your website creates:
 
-See the [CLI reference](/docs/cli/elements/use) for supported URLs, version requirements, and flags.
+- Show the preview in a [`<Player>`](/docs/player) and the install actions to every visitor.
+- When a user without access selects an install action, show the paywall or login instead of installing.
+- Load the source code from your server after checking access, instead of bundling it into the page. Create the payload only then.
+- Do not embed the payload in a public page. For CLI and agent installs, give each user a private URL that returns the JSON payload.
 
-### With an AI agent
+Installing an Element hands over its source code. State in your terms what users may do with it, such as using it in client work or redistributing it.
 
-[Install the Remotion Agent Skills](/docs/agents/skills), then use `/remotion-markup` when asking your agent to work on your video's content:
+The license of an Element is separate from the [Remotion license](/docs/license), which applies to everyone who uses Remotion.
 
-```text
-/remotion-markup Add a lower third from https://www.remotion.dev/elements to my composition.
-Use the Element's source code and adapt the text and colors to my video.
-```
+### Get started
 
-Give the agent the Element's page URL and your composition ID for a specific choice. Review the resulting code and preview it in Studio.
+<Step>1</Step> Clone the [Element Library template](https://github.com/remotion-dev/template-element-library), a working library website for previewing, installing and authoring Elements.<br />
+<Step>2</Step> Build Elements with the [Element best practices](/docs/elements/creating), which cover design, portability, assets and Studio integration.<br />
+<Step>3</Step> To add Studio support to an existing website instead, follow [Building Element Libraries](/docs/elements/libraries).<br />
+<Step>4</Step> Deploy the website over HTTPS and share its URL. Anyone can add it to Studio.
 
-## Make your own Element Library
+### Get listed
 
-We encourage you to publish Elements in your own library instead of contributing them to ours. Your library is your own website, with your own design and selection of Elements.
+We support libraries by featuring them on [Element Libraries](/elements/libraries), which is also the Explore view of Studio. The listing is curated: we look for original, well-crafted Elements.
 
-- [Building Element Libraries](/docs/elements/libraries) explains how to publish Elements that install into Studio.
-- [Element best practices](/docs/elements/creating) covers design, portability, assets, and Studio integration.
+To propose a library, contact [hi@remotion.dev](mailto:hi@remotion.dev). A library that is not listed still works everywhere by URL.
+
+## See also
+
+- [Element Libraries](/elements/libraries)
+- [Building Element Libraries](/docs/elements/libraries)
+- [Element best practices](/docs/elements/creating)
+- [Browse Elements in Studio](/docs/studio/browse-elements)
+- [`npx remotion elements use`](/docs/cli/elements/use)
