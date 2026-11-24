@@ -33,10 +33,7 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {LoopContext, type LoopContextType} from './loop/loop-context.js';
-import {
-	resolveSequenceContentDuration,
-	resolveSequenceDuration,
-} from './resolve-sequence-duration.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	SequenceActivityContext,
@@ -71,6 +68,7 @@ import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
+import {useVideo} from './use-video.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
@@ -380,7 +378,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		);
 	}
 
-	if (loop && !Number.isFinite(contentDurationInFrames)) {
+	if (loop && !Number.isFinite(durationInFrames)) {
 		throw new Error(
 			'The "loop" prop of <Sequence /> requires a finite "durationInFrames" prop, because a <Sequence /> has no intrinsic duration.',
 		);
@@ -413,14 +411,6 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	const effectiveRelativeFrom = clockFrom - trimBefore / playbackRate;
 	const relativeFrom = effectiveRelativeFrom / parentPlaybackRate;
 	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + relativeFrom;
-	// Inside a loop, the local clock ends after `durationInFrames`, except in a final
-	// iteration that the parent cuts short.
-	const localClockEnd =
-		loopPeriod === null
-			? actualDurationInFrames * playbackRate + trimBefore
-			: Math.min(loopPeriod, actualDurationInFrames - loopOffset) *
-					playbackRate +
-				trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
@@ -487,7 +477,8 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			cumulatedFrom,
 			relativeFrom,
 			cumulatedNegativeFrom,
-			durationInFrames: localClockEnd,
+			durationInFrames: contentDurationInFrames,
+			trimBefore,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
 			height: height ?? parentSequence?.height ?? null,
@@ -502,7 +493,8 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		absoluteFrom,
 		relativeFrom,
 		cumulativePlaybackRate,
-		localClockEnd,
+		contentDurationInFrames,
+		trimBefore,
 		parentSequence,
 		id,
 		height,
@@ -1034,9 +1026,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
 	const videoConfig = useVideoConfig();
-	const contentDurationInFrames = resolveSequenceContentDuration({
-		durationInFrames,
-	});
+	const compositionDurationInFrames =
+		useVideo()?.durationInFrames ?? videoConfig.durationInFrames;
+	const contentDurationInFrames =
+		durationInFrames === Infinity
+			? compositionDurationInFrames
+			: (durationInFrames ?? compositionDurationInFrames);
 	const absoluteFrame = useTimelinePosition();
 	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
 	if (
@@ -1066,27 +1061,22 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		loop,
 	});
-	const windowRelativeFrom = from - trimBefore / playbackRate;
-
-	const parentSequenceDuration = parentSequence
-		? Math.min(
-				parentSequence.durationInFrames - windowRelativeFrom,
-				effectiveDurationInFrames,
-			)
-		: effectiveDurationInFrames;
-	const actualDurationInFrames = Math.max(
-		0,
-		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
-	);
 
 	// A looped sequence repeats the child range selected by `durationInFrames`. Each
 	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
 	// while the visible window stays at [from, from + effectiveDurationInFrames).
 	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
 	const loopPeriod =
-		loop && Number.isFinite(contentDurationInFrames)
+		loop && Number.isFinite(durationInFrames)
 			? contentDurationInFrames / playbackRate
 			: null;
+	const actualDurationInFrames = Number.isFinite(effectiveDurationInFrames)
+		? effectiveDurationInFrames
+		: Math.max(
+				0,
+				(compositionDurationInFrames - cumulatedFrom) * parentPlaybackRate -
+					from,
+			);
 	let loopIteration = 0;
 	if (
 		loopPeriod !== null &&

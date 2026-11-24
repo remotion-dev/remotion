@@ -577,7 +577,7 @@ test.each([
 			from: 30,
 			trimBefore: 30,
 			playbackRate: 1,
-			expectedDuration: 69,
+			expectedDuration: 90,
 		},
 		{
 			range: '[0, Math.max(1, durationInFrames - 50)]',
@@ -614,7 +614,7 @@ test.each([
 		fixture.sequences[0].duration = 60 / playbackRate;
 		fixture.sequences[0].sequencePlaybackRate = playbackRate;
 		fixture.sequences[0].controls!.componentIdentity = componentIdentity;
-		fixture.sequences[1].controls!.videoConfigValues = config(60 + trimBefore);
+		fixture.sequences[1].controls!.videoConfigValues = config(60);
 		prepareSource(fixture);
 		const {tracks} = calculate({
 			sequences: fixture.sequences,
@@ -657,7 +657,7 @@ test.each([
 	}
 });
 
-test('converts descendant constraints through offsets and playback rates', () => {
+test('trimming an ancestor preserves the duration of a fixed-length descendant', () => {
 	const fixture = makeFixture(
 		'[10, 21, durationInFrames - 18, durationInFrames - 8]',
 		'child',
@@ -702,7 +702,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 	expect(
 		getTimelineSequenceDurationDragChanges({targets, deltaFrames: -1000})[0]
 			.value,
-	).toBe(30);
+	).toBe(1);
 });
 
 test('trims synchronously while affected source loads and refreshes cached constraints after changes', async () => {
