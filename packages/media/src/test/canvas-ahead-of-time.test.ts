@@ -4,7 +4,12 @@ import {
 	type WrappedCanvas,
 } from 'mediabunny';
 import {expect, test} from 'vitest';
-import {canvasesAheadOfTime, releaseStableFrame} from '../canvas-ahead-of-time';
+import {
+	canvasesAheadOfTime,
+	makeStableFramePool,
+	releaseStableFrame,
+} from '../canvas-ahead-of-time';
+import {makePrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
 const makeCanvas = () => {
 	const canvas = new OffscreenCanvas(2, 2);
@@ -60,7 +65,13 @@ const waitForFrame = (
 };
 
 test('keeps already-returned canvases stable when samples are created from a reused scratch canvas', async () => {
-	const iterator = canvasesAheadOfTime(makeReusingSampleSink());
+	const pool = makeStableFramePool();
+	const iterator = canvasesAheadOfTime(
+		makeReusingSampleSink(),
+		undefined,
+		null,
+		pool,
+	);
 	const frames: (WrappedCanvas | null)[] = [];
 
 	try {
@@ -87,11 +98,12 @@ test('keeps already-returned canvases stable when samples are created from a reu
 		]);
 	} finally {
 		frames.forEach(releaseStableFrame);
+		pool.dispose();
 		await iterator.closeIterator();
 	}
 });
 
-test('clears a recycled stable canvas before copying a transparent frame', async () => {
+test('clears a canvas reused after a seek and frees it when its last frame is released', async () => {
 	const canvas = new OffscreenCanvas(2, 1);
 	const context = canvas.getContext('2d');
 	if (!context) {
@@ -99,36 +111,40 @@ test('clears a recycled stable canvas before copying a transparent frame', async
 	}
 
 	const sink = {
-		async *samples() {
-			for (let i = 0; i < 4; i++) {
-				context.clearRect(0, 0, 2, 1);
-				context.fillStyle = 'red';
-				context.fillRect(i % 2, 0, 1, 1);
-				await Promise.resolve();
-
-				yield new VideoSample(canvas, {duration: 1, timestamp: i});
-			}
+		async *samples(startTimestamp: number) {
+			context.clearRect(0, 0, 2, 1);
+			context.fillStyle = 'red';
+			context.fillRect(startTimestamp, 0, 1, 1);
+			yield new VideoSample(canvas, {duration: 1, timestamp: startTimestamp});
 		},
 	} as unknown as VideoSampleSink;
-	const iterator = canvasesAheadOfTime(sink);
-	const frames: (WrappedCanvas | null)[] = [];
+	const cache = makePrewarmedVideoIteratorCache(sink, 1000);
+	const firstIterator = cache.makeIteratorOrUsePrewarmed(0);
+	cache.prewarmIteratorForLooping({timeToSeek: 1});
+	const secondIterator = cache.makeIteratorOrUsePrewarmed(1);
+	let first: WrappedCanvas | null = null;
+	let second: WrappedCanvas | null = null;
 
 	try {
-		const first = await waitForFrame(iterator.next());
-		frames.push(first);
-		expect(getPixel(first!.canvas as OffscreenCanvas)).toEqual([
-			255, 0, 0, 255,
-		]);
-		frames.push(await waitForFrame(iterator.next()));
-		frames.push(await waitForFrame(iterator.next()));
+		first = await waitForFrame(firstIterator.next());
+		const reusedCanvas = first!.canvas as OffscreenCanvas;
+		expect(getPixel(reusedCanvas)).toEqual([255, 0, 0, 255]);
+		await firstIterator.closeIterator();
 		releaseStableFrame(first);
-		const fourth = await waitForFrame(iterator.next());
-		frames.push(fourth);
-		expect(fourth!.canvas).toBe(first!.canvas);
 
-		expect(getPixel(fourth!.canvas as OffscreenCanvas)).toEqual([0, 0, 0, 0]);
+		second = await waitForFrame(secondIterator.next());
+		expect(second!.canvas).toBe(reusedCanvas);
+		cache.destroy();
+		expect(getPixel(reusedCanvas)).toEqual([0, 0, 0, 0]);
+		releaseStableFrame(second);
+		expect([reusedCanvas.width, reusedCanvas.height]).toEqual([0, 0]);
 	} finally {
-		frames.forEach(releaseStableFrame);
-		await iterator.closeIterator();
+		releaseStableFrame(first);
+		releaseStableFrame(second);
+		cache.destroy();
+		await Promise.all([
+			firstIterator.closeIterator(),
+			secondIterator.closeIterator(),
+		]);
 	}
 });

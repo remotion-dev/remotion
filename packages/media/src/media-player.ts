@@ -581,15 +581,11 @@ export class MediaPlayer {
 		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(
-			newTime,
-			unloopedNewTime,
-			nonce,
-			intent,
+		const seek = this.seekPromiseChain.then(() =>
+			this.seekToDoNotCallDirectly(newTime, unloopedNewTime, nonce, intent),
 		);
-		await this.seekPromiseChain;
+		this.seekPromiseChain = seek;
+		await seek;
 	};
 
 	public async seekTo(time: number, intent: MediaSeekIntent): Promise<void> {
@@ -1010,7 +1006,15 @@ export class MediaPlayer {
 	}
 
 	public async redrawVideoEffects(): Promise<void> {
-		await this.videoIteratorManager?.redrawCurrentFrame();
+		const nonce = this.nonceManager.getCurrentNonce();
+		// A seek can recycle the source canvas once the redraw finishes.
+		const redraw = this.seekPromiseChain.then(() => {
+			if (!nonce.isStale()) {
+				return this.videoIteratorManager?.redrawCurrentFrame();
+			}
+		});
+		this.seekPromiseChain = redraw.catch(() => undefined);
+		await redraw;
 	}
 
 	private drawDebugOverlay = () => {

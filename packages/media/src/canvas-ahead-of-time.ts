@@ -61,7 +61,7 @@ export const getStableEffectSource = (
 	);
 };
 
-const makeStableFramePool = () => {
+export const makeStableFramePool = () => {
 	let availableCanvases: OffscreenCanvas[] | null = [];
 
 	const releaseFrameCanvas = (canvas: OffscreenCanvas) => {
@@ -180,8 +180,9 @@ type Slot = {
 
 export const canvasesAheadOfTime = (
 	videoSink: VideoSampleSink,
-	startTimestamp?: number,
-	resize: PreviewFrameResize | null = null,
+	startTimestamp: number | undefined,
+	resize: PreviewFrameResize | null,
+	stableFramePool: ReturnType<typeof makeStableFramePool>,
 ) => {
 	const iterator = videoSink.samples(startTimestamp);
 	const resizer = resize ? makePreviewSampleResizer(resize) : null;
@@ -191,7 +192,6 @@ export const canvasesAheadOfTime = (
 	let reachedEnd = false;
 	let closed = false;
 	let inFlight: Promise<void> | null = null;
-	const stableFramePool = makeStableFramePool();
 	const unclaimedFrames = new Set<WrappedCanvas>();
 
 	const takeFrame = (frame: VideoSample): WrappedCanvas => {
@@ -309,7 +309,6 @@ export const canvasesAheadOfTime = (
 	const closeIterator = async () => {
 		closed = true;
 		resizer?.dispose();
-		stableFramePool.dispose();
 		// A caller may abandon a pending next() after its slot leaves the buffer.
 		// Keep ownership until wait() actually hands the frame to that caller.
 		unclaimedFrames.forEach(releaseStableFrame);

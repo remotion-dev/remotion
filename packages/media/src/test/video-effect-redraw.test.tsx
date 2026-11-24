@@ -97,6 +97,12 @@ test.each([false, true])(
 			await waitFor(() => pixel()[1] === 96);
 			expect(pixel()[0]).toBe(105);
 			expect(applications).toHaveLength(applicationsBeforeResize + 1);
+
+			const applicationsBeforeSeek = applications.length;
+			render(150);
+			flushSync(() => ref.current!.seekTo(8));
+			await waitFor(() => pixel()[0] === 158);
+			expect(applications.slice(applicationsBeforeSeek)).toEqual([8]);
 		} finally {
 			root.unmount();
 			container.remove();
