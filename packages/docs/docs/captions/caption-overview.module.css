@@ -5,11 +5,21 @@
 	margin-bottom: var(--ifm-spacing-vertical);
 }
 
+.previews figure {
+	margin: 0;
+}
+
 .previews img,
 .previews video {
 	display: block;
 	width: 100%;
 	height: auto;
+}
+
+.previews figcaption {
+	margin-top: 8px;
+	font-size: 0.875rem;
+	line-height: 1.4;
 }
 
 @media (max-width: 640px) {
