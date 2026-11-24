@@ -190,9 +190,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
-	const duration = parentSequence
-		? Math.min(parentSequence.durationInFrames, durationInFrames)
-		: durationInFrames;
+	const duration = durationInFrames + (parentSequence?.trimBefore ?? 0);
 
 	const preloadedSrc = usePreload(src as string);
 

@@ -14,6 +14,7 @@ export type SequenceContextType = {
 	parentFrom: number;
 	/** Authored sequence length in frames, or the composition length. */
 	durationInFrames: number;
+	trimBefore: number;
 	id: string;
 	width: number | null;
 	height: number | null;
