@@ -15,8 +15,14 @@ export const extendCompositionDuration = <Project extends CodemodProject>({
 }: CompositionTarget & {
 	project: Project;
 	minDurationInFrames: number;
-}): CodemodNodeResult => {
-	const node = requireComposition({project, compositionFile, compositionId});
+}): CodemodNodeResult & {logLine: number | null} => {
+	let node: ReturnType<typeof requireComposition>;
+	try {
+		node = requireComposition({project, compositionFile, compositionId});
+	} catch {
+		return {changes: [], nodePathRemappings: [], logLine: null};
+	}
+
 	const {durationInFrames} = getNodeProps({
 		project,
 		node,
@@ -28,7 +34,7 @@ export const extendCompositionDuration = <Project extends CodemodProject>({
 		typeof durationInFrames.codeValue !== 'number' ||
 		durationInFrames.codeValue >= minDurationInFrames
 	) {
-		return {changes: [], nodePathRemappings: []};
+		return {changes: [], nodePathRemappings: [], logLine: null};
 	}
 
 	const {changes, nodePathRemappings} = updateCompositionMetadata({
@@ -37,5 +43,9 @@ export const extendCompositionDuration = <Project extends CodemodProject>({
 		compositionId,
 		metadata: {durationInFrames: minDurationInFrames},
 	});
-	return {changes, nodePathRemappings};
+	return {
+		changes,
+		nodePathRemappings,
+		logLine: node.location?.line ?? null,
+	};
 };

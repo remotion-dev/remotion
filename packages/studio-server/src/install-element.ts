@@ -3,6 +3,7 @@ import {
 	existsSync,
 	lstatSync,
 	readFileSync,
+	realpathSync,
 	unlinkSync,
 	writeFileSync,
 } from 'node:fs';
@@ -508,6 +509,12 @@ export const installElement = async ({
 				fileName: string;
 				oldContents: string;
 				output: string;
+				logLine: number;
+			} | null = null;
+			let extendedCompositionLog: {
+				fileName: string;
+				line: number;
+				durationInFrames: number;
 			} | null = null;
 			if (
 				captionTarget === null &&
@@ -515,26 +522,38 @@ export const installElement = async ({
 				element.durationInFrames !== null
 			) {
 				const registrationFile = path.resolve(remotionRoot, compositionFile);
-				const registrationContents =
-					registrationFile === inserted.fileName
-						? inserted.output
-						: readFileSync(registrationFile, 'utf-8');
-				const [change] = extendCompositionDuration({
+				const isInsertedFile =
+					realpathSync(registrationFile) === realpathSync(inserted.fileName);
+				const registrationContents = isInsertedFile
+					? inserted.output
+					: readFileSync(registrationFile, 'utf-8');
+				const minDurationInFrames = (from ?? 0) + element.durationInFrames;
+				const extension = extendCompositionDuration({
 					project: {
 						rootDir: remotionRoot,
 						files: {[registrationFile]: registrationContents},
 					},
 					compositionFile: registrationFile,
 					compositionId,
-					minDurationInFrames: (from ?? 0) + element.durationInFrames,
-				}).changes;
-				if (change?.nextContents && registrationFile === inserted.fileName) {
+					minDurationInFrames,
+				});
+				const [change] = extension.changes;
+				if (change?.nextContents) {
+					extendedCompositionLog = {
+						fileName: registrationFile,
+						line: extension.logLine ?? 1,
+						durationInFrames: minDurationInFrames,
+					};
+				}
+
+				if (change?.nextContents && isInsertedFile) {
 					inserted = {...inserted, output: change.nextContents};
 				} else if (change?.nextContents) {
 					extendedComposition = {
 						fileName: registrationFile,
 						oldContents: registrationContents,
 						output: change.nextContents,
+						logLine: extension.logLine ?? 1,
 					};
 				}
 			}
@@ -569,6 +588,16 @@ export const installElement = async ({
 				(readFileSync(compositionCreation.registrationFilePath, 'utf-8') !==
 					compositionCreation.registrationFileOldContents ||
 					existsSync(compositionCreation.componentFilePath))
+			) {
+				throw new Error(
+					'Composition source changed during Element installation',
+				);
+			}
+
+			if (
+				extendedComposition !== null &&
+				readFileSync(extendedComposition.fileName, 'utf-8') !==
+					extendedComposition.oldContents
 			) {
 				throw new Error(
 					'Composition source changed during Element installation',
@@ -699,7 +728,7 @@ export const installElement = async ({
 										filePath: extendedComposition.fileName,
 										oldContents: extendedComposition.oldContents,
 										newContents: extendedComposition.output,
-										logLine: 1,
+										logLine: extendedComposition.logLine,
 										nodePathRemappings: null,
 									},
 								]),
@@ -803,6 +832,19 @@ export const installElement = async ({
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
 			);
+			if (extendedCompositionLog !== null) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
+						formatLogFileLocation({
+							remotionRoot,
+							absolutePath: extendedCompositionLog.fileName,
+							line: extendedCompositionLog.line,
+						}),
+					)} Extended composition "${compositionId}" to ${extendedCompositionLog.durationInFrames} frames`,
+				);
+			}
+
 			if (studio) {
 				printUndoHint(logLevel);
 			}
