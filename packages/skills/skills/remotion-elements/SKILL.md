@@ -1,7 +1,7 @@
 ---
 name: remotion-elements
 description: Installs Elements, reusable video components such as titles, backgrounds, charts and caption styles, into a Remotion project with `npx remotion elements use`. Registers Element libraries in Remotion Studio with `npx remotion elements add-library`. Use when given an Element page URL or an Element library URL, or when a video needs a ready-made component.
-version: 4.0.546
+version: 4.0.547
 ---
 
 # Elements
