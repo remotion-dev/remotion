@@ -342,6 +342,12 @@ export type ModalState =
 			} | null;
 	  }
 	| {
+			type: 'create-effect';
+			query: string;
+			displayName: string | null;
+			location: ResolvedStackLocation | null;
+	  }
+	| {
 			type: 'reorder-composition';
 			item: CompositionOrFolder;
 			destination: CompositionDestination;

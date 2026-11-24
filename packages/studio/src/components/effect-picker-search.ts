@@ -1,5 +1,34 @@
 import type {EffectCatalogItem} from '@remotion/studio-shared';
 
+export const getCreateEffectResult = (query: string) => {
+	const words =
+		query
+			.normalize('NFC')
+			.replace(/([\p{Ll}\p{Nd}])(\p{Lu})/gu, '$1 $2')
+			.replace(/(\p{Lu})(\p{Lu}\p{Ll})/gu, '$1 $2')
+			.toLowerCase()
+			.match(/[\p{L}\p{Nd}][\p{L}\p{M}\p{Nd}]*/gu) ?? [];
+	const camelCase = words
+		.map((word, index) =>
+			index === 0 ? word : word.replace(/^./u, (first) => first.toUpperCase()),
+		)
+		.join('');
+	const name = /^\p{Nd}/u.test(camelCase)
+		? `effect${camelCase}`
+		: camelCase || null;
+
+	return {
+		id: 'create-effect',
+		effect: null,
+		query: query.trim(),
+		name,
+		label: name ? `Create ${name}()` : 'Create custom effect',
+		description: name
+			? `You can generate a custom ${name}() effect and apply it to this element using an agent.`
+			: 'You can make a custom effect by describing it to an agent.',
+	} as const;
+};
+
 const normalize = (value: string) => value.trim().toLowerCase();
 
 const compact = (value: string) => normalize(value).replace(/[^a-z0-9]/g, '');
