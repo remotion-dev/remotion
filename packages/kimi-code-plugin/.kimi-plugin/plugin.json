@@ -7,7 +7,7 @@
 		"email": "hi@remotion.dev",
 		"url": "https://remotion.dev"
 	},
-	"homepage": "https://www.remotion.dev/docs/ai/kimi-code-plugin",
+	"homepage": "https://www.remotion.dev/docs/agents/kimi-code-plugin",
 	"license": "MIT",
 	"keywords": [
 		"remotion",
@@ -26,6 +26,6 @@
 		"shortDescription": "Create programmatic videos with React",
 		"longDescription": "Build videos programmatically with Remotion and React. Covers animations, timing, audio, captions, 3D, transitions, charts, text effects, and more.",
 		"developerName": "Remotion",
-		"websiteURL": "https://www.remotion.dev/docs/ai/kimi-code-plugin"
+		"websiteURL": "https://www.remotion.dev/docs/agents/kimi-code-plugin"
 	}
 }
