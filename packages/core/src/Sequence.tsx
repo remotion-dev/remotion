@@ -70,10 +70,7 @@ import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
-import {
-	useVideoConfig,
-	useVideoConfigWithClippedDuration,
-} from './use-video-config.js';
+import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
@@ -1045,7 +1042,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
-	const videoConfig = useVideoConfigWithClippedDuration();
+	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 	const contentDurationInFrames = resolveSequenceContentDuration({
 		durationInFrames,
 	});
@@ -1078,17 +1075,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		loop,
 	});
-	const windowRelativeFrom = from - trimBefore / playbackRate;
-
-	const parentSequenceDuration = parentSequence
-		? Math.min(
-				parentSequence.durationInFrames - windowRelativeFrom,
-				effectiveDurationInFrames,
-			)
-		: effectiveDurationInFrames;
+	const parentDurationInFrames =
+		parentSequence?.durationInFrames ?? compositionDurationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
-		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
+		Math.min(parentDurationInFrames - from, effectiveDurationInFrames),
 	);
 
 	// A looped sequence repeats the child range selected by `durationInFrames`. Each

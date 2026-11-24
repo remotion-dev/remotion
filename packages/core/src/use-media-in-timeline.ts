@@ -15,7 +15,7 @@ import {SequenceRegistrationContext} from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
-import {useVideoConfigWithClippedDuration} from './use-video-config.js';
+import {useVideoConfig} from './use-video-config.js';
 
 const EMPTY_EFFECTS = [] as const;
 
@@ -106,7 +106,7 @@ export const useMediaInTimelineRegistration = ({
 	const timelineTrack = useContext(TimelineTrackContext);
 	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
-	const {durationInFrames} = useVideoConfigWithClippedDuration();
+	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const {isStudio} = useRemotionEnvironment();
@@ -126,7 +126,8 @@ export const useMediaInTimelineRegistration = ({
 		trimAfter: undefined,
 		trimBefore: undefined,
 		playbackRate,
-		sequenceDurationInFrames: durationInFrames,
+		sequenceDurationInFrames:
+			parentSequence?.durationInFrames ?? durationInFrames,
 		mediaStartsAt,
 		loop: false,
 		muted,

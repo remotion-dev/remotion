@@ -4,7 +4,7 @@ import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
-import {useVideoConfigWithClippedDuration} from '../use-video-config.js';
+import {useVideoConfig} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {LoopContext, type LoopContextType} from './loop-context.js';
 
@@ -45,8 +45,10 @@ export const Loop: React.FC<LoopProps> & {
 	...props
 }) => {
 	const currentFrame = useCurrentFrame();
-	const {durationInFrames: compDuration} = useVideoConfigWithClippedDuration();
+	const {durationInFrames: compositionDuration} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
+	const parentDuration =
+		parentSequence?.durationInFrames ?? compositionDuration;
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const playbackRateValue = playbackRate ?? 1;
 	const iterationDurationInFrames = durationInFrames / playbackRateValue;
@@ -58,7 +60,7 @@ export const Loop: React.FC<LoopProps> & {
 		(parentSequence?.cumulatedNegativeFrom ?? 0) / parentPlaybackRate;
 	const endFrame =
 		loopStartFrame +
-		Math.min(compDuration, iterationDurationInFrames * times) /
+		Math.min(parentDuration, iterationDurationInFrames * times) /
 			parentPlaybackRate;
 
 	validateDurationInFrames(durationInFrames, {
@@ -84,7 +86,7 @@ export const Loop: React.FC<LoopProps> & {
 		);
 	}
 
-	const maxTimes = Math.ceil(compDuration / iterationDurationInFrames);
+	const maxTimes = Math.ceil(parentDuration / iterationDurationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
 	const maxFrame = iterationDurationInFrames * (actualTimes - 1);
 	const loopsElapsed = currentFrame / iterationDurationInFrames;
@@ -108,11 +110,14 @@ export const Loop: React.FC<LoopProps> & {
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
 		return {
-			numberOfTimes: Math.min(compDuration / iterationDurationInFrames, times),
+			numberOfTimes: Math.min(
+				parentDuration / iterationDurationInFrames,
+				times,
+			),
 			startOffset: -from,
 			durationInFrames: iterationDurationInFrames,
 		};
-	}, [compDuration, from, iterationDurationInFrames, times]);
+	}, [parentDuration, from, iterationDurationInFrames, times]);
 
 	const loopContext: LoopContextType = useMemo(() => {
 		return {
