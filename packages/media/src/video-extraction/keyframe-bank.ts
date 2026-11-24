@@ -68,6 +68,14 @@ export const makeKeyframeBank = async ({
 	// Floor rather than round: the bank must start at the last frame that began
 	// at the request (same semantics as hasFrameStarted), not the nearest frame.
 	const snapToTrackTimeResolution = (timeToSeek: number) => {
+		const inTicks = timeToSeek * timeResolution;
+		const nearestTick = Math.round(inTicks);
+		// An on-grid request is already the frame's stored tick: the tolerance
+		// would push it a whole tick ahead and skip the frame being requested.
+		if (Math.abs(inTicks - nearestTick) < 1e-6) {
+			return nearestTick / timeResolution;
+		}
+
 		return (
 			Math.floor((timeToSeek + FRAME_START_TOLERANCE) * timeResolution) /
 			timeResolution
