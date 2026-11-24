@@ -1,0 +1,61 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-elements-using.png
+title: Using an Element
+sidebar_label: Using an Element
+description: Add an Element to your project with Remotion Studio, the CLI or an AI agent.
+---
+
+# Using an Element
+
+Adding an [Element](/docs/elements) copies its source code into your project and installs its dependencies. Afterwards, it is a regular component of your project.
+
+Install Elements only from websites you trust, since their source code runs in your project.
+
+## In Remotion Studio
+
+<Step>1</Step> Open your composition in Remotion Studio.<br />
+<Step>2</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
+<Step>3</Step> Pick a library and choose an Element to add to your composition.
+
+<video src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4" autoPlay loop muted playsInline controls aria-label="Browsing Remotion Elements in Studio" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginTop: 12}} />
+
+Edit the copied code to customize the Element, or use its Inspector controls if it exposes them.
+
+The install actions on an Element's page in the browser also work while Studio is running.
+
+See [Browse Elements in Studio](/docs/studio/browse-elements).
+
+## With the CLI
+
+Run [`remotion elements use`](/docs/cli/elements/use) from your Remotion project with the URL of an Element's page. Replace the example URL with that URL and `MyVideo` with your composition ID.
+
+```bash
+npx remotion elements use https://example.com/elements/lower-third --composition MyVideo --dry-run
+```
+
+The dry run (available in Remotion 4.0.543 and later) previews files, dependencies, and assets without changing your project. To install the Element, run the command again without `--dry-run`.
+
+The command asks for confirmation, copies the source, installs missing dependencies, and adds the Element to the composition at frame 0.
+
+See the [CLI reference](/docs/cli/elements/use) for supported URLs, version requirements, and flags.
+
+## With an AI agent
+
+[Install the Remotion Agent Skills](/docs/agents/skills), then use `/remotion-markup` when asking your agent to work on your video's content:
+
+```text
+/remotion-markup Add a lower third from https://www.remotion.dev/elements to my composition.
+Use the Element's source code and adapt the text and colors to my video.
+```
+
+Give the agent the Element's page URL and your composition ID for a specific choice. Review the resulting code and preview it in Studio.
+
+## Without a project
+
+Libraries can offer to open an Element in [remotion.new](/docs/studio/remotion-dev-new), a Studio that runs in the browser. On [Remotion Elements](/elements), select Try in remotion.new on an Element's page.
+
+## See also
+
+- [Finding Elements](/docs/elements/finding)
+- [Managing Element Libraries](/docs/elements/managing-libraries)
+- [`npx remotion elements use`](/docs/cli/elements/use)

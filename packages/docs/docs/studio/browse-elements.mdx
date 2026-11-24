@@ -22,38 +22,15 @@ Select Browse Elements in the Actions section of the right inspector. Studio ope
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
 />
 
-## Add libraries
+## Manage libraries
 
-### In Studio
+Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library.
 
-Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library. Right-click empty space in the sidebar and choose Add library… to add a library by URL.
-
-Right-click an installed library to edit its name and URL or remove it. Drag libraries to reorder them, or focus a library and press Alt+Up/Down.
-
-### In `remotion.config.ts`
-
-Add an Element Library with [`Config.addElementLibrary()`](/docs/config#addelementlibrary):
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.addElementLibrary({
-  url: 'https://www.remotion.dev/elements',
-  displayName: 'Remotion Elements',
-});
-```
-
-Each call adds one library. The order of the calls is the order in the sidebar.
-
-### From the command line<AvailableFrom v="4.0.547" />
-
-Add an Element Library to `remotion.config.ts` with [`npx remotion elements add-library`](/docs/cli/elements/add-library):
-
-```bash
-npx remotion elements add-library https://example.com/elements
-```
+See [Managing Element Libraries](/docs/elements/managing-libraries) to add libraries by URL, from the command line or in `remotion.config.ts`, and to rename, reorder and remove them.
 
 ## See also
 
 - [Elements](/docs/elements)
+- [Using an Element](/docs/elements/using)
+- [Managing Element Libraries](/docs/elements/managing-libraries)
 - [Element Libraries](/elements/libraries)

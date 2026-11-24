@@ -1,0 +1,63 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-elements-managing-libraries.png
+title: Managing Element Libraries
+sidebar_label: Managing libraries
+description: Add, rename, reorder and remove Element Libraries in Remotion Studio.
+---
+
+# Managing Element Libraries
+
+Libraries of your project appear in the sidebar of [Browse Elements](/docs/studio/browse-elements) in Remotion Studio. They are stored in `remotion.config.ts`, so everyone working on the project sees the same libraries.
+
+## Add a library
+
+### In Studio
+
+Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library.
+
+To add a library by URL, right-click empty space in the sidebar and choose Add library….
+
+### From the website
+
+On [Element Libraries](/elements/libraries), select Add to Studio on a library while Studio is running.
+
+### From the command line<AvailableFrom v="4.0.547" />
+
+Run [`npx remotion elements add-library`](/docs/cli/elements/add-library) with the library's URL:
+
+```bash
+npx remotion elements add-library https://example.com/elements
+```
+
+### In the config file
+
+Call [`Config.addElementLibrary()`](/docs/config#addelementlibrary) once for each library:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://www.remotion.dev/elements',
+  displayName: 'Remotion Elements',
+});
+```
+
+## Rename a library
+
+In Studio, right-click a library and edit its name and URL. In the config file, change `displayName`.
+
+## Reorder libraries
+
+In Studio, drag libraries in the sidebar, or focus a library and press <kbd>Alt</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd>. In the config file, the order of the calls is the order in the sidebar.
+
+## Remove a library
+
+In Studio, right-click a library and remove it. In the config file, delete its `Config.addElementLibrary()` call.
+
+Removing a library does not remove Elements that were already added to the project.
+
+## See also
+
+- [Browse Elements in Studio](/docs/studio/browse-elements)
+- [`Config.addElementLibrary()`](/docs/config#addelementlibrary)
+- [`npx remotion elements add-library`](/docs/cli/elements/add-library)
