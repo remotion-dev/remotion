@@ -476,14 +476,21 @@ describe('useGsapTimeline', () => {
 			timeline
 				.fromTo(
 					selector('[data-early]'),
-					{opacity: 0.2},
+					{opacity: 0.2, x: 0},
 					{
 						opacity: 1,
+						x: 80,
 						duration: 1,
 						ease: 'none',
 						immediateRender: false,
 					},
 					0.5,
+				)
+				.fromTo(
+					'[data-fade]:not([style])',
+					{opacity: 0},
+					{opacity: 1, duration: 3, ease: 'none'},
+					0,
 				)
 				.fromTo(
 					selector('[data-late]'),
@@ -499,9 +506,20 @@ describe('useGsapTimeline', () => {
 				);
 		});
 
+		const rotation = useGsapTimeline<HTMLDivElement>(({timeline}) => {
+			timeline.fromTo(
+				'[data-early]',
+				{rotation: 0},
+				{rotation: 90, duration: 3, ease: 'none'},
+			);
+		});
+
 		return (
 			<div ref={scope}>
-				<div data-early style={{opacity: 0.25}} />
+				<div ref={rotation}>
+					<div data-early style={{opacity: 0.25}} />
+				</div>
+				<div data-fade />
 				{late ? (
 					<>
 						<div data-late />
@@ -524,7 +542,13 @@ describe('useGsapTimeline', () => {
 			0.25,
 			4,
 		);
-		expect(opacity(container.querySelector('[data-early]')!)).toBeCloseTo(1, 4);
+		const early = container.querySelector('[data-early]')!;
+		expect(opacity(early)).toBeCloseTo(1, 4);
+		expect(gsap.getProperty(early, 'rotation')).toBeCloseTo(45, 4);
+		expect(opacity(container.querySelector('[data-fade]')!)).toBeCloseTo(
+			0.5,
+			4,
+		);
 
 		await setFrame(54, <LateHarness late />);
 		expect(opacity(container.querySelector('[data-late]')!)).toBeCloseTo(
@@ -576,7 +600,14 @@ describe('useGsapTimeline', () => {
 			await setFrame(frame, <StableHarness frameText={String(frame)} />);
 		}
 
-		expect(builds).toHaveBeenCalledTimes(1);
+		const select = spyOn(container.firstElementChild!, 'querySelectorAll');
+		try {
+			await setFrame(30, <StableHarness frameText="29" />);
+			expect(select).not.toHaveBeenCalled();
+			expect(builds).toHaveBeenCalledTimes(1);
+		} finally {
+			select.mockRestore();
+		}
 	});
 
 	it('rejects asynchronous builders', async () => {
