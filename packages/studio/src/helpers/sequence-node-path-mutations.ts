@@ -16,6 +16,9 @@ import {
 } from './source-mutation-queue';
 
 const pendingMutations: SequenceNodePathMutation[] = [];
+// Timeline selection revision observed when each own mutation was enqueued.
+// Receipts older than the current selection must not remap it.
+const mutationSelectionBaselines = new Map<string, number>();
 const pendingDeletionRetirements = new Map<string, () => void>();
 const pendingDeletionRemappings = new Map<
 	string,
@@ -36,12 +39,34 @@ export const invalidateSourceFileRemappings = (fileName: string) => {
 		if (files.length === mutation.files.length) continue;
 		pendingDeletionRemappings.delete(mutation.mutationId);
 		pendingDeletionRetirements.delete(mutation.mutationId);
-		if (files.length === 0) pendingMutations.splice(index, 1);
-		else
+		if (files.length === 0) {
+			pendingMutations.splice(index, 1);
+			mutationSelectionBaselines.delete(mutation.mutationId);
+		} else
 			pendingMutations[index] = {...mutation, files, timelineSelection: null};
 	}
 
 	filesWithSourceOnlyRemappings.delete(fileName);
+};
+
+export const recordSequenceMutationSelectionBaseline = (
+	mutationId: string,
+	revision: number,
+) => {
+	if (mutationSelectionBaselines.size >= 200) {
+		const oldest = mutationSelectionBaselines.keys().next().value;
+		if (oldest !== undefined) mutationSelectionBaselines.delete(oldest);
+	}
+
+	mutationSelectionBaselines.set(mutationId, revision);
+};
+
+export const consumeSequenceMutationSelectionBaseline = (
+	mutationId: string,
+): number | undefined => {
+	const revision = mutationSelectionBaselines.get(mutationId);
+	mutationSelectionBaselines.delete(mutationId);
+	return revision;
 };
 
 const notifyInstalledBuild = () => {

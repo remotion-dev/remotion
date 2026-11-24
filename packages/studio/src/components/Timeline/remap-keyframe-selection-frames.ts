@@ -5,8 +5,15 @@ export const remapKeyframeSelectionFrame = (
 	keyframeEdits: NonNullable<SequenceNodePathRemapping['keyframeEdits']>,
 	field: ReturnType<typeof parseKeyframeFieldFromNodePath>,
 	frame: number | null,
+	tolerance = 0,
 ): number | null => {
-	let remapped = frame;
+	if (frame === null) {
+		return null;
+	}
+
+	// Edits within one receipt apply simultaneously, so each input frame matches
+	// at most one edit. Chained moves like 10 to 20 and 20 to 30 must remap 10
+	// to 20, not to 30; only edits of later receipts may carry a frame further.
 	for (const edit of keyframeEdits) {
 		if (
 			field !== null &&
@@ -17,10 +24,10 @@ export const remapKeyframeSelectionFrame = (
 			continue;
 		}
 
-		if (remapped === edit.frame) {
-			remapped = edit.movedTo;
+		if (edit.frame !== null && Math.abs(edit.frame - frame) <= tolerance) {
+			return edit.movedTo;
 		}
 	}
 
-	return remapped;
+	return frame;
 };

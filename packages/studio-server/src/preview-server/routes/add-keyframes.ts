@@ -10,6 +10,7 @@ import type {
 	KeyframeMutationResult,
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
 import {
 	updateEffectKeyframes,
@@ -371,6 +372,16 @@ export const addKeyframes = ({
 			throw new Error('Could not remap JSX nodes after keyframing');
 		}
 
+		const beforeResults = targets.map((target) => {
+			try {
+				return getKeyframeMutationResults({
+					fileContents,
+					targets: [target],
+				})[0];
+			} catch {
+				return null;
+			}
+		});
 		const fileResults = getKeyframeMutationResults({
 			fileContents: output,
 			targets: targets.map((target) => ({
@@ -384,33 +395,66 @@ export const addKeyframes = ({
 		results.push(...fileResults);
 		resultsByFile.set(absolutePath, fileResults);
 
+		// The committed keyframes are the source of truth: pasting also removes
+		// the uncovered in-range frames and reuses existing ones, so the receipt
+		// must describe what actually changed, not what was requested.
 		const keyframeEditsByNode = new Map<
 			string,
 			NonNullable<SequenceNodePathRemapping['keyframeEdits']>
 		>();
-		for (const keyframe of group.sequenceKeyframes) {
-			const id = JSON.stringify(keyframe.nodePath.nodePath);
+		targets.forEach((target, index) => {
+			const id = JSON.stringify(target.nodePath.nodePath);
 			const edits = keyframeEditsByNode.get(id) ?? [];
-			edits.push({
-				key: keyframe.key,
-				effectIndex: null,
-				frame: null,
-				movedTo: keyframe.frame,
-			});
-			keyframeEditsByNode.set(id, edits);
-		}
+			for (const key of target.keys) {
+				const beforeProps = beforeResults[index]?.props[key];
+				const afterProps = fileResults[index]?.props[key];
+				const beforeFrames = new Set(
+					beforeProps?.status === 'keyframed'
+						? beforeProps.keyframes.map((keyframe) =>
+								NoReactInternals.evaluateSourceNumericValue(
+									keyframe.frame,
+									null,
+								),
+							)
+						: [],
+				);
+				const afterFrames = new Set(
+					afterProps?.status === 'keyframed'
+						? afterProps.keyframes.map((keyframe) =>
+								NoReactInternals.evaluateSourceNumericValue(
+									keyframe.frame,
+									null,
+								),
+							)
+						: [],
+				);
+				for (const frame of beforeFrames) {
+					if (!afterFrames.has(frame)) {
+						edits.push({
+							key,
+							effectIndex: target.effectIndex,
+							frame,
+							movedTo: null,
+						});
+					}
+				}
 
-		for (const keyframe of group.effectKeyframes) {
-			const id = JSON.stringify(keyframe.sequenceNodePath.nodePath);
-			const edits = keyframeEditsByNode.get(id) ?? [];
-			edits.push({
-				key: keyframe.key,
-				effectIndex: keyframe.effectIndex,
-				frame: null,
-				movedTo: keyframe.frame,
-			});
-			keyframeEditsByNode.set(id, edits);
-		}
+				for (const frame of afterFrames) {
+					if (!beforeFrames.has(frame)) {
+						edits.push({
+							key,
+							effectIndex: target.effectIndex,
+							frame: null,
+							movedTo: frame,
+						});
+					}
+				}
+			}
+
+			if (edits.length > 0) {
+				keyframeEditsByNode.set(id, edits);
+			}
+		});
 
 		snapshots.push({
 			filePath: absolutePath,

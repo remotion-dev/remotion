@@ -384,3 +384,109 @@ test('addKeyframes adds a missing effect prop before keyframing it', () => {
 		rmSync(dir, {force: true, recursive: true});
 	}
 });
+
+test('addKeyframes paste receipts record the committed keyframes', () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-paste-keyframes-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 7),
+		sequenceKeys: ['style.opacity'],
+		effectKeys: [['amount']],
+		videoConfigValues: null,
+	};
+
+	try {
+		writeFileSync(filePath, input);
+
+		const response = addKeyframes({
+			paste: {
+				keyframeDisplayOffset: 0,
+				keyframePlaybackRate: 1,
+				easing: [{type: 'linear'}],
+				timingGuards: null,
+			},
+			sequenceKeyframes: [
+				{
+					fileName,
+					nodePath,
+					key: 'style.opacity',
+					frame: 0,
+					value: JSON.stringify(0),
+					schema: NoReactInternals.sequenceSchema,
+				},
+				{
+					fileName,
+					nodePath,
+					key: 'style.opacity',
+					frame: 15,
+					value: JSON.stringify(0.7),
+					schema: NoReactInternals.sequenceSchema,
+				},
+			],
+			effectKeyframes: [],
+			clientId: 'test-client',
+			remotionRoot: dir,
+			logLevel: 'error',
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toContain('opacity: interpolate(frame, [0, 15], [0, 0.7]');
+
+		// Pasting [0, 15] over [0, 10] keeps 0, removes 10 and creates 15.
+		const forwardRemappings = response.nodePathMutation?.files.flatMap(
+			(file) => file.remappings,
+		);
+		expect(forwardRemappings).toHaveLength(1);
+		expect(forwardRemappings?.[0].keyframeEdits).toEqual([
+			{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: null},
+			{key: 'style.opacity', effectIndex: null, frame: null, movedTo: 15},
+		]);
+
+		const undoResponse = popUndo();
+		if (!undoResponse.success || undoResponse.nodePathMutation === null) {
+			throw new Error('Expected undo to include a node path mutation');
+		}
+
+		const undoRemappings = undoResponse.nodePathMutation.files.flatMap(
+			(file) => file.remappings,
+		);
+		expect(undoRemappings[0].keyframeEdits).toEqual([
+			{key: 'style.opacity', effectIndex: null, frame: null, movedTo: 10},
+			{key: 'style.opacity', effectIndex: null, frame: 15, movedTo: null},
+		]);
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+
+		const redoResponse = popRedo();
+		if (!redoResponse.success || redoResponse.nodePathMutation === null) {
+			throw new Error('Expected redo to include a node path mutation');
+		}
+
+		expect(
+			redoResponse.nodePathMutation.files.flatMap((file) => file.remappings)[0]
+				.keyframeEdits,
+		).toEqual([
+			{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: null},
+			{key: 'style.opacity', effectIndex: null, frame: null, movedTo: 15},
+		]);
+		expect(readFileSync(filePath, 'utf-8')).toBe(output);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});

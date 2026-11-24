@@ -10102,4 +10102,35 @@ test('remapKeyframeSelectionFrame follows moved and removed keyframes', () => {
 			27,
 		),
 	).toBe(30);
+	// Edits in one receipt apply simultaneously: moving 10 to 20 and 20 to 30
+	// remaps each input once instead of chaining 10 all the way to 30.
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: 20},
+				{key: 'style.opacity', effectIndex: null, frame: 20, movedTo: 30},
+			],
+			sequenceField,
+			10,
+		),
+	).toBe(20);
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: 20},
+				{key: 'style.opacity', effectIndex: null, frame: 20, movedTo: 30},
+			],
+			sequenceField,
+			20,
+		),
+	).toBe(30);
+	// Fractional source frames still match within the given tolerance.
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'style.opacity', effectIndex: null, frame: 27, movedTo: 30}],
+			sequenceField,
+			27 + Number.EPSILON * 27,
+			Number.EPSILON * 27 * 8,
+		),
+	).toBe(30);
 });
