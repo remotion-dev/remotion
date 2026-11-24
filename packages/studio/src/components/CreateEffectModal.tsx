@@ -14,7 +14,7 @@ export const CreateEffectModal: React.FC<{
 	const {name, label, description} = getCreateEffectResult(state.query);
 	const instruction = state.query
 		? `implement "${state.query}" as ${name ? `${name}()` : 'a custom effect'}`
-		: 'create a custom effect based on my description';
+		: 'create a custom effect';
 	const layer = state.displayName
 		? `the "${state.displayName}" layer`
 		: 'the selected layer';
