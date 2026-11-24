@@ -49,6 +49,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		getCatchesUp: () => false,
+		getIsPlaying: () => false,
 	});
 
 	const nonceManager = makeNonceManager();

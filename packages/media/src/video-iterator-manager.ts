@@ -62,6 +62,7 @@ export const videoIteratorManager = async ({
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
 	getCatchesUp,
+	getIsPlaying,
 }: {
 	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
@@ -81,6 +82,7 @@ export const videoIteratorManager = async ({
 	) => EffectChainState | null;
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	getCatchesUp: () => boolean;
+	getIsPlaying: () => boolean;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -287,6 +289,7 @@ export const videoIteratorManager = async ({
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 		currentSeek = timeToSeek;
+		const startedAt = performance.now();
 
 		let iterator: VideoIterator;
 		try {
@@ -327,6 +330,18 @@ export const videoIteratorManager = async ({
 		videoFrameIterator = iterator;
 
 		if (iterator.isDestroyed()) {
+			return;
+		}
+
+		// Playback started while the first frame was decoding. The clock has
+		// moved on, so this frame is stale: catch up from here instead.
+		if (getIsPlaying() && getCatchesUp()) {
+			catchingUp = true;
+			catchUpStart = timeToSeek;
+			catchUpRevision = null;
+			catchUpStartedAt = startedAt;
+			catchUpLastTime = timeToSeek;
+			currentSeek = null;
 			return;
 		}
 
@@ -484,14 +499,14 @@ export const videoIteratorManager = async ({
 
 			catchUpLastTime = newTime;
 			const catchUpIterator = videoFrameIterator;
-			let waited = false;
+			let waitedSince: number | null = null;
 			// Disarmed while the option is off, like the handle in startCatchUp().
 			let waitHandle: DelayPlaybackIfNotPremounting | null = null;
 			const result = await catchUpIterator
 				.tryToSatisfySeek(newTime, {
 					pendingFrameBehavior: 'wait',
 					onWait: () => {
-						waited = true;
+						waitedSince ??= performance.now();
 						waitHandle ??= delayPlaybackHandleIfNotPremounting();
 					},
 					shouldContinue: () =>
@@ -519,10 +534,14 @@ export const videoIteratorManager = async ({
 				return;
 			}
 
-			// Caught up only once the frame was already decoded when asked for. A
-			// decoder that had to wait for it is still at the edge, and would hold
-			// playback on the next frame as soon as it is shown.
-			if (result.type === 'satisfied' && !waited) {
+			// Caught up once the frame for the playhead arrives within a timeline
+			// frame. Only a few frames are decoded ahead, so at high source frame
+			// rates or playback rates even a decoder that keeps pace waits briefly
+			// on every tick. A longer wait means it is still behind.
+			if (
+				result.type === 'satisfied' &&
+				(waitedSince === null || performance.now() - waitedSince < 1000 / fps)
+			) {
 				catchingUp = false;
 				await drawFrame(result.frame, newTime);
 				currentSeek = newTime;

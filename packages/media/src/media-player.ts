@@ -507,6 +507,7 @@ export class MediaPlayer {
 					getCatchesUp: () =>
 						!this.pauseWhenBuffering &&
 						this.playbackRate * this.globalPlaybackRate > 0,
+					getIsPlaying: () => this.playing,
 				});
 				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}

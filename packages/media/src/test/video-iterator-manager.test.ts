@@ -79,9 +79,11 @@ const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
 	onVideoFrame: (() => void) | null,
 	catchesUp: boolean,
+	getIsPlaying: () => boolean = () => false,
 ) =>
 	videoIteratorManager({
 		getCatchesUp: () => catchesUp,
+		getIsPlaying,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
@@ -210,6 +212,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		getCatchesUp: () => false,
+		getIsPlaying: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -297,6 +300,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		getCatchesUp: () => false,
+		getIsPlaying: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -353,6 +357,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 		getCatchesUp: () => false,
+		getIsPlaying: () => false,
 	});
 	onTestFinished(() => manager.destroy());
 
@@ -716,6 +721,73 @@ test('a paused seek draws the current frame instead of continuing to catch up', 
 		});
 		expect(manager.isCatchingUp()).toBe(false);
 		expect(manager.getFramesRendered()).toBe(framesBefore + 1);
+	} finally {
+		manager.destroy();
+	}
+});
+
+// Only a few frames are decoded ahead, so at high source frame or playback
+// rates a decoder that keeps pace still waits briefly on every tick.
+test('finishes catching up when every tick waits briefly for its frame', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack, null, true);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startCatchUp({time: 2, revision: 1});
+		const iterator = manager.getVideoFrameIterator();
+		if (!iterator) {
+			throw new Error('Expected a video iterator');
+		}
+
+		const tryToSatisfySeek = iterator.tryToSatisfySeek.bind(iterator);
+		iterator.tryToSatisfySeek = (time, options) => {
+			options.onWait?.();
+			return tryToSatisfySeek(time, options);
+		};
+
+		let frame = 1;
+		while (manager.isCatchingUp() && frame < 30) {
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1000 / 30);
+			});
+			await seekCatchingUp(manager, nonceManager, 2 + frame / 30, {
+				isPlaying: true,
+				seekRevision: 1,
+			});
+			frame++;
+		}
+
+		expect(manager.isCatchingUp()).toBe(false);
+	} finally {
+		manager.destroy();
+	}
+});
+
+// A paused start that is still decoding when playback starts must not paint
+// its mount-time frame after the playhead has moved on.
+test('catches up when playback starts while a paused start decodes', async () => {
+	const {videoTrack} = await prepare();
+	let playing = false;
+	const onVideoFrame = vi.fn();
+	const manager = await makeManager(
+		videoTrack,
+		onVideoFrame,
+		true,
+		() => playing,
+	);
+	const nonceManager = makeNonceManager();
+
+	try {
+		const start = manager.startVideoIterator(
+			2,
+			nonceManager.createAsyncOperation(),
+		);
+		playing = true;
+		await start;
+
+		expect(manager.isCatchingUp()).toBe(true);
+		expect(onVideoFrame).not.toHaveBeenCalled();
 	} finally {
 		manager.destroy();
 	}
