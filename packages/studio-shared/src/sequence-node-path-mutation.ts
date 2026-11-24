@@ -15,6 +15,19 @@ export type SequenceNodePathRemapping = {
 		before: {line: number; column: number} | null;
 		after: {line: number; column: number} | null;
 	};
+	/**
+	 * Keyframe frame changes inside the node, so keyframe and easing
+	 * selection can follow the same keyframes across undo and redo.
+	 */
+	keyframeEdits?: {
+		key: string;
+		/** Effect index for effect keyframes, `null` for sequence prop keyframes. */
+		effectIndex: number | null;
+		/** Frame in the pre-mutation file, `null` when the keyframe was added. */
+		frame: number | null;
+		/** Frame in the post-mutation file, `null` when the keyframe was removed. */
+		movedTo: number | null;
+	}[];
 };
 
 export type SequenceNodePathMutation = {

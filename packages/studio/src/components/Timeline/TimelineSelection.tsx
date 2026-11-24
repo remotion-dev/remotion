@@ -97,6 +97,8 @@ import {
 } from './get-node-keyframes';
 import {getParentTimelineSelection} from './get-parent-timeline-selection';
 import {getCurrentFrame} from './imperative-state';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {remapKeyframeSelectionFrame} from './remap-keyframe-selection-frames';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1739,6 +1741,17 @@ export const TimelineSelectionProvider: React.FC<{
 				let {nodePath} = sequenceSubscriptionKey;
 				let wasRemapped = false;
 
+				const keyframeField =
+					item.type === 'keyframe' || item.type === 'easing'
+						? parseKeyframeFieldFromNodePath(item.nodePathInfo.auxiliaryKeys)
+						: null;
+				let keyframeFrame: number | null =
+					item.type === 'keyframe' ? item.frame : null;
+				let easingFromFrame: number | null =
+					item.type === 'easing' ? item.fromFrame : null;
+				let easingToFrame: number | null =
+					item.type === 'easing' ? item.toFrame : null;
+
 				for (const mutation of mutations) {
 					const file = mutation.files.find(
 						(candidate) =>
@@ -1787,10 +1800,36 @@ export const TimelineSelectionProvider: React.FC<{
 					}
 
 					nodePath = remapping.newNodePath;
+
+					if (remapping.keyframeEdits) {
+						keyframeFrame = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							keyframeFrame,
+						);
+						easingFromFrame = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							easingFromFrame,
+						);
+						easingToFrame = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							easingToFrame,
+						);
+					}
 				}
 
 				if (!wasRemapped) {
 					return item;
+				}
+
+				if (
+					(item.type === 'keyframe' && keyframeFrame === null) ||
+					(item.type === 'easing' &&
+						(easingFromFrame === null || easingToFrame === null))
+				) {
+					return null;
 				}
 
 				return {
@@ -1802,6 +1841,14 @@ export const TimelineSelectionProvider: React.FC<{
 							nodePath,
 						},
 					},
+					...(item.type === 'keyframe' && keyframeFrame !== null
+						? {frame: keyframeFrame}
+						: {}),
+					...(item.type === 'easing' &&
+					easingFromFrame !== null &&
+					easingToFrame !== null
+						? {fromFrame: easingFromFrame, toFrame: easingToFrame}
+						: {}),
 				};
 			};
 

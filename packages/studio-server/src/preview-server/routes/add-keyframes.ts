@@ -384,6 +384,34 @@ export const addKeyframes = ({
 		results.push(...fileResults);
 		resultsByFile.set(absolutePath, fileResults);
 
+		const keyframeEditsByNode = new Map<
+			string,
+			NonNullable<SequenceNodePathRemapping['keyframeEdits']>
+		>();
+		for (const keyframe of group.sequenceKeyframes) {
+			const id = JSON.stringify(keyframe.nodePath.nodePath);
+			const edits = keyframeEditsByNode.get(id) ?? [];
+			edits.push({
+				key: keyframe.key,
+				effectIndex: null,
+				frame: null,
+				movedTo: keyframe.frame,
+			});
+			keyframeEditsByNode.set(id, edits);
+		}
+
+		for (const keyframe of group.effectKeyframes) {
+			const id = JSON.stringify(keyframe.sequenceNodePath.nodePath);
+			const edits = keyframeEditsByNode.get(id) ?? [];
+			edits.push({
+				key: keyframe.key,
+				effectIndex: keyframe.effectIndex,
+				frame: null,
+				movedTo: keyframe.frame,
+			});
+			keyframeEditsByNode.set(id, edits);
+		}
+
 		snapshots.push({
 			filePath: absolutePath,
 			oldContents: fileContents,
@@ -392,15 +420,20 @@ export const addKeyframes = ({
 			nodePathRemappings: originalNodes.flatMap(
 				({location, nodePath}, index) => {
 					const next = finalNodes[index];
+					const keyframeEdits = keyframeEditsByNode.get(
+						JSON.stringify(nodePath),
+					);
 					return location?.line === next.location?.line &&
 						location?.column === next.location?.column &&
-						JSON.stringify(nodePath) === JSON.stringify(next.nodePath)
+						JSON.stringify(nodePath) === JSON.stringify(next.nodePath) &&
+						keyframeEdits === undefined
 						? []
 						: [
 								{
 									oldNodePath: nodePath,
 									newNodePath: next.nodePath,
 									sourceLocations: {before: location, after: next.location},
+									...(keyframeEdits ? {keyframeEdits} : {}),
 								},
 							];
 				},
@@ -452,7 +485,15 @@ export const addKeyframes = ({
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: clientId,
-			metadata: snapshot.nodePathRemappings.length
+			metadata: snapshot.nodePathRemappings.some(
+				(remapping) =>
+					JSON.stringify(remapping.oldNodePath) !==
+						JSON.stringify(remapping.newNodePath) ||
+					remapping.sourceLocations?.before?.line !==
+						remapping.sourceLocations?.after?.line ||
+					remapping.sourceLocations?.before?.column !==
+						remapping.sourceLocations?.after?.column,
+			)
 				? {skipSequencePropsUpdate: true}
 				: null,
 		});

@@ -152,18 +152,33 @@ test('addKeyframes batches sequence and effect adds into one undo entry', () => 
 		);
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({
-			success: true,
-			nodePathMutation: null,
-			route: null,
-		});
+		const undoResponse = popUndo();
+		if (!undoResponse.success || undoResponse.nodePathMutation === null) {
+			throw new Error('Expected undo to include a node path mutation');
+		}
+
+		const remappings = undoResponse.nodePathMutation.files.flatMap(
+			(file) => file.remappings,
+		);
+		expect(remappings).toHaveLength(1);
+		expect(remappings[0].keyframeEdits).toEqual([
+			{key: 'style.opacity', effectIndex: null, frame: 5, movedTo: null},
+			{key: 'amount', effectIndex: 0, frame: 10, movedTo: null},
+		]);
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 
-		expect(popRedo()).toEqual({
-			success: true,
-			nodePathMutation: null,
-			route: null,
-		});
+		const redoResponse = popRedo();
+		if (!redoResponse.success || redoResponse.nodePathMutation === null) {
+			throw new Error('Expected redo to include a node path mutation');
+		}
+
+		expect(
+			redoResponse.nodePathMutation.files.flatMap((file) => file.remappings)[0]
+				.keyframeEdits,
+		).toEqual([
+			{key: 'style.opacity', effectIndex: null, frame: null, movedTo: 5},
+			{key: 'amount', effectIndex: 0, frame: null, movedTo: 10},
+		]);
 		expect(readFileSync(filePath, 'utf-8')).toBe(output);
 	} finally {
 		clearUndoStackForTests();
