@@ -1070,14 +1070,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loop && Number.isFinite(durationInFrames)
 			? contentDurationInFrames / playbackRate
 			: null;
-	const actualDurationInFrames =
-		loopPeriod === null
-			? contentDurationInFrames / playbackRate
-			: Math.max(
-					0,
-					(compositionDurationInFrames - cumulatedFrom) * parentPlaybackRate -
-						from,
-				);
+	const actualDurationInFrames = Number.isFinite(effectiveDurationInFrames)
+		? effectiveDurationInFrames
+		: Math.max(
+				0,
+				(compositionDurationInFrames - cumulatedFrom) * parentPlaybackRate -
+					from,
+			);
 	let loopIteration = 0;
 	if (
 		loopPeriod !== null &&
