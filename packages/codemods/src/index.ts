@@ -124,6 +124,7 @@ export {
 	updateCompositionMetadata,
 	type UpdateCompositionMetadataOptions,
 } from './update-composition-metadata';
+export {extendCompositionDuration} from './extend-composition-duration';
 export {
 	setCompositionDefaultProps,
 	type SetCompositionDefaultPropsOptions,

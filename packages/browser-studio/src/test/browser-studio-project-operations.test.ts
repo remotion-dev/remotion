@@ -618,6 +618,9 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'translate: "24px 48px"',
 	);
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'durationInFrames={102}',
+	);
 	const packageJson = JSON.parse(project.files['/project/package.json']) as {
 		dependencies: Record<string, string>;
 	};

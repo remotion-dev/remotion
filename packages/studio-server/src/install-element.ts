@@ -7,7 +7,10 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import {insertBasicCaptions} from '@remotion/codemods';
+import {
+	extendCompositionDuration,
+	insertBasicCaptions,
+} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
@@ -501,6 +504,41 @@ export const installElement = async ({
 				);
 			}
 
+			let extendedComposition: {
+				fileName: string;
+				oldContents: string;
+				output: string;
+			} | null = null;
+			if (
+				captionTarget === null &&
+				newComposition === null &&
+				element.durationInFrames !== null
+			) {
+				const registrationFile = path.resolve(remotionRoot, compositionFile);
+				const registrationContents =
+					registrationFile === inserted.fileName
+						? inserted.output
+						: readFileSync(registrationFile, 'utf-8');
+				const [change] = extendCompositionDuration({
+					project: {
+						rootDir: remotionRoot,
+						files: {[registrationFile]: registrationContents},
+					},
+					compositionFile: registrationFile,
+					compositionId,
+					minDurationInFrames: (from ?? 0) + element.durationInFrames,
+				}).changes;
+				if (change?.nextContents && registrationFile === inserted.fileName) {
+					inserted = {...inserted, output: change.nextContents};
+				} else if (change?.nextContents) {
+					extendedComposition = {
+						fileName: registrationFile,
+						oldContents: registrationContents,
+						output: change.nextContents,
+					};
+				}
+			}
+
 			const finalPlan = await getElementInstallPlan({
 				installationName,
 				destination: installDestination,
@@ -654,6 +692,17 @@ export const installElement = async ({
 							logLine: inserted.logLine,
 							nodePathRemappings: inserted.nodePathRemappings,
 						},
+						...(extendedComposition === null
+							? []
+							: [
+									{
+										filePath: extendedComposition.fileName,
+										oldContents: extendedComposition.oldContents,
+										newContents: extendedComposition.output,
+										logLine: 1,
+										nodePathRemappings: null,
+									},
+								]),
 					],
 					logLevel,
 					remotionRoot,
@@ -683,6 +732,9 @@ export const installElement = async ({
 				}
 
 				suppressUndoStackInvalidation(inserted.fileName);
+				if (extendedComposition !== null) {
+					suppressUndoStackInvalidation(extendedComposition.fileName);
+				}
 			}
 
 			if (compositionCreation !== null) {
@@ -706,6 +758,14 @@ export const installElement = async ({
 				content: inserted.output,
 				metadata: {skipSequencePropsUpdate: true},
 			});
+
+			if (extendedComposition !== null) {
+				writeSource({
+					file: extendedComposition.fileName,
+					content: extendedComposition.output,
+					metadata: null,
+				});
+			}
 
 			if (newComposition !== null && compositionCreation !== null) {
 				RenderInternals.Log.info(

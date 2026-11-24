@@ -4,6 +4,7 @@ type Props = {
 	readonly children: React.ReactNode;
 	readonly onError: (error: Error) => void;
 	readonly onClear: () => void;
+	readonly resetKey: string;
 };
 
 type State = {
@@ -57,9 +58,14 @@ export class CompositionErrorBoundary extends React.Component<Props, State> {
 		}
 	}
 
-	componentDidUpdate(_prevProps: Props, prevState: State): void {
+	componentDidUpdate(prevProps: Props, prevState: State): void {
 		if (prevState.hasError && !this.state.hasError) {
 			this.props.onClear();
+		}
+
+		if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+			this.unsubscribeFromHmrReset();
+			this.setState({hasError: false});
 		}
 	}
 

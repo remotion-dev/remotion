@@ -117,6 +117,7 @@ const studioBootstrap = `if (!globalThis.remotion_browserStudioVendor) {
 
 globalThis.remotion_browserStudioProjectHot = {
   addStatusHandler: (callback) => module.hot.addStatusHandler(callback),
+  removeStatusHandler: (callback) => module.hot.removeStatusHandler(callback),
   apply: (options) => module.hot.apply(options),
   check: (autoApply) => module.hot.check(autoApply),
   getHash: () => __webpack_hash__,

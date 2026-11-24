@@ -265,7 +265,16 @@ const InnerComposition = <
 		return wrapRegistration(
 			createPortal(
 				<CanUseRemotionHooksProvider>
-					<CompositionErrorBoundary onError={onError} onClear={onClear}>
+					<CompositionErrorBoundary
+						onError={onError}
+						onClear={onClear}
+						resetKey={[
+							resolved.result.durationInFrames,
+							resolved.result.fps,
+							resolved.result.width,
+							resolved.result.height,
+						].join('-')}
+					>
 						<Suspense fallback={<Loading />}>
 							<Comp
 								{

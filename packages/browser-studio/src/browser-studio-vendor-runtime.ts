@@ -25,6 +25,8 @@ globalThis.__webpack_module__ = {
 	hot: {
 		addStatusHandler: (callback) =>
 			globalThis.remotion_browserStudioProjectHot.addStatusHandler(callback),
+		removeStatusHandler: (callback) =>
+			globalThis.remotion_browserStudioProjectHot.removeStatusHandler(callback),
 		apply: (options) =>
 			globalThis.remotion_browserStudioProjectHot.apply(options),
 		check: (autoApply) =>
@@ -80,6 +82,7 @@ declare global {
 	var __webpack_module__: {
 		hot: {
 			addStatusHandler: (callback: (status: string) => void) => void;
+			removeStatusHandler: (callback: (status: string) => void) => void;
 			apply: (options?: unknown) => Promise<unknown[]>;
 			check: (autoApply?: boolean) => Promise<null | unknown[]>;
 			status: () => string;
@@ -88,6 +91,7 @@ declare global {
 	// eslint-disable-next-line no-var
 	var remotion_browserStudioProjectHot: {
 		addStatusHandler: (callback: (status: string) => void) => void;
+		removeStatusHandler: (callback: (status: string) => void) => void;
 		apply: (options?: unknown) => Promise<unknown[]>;
 		check: (autoApply?: boolean) => Promise<null | unknown[]>;
 		getHash: () => string;

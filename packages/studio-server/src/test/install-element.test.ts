@@ -75,7 +75,7 @@ export const RemotionRoot: React.FC = () => {
 		<Composition
 			id="MyVideo"
 			component={MyVideo}
-			durationInFrames={150}
+			durationInFrames={60}
 			fps={30}
 			width={1920}
 			height={1080}
@@ -203,6 +203,7 @@ test('installs an Element into a project without a running Studio', async () => 
 		expect(insertedElement).toMatch(/name=["']Lower Third["']/);
 		expect(insertedElement).toMatch(/width:\s*900/);
 		expect(insertedElement).toMatch(/height:\s*260/);
+		expect(root).toMatch(/<Composition[\s\S]*?durationInFrames=\{102\}/);
 	} finally {
 		packageManager.restore();
 		rmSync(project.remotionRoot, {force: true, recursive: true});

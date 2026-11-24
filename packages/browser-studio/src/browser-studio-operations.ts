@@ -17,6 +17,7 @@ import {
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateNodes as duplicateNodesCodemod,
+	extendCompositionDuration,
 	canUnwrapNode,
 	unwrapNode as unwrapNodeCodemod,
 	canWrapNode,
@@ -3242,12 +3243,26 @@ export const createBrowserStudioOperations = ({
 						nextContents: element.sourceCode,
 					},
 				]);
+				const projectWithDuration =
+					request.captionTarget === null &&
+					request.newComposition === null &&
+					durationInFrames !== null
+						? applyCodemodChanges(
+								projectWithElement,
+								extendCompositionDuration({
+									project: projectWithElement,
+									compositionFile: request.compositionFile,
+									compositionId: request.compositionId,
+									minDurationInFrames: (request.from ?? 0) + durationInFrames,
+								}).changes,
+							)
+						: projectWithElement;
 				const nextProject = addDependenciesToProject({
 					dependencies: installedDependencies,
 					project: {
-						...projectWithElement,
+						...projectWithDuration,
 						publicFiles: {
-							...(projectWithElement.publicFiles ?? {}),
+							...(projectWithDuration.publicFiles ?? {}),
 							...newAssetFiles,
 						},
 					},
