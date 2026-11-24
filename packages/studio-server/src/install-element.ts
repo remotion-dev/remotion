@@ -521,40 +521,51 @@ export const installElement = async ({
 				newComposition === null &&
 				element.durationInFrames !== null
 			) {
-				const registrationFile = path.resolve(remotionRoot, compositionFile);
-				const isInsertedFile =
-					realpathSync(registrationFile) === realpathSync(inserted.fileName);
-				const registrationContents = isInsertedFile
-					? inserted.output
-					: readFileSync(registrationFile, 'utf-8');
-				const minDurationInFrames = (from ?? 0) + element.durationInFrames;
-				const extension = extendCompositionDuration({
-					project: {
-						rootDir: remotionRoot,
-						files: {[registrationFile]: registrationContents},
-					},
-					compositionFile: registrationFile,
-					compositionId,
-					minDurationInFrames,
-				});
-				const [change] = extension.changes;
-				if (change?.nextContents) {
-					extendedCompositionLog = {
-						fileName: registrationFile,
-						line: extension.logLine ?? 1,
-						durationInFrames: minDurationInFrames,
-					};
-				}
+				const registrationFile = realpathSync(
+					path.resolve(remotionRoot, compositionFile),
+				);
+				const registrationRelativeToRoot = path.relative(
+					realpathSync(remotionRoot),
+					registrationFile,
+				);
+				if (
+					!registrationRelativeToRoot.startsWith('..') &&
+					!path.isAbsolute(registrationRelativeToRoot)
+				) {
+					const isInsertedFile =
+						registrationFile === realpathSync(inserted.fileName);
+					const registrationContents = isInsertedFile
+						? inserted.output
+						: readFileSync(registrationFile, 'utf-8');
+					const minDurationInFrames = (from ?? 0) + element.durationInFrames;
+					const extension = extendCompositionDuration({
+						project: {
+							rootDir: remotionRoot,
+							files: {[registrationFile]: registrationContents},
+						},
+						compositionFile: registrationFile,
+						compositionId,
+						minDurationInFrames,
+					});
+					const [change] = extension.changes;
+					if (change?.nextContents) {
+						extendedCompositionLog = {
+							fileName: registrationFile,
+							line: extension.logLine ?? 1,
+							durationInFrames: minDurationInFrames,
+						};
+					}
 
-				if (change?.nextContents && isInsertedFile) {
-					inserted = {...inserted, output: change.nextContents};
-				} else if (change?.nextContents) {
-					extendedComposition = {
-						fileName: registrationFile,
-						oldContents: registrationContents,
-						output: change.nextContents,
-						logLine: extension.logLine ?? 1,
-					};
+					if (change?.nextContents && isInsertedFile) {
+						inserted = {...inserted, output: change.nextContents};
+					} else if (change?.nextContents) {
+						extendedComposition = {
+							fileName: registrationFile,
+							oldContents: registrationContents,
+							output: change.nextContents,
+							logLine: extension.logLine ?? 1,
+						};
+					}
 				}
 			}
 
