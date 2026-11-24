@@ -421,13 +421,11 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			: Math.min(loopPeriod, actualDurationInFrames - loopOffset) *
 					playbackRate +
 				trimBefore;
-	const parentUnclippedDuration =
-		parentSequence?.unclippedDurationInFrames ?? null;
-	const unclippedDurationInFrames = Number.isFinite(contentDurationInFrames)
-		? contentDurationInFrames + trimBefore
-		: parentUnclippedDuration === null
-			? null
-			: Math.max(0, parentUnclippedDuration - from) * playbackRate + trimBefore;
+	const unclippedDurationInFrames =
+		(Number.isFinite(contentDurationInFrames)
+			? contentDurationInFrames
+			: Math.max(0, videoConfig.durationInFrames - from) * playbackRate) +
+		trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;

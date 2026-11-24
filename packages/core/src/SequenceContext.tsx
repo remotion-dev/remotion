@@ -14,7 +14,7 @@ export type SequenceContextType = {
 	parentFrom: number;
 	/** Exclusive end of the visible range in local frames, including trimBefore. */
 	durationInFrames: number;
-	unclippedDurationInFrames: number | null;
+	unclippedDurationInFrames: number;
 	id: string;
 	width: number | null;
 	height: number | null;

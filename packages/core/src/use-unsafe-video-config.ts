@@ -10,9 +10,9 @@ export const useUnsafeVideoConfig = (
 	const ctxWidth = context?.width ?? null;
 	const ctxHeight = context?.height ?? null;
 	const ctxDuration =
-		(duration === 'unclipped' ? context?.unclippedDurationInFrames : null) ??
-		context?.durationInFrames ??
-		null;
+		duration === 'unclipped'
+			? context?.unclippedDurationInFrames
+			: context?.durationInFrames;
 	const video = useVideo();
 
 	return useMemo(() => {
