@@ -22,6 +22,7 @@ import {humanReadableCodec} from './RenderModal/human-readable-codec';
 import {input, rightRow} from './RenderModal/layout';
 import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
+import {settingsCatalog} from './settings-catalog';
 import type {RenderingSettingsDisplayState} from './settings-search';
 import {useSettings} from './SettingsContext';
 import {SettingsNumber} from './SettingsNumber';
@@ -37,8 +38,9 @@ const container: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -455,7 +457,7 @@ export const RenderingSettings: React.FC<{
 					<Combobox
 						values={codecValues}
 						selectedId={codec ?? REMOTION_DEFAULT}
-						aria-label="Codec"
+						aria-label={settingsCatalog.codec.name}
 					/>
 				</div>
 			</SettingsRow>
@@ -472,7 +474,7 @@ export const RenderingSettings: React.FC<{
 					<Combobox
 						values={stillFormatValues}
 						selectedId={stillImageFormat ?? REMOTION_DEFAULT}
-						aria-label="Still image format"
+						aria-label={settingsCatalog.stillImageFormat.name}
 					/>
 				</div>
 			</SettingsRow>
@@ -481,7 +483,7 @@ export const RenderingSettings: React.FC<{
 					<Combobox
 						values={videoFormatValues}
 						selectedId={videoImageFormat ?? REMOTION_DEFAULT}
-						aria-label="Video frame format"
+						aria-label={settingsCatalog.videoImageFormat.name}
 					/>
 				</div>
 			</SettingsRow>
@@ -511,6 +513,7 @@ export const RenderingSettings: React.FC<{
 				<SettingsRow settingId="videoBitrate">
 					<div style={rightRow}>
 						<RemotionInput
+							aria-label={settingsCatalog.videoBitrate.name}
 							style={{...input, ...fullWidth}}
 							value={videoBitrate}
 							onChange={onVideoBitrateChange}
@@ -527,7 +530,7 @@ export const RenderingSettings: React.FC<{
 						<Combobox
 							values={profileValues}
 							selectedId={proResProfile ?? REMOTION_DEFAULT}
-							aria-label="ProRes profile"
+							aria-label={settingsCatalog.proResProfile.name}
 						/>
 					</div>
 				</SettingsRow>
@@ -538,7 +541,7 @@ export const RenderingSettings: React.FC<{
 						<Combobox
 							values={presetValues}
 							selectedId={x264Preset ?? REMOTION_DEFAULT}
-							aria-label="x264 preset"
+							aria-label={settingsCatalog.x264Preset.name}
 						/>
 					</div>
 				</SettingsRow>
@@ -550,7 +553,7 @@ export const RenderingSettings: React.FC<{
 					<Combobox
 						values={audioCodecValues}
 						selectedId={audioCodec ?? REMOTION_DEFAULT}
-						aria-label="Audio codec"
+						aria-label={settingsCatalog.audioCodec.name}
 					/>
 				</div>
 			</SettingsRow>

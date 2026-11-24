@@ -58,8 +58,9 @@ const container: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const shortcutSectionTitle: React.CSSProperties = {

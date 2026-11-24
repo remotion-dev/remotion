@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
@@ -44,8 +44,9 @@ const container: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -241,7 +242,6 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
-			update('setDoubleClickAction', settings.doubleClickAction),
 			update('setHighContrast', settings.highContrast),
 			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
@@ -310,54 +310,9 @@ export const StudioSettings: React.FC = () => {
 		return null;
 	}
 
-	const cliDoubleClickAction =
-		studioRuntimeConfig.doubleClickAction?.source === 'cli'
-			? studioRuntimeConfig.doubleClickAction.value
-			: null;
-	const configuredDoubleClickAction =
-		error === null
-			? settings.doubleClickAction
-			: studioRuntimeConfig.configFileStudioSettings?.doubleClickAction;
-
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Interface</p>
-			<ConfigSelect
-				settingId="doubleClickAction"
-				cliFlag={
-					cliDoubleClickAction === null
-						? null
-						: BrowserSafeApis.options.doubleClickActionOption.cliFlag
-				}
-				defaultLabel="Open in editor"
-				options={doubleClickActions}
-				value={cliDoubleClickAction ?? configuredDoubleClickAction ?? null}
-				onChange={(value) =>
-					changeSetting('doubleClickAction', 'setDoubleClickAction', value)
-				}
-			/>
-			<SettingsRow settingId="highContrast">
-				<div style={{...rightRow, gap: 8}}>
-					{studioRuntimeConfig.highContrast?.source === 'cli' ? (
-						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
-							Set by --high-contrast
-						</span>
-					) : null}
-					<Checkbox
-						inputId="remotion-setting-highContrast-control"
-						name="High contrast"
-						checked={highContrast}
-						disabled={studioRuntimeConfig.highContrast?.source === 'cli'}
-						onChange={(event) =>
-							changeSetting(
-								'highContrast',
-								'setHighContrast',
-								event.target.checked,
-							)
-						}
-					/>
-				</div>
-			</SettingsRow>
 			<SettingsRow settingId="interactivityEnabled">
 				<div style={rightRow}>
 					<Checkbox
@@ -391,6 +346,30 @@ export const StudioSettings: React.FC = () => {
 				</div>
 			</SettingsRow>
 
+			<p style={sectionTitle}>Accessibility</p>
+			<SettingsRow settingId="highContrast">
+				<div style={{...rightRow, gap: 8}}>
+					{studioRuntimeConfig.highContrast?.source === 'cli' ? (
+						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
+							Set by --high-contrast
+						</span>
+					) : null}
+					<Checkbox
+						inputId="remotion-setting-highContrast-control"
+						name="High contrast"
+						checked={highContrast}
+						disabled={studioRuntimeConfig.highContrast?.source === 'cli'}
+						onChange={(event) =>
+							changeSetting(
+								'highContrast',
+								'setHighContrast',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</SettingsRow>
+
 			<p style={sectionTitle}>Timeline</p>
 			<SettingsRow settingId="showLayerFrameNumbers">
 				<div style={rightRow}>
@@ -413,7 +392,7 @@ export const StudioSettings: React.FC = () => {
 					<Checkbox
 						inputId="remotion-setting-showPremounting-control"
 						checked={settings.showPremounting ?? false}
-						name="Show Premounting"
+						name={settingsCatalog.showPremounting.name}
 						onChange={(event) =>
 							changeSetting(
 								'showPremounting',

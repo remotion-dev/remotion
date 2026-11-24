@@ -1,3 +1,4 @@
+import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
 import type {
 	ConfigUpdate,
 	EditorPickerId,
@@ -8,6 +9,7 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {EditorIcon} from '../icons/editor';
 import {CodingAgentIcon} from './CodingAgentIcon';
+import {ConfigSelect} from './ConfigSelect';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
@@ -80,9 +82,13 @@ const NO_PREFERENCE_ID = 'no-preference';
 export const DefaultEditorSettings: React.FC = () => {
 	const {
 		codingAgentInfo,
+		doubleClickAction,
+		doubleClickActionError,
 		editorInfo,
 		error: settingsError,
 		revision,
+		setDoubleClickAction,
+		studioRuntimeConfig,
 	} = useSettings();
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
 		null,
@@ -236,11 +242,29 @@ export const DefaultEditorSettings: React.FC = () => {
 		syncRevision: syncedRevision,
 		updates,
 	});
-	const displayedError = error ?? settingsError;
+	const cliDoubleClickAction =
+		studioRuntimeConfig?.doubleClickAction?.source === 'cli'
+			? studioRuntimeConfig.doubleClickAction.value
+			: null;
+	const displayedError = doubleClickActionError ?? error ?? settingsError;
 
 	return (
 		<div style={container}>
 			<div style={content}>
+				{studioRuntimeConfig === null ? null : (
+					<ConfigSelect
+						settingId="doubleClickAction"
+						cliFlag={
+							cliDoubleClickAction === null
+								? null
+								: BrowserSafeApis.options.doubleClickActionOption.cliFlag
+						}
+						defaultLabel="Open in editor"
+						options={doubleClickActions}
+						value={cliDoubleClickAction ?? doubleClickAction}
+						onChange={setDoubleClickAction}
+					/>
+				)}
 				<SettingsRow settingId="defaultEditor">
 					<div style={rightColumn}>
 						{editorInfo === null && displayedError === null ? (

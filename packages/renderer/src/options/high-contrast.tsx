@@ -13,7 +13,7 @@ export const highContrastOption = {
 		<>
 			Increase the contrast of text, focus indicators, and panel dividers in
 			Remotion Studio. Defaults to <code>false</code>. You can toggle it in
-			Settings → Studio → Interface while Studio is running.
+			Settings → Studio → Accessibility while Studio is running.
 		</>
 	),
 	ssrName: null,

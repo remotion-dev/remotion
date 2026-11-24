@@ -477,7 +477,7 @@ export const updateConfigHandler = async ({
 			};
 		}
 
-		return {success: true};
+		return {success: true, changed: false};
 	}
 
 	writeFileAndNotifyFileWatchers({
@@ -487,5 +487,5 @@ export const updateConfigHandler = async ({
 		metadata: null,
 	});
 
-	return {success: true};
+	return {success: true, changed: true};
 };

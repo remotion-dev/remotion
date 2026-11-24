@@ -35,8 +35,7 @@ export const doubleClickActionOption = {
 			Remotion Studio. <code>open-in-editor</code> (default) opens its source
 			code. <code>open-in-agent</code> opens the preferred coding agent.{' '}
 			<code>copy-context</code> copies the item name, file path, and line number
-			to the clipboard. Change the project setting in Settings → Studio →
-			Interface.
+			to the clipboard. Change the project setting in Settings → Apps.
 		</>
 	),
 	type: 'open-in-editor' as DoubleClickAction,

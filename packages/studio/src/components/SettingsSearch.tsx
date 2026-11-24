@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	BACKGROUND,
 	BORDER_WHITE_ALPHA_12,
+	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
 	TRANSPARENT,
@@ -12,6 +13,8 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
+import {DisclosureChevron} from '../icons/disclosure-chevron';
+import {sectionHeader} from './InspectorPanel/styles';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RemotionInput} from './NewComposition/RemInput';
 import {getSettingDomId} from './settings-catalog';
@@ -20,12 +23,19 @@ import type {
 	SettingsSearchTarget,
 } from './settings-search';
 import {searchSettings} from './settings-search';
+import {settingNameStyle} from './SettingsRow';
 
 const container: React.CSSProperties = {
 	position: 'relative',
-	width: 420,
-	maxWidth: '100%',
-	margin: '0 8px',
+	marginBottom: 6,
+};
+const inputStyle: React.CSSProperties = {
+	backgroundColor: `var(--remotion-settings-search-background, ${INPUT_BACKGROUND})`,
+	borderRadius: 6,
+	borderStyle: 'none',
+	boxShadow: 'none',
+	outline: 'none',
+	padding: '6px 8px',
 };
 const resultsStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -33,7 +43,9 @@ const resultsStyle: React.CSSProperties = {
 	left: 0,
 	right: 0,
 	maxHeight: 'min(420px, 65vh)',
+	overflowX: 'hidden',
 	overflowY: 'auto',
+	scrollbarGutter: 'auto',
 	backgroundColor: BACKGROUND,
 	border: BORDER_WHITE_ALPHA_12,
 	borderRadius: 6,
@@ -43,20 +55,24 @@ const resultsStyle: React.CSSProperties = {
 const resultStyle: React.CSSProperties = {
 	display: 'block',
 	width: '100%',
-	padding: '10px 12px',
+	padding: '6px 12px',
 	border: 'none',
 	textAlign: 'left',
 	cursor: 'default',
 };
-const nameStyle: React.CSSProperties = {
-	display: 'block',
-	fontSize: 14,
-	lineHeight: 1.5,
+const categoryStyle: React.CSSProperties & {
+	'--remotion-disclosure-color': React.CSSProperties['color'];
+} = {
+	'--remotion-disclosure-color': sectionHeader.color,
+	alignItems: 'center',
+	columnGap: 4,
+	display: 'flex',
+	flexWrap: 'wrap',
 };
-const detailStyle: React.CSSProperties = {
-	display: 'block',
-	fontSize: 12,
-	lineHeight: 1.5,
+const sectionStyle: React.CSSProperties = {
+	...sectionHeader,
+	lineHeight: '16px',
+	padding: 0,
 };
 
 export const SettingsSearch: React.FC<{
@@ -94,6 +110,8 @@ export const SettingsSearch: React.FC<{
 		>
 			<RemotionInput
 				role="combobox"
+				className="__remotion-settings-search"
+				style={inputStyle}
 				aria-label="Search settings"
 				aria-autocomplete="list"
 				aria-expanded={expanded}
@@ -103,7 +121,7 @@ export const SettingsSearch: React.FC<{
 						? getSettingDomId(`result-${active.id}`)
 						: undefined
 				}
-				placeholder="Search settings…"
+				placeholder="Search..."
 				value={query}
 				status="ok"
 				rightAlign={false}
@@ -187,9 +205,19 @@ export const SettingsSearch: React.FC<{
 									});
 								}}
 							>
-								<span style={nameStyle}>{result.name}</span>
-								<span style={detailStyle}>{result.category}</span>
-								<span style={detailStyle}>{result.description}</span>
+								<span style={categoryStyle}>
+									{result.category.map((label, index) => (
+										<React.Fragment key={label}>
+											{index === 0 ? null : (
+												<span aria-hidden="true">
+													<DisclosureChevron expanded={false} />
+												</span>
+											)}
+											<span style={sectionStyle}>{label}</span>
+										</React.Fragment>
+									))}
+								</span>
+								<span style={settingNameStyle}>{result.name}</span>
 							</button>
 						))}
 					</div>

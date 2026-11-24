@@ -1,3 +1,4 @@
+import type {DoubleClickAction} from '@remotion/renderer';
 import type {
 	ConfigUpdate,
 	GetDefaultCodingAgentInfoResponse,
@@ -23,6 +24,7 @@ import {
 	isElementLibraryUpdateApplied,
 } from '../helpers/element-libraries';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
+import {setStudioDoubleClickActionPreview} from '../helpers/studio-runtime-config';
 import {
 	appSelectedEvent,
 	codingAgentHistory,
@@ -39,6 +41,8 @@ type SkillAction = {
 
 type SettingsContextValue = {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
+	readonly doubleClickAction: DoubleClickAction | null;
+	readonly doubleClickActionError: string | null;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly error: string | null;
 	readonly publicLicenseKey: string | null;
@@ -47,6 +51,7 @@ type SettingsContextValue = {
 	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
 	readonly showDiagnostics: boolean;
+	readonly setDoubleClickAction: (value: DoubleClickAction | null) => void;
 	readonly setShowDiagnostics: (visible: boolean) => void;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 	readonly addElementLibrary: (
@@ -81,6 +86,9 @@ export const SettingsProvider: React.FC<{
 			| 'removeSkill'
 			| 'upgradeSkill'
 			| 'showDiagnostics'
+			| 'doubleClickAction'
+			| 'doubleClickActionError'
+			| 'setDoubleClickAction'
 			| 'setShowDiagnostics'
 			| 'addElementLibrary'
 			| 'updateElementLibrary'
@@ -106,6 +114,86 @@ export const SettingsProvider: React.FC<{
 	const diagnosticsSaveQueue = useRef<Promise<void>>(Promise.resolve());
 	const studioRuntimeConfigRef = useRef(settings.studioRuntimeConfig);
 	studioRuntimeConfigRef.current = settings.studioRuntimeConfig;
+	const doubleClickActionSave = useRef<{
+		readonly value: DoubleClickAction | null;
+		initialRuntimeConfig: StudioRuntimeConfig | null;
+		started: boolean;
+		saved: boolean;
+	} | null>(null);
+	const [doubleClickActionPreview, setDoubleClickActionPreview] = useState<{
+		readonly value: DoubleClickAction | null;
+	} | null>(null);
+	const [doubleClickActionError, setDoubleClickActionError] = useState<
+		string | null
+	>(null);
+	const clearDoubleClickActionPreview = useCallback(() => {
+		doubleClickActionSave.current = null;
+		setStudioDoubleClickActionPreview(null);
+		setDoubleClickActionPreview(null);
+	}, []);
+	const doubleClickActionSaveQueue = useRef<Promise<void>>(Promise.resolve());
+	const setDoubleClickAction = useCallback(
+		(action: DoubleClickAction | null) => {
+			if (
+				previewServerState.type !== 'connected' ||
+				!canEditStudioConfig({
+					isBrowserStudio: getBrowserStudioOperations() !== null,
+					previewServerConnected: true,
+					readOnlyStudio: window.remotion_isReadOnlyStudio,
+				}) ||
+				studioRuntimeConfigRef.current?.doubleClickAction?.source === 'cli'
+			) {
+				return;
+			}
+
+			const request = {
+				value: action,
+				initialRuntimeConfig: studioRuntimeConfigRef.current,
+				started: false,
+				saved: false,
+			};
+			doubleClickActionSave.current = request;
+			setStudioDoubleClickActionPreview(request);
+			setDoubleClickActionPreview(request);
+			setDoubleClickActionError(null);
+			doubleClickActionSaveQueue.current = doubleClickActionSaveQueue.current
+				.then(async () => {
+					if (doubleClickActionSave.current !== request) return;
+					request.initialRuntimeConfig = studioRuntimeConfigRef.current;
+					request.started = true;
+					const response = await callApi('/api/update-config', {
+						clientId: previewServerState.clientId,
+						updates: [
+							action === null
+								? {setter: 'setDoubleClickAction', type: 'delete'}
+								: {setter: 'setDoubleClickAction', type: 'set', value: action},
+						],
+					});
+					if (!response.success) throw new Error(response.reason);
+					if (doubleClickActionSave.current !== request) return;
+					request.saved = true;
+					const runtimeConfig = studioRuntimeConfigRef.current;
+					if (
+						(!response.changed ||
+							runtimeConfig !== request.initialRuntimeConfig) &&
+						(runtimeConfig?.configFileStudioSettings?.doubleClickAction ??
+							null) === action
+					) {
+						clearDoubleClickActionPreview();
+					}
+				})
+				.catch((err: Error) => {
+					if (doubleClickActionSave.current !== request) return;
+					clearDoubleClickActionPreview();
+					setDoubleClickActionError(err.message);
+					showNotification(
+						`Could not save double-click action: ${err.message}`,
+						5000,
+					);
+				});
+		},
+		[clearDoubleClickActionPreview, previewServerState],
+	);
 	const elementLibraryRemovals = useRef(new Map<string, {saved: boolean}>());
 	const elementLibraryEdits = useRef(
 		new Map<string, {library: StudioElementLibrary; saved: boolean}>(),
@@ -591,6 +679,16 @@ export const SettingsProvider: React.FC<{
 			}
 
 			studioRuntimeConfigRef.current = event.studioRuntimeConfig;
+			const doubleClickActionRequest = doubleClickActionSave.current;
+			if (
+				event.studioRuntimeConfig.doubleClickAction?.source === 'cli' ||
+				(doubleClickActionRequest?.saved &&
+					(event.studioRuntimeConfig.configFileStudioSettings
+						?.doubleClickAction ?? null) === doubleClickActionRequest.value)
+			) {
+				clearDoubleClickActionPreview();
+			}
+
 			for (const [url, edit] of elementLibraryEdits.current) {
 				if (
 					edit.saved &&
@@ -688,11 +786,15 @@ export const SettingsProvider: React.FC<{
 				revision: currentSettings.revision + 1,
 			}));
 		});
-	}, [subscribeToEvent]);
+	}, [clearDoubleClickActionPreview, subscribeToEvent]);
 
 	useEffect(() => {
 		return subscribeToEvent('config-file-reload-failed', (event) => {
 			if (event.type === 'config-file-reload-failed') {
+				if (doubleClickActionSave.current?.started) {
+					clearDoubleClickActionPreview();
+				}
+
 				if (elementLibraryEdits.current.size > 0) {
 					elementLibraryEdits.current.clear();
 					setEditedElementLibraries([]);
@@ -741,7 +843,7 @@ export const SettingsProvider: React.FC<{
 				}));
 			}
 		});
-	}, [subscribeToEvent]);
+	}, [clearDoubleClickActionPreview, subscribeToEvent]);
 
 	const setPublicLicenseKey = useCallback((publicLicenseKey: string | null) => {
 		setSettings((currentSettings) => {
@@ -868,6 +970,13 @@ export const SettingsProvider: React.FC<{
 		return {
 			...settings,
 			studioRuntimeConfig,
+			doubleClickAction:
+				doubleClickActionPreview === null
+					? (settings.studioRuntimeConfig?.configFileStudioSettings
+							?.doubleClickAction ?? null)
+					: doubleClickActionPreview.value,
+			doubleClickActionError,
+			setDoubleClickAction,
 			addElementLibrary,
 			updateElementLibrary,
 			removeElementLibrary,
@@ -883,6 +992,9 @@ export const SettingsProvider: React.FC<{
 			upgradeSkill,
 		};
 	}, [
+		doubleClickActionError,
+		doubleClickActionPreview,
+		setDoubleClickAction,
 		installSkill,
 		removeSkill,
 		setPublicLicenseKey,

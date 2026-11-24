@@ -1635,7 +1635,7 @@ export type UpdateConfigRequest = {
 	updates: ConfigUpdate[];
 };
 export type UpdateConfigResponse =
-	| {success: true}
+	| {success: true; changed: boolean}
 	| {success: false; reason: string};
 
 export type GetDefaultEditorInfoRequest = {

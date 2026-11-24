@@ -18,6 +18,7 @@ import {
 	type SettingsTab,
 } from '../helpers/settings-tab-availability';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
+import {useBreakpoint} from '../helpers/use-breakpoint';
 import {AppsIcon} from '../icons/apps';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
@@ -54,7 +55,7 @@ import {SettingsModalFooter} from './SettingsModalFooter';
 import {SettingsSearch} from './SettingsSearch';
 import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
-import {VerticalTab} from './Tabs/vertical';
+import {compactTabBreakpoint, VerticalTab} from './Tabs/vertical';
 import {UpdatesSettings} from './UpdatesSettings';
 import {useUpdateStatus} from './UpdateStatusContext';
 
@@ -62,8 +63,17 @@ const hiddenPanel: React.CSSProperties = {
 	display: 'none',
 };
 
-const settingsOptionsPanel: React.CSSProperties = {
+const settingsPanel: React.CSSProperties = {
 	...optionsPanel,
+	alignContent: 'start',
+	display: 'grid',
+	gridTemplateColumns: 'minmax(0, 700px)',
+	justifyContent: 'center',
+	paddingTop: 16,
+};
+
+const settingsOptionsPanel: React.CSSProperties = {
+	...settingsPanel,
 	boxSizing: 'border-box',
 	paddingBottom: 16,
 };
@@ -71,6 +81,11 @@ const settingsOptionsPanel: React.CSSProperties = {
 const settingsLeftSidebar: React.CSSProperties = {
 	...leftSidebar,
 	paddingLeft: 8,
+};
+
+const settingsTab: React.CSSProperties = {
+	...horizontalTab,
+	width: 206,
 };
 
 const appsIcon: React.CSSProperties = {
@@ -97,6 +112,7 @@ export const SettingsModal: React.FC<{
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey, initialTab}) => {
+	const isCompact = useBreakpoint(compactTabBreakpoint);
 	const {setPublicLicenseKey, renderDefaults, studioRuntimeConfig, revision} =
 		useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -248,12 +264,17 @@ export const SettingsModal: React.FC<{
 			const reduceMotion = window.matchMedia(
 				'(prefers-reduced-motion: reduce)',
 			).matches;
+			const highlight = {
+				backgroundColor: SELECTED_BACKGROUND,
+				borderRadius: '6px',
+			};
 			revealAnimation.current?.cancel();
 			revealAnimation.current = element.animate(
 				[
-					{backgroundColor: SELECTED_BACKGROUND, offset: 0},
-					{backgroundColor: SELECTED_BACKGROUND, offset: 0.6},
+					{...highlight, offset: 0},
+					{...highlight, offset: 0.6},
 					{
+						...highlight,
 						backgroundColor: reduceMotion ? SELECTED_BACKGROUND : TRANSPARENT,
 						offset: 1,
 					},
@@ -294,19 +315,23 @@ export const SettingsModal: React.FC<{
 	return (
 		<FullscreenPanel
 			ariaLabel="Settings"
-			headerContent={
-				<SettingsSearch entries={searchEntries} onSelect={navigateToSetting} />
-			}
+			headerContent={null}
 			rightAction={null}
 			sidebarWidth={null}
 		>
 			<>
 				<div ref={panels} style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
+						{isCompact ? null : (
+							<SettingsSearch
+								entries={searchEntries}
+								onSelect={navigateToSetting}
+							/>
+						)}
 						{availableTabs.includes('studio') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'studio'}
 								onClick={() => selectTab('studio')}
 								renderIcon={(color) => (
@@ -321,7 +346,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('rendering') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'rendering'}
 								onClick={() => selectTab('rendering')}
 								renderIcon={(color) => (
@@ -335,7 +360,7 @@ export const SettingsModal: React.FC<{
 						) : null}
 						<VerticalTab
 							draggable={false}
-							style={horizontalTab}
+							style={settingsTab}
 							selected={tab === 'shortcuts'}
 							onClick={() => selectTab('shortcuts')}
 							renderIcon={(color) => (
@@ -349,7 +374,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('packages') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'packages'}
 								onClick={() => selectTab('packages')}
 								renderIcon={(color) => (
@@ -364,7 +389,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('skills') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'skills'}
 								onClick={() => selectTab('skills')}
 								renderIcon={(color) => (
@@ -379,7 +404,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('models') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'models'}
 								onClick={() => selectTab('models')}
 								renderIcon={(color) => (
@@ -394,7 +419,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('apps') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'apps'}
 								onClick={() => selectTab('apps')}
 								renderIcon={(color) => (
@@ -409,7 +434,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('license') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'license'}
 								onClick={() => selectTab('license')}
 								renderIcon={(color) => (
@@ -424,7 +449,7 @@ export const SettingsModal: React.FC<{
 						{availableTabs.includes('updates') ? (
 							<VerticalTab
 								draggable={false}
-								style={horizontalTab}
+								style={settingsTab}
 								selected={tab === 'updates'}
 								onClick={() => selectTab('updates')}
 								renderIcon={(color) => (
@@ -442,7 +467,8 @@ export const SettingsModal: React.FC<{
 						<div
 							id={getSettingDomId('tab-packages')}
 							tabIndex={-1}
-							style={tab === 'packages' ? optionsPanel : hiddenPanel}
+							style={tab === 'packages' ? settingsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
 						>
 							<InstallPackageSettings
 								footerContainer={packagesFooterContainer}

@@ -17,7 +17,7 @@ export type SettingsSearchResult = {
 	readonly tab: SettingsTab;
 	readonly name: string;
 	readonly description: string;
-	readonly category: string;
+	readonly category: readonly string[];
 	readonly keywords: string;
 };
 
@@ -85,9 +85,7 @@ export const getSettingsSearchEntries = ({
 			name: entry.name,
 			description: entry.description,
 			keywords: entry.keywords,
-			category: [settingsTabLabels[entry.tab], entry.section]
-				.filter(Boolean)
-				.join(' › '),
+			category: [settingsTabLabels[entry.tab], entry.section].filter(Boolean),
 		}));
 	const groups = askAIEnabled
 		? [...keyboardShortcutGroups, askAIKeyboardShortcutGroup]
@@ -100,7 +98,7 @@ export const getSettingsSearchEntries = ({
 						tab: 'shortcuts',
 						name: shortcut.action,
 						description: 'View keyboard shortcut bindings.',
-						category: `Shortcuts › ${group.name}`,
+						category: [settingsTabLabels.shortcuts, group.name],
 						keywords: 'keyboard hotkeys keybindings',
 					})),
 				)
@@ -113,7 +111,7 @@ export const getSettingsSearchEntries = ({
 			tab,
 			name: settingsTabLabels[tab],
 			description: tabDescriptions[tab],
-			category: 'Settings',
+			category: ['Settings'],
 			keywords: '',
 		})),
 	];
@@ -131,7 +129,7 @@ export const searchSettings = (
 	return entries
 		.filter((entry) => {
 			const text =
-				`${entry.name} ${entry.description} ${entry.category} ${entry.keywords}`.toLowerCase();
+				`${entry.name} ${entry.description} ${entry.category.join(' ')} ${entry.keywords}`.toLowerCase();
 			return words.every((word) => text.includes(word));
 		})
 		.sort((a, b) => {
