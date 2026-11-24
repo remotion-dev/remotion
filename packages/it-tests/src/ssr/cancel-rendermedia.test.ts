@@ -104,7 +104,7 @@ test('selectComposition() should reject when cancelled and keep a shared browser
 			serveUrl: exampleBuild,
 			id: 'react-svg',
 			inputProps: {},
-			puppeteerInstance: browser,
+			browserExecutable: '/does/not/exist',
 			cancelSignal: cancelled.cancelSignal,
 		}).then(
 			() => null,

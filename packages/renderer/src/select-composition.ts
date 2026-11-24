@@ -234,116 +234,133 @@ export const internalSelectCompositionRaw = async (
 		cancelSignal,
 	} = options;
 
-	const [pageResult, serverResult] = await Promise.allSettled([
-		getPageAndCleanupFn({
-			passedInInstance: puppeteerInstance,
-			browserExecutable,
-			chromiumOptions,
-			forceDeviceScaleFactor: undefined,
-			indent,
-			logLevel,
-			onBrowserDownload,
-			chromeMode,
-			pageIndex: 0,
-			onBrowserLog,
-			onLog: RenderInternals.defaultOnLog,
-		}),
-		makeOrReuseServer(
-			options.server,
-			{
-				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-				port,
-				remotionRoot: findRemotionRoot(),
-				offthreadVideoThreads: 0,
-				logLevel,
-				indent,
-				offthreadVideoCacheSizeInBytes,
-				binariesDirectory,
-				forceIPv4: false,
-				sampleRate: 48000,
-			},
-			{
-				onDownload: () => undefined,
-			},
-		).then((result) => {
-			cleanup.push(() => result.cleanupServer(true));
-			return result;
-		}),
-	]);
-	if (pageResult.status === 'fulfilled') {
-		cleanup.push(() => pageResult.value.cleanupPage());
-	}
-
-	if (pageResult.status === 'rejected' || serverResult.status === 'rejected') {
-		cleanup.forEach((c) => {
+	const runCleanup = () => {
+		cleanup.splice(0).forEach((c) => {
 			c().catch((err) => {
 				Log.error({indent, logLevel}, 'Cleanup error:', err);
 			});
 		});
-		throw pageResult.status === 'rejected'
-			? pageResult.reason
-			: (serverResult as PromiseRejectedResult).reason;
-	}
+	};
 
-	const {page} = pageResult.value;
-	const serverUsed = serverResult.value;
-
-	return new Promise<InternalReturnType>((resolve, reject) => {
-		const onError = (err: Error) => reject(err);
-		const runCleanup = () => {
-			cleanup.splice(0).forEach((c) => {
-				c().catch((err) => {
-					Log.error({indent, logLevel}, 'Cleanup error:', err);
-				});
-			});
-		};
-
-		cleanup.push(
-			handleJavascriptException({
-				page,
-				frame: null,
-				onError,
-			}),
-		);
-		page.setBrowserSourceMapGetter(serverUsed.server.sourceMap);
-
+	let cancelled = false;
+	const cancellation = new Promise<never>((_resolve, reject) => {
 		cancelSignal?.(() => {
+			cancelled = true;
 			reject(new Error(cancelErrorMessages.selectComposition));
 			runCleanup();
 		});
-
-		innerSelectComposition({
-			serveUrl: serverUsed.server.serveUrl,
-			page,
-			port: serverUsed.server.offthreadPort,
-			browserExecutable,
-			chromiumOptions,
-			envVariables,
-			id,
-			serializedInputPropsWithCustomSchema,
-			timeoutInMilliseconds,
-			logLevel,
-			indent,
-			puppeteerInstance,
-			server,
-			offthreadVideoCacheSizeInBytes,
-			binariesDirectory,
-			onBrowserDownload,
-			onServeUrlVisited,
-			chromeMode,
-			mediaCacheSizeInBytes,
-			preferredEffectBackend,
-		})
-			.then((data) => {
-				return resolve(data);
-			})
-			.catch((err) => {
-				reject(err);
-			})
-			.finally(() => {
-				runCleanup();
-			});
 	});
+
+	const happyPath = async (): Promise<InternalReturnType> => {
+		if (cancelled) {
+			throw new Error(cancelErrorMessages.selectComposition);
+		}
+
+		const [pageResult, serverResult] = await Promise.allSettled([
+			getPageAndCleanupFn({
+				passedInInstance: puppeteerInstance,
+				browserExecutable,
+				chromiumOptions,
+				forceDeviceScaleFactor: undefined,
+				indent,
+				logLevel,
+				onBrowserDownload,
+				chromeMode,
+				pageIndex: 0,
+				onBrowserLog,
+				onLog: RenderInternals.defaultOnLog,
+			}),
+			makeOrReuseServer(
+				options.server,
+				{
+					webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+					port,
+					remotionRoot: findRemotionRoot(),
+					offthreadVideoThreads: 0,
+					logLevel,
+					indent,
+					offthreadVideoCacheSizeInBytes,
+					binariesDirectory,
+					forceIPv4: false,
+					sampleRate: 48000,
+				},
+				{
+					onDownload: () => undefined,
+				},
+			).then((result) => {
+				cleanup.push(() => result.cleanupServer(true));
+				return result;
+			}),
+		]);
+		if (pageResult.status === 'fulfilled') {
+			cleanup.push(() => pageResult.value.cleanupPage());
+		}
+
+		if (
+			pageResult.status === 'rejected' ||
+			serverResult.status === 'rejected'
+		) {
+			runCleanup();
+			throw pageResult.status === 'rejected'
+				? pageResult.reason
+				: (serverResult as PromiseRejectedResult).reason;
+		}
+
+		if (cancelled) {
+			runCleanup();
+			throw new Error(cancelErrorMessages.selectComposition);
+		}
+
+		const {page} = pageResult.value;
+		const serverUsed = serverResult.value;
+
+		return new Promise<InternalReturnType>((resolve, reject) => {
+			const onError = (err: Error) => reject(err);
+
+			cleanup.push(
+				handleJavascriptException({
+					page,
+					frame: null,
+					onError,
+				}),
+			);
+			page.setBrowserSourceMapGetter(serverUsed.server.sourceMap);
+
+			innerSelectComposition({
+				serveUrl: serverUsed.server.serveUrl,
+				page,
+				port: serverUsed.server.offthreadPort,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				id,
+				serializedInputPropsWithCustomSchema,
+				timeoutInMilliseconds,
+				logLevel,
+				indent,
+				puppeteerInstance,
+				server,
+				offthreadVideoCacheSizeInBytes,
+				binariesDirectory,
+				onBrowserDownload,
+				onServeUrlVisited,
+				chromeMode,
+				mediaCacheSizeInBytes,
+				preferredEffectBackend,
+			})
+				.then((data) => {
+					return resolve(data);
+				})
+				.catch((err) => {
+					reject(err);
+				})
+				.finally(() => {
+					runCleanup();
+				});
+		});
+	};
+
+	return Promise.race([happyPath(), cancellation]);
 };
 
 export const internalSelectComposition = wrapWithErrorHandling(
