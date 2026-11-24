@@ -1,4 +1,125 @@
 ---
+import React from "react";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+} from "remotion";
+
+const scenes = [
+  {
+    start: 0,
+    end: 150,
+    text: "¿Y si la Luna desapareciera?",
+    voice: "Imagina despertar mañana... y descubrir que la Luna ha desaparecido.",
+    bg: "#020817",
+    emoji: "🌍",
+  },
+  {
+    start: 150,
+    end: 300,
+    text: "¡Las noches serían mucho más oscuras!",
+    voice: "Las noches serían mucho más oscuras. La luz plateada desaparecería.",
+    bg: "#05031b",
+    emoji: "🌑",
+  },
+  {
+    start: 300,
+    end: 450,
+    text: "Los océanos cambiarían",
+    voice: "Las mareas cambiarían porque la Luna influye en nuestros océanos.",
+    bg: "#001b35",
+    emoji: "🌊",
+  },
+  {
+    start: 450,
+    end: 600,
+    text: "¡Y el cielo sería diferente!",
+    voice: "El cielo perdería uno de sus objetos más hermosos.",
+    bg: "#100526",
+    emoji: "✨",
+  },
+  {
+    start: 600,
+    end: 750,
+    text: "¿Volverías a mirar al cielo?",
+    voice: "¿Te imaginas vivir sin Luna? Sígueme para descubrir más misterios del universo.",
+    bg: "#020817",
+    emoji: "🌍",
+  },
+];
+
+export const Video = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const scene = scenes.find(
+    s => frame >= s.start && frame < s.end
+  ) || scenes[4];
+
+  const progress = interpolate(
+    frame % 150,
+    [0, 150],
+    [0.9, 1.2]
+  );
+
+  return (
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(circle at 50% 40%, ${scene.bg}, #000)`,
+        color: "white",
+        justifyContent: "center",
+        alignItems: "center",
+        fontFamily: "Arial",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{
+        position: "absolute",
+        width: 450,
+        height: 450,
+        borderRadius: "50%",
+        background: "radial-gradient(circle, #1675c9, #06112c 65%, transparent)",
+        transform: `scale(${progress})`,
+        boxShadow: "0 0 100px #147de8",
+      }} />
+
+      <div style={{
+        fontSize: 125,
+        zIndex: 2,
+        transform: `scale(${progress})`,
+        filter: "drop-shadow(0 0 30px #55baff)",
+      }}>
+        {scene.emoji}
+      </div>
+
+      <div style={{
+        position: "absolute",
+        bottom: 190,
+        width: "88%",
+        textAlign: "center",
+        fontSize: 54,
+        fontWeight: 900,
+        textShadow: "0 4px 15px #000",
+        zIndex: 3,
+      }}>
+        {scene.text}
+      </div>
+
+      <div style={{
+        position: "absolute",
+        top: 80,
+        fontSize: 35,
+        fontWeight: "bold",
+        color: "#54c8ff",
+      }}>
+        NEBULIX
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 image: https://remotion.media/docs/generated/articles-docs-cloudrun.png
 id: cloudrun
 sidebar_label: Overview
