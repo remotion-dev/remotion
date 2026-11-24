@@ -149,6 +149,7 @@ export const ElementsComposeDemo: React.FC = () => {
 				component={ComposedElements}
 				compositionHeight={1080}
 				compositionWidth={1920}
+				controls
 				durationInFrames={108}
 				fps={30}
 				initiallyMuted
