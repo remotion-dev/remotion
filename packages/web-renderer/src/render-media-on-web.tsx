@@ -1,6 +1,7 @@
 import {
 	BufferTarget,
 	StreamTarget,
+	VideoSampleSource,
 	type MetadataTags,
 	type Quality,
 	type StreamTargetChunk,
@@ -22,10 +23,7 @@ import {getRealFrameRange, type FrameRange} from './frame-range';
 import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
-import {
-	makeOutputWithCleanup,
-	makeVideoSampleSourceCleanup,
-} from './mediabunny-cleanups';
+import {makeOutputWithCleanup} from './mediabunny-cleanups';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
@@ -507,9 +505,11 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		using videoSampleSource =
+		// Output owns the attached tracks. Closing them during unwinding
+		// would start a normal flush before Output.cancel() can force-close them.
+		const videoSampleSource =
 			videoEnabled && codec
-				? makeVideoSampleSourceCleanup({
+				? new VideoSampleSource({
 						codec: codecToMediabunnyCodec(codec),
 						bitrate:
 							typeof videoBitrate === 'number'
@@ -542,20 +542,17 @@ const internalRenderMediaOnWeb = async <
 		const recentFrameTimings: number[] = [];
 
 		if (videoSampleSource) {
-			outputWithCleanup.output.addVideoTrack(
-				videoSampleSource.videoSampleSource,
-				{
-					// 1 packet per frame, + 33% buffer
-					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
-					maximumPacketCount: Math.ceil(totalFrames * 1.33),
-					// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
-					// for the container timescale. Without it, Chromium assumes 30 fps.
-					frameRate: resolved.fps,
-				},
-			);
+			outputWithCleanup.output.addVideoTrack(videoSampleSource, {
+				// 1 packet per frame, + 33% buffer
+				// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
+				maximumPacketCount: Math.ceil(totalFrames * 1.33),
+				// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
+				// for the container timescale. Without it, Chromium assumes 30 fps.
+				frameRate: resolved.fps,
+			});
 		}
 
-		using audioSampleSource = createAudioSampleSource({
+		const audioSampleSource = createAudioSampleSource({
 			muted,
 			codec: finalAudioCodec
 				? audioCodecToMediabunnyAudioCodec(finalAudioCodec)
@@ -564,18 +561,15 @@ const internalRenderMediaOnWeb = async <
 		});
 
 		if (audioSampleSource) {
-			outputWithCleanup.output.addAudioTrack(
-				audioSampleSource.audioSampleSource,
-				{
-					// ~1 packet per 10ms, + 33% buffer; short AAC renders
-					// need room for encoder flush packets beyond their duration.
-					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
-					maximumPacketCount: Math.max(
-						8,
-						Math.ceil(durationInSeconds * 100 * 1.33),
-					),
-				},
-			);
+			outputWithCleanup.output.addAudioTrack(audioSampleSource, {
+				// ~1 packet per 10ms, + 33% buffer; short AAC renders
+				// need room for encoder flush packets beyond their duration.
+				// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
+				maximumPacketCount: Math.max(
+					8,
+					Math.ceil(durationInSeconds * 100 * 1.33),
+				),
+			});
 		}
 
 		await outputWithCleanup.output.start();
@@ -597,7 +591,7 @@ const internalRenderMediaOnWeb = async <
 			let audio: AudioData | null;
 			while ((audio = audioMixer.getReadyAudio())) {
 				try {
-					await addAudioSample(audio, audioSampleSource.audioSampleSource);
+					await addAudioSample(audio, audioSampleSource);
 				} finally {
 					audio.close();
 				}
@@ -755,7 +749,7 @@ const internalRenderMediaOnWeb = async <
 					encodingPromises.push(
 						addVideoSampleAndCloseFrame(
 							frameToEncode,
-							videoSampleSource.videoSampleSource,
+							videoSampleSource,
 							1 / resolved.fps,
 						),
 					);
@@ -793,8 +787,8 @@ const internalRenderMediaOnWeb = async <
 
 		await waitForPageResponsiveness();
 
-		videoSampleSource?.videoSampleSource.close();
-		audioSampleSource?.audioSampleSource.close();
+		videoSampleSource?.close();
+		audioSampleSource?.close();
 		await outputWithCleanup.output.finalize();
 
 		Internals.Log.verbose(
