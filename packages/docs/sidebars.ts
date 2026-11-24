@@ -1358,6 +1358,8 @@ const sidebars: SidebarsConfig = {
 				'captions/importing',
 				'captions/transcribing',
 				'captions/displaying',
+				'captions/styling',
+				'captions/editing',
 				'captions/exporting',
 			],
 		},

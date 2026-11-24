@@ -1,0 +1,65 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-captions-styling.png
+sidebar_label: Styling
+title: Styling captions
+crumb: Captions
+---
+
+# Styling captions
+
+Captions in Remotion can be styled however you like using HTML and CSS.  
+Or you can use pre-made caption styles:
+
+- [Remotion Elements - Captions](/elements/captions/)
+- [Remocn - Captions](https://remocn.dev/docs/captions/getting-started/introduction#all-caption-styles)
+
+## Choose a style when transcribing<AvailableFrom v="4.0.535" />
+
+If you [transcribe](/docs/captions/transcribing) a video or audio in the [Studio](/docs/studio), you get the chance to choose a preset by picking from caption [elements](/docs/elements).
+
+<Step>1</Step> Select a video or audio layer and click `Generate captions` in the inspector.
+
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/generate-captions-inspector-v2.png"
+  alt="Generate captions highlighted in the video layer inspector."
+  width={303}
+  height={38}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0}}
+/>
+
+<br/>
+<br/>
+
+<Step>2</Step> Open `Styles` and select a caption <a href="/docs/elements">element</a>.
+
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/open-caption-styles-v3.png"
+  alt="The Styles button in the Generate captions dialog."
+  width={162}
+  height={45}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<br/>
+<br/>
+
+<Step>3</Step> Click <code>Generate captions</code> in the top-right of the dialog to transcribe the audio and add a caption layer with the selected style.
+
+<img
+  src="https://remotion.media/docs/captions/studio-style-walkthrough/generate-captions-dialog-v2.png"
+  alt="The blue Generate captions button in the transcription dialog."
+  width={147}
+  height={53}
+  loading="lazy"
+  style={{maxWidth: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<br/>
+
+## Changing the caption style
+
+If you already have captions and you want to switch to a different style, we recommend you to do so using the <Skill>/remotion-captions</Skill> skill:
+
+<SuggestedPrompt prompt="/remotion-captions use this caption style: https://www.remotion.dev/elements/captions/rounded-captions/" />
