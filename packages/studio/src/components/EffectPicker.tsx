@@ -25,6 +25,7 @@ import {
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {isStudioSelectionEnabled} from '../helpers/interactivity-enabled';
@@ -46,12 +47,10 @@ import {
 	getEffectThumbnailAspectRatio,
 } from './EffectThumbnail';
 import {InlineAction} from './InlineAction';
-import {
-	InspectorMessage,
-	largeInspectorActionIconStyle,
-} from './InspectorPanel/common';
-import {container} from './InspectorPanel/styles';
+import {InspectorMessage} from './InspectorPanel/common';
+import {container, sectionHeaderActionIcon} from './InspectorPanel/styles';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {RemotionInput} from './NewComposition/RemInput';
@@ -71,7 +70,7 @@ const content: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 4,
-	padding: '4px 8px',
+	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 4px 8px`,
 };
 
 const inputStyle: React.CSSProperties = {
@@ -609,11 +608,13 @@ export const EffectPicker: React.FC<{
 						variant={null}
 						aria-label="Create a custom effect with an agent"
 						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+						style={NO_HOVER_BACKGROUND_STYLE}
 						onClick={() => selectItem(genericCreateEffect)}
 						renderAction={(color) => (
 							<SparklesIcon
 								color={color}
-								style={largeInspectorActionIconStyle}
+								viewBox="64 64 512 512"
+								style={sectionHeaderActionIcon}
 								aria-hidden
 							/>
 						)}
