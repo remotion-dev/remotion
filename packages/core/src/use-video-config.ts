@@ -9,7 +9,7 @@ import type {VideoConfig} from './video-config.js';
  * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
  */
 export const useVideoConfig = (): VideoConfig => {
-	const videoConfig = useUnsafeVideoConfig('unclipped');
+	const videoConfig = useUnsafeVideoConfig();
 	const context = useContext(CanUseRemotionHooks);
 	const isPlayer = useIsPlayer();
 

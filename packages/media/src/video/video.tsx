@@ -353,10 +353,7 @@ const VideoInner: React.FC<
 		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
 	const mediaStartsAt = Internals.useMediaStartsAt();
-	const {durationInFrames: compositionDuration, fps} = useVideoConfig();
-	const parentDuration =
-		useContext(Internals.SequenceContext)?.durationInFrames ??
-		compositionDuration;
+	const videoConfig = useVideoConfig();
 	const effectiveTrimAfter = getMediaTrimAfter({
 		durationInFrames,
 		trimAfter,
@@ -371,7 +368,7 @@ const VideoInner: React.FC<
 	});
 	const sequenceDurationInFrames = Math.min(
 		videoSequenceDuration ?? Infinity,
-		Math.max(0, parentDuration - (from ?? 0)),
+		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
@@ -398,7 +395,7 @@ const VideoInner: React.FC<
 				trimAfter: effectiveTrimAfter,
 				trimBefore,
 				sequenceDurationInFrames,
-				compFps: fps,
+				compFps: videoConfig.fps,
 			}),
 		[
 			loop,
@@ -407,7 +404,7 @@ const VideoInner: React.FC<
 			effectiveTrimAfter,
 			trimBefore,
 			sequenceDurationInFrames,
-			fps,
+			videoConfig.fps,
 		],
 	);
 

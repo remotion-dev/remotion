@@ -212,7 +212,7 @@ export const getKeyframeDurationLimits = ({
 				hasIndependentDuration:
 					childProps !== null &&
 					!hasDependentTiming &&
-					Number.isFinite(ownDuration),
+					(child.type === 'sequence' || Number.isFinite(ownDuration)),
 			};
 		});
 
@@ -242,6 +242,12 @@ export const getKeyframeDurationLimits = ({
 				child.from + (minimum - trimBefore) / child.sequencePlaybackRate;
 			maximum =
 				child.from + (maximum - trimBefore) / child.sequencePlaybackRate;
+		}
+
+		if (chain.length === 0) {
+			const trimBefore = sequence.trimBefore ?? 0;
+			minimum += trimBefore;
+			maximum += trimBefore;
 		}
 
 		if (

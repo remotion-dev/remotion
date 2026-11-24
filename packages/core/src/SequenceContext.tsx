@@ -12,9 +12,8 @@ export type SequenceContextType = {
 	cumulatedNegativeFrom: number;
 	relativeFrom: number;
 	parentFrom: number;
-	/** Exclusive end of the visible range in local frames, including trimBefore. */
+	/** Authored sequence length in frames, or the composition length. */
 	durationInFrames: number;
-	unclippedDurationInFrames: number;
 	id: string;
 	width: number | null;
 	height: number | null;

@@ -165,10 +165,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	styleWhilePostmounted,
 	controls,
 }) => {
-	const {durationInFrames: compositionDuration} = useVideoConfig();
-	const parentDuration =
-		useContext(Internals.SequenceContext)?.durationInFrames ??
-		compositionDuration;
+	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
@@ -218,7 +215,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 				playbackRate,
 				loop,
 			}),
-			parentDuration - (from ?? 0),
+			compositionDurationInFrames - (from ?? 0),
 		),
 	);
 	const lastFrame =

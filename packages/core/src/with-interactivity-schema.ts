@@ -266,7 +266,7 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const videoConfig = useUnsafeVideoConfig('unclipped');
+		const videoConfig = useUnsafeVideoConfig();
 		const durationInFrames = videoConfig?.durationInFrames;
 		const fps = videoConfig?.fps;
 		const height = videoConfig?.height;

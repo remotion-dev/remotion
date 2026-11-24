@@ -33,10 +33,7 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {LoopContext, type LoopContextType} from './loop/loop-context.js';
-import {
-	resolveSequenceContentDuration,
-	resolveSequenceDuration,
-} from './resolve-sequence-duration.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	SequenceActivityContext,
@@ -71,6 +68,7 @@ import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
+import {useVideo} from './use-video.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
@@ -213,7 +211,6 @@ type SequenceTiming = {
 	readonly contentDurationInFrames: number;
 	readonly effectiveDurationInFrames: number;
 	readonly actualDurationInFrames: number;
-	readonly unclippedDurationInFrames: number;
 	readonly loopPeriod: number | null;
 	readonly loopIteration: number;
 	readonly contentVisible: boolean;
@@ -320,7 +317,6 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		contentDurationInFrames,
 		effectiveDurationInFrames,
 		actualDurationInFrames,
-		unclippedDurationInFrames,
 		loopPeriod,
 		loopIteration,
 		contentVisible,
@@ -382,7 +378,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		);
 	}
 
-	if (loop && !Number.isFinite(contentDurationInFrames)) {
+	if (loop && !Number.isFinite(durationInFrames)) {
 		throw new Error(
 			'The "loop" prop of <Sequence /> requires a finite "durationInFrames" prop, because a <Sequence /> has no intrinsic duration.',
 		);
@@ -415,14 +411,6 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	const effectiveRelativeFrom = clockFrom - trimBefore / playbackRate;
 	const relativeFrom = effectiveRelativeFrom / parentPlaybackRate;
 	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + relativeFrom;
-	// Inside a loop, the local clock ends after `durationInFrames`, except in a final
-	// iteration that the parent cuts short.
-	const localClockEnd =
-		loopPeriod === null
-			? actualDurationInFrames * playbackRate + trimBefore
-			: Math.min(loopPeriod, actualDurationInFrames - loopOffset) *
-					playbackRate +
-				trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
@@ -489,8 +477,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			cumulatedFrom,
 			relativeFrom,
 			cumulatedNegativeFrom,
-			durationInFrames: localClockEnd,
-			unclippedDurationInFrames,
+			durationInFrames: contentDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
 			height: height ?? parentSequence?.height ?? null,
@@ -505,8 +492,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		absoluteFrom,
 		relativeFrom,
 		cumulativePlaybackRate,
-		localClockEnd,
-		unclippedDurationInFrames,
+		contentDurationInFrames,
 		parentSequence,
 		id,
 		height,
@@ -1037,10 +1023,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
-	const {durationInFrames: parentDurationInFrames} = useVideoConfig();
-	const contentDurationInFrames = resolveSequenceContentDuration({
-		durationInFrames,
-	});
+	const videoConfig = useVideoConfig();
+	const compositionDurationInFrames =
+		useVideo()?.durationInFrames ?? videoConfig.durationInFrames;
+	const contentDurationInFrames =
+		durationInFrames === Infinity
+			? compositionDurationInFrames
+			: (durationInFrames ?? compositionDurationInFrames);
 	const absoluteFrame = useTimelinePosition();
 	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
 	if (
@@ -1070,25 +1059,23 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		loop,
 	});
-	const visibleParentDuration =
-		parentSequence?.durationInFrames ?? parentDurationInFrames;
-	const actualDurationInFrames = Math.max(
-		0,
-		Math.min(visibleParentDuration - from, effectiveDurationInFrames),
-	);
-	const unclippedDurationInFrames =
-		(Number.isFinite(contentDurationInFrames)
-			? contentDurationInFrames
-			: Math.max(0, parentDurationInFrames - from) * playbackRate) + trimBefore;
 
 	// A looped sequence repeats the child range selected by `durationInFrames`. Each
 	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
 	// while the visible window stays at [from, from + effectiveDurationInFrames).
 	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
 	const loopPeriod =
-		loop && Number.isFinite(contentDurationInFrames)
+		loop && Number.isFinite(durationInFrames)
 			? contentDurationInFrames / playbackRate
 			: null;
+	const actualDurationInFrames =
+		loopPeriod === null
+			? contentDurationInFrames / playbackRate
+			: Math.max(
+					0,
+					(compositionDurationInFrames - cumulatedFrom) * parentPlaybackRate -
+						from,
+				);
 	let loopIteration = 0;
 	if (
 		loopPeriod !== null &&
@@ -1146,7 +1133,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
-			unclippedDurationInFrames,
 			loopPeriod,
 			loopIteration,
 			contentVisible,
@@ -1157,7 +1143,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			contentDurationInFrames,
 			effectiveDurationInFrames,
 			actualDurationInFrames,
-			unclippedDurationInFrames,
 			loopPeriod,
 			loopIteration,
 			contentVisible,

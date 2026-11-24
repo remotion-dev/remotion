@@ -126,8 +126,7 @@ export const useMediaInTimelineRegistration = ({
 		trimAfter: undefined,
 		trimBefore: undefined,
 		playbackRate,
-		sequenceDurationInFrames:
-			parentSequence?.durationInFrames ?? durationInFrames,
+		sequenceDurationInFrames: durationInFrames,
 		mediaStartsAt,
 		loop: false,
 		muted,
