@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
@@ -13,7 +13,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {BLUE, LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {applyStudioHighContrast} from '../helpers/studio-css-variables';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
@@ -27,10 +27,11 @@ import {
 } from './NewComposition/InputDragger';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {InfoBubble} from './RenderModal/InfoBubble';
-import {INFO_TOOLTIP_FONT_SIZE} from './RenderModal/InfoTooltip';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import {rightRow} from './RenderModal/layout';
+import type {SettingId} from './settings-catalog';
+import {settingsCatalog} from './settings-catalog';
 import {useSettings} from './SettingsContext';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -52,8 +53,9 @@ const disabledContainer: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -90,8 +92,7 @@ const initialSettings: ConfigFileStudioSettings = {
 
 const ConfigNumber = ({
 	defaultValue,
-	description,
-	name,
+	settingId,
 	onChange,
 	onChangeEnd,
 	value,
@@ -99,39 +100,19 @@ const ConfigNumber = ({
 	suffix,
 }: {
 	readonly defaultValue: number;
-	readonly description: React.ReactNode;
 	readonly step: number;
 	readonly suffix: string | null;
-	readonly name: string;
+	readonly settingId: SettingId;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
 	readonly value: number | null;
 }) => {
+	const {name} = settingsCatalog[settingId];
 	const valueSuffix = suffix === null ? '' : ` ${suffix}`;
 	const defaultLabel = `Default (${defaultValue}${valueSuffix})`;
 
 	return (
-		<div style={optionRow}>
-			<div style={label}>
-				{name}
-				{description === null ? null : (
-					<InfoBubble
-						aria-label={`About ${name.toLowerCase()}`}
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							{description}
-						</div>
-					</InfoBubble>
-				)}
-			</div>
+		<SettingsRow settingId={settingId}>
 			<div style={{...rightRow, gap: 6}}>
 				<InputDragger
 					onValueChangeCancel={() => onChange(value)}
@@ -160,14 +141,12 @@ const ConfigNumber = ({
 					<UndoIcon style={resetIcon} />
 				</Button>
 			</div>
-		</div>
+		</SettingsRow>
 	);
 };
 
 export const StudioSettings: React.FC = () => {
 	const {
-		doubleClickAction,
-		setDoubleClickAction,
 		error: settingsError,
 		revision,
 		studioRuntimeConfig,
@@ -347,23 +326,41 @@ export const StudioSettings: React.FC = () => {
 			style={hasConfigFile ? container : disabledContainer}
 		>
 			<p style={dividerLabel}>Interface</p>
-			<ConfigSelect
-				name="Double-click action"
-				description="Applies to layers, effects, and properties. Connected compositions open their timeline, and editable text on the canvas opens in the Inspector."
-				cliFlag={
-					studioRuntimeConfig.doubleClickAction?.source === 'cli'
-						? BrowserSafeApis.options.doubleClickActionOption.cliFlag
-						: null
-				}
-				defaultLabel="Open in editor"
-				options={doubleClickActions}
-				value={doubleClickAction}
-				onChange={setDoubleClickAction}
-			/>
-			<div style={optionRow}>
-				<label htmlFor="remotion-high-contrast" style={label}>
-					High contrast
-				</label>
+			<SettingsRow settingId="interactivityEnabled">
+				<div style={rightRow}>
+					<Checkbox
+						inputId="remotion-setting-interactivityEnabled-control"
+						checked={settings.interactivityEnabled !== false}
+						name="Interactivity enabled"
+						onChange={(event) =>
+							changeSetting(
+								'interactivityEnabled',
+								'setInteractivityEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</div>
+			</SettingsRow>
+			<SettingsRow settingId="canvasTabsEnabled">
+				<div style={rightRow}>
+					<Checkbox
+						inputId="remotion-setting-canvasTabsEnabled-control"
+						checked={settings.canvasTabsEnabled !== false}
+						name="Composition Tabs"
+						onChange={(event) =>
+							changeSetting(
+								'canvasTabsEnabled',
+								'setCanvasTabsEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</div>
+			</SettingsRow>
+
+			<p style={sectionTitle}>Accessibility</p>
+			<SettingsRow settingId="highContrast">
 				<div style={{...rightRow, gap: 8}}>
 					{studioRuntimeConfig.highContrast?.source === 'cli' ? (
 						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
@@ -371,7 +368,7 @@ export const StudioSettings: React.FC = () => {
 						</span>
 					) : null}
 					<Checkbox
-						inputId="remotion-high-contrast"
+						inputId="remotion-setting-highContrast-control"
 						name="High contrast"
 						checked={highContrast}
 						disabled={studioRuntimeConfig.highContrast?.source === 'cli'}
@@ -384,97 +381,13 @@ export const StudioSettings: React.FC = () => {
 						}
 					/>
 				</div>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>
-					Interactivity enabled
-					<InfoBubble
-						aria-label="About interactivity"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Global setting for turning off any interactivity that may edit
-							your code.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Interactivity enabled">
-					<Checkbox
-						checked={settings.interactivityEnabled !== false}
-						name="Interactivity enabled"
-						onChange={(event) =>
-							changeSetting(
-								'interactivityEnabled',
-								'setInteractivityEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</label>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>
-					Composition Tabs
-					<InfoBubble
-						aria-label="About composition tabs"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Show a tab interface above the canvas.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Composition Tabs">
-					<Checkbox
-						checked={settings.canvasTabsEnabled !== false}
-						name="Composition Tabs"
-						onChange={(event) =>
-							changeSetting(
-								'canvasTabsEnabled',
-								'setCanvasTabsEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</label>
-			</div>
+			</SettingsRow>
 
 			<p style={sectionTitle}>Timeline</p>
-			<div style={optionRow}>
-				<div style={label}>
-					Layer Frame Counters
-					<InfoBubble
-						aria-label="About layer frame counters"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Shows the internal time of a clip as a small label.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Layer Frame Counters">
+			<SettingsRow settingId="showLayerFrameNumbers">
+				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-showLayerFrameNumbers-control"
 						checked={settings.showLayerFrameNumbers ?? false}
 						name="Layer Frame Counters"
 						onChange={(event) =>
@@ -485,44 +398,14 @@ export const StudioSettings: React.FC = () => {
 							)
 						}
 					/>
-				</label>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>
-					Show Premounting
-					<InfoBubble
-						aria-label="About premounting"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Indicate in the timeline when a layer is mounted invisibly. See:{' '}
-							<a
-								href="https://www.remotion.dev/docs/player/premounting"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={{
-									color: BLUE,
-									fontSize: INFO_TOOLTIP_FONT_SIZE,
-									lineHeight: 1.5,
-									textDecoration: 'none',
-								}}
-							>
-								Premounting
-							</a>
-						</div>
-					</InfoBubble>
 				</div>
-				<label style={rightRow} aria-label="Show Premounting">
+			</SettingsRow>
+			<SettingsRow settingId="showPremounting">
+				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-showPremounting-control"
 						checked={settings.showPremounting ?? false}
-						name="Show Premounting"
+						name={settingsCatalog.showPremounting.name}
 						onChange={(event) =>
 							changeSetting(
 								'showPremounting',
@@ -531,41 +414,9 @@ export const StudioSettings: React.FC = () => {
 							)
 						}
 					/>
-				</label>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>
-					Visualize unmounted components
-					<InfoBubble
-						aria-label="About visualizing unmounted components"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							The maximum number of components which may be evaluated for better
-							timeline visualization. See:{' '}
-							<a
-								href="https://www.remotion.dev/docs/studio/showing-unmounted-components"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={{
-									color: BLUE,
-									fontSize: INFO_TOOLTIP_FONT_SIZE,
-									lineHeight: 1.5,
-									textDecoration: 'none',
-								}}
-							>
-								Showing unmounted components
-							</a>
-						</div>
-					</InfoBubble>
 				</div>
+			</SettingsRow>
+			<SettingsRow settingId="sequenceActivityLimit">
 				<div style={{...rightRow, gap: 6}}>
 					<RemotionInput
 						aria-label="Visualize unmounted components"
@@ -641,31 +492,13 @@ export const StudioSettings: React.FC = () => {
 						<UndoIcon style={resetIcon} />
 					</Button>
 				</div>
-			</div>
+			</SettingsRow>
 
 			<p style={sectionTitle}>Playback</p>
-			<div style={optionRow}>
-				<div style={label}>
-					Preserve pitch
-					<InfoBubble
-						aria-label="About preserving pitch"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Keep audio pitch unchanged when adjusting the Studio playback
-							speed. Applies to Audio and Video from @remotion/media.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Preserve pitch">
+			<SettingsRow settingId="preservePitchOnPlayback">
+				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-preservePitchOnPlayback-control"
 						checked={settings.preservePitchOnPlayback !== false}
 						name="Preserve pitch"
 						onChange={(event) =>
@@ -676,30 +509,11 @@ export const StudioSettings: React.FC = () => {
 							)
 						}
 					/>
-				</label>
-			</div>
+				</div>
+			</SettingsRow>
 			<ConfigNumber
 				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
-				description={
-					<>
-						How many seconds before a layer starts it should be mounted
-						invisibly. See:{' '}
-						<a
-							href="https://www.remotion.dev/docs/player/premounting"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{
-								color: BLUE,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-								textDecoration: 'none',
-							}}
-						>
-							Premounting
-						</a>
-					</>
-				}
-				name="Default Premount"
+				settingId="defaultPremountInSeconds"
 				step={0.1}
 				suffix="sec"
 				onChange={(value) =>
@@ -717,30 +531,7 @@ export const StudioSettings: React.FC = () => {
 			<ConfigSelect
 				defaultLabel="Playback"
 				cliFlag={null}
-				description={
-					<>
-						Remotion runs an{' '}
-						<code style={{fontFamily: 'monospace'}}>AudioContext</code> to drive
-						audio. Define which{' '}
-						<a
-							href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext#latencyhint"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{
-								color: BLUE,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-								textDecoration: 'none',
-							}}
-						>
-							<code style={{color: BLUE, fontFamily: 'monospace'}}>
-								latencyHint
-							</code>
-						</a>{' '}
-						it should use.
-					</>
-				}
-				name="Audio latency hint"
+				settingId="audioLatencyHint"
 				onChange={(value) =>
 					changeSetting('audioLatencyHint', 'setAudioLatencyHint', value)
 				}
@@ -753,8 +544,7 @@ export const StudioSettings: React.FC = () => {
 			/>
 			<ConfigNumber
 				defaultValue={0}
-				description={null}
-				name="Number of shared audio tags"
+				settingId="numberOfSharedAudioTags"
 				step={1}
 				suffix={null}
 				onChange={(value) =>
@@ -774,8 +564,7 @@ export const StudioSettings: React.FC = () => {
 			<ConfigSelect
 				defaultLabel="Webpack"
 				cliFlag={null}
-				description="Chooses the tool that compiles your project for Studio and rendering. Webpack is the default; Rspack is an alternative. Changing this setting restarts Studio."
-				name="Bundler"
+				settingId="rspack"
 				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
 				options={[
 					{label: 'Rspack', value: true},
@@ -783,48 +572,10 @@ export const StudioSettings: React.FC = () => {
 				]}
 				value={settings.rspack}
 			/>
-			<div style={optionRow}>
-				<div style={label}>
-					Cross-site isolation
-					<InfoBubble
-						aria-label="About cross-site isolation"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: INFO_TOOLTIP_FONT_SIZE,
-								lineHeight: 1.5,
-							}}
-						>
-							Isolates Studio from other websites to enable shared memory and
-							multithreading. Required for{' '}
-							<code style={{fontFamily: 'monospace'}}>
-								@remotion/whisper-web
-							</code>{' '}
-							and for faster{' '}
-							<code style={{fontFamily: 'monospace'}}>@mediabunny/prores</code>{' '}
-							decoding. The tradeoff is that media from other websites may not
-							load. See:{' '}
-							<a
-								href="https://www.remotion.dev/docs/miscellaneous/cross-origin-isolation"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={{
-									color: BLUE,
-									fontSize: INFO_TOOLTIP_FONT_SIZE,
-									lineHeight: 1.5,
-									textDecoration: 'none',
-								}}
-							>
-								Cross-origin isolation
-							</a>
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Cross-site isolation">
+			<SettingsRow settingId="enableCrossSiteIsolation">
+				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-enableCrossSiteIsolation-control"
 						checked={settings.enableCrossSiteIsolation === true}
 						name="Cross-site isolation"
 						onChange={(event) =>
@@ -835,13 +586,12 @@ export const StudioSettings: React.FC = () => {
 							)
 						}
 					/>
-				</label>
-			</div>
+				</div>
+			</SettingsRow>
 			<ConfigSelect<LogLevel>
 				defaultLabel="Info"
 				cliFlag={null}
-				description="Controls how much detail Remotion writes to the console. Use Info for normal output, Warn or Error for fewer messages, and Verbose or Trace for debugging."
-				name="Log level"
+				settingId="logLevel"
 				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
 				options={BrowserSafeApis.logLevels.map((value) => ({
 					label: value[0].toUpperCase() + value.slice(1),
@@ -850,10 +600,7 @@ export const StudioSettings: React.FC = () => {
 				value={settings.logLevel}
 			/>
 			<p style={sectionTitle}>Debug</p>
-			<div style={optionRow}>
-				<label htmlFor="remotion-show-diagnostics" style={label}>
-					Show diagnostics
-				</label>
+			<SettingsRow settingId="showDiagnostics">
 				<div style={{...rightRow, gap: 8}}>
 					{studioRuntimeConfig.showDiagnostics.source === 'cli' ? (
 						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
@@ -861,14 +608,14 @@ export const StudioSettings: React.FC = () => {
 						</span>
 					) : null}
 					<Checkbox
-						inputId="remotion-show-diagnostics"
+						inputId="remotion-setting-showDiagnostics-control"
 						name="Show diagnostics"
 						checked={showDiagnostics}
 						disabled={studioRuntimeConfig.showDiagnostics.source === 'cli'}
 						onChange={(event) => setShowDiagnostics(event.target.checked)}
 					/>
 				</div>
-			</div>
+			</SettingsRow>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />
