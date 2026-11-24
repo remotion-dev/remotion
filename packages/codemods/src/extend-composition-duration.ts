@@ -16,36 +16,34 @@ export const extendCompositionDuration = <Project extends CodemodProject>({
 	project: Project;
 	minDurationInFrames: number;
 }): CodemodNodeResult & {logLine: number | null} => {
-	let node: ReturnType<typeof requireComposition>;
 	try {
-		node = requireComposition({project, compositionFile, compositionId});
+		const node = requireComposition({project, compositionFile, compositionId});
+		const {durationInFrames} = getNodeProps({
+			project,
+			node,
+			keys: ['durationInFrames'],
+		}).props;
+		if (
+			node.tagName === 'Still' ||
+			durationInFrames?.status !== 'static' ||
+			typeof durationInFrames.codeValue !== 'number' ||
+			durationInFrames.codeValue >= minDurationInFrames
+		) {
+			return {changes: [], nodePathRemappings: [], logLine: null};
+		}
+
+		const {changes, nodePathRemappings} = updateCompositionMetadata({
+			project,
+			compositionFile,
+			compositionId,
+			metadata: {durationInFrames: minDurationInFrames},
+		});
+		return {
+			changes,
+			nodePathRemappings,
+			logLine: node.location?.line ?? null,
+		};
 	} catch {
 		return {changes: [], nodePathRemappings: [], logLine: null};
 	}
-
-	const {durationInFrames} = getNodeProps({
-		project,
-		node,
-		keys: ['durationInFrames'],
-	}).props;
-	if (
-		node.tagName === 'Still' ||
-		durationInFrames?.status !== 'static' ||
-		typeof durationInFrames.codeValue !== 'number' ||
-		durationInFrames.codeValue >= minDurationInFrames
-	) {
-		return {changes: [], nodePathRemappings: [], logLine: null};
-	}
-
-	const {changes, nodePathRemappings} = updateCompositionMetadata({
-		project,
-		compositionFile,
-		compositionId,
-		metadata: {durationInFrames: minDurationInFrames},
-	});
-	return {
-		changes,
-		nodePathRemappings,
-		logLine: node.location?.line ?? null,
-	};
 };

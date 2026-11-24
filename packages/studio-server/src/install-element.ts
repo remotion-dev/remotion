@@ -521,19 +521,19 @@ export const installElement = async ({
 				newComposition === null &&
 				element.durationInFrames !== null
 			) {
-				const registrationFile = realpathSync(
-					path.resolve(remotionRoot, compositionFile),
-				);
+				const registrationFile = path.resolve(remotionRoot, compositionFile);
+				const canonicalRegistrationFile = realpathSync(registrationFile);
 				const registrationRelativeToRoot = path.relative(
 					realpathSync(remotionRoot),
-					registrationFile,
+					canonicalRegistrationFile,
 				);
 				if (
-					!registrationRelativeToRoot.startsWith('..') &&
+					registrationRelativeToRoot !== '..' &&
+					!registrationRelativeToRoot.startsWith(`..${path.sep}`) &&
 					!path.isAbsolute(registrationRelativeToRoot)
 				) {
 					const isInsertedFile =
-						registrationFile === realpathSync(inserted.fileName);
+						canonicalRegistrationFile === realpathSync(inserted.fileName);
 					const registrationContents = isInsertedFile
 						? inserted.output
 						: readFileSync(registrationFile, 'utf-8');
