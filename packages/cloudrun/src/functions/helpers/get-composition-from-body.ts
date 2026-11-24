@@ -30,6 +30,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 				throw new Error('Should not download a browser in Cloud Run');
 			},
 			onServeUrlVisited: () => undefined,
+			cancelSignal: null,
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			preferredEffectBackend: body.preferredEffectBackend,
