@@ -109,3 +109,20 @@ test('Should not round the pointer join when left pointer is on the edge', () =>
 		'M 40 0 L 500 0 a 40 40 0 0 1 40 40 L 540 160 a 40 40 0 0 1 -40 40 L 80 200 a 40 40 0 0 1 -40 -40 L 40 30 L 0 0 Z',
 	);
 });
+
+test('Should limit cornerRadius to half of the shorter side, like CSS border-radius', () => {
+	expect(makeCallout({cornerRadius: 1000})).toEqual(
+		makeCallout({cornerRadius: 100}),
+	);
+});
+
+test('Should clamp corner radius to segment length next to pointer', () => {
+	const callout = makeCallout({
+		pointerPosition: 0.1,
+		cornerRadius: 40,
+	});
+
+	expect(callout.path).toBe(
+		'M 40 0 L 460 0 a 40 40 0 0 1 40 40 L 500 160 a 40 40 0 0 1 -40 40 L 80 200 L 50 240 L 20 200 L 20 200 a 20 20 0 0 1 -20 -20 L 0 40 a 40 40 0 0 1 40 -40 Z',
+	);
+});
