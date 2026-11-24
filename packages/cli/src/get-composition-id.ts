@@ -121,6 +121,7 @@ export const getCompositionId = async ({
 				binariesDirectory,
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
+				cancelSignal: null,
 				chromeMode,
 				mediaCacheSizeInBytes,
 				preferredEffectBackend,
