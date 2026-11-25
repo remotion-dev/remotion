@@ -138,7 +138,7 @@ const EffectPickerResult: React.FC<{
 	readonly snapshot: HTMLCanvasElement | null;
 	readonly selected: boolean;
 	readonly isScrolling: boolean;
-	readonly onSelected: (item: EffectPickerItem) => void;
+	readonly onSelected: (item: EffectPickerItem, trigger: HTMLElement) => void;
 	readonly onPreview: (id: string, previewing: boolean) => void;
 	readonly onFocus: (item: EffectPickerItem) => void;
 }> = React.memo(
@@ -173,9 +173,12 @@ const EffectPickerResult: React.FC<{
 			};
 		}, [selected]);
 
-		const onClick = useCallback(() => {
-			onSelected(item);
-		}, [item, onSelected]);
+		const onClick = useCallback(
+			(event: React.MouseEvent<HTMLButtonElement>) => {
+				onSelected(item, event.currentTarget);
+			},
+			[item, onSelected],
+		);
 
 		const getContextMenuItems = useCallback((): ComboboxValue[] => {
 			if (item.effect === null) {
@@ -431,12 +434,13 @@ export const EffectPicker: React.FC<{
 	}, [selectedIndexRounded, virtualRows]);
 
 	const selectItem = useCallback(
-		(item: EffectPickerItem) => {
+		(item: EffectPickerItem, trigger: HTMLElement) => {
 			if (!canAddEffects) {
 				return;
 			}
 
 			if (item.effect === null) {
+				trigger.focus({preventScroll: true});
 				const key = nodePathInfo.sequenceSubscriptionKey;
 				const status = propStatuses.getSnapshot(
 					Internals.makeSequencePropsSubscriptionKey(key),
@@ -522,7 +526,7 @@ export const EffectPicker: React.FC<{
 			if (event.key === 'Enter' && isSearch) {
 				event.preventDefault();
 				event.stopPropagation();
-				selectItem(results[selectedIndexRounded]);
+				selectItem(results[selectedIndexRounded], target);
 				return;
 			}
 
@@ -609,7 +613,9 @@ export const EffectPicker: React.FC<{
 						aria-label="Create a custom effect with an agent"
 						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 						style={NO_HOVER_BACKGROUND_STYLE}
-						onClick={() => selectItem(genericCreateEffect)}
+						onClick={(event) =>
+							selectItem(genericCreateEffect, event.currentTarget)
+						}
 						renderAction={(color) => (
 							<SparklesIcon
 								color={color}

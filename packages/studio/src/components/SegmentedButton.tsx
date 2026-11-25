@@ -250,6 +250,7 @@ const SegmentedButtonMenu: React.FC<{
 				return;
 			}
 
+			event.currentTarget.focus({preventScroll: true});
 			refresh?.();
 			setOpened((currentlyOpened) => {
 				const next = !currentlyOpened;
@@ -344,6 +345,11 @@ const SegmentedButtonMenu: React.FC<{
 			disabled={segment.disabled}
 			id={segment.buttonId ?? undefined}
 			onClick={onClick}
+			onKeyDown={(event) => {
+				if (opened && event.key === 'Tab') {
+					onHide();
+				}
+			}}
 			onMouseDown={preventMouseFocus}
 			onPointerDown={onPointerDown}
 			style={style}

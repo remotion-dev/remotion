@@ -10,6 +10,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {AgentPrompt} from './AgentPrompt';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
+import {ModalFocusScope} from './ModalFocusScope';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {useEditorOpening} from './use-default-editor-info';
@@ -176,31 +177,33 @@ export const CodeChangeModal: React.FC<{
 	);
 
 	return (
-		<DismissableModal panelStyle={panelStyle}>
-			<ModalHeader title={title} />
-			<div
-				ref={annotationTarget}
-				className="__remotion-vertical-scrollbar"
-				style={container}
-			>
-				<div style={text}>{description}</div>
-				{[...uniqueSources].map(([key, source], index) => (
-					<CodeChangeSource
-						key={key}
-						source={source}
-						editorId={canOpenInEditor ? defaultEditorId : null}
-						editorName={defaultEditorName}
-						isFirst={index === 0}
+		<DismissableModal ariaLabel={title} panelStyle={panelStyle}>
+			<ModalFocusScope>
+				<ModalHeader title={title} />
+				<div
+					ref={annotationTarget}
+					className="__remotion-vertical-scrollbar"
+					style={container}
+				>
+					<div style={text}>{description}</div>
+					{[...uniqueSources].map(([key, source], index) => (
+						<CodeChangeSource
+							key={key}
+							source={source}
+							editorId={canOpenInEditor ? defaultEditorId : null}
+							editorName={defaultEditorName}
+							isFirst={index === 0}
+						/>
+					))}
+					{sourceStatus ? <div style={text}>{sourceStatus}</div> : null}
+					<AgentPrompt
+						annotationTarget={annotationTarget}
+						actionLabel={title}
+						prompt={prompt}
+						skillId={skillId}
 					/>
-				))}
-				{sourceStatus ? <div style={text}>{sourceStatus}</div> : null}
-				<AgentPrompt
-					annotationTarget={annotationTarget}
-					actionLabel={title}
-					prompt={prompt}
-					skillId={skillId}
-				/>
-			</div>
+				</div>
+			</ModalFocusScope>
 		</DismissableModal>
 	);
 };

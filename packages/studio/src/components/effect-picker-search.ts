@@ -1,5 +1,56 @@
 import type {EffectCatalogItem} from '@remotion/studio-shared';
 
+const reservedModuleBindings = new Set([
+	'arguments',
+	'await',
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'enum',
+	'eval',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'implements',
+	'import',
+	'in',
+	'instanceof',
+	'interface',
+	'let',
+	'new',
+	'null',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'return',
+	'static',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'yield',
+]);
+
 export const getCreateEffectResult = (query: string) => {
 	const words =
 		query
@@ -13,9 +64,14 @@ export const getCreateEffectResult = (query: string) => {
 			index === 0 ? word : word.replace(/^./u, (first) => first.toUpperCase()),
 		)
 		.join('');
-	const name = /^\p{Nd}/u.test(camelCase)
+	const candidate = /^\p{Nd}/u.test(camelCase)
 		? `effect${camelCase}`
-		: camelCase || null;
+		: camelCase;
+	const name = reservedModuleBindings.has(candidate)
+		? `${candidate}Effect`
+		: /^\p{ID_Start}\p{ID_Continue}*$/u.test(candidate)
+			? candidate
+			: null;
 
 	return {
 		id: 'create-effect',
