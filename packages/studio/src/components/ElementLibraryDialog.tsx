@@ -13,7 +13,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {Button} from './Button';
 import {Row, Spacing} from './layout';
-import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
@@ -52,7 +51,7 @@ export const ElementLibraryDialog: React.FC<{
 	const [displayName, setDisplayName] = useState(library?.displayName ?? '');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {studioRuntimeConfig, addElementLibrary, updateElementLibrary} =
@@ -251,6 +250,6 @@ export const ElementLibraryDialog: React.FC<{
 				</form>
 			</div>
 		</ModalContainer>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };

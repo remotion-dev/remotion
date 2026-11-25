@@ -13,7 +13,6 @@ import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {useZIndex} from '../state/z-index';
 import {BufferingEvents} from './BufferingEvents';
 import {Button} from './Button';
-import {getPortal} from './Menu/portals';
 import {useSettings} from './SettingsContext';
 
 const textStyle: React.CSSProperties = {
@@ -24,7 +23,7 @@ const textStyle: React.CSSProperties = {
 };
 
 const DiagnosticsWindow: React.FC = () => {
-	const {currentZIndex, tabIndex} = useZIndex();
+	const {getPortal, tabIndex} = useZIndex();
 	const [position, setPosition] = useState({x: 24, y: 72});
 	const [counts, setCounts] = useState(() => ({
 		...Internals.playbackDiagnostics,
@@ -213,7 +212,7 @@ const DiagnosticsWindow: React.FC = () => {
 			</dl>
 			<BufferingEvents />
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };
 

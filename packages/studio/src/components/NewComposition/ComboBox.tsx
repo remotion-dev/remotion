@@ -16,7 +16,6 @@ import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {COMPACT_CONTROL_ROW_HEIGHT, Spacing} from '../layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
-import {getPortal} from '../Menu/portals';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
@@ -137,7 +136,7 @@ export const Combobox: React.FC<{
 }) => {
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
-	const {tabIndex, currentZIndex} = useZIndex();
+	const {tabIndex, getPortal} = useZIndex();
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -345,6 +344,7 @@ export const Combobox: React.FC<{
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 									<div style={portalStyle}>
 										<MenuContent
+											menuTrigger={ref.current}
 											onNextMenu={noop}
 											onPreviousMenu={noop}
 											values={values}
@@ -364,7 +364,7 @@ export const Combobox: React.FC<{
 								</HigherZIndex>
 							</div>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

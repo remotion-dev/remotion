@@ -21,7 +21,6 @@ import {MENU_TOOLBAR_HEIGHT} from '../menu-toolbar-height';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './is-menu-item';
-import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
 const MENU_ITEM_HEIGHT = 24;
@@ -91,7 +90,7 @@ export const MenuItem: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
-	const {tabIndex, currentZIndex} = useZIndex();
+	const {tabIndex, getPortal} = useZIndex();
 
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -212,6 +211,7 @@ export const MenuItem: React.FC<{
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
 								<div style={portalStyle} onPointerDown={onMenuPointerDown}>
 									<MenuContent
+										menuTrigger={ref.current}
 										onNextMenu={onPreviousMenu}
 										onPreviousMenu={onNextMenu}
 										values={menu.items}
@@ -224,7 +224,7 @@ export const MenuItem: React.FC<{
 								</div>
 							</HigherZIndex>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

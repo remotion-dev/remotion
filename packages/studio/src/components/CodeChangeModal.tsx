@@ -9,10 +9,13 @@ import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {AgentPrompt} from './AgentPrompt';
-import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
-import {ModalFocusScope} from './ModalFocusScope';
+import {
+	getMaxModalHeight,
+	getMaxModalWidth,
+	ModalDialog,
+} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
-import {DismissableModal} from './NewComposition/DismissableModal';
+import {useDismissModal} from './NewComposition/DismissableModal';
 import {useEditorOpening} from './use-default-editor-info';
 
 const panelStyle: React.CSSProperties = {
@@ -163,6 +166,7 @@ export const CodeChangeModal: React.FC<{
 	readonly sourceStatus: string | null;
 }> = ({title, description, prompt, skillId, sources, sourceStatus}) => {
 	const annotationTarget = useRef<HTMLDivElement>(null);
+	const dismiss = useDismissModal();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(
@@ -177,33 +181,36 @@ export const CodeChangeModal: React.FC<{
 	);
 
 	return (
-		<DismissableModal ariaLabel={title} panelStyle={panelStyle}>
-			<ModalFocusScope>
-				<ModalHeader title={title} />
-				<div
-					ref={annotationTarget}
-					className="__remotion-vertical-scrollbar"
-					style={container}
-				>
-					<div style={text}>{description}</div>
-					{[...uniqueSources].map(([key, source], index) => (
-						<CodeChangeSource
-							key={key}
-							source={source}
-							editorId={canOpenInEditor ? defaultEditorId : null}
-							editorName={defaultEditorName}
-							isFirst={index === 0}
-						/>
-					))}
-					{sourceStatus ? <div style={text}>{sourceStatus}</div> : null}
-					<AgentPrompt
-						annotationTarget={annotationTarget}
-						actionLabel={title}
-						prompt={prompt}
-						skillId={skillId}
+		<ModalDialog
+			ariaLabel={title}
+			panelStyle={panelStyle}
+			onEscape={dismiss}
+			onOutsideClick={dismiss}
+		>
+			<ModalHeader title={title} />
+			<div
+				ref={annotationTarget}
+				className="__remotion-vertical-scrollbar"
+				style={container}
+			>
+				<div style={text}>{description}</div>
+				{[...uniqueSources].map(([key, source], index) => (
+					<CodeChangeSource
+						key={key}
+						source={source}
+						editorId={canOpenInEditor ? defaultEditorId : null}
+						editorName={defaultEditorName}
+						isFirst={index === 0}
 					/>
-				</div>
-			</ModalFocusScope>
-		</DismissableModal>
+				))}
+				{sourceStatus ? <div style={text}>{sourceStatus}</div> : null}
+				<AgentPrompt
+					annotationTarget={annotationTarget}
+					actionLabel={title}
+					prompt={prompt}
+					skillId={skillId}
+				/>
+			</div>
+		</ModalDialog>
 	);
 };
