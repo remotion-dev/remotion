@@ -228,38 +228,3 @@ export const ElementLibraryStrip: React.FC = () => {
 		</div>
 	);
 };
-
-const flow = [
-	{
-		title: 'Element Library',
-		text: 'A creator publishes Elements on their own website.',
-	},
-	{
-		title: 'Studio, CLI or agent',
-		text: 'One click, one command or one prompt installs an Element.',
-	},
-	{
-		title: 'Your project',
-		text: 'The source code is copied into the project and is yours to edit.',
-	},
-];
-
-export const ElementsFlow: React.FC = () => {
-	return (
-		<div className={styles.flow}>
-			{flow.map(({title, text}, i) => (
-				<React.Fragment key={title}>
-					{i > 0 ? (
-						<div className={styles.arrow} aria-hidden>
-							→
-						</div>
-					) : null}
-					<div className={styles.step}>
-						<div className={styles.stepTitle}>{title}</div>
-						<div className={styles.stepText}>{text}</div>
-					</div>
-				</React.Fragment>
-			))}
-		</div>
-	);
-};

@@ -48,34 +48,6 @@
 	border-top: 1px solid var(--ifm-color-emphasis-300);
 }
 
-.flow {
-	display: flex;
-	align-items: stretch;
-	gap: 8px;
-	margin-bottom: var(--ifm-leading);
-}
-
-.step {
-	flex: 1;
-	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: var(--ifm-global-radius);
-	padding: 12px 14px;
-}
-
-.stepTitle {
-	font-weight: 600;
-}
-
-.stepText {
-	font-size: 14px;
-	color: var(--ifm-color-emphasis-700);
-}
-
-.arrow {
-	align-self: center;
-	color: var(--ifm-color-emphasis-600);
-}
-
 @media (max-width: 700px) {
 	.showcase {
 		grid-template-columns: repeat(2, 1fr);
@@ -83,14 +55,6 @@
 
 	.strip {
 		grid-template-columns: repeat(2, 1fr);
-	}
-
-	.flow {
-		flex-direction: column;
-	}
-
-	.arrow {
-		transform: rotate(90deg);
 	}
 }
 
