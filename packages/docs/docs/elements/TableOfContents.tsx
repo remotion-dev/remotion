@@ -15,7 +15,7 @@ export const TableOfContents: React.FC<{
 					</TOCItem>
 					<TOCItem link="/docs/elements/using">
 						<strong>Using an Element</strong>
-						<div>Add an Element with Studio, the CLI or an AI agent</div>
+						<div>Add an Element with Studio, an AI agent or the CLI</div>
 					</TOCItem>
 					<TOCItem link="/docs/elements/managing-libraries">
 						<strong>Managing Element Libraries</strong>
