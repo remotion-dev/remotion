@@ -279,6 +279,21 @@ export const videoIteratorManager = async ({
 		);
 	};
 
+	// With `pauseWhenBuffering: false`, the player may not hold the clock. It
+	// cannot catch the clock by restarting at the current time on every tick:
+	// each restart decodes from the keyframe again while the clock moves on.
+	// Instead it starts at the playhead and keeps decoding forward across ticks,
+	// drawing nothing until it has a frame for the playhead.
+	let catchingUp = false;
+	let catchUpStart: number | null = null;
+	// The timeline seek revision of the playback run being caught up with. null
+	// until the first seek of a run that started during initialization.
+	let catchUpRevision: number | null = null;
+	let catchUpStartedAt = 0;
+	// The last requested time while catching up, to tell a jump back (a loop
+	// wrapping) from playback moving forward.
+	let catchUpLastTime: number | null = null;
+
 	const startVideoIterator = async (
 		timeToSeek: number,
 		nonce: Nonce,
@@ -367,21 +382,6 @@ export const videoIteratorManager = async ({
 
 		await drawFrame(iterator.initialFrame, timeToSeek);
 	};
-
-	// With `pauseWhenBuffering: false`, the player may not hold the clock. It
-	// cannot catch the clock by restarting at the current time on every tick:
-	// each restart decodes from the keyframe again while the clock moves on.
-	// Instead it starts at the playhead and keeps decoding forward across ticks,
-	// drawing nothing until it has a frame for the playhead.
-	let catchingUp = false;
-	let catchUpStart: number | null = null;
-	// The timeline seek revision of the playback run being caught up with. null
-	// until the first seek of a run that started during initialization.
-	let catchUpRevision: number | null = null;
-	let catchUpStartedAt = 0;
-	// The last requested time while catching up, to tell a jump back (a loop
-	// wrapping) from playback moving forward.
-	let catchUpLastTime: number | null = null;
 
 	const startCatchUp = async ({
 		time,
