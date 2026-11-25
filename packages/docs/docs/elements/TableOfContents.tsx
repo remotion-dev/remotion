@@ -3,21 +3,8 @@ import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
 export const TableOfContents: React.FC<{
-	readonly section: 'why' | 'using' | 'creating';
+	readonly section: 'using' | 'creating';
 }> = ({section}) => {
-	if (section === 'why') {
-		return (
-			<div>
-				<Grid>
-					<TOCItem link="/docs/elements/why">
-						<strong>Why Elements?</strong>
-						<div>What makes Elements worth using and creating</div>
-					</TOCItem>
-				</Grid>
-			</div>
-		);
-	}
-
 	if (section === 'using') {
 		return (
 			<div>
