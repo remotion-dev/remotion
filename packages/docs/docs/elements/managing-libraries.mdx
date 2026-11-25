@@ -13,9 +13,15 @@ Libraries of your project appear in the sidebar of [Browse Elements](/docs/studi
 
 ### In Studio
 
-Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library.
+<Step>1</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
+<Step>2</Step> Select <strong>Explore</strong> at the top of the sidebar to see the libraries that we feature.<br />
+<Step>3</Step> Select <strong>Add to Studio</strong> on a library. It appears in the sidebar below Explore.
 
-To add a library by URL, right-click empty space in the sidebar and choose Add library….
+<img src="https://remotion.media/elements/studio/explore-libraries.png" alt="The Explore view of Browse Elements in Remotion Studio, listing Element Libraries" style={{width: '100%', maxWidth: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
+
+To add a library that is not listed, right-click empty space in the sidebar, choose <strong>Add library…</strong> and enter its URL.
+
+<img src="https://remotion.media/elements/studio/add-library-menu.png" alt="The Add library… context menu in the Elements sidebar" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
 
 ### From the website
 
@@ -44,7 +50,9 @@ Config.addElementLibrary({
 
 ## Rename a library
 
-In Studio, right-click a library and edit its name and URL. In the config file, change `displayName`.
+In Studio, right-click a library and choose <strong>Edit…</strong> to change its name and URL. In the config file, change `displayName`.
+
+<img src="https://remotion.media/elements/studio/library-context-menu.png" alt="The context menu of a library in the Elements sidebar, with Edit… and Remove" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
 
 ## Reorder libraries
 
@@ -52,7 +60,7 @@ In Studio, drag libraries in the sidebar, or focus a library and press <kbd>Alt<
 
 ## Remove a library
 
-In Studio, right-click a library and remove it. In the config file, delete its `Config.addElementLibrary()` call.
+In Studio, right-click a library and choose <strong>Remove</strong>. In the config file, delete its `Config.addElementLibrary()` call.
 
 Removing a library does not remove Elements that were already added to the project.
 
