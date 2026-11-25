@@ -7,6 +7,7 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '@remotion/lambda-client/constants';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -70,6 +71,15 @@ export const stillCommand = async ({
 	remotionRoot: string;
 	logLevel: LogLevel;
 }) => {
+	const licenseKey =
+		parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag];
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
+		api: 'remotion lambda still',
+		option: '--license-key',
+		logLevel,
+	});
+
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -334,8 +344,6 @@ export const stillCommand = async ({
 		},
 		deleteAfter: deleteAfter ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
-		licenseKey:
-			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		downloadBehavior: {type: 'play-in-browser'},
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
@@ -345,9 +353,6 @@ export const stillCommand = async ({
 		requestHandler: null,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
-		isProduction:
-			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
-			true,
 	});
 	Log.info(
 		{indent: false, logLevel},

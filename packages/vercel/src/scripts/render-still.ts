@@ -26,8 +26,6 @@ type RenderStillConfig = {
 	mediaCacheSizeInBytes: InternalStillOptions['mediaCacheSizeInBytes'];
 	preferredEffectBackend: InternalStillOptions['preferredEffectBackend'];
 	offthreadVideoThreads: InternalStillOptions['offthreadVideoThreads'];
-	licenseKey: InternalStillOptions['licenseKey'];
-	isProduction: InternalStillOptions['isProduction'];
 };
 
 const config: RenderStillConfig = JSON.parse(process.argv[2]);
@@ -118,8 +116,6 @@ try {
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
 		preferredEffectBackend: config.preferredEffectBackend,
 		offthreadVideoThreads: config.offthreadVideoThreads,
-		licenseKey: config.licenseKey,
-		isProduction: config.isProduction,
 		// Non-serializable fields with defaults
 		puppeteerInstance: browser,
 		onBrowserLog: null,

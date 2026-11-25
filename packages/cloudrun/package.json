@@ -23,6 +23,7 @@
 		"@google-cloud/logging": "11.2.0",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "8.7.0",
 		"remotion": "workspace:*",

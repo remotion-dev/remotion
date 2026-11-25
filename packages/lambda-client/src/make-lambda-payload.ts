@@ -308,13 +308,11 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	forcePathStyle,
-	licenseKey,
 	storageClass,
 	requestHandler,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	preferredEffectBackend,
-	isProduction,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads[ServerlessRoutines.still]
 > => {
@@ -366,11 +364,11 @@ export const makeLambdaRenderStillPayload = async ({
 		type: ServerlessRoutines.still,
 		streamed: getRendererFunctionTransport(region) === 'response-streaming',
 		forcePathStyle,
-		licenseKey: licenseKey ?? null,
+		licenseKey: null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		storageClass: storageClass ?? null,
-		isProduction,
+		isProduction: null,
 	};
 };

@@ -23,6 +23,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/licensing": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"remotion": "workspace:*"
 	},

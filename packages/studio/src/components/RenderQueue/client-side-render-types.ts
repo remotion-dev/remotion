@@ -51,7 +51,6 @@ type ClientRenderJobBase = {
 	mediaCacheSizeInBytes: number | null;
 	preferredEffectBackend: PreferredEffectBackend;
 	logLevel: LogLevel;
-	licenseKey: string | null;
 	scale: number;
 	allowHtmlInCanvas: boolean;
 };
@@ -64,6 +63,7 @@ export type ClientStillRenderJob = ClientRenderJobBase & {
 
 export type ClientVideoRenderJob = ClientRenderJobBase & {
 	type: 'client-video';
+	licenseKey: string | null;
 	container: WebRendererContainer;
 	videoCodec: WebRendererVideoCodec | null;
 	audioCodec: WebRendererAudioCodec;

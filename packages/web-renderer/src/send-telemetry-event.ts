@@ -5,13 +5,11 @@ export const sendUsageEvent = async ({
 	licenseKey,
 	succeeded,
 	apiName,
-	isStill,
 	isProduction,
 }: {
 	licenseKey: string | null;
 	succeeded: boolean;
 	apiName: string;
-	isStill: boolean;
 	isProduction: boolean;
 }) => {
 	const host =
@@ -37,7 +35,7 @@ export const sendUsageEvent = async ({
 			event: 'web-render',
 			host,
 			succeeded,
-			isStill,
+			isStill: false,
 			isProduction,
 		});
 	} catch (err) {

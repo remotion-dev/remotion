@@ -23,21 +23,17 @@ We do not use telemetry for any other purposes than ensuring proper licensing.
 
 Server-side rendering only sends telemetry when a license key is set, and only for successful renders:
 
-- Rendering from the CLI: [`npx remotion render`](/docs/cli/render#--license-key) and [`npx remotion still`](/docs/cli/still#--license-key)
-- [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey)
-- [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream), and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
-- [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey)
-- [`@remotion/cloudrun`](/docs/cloudrun): [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey), from v4.0.540
+- Rendering from the CLI: [`npx remotion render`](/docs/cli/render#--license-key)
+- [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey)
+- [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), and [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream)
+- [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey)
+- [`@remotion/cloudrun`](/docs/cloudrun): [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey), from v4.0.540
 
 Image-sequence renders from the CLI and the Lambda APIs send one event per render. [`remotion benchmark`](/docs/cli/benchmark) does not send telemetry.
 
 ## Telemetry in client-side rendering
 
-[Client-side rendering](/docs/client-side-rendering) APIs always send a telemetry event for every render, even if no `licenseKey` is set:
-
-- [`@remotion/web-renderer`](/docs/web-renderer): [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey), [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#licensekey), and [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web#licensekey)
-
-[`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) sends one still-render event for the entire batch, rather than one event per frame.
+[`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey) sends a telemetry event even if no `licenseKey` is set.
 
 An event is sent whether the render succeeded or failed.  
 If the render is aborted, no event is sent.
@@ -46,7 +42,7 @@ If the render is aborted, no event is sent.
 
 Pass `isProduction: false` to a rendering API, or `--is-production=false` to the CLI, to classify a development render as non-billable. The default is `true`.
 
-[`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#isproduction) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#isproduction) accept `isProduction` from v4.0.540. Cloud Run accepts both `licenseKey` and `isProduction` from the same version.
+[`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#isproduction) accepts `isProduction` from v4.0.540. [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#isproduction) accepts both `licenseKey` and `isProduction` from the same version.
 
 ## Custom rendering workflows
 
@@ -67,7 +63,7 @@ await registerUsageEvent({
 });
 ```
 
-Use `isStill: true` for a still image and `isProduction: false` for development renders. Do not add a manual event when using an API that already reports automatically, or the render will be counted twice.
+Use `isProduction: false` for development renders. Report each billable render once.
 
 ## Obligation to set a license key
 
@@ -84,7 +80,6 @@ The following information is sent:
 
 - License key (if set)
 - IP address of the machine triggering the render
-- Whether this render was a video or a still image
 - Whether this render was in production or development
 
 For [client-side rendering](/docs/client-side-rendering), the following additional information is sent:
@@ -119,7 +114,7 @@ values={[
 
 For tracking server-side renders, you should use the private key.
 
-Pass the `licenseKey` option to [`renderMedia()`](/docs/renderer/render-media#licensekey), [`renderStill()`](/docs/renderer/render-still#licensekey) or the equivalent APIs of [`@remotion/lambda`](/docs/lambda), [`@remotion/vercel`](/docs/vercel/api), and [`@remotion/cloudrun`](/docs/cloudrun):
+Pass the `licenseKey` option to [`renderMedia()`](/docs/renderer/render-media#licensekey) or the equivalent APIs of [`@remotion/lambda`](/docs/lambda), [`@remotion/vercel`](/docs/vercel/api), and [`@remotion/cloudrun`](/docs/cloudrun):
 
 ```ts twoslash title="Declare eligibility for the free license" {7}
 const serveUrl = '/path/to/bundle';
@@ -179,7 +174,7 @@ Remotion does not read the license key from an environment variable automaticall
 For tracking client-side renders, you should use the public key.  
 We recommend limiting which domains can send telemetry in your dashboard.
 
-Pass the `licenseKey` option to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey), [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#licensekey), or [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web#licensekey):
+Pass the `licenseKey` option to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#licensekey):
 
 ```tsx twoslash title="Declare eligibility for the free license" {6}
 import React from 'react';

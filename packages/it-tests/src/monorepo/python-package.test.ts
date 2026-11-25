@@ -215,12 +215,10 @@ test('Python package should create the same renderStill payload as normal Lambda
 			indent: false,
 			onInit: () => undefined,
 			forcePathStyle: false,
-			licenseKey: null,
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
 			preferredEffectBackend: 'auto',
-			isProduction: null,
 		});
 	const {streamed: _, ...parsedJson} = parsePythonOutput(pythonOutput);
 	const {streamed, ...assertValue} = nativeVersion;

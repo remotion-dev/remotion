@@ -348,6 +348,8 @@ export const lambdaCommandHelp = [
 			],
 			{
 				port: 'Set a custom port when selecting a composition interactively.',
+				'license-key': 'Deprecated for still renders.',
+				'is-production': 'Deprecated for still renders.',
 			},
 			'still',
 		),

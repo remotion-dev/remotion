@@ -810,7 +810,6 @@ const internalRenderMediaOnWeb = async <
 				licenseKey: licenseKey ?? null,
 				succeeded: true,
 				apiName: 'renderMediaOnWeb',
-				isStill: false,
 				isProduction: isProduction ?? true,
 			});
 
@@ -828,7 +827,6 @@ const internalRenderMediaOnWeb = async <
 				licenseKey: licenseKey ?? null,
 				succeeded: true,
 				apiName: 'renderMediaOnWeb',
-				isStill: false,
 				isProduction: isProduction ?? true,
 			});
 
@@ -850,7 +848,6 @@ const internalRenderMediaOnWeb = async <
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderMediaOnWeb',
-			isStill: false,
 			isProduction: isProduction ?? true,
 		});
 
@@ -872,7 +869,6 @@ const internalRenderMediaOnWeb = async <
 				succeeded: false,
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderMediaOnWeb',
-				isStill: false,
 				isProduction: isProduction ?? true,
 			});
 		}

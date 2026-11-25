@@ -333,7 +333,10 @@ export const cliCommandHelp = [
 				'license-key',
 				'is-production',
 			],
-			{},
+			{
+				'license-key': 'Deprecated for still renders.',
+				'is-production': 'Deprecated for still renders.',
+			},
 			'still',
 		),
 	},

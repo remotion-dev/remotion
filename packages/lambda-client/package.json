@@ -27,6 +27,7 @@
 		"mime-types": "2.1.34",
 		"@aws-sdk/credential-provider-ini": "catalog:",
 		"remotion": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@types/express": "5.0.1",

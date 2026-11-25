@@ -55,7 +55,6 @@ export const addStillRenderJob = ({
 	chromeMode,
 	mediaCacheSizeInBytes,
 	preferredEffectBackend,
-	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -76,7 +75,6 @@ export const addStillRenderJob = ({
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
 	preferredEffectBackend: PreferredEffectBackend;
-	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -104,7 +102,6 @@ export const addStillRenderJob = ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
-		licenseKey,
 	});
 };
 
