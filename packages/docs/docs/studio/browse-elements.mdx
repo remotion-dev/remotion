@@ -22,11 +22,31 @@ Select Browse Elements in the Actions section of the right inspector. Studio ope
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
 />
 
-## Manage libraries {#add-libraries}
+## Add a library {#add-libraries}
 
-Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library.
+<Step>1</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
+<Step>2</Step> Select <strong>Explore</strong> at the top of the sidebar to see the libraries that we feature.<br />
+<Step>3</Step> Select <strong>Add to Studio</strong> on a library. It appears in the sidebar below Explore.
 
-See [Managing Element Libraries](/docs/elements/managing-libraries) to add libraries by URL, from the command line or in `remotion.config.ts`, and to rename, reorder and remove them.
+<img src="https://remotion.media/elements/studio/explore-libraries.png" alt="The Explore view of Browse Elements in Remotion Studio, listing Element Libraries" style={{width: '100%', maxWidth: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
+
+To add a library that is not listed, right-click empty space in the sidebar, choose <strong>Add library…</strong> and enter its URL.
+
+<img src="https://remotion.media/elements/studio/add-library-menu.png" alt="The Add library… context menu in the Elements sidebar" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
+
+Studio saves the library to `remotion.config.ts`. See [Managing Element Libraries](/docs/elements/managing-libraries) for adding libraries from the command line or in the config file.
+
+## Edit or remove a library
+
+Right-click a library and choose <strong>Edit…</strong> to change its name and URL, or <strong>Remove</strong> to remove it.
+
+<img src="https://remotion.media/elements/studio/library-context-menu.png" alt="The context menu of a library in the Elements sidebar, with Edit… and Remove" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
+
+Removing a library does not remove Elements that were already added to the project.
+
+## Reorder libraries
+
+Drag libraries in the sidebar, or focus a library and press <kbd>Alt</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd>.
 
 ## See also
 
