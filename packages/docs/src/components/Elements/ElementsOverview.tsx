@@ -220,7 +220,7 @@ export const ElementLibraryStrip: React.FC = () => {
 			{elementLibraries.map(({bannerUrl, browseUrl, displayName}) => (
 				<Link key={displayName} to={browseUrl} className={styles.card}>
 					{bannerUrl ? (
-						<img alt="" className={styles.video} src={bannerUrl} />
+						<img alt="" className={styles.banner} src={bannerUrl} />
 					) : null}
 					<div className={styles.label}>{displayName}</div>
 				</Link>

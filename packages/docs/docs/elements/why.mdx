@@ -19,11 +19,13 @@ An Element is not an npm package. Its source is copied into your project as a re
 
 ### Skip the iterations
 
-An AI agent can generate any animation from a prompt. Getting it to look good is a different matter: timing, easing, spacing and typography are judgment calls, and they take iterations.
+An AI agent can make any animation from a prompt. Making it look good takes many rounds of adjusting timing, easing, spacing and typography.
 
-An Element captures the result of that work, so it can be shared. Adding a well-made Element starts a video from a finished piece instead of a first draft.
+<video src="https://remotion.media/elements/docs/first-output-vs-iterations.mp4" autoPlay loop muted playsInline aria-label="A generic first output next to a refined animation after iterations" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginBottom: 'var(--ifm-leading)'}} />
 
-Agents benefit too. An agent that adapts an Element has a reference to match, instead of inventing a style on every prompt.
+An Element is the finished result of that work. Adding one gives you a polished animation right away, instead of a first draft.
+
+Agents benefit too. An agent that starts from an Element has a style to follow, instead of making one up each time.
 
 ### Elements compose
 
@@ -40,20 +42,20 @@ In this video, the captions and the lower third are Elements layered over a reco
 
 ### Editable without code
 
-Elements can expose controls to the Inspector of Remotion Studio, so text, colors and timing can be changed visually. The code stays available for everything else.
+Elements can expose controls to the Inspector of [Remotion Studio](/docs/studio), so text, colors and timing can be changed visually. The code stays available for everything else.
 
 To get started, see [Finding Elements](/docs/elements/finding) and [Using an Element](/docs/elements/using).
 
 ## Why create Elements
 
-Elements are an open ecosystem. An [Element Library](/docs/elements/libraries) is your own website, with your own design and selection of Elements. Studio, the CLI and AI agents install from it by URL, and publishing one does not need our approval.
+Elements are an open ecosystem. An [Element Library](/docs/elements/libraries) is your own website, and publishing one does not need our approval.
 
-- A library builds your audience. It is published under your own name, on your own website, and good Elements get used in other people's videos.
-- Remotion Studio has more than 700,000 active users. Your Elements are one click away from them, and also install from the CLI and AI agents.
-- **We plan to make Elements installable outside of Remotion Studio**, in apps that are built with Remotion. Libraries would then also reach the users of those apps.
+- A library builds your audience. It is published under your own name, and good Elements get used in other people's videos.
+- Remotion Studio has more than 700,000 monthly active users. They can save your library in Studio, and add an Element with one click or by dragging it onto the canvas. The CLI and AI agents install from the same library.
+- An Element is self-contained and [can expose its props and timing](/docs/elements/creating), so users restyle, trim and retime your work visually.
 - [How you distribute Elements](/docs/elements/distributing) is your decision: free and open source, funded by sponsorships, or paid.
-- Publish what took judgment to get right. An animation that an agent produces from one prompt is not worth an Element; one that took iterations is.
 - We feature good libraries in the [official listing](/docs/elements/distributing#get-listed).
+- We plan to make Elements installable in apps built with the [Remotion SDK](/docs/sdk), which is in development. Libraries would then also reach the users of those apps.
 
 <ElementLibraryStrip />
 

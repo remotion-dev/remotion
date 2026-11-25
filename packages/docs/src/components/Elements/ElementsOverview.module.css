@@ -35,6 +35,13 @@
 	background: #eef1f4;
 }
 
+.banner {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
 .label {
 	padding: 6px 10px;
 	font-size: 13px;
