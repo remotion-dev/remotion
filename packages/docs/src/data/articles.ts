@@ -6220,6 +6220,15 @@ export const articles = [
 		slug: 'license',
 	},
 	{
+		id: 'license/automatic-billing',
+		title: 'Automatic billing',
+		relativePath: 'docs/license/automatic-billing.mdx',
+		compId: 'articles-docs-license-automatic-billing',
+		crumb: 'License and terms',
+		noAi: false,
+		slug: 'license/automatic-billing',
+	},
+	{
 		id: 'license/faq',
 		title: 'License FAQ',
 		relativePath: 'docs/license/faq.mdx',
