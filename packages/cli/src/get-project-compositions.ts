@@ -18,6 +18,7 @@ export const getProjectCompositions = ({
 		remotionRoot,
 		logLevel,
 		allowDirectory: false,
+		firstArgCanBeCompositionId: false,
 	});
 	const entryPoint = file ?? fallbackFile;
 	if (entryPoint === null) {

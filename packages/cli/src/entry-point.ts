@@ -39,17 +39,28 @@ export const findEntryPoint = ({
 	logLevel,
 	remotionRoot,
 	allowDirectory,
+	firstArgCanBeCompositionId,
 }: {
 	args: (string | number)[];
 	remotionRoot: string;
 	logLevel: LogLevel;
 	allowDirectory: boolean;
+	// `true` for commands like `render` and `still`, where the first argument may be a
+	// composition ID instead of the entry point. A plain folder with the same name as
+	// the composition (e.g. `punch/` and `Punch` on a case-insensitive file system)
+	// is then not mistaken for the entry point.
+	firstArgCanBeCompositionId: boolean;
 }): {
 	file: string | null;
 	remainingArgs: (string | number)[];
 	reason: FoundReason;
 } => {
-	const result = findEntryPointInner(args, remotionRoot, logLevel);
+	const result = findEntryPointInner({
+		args,
+		remotionRoot,
+		logLevel,
+		firstArgCanBeCompositionId,
+	});
 	if (result.file === null) {
 		return result;
 	}
@@ -77,8 +88,6 @@ const isBundledCode = (p: string) => {
 	return existsSync(p) && existsSync(path.join(p, 'index.html'));
 };
 
-// A folder that happens to have the same name as a composition ID (e.g. `punch/` and the
-// composition `Punch` on a case-insensitive file system) must not be mistaken for the entry point.
 const isPlainDirectory = (p: string) => {
 	try {
 		return statSync(p).isDirectory() && !isBundledCode(p);
@@ -87,11 +96,17 @@ const isPlainDirectory = (p: string) => {
 	}
 };
 
-const findEntryPointInner = (
-	args: (string | number)[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-): {
+const findEntryPointInner = ({
+	args,
+	remotionRoot,
+	logLevel,
+	firstArgCanBeCompositionId,
+}: {
+	args: (string | number)[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	firstArgCanBeCompositionId: boolean;
+}): {
 	file: string | null;
 	isDirectory: boolean;
 	remainingArgs: (string | number)[];
@@ -108,8 +123,12 @@ const findEntryPointInner = (
 		);
 		const cwdResolution = path.resolve(process.cwd(), file);
 		const remotionRootResolution = path.resolve(remotionRoot, file);
+		const canBeEntryPoint = (p: string) => {
+			return !(firstArgCanBeCompositionId && isPlainDirectory(p));
+		};
+
 		// Checking if file was found in CWD
-		if (existsSync(cwdResolution) && !isPlainDirectory(cwdResolution)) {
+		if (existsSync(cwdResolution) && canBeEntryPoint(cwdResolution)) {
 			return {
 				file: cwdResolution,
 				remainingArgs: args.slice(1),
@@ -121,7 +140,7 @@ const findEntryPointInner = (
 		// Checking if file was found in remotion root
 		if (
 			existsSync(remotionRootResolution) &&
-			!isPlainDirectory(remotionRootResolution)
+			canBeEntryPoint(remotionRootResolution)
 		) {
 			return {
 				file: remotionRootResolution,

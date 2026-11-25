@@ -78,7 +78,13 @@ export const render = async (
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
+	} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: true,
+		firstArgCanBeCompositionId: true,
+	});
 
 	if (!file) {
 		Log.error(

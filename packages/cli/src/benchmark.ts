@@ -203,6 +203,7 @@ export const benchmarkCommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: true,
+		firstArgCanBeCompositionId: true,
 	});
 
 	if (!file) {
