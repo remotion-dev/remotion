@@ -1,4 +1,4 @@
-import {Log, type LogLevel} from './log';
+import type {LogLevel} from 'remotion';
 
 export const logDeprecatedStillRenderLicenseKey = ({
 	licenseKey,
@@ -11,12 +11,17 @@ export const logDeprecatedStillRenderLicenseKey = ({
 	option: 'licenseKey' | 'apiKey' | '--license-key';
 	logLevel: LogLevel;
 }) => {
-	if (licenseKey === null || licenseKey === 'free-license') {
+	if (
+		licenseKey === null ||
+		licenseKey === 'free-license' ||
+		logLevel === 'warn' ||
+		logLevel === 'error'
+	) {
 		return;
 	}
 
-	Log.info(
-		{logLevel, tag: null},
+	// eslint-disable-next-line no-console
+	console.log(
 		`Still renders don't need to be tracked anymore, an unlimited amount is now included in any Remotion License. You can now remove \`${option}\` from ${api}.`,
 	);
 };

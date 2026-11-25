@@ -347,6 +347,7 @@
         "@google-cloud/storage": "7.21.0",
         "@remotion/bundler": "workspace:*",
         "@remotion/cli": "workspace:*",
+        "@remotion/licensing": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "google-auth-library": "8.7.0",
         "remotion": "workspace:*",
@@ -1192,6 +1193,7 @@
         "@aws-sdk/lib-storage": "catalog:",
         "@aws-sdk/s3-request-presigner": "catalog:",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/licensing": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/streaming": "workspace:*",
         "@types/express": "5.0.1",
@@ -2821,6 +2823,7 @@
       "name": "@remotion/vercel",
       "version": "4.0.546",
       "dependencies": {
+        "@remotion/licensing": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "remotion": "workspace:*",
       },

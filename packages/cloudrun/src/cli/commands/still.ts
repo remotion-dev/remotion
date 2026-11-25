@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -266,7 +267,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 
 	const licenseKey =
 		CliInternals.parsedCli[BrowserSafeApis.options.licenseKeyOption.cliFlag];
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
 		api: 'remotion cloudrun still',
 		option: '--license-key',

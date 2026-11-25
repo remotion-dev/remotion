@@ -1,6 +1,6 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {Sandbox} from '@vercel/sandbox';
 import type {PreferredEffectBackend} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
 import type {
 	ChromiumOptions,
@@ -52,7 +52,7 @@ export async function renderStillOnVercel({
 	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
 	isProduction?: boolean;
 }): Promise<{sandboxFilePath: string; contentType: string}> {
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: licenseKey ?? null,
 		api: 'renderStillOnVercel()',
 		option: 'licenseKey',

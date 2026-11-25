@@ -1,5 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
@@ -34,7 +35,7 @@ export const renderStillSingleThread = async (
 		);
 	}
 
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: body.licenseKey,
 		api: 'renderStillOnCloudrun()',
 		option: 'licenseKey',

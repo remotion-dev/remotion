@@ -7,6 +7,7 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '@remotion/lambda-client/constants';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -72,7 +73,7 @@ export const stillCommand = async ({
 }) => {
 	const licenseKey =
 		parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag];
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
 		api: 'remotion lambda still',
 		option: '--license-key',

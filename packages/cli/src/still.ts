@@ -1,3 +1,4 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -50,7 +51,7 @@ export const still = async (
 	logLevel: LogLevel,
 ) => {
 	const licenseKey = parsedCli[licenseKeyOption.cliFlag];
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
 		api: 'remotion still',
 		option: '--license-key',

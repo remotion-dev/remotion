@@ -1,4 +1,5 @@
 import type {Readable} from 'stream';
+import {LicensingInternals} from '@remotion/licensing';
 import type {
 	ChromiumOptions,
 	StillImageFormat,
@@ -246,7 +247,7 @@ const errorHandled = wrapWithErrorHandling(internalRenderStillOnCloudRun);
 
 export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 	const logLevel = options.logLevel ?? 'info';
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: options.licenseKey ?? null,
 		api: 'renderStillOnCloudrun()',
 		option: 'licenseKey',

@@ -1,4 +1,5 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
+import {LicensingInternals} from '@remotion/licensing';
 import type {
 	ChromiumOptions,
 	StillImageFormat,
@@ -6,7 +7,7 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
+import type {DownloadBehavior} from 'remotion/no-react';
 import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
 import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {DEFAULT_MAX_RETRIES} from './constants';
@@ -211,7 +212,7 @@ export function renderStillOnLambda(
 	const logLevel = input.dumpBrowserLogs
 		? 'verbose'
 		: (input.logLevel ?? 'info');
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: input.licenseKey ?? input.apiKey ?? null,
 		api: 'renderStillOnLambda()',
 		option: typeof input.licenseKey === 'string' ? 'licenseKey' : 'apiKey',

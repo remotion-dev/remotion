@@ -1,3 +1,4 @@
+import {logDeprecatedStillRenderLicenseKey} from './log-deprecated-still-render-license-key';
 import {
 	getUsageEventErrorMessage,
 	internalRegisterUsageEvent,
@@ -14,4 +15,5 @@ export {EventCount, getUsage, GetUsageResponse} from './get-usage';
 export const LicensingInternals = {
 	internalRegisterUsageEvent,
 	getUsageEventErrorMessage,
+	logDeprecatedStillRenderLicenseKey,
 };

@@ -1,5 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import {LicensingInternals} from '@remotion/licensing';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
@@ -538,7 +539,7 @@ export const renderStill = (
 		typeof options.apiKey === 'string'
 			? options.apiKey
 			: null;
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: licenseKey ?? apiKey,
 		api: 'renderStill()',
 		option: typeof licenseKey === 'string' ? 'licenseKey' : 'apiKey',

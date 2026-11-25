@@ -1,3 +1,4 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {PreferredEffectBackend} from 'remotion';
 import {
 	Internals,
@@ -291,7 +292,7 @@ const renderImagesOnWeb = <
 ): Promise<RenderStillOnWebResult[]> => {
 	const logLevel =
 		options.logLevel ?? globalThis.window?.remotion_logLevel ?? 'info';
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: options.licenseKey ?? null,
 		api: `${apiName}()`,
 		option: 'licenseKey',

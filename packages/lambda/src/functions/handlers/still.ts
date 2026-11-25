@@ -9,6 +9,7 @@ import {
 	type RenderStillFunctionResponsePayload,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
+import {LicensingInternals} from '@remotion/licensing';
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
@@ -57,7 +58,7 @@ const innerStillHandler = async (
 		params,
 	});
 
-	NoReactInternals.logDeprecatedStillRenderLicenseKey({
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
 		licenseKey: params.licenseKey ?? null,
 		api: 'renderStillOnLambda()',
 		option: 'licenseKey',
