@@ -1,7 +1,7 @@
 import Link from '@docusaurus/Link';
 import {Video} from '@remotion/media';
 import {Player} from '@remotion/player';
-import React, {useMemo, useState} from 'react';
+import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {elementLibraries} from './element-libraries-data';
 import {
@@ -72,7 +72,6 @@ const composeLayers = [
 	{
 		durationInFrames: 108,
 		from: 0,
-		label: 'Captions',
 		left: 619,
 		props: {
 			...getElementDefinition('captions/popping-word-captions').initialProps,
@@ -84,7 +83,6 @@ const composeLayers = [
 	{
 		durationInFrames: 94,
 		from: 8,
-		label: 'Lower third',
 		left: 100,
 		props: {fullName: 'Jonny Burger', role: 'Remotion'},
 		slug: 'overlays/name-lower-third',
@@ -92,11 +90,7 @@ const composeLayers = [
 	},
 ] as const;
 
-type ComposeSlug = (typeof composeLayers)[number]['slug'];
-
-const ComposedElements: React.FC<{
-	readonly enabled: readonly ComposeSlug[];
-}> = ({enabled}) => {
+const ComposedElements: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			<Video
@@ -107,10 +101,6 @@ const ComposedElements: React.FC<{
 				trimBefore={35}
 			/>
 			{composeLayers.map(({durationInFrames, from, left, props, slug, top}) => {
-				if (!enabled.includes(slug)) {
-					return null;
-				}
-
 				const definition = getElementDefinition(slug);
 				const width = definition.elementWidth ?? definition.width;
 				const height = definition.elementHeight ?? definition.height;
@@ -140,11 +130,6 @@ const ComposedElements: React.FC<{
 };
 
 export const ElementsComposeDemo: React.FC = () => {
-	const [enabled, setEnabled] = useState<readonly ComposeSlug[]>(
-		composeLayers.map((layer) => layer.slug),
-	);
-	const inputProps = useMemo(() => ({enabled}), [enabled]);
-
 	return (
 		<div className={styles.compose}>
 			<Player
@@ -157,26 +142,15 @@ export const ElementsComposeDemo: React.FC = () => {
 				durationInFrames={108}
 				fps={30}
 				initiallyMuted
-				inputProps={inputProps}
 				loop
 				style={{width: '100%'}}
 			/>
-			<div className={styles.toggles}>
-				{composeLayers.map(({label, slug}) => (
-					<label key={slug} className={styles.toggle}>
-						<input
-							checked={enabled.includes(slug)}
-							onChange={(e) =>
-								setEnabled((prev) =>
-									e.target.checked
-										? [...prev, slug]
-										: prev.filter((s) => s !== slug),
-								)
-							}
-							type="checkbox"
-						/>
-						{label}
-					</label>
+			<div className={styles.used}>
+				Elements used:
+				{composeLayers.map(({slug}) => (
+					<Link key={slug} to={`/elements/${slug}`}>
+						{getElementDefinition(slug).displayName}
+					</Link>
 				))}
 			</div>
 		</div>

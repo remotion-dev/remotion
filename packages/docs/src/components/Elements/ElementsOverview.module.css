@@ -67,7 +67,7 @@
 	background: #f5f6f7;
 }
 
-.toggles {
+.used {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px 18px;
@@ -75,11 +75,4 @@
 	border-top: 1px solid var(--ifm-color-emphasis-300);
 	background: var(--ifm-background-color);
 	font-size: 14px;
-}
-
-.toggle {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	cursor: pointer;
 }
