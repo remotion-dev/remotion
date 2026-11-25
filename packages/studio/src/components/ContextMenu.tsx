@@ -1,15 +1,25 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+import {
+	getActiveStudioDialog,
+	StudioDialogContext,
+} from '../state/studio-dialog';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {
 	getNextMenuTreeId,
-	isNodeInMenuTree,
+	useDismissMenuOnOutsidePointerDown,
 	MenuTreeContext,
 } from './Menu/menu-tree-context';
-import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
@@ -88,7 +98,8 @@ const ContextMenuPortal: React.FC<{
 	readonly opened: OpenedState;
 }> = ({anchorRef, onHide, opened}) => {
 	const [menuTreeId] = useState(getNextMenuTreeId);
-	const {currentZIndex} = useZIndex();
+	const dialog = useContext(StudioDialogContext);
+	const {getPortal} = useZIndex();
 	const size = PlayerInternals.useElementSize(anchorRef ?? document.body, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -135,7 +146,9 @@ const ContextMenuPortal: React.FC<{
 
 	useEffect(() => {
 		const preventNativeContextMenu = (event: MouseEvent) => {
-			event.preventDefault();
+			if (getActiveStudioDialog() === dialog) {
+				event.preventDefault();
+			}
 		};
 
 		window.addEventListener('contextmenu', preventNativeContextMenu, true);
@@ -143,35 +156,9 @@ const ContextMenuPortal: React.FC<{
 		return () => {
 			window.removeEventListener('contextmenu', preventNativeContextMenu, true);
 		};
-	}, []);
+	}, [dialog]);
 
-	useEffect(() => {
-		const dismissWithoutClickThrough = (event: PointerEvent) => {
-			if (event.button !== 0) {
-				return;
-			}
-
-			const target = event.target as Node;
-			if (isNodeInMenuTree(target, menuTreeId)) {
-				return;
-			}
-
-			event.preventDefault();
-			event.stopPropagation();
-			event.stopImmediatePropagation();
-			onHide();
-		};
-
-		window.addEventListener('pointerdown', dismissWithoutClickThrough, true);
-
-		return () => {
-			window.removeEventListener(
-				'pointerdown',
-				dismissWithoutClickThrough,
-				true,
-			);
-		};
-	}, [menuTreeId, onHide]);
+	useDismissMenuOnOutsidePointerDown({enabled: true, menuTreeId, onHide});
 
 	// Prevent deselection of a selected item
 	const onMenuPointerDown = useCallback(
@@ -200,6 +187,7 @@ const ContextMenuPortal: React.FC<{
 					>
 						<MenuTreeContext.Provider value={menuTreeId}>
 							<MenuContent
+								menuTrigger={anchorRef?.current ?? null}
 								onNextMenu={noop}
 								onPreviousMenu={noop}
 								values={opened.values}
@@ -214,7 +202,7 @@ const ContextMenuPortal: React.FC<{
 				</HigherZIndex>
 			</div>
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };
 

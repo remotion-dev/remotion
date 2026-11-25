@@ -3,7 +3,6 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {INPUT_BACKGROUND, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {getPortal} from '../Menu/portals';
 import {outerPortal} from '../Menu/styles';
 import {InfoTooltip} from './InfoTooltip';
 
@@ -27,7 +26,7 @@ export const InfoBubble: React.FC<{
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
-	const {tabIndex, currentZIndex} = useZIndex();
+	const {tabIndex, getPortal} = useZIndex();
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -159,7 +158,7 @@ export const InfoBubble: React.FC<{
 								</div>
 							</HigherZIndex>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

@@ -12,7 +12,6 @@ import {KeyboardShortcutLabel} from '../KeyboardShortcutLabel';
 import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {MENU_ITEM_CLASSNAME} from './is-menu-item';
-import {getPortal} from './portals';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
@@ -59,6 +58,7 @@ export const MenuSubItem: React.FC<{
 	readonly keyHint: string | null;
 	readonly leaveLeftSpace: boolean;
 	readonly leftItem: React.ReactNode;
+	readonly menuTrigger: HTMLElement | null;
 	readonly subMenu: SubMenu | null;
 	readonly onQuitMenu: () => void;
 	readonly onNextMenu: () => void;
@@ -68,6 +68,7 @@ export const MenuSubItem: React.FC<{
 	>;
 	readonly disabled?: boolean;
 }> = ({
+	menuTrigger,
 	label,
 	leaveLeftSpace,
 	leftItem,
@@ -91,7 +92,7 @@ export const MenuSubItem: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 	const mobileLayout = useMobileLayout();
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -233,13 +234,14 @@ export const MenuSubItem: React.FC<{
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(
 							<SubMenuComponent
+								menuTrigger={menuTrigger}
 								onQuitFullMenu={onQuitMenu}
 								subMenu={subMenu}
 								onQuitSubMenu={onQuitSubmenu}
 								portalStyle={portalStyle}
 								subMenuActivated={subMenuActivated}
 							/>,
-							getPortal(currentZIndex),
+							getPortal(),
 						)
 					: null}
 			</Row>

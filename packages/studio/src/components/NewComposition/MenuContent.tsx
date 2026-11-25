@@ -3,10 +3,12 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {flushSync} from 'react-dom';
 import {
 	BLACK_ALPHA_60,
 	TRANSPARENT,
@@ -16,6 +18,11 @@ import {useMobileLayout} from '../../helpers/mobile-layout';
 import {observeHover} from '../../helpers/observe-hover';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {
+	getActiveStudioDialog,
+	getDialogTabStops,
+	StudioDialogContext,
+} from '../../state/studio-dialog';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {getNextMenuTreeId, MenuTreeContext} from '../Menu/menu-tree-context';
 import {MenuDivider} from '../Menu/MenuDivider';
@@ -46,6 +53,7 @@ const container: React.CSSProperties = {
 };
 
 export const MenuContent: React.FC<{
+	readonly menuTrigger: HTMLElement | null;
 	readonly values: readonly ComboboxValue[];
 	readonly onHide: () => void;
 	readonly onNextMenu: () => void;
@@ -55,6 +63,7 @@ export const MenuContent: React.FC<{
 	readonly topItemCanBeUnselected: boolean;
 	readonly fixedHeight: number | null;
 }> = ({
+	menuTrigger,
 	onHide,
 	values,
 	preselectIndex,
@@ -66,6 +75,69 @@ export const MenuContent: React.FC<{
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
+	const dialog = useContext(StudioDialogContext);
+
+	useLayoutEffect(() => {
+		const menu = containerRef.current;
+		if (!dialog || !menu) {
+			return;
+		}
+
+		const previousFocus = dialog.ownerDocument.activeElement;
+		menu.focus({preventScroll: true});
+		return () => {
+			if (!dialog.open || !menu.contains(dialog.ownerDocument.activeElement)) {
+				return;
+			}
+
+			const returnTo =
+				previousFocus instanceof HTMLElement &&
+				previousFocus.closest('[data-remotion-menu-tree-id]')
+					? previousFocus
+					: menuTrigger;
+			returnTo?.focus({preventScroll: true});
+		};
+	}, [dialog, menuTrigger]);
+
+	useLayoutEffect(() => {
+		if (!dialog || !keybindings.isHighestContext) {
+			return;
+		}
+
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				(event.key !== 'Tab' && event.key !== 'Escape') ||
+				event.defaultPrevented ||
+				event.ctrlKey ||
+				event.altKey ||
+				event.metaKey ||
+				event.isComposing ||
+				getActiveStudioDialog() !== dialog
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			flushSync(onHide);
+			const stops = getDialogTabStops(dialog);
+			const triggerIndex = menuTrigger ? stops.indexOf(menuTrigger) : -1;
+			let nextFocus;
+			if (event.key === 'Escape') {
+				nextFocus = stops[triggerIndex] ?? stops[0];
+			} else if (event.shiftKey) {
+				nextFocus = stops[triggerIndex - 1] ?? stops[stops.length - 1];
+			} else {
+				nextFocus = stops[triggerIndex + 1] ?? stops[0];
+			}
+
+			nextFocus?.focus({preventScroll: true});
+		};
+
+		dialog.addEventListener('keydown', onKeyDown, true);
+		return () => dialog.removeEventListener('keydown', onKeyDown, true);
+	}, [dialog, keybindings.isHighestContext, menuTrigger, onHide]);
+
 	const inheritedMenuTreeId = useContext(MenuTreeContext);
 	const [localMenuTreeId] = useState(getNextMenuTreeId);
 	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId;
@@ -275,7 +347,9 @@ export const MenuContent: React.FC<{
 		}
 
 		const onKeyDown = (event: KeyboardEvent) => {
-			onTypeahead(event);
+			if (getActiveStudioDialog() === dialog) {
+				onTypeahead(event);
+			}
 		};
 
 		window.addEventListener('keydown', onKeyDown);
@@ -283,7 +357,7 @@ export const MenuContent: React.FC<{
 			window.removeEventListener('keydown', onKeyDown);
 			clearTypeahead();
 		};
-	}, [clearTypeahead, keybindings.isHighestContext, onTypeahead]);
+	}, [clearTypeahead, dialog, keybindings.isHighestContext, onTypeahead]);
 
 	useEffect(() => {
 		return () => {
@@ -425,6 +499,7 @@ export const MenuContent: React.FC<{
 		<MenuTreeContext.Provider value={menuTreeId}>
 			<div
 				ref={containerRef}
+				tabIndex={dialog ? -1 : undefined}
 				data-remotion-menu-tree-id={menuTreeId}
 				style={containerWithHeight}
 				className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -467,6 +542,7 @@ export const MenuContent: React.FC<{
 					return (
 						<MenuSubItem
 							key={item.id}
+							menuTrigger={menuTrigger}
 							selected={item.id === selectedItem}
 							onActionChosen={onClick}
 							onItemSelected={onItemSelected}

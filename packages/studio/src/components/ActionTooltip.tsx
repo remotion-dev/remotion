@@ -10,7 +10,6 @@ import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
 import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
-import {getPortal} from './Menu/portals';
 import {SHADOW_TOWARDS_TOP} from './Menu/styles';
 
 const defaultTriggerStyle: React.CSSProperties = {display: 'inline-flex'};
@@ -87,7 +86,7 @@ const Tooltip: React.FC<
 	const [position, setPosition] = useState<{left: number; top: number} | null>(
 		null,
 	);
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 
 	useLayoutEffect(() => {
 		delayRef.current = delay;
@@ -349,7 +348,7 @@ const Tooltip: React.FC<
 								</kbd>
 							) : null}
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

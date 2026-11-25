@@ -39,6 +39,7 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../../helpers/use-keybinding';
+import {getActiveStudioDialog} from '../../state/studio-dialog';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {pasteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -990,6 +991,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 		const handlePaste = (e: ClipboardEvent) => {
 			const {activeElement} = document;
 			if (
+				getActiveStudioDialog() !== null ||
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
 			) {

@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
+import {handleButtonPointerFocus} from '../helpers/button-pointer-focus';
 import {
 	CURRENT_COLOR,
 	TRANSPARENT,
@@ -18,7 +19,6 @@ import {Checkmark} from '../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {ActionTooltip} from './ActionTooltip';
 import {MENU_INITIATOR_CLASSNAME} from './Menu/is-menu-item';
-import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
@@ -113,29 +113,9 @@ const getSegmentBorderRadius = ({
 	return 0;
 };
 
-const preventPointerFocus = (event: React.PointerEvent<HTMLButtonElement>) => {
-	if (event.button !== 0) {
-		return;
-	}
-
-	if (document.activeElement instanceof HTMLElement) {
-		document.activeElement.blur();
-	}
-
-	event.preventDefault();
-};
-
 const preventMouseFocus = (event: React.MouseEvent<HTMLButtonElement>) => {
 	event.stopPropagation();
-	if (event.button !== 0) {
-		return;
-	}
-
-	if (document.activeElement instanceof HTMLElement) {
-		document.activeElement.blur();
-	}
-
-	event.preventDefault();
+	handleButtonPointerFocus(event);
 };
 
 const SegmentedButtonAction: React.FC<{
@@ -173,7 +153,7 @@ const SegmentedButtonAction: React.FC<{
 		(event: React.PointerEvent<HTMLButtonElement>) => {
 			event.stopPropagation();
 			segment.onPointerDown?.(event);
-			preventPointerFocus(event);
+			handleButtonPointerFocus(event);
 		},
 		[segment],
 	);
@@ -219,7 +199,7 @@ const SegmentedButtonMenu: React.FC<{
 }> = ({index, segment, segmentCount}) => {
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
-	const {currentZIndex, tabIndex} = useZIndex();
+	const {getPortal, tabIndex} = useZIndex();
 	const isMobileLayout = useMobileLayout();
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -262,7 +242,7 @@ const SegmentedButtonMenu: React.FC<{
 	const onPointerDown = useCallback(
 		(event: React.PointerEvent<HTMLButtonElement>) => {
 			event.stopPropagation();
-			preventPointerFocus(event);
+			handleButtonPointerFocus(event);
 		},
 		[],
 	);
@@ -344,6 +324,11 @@ const SegmentedButtonMenu: React.FC<{
 			disabled={segment.disabled}
 			id={segment.buttonId ?? undefined}
 			onClick={onClick}
+			onKeyDown={(event) => {
+				if (opened && event.key === 'Tab') {
+					onHide();
+				}
+			}}
 			onMouseDown={preventMouseFocus}
 			onPointerDown={onPointerDown}
 			style={style}
@@ -379,6 +364,7 @@ const SegmentedButtonMenu: React.FC<{
 								<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onHide}>
 									<div style={portalStyle}>
 										<MenuContent
+											menuTrigger={ref.current}
 											fixedHeight={Math.max(spaceToBottom, spaceToTop)}
 											leaveLeftSpace={segment.leaveLeftSpace}
 											onHide={onHide}
@@ -398,7 +384,7 @@ const SegmentedButtonMenu: React.FC<{
 								</HigherZIndex>
 							</div>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

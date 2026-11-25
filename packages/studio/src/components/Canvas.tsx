@@ -49,6 +49,7 @@ import {EditorShowGuidesRefContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
+import {getActiveStudioDialog} from '../state/studio-dialog';
 import {handleCanvasCaptureDrop} from './canvas-capture-drop';
 import {getCompositionDragPreviewMetadata} from './composition-drag-data';
 import {
@@ -1117,6 +1118,7 @@ export const Canvas: React.FC<{
 		async (event: ClipboardEvent) => {
 			const {activeElement} = document;
 			if (
+				getActiveStudioDialog() !== null ||
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||

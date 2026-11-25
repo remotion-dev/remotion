@@ -506,6 +506,7 @@ export const useCompositionActions = () => {
 				}
 			}
 
+			event.currentTarget.focus({preventScroll: true});
 			setSelectedModal({
 				type: 'generate-with-agent',
 				location,

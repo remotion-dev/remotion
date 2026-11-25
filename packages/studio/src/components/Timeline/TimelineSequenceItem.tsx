@@ -51,6 +51,7 @@ import {
 	useRuntimeValueSelector,
 } from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
+import {getActiveStudioDialog} from '../../state/studio-dialog';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
@@ -1274,7 +1275,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (!isHighestContext) {
+			if (!isHighestContext || getActiveStudioDialog() !== null) {
 				return;
 			}
 

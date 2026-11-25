@@ -31,7 +31,6 @@ import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {MenuDivider} from './Menu/MenuDivider';
-import {getPortal} from './Menu/portals';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {
 	horizontalLayout,
@@ -130,7 +129,7 @@ export const ElementLibraryModal: React.FC<{
 	readonly installState: ElementInstallModalState | null;
 	readonly confirmationState: ConfirmationDialogState | null;
 }> = ({name, url, installState, confirmationState}) => {
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const sidebarRef = useRef<HTMLElement>(null);
 	const sidebarSize = PlayerInternals.useElementSize(sidebarRef, {
 		triggerOnWindowResize: true,
@@ -448,7 +447,7 @@ export const ElementLibraryModal: React.FC<{
 				? null
 				: createPortal(
 						<ConfirmationDialog state={confirmationState} />,
-						getPortal(currentZIndex),
+						getPortal(),
 					)}
 		</FullscreenPanel>
 	);

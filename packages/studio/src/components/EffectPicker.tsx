@@ -16,23 +16,41 @@ import React, {
 import {Internals, type RuntimeValueStore} from 'remotion';
 import {canUseEffectOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_06,
+} from '../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {isStudioSelectionEnabled} from '../helpers/interactivity-enabled';
 import {observeHover} from '../helpers/observe-hover';
+import {SparklesIcon} from '../icons/sparkles';
+import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
+import {ActionTooltip} from './ActionTooltip';
 import {ContextMenu} from './ContextMenu';
 import {getEffectPickerConfig} from './effect-picker-config';
-import {filterEffectCatalog} from './effect-picker-search';
+import {
+	filterEffectCatalog,
+	getCreateEffectResult,
+} from './effect-picker-search';
 import type {EffectPreviewFactory} from './effect-preview-loaders';
-import {EffectThumbnail} from './EffectThumbnail';
+import {
+	EffectThumbnail,
+	effectThumbnailFrame,
+	getEffectThumbnailAspectRatio,
+} from './EffectThumbnail';
+import {InlineAction} from './InlineAction';
 import {InspectorMessage} from './InspectorPanel/common';
-import {container} from './InspectorPanel/styles';
+import {container, sectionHeaderActionIcon} from './InspectorPanel/styles';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {RemotionInput} from './NewComposition/RemInput';
@@ -44,15 +62,20 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
+import {getCachedResolvedStack} from './Timeline/use-resolved-stack';
 import {useAddEffect} from './use-add-effect';
 import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 
 const content: React.CSSProperties = {
-	padding: '4px 8px',
+	display: 'flex',
+	alignItems: 'center',
+	gap: 4,
+	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 4px 8px`,
 };
 
 const inputStyle: React.CSSProperties = {
-	width: '100%',
+	flex: 1,
+	minWidth: 0,
 	borderRadius: 4,
 	padding: '4px 10px 4px 12px',
 };
@@ -64,11 +87,21 @@ const resultList: React.CSSProperties = {
 	padding: '0 7px',
 };
 
-const noResults: React.CSSProperties = {
-	gridColumn: '1 / -1',
-	color: LIGHT_TEXT,
-	fontSize: 13,
-	padding: '12px 16px',
+type EffectPickerItem =
+	| EffectCatalogItem
+	| ReturnType<typeof getCreateEffectResult>;
+
+const genericCreateEffect = getCreateEffectResult('');
+
+const sparklesStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	margin: 'auto',
+	width: 48,
+	height: 48,
+	maxHeight: '80%',
+	maxWidth: '80%',
+	opacity: 0.5,
 };
 
 const resultContainer: React.CSSProperties = {
@@ -101,13 +134,13 @@ const label: React.CSSProperties = {
 };
 
 const EffectPickerResult: React.FC<{
-	readonly item: EffectCatalogItem;
+	readonly item: EffectPickerItem;
 	readonly snapshot: HTMLCanvasElement | null;
 	readonly selected: boolean;
 	readonly isScrolling: boolean;
-	readonly onSelected: (item: EffectCatalogItem) => void;
+	readonly onSelected: (item: EffectPickerItem, trigger: HTMLElement) => void;
 	readonly onPreview: (id: string, previewing: boolean) => void;
-	readonly onFocus: (item: EffectCatalogItem) => void;
+	readonly onFocus: (item: EffectPickerItem) => void;
 }> = React.memo(
 	({item, snapshot, selected, isScrolling, onSelected, onPreview, onFocus}) => {
 		const ref = useRef<HTMLButtonElement>(null);
@@ -140,11 +173,18 @@ const EffectPickerResult: React.FC<{
 			};
 		}, [selected]);
 
-		const onClick = useCallback(() => {
-			onSelected(item);
-		}, [item, onSelected]);
+		const onClick = useCallback(
+			(event: React.MouseEvent<HTMLButtonElement>) => {
+				onSelected(item, event.currentTarget);
+			},
+			[item, onSelected],
+		);
 
 		const getContextMenuItems = useCallback((): ComboboxValue[] => {
+			if (item.effect === null) {
+				return [];
+			}
+
 			const documentationLink = getEffectDocumentationLink(item);
 
 			return [
@@ -172,18 +212,36 @@ const EffectPickerResult: React.FC<{
 					type="button"
 					style={style}
 					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					aria-label={`Add ${item.label} effect`}
+					aria-label={
+						item.effect === null ? item.label : `Add ${item.label} effect`
+					}
 					data-effect-id={item.id}
 					tabIndex={selected ? 0 : -1}
 					onClick={onClick}
 					onFocus={() => onFocus(item)}
 					onBlur={() => onPreview(item.id, false)}
 				>
-					<EffectThumbnail
-						item={item}
-						snapshot={snapshot}
-						isScrolling={isScrolling}
-					/>
+					{item.effect ? (
+						<EffectThumbnail
+							item={item}
+							snapshot={snapshot}
+							isScrolling={isScrolling}
+						/>
+					) : (
+						<div
+							style={{
+								...effectThumbnailFrame,
+								aspectRatio: getEffectThumbnailAspectRatio(snapshot),
+								backgroundColor: WHITE_ALPHA_06,
+							}}
+						>
+							<SparklesIcon
+								color="currentColor"
+								style={sparklesStyle}
+								aria-hidden
+							/>
+						</div>
+					)}
 					<span style={label}>{item.label}</span>
 				</button>
 			</ContextMenu>
@@ -205,6 +263,10 @@ export const EffectPicker: React.FC<{
 	const {isHighestContext} = useZIndex();
 	const previewStore = useContext(Internals.EffectPreviewContext);
 	const {setPreview} = previewStore;
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const propStatuses = useContext(
+		Internals.VisualModePropStatusesSubscriptionContext,
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectItems} = useTimelineSelection();
 	const addEffect = useAddEffect();
@@ -269,12 +331,14 @@ export const EffectPicker: React.FC<{
 		};
 	}, []);
 
-	const results = useMemo(() => {
-		return filterEffectCatalog({items: EFFECT_CATALOG, query});
+	const results = useMemo((): EffectPickerItem[] => {
+		return [
+			...filterEffectCatalog({items: EFFECT_CATALOG, query}),
+			getCreateEffectResult(query),
+		];
 	}, [query]);
 
-	const selectedIndexRounded =
-		results.length === 0 ? -1 : loopIndex(selectedIndex, results.length);
+	const selectedIndexRounded = loopIndex(selectedIndex, results.length);
 	const getScrollElement = useCallback(() => listRef.current, []);
 	const getRowKey = useCallback(
 		(index: number) => results[index * 2].id,
@@ -282,10 +346,7 @@ export const EffectPicker: React.FC<{
 	);
 	const estimateRowHeight = useCallback(() => {
 		const width = listRef.current?.clientWidth || 320;
-		const aspectRatio = snapshot
-			? Math.max(3 / 2, snapshot.width / snapshot.height)
-			: 3 / 2;
-		return (width - 18) / 2 / aspectRatio + 22;
+		return (width - 18) / 2 / getEffectThumbnailAspectRatio(snapshot) + 22;
 	}, [snapshot]);
 	const rangeExtractor = useCallback(
 		(range: Parameters<typeof defaultRangeExtractor>[0]) => {
@@ -373,8 +434,30 @@ export const EffectPicker: React.FC<{
 	}, [selectedIndexRounded, virtualRows]);
 
 	const selectItem = useCallback(
-		(item: EffectCatalogItem) => {
-			if (!canAddEffects || previewServerState.type !== 'connected') {
+		(item: EffectPickerItem, trigger: HTMLElement) => {
+			if (!canAddEffects) {
+				return;
+			}
+
+			if (item.effect === null) {
+				trigger.focus({preventScroll: true});
+				const key = nodePathInfo.sequenceSubscriptionKey;
+				const status = propStatuses.getSnapshot(
+					Internals.makeSequencePropsSubscriptionKey(key),
+				);
+				const sourceLocation = status?.canUpdate ? status.sourceLocation : null;
+				setPreviewId(null);
+				setSelectedModal({
+					type: 'create-effect',
+					query: item.query,
+					displayName:
+						track.sequence.displayName ||
+						track.sequence.controls?.componentName ||
+						null,
+					location: sourceLocation
+						? {source: key.absolutePath, ...sourceLocation}
+						: getCachedResolvedStack(track.sequence.getStack()),
+				});
 				return;
 			}
 
@@ -384,11 +467,19 @@ export const EffectPicker: React.FC<{
 				nodePathInfo,
 			});
 		},
-		[addEffect, canAddEffects, nodePathInfo, onBack, previewServerState],
+		[
+			addEffect,
+			canAddEffects,
+			nodePathInfo,
+			onBack,
+			propStatuses,
+			setSelectedModal,
+			track,
+		],
 	);
 
 	const onResultFocus = useCallback(
-		(item: EffectCatalogItem) => {
+		(item: EffectPickerItem) => {
 			setSelectedIndex(results.indexOf(item));
 			setPreviewId(item.id);
 		},
@@ -419,26 +510,23 @@ export const EffectPicker: React.FC<{
 				return;
 			}
 
-			const isSearch = event.target instanceof HTMLInputElement;
-			const isResult =
-				event.target instanceof HTMLButtonElement &&
-				event.target.hasAttribute('data-effect-id');
-			if (!isSearch && !isResult) {
+			const {target} = event;
+			const isButton = target instanceof HTMLButtonElement;
+			if (isButton && (event.key === 'Enter' || event.key === ' ')) {
+				event.stopPropagation();
 				return;
 			}
 
-			if (isResult && (event.key === 'Enter' || event.key === ' ')) {
-				event.stopPropagation();
+			const isSearch = target instanceof HTMLInputElement;
+			const isResult = isButton && target.hasAttribute('data-effect-id');
+			if (!isSearch && !isResult) {
 				return;
 			}
 
 			if (event.key === 'Enter' && isSearch) {
 				event.preventDefault();
 				event.stopPropagation();
-				if (selectedIndexRounded !== -1) {
-					selectItem(results[selectedIndexRounded]);
-				}
-
+				selectItem(results[selectedIndexRounded], target);
 				return;
 			}
 
@@ -458,10 +546,6 @@ export const EffectPicker: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
-			if (results.length === 0) {
-				return;
-			}
-
 			const nextIndex =
 				(((selectedIndexRounded + offset) % results.length) + results.length) %
 				results.length;
@@ -518,57 +602,77 @@ export const EffectPicker: React.FC<{
 					onBlur={() => setPreviewId(null)}
 					rightAlign={false}
 				/>
+				<ActionTooltip
+					label={genericCreateEffect.description}
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						variant={null}
+						aria-label="Create a custom effect with an agent"
+						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+						style={NO_HOVER_BACKGROUND_STYLE}
+						onClick={(event) =>
+							selectItem(genericCreateEffect, event.currentTarget)
+						}
+						renderAction={(color) => (
+							<SparklesIcon
+								color={color}
+								viewBox="64 64 512 512"
+								style={sectionHeaderActionIcon}
+								aria-hidden
+							/>
+						)}
+					/>
+				</ActionTooltip>
 			</div>
 			<div
 				ref={listRef}
 				style={resultList}
 				className={VERTICAL_SCROLLBAR_CLASSNAME}
 			>
-				{results.length === 0 ? (
-					<div style={noResults}>No effects found</div>
-				) : (
-					<div
-						style={{
-							height: rowVirtualizer.getTotalSize(),
-							position: 'relative',
-							width: '100%',
-						}}
-					>
-						{virtualRows.map((row) => (
-							<div
-								key={row.key}
-								ref={rowVirtualizer.measureElement}
-								data-index={row.index}
-								style={{
-									position: 'absolute',
-									top: 0,
-									left: 0,
-									width: '100%',
-									transform: `translateY(${row.start}px)`,
-									display: 'grid',
-									gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-									alignItems: 'start',
-									gap: 4,
-								}}
-							>
-								{results
-									.slice(row.index * 2, row.index * 2 + 2)
-									.map((item, i) => (
-										<EffectPickerResult
-											key={item.id}
-											item={item}
-											snapshot={snapshot}
-											selected={selectedIndexRounded === row.index * 2 + i}
-											isScrolling={rowVirtualizer.isScrolling}
-											onPreview={onResultPreview}
-											onFocus={onResultFocus}
-											onSelected={selectItem}
-										/>
-									))}
-							</div>
-						))}
-					</div>
-				)}
+				<div
+					style={{
+						height: rowVirtualizer.getTotalSize(),
+						position: 'relative',
+						width: '100%',
+					}}
+				>
+					{virtualRows.map((row) => (
+						<div
+							key={row.key}
+							ref={rowVirtualizer.measureElement}
+							data-index={row.index}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								width: '100%',
+								transform: `translateY(${row.start}px)`,
+								display: 'grid',
+								gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+								alignItems: 'start',
+								gap: 4,
+							}}
+						>
+							{results
+								.slice(row.index * 2, row.index * 2 + 2)
+								.map((item, i) => (
+									<EffectPickerResult
+										key={item.id}
+										item={item}
+										snapshot={snapshot}
+										selected={selectedIndexRounded === row.index * 2 + i}
+										isScrolling={rowVirtualizer.isScrolling}
+										onPreview={onResultPreview}
+										onFocus={onResultFocus}
+										onSelected={selectItem}
+									/>
+								))}
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);

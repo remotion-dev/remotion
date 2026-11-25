@@ -9,9 +9,13 @@ import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {AgentPrompt} from './AgentPrompt';
-import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
+import {
+	getMaxModalHeight,
+	getMaxModalWidth,
+	ModalDialog,
+} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
-import {DismissableModal} from './NewComposition/DismissableModal';
+import {useDismissModal} from './NewComposition/DismissableModal';
 import {useEditorOpening} from './use-default-editor-info';
 
 const panelStyle: React.CSSProperties = {
@@ -162,6 +166,7 @@ export const CodeChangeModal: React.FC<{
 	readonly sourceStatus: string | null;
 }> = ({title, description, prompt, skillId, sources, sourceStatus}) => {
 	const annotationTarget = useRef<HTMLDivElement>(null);
+	const dismiss = useDismissModal();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(
@@ -176,7 +181,12 @@ export const CodeChangeModal: React.FC<{
 	);
 
 	return (
-		<DismissableModal panelStyle={panelStyle}>
+		<ModalDialog
+			ariaLabel={title}
+			panelStyle={panelStyle}
+			onEscape={dismiss}
+			onOutsideClick={dismiss}
+		>
 			<ModalHeader title={title} />
 			<div
 				ref={annotationTarget}
@@ -201,6 +211,6 @@ export const CodeChangeModal: React.FC<{
 					skillId={skillId}
 				/>
 			</div>
-		</DismissableModal>
+		</ModalDialog>
 	);
 };

@@ -3,6 +3,10 @@ import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {keyboardEventMatchesAction} from '../components/keyboard-shortcuts';
 import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
 import {KeybindingContext} from '../state/keybindings';
+import {
+	getActiveStudioDialog,
+	StudioDialogContext,
+} from '../state/studio-dialog';
 import {useZIndex} from '../state/z-index';
 import {isMac} from './is-mac';
 import {getStudioKeyboardShortcutsEnabled} from './studio-runtime-config';
@@ -21,6 +25,7 @@ export const areKeyboardShortcutsDisabled = () => {
 export const useKeybinding = () => {
 	const [paneId] = useState(() => String(Math.random()));
 	const context = useContext(KeybindingContext);
+	const dialog = useContext(StudioDialogContext);
 	const {isHighestContext} = useZIndex();
 
 	const registerKeybinding = useCallback(
@@ -62,7 +67,11 @@ export const useKeybinding = () => {
 					: e.key.toLowerCase() === options.key.toLowerCase() &&
 						options.commandCtrlKey === (isMac ? e.metaKey : e.ctrlKey);
 
-				if (matches && getStudioKeyboardShortcutsEnabled()) {
+				if (
+					matches &&
+					getStudioKeyboardShortcutsEnabled() &&
+					getActiveStudioDialog() === dialog
+				) {
 					if (!options.triggerIfInputFieldFocused) {
 						const {activeElement} = document;
 						if (activeElement instanceof HTMLInputElement) {
@@ -94,7 +103,7 @@ export const useKeybinding = () => {
 				unregister: () => context.unregisterKeybinding(toRegister),
 			};
 		},
-		[context, isHighestContext, paneId],
+		[context, dialog, isHighestContext, paneId],
 	);
 
 	useEffect(() => {

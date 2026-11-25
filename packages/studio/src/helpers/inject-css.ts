@@ -33,6 +33,14 @@ const makeDefaultGlobalCSS = () => {
     position: static !important;
   }
 
+  dialog.__remotion-modal-dialog[open] {
+    display: flex;
+  }
+
+  dialog.__remotion-modal-dialog::backdrop {
+    background: transparent;
+  }
+
   html.__remotion-slide-forward,
   html.__remotion-slide-backward {
     view-transition-name: none;

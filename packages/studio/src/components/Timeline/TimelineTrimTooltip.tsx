@@ -3,7 +3,6 @@ import {createPortal} from 'react-dom';
 import {BLACK_ALPHA_85, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {renderFrame} from '../../state/render-frame';
 import {useZIndex} from '../../state/z-index';
-import {getPortal} from '../Menu/portals';
 import {
 	getVisibleTimelineTrimLimitReason,
 	type TimelineTrimLimitReason,
@@ -46,7 +45,7 @@ export const TimelineTrimTooltip: React.FC<{
 	readonly showSourceLimits: boolean;
 }> = ({state, fps, showSourceLimits}) => {
 	const {showFrames} = useContext(TimelineTickFormatContext);
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const delta = Math.round(state.deltaFrames);
 	const edge = Math.max(0, Math.round(state.edgeFrame));
 	const format = (frame: number) =>
@@ -100,6 +99,6 @@ export const TimelineTrimTooltip: React.FC<{
 			<div style={{...line, color: WHITE}}>{deltaLabel}</div>
 			<div style={{...line, color: LIGHT_TEXT}}>{edgeLabel}</div>
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };
