@@ -117,3 +117,9 @@ For Remotion license information, FAQs, terms, or buying a license, load [Remoti
 ## Upgrading
 
 To upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills, load [Remotion Upgrade](./remotion-upgrade/SKILL.md).
+
+## Deploy Remotion Studio
+
+When the user asks to host Remotion Studio or share it via a URL, run `bunx remotion bundle` (`npx remotion bundle` for npm) from the project root. Publish the resulting `build/` directory to a static host.
+
+For Vercel, Netlify, or GitHub Pages setup, see [Deploy Remotion Studio as a static site](https://www.remotion.dev/docs/studio/deploy-static).
