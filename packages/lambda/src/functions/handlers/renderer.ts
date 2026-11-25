@@ -517,6 +517,7 @@ export const rendererHandler = async ({
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
 	let cancellationRequested = false;
+	let handlerFinished = false;
 	const {cancel, cancelSignal} = makeCancelSignal();
 	const stopCancellationPolling = params.enableCancellation
 		? startCancellationPolling({
@@ -538,7 +539,12 @@ export const rendererHandler = async ({
 			params,
 			options,
 			logs,
-			onStream,
+			onStream: async (payload) => {
+				// In-flight frames can still report progress after cancellation.
+				if (!handlerFinished) {
+					await onStream(payload);
+				}
+			},
 			onBrowserInstance: (browserInstance) => {
 				instance = browserInstance;
 			},
@@ -594,6 +600,7 @@ export const rendererHandler = async ({
 			},
 		});
 	} finally {
+		handlerFinished = true;
 		stopCancellationPolling();
 		if (!shouldKeepBrowserOpen && instance) {
 			try {
