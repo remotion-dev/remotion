@@ -95,6 +95,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
@@ -174,6 +175,7 @@ import {outline} from './fixtures/outline';
 import {outlineCaptureBounds} from './fixtures/outline-capture-bounds';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
+import {paintedPlaneBounds} from './fixtures/painted-plane-bounds';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
@@ -181,6 +183,17 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {
+	FallbackDepthScene,
+	perspectiveFilter,
+	preserve3DBlendIsolation,
+	gridSamplerParent,
+	reviewSceneSize,
+} from './fixtures/preserve-3d-depth';
+import {
+	filterInputCases,
+	projectiveFilterInput,
+} from './fixtures/projective-filter-input';
 import {queuedFrameCapturePreview} from './fixtures/queued-frame-capture';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
@@ -360,6 +373,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasInteraction} />
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
@@ -467,7 +481,52 @@ export const Root: React.FC = () => {
 				<Composition {...opaqueTargetText} />
 				<Composition {...opaqueTargetGroup} />
 			</Folder>
+			<Composition {...perspectiveFilter} />
+			<Composition {...preserve3DBlendIsolation} />
+			<Composition {...gridSamplerParent} />
 			<Composition {...threeDTransformOpacity} />
+			<Folder name="Experimental3D">
+				<Composition {...paintedPlaneBounds(true)} />
+				<Composition {...paintedPlaneBounds(false)} />
+				{[
+					'zero-flat',
+					'coplanar-delay',
+					'soft-inset',
+					'implicit-gradient-stop',
+					'trailing-gradient-stop',
+					'perspective',
+					'depth',
+					'group',
+					'offscreen',
+					'oversized-opacity',
+					'opacity-paint-bounds',
+					'local-group-depth',
+					'magnified-mask',
+					'review-inset',
+					'review-inset-control',
+					'review-blend',
+					'review-opacity-control',
+					'review-blend-inherit',
+					'review-blend-explicit',
+					'review-projected-visible-exact',
+					'review-eye-plane',
+					'review-descendant-blur',
+					'review-offscreen-filter',
+					'review-projected',
+					'review-projected-exact',
+					'review-blur',
+				].map((kind) => (
+					<Composition
+						key={kind}
+						id={`experimental-3d-${kind}`}
+						component={FallbackDepthScene}
+						{...reviewSceneSize(kind)}
+						fps={30}
+						durationInFrames={1}
+						defaultProps={{kind}}
+					/>
+				))}
+			</Folder>
 			<Composition {...backgroundColor} />
 			<Composition {...backgroundBlendMode} />
 			<Composition {...stackingContextSiblings} />
@@ -655,6 +714,12 @@ export const Root: React.FC = () => {
 						{...backgroundImageMissingFilter(effect, scale)}
 					/>
 				)),
+			)}
+			{filterInputCases.flatMap(({kind}) =>
+				[false, true].map((preserving) => {
+					const fixture = projectiveFilterInput(kind, preserving);
+					return <Composition key={fixture.id} {...fixture} />;
+				}),
 			)}
 			{svgReadbackMaskModes.map((mode) => {
 				const composition = svgReadbackMask(mode);

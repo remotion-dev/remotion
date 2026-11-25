@@ -50,9 +50,20 @@ const getTextOverflowForLineHeight = (
 
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
-	includePaintOutsets = true,
-	includeDescendantFilters = false,
+	includePaintOutsets: boolean,
+	includeDescendantFilters: boolean,
+	{
+		onlyOwnPlane,
+		experimental3DRendering,
+		includeCapturePadding,
+	}: {
+		onlyOwnPlane: boolean | null;
+		experimental3DRendering: boolean | null;
+		includeCapturePadding: boolean | null;
+	},
 ) => {
+	const capturePadding =
+		includeCapturePadding === null ? true : includeCapturePadding;
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT,
@@ -64,18 +75,29 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		let outlineWidth = includePaintOutsets
+		// Existing capture margins affect texture sampling. Depth ordering can
+		// request painted bounds without changing those raster surfaces.
+		const hasOutline =
+			includePaintOutsets &&
+			(capturePadding ||
+				(computedStyle.outlineStyle !== 'none' &&
+					computedStyle.outlineStyle !== 'hidden'));
+		let outlineWidth = hasOutline
 			? parseOutlineWidth(computedStyle.outlineWidth)
 			: 0;
-		let outlineOffset = includePaintOutsets
+		let outlineOffset = hasOutline
 			? parseOutlineOffset(computedStyle.outlineOffset)
 			: 0;
-		// An entirely inward outline must not shrink the bounds of the element.
+		// An entirely inward outline must not shrink the element's capture.
 		if (outlineWidth + outlineOffset < 0) {
 			outlineWidth = 0;
 			outlineOffset = 0;
 		}
 
+		const boundsOutlineWidth = capturePadding
+			? outlineWidth
+			: Math.max(0, outlineWidth + outlineOffset);
+		const boundsOutlineOffset = capturePadding ? outlineOffset : 0;
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1
@@ -165,16 +187,16 @@ export const getBiggestBoundingClientRect = (
 		mostLeft = Math.min(
 			mostLeft,
 			rect.left -
-				outlineOffset -
-				outlineWidth -
+				boundsOutlineOffset -
+				boundsOutlineWidth -
 				shadowLeft -
 				filterOutsets.left,
 		);
 		mostTop = Math.min(
 			mostTop,
 			rect.top -
-				outlineOffset -
-				outlineWidth -
+				boundsOutlineOffset -
+				boundsOutlineWidth -
 				shadowTop -
 				textOverflow.top -
 				filterOutsets.top,
@@ -182,25 +204,28 @@ export const getBiggestBoundingClientRect = (
 		mostRight = Math.max(
 			mostRight,
 			rect.right +
-				outlineOffset +
-				outlineWidth +
+				boundsOutlineOffset +
+				boundsOutlineWidth +
 				shadowRight +
 				filterOutsets.right,
 		);
 		mostBottom = Math.max(
 			mostBottom,
 			rect.bottom +
-				outlineOffset +
-				outlineWidth +
+				boundsOutlineOffset +
+				boundsOutlineWidth +
 				shadowBottom +
 				textOverflow.bottom +
 				filterOutsets.bottom,
 		);
 
+		if (onlyOwnPlane) break;
 		if (computedStyle.overflow === 'hidden') {
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;
 			}
+
+			if (experimental3DRendering) continue;
 		}
 
 		if (!treeWalker.nextNode()) {

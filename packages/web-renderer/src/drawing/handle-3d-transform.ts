@@ -1,35 +1,56 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
-import {getPreTransformRect} from './get-pretransform-rect';
+import {
+	clipSourceRectToViewport,
+	isScaleTooBig,
+	getPreTransformRect,
+} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
 
 export const getPrecomposeRectFor3DTransform = ({
 	element,
 	parentRect,
 	matrix,
+	onlyOwnPlane: onlyOwnPlaneOption,
+	experimental3DRendering: experimental3DRenderingOption,
+	sourceRect,
 }: {
 	element: HTMLElement | SVGElement;
 	parentRect: DOMRect;
 	matrix: DOMMatrix;
+	onlyOwnPlane: boolean | null;
+	experimental3DRendering: boolean | null;
+	sourceRect: DOMRect | null;
 }) => {
+	const onlyOwnPlane = onlyOwnPlaneOption === null ? false : onlyOwnPlaneOption;
+	const experimental3DRendering =
+		experimental3DRenderingOption === null
+			? false
+			: experimental3DRenderingOption;
 	const unclampedBiggestBoundingClientRect =
-		getBiggestBoundingClientRect(element);
-
-	const biggestPossiblePretransformRect = getPreTransformRect(
-		parentRect,
-		matrix,
-	);
-	if (!biggestPossiblePretransformRect) {
-		return null;
+		sourceRect ??
+		getBiggestBoundingClientRect(element, true, experimental3DRendering, {
+			onlyOwnPlane,
+			experimental3DRendering,
+			includeCapturePadding: null,
+		});
+	if (!experimental3DRendering) {
+		const sourceBounds = getPreTransformRect(parentRect, matrix);
+		return sourceBounds
+			? getNarrowerRect({
+					firstRect: unclampedBiggestBoundingClientRect,
+					secondRect: sourceBounds,
+				})
+			: null;
 	}
 
-	const preTransformRect = getNarrowerRect({
-		firstRect: unclampedBiggestBoundingClientRect,
-		secondRect: biggestPossiblePretransformRect,
-	});
-
-	return preTransformRect;
+	if (isScaleTooBig(matrix)) return null;
+	return clipSourceRectToViewport(
+		unclampedBiggestBoundingClientRect,
+		matrix,
+		parentRect,
+	);
 };
 
 export const handle3dTransform = ({
@@ -37,6 +58,7 @@ export const handle3dTransform = ({
 	sourceRect,
 	tempCanvas,
 	rectAfterTransforms,
+	parentCopyPixelAligned,
 	internalState,
 	scale,
 }: {
@@ -44,6 +66,7 @@ export const handle3dTransform = ({
 	sourceRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
+	parentCopyPixelAligned: boolean;
 	internalState: InternalState;
 	scale: number;
 }) => {
@@ -56,6 +79,7 @@ export const handle3dTransform = ({
 		matrix,
 		sourceCanvas: tempCanvas,
 		destRect: rectAfterTransforms,
+		parentCopyPixelAligned,
 		internalState,
 		scale,
 	});

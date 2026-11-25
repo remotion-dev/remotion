@@ -1,3 +1,4 @@
+import {Internals, type LogLevel} from 'remotion';
 import {
 	clampBorderRadius,
 	setBorderRadius,
@@ -37,12 +38,14 @@ export const drawBorderRadius = ({
 	borderRadius,
 	computedStyle,
 	inset,
+	logLevel,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
 	inset: boolean;
+	logLevel: LogLevel;
 }) => {
 	const shadows = parseBoxShadow(computedStyle.boxShadow);
 
@@ -116,11 +119,23 @@ export const drawBorderRadius = ({
 			// Only blur support can affect pixels outside the padding-box crop.
 			// Spread and offsets move the hole; they do not enlarge this surface.
 			const insetMargin = Math.ceil(shadow.blurRadius * 2 + 2);
-			const canvas = new OffscreenCanvas(
-				Math.ceil(paddingRect.width + insetMargin * 2),
-				Math.ceil(paddingRect.height + insetMargin * 2),
-			);
+			const surfaceWidth = Math.ceil(paddingRect.width + insetMargin * 2);
+			const surfaceHeight = Math.ceil(paddingRect.height + insetMargin * 2);
+			let canvas: OffscreenCanvas | null = null;
 			try {
+				if (
+					surfaceWidth > 16384 ||
+					surfaceHeight > 16384 ||
+					surfaceWidth * surfaceHeight > 16777216
+				) {
+					Internals.Log.warn(
+						{logLevel, tag: '@remotion/web-renderer'},
+						'Inset shadow exceeds the temporary bitmap budget',
+					);
+					continue;
+				}
+
+				canvas = new OffscreenCanvas(surfaceWidth, surfaceHeight);
 				const shadowCtx = canvas.getContext('2d');
 				if (!shadowCtx) throw new Error('Failed to get shadow context');
 				shadowCtx.fillStyle = shadow.color;
@@ -150,8 +165,11 @@ export const drawBorderRadius = ({
 					paddingRect.top - insetMargin,
 				);
 			} finally {
-				canvas.width = 0;
-				canvas.height = 0;
+				if (canvas) {
+					canvas.width = 0;
+					canvas.height = 0;
+				}
+
 				finishClip();
 			}
 

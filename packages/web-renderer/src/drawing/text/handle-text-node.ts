@@ -52,6 +52,8 @@ export const handleTextNode = async ({
 		waitForPageResponsiveness,
 		transformStyleCache,
 		isolatedElements,
+
+		forceSubtreePrecompositing: null,
 	});
 
 	// Undo the layout manipulation
