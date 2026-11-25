@@ -131,27 +131,43 @@ const ComposedElements: React.FC = () => {
 
 export const ElementsComposeDemo: React.FC = () => {
 	return (
-		<div className={styles.compose}>
-			<Player
-				acknowledgeRemotionLicense
-				autoPlay
-				component={ComposedElements}
-				compositionHeight={1080}
-				compositionWidth={1920}
-				controls
-				durationInFrames={108}
-				fps={30}
-				initiallyMuted
-				loop
-				style={{width: '100%'}}
-			/>
+		<div className={styles.composeRow}>
+			<div className={styles.compose}>
+				<Player
+					acknowledgeRemotionLicense
+					autoPlay
+					component={ComposedElements}
+					compositionHeight={1080}
+					compositionWidth={1920}
+					controls
+					durationInFrames={108}
+					fps={30}
+					initiallyMuted
+					loop
+					style={{width: '100%'}}
+				/>
+			</div>
 			<div className={styles.used}>
-				Elements used:
-				{composeLayers.map(({slug}) => (
-					<Link key={slug} to={`/elements/${slug}`}>
-						{getElementDefinition(slug).displayName}
-					</Link>
-				))}
+				{composeLayers.map(({slug}) => {
+					const {displayName} = getElementDefinition(slug);
+					const preview = `https://remotion.media/elements/${slug.replace('/', '-')}-preview`;
+
+					return (
+						<Link key={slug} to={`/elements/${slug}`} className={styles.card}>
+							<video
+								className={styles.video}
+								src={`${preview}.mp4`}
+								poster={`${preview}.png`}
+								autoPlay
+								loop
+								muted
+								playsInline
+								aria-label={displayName}
+							/>
+							<div className={styles.label}>{displayName}</div>
+						</Link>
+					);
+				})}
 			</div>
 		</div>
 	);
