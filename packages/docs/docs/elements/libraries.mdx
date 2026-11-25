@@ -9,23 +9,31 @@ An Element Library is a website that offers a collection of reusable video compo
 
 Users can visit your library directly or add it to [Browse Elements in Studio](/docs/studio/browse-elements). See [Element Libraries](/elements/libraries) for examples.
 
-We encourage you to publish your Elements in your own library rather than contributing them to ours.
+We encourage you to publish your Elements in your own library.
 
-For guidance on building the components themselves, see [Element best practices](/docs/elements/creating).
+For guidance on building the components themselves, see [Best practices for creating Elements](/docs/elements/creating).
 
-## Template with best practices
+## Start from the template (recommended) {#template}
 
-The [Element Library template](https://github.com/remotion-dev/template-element-library) is a working library website for previewing, installing, and authoring Elements.
+The [Element Library template](/templates/element-library) is a working library website for previewing, installing, and authoring Elements. It includes four editable Elements, an authoring Studio and the install actions, so the steps below are already done.
 
-The rest of this page is for building a library from scratch or adding Studio support to an existing one.
+<img src="/img/element-library-template.png" alt="The website of the Element Library template, showing four Elements" style={{borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginBottom: 12}} />
 
-## 1. Share the Element source
+```bash
+npx create-video@latest --element-library
+```
+
+## Build from scratch {#from-scratch}
+
+Follow these steps to build a library without the template, or to add Studio support to an existing website.
+
+### 1. Share the Element source
 
 Import the component file twice. Render the component in a [`<Player>`](/docs/player) so users can see it before installing, and pass the file's source code as a string to [`createElementPayload()`](/docs/studio-protocol/create-element-payload). The preview and the installed Element then run the same code. Use the same dimensions and duration in both.
 
 Studio receives only the payload. Before creating it, your website can combine or modify the source code, or let users edit it interactively.
 
-### Vite
+#### Vite
 
 Append [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string) to an import to get the file content as a string:
 
@@ -45,14 +53,14 @@ export const LowerThirdGalleryItem = () => {
 };
 ```
 
-### Next.js
+#### Next.js
 
 How you get the source code string depends on the bundler:
 
 - With Webpack, add an [`asset/source` rule](https://webpack.js.org/guides/asset-modules/#source-assets) to support `?raw` imports.
 - With Turbopack, write a custom script that generates a module exporting the component source as a string.
 
-## 2. Handle assets<AvailableFrom v="4.0.528" /> {#asset-handling}
+### 2. Handle assets<AvailableFrom v="4.0.528" /> {#asset-handling}
 
 Pass each image, audio, and video URL to the component as a prop named after its content, such as `logoUrl` or `audioUrl`, instead of hardcoding it:
 
@@ -66,7 +74,7 @@ export const PodcastIntro = ({audioUrl}: {audioUrl: string}) => {
 
 The preview passes the URL through the `<Player>`'s `inputProps`. On install, Studio can download each asset into the user's project or leave it remote.
 
-### Let Studio download assets (recommended)
+#### Let Studio download assets (recommended)
 
 Declare the asset in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets) and reference its path in `initialProps` with [`staticFileRef()`](/docs/studio-protocol/static-file-ref):
 
@@ -100,11 +108,11 @@ On install, Studio saves the file to `public/podcast-intro/music.mp3` and insert
 <PodcastIntro audioUrl={staticFile('podcast-intro/music.mp3')} />
 ```
 
-### Keep assets remote
+#### Keep assets remote
 
 Put the URL in `initialProps`, for example `{audioUrl: 'https://cdn.example.com/music.mp3'}`. The installed Element loads the asset from that URL.
 
-## 3. Add install actions
+### 3. Add install actions
 
 Create one payload and use it for both actions in the browser:
 
@@ -113,7 +121,7 @@ Create one payload and use it for both actions in the browser:
 
 When Studio embeds your library in Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
 
-### Fallbacks
+#### Fallbacks
 
 If no Studio receives the request, `installInStudio()` resolves with `success: false` and a [`code`](/docs/studio-protocol/install-in-studio#code). Show a message that tells the user what to do, for example:
 
@@ -126,7 +134,7 @@ Also offer a way around the failure:
 - A Try again button that is also draggable into Studio.
 - A Copy source button, so the user can paste the code into a new `.tsx` file.
 
-## 4. Embed the payload<AvailableFrom v="4.0.542" />
+### 4. Embed the payload<AvailableFrom v="4.0.542" />
 
 Give each Element its own page, and put its payload in a `<script>` tag in that page's HTML. Users and agents can then install the Element from the page's URL with [`npx remotion elements use`](/docs/cli/elements/use). Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
 
@@ -146,7 +154,7 @@ See [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element
 
 The script must be in the HTML that your server sends. Render the page on the server or prerender it at build time. If your page renders only in the browser, [link to a JSON payload](/docs/studio-protocol/serialize-element-payload-for-html#pages-rendered-in-the-browser) instead.
 
-## 5. Test the integration
+### 5. Test the integration
 
 <Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.<br />
 <Step>2</Step> Check that the Element's assets and dependencies are in the project.<br />
@@ -157,7 +165,7 @@ In production, serve your website over HTTPS. HTTP works only on `localhost` and
 ## See also
 
 - [Element Libraries](/elements/libraries)
-- [Element best practices](/docs/elements/creating)
+- [Best practices for creating Elements](/docs/elements/creating)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
 - [`staticFileRef()`](/docs/studio-protocol/static-file-ref)

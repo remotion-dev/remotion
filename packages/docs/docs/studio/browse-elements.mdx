@@ -9,7 +9,7 @@ Browse and install Elements from [Element Libraries](/elements/libraries) direct
 
 ## Open Browse Elements
 
-Select Browse Elements in the Actions section of the right inspector. Studio opens the first library of your project. If no library is added yet, Studio opens Explore, where you can discover libraries.
+Select **Browse Elements** in the **Actions** section of the right inspector. Studio opens the first library of your project. If no library is added yet, Studio opens **Explore**, where you can discover libraries.
 
 <video
   src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4"
@@ -22,38 +22,35 @@ Select Browse Elements in the Actions section of the right inspector. Studio ope
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
 />
 
-## Add libraries
+## Add a library {#add-libraries}
 
-### In Studio
+<Step>1</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
+<Step>2</Step> Select <strong>Explore</strong> at the top of the sidebar to see the libraries that we feature.<br />
+<Step>3</Step> Select <strong>Add to Studio</strong> on a library. It appears in the sidebar below Explore.
 
-Select Explore at the top of the Elements sidebar to discover libraries, then select Add to Studio on a library. Right-click empty space in the sidebar and choose Add library… to add a library by URL.
+<img src="https://remotion.media/elements/studio/explore-libraries.png" alt="The Explore view of Browse Elements in Remotion Studio, listing Element Libraries" style={{width: '100%', maxWidth: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
 
-Right-click an installed library to edit its name and URL or remove it. Drag libraries to reorder them, or focus a library and press Alt+Up/Down.
+To add a library that is not listed, right-click empty space in the sidebar, choose <strong>Add library…</strong> and enter its URL.
 
-### In `remotion.config.ts`
+<img src="https://remotion.media/elements/studio/add-library-menu.png" alt="The Add library… context menu in the Elements sidebar" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
 
-Add an Element Library with [`Config.addElementLibrary()`](/docs/config#addelementlibrary):
+Studio saves the library to `remotion.config.ts`. See [Managing Element Libraries](/docs/elements/managing-libraries) for adding libraries from the command line or in the config file.
 
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.addElementLibrary({
-  url: 'https://www.remotion.dev/elements',
-  displayName: 'Remotion Elements',
-});
-```
+## Edit or remove a library
 
-Each call adds one library. The order of the calls is the order in the sidebar.
+Right-click a library and choose <strong>Edit…</strong> to change its name and URL, or <strong>Remove</strong> to remove it.
 
-### From the command line<AvailableFrom v="4.0.547" />
+<img src="https://remotion.media/elements/studio/library-context-menu.png" alt="The context menu of a library in the Elements sidebar, with Edit… and Remove" style={{width: '100%', maxWidth: 560, borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginTop: 12, marginBottom: 12}} />
 
-Add an Element Library to `remotion.config.ts` with [`npx remotion elements add-library`](/docs/cli/elements/add-library):
+Removing a library does not remove Elements that were already added to the project.
 
-```bash
-npx remotion elements add-library https://example.com/elements
-```
+## Reorder libraries
+
+Drag libraries in the sidebar, or focus a library and press <kbd>Alt</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd>.
 
 ## See also
 
 - [Elements](/docs/elements)
+- [Using an Element](/docs/elements/using)
+- [Managing Element Libraries](/docs/elements/managing-libraries)
 - [Element Libraries](/elements/libraries)

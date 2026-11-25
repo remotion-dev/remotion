@@ -1267,7 +1267,29 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'elements',
 			},
-			items: ['elements/creating', 'elements/libraries'],
+			items: [
+				'elements/why',
+				{
+					type: 'category',
+					label: 'Using Elements',
+					collapsed: false,
+					items: [
+						'elements/finding',
+						'elements/using',
+						'elements/managing-libraries',
+					],
+				},
+				{
+					type: 'category',
+					label: 'Creating Elements',
+					collapsed: false,
+					items: [
+						'elements/creating',
+						'elements/libraries',
+						'elements/distributing',
+					],
+				},
+			],
 		},
 		{
 			type: 'category',
