@@ -2,7 +2,6 @@ import React, {useMemo} from 'react';
 import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
 export const Pricing: React.FC<{
-	readonly automaticBillingHref?: string;
 	readonly faqHref?: string;
 	readonly faqLabel?: string;
 	readonly licenseHref?: string;
@@ -10,7 +9,6 @@ export const Pricing: React.FC<{
 	readonly purchaseHref?: string;
 	readonly quizHref?: string;
 }> = ({
-	automaticBillingHref,
 	faqHref = '/docs/license/faq',
 	faqLabel = 'License FAQ',
 	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
@@ -73,14 +71,6 @@ export const Pricing: React.FC<{
 						Terms and Conditions
 					</a>{' '}
 					for more details.
-					{automaticBillingHref && (
-						<>
-							<br />
-							<a className="bluelink" href={automaticBillingHref}>
-								How automatic billing works
-							</a>
-						</>
-					)}
 				</div>
 			</div>
 		</div>
