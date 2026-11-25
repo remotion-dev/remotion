@@ -1902,9 +1902,9 @@ const sidebars: SidebarsConfig = {
 					label: 'Which license is needed?',
 				},
 				'license/faq',
+				'telemetry',
 				'license/automatic-billing',
 				'terms',
-				'telemetry',
 			],
 		},
 		{
