@@ -4,6 +4,10 @@ import {Player} from '@remotion/player';
 import React, {useMemo, useState} from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {elementLibraries} from './element-libraries-data';
+import {
+	getElementCategoryHeadingId,
+	getElementCategoryLabel,
+} from './element-library-data';
 import {getElementDefinition} from './element-utils';
 import styles from './ElementsOverview.module.css';
 
@@ -180,22 +184,27 @@ export const ElementsComposeDemo: React.FC = () => {
 };
 
 const showcase = [
-	{slug: 'overlays/name-lower-third', label: 'Lower third'},
-	{slug: 'captions/popping-word-captions', label: 'Captions'},
-	{slug: 'data/line-chart', label: 'Chart'},
-	{slug: 'text/circle-marker', label: 'Text highlight'},
-	{slug: 'backgrounds/liquid-contours', label: 'Background'},
-	{slug: 'storytelling/polaroid-pictures', label: 'Storytelling'},
-];
+	{category: 'overlays', slug: 'overlays/name-lower-third'},
+	{category: 'captions', slug: 'captions/popping-word-captions'},
+	{category: 'data', slug: 'data/line-chart'},
+	{category: 'text', slug: 'text/circle-marker'},
+	{category: 'backgrounds', slug: 'backgrounds/liquid-contours'},
+	{category: 'storytelling', slug: 'storytelling/polaroid-pictures'},
+] as const;
 
 export const ElementsShowcase: React.FC = () => {
 	return (
 		<div className={styles.showcase}>
-			{showcase.map(({slug, label}) => {
+			{showcase.map(({category, slug}) => {
+				const label = getElementCategoryLabel(category);
 				const preview = `https://remotion.media/elements/${slug.replace('/', '-')}-preview`;
 
 				return (
-					<Link key={slug} to={`/elements/${slug}`} className={styles.card}>
+					<Link
+						key={slug}
+						to={`/elements#${getElementCategoryHeadingId(category)}`}
+						className={styles.card}
+					>
 						<video
 							className={styles.video}
 							src={`${preview}.mp4`}
