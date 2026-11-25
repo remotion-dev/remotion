@@ -153,7 +153,12 @@ export const ElementsComposeDemo: React.FC = () => {
 					const preview = `https://remotion.media/elements/${slug.replace('/', '-')}-preview`;
 
 					return (
-						<Link key={slug} to={`/elements/${slug}`} className={styles.card}>
+						<Link
+							key={slug}
+							to={`/elements/${slug}`}
+							className={styles.card}
+							target="_blank"
+						>
 							<video
 								className={styles.video}
 								src={`${preview}.mp4`}
