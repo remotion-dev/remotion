@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>License FAQ</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
+				<TOCItem link="/docs/license/automatic-billing">
+					<strong>Automatic billing</strong>
+					<div>How to pay for renders based on reported usage</div>
+				</TOCItem>
 				<TOCItem link="/docs/terms">
 					<strong>Terms and Conditions</strong>
 					<div>Legal terms governing the use of Remotion</div>
