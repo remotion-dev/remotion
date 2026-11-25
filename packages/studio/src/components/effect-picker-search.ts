@@ -22,7 +22,7 @@ export const getCreateEffectResult = (query: string) => {
 		effect: null,
 		query: query.trim(),
 		name,
-		label: name ? `Create ${name}()` : 'Create custom effect',
+		label: name ? `Create ${name}()` : 'Create new...',
 		description: name
 			? `You can generate a custom ${name}() effect and apply it to this element using an agent.`
 			: 'You can make a custom effect by describing it to an agent.',
