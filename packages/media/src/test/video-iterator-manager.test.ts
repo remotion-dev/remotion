@@ -79,11 +79,11 @@ const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
 	onVideoFrame: (() => void) | null,
 	catchesUp: boolean,
-	getIsPlaying: () => boolean = () => false,
+	getIsPlaying: (() => boolean) | null,
 ) =>
 	videoIteratorManager({
 		getCatchesUp: () => catchesUp,
-		getIsPlaying,
+		getIsPlaying: getIsPlaying ?? (() => false),
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
@@ -109,7 +109,7 @@ const makeManager = (
 
 test('plays at a high playback rate without restarting the iterator', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -138,7 +138,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 
 test('paused forward scrubs do not wait for pending frames', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -375,7 +375,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 test('same-time seeks without changed effects do not emit another frame', async () => {
 	const {videoTrack} = await prepare();
 	const onVideoFrame = vi.fn();
-	const manager = await makeManager(videoTrack, onVideoFrame, false);
+	const manager = await makeManager(videoTrack, onVideoFrame, false, null);
 	const nonceManager = makeNonceManager();
 	const seek = () =>
 		manager.seek({
@@ -404,7 +404,7 @@ const makeReclaimedError = () =>
 
 test('recreates the iterator once when the decoder was reclaimed', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -439,7 +439,7 @@ test('recreates the iterator once when the decoder was reclaimed', async () => {
 
 test('does not recreate the iterator for quota errors that are not reclaims', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -477,7 +477,7 @@ test('does not recreate the iterator for quota errors that are not reclaims', as
 
 test('a superseded seek leaves recreating a reclaimed decoder to the next seek', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, false);
+	const manager = await makeManager(videoTrack, null, false, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -547,7 +547,7 @@ const seekCatchingUp = (
 
 test('catches up from the playhead instead of restarting on every tick when playback is not held', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 	const playing = {isPlaying: true, seekRevision: null};
 
@@ -582,7 +582,7 @@ test('catches up from the playhead instead of restarting on every tick when play
 
 test('starts catching up again after an explicit seek or a jump back', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -617,7 +617,7 @@ test('starts catching up again after an explicit seek or a jump back', async () 
 // same time must start again instead of reusing a decoder near the end.
 test('starts catching up again when a loop wraps back to where it started', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -642,7 +642,7 @@ test('starts catching up again when a loop wraps back to where it started', asyn
 // when the restart begins, even if a newer tick supersedes this seek.
 test('reports a mapping change as applied when catch-up restarts for it', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -672,7 +672,7 @@ test('reports a mapping change as applied when catch-up restarts for it', async 
 // reaches the player once it is ready. It must restart at the new time.
 test('restarts start-up catch-up for a seek made during start-up', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -702,7 +702,7 @@ test('restarts start-up catch-up for a seek made during start-up', async () => {
 
 test('a paused seek draws the current frame instead of continuing to catch up', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
@@ -730,7 +730,7 @@ test('a paused seek draws the current frame instead of continuing to catch up', 
 // rates a decoder that keeps pace still waits briefly on every tick.
 test('finishes catching up when every tick waits briefly for its frame', async () => {
 	const {videoTrack} = await prepare();
-	const manager = await makeManager(videoTrack, null, true);
+	const manager = await makeManager(videoTrack, null, true, null);
 	const nonceManager = makeNonceManager();
 
 	try {
