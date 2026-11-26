@@ -1172,7 +1172,7 @@ export const EasingCurveEditor: React.FC<{
 							<path
 								d={bezierPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
@@ -1325,7 +1325,7 @@ export const EasingCurveEditor: React.FC<{
 							<path
 								d={springPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
@@ -1488,7 +1488,7 @@ export const EasingCurveEditor: React.FC<{
 							<path
 								d={holdPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
