@@ -222,6 +222,13 @@ export type CaptionsFieldSchema = {
 	keyframable: false;
 };
 
+export type TransitionEasingFieldSchema = {
+	type: 'transition-easing';
+	default: CanUpdateSequencePropStatusEasing;
+	description: string;
+	keyframable: false;
+};
+
 export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
@@ -240,12 +247,7 @@ export type VisibleFieldSchema =
 	| AssetFieldSchema
 	| ArrayFieldSchema
 	| CaptionsFieldSchema
-	| {
-			type: 'transition-easing';
-			default: CanUpdateSequencePropStatusEasing;
-			description: string;
-			keyframable: false;
-	  }
+	| TransitionEasingFieldSchema
 	| EnumFieldSchema;
 
 export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;
