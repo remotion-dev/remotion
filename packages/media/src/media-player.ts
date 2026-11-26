@@ -95,6 +95,8 @@ export class MediaPlayer {
 	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
 		null;
 
+	private onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null = null;
+
 	private getEffects: () => EffectDefinitionAndStack<unknown>[];
 	private getEffectChainState: (
 		width: number,
@@ -489,6 +491,7 @@ export class MediaPlayer {
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
 
 			if (this.isDisposalError()) {
@@ -578,15 +581,11 @@ export class MediaPlayer {
 		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(
-			newTime,
-			unloopedNewTime,
-			nonce,
-			intent,
+		const seek = this.seekPromiseChain.then(() =>
+			this.seekToDoNotCallDirectly(newTime, unloopedNewTime, nonce, intent),
 		);
-		await this.seekPromiseChain;
+		this.seekPromiseChain = seek;
+		await seek;
 	};
 
 	public async seekTo(time: number, intent: MediaSeekIntent): Promise<void> {
@@ -999,8 +998,23 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = callback;
 	}
 
+	public setCanvasUpdateCallback(
+		callback: ((canvas: HTMLCanvasElement) => void) | null,
+	) {
+		this.onCanvasUpdated = callback;
+		this.videoIteratorManager?.setCanvasUpdateCallback(callback);
+	}
+
 	public async redrawVideoEffects(): Promise<void> {
-		await this.videoIteratorManager?.redrawCurrentFrame();
+		const nonce = this.nonceManager.getCurrentNonce();
+		// A seek can recycle the source canvas once the redraw finishes.
+		const redraw = this.seekPromiseChain.then(() => {
+			if (!nonce.isStale()) {
+				return this.videoIteratorManager?.redrawCurrentFrame();
+			}
+		});
+		this.seekPromiseChain = redraw.catch(() => undefined);
+		await redraw;
 	}
 
 	private drawDebugOverlay = () => {

@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {getPortal as getGlobalPortal} from '../components/Menu/portals';
 import {
 	isPointerSessionRelease,
 	observePointerRelease,
@@ -12,6 +13,7 @@ import {
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 import {getClickLock} from './input-dragger-click-lock';
+import {getActiveStudioDialog, StudioDialogContext} from './studio-dialog';
 
 type ZIndex = {
 	currentIndex: number;
@@ -66,6 +68,7 @@ export const HigherZIndex: React.FC<{
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const {registerZIndex, unregisterZIndex} = highestContext;
+	const dialog = useContext(StudioDialogContext);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const highestIndexRef = useRef(highestContext.highestIndex);
 	const onOutsideClickRef = useRef(onOutsideClick);
@@ -115,7 +118,10 @@ export const HigherZIndex: React.FC<{
 
 			// The topmost layer owns the full pointer gesture. Layers may mount or
 			// unmount before pointerup, but that must not cancel or transfer dismissal.
-			if (highestIndexRef.current !== currentIndex) {
+			if (
+				highestIndexRef.current !== currentIndex ||
+				getActiveStudioDialog() !== dialog
+			) {
 				return;
 			}
 
@@ -144,7 +150,7 @@ export const HigherZIndex: React.FC<{
 
 			return window.removeEventListener('pointerdown', listener, true);
 		};
-	}, [currentIndex, disabled, hasOutsideClick]);
+	}, [currentIndex, dialog, disabled, hasOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
 		return {
@@ -165,15 +171,22 @@ export const HigherZIndex: React.FC<{
 export const useZIndex = () => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const dialog = useContext(StudioDialogContext);
 	const isHighestContext = highestContext.highestIndex === context.currentIndex;
 
 	return useMemo(
 		() => ({
 			currentZIndex: context.currentIndex,
+			getPortal: () => dialog ?? getGlobalPortal(context.currentIndex),
 			highestZIndex: highestContext.highestIndex,
 			isHighestContext,
 			tabIndex: isHighestContext ? 0 : -1,
 		}),
-		[context.currentIndex, highestContext.highestIndex, isHighestContext],
+		[
+			context.currentIndex,
+			dialog,
+			highestContext.highestIndex,
+			isHighestContext,
+		],
 	);
 };

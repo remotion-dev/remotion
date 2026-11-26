@@ -15,7 +15,7 @@ import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
 
-const compactTabBreakpoint = 700;
+export const compactTabBreakpoint = 700;
 
 const selectorButton: React.CSSProperties = {
 	border: 'none',

@@ -1,0 +1,23 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-rm.png
+title: npx remotion whisper rm
+crumb: CLI Reference
+sidebar_label: rm
+---
+
+# npx remotion whisper rm<AvailableFrom v="4.0.546" />
+
+Remove a Whisper model from the local cache.  
+The cache is shared with [`@remotion/whisper-webgpu`](/docs/whisper-webgpu).
+
+```bash title="Remove the tiny English model"
+bunx remotion whisper rm tiny.en
+```
+
+Use [`whisper rmall`](/docs/cli/whisper/rmall) to clear all cached Whisper models.
+
+## Flags
+
+### `--log`
+
+<Options id="log" />

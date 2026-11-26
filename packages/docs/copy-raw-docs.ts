@@ -231,10 +231,8 @@ function copyRawElements() {
 }
 
 function copyRawContent() {
-	// Clean output directory
-	if (fs.existsSync(RAW_DIR)) {
-		fs.rmSync(RAW_DIR, {recursive: true});
-	}
+	fs.rmSync(DOCS_OUTPUT_DIR, {recursive: true, force: true});
+	fs.rmSync(ELEMENTS_OUTPUT_DIR, {recursive: true, force: true});
 
 	copyRawDocs();
 	copyRawElements();

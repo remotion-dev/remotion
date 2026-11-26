@@ -47,7 +47,9 @@ export const MyComposition: React.FC = () => {
 
 ### `build`
 
-A synchronous function that receives a build context and adds tweens to the timeline. It runs once on mount and again whenever [`dependencies`](#dependencies) change.
+A synchronous function that receives a build context and adds tweens to the timeline. It runs on mount, when [`dependencies`](#dependencies) change, and when a [`selector`](#selector) query matches different elements. Timelines that share a target rebuild together in their original order.
+
+The timeline reads each target's starting styles when the builder runs. Don't change a style from React that the timeline also animates, or the result depends on when the timeline was built.
 
 #### `timeline`
 
@@ -61,11 +63,15 @@ The mounted element attached to the returned ref.
 
 A GSAP selector function restricted to descendants of `scope`.
 
+The hook remembers each query. When a query matches different elements on a later frame, for example because a [`<Sequence>`](/docs/sequence) inside the scope mounted its children, the timeline is rebuilt, so elements that mount after the first build are animated too. String targets such as `timeline.to('[data-title]', {...})` are remembered the same way. Elements passed directly or through refs are not, so target elements that mount later through the selector.
+
+The hook checks for new targets during a frame update. When a child mounts a target through its own state while playback is paused, the hook also updates the animation at the current frame.
+
 ### `options?`
 
 #### `dependencies?`
 
-An array of values, like the dependency list of `useEffect()`. When one of them changes, the hook reverts the previous timeline and runs the builder again. Default: the timeline is built once per mount.
+An array of values, like the dependency list of `useEffect()`. When one of them changes, the hook reverts the previous timeline and runs the builder again. Default: the timeline is rebuilt only when the scope remounts or a [`selector`](#selector) query matches different elements.
 
 ```tsx twoslash title="Rebuilding on prop changes"
 import {useGsapTimeline} from '@remotion/gsap';
@@ -124,6 +130,8 @@ Animations created inside the builder must be attached to the provided timeline.
 ## Performance
 
 For determinism, every frame renders the timeline forward from time zero instead of stepping incrementally. This is imperceptible for typical timelines; a timeline with many hundreds of tweens pays the cost on every frame.
+
+The hook rechecks selectors when React or other code changes the scoped DOM. Selectors containing a pseudo-class are also checked on frame updates because browser state such as focus can change independently.
 
 ## GSAP plugins
 

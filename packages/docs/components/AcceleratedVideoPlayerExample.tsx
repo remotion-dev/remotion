@@ -11,7 +11,7 @@ const remapSpeed = ({
 }) => {
 	let framesPassed = 0;
 
-	for (let i = 0; i <= frame; i++) {
+	for (let i = 0; i < frame; i++) {
 		framesPassed += speed(i);
 	}
 
@@ -50,6 +50,8 @@ export const AcceleratedVideoExample: React.FC = () => {
 			durationInFrames={1500}
 			fps={30}
 			controls
+			clickToPlay={false}
+			spaceKeyToPlayOrPause={false}
 			style={{
 				width: '100%',
 			}}

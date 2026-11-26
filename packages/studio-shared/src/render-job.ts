@@ -125,7 +125,6 @@ type RenderJobDynamicFields =
 			mediaCacheSizeInBytes: number | null;
 			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
-			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'sequence';

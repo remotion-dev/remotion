@@ -6,7 +6,6 @@ import {CURRENT_COLOR, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
-import {getPortal} from '../Menu/portals';
 import {
 	fullScreenOverlay,
 	menuContainerTowardsBottom,
@@ -101,7 +100,7 @@ export const ColorPicker: React.FC<Props> = ({
 }) => {
 	const [opened, setOpened] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
-	const {tabIndex, currentZIndex} = useZIndex();
+	const {tabIndex, getPortal} = useZIndex();
 
 	const size = PlayerInternals.useElementSize(triggerRef, {
 		triggerOnWindowResize: true,
@@ -333,7 +332,7 @@ export const ColorPicker: React.FC<Props> = ({
 								</HigherZIndex>
 							</div>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

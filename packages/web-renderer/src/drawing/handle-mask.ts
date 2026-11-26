@@ -70,6 +70,7 @@ export const handleMask = async ({
 			gradientInfo: maskImageInfo.gradientInfo,
 			offsetLeft: 0,
 			offsetTop: 0,
+			cssPixelsPerUnit: scale,
 		});
 
 		tempContext.globalCompositeOperation = 'destination-in';

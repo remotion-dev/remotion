@@ -16,6 +16,13 @@
 	-moz-osx-font-smoothing: grayscale; /* Firefox */
 }
 
+:where(.license-quiz, .license-quiz *) {
+	font-feature-settings:
+		'kern' 1,
+		'ss02' 1,
+		'ss03' on;
+}
+
 html {
 	scroll-padding-top: 80px;
 }
@@ -165,6 +172,7 @@ html:has(.studio-caption-picker),
 	--ifm-color-primary-lighter: #2f96f6;
 	--ifm-color-primary-lightest: #53a9f7;
 	--ifm-code-font-size: 100%;
+	--ifm-pre-line-height: 1.5;
 	--ifm-font-family-base:
 		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
 		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,

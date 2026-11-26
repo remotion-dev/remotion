@@ -277,15 +277,17 @@ A custom AWS SDK request handler, for example to use a [proxy](/docs/lambda/prox
 
 An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
 
-### `licenseKey?`<AvailableFrom v="4.0.409"/>
+### ~~`licenseKey?`~~<AvailableFrom v="4.0.409"/>
 
-<Options id="license-key" />
+:::info Deprecated
+Stills now don't count against your render count anymore. You can remove this option now from still renders.
+:::
 
-### `isProduction?`<AvailableFrom v="4.0.409"/>
+### ~~`isProduction?`~~<AvailableFrom v="4.0.409"/>
 
-_default `true`_
-
-<Options id="is-production" />
+:::info Deprecated
+Stills now don't count against your render count anymore. You can remove this option now from still renders.
+:::
 
 ### ~~`dumpBrowserLogs?`~~
 

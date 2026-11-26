@@ -1,0 +1,35 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-elements-managing-libraries.png
+title: Managing Element Libraries
+sidebar_label: Managing libraries
+description: Add, rename, reorder and remove Element Libraries in Remotion Studio.
+---
+
+# Managing Element Libraries
+
+Libraries of your project appear in the sidebar of [Browse Elements](/docs/studio/browse-elements) in Remotion Studio. They are stored in `remotion.config.ts`, so everyone working on the project sees the same libraries.
+
+## Add a library
+
+| Where | How |
+| --- | --- |
+| [Remotion Studio](/docs/studio/browse-elements#add-libraries) | In **Browse Elements**, select **Explore**, then **Add to Studio** on a library. Or right-click the sidebar and choose **Add library…** to enter a URL. |
+| [Element Libraries](/elements/libraries) website | Select **Add to Studio** on a library while Studio is running. |
+| [Config file](/docs/config#addelementlibrary) | Call `Config.addElementLibrary()` once for each library. |
+| [Command line](/docs/cli/elements/add-library) | Run `npx remotion elements add-library <url>`. |
+
+## Rename, reorder and remove
+
+| Task | In [Studio](/docs/studio/browse-elements#edit-or-remove-a-library) | In `remotion.config.ts` |
+| --- | --- | --- |
+| Rename | Right-click a library and choose **Edit…** | Change `displayName`. |
+| Reorder | Drag libraries in the sidebar. | Reorder the `Config.addElementLibrary()` calls. |
+| Remove | Right-click a library and choose **Remove**. | Delete the `Config.addElementLibrary()` call. |
+
+Removing a library does not remove Elements that were already added to the project.
+
+## See also
+
+- [Browse Elements in Studio](/docs/studio/browse-elements)
+- [`Config.addElementLibrary()`](/docs/config#addelementlibrary)
+- [`npx remotion elements add-library`](/docs/cli/elements/add-library)

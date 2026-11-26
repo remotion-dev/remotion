@@ -60,6 +60,7 @@ import {
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 } from './delay-render.js';
+import {disposeMediabunnyInput} from './dispose-mediabunny-input.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -81,6 +82,7 @@ import {
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
+	getEffectChainLink,
 	runEffectChain,
 } from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -169,6 +171,7 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {MotionBlurContext} from './motion-blur-context.js';
 import {OptimisticEffects, useOptimisticEffects} from './optimistic-effects.js';
 import {
 	OptimisticSequenceDeletion,
@@ -306,9 +309,11 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimelineRegistration as useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import {useMotionBlurCanvas} from './use-motion-blur-canvas.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
+import {useReleaseCanvas} from './use-release-canvas.js';
 import type {
 	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusFalse,
@@ -350,6 +355,7 @@ import {
 	isFolderNameValid,
 } from './validation/validate-folder-name.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {useEmitVideoFrame} from './video/emit-video-frame.js';
 import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
 import {VideoForPreview} from './video/VideoForPreview.js';
@@ -387,6 +393,9 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	MotionBlurContext,
+	useMotionBlurCanvas,
+	useReleaseCanvas,
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 	bufferingDiagnostics,
@@ -407,6 +416,7 @@ export const Internals = {
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
+	disposeMediabunnyInput,
 	getMediabunnyInputResourceKey,
 	globalMediaResourceManager,
 	makeMediaResourceManager,
@@ -421,6 +431,7 @@ export const Internals = {
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
 	useIsInsideNonPremountFreeze,
 	useMediaAudioState,
+	useEmitVideoFrame,
 	evaluateVolume,
 	getAbsoluteSrc,
 	getAnimatedImageDurationInSeconds,
@@ -586,6 +597,7 @@ export const Internals = {
 	createEffectChainState,
 	cleanupEffectChainState,
 	runEffectChain,
+	getEffectChainLink,
 	useMemoizedEffects,
 	getGpuDevice,
 	subscribeToEffectSource,

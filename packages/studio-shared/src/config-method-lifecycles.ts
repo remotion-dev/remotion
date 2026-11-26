@@ -47,6 +47,7 @@ export const configMethodLifecycles = {
 	setDisallowParallelEncoding: 'runtime',
 	setDisableSharedMemoryCapture: 'runtime',
 	setDotEnvLocation: 'restart',
+	setDoubleClickAction: 'runtime',
 	setEnableCancellation: 'runtime',
 	setEnableCrossSiteIsolation: 'restart',
 	setEnableFolderExpiry: 'runtime',

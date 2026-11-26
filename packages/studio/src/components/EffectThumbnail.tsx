@@ -12,7 +12,14 @@ import {
 
 const MIN_PREVIEW_ASPECT_RATIO = 3 / 2;
 
-const frame: React.CSSProperties = {
+export const getEffectThumbnailAspectRatio = (
+	snapshot: HTMLCanvasElement | null,
+) =>
+	snapshot === null
+		? MIN_PREVIEW_ASPECT_RATIO
+		: Math.max(MIN_PREVIEW_ASPECT_RATIO, snapshot.width / snapshot.height);
+
+export const effectThumbnailFrame: React.CSSProperties = {
 	width: '100%',
 	position: 'relative',
 	borderRadius: 3,
@@ -75,11 +82,9 @@ export const EffectThumbnail: React.FC<{
 		return () => controller.abort();
 	}, [currentPreview, image, isScrolling, item, snapshot, visible]);
 
-	const imageAspectRatio =
-		snapshot === null
-			? MIN_PREVIEW_ASPECT_RATIO
-			: snapshot.width / snapshot.height;
-	const widerThanFrame = imageAspectRatio >= MIN_PREVIEW_ASPECT_RATIO;
+	const widerThanFrame =
+		snapshot === null ||
+		snapshot.width / snapshot.height >= MIN_PREVIEW_ASPECT_RATIO;
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas || !image || !visible) {
@@ -97,8 +102,8 @@ export const EffectThumbnail: React.FC<{
 		<div
 			ref={frameRef}
 			style={{
-				...frame,
-				aspectRatio: Math.max(MIN_PREVIEW_ASPECT_RATIO, imageAspectRatio),
+				...effectThumbnailFrame,
+				aspectRatio: getEffectThumbnailAspectRatio(snapshot),
 				backgroundColor:
 					image === null && (!showFallback || !loaded)
 						? WHITE_ALPHA_06

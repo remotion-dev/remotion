@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.544
+version: 4.0.547
 ---
 
 ## Preserve user changes
@@ -21,6 +21,11 @@ If no Remotion project currently exists, load [Create a new Remotion project](./
 ## React Markup Best Practices
 
 If you are writing Remotion React Markup, load [Remotion Markup Best Practices](./remotion-markup/SKILL.md)
+
+## Elements
+
+To install Elements, reusable video components from Element libraries, load [Elements](./remotion-elements/SKILL.md).
+Also load it when given an Element page URL or an Element library URL.
 
 ## Maps
 
@@ -112,3 +117,9 @@ For Remotion license information, FAQs, terms, or buying a license, load [Remoti
 ## Upgrading
 
 To upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills, load [Remotion Upgrade](./remotion-upgrade/SKILL.md).
+
+## Deploy Remotion Studio
+
+When the user asks to host Remotion Studio or share it via a URL, run `bunx remotion bundle` (`npx remotion bundle` for npm) from the project root. Publish the resulting `build/` directory to a static host.
+
+For Vercel, Netlify, or GitHub Pages setup, see [Deploy Remotion Studio as a static site](https://www.remotion.dev/docs/studio/deploy-static).

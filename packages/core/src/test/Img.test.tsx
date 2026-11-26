@@ -144,6 +144,7 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,
 	durationInFrames: 100,
+	trimBefore: 0,
 	height: 1080,
 	id: 'parent',
 	parentFrom: 0,

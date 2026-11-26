@@ -7,23 +7,29 @@ crumb: Captions
 
 # Exporting subtitles
 
-This guide covers different ways to export subtitles from your Remotion video.
+The following ways are available for exporting [captions](/docs/captions) in Remotion.
 
 ## Burned-in subtitles
 
-If you want the subtitles to be part of the video itself (burned in), follow the instructions in [Displaying captions](/docs/captions/displaying) to render the captions, then [render the video](/docs/render) as usual.
+If you want the subtitles to be part of the video itself (burned in), [render the video](/docs/render) as usual.
 
 ```bash
 npx remotion render
 ```
 
-## Exporting as a separate .srt file
+## Exporting all captions as `.srt`
 
-To export subtitles as a separate `.srt` file, use the [`<Artifact>`](/docs/artifact) component together with [`serializeSrt()`](/docs/captions/serialize-srt).
+To automatically merge all subtitles from from components [which implement `captionsSchema`](/docs/captions/displaying#make-captions-editable-in-studio) and export them as a single `.srt` file is not yet possible.
+
+[Follow this issue](https://github.com/remotion-dev/remotion/issues/13597) to get notified when we implement this.
+
+## Emitting a .srt file alongside the render
+
+If you keep your captions in one place and collect them manually, you can emit a separate `.srt` file using the [`<Artifact>`](/docs/artifact) component together with [`serializeSrt()`](/docs/captions/serialize-srt).
 
 ```tsx twoslash title="Exporting captions as .srt"
+import {createTikTokStyleCaptions, serializeSrt} from '@remotion/captions';
 import {Artifact, useCurrentFrame} from 'remotion';
-import {serializeSrt} from '@remotion/captions';
 import type {Caption} from '@remotion/captions';
 
 const captions: Caption[] = [
@@ -44,19 +50,28 @@ const captions: Caption[] = [
 ];
 
 // ---cut---
+const {pages} = createTikTokStyleCaptions({
+  captions,
+  combineTokensWithinMilliseconds: 3000,
+});
 
-export const MyComp: React.FC = () => {
+const srtContent = serializeSrt({
+  lines: pages.map(({tokens}) =>
+    tokens.map(({text, fromMs, toMs}) => ({
+      text,
+      startMs: fromMs,
+      endMs: toMs,
+      timestampMs: null,
+      confidence: null,
+    })),
+  ),
+});
+
+export const MyComp = () => {
   const frame = useCurrentFrame();
-
-  // Convert captions to SRT format
-  // Each caption becomes its own line
-  const srtContent = serializeSrt({
-    lines: captions.map((caption) => [caption]),
-  });
 
   return (
     <>
-      {/* Only emit the artifact on the first frame */}
       {frame === 0 ? <Artifact filename="subtitles.srt" content={srtContent} /> : null}
       {/* Rest of your video content */}
     </>
@@ -66,41 +81,37 @@ export const MyComp: React.FC = () => {
 
 The artifact will be saved to `out/[composition-id]/subtitles.srt` when rendering.
 
-### Grouping words into lines
+## Show captions only in previews
 
-If your captions are word-by-word, you may want to group multiple words into a single subtitle line. You can use [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions) to create pages, then convert them back to the format expected by `serializeSrt()`:
+Use `isRendering` from [`useRemotionEnvironment()`](/docs/use-remotion-environment) to keep captions visible in Studio and the Player while leaving them out of the rendered video.
 
-```tsx twoslash title="Grouping captions into lines"
-import {serializeSrt, createTikTokStyleCaptions} from '@remotion/captions';
-import type {Caption} from '@remotion/captions';
+```tsx twoslash title="MyVideo.tsx"
+// @filename: SimpleCaptions.tsx
+import type {ComponentType} from 'react';
 
-const captions: Caption[] = [];
+export declare const SimpleCaptions: ComponentType;
 
+// @filename: MyVideo.tsx
 // ---cut---
+import {Video} from '@remotion/media';
+import {staticFile, useRemotionEnvironment} from 'remotion';
+import {SimpleCaptions} from './SimpleCaptions';
 
-const {pages} = createTikTokStyleCaptions({
-  captions,
-  combineTokensWithinMilliseconds: 3000,
-});
+export const MyVideo = () => {
+  const {isRendering} = useRemotionEnvironment();
 
-const srtContent = serializeSrt({
-  lines: pages.map((page) => {
-    // Convert page tokens back to Caption format
-    return page.tokens.map((token) => ({
-      text: token.text,
-      startMs: token.fromMs,
-      endMs: token.toMs,
-      timestampMs: (token.fromMs + token.toMs) / 2,
-      confidence: null,
-      pageBreakAfter: token.pageBreakAfter,
-    }));
-  }),
-});
+  return (
+    <>
+      <Video src={staticFile('video.mp4')} />
+      {isRendering ? null : <SimpleCaptions />}
+    </>
+  );
+};
 ```
 
 ## See also
 
 - [Displaying captions](/docs/captions/displaying) - Render captions in your video
+- [Emitting Artifacts](/docs/artifacts) - Full guide on artifacts
 - [`<Artifact>`](/docs/artifact) - Emit files during rendering
 - [`serializeSrt()`](/docs/captions/serialize-srt) - Convert captions to SRT format
-- [Emitting Artifacts](/docs/artifacts) - Full guide on artifacts

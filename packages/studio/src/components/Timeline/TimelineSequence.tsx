@@ -1375,12 +1375,11 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const {
 		canConfigureApps,
 		canOpenInEditor,
-		canOpenSource,
+		getSequenceSourceDoubleClickHandler,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
-		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(s, nodePath);
 	const validatedLocation = useMemo(() => {
@@ -1488,9 +1487,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				return;
 			}
 
+			const onSourceDoubleClick = getSequenceSourceDoubleClickHandler();
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenSource,
+				canOpenSource: onSourceDoubleClick !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged:
 					dragAwareDoubleClick.consumePointerGestureWasDragged(),
@@ -1514,13 +1514,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				return;
 			}
 
-			openSource();
+			onSourceDoubleClick?.();
 		},
 		[
-			canOpenSource,
+			getSequenceSourceDoubleClickHandler,
 			connectedCompositions,
 			dragAwareDoubleClick,
-			openSource,
 			s,
 			selectComposition,
 			sequenceFrameOffset,

@@ -286,22 +286,17 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		return cached.drawable;
 	}
 
-	const drawable = new Promise<HTMLImageElement>((resolve, reject) => {
-		const image = new Image();
-
+	const drawable = (async () => {
 		let markup = serializedSvg;
 		if (embeddedFontStyle) {
+			const css = await embeddedFontStyle.css;
 			if (usesStylesheetSets && fontCarriers.length) {
 				for (const index of fontCarriers)
-					insertFontStyleInSvg(
-						svgForSerialization,
-						embeddedFontStyle.css,
-						index,
-					);
+					insertFontStyleInSvg(svgForSerialization, css, index);
 			} else {
 				insertFontStyleInSvg(
 					svgForSerialization,
-					embeddedFontStyle.css,
+					css,
 					usesStylesheetSets ? -1 : fontStyleIndex,
 				);
 			}
@@ -309,35 +304,38 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			markup = serializeSvg(svgForSerialization);
 		}
 
-		const blob = new Blob([markup], {
-			type: 'image/svg+xml;charset=utf-8',
+		return new Promise<HTMLImageElement>((resolve, reject) => {
+			const image = new Image();
+			const blob = new Blob([markup], {
+				type: 'image/svg+xml;charset=utf-8',
+			});
+			// Chromium taints canvases drawn from blob SVGs containing foreignObject.
+			const url = svg.querySelector('foreignObject')
+				? null
+				: URL.createObjectURL(blob);
+
+			image.onload = function () {
+				if (url !== null) URL.revokeObjectURL(url);
+				resolve(image);
+			};
+
+			image.onerror = () => {
+				if (url !== null) URL.revokeObjectURL(url);
+				reject(new Error('Failed to convert SVG to image'));
+			};
+
+			if (url !== null) {
+				image.src = url;
+			} else {
+				blob
+					.text()
+					.then((svgMarkup) => {
+						image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+					})
+					.catch(reject);
+			}
 		});
-		// Chromium taints canvases drawn from blob SVGs containing foreignObject.
-		const url = svg.querySelector('foreignObject')
-			? null
-			: URL.createObjectURL(blob);
-
-		image.onload = function () {
-			if (url !== null) URL.revokeObjectURL(url);
-			resolve(image);
-		};
-
-		image.onerror = () => {
-			if (url !== null) URL.revokeObjectURL(url);
-			reject(new Error('Failed to convert SVG to image'));
-		};
-
-		if (url !== null) {
-			image.src = url;
-		} else {
-			blob
-				.text()
-				.then((svgMarkup) => {
-					image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
-				})
-				.catch(reject);
-		}
-	});
+	})();
 	drawableBySvg.set(svg, {fontStyleKey, serializedSvg, drawable});
 	drawable.catch(() => {
 		if (drawableBySvg.get(svg)?.drawable === drawable) {

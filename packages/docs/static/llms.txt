@@ -65,7 +65,9 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [@remotion/media-parser](https://www.remotion.dev/docs/media-parser/index.md)
 - [@remotion/webcodecs](https://www.remotion.dev/docs/webcodecs/index.md)
 
-## AI
+## Agents
 
-- [Building with Remotion and AI](https://www.remotion.dev/docs/ai/index.md)
-- [Prompting videos with coding agents](https://www.remotion.dev/docs/ai/coding-agents.md)
+- [Make videos with coding agents](https://www.remotion.dev/docs/agents.md)
+- [Agent Skills](https://www.remotion.dev/docs/agents/skills.md)
+- [Plugins](https://www.remotion.dev/docs/agents/plugins.md)
+- [WebMCP](https://www.remotion.dev/docs/agents/webmcp.md)

@@ -9,7 +9,7 @@ type BrowserLayout = {
 };
 
 type PackagedBrowserPaths = {
-  downloadedBrowserFolder: string;
+  platformDir: string;
   packagedBrowserCopyDestination: string | null;
   packagedBrowserExecutablePath: string | null;
 };
@@ -85,14 +85,6 @@ export function getPackagedBrowserPaths({
     return null;
   }
 
-  const downloadedBrowserFolder = path.join(
-    projectRoot,
-    "node_modules",
-    ".remotion",
-    "chrome-headless-shell",
-    browserLayout.platformDir,
-  );
-  
   const packagedBrowserCopyDestination = buildPath
     ? path.join(buildPath, PACKAGED_BROWSER_DIR, browserLayout.platformDir)
     : null;
@@ -107,7 +99,7 @@ export function getPackagedBrowserPaths({
   );
 
   return {
-    downloadedBrowserFolder,
+    platformDir: browserLayout.platformDir,
     packagedBrowserCopyDestination,
     packagedBrowserExecutablePath: existsSync(packagedBrowserExecutablePath)
       ? packagedBrowserExecutablePath

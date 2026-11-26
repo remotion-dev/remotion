@@ -17,6 +17,7 @@ import type {
 	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	EffectDefinition,
 	NodeWrapper,
 	PrecomposeJsxNodesRequest,
 	RenderDefaults,
@@ -341,6 +342,12 @@ export type ModalState =
 			} | null;
 	  }
 	| {
+			type: 'create-effect';
+			query: string;
+			displayName: string | null;
+			location: ResolvedStackLocation | null;
+	  }
+	| {
 			type: 'reorder-composition';
 			item: CompositionOrFolder;
 			destination: CompositionDestination;
@@ -350,6 +357,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'wrap-refactor';
+			effect: EffectDefinition | null;
 			displayName: string | null;
 			location: {
 				source: string;

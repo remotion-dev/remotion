@@ -17,16 +17,18 @@ type PitchShiftState = {
 // A shifter may need input from later video frames before it can finish an
 // earlier audio frame. Keep those frames until every contributing asset is ready.
 export const createAudioMixer = ({
+	startFrame,
 	fps,
 	sampleRate,
 }: {
 	fps: number;
 	sampleRate: number;
+	startFrame: number;
 }) => {
 	const toneFrequencies = new Map<string, number>();
 	const shifters = new Map<string, PitchShiftState>();
 	const pendingFrames: PendingAudioFrame[] = [];
-	let frameIndex = 0;
+	let frameIndex = startFrame;
 
 	const mixShiftedOutput = (state: PitchShiftState, output: Float32Array[]) => {
 		let offset = 0;

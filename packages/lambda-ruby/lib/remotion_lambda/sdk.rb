@@ -3,6 +3,7 @@ require 'aws-sdk-s3'
 require 'json'
 require 'logger'
 require_relative 'input_props_serializer'
+require_relative 'render_still_on_lambda_payload'
 require_relative 'version'
 
 module RemotionLambda
@@ -47,6 +48,14 @@ module RemotionLambda
     end
 
     def render_still_on_lambda(function_name, payload)
+      RemotionLambda.log_deprecated_still_license_key(
+        payload[:licenseKey] || payload['licenseKey'],
+        payload[:logLevel] || payload['logLevel'],
+        'render_still_on_lambda()',
+        'licenseKey'
+      )
+      payload = payload.reject { |key, _| %w[licenseKey isProduction].include?(key.to_s) }
+      payload = payload.merge(licenseKey: nil, isProduction: nil)
       payload = InputPropsSerializer.upload_oversized_input_props(payload, s3_client, 'still', @region)
       body = invoke(function_name, payload)
       raise "Failed to call renderStillOnLambda: #{body['message']}" if body["type"] == "error"

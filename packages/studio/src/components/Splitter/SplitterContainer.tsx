@@ -38,6 +38,7 @@ export const containerColumn: React.CSSProperties = {
 
 export const SplitterContainer: React.FC<{
 	readonly orientation: SplitterOrientation;
+	readonly width: number | null;
 	readonly maxFlex: number;
 	readonly minFlex: number;
 	readonly maxFlexerSize: number | null;
@@ -49,6 +50,7 @@ export const SplitterContainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({
 	orientation,
+	width: knownWidth,
 	children,
 	defaultFlex,
 	maxFlex,
@@ -81,14 +83,18 @@ export const SplitterContainer: React.FC<{
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
-	const size = PlayerInternals.useElementSize(ref, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
-	const availableSize = size
-		? (orientation === 'vertical' ? size.width : size.height) -
-			SPLITTER_HANDLE_SIZE
-		: null;
+	const size = PlayerInternals.useElementSize(
+		knownWidth === null ? ref : null,
+		{
+			triggerOnWindowResize: true,
+			shouldApplyCssTransforms: true,
+		},
+	);
+	const layoutWidth = knownWidth ?? size?.width ?? null;
+	const sizeAlongAxis =
+		orientation === 'vertical' ? layoutWidth : (size?.height ?? null);
+	const availableSize =
+		sizeAlongAxis === null ? null : sizeAlongAxis - SPLITTER_HANDLE_SIZE;
 	const bounds = {
 		availableSize,
 		maxAntiFlexerSize,
@@ -205,7 +211,7 @@ export const SplitterContainer: React.FC<{
 			effectiveFlexValue,
 			collapsedDuringDrag,
 			orientation,
-			width: size?.width,
+			width: layoutWidth,
 			height: size?.height,
 			childCount,
 		}),
@@ -214,7 +220,7 @@ export const SplitterContainer: React.FC<{
 			effectiveFlexValue,
 			collapsedDuringDrag,
 			orientation,
-			size?.width,
+			layoutWidth,
 			size?.height,
 			childCount,
 		],

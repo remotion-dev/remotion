@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
+import {handleButtonPointerFocus} from '../helpers/button-pointer-focus';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -39,15 +40,7 @@ export const InlineAction = ({
 	const onPointerDown = useCallback(
 		(event: React.PointerEvent<HTMLButtonElement>) => {
 			onPointerDownProp?.(event);
-			if (event.button !== 0) {
-				return;
-			}
-
-			if (document.activeElement instanceof HTMLElement) {
-				document.activeElement.blur();
-			}
-
-			event.preventDefault();
+			handleButtonPointerFocus(event);
 		},
 		[onPointerDownProp],
 	);

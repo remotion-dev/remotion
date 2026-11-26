@@ -42,8 +42,10 @@ import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import {rightRow} from './RenderModal/layout';
+import {getSettingDomId} from './settings-catalog';
 import {useSettings} from './SettingsContext';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -56,8 +58,9 @@ const container: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const shortcutSectionTitle: React.CSSProperties = {
@@ -185,7 +188,10 @@ const ShortcutChords: React.FC<{
 	);
 };
 
-export const KeyboardShortcutsSettings: React.FC = () => {
+export const KeyboardShortcutsSettings: React.FC<{
+	readonly enabled: boolean;
+	readonly setEnabled: (enabled: boolean) => void;
+}> = ({enabled, setEnabled}) => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -194,7 +200,6 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 		previewServerConnected: previewServerState.type === 'connected',
 		readOnlyStudio: window.remotion_isReadOnlyStudio,
 	});
-	const [enabled, setEnabled] = useState(true);
 	const [configuredShortcuts, setConfiguredShortcuts] =
 		useState<StudioKeyboardShortcuts>({});
 	const [enabledEdited, setEnabledEdited] = useState(false);
@@ -213,10 +218,6 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			return;
 		}
 
-		setEnabled(
-			studioRuntimeConfig.configFileStudioSettings?.keyboardShortcutsEnabled !==
-				false,
-		);
 		setConfiguredShortcuts(studioRuntimeConfig.keyboardShortcuts ?? {});
 		setEnabledEdited(false);
 		setShortcutsEdited(false);
@@ -230,7 +231,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			setEnabled(event.target.checked);
 			setEnabledEdited(true);
 		},
-		[],
+		[setEnabled],
 	);
 
 	const updates = useMemo((): ConfigUpdate[] => {
@@ -280,16 +281,16 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 			{canEdit ? (
 				<>
 					<p style={dividerLabel}>General</p>
-					<label style={optionRow}>
-						<div style={label}>Keyboard shortcuts</div>
+					<SettingsRow settingId="keyboardShortcutsEnabled">
 						<div style={rightRow}>
 							<Checkbox
+								inputId="remotion-setting-keyboardShortcutsEnabled-control"
 								checked={enabled}
 								name="keyboard-shortcuts"
 								onChange={onEnabledChange}
 							/>
 						</div>
-					</label>
+					</SettingsRow>
 				</>
 			) : null}
 			{visibleShortcutGroups.map((group, groupIndex) => (
@@ -384,6 +385,8 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 							return (
 								<div
 									key={shortcut.action}
+									id={getSettingDomId(`shortcut-${shortcut.action}`)}
+									tabIndex={-1}
 									role="listitem"
 									style={
 										groupIndex === displayedShortcutGroups.length - 1 &&

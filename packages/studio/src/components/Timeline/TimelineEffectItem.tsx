@@ -42,6 +42,7 @@ import {reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import {getSourceContextMenuItems} from '../get-source-context-menu-items';
+import {getSourceDoubleClickHandler} from '../get-source-double-click-handler';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
@@ -247,7 +248,7 @@ export const TimelineEffectItem: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {openInApps} = useOpenInMenuApps();
 	const annotationTarget = useRef<HTMLDivElement>(null);
-	const {remotionSkillsInfo} = useSettings();
+	const {doubleClickAction, remotionSkillsInfo} = useSettings();
 	const markupSkill = remotionSkillsInfo?.skills.find(
 		({name}) => name === 'remotion-markup',
 	);
@@ -388,6 +389,15 @@ export const TimelineEffectItem: React.FC<{
 		],
 	);
 
+	const getContextForAgents = useCallback(
+		() =>
+			getEffectContextForAgents({
+				label,
+				sequenceLocation: validatedLocation,
+				effectIndex,
+			}),
+		[label, validatedLocation, effectIndex],
+	);
 	const openInCodingAgent = useCallback(
 		(
 			codingAgentId: DefaultCodingAgent,
@@ -396,11 +406,7 @@ export const TimelineEffectItem: React.FC<{
 		) => {
 			(contextForAgents === null
 				? Promise.resolve(null)
-				: getEffectContextForAgents({
-						label,
-						sequenceLocation: validatedLocation,
-						effectIndex,
-					})
+				: getContextForAgents()
 			)
 				.then((context) => openCodingAgent(codingAgentId, context))
 				.then((response) => {
@@ -412,7 +418,7 @@ export const TimelineEffectItem: React.FC<{
 					showNotification((error as Error).message, 2000);
 				});
 		},
-		[effectIndex, label, validatedLocation],
+		[getContextForAgents],
 	);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
@@ -476,14 +482,7 @@ export const TimelineEffectItem: React.FC<{
 						},
 					]
 				: []),
-			getCopyContextForAgentsMenuItem({
-				contextForAgents: () =>
-					getEffectContextForAgents({
-						label,
-						sequenceLocation: validatedLocation,
-						effectIndex,
-					}),
-			}),
+			getCopyContextForAgentsMenuItem({contextForAgents: getContextForAgents}),
 			...getAnnotateWithChatGPTMenuItems({
 				id: 'annotate-effect',
 				getTarget: () => annotationTarget.current,
@@ -552,6 +551,7 @@ export const TimelineEffectItem: React.FC<{
 		deleteDisabled,
 		deleteTimelineItems,
 		documentationLink,
+		getContextForAgents,
 		label,
 		effectIndex,
 		markupSkillAvailable,
@@ -841,8 +841,18 @@ export const TimelineEffectItem: React.FC<{
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
 			onDoubleClick={(event) => {
-				event.stopPropagation();
-				openInEditor(null);
+				const handle = getSourceDoubleClickHandler({
+					codingAgentInfo: openInApps.codingAgentInfo,
+					doubleClickAction,
+					getContextForAgents,
+					openSource: openInApps.canOpenInEditor
+						? () => openInEditor(null)
+						: null,
+				});
+				if (handle) {
+					event.stopPropagation();
+					handle();
+				}
 			}}
 			showSelectedBackground
 			containsSelection={containsSelection}

@@ -103,34 +103,30 @@ type CodeChangeData = {
 
 const getTokenColor = (kind: TokenKind) => {
 	if (kind === 'keyword' || kind === 'operator') {
-		return '#cf222e';
+		return '#f97583';
 	}
 
-	if (kind === 'function') {
-		return '#8250df';
+	if (kind === 'function' || kind === 'attribute') {
+		return '#b392f0';
 	}
 
-	if (kind === 'number' || kind === 'variable' || kind === 'attribute') {
-		return '#0550ae';
+	if (kind === 'number' || kind === 'tag') {
+		return '#79b8ff';
 	}
 
 	if (kind === 'string') {
-		return '#0a3069';
-	}
-
-	if (kind === 'tag') {
-		return '#116329';
+		return '#9ecbff';
 	}
 
 	if (kind === 'comment') {
-		return '#6e7781';
+		return '#6a737d';
 	}
 
-	if (kind === 'identifier') {
-		return '#24292f';
+	if (kind === 'variable') {
+		return '#ffab70';
 	}
 
-	return '#24292f';
+	return '#e1e4e8';
 };
 
 const tokenizeCode = (code: string): TokenizedCode => {
@@ -344,9 +340,7 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 				const bounds = element.getBoundingClientRect();
 				positions[index] = {
 					x: (bounds.left - preBounds.left) / measurementScaleX,
-					y:
-						verticalOffset +
-						(bounds.top - preBounds.top) / measurementScaleY,
+					y: verticalOffset + (bounds.top - preBounds.top) / measurementScaleY,
 				};
 			});
 
@@ -501,10 +495,10 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 										token.color === afterToken.color
 											? token.color
 											: interpolateColors(
-												frame,
-												[90, 108],
-												[token.color, afterToken.color],
-											),
+													frame,
+													[90, 108],
+													[token.color, afterToken.color],
+												),
 									translate: `${interpolate(
 										posterizedFrame,
 										[90, 108],
@@ -568,17 +562,17 @@ const CodeChange: React.FC<{readonly codeChange: CodeChangeData}> = ({
 
 export const Skills2CodeChange: React.FC = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#f5fafb'}}>
+		<AbsoluteFill style={{backgroundColor: '#24292e'}}>
 			<Solid
 				width={1920}
 				height={1920}
-				color="#f5fafb"
+				color="#24292e"
 				style={{position: 'absolute'}}
 				effects={[
 					burlap({
 						size: 10,
 						roughness: 0,
-						color: '#e9e9e9',
+						color: '#30363d',
 					}),
 				]}
 			/>

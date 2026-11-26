@@ -526,7 +526,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					mediaCacheSizeInBytes,
 					preferredEffectBackend,
 					logLevel,
-					licenseKey: publicLicenseKey,
 					scale,
 					allowHtmlInCanvas,
 				},

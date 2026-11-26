@@ -71,3 +71,34 @@ export const registerFontFace = (fontFace: RegisteredFontFace) => {
 export const getRegisteredFontFaces = (): RegisteredFontFace[] => {
 	return registeredFontFaces.slice();
 };
+
+const pendingFontLoads = new Set<Promise<void>>();
+
+export const startFontLoad = (): {
+	finish: () => void;
+	fail: (error: unknown) => void;
+} => {
+	let resolve!: () => void;
+	let reject!: (error: unknown) => void;
+	const load = new Promise<void>((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
+	// A load can fail while no render is waiting for it.
+	load.catch(() => undefined);
+	pendingFontLoads.add(load);
+	return {
+		finish: () => {
+			pendingFontLoads.delete(load);
+			resolve();
+		},
+		fail: (error) => {
+			pendingFontLoads.delete(load);
+			reject(error);
+		},
+	};
+};
+
+export const getPendingFontLoads = (): Promise<void>[] => {
+	return [...pendingFontLoads];
+};

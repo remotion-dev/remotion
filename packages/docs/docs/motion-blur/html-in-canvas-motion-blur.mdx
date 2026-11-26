@@ -12,7 +12,7 @@ crumb: '@remotion/motion-blur'
 </ExperimentalBadge>
 
 `<HtmlInCanvasMotionBlur>` is the state-of-the-art recommended way to achieve motion blur in Remotion.  
-It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
+Previewing it requires [Chrome](/docs/html-in-canvas#enabling-html-in-canvas-in-chrome). Rendering always works.
 
 ```tsx twoslash title="MyComposition.tsx"
 import {
@@ -68,6 +68,10 @@ The canvas width in pixels. Must be a positive integer. Use the composition widt
 
 The canvas height in pixels. Must be a positive integer. Use the composition height from [`useVideoConfig()`](/docs/use-video-config) to cover the full frame.
 
+### `style?`<AvailableFrom v="4.0.546" />
+
+Applies CSS to the output canvas.
+
 ### `from?`
 
 Moves the blurred content on its parent timeline. Default: `0`.
@@ -116,6 +120,11 @@ Samples outside the composition are clamped to its first or last frame.
 ### Premounting props
 
 [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) are also accepted and behave like on [`<Sequence>`](/docs/sequence).
+
+## Frame reuse<AvailableFrom v="4.0.545" />
+
+When using [`<Video>`](/docs/media/video), [`<Gif>`](/docs/gif/gif), or [`<AnimatedImage>`](/docs/animatedimage), all motion blur samples share the current media frame, including any applied effects.
+This avoids a separate decoder and effects pass for each sample. Transforms and other animations still use each sample's time.
 
 ## Nested HTML-in-canvas caveat
 

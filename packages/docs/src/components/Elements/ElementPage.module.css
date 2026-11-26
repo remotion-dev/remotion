@@ -182,11 +182,11 @@
 	line-height: 1.5;
 }
 
-.studioGuidanceSteps li > div {
+.studioGuidanceSteps li > span:first-child {
 	flex: none;
 }
 
-.studioGuidanceSteps li > span {
+.studioGuidanceSteps li > span:last-child {
 	min-width: 0;
 }
 

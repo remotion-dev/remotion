@@ -4,9 +4,11 @@ import os from 'os';
 import path from 'path';
 import {
 	makeCancelSignal,
+	openBrowser,
 	renderFrames,
 	renderMedia,
 	renderStill,
+	selectComposition,
 } from '@remotion/renderer';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
@@ -89,5 +91,48 @@ test('Renderer APIs should handle cancellation throughout a render', async () =>
 		);
 	} finally {
 		await fs.promises.rm(outputDir, {recursive: true});
+	}
+});
+
+test('selectComposition() should reject when cancelled and keep a shared browser usable', async () => {
+	const browser = await openBrowser('chrome');
+
+	try {
+		const cancelled = makeCancelSignal();
+		cancelled.cancel();
+		const error = await selectComposition({
+			serveUrl: exampleBuild,
+			id: 'react-svg',
+			inputProps: {},
+			browserExecutable: '/does/not/exist',
+			cancelSignal: cancelled.cancelSignal,
+		}).then(
+			() => null,
+			(err) => err,
+		);
+		expect((error as Error | null)?.message).toContain(
+			'selectComposition() got cancelled',
+		);
+
+		const completed = makeCancelSignal();
+		const composition = await selectComposition({
+			serveUrl: exampleBuild,
+			id: 'react-svg',
+			inputProps: {},
+			puppeteerInstance: browser,
+			cancelSignal: completed.cancelSignal,
+		});
+		expect(composition.id).toBe('react-svg');
+
+		completed.cancel();
+		const afterCancel = await selectComposition({
+			serveUrl: exampleBuild,
+			id: 'react-svg',
+			inputProps: {},
+			puppeteerInstance: browser,
+		});
+		expect(afterCancel.id).toBe('react-svg');
+	} finally {
+		await browser.close({silent: true});
 	}
 });

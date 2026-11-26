@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/vercel",
-	"version": "4.0.544",
+	"version": "4.0.547",
 	"description": "Render Remotion videos on Vercel Sandbox",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -23,6 +23,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/licensing": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"remotion": "workspace:*"
 	},

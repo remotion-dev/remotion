@@ -325,6 +325,7 @@ export const benchmarkCommand = async (
 		logLevel,
 		onBrowserDownload,
 		chromeMode,
+		preferRequestedVersion: false,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({

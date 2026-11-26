@@ -11,9 +11,19 @@ export const validateArtifactFilename = (filename: unknown) => {
 		throw new Error('The `filename` must not be empty');
 	}
 
-	if (!filename.match(/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g)) {
+	if (!filename.match(/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)$/)) {
 		throw new Error(
-			'The `filename` must match "/^([0-9a-zA-Z-!_.*\'()/:&$@=;+,?]+)/g". Use forward slashes only, even on Windows.',
+			'The `filename` must match "/^([0-9a-zA-Z-!_.*\'()/:&$@=;+,?]+)$/". Use forward slashes only, even on Windows.',
+		);
+	}
+
+	if (
+		filename.startsWith('/') ||
+		/^[a-z]:/i.test(filename) ||
+		filename.split('/').includes('..')
+	) {
+		throw new Error(
+			'The `filename` must be a relative path without `..` segments.',
 		);
 	}
 };

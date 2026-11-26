@@ -1,4 +1,3 @@
-import {existsSync} from "node:fs";
 import {cp, mkdir} from "node:fs/promises";
 import path from "node:path";
 import {ensureBrowser} from "@remotion/renderer";
@@ -134,8 +133,13 @@ export async function stageBrowser({
     return;
   }
 
-  await ensureBrowser();
-  if (!existsSync(browserPaths.downloadedBrowserFolder)) {
+  const browser = await ensureBrowser();
+  if (browser.type !== "local-puppeteer-browser") {
+    return;
+  }
+
+  const downloadedBrowserFolder = path.dirname(path.dirname(browser.path));
+  if (path.basename(downloadedBrowserFolder) !== browserPaths.platformDir) {
     return;
   }
 
@@ -148,7 +152,7 @@ export async function stageBrowser({
   });
 
   await cp(
-    browserPaths.downloadedBrowserFolder,
+    downloadedBrowserFolder,
     browserPaths.packagedBrowserCopyDestination,
     {recursive: true},
   );

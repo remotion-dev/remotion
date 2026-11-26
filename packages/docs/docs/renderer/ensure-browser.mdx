@@ -52,11 +52,46 @@ Pass the same path to any other API that supports the `browserExecutable` option
 
 ### `onBrowserDownload?`
 
-Specify a specific version of Chrome that should be used and hook into the download progress.  
+Hook into the browser download progress, and optionally specify which Chrome version to use.  
 See the example below for the function signature.
 
-Remotion only calls this function if the Chrome Headless Shell version that your Remotion version uses by default is not installed. If that version is already installed, the `version` you return is ignored.  
-If you use a custom version, pass the same `onBrowserDownload` function to every API that accepts it, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload). Otherwise, the next call deletes the custom version and downloads Remotion's default version.
+Most projects don't need to pass `onBrowserDownload`, or only use it to show the download progress and return `version: null`. Remotion then uses its default Chrome Headless Shell build, which includes optimizations such as [shared-memory capture](/docs/shared-memory-capture).  
+Only return a `version` if your environment needs a specific Chrome build, for example one that contains a fix for your platform. Custom versions are stock builds from Google without Remotion's optimizations.
+
+`ensureBrowser()` calls this function every time and uses the `version` you return, downloading it if it is not installed yet. `onProgress` is only called if a download happens.
+
+Other APIs that accept `onBrowserDownload`, such as [`renderMedia()`](/docs/renderer/render-media#onbrowserdownload) and [`selectComposition()`](/docs/renderer/select-composition#onbrowserdownload), use Remotion's default version if it is installed and only call `onBrowserDownload` otherwise. To use a custom version in all APIs, pass the `path` returned by `ensureBrowser()` as `browserExecutable`:
+
+```tsx twoslash title="render.ts"
+import {ensureBrowser, renderMedia, selectComposition} from '@remotion/renderer';
+const serveUrl = 'https://example.com';
+// ---cut---
+const browser = await ensureBrowser({
+  onBrowserDownload: () => ({
+    version: '144.0.7559.20',
+    onProgress: () => undefined,
+  }),
+});
+if (browser.type !== 'local-puppeteer-browser') {
+  throw new Error('Expected a downloaded browser');
+}
+
+const composition = await selectComposition({
+  serveUrl,
+  id: 'MyComp',
+  browserExecutable: browser.path,
+});
+
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'h264',
+  outputLocation: 'out.mp4',
+  browserExecutable: browser.path,
+});
+```
+
+From v4.0.544, Remotion installs each version into its own folder, so installing one version does not delete another.
 
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';

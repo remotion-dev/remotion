@@ -1,3 +1,4 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {PreferredEffectBackend} from 'remotion';
 import {
 	Internals,
@@ -22,7 +23,6 @@ import {
 	createRenderStillOnWebResult,
 	type RenderStillOnWebResult,
 } from './render-still-screenshot-task';
-import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
 import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
@@ -50,11 +50,16 @@ type OptionalRenderImagesOnWebOptions<Schema extends $ZodObject> = {
 	preferredEffectBackend: PreferredEffectBackend;
 	signal: AbortSignal | null;
 	onArtifact: WebRendererOnArtifact | null;
-	licenseKey: string | null;
 	scale: number;
-	isProduction: boolean;
 	allowHtmlInCanvas: boolean;
 	transparent: boolean;
+};
+
+type DeprecatedRenderImagesOnWebOptions = {
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+	licenseKey?: string | null;
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+	isProduction?: boolean;
 };
 
 type InternalRenderImagesOnWebOptions<
@@ -72,6 +77,7 @@ export type RenderStillOnWebOptions<
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
 	Partial<OptionalRenderImagesOnWebOptions<Schema>> &
+	DeprecatedRenderImagesOnWebOptions &
 	InputPropsIfHasProps<Schema, Props>;
 
 export type RenderFramesOnWebOptions<
@@ -82,6 +88,7 @@ export type RenderFramesOnWebOptions<
 } & {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 } & Partial<OptionalRenderImagesOnWebOptions<Schema>> &
+	DeprecatedRenderImagesOnWebOptions &
 	InputPropsIfHasProps<Schema, Props>;
 
 async function internalRenderImagesOnWeb<
@@ -99,9 +106,7 @@ async function internalRenderImagesOnWeb<
 		composition,
 		signal,
 		onArtifact,
-		licenseKey,
 		scale,
-		isProduction,
 		allowHtmlInCanvas,
 		transparent,
 	}: InternalRenderImagesOnWebOptions<Schema, Props>,
@@ -229,75 +234,53 @@ async function internalRenderImagesOnWeb<
 		checkForError(errorHolder);
 	};
 
-	try {
-		const results: RenderStillOnWebResult[] = [];
-		for (const [index, frame] of frames.entries()) {
-			if (signal?.aborted) {
-				throw new Error(`${apiName}() was cancelled`);
-			}
-
-			if (index > 0) {
-				timeUpdater.current!.update(frame);
-			}
-
-			await waitForRenderReady();
-
-			if (signal?.aborted) {
-				throw new Error(`${apiName}() was cancelled`);
-			}
-
-			const capturedFrame = await createLayer({
-				element: div,
-				transparent,
-				scale,
-				logLevel,
-				internalState,
-				onlyBackgroundClipText: false,
-				cutout: new DOMRect(0, 0, resolved.width, resolved.height),
-				htmlInCanvasContext,
-				onHtmlInCanvasLayerOutcome: htmlInCanvasContext
-					? onHtmlInCanvasLayerOutcome
-					: undefined,
-				waitForPageResponsiveness: null,
-			});
-
-			const {canvas} = capturedFrame;
-
-			const assets = collectAssets.current!.collectAssets();
-			if (onArtifact) {
-				await artifactsHandler.handle({
-					imageData: canvas,
-					frame,
-					assets,
-					onArtifact,
-				});
-			}
-
-			results.push(createRenderStillOnWebResult({canvas, internalState}));
+	const results: RenderStillOnWebResult[] = [];
+	for (const [index, frame] of frames.entries()) {
+		if (signal?.aborted) {
+			throw new Error(`${apiName}() was cancelled`);
 		}
 
-		sendUsageEvent({
-			licenseKey: licenseKey ?? null,
-			succeeded: true,
-			apiName,
-			isStill: true,
-			isProduction,
+		if (index > 0) {
+			timeUpdater.current!.update(frame);
+		}
+
+		await waitForRenderReady();
+
+		if (signal?.aborted) {
+			throw new Error(`${apiName}() was cancelled`);
+		}
+
+		const capturedFrame = await createLayer({
+			element: div,
+			transparent,
+			scale,
+			logLevel,
+			internalState,
+			onlyBackgroundClipText: false,
+			cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+			htmlInCanvasContext,
+			onHtmlInCanvasLayerOutcome: htmlInCanvasContext
+				? onHtmlInCanvasLayerOutcome
+				: undefined,
+			waitForPageResponsiveness: null,
 		});
 
-		return results;
-	} catch (err) {
-		if (!signal?.aborted) {
-			sendUsageEvent({
-				succeeded: false,
-				licenseKey: licenseKey ?? null,
-				apiName,
-				isStill: true,
-				isProduction,
+		const {canvas} = capturedFrame;
+
+		const assets = collectAssets.current!.collectAssets();
+		if (onArtifact) {
+			await artifactsHandler.handle({
+				imageData: canvas,
+				frame,
+				assets,
+				onArtifact,
 			});
 		}
 
-		throw err;
+		results.push(createRenderStillOnWebResult({canvas, internalState}));
 	}
+
+	return results;
 }
 
 const renderImagesOnWeb = <
@@ -307,6 +290,15 @@ const renderImagesOnWeb = <
 	options: RenderFramesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ): Promise<RenderStillOnWebResult[]> => {
+	const logLevel =
+		options.logLevel ?? globalThis.window?.remotion_logLevel ?? 'info';
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: options.licenseKey ?? null,
+		api: `${apiName}()`,
+		option: 'licenseKey',
+		logLevel,
+	});
+
 	return runWithRenderQueue({
 		queue: onlyOneStillRenderAtATimeQueue,
 		signal: options.signal ?? null,
@@ -317,16 +309,13 @@ const renderImagesOnWeb = <
 					...options,
 					delayRenderTimeoutInMilliseconds:
 						options.delayRenderTimeoutInMilliseconds ?? 30000,
-					logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
+					logLevel,
 					schema: options.schema ?? undefined,
 					mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 					preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 					signal: options.signal ?? null,
 					onArtifact: options.onArtifact ?? null,
-					// Must allow undefined to print warning
-					licenseKey: options.licenseKey ?? null,
 					scale: options.scale ?? 1,
-					isProduction: options.isProduction ?? true,
 					allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 					transparent: options.transparent ?? true,
 				},

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-	CURRENT_COLOR,
+	BLACK_ALPHA_60,
+	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -43,7 +44,8 @@ const row: React.CSSProperties = {
 
 const circle: React.CSSProperties = {
 	alignItems: 'center',
-	border: `1px solid ${CURRENT_COLOR}`,
+	backgroundColor: INPUT_BACKGROUND,
+	border: `1px solid ${BLACK_ALPHA_60}`,
 	borderRadius: '50%',
 	boxSizing: 'border-box',
 	display: 'flex',
@@ -53,8 +55,13 @@ const circle: React.CSSProperties = {
 	width: 20,
 };
 
+const disabledCircle: React.CSSProperties = {
+	...circle,
+	backgroundColor: TRANSPARENT,
+};
+
 const bullet: React.CSSProperties = {
-	backgroundColor: CURRENT_COLOR,
+	backgroundColor: WHITE,
 	borderRadius: '50%',
 	height: 8,
 	width: 8,
@@ -83,7 +90,9 @@ export const RadioButton: React.FC<{
 			style={row}
 			type="button"
 		>
-			<span style={circle}>{checked ? <span style={bullet} /> : null}</span>
+			<span style={disabled ? disabledCircle : circle}>
+				{checked ? <span style={bullet} /> : null}
+			</span>
 			<span style={label}>{children}</span>
 		</button>
 	);

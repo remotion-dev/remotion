@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
@@ -8,10 +8,9 @@ import {HigherZIndex, useZIndex} from '../state/z-index';
 import {InlineAction, type InlineActionProps} from './InlineAction';
 import {
 	getNextMenuTreeId,
-	isNodeInMenuTree,
+	useDismissMenuOnOutsidePointerDown,
 	MenuTreeContext,
 } from './Menu/menu-tree-context';
-import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
 	MAX_MOBILE_MENU_WIDTH,
@@ -45,16 +44,15 @@ const InlineDropdownMenu = ({
 	opened,
 	values,
 	menuTreeId,
-	currentZIndex,
 	onHide,
 }: {
 	readonly triggerRef: React.RefObject<HTMLDivElement | null>;
 	readonly opened: Extract<OpenState, {type: 'open'}>;
 	readonly values: ComboboxValue[];
 	readonly menuTreeId: number;
-	readonly currentZIndex: number;
 	readonly onHide: () => void;
 }) => {
+	const {getPortal} = useZIndex();
 	const size = PlayerInternals.useElementSize(triggerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -129,6 +127,9 @@ const InlineDropdownMenu = ({
 					>
 						<MenuTreeContext.Provider value={menuTreeId}>
 							<MenuContent
+								menuTrigger={
+									triggerRef.current?.querySelector('button') ?? null
+								}
 								onNextMenu={noop}
 								onPreviousMenu={noop}
 								values={values}
@@ -143,7 +144,7 @@ const InlineDropdownMenu = ({
 				</HigherZIndex>
 			</div>
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };
 
@@ -161,8 +162,6 @@ export const InlineDropdown = ({
 	const ref = useRef<HTMLDivElement>(null);
 	const [menuTreeId] = useState(getNextMenuTreeId);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-
-	const {currentZIndex} = useZIndex();
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -196,36 +195,11 @@ export const InlineDropdown = ({
 		onOpenChange?.(false);
 	}, [onOpenChange]);
 
-	useEffect(() => {
-		if (opened.type === 'not-open') {
-			return;
-		}
-
-		const dismissWithoutClickThrough = (event: PointerEvent) => {
-			if (event.button !== 0) {
-				return;
-			}
-
-			const target = event.target as Node;
-			if (isNodeInMenuTree(target, menuTreeId)) {
-				return;
-			}
-
-			event.preventDefault();
-			event.stopPropagation();
-			event.stopImmediatePropagation();
-			onHide();
-		};
-
-		window.addEventListener('pointerdown', dismissWithoutClickThrough, true);
-		return () => {
-			window.removeEventListener(
-				'pointerdown',
-				dismissWithoutClickThrough,
-				true,
-			);
-		};
-	}, [menuTreeId, onHide, opened.type]);
+	useDismissMenuOnOutsidePointerDown({
+		enabled: opened.type === 'open',
+		menuTreeId,
+		onHide,
+	});
 
 	return (
 		<>
@@ -243,7 +217,6 @@ export const InlineDropdown = ({
 					opened={opened}
 					values={opened.values ?? values ?? []}
 					menuTreeId={menuTreeId}
-					currentZIndex={currentZIndex}
 					onHide={onHide}
 				/>
 			) : null}

@@ -58,7 +58,12 @@ export async function extractFrames({
 
 			return {
 				resource: createdInput,
-				dispose: () => createdInput.dispose(),
+				dispose: () =>
+					Internals.disposeMediabunnyInput(
+						createdInput,
+						'info',
+						'@remotion/timeline-utils',
+					),
 			};
 		},
 	});

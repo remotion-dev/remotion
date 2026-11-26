@@ -5,7 +5,7 @@ import type {
 } from '@remotion/studio-shared';
 import {handleAddRender} from '../preview-server/routes/add-render';
 
-test('captures the current public license key for Studio renders', async () => {
+test('captures the current public license key for Studio video renders', async () => {
 	const addedJobs: RenderJobWithCleanup[] = [];
 	const addRender = (input: AddRenderRequest) =>
 		handleAddRender({
@@ -94,7 +94,6 @@ test('captures the current public license key for Studio renders', async () => {
 		await addRender({
 			...common,
 			type: 'still',
-			licenseKey,
 			outName: 'out.png',
 			imageFormat: 'png',
 			jpegQuality: 80,
@@ -106,10 +105,8 @@ test('captures the current public license key for Studio renders', async () => {
 	}
 
 	expect(
-		addedJobs.map((job) =>
-			job.type === 'video' || job.type === 'still' ? job.licenseKey : null,
-		),
-	).toEqual(['rm_pub_first', 'rm_pub_first', 'free-license', 'free-license']);
+		addedJobs.map((job) => ('licenseKey' in job ? job.licenseKey : null)),
+	).toEqual(['rm_pub_first', null, 'free-license', null]);
 });
 
 test('resolves pre-render outputs inside the public folder', async () => {

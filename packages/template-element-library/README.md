@@ -1,6 +1,6 @@
 # Remotion Element Library
 
-Use this React Router and Tailwind CSS starter to publish [Remotion Elements](https://www.remotion.dev/elements). The starter includes a prerendered static website, an authoring Studio, and four editable examples. For published catalogs, see [third-party Element libraries](https://www.remotion.dev/elements/libraries).
+Use this React Router and Tailwind CSS starter to publish your own [Element Library](https://www.remotion.dev/docs/elements). The starter includes a prerendered static website, an authoring Studio, and four editable examples. For published catalogs, see [Element Libraries](https://www.remotion.dev/elements/libraries).
 
 ## Develop
 
@@ -35,7 +35,7 @@ Do these steps to add an Element:
 
 The detail page, preview renderer, and Studio use the same source files. The gallery uses rendered previews. It does not use live Players.
 
-See the [Element guidelines](https://www.remotion.dev/docs/elements), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/elements/libraries) for layout, assets, dependencies, and installation requirements.
+See the [Element best practices](https://www.remotion.dev/docs/elements/creating), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/elements/libraries) for layout, assets, dependencies, and installation requirements.
 
 ## Element lint rules
 

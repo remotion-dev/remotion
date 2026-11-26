@@ -14,7 +14,12 @@ loadFont('normal', {
 	weights: ['500', '700'],
 });
 
-const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const NameLowerThirdInner: React.FC<
+	InteractiveTransformProps & {
+		readonly fullName?: string;
+		readonly role?: string;
+	}
+> = ({fullName = 'Alex Morgan', role = 'Creative Developer', style}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
@@ -65,7 +70,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 					whiteSpace: 'nowrap',
 				}}
 			>
-				Alex Morgan
+				{fullName}
 			</Interactive.Div>
 			<Interactive.Div
 				cropRight={interpolate(
@@ -99,7 +104,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 					whiteSpace: 'nowrap',
 				}}
 			>
-				Creative Developer
+				{role}
 			</Interactive.Div>
 		</Interactive.Div>
 	);

@@ -694,6 +694,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					doubleClickAction: null,
 					highContrast: null,
 					preferredEffectBackend: null,
 					preservePitchOnPlayback: true,

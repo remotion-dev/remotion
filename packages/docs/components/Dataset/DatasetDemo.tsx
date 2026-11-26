@@ -13,6 +13,8 @@ export const DatasetDemo: React.FC = () => {
 				fps={30}
 				durationInFrames={60}
 				controls
+				clickToPlay={false}
+				spaceKeyToPlayOrPause={false}
 				autoPlay
 				loop
 				style={{

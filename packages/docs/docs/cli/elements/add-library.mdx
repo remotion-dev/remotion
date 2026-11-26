@@ -1,0 +1,62 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-elements-add-library.png
+title: npx remotion elements add-library
+sidebar_label: add-library
+crumb: CLI Reference
+---
+
+# npx remotion elements add-library<AvailableFrom v="4.0.547" />
+
+Adds an [Element Library](/docs/elements/libraries) to your Remotion config file, so it appears in [Browse Elements in Studio](/docs/studio/browse-elements).
+
+```
+npx remotion elements add-library <url>
+```
+
+## Example
+
+```bash
+npx remotion elements add-library https://example.com/elements
+```
+
+The URL is the library's gallery page. The command:
+
+1. Fetches the page to check that it is reachable and to read its name
+2. Adds a [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the end of `remotion.config.ts`, keeping the rest of the file unchanged
+
+```ts title="remotion.config.ts"
+Config.addElementLibrary({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+```
+
+If the page has a `<meta property="og:site_name">` tag, the command uses its content as the display name. Otherwise, Studio shows the URL host and path.
+
+If the library is already in the config, the command does not change any files. The command normalizes URLs before comparing them, so `https://EXAMPLE.com/elements` and `https://example.com/elements` are the same library.
+
+The command requires a `remotion.config.ts` or `remotion.config.js` file.
+
+After adding the library, install Elements from its pages with [`npx remotion elements use`](/docs/cli/elements/use).
+
+## Flags
+
+### `--display-name`
+
+The name of the library in Studio. Overrides the name from the page.
+
+### `--config`
+
+<Options id="config" />
+
+### `--log`
+
+<Options id="log" />
+
+## See also
+
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/elements/add-library.ts)
+- [`Config.addElementLibrary()`](/docs/config#addelementlibrary)
+- [Browse Elements in Studio](/docs/studio/browse-elements)
+- [`npx remotion elements use`](/docs/cli/elements/use)
+- [`npx remotion elements`](/docs/cli/elements)

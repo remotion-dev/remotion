@@ -88,6 +88,12 @@ export const sectionHeaderRow: React.CSSProperties = {
 	minWidth: 0,
 };
 
+export const sectionHeaderActionIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
+};
+
 export const sectionHeaderEnd: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',

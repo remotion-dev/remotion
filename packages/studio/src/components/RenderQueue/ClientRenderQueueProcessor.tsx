@@ -76,7 +76,6 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 					preferredEffectBackend: job.preferredEffectBackend,
 					logLevel: job.logLevel,
-					licenseKey: job.licenseKey ?? undefined,
 					scale: job.scale,
 					signal,
 					onArtifact,

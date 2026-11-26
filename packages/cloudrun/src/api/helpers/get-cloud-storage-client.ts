@@ -8,17 +8,26 @@ import {checkCredentials} from '../../shared/check-credentials';
 export const getCloudStorageClient = () => {
 	checkCredentials();
 
-	if (isInCloudTask()) {
-		return new Storage({
-			projectId: getProjectId(),
-		});
-	}
-
 	return new Storage({
-		projectId: process.env.REMOTION_GCP_PROJECT_ID,
-		credentials: {
-			client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
-			private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
-		},
+		projectId: getProjectId(),
+		credentials: isInCloudTask()
+			? undefined
+			: {
+					client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
+					private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
+				},
+		interceptors_: [
+			{
+				resolved: (config) => {
+					// Storage 9.0.0 sends these internal options as object deletion query parameters.
+					if (config.method === 'DELETE') {
+						config.url.searchParams.delete('responseType');
+						config.url.searchParams.delete('validateStatus');
+					}
+
+					return Promise.resolve(config);
+				},
+			},
+		],
 	});
 };
