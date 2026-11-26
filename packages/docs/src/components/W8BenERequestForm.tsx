@@ -70,7 +70,14 @@ export const W8BenERequestForm: React.FC = () => {
 				/>
 			</div>
 			<div>
-				<Button type="submit" disabled={sent} loading={sending}>
+				<Button
+					type="submit"
+					className="bg-brand text-white"
+					aria-label="Request W-8BEN-E"
+					aria-busy={sending}
+					disabled={sent}
+					loading={sending}
+				>
 					Request W-8BEN-E
 				</Button>
 			</div>
