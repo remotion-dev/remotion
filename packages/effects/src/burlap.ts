@@ -8,6 +8,10 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
@@ -99,7 +103,8 @@ type BurlapState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
-	readonly uResolution: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uSize: WebGLUniformLocation | null;
 	readonly uRoughness: WebGLUniformLocation | null;
@@ -158,7 +163,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uAmount;
 uniform float uSize;
 uniform float uRoughness;
@@ -204,7 +209,7 @@ void main() {
 	}
 
 	// Use pixel centers so weave-cell boundaries do not depend on UV interpolation.
-	vec2 fragPos = gl_FragCoord.xy;
+	vec2 fragPos = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
 	float strandSize = max(uSize, 0.001);
 	vec2 weave = fragPos / strandSize;
 
@@ -356,7 +361,8 @@ const setupBurlap = (target: HTMLCanvasElement): BurlapState => {
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
-		uResolution: gl.getUniformLocation(program, 'uResolution'),
+		uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
 		uSize: gl.getUniformLocation(program, 'uSize'),
 		uRoughness: gl.getUniformLocation(program, 'uRoughness'),
@@ -421,7 +427,15 @@ export const burlap = createEffect<BurlapParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<BurlapParams, BurlapState>({
 			setup: (target) => setupBurlap(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture} = state;
 				if (state.cachedColor !== r.color) {
@@ -452,7 +466,14 @@ export const burlap = createEffect<BurlapParams>({
 				);
 
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
-				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
 				if (state.uSize) gl.uniform1f(state.uSize, r.size);
 				if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);

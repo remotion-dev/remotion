@@ -1,4 +1,5 @@
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
+import {wave} from '@remotion/effects/wave';
 import {HtmlInCanvas, useCurrentFrame} from 'remotion';
 
 export const htmlInCanvasResizeFrames = [
@@ -24,6 +25,7 @@ const Component: React.FC = () => {
 					end: [0.5, 1],
 					endBlur: 10,
 				}),
+				wave({direction: 'horizontal', amplitude: 8, wavelength: 64}),
 			]}
 		>
 			<div

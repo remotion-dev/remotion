@@ -1,5 +1,26 @@
 import {Internals} from 'remotion';
 
+// Keep the longitudinal seam bilinear across the original columns in a padded texture.
+export const SAMPLE_LONGITUDE_GLSL = /* glsl */ `
+vec4 sampleLongitude(vec2 uv) {
+  vec4 rect = uParams[3];
+  vec2 resolution = uParams[0].xy;
+  vec2 textureUv = (rect.xy + uv * rect.zw) / resolution;
+  textureUv.y = 1.0 - textureUv.y;
+  float texel = 1.0 / float(textureSize(uSource, 0).x);
+  float left = rect.x / resolution.x;
+  float right = (rect.x + rect.z) / resolution.x;
+  float fromLeft = (textureUv.x - left) / texel;
+  float fromRight = (right - textureUv.x) / texel;
+  if ((left > 0.0 || right < 1.0) && min(fromLeft, fromRight) < 0.5) {
+    vec4 first = textureLod(uSource, vec2(left + texel * 0.5, textureUv.y), 0.0);
+    vec4 last = textureLod(uSource, vec2(right - texel * 0.5, textureUv.y), 0.0);
+    return mix(last, first, fromLeft < fromRight ? 0.5 + fromLeft : 0.5 - fromRight);
+  }
+  return textureLod(uSource, textureUv, 0.0);
+}
+`;
+
 export type WebGlProjectionState = {
 	gl: WebGL2RenderingContext;
 	program: WebGLProgram;

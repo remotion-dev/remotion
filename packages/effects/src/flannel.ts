@@ -6,6 +6,10 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {FLANNEL_WEBGPU_SHADER} from './flannel-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -91,7 +95,8 @@ type FlannelState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
-	readonly uResolution: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uSize: WebGLUniformLocation | null;
 	readonly uSoftness: WebGLUniformLocation | null;
@@ -148,7 +153,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uAmount;
 uniform float uSize;
 uniform float uSoftness;
@@ -168,7 +173,7 @@ void main() {
 		return;
 	}
 
-	vec2 pixel = gl_FragCoord.xy;
+	vec2 pixel = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
 	vec2 plaid = pixel / max(uSize, 0.001);
 	float edge = mix(0.002, 0.08, uSoftness);
 
@@ -292,7 +297,8 @@ const setupFlannel = (target: HTMLCanvasElement): FlannelState => {
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
-		uResolution: gl.getUniformLocation(program, 'uResolution'),
+		uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
 		uSize: gl.getUniformLocation(program, 'uSize'),
 		uSoftness: gl.getUniformLocation(program, 'uSoftness'),
@@ -366,7 +372,15 @@ export const flannel = createEffect<FlannelParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<FlannelParams, FlannelState>({
 			setup: setupFlannel,
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const resolved = resolve(params);
 				if (state.cachedBaseColor !== resolved.baseColor) {
 					state.cachedBaseColor = resolved.baseColor;
@@ -405,7 +419,14 @@ export const flannel = createEffect<FlannelParams>({
 					source as TexImageSource,
 				);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
-				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uAmount) gl.uniform1f(state.uAmount, resolved.amount);
 				if (state.uSize) gl.uniform1f(state.uSize, resolved.size);
 				if (state.uSoftness) gl.uniform1f(state.uSoftness, resolved.softness);

@@ -1,6 +1,10 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {parseColorRgba, type ParsedColorRgba} from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {LINEAR_GRADIENT_WEBGPU_SHADER} from './linear-gradient-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -54,6 +58,8 @@ type LinearGradientState = {
 	readonly vao: WebGLVertexArrayObject;
 	readonly vbo: WebGLBuffer;
 	readonly uniforms: {
+		readonly uContentRect: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
 		readonly uStart: WebGLUniformLocation | null;
 		readonly uEnd: WebGLUniformLocation | null;
 		readonly uStartColor: WebGLUniformLocation | null;
@@ -142,6 +148,7 @@ void main() {
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
 
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -161,7 +168,7 @@ float gradientProgress(vec2 uv) {
 }
 
 void main() {
-	vec2 publicUv = vec2(vUv.x, 1.0 - vUv.y);
+	vec2 publicUv = textureUvToElementUv(vec2(vUv.x, 1.0 - vUv.y), uEffectTextureSize);
 	vec4 color = mix(uStartColor, uEndColor, gradientProgress(publicUv));
 	fragColor = vec4(color.rgb * color.a, color.a);
 }
@@ -271,6 +278,8 @@ const setupLinearGradient = (
 		vao,
 		vbo,
 		uniforms: {
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 			uStart: gl.getUniformLocation(program, 'uStart'),
 			uEnd: gl.getUniformLocation(program, 'uEnd'),
 			uStartColor: gl.getUniformLocation(program, 'uStartColor'),
@@ -340,7 +349,7 @@ export const linearGradient = createEffect<LinearGradientParams>({
 			LinearGradientState
 		>({
 			setup: (target) => setupLinearGradient(target),
-			apply: ({width, height, params, state}) => {
+			apply: ({width, height, contentRect, params, state}) => {
 				const r = resolve(params);
 				const {start, end} = getParsedColors(state, r);
 				const [sr, sg, sb, sa] = normalizedRgba(start);
@@ -352,6 +361,14 @@ export const linearGradient = createEffect<LinearGradientParams>({
 				gl.clearColor(0, 0, 0, 0);
 				gl.clear(gl.COLOR_BUFFER_BIT);
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 
 				if (uniforms.uStart)
 					gl.uniform2f(uniforms.uStart, r.start[0], r.start[1]);

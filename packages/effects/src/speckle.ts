@@ -5,6 +5,10 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {SPECKLE_WEBGPU_SHADER} from './speckle-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -101,7 +105,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uDensity;
 uniform float uSize;
 uniform float uRandomness;
@@ -124,7 +128,7 @@ void main() {
 		return;
 	}
 
-	vec2 fragPos = vUv * uResolution;
+	vec2 fragPos = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
 	float cellSize = max(uSize * 2.5, 1.0);
 	vec2 baseCell = floor(fragPos / cellSize);
 	float hole = 0.0;
@@ -157,7 +161,8 @@ type SpeckleState = {
 	vbo: WebGLBuffer;
 	texture: WebGLTexture;
 	uSource: WebGLUniformLocation | null;
-	uResolution: WebGLUniformLocation | null;
+	uEffectTextureSize: WebGLUniformLocation | null;
+	uContentRect: WebGLUniformLocation | null;
 	uDensity: WebGLUniformLocation | null;
 	uSize: WebGLUniformLocation | null;
 	uRandomness: WebGLUniformLocation | null;
@@ -313,13 +318,25 @@ export const speckle = createEffect<SpeckleParams>({
 					vbo,
 					texture,
 					uSource: gl.getUniformLocation(program, 'uSource'),
-					uResolution: gl.getUniformLocation(program, 'uResolution'),
+					uEffectTextureSize: gl.getUniformLocation(
+						program,
+						'uEffectTextureSize',
+					),
+					uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 					uDensity: gl.getUniformLocation(program, 'uDensity'),
 					uSize: gl.getUniformLocation(program, 'uSize'),
 					uRandomness: gl.getUniformLocation(program, 'uRandomness'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture} = state;
 
@@ -344,7 +361,14 @@ export const speckle = createEffect<SpeckleParams>({
 				);
 
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
-				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uDensity) gl.uniform1f(state.uDensity, r.density);
 				if (state.uSize) gl.uniform1f(state.uSize, r.size);
 				if (state.uRandomness) gl.uniform1f(state.uRandomness, r.randomness);

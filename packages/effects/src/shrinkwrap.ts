@@ -5,6 +5,10 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {SHRINKWRAP_WEBGPU_SHADER} from './shrinkwrap-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -148,6 +152,7 @@ type ShrinkwrapState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uDisplacement: WebGLUniformLocation | null;
@@ -175,6 +180,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uAmount;
@@ -279,8 +285,8 @@ float curvedFoldField(
 }
 
 float edgeMask(vec2 uv) {
-	vec2 pxFromEdge = min(uv, 1.0 - uv) * uResolution;
-	float minSide = min(uResolution.x, uResolution.y);
+	vec2 pxFromEdge = min(uv, 1.0 - uv) * uContentRect.zw;
+	float minSide = min(uContentRect.z, uContentRect.w);
 	float side = 1.0 - smoothstep(0.0, minSide * 0.16, min(pxFromEdge.x, pxFromEdge.y));
 	float corner = 1.0 - smoothstep(
 		0.0,
@@ -292,8 +298,8 @@ float edgeMask(vec2 uv) {
 }
 
 float heightMap(vec2 uv) {
-	vec2 px = uv * uResolution;
-	float minSide = min(uResolution.x, uResolution.y);
+	vec2 px = uv * uContentRect.zw;
+	float minSide = min(uContentRect.z, uContentRect.w);
 	float density = clamp(uWrinkleDensity, 0.0, 1.0);
 	float spacing = mix(minSide * 0.31, minSide * 0.13, density);
 	float width = mix(minSide * 0.03, minSide * 0.013, density);
@@ -349,17 +355,18 @@ void main() {
 		return;
 	}
 
-	vec2 texel = 1.0 / uResolution;
-	float left = heightMap(vUv - vec2(texel.x, 0.0));
-	float right = heightMap(vUv + vec2(texel.x, 0.0));
-	float down = heightMap(vUv - vec2(0.0, texel.y));
-	float up = heightMap(vUv + vec2(0.0, texel.y));
+	vec2 elementUv = textureUvToElementUvBottomLeft(vUv, uResolution);
+	vec2 texel = 1.0 / uContentRect.zw;
+	float left = heightMap(elementUv - vec2(texel.x, 0.0));
+	float right = heightMap(elementUv + vec2(texel.x, 0.0));
+	float down = heightMap(elementUv - vec2(0.0, texel.y));
+	float up = heightMap(elementUv + vec2(0.0, texel.y));
 	vec2 gradient = vec2(right - left, up - down);
 	float reliefScale = mix(42.0, 115.0, uWrinkleDensity);
 	float warpStrength = reliefScale * 0.32;
 
 	vec2 sampleOffset = gradient * warpStrength * uDisplacement * uAmount;
-	vec2 sampleUv = clamp(vUv - sampleOffset * texel, vec2(0.0), vec2(1.0));
+	vec2 sampleUv = clamp(vUv - sampleOffset / uResolution, vec2(0.0), vec2(1.0));
 	vec4 source = texture(uSource, sampleUv);
 
 	float alpha = source.a;
@@ -376,11 +383,11 @@ void main() {
 	float directional = dot(gradient, normalize(vec2(-0.45, 0.72)));
 	float creaseHighlight = smoothstep(0.02, 0.07, directional);
 	float creaseShadow = smoothstep(0.02, 0.07, -directional);
-	float edge = edgeMask(vUv) * uEdgeTension;
+	float edge = edgeMask(elementUv) * uEdgeTension;
 	float edgeGlint = edge * smoothstep(
 		0.35,
 		0.95,
-		fbm(vUv * uResolution / 90.0 + phaseVec(0.31, -0.24) + vec2(uSeed))
+		fbm(elementUv * uContentRect.zw / 90.0 + phaseVec(0.31, -0.24) + vec2(uSeed))
 	);
 
 	float highlight = clamp(
@@ -559,6 +566,7 @@ export const shrinkwrap = createEffect<ShrinkwrapParams>({
 					vbo,
 					texture,
 					uSource: gl.getUniformLocation(program, 'uSource'),
+					uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 					uResolution: gl.getUniformLocation(program, 'uResolution'),
 					uAmount: gl.getUniformLocation(program, 'uAmount'),
 					uDisplacement: gl.getUniformLocation(program, 'uDisplacement'),
@@ -572,7 +580,15 @@ export const shrinkwrap = createEffect<ShrinkwrapParams>({
 					uSeed: gl.getUniformLocation(program, 'uSeed'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture} = state;
 
@@ -595,6 +611,14 @@ export const shrinkwrap = createEffect<ShrinkwrapParams>({
 					source as TexImageSource,
 				);
 
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
 				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
 				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);

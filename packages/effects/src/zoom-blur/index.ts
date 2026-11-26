@@ -175,10 +175,19 @@ export const zoomBlur = createEffect<ZoomBlurParams>({
 		webgl2: Internals.createEffectImplementation<ZoomBlurParams, ZoomBlurState>(
 			{
 				setup: (target) => setupZoomBlur(target),
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					applyZoomBlur({
 						state,
+						contentRect,
 						source,
 						width,
 						height,

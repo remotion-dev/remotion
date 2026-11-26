@@ -93,21 +93,21 @@ export const scale = createEffect<ScaleParams>({
 	implementations: {
 		...createRectTransformImplementations<ScaleParams>(
 			'scale',
-			(params, width, height) => {
+			(params, width, height, contentRect) => {
 				const r = resolve(params);
-				const scaledWidth = width * (r.horizontal ? r.scale : 1);
-				const scaledHeight = height * (r.vertical ? r.scale : 1);
+				const scaleX = r.horizontal ? r.scale : 1;
+				const scaleY = r.vertical ? r.scale : 1;
 				return {
-					x: (width - scaledWidth) / 2,
-					y: (height - scaledHeight) / 2,
-					width: scaledWidth,
-					height: scaledHeight,
+					x: (contentRect.x + contentRect.width / 2) * (1 - scaleX),
+					y: (contentRect.y + contentRect.height / 2) * (1 - scaleY),
+					width: width * scaleX,
+					height: height * scaleY,
 				};
 			},
 		),
 		'2d': Internals.createEffectImplementation<ScaleParams, null>({
 			setup: () => null,
-			apply: ({source, target, width, height, params}) => {
+			apply: ({source, target, width, height, contentRect, params}) => {
 				const ctx = target.getContext('2d');
 				if (!ctx) {
 					throw new Error(
@@ -133,8 +133,8 @@ export const scale = createEffect<ScaleParams>({
 				ctx.save();
 
 				// Translate to center, scale, translate back
-				const centerX = width / 2;
-				const centerY = height / 2;
+				const centerX = contentRect.x + contentRect.width / 2;
+				const centerY = contentRect.y + contentRect.height / 2;
 
 				ctx.translate(centerX, centerY);
 				ctx.scale(scaleX, scaleY);

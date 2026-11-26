@@ -1,5 +1,9 @@
 import {Internals, type InteractivitySchema} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -51,6 +55,7 @@ type PixelateState = {
 	readonly vao: WebGLVertexArrayObject;
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uBlockSize: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
@@ -70,6 +75,7 @@ void main() {
 
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -78,9 +84,10 @@ uniform float uBlockSize;
 uniform vec2 uResolution;
 
 void main() {
-    vec2 pixelSizeUv = vec2(uBlockSize) / uResolution;
+    vec2 origin = vec2(uContentRect.x, uResolution.y - uContentRect.y - uContentRect.w);
     // Use fragment pixels directly so fractional grid boundaries do not depend on UV interpolation.
-    vec2 blockUv = (floor(gl_FragCoord.xy / uBlockSize) + 0.5) * pixelSizeUv;
+    vec2 block = floor((gl_FragCoord.xy - origin) / uBlockSize);
+    vec2 blockUv = origin / uResolution + (block + 0.5) * (uBlockSize / uResolution);
     fragColor = texture(uSource, blockUv);
 }
 `;
@@ -181,6 +188,7 @@ const createPixelateState = (gl: WebGL2RenderingContext): PixelateState => {
 		vao,
 		vbo,
 		texture,
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uSource: gl.getUniformLocation(program, 'uSource'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uBlockSize: gl.getUniformLocation(program, 'uBlockSize'),
@@ -194,10 +202,12 @@ struct Params { resolutionBlockSize: vec4f, }
 @group(0) @binding(1) var sourceSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
-	let pixelSizeUv = vec2f(params.resolutionBlockSize.z) / params.resolutionBlockSize.xy;
+	let rect = effectGeometry.contentRect;
+	let origin = vec2f(rect.x, params.resolutionBlockSize.y - rect.y - rect.w);
 	// Keep the original grid anchored at the bottom-left corner.
 	let pixel = vec2f(input.position.x, params.resolutionBlockSize.y - input.position.y);
-	let blockUv = (floor(pixel / params.resolutionBlockSize.z) + 0.5) * pixelSizeUv;
+	let block = floor((pixel - origin) / params.resolutionBlockSize.z);
+	let blockUv = origin / params.resolutionBlockSize.xy + (block + 0.5) * (params.resolutionBlockSize.z / params.resolutionBlockSize.xy);
 	return textureSampleLevel(source, sourceSampler, vec2f(blockUv.x, 1.0 - blockUv.y), 0);
 }
 `;
@@ -252,7 +262,15 @@ export const pixelate = createEffect<PixelateParams>({
 
 					return createPixelateState(gl);
 				},
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 
 					state.gl.viewport(0, 0, width, height);
@@ -278,8 +296,14 @@ export const pixelate = createEffect<PixelateParams>({
 					if (state.uSource) state.gl.uniform1i(state.uSource, 0);
 					if (state.uBlockSize)
 						state.gl.uniform1f(state.uBlockSize, r.blockSize);
-					if (state.uResolution)
-						state.gl.uniform2f(state.uResolution, width, height);
+					setEffectCoordinateUniforms(
+						state.gl,
+						state.uContentRect,
+						state.uResolution,
+						contentRect,
+						width,
+						height,
+					);
 
 					state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
 					state.gl.bindVertexArray(null);

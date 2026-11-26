@@ -5,6 +5,10 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {ROUGHEN_EDGES_WEBGPU_SHADER} from './roughen-edges-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -90,6 +94,7 @@ type RoughenEdgesState = {
 	readonly noiseTexture: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uResolution: WebGLUniformLocation | null;
 		readonly uAmount: WebGLUniformLocation | null;
 		readonly uBorder: WebGLUniformLocation | null;
@@ -155,6 +160,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uAmount;
@@ -252,7 +258,7 @@ vec2 alphaGradient(vec2 uv) {
 
 float edgeNoise(vec2 uv, float salt) {
 	vec2 patternUV = uv - 0.5;
-	patternUV *= vec2(uResolution.x / max(uResolution.y, 1.0), 1.0);
+	patternUV *= vec2(uContentRect.z / max(uContentRect.w, 1.0), 1.0);
 	patternUV *= 7.0 / max(uScale, 0.001);
 	patternUV += 64.0 * seedOffset(salt);
 	return fbm(patternUV);
@@ -275,9 +281,10 @@ void main() {
 	}
 
 	vec2 gradient = alphaGradient(vUv);
+	vec2 elementUv = textureUvToElementUvBottomLeft(vUv, uResolution);
 	vec2 noiseVector = vec2(
-		edgeNoise(vUv + vec2(0.17, 0.0), 2.0),
-		edgeNoise(vUv + vec2(0.0, 0.31), 3.0)
+		edgeNoise(elementUv + vec2(0.17, 0.0), 2.0),
+		edgeNoise(elementUv + vec2(0.0, 0.31), 3.0)
 	) * 2.0 - 1.0;
 	vec2 direction = gradient + 0.7 * noiseVector;
 	if (length(direction) <= 0.0001) {
@@ -286,7 +293,7 @@ void main() {
 
 	direction = normalize(direction);
 
-	float scalar = edgeNoise(vUv, 4.0) * 2.0 - 1.0;
+	float scalar = edgeNoise(elementUv, 4.0) * 2.0 - 1.0;
 	vec2 offset = direction * scalar * uBorder / uResolution;
 	vec4 roughened = texture(
 		uSource,
@@ -482,6 +489,7 @@ const setupRoughenEdges = (target: HTMLCanvasElement): RoughenEdgesState => {
 		noiseTexture,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
 			uBorder: gl.getUniformLocation(program, 'uBorder'),
@@ -563,7 +571,15 @@ export const roughenEdges = createEffect<RoughenEdgesParams>({
 			RoughenEdgesState
 		>({
 			setup: (target) => setupRoughenEdges(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, sourceTexture, noiseTexture, uniforms} = state;
 
@@ -595,6 +611,14 @@ export const roughenEdges = createEffect<RoughenEdgesParams>({
 					state.cachedNoiseSeed = r.seed;
 				}
 
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uResolution)
 					gl.uniform2f(uniforms.uResolution, width, height);

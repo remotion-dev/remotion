@@ -1,13 +1,16 @@
+import {SAMPLE_LONGITUDE_GLSL} from '../webgl-projection-runtime.js';
+
 export const SPHERE_WEBGL_SHADER = /* glsl */ `#version 300 es
 precision highp float;
 uniform sampler2D uSource;
-uniform vec4 uParams[3];
+uniform vec4 uParams[4];
 out vec4 fragColor;
+${SAMPLE_LONGITUDE_GLSL}
 vec4 sampleFace(vec3 normal, mat3 inverseRotation) {
   vec3 local = inverseRotation * normal;
   // Longitude wraps at the seam; latitude spans the complete image height.
   vec2 uv = vec2(fract(atan(local.x, local.z) / 6.28318530718 + 0.5), asin(clamp(local.y, -1.0, 1.0)) / 3.14159265359 + 0.5);
-  vec4 color = textureLod(uSource, vec2(uv.x, 1.0 - uv.y), 0.0);
+  vec4 color = sampleLongitude(uv);
   float shade = mix(1.0, abs(normal.z), uParams[1].z);
   return vec4(color.rgb * shade, color.a);
 }
@@ -15,7 +18,14 @@ vec4 sampleFace(vec3 normal, mat3 inverseRotation) {
 vec4 project(vec2 position) {
   vec2 p = (position - uParams[0].zw) / uParams[1].x;
   float distanceSquared = dot(p, p);
-  float coverage = 1.0 - smoothstep(1.0 - fwidth(distanceSquared), 1.0, distanceSquared);
+  // WebGL fragment quads start at the bottom-left of the original element.
+  vec2 localPixel = position - uParams[3].xy;
+  localPixel.y = uParams[3].w - localPixel.y;
+  vec2 quadCenter = 2.0 * floor(localPixel * 0.5) + 1.0;
+  quadCenter.y = uParams[3].w - quadCenter.y;
+  quadCenter += uParams[3].xy;
+  float footprint = 2.0 * dot(abs(quadCenter - uParams[0].zw), vec2(1)) / (uParams[1].x * uParams[1].x);
+  float coverage = 1.0 - smoothstep(1.0 - footprint, 1.0, distanceSquared);
   if (distanceSquared >= 1.0) { return vec4(0); }
   float z = sqrt(1.0 - distanceSquared);
   vec3 s = sin(uParams[2].xyz);

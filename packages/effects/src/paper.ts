@@ -8,9 +8,10 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
-	PAPER_CROP_WEBGPU_SHADER,
-	PAPER_WEBGPU_SHADER,
-} from './paper-webgpu-shader.js';
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
+import {PAPER_WEBGPU_SHADER} from './paper-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
@@ -232,7 +233,8 @@ type PaperState = {
 	readonly sourceTexture: WebGLTexture;
 	readonly noiseTexture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
-	readonly uResolution: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uImageAspectRatio: WebGLUniformLocation | null;
 	readonly uColorFront: WebGLUniformLocation | null;
 	readonly uColorBack: WebGLUniformLocation | null;
@@ -357,7 +359,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uImageAspectRatio;
 
 uniform vec4 uColorFront;
@@ -381,8 +383,8 @@ uniform sampler2D uNoiseTexture;
 #define PI 3.14159265358979323846
 
 float getUvFrame(vec2 uv) {
-	float aax = 2.0 * fwidth(uv.x);
-	float aay = 2.0 * fwidth(uv.y);
+	float aax = 2.0 / uContentRect.z;
+	float aay = 2.0 / uContentRect.w;
 
 	float left = smoothstep(0.0, aax, uv.x);
 	float right = 1.0 - smoothstep(1.0 - aax, 1.0, uv.x);
@@ -566,8 +568,9 @@ float drops(vec2 uv) {
 }
 
 void main() {
-	vec2 paperUv = gl_FragCoord.xy / uResolution;
-	vec4 source = texture(uSource, paperUv);
+	vec2 paperPx = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	vec2 paperUv = paperPx / uContentRect.zw;
+	vec4 source = texture(uSource, gl_FragCoord.xy / uEffectTextureSize);
 	float sourceAlpha = source.a;
 
 	if (sourceAlpha <= 0.001 || uAmount <= 0.0) {
@@ -582,7 +585,7 @@ void main() {
 	patternUV = 5.0 * (patternUV * vec2(uImageAspectRatio, 1.0));
 
 	vec2 roughnessUv =
-		1.5 * (gl_FragCoord.xy - 0.5 * uResolution) +
+		1.5 * (paperPx - 0.5 * uContentRect.zw) +
 		128.0 * seedOffset(1.0);
 	float roughness =
 		roughnessNoise(roughnessUv + vec2(1.0, 0.0)) -
@@ -639,6 +642,7 @@ void main() {
 
 	imageUV += 0.02 * normalImage;
 	float frame = getUvFrame(imageUV);
+	imageUV = elementUvToTextureUvBottomLeft(imageUV, uEffectTextureSize);
 	vec4 displacedSource = texture(uSource, clamp(imageUV, vec2(0.0), vec2(1.0)));
 	vec3 displacedRgb = displacedSource.a > 0.001
 		? displacedSource.rgb / displacedSource.a
@@ -856,7 +860,8 @@ const setupPaper = (target: HTMLCanvasElement): PaperState => {
 		sourceTexture,
 		noiseTexture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
-		uResolution: gl.getUniformLocation(program, 'uResolution'),
+		uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uImageAspectRatio: gl.getUniformLocation(program, 'uImageAspectRatio'),
 		uColorFront: gl.getUniformLocation(program, 'uColorFront'),
 		uColorBack: gl.getUniformLocation(program, 'uColorBack'),
@@ -904,8 +909,6 @@ export const paper = createEffect<PaperParams>({
 				colorCtx: CanvasRenderingContext2D;
 				noiseData: Uint8Array<ArrayBuffer>;
 				noiseSeed: number | null;
-				paddedCanvas: HTMLCanvasElement;
-				paddedState: WebGpuSinglePassState;
 			}
 		>({
 			setup: (target) => {
@@ -915,37 +918,30 @@ export const paper = createEffect<PaperParams>({
 				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
 				if (!colorCtx)
 					throw new Error('Could not create paper color parsing context');
-				const paddedCanvas = document.createElement('canvas');
 
 				return {
 					...setupWebGpuSinglePass(target, 'paper'),
 					colorCtx,
 					noiseData: new Uint8Array(0),
 					noiseSeed: null,
-					paddedCanvas,
-					paddedState: setupWebGpuSinglePass(paddedCanvas, 'paper'),
 				};
 			},
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error('A WebGPU device is required for the paper effect');
 				const r = resolve(params);
-				// Derivative quads begin at the bottom in WebGL and the top in
-				// WebGPU. An extra top row aligns them when the height is odd.
-				const offsetY = height % 2;
-				if (
-					offsetY &&
-					(state.paddedCanvas.width !== width ||
-						state.paddedCanvas.height !== height + 1)
-				) {
-					state.paddedCanvas.width = width;
-					state.paddedCanvas.height = height + 1;
-				}
-
 				const uniformData = new Float32Array([
 					width,
 					height,
-					width / height,
+					contentRect.width / contentRect.height,
 					r.amount,
 					...normalizedRgba(parseColorRgba(state.colorCtx, r.colorFront)),
 					...normalizedRgba(parseColorRgba(state.colorCtx, r.colorBack)),
@@ -961,10 +957,6 @@ export const paper = createEffect<PaperParams>({
 					r.fade,
 					r.seed,
 					r.scale,
-					offsetY,
-					0,
-					0,
-					0,
 				]);
 				if (state.noiseSeed !== r.seed) {
 					state.noiseData = createNoiseData(r.seed);
@@ -973,7 +965,7 @@ export const paper = createEffect<PaperParams>({
 
 				applyWebGpuSinglePass(
 					{
-						state: offsetY ? state.paddedState : state,
+						state,
 						source,
 						width,
 						height,
@@ -991,26 +983,20 @@ export const paper = createEffect<PaperParams>({
 						},
 					},
 				);
-				if (offsetY) {
-					applyWebGpuSinglePass({
-						state,
-						source: state.paddedCanvas,
-						width,
-						height,
-						device: gpuDevice as GPUDevice,
-						shader: PAPER_CROP_WEBGPU_SHADER,
-						uniformData: new Float32Array([width, height, 0, 0]),
-					});
-				}
 			},
-			cleanup: (state) => {
-				cleanupWebGpuSinglePass(state.paddedState);
-				cleanupWebGpuSinglePass(state);
-			},
+			cleanup: cleanupWebGpuSinglePass,
 		}),
 		webgl2: Internals.createEffectImplementation<PaperParams, PaperState>({
 			setup: (target) => setupPaper(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, sourceTexture, noiseTexture} = state;
 				if (state.cachedColorFront !== r.colorFront) {
@@ -1065,9 +1051,19 @@ export const paper = createEffect<PaperParams>({
 				}
 
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
-				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uImageAspectRatio)
-					gl.uniform1f(state.uImageAspectRatio, width / height);
+					gl.uniform1f(
+						state.uImageAspectRatio,
+						contentRect.width / contentRect.height,
+					);
 				if (state.uColorFront)
 					gl.uniform4f(
 						state.uColorFront,

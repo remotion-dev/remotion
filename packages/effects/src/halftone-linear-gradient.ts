@@ -5,6 +5,10 @@ import {
 	parseColorRgba,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {HALFTONE_LINEAR_GRADIENT_WEBGPU_SHADER} from './halftone-linear-gradient-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -284,11 +288,11 @@ void main() {
 const HALFTONE_LINEAR_GRADIENT_FS = /* glsl */ `#version 300 es
 precision highp float;
 
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
 uniform float uFirstStopDotSize;
 uniform float uSecondStopDotSize;
 uniform vec2 uFirstStopPosition;
@@ -320,8 +324,8 @@ vec4 sourceAtop(vec4 backdrop, vec4 overlay) {
 }
 
 void main() {
-	vec2 fragPos = gl_FragCoord.xy;
-	vec2 center = uResolution * 0.5;
+	vec2 fragPos = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	vec2 center = uContentRect.zw * 0.5;
 	vec2 gridPos = fragPos - center;
 
 	float gridSize = max(uGridSize, 0.001);
@@ -329,7 +333,7 @@ void main() {
 	vec2 gridCenter = cellIndex * gridSize;
 	vec2 canvasCenter = center + gridCenter;
 
-	vec2 centerUv = canvasCenter / uResolution;
+	vec2 centerUv = canvasCenter / uContentRect.zw;
 	// Flip Y so that (0,0) is top-left, matching CSS/canvas coordinate conventions.
 	vec2 gradientUv = vec2(centerUv.x, 1.0 - centerUv.y);
 	float progress = gradientProgress(gradientUv);
@@ -344,7 +348,7 @@ void main() {
 	float radius = dotSize * 0.5;
 	float coverage = 1.0 - smoothstep(radius - 0.75, radius + 0.75, length(diff));
 
-	vec2 sampleUv = clamp(centerUv, vec2(0.0), vec2(1.0));
+	vec2 sampleUv = clamp(elementUvToTextureUvBottomLeft(centerUv, uEffectTextureSize), vec2(0.0), vec2(1.0));
 	vec4 texColor = texture(uSource, sampleUv);
 	vec4 dotColor = (uUseSourceColor ? texColor : uColor) * coverage;
 	fragColor = uUseSourceColor
@@ -362,7 +366,8 @@ type HalftoneLinearGradientState = {
 	vbo: WebGLBuffer;
 	texture: WebGLTexture;
 	uSource: WebGLUniformLocation | null;
-	uResolution: WebGLUniformLocation | null;
+	uContentRect: WebGLUniformLocation | null;
+	uEffectTextureSize: WebGLUniformLocation | null;
 	uFirstStopDotSize: WebGLUniformLocation | null;
 	uSecondStopDotSize: WebGLUniformLocation | null;
 	uFirstStopPosition: WebGLUniformLocation | null;
@@ -565,7 +570,11 @@ export const halftoneLinearGradient =
 						vbo,
 						texture,
 						uSource: gl.getUniformLocation(program, 'uSource'),
-						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+						uEffectTextureSize: gl.getUniformLocation(
+							program,
+							'uEffectTextureSize',
+						),
 						uFirstStopDotSize: gl.getUniformLocation(
 							program,
 							'uFirstStopDotSize',
@@ -594,7 +603,15 @@ export const halftoneLinearGradient =
 						cachedColorRgba: [0, 0, 0, 255],
 					};
 				},
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					const {gl, program, vao, texture} = state;
 
@@ -627,7 +644,14 @@ export const halftoneLinearGradient =
 					);
 
 					if (state.uSource) gl.uniform1i(state.uSource, 0);
-					if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+					setEffectCoordinateUniforms(
+						gl,
+						state.uContentRect,
+						state.uEffectTextureSize,
+						contentRect,
+						width,
+						height,
+					);
 					if (state.uFirstStopDotSize)
 						gl.uniform1f(state.uFirstStopDotSize, r.firstStopDotSize);
 					if (state.uSecondStopDotSize)

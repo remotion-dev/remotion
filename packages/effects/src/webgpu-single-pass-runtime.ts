@@ -1,4 +1,10 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
+import {
+	createEffectGeometryBuffer,
+	type EffectGeometryBuffer,
+	EFFECT_COORDINATES_WGSL,
+	writeEffectGeometry,
+} from './effect-coordinates.js';
 import {getSharedWebGpuResources} from './shared-webgpu-resources.js';
 
 export type WebGpuSinglePassState = {
@@ -20,6 +26,7 @@ export type WebGpuSinglePassState = {
 		readonly pipelines: Map<OutputVariant, GPURenderPipeline>;
 		readonly pipelineLayout: GPUPipelineLayout;
 		readonly uniforms: GPUBuffer;
+		readonly geometry: EffectGeometryBuffer;
 		readonly sampler: GPUSampler;
 		readonly bindGroupLayout: GPUBindGroupLayout;
 		source: {
@@ -73,7 +80,8 @@ fn ditherHash(pixel: vec2u) -> f32 {
 	let alpha = clamp(color.a, 0.0, 1.0);
 	// +/- 0.36 of an 8-bit step, so values that are exact 8-bit codes still
 	// round back to themselves after float16 storage.
-	let noise = (ditherHash(vec2u(input.position.xy)) - 0.5) * (0.72 / 255.0);
+	let pixel = vec2i(floor(input.position.xy - effectGeometry.contentRect.xy));
+	let noise = (ditherHash(bitcast<vec2u>(pixel)) - 0.5) * (0.72 / 255.0);
 	return vec4f(clamp(color.rgb + vec3f(noise), vec3f(0.0), vec3f(alpha)), alpha);
 }
 `;
@@ -101,6 +109,7 @@ const releasePrecise = (
 // WebGPU texture coordinates and fragment positions have a top-left origin.
 // WebGL shaders using vUv must invert its Y coordinate when porting their math.
 export const WEBGPU_SINGLE_PASS_VERTEX = /* wgsl */ `
+${EFFECT_COORDINATES_WGSL}
 struct VertexOutput {
 	@builtin(position) position: vec4f,
 	@location(0) uv: vec2f,
@@ -131,6 +140,7 @@ export const setupWebGpuSinglePass = (
 export const cleanupWebGpuSinglePass = (state: WebGpuSinglePassState): void => {
 	state.resources?.source?.texture.destroy();
 	state.resources?.uniforms.destroy();
+	state.resources?.geometry.buffer.destroy();
 	state.resources?.auxiliary?.texture.destroy();
 	if (state.resources) releasePrecise(state.resources);
 	state.resources = null;
@@ -142,6 +152,8 @@ export const applyWebGpuSinglePass = (
 		state,
 		source,
 		device,
+		width: outputWidth,
+		height: outputHeight,
 		shader,
 		uniformData,
 	}: {
@@ -163,6 +175,7 @@ export const applyWebGpuSinglePass = (
 			format: 'rgba8unorm' | 'rgba32float';
 		} | null;
 	} | null = null,
+	contentRect: EffectContentRect | null = null,
 ): void => {
 	const sourceFilter = options?.sourceFilter ?? 'linear';
 	const auxiliaryTexture = options?.auxiliaryTexture ?? null;
@@ -268,6 +281,11 @@ export const applyWebGpuSinglePass = (
 							visibility: GPUShaderStage.FRAGMENT,
 							buffer: {type: 'uniform'},
 						},
+						{
+							binding: 4,
+							visibility: GPUShaderStage.FRAGMENT,
+							buffer: {type: 'uniform'},
+						},
 					],
 				});
 				const pipelineLayout = device.createPipelineLayout({
@@ -310,6 +328,7 @@ export const applyWebGpuSinglePass = (
 			pipelines: new Map(),
 			pipelineLayout: shared.pipelineLayout,
 			uniforms,
+			geometry: createEffectGeometryBuffer(device),
 			sampler: shared.sampler,
 			bindGroupLayout: shared.bindGroupLayout,
 			source: null,
@@ -365,6 +384,7 @@ export const applyWebGpuSinglePass = (
 				{binding: 0, resource: view},
 				{binding: 1, resource: resources.sampler},
 				{binding: 2, resource: {buffer: resources.uniforms}},
+				{binding: 4, resource: {buffer: resources.geometry.buffer}},
 			],
 		});
 
@@ -460,6 +480,13 @@ export const applyWebGpuSinglePass = (
 		}
 
 		device.queue.writeBuffer(resources.uniforms, 0, uniformData);
+		writeEffectGeometry(
+			device,
+			resources.geometry,
+			contentRect ?? link?.contentRect ?? null,
+			outputWidth,
+			outputHeight,
+		);
 		const encoder = device.createCommandEncoder();
 		const draw = (view: GPUTextureView, pipeline: GPURenderPipeline) => {
 			const pass = encoder.beginRenderPass({

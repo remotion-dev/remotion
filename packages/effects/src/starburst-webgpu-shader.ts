@@ -19,8 +19,10 @@ fn paletteColor(index: f32) -> vec4f { return textureLoad(palette, vec2i(i32(ind
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- var center = vec2f(input.position.x, params.geometry.y - input.position.y) / params.geometry.xy - params.values.zw;
- center.x *= params.geometry.x / params.geometry.y;
+ let rect = effectGeometry.contentRect;
+ let pixel = input.position.xy - rect.xy;
+ var center = vec2f(pixel.x, rect.w - pixel.y) / rect.zw - params.values.zw;
+ center.x *= rect.z / rect.w;
  let angle = atan2(center.y, center.x) + params.values.x;
  let normalizedAngle = (angle + 3.14159265359) / (2.0 * 3.14159265359);
  let sector = normalizedAngle * params.geometry.z;

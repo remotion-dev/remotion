@@ -1,4 +1,5 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import type {LinearProgressiveBlurResolved} from './index.js';
 import {
 	buildLinearProgressiveBlurFs,
@@ -9,6 +10,8 @@ const {createWebGL2ContextError} = Internals;
 
 type LinearProgressiveBlurUniforms = {
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
 	readonly uTexelSize: WebGLUniformLocation | null;
 	readonly uStart: WebGLUniformLocation | null;
 	readonly uEnd: WebGLUniformLocation | null;
@@ -94,6 +97,8 @@ const getUniforms = (
 	program: WebGLProgram,
 ): LinearProgressiveBlurUniforms => ({
 	uSource: gl.getUniformLocation(program, 'uSource'),
+	uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+	uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 	uTexelSize: gl.getUniformLocation(program, 'uTexelSize'),
 	uStart: gl.getUniformLocation(program, 'uStart'),
 	uEnd: gl.getUniformLocation(program, 'uEnd'),
@@ -291,14 +296,24 @@ const setUniforms = ({
 	uniforms,
 	width,
 	height,
+	contentRect,
 	params,
 }: {
 	readonly gl: WebGL2RenderingContext;
 	readonly uniforms: LinearProgressiveBlurUniforms;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly params: LinearProgressiveBlurResolved;
 }): void => {
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uEffectTextureSize,
+		contentRect,
+		width,
+		height,
+	);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 	if (uniforms.uTexelSize)
 		gl.uniform2f(uniforms.uTexelSize, 1 / width, 1 / height);
@@ -321,6 +336,7 @@ export const applyLinearProgressiveBlur = ({
 	source,
 	width,
 	height,
+	contentRect,
 	params,
 	flipSourceY,
 }: {
@@ -328,6 +344,7 @@ export const applyLinearProgressiveBlur = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly params: LinearProgressiveBlurResolved;
 	readonly flipSourceY: boolean;
 }): void => {
@@ -364,6 +381,7 @@ export const applyLinearProgressiveBlur = ({
 		uniforms: state.horizontal,
 		width,
 		height,
+		contentRect,
 		params,
 	});
 	drawFullscreenQuad(state);
@@ -377,6 +395,7 @@ export const applyLinearProgressiveBlur = ({
 		uniforms: state.vertical,
 		width,
 		height,
+		contentRect,
 		params,
 	});
 	drawFullscreenQuad(state);

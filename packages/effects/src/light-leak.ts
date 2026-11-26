@@ -4,6 +4,7 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {EFFECT_COORDINATES_GLSL} from './effect-coordinates.js';
 import {LIGHT_LEAK_WEBGPU_SHADER} from './light-leak-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -94,6 +95,7 @@ void main() {
 
 const LIGHT_LEAK_FS = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -132,13 +134,13 @@ vec3 computePattern(vec2 uv, float s, float t) {
 
 void main() {
 	float refScale = 1.92;
-	vec2 uv = (gl_FragCoord.xy / resolution) * vec2(refScale, refScale * resolution.y / resolution.x);
+	vec2 maxUv = vec2(refScale, refScale * uContentRect.w / uContentRect.z);
+	vec2 uv = textureUvToElementUvBottomLeft(gl_FragCoord.xy / resolution, resolution) * maxUv;
 
 	vec3 patA = computePattern(uv, seed, evolveProgress * Pi);
 	float threshA = 1.0 - evolveProgress;
 	float revealAlpha = smoothstep(threshA, threshA + 0.3, patA.z);
 
-	vec2 maxUv = vec2(refScale, refScale * resolution.y / resolution.x);
 	vec2 retractUv = maxUv - uv;
 	vec3 patB = computePattern(retractUv, retractSeed, retractProgress * Pi);
 	float threshB = 1.0 - retractProgress;
@@ -186,6 +188,7 @@ type LightLeakGlState = {
 	uRetractSeed: WebGLUniformLocation | null;
 	uHueShift: WebGLUniformLocation | null;
 	uResolution: WebGLUniformLocation | null;
+	uContentRect: WebGLUniformLocation | null;
 };
 
 const compileShader = (
@@ -252,13 +255,9 @@ export const lightLeak = createEffect<LightLeakEffectParams>({
 					);
 				const r = resolve(params);
 				const uniformData = new Float32Array([
-					width,
-					height,
 					r.progress,
 					r.seed,
 					r.hueShift,
-					0,
-					0,
 					0,
 				]);
 
@@ -347,9 +346,18 @@ export const lightLeak = createEffect<LightLeakEffectParams>({
 					uRetractSeed: gl.getUniformLocation(program, 'retractSeed'),
 					uHueShift: gl.getUniformLocation(program, 'hueShift'),
 					uResolution: gl.getUniformLocation(program, 'resolution'),
+					uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const evolveProgress = Math.min(1, r.progress * 2);
 				const retractProgress = Math.max(0, r.progress * 2 - 1);
@@ -366,6 +374,7 @@ export const lightLeak = createEffect<LightLeakEffectParams>({
 					uRetractSeed,
 					uHueShift,
 					uResolution,
+					uContentRect,
 				} = state;
 
 				gl.viewport(0, 0, width, height);
@@ -397,6 +406,13 @@ export const lightLeak = createEffect<LightLeakEffectParams>({
 				if (uRetractSeed) gl.uniform1f(uRetractSeed, r.seed + 42);
 				if (uHueShift) gl.uniform1f(uHueShift, r.hueShift);
 				if (uResolution) gl.uniform2f(uResolution, width, height);
+				gl.uniform4f(
+					uContentRect,
+					contentRect.x,
+					contentRect.y,
+					contentRect.width,
+					contentRect.height,
+				);
 
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

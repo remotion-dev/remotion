@@ -41,8 +41,9 @@ fn sampleSource(p: vec2f) -> vec4f {
 }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   if(params.amount==0.0) { return textureSampleLevel(source,sourceSampler,input.uv,0); }
-  let pixel=input.uv*params.size;
-  let p=(pixel-params.offset*params.size)/params.scale;
+  let pixel=input.position.xy;
+  let elementPixel=pixel-effectGeometry.contentRect.xy;
+  let p=(elementPixel-params.offset*effectGeometry.contentRect.zw)/params.scale;
   let mode=i32(params.displacement);
   var displacement: vec2f;
   if(mode==1 || mode==2 || mode==4 || mode==5) {
@@ -55,9 +56,9 @@ fn sampleSource(p: vec2f) -> vec4f {
   else { displacement=vec2f(turbulence(p,0u),turbulence(p,17u))*params.amount; }
   let locked=params.pinning>=8.0;
   let pin=select(params.pinning,params.pinning-7.0,locked);
-  let edge=max(1.0,min(params.size.x,params.size.y)*select(0.1,0.25,locked));
-  let nearEdge=clamp((pixel-vec2f(0.5))/edge,vec2f(0),vec2f(1));
-  let farEdge=clamp((params.size-vec2f(0.5)-pixel)/edge,vec2f(0),vec2f(1));
+  let edge=max(1.0,min(effectGeometry.contentRect.z,effectGeometry.contentRect.w)*select(0.1,0.25,locked));
+  let nearEdge=clamp((elementPixel-vec2f(0.5))/edge,vec2f(0),vec2f(1));
+  let farEdge=clamp((effectGeometry.contentRect.zw-vec2f(0.5)-elementPixel)/edge,vec2f(0),vec2f(1));
   let horizontal=min(nearEdge.x,farEdge.x); let vertical=min(nearEdge.y,farEdge.y);
   var weight=1.0;
   if(pin==1.0) { weight=min(horizontal,vertical); }

@@ -9,6 +9,7 @@ import React, {
 import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
+import {effectCanvasGeometries} from './effects/effect-canvas-geometries.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -610,7 +611,63 @@ const HtmlInCanvasContent = forwardRef<
 			[ref, paintTargetMode],
 		);
 
-		const chainState = useEffectChainState(effectsOutputSize);
+		const effectWidth = effectsOutputSize?.width;
+		const effectHeight = effectsOutputSize?.height;
+		const effectGeometry = useMemo(() => {
+			if (
+				growBounds === 0 &&
+				(effectWidth ?? canvasWidth) * height ===
+					(effectHeight ?? canvasHeight) * width
+			) {
+				return null;
+			}
+
+			// The requested resolution applies to the element. Process the padding at the same density.
+			const textureWidth =
+				effectWidth === undefined
+					? canvasWidth
+					: Math.ceil((effectWidth * width) / (width - 2 * growBounds));
+			const textureHeight =
+				effectHeight === undefined
+					? canvasHeight
+					: Math.ceil((effectHeight * height) / (height - 2 * growBounds));
+			const x = (growBounds * textureWidth) / width;
+			const y = (growBounds * textureHeight) / height;
+			return {
+				width: textureWidth,
+				height: textureHeight,
+				contentRect: {
+					x,
+					y,
+					width: textureWidth - 2 * x,
+					height: textureHeight - 2 * y,
+				},
+			};
+		}, [
+			canvasWidth,
+			canvasHeight,
+			width,
+			height,
+			growBounds,
+			effectWidth,
+			effectHeight,
+		]);
+		const chainState = useEffectChainState(effectsOutputSize, effectGeometry);
+
+		useLayoutEffect(() => {
+			const visibleCanvas =
+				paintTargetMode === 'copied'
+					? outputCanvasRef.current
+					: canvas2dRef.current;
+			if (!visibleCanvas || effectGeometry === null) {
+				return;
+			}
+
+			effectCanvasGeometries.set(visibleCanvas, effectGeometry);
+			return () => {
+				effectCanvasGeometries.delete(visibleCanvas);
+			};
+		}, [effectGeometry, paintTargetMode]);
 
 		const memoizedEffects = useMemoizedEffects({
 			effects,

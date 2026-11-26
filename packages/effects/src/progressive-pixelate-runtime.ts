@@ -1,10 +1,15 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
 const {createWebGL2ContextError} = Internals;
 
 export type ProgressivePixelateUniforms = {
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uMode: WebGLUniformLocation | null;
 	readonly uStart: WebGLUniformLocation | null;
@@ -40,6 +45,7 @@ void main() {
 
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -68,12 +74,12 @@ float linearProgress(vec2 uv) {
 }
 
 float radialProgress(vec2 uv) {
-	vec2 radii = vec2(uWidth * uResolution.x, uHeight * uResolution.y) * 0.5;
+	vec2 radii = vec2(uWidth, uHeight) * uContentRect.zw * 0.5;
 	if (radii.x <= 0.0000001 || radii.y <= 0.0000001) {
 		return 0.0;
 	}
 
-	vec2 delta = (uv - uCenter) * uResolution;
+	vec2 delta = (uv - uCenter) * uContentRect.zw;
 	float angle = radians(uRotation);
 	float c = cos(angle);
 	float s = sin(angle);
@@ -89,14 +95,15 @@ float radialProgress(vec2 uv) {
 }
 
 vec4 samplePixelated(float blockSize) {
-	vec2 pixelSizeUv = vec2(blockSize) / uResolution;
-	vec2 blockUv = floor(vUv / pixelSizeUv) * pixelSizeUv + pixelSizeUv * 0.5;
-	return texture(uSource, blockUv);
+	vec2 localUv = textureUvToElementUvBottomLeft(vUv, uResolution);
+	vec2 pixelSizeUv = vec2(blockSize) / uContentRect.zw;
+	vec2 blockUv = floor(localUv / pixelSizeUv) * pixelSizeUv + pixelSizeUv * 0.5;
+	return texture(uSource, elementUvToTextureUvBottomLeft(blockUv, uResolution));
 }
 
 void main() {
 	// Public UV coordinates use top-left origin, matching canvas/CSS coordinates.
-	vec2 publicUv = vec2(vUv.x, 1.0 - vUv.y);
+	vec2 publicUv = textureUvToElementUv(vec2(vUv.x, 1.0 - vUv.y), uResolution);
 	float progress = uMode == 0
 		? linearProgress(publicUv)
 		: radialProgress(publicUv);
@@ -226,6 +233,7 @@ export const setupProgressivePixelate = (
 		texture,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uMode: gl.getUniformLocation(program, 'uMode'),
 			uStart: gl.getUniformLocation(program, 'uStart'),
@@ -246,12 +254,14 @@ export const prepareProgressivePixelate = ({
 	source,
 	width,
 	height,
+	contentRect,
 	flipSourceY,
 }: {
 	readonly state: ProgressivePixelateState;
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly flipSourceY: boolean;
 }): void => {
 	const {gl, uniforms} = state;
@@ -273,7 +283,14 @@ export const prepareProgressivePixelate = ({
 	);
 	gl.useProgram(state.program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-	if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uResolution,
+		contentRect,
+		width,
+		height,
+	);
 };
 
 export const drawProgressivePixelate = (
@@ -318,9 +335,9 @@ fn linearProgress(uv: vec2f) -> f32 {
  return clamp(dot(uv - params.startEnd.xy, gradient) / gradientLengthSq, 0.0, 1.0);
 }
 fn radialProgress(uv: vec2f) -> f32 {
- let radii = params.centerSize.zw * params.resolutionModeBlock.xy * 0.5;
+ let radii = params.centerSize.zw * effectGeometry.contentRect.zw * 0.5;
  if (radii.x <= 0.0000001 || radii.y <= 0.0000001) { return 0.0; }
- let delta = (uv - params.centerSize.xy) * params.resolutionModeBlock.xy;
+ let delta = (uv - params.centerSize.xy) * effectGeometry.contentRect.zw;
  let angle = radians(params.controls.x);
  let c = cos(angle);
  let s = sin(angle);
@@ -331,20 +348,21 @@ fn radialProgress(uv: vec2f) -> f32 {
  return clamp((ellipseProgress - params.controls.y) / distance, 0.0, 1.0);
 }
 fn samplePixelated(uv: vec2f, blockSize: f32) -> vec4f {
- let pixelSizeUv = vec2f(blockSize) / params.resolutionModeBlock.xy;
+ let pixelSizeUv = vec2f(blockSize) / effectGeometry.contentRect.zw;
  let blockUv = floor(uv / pixelSizeUv) * pixelSizeUv + pixelSizeUv * 0.5;
- return textureSampleLevel(source, sourceSampler, vec2f(blockUv.x, 1.0 - blockUv.y), 0);
+ return textureSampleLevel(source, sourceSampler, elementUvToTextureUv(vec2f(blockUv.x, 1.0 - blockUv.y), params.resolutionModeBlock.xy), 0);
 }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+ let elementUv = textureUvToElementUv(input.uv, params.resolutionModeBlock.xy);
  var progress: f32;
- if (params.resolutionModeBlock.z == 0.0) { progress = linearProgress(input.uv); }
- else { progress = radialProgress(input.uv); }
+ if (params.resolutionModeBlock.z == 0.0) { progress = linearProgress(elementUv); }
+ else { progress = radialProgress(elementUv); }
  let targetBlockSize = max(1.0, mix(params.resolutionModeBlock.w, params.controls.z, progress));
  let level = log2(targetBlockSize);
  let lowerBlockSize = exp2(floor(level));
  let upperBlockSize = lowerBlockSize * 2.0;
  let levelProgress = fract(level);
- let uv = vec2f(input.uv.x, 1.0 - input.uv.y);
+ let uv = vec2f(elementUv.x, 1.0 - elementUv.y);
  return mix(samplePixelated(uv, lowerBlockSize), samplePixelated(uv, upperBlockSize), levelProgress);
 }
 `;

@@ -13,14 +13,17 @@ struct Params { resolutionAndWave: vec4f, phaseAndDirection: vec4f, }
   let phase = params.phaseAndDirection.x;
   var uv = input.uv;
   if (params.phaseAndDirection.y == 0.0) {
-    let coord = input.uv.x * resolution.x;
+    let coord = input.uv.x * resolution.x - effectGeometry.contentRect.x;
     let offset = sin((coord / wavelength) * 6.28318530718 + phase) * amplitude;
     uv.y += offset / resolution.y;
   } else {
-    let coord = (1.0 - input.uv.y) * resolution.y;
+    let bottomInset = resolution.y - effectGeometry.contentRect.y - effectGeometry.contentRect.w;
+    let coord = (1.0 - input.uv.y) * resolution.y - bottomInset;
     let offset = sin((coord / wavelength) * 6.28318530718 + phase) * amplitude;
     uv.x -= offset / resolution.x;
   }
-  return textureSampleLevel(source, sourceSampler, uv, 0);
+  let edgeDistance = min(uv, vec2f(1.0) - uv) * resolution;
+  let coverage = clamp(edgeDistance + vec2f(0.5), vec2f(0.0), vec2f(1.0));
+  return textureSampleLevel(source, sourceSampler, uv, 0) * coverage.x * coverage.y;
 }
 `;

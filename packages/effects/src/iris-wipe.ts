@@ -5,6 +5,7 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {EFFECT_COORDINATES_GLSL} from './effect-coordinates.js';
 import {
 	cleanupSinglePass,
 	drawSinglePass,
@@ -170,6 +171,7 @@ const validateIrisWipeParams = (params: IrisWipeParams): void => {
 // https://github.com/storytold/effectcraft/blob/eb5108786b90bf994a6abe4e6c0b2614c6aeaa29/crates/effects/src/transition.rs
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -197,7 +199,7 @@ void main() {
 		return;
 	}
 
-	vec2 position = (vec2(vUv.x, 1.0 - vUv.y) - uCenter) * uResolution;
+	vec2 position = (textureUvToElementUv(vec2(vUv.x, 1.0 - vUv.y), uResolution) - uCenter) * uContentRect.zw;
 	float radius = length(position);
 	float innerRadius = uUseInnerRadius ? uInnerRadius : uOuterRadius;
 	float boundary = min(uOuterRadius, innerRadius);
@@ -239,7 +241,7 @@ fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }
 	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
 	let outerRadius = params.radii.y;
 	if (outerRadius <= 0.0) { return color; }
-	let position = (input.uv - params.resolutionCenter.zw) * params.resolutionCenter.xy;
+	let position = (textureUvToElementUv(input.uv, params.resolutionCenter.xy) - params.resolutionCenter.zw) * effectGeometry.contentRect.zw;
 	let radius = length(position);
 	let useInnerRadius = params.radii.z != 0.0;
 	let innerRadius = select(outerRadius, params.radii.w, useInnerRadius);

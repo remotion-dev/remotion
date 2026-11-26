@@ -1,4 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
+import assert from 'node:assert/strict';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
@@ -233,7 +234,13 @@ test('<HtmlInCanvas> registers its grown canvas for outline selection', async ()
 				registeredSequences.push(sequence);
 			}}
 		>
-			<HtmlInCanvas ref={canvasRef} width={120} height={80} growBounds={24}>
+			<HtmlInCanvas
+				ref={canvasRef}
+				width={120}
+				height={80}
+				growBounds={24}
+				effectsOutputSize={{width: 240, height: 240}}
+			>
 				<div>Test</div>
 			</HtmlInCanvas>
 		</SequenceTestWrapper>,
@@ -244,9 +251,19 @@ test('<HtmlInCanvas> registers its grown canvas for outline selection', async ()
 	});
 
 	const canvas = container.querySelector('canvas');
-	expect(canvas).not.toBeNull();
+	assert(canvas);
 	expect(canvasRef.current).toBe(canvas);
 	expect(registeredSequences[0].refForOutline?.current).toBe(canvas);
+
+	const geometry = Internals.effectCanvasGeometries.get(canvas);
+	expect(geometry).toEqual({
+		width: 336,
+		height: 384,
+		contentRect: {x: 48, y: 72, width: 240, height: 240},
+	});
+	const snapshot = Internals.captureEffectPreviewSnapshot(canvas);
+	assert(snapshot);
+	expect(Internals.effectCanvasGeometries.get(snapshot)).toBe(geometry);
 });
 
 test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {

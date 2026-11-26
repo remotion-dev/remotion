@@ -6,6 +6,7 @@ import {
 	validateUnitInterval,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {elementUvToTextureUv} from './effect-coordinates.js';
 import {RINGS_WEBGPU_SHADER} from './rings-webgpu-shader.js';
 import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
@@ -467,10 +468,24 @@ export const rings = createEffect<RingsParams>({
 		webgpu: Internals.createEffectImplementation<RingsParams, WebGpuColorState>(
 			{
 				setup: (target) => setupWebGpuColors(target, 'rings'),
-				apply: ({source, width, height, params, state, gpuDevice}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					gpuDevice,
+				}) => {
 					if (!gpuDevice)
 						throw new Error('A WebGPU device is required for the rings effect');
 					const r = resolve(params);
+					const textureCenter = elementUvToTextureUv(
+						r.center,
+						contentRect,
+						width,
+						height,
+					);
 					const colors = getWebGpuColors(state, r.colors);
 					const uniformData = new Float32Array([
 						width,
@@ -481,8 +496,8 @@ export const rings = createEffect<RingsParams>({
 						r.spacing,
 						0,
 						r.offset,
-						r.center[0],
-						1 - r.center[1],
+						textureCenter[0],
+						1 - textureCenter[1],
 						0,
 						0,
 						r.maskToSourceAlpha ? 1 : 0,
@@ -516,8 +531,22 @@ export const rings = createEffect<RingsParams>({
 		),
 		webgl2: Internals.createEffectImplementation<RingsParams, RingsState>({
 			setup: (target) => setupRings(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
+				const textureCenter = elementUvToTextureUv(
+					r.center,
+					contentRect,
+					width,
+					height,
+				);
 				const paletteDirty = updatePalette(state, r.colors);
 				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
 					state;
@@ -567,7 +596,7 @@ export const rings = createEffect<RingsParams>({
 				if (uniforms.uNumColors)
 					gl.uniform1f(uniforms.uNumColors, r.colors.length);
 				if (uniforms.uCenter) {
-					const shaderCenter = publicUvToShaderUv(r.center);
+					const shaderCenter = publicUvToShaderUv(textureCenter);
 					gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
 				}
 

@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -135,6 +139,8 @@ type VenetianBlindsState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uniforms: {
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uProgress: WebGLUniformLocation | null;
 		readonly uDirection: WebGLUniformLocation | null;
@@ -155,6 +161,7 @@ void main() {
 
 const VENETIAN_BLINDS_FS = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -180,7 +187,8 @@ float maskValue(float distanceToCenter, float progress) {
 
 void main() {
 	vec4 source = texture(uSource, vUv);
-	float axis = uDirection == 0 ? vUv.x : vUv.y;
+	vec2 uv = textureUvToElementUvBottomLeft(vUv, uEffectTextureSize);
+	float axis = uDirection == 0 ? uv.x : uv.y;
 	float local = fract(axis * max(uSlats, 1.0));
 	float distanceToCenter = abs(local - 0.5) * 2.0;
 	float mask = maskValue(distanceToCenter, uProgress);
@@ -304,6 +312,8 @@ const setupVenetianBlinds = (
 		vbo,
 		texture,
 		uniforms: {
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
 			uDirection: gl.getUniformLocation(program, 'uDirection'),
@@ -333,7 +343,8 @@ struct Params { controls: vec4f, }
 @group(0) @binding(2) var<uniform> params: Params;
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
 	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
-	let axis = select(input.uv.x, 1.0 - input.uv.y, params.controls.y != 0.0);
+	let uv = textureUvToElementUv(input.uv, effectGeometry.textureSize);
+	let axis = select(uv.x, 1.0 - uv.y, params.controls.y != 0.0);
 	let local = fract(axis * max(params.controls.z, 1.0));
 	let distanceToCenter = abs(local - 0.5) * 2.0;
 	let progress = clamp(params.controls.x, 0.0, 1.0);
@@ -388,7 +399,15 @@ export const venetianBlinds = createEffect<VenetianBlindsParams>({
 			VenetianBlindsState
 		>({
 			setup: (target) => setupVenetianBlinds(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, uniforms, vao} = state;
 
@@ -410,6 +429,14 @@ export const venetianBlinds = createEffect<VenetianBlindsParams>({
 				);
 
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
 				if (uniforms.uDirection)

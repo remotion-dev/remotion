@@ -1,3 +1,22 @@
+// Longitude repeats across the original image even when the texture has a gutter.
+export const SAMPLE_LONGITUDE_WGSL = /* wgsl */ `
+fn sampleLongitude(uv: vec2f) -> vec4f {
+  let rect = params.contentRect;
+  let textureUv = (rect.xy + uv * rect.zw) / params.resolution;
+  let texel = 1.0 / f32(textureDimensions(source).x);
+  let left = rect.x / params.resolution.x;
+  let right = (rect.x + rect.z) / params.resolution.x;
+  let fromLeft = (textureUv.x - left) / texel;
+  let fromRight = (right - textureUv.x) / texel;
+  if ((left > 0 || right < 1) && min(fromLeft, fromRight) < 0.5) {
+    let first = textureSampleLevel(source, sourceSampler, vec2f(left + texel * 0.5, textureUv.y), 0);
+    let last = textureSampleLevel(source, sourceSampler, vec2f(right - texel * 0.5, textureUv.y), 0);
+    return mix(last, first, select(0.5 - fromRight, 0.5 + fromLeft, fromLeft < fromRight));
+  }
+  return textureSampleLevel(source, sourceSampler, textureUv, 0);
+}
+`;
+
 // Pipelines and samplers are immutable. Uniforms, textures, and their bind
 // groups stay local to each effect so interleaved draws cannot overwrite them.
 const deviceResources = new WeakMap<

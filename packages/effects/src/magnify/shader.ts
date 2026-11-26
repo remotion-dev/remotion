@@ -1,14 +1,16 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
+
 // Adapted from EffectCraft's magnify() and bicubic sampler under the MIT license.
 // https://github.com/storytold/effectcraft/blob/1786c24523a5d5a67c01ff41213b66018a69bb04/crates/effects/src/distort2.rs
 // See ../../THIRD_PARTY_LICENSES.md.
 export const MAGNIFY_FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
 precision highp int;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
 uniform sampler2D uSource;
-uniform vec2 uResolution;
 uniform vec2 uCenter;
 uniform float uMagnification;
 uniform float uSize;
@@ -18,11 +20,12 @@ uniform bool uSquare;
 uniform int uScaling;
 uniform bool uIsolated;
 
-vec4 pixelAt(ivec2 p) {
+vec4 pixelAt(ivec2 localPixel) {
+	ivec2 p = localPixel + ivec2(floor(uContentRect.xy));
 	if (any(lessThan(p, ivec2(0))) || any(greaterThanEqual(p, textureSize(uSource, 0)))) {
 		return vec4(0.0);
 	}
-	return texelFetch(uSource, p, 0);
+	return texelFetch(uSource, ivec2(p.x, textureSize(uSource, 0).y - 1 - p.y), 0);
 }
 
 vec4 cubicWeights(float t) {
@@ -34,16 +37,13 @@ vec4 cubicWeights(float t) {
 		0.5 * t3 - 0.5 * t2);
 }
 
-vec4 sampleMagnified(vec2 uv, vec2 position) {
-	vec2 dimensions = vec2(textureSize(uSource, 0));
-	vec2 p = uv * dimensions;
+vec4 sampleMagnified(vec2 p, vec2 position) {
 	if (uScaling == 0) return pixelAt(ivec2(floor(p)));
 	if (uScaling == 2) {
-		uvec2 xy = uvec2(floor(position));
+		uvec2 xy = uvec2(ivec2(floor(position)));
 		uvec2 h = (xy.x ^ (xy.y + uvec2(1048576u, 2097152u))) * 1664525u + 1013904223u;
 		h = (h ^ (h >> 16u)) * 2246822519u;
 		vec2 jitter = (vec2(h ^ (h >> 13u)) / 4294967295.0 - 0.5) * max(1.0 - 1.0 / uMagnification, 0.0);
-		jitter.y = -jitter.y;
 		vec2 q = floor(p) + jitter;
 		ivec2 base = ivec2(floor(q));
 		vec2 f = fract(q);
@@ -66,8 +66,9 @@ vec4 sampleMagnified(vec2 uv, vec2 position) {
 
 void main() {
 	vec4 original = texture(uSource, vUv);
-	vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
-	vec2 offset = (uv - uCenter) * uResolution;
+	vec2 pixel = vec2(gl_FragCoord.x, uEffectTextureSize.y - gl_FragCoord.y) - uContentRect.xy;
+	vec2 center = uCenter * uContentRect.zw;
+	vec2 offset = pixel - center;
 	float distance = uSquare ? max(abs(offset.x), abs(offset.y)) : length(offset);
 	float weight = 0.0;
 	if (uSize > 0.0) {
@@ -80,9 +81,10 @@ void main() {
 		fragColor = uIsolated ? vec4(0.0) : original;
 		return;
 	}
-	vec2 sourceUv = uCenter + offset / (uResolution * uMagnification);
+	// Resolve filtering in element pixels before adding the integer texture origin.
+	vec2 sourcePixel = fract(uContentRect.xy) + center + offset / uMagnification;
 	vec4 magnified = uMagnification == 1.0 ? original
-		: sampleMagnified(vec2(sourceUv.x, 1.0 - sourceUv.y), uv * uResolution);
+		: sampleMagnified(sourcePixel, pixel);
 	fragColor = uIsolated ? magnified * weight : mix(original, magnified, weight);
 }
 `;

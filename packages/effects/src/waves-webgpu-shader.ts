@@ -25,7 +25,7 @@ fn paletteColor(index: f32) -> vec4f { return textureLoad(palette, vec2i(i32(ind
  let thickness = max(params.stripe.x, 0.001);
  let spacing = max(params.stripe.y, 0.001);
  let cycle = spacing * params.geometry.z;
- let centered = vec2f(input.position.x, params.geometry.y - input.position.y) - params.geometry.xy * 0.5;
+ let centered = (input.position.xy - effectGeometry.contentRect.xy - effectGeometry.contentRect.zw * 0.5) * vec2f(1.0, -1.0);
  let s = sin(params.stripe.z);
  let c = cos(params.stripe.z);
  let rotated = vec2f(centered.x * c - centered.y * s, centered.x * s + centered.y * c);

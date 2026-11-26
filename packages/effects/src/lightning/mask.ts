@@ -1,5 +1,6 @@
 // Core coverage and the three-box Gaussian approximation follow EffectCraft's
 // generate2.rs and util.rs (MIT). See ../../THIRD_PARTY_LICENSES.md.
+import type {EffectContentRect} from 'remotion';
 import {lightningSegments} from './geometry.js';
 import type {LightningParams} from './params.js';
 
@@ -37,13 +38,20 @@ const transpose = (
 	}
 };
 
-export const makeLightningMask = (
-	p: Required<LightningParams>,
-	width: number,
-	height: number,
-	alpha: ImageData | null,
-) => {
-	const segments = lightningSegments(p, width, height, alpha);
+export const makeLightningMask = ({
+	params: p,
+	width,
+	height,
+	contentRect,
+	alpha,
+}: {
+	params: Required<LightningParams>;
+	width: number;
+	height: number;
+	contentRect: EffectContentRect;
+	alpha: ImageData | null;
+}) => {
+	const segments = lightningSegments(p, contentRect, alpha);
 	const data = new Uint8Array(width * height * 4);
 	const coreRadius = Math.max(0.3, p.coreRadius);
 	const sigma = p.glowRadius / 3;

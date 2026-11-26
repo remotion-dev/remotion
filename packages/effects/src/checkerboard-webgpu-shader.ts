@@ -24,7 +24,7 @@ fn paletteColor(index: f32) -> vec4f { return textureLoad(palette, vec2i(i32(ind
  let texColor = sampleSource(vUv);
  let cellSize = max(params.geometry.w, 0.001);
  let spacing = max(params.grid.x, 0.001);
- let centered = vec2f(input.position.x, params.geometry.y - input.position.y) - params.geometry.xy * 0.5;
+ let centered = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y) - effectGeometry.contentRect.zw * 0.5;
  let s = sin(params.grid.y);
  let c = cos(params.grid.y);
  let rotated = vec2f(centered.x * c - centered.y * s, centered.x * s + centered.y * c);

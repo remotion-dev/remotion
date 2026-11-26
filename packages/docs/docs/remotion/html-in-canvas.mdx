@@ -82,7 +82,7 @@ _number_
 
 Adds transparent space on each side of the children before painting and applying effects. Accepts a nonnegative number of CSS pixels and defaults to `0`. The selection outline in Studio includes this space.
 
-For example, `width={100} height={60} growBounds={24}` paints a 148 × 108 canvas. The children still occupy 100 × 60 at their original position, leaving room for a CSS box shadow or a [`dropShadow()` effect](/docs/effects/drop-shadow).
+For example, `width={100} height={60} growBounds={24}` paints a 148 × 108 canvas. The children still occupy 100 × 60 at their original position, leaving room for a CSS box shadow or a [`dropShadow()` effect](/docs/effects/drop-shadow). Spatial effects use the original element as their coordinate system. Increasing the padding reveals more of a wave while its peaks stay anchored to the same points on the element.
 
 ### `pixelDensity?`<AvailableFrom v="4.0.472" />
 

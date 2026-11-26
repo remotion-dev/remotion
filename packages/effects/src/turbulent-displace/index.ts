@@ -1,6 +1,7 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
@@ -249,6 +250,7 @@ type TurbulentDisplaceState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uDisplacement: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
@@ -391,6 +393,7 @@ const setupTurbulentDisplace = (
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uDisplacement: gl.getUniformLocation(program, 'uDisplacement'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
@@ -459,7 +462,15 @@ export const turbulentDisplace = createEffect<TurbulentDisplaceParams>({
 			TurbulentDisplaceState
 		>({
 			setup: (target) => setupTurbulentDisplace(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, vao} = state;
 
@@ -481,6 +492,14 @@ export const turbulentDisplace = createEffect<TurbulentDisplaceParams>({
 				);
 
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
 				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
 				if (state.uDisplacement)

@@ -1,3 +1,5 @@
+import {SAMPLE_LONGITUDE_WGSL} from '../webgpu-projection-runtime.js';
+
 export const SPHERE_SHADER = /* wgsl */ `
 struct Params {
   resolution: vec2f,
@@ -7,6 +9,7 @@ struct Params {
   shading: f32,
   faces: f32,
   rotation: vec4f,
+  contentRect: vec4f,
 }
 @group(0) @binding(0) var source: texture_2d<f32>;
 @group(0) @binding(1) var sourceSampler: sampler;
@@ -17,11 +20,12 @@ struct Params {
   return vec4f(positions[index], 0, 1);
 }
 
+${SAMPLE_LONGITUDE_WGSL}
 fn sampleFace(normal: vec3f, inverse: mat3x3f) -> vec4f {
   let local = inverse * normal;
   // Longitude wraps at the seam; latitude spans the complete image height.
   let uv = vec2f(fract(atan2(local.x, local.z) / 6.28318530718 + 0.5), asin(clamp(local.y, -1.0, 1.0)) / 3.14159265359 + 0.5);
-  let color = textureSampleLevel(source, sourceSampler, uv, 0);
+  let color = sampleLongitude(uv);
   let shade = mix(1.0, abs(normal.z), params.shading);
   return vec4f(color.rgb * shade, color.a);
 }
@@ -29,7 +33,11 @@ fn sampleFace(normal: vec3f, inverse: mat3x3f) -> vec4f {
 @fragment fn fragment(@builtin(position) position: vec4f) -> @location(0) vec4f {
   let p = (position.xy - params.center) / params.radius;
   let distanceSquared = dot(p, p);
-  let coverage = 1.0 - smoothstep(1.0 - fwidth(distanceSquared), 1.0, distanceSquared);
+  // Evaluate the antialiasing footprint on the element's original 2x2 fragment grid.
+  let localPixel = position.xy - params.contentRect.xy;
+  let quadCenter = params.contentRect.xy + 2.0 * floor(localPixel * 0.5) + 1.0;
+  let footprint = 2.0 * dot(abs(quadCenter - params.center), vec2f(1)) / (params.radius * params.radius);
+  let coverage = 1.0 - smoothstep(1.0 - footprint, 1.0, distanceSquared);
   if (distanceSquared >= 1.0) { return vec4f(0); }
   let z = sqrt(1.0 - distanceSquared);
   let s = sin(params.rotation.xyz);

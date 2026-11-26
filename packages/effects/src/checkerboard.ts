@@ -7,6 +7,10 @@ import {
 	type ParsedColorRgba,
 } from './color-utils.js';
 import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertRequiredColor,
@@ -126,7 +130,8 @@ type CheckerboardState = {
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uPalette: WebGLUniformLocation | null;
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uNumColors: WebGLUniformLocation | null;
 		readonly uCellSize: WebGLUniformLocation | null;
 		readonly uSpacing: WebGLUniformLocation | null;
@@ -220,7 +225,7 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform sampler2D uPalette;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uNumColors;
 uniform float uCellSize;
 uniform float uSpacing;
@@ -232,7 +237,7 @@ void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float cellSize = max(uCellSize, 0.001);
 	float spacing = max(uSpacing, 0.001);
-	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
+	vec2 centered = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y) - uContentRect.zw * 0.5;
 	float s = sin(uAngle);
 	float c = cos(uAngle);
 	vec2 rotated = vec2(
@@ -414,7 +419,8 @@ const setupCheckerboard = (target: HTMLCanvasElement): CheckerboardState => {
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uPalette: gl.getUniformLocation(program, 'uPalette'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uNumColors: gl.getUniformLocation(program, 'uNumColors'),
 			uCellSize: gl.getUniformLocation(program, 'uCellSize'),
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
@@ -519,7 +525,15 @@ export const checkerboard = createEffect<CheckerboardParams>({
 			CheckerboardState
 		>({
 			setup: (target) => setupCheckerboard(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const paletteDirty = updatePalette(state, r.colors);
 				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
@@ -565,8 +579,14 @@ export const checkerboard = createEffect<CheckerboardParams>({
 				gl.useProgram(program);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uNumColors)
 					gl.uniform1f(uniforms.uNumColors, r.colors.length);
 				if (uniforms.uCellSize) gl.uniform1f(uniforms.uCellSize, r.cellSize);

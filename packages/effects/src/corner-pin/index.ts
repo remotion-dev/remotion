@@ -144,13 +144,22 @@ export const cornerPin = createEffect<CornerPinParams>({
 			CornerPinState
 		>({
 			setup: (target) => setupCornerPin(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyCornerPin({
 					state,
 					source,
 					width,
 					height,
+					contentRect,
 					topLeft: r.topLeft,
 					topRight: r.topRight,
 					bottomRight: r.bottomRight,

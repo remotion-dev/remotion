@@ -44,6 +44,8 @@ import {pixelate} from '@remotion/effects/pixelate';
 
 Both dimensions must be positive integers. The source is resized to this resolution before the effects run, and the result is composited back into the component's existing output canvas. CSS layout, cropping, and the output video's dimensions stay the same.
 
+On an [`<HtmlInCanvas>` with `growBounds`](/docs/remotion/html-in-canvas#growbounds), `effectsOutputSize` sets the resolution of the original element. The effect chain allocates extra pixels for the padding at the same scale.
+
 This is useful when switching between an original video and a smaller proxy: keeping the effect resolution fixed keeps pixel-based parameters, such as pixelation block sizes, in the same coordinate space. It also applies to images, animated images, GIFs, Rive canvases, solids, HTML-in-canvas, and shapes.
 
 Omitting `effectsOutputSize` preserves the existing effect resolution. Empty or entirely disabled effect chains do not resize the source. To change the resolution, update the numeric width and height; passing a new object with the same values does not recreate the effect chain. Video previews redraw the current frame when these values change without restarting their decoder.

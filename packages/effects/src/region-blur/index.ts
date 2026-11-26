@@ -233,10 +233,19 @@ export const regionBlur = createEffect<RegionBlurParams>({
 			RegionBlurState
 		>({
 			setup: (target) => setupRegionBlur(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const resolved = resolve(params);
 				applyRegionBlur({
 					state,
+					contentRect,
 					source,
 					width,
 					height,

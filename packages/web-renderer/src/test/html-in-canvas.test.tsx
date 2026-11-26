@@ -121,7 +121,23 @@ test('preserves the displayed frame while HtmlInCanvas resizes in preview', asyn
 					Array.from(context.getImageData(sample, sample, 1, 1).data),
 					`completed paint at frame ${frame}`,
 				).toEqual([size.red, 200, 40, 255]);
+				// The wave moves the top edge down at x=48, measured from the child.
+				expect(
+					context.getImageData(size.growBounds + 48, size.growBounds + 3, 1, 1)
+						.data[3],
+				).toBe(0);
 				if (size.growBounds > 0) {
+					// The opposite crest paints into the padding above the child.
+					expect(
+						Array.from(
+							context.getImageData(
+								size.growBounds + 16,
+								size.growBounds - 4,
+								1,
+								1,
+							).data,
+						),
+					).toEqual([size.red, 200, 40, 255]);
 					expect(
 						Array.from(
 							context.getImageData(size.growBounds - 4, sample, 1, 1).data,

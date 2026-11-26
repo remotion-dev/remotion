@@ -5,6 +5,10 @@ import {
 	parseColorRgba,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {GRIDLINES_WEBGPU_SHADER} from './gridlines-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -169,7 +173,8 @@ type GridlinesState = {
 	readonly texture: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uGridSize: WebGLUniformLocation | null;
 		readonly uLineWidth: WebGLUniformLocation | null;
 		readonly uLineColor: WebGLUniformLocation | null;
@@ -255,7 +260,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uGridSize;
 uniform float uLineWidth;
 uniform vec4 uLineColor;
@@ -305,12 +310,7 @@ mat3 rotationMatrix(float rotationX, float rotationY, float rotationZ) {
 	return rz * ry * rx;
 }
 
-void main() {
-	vec4 texColor = texture(uSource, vUv);
-	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
-	mat3 rotation = rotationMatrix(uRotationX, uRotationY, uRotation);
-	vec2 gridCoord;
-
+bool gridAt(vec2 centered, mat3 rotation, out vec2 gridCoord) {
 	if (uPerspective <= 0.0) {
 		vec3 rotated = rotation * vec3(centered, 0.0);
 		gridCoord = rotated.xy + uOffset;
@@ -322,8 +322,8 @@ void main() {
 		float t = -dot(camera, normal) / denominator;
 
 		if (abs(denominator) < 0.0001 || t <= 0.0) {
-			fragColor = sourceOver(texColor, uBackgroundColor);
-			return;
+			gridCoord = vec2(0.0);
+			return false;
 		}
 
 		vec3 worldPosition = camera + ray * t;
@@ -331,10 +331,37 @@ void main() {
 		gridCoord = localPosition.xy + uOffset;
 	}
 
+	return true;
+}
+
+void main() {
+	vec4 texColor = texture(uSource, vUv);
+	vec2 pixel = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	vec2 centered = pixel - uContentRect.zw * 0.5;
+	mat3 rotation = rotationMatrix(uRotationX, uRotationY, uRotation);
+	vec2 gridCoord;
+	if (!gridAt(centered, rotation, gridCoord)) {
+		fragColor = sourceOver(texColor, uBackgroundColor);
+		return;
+	}
+
 	float gridSize = max(uGridSize, 0.001);
 	vec2 cell = abs(fract(gridCoord / gridSize + 0.5) - 0.5) * gridSize;
 	float halfLineWidth = uLineWidth * 0.5;
-	vec2 gridUnitsPerPixel = max(fwidth(gridCoord), vec2(0.001));
+	vec2 dx = abs(dFdx(gridCoord));
+	vec2 dy = abs(dFdy(gridCoord));
+	vec2 parity = mod(floor(pixel), 2.0);
+	vec2 targetParity = mod(floor(gl_FragCoord.xy), 2.0);
+	vec2 neighbor;
+	if (uPerspective > 0.0 && parity.x != targetParity.x) {
+		gridAt(centered + vec2(1.0 - 2.0 * parity.x, 0.0), rotation, neighbor);
+		dx = abs(neighbor - gridCoord);
+	}
+	if (uPerspective > 0.0 && parity.y != targetParity.y) {
+		gridAt(centered + vec2(0.0, 1.0 - 2.0 * parity.y), rotation, neighbor);
+		dy = abs(neighbor - gridCoord);
+	}
+	vec2 gridUnitsPerPixel = max(dx + dy, vec2(0.001));
 	vec2 halfWidthInGridUnits = halfLineWidth * gridUnitsPerPixel;
 	vec2 antialiasInGridUnits = gridUnitsPerPixel;
 	vec2 projectedCellSize = gridSize / gridUnitsPerPixel;
@@ -552,7 +579,11 @@ export const gridlines = createEffect<GridlinesParams>({
 					texture,
 					uniforms: {
 						uSource: gl.getUniformLocation(program, 'uSource'),
-						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uEffectTextureSize: gl.getUniformLocation(
+							program,
+							'uEffectTextureSize',
+						),
+						uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 						uGridSize: gl.getUniformLocation(program, 'uGridSize'),
 						uLineWidth: gl.getUniformLocation(program, 'uLineWidth'),
 						uLineColor: gl.getUniformLocation(program, 'uLineColor'),
@@ -577,7 +608,15 @@ export const gridlines = createEffect<GridlinesParams>({
 					cachedBackgroundColorRgba: [0, 0, 0, 0],
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture, uniforms} = state;
 
@@ -625,8 +664,14 @@ export const gridlines = createEffect<GridlinesParams>({
 				);
 
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uGridSize) gl.uniform1f(uniforms.uGridSize, r.gridSize);
 				if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
 				if (uniforms.uLineColor)

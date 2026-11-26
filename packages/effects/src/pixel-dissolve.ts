@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {PIXEL_DISSOLVE_WEBGPU_SHADER} from './pixel-dissolve-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -139,6 +143,8 @@ type PixelDissolveState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
 	readonly uProgress: WebGLUniformLocation | null;
 	readonly uColumns: WebGLUniformLocation | null;
 	readonly uRows: WebGLUniformLocation | null;
@@ -163,6 +169,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform float uProgress;
 uniform float uColumns;
@@ -189,7 +196,7 @@ float dissolveMask(float noise, float progress, float feather) {
 
 void main() {
 	vec2 divisions = max(vec2(uColumns, uRows), vec2(1.0));
-	vec2 gridUv = min(vUv, vec2(1.0) - vec2(0.000001));
+	vec2 gridUv = textureUvToElementUvBottomLeft(vUv, uEffectTextureSize);
 	// Stabilize cells when a pixel center falls exactly on a grid boundary.
 	vec2 cell = floor(gridUv * divisions + vec2(0.00001));
 	vec4 color = texture(uSource, vUv);
@@ -367,6 +374,11 @@ export const pixelDissolve = createEffect<PixelDissolveParams>({
 					vbo,
 					texture,
 					uSource: gl.getUniformLocation(program, 'uSource'),
+					uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+					uEffectTextureSize: gl.getUniformLocation(
+						program,
+						'uEffectTextureSize',
+					),
 					uProgress: gl.getUniformLocation(program, 'uProgress'),
 					uColumns: gl.getUniformLocation(program, 'uColumns'),
 					uRows: gl.getUniformLocation(program, 'uRows'),
@@ -374,7 +386,15 @@ export const pixelDissolve = createEffect<PixelDissolveParams>({
 					uFeather: gl.getUniformLocation(program, 'uFeather'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 
 				state.gl.viewport(0, 0, width, height);
@@ -397,6 +417,14 @@ export const pixelDissolve = createEffect<PixelDissolveParams>({
 					source as TexImageSource,
 				);
 
+				setEffectCoordinateUniforms(
+					state.gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uSource) state.gl.uniform1i(state.uSource, 0);
 				if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
 				if (state.uColumns) state.gl.uniform1f(state.uColumns, r.columns);

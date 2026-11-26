@@ -160,7 +160,6 @@ export const magnify = Internals.createEffect<MagnifyParams>({
 		>({
 			setup: (target) =>
 				setupSinglePass(target, MAGNIFY_FRAGMENT_SHADER, 'magnify', [
-					'uResolution',
 					'uCenter',
 					'uMagnification',
 					'uSize',
@@ -181,7 +180,6 @@ export const magnify = Internals.createEffect<MagnifyParams>({
 					height,
 					flipSourceY,
 				});
-				gl.uniform2f(uniforms.uResolution, width, height);
 				gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
 				gl.uniform1f(uniforms.uMagnification, scale);
 				gl.uniform1f(uniforms.uSize, r.size * (r.link === 'none' ? 1 : scale));
@@ -220,10 +218,10 @@ export const magnify = Internals.createEffect<MagnifyParams>({
 					device: gpuDevice as GPUDevice,
 					shader: MAGNIFY_WEBGPU_SHADER,
 					uniformData: new Float32Array([
-						width,
-						height,
 						r.center[0],
 						r.center[1],
+						0,
+						0,
 						scale,
 						r.size * (r.link === 'none' ? 1 : scale),
 						r.feather * (r.link === 'size-and-feather' ? scale : 1),

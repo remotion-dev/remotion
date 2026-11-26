@@ -24,7 +24,7 @@ fn stripe(coordinate: f32, center: f32, width: f32, softness: f32) -> f32 {
 
  let source = sampleSource(vUv);
  if (source.a <= 0.001 || params.geometry.z <= 0.0) { return source; }
- let pixel = vec2f(input.position.x, params.geometry.y - input.position.y);
+ let pixel = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y);
  let plaid = pixel / max(params.geometry.w, 0.001);
  let edge = mix(0.002, 0.08, params.values.x);
  let verticalWide = stripe(plaid.x, 0.5, 0.34, edge);

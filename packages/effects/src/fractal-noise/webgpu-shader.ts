@@ -27,7 +27,7 @@ fn shape(n: f32) -> f32 {
   let color=textureSampleLevel(source,sourceSampler,input.uv,0);
   if(color.a==0.0 || params.amount==0.0) { return color; }
   let pixel=input.position.xy;
-  let base=(pixel-params.size*0.5-params.offset)/params.scale;
+  let base=(pixel-effectGeometry.contentRect.xy-effectGeometry.contentRect.zw*0.5-params.offset)/params.scale;
   var sum=0.0; var norm=0.0; var amplitude=1.0; var frequency=1.0; var best=0.0;
   for(var octave=0;octave<20;octave++) {
     let weight=clamp(params.complexity-f32(octave),0.0,1.0);

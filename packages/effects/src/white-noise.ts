@@ -68,6 +68,7 @@ type WhiteNoiseState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uElementOrigin: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
 };
@@ -89,6 +90,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+uniform vec2 uElementOrigin;
 uniform sampler2D uSource;
 uniform float uAmount;
 uniform float uSeed;
@@ -99,7 +101,7 @@ float random(vec2 co) {
 
 void main() {
 	vec4 color = texture(uSource, vUv);
-	float noise = random(gl_FragCoord.xy);
+	float noise = random(gl_FragCoord.xy - uElementOrigin);
 	vec3 unpremultiplied = color.a == 0.0 ? vec3(0.0) : color.rgb / color.a;
 	vec3 mixed = mix(unpremultiplied, vec3(noise), uAmount);
 	fragColor = vec4(mixed * color.a, color.a);
@@ -197,6 +199,7 @@ const createWhiteNoiseState = (
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
+		uElementOrigin: gl.getUniformLocation(program, 'uElementOrigin'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
 		uSeed: gl.getUniformLocation(program, 'uSeed'),
 	};
@@ -254,7 +257,15 @@ export const whiteNoise = createEffect<WhiteNoiseParams>({
 
 				return createWhiteNoiseState(gl, VERTEX_SHADER, FRAGMENT_SHADER);
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const resolved = resolve(params);
 
 				state.gl.viewport(0, 0, width, height);
@@ -272,6 +283,11 @@ export const whiteNoise = createEffect<WhiteNoiseParams>({
 				);
 
 				state.gl.useProgram(state.program);
+				state.gl.uniform2f(
+					state.uElementOrigin,
+					contentRect.x,
+					height - contentRect.y - contentRect.height,
+				);
 				if (state.uSource) {
 					state.gl.uniform1i(state.uSource, 0);
 				}

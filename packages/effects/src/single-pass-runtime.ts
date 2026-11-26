@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {setEffectCoordinateUniforms} from './effect-coordinates.js';
 
 export type SinglePassState = {
 	readonly gl: WebGL2RenderingContext;
@@ -94,10 +95,9 @@ export const setupSinglePass = (
 			vbo,
 			texture,
 			uniforms: Object.fromEntries(
-				['uSource', ...uniformNames].map((name) => [
-					name,
-					gl.getUniformLocation(program, name),
-				]),
+				['uSource', 'uContentRect', 'uEffectTextureSize', ...uniformNames].map(
+					(name) => [name, gl.getUniformLocation(program, name)],
+				),
 			),
 		};
 	} catch (error) {
@@ -133,6 +133,23 @@ export const prepareSinglePassSource = ({
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 	gl.useProgram(program);
 	gl.uniform1i(uniforms.uSource, 0);
+	if (uniforms.uContentRect !== null || uniforms.uEffectTextureSize !== null) {
+		const rect = Internals.getEffectChainLink(gl.canvas)?.contentRect ?? {
+			x: 0,
+			y: 0,
+			width,
+			height,
+		};
+		setEffectCoordinateUniforms(
+			gl,
+			uniforms.uContentRect,
+			uniforms.uEffectTextureSize,
+			rect,
+			width,
+			height,
+		);
+	}
+
 	gl.bindVertexArray(vao);
 };
 

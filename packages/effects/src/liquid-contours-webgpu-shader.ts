@@ -56,7 +56,7 @@ fn waveAt(pixel: vec2f) -> f32 {
  let detailedField = fbm(p + warp * mix(0.35, 1.8, params.noise.x));
  let detailMix = smoothstep(0.0, 1.0, params.noise.x);
  let field = mix(roundedField, detailedField, detailMix);
- let levels = max(max(params.geometry.x, params.geometry.y) / max(params.geometry.z, 0.001), 1.0);
+ let levels = max(max(effectGeometry.contentRect.z, effectGeometry.contentRect.w) / max(params.geometry.z, 0.001), 1.0);
  return sin((field * levels + params.noise.w) * 6.28318530718);
 
 }
@@ -64,14 +64,21 @@ fn waveAt(pixel: vec2f) -> f32 {
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- let pixel = vec2f(input.position.x, params.geometry.y - input.position.y);
+ let pixel = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y);
  let wave = waveAt(pixel);
- var derivative = fwidth(wave);
- if (i32(params.geometry.y) % 2 != 0) {
-  // Match WebGL's bottom-origin derivative quads on odd-height targets.
-  let neighborY = select(-1.0, 1.0, i32(pixel.y) % 2 == 0);
-  derivative = abs(dpdx(wave)) + abs(waveAt(pixel + vec2f(0, neighborY)) - wave);
+ var derivatives = abs(vec2f(dpdx(wave), dpdy(wave)));
+ // Match the element's original WebGL derivative quads, measured bottom-up.
+ let parity = vec2i(floor(pixel)) & vec2i(1);
+ let targetParity = vec2i(floor(input.position.xy)) & vec2i(1);
+ if (parity.x != targetParity.x) {
+  let neighbor = pixel + vec2f(f32(1 - 2 * parity.x), 0);
+  derivatives.x = abs(waveAt(neighbor) - wave);
  }
+ if (parity.y == targetParity.y) {
+  let neighbor = pixel + vec2f(0, f32(1 - 2 * parity.y));
+  derivatives.y = abs(waveAt(neighbor) - wave);
+ }
+ var derivative = derivatives.x + derivatives.y;
  let edgeWidth = derivative * mix(0.15, 1.4, params.noise.y);
  let selector = smoothstep(-edgeWidth, edgeWidth, wave);
  let color = mix(params.first, params.second, selector);

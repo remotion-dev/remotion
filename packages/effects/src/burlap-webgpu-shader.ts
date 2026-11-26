@@ -42,7 +42,7 @@ fn strand(value: f32) -> f32 {
  if (alpha <= 0.001) { return vec4f(0); }
  if (params.geometry.z <= 0.0) { return texColor; }
  // Match WebGL pixel centers without interpolated-UV rounding.
- let fragPos = vec2f(input.position.x, params.geometry.y - input.position.y);
+ let fragPos = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y);
  let strandSize = max(params.geometry.w, 0.001);
  let weave = fragPos / strandSize;
  let roughness = params.values.x;

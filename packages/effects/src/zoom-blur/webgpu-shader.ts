@@ -9,8 +9,8 @@ struct Params { resolutionAndCenter: vec4f, amountAndSamples: vec4f, }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let resolution = params.resolutionAndCenter.xy;
   let center = vec2f(params.resolutionAndCenter.z, 1.0 - params.resolutionAndCenter.w);
-  let direction = input.uv - center;
-  let amount = params.amountAndSamples.x / min(resolution.x, resolution.y);
+  let direction = input.uv - elementUvToTextureUv(center, resolution);
+  let amount = params.amountAndSamples.x / min(effectGeometry.contentRect.z, effectGeometry.contentRect.w);
   let samples = i32(params.amountAndSamples.y);
   var color = vec4f(0);
   var total = 0.0;

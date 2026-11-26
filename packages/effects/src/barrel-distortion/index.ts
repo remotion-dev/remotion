@@ -96,13 +96,22 @@ export const barrelDistortion = createEffect<BarrelDistortionParams>({
 			BarrelDistortionState
 		>({
 			setup: (target) => setupBarrelDistortion(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyBarrelDistortion({
 					state,
 					source,
 					width,
 					height,
+					contentRect,
 					amount: r.amount,
 					flipSourceY,
 				});

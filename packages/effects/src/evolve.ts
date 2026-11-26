@@ -5,6 +5,10 @@ import {
 	validateUnitInterval,
 	validateNonNegative,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -178,6 +182,7 @@ type EvolveState = {
 	readonly textureSource: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uProgress: WebGLUniformLocation | null;
 		readonly uDirection: WebGLUniformLocation | null;
 		readonly uFeather: WebGLUniformLocation | null;
@@ -205,6 +210,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform float uProgress;
 uniform float uFeather;
@@ -253,13 +259,13 @@ float maskValue(float t, float progress, float feather) {
 
 void main() {
 	vec4 source = texture(uSource, vUv);
-	float t = getT(vUv);
+	float t = getT(textureUvToElementUvBottomLeft(vUv, uResolution));
 	float mask;
 	if (uDirection == 4 || uUsePixelFeather) {
-		vec2 extent = uResolution * uTravelDirection;
+		vec2 extent = uContentRect.zw * uTravelDirection;
 		float low = min(0.0, extent.x) + min(0.0, extent.y);
 		float high = max(0.0, extent.x) + max(0.0, extent.y);
-		vec2 position = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
+		vec2 position = vec2(vUv.x, 1.0 - vUv.y) * uResolution - uContentRect.xy;
 		float projection = dot(position, uTravelDirection);
 		if (uUsePixelFeather) {
 			// Adapted from EffectCraft's linear_wipe(), under the MIT license:
@@ -397,6 +403,7 @@ const setupEvolve = (target: HTMLCanvasElement): EvolveState => {
 		textureSource,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uProgress: gl.getUniformLocation(program, 'uProgress'),
 			uDirection: gl.getUniformLocation(program, 'uDirection'),
 			uFeather: gl.getUniformLocation(program, 'uFeather'),
@@ -446,16 +453,17 @@ fn maskValue(t: f32, progress: f32, feather: f32) -> f32 {
 	let progress = params.controls.x;
 	let direction = params.controls.z;
 	let usePixelFeather = params.controls.w != 0.0;
-	var t = input.uv.x;
-	if (direction == 1.0) { t = 1.0 - input.uv.x; }
-	if (direction == 2.0) { t = input.uv.y; }
-	if (direction == 3.0) { t = 1.0 - input.uv.y; }
+	let elementUv = textureUvToElementUv(input.uv, params.resolutionTravel.xy);
+	var t = elementUv.x;
+	if (direction == 1.0) { t = 1.0 - elementUv.x; }
+	if (direction == 2.0) { t = elementUv.y; }
+	if (direction == 3.0) { t = 1.0 - elementUv.y; }
 	var mask: f32;
 	if (direction == 4.0 || usePixelFeather) {
-		let extent = params.resolutionTravel.xy * params.resolutionTravel.zw;
+		let extent = effectGeometry.contentRect.zw * params.resolutionTravel.zw;
 		let low = min(0.0, extent.x) + min(0.0, extent.y);
 		let high = max(0.0, extent.x) + max(0.0, extent.y);
-		let position = input.uv * params.resolutionTravel.xy;
+		let position = input.position.xy - effectGeometry.contentRect.xy;
 		let projection = dot(position, params.resolutionTravel.zw);
 		if (usePixelFeather) {
 			let feather = params.featherPixels.x;
@@ -525,7 +533,15 @@ export const evolve = createEffect<EvolveParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<EvolveParams, EvolveState>({
 			setup: (target) => setupEvolve(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, textureSource, uniforms, vao} = state;
 
@@ -547,6 +563,14 @@ export const evolve = createEffect<EvolveParams>({
 				);
 
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
 				if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);

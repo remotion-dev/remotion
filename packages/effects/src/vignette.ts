@@ -6,6 +6,10 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {publicUvToShaderUv} from './uv-coordinate.js';
 import {
 	assertEffectParamsObject,
@@ -127,6 +131,8 @@ type VignetteState = {
 	readonly vbo: WebGLBuffer;
 	readonly textureSource: WebGLTexture;
 	readonly uniforms: {
+		readonly uContentRect: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uAmount: WebGLUniformLocation | null;
 		readonly uRadius: WebGLUniformLocation | null;
@@ -223,6 +229,7 @@ void main() {
 const VIGNETTE_FS = /* glsl */ `#version 300 es
 precision highp float;
 
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -236,7 +243,7 @@ uniform int uMode;
 uniform vec2 uCenter;
 
 float vignetteMask() {
-	vec2 centered = abs(vUv - uCenter) * 2.0;
+	vec2 centered = abs(textureUvToElementUvBottomLeft(vUv, uEffectTextureSize) - uCenter) * 2.0;
 	float rectangleDistance = max(centered.x, centered.y);
 	float ellipseDistance = length(centered);
 	float distanceFromCenter = mix(rectangleDistance, ellipseDistance, uRoundness);
@@ -392,6 +399,8 @@ const setupVignette = (target: HTMLCanvasElement): VignetteState => {
 		vbo,
 		textureSource,
 		uniforms: {
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
 			uRadius: gl.getUniformLocation(program, 'uRadius'),
@@ -437,7 +446,15 @@ export const vignette = createEffect<VignetteParams>({
 		webgl2: Internals.createEffectImplementation<VignetteParams, VignetteState>(
 			{
 				setup: (target) => setupVignette(target),
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					const color = getParsedColor(state, r);
 					const [red, green, blue, alpha] = normalizedRgba(color);
@@ -461,6 +478,14 @@ export const vignette = createEffect<VignetteParams>({
 					);
 
 					gl.useProgram(program);
+					setEffectCoordinateUniforms(
+						gl,
+						uniforms.uContentRect,
+						uniforms.uEffectTextureSize,
+						contentRect,
+						width,
+						height,
+					);
 					if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 					if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
 					if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, r.radius);
