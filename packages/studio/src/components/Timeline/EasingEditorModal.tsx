@@ -203,7 +203,6 @@ const numberInputStyle: React.CSSProperties = {
 };
 
 const graphWrapperStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(21, 21, 25, 0.32)',
 	marginTop: 12,
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
@@ -612,6 +611,7 @@ const EasingGraphContainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => (
 	<div
+		className="__remotion-easing-graph"
 		style={graphWrapperStyle}
 		{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 	>

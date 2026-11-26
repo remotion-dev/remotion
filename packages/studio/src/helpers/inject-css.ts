@@ -17,6 +17,7 @@ import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
 const inspectorSectionTransitionDuration = 120;
 const inspectorSectionTransition = `${inspectorSectionTransitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+const easingGraphBackground = 'rgba(21, 21, 25, 0.32)';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 6;
@@ -68,6 +69,38 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion-inspector-section-title {
     --remotion-disclosure-transition: transform ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-viewport .__remotion-easing-graph {
+    anchor-name: --remotion-easing-graph;
+    background-color: ${easingGraphBackground};
+  }
+
+  @supports (height: anchor-size(height)) {
+    .__remotion-inspector-viewport:has(.__remotion-easing-graph) {
+      position: relative;
+      isolation: isolate;
+      overflow: clip;
+
+      > .__remotion-vertical-scrollbar {
+        /* Leave the native scrollbar gutter open to the background below. */
+        background-attachment: local;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        position-anchor: --remotion-easing-graph;
+        position-visibility: anchors-visible;
+        top: anchor(top);
+        left: anchor(right);
+        right: 0;
+        height: anchor-size(height);
+        background-color: ${easingGraphBackground};
+        pointer-events: none;
+        z-index: -1;
+      }
+    }
   }
 
   .__remotion-inspector-section-content {
