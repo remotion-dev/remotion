@@ -37,6 +37,29 @@ const AsyncRenderErrorScope = ({
 		error: Error;
 	} | null>(null);
 	const currentOwner = React.useRef<CancellationOwner | null>(null);
+	const scheduleFailure = (
+		failureOwner: CancellationOwner,
+		error: Error,
+		beforeFirstCommit: boolean,
+	) => {
+		const {generation} = failureOwner;
+		queueMicrotask(() => {
+			if (
+				!failureOwner.active ||
+				currentOwner.current !== failureOwner ||
+				(!beforeFirstCommit && generation !== failureOwner.generation)
+			)
+				return;
+			const committedGeneration = failureOwner.generation;
+			setFailure((previous) =>
+				previous?.owner === failureOwner &&
+				previous.generation === committedGeneration
+					? previous
+					: {owner: failureOwner, generation: committedGeneration, error},
+			);
+		});
+	};
+
 	const createOwner = (): CancellationOwner => {
 		const createdOwner: CancellationOwner = {
 			renderingOwner,
@@ -53,22 +76,7 @@ const AsyncRenderErrorScope = ({
 				)
 					return;
 				createdOwner.firstError = error;
-				const {generation} = createdOwner;
-				queueMicrotask(() => {
-					if (
-						!createdOwner.active ||
-						currentOwner.current !== createdOwner ||
-						(!beforeFirstCommit && generation !== createdOwner.generation)
-					)
-						return;
-					const committedGeneration = createdOwner.generation;
-					setFailure((previous) =>
-						previous?.owner === createdOwner &&
-						previous.generation === committedGeneration
-							? previous
-							: {owner: createdOwner, generation: committedGeneration, error},
-					);
-				});
+				if (!beforeFirstCommit) scheduleFailure(createdOwner, error, false);
 			},
 		};
 		return createdOwner;
@@ -78,6 +86,10 @@ const AsyncRenderErrorScope = ({
 	useOwnerLayoutEffect(() => {
 		owner.active = true;
 		currentOwner.current = owner;
+		if (owner.generation === 0 && owner.firstError !== null) {
+			scheduleFailure(owner, owner.firstError, true);
+		}
+
 		return () => {
 			owner.active = false;
 			owner.generation++;
