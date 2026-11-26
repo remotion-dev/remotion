@@ -200,6 +200,9 @@ const ElementCard: React.FC<{
 				</div>
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
+					{definition.loopable ? (
+						<span className={styles.loopable}>Loopable</span>
+					) : null}
 				</div>
 			</Card>
 			<div aria-live="polite" className={styles.installAction}>
