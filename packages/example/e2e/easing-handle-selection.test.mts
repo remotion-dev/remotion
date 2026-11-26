@@ -25,7 +25,7 @@ const openEasingEditor = async (page: Page) => {
 		.first()
 		.click();
 	const handle = page
-		.getByLabel('Bezier control point 1', {exact: true})
+		.getByLabel('Bézier control point 1', {exact: true})
 		.locator('circle');
 	await expect(handle).toBeVisible();
 	return handle;
@@ -46,14 +46,14 @@ test.describe('easing editor handles', () => {
 		test.setTimeout(120_000);
 		const handle = await openEasingEditor(page);
 		await expect(handle).toHaveAttribute('r', '4.25');
-		await page.getByLabel('Bezier curve editor', {exact: true}).click({
+		await page.getByLabel('Bézier curve editor', {exact: true}).click({
 			position: {x: 10, y: 10},
 		});
 		await expect(handle).toHaveAttribute('r', '4.25');
 
 		await handle.click();
 		await expect(handle).toHaveAttribute('r', '6.8');
-		await page.getByLabel('Bezier curve editor', {exact: true}).click({
+		await page.getByLabel('Bézier curve editor', {exact: true}).click({
 			position: {x: 10, y: 10},
 		});
 		await expect(handle).toHaveAttribute('r', '4.25');
@@ -66,7 +66,7 @@ test.describe('easing editor handles', () => {
 		await page.keyboard.press('Escape');
 		await expect(handle).toHaveAttribute('r', '4.25');
 
-		const controlPoint = page.getByLabel('Bezier control point 1', {
+		const controlPoint = page.getByLabel('Bézier control point 1', {
 			exact: true,
 		});
 		const positionBeforeDrag = await controlPoint.getAttribute('style');
@@ -126,7 +126,7 @@ test.describe('easing editor handles', () => {
 			await page.keyboard.press('Enter');
 			await expect(handle).toHaveCount(0);
 
-			await page.getByRole('button', {name: 'Bezier', exact: true}).focus();
+			await page.getByRole('button', {name: 'Bézier', exact: true}).focus();
 			await page.keyboard.press('Enter');
 			await expect(handle).toHaveAttribute('r', '4.25');
 		}

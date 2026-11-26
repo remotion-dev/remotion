@@ -1085,7 +1085,7 @@ export const EasingCurveEditor: React.FC<{
 		return [
 			{
 				key: 'bezier',
-				label: 'Bezier',
+				label: 'Bézier',
 				onClick: () => switchMode('bezier'),
 				selected: mode === 'bezier',
 			},
@@ -1149,7 +1149,7 @@ export const EasingCurveEditor: React.FC<{
 							height={SVG_HEIGHT}
 							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
 							style={svgStyle}
-							aria-label="Bezier curve editor"
+							aria-label="Bézier curve editor"
 						>
 							<EasingGraphScaffold
 								labels={graphLabels ?? DEFAULT_EASING_GRAPH_LABELS}
@@ -1186,7 +1186,7 @@ export const EasingCurveEditor: React.FC<{
 									width={18}
 									height={18}
 									viewBox="0 0 18 18"
-									aria-label={`Bezier control point ${handle + 1}`}
+									aria-label={`Bézier control point ${handle + 1}`}
 									data-easing-handle
 									style={{
 										position: 'absolute',
