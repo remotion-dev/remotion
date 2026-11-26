@@ -158,7 +158,7 @@ struct Params { resolutionCenter: vec4f, controls: vec4f, }
 export const radialWipe = Internals.createEffect<RadialWipeParams>({
 	type: 'remotion/radial-wipe',
 	label: 'radialWipe()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/radial-wipe',
+	documentationLink: 'https://www.remotion.dev/effects/radial-wipe',
 	calculateKey: (params) => `radial-wipe-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<

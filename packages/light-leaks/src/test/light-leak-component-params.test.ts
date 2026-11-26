@@ -12,6 +12,6 @@ test('<LightLeak> exposes background and border controls', () => {
 test('@remotion/light-leaks re-exports the migrated effect', () => {
 	expect(LightLeakInternals.lightLeak).toBe(lightLeak);
 	expect(lightLeak().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/light-leak',
+		'https://www.remotion.dev/effects/light-leak',
 	);
 });

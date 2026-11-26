@@ -263,7 +263,7 @@ const setupNoise = (target: HTMLCanvasElement): NoiseState => {
 export const noise = createEffect<NoiseParams>({
 	type: 'dev.remotion.effects.noise',
 	label: 'noise()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/noise',
+	documentationLink: 'https://www.remotion.dev/effects/noise',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `noise-${r.amount}-${r.seed}-${r.premultiply ? 1 : 0}`;

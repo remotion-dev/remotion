@@ -110,7 +110,7 @@ const prepareLightning = ({
 export const lightning = Internals.createEffect<LightningParams>({
 	type: 'remotion/lightning',
 	label: 'lightning()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/lightning',
+	documentationLink: 'https://www.remotion.dev/effects/lightning',
 	calculateKey: (params) => `lightning-${JSON.stringify(resolve(params))}`,
 	schema: lightningSchema,
 	validateParams: validateLightningParams,

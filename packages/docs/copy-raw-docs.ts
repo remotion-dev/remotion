@@ -58,7 +58,7 @@ function copyRawDocs() {
 
 	for (const article of articles) {
 		// Skip docs marked as noAi
-		if (article.noAi) {
+		if (article.noAi || article.relativePath.startsWith('effects/')) {
 			continue;
 		}
 
@@ -230,12 +230,27 @@ function copyRawElements() {
 	console.log(`✅ Copied ${copiedCount} files to static/_raw/elements/`);
 }
 
+function copyRawEffects() {
+	const sourceDir = path.join(__dirname, 'effects');
+	const outputDir = path.join(RAW_DIR, 'effects');
+	fs.rmSync(outputDir, {recursive: true, force: true});
+	for (const file of fs.readdirSync(sourceDir)) {
+		if (file.endsWith('.mdx')) {
+			writeRawMarkdown({
+				sourcePath: path.join(sourceDir, file),
+				destPath: path.join(outputDir, file.replace(/\.mdx$/, '.md')),
+			});
+		}
+	}
+}
+
 function copyRawContent() {
 	fs.rmSync(DOCS_OUTPUT_DIR, {recursive: true, force: true});
 	fs.rmSync(ELEMENTS_OUTPUT_DIR, {recursive: true, force: true});
 
 	copyRawDocs();
 	copyRawElements();
+	copyRawEffects();
 }
 
 copyRawContent();

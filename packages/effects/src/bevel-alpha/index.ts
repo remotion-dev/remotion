@@ -261,7 +261,7 @@ const setupBevelAlpha = (target: HTMLCanvasElement): BevelAlphaState => {
 export const bevelAlpha = createEffect<BevelAlphaParams>({
 	type: 'remotion/bevel-alpha',
 	label: 'bevelAlpha()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/bevel-alpha',
+	documentationLink: 'https://www.remotion.dev/effects/bevel-alpha',
 	calculateKey: (params) => `bevel-alpha-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<

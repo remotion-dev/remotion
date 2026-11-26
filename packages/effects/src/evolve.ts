@@ -476,7 +476,7 @@ fn maskValue(t: f32, progress: f32, feather: f32) -> f32 {
 export const evolve = createEffect<EvolveParams>({
 	type: 'dev.remotion.effects.evolve',
 	label: 'evolve()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/evolve',
+	documentationLink: 'https://www.remotion.dev/effects/evolve',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `evolve-${r.progress}-${r.direction}-${r.feather}-${r.angle}-${r.featherUnit}-${r.featherPixels}`;

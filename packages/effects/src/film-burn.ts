@@ -202,7 +202,7 @@ void main() {
 export const filmBurn = createEffect<FilmBurnParams>({
 	type: 'remotion/film-burn',
 	label: 'filmBurn()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/film-burn',
+	documentationLink: 'https://www.remotion.dev/effects/film-burn',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `film-burn-${r.progress}-${r.center.join(':')}-${r.seed}`;

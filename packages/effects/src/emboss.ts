@@ -393,7 +393,7 @@ const degreesToRadians = (degrees: number): number => {
 export const emboss = createEffect<EmbossParams>({
 	type: 'dev.remotion.effects.emboss',
 	label: 'emboss()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/emboss',
+	documentationLink: 'https://www.remotion.dev/effects/emboss',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `emboss-${r.amount}-${r.size}-${r.lineWidth}-${r.depth}-${r.angle}-${r.lightAngle}-${r.offset}`;

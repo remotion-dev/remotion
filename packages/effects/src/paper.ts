@@ -892,7 +892,7 @@ const normalizedRgba = (
 export const paper = createEffect<PaperParams>({
 	type: 'dev.remotion.effects.paper',
 	label: 'paper()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/paper',
+	documentationLink: 'https://www.remotion.dev/effects/paper',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `paper-${r.amount}-${r.colorFront}-${r.colorBack}-${r.contrast}-${r.roughness}-${r.fiber}-${r.fiberSize}-${r.crumples}-${r.crumpleSize}-${r.folds}-${r.foldCount}-${r.drops}-${r.fade}-${r.seed}-${r.scale}`;

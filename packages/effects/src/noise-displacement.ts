@@ -536,7 +536,7 @@ const setupNoiseDisplacement = (
 export const noiseDisplacement = createEffect<NoiseDisplacementParams>({
 	type: 'dev.remotion.effects.noiseDisplacement',
 	label: 'noiseDisplacement()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/noise-displacement',
+	documentationLink: 'https://www.remotion.dev/effects/noise-displacement',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `noise-displacement-${r.center.join(':')}-${r.radius}-${r.strength}-${r.seed}-${r.grainSize}-${r.passes}-${r.blur}-${r.feather}-${r.biasDirection}-${r.biasAmount}`;

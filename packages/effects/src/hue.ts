@@ -35,7 +35,7 @@ const validateHueParams = (params: HueParams): void => {
 export const hue = createEffect<HueParams>({
 	type: 'dev.remotion.effects.hue',
 	label: 'hue()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/hue',
+	documentationLink: 'https://www.remotion.dev/effects/hue',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `hue-${r.degrees}`;

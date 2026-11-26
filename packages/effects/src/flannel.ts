@@ -318,7 +318,7 @@ const normalizedRgba = (
 export const flannel = createEffect<FlannelParams>({
 	type: 'dev.remotion.effects.flannel',
 	label: 'flannel()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/flannel',
+	documentationLink: 'https://www.remotion.dev/effects/flannel',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `flannel-${resolved.amount}-${resolved.size}-${resolved.softness}-${resolved.baseColor}-${resolved.stripeColor}`;

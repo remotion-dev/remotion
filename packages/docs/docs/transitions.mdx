@@ -84,9 +84,9 @@ Call `getDurationInFrames({fps})` on the timing. See [Getting the duration of a 
 
 An [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay) renders children on top of the junction between two sequences without shortening the timeline. The sequences remain at full length — the total duration stays the same.
 
-This is useful for effects like [light leaks](/docs/effects/light-leak), flashes, or other visual elements that should appear over a cut without affecting timing. The overlay is centered on the cut point by default.
+This is useful for effects like [light leaks](/effects/light-leak), flashes, or other visual elements that should appear over a cut without affecting timing. The overlay is centered on the cut point by default.
 
-This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+This example uses [`lightLeak()`](/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
 
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';

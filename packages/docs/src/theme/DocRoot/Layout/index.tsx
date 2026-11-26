@@ -13,6 +13,7 @@ export default function DocRootLayoutWrapper(props: Props): ReactNode {
 	// Opt other catalog sidebars into this skin when they adopt the layout.
 	if (
 		sidebar?.name !== 'elementsSidebar' &&
+		sidebar?.name !== 'effectsSidebar' &&
 		pathname.replace(/\/$/, '') !== '/elements/libraries'
 	) {
 		return <DocRootLayout {...props} />;

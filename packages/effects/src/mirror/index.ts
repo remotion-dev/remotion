@@ -98,7 +98,7 @@ const validateMirrorParams = (params: MirrorParams): void => {
 export const mirror = createEffect<MirrorParams>({
 	type: 'dev.remotion.effects.mirror',
 	label: 'mirror()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/mirror',
+	documentationLink: 'https://www.remotion.dev/effects/mirror',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `mirror-${r.direction}-${r.position}-${r.invert ? 1 : 0}`;

@@ -550,7 +550,7 @@ const updatePalette = (
 export const waves = createEffect<WavesParams>({
 	type: 'dev.remotion.effects.waves',
 	label: 'waves()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/waves',
+	documentationLink: 'https://www.remotion.dev/effects/waves',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

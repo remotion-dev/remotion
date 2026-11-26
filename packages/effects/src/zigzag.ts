@@ -535,7 +535,7 @@ const updatePalette = (
 export const zigzag = createEffect<ZigzagParams>({
 	type: 'dev.remotion.effects.zigzag',
 	label: 'zigzag()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/zigzag',
+	documentationLink: 'https://www.remotion.dev/effects/zigzag',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

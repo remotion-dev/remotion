@@ -408,7 +408,7 @@ const setupTurbulentDisplace = (
 export const turbulentDisplace = createEffect<TurbulentDisplaceParams>({
 	type: 'remotion/turbulent-displace',
 	label: 'turbulentDisplace()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/turbulent-displace',
+	documentationLink: 'https://www.remotion.dev/effects/turbulent-displace',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `turbulent-displace-${JSON.stringify(r)}`;

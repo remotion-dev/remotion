@@ -91,7 +91,7 @@ test('createEffect preserves documentation links on definitions', () => {
 	const foo = createEffect<FooParams, null>({
 		type: 'dev.remotion.test.foo',
 		label: 'Foo',
-		documentationLink: 'https://www.remotion.dev/docs/effects/foo',
+		documentationLink: 'https://www.remotion.dev/effects/foo',
 		backend: '2d',
 		calculateKey: (p) => `foo-${p.amount}`,
 		setup: () => null,
@@ -102,7 +102,7 @@ test('createEffect preserves documentation links on definitions', () => {
 	});
 	const desc = foo({amount: 1});
 	expect(desc.definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/foo',
+		'https://www.remotion.dev/effects/foo',
 	);
 });
 

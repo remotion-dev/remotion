@@ -40,7 +40,7 @@ const validateBrightnessParams = (params: BrightnessParams): void => {
 export const brightness = createEffect<BrightnessParams>({
 	type: 'dev.remotion.effects.brightness',
 	label: 'brightness()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/brightness',
+	documentationLink: 'https://www.remotion.dev/effects/brightness',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `brightness-${r.amount}`;

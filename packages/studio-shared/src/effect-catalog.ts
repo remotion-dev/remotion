@@ -14,7 +14,7 @@ export type EffectCatalogCategory = {
 };
 
 export const getEffectDocumentationPath = (item: EffectCatalogItem) => {
-	return `/docs/effects/${item.id.slice('effects-'.length)}`;
+	return `/effects/${item.id.slice('effects-'.length)}`;
 };
 
 export const getEffectDocumentationLink = (item: EffectCatalogItem) => {

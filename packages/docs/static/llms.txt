@@ -19,7 +19,8 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [Using fonts](https://www.remotion.dev/docs/fonts.md)
 - [@remotion/transitions](https://www.remotion.dev/docs/transitions/index.md)
 - [Captions](https://www.remotion.dev/docs/captions/index.md)
-- [Effects](https://www.remotion.dev/docs/effects.md)
+- [Using effects](https://www.remotion.dev/docs/effects.md)
+- [Effects library](https://www.remotion.dev/effects.md)
 - [@remotion/shapes](https://www.remotion.dev/docs/shapes/index.md)
 
 ## Previewing and rendering

@@ -107,7 +107,7 @@ const validateCornerPinParams = (params: CornerPinParams): void => {
 export const cornerPin = createEffect<CornerPinParams>({
 	type: 'dev.remotion.effects.cornerPin',
 	label: 'cornerPin()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/corner-pin',
+	documentationLink: 'https://www.remotion.dev/effects/corner-pin',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `corner-pin-${r.topLeft.join(':')}-${r.topRight.join(':')}-${r.bottomRight.join(':')}-${r.bottomLeft.join(':')}`;

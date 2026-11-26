@@ -253,7 +253,7 @@ const setupExposure = (target: HTMLCanvasElement): ExposureState => {
 export const exposure = createEffect<ExposureParams>({
 	type: 'remotion/exposure',
 	label: 'exposure()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/exposure',
+	documentationLink: 'https://www.remotion.dev/effects/exposure',
 	calculateKey: (params) => {
 		const {stops} = resolve(params);
 		return `exposure-${stops}`;

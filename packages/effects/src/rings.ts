@@ -457,7 +457,7 @@ const updatePalette = (
 export const rings = createEffect<RingsParams>({
 	type: 'dev.remotion.effects.rings',
 	label: 'rings()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/rings',
+	documentationLink: 'https://www.remotion.dev/effects/rings',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

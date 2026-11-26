@@ -428,7 +428,7 @@ export const halftoneLinearGradient =
 		type: 'dev.remotion.effects.halftoneLinearGradient',
 		label: 'halftoneLinearGradient()',
 		documentationLink:
-			'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
+			'https://www.remotion.dev/effects/halftone-linear-gradient',
 		calculateKey: (params) => {
 			const r = resolve(params);
 			const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

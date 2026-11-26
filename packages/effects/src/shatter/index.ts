@@ -240,7 +240,7 @@ type CachedShatterState = ShatterState & {
 export const shatter = createEffect<ShatterParams>({
 	type: 'remotion/shatter',
 	label: 'shatter()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/shatter',
+	documentationLink: 'https://www.remotion.dev/effects/shatter',
 	schema: shatterSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Shatter');

@@ -104,7 +104,10 @@ const findCrumb = (split) => {
 	return crumb ?? null;
 };
 
-const pages = readDir(root);
+const pages = [
+	...readDir(root),
+	...readDir(path.join(process.cwd(), 'effects')),
+];
 
 for (const page of pages) {
 	if (page.endsWith('.DS_Store')) {
@@ -128,7 +131,14 @@ for (const page of pages) {
 	}
 
 	const split = frontmatter[1].split(os.EOL);
-	const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
+	const relativePath = path
+		.relative(process.cwd(), page)
+		.replaceAll(path.sep, '/');
+	const effectSlug = relativePath.startsWith('effects/')
+		? relativePath.replace(/\.mdx$/, '').replace(/\/index$/, '')
+		: null;
+	const id =
+		effectSlug ?? findId(split, page).replaceAll(path.sep, path.posix.sep);
 	const title = findTitle(split);
 	const slug = findSlug(split);
 	const noAi = findNoAi(split);
@@ -139,17 +149,20 @@ for (const page of pages) {
 		continue;
 	}
 
-	const relativePath = page
-		.replace(process.cwd() + path.sep, '')
-		.replaceAll(path.sep, path.posix.sep);
-
+	// Reuse the published social card when its source file moves.
+	const publishedEffectCard =
+		effectSlug?.startsWith('effects/') &&
+		split
+			.find((line) => line.startsWith('image: '))
+			?.match(/\/generated\/(articles-[\w-]+)\.png$/)?.[1];
 	const compId =
+		publishedEffectCard ||
 		'articles-' +
-		relativePath
-			.replaceAll(path.posix.sep, '-')
-			.replace(/.md$/, '')
-			.replace(/^\//, '')
-			.replace(/.mdx$/, '');
+			relativePath
+				.replaceAll(path.posix.sep, '-')
+				.replace(/.md$/, '')
+				.replace(/^\//, '')
+				.replace(/.mdx$/, '');
 	data.push({
 		id,
 		title,
@@ -157,18 +170,20 @@ for (const page of pages) {
 		compId,
 		crumb,
 		noAi,
-		slug: (slug && slug.startsWith('/')
-			? slug
-			: path.join(
-					path.dirname(
-						relativePath
-							.replace(/^docs\//, '')
-							.replace(/.md$/, '')
-							.replace(/.mdx$/, ''),
-					),
-					path.basename(slug ?? id),
-				)
-		).replace(/^\//, ''),
+		slug:
+			effectSlug ??
+			(slug && slug.startsWith('/')
+				? slug
+				: path.join(
+						path.dirname(
+							relativePath
+								.replace(/^docs\//, '')
+								.replace(/.md$/, '')
+								.replace(/.mdx$/, ''),
+						),
+						path.basename(slug ?? id),
+					)
+			).replace(/^\//, ''),
 	});
 }
 

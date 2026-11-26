@@ -126,7 +126,7 @@ const getUniformData = (
 export const sphere = Internals.createEffect<SphereParams>({
 	type: 'remotion/sphere',
 	label: 'sphere()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/sphere',
+	documentationLink: 'https://www.remotion.dev/effects/sphere',
 	schema: sphereSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Sphere');

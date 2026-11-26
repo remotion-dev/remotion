@@ -289,7 +289,7 @@ const createTearState = (gl: WebGL2RenderingContext): TearState => {
 export const tear = createEffect<TearParams>({
 	type: 'dev.remotion.effects.tear',
 	label: 'tear()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/tear',
+	documentationLink: 'https://www.remotion.dev/effects/tear',
 
 	calculateKey: (params) => {
 		const r = resolve(params);

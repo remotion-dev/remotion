@@ -260,7 +260,7 @@ const setupSkew = (target: HTMLCanvasElement): SkewState => {
 export const skew = createEffect<SkewParams>({
 	type: 'dev.remotion.effects.skew',
 	label: 'skew()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/skew',
+	documentationLink: 'https://www.remotion.dev/effects/skew',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `skew-${resolved.x}-${resolved.y}-${resolved.origin[0]}-${resolved.origin[1]}`;

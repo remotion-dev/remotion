@@ -209,7 +209,7 @@ const linkProgram = (
 export const speckle = createEffect<SpeckleParams>({
 	type: 'dev.remotion.effects.speckle',
 	label: 'speckle()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/speckle',
+	documentationLink: 'https://www.remotion.dev/effects/speckle',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `speckle-${r.density}-${r.size}-${r.randomness}`;

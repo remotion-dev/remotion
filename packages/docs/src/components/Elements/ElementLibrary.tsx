@@ -419,6 +419,7 @@ export const ElementLibrary: React.FC<{
 						<h2
 							className={`anchor ${styles.categoryTitle}`}
 							id={categoryHeadingId}
+							data-catalog-category
 						>
 							{section.label}
 						</h2>

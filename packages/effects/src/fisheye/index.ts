@@ -148,7 +148,7 @@ const validateFisheyeParams = (params: FisheyeParams): void => {
 export const fisheye = createEffect<FisheyeParams>({
 	type: 'dev.remotion.effects.fisheye',
 	label: 'fisheye()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/fisheye',
+	documentationLink: 'https://www.remotion.dev/effects/fisheye',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `fisheye-${r.fieldOfView}-${r.center.join(':')}-${r.radius}-${r.zoom}`;

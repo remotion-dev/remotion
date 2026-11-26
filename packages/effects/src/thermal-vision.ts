@@ -331,7 +331,7 @@ const updatePalette = (
 export const thermalVision = createEffect<ThermalVisionParams>({
 	type: 'remotion/thermal-vision',
 	label: 'thermalVision()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/thermal-vision',
+	documentationLink: 'https://www.remotion.dev/effects/thermal-vision',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `thermal-vision-${r.amount}-${r.palette.join('|')}`;

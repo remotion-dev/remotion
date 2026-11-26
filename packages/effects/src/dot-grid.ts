@@ -201,7 +201,7 @@ const linkProgram = (
 export const dotGrid = createEffect<DotGridParams>({
 	type: 'dev.remotion.effects.dotGrid',
 	label: 'dotGrid()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/dot-grid',
+	documentationLink: 'https://www.remotion.dev/effects/dot-grid',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `dot-grid-${r.dotSize}-${r.gridSize}-${r.invert ? 1 : 0}`;

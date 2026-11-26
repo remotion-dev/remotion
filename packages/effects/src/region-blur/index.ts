@@ -140,7 +140,7 @@ const validateRegionBlurParams = (params: RegionBlurParams): void => {
 export const regionBlur = createEffect<RegionBlurParams>({
 	type: 'remotion/region-blur',
 	label: 'regionBlur()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/region-blur',
+	documentationLink: 'https://www.remotion.dev/effects/region-blur',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `region-blur-${resolved.topLeft.join(':')}-${resolved.bottomRight.join(':')}-${resolved.blurRadius}-${resolved.feather}-${resolved.roundness}`;

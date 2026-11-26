@@ -496,7 +496,7 @@ const setupRoughenEdges = (target: HTMLCanvasElement): RoughenEdgesState => {
 export const roughenEdges = createEffect<RoughenEdgesParams>({
 	type: 'dev.remotion.effects.roughen-edges',
 	label: 'roughenEdges()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/roughen-edges',
+	documentationLink: 'https://www.remotion.dev/effects/roughen-edges',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `roughen-edges-${r.amount}-${r.border}-${r.scale}-${r.seed}`;

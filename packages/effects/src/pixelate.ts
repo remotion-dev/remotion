@@ -205,7 +205,7 @@ struct Params { resolutionBlockSize: vec4f, }
 export const pixelate = createEffect<PixelateParams>({
 	type: 'dev.remotion.effects.pixelate',
 	label: 'pixelate()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/pixelate',
+	documentationLink: 'https://www.remotion.dev/effects/pixelate',
 
 	calculateKey: (params) => {
 		const r = resolve(params);

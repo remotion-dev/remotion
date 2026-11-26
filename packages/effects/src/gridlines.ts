@@ -419,7 +419,7 @@ const rgbaToUniform = (
 export const gridlines = createEffect<GridlinesParams>({
 	type: 'remotion/gridlines',
 	label: 'gridlines()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/gridlines',
+	documentationLink: 'https://www.remotion.dev/effects/gridlines',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

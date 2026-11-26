@@ -329,7 +329,7 @@ const getParsedColors = (
 export const linearGradient = createEffect<LinearGradientParams>({
 	type: 'dev.remotion.effects.linearGradient',
 	label: 'linearGradient()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/linear-gradient',
+	documentationLink: 'https://www.remotion.dev/effects/linear-gradient',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `linear-gradient-${r.start.join(':')}-${r.end.join(':')}-${r.startColor}-${r.endColor}`;

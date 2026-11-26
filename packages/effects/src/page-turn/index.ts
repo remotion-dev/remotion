@@ -158,7 +158,7 @@ const getUniformData = (
 export const pageTurn = Internals.createEffect<PageTurnParams>({
 	type: 'remotion/page-turn',
 	label: 'pageTurn()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/page-turn',
+	documentationLink: 'https://www.remotion.dev/effects/page-turn',
 	schema: pageTurnSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Page turn');

@@ -398,7 +398,7 @@ const normalized = (
 export const liquidContours = createEffect<LiquidContoursParams>({
 	type: 'dev.remotion.effects.liquidContours',
 	label: 'liquidContours()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/liquid-contours',
+	documentationLink: 'https://www.remotion.dev/effects/liquid-contours',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `liquid-contours-${r.firstColor}-${r.secondColor}-${r.spacing}-${r.scale}-${r.complexity}-${r.smoothness}-${r.seed}-${r.offsetX}-${r.offsetY}-${r.phase}`;

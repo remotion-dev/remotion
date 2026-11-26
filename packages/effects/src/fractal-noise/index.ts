@@ -468,7 +468,7 @@ const setupFractalNoise = (target: HTMLCanvasElement): FractalNoiseState => {
 export const fractalNoise = createEffect<FractalNoiseParams>({
 	type: 'remotion/fractal-noise',
 	label: 'fractalNoise()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/fractal-noise',
+	documentationLink: 'https://www.remotion.dev/effects/fractal-noise',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `fractal-noise-${JSON.stringify(r)}`;
