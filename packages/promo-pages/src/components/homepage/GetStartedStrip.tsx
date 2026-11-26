@@ -1,5 +1,5 @@
 import {Button} from '@remotion/design';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {GithubButton} from './GitHubButton';
 import {PromptAgentLogos} from './PromptAgentLogos';
 
@@ -7,56 +7,65 @@ const setupPrompt =
 	'Set up Remotion for me and help me make my first video. Fetch https://www.remotion.dev/get-started.md and follow it.';
 
 export const GetStarted: React.FC = () => {
-	const [clicked, setClicked] = useState<number | null>(null);
+	const [copiedAt, setCopiedAt] = useState<number | null>(null);
 	const [manualCopy, setManualCopy] = useState(false);
 	const buttonClassName =
 		'w-full px-1.5 py-0 min-[360px]:px-2 min-[900px]:px-4';
 
+	useEffect(() => {
+		if (copiedAt === null) {
+			return;
+		}
+
+		const timeout = window.setTimeout(() => setCopiedAt(null), 900);
+		return () => window.clearTimeout(timeout);
+	}, [copiedAt]);
+
 	return (
 		<div className="flex flex-col min-[900px]:flex-row items-center text-center w-full justify-start lg:justify-end">
 			<div className="w-full min-[900px]:w-auto">
-				<div className="flex flex-row w-full relative">
-					{clicked ? (
-						<div
-							key={clicked}
-							style={{
-								animation: 'click 0.7s linear',
-								animationFillMode: 'forwards',
-							}}
-							className="absolute z-0 top-[-10px] font-mono text-sm text-center w-full"
-						>
-							Copied!
-						</div>
-					) : null}
-					{manualCopy ? (
-						<input
-							ref={(input) => {
-								input?.focus();
-								input?.select();
-							}}
-							aria-label="Select and copy the agent prompt"
-							className="w-full rounded-lg border px-3 min-[900px]:w-44"
-							readOnly
-							value={setupPrompt}
-						/>
-					) : (
-						<Button
-							className={buttonClassName}
-							onClick={async () => {
-								try {
-									await navigator.clipboard.writeText(setupPrompt);
-									setClicked(Date.now());
-								} catch {
-									setManualCopy(true);
-								}
-							}}
-							title="Copy this prompt for ChatGPT, Claude, or Cursor"
+				{manualCopy ? (
+					<input
+						ref={(input) => {
+							input?.focus();
+							input?.select();
+						}}
+						aria-label="Select and copy the agent prompt"
+						className="w-full rounded-lg border px-3 min-[900px]:w-44"
+						readOnly
+						value={setupPrompt}
+					/>
+				) : (
+					<Button
+						className={buttonClassName}
+						onClick={async () => {
+							try {
+								await navigator.clipboard.writeText(setupPrompt);
+								setCopiedAt(Date.now());
+							} catch {
+								setManualCopy(true);
+							}
+						}}
+						title="Copy this prompt for ChatGPT, Claude, or Cursor"
+					>
+						<span
+							data-copied={copiedAt !== null}
+							className="relative flex h-12 items-center whitespace-nowrap transition-transform duration-200 ease-out data-[copied=true]:-translate-y-full motion-reduce:transition-none"
 						>
 							<PromptAgentLogos />
 							<span className="ml-2">Copy prompt</span>
-						</Button>
-					)}
-				</div>
+							<span
+								aria-hidden="true"
+								className="absolute inset-x-0 top-full flex h-full items-center justify-center"
+							>
+								Have fun!
+							</span>
+						</span>
+					</Button>
+				)}
+				<span role="status" className="sr-only">
+					{copiedAt === null ? '' : 'Prompt copied. Have fun!'}
+				</span>
 			</div>
 			<div style={{width: 10, height: 10}} />
 			<div className="flex flex-row gap-2 w-full min-[900px]:w-auto">
