@@ -112,7 +112,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Elements',
-						href: '/elements',
+						href: '/elements/libraries',
 						description: 'Building blocks from Remotion and third parties',
 					},
 					{

@@ -26,7 +26,7 @@ export const MakeVideosInteractively: React.FC<{
 	showLinks = true,
 	links = [
 		{label: 'Studio', href: '/docs/studio'},
-		{label: 'Elements', href: '/elements'},
+		{label: 'Elements', href: '/elements/libraries'},
 	],
 	showVideo = true,
 	videoSrc = '/img/editing-vp9-chrome.webm',
