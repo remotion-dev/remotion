@@ -135,6 +135,7 @@ const config: Config = {
 					position: 'left',
 					items: [
 						{to: '/elements/libraries', label: 'Elements'},
+						{to: '/effects', label: 'Effects'},
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
@@ -300,6 +301,19 @@ const config: Config = {
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,
 				beforeDefaultRemarkPlugins: [[remarkElementSource, {elementRegistry}]],
+				remarkPlugins: [remarkExportRaw],
+			},
+		],
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'effects',
+				path: './effects',
+				routeBasePath: 'effects',
+				sidebarPath: './effects-sidebars.ts',
+				editUrl:
+					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
+				showLastUpdateTime: showGitLastUpdate,
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

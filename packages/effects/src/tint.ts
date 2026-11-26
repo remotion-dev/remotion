@@ -103,7 +103,7 @@ const shaderImplementations = createColorMatrixImplementations<TintParams>(
 export const tint = createEffect<TintParams>({
 	type: 'dev.remotion.effects.tint',
 	label: 'tint()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
+	documentationLink: 'https://www.remotion.dev/effects/tint',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `tint-${r.color}-${r.amount}`;

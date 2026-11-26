@@ -23,7 +23,7 @@ test('starburst() exposes its documentation link', () => {
 	expect(
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/effects/starburst');
+	).toBe('https://www.remotion.dev/effects/starburst');
 });
 
 test('starburst() exposes its API name as the Studio label', () => {

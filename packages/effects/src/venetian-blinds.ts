@@ -346,7 +346,7 @@ struct Params { controls: vec4f, }
 export const venetianBlinds = createEffect<VenetianBlindsParams>({
 	type: 'dev.remotion.effects.venetianBlinds',
 	label: 'venetianBlinds()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/venetian-blinds',
+	documentationLink: 'https://www.remotion.dev/effects/venetian-blinds',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `venetian-blinds-${r.progress}-${r.direction}-${r.slats}`;

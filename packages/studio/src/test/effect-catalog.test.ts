@@ -13,33 +13,33 @@ test('effect catalog exposes documentation links for picker context menu', () =>
 	);
 
 	expect(links.get('brightness()')).toBe(
-		'https://www.remotion.dev/docs/effects/brightness',
+		'https://www.remotion.dev/effects/brightness',
 	);
 	expect(links.get('colorCorrection()')).toBe(
-		'https://www.remotion.dev/docs/effects/color-correction',
+		'https://www.remotion.dev/effects/color-correction',
 	);
 	expect(links.get('xyTranslate()')).toBe(
-		'https://www.remotion.dev/docs/effects/xy-translate',
+		'https://www.remotion.dev/effects/xy-translate',
 	);
 	expect(links.get('uvTranslate()')).toBe(
-		'https://www.remotion.dev/docs/effects/uv-translate',
+		'https://www.remotion.dev/effects/uv-translate',
 	);
 	expect(links.get('pixelate()')).toBe(
-		'https://www.remotion.dev/docs/effects/pixelate',
+		'https://www.remotion.dev/effects/pixelate',
 	);
 	expect(links.get('linearProgressivePixelate()')).toBe(
-		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+		'https://www.remotion.dev/effects/linear-progressive-pixelate',
 	);
 	expect(links.get('radialProgressivePixelate()')).toBe(
-		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+		'https://www.remotion.dev/effects/radial-progressive-pixelate',
 	);
 	expect(links.get('shrinkwrap()')).toBe(
-		'https://www.remotion.dev/docs/effects/shrinkwrap',
+		'https://www.remotion.dev/effects/shrinkwrap',
 	);
 	expect(links.get('lightLeak()')).toBe(
-		'https://www.remotion.dev/docs/effects/light-leak',
+		'https://www.remotion.dev/effects/light-leak',
 	);
 	expect(links.get('starburst()')).toBe(
-		'https://www.remotion.dev/docs/effects/starburst',
+		'https://www.remotion.dev/effects/starburst',
 	);
 });

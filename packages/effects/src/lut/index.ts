@@ -102,7 +102,7 @@ const validateLutParams = (params: LutParams): void => {
 export const lut = createEffect<LutParams>({
 	type: 'remotion/lut',
 	label: 'lut()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/lut',
+	documentationLink: 'https://www.remotion.dev/effects/lut',
 	calculateKey: (params) => getCachedLut(params.content).effectKey,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<

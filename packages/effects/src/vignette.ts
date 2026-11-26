@@ -428,7 +428,7 @@ const normalizedRgba = (
 export const vignette = createEffect<VignetteParams>({
 	type: 'dev.remotion.effects.vignette',
 	label: 'vignette()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/vignette',
+	documentationLink: 'https://www.remotion.dev/effects/vignette',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `vignette-${r.amount}-${r.radius}-${r.feather}-${r.roundness}-${r.color}-${r.mode}-${r.center.join(':')}`;

@@ -205,7 +205,7 @@ const createWhiteNoiseState = (
 export const whiteNoise = createEffect<WhiteNoiseParams>({
 	type: 'dev.remotion.effects.whiteNoise',
 	label: 'whiteNoise()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/white-noise',
+	documentationLink: 'https://www.remotion.dev/effects/white-noise',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `white-noise-${resolved.amount}-${resolved.seed}`;

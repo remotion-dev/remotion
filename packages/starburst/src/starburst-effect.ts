@@ -1,5 +1,5 @@
 /**
- * @deprecated Import `starburst()` from `@remotion/effects/starburst` instead: https://www.remotion.dev/docs/effects/starburst
+ * @deprecated Import `starburst()` from `@remotion/effects/starburst` instead: https://www.remotion.dev/effects/starburst
  */
 export {
 	starburst,

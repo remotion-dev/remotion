@@ -458,7 +458,7 @@ const updatePalette = (
 export const checkerboard = createEffect<CheckerboardParams>({
 	type: 'remotion/checkerboard',
 	label: 'checkerboard()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/checkerboard',
+	documentationLink: 'https://www.remotion.dev/effects/checkerboard',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

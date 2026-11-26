@@ -119,226 +119,226 @@ test('public UV coordinates convert to shader UV coordinates', () => {
 
 test('@remotion/effects expose documentation links', () => {
 	expect(tear().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/tear',
+		'https://www.remotion.dev/effects/tear',
 	);
 	expect(barrelDistortion().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/barrel-distortion',
+		'https://www.remotion.dev/effects/barrel-distortion',
 	);
 	expect(blur({radius: 1}).definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/blur',
+		'https://www.remotion.dev/effects/blur',
 	);
 	expect(chromaticAberration().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/chromatic-aberration',
+		'https://www.remotion.dev/effects/chromatic-aberration',
 	);
 	expect(colorKey().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/color-key',
+		'https://www.remotion.dev/effects/color-key',
 	);
 	expect(colorCorrection().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/color-correction',
+		'https://www.remotion.dev/effects/color-correction',
 	);
 	expect(brightness().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/brightness',
+		'https://www.remotion.dev/effects/brightness',
 	);
 	expect(burlap().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/burlap',
+		'https://www.remotion.dev/effects/burlap',
 	);
 	expect(checkerboard().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/checkerboard',
+		'https://www.remotion.dev/effects/checkerboard',
 	);
 	expect(contrast().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/contrast',
+		'https://www.remotion.dev/effects/contrast',
 	);
 	expect(contourLines().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/contour-lines',
+		'https://www.remotion.dev/effects/contour-lines',
 	);
 	expect(duotone().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/duotone',
+		'https://www.remotion.dev/effects/duotone',
 	);
 	expect(emboss().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/emboss',
+		'https://www.remotion.dev/effects/emboss',
 	);
 	expect(evolve().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/evolve',
+		'https://www.remotion.dev/effects/evolve',
 	);
 	expect(exposure().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/exposure',
+		'https://www.remotion.dev/effects/exposure',
 	);
 	expect(dropShadow().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/drop-shadow',
+		'https://www.remotion.dev/effects/drop-shadow',
 	);
 	expect(fisheye().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/fisheye',
+		'https://www.remotion.dev/effects/fisheye',
 	);
 	expect(flannel().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/flannel',
+		'https://www.remotion.dev/effects/flannel',
 	);
 	expect(cornerPin().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/corner-pin',
+		'https://www.remotion.dev/effects/corner-pin',
 	);
 	expect(glow().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/glow',
+		'https://www.remotion.dev/effects/glow',
 	);
 	expect(grayscale().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/grayscale',
+		'https://www.remotion.dev/effects/grayscale',
 	);
 	expect(gridlines().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/gridlines',
+		'https://www.remotion.dev/effects/gridlines',
 	);
 	expect(halftone().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/halftone',
+		'https://www.remotion.dev/effects/halftone',
 	);
 	expect(halftoneLinearGradient().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
+		'https://www.remotion.dev/effects/halftone-linear-gradient',
 	);
 	expect(pixelDissolve().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/pixel-dissolve',
+		'https://www.remotion.dev/effects/pixel-dissolve',
 	);
 	expect(hue().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/hue',
+		'https://www.remotion.dev/effects/hue',
 	);
 	expect(invert().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/invert',
+		'https://www.remotion.dev/effects/invert',
 	);
 	expect(levels().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/levels',
+		'https://www.remotion.dev/effects/levels',
 	);
 	expect(shadowsHighlights().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/shadows-highlights',
+		'https://www.remotion.dev/effects/shadows-highlights',
 	);
 	expect(lines().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/lines',
+		'https://www.remotion.dev/effects/lines',
 	);
 	expect(liquidContours().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/liquid-contours',
+		'https://www.remotion.dev/effects/liquid-contours',
 	);
 	expect(lut({content: IDENTITY_LUT}).definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/lut',
+		'https://www.remotion.dev/effects/lut',
 	);
 	expect(linearGradient().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/linear-gradient',
+		'https://www.remotion.dev/effects/linear-gradient',
 	);
 	expect(linearGradientTint().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/linear-gradient-tint',
+		'https://www.remotion.dev/effects/linear-gradient-tint',
 	);
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
+		'https://www.remotion.dev/effects/linear-progressive-blur',
 	);
 	expect(linearProgressivePixelate().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+		'https://www.remotion.dev/effects/linear-progressive-pixelate',
 	);
 	expect(lightLeak().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/light-leak',
+		'https://www.remotion.dev/effects/light-leak',
 	);
 	expect(lightTrail().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/light-trail',
+		'https://www.remotion.dev/effects/light-trail',
 	);
 	expect(dotGrid().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/dot-grid',
+		'https://www.remotion.dev/effects/dot-grid',
 	);
 	expect(mirror().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/mirror',
+		'https://www.remotion.dev/effects/mirror',
 	);
 	expect(noise().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/noise',
+		'https://www.remotion.dev/effects/noise',
 	);
 	expect(
 		noiseDisplacement({center: [0.5, 0.5], radius: 0.25}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/effects/noise-displacement');
+	).toBe('https://www.remotion.dev/effects/noise-displacement');
 	expect(outline().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/outline',
+		'https://www.remotion.dev/effects/outline',
 	);
 	expect(paper().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/paper',
+		'https://www.remotion.dev/effects/paper',
 	);
 	expect(roughenEdges().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/roughen-edges',
+		'https://www.remotion.dev/effects/roughen-edges',
 	);
 	expect(pattern().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/pattern',
+		'https://www.remotion.dev/effects/pattern',
 	);
 	expect(radialProgressiveBlur().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
+		'https://www.remotion.dev/effects/radial-progressive-blur',
 	);
 	expect(
 		regionBlur({topLeft: [0.25, 0.25], bottomRight: [0.75, 0.75]}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/effects/region-blur');
+	).toBe('https://www.remotion.dev/effects/region-blur');
 	expect(tile().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/tile',
+		'https://www.remotion.dev/effects/tile',
 	);
 	expect(radialProgressivePixelate().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+		'https://www.remotion.dev/effects/radial-progressive-pixelate',
 	);
 	expect(rings().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/rings',
+		'https://www.remotion.dev/effects/rings',
 	);
 	expect(saturation().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/saturation',
+		'https://www.remotion.dev/effects/saturation',
 	);
 	expect(scanlines().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/scanlines',
+		'https://www.remotion.dev/effects/scanlines',
 	);
 	expect(scale({scale: 1}).definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/scale',
+		'https://www.remotion.dev/effects/scale',
 	);
 	expect(shine().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/shine',
+		'https://www.remotion.dev/effects/shine',
 	);
 	expect(skew().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/skew',
+		'https://www.remotion.dev/effects/skew',
 	);
 	expect(shrinkwrap().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/shrinkwrap',
+		'https://www.remotion.dev/effects/shrinkwrap',
 	);
 	expect(speckle().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/speckle',
+		'https://www.remotion.dev/effects/speckle',
 	);
 	expect(
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/effects/starburst');
+	).toBe('https://www.remotion.dev/effects/starburst');
 	expect(thermalVision().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/thermal-vision',
+		'https://www.remotion.dev/effects/thermal-vision',
 	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/tint',
+		'https://www.remotion.dev/effects/tint',
 	);
 	expect(tvSignalOff().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/tv-signal-off',
+		'https://www.remotion.dev/effects/tv-signal-off',
 	);
 	expect(venetianBlinds().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/venetian-blinds',
+		'https://www.remotion.dev/effects/venetian-blinds',
 	);
 	expect(vibrance().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/vibrance',
+		'https://www.remotion.dev/effects/vibrance',
 	);
 	expect(uvTranslate().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/uv-translate',
+		'https://www.remotion.dev/effects/uv-translate',
 	);
 	expect(vignette().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/vignette',
+		'https://www.remotion.dev/effects/vignette',
 	);
 	expect(xyTranslate().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/xy-translate',
+		'https://www.remotion.dev/effects/xy-translate',
 	);
 	expect(wave().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/wave',
+		'https://www.remotion.dev/effects/wave',
 	);
 	expect(waves().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/waves',
+		'https://www.remotion.dev/effects/waves',
 	);
 	expect(zigzag().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/zigzag',
+		'https://www.remotion.dev/effects/zigzag',
 	);
 	expect(whiteNoise().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/white-noise',
+		'https://www.remotion.dev/effects/white-noise',
 	);
 	expect(whiteBalance().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/white-balance',
+		'https://www.remotion.dev/effects/white-balance',
 	);
 	expect(zoomBlur().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/zoom-blur',
+		'https://www.remotion.dev/effects/zoom-blur',
 	);
 });
 

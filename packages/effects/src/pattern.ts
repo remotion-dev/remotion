@@ -446,7 +446,7 @@ const linkProgram = (
 export const pattern = createEffect<PatternParams>({
 	type: 'dev.remotion.effects.pattern',
 	label: 'pattern()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/pattern',
+	documentationLink: 'https://www.remotion.dev/effects/pattern',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `pattern-${r.scale}-${r.cropLeft}-${r.cropTop}-${r.cropRight}-${r.cropBottom}-${r.gapX}-${r.gapY}-${r.offsetU}-${r.offsetV}-${r.rowOffset}-${r.rowOffsetEvery}-${r.columnOffset}-${r.columnOffsetEvery}-${r.origin[0]}-${r.origin[1]}-${r.wrap ? 1 : 0}`;

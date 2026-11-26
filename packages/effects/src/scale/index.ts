@@ -85,7 +85,7 @@ const validateScaleParams = (params: ScaleParams): void => {
 export const scale = createEffect<ScaleParams>({
 	type: 'dev.remotion.effects.scale',
 	label: 'scale()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/scale',
+	documentationLink: 'https://www.remotion.dev/effects/scale',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `scale-${r.scale}-${r.horizontal}-${r.vertical}`;

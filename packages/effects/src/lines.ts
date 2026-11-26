@@ -487,7 +487,7 @@ const updatePalette = (
 export const lines = createEffect<LinesParams>({
 	type: 'dev.remotion.effects.lines',
 	label: 'lines()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/lines',
+	documentationLink: 'https://www.remotion.dev/effects/lines',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

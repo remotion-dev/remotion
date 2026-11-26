@@ -380,7 +380,7 @@ const setupLensBlur = (target: HTMLCanvasElement): LensBlurState => {
 export const lensBlur = createEffect<LensBlurParams>({
 	type: 'remotion/lens-blur',
 	label: 'lensBlur()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/lens-blur',
+	documentationLink: 'https://www.remotion.dev/effects/lens-blur',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `lens-blur-${JSON.stringify(r)}`;

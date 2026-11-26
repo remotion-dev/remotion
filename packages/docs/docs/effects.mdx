@@ -13,25 +13,25 @@ title: Effects
   muted
   playsInline
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
-/>
+/><br/><br/>
 
-Pixels of canvas-based components can be manipulated using effects.
+Apply effects doing pixel manipulation onto any element.  
+You can use one of Remotions built-in effects or create your own.
 
 ## Supported components
 
 The following components support effects:
 
 - [`<Solid>`](/docs/solid)
-- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
 - [`<Video>`](/docs/media/video)
 - [`<Img>`](/docs/img)
 - [`<CanvasImage>`](/docs/canvasimage)
 - [`<AnimatedImage>`](/docs/animatedimage)
 - [`<Gif>`](/docs/gif/gif)
 - [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas)
-- [`@remotion/shapes` components](/docs/shapes) (from v4.0.474)
+- [`@remotion/shapes` components](/docs/shapes)
 
-Use `effectsOutputSize` on any supported component to choose the pixel dimensions used by its effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+All other elements, and any HTML component can be wrapped in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), which can then accept effects.
 
 ## Usage
 
@@ -57,9 +57,13 @@ export const MyComp: React.FC = () => {
 
 ### Interactively
 
-In [Remotion Studio](/docs/studio), first add an element that supports effects. Drag a video into the canvas, or add a [`<Solid>`](/docs/solid) by right-clicking an empty space in the timeline.
+In [Remotion Studio](/docs/studio), select any element.  
+You then have multiple ways of adding an effect:
 
-Then drag an effect from the table of contents below into the element.
+- Click the `+` icon in the Inspector next to `Effects`.
+- Press <kbd>E</kbd>
+- Right-click and select `Add Effect`
+- Drag an effect from the [Effects library](/effects) onto the element.
 
 ### Agentically
 
@@ -73,9 +77,7 @@ Multiple effects can be combined. They apply in the order they are specified.
 
 ## Available effects
 
-import {TableOfContents} from './effects/table-of-contents';
-
-<TableOfContents />
+Browse the [Effects library](/effects) for previews, examples, and options for each effect.
 
 ## Visual editing in Studio
 

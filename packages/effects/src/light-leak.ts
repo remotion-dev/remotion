@@ -234,7 +234,7 @@ const linkProgram = (
 export const lightLeak = createEffect<LightLeakEffectParams>({
 	type: 'remotion/light-leak',
 	label: 'lightLeak()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/light-leak',
+	documentationLink: 'https://www.remotion.dev/effects/light-leak',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `light-leak-${r.seed}-${r.hueShift}-${r.progress}`;

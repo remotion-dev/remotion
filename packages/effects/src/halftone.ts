@@ -411,7 +411,7 @@ const linkProgram = (
 export const halftone = createEffect<HalftoneParams>({
 	type: 'dev.remotion.effects.halftone',
 	label: 'halftone()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
+	documentationLink: 'https://www.remotion.dev/effects/halftone',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.colorMode}-${r.dotColor}-${r.invert ? 1 : 0}`;

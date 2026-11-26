@@ -39,7 +39,7 @@ const validateGrayscaleParams = (params: GrayscaleParams): void => {
 export const grayscale = createEffect<GrayscaleParams>({
 	type: 'dev.remotion.effects.grayscale',
 	label: 'grayscale()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/grayscale',
+	documentationLink: 'https://www.remotion.dev/effects/grayscale',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `grayscale-${r.amount}`;

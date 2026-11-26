@@ -16,7 +16,7 @@ Between any two sequences, you can place either a transition or an overlay:
 - A [`<TransitionSeries.Transition>`](#transitionseriestransition) crossfades, slides, or otherwise animates between two scenes.  
   It [shortens](#duration-of-a-transitionseries) the total duration because both scenes overlap during the transition.
 - A [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) renders children on top of the cut point without affecting timing.  
-  The sequences remain at full length. This is useful for effects like [light leaks](/docs/effects/light-leak) or flashes.
+  The sequences remain at full length. This is useful for effects like [light leaks](/effects/light-leak) or flashes.
 
 ### Transition example
 
@@ -52,7 +52,7 @@ export const TransitionExample: React.FC = () => {
 
 ### Overlay example<AvailableFrom v="4.0.415" />
 
-This example uses [`lightLeak()`](/docs/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
+This example uses [`lightLeak()`](/effects/light-leak), which requires [`@remotion/effects`](/docs/effects/api) v4.0.500 or later.
 
 ```tsx twoslash title="OverlayExample.tsx"
 import {AbsoluteFill} from 'remotion';

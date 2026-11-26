@@ -342,7 +342,7 @@ struct Params { controls: vec4f, options: vec4f, }
 export const scanlines = createEffect<ScanlinesParams>({
 	type: 'dev.remotion.effects.scanlines',
 	label: 'scanlines()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/scanlines',
+	documentationLink: 'https://www.remotion.dev/effects/scanlines',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `scanlines-${r.amount}-${r.spacing}-${r.thickness}-${r.offset}-${r.premultiply ? 1 : 0}`;

@@ -505,7 +505,7 @@ const setupContourLines = (target: HTMLCanvasElement): ContourLinesState => {
 export const contourLines = createEffect<ContourLinesParams>({
 	type: 'dev.remotion.effects.contourLines',
 	label: 'contourLines()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/contour-lines',
+	documentationLink: 'https://www.remotion.dev/effects/contour-lines',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';

@@ -306,7 +306,7 @@ const LightLeakInner: React.FC<
 };
 
 /**
- * @deprecated Use `lightLeak()` from `@remotion/effects/light-leak` instead: https://www.remotion.dev/docs/effects/light-leak
+ * @deprecated Use `lightLeak()` from `@remotion/effects/light-leak` instead: https://www.remotion.dev/effects/light-leak
  */
 export const LightLeak = Interactive.withSchema({
 	Component: LightLeakInner,

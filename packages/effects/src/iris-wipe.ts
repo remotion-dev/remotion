@@ -273,7 +273,7 @@ fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }
 export const irisWipe = createEffect<IrisWipeParams>({
 	type: 'remotion/iris-wipe',
 	label: 'irisWipe()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/iris-wipe',
+	documentationLink: 'https://www.remotion.dev/effects/iris-wipe',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `iris-wipe-${r.center.join(':')}-${r.points}-${r.outerRadius}-${r.useInnerRadius}-${r.innerRadius}-${r.rotation}-${r.feather}`;

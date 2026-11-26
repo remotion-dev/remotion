@@ -134,7 +134,7 @@ const getUniformData = (
 export const cylinder = Internals.createEffect<CylinderParams>({
 	type: 'remotion/cylinder',
 	label: 'cylinder()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/cylinder',
+	documentationLink: 'https://www.remotion.dev/effects/cylinder',
 	schema: cylinderSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Cylinder');

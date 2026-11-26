@@ -377,7 +377,7 @@ const normalizedRgba = (
 export const burlap = createEffect<BurlapParams>({
 	type: 'dev.remotion.effects.burlap',
 	label: 'burlap()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/burlap',
+	documentationLink: 'https://www.remotion.dev/effects/burlap',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `burlap-${r.amount}-${r.size}-${r.roughness}-${r.seed}-${r.color}`;

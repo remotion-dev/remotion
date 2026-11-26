@@ -3700,9 +3700,18 @@ export const articles = [
 		slug: 'effects',
 	},
 	{
+		id: 'effects',
+		title: 'Remotion Effects',
+		relativePath: 'effects/index.mdx',
+		compId: 'articles-effects-index',
+		crumb: null,
+		noAi: false,
+		slug: 'effects',
+	},
+	{
 		id: 'effects/barrel-distortion',
 		title: 'barrelDistortion()',
-		relativePath: 'docs/effects/barrel-distortion.mdx',
+		relativePath: 'effects/barrel-distortion.mdx',
 		compId: 'articles-docs-effects-barrel-distortion',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3711,7 +3720,7 @@ export const articles = [
 	{
 		id: 'effects/bevel-alpha',
 		title: 'bevelAlpha()',
-		relativePath: 'docs/effects/bevel-alpha.mdx',
+		relativePath: 'effects/bevel-alpha.mdx',
 		compId: 'articles-docs-effects-bevel-alpha',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3720,7 +3729,7 @@ export const articles = [
 	{
 		id: 'effects/blur',
 		title: 'blur()',
-		relativePath: 'docs/effects/blur.mdx',
+		relativePath: 'effects/blur.mdx',
 		compId: 'articles-docs-effects-blur',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3729,7 +3738,7 @@ export const articles = [
 	{
 		id: 'effects/brightness',
 		title: 'brightness()',
-		relativePath: 'docs/effects/brightness.mdx',
+		relativePath: 'effects/brightness.mdx',
 		compId: 'articles-docs-effects-brightness',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3738,7 +3747,7 @@ export const articles = [
 	{
 		id: 'effects/burlap',
 		title: 'burlap()',
-		relativePath: 'docs/effects/burlap.mdx',
+		relativePath: 'effects/burlap.mdx',
 		compId: 'articles-docs-effects-burlap',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3747,7 +3756,7 @@ export const articles = [
 	{
 		id: 'effects/checkerboard',
 		title: 'checkerboard()',
-		relativePath: 'docs/effects/checkerboard.mdx',
+		relativePath: 'effects/checkerboard.mdx',
 		compId: 'articles-docs-effects-checkerboard',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3756,7 +3765,7 @@ export const articles = [
 	{
 		id: 'effects/chromatic-aberration',
 		title: 'chromaticAberration()',
-		relativePath: 'docs/effects/chromatic-aberration.mdx',
+		relativePath: 'effects/chromatic-aberration.mdx',
 		compId: 'articles-docs-effects-chromatic-aberration',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3765,7 +3774,7 @@ export const articles = [
 	{
 		id: 'effects/color-correction',
 		title: 'colorCorrection()',
-		relativePath: 'docs/effects/color-correction.mdx',
+		relativePath: 'effects/color-correction.mdx',
 		compId: 'articles-docs-effects-color-correction',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3774,7 +3783,7 @@ export const articles = [
 	{
 		id: 'effects/color-key',
 		title: 'colorKey()',
-		relativePath: 'docs/effects/color-key.mdx',
+		relativePath: 'effects/color-key.mdx',
 		compId: 'articles-docs-effects-color-key',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3783,7 +3792,7 @@ export const articles = [
 	{
 		id: 'effects/contour-lines',
 		title: 'contourLines()',
-		relativePath: 'docs/effects/contour-lines.mdx',
+		relativePath: 'effects/contour-lines.mdx',
 		compId: 'articles-docs-effects-contour-lines',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3792,7 +3801,7 @@ export const articles = [
 	{
 		id: 'effects/contrast',
 		title: 'contrast()',
-		relativePath: 'docs/effects/contrast.mdx',
+		relativePath: 'effects/contrast.mdx',
 		compId: 'articles-docs-effects-contrast',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3801,7 +3810,7 @@ export const articles = [
 	{
 		id: 'effects/corner-pin',
 		title: 'cornerPin()',
-		relativePath: 'docs/effects/corner-pin.mdx',
+		relativePath: 'effects/corner-pin.mdx',
 		compId: 'articles-docs-effects-corner-pin',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3810,7 +3819,7 @@ export const articles = [
 	{
 		id: 'effects/curves',
 		title: 'curves()',
-		relativePath: 'docs/effects/curves.mdx',
+		relativePath: 'effects/curves.mdx',
 		compId: 'articles-docs-effects-curves',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3819,7 +3828,7 @@ export const articles = [
 	{
 		id: 'effects/cylinder',
 		title: 'cylinder()',
-		relativePath: 'docs/effects/cylinder.mdx',
+		relativePath: 'effects/cylinder.mdx',
 		compId: 'articles-docs-effects-cylinder',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3828,7 +3837,7 @@ export const articles = [
 	{
 		id: 'effects/dot-grid',
 		title: 'dotGrid()',
-		relativePath: 'docs/effects/dot-grid.mdx',
+		relativePath: 'effects/dot-grid.mdx',
 		compId: 'articles-docs-effects-dot-grid',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3837,7 +3846,7 @@ export const articles = [
 	{
 		id: 'effects/drop-shadow',
 		title: 'dropShadow()',
-		relativePath: 'docs/effects/drop-shadow.mdx',
+		relativePath: 'effects/drop-shadow.mdx',
 		compId: 'articles-docs-effects-drop-shadow',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3846,7 +3855,7 @@ export const articles = [
 	{
 		id: 'effects/duotone',
 		title: 'duotone()',
-		relativePath: 'docs/effects/duotone.mdx',
+		relativePath: 'effects/duotone.mdx',
 		compId: 'articles-docs-effects-duotone',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3855,7 +3864,7 @@ export const articles = [
 	{
 		id: 'effects/emboss',
 		title: 'emboss()',
-		relativePath: 'docs/effects/emboss.mdx',
+		relativePath: 'effects/emboss.mdx',
 		compId: 'articles-docs-effects-emboss',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3864,7 +3873,7 @@ export const articles = [
 	{
 		id: 'effects/evolve',
 		title: 'evolve()',
-		relativePath: 'docs/effects/evolve.mdx',
+		relativePath: 'effects/evolve.mdx',
 		compId: 'articles-docs-effects-evolve',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3873,7 +3882,7 @@ export const articles = [
 	{
 		id: 'effects/exposure',
 		title: 'exposure()',
-		relativePath: 'docs/effects/exposure.mdx',
+		relativePath: 'effects/exposure.mdx',
 		compId: 'articles-docs-effects-exposure',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3882,7 +3891,7 @@ export const articles = [
 	{
 		id: 'effects/film-burn',
 		title: 'filmBurn()',
-		relativePath: 'docs/effects/film-burn.mdx',
+		relativePath: 'effects/film-burn.mdx',
 		compId: 'articles-docs-effects-film-burn',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3891,7 +3900,7 @@ export const articles = [
 	{
 		id: 'effects/fisheye',
 		title: 'fisheye()',
-		relativePath: 'docs/effects/fisheye.mdx',
+		relativePath: 'effects/fisheye.mdx',
 		compId: 'articles-docs-effects-fisheye',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3900,7 +3909,7 @@ export const articles = [
 	{
 		id: 'effects/flannel',
 		title: 'flannel()',
-		relativePath: 'docs/effects/flannel.mdx',
+		relativePath: 'effects/flannel.mdx',
 		compId: 'articles-docs-effects-flannel',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3909,7 +3918,7 @@ export const articles = [
 	{
 		id: 'effects/fractal-noise',
 		title: 'fractalNoise()',
-		relativePath: 'docs/effects/fractal-noise.mdx',
+		relativePath: 'effects/fractal-noise.mdx',
 		compId: 'articles-docs-effects-fractal-noise',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3918,7 +3927,7 @@ export const articles = [
 	{
 		id: 'effects/glow',
 		title: 'glow()',
-		relativePath: 'docs/effects/glow.mdx',
+		relativePath: 'effects/glow.mdx',
 		compId: 'articles-docs-effects-glow',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3927,7 +3936,7 @@ export const articles = [
 	{
 		id: 'effects/grayscale',
 		title: 'grayscale()',
-		relativePath: 'docs/effects/grayscale.mdx',
+		relativePath: 'effects/grayscale.mdx',
 		compId: 'articles-docs-effects-grayscale',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3936,7 +3945,7 @@ export const articles = [
 	{
 		id: 'effects/gridlines',
 		title: 'gridlines()',
-		relativePath: 'docs/effects/gridlines.mdx',
+		relativePath: 'effects/gridlines.mdx',
 		compId: 'articles-docs-effects-gridlines',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3945,7 +3954,7 @@ export const articles = [
 	{
 		id: 'effects/halftone-linear-gradient',
 		title: 'halftoneLinearGradient()',
-		relativePath: 'docs/effects/halftone-linear-gradient.mdx',
+		relativePath: 'effects/halftone-linear-gradient.mdx',
 		compId: 'articles-docs-effects-halftone-linear-gradient',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3954,7 +3963,7 @@ export const articles = [
 	{
 		id: 'effects/halftone',
 		title: 'halftone()',
-		relativePath: 'docs/effects/halftone.mdx',
+		relativePath: 'effects/halftone.mdx',
 		compId: 'articles-docs-effects-halftone',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3963,7 +3972,7 @@ export const articles = [
 	{
 		id: 'effects/hue',
 		title: 'hue()',
-		relativePath: 'docs/effects/hue.mdx',
+		relativePath: 'effects/hue.mdx',
 		compId: 'articles-docs-effects-hue',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3981,7 +3990,7 @@ export const articles = [
 	{
 		id: 'effects/invert',
 		title: 'invert()',
-		relativePath: 'docs/effects/invert.mdx',
+		relativePath: 'effects/invert.mdx',
 		compId: 'articles-docs-effects-invert',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3990,7 +3999,7 @@ export const articles = [
 	{
 		id: 'effects/iris-wipe',
 		title: 'irisWipe()',
-		relativePath: 'docs/effects/iris-wipe.mdx',
+		relativePath: 'effects/iris-wipe.mdx',
 		compId: 'articles-docs-effects-iris-wipe',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -3999,7 +4008,7 @@ export const articles = [
 	{
 		id: 'effects/lens-blur',
 		title: 'lensBlur()',
-		relativePath: 'docs/effects/lens-blur.mdx',
+		relativePath: 'effects/lens-blur.mdx',
 		compId: 'articles-docs-effects-lens-blur',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4008,7 +4017,7 @@ export const articles = [
 	{
 		id: 'effects/levels',
 		title: 'levels()',
-		relativePath: 'docs/effects/levels.mdx',
+		relativePath: 'effects/levels.mdx',
 		compId: 'articles-docs-effects-levels',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4017,7 +4026,7 @@ export const articles = [
 	{
 		id: 'effects/light-leak',
 		title: 'lightLeak()',
-		relativePath: 'docs/effects/light-leak.mdx',
+		relativePath: 'effects/light-leak.mdx',
 		compId: 'articles-docs-effects-light-leak',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4026,7 +4035,7 @@ export const articles = [
 	{
 		id: 'effects/light-trail',
 		title: 'lightTrail()',
-		relativePath: 'docs/effects/light-trail.mdx',
+		relativePath: 'effects/light-trail.mdx',
 		compId: 'articles-docs-effects-light-trail',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4035,7 +4044,7 @@ export const articles = [
 	{
 		id: 'effects/lightning',
 		title: 'lightning()',
-		relativePath: 'docs/effects/lightning.mdx',
+		relativePath: 'effects/lightning.mdx',
 		compId: 'articles-docs-effects-lightning',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4044,7 +4053,7 @@ export const articles = [
 	{
 		id: 'effects/linear-gradient-tint',
 		title: 'linearGradientTint()',
-		relativePath: 'docs/effects/linear-gradient-tint.mdx',
+		relativePath: 'effects/linear-gradient-tint.mdx',
 		compId: 'articles-docs-effects-linear-gradient-tint',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4053,7 +4062,7 @@ export const articles = [
 	{
 		id: 'effects/linear-gradient',
 		title: 'linearGradient()',
-		relativePath: 'docs/effects/linear-gradient.mdx',
+		relativePath: 'effects/linear-gradient.mdx',
 		compId: 'articles-docs-effects-linear-gradient',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4062,7 +4071,7 @@ export const articles = [
 	{
 		id: 'effects/linear-progressive-blur',
 		title: 'linearProgressiveBlur()',
-		relativePath: 'docs/effects/linear-progressive-blur.mdx',
+		relativePath: 'effects/linear-progressive-blur.mdx',
 		compId: 'articles-docs-effects-linear-progressive-blur',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4071,7 +4080,7 @@ export const articles = [
 	{
 		id: 'effects/linear-progressive-pixelate',
 		title: 'linearProgressivePixelate()',
-		relativePath: 'docs/effects/linear-progressive-pixelate.mdx',
+		relativePath: 'effects/linear-progressive-pixelate.mdx',
 		compId: 'articles-docs-effects-linear-progressive-pixelate',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4080,7 +4089,7 @@ export const articles = [
 	{
 		id: 'effects/lines',
 		title: 'lines()',
-		relativePath: 'docs/effects/lines.mdx',
+		relativePath: 'effects/lines.mdx',
 		compId: 'articles-docs-effects-lines',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4089,7 +4098,7 @@ export const articles = [
 	{
 		id: 'effects/liquid-contours',
 		title: 'liquidContours()',
-		relativePath: 'docs/effects/liquid-contours.mdx',
+		relativePath: 'effects/liquid-contours.mdx',
 		compId: 'articles-docs-effects-liquid-contours',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4098,7 +4107,7 @@ export const articles = [
 	{
 		id: 'effects/long-shadows',
 		title: 'longShadows()',
-		relativePath: 'docs/effects/long-shadows.mdx',
+		relativePath: 'effects/long-shadows.mdx',
 		compId: 'articles-docs-effects-long-shadows',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4107,7 +4116,7 @@ export const articles = [
 	{
 		id: 'effects/lut',
 		title: 'lut()',
-		relativePath: 'docs/effects/lut.mdx',
+		relativePath: 'effects/lut.mdx',
 		compId: 'articles-docs-effects-lut',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4116,7 +4125,7 @@ export const articles = [
 	{
 		id: 'effects/magnify',
 		title: 'magnify()',
-		relativePath: 'docs/effects/magnify.mdx',
+		relativePath: 'effects/magnify.mdx',
 		compId: 'articles-docs-effects-magnify',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4125,7 +4134,7 @@ export const articles = [
 	{
 		id: 'effects/mirror',
 		title: 'mirror()',
-		relativePath: 'docs/effects/mirror.mdx',
+		relativePath: 'effects/mirror.mdx',
 		compId: 'articles-docs-effects-mirror',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4134,7 +4143,7 @@ export const articles = [
 	{
 		id: 'effects/noise-displacement',
 		title: 'noiseDisplacement()',
-		relativePath: 'docs/effects/noise-displacement.mdx',
+		relativePath: 'effects/noise-displacement.mdx',
 		compId: 'articles-docs-effects-noise-displacement',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4143,7 +4152,7 @@ export const articles = [
 	{
 		id: 'effects/noise',
 		title: 'noise()',
-		relativePath: 'docs/effects/noise.mdx',
+		relativePath: 'effects/noise.mdx',
 		compId: 'articles-docs-effects-noise',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4152,7 +4161,7 @@ export const articles = [
 	{
 		id: 'effects/outline',
 		title: 'outline()',
-		relativePath: 'docs/effects/outline.mdx',
+		relativePath: 'effects/outline.mdx',
 		compId: 'articles-docs-effects-outline',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4161,7 +4170,7 @@ export const articles = [
 	{
 		id: 'effects/page-turn',
 		title: 'pageTurn()',
-		relativePath: 'docs/effects/page-turn.mdx',
+		relativePath: 'effects/page-turn.mdx',
 		compId: 'articles-docs-effects-page-turn',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4170,7 +4179,7 @@ export const articles = [
 	{
 		id: 'effects/paper',
 		title: 'paper()',
-		relativePath: 'docs/effects/paper.mdx',
+		relativePath: 'effects/paper.mdx',
 		compId: 'articles-docs-effects-paper',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4179,7 +4188,7 @@ export const articles = [
 	{
 		id: 'effects/pattern',
 		title: 'pattern()',
-		relativePath: 'docs/effects/pattern.mdx',
+		relativePath: 'effects/pattern.mdx',
 		compId: 'articles-docs-effects-pattern',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4188,7 +4197,7 @@ export const articles = [
 	{
 		id: 'effects/pixel-dissolve',
 		title: 'pixelDissolve()',
-		relativePath: 'docs/effects/pixel-dissolve.mdx',
+		relativePath: 'effects/pixel-dissolve.mdx',
 		compId: 'articles-docs-effects-pixel-dissolve',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4197,7 +4206,7 @@ export const articles = [
 	{
 		id: 'effects/pixelate',
 		title: 'pixelate()',
-		relativePath: 'docs/effects/pixelate.mdx',
+		relativePath: 'effects/pixelate.mdx',
 		compId: 'articles-docs-effects-pixelate',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4206,7 +4215,7 @@ export const articles = [
 	{
 		id: 'effects/radial-progressive-blur',
 		title: 'radialProgressiveBlur()',
-		relativePath: 'docs/effects/radial-progressive-blur.mdx',
+		relativePath: 'effects/radial-progressive-blur.mdx',
 		compId: 'articles-docs-effects-radial-progressive-blur',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4215,7 +4224,7 @@ export const articles = [
 	{
 		id: 'effects/radial-progressive-pixelate',
 		title: 'radialProgressivePixelate()',
-		relativePath: 'docs/effects/radial-progressive-pixelate.mdx',
+		relativePath: 'effects/radial-progressive-pixelate.mdx',
 		compId: 'articles-docs-effects-radial-progressive-pixelate',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4224,7 +4233,7 @@ export const articles = [
 	{
 		id: 'effects/radial-wipe',
 		title: 'radialWipe()',
-		relativePath: 'docs/effects/radial-wipe.mdx',
+		relativePath: 'effects/radial-wipe.mdx',
 		compId: 'articles-docs-effects-radial-wipe',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4233,7 +4242,7 @@ export const articles = [
 	{
 		id: 'effects/rain-fall',
 		title: 'rainFall()',
-		relativePath: 'docs/effects/rain-fall.mdx',
+		relativePath: 'effects/rain-fall.mdx',
 		compId: 'articles-docs-effects-rain-fall',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4242,7 +4251,7 @@ export const articles = [
 	{
 		id: 'effects/region-blur',
 		title: 'regionBlur()',
-		relativePath: 'docs/effects/region-blur.mdx',
+		relativePath: 'effects/region-blur.mdx',
 		compId: 'articles-docs-effects-region-blur',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4251,7 +4260,7 @@ export const articles = [
 	{
 		id: 'effects/rings',
 		title: 'rings()',
-		relativePath: 'docs/effects/rings.mdx',
+		relativePath: 'effects/rings.mdx',
 		compId: 'articles-docs-effects-rings',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4260,7 +4269,7 @@ export const articles = [
 	{
 		id: 'effects/roughen-edges',
 		title: 'roughenEdges()',
-		relativePath: 'docs/effects/roughen-edges.mdx',
+		relativePath: 'effects/roughen-edges.mdx',
 		compId: 'articles-docs-effects-roughen-edges',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4269,7 +4278,7 @@ export const articles = [
 	{
 		id: 'effects/saturation',
 		title: 'saturation()',
-		relativePath: 'docs/effects/saturation.mdx',
+		relativePath: 'effects/saturation.mdx',
 		compId: 'articles-docs-effects-saturation',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4278,7 +4287,7 @@ export const articles = [
 	{
 		id: 'effects/scale',
 		title: 'scale()',
-		relativePath: 'docs/effects/scale.mdx',
+		relativePath: 'effects/scale.mdx',
 		compId: 'articles-docs-effects-scale',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4287,7 +4296,7 @@ export const articles = [
 	{
 		id: 'effects/scanlines',
 		title: 'scanlines()',
-		relativePath: 'docs/effects/scanlines.mdx',
+		relativePath: 'effects/scanlines.mdx',
 		compId: 'articles-docs-effects-scanlines',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4296,7 +4305,7 @@ export const articles = [
 	{
 		id: 'effects/shadows-highlights',
 		title: 'shadowsHighlights()',
-		relativePath: 'docs/effects/shadows-highlights.mdx',
+		relativePath: 'effects/shadows-highlights.mdx',
 		compId: 'articles-docs-effects-shadows-highlights',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4305,7 +4314,7 @@ export const articles = [
 	{
 		id: 'effects/shatter',
 		title: 'shatter()',
-		relativePath: 'docs/effects/shatter.mdx',
+		relativePath: 'effects/shatter.mdx',
 		compId: 'articles-docs-effects-shatter',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4314,7 +4323,7 @@ export const articles = [
 	{
 		id: 'effects/shine',
 		title: 'shine()',
-		relativePath: 'docs/effects/shine.mdx',
+		relativePath: 'effects/shine.mdx',
 		compId: 'articles-docs-effects-shine',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4323,7 +4332,7 @@ export const articles = [
 	{
 		id: 'effects/shrinkwrap',
 		title: 'shrinkwrap()',
-		relativePath: 'docs/effects/shrinkwrap.mdx',
+		relativePath: 'effects/shrinkwrap.mdx',
 		compId: 'articles-docs-effects-shrinkwrap',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4332,7 +4341,7 @@ export const articles = [
 	{
 		id: 'effects/skew',
 		title: 'skew()',
-		relativePath: 'docs/effects/skew.mdx',
+		relativePath: 'effects/skew.mdx',
 		compId: 'articles-docs-effects-skew',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4341,7 +4350,7 @@ export const articles = [
 	{
 		id: 'effects/snow-fall',
 		title: 'snowFall()',
-		relativePath: 'docs/effects/snow-fall.mdx',
+		relativePath: 'effects/snow-fall.mdx',
 		compId: 'articles-docs-effects-snow-fall',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4350,7 +4359,7 @@ export const articles = [
 	{
 		id: 'effects/speckle',
 		title: 'speckle()',
-		relativePath: 'docs/effects/speckle.mdx',
+		relativePath: 'effects/speckle.mdx',
 		compId: 'articles-docs-effects-speckle',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4359,7 +4368,7 @@ export const articles = [
 	{
 		id: 'effects/sphere',
 		title: 'sphere()',
-		relativePath: 'docs/effects/sphere.mdx',
+		relativePath: 'effects/sphere.mdx',
 		compId: 'articles-docs-effects-sphere',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4368,7 +4377,7 @@ export const articles = [
 	{
 		id: 'effects/starburst',
 		title: 'starburst()',
-		relativePath: 'docs/effects/starburst.mdx',
+		relativePath: 'effects/starburst.mdx',
 		compId: 'articles-docs-effects-starburst',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4377,7 +4386,7 @@ export const articles = [
 	{
 		id: 'effects/tear',
 		title: 'tear()',
-		relativePath: 'docs/effects/tear.mdx',
+		relativePath: 'effects/tear.mdx',
 		compId: 'articles-docs-effects-tear',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4386,7 +4395,7 @@ export const articles = [
 	{
 		id: 'effects/thermal-vision',
 		title: 'thermalVision()',
-		relativePath: 'docs/effects/thermal-vision.mdx',
+		relativePath: 'effects/thermal-vision.mdx',
 		compId: 'articles-docs-effects-thermal-vision',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4395,7 +4404,7 @@ export const articles = [
 	{
 		id: 'effects/tile',
 		title: 'tile()',
-		relativePath: 'docs/effects/tile.mdx',
+		relativePath: 'effects/tile.mdx',
 		compId: 'articles-docs-effects-tile',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4404,7 +4413,7 @@ export const articles = [
 	{
 		id: 'effects/tint',
 		title: 'tint()',
-		relativePath: 'docs/effects/tint.mdx',
+		relativePath: 'effects/tint.mdx',
 		compId: 'articles-docs-effects-tint',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4413,7 +4422,7 @@ export const articles = [
 	{
 		id: 'effects/turbulent-displace',
 		title: 'turbulentDisplace()',
-		relativePath: 'docs/effects/turbulent-displace.mdx',
+		relativePath: 'effects/turbulent-displace.mdx',
 		compId: 'articles-docs-effects-turbulent-displace',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4422,7 +4431,7 @@ export const articles = [
 	{
 		id: 'effects/tv-signal-off',
 		title: 'tvSignalOff()',
-		relativePath: 'docs/effects/tv-signal-off.mdx',
+		relativePath: 'effects/tv-signal-off.mdx',
 		compId: 'articles-docs-effects-tv-signal-off',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4431,7 +4440,7 @@ export const articles = [
 	{
 		id: 'effects/uv-translate',
 		title: 'uvTranslate()',
-		relativePath: 'docs/effects/uv-translate.mdx',
+		relativePath: 'effects/uv-translate.mdx',
 		compId: 'articles-docs-effects-uv-translate',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4440,7 +4449,7 @@ export const articles = [
 	{
 		id: 'effects/venetian-blinds',
 		title: 'venetianBlinds()',
-		relativePath: 'docs/effects/venetian-blinds.mdx',
+		relativePath: 'effects/venetian-blinds.mdx',
 		compId: 'articles-docs-effects-venetian-blinds',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4449,7 +4458,7 @@ export const articles = [
 	{
 		id: 'effects/vibrance',
 		title: 'vibrance()',
-		relativePath: 'docs/effects/vibrance.mdx',
+		relativePath: 'effects/vibrance.mdx',
 		compId: 'articles-docs-effects-vibrance',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4458,7 +4467,7 @@ export const articles = [
 	{
 		id: 'effects/vignette',
 		title: 'vignette()',
-		relativePath: 'docs/effects/vignette.mdx',
+		relativePath: 'effects/vignette.mdx',
 		compId: 'articles-docs-effects-vignette',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4467,7 +4476,7 @@ export const articles = [
 	{
 		id: 'effects/wave',
 		title: 'wave()',
-		relativePath: 'docs/effects/wave.mdx',
+		relativePath: 'effects/wave.mdx',
 		compId: 'articles-docs-effects-wave',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4476,7 +4485,7 @@ export const articles = [
 	{
 		id: 'effects/waves',
 		title: 'waves()',
-		relativePath: 'docs/effects/waves.mdx',
+		relativePath: 'effects/waves.mdx',
 		compId: 'articles-docs-effects-waves',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4485,7 +4494,7 @@ export const articles = [
 	{
 		id: 'effects/white-balance',
 		title: 'whiteBalance()',
-		relativePath: 'docs/effects/white-balance.mdx',
+		relativePath: 'effects/white-balance.mdx',
 		compId: 'articles-docs-effects-white-balance',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4494,7 +4503,7 @@ export const articles = [
 	{
 		id: 'effects/white-noise',
 		title: 'whiteNoise()',
-		relativePath: 'docs/effects/white-noise.mdx',
+		relativePath: 'effects/white-noise.mdx',
 		compId: 'articles-docs-effects-white-noise',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4503,7 +4512,7 @@ export const articles = [
 	{
 		id: 'effects/xy-translate',
 		title: 'xyTranslate()',
-		relativePath: 'docs/effects/xy-translate.mdx',
+		relativePath: 'effects/xy-translate.mdx',
 		compId: 'articles-docs-effects-xy-translate',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4512,7 +4521,7 @@ export const articles = [
 	{
 		id: 'effects/zigzag',
 		title: 'zigzag()',
-		relativePath: 'docs/effects/zigzag.mdx',
+		relativePath: 'effects/zigzag.mdx',
 		compId: 'articles-docs-effects-zigzag',
 		crumb: '@remotion/effects',
 		noAi: false,
@@ -4521,7 +4530,7 @@ export const articles = [
 	{
 		id: 'effects/zoom-blur',
 		title: 'zoomBlur()',
-		relativePath: 'docs/effects/zoom-blur.mdx',
+		relativePath: 'effects/zoom-blur.mdx',
 		compId: 'articles-docs-effects-zoom-blur',
 		crumb: '@remotion/effects',
 		noAi: false,

@@ -446,7 +446,7 @@ const linkProgram = (
 export const shrinkwrap = createEffect<ShrinkwrapParams>({
 	type: 'dev.remotion.effects.shrinkwrap',
 	label: 'shrinkwrap()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/shrinkwrap',
+	documentationLink: 'https://www.remotion.dev/effects/shrinkwrap',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `shrinkwrap-${r.amount}-${r.displacement}-${r.highlightIntensity}-${r.wrinkleDensity}-${r.edgeTension}-${r.phase}-${r.seed}`;

@@ -59,6 +59,10 @@ const siteConfig: VercelConfig = {
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),
+		routes.header('/_raw/effects/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
 		routes.header('/_raw/elements/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
@@ -564,7 +568,6 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/transitions', '/docs/transitioning', {
 			permanent: false,
 		}),
-		routes.redirect('/effects', '/docs/effects', {permanent: false}),
 		routes.redirect('/color-correction', '/docs/color-correction', {
 			permanent: false,
 		}),

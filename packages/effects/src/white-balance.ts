@@ -273,7 +273,7 @@ const setupWhiteBalance = (target: HTMLCanvasElement): WhiteBalanceState => {
 export const whiteBalance = createEffect<WhiteBalanceParams>({
 	type: 'remotion/white-balance',
 	label: 'whiteBalance()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/white-balance',
+	documentationLink: 'https://www.remotion.dev/effects/white-balance',
 	calculateKey: (params) => {
 		const {temperature, tint} = resolve(params);
 		return `white-balance-${temperature}-${tint}`;

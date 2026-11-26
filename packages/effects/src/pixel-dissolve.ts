@@ -277,7 +277,7 @@ const createFullscreenQuad = (
 export const pixelDissolve = createEffect<PixelDissolveParams>({
 	type: 'dev.remotion.effects.pixelDissolve',
 	label: 'pixelDissolve()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/pixel-dissolve',
+	documentationLink: 'https://www.remotion.dev/effects/pixel-dissolve',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `pixel-dissolve-${r.progress}-${r.columns}-${r.rows}-${r.seed}-${r.feather}`;

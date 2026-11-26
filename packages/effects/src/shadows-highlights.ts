@@ -284,7 +284,7 @@ const setupShadowsHighlights = (
 export const shadowsHighlights = createEffect<ShadowsHighlightsParams>({
 	type: 'remotion/shadows-highlights',
 	label: 'shadowsHighlights()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/shadows-highlights',
+	documentationLink: 'https://www.remotion.dev/effects/shadows-highlights',
 	calculateKey: (params) => {
 		const {shadows, highlights} = resolve(params);
 		return `shadows-highlights-${shadows}-${highlights}`;

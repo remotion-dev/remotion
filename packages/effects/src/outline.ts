@@ -458,7 +458,7 @@ const setupOutline = (target: HTMLCanvasElement): OutlineState => {
 export const outline = createEffect<OutlineParams>({
 	type: 'remotion/outline',
 	label: 'outline()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/outline',
+	documentationLink: 'https://www.remotion.dev/effects/outline',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `outline-${resolved.width}-${resolved.edgeSimplification}-${resolved.color}-${resolved.opacity}-${resolved.outlineOnly}`;

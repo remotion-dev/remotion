@@ -215,7 +215,7 @@ const createProgram = (
 export const longShadows = createEffect<LongShadowsParams>({
 	type: 'remotion/long-shadows',
 	label: 'longShadows()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/long-shadows',
+	documentationLink: 'https://www.remotion.dev/effects/long-shadows',
 	calculateKey: (params) => {
 		const {length, angle, color, opacity} = resolve(params);
 		return `long-shadows-${length}-${angle}-${color}-${opacity}`;

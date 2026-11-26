@@ -289,7 +289,7 @@ fn tvPattern(uv: vec2f) -> vec3f {
 export const tvSignalOff = createEffect<TvSignalOffParams>({
 	type: 'dev.remotion.effects.tvSignalOff',
 	label: 'tvSignalOff()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/tv-signal-off',
+	documentationLink: 'https://www.remotion.dev/effects/tv-signal-off',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `tv-signal-off-${resolved.amount}`;
