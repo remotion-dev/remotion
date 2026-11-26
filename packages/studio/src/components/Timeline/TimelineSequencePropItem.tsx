@@ -57,6 +57,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {getTransitionEasingLabel} from './TimelineTransitionEasingField';
 import {Transform3DModeContext} from './Transform3DModeContext';
 import {useClampSequenceTimingValue} from './use-clamp-sequence-timing-value';
 import {usePlaybackRatePreview} from './use-playback-rate-preview';
@@ -722,7 +723,11 @@ export const TimelineSequencePropItem: React.FC<{
 			previewServerConnected: previewServerState.type === 'connected',
 			property: field.key,
 		});
-	const selection = useTimelineRowSelection(nodePathInfo);
+	const selection = useTimelineRowSelection(
+		nodePathInfo,
+		keyframeControlsMode === 'timeline' &&
+			field.typeName === 'transition-easing',
+	);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
@@ -954,6 +959,8 @@ export const TimelineSequencePropItem: React.FC<{
 		);
 	}
 
+	const editableTransitionEasing =
+		field.typeName === 'transition-easing' && propStatus.status === 'static';
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -982,11 +989,20 @@ export const TimelineSequencePropItem: React.FC<{
 					rowDepth={rowDepth}
 					selected={selection.selected || containsSelection}
 				>
-					{fieldValue}
+					{editableTransitionEasing
+						? getTransitionEasingLabel(propStatus.codeValue)
+						: fieldValue}
 				</TimelineFieldRowContent>
 			)}
 		</TimelineRowChrome>
 	);
 
-	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
+	return (
+		<ContextMenu getItems={getContextMenuItems}>
+			{row}
+			{editableTransitionEasing && keyframeControlsMode === 'inspector'
+				? fieldValue
+				: null}
+		</ContextMenu>
+	);
 };
