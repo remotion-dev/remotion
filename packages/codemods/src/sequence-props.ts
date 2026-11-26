@@ -49,8 +49,9 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {
 	getLinearTimingDurationLiteral,
+	getLinearTimingEasing,
 	transitionComponentIdentity,
-} from './sequence-props/linear-timing-duration';
+} from './sequence-props/linear-timing-options';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
@@ -2343,6 +2344,16 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 		const duration = getLinearTimingDurationLiteral(jsxPath);
 		filteredProps.durationInFrames = duration
 			? staticStatus(duration.value, null)
+			: computedStatus();
+	}
+
+	if (
+		actualIdentity === transitionComponentIdentity &&
+		keys.includes('easing')
+	) {
+		const option = getLinearTimingEasing(jsxPath);
+		filteredProps.easing = option
+			? staticStatus(option.easing, null)
 			: computedStatus();
 	}
 

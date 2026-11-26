@@ -222,6 +222,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	array: true,
 	asset: true,
 	boolean: true,
+	'transition-easing': true,
 	'remotion-captions': false,
 	color: true,
 	enum: true,

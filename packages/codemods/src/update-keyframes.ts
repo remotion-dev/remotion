@@ -71,6 +71,7 @@ import {
 	ensureOfficialNamedImport,
 } from './sequence-props/imports';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {makeEasingExpression} from './sequence-props/make-easing-expression';
 import {parseAst} from './sequence-props/parse-ast';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {
@@ -752,77 +753,13 @@ const getExistingEasingArrayOrNull = ({
 	return getExistingEasingArray({options, segmentCount});
 };
 
-const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
-	switch (easing.type) {
-		case 'linear':
-			return b.memberExpression(
-				b.identifier('Easing'),
-				b.identifier('linear'),
-			) as ExpressionKind;
-		case 'step1':
-			return b.memberExpression(
-				b.identifier('Easing'),
-				b.identifier('step1'),
-			) as ExpressionKind;
-		case 'spring':
-			return b.callExpression(
-				b.memberExpression(b.identifier('Easing'), b.identifier('spring')),
-				[
-					b.objectExpression([
-						b.objectProperty(
-							b.identifier('damping'),
-							parseValueExpression(easing.damping),
-						),
-						b.objectProperty(
-							b.identifier('mass'),
-							parseValueExpression(easing.mass),
-						),
-						b.objectProperty(
-							b.identifier('stiffness'),
-							parseValueExpression(easing.stiffness),
-						),
-						...(easing.allowTail === null
-							? []
-							: [
-									b.objectProperty(
-										b.identifier('allowTail'),
-										b.booleanLiteral(easing.allowTail),
-									),
-								]),
-						...(easing.durationRestThreshold === null
-							? []
-							: [
-									b.objectProperty(
-										b.identifier('durationRestThreshold'),
-										parseValueExpression(easing.durationRestThreshold),
-									),
-								]),
-						b.objectProperty(
-							b.identifier('overshootClamping'),
-							b.booleanLiteral(easing.overshootClamping),
-						),
-					]),
-				] as never,
-			) as ExpressionKind;
-		case 'bezier':
-			return b.callExpression(
-				b.memberExpression(b.identifier('Easing'), b.identifier('bezier')),
-				[easing.x1, easing.y1, easing.x2, easing.y2].map((value) =>
-					parseValueExpression(value),
-				) as never,
-			) as ExpressionKind;
-		default:
-			throw new Error(
-				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
-			);
-	}
-};
-
 const createEasingArrayExpression = (
 	easing: KeyframeEasing[],
 ): ExpressionKind =>
 	b.arrayExpression(
-		easing.map((easingValue) => createEasingExpression(easingValue)) as never,
+		easing.map((value) =>
+			makeEasingExpression({easing: value, easingLocalName: 'Easing'}),
+		) as never,
 	) as ExpressionKind;
 
 const setEasingOption = ({

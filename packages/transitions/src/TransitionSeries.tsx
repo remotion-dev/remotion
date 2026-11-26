@@ -3,6 +3,7 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {
 	AbsoluteFillLayout,
+	CanUpdateSequencePropStatusEasing,
 	LayoutAndStyle,
 	SequenceControls,
 	SequenceProps,
@@ -45,6 +46,7 @@ type ResolvedTransitionSeriesTransitionProps<
 type InternalTransitionSeriesTransitionProps<
 	PresentationProps extends Record<string, unknown>,
 > = ResolvedTransitionSeriesTransitionProps<PresentationProps> & {
+	readonly easing: CanUpdateSequencePropStatusEasing | null;
 	readonly durationInFrames: number;
 	readonly _remotionInternalRender:
 		| ((
@@ -58,18 +60,22 @@ const TransitionSeriesTransitionInner = <
 >({
 	_remotionInternalRender = null,
 	durationInFrames,
+	easing,
 	...props
 }: InternalTransitionSeriesTransitionProps<PresentationProps>) => {
-	if (_remotionInternalRender) {
+	const timing = useMemo(() => {
 		const options = linearTimingOptions.get(props.timing);
-		return _remotionInternalRender(
-			options && durationInFrames !== options.durationInFrames
-				? {...props, timing: linearTiming({...options, durationInFrames})}
-				: props,
-		);
-	}
+		if (!options || (durationInFrames === options.durationInFrames && !easing))
+			return props.timing;
+		return linearTiming({
+			durationInFrames,
+			easing: easing
+				? Internals.easingToFn({easing, forceSpringAllowTail: null})
+				: options.easing,
+		});
+	}, [props.timing, durationInFrames, easing]);
 
-	return null;
+	return _remotionInternalRender?.({...props, timing}) ?? null;
 };
 
 type TransitionSeriesTransitionComponent = <
@@ -83,6 +89,12 @@ const transitionSeriesTransitionSchema = {
 		...Internals.sequenceTimingSchema.durationInFrames,
 		description: 'Duration in frames',
 		integer: true,
+	},
+	easing: {
+		type: 'transition-easing',
+		default: {type: 'linear'},
+		description: 'Easing',
+		keyframable: false,
 	},
 	motionBlur: {type: 'hidden'},
 } satisfies InteractivitySchema;

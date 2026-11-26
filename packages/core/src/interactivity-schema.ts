@@ -1,4 +1,5 @@
 import type {InterpolateOutputOption} from './interpolate.js';
+import type {CanUpdateSequencePropStatusEasing} from './use-schema.js';
 
 export type HiddenFieldSchema = {
 	type: 'hidden';
@@ -239,6 +240,12 @@ export type VisibleFieldSchema =
 	| AssetFieldSchema
 	| ArrayFieldSchema
 	| CaptionsFieldSchema
+	| {
+			type: 'transition-easing';
+			default: CanUpdateSequencePropStatusEasing;
+			description: string;
+			keyframable: false;
+	  }
 	| EnumFieldSchema;
 
 export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;

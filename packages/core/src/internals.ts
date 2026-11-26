@@ -156,6 +156,7 @@ import {
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
 import {
+	easingToFn,
 	interpolateKeyframedStatus,
 	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
@@ -612,6 +613,7 @@ export const Internals = {
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
+	easingToFn,
 	interpolateKeyframedStatus,
 	prepareNumericKeyframedStatus,
 	setInterpolatePaths,

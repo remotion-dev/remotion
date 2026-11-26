@@ -12,6 +12,7 @@ import type {
 	File,
 	Statement,
 } from '@babel/types';
+import {isKeyframeEasing} from '@remotion/studio-shared';
 import type {
 	EffectClipboardParam,
 	GoogleFontSourceEdit,
@@ -55,12 +56,17 @@ import {
 	getCssShorthandsForUpdates,
 	type CssShorthandProperty,
 } from './sequence-props/css-shorthand-properties';
-import {ensureStaticFileBinding} from './sequence-props/imports';
+import {
+	ensureOfficialNamedImport,
+	ensureStaticFileBinding,
+} from './sequence-props/imports';
 import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 import {
 	getLinearTimingDurationLiteral,
+	getLinearTimingEasing,
 	transitionComponentIdentity,
-} from './sequence-props/linear-timing-duration';
+} from './sequence-props/linear-timing-options';
+import {makeEasingExpression} from './sequence-props/make-easing-expression';
 import {parseAst, serializeAst} from './sequence-props/parse-ast';
 import {
 	parseVideoConfigNumericExpression,
@@ -1040,6 +1046,48 @@ const updateSequencePropsNode = ({
 			oldValueStrings.push(String(duration.value));
 			duration.value = value;
 			transitionDuration = duration;
+			continue;
+		}
+
+		if (
+			key === 'easing' &&
+			getJsxComponentIdentity({ast, jsxElement: node}) ===
+				transitionComponentIdentity
+		) {
+			const path = findJsxElementPathAtNodePath(ast, nodePath);
+			const option = path && getLinearTimingEasing(path);
+			const easing = value === undefined ? {type: 'linear'} : value;
+			if (!option || clipboardParam || !isKeyframeEasing(easing)) {
+				throw new Error('Expected an editable linearTiming easing.');
+			}
+
+			oldValueStrings.push(
+				option.property
+					? recast.print(option.property.value).code
+					: 'undefined',
+			);
+			if (!option.property && easing.type === 'linear') continue;
+			const expression = makeEasingExpression({
+				easing,
+				easingLocalName: ensureOfficialNamedImport({
+					ast,
+					sourcePath: 'remotion',
+					importedName: 'Easing',
+					preferredLocalName: 'Easing',
+				}),
+			});
+			if (option.property) {
+				option.property.value = expression as Expression;
+				option.property.shorthand = false;
+			} else {
+				option.options.properties.push(
+					b.objectProperty(
+						b.identifier('easing'),
+						expression,
+					) as ObjectProperty,
+				);
+			}
+
 			continue;
 		}
 
