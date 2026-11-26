@@ -1,0 +1,62 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-custom.png
+title: Make your own effect
+sidebar_label: Make your own
+crumb: '@remotion/effects'
+description: Make a canvas effect that turns an icon into a blue silhouette.
+---
+
+# Make your own effect<AvailableFrom v="4.0.479" />
+
+If the built-in effects from [`@remotion/effects`](/docs/effects) don't suffice, you can create your own custom effect using [`createEffect()`](/docs/create-effect).
+
+## Agentically
+
+Invoke <Skill>/remotion-markup</Skill> and describe what the effect should look like. You can also say to which element you would like to apply it.
+
+<SuggestedPrompt prompt="/remotion-markup Make a custom effect that turns my icon blue and keeps its background transparent." />
+
+## Programmatically
+
+This example turns the Remotion logo blue and keeps its background transparent.
+
+```tsx twoslash title="BlueIcon.tsx"
+import {CanvasImage, createEffect} from 'remotion';
+
+const blueInk = createEffect({
+  type: 'com.example.blueInk',
+  label: 'Blue ink',
+  documentationLink: null,
+  backend: '2d',
+  schema: {},
+  calculateKey: () => 'blue-ink',
+  validateParams: () => {},
+  setup: () => null,
+  cleanup: () => {},
+  apply: ({source, target, width, height}) => {
+    const ctx = target.getContext('2d');
+    if (!ctx) {
+      throw new Error('Could not get a 2D canvas context');
+    }
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(source, 0, 0, width, height);
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+  },
+});
+
+export const BlueIcon = () => (
+  <CanvasImage
+    src="https://www.remotion.dev/img/new-logo.png"
+    effects={[blueInk()]}
+  />
+);
+```
+
+The drawing happens in `apply()`. It draws the icon first, then `source-in` paints blue wherever the icon is visible. Try changing `fillStyle` to another color.
+
+To make the color editable in Studio, see the [custom effect example with color controls](/docs/create-effect#example).

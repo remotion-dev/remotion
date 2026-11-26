@@ -22,3 +22,7 @@ bunx remotion render src/DocsAnimations/index.ts PosterizationGraphLight ../docs
 bunx remotion render src/DocsAnimations/index.ts PosterizationGraphDark ../docs/static/img/animating-properties-posterization-left-dark.webm "${transparent_webm_flags[@]}"
 bunx remotion render src/DocsAnimations/index.ts PosterizationTextLight ../docs/static/img/animating-properties-posterization-right-light.webm "${transparent_webm_flags[@]}"
 bunx remotion render src/DocsAnimations/index.ts PosterizationTextDark ../docs/static/img/animating-properties-posterization-right-dark.webm "${transparent_webm_flags[@]}"
+
+grow_bounds_flags=(--scale=0.5 --codec=h264 --crf=16 --image-format=png --muted)
+bunx remotion render src/DocsAnimations/index.ts GrowBoundsClippedWave out/grow-bounds-clipped-wave.mp4 "${grow_bounds_flags[@]}"
+bunx remotion render src/DocsAnimations/index.ts GrowBoundsRevealWave out/grow-bounds-reveal-wave.mp4 "${grow_bounds_flags[@]}"

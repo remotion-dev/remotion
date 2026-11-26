@@ -109,6 +109,10 @@ console.log('Hello');
 
 ## Special components
 
+### Skill mentions
+
+When naming a Remotion agent skill in MDX prose, wrap its slash command in `<Skill>`, for example `<Skill>/remotion-markup</Skill>`. The component links to the skill's documentation. Inside a `<SuggestedPrompt>`, write the slash command as plain text so readers can copy it.
+
 ### Steps
 
 Keep one `<Step>` per line and add a space after `</Step>`. Use an explicit line break (`<br/>` or `<br />`) when consecutive steps should appear on separate lines. Do not add Markdown bullet markers solely to wrap steps in a `<ul>`.

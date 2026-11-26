@@ -1,0 +1,50 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-output-size.png
+title: Effects output size
+sidebar_label: Output size
+crumb: '@remotion/effects'
+description: Choose the pixel dimensions used to process an effect chain.
+---
+
+# Effects output size<AvailableFrom v="4.0.536" />
+
+The `effectsOutputSize` prop sets the resolution at which a [supported component](/docs/effects/api#supported-components) processes its effects. Pass a `width` and a `height` in pixels. Both must be positive integers.
+
+## Keep pixel-based effects consistent
+
+When switching between an original video and a lower-resolution proxy, use the same effect resolution for both. In this example, [`pixelate()`](/effects/pixelate) uses 12-pixel blocks on a 1920 × 1080 canvas for either source.
+
+```tsx twoslash title="PixelatedVideo.tsx"
+import {Video} from '@remotion/media';
+import {pixelate} from '@remotion/effects/pixelate';
+
+export const PixelatedVideo = ({src}: {src: string}) => (
+  <Video
+    src={src}
+    effects={[pixelate({blockSize: 12})]}
+    effectsOutputSize={{width: 1920, height: 1080}}
+  />
+);
+```
+
+Remotion resizes the source before applying the effects, then draws the result into the component’s existing canvas. The component keeps its layout, cropping, and final output dimensions. With [`growBounds`](/docs/effects/grow-bounds), the specified resolution applies to the original element, and the effect chain adds pixels for the padding at the same scale.
+
+## Choosing a resolution
+
+Omit `effectsOutputSize` to use the component’s default effect resolution. Empty or fully disabled effect chains skip resizing. A larger resolution takes more processing time and canvas memory. The amount of detail available depends on the source. For video previews, [`maxCanvasSinkFrameSize`](/docs/media/video#maxcanvassinkframesize) controls the decoded frame size.
+
+Changing `width` or `height` updates the effect resolution. Video previews redraw the current frame with the existing decoder. Passing a new object with the same dimensions reuses the effect chain.
+
+## Transition presentations
+
+Shader-based [transition presentations](/docs/transitions/presentations), including custom ones built with [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation), also accept `effectsOutputSize`. It sets the resolution for effects applied after the transition shader. The shader and transition output use their existing dimensions.
+
+```tsx twoslash title="MyComposition.tsx"
+import {dissolve} from '@remotion/transitions/dissolve';
+import {pixelate} from '@remotion/effects/pixelate';
+// ---cut---
+dissolve({
+  effects: [pixelate({blockSize: 12})],
+  effectsOutputSize: {width: 1920, height: 1080},
+});
+```
