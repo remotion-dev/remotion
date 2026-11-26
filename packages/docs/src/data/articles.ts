@@ -11004,6 +11004,15 @@ export const articles = [
 		slug: 'vue',
 	},
 	{
+		id: 'w8ben-e',
+		title: 'Request W-8BEN-E',
+		relativePath: 'docs/w8ben-e.mdx',
+		compId: 'articles-docs-w8ben-e',
+		crumb: 'Legal',
+		noAi: false,
+		slug: 'w8ben-e',
+	},
+	{
 		id: 'watchstaticfile',
 		title: 'watchStaticFile()',
 		relativePath: 'docs/watch-static-file.mdx',
