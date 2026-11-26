@@ -10626,6 +10626,15 @@ export const articles = [
 		slug: 'validating-user-videos',
 	},
 	{
+		id: 'vat-registration',
+		title: 'VAT registration certificate',
+		relativePath: 'docs/vat-registration.mdx',
+		compId: 'articles-docs-vat-registration',
+		crumb: 'Legal',
+		noAi: false,
+		slug: 'vat-registration',
+	},
+	{
 		id: 'vercel-sandbox',
 		title: 'Rendering with Vercel Sandbox',
 		relativePath: 'docs/vercel-sandbox.mdx',

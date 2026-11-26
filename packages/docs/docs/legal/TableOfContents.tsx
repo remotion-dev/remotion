@@ -23,6 +23,10 @@ export const TableOfContents: React.FC = () => {
 						DPIA
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/vat-registration">
+					<strong>VAT registration certificate</strong>
+					<div>Remotion AG’s Swiss VAT number and proof of registration</div>
+				</TOCItem>
 				<TOCItem link="/docs/acknowledgements">
 					<strong>Acknowledgements</strong>
 					<div>Software and contributors that make Remotion possible</div>
