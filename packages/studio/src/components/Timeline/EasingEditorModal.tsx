@@ -16,7 +16,6 @@ import {Easing, Internals} from 'remotion';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	BACKGROUND,
 	BLACK_ALPHA_60,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -591,7 +590,7 @@ const getEasingGraphLabelStyle = (
 	textAlign: 'left' | 'right',
 ): React.CSSProperties => ({
 	alignItems: 'center',
-	backgroundColor: BACKGROUND,
+	backgroundColor: TRANSPARENT,
 	color: LIGHT_TEXT,
 	display: 'flex',
 	fontSize: EASING_GRAPH_LABEL_FONT_SIZE,
@@ -626,19 +625,25 @@ const EasingGraphScaffold: React.FC<{
 	const yOne = yToSvg(1);
 	const bottomLabelWidth = getEasingGraphLabelWidth(labels.start);
 	const topLabelWidth = getEasingGraphLabelWidth(labels.end);
+	const topLabelX = PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING;
+	const bottomLabelX =
+		PLOT_LEFT +
+		PLOT_WIDTH -
+		bottomLabelWidth +
+		EASING_GRAPH_LABEL_HORIZONTAL_PADDING;
 
 	return (
 		<>
 			<line
 				x1={PLOT_LEFT}
 				y1={yZero}
-				x2={PLOT_LEFT + PLOT_WIDTH}
+				x2={bottomLabelX}
 				y2={yZero}
 				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
 			<line
-				x1={PLOT_LEFT}
+				x1={topLabelX + topLabelWidth}
 				y1={yOne}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yOne}
@@ -646,7 +651,7 @@ const EasingGraphScaffold: React.FC<{
 				strokeWidth={1}
 			/>
 			<foreignObject
-				x={PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING}
+				x={topLabelX}
 				y={yOne - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
@@ -660,12 +665,7 @@ const EasingGraphScaffold: React.FC<{
 				</div>
 			</foreignObject>
 			<foreignObject
-				x={
-					PLOT_LEFT +
-					PLOT_WIDTH -
-					bottomLabelWidth +
-					EASING_GRAPH_LABEL_HORIZONTAL_PADDING
-				}
+				x={bottomLabelX}
 				y={yZero - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
