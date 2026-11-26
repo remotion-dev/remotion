@@ -6,7 +6,10 @@ import {
 	timelineStackedFieldContentStyle,
 } from './timeline-field-row-layout';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
-import {TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING} from './TimelineSelection';
+import {
+	getTimelineColor,
+	TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
+} from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const stackedValueStyle: React.CSSProperties = {
@@ -30,8 +33,17 @@ export const TimelineFieldRowContent: React.FC<{
 			stacked={stacked}
 		/>
 	);
+	const valueColumnStyle = stacked
+		? stackedValueStyle
+		: timelineFieldValueColumnStyle;
 	const value = (
-		<div style={stacked ? stackedValueStyle : timelineFieldValueColumnStyle}>
+		<div
+			style={
+				field.typeName === 'transition-easing'
+					? {...valueColumnStyle, color: getTimelineColor(selected, true)}
+					: valueColumnStyle
+			}
+		>
 			{children}
 		</div>
 	);
