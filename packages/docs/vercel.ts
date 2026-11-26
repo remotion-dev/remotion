@@ -732,6 +732,8 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
 		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
 		routes.redirect('/dpia.pdf', '/docs/dpia.pdf', {permanent: true}),
+		routes.redirect('/w8ben-e', '/docs/w8ben-e', {permanent: true}),
+		routes.redirect('/w9', '/docs/w8ben-e', {permanent: true}),
 		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
 		routes.redirect('/docs/license/privacy', '/docs/privacy', {
 			permanent: true,
