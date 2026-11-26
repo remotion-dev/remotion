@@ -125,6 +125,7 @@ export const audioIteratorManager = ({
 	let currentAnchor: AudioIteratorAnchor | null = null;
 	let audioIteratorsCreated = 0;
 	let totalAudioScheduledInSeconds = 0;
+	let isPrebuffering = false;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 
 	const unblockCurrentDelayHandle = () => {
@@ -134,12 +135,21 @@ export const audioIteratorManager = ({
 		}
 	};
 
+	const updatePlaybackHold = () => {
+		if (isPrebuffering && !muted && currentVolume > 0) {
+			currentDelayHandle ??= delayPlaybackHandleIfNotPremounting();
+		} else {
+			unblockCurrentDelayHandle();
+		}
+	};
+
 	const destroyIterator = () => {
 		audioBufferIterator?.destroy();
 		audioBufferIterator = null;
 		// The anchor and seek describe this decoder's media timeline.
 		currentAnchor = null;
 		currentSeek = null;
+		isPrebuffering = false;
 		unblockCurrentDelayHandle();
 	};
 
@@ -405,9 +415,6 @@ export const audioIteratorManager = ({
 		audioBufferIterator?.destroy();
 		unblockCurrentDelayHandle();
 
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		currentDelayHandle = delayHandle;
-
 		currentAnchor = {
 			unloopedStartInSeconds: unloopedStartFromSecond,
 			mediaStartInSeconds: startFromSecond,
@@ -465,16 +472,17 @@ export const audioIteratorManager = ({
 		});
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
+		isPrebuffering = true;
+		updatePlaybackHold();
 
 		let bufferedUntil = startFromSecond;
-		let hasUnblockedPlayback = false;
-		const unblockPlayback = () => {
-			if (hasUnblockedPlayback) {
+		const finishPrebuffering = () => {
+			if (audioBufferIterator !== iterator || !isPrebuffering) {
 				return;
 			}
 
-			hasUnblockedPlayback = true;
-			delayHandle.unblock();
+			isPrebuffering = false;
+			unblockCurrentDelayHandle();
 		};
 
 		proceedScheduling({
@@ -495,15 +503,11 @@ export const audioIteratorManager = ({
 				// horizon before enough chunks are queued:
 				// https://github.com/remotion-dev/remotion/issues/9394
 				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
-					unblockPlayback();
+					finishPrebuffering();
 				}
 			},
-			onDestroyed: () => {
-				unblockPlayback();
-			},
-			onDone: () => {
-				unblockPlayback();
-			},
+			onDestroyed: finishPrebuffering,
+			onDone: finishPrebuffering,
 			currentTime: sharedAudioContext.audioContext.currentTime,
 			startFromSecond,
 			getAudioContextCurrentTimeMockedInTest,
@@ -680,23 +684,20 @@ export const audioIteratorManager = ({
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 		getTotalAudioScheduledInSeconds: () => totalAudioScheduledInSeconds,
-		setMuted: (newMuted: boolean) => {
-			if (muted === newMuted) {
-				return;
-			}
-
+		setAudioState: (newMuted: boolean, volume: number) => {
+			const muteChanged = muted !== newMuted;
 			muted = newMuted;
-			gainNode.gain.value = muted ? 0 : currentVolume;
-			if (muted) {
-				destroyIterator();
-			}
-
-			// An unmute at the same frame still needs a fresh iterator.
-			currentSeek = null;
-		},
-		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			if (muteChanged && muted) {
+				destroyIterator();
+				processNext();
+			} else if (muteChanged) {
+				// An unmute at the same frame still needs a fresh iterator.
+				currentSeek = null;
+			}
+
+			updatePlaybackHold();
 		},
 		setToneFrequency: (newToneFrequency: number) => {
 			currentToneFrequency = newToneFrequency;

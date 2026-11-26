@@ -70,6 +70,7 @@ export class MediaPlayer {
 	private muted = false;
 	private volume = 1;
 	private audioInitialized = false;
+	private deferredAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
@@ -311,7 +312,8 @@ export class MediaPlayer {
 			return null;
 		}
 
-		using _ = this.delayPlaybackHandleIfNotPremounting();
+		using _ =
+			this.volume > 0 ? this.delayPlaybackHandleIfNotPremounting() : null;
 		const [videoTrack, audioTracks] = await Promise.all([
 			this.input.getPrimaryVideoTrack(),
 			this.input.getAudioTracks(),
@@ -370,12 +372,16 @@ export class MediaPlayer {
 		}
 
 		if (!canDecode) {
-			return {
-				type: 'cannot-decode',
-				error: new Error(
-					`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
-				),
-			};
+			const error = new Error(
+				`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+			);
+			if (this.volume <= 0) {
+				this.audioInitialized = true;
+				this.deferredAudioError = error;
+				return null;
+			}
+
+			return {type: 'cannot-decode', error};
 		}
 
 		this.audioIteratorManager = audioIteratorManager({
@@ -391,7 +397,16 @@ export class MediaPlayer {
 			initialVolume: this.volume,
 			toneFrequency: this.toneFrequency,
 			drawDebugOverlay: this.drawDebugOverlay,
-			onError: (error) => this.reportTerminalError(error),
+			onError: (error) => {
+				if (!this.muted && this.volume > 0) {
+					this.reportTerminalError(error);
+					return;
+				}
+
+				this.audioIteratorManager?.dispose();
+				this.audioIteratorManager = null;
+				this.deferredAudioError = error;
+			},
 			getSequenceDurationInSeconds: () => this.getSequenceDurationInSeconds(),
 		});
 		this.audioInitialized = true;
@@ -709,19 +724,29 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	public setMuted(muted: boolean): void {
+	public setAudioState(muted: boolean, volume: number): void {
+		const wasMuted = this.muted;
 		this.muted = muted;
-		this.audioIteratorManager?.setMuted(muted);
-		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
+		this.volume = volume;
+		this.audioIteratorManager?.setAudioState(muted, volume);
+
+		if (!muted && volume > 0 && this.deferredAudioError) {
+			const error = this.deferredAudioError;
+			this.deferredAudioError = null;
+			this.reportTerminalError(error);
+			return;
+		}
+
+		if (
+			wasMuted &&
+			!muted &&
+			!this.audioInitialized &&
+			this.sharedAudioContext
+		) {
 			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
 				this.reportTerminalError(error),
 			);
 		}
-	}
-
-	public setVolume(volume: number): void {
-		this.volume = volume;
-		this.audioIteratorManager?.setVolume(volume);
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
