@@ -118,6 +118,7 @@ import {
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
 import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
+import {GrowBoundsButton} from './HtmlInCanvas/grow-bounds-button';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
@@ -1293,6 +1294,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="GrowBoundsButton"
+						component={GrowBoundsButton}
+						fps={30}
+						height={600}
+						width={960}
+						durationInFrames={120}
+					/>
 					<Composition
 						id="BouncingVideoMotionBlur"
 						component={BouncingVideoMotionBlur}
