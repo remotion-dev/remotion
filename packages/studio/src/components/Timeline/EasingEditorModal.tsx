@@ -203,17 +203,21 @@ const numberInputStyle: React.CSSProperties = {
 };
 
 const graphWrapperStyle: React.CSSProperties = {
-	margin: `12px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
+	backgroundColor: 'rgba(21, 21, 25, 0.32)',
+	marginTop: 12,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const graphPlotStyle: React.CSSProperties = {
 	position: 'relative',
 };
 
 const svgStyle: React.CSSProperties = {
 	aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
-	backgroundColor: 'rgba(21, 21, 25, 0.32)',
-	border: '1px solid #45454b',
 	display: 'block',
 	height: 'auto',
 	overflow: 'visible',
+	padding: 1,
 	width: '100%',
 };
 
@@ -603,6 +607,17 @@ const getEasingGraphLabelStyle = (
 	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 });
+
+const EasingGraphContainer: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => (
+	<div
+		style={graphWrapperStyle}
+		{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+	>
+		<div style={graphPlotStyle}>{children}</div>
+	</div>
+);
 
 const EasingGraphScaffold: React.FC<{
 	readonly labels: EasingGraphLabels;
@@ -1126,10 +1141,7 @@ export const EasingCurveEditor: React.FC<{
 			</div>
 			{mode === 'bezier' ? (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							ref={svgRef}
 							width={SVG_WIDTH}
@@ -1196,7 +1208,7 @@ export const EasingCurveEditor: React.FC<{
 								</svg>
 							);
 						})}
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1299,10 +1311,7 @@ export const EasingCurveEditor: React.FC<{
 				</>
 			) : mode === 'spring' ? (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1321,7 +1330,7 @@ export const EasingCurveEditor: React.FC<{
 								vectorEffect="non-scaling-stroke"
 							/>
 						</svg>
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1465,10 +1474,7 @@ export const EasingCurveEditor: React.FC<{
 				</>
 			) : (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1487,7 +1493,7 @@ export const EasingCurveEditor: React.FC<{
 								vectorEffect="non-scaling-stroke"
 							/>
 						</svg>
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 				</>
 			)}
