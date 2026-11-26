@@ -170,6 +170,8 @@ Removes a portion of the video at the end (right side). If `durationInFrames` en
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [volume and muting](/docs/audio/volume) to learn more.
 
+From v4.0.548, `volume={0}` keeps decoding audio at zero gain in Studio and Player previews. This lets fades reuse buffered audio when the volume rises.
+
 The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
 
 ```tsx twoslash title="Setting a static volume"
@@ -297,6 +299,8 @@ export const MyComposition = () => {
   );
 };
 ```
+
+In Studio and Player previews, `muted` skips audio decoding. Turning it off during playback may buffer while audio loads. Use [`volume={0}`](#volume) to keep decoding during silent sections.
 
 ### `style?`
 

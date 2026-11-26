@@ -136,7 +136,7 @@ test('queued playback cannot consume a superseded seek boundary', async () => {
 	}
 });
 
-test('uses the initial volume before audio playback is ready', async () => {
+test('decodes at zero gain and restarts audio after muting', async () => {
 	const sharedAudioContext = makeSharedAudioContext();
 	const mediaGainNodes: GainNode[] = [];
 	const createGain = sharedAudioContext.audioContext.createGain.bind(
@@ -152,25 +152,37 @@ test('uses the initial volume before audio playback is ready', async () => {
 	const player = makeAudioPlayer(sharedAudioContext);
 
 	try {
-		const result = await player.initialize(0, false, 0.25);
+		const result = await player.initialize(0, false, 0);
 
 		expect(result.type).toBe('success');
 		expect(mediaGainNodes).toHaveLength(1);
-		expect(mediaGainNodes[0].gain.value).toBe(0.25);
-
-		player.setMuted(true);
 		expect(mediaGainNodes[0].gain.value).toBe(0);
-		player.setMuted(false);
+		const manager = player.audioIteratorManager!;
+		const iterator = manager.getAudioBufferIterator()!;
+		await vi.waitFor(() =>
+			expect(manager.getTotalAudioScheduledInSeconds()).toBeGreaterThan(0),
+		);
+
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
 		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioBufferIterator()).toBe(iterator);
+
+		player.setAudioState(true, 0.25);
+		expect(mediaGainNodes[0].gain.value).toBe(0);
+		expect(iterator.isDestroyed()).toBe(true);
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
+		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioIteratorsCreated()).toBe(2);
 	} finally {
 		createGainSpy.mockRestore();
 		await player.dispose();
+		await sharedAudioContext.audioContext.close();
 	}
 });
 
-// Muting, or a volume that reaches 0, used to destroy the audio iterator. The
-// next seek then had to wait for a new one to buffer, which stalled playback.
-test('keeps the audio iterator through mute and volume changes', async () => {
+test('keeps the audio iterator through a volume change to zero and back', async () => {
 	const sharedAudioContext = makeSharedAudioContext();
 	const player = makeAudioPlayer(sharedAudioContext);
 	try {
@@ -180,13 +192,9 @@ test('keeps the audio iterator through mute and volume changes', async () => {
 		const created = manager.getAudioIteratorsCreated();
 		expect(created).toBeGreaterThan(0);
 
-		player.setMuted(true);
+		player.setAudioState(false, 0);
 		await player.seekTo(0, null);
-		player.setMuted(false);
-		await player.seekTo(0, null);
-		player.setVolume(0);
-		await player.seekTo(0, null);
-		player.setVolume(1);
+		player.setAudioState(false, 1);
 		await player.seekTo(0, null);
 
 		expect(manager.getAudioIteratorsCreated()).toBe(created);
@@ -196,7 +204,7 @@ test('keeps the audio iterator through mute and volume changes', async () => {
 	}
 });
 
-test('a muted seek prepares audio without holding playback', async () => {
+test('a muted seek skips audio without holding playback', async () => {
 	let holds = 0;
 	const bufferState = {
 		delayPlayback: () => {
@@ -219,9 +227,9 @@ test('a muted seek prepares audio without holding playback', async () => {
 		const heldWhileAudible = holds;
 		expect(heldWhileAudible).toBeGreaterThan(0);
 
-		player.setMuted(true);
+		player.setAudioState(true, 1);
 		await player.seekTo(5, null);
-		expect(manager.getAudioIteratorsCreated()).toBeGreaterThan(created);
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
 		expect(holds).toBe(heldWhileAudible);
 	} finally {
 		await player.dispose();
@@ -229,7 +237,7 @@ test('a muted seek prepares audio without holding playback', async () => {
 	}
 });
 
-test('the startup hold follows mute while audio is still loading', async () => {
+test('the startup hold follows volume while audio is still loading', async () => {
 	let activeBlocks = 0;
 	const bufferState = {
 		delayPlayback: () => {
@@ -256,20 +264,17 @@ test('the startup hold follows mute while audio is still loading', async () => {
 		expect((await player.initialize(0, false, 1)).type).toBe('success');
 		await vi.waitFor(() => expect(activeBlocks).toBe(0));
 
-		// Muting releases a hold that an audible seek is still waiting on.
 		await player.seekTo(5, null);
 		expect(activeBlocks).toBe(1);
-		player.setMuted(true);
+		player.setAudioState(false, 0);
 		expect(activeBlocks).toBe(0);
 
-		// Becoming audible before the first audio arrives waits for it again.
-		player.setMuted(false);
+		player.setAudioState(false, 1);
 		expect(activeBlocks).toBe(1);
 		await vi.waitFor(() => expect(activeBlocks).toBe(0));
 
-		// Once the audio is ready, unmuting does not hold playback.
-		player.setMuted(true);
-		player.setMuted(false);
+		player.setAudioState(false, 0);
+		player.setAudioState(false, 1);
 		expect(activeBlocks).toBe(0);
 	} finally {
 		await player.dispose();
@@ -482,7 +487,7 @@ test('defers a failed audio read at volume 0 until the volume rises', async () =
 		await player.seekTo(1, null);
 		await vi.waitFor(() => expect(player.audioIteratorManager).toBeNull());
 		expect(onError).not.toHaveBeenCalled();
-		player.setVolume(1);
+		player.setAudioState(false, 1);
 		await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
 	} finally {
 		buffers.mockRestore();
@@ -693,10 +698,10 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		expect(errors).toHaveLength(0);
 		expect(support).not.toHaveBeenCalled();
 		expect(player.audioIteratorManager).toBeNull();
-		player.setMuted(false);
+		player.setAudioState(false, 1);
 		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
-		player.setMuted(false);
+		player.setAudioState(false, 1);
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();
@@ -724,20 +729,13 @@ test('reports unsupported audio at volume 0 once the volume rises', async () => 
 	try {
 		expect((await player.initialize(0, false, 0)).type).toBe('success');
 		expect(errors).toHaveLength(0);
-		// Muted at a positive volume, then one render unmutes and sets volume 0.
-		// The mute effect runs before the volume effect; neither is audible.
-		player.setMuted(true);
-		player.setVolume(1);
-		await Promise.resolve();
-		player.setMuted(false);
-		player.setVolume(0);
-		await Promise.resolve();
+		player.setAudioState(true, 1);
+		player.setAudioState(false, 0);
 		expect(errors).toHaveLength(0);
-		player.setVolume(0.5);
-		await vi.waitFor(() => expect(errors).toHaveLength(1));
+		player.setAudioState(false, 0.5);
+		expect(errors).toHaveLength(1);
 		expect(errors[0].message).toContain('Cannot decode audio');
-		player.setVolume(1);
-		await Promise.resolve();
+		player.setAudioState(false, 1);
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();

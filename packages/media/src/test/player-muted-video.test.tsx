@@ -21,9 +21,10 @@ const waitFor = async (predicate: () => boolean) => {
 	throw new Error('Timed out waiting for condition');
 };
 
-const VideoComposition: React.FC<{readonly audioEnabled: boolean}> = ({
-	audioEnabled,
-}) => {
+const VideoComposition: React.FC<{
+	readonly audioEnabled: boolean;
+	readonly volume: number;
+}> = ({audioEnabled, volume}) => {
 	const contexts = Internals.useRemotionContexts();
 	return (
 		<Internals.RemotionContextProvider
@@ -32,7 +33,11 @@ const VideoComposition: React.FC<{readonly audioEnabled: boolean}> = ({
 				mediaEnabledContext: {audioEnabled, videoEnabled: true},
 			}}
 		>
-			<Video src="/bigbuckbunny.mp4" disallowFallbackToOffthreadVideo />
+			<Video
+				src="/bigbuckbunny.mp4"
+				volume={volume}
+				disallowFallbackToOffthreadVideo
+			/>
 		</Internals.RemotionContextProvider>
 	);
 };
@@ -54,7 +59,11 @@ test('renders an initially muted video and resumes audio after reverse playback'
 	document.body.appendChild(container);
 	const playerRef = React.createRef<PlayerRef>();
 	const root = createRoot(container);
-	const renderPlayer = (playbackRate: number, audioEnabled: boolean) => {
+	const renderPlayer = (
+		playbackRate: number,
+		audioEnabled: boolean,
+		volume: number,
+	) => {
 		flushSync(() => {
 			root.render(
 				<Player
@@ -68,14 +77,14 @@ test('renders an initially muted video and resumes audio after reverse playback'
 					fps={30}
 					initiallyMuted
 					playbackRate={playbackRate}
-					inputProps={{audioEnabled}}
+					inputProps={{audioEnabled, volume}}
 				/>,
 			);
 		});
 	};
 
 	try {
-		renderPlayer(1, false);
+		renderPlayer(1, false, 1);
 		await waitFor(() => {
 			const renderedCanvas = container.querySelector('canvas');
 			return renderedCanvas?.width === 1280 && renderedCanvas.height === 720;
@@ -105,7 +114,7 @@ test('renders an initially muted video and resumes audio after reverse playback'
 			await audioReady;
 			return canDecode.call(this);
 		});
-		renderPlayer(1, true);
+		renderPlayer(1, true, 1);
 		await waitFor(() => buffering);
 		const bufferingFrame = playerRef.current!.getCurrentFrame();
 		for (let i = 0; i < 4; i++) {
@@ -125,7 +134,7 @@ test('renders an initially muted video and resumes audio after reverse playback'
 
 		const forwardFrame = playerRef.current!.getCurrentFrame();
 		// J changes the Player's global rate while playback continues.
-		renderPlayer(-1, true);
+		renderPlayer(-1, true, 1);
 		await waitFor(
 			() => playerRef.current!.getCurrentFrame() < forwardFrame - 2,
 		);
@@ -139,11 +148,20 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		expect(startedMediaNodes()).toHaveLength(0);
 
 		const reverseFrame = playerRef.current!.getCurrentFrame();
-		renderPlayer(1, true);
+		renderPlayer(1, true, 1);
 		await waitFor(
 			() =>
 				startedMediaNodes().length > 0 &&
 				playerRef.current!.getCurrentFrame() > reverseFrame,
+		);
+
+		renderPlayer(1, true, 0);
+		starts.mockClear();
+		flushSync(() => playerRef.current!.seekTo(150));
+		await waitFor(
+			() =>
+				startedMediaNodes().length > 0 &&
+				playerRef.current!.getCurrentFrame() > 150,
 		);
 	} finally {
 		releaseAudio();

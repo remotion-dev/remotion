@@ -312,7 +312,8 @@ export class MediaPlayer {
 			return null;
 		}
 
-		using _ = this.delayPlaybackHandleIfNotPremounting();
+		using _ =
+			this.volume > 0 ? this.delayPlaybackHandleIfNotPremounting() : null;
 		const [videoTrack, audioTracks] = await Promise.all([
 			this.input.getPrimaryVideoTrack(),
 			this.input.getAudioTracks(),
@@ -374,8 +375,6 @@ export class MediaPlayer {
 			const error = new Error(
 				`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
 			);
-			// Nothing can be heard at volume 0, so the picture keeps playing. The
-			// error is reported once the clip becomes audible.
 			if (this.volume <= 0) {
 				this.audioInitialized = true;
 				this.deferredAudioError = error;
@@ -398,7 +397,16 @@ export class MediaPlayer {
 			initialVolume: this.volume,
 			toneFrequency: this.toneFrequency,
 			drawDebugOverlay: this.drawDebugOverlay,
-			onError: (error) => this.handleAudioError(error),
+			onError: (error) => {
+				if (!this.muted && this.volume > 0) {
+					this.reportTerminalError(error);
+					return;
+				}
+
+				this.audioIteratorManager?.dispose();
+				this.audioIteratorManager = null;
+				this.deferredAudioError = error;
+			},
 			getSequenceDurationInSeconds: () => this.getSequenceDurationInSeconds(),
 		});
 		this.audioInitialized = true;
@@ -720,54 +728,29 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	public setMuted(muted: boolean): void {
+	public setAudioState(muted: boolean, volume: number): void {
+		const wasMuted = this.muted;
 		this.muted = muted;
-		this.audioIteratorManager?.setMuted(muted);
-		this.reportDeferredAudioErrorIfAudible();
-		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
+		this.volume = volume;
+		this.audioIteratorManager?.setAudioState(muted, volume);
+
+		if (!muted && volume > 0 && this.deferredAudioError) {
+			const error = this.deferredAudioError;
+			this.deferredAudioError = null;
+			this.reportTerminalError(error);
+			return;
+		}
+
+		if (
+			wasMuted &&
+			!muted &&
+			!this.audioInitialized &&
+			this.sharedAudioContext
+		) {
 			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
 				this.reportTerminalError(error),
 			);
 		}
-	}
-
-	public setVolume(volume: number): void {
-		this.volume = volume;
-		this.audioIteratorManager?.setVolume(volume);
-		this.reportDeferredAudioErrorIfAudible();
-	}
-
-	// While nothing can be heard, a failed audio read only stops the audio. The
-	// picture keeps playing, and the error is reported once the clip becomes
-	// audible.
-	private handleAudioError(error: Error): void {
-		if (!this.muted && this.volume > 0) {
-			this.reportTerminalError(error);
-			return;
-		}
-
-		this.audioIteratorManager?.dispose();
-		this.audioIteratorManager = null;
-		this.deferredAudioError = error;
-	}
-
-	// Checked in a microtask, because one render can change mute and
-	// volume in separate effects: `muted={false}` with `volume={0}` must not
-	// report the error in between.
-	private reportDeferredAudioErrorIfAudible(): void {
-		if (!this.deferredAudioError) {
-			return;
-		}
-
-		queueMicrotask(() => {
-			if (!this.deferredAudioError || this.muted || this.volume <= 0) {
-				return;
-			}
-
-			const error = this.deferredAudioError;
-			this.deferredAudioError = null;
-			this.reportTerminalError(error);
-		});
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
