@@ -29,6 +29,7 @@ test('arms delay when not premounting', () => {
 		bufferState,
 		isPremounting: false,
 		isPostmounting: false,
+		pauseWhenBuffering: true,
 	});
 
 	const handle = delayPlayback.createHandle();
@@ -44,6 +45,7 @@ test('does not arm delay while premounting', () => {
 		bufferState,
 		isPremounting: true,
 		isPostmounting: false,
+		pauseWhenBuffering: true,
 	});
 
 	const handle = delayPlayback.createHandle();
@@ -62,6 +64,7 @@ test('disarms delay when re-entering premount', () => {
 		bufferState,
 		isPremounting: false,
 		isPostmounting: false,
+		pauseWhenBuffering: true,
 	});
 
 	const handle = delayPlayback.createHandle();
@@ -80,6 +83,7 @@ test('does not arm delay while postmounting', () => {
 		bufferState,
 		isPremounting: false,
 		isPostmounting: true,
+		pauseWhenBuffering: true,
 	});
 
 	const handle = delayPlayback.createHandle();
@@ -98,6 +102,7 @@ test('dispose via Symbol.dispose unblocks', () => {
 		bufferState,
 		isPremounting: false,
 		isPostmounting: false,
+		pauseWhenBuffering: true,
 	});
 
 	{
@@ -105,5 +110,27 @@ test('dispose via Symbol.dispose unblocks', () => {
 		expect(getActiveBlocks()).toBe(1);
 	}
 
+	expect(getActiveBlocks()).toBe(0);
+});
+
+test('does not arm delay while pauseWhenBuffering is false', () => {
+	const {bufferState, getActiveBlocks} = makeBufferState();
+	const delayPlayback = new PremountAwareDelayPlayback({
+		bufferState,
+		isPremounting: false,
+		isPostmounting: false,
+		pauseWhenBuffering: false,
+	});
+
+	const handle = delayPlayback.createHandle();
+	expect(getActiveBlocks()).toBe(0);
+
+	delayPlayback.setPauseWhenBuffering(true);
+	expect(getActiveBlocks()).toBe(1);
+
+	delayPlayback.setPauseWhenBuffering(false);
+	expect(getActiveBlocks()).toBe(0);
+
+	handle.unblock();
 	expect(getActiveBlocks()).toBe(0);
 });

@@ -46,6 +46,13 @@ export const isSequentialMediaTimeAdvance = ({
 	);
 };
 
+type IteratorStart = {
+	time: number;
+	nonce: Nonce;
+	seekRevision: number;
+	catchUp: boolean;
+};
+
 export const videoIteratorManager = async ({
 	getIsDisposed,
 	delayPlaybackHandleIfNotPremounting,
@@ -61,6 +68,8 @@ export const videoIteratorManager = async ({
 	getEffects,
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
+	getCatchesUp,
+	getIsPlaying,
 }: {
 	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
@@ -79,6 +88,8 @@ export const videoIteratorManager = async ({
 		height: number,
 	) => EffectChainState | null;
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	getCatchesUp: () => boolean;
+	getIsPlaying: () => boolean;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -97,7 +108,21 @@ export const videoIteratorManager = async ({
 	} | null = null;
 	let destroyed = false;
 	let onCanvasUpdated: ((canvas: HTMLCanvasElement) => void) | null = null;
-	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
+	let pendingEffectRun: {
+		state: EffectChainState;
+		runId: number;
+		nonce: Nonce | null;
+	} | null = null;
+
+	const cancelStaleEffect = () => {
+		if (
+			pendingEffectRun &&
+			(destroyed || pendingEffectRun.nonce?.isStale()) &&
+			pendingEffectRun.state.currentRunId === pendingEffectRun.runId
+		) {
+			pendingEffectRun.state.currentRunId++;
+		}
+	};
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -141,9 +166,10 @@ export const videoIteratorManager = async ({
 	const paintFrame = async (
 		frame: WrappedCanvas,
 		mediaTime: number | null,
-	): Promise<void> => {
+		nonce: Nonce | null,
+	): Promise<boolean> => {
 		if (destroyed) {
-			return;
+			return false;
 		}
 
 		if (context && canvas) {
@@ -162,7 +188,7 @@ export const videoIteratorManager = async ({
 					lastCompletedEffectPaint.effects === effects &&
 					lastCompletedEffectPaint.chainState === chainState
 				) {
-					return;
+					return true;
 				}
 
 				lastCompletedEffectPaint = null;
@@ -177,7 +203,11 @@ export const videoIteratorManager = async ({
 						firstEnabledEffect.definition.backend === '2d',
 				});
 
-				const run = {state: chainState, runId: chainState.currentRunId + 1};
+				const run = {
+					state: chainState,
+					runId: chainState.currentRunId + 1,
+					nonce,
+				};
 				pendingEffectRun = run;
 				try {
 					const completed = await runEffectChain({
@@ -191,6 +221,8 @@ export const videoIteratorManager = async ({
 					if (completed && pendingEffectRun === run) {
 						lastCompletedEffectPaint = {frame, effects, chainState};
 					}
+
+					return completed;
 				} finally {
 					if (pendingEffectRun === run) {
 						pendingEffectRun = null;
@@ -205,15 +237,18 @@ export const videoIteratorManager = async ({
 				}
 			}
 		}
+
+		return true;
 	};
 
 	const drawFrame = async (
 		frame: WrappedCanvas,
 		mediaTime: number,
-	): Promise<void> => {
-		await paintFrame(frame, mediaTime);
-		if (destroyed) {
-			return;
+		nonce: Nonce | null,
+	): Promise<boolean> => {
+		const painted = await paintFrame(frame, mediaTime, nonce);
+		if (!painted || destroyed || nonce?.isStale()) {
+			return false;
 		}
 
 		lastDrawnFrame = frame;
@@ -233,6 +268,7 @@ export const videoIteratorManager = async ({
 			{logLevel, tag: '@remotion/media'},
 			`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
 		);
+		return true;
 	};
 
 	const redrawCurrentFrame = async (): Promise<void> => {
@@ -256,8 +292,8 @@ export const videoIteratorManager = async ({
 			}
 		}
 
-		await paintFrame(lastDrawnFrame, lastDrawnMediaTime);
-		if (destroyed) {
+		const painted = await paintFrame(lastDrawnFrame, lastDrawnMediaTime, null);
+		if (!painted || destroyed) {
 			return;
 		}
 
@@ -275,80 +311,59 @@ export const videoIteratorManager = async ({
 		);
 	};
 
+	let catchUpTarget: {seekRevision: number; lastTime: number} | null = null;
+
 	const startVideoIterator = async (
-		timeToSeek: number,
-		nonce: Nonce,
+		{time, nonce, seekRevision, catchUp}: IteratorStart,
 		retryReclaimed: boolean,
 	): Promise<void> => {
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
+		videoFrameIterator = null;
+		catchUpTarget = catchUp ? {seekRevision, lastTime: time} : null;
+		currentSeek = null;
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
-		currentSeek = timeToSeek;
 
 		let iterator: VideoIterator;
 		try {
-			iterator = await createVideoIterator(
-				timeToSeek,
-				prewarmedVideoIteratorCache,
-			);
+			iterator = await createVideoIterator(time, prewarmedVideoIteratorCache);
 		} catch (error) {
-			videoFrameIterator = null;
 			if (!retryReclaimed || !isCodecReclaimedError(error)) {
 				throw error;
 			}
 
 			// A cached loop iterator can already be reclaimed before its first read.
 			prewarmedVideoIteratorCache.clear();
-			currentSeek = null;
 			if (destroyed || nonce.isStale()) {
 				return;
 			}
 
-			iterator = await createVideoIterator(
-				timeToSeek,
-				prewarmedVideoIteratorCache,
-			);
-			currentSeek = timeToSeek;
+			iterator = await createVideoIterator(time, prewarmedVideoIteratorCache);
 		}
 
 		videoIteratorsCreated++;
-
-		// destroy() may have run while the first frame was decoding. It could
-		// not reach this iterator yet, and nothing else references it, so it
-		// would keep pre-decoding samples that are never closed.
 		if (destroyed) {
 			iterator.destroy();
 			return;
 		}
 
 		videoFrameIterator = iterator;
-
 		if (iterator.isDestroyed()) {
 			return;
 		}
 
-		if (nonce.isStale()) {
-			// During a paused scrub, every seek goes stale before its decode
-			// lands, so returning undrawn would discard every frame and freeze
-			// the preview. Painting is safe: the newer seek always lands last.
-			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
-				await drawFrame(iterator.initialFrame, timeToSeek);
-			}
-
+		if (catchUp || (getIsPlaying() && getCatchesUp())) {
+			catchUpTarget ??= {seekRevision, lastTime: time};
 			return;
 		}
 
-		if (videoFrameIterator.isDestroyed()) {
-			return;
+		// During paused scrubbing every decode may be superseded before it lands.
+		// Draw it anyway so the preview updates while dragging.
+		currentSeek = time;
+		if (iterator.initialFrame) {
+			await drawFrame(iterator.initialFrame, time, null);
 		}
-
-		if (!iterator.initialFrame) {
-			// media ended
-			return;
-		}
-
-		await drawFrame(iterator.initialFrame, timeToSeek);
 	};
 
 	const seek = async ({
@@ -358,6 +373,7 @@ export const videoIteratorManager = async ({
 		playbackRate,
 		isPlaying,
 		continuousPlayback,
+		seekRevision,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -365,12 +381,36 @@ export const videoIteratorManager = async ({
 		playbackRate: number;
 		isPlaying: boolean;
 		continuousPlayback: boolean | null;
+		seekRevision: number;
 	}) => {
+		const catchUp = isPlaying && getCatchesUp();
+		const restartIterator = (retryReclaimed: boolean) =>
+			startVideoIterator(
+				{time: newTime, nonce, seekRevision, catchUp},
+				retryReclaimed,
+			);
+
+		if (!catchUp) {
+			catchUpTarget = null;
+		}
+
+		if (catchUpTarget) {
+			if (
+				seekRevision !== catchUpTarget.seekRevision ||
+				roundTo4Digits(newTime) < roundTo4Digits(catchUpTarget.lastTime)
+			) {
+				await restartIterator(true);
+				return;
+			}
+
+			catchUpTarget.lastTime = newTime;
+		}
+
 		if (!videoFrameIterator) {
 			// The previous iterator failed to start, or was discarded after its
 			// decoder was reclaimed by a seek that was then superseded.
 			if (!destroyed) {
-				await startVideoIterator(newTime, nonce, true);
+				await restartIterator(true);
 			}
 
 			return;
@@ -399,7 +439,7 @@ export const videoIteratorManager = async ({
 
 		const previousTime = currentSeek;
 
-		if (getIsLooping()) {
+		if (!catchUpTarget && getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
 			if (getLoopSegmentMediaEndTimestamp() - newTime < 1) {
 				prewarmedVideoIteratorCache.prewarmIteratorForLooping({
@@ -409,27 +449,36 @@ export const videoIteratorManager = async ({
 		}
 
 		const pendingFrameBehavior =
-			previousTime !== null &&
-			newTime >= previousTime &&
-			(continuousPlayback ??
-				isSequentialMediaTimeAdvance({
-					previousTime,
-					newTime,
-					fps,
-					playbackRate,
-					isPlaying,
-				}))
+			catchUpTarget ||
+			(previousTime !== null &&
+				newTime >= previousTime &&
+				(continuousPlayback ??
+					isSequentialMediaTimeAdvance({
+						previousTime,
+						newTime,
+						fps,
+						playbackRate,
+						isPlaying,
+					})))
 				? 'wait'
 				: 'restart-iterator';
 		const iterator = videoFrameIterator;
-		const pending: {handle: DelayPlaybackIfNotPremounting | null} = {
+		const pending: {
+			handle: DelayPlaybackIfNotPremounting | null;
+			waitedSince: number | null;
+		} = {
 			handle: null,
+			waitedSince: null,
 		};
 		try {
 			const result = await iterator
 				.tryToSatisfySeek(newTime, {
 					pendingFrameBehavior,
 					onWait: () => {
+						if (catchUpTarget) {
+							pending.waitedSince ??= performance.now();
+						}
+
 						pending.handle ??= delayPlaybackHandleIfNotPremounting();
 						currentDelayHandle = pending.handle;
 					},
@@ -464,7 +513,7 @@ export const videoIteratorManager = async ({
 				currentDelayHandle = null;
 				// A single attempt: if the fresh decoder fails as well, the error
 				// propagates.
-				await startVideoIterator(newTime, nonce, false);
+				await restartIterator(false);
 				return;
 			}
 
@@ -473,8 +522,27 @@ export const videoIteratorManager = async ({
 			}
 
 			if (result.type === 'satisfied') {
-				await drawFrame(result.frame, newTime);
-				currentSeek = newTime;
+				if (
+					pending.waitedSince !== null &&
+					performance.now() - pending.waitedSince >= 1000 / fps
+				) {
+					return;
+				}
+
+				const painted = await drawFrame(
+					result.frame,
+					newTime,
+					catchUp ? nonce : null,
+				);
+				if (painted) {
+					catchUpTarget = null;
+					currentSeek = newTime;
+				}
+
+				return;
+			}
+
+			if (catchUpTarget) {
 				return;
 			}
 
@@ -482,7 +550,7 @@ export const videoIteratorManager = async ({
 			pending.handle?.unblock();
 			pending.handle = null;
 			currentDelayHandle = null;
-			await startVideoIterator(newTime, nonce, true);
+			await restartIterator(true);
 		} finally {
 			pending.handle?.unblock();
 			if (currentDelayHandle === pending.handle) {
@@ -497,8 +565,10 @@ export const videoIteratorManager = async ({
 		) => {
 			onCanvasUpdated = callback;
 		},
-		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
-			startVideoIterator(timeToSeek, nonce, true),
+		startVideoIterator: (options: IteratorStart) =>
+			startVideoIterator(options, true),
+		cancelStaleEffect,
+		isCatchingUp: () => catchUpTarget !== null,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
@@ -509,14 +579,7 @@ export const videoIteratorManager = async ({
 			destroyed = true;
 			onCanvasUpdated = null;
 			releaseSink();
-			// Cancel only this manager's pending run, not a newer run sharing its state.
-			if (
-				pendingEffectRun &&
-				pendingEffectRun.state.currentRunId === pendingEffectRun.runId
-			) {
-				pendingEffectRun.state.currentRunId++;
-			}
-
+			cancelStaleEffect();
 			pendingEffectRun = null;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();

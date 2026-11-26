@@ -116,6 +116,7 @@ const InnerVideo: React.FC<
 	controls,
 	objectFit,
 	maxCanvasSinkFrameSize,
+	pauseWhenBuffering,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	effectsOutputSize = null,
@@ -286,6 +287,7 @@ const InnerVideo: React.FC<
 			controls={controls}
 			objectFit={objectFit}
 			maxCanvasSinkFrameSize={maxCanvasSinkFrameSize}
+			pauseWhenBuffering={pauseWhenBuffering}
 			effects={effects}
 			effectsOutputSize={effectsOutputSize}
 			_experimentalInitiallyDrawCachedFrame={
@@ -329,6 +331,7 @@ const VideoInner: React.FC<
 	controls,
 	objectFit,
 	maxCanvasSinkFrameSize,
+	pauseWhenBuffering,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	effectsOutputSize = null,
@@ -519,6 +522,7 @@ const VideoInner: React.FC<
 						controls={controls}
 						objectFit={objectFit ?? 'contain'}
 						maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
+						pauseWhenBuffering={pauseWhenBuffering ?? null}
 						_experimentalInitiallyDrawCachedFrame={
 							_experimentalInitiallyDrawCachedFrame ?? false
 						}

@@ -88,6 +88,13 @@ type OptionalVideoProps = {
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	/**
+	 * Pause the Player while this video cannot show the current frame. Default: true.
+	 * When false, playback continues. A decoder that falls behind keeps decoding forward
+	 * without drawing and resumes drawing once it has caught up with playback.
+	 * Can change while mounted. Has no effect during rendering.
+	 */
+	pauseWhenBuffering: boolean;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
 	effectsOutputSize: EffectsOutputSize | null;
@@ -104,10 +111,14 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects' | 'preservePitch' | 'audioStreamIndex'> &
+	Omit<
+		OptionalVideoProps,
+		'effects' | 'preservePitch' | 'audioStreamIndex' | 'pauseWhenBuffering'
+	> &
 	NativeVideoProps & {
 		preservePitch: boolean | null;
 		audioStreamIndex: number | null;
+		pauseWhenBuffering: boolean | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};
