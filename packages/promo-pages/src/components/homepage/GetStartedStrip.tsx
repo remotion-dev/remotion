@@ -1,7 +1,7 @@
 import {Button} from '@remotion/design';
 import React, {useState} from 'react';
-import {ClipboardIcon} from '../prompts/ClipboardIcon';
 import {GithubButton} from './GitHubButton';
+import {PromptAgentLogos} from './PromptAgentLogos';
 
 const setupPrompt =
 	'Set up Remotion for me and help me make my first video. Fetch https://www.remotion.dev/get-started.md and follow it.';
@@ -49,10 +49,10 @@ export const GetStarted: React.FC = () => {
 									setManualCopy(true);
 								}
 							}}
-							title="Copy this prompt and paste it into your coding agent"
+							title="Copy this prompt for ChatGPT, Claude, or Cursor"
 						>
-							<ClipboardIcon />
-							<span className="ml-2">Copy agent prompt</span>
+							<PromptAgentLogos />
+							<span className="ml-2">Copy prompt</span>
 						</Button>
 					)}
 				</div>
