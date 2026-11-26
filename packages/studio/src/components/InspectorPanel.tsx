@@ -61,10 +61,12 @@ export const InspectorPanel: React.FC<{
 
 		if (selectedItems.every((item) => item.type === 'sequence')) {
 			return (
-				<MultiSequenceInspector
-					selections={selectedItems}
-					readOnlyStudio={readOnlyStudio}
-				/>
+				<div style={container} className="__remotion-inspector-viewport">
+					<MultiSequenceInspector
+						selections={selectedItems}
+						readOnlyStudio={readOnlyStudio}
+					/>
+				</div>
 			);
 		}
 

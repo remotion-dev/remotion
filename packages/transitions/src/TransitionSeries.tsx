@@ -3,6 +3,7 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {
 	AbsoluteFillLayout,
+	CanUpdateSequencePropStatusEasing,
 	LayoutAndStyle,
 	SequenceControls,
 	SequenceProps,
@@ -27,6 +28,7 @@ import {
 import {flattenChildren} from './flatten-children.js';
 import {resolveMotionBlurPresentation} from './motion-blur.js';
 import {slide} from './presentations/slide.js';
+import {linearTiming, linearTimingOptions} from './timings/linear-timing.js';
 import type {
 	TransitionSeriesOverlayProps,
 	TransitionSeriesTransitionProps,
@@ -44,6 +46,8 @@ type ResolvedTransitionSeriesTransitionProps<
 type InternalTransitionSeriesTransitionProps<
 	PresentationProps extends Record<string, unknown>,
 > = ResolvedTransitionSeriesTransitionProps<PresentationProps> & {
+	readonly easing: CanUpdateSequencePropStatusEasing | null;
+	readonly durationInFrames: number;
 	readonly _remotionInternalRender:
 		| ((
 				props: ResolvedTransitionSeriesTransitionProps<PresentationProps>,
@@ -55,13 +59,23 @@ const TransitionSeriesTransitionInner = <
 	PresentationProps extends Record<string, unknown>,
 >({
 	_remotionInternalRender = null,
+	durationInFrames,
+	easing,
 	...props
 }: InternalTransitionSeriesTransitionProps<PresentationProps>) => {
-	if (_remotionInternalRender) {
-		return _remotionInternalRender(props);
-	}
+	const timing = useMemo(() => {
+		const options = linearTimingOptions.get(props.timing);
+		if (!options || (durationInFrames === options.durationInFrames && !easing))
+			return props.timing;
+		return linearTiming({
+			durationInFrames,
+			easing: easing
+				? Internals.easingToFn({easing, forceSpringAllowTail: null})
+				: options.easing,
+		});
+	}, [props.timing, durationInFrames, easing]);
 
-	return null;
+	return _remotionInternalRender?.({...props, timing}) ?? null;
 };
 
 type TransitionSeriesTransitionComponent = <
@@ -70,7 +84,20 @@ type TransitionSeriesTransitionComponent = <
 	props: TransitionSeriesTransitionProps<PresentationProps>,
 ) => React.ReactNode;
 
-const transitionSeriesTransitionSchema = {} satisfies InteractivitySchema;
+const transitionSeriesTransitionSchema = {
+	durationInFrames: {
+		...Internals.sequenceTimingSchema.durationInFrames,
+		description: 'Duration in frames',
+		integer: true,
+	},
+	easing: {
+		type: 'transition-easing',
+		default: {type: 'linear'},
+		description: 'Easing',
+		keyframable: false,
+	},
+	motionBlur: {type: 'hidden'},
+} satisfies InteractivitySchema;
 
 const TransitionSeriesTransition = Interactive.withSchema({
 	Component: TransitionSeriesTransitionInner as unknown as React.ComponentType<
@@ -390,7 +417,15 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly pendingOverlayValidation: boolean;
 		};
 
-		const renderChildren = (state: RenderState): React.ReactNode => {
+		type TransitionProps = ResolvedTransitionSeriesTransitionProps<
+			Record<string, unknown>
+		>;
+
+		const renderChildren = (
+			state: RenderState,
+			prev: TransitionProps | null,
+			next: TransitionProps | null,
+		): React.ReactNode => {
 			const {
 				index: i,
 				transitionOffsets,
@@ -408,8 +443,43 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 			const child = flattedChildren[i];
 			const current = child as unknown as TypeChild<Record<string, unknown>>;
+			const isCurrentTransition =
+				typeof current !== 'string' &&
+				current.type === TransitionSeriesTransition &&
+				!prev;
+			const transition = isCurrentTransition
+				? child
+				: typeof current !== 'string' &&
+					  current.type === SeriesSequence &&
+					  !next
+					? flattedChildren[i + 1]
+					: null;
+			if (
+				React.isValidElement<
+					InternalTransitionSeriesTransitionProps<Record<string, unknown>>
+				>(transition) &&
+				transition.type === TransitionSeriesTransition
+			) {
+				// Resolve timing before the outgoing clip so both clips and the
+				// marker share the same value during a Studio edit.
+				return React.cloneElement(transition, {
+					durationInFrames: transition.props.timing.getDurationInFrames({fps}),
+					_remotionInternalRender: (resolved) =>
+						isCurrentTransition
+							? renderChildren(state, resolved, null)
+							: renderChildren(state, prev, resolved),
+				});
+			}
+
 			const renderNext = (overrides: Partial<RenderState> = {}) => {
-				return renderChildren({...state, ...overrides, index: i + 1});
+				return renderChildren(
+					{...state, ...overrides, index: i + 1},
+					typeof current !== 'string' &&
+						current.type === TransitionSeriesTransition
+						? prev
+						: next,
+					null,
+				);
 			};
 
 			if (typeof current === 'string') {
@@ -580,51 +650,42 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					);
 				}
 
-				const castedTransition = current as React.ReactElement<
-					InternalTransitionSeriesTransitionProps<Record<string, unknown>>,
-					typeof TransitionSeriesTransition
-				>;
+				if (!prev) throw new Error('Expected a resolved transition.');
+				if (
+					prev.motionBlur &&
+					(typeof hasPrev !== 'object' ||
+						hasPrev.type !== SeriesSequence ||
+						typeof nextPrev !== 'object' ||
+						nextPrev.type !== SeriesSequence)
+				) {
+					throw new TypeError(
+						'motionBlur requires a TransitionSeries.Sequence on both sides of the transition.',
+					);
+				}
 
-				return React.cloneElement(castedTransition, {
-					_remotionInternalRender: (transitionProps) => {
-						if (
-							transitionProps.motionBlur &&
-							(typeof hasPrev !== 'object' ||
-								hasPrev.type !== SeriesSequence ||
-								typeof nextPrev !== 'object' ||
-								nextPrev.type !== SeriesSequence)
-						) {
-							throw new TypeError(
-								'motionBlur requires a TransitionSeries.Sequence on both sides of the transition.',
-							);
-						}
+				const transitionDuration = prev.timing.getDurationInFrames({fps});
+				const transitionFrom =
+					startFrame + transitionOffsets - transitionDuration;
 
-						const transitionDuration =
-							transitionProps.timing.getDurationInFrames({fps});
-						const transitionFrom =
-							startFrame + transitionOffsets - transitionDuration;
-
-						return (
-							<>
-								{transitionDuration > 0 ? (
-									<SequenceWithoutSchema
-										from={transitionFrom}
-										durationInFrames={transitionDuration}
-										name="<TS.Transition>"
-										_remotionInternalTimelineTrack={{
-											role: 'transition',
-											seriesOffset: null,
-										}}
-										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-										controls={transitionProps.controls ?? undefined}
-										layout="none"
-									/>
-								) : null}
-								{renderNext()}
-							</>
-						);
-					},
-				});
+				return (
+					<>
+						{transitionDuration > 0 ? (
+							<SequenceWithoutSchema
+								from={transitionFrom}
+								durationInFrames={transitionDuration}
+								name="<TS.Transition>"
+								_remotionInternalTimelineTrack={{
+									role: 'transition',
+									seriesOffset: null,
+								}}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
+								controls={prev.controls ?? undefined}
+								layout="none"
+							/>
+						) : null}
+						{renderNext()}
+					</>
+				);
 			}
 
 			if (current.type !== SeriesSequence) {
@@ -632,20 +693,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence />, <TransitionSeries.Transition />, and <TransitionSeries.Overlay /> components as its children, but got ${current} instead`,
 				);
 			}
-
-			const prev: TransitionType<Record<string, unknown>> | null =
-				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
-					? null
-					: hasPrev.type === TransitionSeriesTransition
-						? (hasPrev as TransitionType<Record<string, unknown>>)
-						: null;
-
-			const next: TransitionType<Record<string, unknown>> | null =
-				typeof nextPrev === 'string' || typeof nextPrev === 'undefined'
-					? null
-					: nextPrev.type === TransitionSeriesTransition
-						? (nextPrev as TransitionType<Record<string, unknown>>)
-						: null;
 
 			const castedChildAgain = current as React.ReactElement<
 				InternalSeriesSequenceProps,
@@ -711,7 +758,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					let duration = 0;
 
 					if (prev) {
-						duration = prev.props.timing.getDurationInFrames({
+						duration = prev.timing.getDurationInFrames({
 							fps,
 						});
 						resolvedTransitionOffsets -= duration;
@@ -766,18 +813,18 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					};
 
 					const nextProgress = next
-						? next.props.timing.getProgress({
+						? next.timing.getProgress({
 								frame:
 									frame -
 									actualStartFrame -
 									timelineDurationInFrames +
-									next.props.timing.getDurationInFrames({fps}),
+									next.timing.getDurationInFrames({fps}),
 								fps,
 							})
 						: null;
 
 					const prevProgress = prev
-						? prev.props.timing.getProgress({
+						? prev.timing.getProgress({
 								frame: frame - actualStartFrame,
 								fps,
 							})
@@ -785,11 +832,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					if (
 						next &&
-						timelineDurationInFrames <
-							next.props.timing.getDurationInFrames({fps})
+						timelineDurationInFrames < next.timing.getDurationInFrames({fps})
 					) {
 						throw new Error(
-							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the next <TransitionSeries.Transition />. The transition is ${next.props.timing.getDurationInFrames(
+							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the next <TransitionSeries.Transition />. The transition is ${next.timing.getDurationInFrames(
 								{fps},
 							)} frames long, but the sequence is only ${timelineDurationInFrames} frames long (${debugInfo})`,
 						);
@@ -797,11 +843,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					if (
 						prev &&
-						timelineDurationInFrames <
-							prev.props.timing.getDurationInFrames({fps})
+						timelineDurationInFrames < prev.timing.getDurationInFrames({fps})
 					) {
 						throw new Error(
-							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the previous <TransitionSeries.Transition />. The transition is ${prev.props.timing.getDurationInFrames(
+							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the previous <TransitionSeries.Transition />. The transition is ${prev.timing.getDurationInFrames(
 								{fps},
 							)} frames long, but the sequence is only ${timelineDurationInFrames} frames long (${debugInfo})`,
 						);
@@ -809,9 +854,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					if (next && prev && nextProgress !== null && prevProgress !== null) {
 						if (
-							(prev.props.motionBlur || next.props.motionBlur) &&
-							prev.props.timing.getDurationInFrames({fps}) +
-								next.props.timing.getDurationInFrames({fps}) >
+							(prev.motionBlur || next.motionBlur) &&
+							prev.timing.getDurationInFrames({fps}) +
+								next.timing.getDurationInFrames({fps}) >
 								timelineDurationInFrames
 						) {
 							throw new TypeError(
@@ -820,20 +865,20 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						}
 
 						const nextPresentation = resolveMotionBlurPresentation({
-							presentation: next.props.presentation ?? slide(),
-							motionBlur: next.props.motionBlur ?? null,
-							timing: next.props.timing,
+							presentation: next.presentation ?? slide(),
+							motionBlur: next.motionBlur ?? null,
+							timing: next.timing,
 							frame:
 								frame -
 								actualStartFrame -
 								timelineDurationInFrames +
-								next.props.timing.getDurationInFrames({fps}),
+								next.timing.getDurationInFrames({fps}),
 							fps,
 						});
 						const prevPresentation = resolveMotionBlurPresentation({
-							presentation: prev.props.presentation ?? slide(),
-							motionBlur: prev.props.motionBlur ?? null,
-							timing: prev.props.timing,
+							presentation: prev.presentation ?? slide(),
+							motionBlur: prev.motionBlur ?? null,
+							timing: prev.timing,
 							frame: frame - actualStartFrame,
 							fps,
 						});
@@ -841,10 +886,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						const UppercaseNextPresentation = nextPresentation.component;
 						const UppercasePrevPresentation = prevPresentation.component;
 						const separateCanvases =
-							Boolean(prev.props.motionBlur) || Boolean(next.props.motionBlur);
+							Boolean(prev.motionBlur) || Boolean(next.motionBlur);
 						const previousTransitionFinished =
 							frame - actualStartFrame >=
-							prev.props.timing.getDurationInFrames({fps});
+							prev.timing.getDurationInFrames({fps});
 
 						return renderSequenceAndRest(
 							<SequenceWithoutSchema
@@ -860,7 +905,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 									passedProps={nextPresentation.props ?? {}}
 									presentationDirection="exiting"
 									presentationProgress={nextProgress}
-									presentationDurationInFrames={next.props.timing.getDurationInFrames(
+									presentationDurationInFrames={next.timing.getDurationInFrames(
 										{fps},
 									)}
 									onElementImage={(elementImage, draw) => {
@@ -878,7 +923,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 											passedProps={prevPresentation.props ?? {}}
 											presentationDirection="entering"
 											presentationProgress={prevProgress}
-											presentationDurationInFrames={prev.props.timing.getDurationInFrames(
+											presentationDurationInFrames={prev.timing.getDurationInFrames(
 												{fps},
 											)}
 											onElementImage={(elementImage, draw) => {
@@ -940,9 +985,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					if (prevProgress !== null && prev) {
 						const prevPresentation = resolveMotionBlurPresentation({
-							presentation: prev.props.presentation ?? slide(),
-							motionBlur: prev.props.motionBlur ?? null,
-							timing: prev.props.timing,
+							presentation: prev.presentation ?? slide(),
+							motionBlur: prev.motionBlur ?? null,
+							timing: prev.timing,
 							frame: frame - actualStartFrame,
 							fps,
 						});
@@ -963,7 +1008,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 									passedProps={prevPresentation.props ?? {}}
 									presentationDirection="entering"
 									presentationProgress={prevProgress}
-									presentationDurationInFrames={prev.props.timing.getDurationInFrames(
+									presentationDurationInFrames={prev.timing.getDurationInFrames(
 										{fps},
 									)}
 									onElementImage={(elementImage, draw) =>
@@ -986,14 +1031,14 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					if (nextProgress !== null && next) {
 						const nextPresentation = resolveMotionBlurPresentation({
-							presentation: next.props.presentation ?? slide(),
-							motionBlur: next.props.motionBlur ?? null,
-							timing: next.props.timing,
+							presentation: next.presentation ?? slide(),
+							motionBlur: next.motionBlur ?? null,
+							timing: next.timing,
 							frame:
 								frame -
 								actualStartFrame -
 								timelineDurationInFrames +
-								next.props.timing.getDurationInFrames({fps}),
+								next.timing.getDurationInFrames({fps}),
 							fps,
 						});
 
@@ -1013,7 +1058,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 									passedProps={nextPresentation.props ?? {}}
 									presentationDirection="exiting"
 									presentationProgress={nextProgress}
-									presentationDurationInFrames={next.props.timing.getDurationInFrames(
+									presentationDurationInFrames={next.timing.getDurationInFrames(
 										{fps},
 									)}
 									onElementImage={(elementImage, draw) =>
@@ -1051,14 +1096,18 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			});
 		};
 
-		return renderChildren({
-			index: 0,
-			transitionOffsets: 0,
-			startFrame: 0,
-			overlayRenders: [],
-			sequenceDurations: [],
-			pendingOverlayValidation: false,
-		});
+		return renderChildren(
+			{
+				index: 0,
+				transitionOffsets: 0,
+				startFrame: 0,
+				overlayRenders: [],
+				sequenceDurations: [],
+				pendingOverlayValidation: false,
+			},
+			null,
+			null,
+		);
 	}, [
 		flattedChildren,
 		fps,

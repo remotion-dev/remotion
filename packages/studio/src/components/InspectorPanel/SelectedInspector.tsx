@@ -101,7 +101,11 @@ export const SelectedInspector: React.FC<{
 	}, [selection]);
 
 	return (
-		<div ref={panel} style={container}>
+		<div
+			ref={panel}
+			style={container}
+			className="__remotion-inspector-viewport"
+		>
 			<SelectedInspectorContent
 				selection={displayedSelection}
 				readOnlyStudio={readOnlyStudio}

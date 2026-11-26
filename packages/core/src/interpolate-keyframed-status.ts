@@ -37,7 +37,7 @@ export const setInterpolatePaths = (interpolator: PathInterpolator): void => {
 	interpolatePaths = interpolator;
 };
 
-const easingToFn = ({
+export const easingToFn = ({
 	easing,
 	forceSpringAllowTail,
 }: {

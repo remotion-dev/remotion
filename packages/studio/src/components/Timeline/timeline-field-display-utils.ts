@@ -404,6 +404,7 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'asset':
 		case 'array':
 		case 'boolean':
+		case 'transition-easing':
 		case 'remotion-captions':
 		case 'color':
 		case 'enum':
