@@ -1,5 +1,6 @@
 import type {ComponentType} from 'react';
 import {
+	gitHubMark,
 	instagramMark,
 	linkedInMark,
 	tikTokMark,
@@ -8,6 +9,11 @@ import {
 } from './icons/social-media.js';
 
 const socialLinks = [
+	{
+		label: 'GitHub',
+		href: 'https://github.com/remotion-dev/remotion',
+		icon: gitHubMark,
+	},
 	{label: 'X', href: 'https://x.com/remotion', icon: xMark},
 	{
 		label: 'Instagram',
@@ -15,14 +21,14 @@ const socialLinks = [
 		icon: instagramMark,
 	},
 	{
-		label: 'YouTube',
-		href: 'https://youtube.com/@remotion_dev',
-		icon: youTubeMark,
-	},
-	{
 		label: 'LinkedIn',
 		href: 'https://www.linkedin.com/company/remotion-dev/',
 		icon: linkedInMark,
+	},
+	{
+		label: 'YouTube',
+		href: 'https://youtube.com/@remotion_dev',
+		icon: youTubeMark,
 	},
 	{label: 'TikTok', href: 'https://www.tiktok.com/@remotion', icon: tikTokMark},
 ];
