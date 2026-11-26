@@ -1932,7 +1932,14 @@ const sidebars: SidebarsConfig = {
 				id: 'legal',
 			},
 			collapsed: true,
-			items: ['privacy', 'dpa', 'dpia', 'vat-registration', 'acknowledgements'],
+			items: [
+				'privacy',
+				'dpa',
+				'dpia',
+				'vat-registration',
+				'w8ben-e',
+				'acknowledgements',
+			],
 		},
 		{
 			type: 'category',
