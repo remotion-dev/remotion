@@ -113,13 +113,16 @@ type Props = {
 };
 
 export const SiteFooter = ({site, pathname, LinkComponent}: Props) => {
+	const currentPath = pathname.replace(/\/$/, '');
 	const renderLink = ([label, url, kind = 'docs']: FooterLink) => {
 		if (kind === 'local' || kind === site) {
 			return (
 				<LinkComponent
 					key={url}
 					href={url}
-					aria-current={pathname === url ? 'page' : undefined}
+					aria-current={
+						currentPath === url.replace(/\/$/, '') ? 'page' : undefined
+					}
 				>
 					{label}
 				</LinkComponent>
@@ -165,6 +168,7 @@ export const SiteFooter = ({site, pathname, LinkComponent}: Props) => {
 								<a
 									href={href}
 									aria-label={label}
+									aria-description="Opens in a new tab"
 									title={label}
 									target="_blank"
 									rel="noopener noreferrer"
