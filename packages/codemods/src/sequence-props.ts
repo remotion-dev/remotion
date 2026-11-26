@@ -47,6 +47,10 @@ import {
 } from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {
+	getLinearTimingDurationLiteral,
+	transitionComponentIdentity,
+} from './sequence-props/linear-timing-duration';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {getStaticNumericValue} from './sequence-props/static-numeric-value';
@@ -2314,10 +2318,11 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 		throw new JsxElementNotFoundAtLocationError();
 	}
 
+	const actualIdentity = getJsxComponentIdentity({ast, jsxElement});
 	if (
 		!jsxComponentIdentitiesMatch({
 			expected: componentIdentity,
-			actual: getJsxComponentIdentity({ast, jsxElement}),
+			actual: actualIdentity,
 		})
 	) {
 		throw new JsxElementIdentityMismatchError();
@@ -2331,6 +2336,16 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 		assetKeys,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
+	if (
+		actualIdentity === transitionComponentIdentity &&
+		keys.includes('durationInFrames')
+	) {
+		const duration = getLinearTimingDurationLiteral(jsxPath);
+		filteredProps.durationInFrames = duration
+			? staticStatus(duration.value, null)
+			: computedStatus();
+	}
+
 	const effectsStatuses = computeEffectsForJsx({
 		ast,
 		jsxElement,

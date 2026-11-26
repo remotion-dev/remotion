@@ -58,7 +58,7 @@ import {
 } from './get-keyframed-sequence-drag-targets';
 import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {
-	getMinimumSequenceDuration,
+	getTransitionSeriesDurationLimits,
 	getTrimPlaybackRate,
 	getEffectiveSequenceTimingValues,
 	getTimelineSequenceTimingLimits,
@@ -1553,10 +1553,10 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 								))
 							: (originalSequence.trimBefore ?? 0)) +
 					hiddenStartInParentFrames * playbackRate,
-				minimumDuration: getMinimumSequenceDuration({
+				minimumDuration: getTransitionSeriesDurationLimits({
 					sequence: originalSequence,
 					sequences,
-				}),
+				}).minimum,
 				nodePath,
 				playbackRate,
 				positionField,
@@ -1671,10 +1671,10 @@ export const getTimelineSequenceRollingEditTargets = ({
 				initialDuration: incoming.initialDuration,
 				initialFrom: 0,
 				initialTrimBefore: incoming.endField.trimBefore,
-				minimumDuration: getMinimumSequenceDuration({
+				minimumDuration: getTransitionSeriesDurationLimits({
 					sequence: next.sequence,
 					sequences,
-				}),
+				}).minimum,
 				nodePath: incoming.nodePath,
 				playbackRate: incoming.endField.playbackRate,
 				positionField: null,

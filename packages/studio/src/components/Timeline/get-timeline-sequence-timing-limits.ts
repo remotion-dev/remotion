@@ -17,7 +17,7 @@ const {sortItemsByCommitOrder} = CanvasInternals;
 const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>
 	sequence?.controls?.componentIdentity ===
 	'dev.remotion.transitions.TransitionSeries.Transition';
-export const getMinimumSequenceDuration = ({
+export const getTransitionSeriesDurationLimits = ({
 	sequence,
 	sequences,
 }: {
@@ -25,10 +25,11 @@ export const getMinimumSequenceDuration = ({
 	readonly sequences: TSequence[];
 }) => {
 	if (
+		!isTransitionSeriesTransition(sequence) &&
 		sequence.controls?.componentIdentity !==
-		'dev.remotion.transitions.TransitionSeries.Sequence'
+			'dev.remotion.transitions.TransitionSeries.Sequence'
 	) {
-		return 1;
+		return {minimum: 1, maximum: Infinity};
 	}
 
 	const siblings = sortItemsByCommitOrder(
@@ -45,17 +46,41 @@ export const getMinimumSequenceDuration = ({
 		(candidate) => candidate.id === sequence.id,
 	);
 	if (sequenceIndex === -1) {
-		return 1;
+		return {minimum: 1, maximum: Infinity};
 	}
 
 	const previous = siblings[sequenceIndex - 1];
 	const next = siblings[sequenceIndex + 1];
 
-	return Math.max(
-		1,
-		isTransitionSeriesTransition(previous) ? previous.duration : 1,
-		isTransitionSeriesTransition(next) ? next.duration : 1,
-	);
+	if (isTransitionSeriesTransition(sequence)) {
+		let maximum = Infinity;
+		for (const direction of [-1, 1]) {
+			const clip = siblings[sequenceIndex + direction];
+			if (!clip) continue;
+			const other = siblings[sequenceIndex + 2 * direction];
+			const reserved =
+				isTransitionSeriesTransition(other) &&
+				(sequence.controls?.runtimeValues.getSnapshot().motionBlur ||
+					other.controls?.runtimeValues.getSnapshot().motionBlur)
+					? (other.unclippedDuration ?? other.duration)
+					: 0;
+			maximum = Math.min(
+				maximum,
+				Math.floor((clip.unclippedDuration ?? clip.duration) - reserved),
+			);
+		}
+
+		return {minimum: 1, maximum};
+	}
+
+	return {
+		minimum: Math.max(
+			1,
+			isTransitionSeriesTransition(previous) ? previous.duration : 1,
+			isTransitionSeriesTransition(next) ? next.duration : 1,
+		),
+		maximum: Infinity,
+	};
 };
 
 const playbackRateComponentIdentities = new Set([
@@ -140,7 +165,7 @@ export const getTimelineSequenceTimingLimits = ({
 		tracks,
 		propStatuses,
 	});
-	const transitionMinimumDuration = getMinimumSequenceDuration({
+	const transitionLimits = getTransitionSeriesDurationLimits({
 		sequence,
 		sequences,
 	});
@@ -150,12 +175,14 @@ export const getTimelineSequenceTimingLimits = ({
 	const keyframeMaximumDuration = Math.floor(
 		(keyframeLimits.maximumEnd - trimBefore) / sequence.sequencePlaybackRate,
 	);
-	const minimumDuration = Math.max(
-		(track.sequence.from + 1 - track.cascadedStart) *
-			track.keyframePlaybackRate,
-		transitionMinimumDuration,
-		keyframeMinimumDuration,
-	);
+	const minimumDuration = isTransitionSeriesTransition(sequence)
+		? 1
+		: Math.max(
+				(track.sequence.from + 1 - track.cascadedStart) *
+					track.keyframePlaybackRate,
+				transitionLimits.minimum,
+				keyframeMinimumDuration,
+			);
 	let initialDuration =
 		typeof runtimeValues.durationInFrames === 'number' &&
 		Number.isFinite(runtimeValues.durationInFrames)
@@ -250,15 +277,17 @@ export const getTimelineSequenceTimingLimits = ({
 		(maximumEnd - track.cascadedStart) * track.keyframePlaybackRate;
 	const reservedDuration =
 		inferredDuration || loops ? minimumDuration : initialDuration;
-	const maximumDuration = Math.min(
-		keyframeMaximumDuration,
-		spatialMaximumDuration,
-		loops
-			? Infinity
-			: isMedia
-				? Math.max(initialDuration, (sourceEnd - trimBefore) / playbackRate)
-				: (sourceEnd - trimBefore) / playbackRate,
-	);
+	const maximumDuration = isTransitionSeriesTransition(sequence)
+		? transitionLimits.maximum
+		: Math.min(
+				keyframeMaximumDuration,
+				spatialMaximumDuration,
+				loops
+					? Infinity
+					: isMedia
+						? Math.max(initialDuration, (sourceEnd - trimBefore) / playbackRate)
+						: (sourceEnd - trimBefore) / playbackRate,
+			);
 	// Preserve authored clipping: an already hidden edge may move farther outside
 	// its parent, provided one frame remains visible. Neighbours still exclude it.
 	const minimumMoveStart = Math.max(
@@ -311,8 +340,8 @@ export const getTimelineSequenceTimingLimits = ({
 	const minimumDurationReason = getTimelineTrimLimitReason(minimumDuration, [
 		[keyframeMinimumDuration, keyframeLimits.minimumReason],
 		[
-			transitionMinimumDuration,
-			transitionMinimumDuration > 1 ? 'Transition limit' : 'Minimum duration',
+			transitionLimits.minimum,
+			transitionLimits.minimum > 1 ? 'Transition limit' : 'Minimum duration',
 		],
 		[minimumDuration, 'Minimum duration'],
 	]);
