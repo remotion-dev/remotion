@@ -1,4 +1,5 @@
 import type React from 'react';
+import {WHITE} from '../../helpers/colors';
 import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	type SchemaFieldInfo,
@@ -43,8 +44,12 @@ export const getTimelineFieldLabelRowStyle = (
 export const timelineFieldValueColumnStyle: React.CSSProperties = {
 	alignItems: 'center',
 	alignSelf: 'stretch',
+	color: WHITE,
 	display: 'flex',
 	flex: 1,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '16px',
 	minWidth: 0,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
