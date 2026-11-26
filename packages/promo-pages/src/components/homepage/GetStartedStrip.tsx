@@ -1,11 +1,14 @@
 import {Button} from '@remotion/design';
 import React, {useState} from 'react';
+import {ClipboardIcon} from '../prompts/ClipboardIcon';
 import {GithubButton} from './GitHubButton';
 
-export const GetStarted: React.FC<{
-	readonly command: string;
-}> = ({command}) => {
+const setupPrompt =
+	'Set up Remotion for me and help me make my first video. Fetch https://www.remotion.dev/get-started.md and follow it.';
+
+export const GetStarted: React.FC = () => {
 	const [clicked, setClicked] = useState<number | null>(null);
+	const [manualCopy, setManualCopy] = useState(false);
 	const linkButtonClassName = 'w-full px-1.5 min-[360px]:px-2 min-[900px]:px-4';
 
 	return (
@@ -24,17 +27,34 @@ export const GetStarted: React.FC<{
 							Copied!
 						</div>
 					) : null}
-					<Button
-						className="bg-[#333] text-white rounded-lg px-4 font-mono hover:[#444] cursor-pointer w-full"
-						onClick={() => {
-							navigator.clipboard.writeText(command);
-
-							setClicked(Date.now());
-						}}
-						title="Click to copy"
-					>
-						$ {command}
-					</Button>
+					{manualCopy ? (
+						<input
+							ref={(input) => {
+								input?.focus();
+								input?.select();
+							}}
+							aria-label="Select and copy the agent prompt"
+							className="w-full rounded-lg border px-3 min-[900px]:w-44"
+							readOnly
+							value={setupPrompt}
+						/>
+					) : (
+						<Button
+							className="bg-[#333] text-white rounded-lg px-4 hover:bg-[#444] cursor-pointer w-full"
+							onClick={async () => {
+								try {
+									await navigator.clipboard.writeText(setupPrompt);
+									setClicked(Date.now());
+								} catch {
+									setManualCopy(true);
+								}
+							}}
+							title="Copy this prompt and paste it into your coding agent"
+						>
+							<ClipboardIcon />
+							<span className="ml-2">Copy agent prompt</span>
+						</Button>
+					)}
 				</div>
 			</div>
 			<div style={{width: 10, height: 10}} />
