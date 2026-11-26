@@ -1504,7 +1504,7 @@ export const htmlInCanvasSchema = {
 		default: 0,
 		description: 'Grow bounds',
 		hiddenFromList: false,
-		keyframable: true,
+		keyframable: false,
 	},
 	...transformSchema,
 	...backgroundSchema,
