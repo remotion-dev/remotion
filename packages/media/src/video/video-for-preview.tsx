@@ -359,6 +359,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.durationInFrames / sequencePlaybackRate;
 	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
+	const {seek} = useContext(Internals.SetTimelineContext);
+	const timelineRevisionRef = useRef<number | null>(null);
+	timelineRevisionRef.current = seek?.revision.current ?? null;
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
 
@@ -627,6 +630,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					currentTimeRef.current,
 					initialMuted.current,
 					initialVolume.current,
+					timelineRevisionRef.current,
 				)
 				.then((result) => {
 					if (result.type === 'disposed') {

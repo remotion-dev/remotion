@@ -60,7 +60,7 @@ export const useCommonEffects = ({
 		if (playing && !isPlayerBuffering) {
 			mediaPlayer.play();
 		} else {
-			mediaPlayer.pause();
+			mediaPlayer.pause(mediaPlayerReady);
 		}
 	}, [
 		isPlayerBuffering,

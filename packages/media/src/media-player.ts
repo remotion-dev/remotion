@@ -44,8 +44,6 @@ export type MediaPlayerInitResult =
 export type MediaSeekIntent =
 	| {readonly revision: number; readonly playing: boolean}
 	// An internal resync after media configuration changes, not a timeline seek.
-	// Invalidate the satisfied revision so the next video request cannot be
-	// mistaken for continuous playback. This does not always restart the iterator.
 	| 'discontinuity'
 	| null;
 
@@ -76,12 +74,9 @@ export class MediaPlayer {
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
 	private lastRequestedTime = 0;
-	private lastSeekIntent: MediaSeekIntent = null;
+	private lastTimelineSeek: Exclude<MediaSeekIntent, 'discontinuity'> = null;
 	private satisfiedSeekRevision: number | null = null;
-	// Set by a mapping change (intent 'discontinuity') until a seek that is not
-	// superseded has passed it to the iterators, so a newer tick that supersedes
-	// the queued discontinuity still carries it.
-	private pendingMappingChange = false;
+	private seekRevision = 0;
 	private loop = false;
 	private fps: number;
 
@@ -272,11 +267,16 @@ export class MediaPlayer {
 		startTimeUnresolved: number,
 		initialMuted: boolean,
 		initialVolume: number,
+		initialTimelineRevision: number | null,
 	): Promise<MediaPlayerInitResult> {
 		this.muted = initialMuted;
 		this.volume = initialVolume;
 		this.lastRequestedTime = startTimeUnresolved;
-		const promise = this._initialize(startTimeUnresolved);
+		this.lastTimelineSeek =
+			initialTimelineRevision === null
+				? null
+				: {revision: initialTimelineRevision, playing: this.playing};
+		const promise = this._initialize(startTimeUnresolved, this.seekRevision);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -413,6 +413,7 @@ export class MediaPlayer {
 
 	private async _initialize(
 		startTimeUnresolved: number,
+		seekRevision: number,
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
@@ -547,16 +548,15 @@ export class MediaPlayer {
 									this.sharedAudioContext!.audioContext.currentTime,
 							})
 						: Promise.resolve(),
-					this.videoIteratorManager
-						? (this.playing || this.catchUpOnStart) &&
+					this.videoIteratorManager?.startVideoIterator({
+						time: startTime,
+						nonce,
+						seekRevision,
+						catchUp:
+							(this.playing || this.catchUpOnStart) &&
 							!this.pauseWhenBuffering &&
-							this.playbackRate * this.globalPlaybackRate > 0
-							? this.videoIteratorManager.startCatchUp({
-									time: startTime,
-									revision: null,
-								})
-							: this.videoIteratorManager.startVideoIterator(startTime, nonce)
-						: Promise.resolve(),
+							this.playbackRate * this.globalPlaybackRate > 0,
+					}),
 				]);
 			} catch (error) {
 				if (this.isDisposalError()) {
@@ -606,6 +606,7 @@ export class MediaPlayer {
 		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.cancelStaleEffect();
 		await this.seekPromiseChain;
 
 		this.seekPromiseChain = this.seekToDoNotCallDirectly(
@@ -628,12 +629,18 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.lastSeekIntent = intent;
 		this.lastRequestedTime = time;
 		if (intent === 'discontinuity') {
-			// A mapping change may supersede a queued timeline request.
-			this.satisfiedSeekRevision = null;
-			this.pendingMappingChange = true;
+			this.seekRevision++;
+		} else {
+			if (
+				intent !== null &&
+				intent.revision !== this.lastTimelineSeek?.revision
+			) {
+				this.seekRevision++;
+			}
+
+			this.lastTimelineSeek = intent;
 		}
 
 		await this.seekToWithQueue(newTime, time, intent);
@@ -679,16 +686,8 @@ export class MediaPlayer {
 							? null
 							: intent !== 'discontinuity' &&
 								intent.playing &&
-								intent.revision === this.satisfiedSeekRevision,
-					seekRevision:
-						intent === null || intent === 'discontinuity'
-							? null
-							: intent.revision,
-					// seekTo() sets this for a discontinuity too.
-					mappingChanged: this.pendingMappingChange,
-					onMappingApplied: () => {
-						this.pendingMappingChange = false;
-					},
+								this.seekRevision === this.satisfiedSeekRevision,
+					seekRevision: this.seekRevision,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -711,11 +710,7 @@ export class MediaPlayer {
 			]);
 			// Superseded work must not consume an explicit seek boundary.
 			if (!nonce.isStale() && intent !== null && intent !== 'discontinuity') {
-				this.satisfiedSeekRevision = intent.revision;
-			}
-
-			if (!nonce.isStale()) {
-				this.pendingMappingChange = false;
+				this.satisfiedSeekRevision = this.seekRevision;
 			}
 		} catch (error) {
 			if (this.isDisposalError()) {
@@ -743,18 +738,18 @@ export class MediaPlayer {
 		return this.premountAwareDelayPlayback.createHandle();
 	};
 
-	public pause(): void {
+	public pause(mediaPlayerReady: boolean): void {
 		if (!this.playing) {
 			return;
 		}
 
 		this.playing = false;
 		this.drawDebugOverlay();
-		// A player catching up has drawn nothing yet. Pausing usually keeps the
-		// same time, which issues no new seek, so request the current frame here.
-		if (this.videoIteratorManager?.isCatchingUp()) {
-			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
-				this.reportTerminalError(error),
+		// During initialization the first ready seek supplies the latest time.
+		// Once ready, a same-frame pause needs its own seek while catching up.
+		if (mediaPlayerReady && this.videoIteratorManager?.isCatchingUp()) {
+			this.seekTo(this.lastRequestedTime, this.lastTimelineSeek).catch(
+				(error) => this.reportTerminalError(error),
 			);
 		}
 	}
@@ -763,8 +758,8 @@ export class MediaPlayer {
 		this.muted = muted;
 		this.audioIteratorManager?.setMuted(muted);
 		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
-			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
-				this.reportTerminalError(error),
+			this.seekTo(this.lastRequestedTime, this.lastTimelineSeek).catch(
+				(error) => this.reportTerminalError(error),
 			);
 		}
 	}
@@ -1101,12 +1096,10 @@ export class MediaPlayer {
 		// Re-anchoring is not navigation. Preserve the captured revision so an
 		// outstanding explicit seek still takes the restart path, but don't let
 		// an audio-clock pause turn ordinary video catch-up into a scrub.
-		const intent = this.lastSeekIntent;
+		const intent = this.lastTimelineSeek;
 		await this.seekTo(
 			unloopedTimeInSeconds,
-			intent !== null && intent !== 'discontinuity'
-				? {...intent, playing: true}
-				: intent,
+			intent === null ? null : {...intent, playing: true},
 		);
 	};
 }

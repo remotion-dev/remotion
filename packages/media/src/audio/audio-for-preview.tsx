@@ -297,6 +297,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					currentTimeRef.current,
 					initialMuted.current,
 					initialVolume.current,
+					null,
 				)
 				.then((result) => {
 					if (result.type === 'disposed') {
