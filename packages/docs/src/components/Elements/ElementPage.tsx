@@ -1,5 +1,6 @@
 import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {StudioInternals} from '@remotion/studio';
 import {
 	ELEMENT_PAYLOAD_MIME_TYPE,
 	isInsideStudio,
@@ -392,7 +393,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									{definition.dependencies.length === 0 ? (
 										'None'
 									) : (
-										<ul className={styles.dependencyList}>
+										<ul className={styles.dependencyList} role="list">
 											{definition.dependencies.map((dependency) => (
 												<li key={dependency.name}>
 													<a
@@ -400,9 +401,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 														rel="noopener noreferrer"
 														target="_blank"
 													>
-														{dependency.version === null
-															? dependency.name
-															: `${dependency.name}@${dependency.version}`}
+														<StudioInternals.PackageIcon
+															aria-hidden="true"
+															color="currentColor"
+															height={18}
+														/>
+														<span>
+															{dependency.version === null
+																? dependency.name
+																: `${dependency.name}@${dependency.version}`}
+														</span>
 													</a>
 												</li>
 											))}
