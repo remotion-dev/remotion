@@ -177,6 +177,8 @@ const siteConfig: VercelConfig = {
 			['/opentimeline', '/docs/opentimeline'],
 			['/docs/import-opentimeline', '/docs/opentimeline/import'],
 			['/docs/export-opentimeline', '/docs/opentimeline/export'],
+			['/docs/elements/why', '/docs/elements'],
+			['/docs/elements/finding', '/docs/elements/using'],
 		].flatMap(([source, destination]) => [
 			routes.redirect(source, destination, {permanent: true}),
 			routes.redirect(`${source}/`, destination, {permanent: true}),

@@ -4564,15 +4564,6 @@ export const articles = [
 		slug: 'elements/distributing',
 	},
 	{
-		id: 'elements/finding',
-		title: 'Finding Elements',
-		relativePath: 'docs/elements/finding.mdx',
-		compId: 'articles-docs-elements-finding',
-		crumb: null,
-		noAi: false,
-		slug: 'elements/finding',
-	},
-	{
 		id: 'elements/libraries',
 		title: 'Building Element Libraries',
 		relativePath: 'docs/elements/libraries.mdx',
@@ -4592,7 +4583,7 @@ export const articles = [
 	},
 	{
 		id: 'elements/using',
-		title: 'Using an Element',
+		title: 'Using Elements',
 		relativePath: 'docs/elements/using.mdx',
 		compId: 'articles-docs-elements-using',
 		crumb: null,
@@ -4600,13 +4591,13 @@ export const articles = [
 		slug: 'elements/using',
 	},
 	{
-		id: 'elements/why',
-		title: 'Why Elements?',
-		relativePath: 'docs/elements/why.mdx',
-		compId: 'articles-docs-elements-why',
+		id: 'elements/why-create',
+		title: 'Why create Elements',
+		relativePath: 'docs/elements/why-create.mdx',
+		compId: 'articles-docs-elements-why-create',
 		crumb: null,
 		noAi: false,
-		slug: 'elements/why',
+		slug: 'elements/why-create',
 	},
 	{
 		id: 'elevenlabs/detect-elevenlabs-transcript-format',

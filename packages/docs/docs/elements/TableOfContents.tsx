@@ -9,13 +9,9 @@ export const TableOfContents: React.FC<{
 		return (
 			<div>
 				<Grid>
-					<TOCItem link="/docs/elements/finding">
-						<strong>Finding Elements</strong>
-						<div>Browse Element Libraries on the web and in Studio</div>
-					</TOCItem>
 					<TOCItem link="/docs/elements/using">
-						<strong>Using an Element</strong>
-						<div>Add an Element with Studio, an AI agent or the CLI</div>
+						<strong>Using Elements</strong>
+						<div>Find and add Elements with Studio, an AI agent or the CLI</div>
 					</TOCItem>
 					<TOCItem link="/docs/elements/managing-libraries">
 						<strong>Managing Element Libraries</strong>
