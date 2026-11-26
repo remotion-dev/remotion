@@ -461,6 +461,8 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
+		/** Transparent space on each side of the captured children, in CSS pixels. */
+		readonly growBounds?: number;
 		// captureElementImage() only accepts immediate children of the layout canvas.
 		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
 		readonly _remotionInternalFallbackLabel?: string;
@@ -481,6 +483,7 @@ export const useHtmlInCanvasUnsupportedMessage = (): string | null => {
 };
 
 type HtmlInCanvasContentProps = {
+	readonly growBounds: number;
 	readonly width: number;
 	readonly height: number;
 	readonly effects: EffectsProp;
@@ -502,6 +505,7 @@ const HtmlInCanvasContent = forwardRef<
 		{
 			width,
 			height,
+			growBounds,
 			effects,
 			effectsOutputSize,
 			children,
@@ -518,7 +522,6 @@ const HtmlInCanvasContent = forwardRef<
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const inheritedPremountInSeconds = useContext(DefaultPremountContext);
 		const canPremount = useMemo(canPremountInHtmlInCanvas, []);
-		assertHtmlInCanvasDimensions(width, height);
 		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
 				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
@@ -636,6 +639,7 @@ const HtmlInCanvasContent = forwardRef<
 			previousOutput: HTMLCanvasElement;
 		} | null>(null);
 		const resizeSnapshotRef = useRef<HTMLCanvasElement | null>(null);
+		const previousBitmapPaddingRef = useRef(0);
 		const paintingTargets = useRef(
 			new WeakMap<
 				HtmlInCanvasPaintTarget,
@@ -1041,6 +1045,7 @@ const HtmlInCanvasContent = forwardRef<
 					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
+			previousBitmapPaddingRef.current = 0;
 			initializedSizeRef.current = null;
 			unmountedRef.current = false;
 			const paintReleases = pendingPaintReleases.current;
@@ -1088,15 +1093,38 @@ const HtmlInCanvasContent = forwardRef<
 				width: canvasWidth,
 				height: canvasHeight,
 			});
+			const padding = growBounds * resolvedPixelDensity;
 			if (snapshot) {
 				const context = paintTarget.getContext('2d');
 				if (!context) {
 					throw new Error('Failed to acquire 2D context for canvas resize');
 				}
 
-				context.drawImage(snapshot, 0, 0, canvasWidth, canvasHeight);
+				// Keep the previous frame aligned with the child while its new bounds paint.
+				const previousPadding = previousBitmapPaddingRef.current;
+				const scaleX =
+					(canvasWidth - 2 * padding) / (snapshot.width - 2 * previousPadding);
+				const scaleY =
+					(canvasHeight - 2 * padding) /
+					(snapshot.height - 2 * previousPadding);
+				context.drawImage(
+					snapshot,
+					padding - previousPadding * scaleX,
+					padding - previousPadding * scaleY,
+					snapshot.width * scaleX,
+					snapshot.height * scaleY,
+				);
 			}
-		}, [canvasWidth, canvasHeight, canvasSizeKey, paintTargetMode]);
+
+			previousBitmapPaddingRef.current = padding;
+		}, [
+			canvasWidth,
+			canvasHeight,
+			canvasSizeKey,
+			paintTargetMode,
+			growBounds,
+			resolvedPixelDensity,
+		]);
 
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current!;
@@ -1252,6 +1280,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
+			growBounds,
 			_remotionInternalCanvasSiblings,
 			_remotionInternalFallbackLabel = 'Effects are not visible',
 			controls,
@@ -1279,6 +1308,15 @@ const HtmlInCanvasInner = forwardRef<
 		);
 		assertHtmlInCanvasDimensions(width, height);
 		resolveHtmlInCanvasPixelDensity(pixelDensity);
+		if (
+			growBounds !== undefined &&
+			(!Number.isFinite(growBounds) || growBounds < 0)
+		) {
+			throw new Error(
+				`HtmlInCanvas: \`growBounds\` must be a non-negative finite number. Received: ${String(growBounds)}.`,
+			);
+		}
+
 		const Content = isRendering
 			? HtmlInCanvasContentForRendering
 			: HtmlInCanvasContent;
@@ -1327,6 +1365,54 @@ const HtmlInCanvasInner = forwardRef<
 			componentName: '<HtmlInCanvas />',
 		});
 
+		// Keep the padded layout mounted when an animated growBounds reaches zero.
+		const padding = growBounds ?? 0;
+		const paintWidth = width + padding * 2;
+		const paintHeight = height + padding * 2;
+		const content = (
+			<Content
+				ref={setCanvasRef}
+				renderFrame={null}
+				width={paintWidth}
+				height={paintHeight}
+				growBounds={padding}
+				effects={effects}
+				effectsOutputSize={effectsOutputSize ?? null}
+				onPaint={onPaint}
+				onInit={onInit}
+				pixelDensity={pixelDensity}
+				canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+				controls={controls}
+				style={
+					growBounds === undefined
+						? (croppedStyle ?? undefined)
+						: {
+								position: 'absolute',
+								left: 0,
+								top: 0,
+								transform: `translate(${-padding}px, ${-padding}px)`,
+								width: `calc(100% + ${padding * 2}px)`,
+								height: `calc(100% + ${padding * 2}px)`,
+							}
+				}
+			>
+				{growBounds === undefined ? (
+					children
+				) : (
+					<div
+						style={{
+							position: 'relative',
+							transform: `translate(${padding}px, ${padding}px)`,
+							width,
+							height,
+						}}
+					>
+						{children}
+					</div>
+				)}
+			</Content>
+		);
+
 		return (
 			<Freeze
 				frame={freezeFrame}
@@ -1366,23 +1452,31 @@ const HtmlInCanvasInner = forwardRef<
 								<div style={{width, height}}>{children}</div>
 							</DefaultPremountContext.Provider>
 						</HtmlInCanvasFallback>
+					) : growBounds === undefined ? (
+						content
 					) : (
-						<Content
-							ref={setCanvasRef}
-							renderFrame={null}
-							width={width}
-							height={height}
-							effects={effects}
-							effectsOutputSize={effectsOutputSize ?? null}
-							onPaint={onPaint}
-							onInit={onInit}
-							pixelDensity={pixelDensity}
-							canvasSiblings={_remotionInternalCanvasSiblings ?? null}
-							controls={controls}
-							style={croppedStyle ?? undefined}
+						<div
+							style={{
+								width,
+								height,
+								...croppedStyle,
+								display:
+									!croppedStyle?.display || croppedStyle.display === 'inline'
+										? 'inline-block'
+										: croppedStyle.display,
+							}}
 						>
-							{children}
-						</Content>
+							<div
+								style={{
+									position: 'relative',
+									width: '100%',
+									height: '100%',
+									aspectRatio: `${width} / ${height}`,
+								}}
+							>
+								{content}
+							</div>
+						</div>
 					)}
 				</Sequence>
 			</Freeze>
@@ -1402,6 +1496,15 @@ export const htmlInCanvasSchema = {
 		default: 1,
 		description: 'Pixel density',
 		hiddenFromList: false,
+	},
+	growBounds: {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: 0,
+		description: 'Grow bounds',
+		hiddenFromList: false,
+		keyframable: true,
 	},
 	...transformSchema,
 	...backgroundSchema,
