@@ -140,24 +140,6 @@ html {
 	}
 }
 
-@keyframes click {
-	0% {
-		transform: translateY(-18px);
-		opacity: 0;
-	}
-
-	30% {
-		opacity: 0.7;
-	}
-	70% {
-		opacity: 0.7;
-	}
-	100% {
-		transform: translateY(-23px);
-		opacity: 0;
-	}
-}
-
 @keyframes jump {
 	from {
 		transform: scale(0);
