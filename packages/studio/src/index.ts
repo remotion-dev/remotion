@@ -1,6 +1,7 @@
 import {CodingAgentIcon} from './components/CodingAgentIcon';
 import {EditorIcon} from './icons/editor';
 import {FinderIcon} from './icons/finder';
+import {PackageIcon} from './icons/package';
 import {TerminalIcon} from './icons/terminal';
 
 export {
@@ -29,5 +30,6 @@ export const StudioInternals = {
 	CodingAgentIcon,
 	EditorIcon,
 	FinderIcon,
+	PackageIcon,
 	TerminalIcon,
 };
