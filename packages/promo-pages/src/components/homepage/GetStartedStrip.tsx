@@ -9,7 +9,8 @@ const setupPrompt =
 export const GetStarted: React.FC = () => {
 	const [clicked, setClicked] = useState<number | null>(null);
 	const [manualCopy, setManualCopy] = useState(false);
-	const linkButtonClassName = 'w-full px-1.5 min-[360px]:px-2 min-[900px]:px-4';
+	const buttonClassName =
+		'w-full px-1.5 py-0 min-[360px]:px-2 min-[900px]:px-4';
 
 	return (
 		<div className="flex flex-col min-[900px]:flex-row items-center text-center w-full justify-start lg:justify-end">
@@ -40,7 +41,7 @@ export const GetStarted: React.FC = () => {
 						/>
 					) : (
 						<Button
-							className="bg-brand text-white rounded-full px-4 cursor-pointer w-full"
+							className={buttonClassName}
 							onClick={async () => {
 								try {
 									await navigator.clipboard.writeText(setupPrompt);
@@ -60,7 +61,7 @@ export const GetStarted: React.FC = () => {
 			<div style={{width: 10, height: 10}} />
 			<div className="flex flex-row gap-2 w-full min-[900px]:w-auto">
 				<div className="flex-1 min-[900px]:flex-none">
-					<Button href="/docs" className={linkButtonClassName}>
+					<Button href="/docs" className={buttonClassName}>
 						Docs
 					</Button>
 				</div>
@@ -68,7 +69,7 @@ export const GetStarted: React.FC = () => {
 					<Button
 						href="https://remotion.dev/discord"
 						target="_blank"
-						className={linkButtonClassName}
+						className={buttonClassName}
 					>
 						Discord
 					</Button>
