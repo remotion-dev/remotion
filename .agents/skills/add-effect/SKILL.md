@@ -34,7 +34,7 @@ In the effect file:
   - `packages/effects/src/validate-effect-param.ts`
   - `packages/effects/src/color-utils.ts`
 - Throw `createWebGL2ContextError('<effect name> effect')` if WebGL2 cannot be acquired.
-- Set `documentationLink` to `https://www.remotion.dev/docs/effects/<slug>`.
+- Set `documentationLink` to `https://www.remotion.dev/effects/<slug>`.
 - Include every resolved parameter in `calculateKey()`.
 
 For WebGL2 effects, use this general structure:
@@ -121,7 +121,7 @@ void main() {
 export const myEffect = createEffect<MyEffectParams, MyEffectState>({
 	type: 'remotion/my-effect',
 	label: 'My Effect',
-	documentationLink: 'https://www.remotion.dev/docs/effects/my-effect',
+	documentationLink: 'https://www.remotion.dev/effects/my-effect',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
@@ -208,11 +208,11 @@ bunx turbo make --filter="@remotion/effects"
 
 ## 5. Add docs
 
-Create `packages/docs/docs/effects/<effect-name>.mdx`.
+Create `packages/docs/effects/<effect-name>.mdx`.
 
 Follow existing effect pages:
 
-- Frontmatter: `slug`, `title`, `sidebar_label`, `crumb: '@remotion/effects'`.
+- Frontmatter: `title`, `sidebar_label`, `crumb: '@remotion/effects'`.
 - Add `image:` only after running `bun render-cards.ts`.
 - H1: `# effectName()<AvailableFrom v="..." />`.
 - Include `_Part of the [@remotion/effects](/docs/effects/api) package._`.
@@ -225,8 +225,7 @@ Follow existing effect pages:
 
 Update:
 
-- `packages/docs/sidebars.ts` — add `'effects/<effect-name>'` in alphabetical order.
-- `packages/docs/docs/effects/table-of-contents.tsx` — add a card in the right category.
+- Register the effect in `EFFECT_CATALOG` in `packages/studio-shared/src/effect-catalog.ts`. The library and sidebar both use its category.
 - `packages/docs/src/data/articles.ts` by running the card generator, not by hand.
 
 Use the `writing-docs` skill for documentation wording.

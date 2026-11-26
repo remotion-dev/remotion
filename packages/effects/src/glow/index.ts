@@ -111,7 +111,7 @@ const validateGlowParams = (params: GlowParams): void => {
 export const glow = createEffect<GlowParams>({
 	type: 'dev.remotion.effects.glow',
 	label: 'glow()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/glow',
+	documentationLink: 'https://www.remotion.dev/effects/glow',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `glow-${r.radius}-${r.intensity}-${r.threshold}-${r.color}`;

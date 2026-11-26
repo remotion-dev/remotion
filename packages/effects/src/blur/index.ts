@@ -70,7 +70,7 @@ const validateBlurParams = (params: BlurParams): void => {
 export const blur = createEffect<BlurParams>({
 	type: 'dev.remotion.effects.blur',
 	label: 'blur()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
+	documentationLink: 'https://www.remotion.dev/effects/blur',
 	calculateKey: (params) => {
 		const r = resolveBlurParams(params);
 		return `${r.radius}-${r.horizontal ? 1 : 0}-${r.vertical ? 1 : 0}`;

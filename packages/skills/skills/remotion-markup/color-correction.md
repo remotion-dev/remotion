@@ -12,7 +12,7 @@ See [effects.md](effects.md) for more context on effects.
 
 ## Primary adjustments
 
-Prefer [`colorCorrection()`](https://www.remotion.dev/docs/effects/color-correction) when combining adjustments.  
+Prefer [`colorCorrection()`](https://www.remotion.dev/effects/color-correction) when combining adjustments.  
 It performs them in one WebGL pass and exposes controls in the Studio.
 
 | Control                 | Meaning and range                                                         | Neutral value |
@@ -62,7 +62,7 @@ adjustment is needed: `exposure()`, `whiteBalance()`, `shadowsHighlights()`,
 
 ## Levels and Curves
 
-Use [`levels()`](https://www.remotion.dev/docs/effects/levels) to set input black
+Use [`levels()`](https://www.remotion.dev/effects/levels) to set input black
 and white points, adjust midtones with gamma, or limit the output range.
 `blackPoint` and `whitePoint` are normalized from `0` to `1`, default to `0` and
 `1`, and require `blackPoint < whitePoint`. `gamma` ranges from `0.01` to `10`,
@@ -70,7 +70,7 @@ defaults to `1`, and values above `1` brighten midtones. `outputBlack` and
 `outputWhite` range from `0` to `1` and default to `0` and `1`; reversing them
 inverts the output.
 
-Use [`curves()`](https://www.remotion.dev/docs/effects/curves) for an S-curve or
+Use [`curves()`](https://www.remotion.dev/effects/curves) for an S-curve or
 other adjustments that need multiple input/output control points. Supply `2` to
 `32` `[input, output]` pairs with both coordinates in `0` to `1` and strictly
 increasing input values. Outputs may increase or decrease. The default
@@ -124,7 +124,7 @@ receive the corrected footage.
 ## LUTs and combining effects
 
 A LUT (lookup table) maps input RGB colors to output colors. Use
-[`lut()`](https://www.remotion.dev/docs/effects/lut) to apply a 3D `.cube` LUT.  
+[`lut()`](https://www.remotion.dev/effects/lut) to apply a 3D `.cube` LUT.  
 Its `content` parameter takes the complete file contents as a string.
 
 This example uses a small warm LUT inline:

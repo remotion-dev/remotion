@@ -8,7 +8,7 @@ test('lightLeak() accepts default params', () => {
 
 test('lightLeak() exposes its documentation link', () => {
 	expect(lightLeak().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/light-leak',
+		'https://www.remotion.dev/effects/light-leak',
 	);
 });
 

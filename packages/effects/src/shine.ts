@@ -238,7 +238,7 @@ const linkProgram = (
 export const shine = createEffect<ShineParams>({
 	type: 'dev.remotion.effects.shine',
 	label: 'shine()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/shine',
+	documentationLink: 'https://www.remotion.dev/effects/shine',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `shine-${r.progress}-${r.angle}-${r.haloSigma}-${r.coreSigma}-${r.haloIntensity}-${r.coreIntensity}`;

@@ -39,7 +39,7 @@ const validateInvertParams = (params: InvertParams): void => {
 export const invert = createEffect<InvertParams>({
 	type: 'dev.remotion.effects.invert',
 	label: 'invert()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/invert',
+	documentationLink: 'https://www.remotion.dev/effects/invert',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `invert-${r.amount}`;

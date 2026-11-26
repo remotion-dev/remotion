@@ -208,8 +208,18 @@
 }
 
 .content {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0 8px;
 	min-width: 0;
 	padding: 8px 0;
+}
+
+.loopable {
+	color: var(--ifm-color-emphasis-700);
+	font-size: 0.75rem;
 }
 
 .title {

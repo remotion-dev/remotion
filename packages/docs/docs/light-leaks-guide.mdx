@@ -7,7 +7,7 @@ crumb: 'Designing visuals'
 
 # Light Leaks<AvailableFrom v="4.0.500"/>
 
-The [`lightLeak()`](/docs/effects/light-leak) effect from [`@remotion/effects`](/docs/effects/api) renders an animated light leak overlay using WebGL2 or WebGPU. The light leak reveals during the first half of its progress and retracts during the second half.
+The [`lightLeak()`](/effects/light-leak) effect from [`@remotion/effects`](/docs/effects/api) renders an animated light leak overlay using WebGL2 or WebGPU. The light leak reveals during the first half of its progress and retracts during the second half.
 
 <Demo type="light-leak" />
 
@@ -57,7 +57,7 @@ Keeping the progress calculation inline makes the animation editable in [Remotio
 
 ## Changing the seed
 
-The [`seed`](/docs/effects/light-leak#seed) option controls the shape of the light leak pattern. Different values produce different patterns.
+The [`seed`](/effects/light-leak#seed) option controls the shape of the light leak pattern. Different values produce different patterns.
 
 ```tsx twoslash title="DifferentSeed.tsx"
 import {lightLeak} from '@remotion/effects/light-leak';
@@ -67,7 +67,7 @@ const effect = lightLeak({seed: 5});
 
 ## Changing the color
 
-Use [`hueShift`](/docs/effects/light-leak#hueshift) to rotate the color of the light leak from `0` to `360` degrees:
+Use [`hueShift`](/effects/light-leak#hueshift) to rotate the color of the light leak from `0` to `360` degrees:
 
 - `0` (default) — yellow-to-orange
 - `120` — shifts toward green
@@ -146,7 +146,7 @@ At the midpoint, the light leak covers most of the canvas, hiding the cut betwee
 
 ## See also
 
-- [`lightLeak()` API reference](/docs/effects/light-leak)
+- [`lightLeak()` API reference](/effects/light-leak)
 - [`@remotion/effects`](/docs/effects/api)
 - [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay)
 - [Transitions](/docs/transitioning)

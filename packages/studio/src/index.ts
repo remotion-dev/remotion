@@ -1,6 +1,9 @@
 import {CodingAgentIcon} from './components/CodingAgentIcon';
+import {BrowseElementsIcon} from './icons/browse-elements';
 import {EditorIcon} from './icons/editor';
+import {EffectsIcon} from './icons/effects';
 import {FinderIcon} from './icons/finder';
+import {PackageIcon} from './icons/package';
 import {TerminalIcon} from './icons/terminal';
 
 export {
@@ -26,8 +29,11 @@ export {watchStaticFile} from './api/watch-static-file';
 export {writeStaticFile} from './api/write-static-file';
 
 export const StudioInternals = {
+	BrowseElementsIcon,
 	CodingAgentIcon,
 	EditorIcon,
+	EffectsIcon,
 	FinderIcon,
+	PackageIcon,
 	TerminalIcon,
 };

@@ -148,7 +148,7 @@ const resolve = (params: MagnifyParams): Required<MagnifyParams> => ({
 export const magnify = Internals.createEffect<MagnifyParams>({
 	type: 'dev.remotion.effects.magnify',
 	label: 'magnify()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/magnify',
+	documentationLink: 'https://www.remotion.dev/effects/magnify',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `magnify-${r.shape}-${r.center.join(':')}-${r.magnification}-${r.link}-${r.size}-${r.feather}-${r.opacity}-${r.scaling}-${r.blendingMode}`;

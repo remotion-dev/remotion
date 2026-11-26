@@ -79,7 +79,7 @@ const resolve = (params: RainFallParams): WeatherRenderParams => ({
 export const rainFall = createEffect<RainFallParams>({
 	type: 'remotion/rain-fall',
 	label: 'rainFall()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/rain-fall',
+	documentationLink: 'https://www.remotion.dev/effects/rain-fall',
 	calculateKey: (params) => `rain-fall-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<

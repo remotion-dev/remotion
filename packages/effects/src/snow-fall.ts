@@ -144,7 +144,7 @@ const resolve = (params: SnowFallParams): WeatherRenderParams => ({
 export const snowFall = createEffect<SnowFallParams>({
 	type: 'remotion/snow-fall',
 	label: 'snowFall()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/snow-fall',
+	documentationLink: 'https://www.remotion.dev/effects/snow-fall',
 	calculateKey: (params) => `snow-fall-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<

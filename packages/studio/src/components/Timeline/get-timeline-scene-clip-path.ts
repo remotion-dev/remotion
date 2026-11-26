@@ -288,18 +288,29 @@ export const getTimelineSceneShape = (
 		const {radius} = transitionCutout;
 		// Follow the visible cutout rather than drawing a hidden stroke through
 		// its center. The concave arcs match the marker's two rounded corners.
-		path = [
-			`M${outgoingEndX},0 L${outgoingEndX},${outgoingY}`,
+		const outgoingEdge = [
+			`L${outgoingEndX},${outgoingY}`,
 			outgoingCutout
 				? `L${outgoingStartX + radius},${outgoingY} A${radius},${radius} 0 0 0 ${outgoingStartX},${outgoingY + radius}`
 				: `L${outgoingStartX},${outgoingY}`,
-			`L${outgoingStartX},${height} L${incomingStartX},${height} L${incomingStartX},${incomingY}`,
+			`L${outgoingStartX},${height}`,
+		].join(' ');
+		const incomingEdge = [
+			`L${incomingStartX},${incomingY}`,
 			incomingCutout
 				? `L${incomingEndX - radius},${incomingY} A${radius},${radius} 0 0 0 ${incomingEndX},${incomingY - radius}`
 				: `L${incomingEndX},${incomingY}`,
-			`L${incomingEndX},0 Z`,
+			`L${incomingEndX},0`,
 		].join(' ');
+		path = `M${outgoingEndX},0 ${outgoingEdge} L${incomingStartX},${height} ${incomingEdge} Z`;
 		clipPath = `path('${path}')`;
+		if (outgoingCutout && edges.right !== null) {
+			edges.right = `M${outgoingEndX},0 ${outgoingEdge}`;
+		}
+
+		if (incomingCutout && edges.left !== null) {
+			edges.left = `M${incomingStartX},${height} ${incomingEdge}`;
+		}
 	}
 
 	return {

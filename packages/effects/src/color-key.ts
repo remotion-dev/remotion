@@ -356,7 +356,7 @@ const parseKeyColor = (
 export const colorKey = createEffect<ColorKeyParams>({
 	type: 'dev.remotion.effects.colorKey',
 	label: 'colorKey()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/color-key',
+	documentationLink: 'https://www.remotion.dev/effects/color-key',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `color-key-${r.keyColor}-${r.similarity}-${r.smoothness}-${r.spillSuppression}`;

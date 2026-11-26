@@ -59,6 +59,10 @@ const siteConfig: VercelConfig = {
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),
+		routes.header('/_raw/effects/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
 		routes.header('/_raw/elements/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
@@ -564,7 +568,6 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/transitions', '/docs/transitioning', {
 			permanent: false,
 		}),
-		routes.redirect('/effects', '/docs/effects', {permanent: false}),
 		routes.redirect('/color-correction', '/docs/color-correction', {
 			permanent: false,
 		}),
@@ -732,6 +735,8 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
 		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
 		routes.redirect('/dpia.pdf', '/docs/dpia.pdf', {permanent: true}),
+		routes.redirect('/w8ben-e', '/docs/w8ben-e', {permanent: true}),
+		routes.redirect('/w9', '/docs/w8ben-e', {permanent: true}),
 		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
 		routes.redirect('/docs/license/privacy', '/docs/privacy', {
 			permanent: true,

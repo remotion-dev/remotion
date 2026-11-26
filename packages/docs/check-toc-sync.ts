@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sidebars from './sidebars';
 
-const tocsRenderedFromData = ['effects', 'shapes'];
+const tocsRenderedFromData = ['shapes'];
 
 const docsDir = path.join(__dirname, 'docs');
 

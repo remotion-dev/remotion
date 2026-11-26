@@ -3,6 +3,9 @@ import {rewrite} from '@vercel/functions';
 export const config = {
 	matcher: [
 		'/docs/:path*',
+		'/effects',
+		'/effects.md',
+		'/effects/:path*',
 		'/elements',
 		'/elements.md',
 		'/elements/:path*',
@@ -147,6 +150,20 @@ export default async function middleware(request: Request) {
 		return;
 	}
 
+	const effectApiPath = pathname.match(/^\/effects\/api(\.md)?\/?$/);
+	if (effectApiPath) {
+		url.pathname = `/docs/effects/api${effectApiPath[1] ?? ''}`;
+		return Response.redirect(url, 308);
+	}
+
+	const legacyEffect = pathname.match(
+		/^\/docs\/effects\/([\w-]+)(?:\.md)?\/?$/,
+	);
+	if (legacyEffect && legacyEffect[1] !== 'api') {
+		url.pathname = pathname.slice('/docs'.length);
+		return Response.redirect(url, 308);
+	}
+
 	if (pathname === '/docs/pricing') {
 		return Response.redirect(
 			new URL('/docs/license/pricing', request.url),
@@ -183,6 +200,24 @@ export default async function middleware(request: Request) {
 		return Response.redirect(url, 308);
 	}
 
+	if (
+		pathname === '/effects.md' ||
+		pathname === '/effects' ||
+		pathname === '/effects/'
+	) {
+		if (
+			pathname.endsWith('.md') ||
+			prefersMarkdown(
+				request.headers.get('accept'),
+				request.headers.get('user-agent'),
+			)
+		) {
+			return rewrite(new URL('/_raw/effects/index.md', request.url));
+		}
+
+		return;
+	}
+
 	if (pathname === '/elements.md') {
 		return rewrite(new URL('/_raw/elements/index.md', request.url));
 	}
@@ -191,7 +226,11 @@ export default async function middleware(request: Request) {
 		return;
 	}
 
-	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
+	if (
+		!pathname.startsWith('/docs/') &&
+		!pathname.startsWith('/elements/') &&
+		!pathname.startsWith('/effects/')
+	) {
 		return;
 	}
 
@@ -199,7 +238,10 @@ export default async function middleware(request: Request) {
 	// Example: /docs/your-first-video.md → /_raw/docs/your-first-video.md
 	// Example: /elements/overlays/name-lower-third.md → /_raw/elements/overlays/name-lower-third.md
 	if (pathname.endsWith('.md')) {
-		const targetPath = pathname.replace(/^\/(docs|elements)\//, '/_raw/$1/');
+		const targetPath = pathname.replace(
+			/^\/(docs|elements|effects)\//,
+			'/_raw/$1/',
+		);
 		return rewrite(new URL(targetPath, request.url));
 	}
 

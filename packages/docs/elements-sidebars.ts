@@ -15,7 +15,7 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Remotion Elements',
+			label: 'Elements',
 			className: 'elements-sidebar-root catalog-sidebar-root',
 			link: {type: 'doc', id: 'index'},
 			collapsible: false,
@@ -36,6 +36,12 @@ const sidebars: SidebarsConfig = {
 						.map(([slug]) => `${slug}/index`),
 				})),
 			],
+		},
+		{
+			type: 'link',
+			label: 'Effects',
+			href: '/effects/',
+			className: 'catalog-sidebar-root',
 		},
 	],
 };

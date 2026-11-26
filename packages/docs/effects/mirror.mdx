@@ -1,0 +1,80 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-mirror.png
+title: mirror()
+sidebar_label: mirror()
+crumb: '@remotion/effects'
+---
+
+# mirror()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A mirror effect that can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-mirror" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {mirror} from '@remotion/effects/mirror';
+
+export const MyComp: React.FC = () => {
+  return (
+    <>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          mirror({
+            direction: 'horizontal',
+            position: 0.5,
+          }),
+        ]}
+      />
+    </>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `mirror()` without arguments.
+
+### `direction?`
+
+Mirror direction. Defaults to `'horizontal'`.
+
+- `'horizontal'` mirrors left and right. The `position` is interpreted on the X axis.
+- `'vertical'` mirrors top and bottom. The `position` is interpreted on the Y axis.
+
+### `position?`
+
+Mirror position in UV coordinates from `0` to `1`. Defaults to `0.5`.
+
+### `invert?`
+
+When `true`, mirrors the other side of the image. Defaults to `false`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU (from v4.0.540)
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`scale()`](/effects/scale)
+- [`wave()`](/effects/wave)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/mirror/index.ts)

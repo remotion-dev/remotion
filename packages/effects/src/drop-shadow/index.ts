@@ -121,7 +121,7 @@ const validateDropShadowParams = (params: DropShadowParams): void => {
 export const dropShadow = createEffect<DropShadowParams>({
 	type: 'dev.remotion.effects.dropShadow',
 	label: 'dropShadow()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/drop-shadow',
+	documentationLink: 'https://www.remotion.dev/effects/drop-shadow',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `drop-shadow-${r.radius}-${r.offsetX}-${r.offsetY}-${r.opacity}-${r.color}`;

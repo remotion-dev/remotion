@@ -28,7 +28,7 @@ export const getElementCatalogMarkdown = () => {
 				section.definitions
 					.map(
 						(definition) =>
-							`- [${definition.displayName}](${getElementMarkdownUrl(definition)}) - ${definition.description}`,
+							`- [${definition.displayName}](${getElementMarkdownUrl(definition)}) - ${definition.description}${definition.loopable ? ' (Loopable)' : ''}`,
 					)
 					.join('\n'),
 			].join('\n\n'),
@@ -51,6 +51,7 @@ export const getElementMarkdown = ({
 	return [
 		`# ${definition.displayName}`,
 		definition.description,
+		`Loopable: ${definition.loopable ? 'Yes' : 'No'}`,
 		`Element page: [${pageUrl}](${pageUrl})`,
 		'## Installation',
 		'Install this Element into a composition of your Remotion project:',

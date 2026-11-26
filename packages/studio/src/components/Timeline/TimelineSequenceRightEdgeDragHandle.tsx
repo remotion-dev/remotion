@@ -2039,6 +2039,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly rollingEnabled: boolean;
 	readonly handleLayout: ReturnType<typeof getTimelineTrimHandleLayout>;
 	readonly edgeOffset: number;
+	readonly incomingTransitionEnd: number | null;
 	readonly fillTarget: boolean;
 	readonly isTransitionSeries: boolean;
 	readonly onHoverEnd: () => void;
@@ -2068,6 +2069,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	rollingEnabled,
 	handleLayout,
 	edgeOffset,
+	incomingTransitionEnd,
 	fillTarget,
 	isTransitionSeries,
 	onHoverEnd,
@@ -2265,13 +2267,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
-			const initialEdgeClientX =
-				captureTarget.parentElement!.getBoundingClientRect().left +
-				(fillTarget
-					? captureTarget.parentElement!.getBoundingClientRect().width / 2
-					: edgeOffset);
+			const trimAtTransitionEnd =
+				mode === 'head-trim' && incomingTransitionEnd !== null;
+			const initialEdgeClientX = trimAtTransitionEnd
+				? handleRect.left
+				: captureTarget.parentElement!.getBoundingClientRect().left +
+					(fillTarget
+						? captureTarget.parentElement!.getBoundingClientRect().width / 2
+						: edgeOffset);
 			const initialEdgeClientY = handleRect.top;
-			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
+			const initialTimelineEdge = trimAtTransitionEnd
+				? incomingTransitionEnd
+				: latestRef.current.initialEdgeFrame;
 
 			const getTargets = (statuses: PropStatuses) =>
 				canCalculateDelta && blockedReason === null
@@ -2717,6 +2724,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			windowWidth,
 			fillTarget,
 			edgeOffset,
+			incomingTransitionEnd,
 			isTransitionSeries,
 			edgeMode,
 			edgeBlockedReason,

@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {getEffectDocumentationPath} from '@remotion/studio-shared';
 import {VERSION} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
 import {optionDescriptionToMarkdown} from '../../option-description';
+import {effectCategories} from '../components/Effects/effect-library-data';
 import {elementLibraries} from '../components/Elements/element-libraries-data';
 import {
 	getElementLibrarySections,
@@ -210,6 +212,24 @@ const renderElementLibraryMarkdown = (attributes: string) => {
 
 const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement[] =
 	[
+		{
+			componentName: 'EffectLibrary',
+			removeImport: /^import .*EffectLibrary.*;\s*\n/m,
+			render: () =>
+				[
+					'# Remotion Effects',
+					'Drag an effect into Studio or [apply it in code](https://www.remotion.dev/docs/effects.md#programmatically).',
+					...effectCategories.map(({title, effects}) =>
+						[
+							`## ${title}`,
+							...effects.map(
+								(effect) =>
+									`- [${effect.label}](https://www.remotion.dev${getEffectDocumentationPath(effect)}.md) — ${effect.description}`,
+							),
+						].join('\n'),
+					),
+				].join('\n\n'),
+		},
 		{
 			componentName: 'ElementLibrary',
 			render: ({attributes}) => renderElementLibraryMarkdown(attributes),

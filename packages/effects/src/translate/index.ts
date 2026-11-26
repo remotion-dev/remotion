@@ -119,7 +119,7 @@ const applyTranslate = ({
 export const xyTranslate = createEffect<XyTranslateParams>({
 	type: 'dev.remotion.effects.xyTranslate',
 	label: 'xyTranslate()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/xy-translate',
+	documentationLink: 'https://www.remotion.dev/effects/xy-translate',
 	calculateKey: (params) => {
 		const r = resolveXyTranslate(params);
 		return `xy-translate-${r.x}-${r.y}`;
@@ -155,7 +155,7 @@ export const xyTranslate = createEffect<XyTranslateParams>({
 export const uvTranslate = createEffect<UvTranslateParams>({
 	type: 'dev.remotion.effects.uvTranslate',
 	label: 'uvTranslate()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/uv-translate',
+	documentationLink: 'https://www.remotion.dev/effects/uv-translate',
 	calculateKey: (params) => {
 		const r = resolveUvTranslate(params);
 		return `uv-translate-${r.u}-${r.v}`;

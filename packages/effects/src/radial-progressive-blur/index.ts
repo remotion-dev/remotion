@@ -190,8 +190,7 @@ const validateRadialProgressiveBlurParams = (
 export const radialProgressiveBlur = createEffect<RadialProgressiveBlurParams>({
 	type: 'dev.remotion.effects.radialProgressiveBlur',
 	label: 'radialProgressiveBlur()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
+	documentationLink: 'https://www.remotion.dev/effects/radial-progressive-blur',
 	calculateKey: (params) => {
 		const r = resolveRadialProgressiveBlurParams(params);
 		return `radial-progressive-blur-${r.center.join(':')}-${r.width}-${r.height}-${r.rotation}-${r.start}-${r.startBlur}-${r.endBlur}`;

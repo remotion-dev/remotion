@@ -9,7 +9,7 @@ Color correction in Remotion is implemented using [effects](/docs/effects).
 
 ## `colorCorrection()` effect
 
-Use the [`colorCorrection()`](/docs/effects/color-correction) effect to combine common adjustments in one effect.
+Use the [`colorCorrection()`](/effects/color-correction) effect to combine common adjustments in one effect.
 
 <video
   src="https://remotion.media/studio/effects/color-correction-demo-20261023.mp4"
@@ -49,11 +49,11 @@ export const MyComp: React.FC = () => {
 
 </details>
 
-Individual effects such as [`brightness()`](/docs/effects/brightness), [`contrast()`](/docs/effects/contrast), and [`saturation()`](/docs/effects/saturation) are also available.
+Individual effects such as [`brightness()`](/effects/brightness), [`contrast()`](/effects/contrast), and [`saturation()`](/effects/saturation) are also available.
 
 ## `levels()` effect
 
-Use [`levels()`](/docs/effects/levels) to set the darkest and brightest input values and adjust midtone brightness with gamma. This is useful for expanding the tonal range of a washed-out image.
+Use [`levels()`](/effects/levels) to set the darkest and brightest input values and adjust midtone brightness with gamma. This is useful for expanding the tonal range of a washed-out image.
 
 <video
   src="https://remotion.media/studio/effects/levels-demo-20261023.mp4"
@@ -90,7 +90,7 @@ export const MyComp: React.FC = () => {
 
 ## `curves()` effect<AvailableFrom v="4.0.537" />
 
-Use [`curves()`](/docs/effects/curves) to adjust brightness and contrast with more control over shadows, midtones, and highlights.
+Use [`curves()`](/effects/curves) to adjust brightness and contrast with more control over shadows, midtones, and highlights.
 
 The left side of the graph controls darker areas, and the right side controls brighter areas. Add a point and drag it up to brighten those areas, or down to darken them.
 
@@ -135,7 +135,7 @@ export const MyComp: React.FC = () => {
 
 ## `lut()` effect
 
-Use [`lut()`](/docs/effects/lut) to apply a ready-made color grade from a `.cube` file, also known as a look-up table (LUT).
+Use [`lut()`](/effects/lut) to apply a ready-made color grade from a `.cube` file, also known as a look-up table (LUT).
 
 In Studio, drag a `.cube` file from your computer or the Assets panel onto a video in the canvas or timeline.
 
@@ -195,8 +195,8 @@ Effects are applied in array order. Place `colorCorrection()` before `lut()` to 
 ## See also
 
 - [Effects](/docs/effects)
-- [`colorCorrection()`](/docs/effects/color-correction)
-- [`levels()`](/docs/effects/levels)
-- [`curves()`](/docs/effects/curves)
-- [`lut()`](/docs/effects/lut)
+- [`colorCorrection()`](/effects/color-correction)
+- [`levels()`](/effects/levels)
+- [`curves()`](/effects/curves)
+- [`lut()`](/effects/lut)
 - [Data fetching](/docs/data-fetching)

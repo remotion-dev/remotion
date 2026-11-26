@@ -283,7 +283,7 @@ const linkProgram = (
 export const starburst = createEffect<StarburstEffectParams>({
 	type: 'remotion/starburst',
 	label: 'starburst()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/starburst',
+	documentationLink: 'https://www.remotion.dev/effects/starburst',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `starburst-${r.rays}-${r.colors.join('|')}-${r.rotation}-${r.smoothness}-${r.origin.join(':')}`;

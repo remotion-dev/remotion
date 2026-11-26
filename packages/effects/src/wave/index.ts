@@ -123,7 +123,7 @@ const validateWaveParams = (params: WaveParams): void => {
 export const wave = createEffect<WaveParams>({
 	type: 'dev.remotion.effects.wave',
 	label: 'wave()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/wave',
+	documentationLink: 'https://www.remotion.dev/effects/wave',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `wave-${r.phase}-${r.direction}-${r.amplitude}-${r.wavelength}`;

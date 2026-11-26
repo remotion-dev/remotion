@@ -1,0 +1,71 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-barrel-distortion.png
+title: barrelDistortion()
+sidebar_label: barrelDistortion()
+crumb: '@remotion/effects'
+---
+
+# barrelDistortion()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A barrel distortion effect that bends canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+It only applies geometric curvature. It does not add scanlines, blur, glow, chromatic aberration, noise, vignette, or color changes.
+
+## Preview
+
+<EffectsDemo type="effects-barrel-distortion" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {barrelDistortion} from '@remotion/effects/barrel-distortion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          barrelDistortion({
+            amount: 0.25,
+          }),
+        ]}
+      />
+    </>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `barrelDistortion()` without arguments.
+
+### `amount?`
+
+Curvature strength from `0` to `1`. Defaults to `0.25`.
+
+Use `0` for no distortion.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU (from v4.0.540)
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`wave()`](/effects/wave)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/barrel-distortion/index.ts)

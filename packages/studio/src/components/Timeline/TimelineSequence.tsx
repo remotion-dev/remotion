@@ -79,7 +79,6 @@ import {
 	TIMELINE_CHILD_TRANSITION_SEAM_Y,
 } from './get-timeline-scene-clip-path';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
-import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
 import {getTimelineTrimHandleLayout} from './get-timeline-trim-handle-layout';
 import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
@@ -173,6 +172,12 @@ const transitionHeight =
 	TIMELINE_PACKED_TRACK_HEIGHT - transitionVerticalInset * 2;
 const transitionIconWidth = Math.round(transitionHeight * 1.5);
 const minTransitionAreaWidth = transitionIconWidth + 8;
+const transitionCutout = {
+	top: transitionVerticalInset,
+	height: transitionHeight,
+	radius: 4,
+	minWidth: minTransitionAreaWidth,
+};
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -611,14 +616,7 @@ const TimelineSequenceBar: React.FC<{
 					seamY: packed
 						? Number(style.height) / 2
 						: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-					transitionCutout: packed
-						? {
-								top: transitionVerticalInset,
-								height: transitionHeight,
-								radius: 4,
-								minWidth: minTransitionAreaWidth,
-							}
-						: null,
+					transitionCutout: packed ? transitionCutout : null,
 					cropHeight: Number(style.height),
 				},
 				true,
@@ -657,7 +655,7 @@ const TimelineSequenceBar: React.FC<{
 				seamY: isPackedClip
 					? Number(style.height) / 2
 					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-				transitionCutout: null,
+				transitionCutout: isPackedClip ? transitionCutout : null,
 				cropHeight: Number(style.height),
 			},
 			true,
@@ -1150,10 +1148,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const registryEntry = useTimelineSequenceRegistry(s.id);
-	const isTransitionInteraction =
-		isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition';
-	const [transitionNeighbors, setTransitionNeighbors] =
-		useState<ReturnType<typeof getTimelineTransitionNeighbors>>(null);
 	const originalSequence = registryEntry?.sequence ?? null;
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -1171,20 +1165,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				affectedNodePaths: [nodePath],
 			});
 		}
-
-		if (!isTransitionInteraction) return;
-		setTransitionNeighbors(
-			getTimelineTransitionNeighbors({
-				sequenceId: s.id,
-				sequences: sequencesRef.current,
-			}),
-		);
 	}, [
-		isTransitionInteraction,
 		nodePath,
 		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
-		s.id,
 		sequencesRef,
 	]);
 
@@ -1221,14 +1205,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		sequenceId: s.id,
 		enabled: isEdgeDragging,
 	});
-	const previousCascadingOverrideId =
-		registryEntry?.previousOverrideId ??
-		transitionNeighbors?.previous.controls?.overrideId ??
-		null;
-	const nextCascadingOverrideId =
-		registryEntry?.nextOverrideId ??
-		transitionNeighbors?.next.controls?.overrideId ??
-		null;
+	const previousCascadingOverrideId = registryEntry?.previousOverrideId ?? null;
+	const nextCascadingOverrideId = registryEntry?.nextOverrideId ?? null;
 	const previousTouchingSequence =
 		registryEntry?.previousTouchingSequence ?? null;
 	const nextTouchingSequence = registryEntry?.nextTouchingSequence ?? null;
@@ -1930,6 +1908,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				: null;
 			return Boolean(
 				path &&
+				!isTransitionSeriesSequence(sequence) &&
+				sequence.timelineTrack?.role !== 'transition' &&
 				!sequence.loopDisplay &&
 				isTimelineSequenceDurationDraggable(sequence) &&
 				sequence.frozenFrame === null &&
@@ -1944,10 +1924,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		});
 	};
 
-	const rollingEnabled = canRoll(
-		transitionNeighbors?.previous ?? previousTouchingSequence,
-		transitionNeighbors?.next ?? s,
-	);
+	const rollingEnabled = canRoll(previousTouchingSequence, s);
 	const nextRollingEnabled = canRoll(s, nextTouchingSequence);
 	const captionSource = useMemo((): TimelineCaptionSource | null => {
 		const key = Object.entries(s.controls?.schema ?? {}).find(
@@ -2381,14 +2358,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 					pixelsPerFrame: frameIncrement,
 					height: packed ? layerHeight : (sceneClipHeight ?? layerHeight),
 					seamY: packed ? layerHeight / 2 : TIMELINE_CHILD_TRANSITION_SEAM_Y,
-					transitionCutout: packed
-						? {
-								top: transitionVerticalInset,
-								height: transitionHeight,
-								radius: 4,
-								minWidth: minTransitionAreaWidth,
-							}
-						: null,
+					transitionCutout: packed ? transitionCutout : null,
 					cropHeight: layerHeight,
 				},
 				true,
@@ -2533,19 +2503,32 @@ const TimelineSequenceLayoutInner: React.FC<{
 		return trimOutline;
 	}
 
+	const incomingTransitionEnd = isTransitionClip
+		? (sceneRange?.transitionInEnd ?? null)
+		: null;
+	const transitionEndOffset =
+		incomingTransitionEnd === null
+			? null
+			: Math.round(incomingTransitionEnd * frameIncrement) -
+				visibleLayout.marginLeft;
+	const mediaStartVisible = visibleLayout.media?.offset === 0;
+	const leftTrimHandleVisible =
+		mediaStartVisible ||
+		(transitionEndOffset !== null &&
+			transitionEndOffset >= 0 &&
+			transitionEndOffset < visibleLayout.width);
 	const showLeftActions = Boolean(
 		(showLeftEdgeDragHandle ||
 			secondaryLeftEdgeAction ||
 			(s.timelineTrack?.role === 'transition' && rollingEnabled)) &&
-		(s.timelineTrack?.role === 'transition' ||
-			visibleLayout.media?.offset === 0) &&
+		(s.timelineTrack?.role === 'transition' || leftTrimHandleVisible) &&
 		nodePathInfo &&
 		validatedLocation,
 	);
 	const leftTrimEnabled =
 		s.timelineTrack?.role !== 'transition' &&
 		showLeftEdgeDragHandle &&
-		visibleLayout.media?.offset === 0;
+		leftTrimHandleVisible;
 	const showRightActions = Boolean(
 		s.timelineTrack?.role !== 'transition' &&
 		showRightEdgeDragHandle &&
@@ -2557,12 +2540,13 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const leftEdgeOffset =
 		s.timelineTrack?.role === 'transition'
 			? 0
-			: (visibleLayout.media?.left ?? 0);
+			: (visibleLayout.media?.left ?? 0) - (visibleLayout.media?.offset ?? 0);
 	const rightEdgeOffset = transitionStartOffset ?? visibleLayout.width;
 	const trimHandleLayout = getTimelineTrimHandleLayout({
 		leftEdge: leftEdgeOffset,
+		incomingTransitionEnd: transitionEndOffset,
 		rightEdge: rightEdgeOffset,
-		rolling: showLeftActions && rollingEnabled,
+		rolling: showLeftActions && rollingEnabled && mediaStartVisible,
 		leftTrim: showLeftActions && leftTrimEnabled,
 		secondary: showLeftActions && secondaryLeftEdgeAction !== null,
 		rightTrim: showRightActions,
@@ -2628,9 +2612,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			connectedComposition={connectedCompositions[0] ?? null}
 			activeTrimEdge={activeTrimEdge}
 			isAtTrimLimit={isAtTrimLimit}
-			leftTrimHighlight={
-				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
-			}
+			leftTrimHighlight={leftTrimHandleVisible ? visibleLayout.media : null}
 			displayDurationInFrames={displayDurationInFrames}
 			selectionBounds={visibleLayout.media}
 			premount={visibleLayout.premount}
@@ -2675,6 +2657,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 								sourceTrimBlockedReason={sourceTrimBlockedReason}
 								handleLayout={trimHandleLayout}
 								edgeOffset={leftEdgeOffset}
+								incomingTransitionEnd={
+									trimHandleLayout.leftTrim === transitionEndOffset
+										? incomingTransitionEnd
+										: null
+								}
 								edgeMode={
 									isTransitionSeriesSequence(s) ? 'head-trim' : 'self-trim'
 								}
