@@ -193,10 +193,19 @@ export const linearProgressivePixelate =
 				ProgressivePixelateState
 			>({
 				setup: setupProgressivePixelate,
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					prepareProgressivePixelate({
 						state,
+						contentRect,
 						source,
 						width,
 						height,

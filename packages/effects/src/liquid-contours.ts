@@ -6,6 +6,10 @@ import {
 	validateUnitInterval,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {LIQUID_CONTOURS_WEBGPU_SHADER} from './liquid-contours-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -143,7 +147,8 @@ type LiquidContoursState = {
 	readonly vbo: WebGLBuffer;
 	readonly colorCtx: CanvasRenderingContext2D;
 	readonly uniforms: {
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uFirstColor: WebGLUniformLocation | null;
 		readonly uSecondColor: WebGLUniformLocation | null;
 		readonly uSpacing: WebGLUniformLocation | null;
@@ -218,7 +223,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform vec4 uFirstColor;
 uniform vec4 uSecondColor;
 uniform float uSpacing;
@@ -266,8 +271,8 @@ float fbm(vec2 p) {
 	return value / total;
 }
 
-void main() {
-	vec2 position = gl_FragCoord.xy + uOffset;
+float waveAt(vec2 pixel) {
+	vec2 position = pixel + uOffset;
 	vec2 p = position / max(uScale, 0.001) + vec2(uSeed * 0.137, uSeed * 0.193);
 	vec2 warp = vec2(fbm(p + vec2(5.2, 1.3)), fbm(p + vec2(1.7, 9.2))) - 0.5;
 	mat2 roundRotation = mat2(0.7071, 0.7071, -0.7071, 0.7071);
@@ -279,9 +284,24 @@ void main() {
 	float detailedField = fbm(p + warp * mix(0.35, 1.8, uComplexity));
 	float detailMix = smoothstep(0.0, 1.0, uComplexity);
 	float field = mix(roundedField, detailedField, detailMix);
-	float levels = max(max(uResolution.x, uResolution.y) / max(uSpacing, 0.001), 1.0);
-	float wave = sin((field * levels + uPhase) * 6.28318530718);
-	float edgeWidth = fwidth(wave) * mix(0.15, 1.4, uSmoothness);
+	float levels = max(max(uContentRect.z, uContentRect.w) / max(uSpacing, 0.001), 1.0);
+	return sin((field * levels + uPhase) * 6.28318530718);
+}
+
+void main() {
+	vec2 pixel = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	float wave = waveAt(pixel);
+	vec2 derivatives = abs(vec2(dFdx(wave), dFdy(wave)));
+	// Keep antialiasing on the element's original 2×2 pixel quads.
+	vec2 parity = mod(floor(pixel), 2.0);
+	vec2 targetParity = mod(floor(gl_FragCoord.xy), 2.0);
+	if (parity.x != targetParity.x) {
+		derivatives.x = abs(waveAt(pixel + vec2(1.0 - 2.0 * parity.x, 0.0)) - wave);
+	}
+	if (parity.y != targetParity.y) {
+		derivatives.y = abs(waveAt(pixel + vec2(0.0, 1.0 - 2.0 * parity.y)) - wave);
+	}
+	float edgeWidth = (derivatives.x + derivatives.y) * mix(0.15, 1.4, uSmoothness);
 	float selector = smoothstep(-edgeWidth, edgeWidth, wave);
 	vec4 color = mix(uFirstColor, uSecondColor, selector);
 	fragColor = vec4(color.rgb * color.a, color.a);
@@ -368,7 +388,8 @@ const setup = (target: HTMLCanvasElement): LiquidContoursState => {
 		vbo,
 		colorCtx,
 		uniforms: {
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uFirstColor: gl.getUniformLocation(program, 'uFirstColor'),
 			uSecondColor: gl.getUniformLocation(program, 'uSecondColor'),
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
@@ -455,7 +476,7 @@ export const liquidContours = createEffect<LiquidContoursParams>({
 			LiquidContoursState
 		>({
 			setup,
-			apply: ({width, height, params, state}) => {
+			apply: ({width, height, contentRect, params, state}) => {
 				const r = resolve(params);
 				if (state.cachedFirstColor !== r.firstColor) {
 					state.cachedFirstColor = r.firstColor;
@@ -481,8 +502,14 @@ export const liquidContours = createEffect<LiquidContoursParams>({
 				gl.clearColor(0, 0, 0, 0);
 				gl.clear(gl.COLOR_BUFFER_BIT);
 				gl.useProgram(program);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uFirstColor) gl.uniform4f(uniforms.uFirstColor, ...first);
 				if (uniforms.uSecondColor)
 					gl.uniform4f(uniforms.uSecondColor, ...second);

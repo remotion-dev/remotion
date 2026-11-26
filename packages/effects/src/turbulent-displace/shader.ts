@@ -1,3 +1,4 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
 import {VALUE_NOISE_SHADER} from '../value-noise-shader.js';
 
 // Adapted from EffectCraft's distort2.rs; see ../../THIRD_PARTY_LICENSES.md.
@@ -8,6 +9,7 @@ precision highp int;
 
 in vec2 vUv;
 out vec4 fragColor;
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uAmount;
@@ -70,7 +72,8 @@ void main() {
     return;
   }
   vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
-  vec2 p = (pixel - uOffset * uResolution) / uSize;
+  vec2 elementPixel = pixel - uContentRect.xy;
+  vec2 p = (elementPixel - uOffset * uContentRect.zw) / uSize;
   vec2 displacement;
   if (uDisplacement == 1 || uDisplacement == 2 || uDisplacement == 4 || uDisplacement == 5) {
     float epsilon = 0.05;
@@ -91,9 +94,9 @@ void main() {
   }
   bool locked = uPinning >= 8;
   int pin = locked ? uPinning - 7 : uPinning;
-  float edge = max(1.0, min(uResolution.x, uResolution.y) * (locked ? 0.25 : 0.1));
-  vec2 nearEdge = clamp((pixel - 0.5) / edge, 0.0, 1.0);
-  vec2 farEdge = clamp((uResolution - 0.5 - pixel) / edge, 0.0, 1.0);
+  float edge = max(1.0, min(uContentRect.z, uContentRect.w) * (locked ? 0.25 : 0.1));
+  vec2 nearEdge = clamp((elementPixel - 0.5) / edge, 0.0, 1.0);
+  vec2 farEdge = clamp((uContentRect.zw - 0.5 - elementPixel) / edge, 0.0, 1.0);
   float horizontal = min(nearEdge.x, farEdge.x);
   float vertical = min(nearEdge.y, farEdge.y);
   float weight = 1.0;

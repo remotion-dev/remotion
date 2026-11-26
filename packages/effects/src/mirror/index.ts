@@ -1,4 +1,4 @@
-import type {InteractivitySchema} from 'remotion';
+import type {EffectContentRect, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -71,6 +71,18 @@ const resolve = (p: MirrorParams): MirrorResolved => ({
 	invert: p.invert ?? false,
 });
 
+// Mirror's vertical position is measured from the bottom of the element.
+const mirrorPositionInTexture = (
+	params: MirrorResolved,
+	contentRect: EffectContentRect,
+	width: number,
+	height: number,
+): number => {
+	return params.direction === 'horizontal'
+		? (contentRect.x + params.position * contentRect.width) / width
+		: 1 - (contentRect.y + (1 - params.position) * contentRect.height) / height;
+};
+
 const validateMirrorParams = (params: MirrorParams): void => {
 	assertEffectParamsObject(params, 'Mirror');
 	assertOptionalFiniteNumber(params.position, 'position');
@@ -109,14 +121,22 @@ export const mirror = createEffect<MirrorParams>({
 			WebGpuSinglePassState
 		>({
 			setup: (target) => setupWebGpuSinglePass(target, 'mirror'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice) {
 					throw new Error('A WebGPU device is required for the mirror effect');
 				}
 
 				const r = resolve(params);
 				const uniformData = new Float32Array([
-					r.position,
+					mirrorPositionInTexture(r, contentRect, width, height),
 					r.direction === 'horizontal' ? 0 : 1,
 					r.invert ? 1 : 0,
 					0,
@@ -135,14 +155,22 @@ export const mirror = createEffect<MirrorParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<MirrorParams, MirrorState>({
 			setup: (target) => setupMirror(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyMirror({
 					state,
 					source,
 					width,
 					height,
-					position: r.position,
+					position: mirrorPositionInTexture(r, contentRect, width, height),
 					direction: r.direction,
 					invert: r.invert,
 					flipSourceY,

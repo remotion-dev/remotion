@@ -1,5 +1,6 @@
 import {Internals, type InteractivitySchema} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {setEffectCoordinateUniforms} from './effect-coordinates.js';
 import {TEAR_WEBGPU_SHADER} from './tear-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -98,6 +99,7 @@ type TearState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uAngle: WebGLUniformLocation | null;
 	readonly uProgress: WebGLUniformLocation | null;
 	readonly uRotation: WebGLUniformLocation | null;
@@ -109,6 +111,7 @@ type TearState = {
 const VERTEX_SHADER = /* glsl */ `#version 300 es
 in vec2 aPos;
 out vec2 vUv;
+uniform vec4 uContentRect;
 uniform vec2 uResolution;
 uniform float uAngle;
 uniform float uProgress;
@@ -131,13 +134,23 @@ void main() {
 	float dc = cos(direction);
 	float ds = sin(direction);
 	mat2 toCanvas = mat2(dc, -ds, ds, dc);
-	vec2 extent = vec2(
-		abs(dc) * uResolution.x + abs(ds) * uResolution.y,
-		abs(ds) * uResolution.x + abs(dc) * uResolution.y
-	);
-	float outerEdge = uSide < 0.0 ? 0.0 : extent.x;
-	vec2 source = vec2(mix(outerEdge, seam(aPos.y, extent.x), aPos.x), aPos.y * extent.y);
-	vec2 sourceCanvas = toCanvas * (source - extent * 0.5) + uResolution * 0.5;
+	mat2 projectedSize = mat2(abs(dc), abs(ds), abs(ds), abs(dc));
+	vec2 extent = projectedSize * uContentRect.zw;
+	vec2 center = uContentRect.xy + uContentRect.zw * 0.5;
+	vec2 textureExtent = projectedSize * uResolution;
+	vec2 textureMid = extent * 0.5 + transpose(toCanvas) * (uResolution * 0.5 - center);
+	vec2 low = textureMid - textureExtent * 0.5;
+	vec2 high = textureMid + textureExtent * 0.5;
+	// Keep the original mesh rows on the sheet, with one extra row on each side
+	// to carry any upstream pixels in the padding through the same deformation.
+	float row = aPos.y < 0.0 ? low.y / extent.y : aPos.y > 1.0 ? high.y / extent.y : aPos.y;
+	float elementEdge = uSide < 0.0 ? 0.0 : extent.x;
+	float textureEdge = uSide < 0.0 ? low.x : high.x;
+	bool paddingStrip = abs(uSide) > 1.0;
+	float outerEdge = paddingStrip ? textureEdge : elementEdge;
+	float innerEdge = paddingStrip ? elementEdge : seam(row, extent.x);
+	vec2 source = vec2(mix(outerEdge, innerEdge, aPos.x), row * extent.y);
+	vec2 sourceCanvas = toCanvas * (source - extent * 0.5) + center;
 	vUv = vec2(sourceCanvas.x / uResolution.x, 1.0 - sourceCanvas.y / uResolution.y);
 
 	float tearProgress = min(uProgress, 1.0);
@@ -153,15 +166,15 @@ void main() {
 	// rows cannot fold over each other at the outside edges.
 	float bendHeight = max(extent.y * 0.15, fullAngle * extent.x * 1.5);
 	float bend = smoothstep(0.0, bendHeight, tipY - source.y);
-	float angle = uSide * fullAngle * bend;
+	float angle = sign(uSide) * fullAngle * bend;
 	float c = cos(angle);
 	float s = sin(angle);
 	vec2 delta = source - pivot;
 	vec2 position = pivot + vec2(c * delta.x - s * delta.y, s * delta.x + c * delta.y);
 	// After the tear reaches the bottom, keep the rotation stable and
 	// move each piece outward by half a canvas width per unit of progress.
-	position.x += uSide * max(uProgress - 1.0, 0.0) * extent.x * 0.5;
-	position = toCanvas * (position - extent * 0.5) + uResolution * 0.5;
+	position.x += sign(uSide) * max(uProgress - 1.0, 0.0) * extent.x * 0.5;
+	position = toCanvas * (position - extent * 0.5) + center;
 	gl_Position = vec4(position.x / uResolution.x * 2.0 - 1.0, 1.0 - position.y / uResolution.y * 2.0, 0.0, 1.0);
 }
 `;
@@ -239,9 +252,9 @@ const createTearState = (gl: WebGL2RenderingContext): TearState => {
 
 	gl.bindVertexArray(vao);
 
-	const data = new Float32Array((MESH_ROWS + 1) * 4);
-	for (let row = 0; row <= MESH_ROWS; row++) {
-		data.set([0, row / MESH_ROWS, 1, row / MESH_ROWS], row * 4);
+	const data = new Float32Array((MESH_ROWS + 3) * 4);
+	for (let row = -1; row <= MESH_ROWS + 1; row++) {
+		data.set([0, row / MESH_ROWS, 1, row / MESH_ROWS], (row + 1) * 4);
 	}
 
 	const vbo = gl.createBuffer();
@@ -277,6 +290,7 @@ const createTearState = (gl: WebGL2RenderingContext): TearState => {
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uAngle: gl.getUniformLocation(program, 'uAngle'),
 		uProgress: gl.getUniformLocation(program, 'uProgress'),
@@ -298,7 +312,15 @@ export const tear = createEffect<TearParams>({
 	implementations: {
 		webgpu: Internals.createEffectImplementation<TearParams, WebGpuMeshState>({
 			setup: (target) => setupWebGpuMesh(target, 'tear'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice) throw new Error('A WebGPU device is required for tear');
 				const r = resolve(params);
 				applyWebGpuMesh({
@@ -317,12 +339,19 @@ export const tear = createEffect<TearParams>({
 						r.jaggedness,
 						0,
 						0,
+						contentRect.x,
+						contentRect.y,
+						contentRect.width,
+						contentRect.height,
 					]),
 					vertices: null,
 					topology: 'triangle-strip',
 					blend: false,
-					vertexCount: (MESH_ROWS + 1) * 2,
-					instanceCount: 2,
+					vertexCount: (MESH_ROWS + 3) * 2,
+					instanceCount:
+						contentRect.width === width && contentRect.height === height
+							? 2
+							: 4,
 				});
 			},
 			cleanup: cleanupWebGpuMesh,
@@ -340,7 +369,15 @@ export const tear = createEffect<TearParams>({
 
 				return createTearState(gl);
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 
 				state.gl.viewport(0, 0, width, height);
@@ -363,6 +400,14 @@ export const tear = createEffect<TearParams>({
 					source as TexImageSource,
 				);
 
+				setEffectCoordinateUniforms(
+					state.gl,
+					state.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uSource) state.gl.uniform1i(state.uSource, 0);
 				if (state.uAngle) state.gl.uniform1f(state.uAngle, r.angle % 360);
 				if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
@@ -372,9 +417,14 @@ export const tear = createEffect<TearParams>({
 				if (state.uResolution)
 					state.gl.uniform2f(state.uResolution, width, height);
 
-				for (const side of [-1, 1]) {
+				// Draw the added columns separately to preserve triangulation inside the sheet.
+				const sides =
+					contentRect.width === width && contentRect.height === height
+						? [-1, 1]
+						: [-2, -1, 2, 1];
+				for (const side of sides) {
 					if (state.uSide) state.gl.uniform1f(state.uSide, side);
-					state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, (MESH_ROWS + 1) * 2);
+					state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, (MESH_ROWS + 3) * 2);
 				}
 
 				state.gl.bindVertexArray(null);

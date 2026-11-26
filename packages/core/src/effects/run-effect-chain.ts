@@ -10,6 +10,7 @@ import type {
 	Backend,
 	EffectDefinitionAndStack,
 	EffectChainLink,
+	EffectContentRect,
 } from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
 import {
@@ -21,6 +22,7 @@ import {WebGLContextLostError} from './webgl-context-lost-error.js';
 import {WebGL2ContextCreationError} from './webgl2-context-error.js';
 
 export type EffectChainState = {
+	readonly contentRect: EffectContentRect;
 	preferredEffectBackend: PreferredEffectBackend;
 	gpuDevice: unknown | null;
 	selections: WeakMap<
@@ -90,10 +92,12 @@ const disposeEffectChainState = (state: EffectChainState): void => {
 export const createEffectChainState = (
 	width: number,
 	height: number,
+	contentRect: EffectContentRect | null = null,
 ): EffectChainState => {
 	const state: EffectChainState = {
 		width,
 		height,
+		contentRect: contentRect ?? {x: 0, y: 0, width, height},
 		preferredEffectBackend:
 			typeof window === 'undefined'
 				? 'auto'
@@ -314,6 +318,7 @@ const runEffectChainWithoutResize = async (
 				if (run.backend === 'webgl2')
 					canvasPool.prepareWebGL(dst, flipWebGLSourceY);
 				const link: EffectChainLink = {
+					contentRect: state.contentRect,
 					final:
 						runIndex === runs.length - 1 &&
 						eff === run.effects[run.effects.length - 1],
@@ -329,6 +334,7 @@ const runEffectChainWithoutResize = async (
 						params: eff.params,
 						width: state.width,
 						height: state.height,
+						contentRect: state.contentRect,
 						gpuDevice,
 						flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
 					});

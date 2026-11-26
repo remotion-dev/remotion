@@ -60,6 +60,12 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
+## Grow bounds
+
+When a shadow, blur, or distortion gets clipped at the edge of an `<HtmlInCanvas>`, set `growBounds` on the wrapper. It adds transparent space on each side in CSS pixels and defaults to `0`. The child keeps its layout size and the effect stays anchored to the original element.
+
+For an animated effect, choose a fixed value that covers its greatest reach. For example, a horizontal `wave()` with an amplitude of up to 69 pixels fits within `growBounds={69}`. See [Grow bounds](https://www.remotion.dev/docs/effects/grow-bounds).
+
 ## Available effects
 
 Built-in effects from `@remotion/effects`:

@@ -16,7 +16,7 @@ fn sampleSource(uv: vec2f) -> vec4f {
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- let gridPos = vec2f(input.position.x, params.geometry.y - input.position.y) - params.geometry.xy * 0.5;
+ let gridPos = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y) - effectGeometry.contentRect.zw * 0.5;
  let gridSize = max(params.geometry.w, 0.001);
  let cellIndex = floor(gridPos / gridSize + vec2f(0.5));
  let diff = gridPos - cellIndex * gridSize;

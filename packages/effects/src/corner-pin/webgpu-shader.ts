@@ -19,12 +19,12 @@ struct Params {top: vec4f, bottom: vec4f,}
  }
  let a = p1.x - p0.x + g * p1.x; let b = p3.x - p0.x + h * p3.x; let c = p0.x;
  let d = p1.y - p0.y + g * p1.y; let e = p3.y - p0.y + h * p3.y; let f = p0.y;
- let p = input.uv;
+ let p = textureUvToElementUv(input.uv, effectGeometry.textureSize);
  let x = (e-f*h)*p.x + (c*h-b)*p.y + (b*f-c*e);
  let y = (f*g-d)*p.x + (a-c*g)*p.y + (c*d-a*f);
  let w = (d*h-e*g)*p.x + (b*g-a*h)*p.y + (a*e-b*d);
  if (abs(w) < 0.000001) {return vec4f(0);}
- let uv = vec2f(x/w, 1.0-y/w);
+ let uv = elementUvToTextureUv(vec2f(x/w, 1.0-y/w), effectGeometry.textureSize);
  if (any(uv < vec2f(0)) || any(uv > vec2f(1))) {return vec4f(0);}
  return textureSampleLevel(source, sourceSampler, uv, 0);
 }

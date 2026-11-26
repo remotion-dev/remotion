@@ -1,3 +1,4 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
 export const LINEAR_PROGRESSIVE_BLUR_VS = /* glsl */ `#version 300 es
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUv;
@@ -16,6 +17,7 @@ export const buildLinearProgressiveBlurFs = (
 
 	return /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -45,7 +47,7 @@ float progressiveRadius(vec2 uv) {
 
 void main() {
 	// Public UV coordinates use top-left origin, matching canvas/CSS coordinates.
-	float radius = progressiveRadius(vec2(vUv.x, 1.0 - vUv.y));
+	float radius = progressiveRadius(textureUvToElementUv(vec2(vUv.x, 1.0 - vUv.y), uEffectTextureSize));
 	if (radius <= 0.0) {
 		fragColor = texture(uSource, vUv);
 		return;

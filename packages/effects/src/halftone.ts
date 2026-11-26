@@ -5,6 +5,10 @@ import {
 	parseColorRgba,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {HALFTONE_WEBGPU_SHADER} from './halftone-webgpu-shader.js';
 import {
 	assertOptionalBoolean,
@@ -240,7 +244,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uDotSize;
 uniform float uDotSpacing;
 uniform float uRotation;
@@ -251,8 +255,8 @@ uniform bool uShadeOutside;
 uniform bool uUseSourceColor;
 
 void main() {
-	vec2 fragPos = gl_FragCoord.xy;
-	vec2 center = uResolution * 0.5;
+	vec2 fragPos = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	vec2 center = uContentRect.zw * 0.5;
 
 	vec2 d = fragPos - center;
 	float cosR = cos(uRotation);
@@ -272,7 +276,7 @@ void main() {
 		gridCenter.x * sinR + gridCenter.y * cosR
 	);
 
-	vec2 sampleUv = clamp(canvasPos / uResolution, vec2(0.0), vec2(1.0));
+	vec2 sampleUv = clamp(elementUvToTextureUvBottomLeft(canvasPos / uContentRect.zw, uEffectTextureSize), vec2(0.0), vec2(1.0));
 	vec4 texColor = texture(uSource, sampleUv);
 
 	float alpha = texColor.a;
@@ -337,7 +341,8 @@ type HalftoneState = {
 	vbo: WebGLBuffer;
 	texture: WebGLTexture;
 	uSource: WebGLUniformLocation | null;
-	uResolution: WebGLUniformLocation | null;
+	uEffectTextureSize: WebGLUniformLocation | null;
+	uContentRect: WebGLUniformLocation | null;
 	uDotSize: WebGLUniformLocation | null;
 	uDotSpacing: WebGLUniformLocation | null;
 	uRotation: WebGLUniformLocation | null;
@@ -540,7 +545,11 @@ export const halftone = createEffect<HalftoneParams>({
 						vbo,
 						texture,
 						uSource: gl.getUniformLocation(program, 'uSource'),
-						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uEffectTextureSize: gl.getUniformLocation(
+							program,
+							'uEffectTextureSize',
+						),
+						uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 						uDotSize: gl.getUniformLocation(program, 'uDotSize'),
 						uDotSpacing: gl.getUniformLocation(program, 'uDotSpacing'),
 						uRotation: gl.getUniformLocation(program, 'uRotation'),
@@ -554,7 +563,15 @@ export const halftone = createEffect<HalftoneParams>({
 						cachedColorRgba: [0, 0, 0, 255],
 					};
 				},
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					const {gl, program, vao, texture} = state;
 
@@ -591,7 +608,14 @@ export const halftone = createEffect<HalftoneParams>({
 					);
 
 					if (state.uSource) gl.uniform1i(state.uSource, 0);
-					if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+					setEffectCoordinateUniforms(
+						gl,
+						state.uContentRect,
+						state.uEffectTextureSize,
+						contentRect,
+						width,
+						height,
+					);
 					if (state.uDotSize) gl.uniform1f(state.uDotSize, r.dotSize);
 					if (state.uDotSpacing) gl.uniform1f(state.uDotSpacing, r.dotSpacing);
 					if (state.uRotation)

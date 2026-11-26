@@ -470,22 +470,35 @@ test('Sequence registers its documentation link', () => {
 	);
 });
 
-test('Sequence registers its wrapper element for Studio outlines', () => {
+test('Sequence uses its wrapper for Studio outlines unless refForOutline is supplied', () => {
 	const registeredSequences: TSequence[] = [];
 	const ref = React.createRef<HTMLDivElement>();
+	const innerRef = React.createRef<HTMLSpanElement>();
 
-	render(
+	const renderSequence = (
+		refForOutline: React.RefObject<Element | null> | null,
+	) => (
 		<SequenceTestWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence ref={ref}>hi</Sequence>
-		</SequenceTestWrapper>,
+			<Sequence ref={ref} refForOutline={refForOutline}>
+				<span ref={innerRef}>hi</span>
+			</Sequence>
+		</SequenceTestWrapper>
 	);
 
+	const {rerender} = render(renderSequence(null));
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
+
+	rerender(renderSequence(innerRef));
+	expect(registeredSequences.at(-1)?.refForOutline).toBe(innerRef);
+	expect(innerRef.current?.parentElement).toBe(ref.current);
+
+	rerender(renderSequence(null));
+	expect(registeredSequences.at(-1)?.refForOutline?.current).toBe(ref.current);
 });
 
 test('Sequence ignores outlineRef and outlines its wrapper', () => {

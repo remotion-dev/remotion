@@ -51,7 +51,8 @@ fn gridAt(centered: vec2f, rotation: mat3x3f) -> GridPoint {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
  let texColor = sampleSource(vUv);
- let centered = vec2f(input.position.x, params.geometry.y - input.position.y) - params.geometry.xy * 0.5;
+ let pixel = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y);
+ let centered = pixel - effectGeometry.contentRect.zw * 0.5;
  let rotation = rotationMatrix(params.rotation.y, params.rotation.z, params.rotation.x);
  let gridPoint = gridAt(centered, rotation);
  if (!gridPoint.valid) { return sourceOver(texColor, params.backgroundColor); }
@@ -59,14 +60,19 @@ fn gridAt(centered: vec2f, rotation: mat3x3f) -> GridPoint {
  let gridSize = max(params.geometry.z, 0.001);
  let cell = abs(fract(gridCoord / gridSize + vec2f(0.5)) - vec2f(0.5)) * gridSize;
  let halfLineWidth = params.geometry.w * 0.5;
- var derivatives = fwidth(gridCoord);
- if (i32(params.geometry.y) % 2 != 0) {
-  // Match WebGL's bottom-origin derivative quads on odd-height targets.
-  let neighborY = select(-1.0, 1.0, i32(params.geometry.y - input.position.y) % 2 == 0);
-  let neighbor = gridAt(centered + vec2f(0, neighborY), rotation);
-  derivatives = abs(dpdx(gridCoord)) + abs(neighbor.coordinate - gridCoord);
+ var dx = abs(dpdx(gridCoord));
+ var dy = abs(dpdy(gridCoord));
+ let parity = vec2i(floor(pixel)) & vec2i(1);
+ let targetParity = vec2i(floor(input.position.xy)) & vec2i(1);
+ if (params.rotation.w > 0.0 && parity.x != targetParity.x) {
+  let neighbor = gridAt(centered + vec2f(f32(1 - 2 * parity.x), 0), rotation);
+  dx = abs(neighbor.coordinate - gridCoord);
  }
- let gridUnitsPerPixel = max(derivatives, vec2f(0.001));
+ if (params.rotation.w > 0.0 && parity.y == targetParity.y) {
+  let neighbor = gridAt(centered + vec2f(0, f32(1 - 2 * parity.y)), rotation);
+  dy = abs(neighbor.coordinate - gridCoord);
+ }
+ let gridUnitsPerPixel = max(dx + dy, vec2f(0.001));
  let halfWidthInGridUnits = halfLineWidth * gridUnitsPerPixel;
  let projectedCellSize = gridSize / gridUnitsPerPixel;
  let densityFade = smoothstep(vec2f(max(params.geometry.w * 1.5, 1.0)), vec2f(max(params.geometry.w * 4.0, 2.0)), projectedCellSize);

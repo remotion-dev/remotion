@@ -18,8 +18,8 @@ fn sampleSource(uv: vec2f) -> vec4f {
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- let center = params.geometry.xy * 0.5;
- let d = vec2f(input.position.x, params.geometry.y - input.position.y) - center;
+ let center = effectGeometry.contentRect.zw * 0.5;
+ let d = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y) - center;
  let cosR = cos(params.grid.x);
  let sinR = sin(params.grid.x);
  let gridPos = vec2f(d.x * cosR + d.y * sinR, -d.x * sinR + d.y * cosR);
@@ -27,7 +27,7 @@ fn sampleSource(uv: vec2f) -> vec4f {
  let cellIndex = floor((gridPos + params.grid.yz) / spacing + vec2f(0.5));
  let gridCenter = cellIndex * spacing - params.grid.yz;
  let canvasPos = center + vec2f(gridCenter.x * cosR - gridCenter.y * sinR, gridCenter.x * sinR + gridCenter.y * cosR);
- let sampleUv = clamp(canvasPos / params.geometry.xy, vec2f(0), vec2f(1));
+ let sampleUv = clamp(elementUvToTextureUvBottomLeft(canvasPos / effectGeometry.contentRect.zw, params.geometry.xy), vec2f(0), vec2f(1));
  let texColor = sampleSource(sampleUv);
  let alpha = texColor.a;
  var rgb = vec3f(0);

@@ -1292,7 +1292,17 @@ const sidebars: SidebarsConfig = {
 				'captions/exporting',
 			],
 		},
-		'effects',
+		{
+			type: 'category',
+			label: 'Effects',
+			link: {type: 'doc', id: 'effects'},
+			items: [
+				{type: 'link', label: 'List of effects', href: '/effects'},
+				'effects/grow-bounds',
+				'effects/output-size',
+				'effects/custom',
+			],
+		},
 		'assets',
 		'fonts',
 		'transitioning',

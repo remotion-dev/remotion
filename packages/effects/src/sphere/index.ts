@@ -1,4 +1,4 @@
-import type {InteractivitySchema} from 'remotion';
+import type {EffectContentRect, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -104,14 +104,15 @@ const getUniformData = (
 	params: SphereParams,
 	width: number,
 	height: number,
+	contentRect: EffectContentRect,
 ) => {
 	const r = resolve(params);
 	const radians = Math.PI / 180;
 	return new Float32Array([
 		width,
 		height,
-		r.position[0] * width,
-		r.position[1] * height,
+		contentRect.x + r.position[0] * contentRect.width,
+		contentRect.y + r.position[1] * contentRect.height,
 		r.radius,
 		0,
 		r.shading,
@@ -120,6 +121,10 @@ const getUniformData = (
 		(r.rotationY % 360) * radians,
 		(r.rotationZ % 360) * radians,
 		0,
+		contentRect.x,
+		contentRect.y,
+		contentRect.width,
+		contentRect.height,
 	]);
 };
 
@@ -175,7 +180,15 @@ export const sphere = Internals.createEffect<SphereParams>({
 			WebGpuProjectionState
 		>({
 			setup: (target) => setupWebGpuProjection(target, 'sphere'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice) {
 					throw new Error('A WebGPU device is required for the sphere effect');
 				}
@@ -187,7 +200,7 @@ export const sphere = Internals.createEffect<SphereParams>({
 					state,
 					device: gpuDevice as GPUDevice,
 					shader: SPHERE_SHADER,
-					uniformData: getUniformData(params, width, height),
+					uniformData: getUniformData(params, width, height, contentRect),
 				});
 			},
 			cleanup: cleanupWebGpuProjection,
@@ -197,14 +210,22 @@ export const sphere = Internals.createEffect<SphereParams>({
 			WebGlProjectionState
 		>({
 			setup: (target) => setupWebGlProjection(target, SPHERE_WEBGL_SHADER),
-			apply: ({source, width, height, params, state, flipSourceY}) =>
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) =>
 				applyWebGlProjection({
 					source,
 					width,
 					height,
 					state,
 					flipSourceY,
-					uniformData: getUniformData(params, width, height),
+					uniformData: getUniformData(params, width, height, contentRect),
 				}),
 			cleanup: cleanupWebGlProjection,
 		}),

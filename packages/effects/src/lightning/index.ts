@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
 import {parseColorRgba} from '../color-utils.js';
 import {
 	cleanupSinglePass,
@@ -42,6 +42,7 @@ const prepareLightning = ({
 	source,
 	width,
 	height,
+	contentRect,
 	sourceIsFlipped,
 }: {
 	state: LightningState;
@@ -49,6 +50,7 @@ const prepareLightning = ({
 	source: CanvasImageSource;
 	width: number;
 	height: number;
+	contentRect: EffectContentRect;
 	sourceIsFlipped: boolean;
 }) => {
 	const p = resolve(params);
@@ -60,7 +62,7 @@ const prepareLightning = ({
 		compositeOnOriginal,
 		...shape
 	} = p;
-	const key = JSON.stringify([width, height, shape]);
+	const key = JSON.stringify([width, height, contentRect, shape]);
 	const {ctx} = state;
 	if (state.mask?.key !== key || p.alphaObstacle !== 0) {
 		let alpha: ImageData | null = null;
@@ -83,7 +85,10 @@ const prepareLightning = ({
 			alpha = ctx.getImageData(0, 0, width, height);
 		}
 
-		state.mask = {key, data: makeLightningMask(p, width, height, alpha)};
+		state.mask = {
+			key,
+			data: makeLightningMask({params: p, width, height, contentRect, alpha}),
+		};
 	}
 
 	const core = parseColorRgba(ctx, coreColor);
@@ -141,7 +146,15 @@ export const lightning = Internals.createEffect<LightningParams>({
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 				return {...shared, ...pass, maskTexture};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const previous = state.mask?.data;
 				const {data, uniforms} = prepareLightning({
 					state,
@@ -149,6 +162,7 @@ export const lightning = Internals.createEffect<LightningParams>({
 					source,
 					width,
 					height,
+					contentRect,
 					sourceIsFlipped: !flipSourceY,
 				});
 				const {gl} = state;
@@ -198,7 +212,15 @@ export const lightning = Internals.createEffect<LightningParams>({
 				...setupLightning(),
 				...setupWebGpuSinglePass(target, 'lightning'),
 			}),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error('A WebGPU device is required for lightning');
 				const {data, uniforms} = prepareLightning({
@@ -207,6 +229,7 @@ export const lightning = Internals.createEffect<LightningParams>({
 					source,
 					width,
 					height,
+					contentRect,
 					sourceIsFlipped: false,
 				});
 				applyWebGpuSinglePass(

@@ -326,7 +326,7 @@ struct Params { controls: vec4f, options: vec4f, }
  let thickness = min(params.controls.z, spacing);
  let halfThickness = thickness * 0.5;
  // WebGL fragment coordinates run bottom-to-top.
- let rawPosition = params.options.y - input.position.y + params.controls.w;
+ let rawPosition = effectGeometry.contentRect.y + effectGeometry.contentRect.w - input.position.y + params.controls.w;
  let position = rawPosition - spacing * floor(rawPosition / spacing);
  let distanceToLine = min(position, spacing - position);
  let line = 1.0 - smoothstep(halfThickness, halfThickness + 1.0, distanceToLine);
@@ -387,7 +387,15 @@ export const scanlines = createEffect<ScanlinesParams>({
 			ScanlinesState
 		>({
 			setup: (target) => setupScanlines(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, vao} = state;
 
@@ -413,7 +421,9 @@ export const scanlines = createEffect<ScanlinesParams>({
 				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
 				if (state.uSpacing) gl.uniform1f(state.uSpacing, r.spacing);
 				if (state.uThickness) gl.uniform1f(state.uThickness, r.thickness);
-				if (state.uOffset) gl.uniform1f(state.uOffset, r.offset);
+				const bottomPadding = height - contentRect.y - contentRect.height;
+				if (state.uOffset)
+					gl.uniform1f(state.uOffset, r.offset - bottomPadding);
 				if (state.uPremultiply)
 					gl.uniform1i(state.uPremultiply, r.premultiply ? 1 : 0);
 

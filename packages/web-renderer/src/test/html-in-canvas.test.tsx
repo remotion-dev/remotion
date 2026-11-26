@@ -98,25 +98,52 @@ test('preserves the displayed frame while HtmlInCanvas resizes in preview', asyn
 		const context = canvas.getContext('2d')!;
 
 		for (const [frame, size] of htmlInCanvasResizeFrames.entries()) {
+			const sample = 10 + size.growBounds;
 			if (frame > 0) {
 				flushSync(() => playerRef.current!.seekTo(frame));
-				expect(canvas.width).toBe(size.width);
-				expect(canvas.height).toBe(size.height);
+				expect(canvas.width).toBe(size.width + 2 * size.growBounds);
+				expect(canvas.height).toBe(size.height + 2 * size.growBounds);
 				expect(container.querySelector('canvas')).toBe(canvas);
 				expect(container.querySelector('[data-testid="resize-content"]')).toBe(
 					child,
 				);
 				expect(
-					Array.from(context.getImageData(10, 10, 1, 1).data),
+					Array.from(context.getImageData(sample, sample, 1, 1).data),
 					`previous image immediately after resizing at frame ${frame}`,
 				).toEqual([htmlInCanvasResizeFrames[frame - 1].red, 200, 40, 255]);
+				if (size.growBounds > htmlInCanvasResizeFrames[frame - 1].growBounds) {
+					expect(context.getImageData(0, sample, 1, 1).data[3]).toBe(0);
+				}
 			}
 
 			await vi.waitFor(() => {
 				expect(
-					Array.from(context.getImageData(10, 10, 1, 1).data),
+					Array.from(context.getImageData(sample, sample, 1, 1).data),
 					`completed paint at frame ${frame}`,
 				).toEqual([size.red, 200, 40, 255]);
+				// The wave moves the top edge down at x=48, measured from the child.
+				expect(
+					context.getImageData(size.growBounds + 48, size.growBounds + 3, 1, 1)
+						.data[3],
+				).toBe(0);
+				if (size.growBounds > 0) {
+					// The opposite crest paints into the padding above the child.
+					expect(
+						Array.from(
+							context.getImageData(
+								size.growBounds + 16,
+								size.growBounds - 4,
+								1,
+								1,
+							).data,
+						),
+					).toEqual([size.red, 200, 40, 255]);
+					expect(
+						Array.from(
+							context.getImageData(size.growBounds - 4, sample, 1, 1).data,
+						),
+					).toEqual([0, 0, 255, 255]);
+				}
 			});
 		}
 	} finally {

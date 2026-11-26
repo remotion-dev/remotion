@@ -48,9 +48,9 @@ export type XyTranslateParams = {
 };
 
 export type UvTranslateParams = {
-	/** Horizontal offset in UV coordinates. `1` equals the full canvas width. Defaults to `0`. */
+	/** Horizontal offset in UV coordinates. `1` equals the original element width. Defaults to `0`. */
 	readonly u?: number;
-	/** Vertical offset in UV coordinates. `1` equals the full canvas height. Defaults to `0`. */
+	/** Vertical offset in UV coordinates. `1` equals the original element height. Defaults to `0`. */
 	readonly v?: number;
 };
 
@@ -163,22 +163,27 @@ export const uvTranslate = createEffect<UvTranslateParams>({
 	implementations: {
 		...createRectTransformImplementations<UvTranslateParams>(
 			'uvTranslate',
-			(params, width, height) => {
+			(params, width, height, contentRect) => {
 				const r = resolveUvTranslate(params);
-				return {x: r.u * width, y: r.v * height, width, height};
+				return {
+					x: r.u * contentRect.width,
+					y: r.v * contentRect.height,
+					width,
+					height,
+				};
 			},
 		),
 		'2d': Internals.createEffectImplementation<UvTranslateParams, null>({
 			setup: () => null,
-			apply: ({source, target, width, height, params}) => {
+			apply: ({source, target, width, height, contentRect, params}) => {
 				const r = resolveUvTranslate(params);
 				applyTranslate({
 					source,
 					target,
 					width,
 					height,
-					x: r.u * width,
-					y: r.v * height,
+					x: r.u * contentRect.width,
+					y: r.v * contentRect.height,
 				});
 			},
 			cleanup: () => undefined,

@@ -1,6 +1,7 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {elementUvToTextureUv} from './effect-coordinates.js';
 import {SKEW_WEBGPU_SHADER} from './skew-webgpu-shader.js';
 import {publicUvToShaderUv} from './uv-coordinate.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
@@ -268,7 +269,15 @@ export const skew = createEffect<SkewParams>({
 	implementations: {
 		webgl2: Internals.createEffectImplementation<SkewParams, SkewState>({
 			setup: setupSkew,
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const resolved = resolve(params);
 				const radians = Math.PI / 180;
 				const {gl} = state;
@@ -300,7 +309,9 @@ export const skew = createEffect<SkewParams>({
 				}
 
 				if (state.uOrigin) {
-					const [originX, originY] = publicUvToShaderUv(resolved.origin);
+					const [originX, originY] = publicUvToShaderUv(
+						elementUvToTextureUv(resolved.origin, contentRect, width, height),
+					);
 					gl.uniform2f(state.uOrigin, originX, originY);
 				}
 
@@ -321,7 +332,15 @@ export const skew = createEffect<SkewParams>({
 			WebGpuSinglePassState
 		>({
 			setup: (target) => setupWebGpuSinglePass(target, 'skew'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice) {
 					throw new Error('A WebGPU device is required for the skew effect');
 				}
@@ -339,7 +358,9 @@ export const skew = createEffect<SkewParams>({
 						height,
 						Math.tan((r.x * Math.PI) / 180),
 						Math.tan((r.y * Math.PI) / 180),
-						...publicUvToShaderUv(r.origin),
+						...publicUvToShaderUv(
+							elementUvToTextureUv(r.origin, contentRect, width, height),
+						),
 						0,
 						0,
 					]),

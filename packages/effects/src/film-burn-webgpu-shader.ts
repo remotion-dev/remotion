@@ -26,8 +26,8 @@ fn valueNoise(point: vec3f, seed: u32) -> f32 {
   let color = textureSampleLevel(source,sourceSampler,input.uv,0);
   if (params.progress <= 0.0 || color.a == 0.0) { return color; }
   if (params.progress >= 1.0) { return vec4f(0); }
-  let pixel = input.uv * params.size;
-  let distanceFromCenter = length(pixel-params.center*params.size)/max(length(params.size),1.0);
+  let pixel = input.uv * params.size - effectGeometry.contentRect.xy;
+  let distanceFromCenter = length(pixel-params.center*effectGeometry.contentRect.zw)/max(length(effectGeometry.contentRect.zw),1.0);
   var noise = 0.0; var amplitude = 1.0; var frequency = 1.0;
   for(var octave=0;octave<4;octave++) {
     noise += valueNoise(vec3f(pixel/60.0*frequency,f32(octave)*7.31),params.seed+17u+u32(octave))*amplitude;

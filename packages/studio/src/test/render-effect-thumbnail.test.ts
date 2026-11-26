@@ -79,13 +79,27 @@ for (const [width, height, thumbnailWidth, thumbnailHeight] of [
 			value: (callback: FrameRequestCallback) => callback(0),
 		});
 		const snapshot = {width, height} as HTMLCanvasElement;
+		const contentRect =
+			width === 160 ? {x: 10, y: 5, width: 140, height: 80} : null;
+		if (contentRect) {
+			Internals.effectCanvasGeometries.set(snapshot, {
+				width: 320,
+				height: 360,
+				contentRect: {x: 20, y: 20, width: 280, height: 320},
+			});
+		}
+
 		const thumbnail = await renderEffectThumbnail({
 			snapshot,
 			item,
 			signal: new AbortController().signal,
 		});
 		assert(thumbnail);
-		expect(createEffectChainState).toHaveBeenCalledWith(width, height);
+		expect(createEffectChainState).toHaveBeenCalledWith(
+			width,
+			height,
+			contentRect,
+		);
 		expect(runEffectChain).toHaveBeenCalledWith(
 			expect.objectContaining({
 				width,

@@ -159,7 +159,10 @@ export default async function middleware(request: Request) {
 	const legacyEffect = pathname.match(
 		/^\/docs\/effects\/([\w-]+)(?:\.md)?\/?$/,
 	);
-	if (legacyEffect && legacyEffect[1] !== 'api') {
+	if (
+		legacyEffect &&
+		!['api', 'custom', 'grow-bounds', 'output-size'].includes(legacyEffect[1])
+	) {
 		url.pathname = pathname.slice('/docs'.length);
 		return Response.redirect(url, 308);
 	}

@@ -54,7 +54,7 @@ fn contourAt(pixel: vec2f) -> f32 {
  let smoothness = clamp(params.noise.y, 0.0, 1.0);
  let warp = vec2f(fbm(p + vec2f(5.2, 1.3)), fbm(p + vec2f(1.7, 9.2))) - vec2f(0.5);
  let terrain = fbm(p + warp * complexity * mix(2.8, 1.2, smoothness));
- let levels = max(max(params.geometry.x, params.geometry.y) / (max(params.geometry.z, 0.001) * 2.0), 1.0);
+ let levels = max(max(effectGeometry.contentRect.z, effectGeometry.contentRect.w) / (max(params.geometry.z, 0.001) * 2.0), 1.0);
  return terrain * levels;
 
 }
@@ -63,17 +63,23 @@ fn contourAt(pixel: vec2f) -> f32 {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
  let texColor = sampleSource(vUv);
- let pixel = vec2f(input.position.x, params.geometry.y - input.position.y);
+ let pixel = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.geometry.y - input.position.y), params.geometry.y);
  let contourPosition = contourAt(pixel);
  let contourFraction = fract(contourPosition);
  let distanceToContour = min(contourFraction, 1.0 - contourFraction);
- var derivative = fwidth(contourPosition);
- if (i32(params.geometry.y) % 2 != 0) {
-  // WebGL derivative quads start at the bottom edge. Odd-height targets shift
-  // WebGPU's top-origin Y pairs, so evaluate the matching vertical neighbor.
-  let neighborY = select(-1.0, 1.0, i32(pixel.y) % 2 == 0);
-  derivative = abs(dpdx(contourPosition)) + abs(contourAt(pixel + vec2f(0, neighborY)) - contourPosition);
+ var derivatives = abs(vec2f(dpdx(contourPosition), dpdy(contourPosition)));
+ // Match the element's original WebGL derivative quads, measured bottom-up.
+ let parity = vec2i(floor(pixel)) & vec2i(1);
+ let targetParity = vec2i(floor(input.position.xy)) & vec2i(1);
+ if (parity.x != targetParity.x) {
+  let neighbor = pixel + vec2f(f32(1 - 2 * parity.x), 0);
+  derivatives.x = abs(contourAt(neighbor) - contourPosition);
  }
+ if (parity.y == targetParity.y) {
+  let neighbor = pixel + vec2f(0, f32(1 - 2 * parity.y));
+  derivatives.y = abs(contourAt(neighbor) - contourPosition);
+ }
+ var derivative = derivatives.x + derivatives.y;
  derivative = max(derivative, 0.0001);
  let halfLineWidth = max(params.noise.w, 0.001) * 0.5 * derivative;
  let coverage = 1.0 - smoothstep(halfLineWidth, halfLineWidth + derivative, distanceToContour);

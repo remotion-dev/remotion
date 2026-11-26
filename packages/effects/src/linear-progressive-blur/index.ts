@@ -209,10 +209,19 @@ export const linearProgressiveBlur = createEffect<LinearProgressiveBlurParams>({
 			LinearProgressiveBlurState
 		>({
 			setup: (target) => setupLinearProgressiveBlur(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolveLinearProgressiveBlurParams(params);
 				applyLinearProgressiveBlur({
 					state,
+					contentRect,
 					source,
 					width,
 					height,

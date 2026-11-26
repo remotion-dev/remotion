@@ -25,6 +25,7 @@ const makeOutline = ({
 
 	return {
 		key: 'outline',
+		effectGeometry: null,
 		dimensions: {width, height},
 		uncroppedPoints: null,
 		path: null,

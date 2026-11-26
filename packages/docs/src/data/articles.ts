@@ -3826,6 +3826,15 @@ export const articles = [
 		slug: 'effects/curves',
 	},
 	{
+		id: 'effects/custom',
+		title: 'Make your own effect',
+		relativePath: 'docs/effects/custom.mdx',
+		compId: 'articles-docs-effects-custom',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/custom',
+	},
+	{
 		id: 'effects/cylinder',
 		title: 'cylinder()',
 		relativePath: 'effects/cylinder.mdx',
@@ -3950,6 +3959,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/gridlines',
+	},
+	{
+		id: 'effects/grow-bounds',
+		title: 'Grow bounds',
+		relativePath: 'docs/effects/grow-bounds.mdx',
+		compId: 'articles-docs-effects-grow-bounds',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/grow-bounds',
 	},
 	{
 		id: 'effects/halftone-linear-gradient',
@@ -4166,6 +4184,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/outline',
+	},
+	{
+		id: 'effects/output-size',
+		title: 'Effects output size',
+		relativePath: 'docs/effects/output-size.mdx',
+		compId: 'articles-docs-effects-output-size',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/output-size',
 	},
 	{
 		id: 'effects/page-turn',

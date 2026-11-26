@@ -269,10 +269,19 @@ export const radialProgressiveBlur = createEffect<RadialProgressiveBlurParams>({
 			RadialProgressiveBlurState
 		>({
 			setup: (target) => setupRadialProgressiveBlur(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolveRadialProgressiveBlurParams(params);
 				applyRadialProgressiveBlur({
 					state,
+					contentRect,
 					source,
 					width,
 					height,

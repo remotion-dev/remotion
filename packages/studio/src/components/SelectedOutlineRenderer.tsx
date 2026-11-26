@@ -18,6 +18,7 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {getEffectUvOutline} from './selected-outline-uv';
 import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {SelectedOutlinePathPoints} from './SelectedOutlinePathPoints';
@@ -147,7 +148,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			}
 
 			if (target?.selectedForUvHandles === true) {
-				uvHandles.push(outline);
+				uvHandles.push(getEffectUvOutline(outline));
 			}
 
 			if (

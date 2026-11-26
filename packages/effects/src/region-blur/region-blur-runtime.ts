@@ -1,9 +1,13 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
 import {
 	BLUR_FS_HORIZONTAL,
 	BLUR_FS_VERTICAL,
 	BLUR_VS,
 } from '../blur/blur-shaders.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from '../effect-coordinates.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
 import type {RegionBlurUvCoordinate} from './index.js';
 
@@ -11,6 +15,7 @@ const {createWebGL2ContextError} = Internals;
 
 const COMPOSITE_FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -29,13 +34,13 @@ float roundedBoxDistance(vec2 point, vec2 center, vec2 halfSize, float radius) {
 }
 
 void main() {
-	vec2 minimum = vec2(uTopLeft.x, uBottomRight.y) * uResolution;
-	vec2 maximum = vec2(uBottomRight.x, uTopLeft.y) * uResolution;
+	vec2 minimum = vec2(uTopLeft.x, uBottomRight.y) * uContentRect.zw;
+	vec2 maximum = vec2(uBottomRight.x, uTopLeft.y) * uContentRect.zw;
 	vec2 halfSize = (maximum - minimum) * 0.5;
 	vec2 center = (minimum + maximum) * 0.5;
 	float cornerRadius = min(halfSize.x, halfSize.y) * uRoundness;
 	float distanceToRegion = roundedBoxDistance(
-		vUv * uResolution,
+		textureUvToElementUvBottomLeft(vUv, uResolution) * uContentRect.zw,
 		center,
 		halfSize,
 		cornerRadius
@@ -70,6 +75,7 @@ export type RegionBlurState = {
 	readonly compositeUniforms: {
 		readonly source: WebGLUniformLocation | null;
 		readonly blurred: WebGLUniformLocation | null;
+		readonly contentRect: WebGLUniformLocation | null;
 		readonly resolution: WebGLUniformLocation | null;
 		readonly topLeft: WebGLUniformLocation | null;
 		readonly bottomRight: WebGLUniformLocation | null;
@@ -204,6 +210,7 @@ export const setupRegionBlur = (target: HTMLCanvasElement): RegionBlurState => {
 		compositeUniforms: {
 			source: gl.getUniformLocation(compositeProgram, 'uSource'),
 			blurred: gl.getUniformLocation(compositeProgram, 'uBlurred'),
+			contentRect: gl.getUniformLocation(compositeProgram, 'uContentRect'),
 			resolution: gl.getUniformLocation(compositeProgram, 'uResolution'),
 			topLeft: gl.getUniformLocation(compositeProgram, 'uTopLeft'),
 			bottomRight: gl.getUniformLocation(compositeProgram, 'uBottomRight'),
@@ -289,6 +296,7 @@ export const applyRegionBlur = ({
 	source,
 	width,
 	height,
+	contentRect,
 	flipSourceY,
 	topLeft,
 	bottomRight,
@@ -300,6 +308,7 @@ export const applyRegionBlur = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly flipSourceY: boolean;
 	readonly topLeft: RegionBlurUvCoordinate;
 	readonly bottomRight: RegionBlurUvCoordinate;
@@ -356,7 +365,14 @@ export const applyRegionBlur = ({
 	const uniforms = state.compositeUniforms;
 	if (uniforms.source) gl.uniform1i(uniforms.source, 0);
 	if (uniforms.blurred) gl.uniform1i(uniforms.blurred, 1);
-	if (uniforms.resolution) gl.uniform2f(uniforms.resolution, width, height);
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.contentRect,
+		uniforms.resolution,
+		contentRect,
+		width,
+		height,
+	);
 	if (uniforms.topLeft) {
 		gl.uniform2f(uniforms.topLeft, topLeftShader[0], topLeftShader[1]);
 	}

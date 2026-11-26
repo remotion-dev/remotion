@@ -171,7 +171,7 @@ type WavesState = {
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
 		readonly uPalette: WebGLUniformLocation | null;
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uCenterPx: WebGLUniformLocation | null;
 		readonly uNumColors: WebGLUniformLocation | null;
 		readonly uDirection: WebGLUniformLocation | null;
 		readonly uThickness: WebGLUniformLocation | null;
@@ -306,7 +306,7 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform sampler2D uPalette;
-uniform vec2 uResolution;
+uniform vec2 uCenterPx;
 uniform float uNumColors;
 uniform int uDirection;
 uniform float uThickness;
@@ -323,7 +323,7 @@ void main() {
 	float thickness = max(uThickness, 0.001);
 	float spacing = max(uSpacing, 0.001);
 	float cycle = spacing * uNumColors;
-	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
+	vec2 centered = gl_FragCoord.xy - uCenterPx;
 	float s = sin(uAngle);
 	float c = cos(uAngle);
 	vec2 rotated = vec2(
@@ -502,7 +502,7 @@ const setupWaves = (target: HTMLCanvasElement): WavesState => {
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uPalette: gl.getUniformLocation(program, 'uPalette'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
+			uCenterPx: gl.getUniformLocation(program, 'uCenterPx'),
 			uNumColors: gl.getUniformLocation(program, 'uNumColors'),
 			uDirection: gl.getUniformLocation(program, 'uDirection'),
 			uThickness: gl.getUniformLocation(program, 'uThickness'),
@@ -609,7 +609,15 @@ export const waves = createEffect<WavesParams>({
 		),
 		webgl2: Internals.createEffectImplementation<WavesParams, WavesState>({
 			setup: (target) => setupWaves(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const paletteDirty = updatePalette(state, r.colors);
 				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
@@ -655,8 +663,12 @@ export const waves = createEffect<WavesParams>({
 				gl.useProgram(program);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uCenterPx)
+					gl.uniform2f(
+						uniforms.uCenterPx,
+						contentRect.x + contentRect.width / 2,
+						height - contentRect.y - contentRect.height / 2,
+					);
 				if (uniforms.uNumColors)
 					gl.uniform1f(uniforms.uNumColors, r.colors.length);
 				if (uniforms.uDirection)

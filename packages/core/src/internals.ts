@@ -72,6 +72,7 @@ import {
 	createEffect,
 	createEffectImplementation,
 } from './effects/create-effect.js';
+import {effectCanvasGeometries} from './effects/effect-canvas-geometries.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {getGpuDevice} from './effects/gpu-device.js';
@@ -607,6 +608,7 @@ export const Internals = {
 	validatePreferredEffectBackend,
 	createEffect,
 	EffectPreviewContext,
+	effectCanvasGeometries,
 	captureEffectPreviewSnapshot,
 	createEffectImplementation,
 	createCurveSampler,

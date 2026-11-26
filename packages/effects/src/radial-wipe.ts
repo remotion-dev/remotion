@@ -5,6 +5,7 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {EFFECT_COORDINATES_GLSL} from './effect-coordinates.js';
 import {
 	cleanupSinglePass,
 	drawSinglePass,
@@ -100,10 +101,10 @@ const resolve = (p: RadialWipeParams): Required<RadialWipeParams> => ({
 // See ../THIRD_PARTY_LICENSES.md.
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 uniform sampler2D uSource;
-uniform vec2 uResolution;
 uniform vec2 uCenter;
 uniform float uStartAngle;
 uniform float uProgress;
@@ -114,10 +115,13 @@ void main() {
 	vec4 source = texture(uSource, vUv);
 	if (uProgress <= 0.0) { fragColor = source; return; }
 	if (uProgress >= 1.0) { fragColor = vec4(0.0); return; }
-	vec2 delta = (vec2(vUv.x, 1.0 - vUv.y) - uCenter) * uResolution;
+	vec2 pixel = vec2(gl_FragCoord.x, uEffectTextureSize.y - gl_FragCoord.y) - uContentRect.xy;
+	vec2 delta = pixel - uCenter * uContentRect.zw;
 	// atan(0, 0) is undefined; the center belongs to the erased sector.
 	if (dot(delta, delta) == 0.0) { fragColor = vec4(0.0); return; }
-	float angle = mod(degrees(atan(delta.x, -delta.y)) - uStartAngle, 360.0);
+	float polarAngle = delta.y == 0.0 ? (delta.x > 0.0 ? 90.0 : -90.0)
+		: degrees(atan(delta.x, -delta.y));
+	float angle = mod(polarAngle - uStartAngle, 360.0);
 	float sweep = 360.0;
 	if (uDirection == 1) angle = 360.0 - angle;
 	if (uDirection == 2) { angle = min(angle, 360.0 - angle); sweep = 180.0; }
@@ -129,7 +133,7 @@ void main() {
 
 const WEBGPU_SHADER = /* wgsl */ `
 ${WEBGPU_SINGLE_PASS_VERTEX}
-struct Params { resolutionCenter: vec4f, controls: vec4f, }
+struct Params { controls: vec4f, center: vec2f, }
 @group(0) @binding(0) var source: texture_2d<f32>;
 @group(0) @binding(1) var sourceSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
@@ -138,7 +142,8 @@ struct Params { resolutionCenter: vec4f, controls: vec4f, }
 	let progress = params.controls.y;
 	if (progress <= 0.0) { return color; }
 	if (progress >= 1.0) { return vec4f(0); }
-	let delta = (input.uv - params.resolutionCenter.zw) * params.resolutionCenter.xy;
+	let pixel = input.position.xy - effectGeometry.contentRect.xy;
+	let delta = pixel - params.center * effectGeometry.contentRect.zw;
 	if (dot(delta, delta) == 0.0) { return vec4f(0); }
 	// Avoid the implementation-dependent atan2 result at a signed-zero X argument.
 	var polarAngle = atan2(delta.x, -delta.y);
@@ -183,14 +188,14 @@ export const radialWipe = Internals.createEffect<RadialWipeParams>({
 					device: gpuDevice as GPUDevice,
 					shader: WEBGPU_SHADER,
 					uniformData: new Float32Array([
-						width,
-						height,
-						r.center[0],
-						r.center[1],
 						r.startAngle % 360,
 						r.progress,
 						r.feather,
 						DIRECTIONS.indexOf(r.direction),
+						r.center[0],
+						r.center[1],
+						0,
+						0,
 					]),
 				});
 			},
@@ -202,7 +207,6 @@ export const radialWipe = Internals.createEffect<RadialWipeParams>({
 		>({
 			setup: (target) =>
 				setupSinglePass(target, FRAGMENT_SHADER, 'radial wipe', [
-					'uResolution',
 					'uCenter',
 					'uStartAngle',
 					'uProgress',
@@ -219,7 +223,6 @@ export const radialWipe = Internals.createEffect<RadialWipeParams>({
 					height,
 					flipSourceY,
 				});
-				gl.uniform2f(uniforms.uResolution, width, height);
 				gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
 				gl.uniform1f(uniforms.uStartAngle, r.startAngle % 360);
 				gl.uniform1f(uniforms.uProgress, r.progress);

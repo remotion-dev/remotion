@@ -141,6 +141,7 @@ type ShineState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uCenterPx: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uBandNormal: WebGLUniformLocation | null;
 	readonly uBandT: WebGLUniformLocation | null;
@@ -169,6 +170,7 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform vec2 uResolution;
+uniform vec2 uCenterPx;
 uniform vec2 uBandNormal;
 uniform float uBandT;
 uniform float uHaloSigma;
@@ -179,9 +181,8 @@ uniform float uCoreIntensity;
 void main() {
 	vec4 source = texture(uSource, vUv);
 	vec2 px = vec2(vUv.x * uResolution.x, (1.0 - vUv.y) * uResolution.y);
-	vec2 center = uResolution * 0.5;
 
-	float dist = dot(px - center, uBandNormal) - uBandT;
+	float dist = dot(px - uCenterPx, uBandNormal) - uBandT;
 	float halo = exp(-(dist * dist) / (uHaloSigma * uHaloSigma)) * uHaloIntensity;
 	float core = exp(-(dist * dist) / (uCoreSigma * uCoreSigma)) * uCoreIntensity;
 	float intensity = clamp(halo + core, 0.0, 1.0);
@@ -248,7 +249,15 @@ export const shine = createEffect<ShineParams>({
 			WebGpuSinglePassState
 		>({
 			setup: (target) => setupWebGpuSinglePass(target, 'shine'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error('A WebGPU device is required for this effect');
 				const r = resolve(params);
@@ -256,7 +265,9 @@ export const shine = createEffect<ShineParams>({
 				const x = Math.cos(angle);
 				const y = -Math.sin(angle);
 				const range =
-					(Math.abs(x) * width + Math.abs(y) * height) / 2 + 3 * r.haloSigma;
+					(Math.abs(x) * contentRect.width + Math.abs(y) * contentRect.height) /
+						2 +
+					3 * r.haloSigma;
 				const bandT = -range + r.progress * range * 2;
 				applyWebGpuSinglePass({
 					state,
@@ -349,6 +360,7 @@ export const shine = createEffect<ShineParams>({
 					vbo,
 					texture,
 					uSource: gl.getUniformLocation(program, 'uSource'),
+					uCenterPx: gl.getUniformLocation(program, 'uCenterPx'),
 					uResolution: gl.getUniformLocation(program, 'uResolution'),
 					uBandNormal: gl.getUniformLocation(program, 'uBandNormal'),
 					uBandT: gl.getUniformLocation(program, 'uBandT'),
@@ -358,13 +370,22 @@ export const shine = createEffect<ShineParams>({
 					uCoreIntensity: gl.getUniformLocation(program, 'uCoreIntensity'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const angleRad = (r.angle * Math.PI) / 180;
 				const bandNormalX = Math.cos(angleRad);
 				const bandNormalY = -Math.sin(angleRad);
 				const bboxProjection =
-					Math.abs(bandNormalX) * width + Math.abs(bandNormalY) * height;
+					Math.abs(bandNormalX) * contentRect.width +
+					Math.abs(bandNormalY) * contentRect.height;
 				const sweepHalfRange = bboxProjection / 2 + 3 * r.haloSigma;
 				const bandT = -sweepHalfRange + r.progress * sweepHalfRange * 2;
 				const {gl, program, vao, texture} = state;
@@ -389,6 +410,11 @@ export const shine = createEffect<ShineParams>({
 				gl.useProgram(program);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
 				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				gl.uniform2f(
+					state.uCenterPx,
+					contentRect.x + contentRect.width / 2,
+					contentRect.y + contentRect.height / 2,
+				);
 				if (state.uBandNormal)
 					gl.uniform2f(state.uBandNormal, bandNormalX, bandNormalY);
 				if (state.uBandT) gl.uniform1f(state.uBandT, bandT);

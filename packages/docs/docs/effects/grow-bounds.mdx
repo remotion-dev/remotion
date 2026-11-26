@@ -1,0 +1,71 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-grow-bounds.png
+title: Grow bounds
+slug: /effects/grow-bounds
+crumb: '@remotion/effects'
+description: Give shadows and distortions room to extend beyond an HTML element.
+---
+
+# Grow bounds<AvailableFrom v="4.0.548" />
+
+If you apply an [effect](/docs/effects) to an element, it might extend beyond the element's edges and overflow.
+
+<video
+  src="https://remotion.media/docs/effects/grow-bounds/clipped-wave-b23d35d773f3.mp4"
+  width={1280}
+  height={500}
+  autoPlay
+  muted
+  loop
+  playsInline
+  aria-label="Increasing wave amplitude clips the top and bottom of the button"
+  style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/><br/><br/>
+
+This is where the [`growBounds`](/docs/remotion/html-in-canvas#growbounds) prop on [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) comes in useful.  
+It increases the canvas size, but keeps the position and the coordinate system of the canvas stable, so the content doesn't move.
+
+## Interactively
+
+If your element is not a `<HtmlInCanvas>` component, wrap it first.  
+Then select it and increase `Grow bounds`:
+
+<video
+  src="https://remotion.media/docs/effects/grow-bounds/reveal-wave-4eee0838a2e3.mp4"
+  width={1280}
+  height={536}
+  autoPlay
+  muted
+  loop
+  playsInline
+  aria-label="Increasing Grow bounds from 0 to 86 reveals the full wave"
+  style={{width: '100%', height: 'auto', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+## Agentically
+
+Use the <Skill>/remotion-markup</Skill> skill to fix a clipped effect.
+
+<SuggestedPrompt prompt="/remotion-markup The wave on the Continue button is getting clipped. Grow its bounds so the whole wave is visible." />
+
+## Programmatic example
+
+Apply [`growBounds`](/docs/remotion/html-in-canvas#growbounds) to a [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component:
+
+```tsx twoslash title="WaveButton.tsx"
+import {wave} from '@remotion/effects/wave';
+import {HtmlInCanvas} from 'remotion';
+
+export const WaveButton = () => (
+  <HtmlInCanvas
+    width={420}
+    height={112}
+    growBounds={86}
+    effects={[wave({amplitude: 69, wavelength: 520, direction: 'horizontal'})]}
+  >
+    <button style={{width: '100%', height: '100%', borderRadius: 56}}>
+      Continue →
+    </button>
+  </HtmlInCanvas>
+);
+```

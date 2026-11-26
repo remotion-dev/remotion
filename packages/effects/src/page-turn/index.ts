@@ -1,4 +1,4 @@
-import type {InteractivitySchema} from 'remotion';
+import type {EffectContentRect, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -128,8 +128,11 @@ const resolve = (params: PageTurnParams) => ({
 const getUniformData = (
 	params: PageTurnParams,
 	state: PageTurnColorState,
-	width: number,
-	height: number,
+	{
+		width,
+		height,
+		contentRect,
+	}: {width: number; height: number; contentRect: EffectContentRect},
 ) => {
 	const r = resolve(params);
 	if (state.cachedColor !== r.paperColor) {
@@ -141,8 +144,8 @@ const getUniformData = (
 	return new Float32Array([
 		width,
 		height,
-		r.foldPosition[0] * width,
-		r.foldPosition[1] * height,
+		contentRect.x + r.foldPosition[0] * contentRect.width,
+		contentRect.y + r.foldPosition[1] * contentRect.height,
 		r.foldRadius,
 		(r.foldDirection % 360) * radians,
 		(r.lightDirection % 360) * radians,
@@ -208,7 +211,15 @@ export const pageTurn = Internals.createEffect<PageTurnParams>({
 				...setupPageTurnColor(),
 				...setupWebGpuProjection(target, 'page turn'),
 			}),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error(
 						'A WebGPU device is required for the page turn effect',
@@ -220,7 +231,11 @@ export const pageTurn = Internals.createEffect<PageTurnParams>({
 					state,
 					device: gpuDevice as GPUDevice,
 					shader: PAGE_TURN_SHADER,
-					uniformData: getUniformData(params, state, width, height),
+					uniformData: getUniformData(params, state, {
+						width,
+						height,
+						contentRect,
+					}),
 				});
 			},
 			cleanup: cleanupWebGpuProjection,
@@ -233,14 +248,26 @@ export const pageTurn = Internals.createEffect<PageTurnParams>({
 				...setupPageTurnColor(),
 				...setupWebGlProjection(target, PAGE_TURN_WEBGL_SHADER),
 			}),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				applyWebGlProjection({
 					source,
 					width,
 					height,
 					state,
 					flipSourceY,
-					uniformData: getUniformData(params, state, width, height),
+					uniformData: getUniformData(params, state, {
+						width,
+						height,
+						contentRect,
+					}),
 				});
 			},
 			cleanup: cleanupWebGlProjection,

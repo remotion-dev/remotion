@@ -263,6 +263,14 @@ The width of the effect pass in pixels.
 
 The height of the effect pass in pixels.
 
+### `contentRect`<AvailableFrom v="4.0.548" />
+
+The original element's `{x, y, width, height}` in effect-pass pixels, measured from the top left. By default it covers the entire target. On an [`<HtmlInCanvas>` with grown bounds](/docs/remotion/html-in-canvas#growbounds), `x` and `y` give the inset of the element inside the larger texture.
+
+To anchor an effect to the element, calculate its horizontal UV as `(pixelX - contentRect.x) / contentRect.width`. Apply the same calculation on the vertical axis. Element UVs can go below `0` or above `1` in the padding.
+
+To sample the input at that position, convert back to texture UV with `(contentRect.x + elementU * contentRect.width) / width` and the corresponding vertical formula. Earlier effects may have written visible pixels into the padding.
+
 ### `gpuDevice`
 
 A WebGPU device when a WebGPU effect is in the chain. Otherwise `null`.

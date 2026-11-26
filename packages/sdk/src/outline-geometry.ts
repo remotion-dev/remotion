@@ -1,3 +1,5 @@
+import type {Internals} from 'remotion';
+
 export type CanvasOutlinePoint = {
 	readonly x: number;
 	readonly y: number;
@@ -6,6 +8,10 @@ export type CanvasOutlinePoint = {
 /** Measured geometry uses composition pixels at scale 1, relative to its root. */
 export type CanvasOutline = {
 	readonly key: string;
+	/** The processing dimensions and original element rectangle in effect coordinates. */
+	readonly effectGeometry: NonNullable<
+		ReturnType<typeof Internals.effectCanvasGeometries.get>
+	> | null;
 	readonly dimensions: {
 		readonly width: number;
 		readonly height: number;

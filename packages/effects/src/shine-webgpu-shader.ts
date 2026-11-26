@@ -8,7 +8,8 @@ ${WEBGPU_SINGLE_PASS_VERTEX}
 struct Params {resolution: vec2f, normal: vec2f, band: vec4f, intensity: vec4f,}
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
- let dist = dot(input.uv * params.resolution - params.resolution * 0.5, params.normal) - params.band.x;
+ let center = effectGeometry.contentRect.xy + effectGeometry.contentRect.zw * 0.5;
+ let dist = dot(input.uv * params.resolution - center, params.normal) - params.band.x;
  let halo = exp(-(dist*dist)/(params.band.y*params.band.y))*params.band.w;
  let core = exp(-(dist*dist)/(params.band.z*params.band.z))*params.intensity.x;
  let intensity = clamp(halo+core, 0.0, 1.0);

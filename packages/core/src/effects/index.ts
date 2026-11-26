@@ -7,6 +7,7 @@ export type {
 	EffectImplementation,
 	MultiBackendEffectDefinition,
 	EffectApplyParams,
+	EffectContentRect,
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectsProp,

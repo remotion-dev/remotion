@@ -1,3 +1,4 @@
+import type {EffectContentRect} from 'remotion';
 import {parseColorRgba, type ParsedColorRgba} from '../color-utils.js';
 import {getSharedWebGpuResources} from '../shared-webgpu-resources.js';
 import type {WeatherRenderParams} from './runtime.js';
@@ -60,6 +61,7 @@ export const drawWeatherWebGpu = ({
 	source,
 	width,
 	height,
+	contentRect,
 	device,
 	params,
 	type,
@@ -68,6 +70,7 @@ export const drawWeatherWebGpu = ({
 	source: CanvasImageSource;
 	width: number;
 	height: number;
+	contentRect: EffectContentRect;
 	device: GPUDevice;
 	params: WeatherRenderParams;
 	type: 'rain' | 'snow';
@@ -122,7 +125,7 @@ export const drawWeatherWebGpu = ({
 			},
 		});
 		const uniforms = device.createBuffer({
-			size: 112,
+			size: 128,
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
 		state.resources = {
@@ -242,6 +245,10 @@ export const drawWeatherWebGpu = ({
 		params.compositeWithOriginal ? 1 : 0,
 		params.transferMode === 'lighten' ? 1 : 0,
 		0,
+		contentRect.x,
+		contentRect.y,
+		contentRect.width,
+		contentRect.height,
 	]);
 	new Uint32Array(uniformData.buffer)[10] = params.seed;
 	device.queue.writeBuffer(resources.uniforms, 0, uniformData);

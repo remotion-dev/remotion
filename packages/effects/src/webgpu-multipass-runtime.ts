@@ -1,3 +1,9 @@
+import {Internals} from 'remotion';
+import {
+	createEffectGeometryBuffer,
+	type EffectGeometryBuffer,
+	writeEffectGeometry,
+} from './effect-coordinates.js';
 import {getSharedWebGpuResources} from './shared-webgpu-resources.js';
 import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
@@ -32,6 +38,7 @@ export type WebGpuMultipassState = {
 	resources: {
 		readonly device: GPUDevice;
 		readonly layout: GPUBindGroupLayout;
+		readonly geometry: EffectGeometryBuffer;
 		readonly sampler: GPUSampler;
 		readonly format: GPUTextureFormat;
 		readonly passes: PassResources[];
@@ -63,6 +70,7 @@ export const setupWebGpuMultipass = (
 
 export const cleanupWebGpuMultipass = (state: WebGpuMultipassState): void => {
 	state.resources?.source?.texture.destroy();
+	state.resources?.geometry.buffer.destroy();
 	state.resources?.auxiliary?.texture.destroy();
 	state.resources?.textures.forEach((texture) => texture.destroy());
 	state.resources?.passes.forEach((pass) => pass.uniforms.destroy());
@@ -106,6 +114,11 @@ export const applyWebGpuMultipass = ({
 							buffer: {type: 'uniform'},
 						},
 						{binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {}},
+						{
+							binding: 4,
+							visibility: GPUShaderStage.FRAGMENT,
+							buffer: {type: 'uniform'},
+						},
 					],
 				});
 				const sampler = device.createSampler({
@@ -119,6 +132,7 @@ export const applyWebGpuMultipass = ({
 			device,
 			format,
 			layout: shared.layout,
+			geometry: createEffectGeometryBuffer(device),
 			sampler: shared.sampler,
 			passes: [],
 			textures: [],
@@ -130,6 +144,9 @@ export const applyWebGpuMultipass = ({
 	}
 
 	const r = state.resources;
+	const contentRect =
+		Internals.getEffectChainLink(state.context.canvas)?.contentRect ?? null;
+	writeEffectGeometry(device, r.geometry, contentRect, width, height);
 	const sourceWidth =
 		'displayWidth' in source
 			? source.displayWidth
@@ -304,6 +321,7 @@ export const applyWebGpuMultipass = ({
 				},
 				{binding: 1, resource: r.sampler},
 				{binding: 2, resource: {buffer: resources.uniforms}},
+				{binding: 4, resource: {buffer: r.geometry.buffer}},
 				{
 					binding: 3,
 					resource: (pass.secondary === -2 && r.auxiliary

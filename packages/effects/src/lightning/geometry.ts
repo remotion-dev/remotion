@@ -1,5 +1,6 @@
 // Adapted from EffectCraft's lightning_segments() and Rng (MIT).
 // See ../../THIRD_PARTY_LICENSES.md.
+import type {EffectContentRect} from 'remotion';
 import type {LightningParams} from './params.js';
 
 type Point = readonly [number, number];
@@ -7,8 +8,7 @@ type Segment = {start: Point; end: Point; intensity: number; main: boolean};
 
 export const lightningSegments = (
 	p: Required<LightningParams>,
-	width: number,
-	height: number,
+	contentRect: EffectContentRect,
 	alpha: ImageData | null,
 ): Segment[] => {
 	const seed =
@@ -26,28 +26,36 @@ export const lightningSegments = (
 
 	const alphaAt = (x: number, y: number): number => {
 		if (!alpha) return 0;
-		const px = Math.max(0, Math.min(width - 1, x - 0.5));
-		const py = Math.max(0, Math.min(height - 1, y - 0.5));
+		const {width: maskWidth, height: maskHeight} = alpha;
+		const px = Math.max(0, Math.min(maskWidth - 1, x - 0.5));
+		const py = Math.max(0, Math.min(maskHeight - 1, y - 0.5));
 		const x0 = Math.floor(px);
 		const y0 = Math.floor(py);
-		const x1 = Math.min(width - 1, x0 + 1);
-		const y1 = Math.min(height - 1, y0 + 1);
+		const x1 = Math.min(maskWidth - 1, x0 + 1);
+		const y1 = Math.min(maskHeight - 1, y0 + 1);
 		const tx = px - x0;
 		const ty = py - y0;
 		const {data} = alpha;
 		return (
-			((data[(y0 * width + x0) * 4 + 3] * (1 - tx) +
-				data[(y0 * width + x1) * 4 + 3] * tx) *
+			((data[(y0 * maskWidth + x0) * 4 + 3] * (1 - tx) +
+				data[(y0 * maskWidth + x1) * 4 + 3] * tx) *
 				(1 - ty) +
-				(data[(y1 * width + x0) * 4 + 3] * (1 - tx) +
-					data[(y1 * width + x1) * 4 + 3] * tx) *
+				(data[(y1 * maskWidth + x0) * 4 + 3] * (1 - tx) +
+					data[(y1 * maskWidth + x1) * 4 + 3] * tx) *
 					ty) /
 			255
 		);
 	};
 
-	const origin: Point = [p.origin[0] * width, p.origin[1] * height];
-	const direction: Point = [p.direction[0] * width, p.direction[1] * height];
+	const {x: left, y: top, width, height} = contentRect;
+	const origin: Point = [
+		left + p.origin[0] * width,
+		top + p.origin[1] * height,
+	];
+	const direction: Point = [
+		left + p.direction[0] * width,
+		top + p.direction[1] * height,
+	];
 	const dx = direction[0] - origin[0];
 	const dy = direction[1] - origin[1];
 	const distance = Math.hypot(dx, dy);
@@ -133,7 +141,7 @@ export const lightningSegments = (
 			growMain(origin, [origin[0] + dx * 3, origin[1] + dy * 3], depth);
 			break;
 		case 'vertical':
-			growMain(origin, [origin[0], height], depth);
+			growMain(origin, [origin[0], top + height], depth);
 			break;
 		case 'two-way-strike': {
 			const mid: Point = [origin[0] + dx / 2, origin[1] + dy / 2];

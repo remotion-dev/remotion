@@ -326,13 +326,21 @@ export const shatter = createEffect<ShatterParams>({
 				geometryKey: null,
 				vertices: null,
 			}),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error('A WebGPU device is required for shatter');
 				const r = resolve(params);
-				const geometryKey = `${width}:${height}:${JSON.stringify(r)}`;
+				const geometryKey = JSON.stringify([width, height, contentRect, r]);
 				if (state.geometryKey !== geometryKey || state.vertices === null) {
-					state.vertices = createShatterGeometry(width, height, r);
+					state.vertices = createShatterGeometry(width, height, r, contentRect);
 					state.geometryKey = geometryKey;
 				}
 
@@ -343,7 +351,16 @@ export const shatter = createEffect<ShatterParams>({
 					height,
 					vertices: state.vertices,
 					shader: SHATTER_WEBGPU_SHADER,
-					uniformData: new Float32Array([width, height, 0, 0]),
+					uniformData: new Float32Array([
+						width,
+						height,
+						0,
+						0,
+						contentRect.x,
+						contentRect.y,
+						contentRect.width,
+						contentRect.height,
+					]),
 					topology: 'triangle-list',
 					blend: true,
 					vertexCount: state.vertices.length / 7,
@@ -369,11 +386,19 @@ export const shatter = createEffect<ShatterParams>({
 
 				return {...setupShatter(gl), geometryKey: null, vertices: null};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
-				const geometryKey = `${width}:${height}:${JSON.stringify(r)}`;
+				const geometryKey = JSON.stringify([width, height, contentRect, r]);
 				if (state.geometryKey !== geometryKey || state.vertices === null) {
-					state.vertices = createShatterGeometry(width, height, r);
+					state.vertices = createShatterGeometry(width, height, r, contentRect);
 					state.geometryKey = geometryKey;
 				}
 
@@ -383,6 +408,7 @@ export const shatter = createEffect<ShatterParams>({
 					width,
 					height,
 					flipSourceY,
+					contentRect,
 					vertices: state.vertices,
 				});
 			},

@@ -37,12 +37,12 @@ fn sampleCell(cell: vec2f, fragPx: vec2f, cropStart: vec2f, tileSize: vec2f, pit
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- let cropStart = params.crop.xy;
- let cropEnd = params.geometry.xy - params.crop.zw;
+ let cropStart = effectGeometry.contentRect.xy + params.crop.xy;
+ let cropEnd = effectGeometry.contentRect.xy + effectGeometry.contentRect.zw - params.crop.zw;
  let cropSize = max(cropEnd - cropStart, vec2f(0.001));
  let tileSize = max(cropSize * params.geometry.z, vec2f(0.001));
  let pitch = max(tileSize + params.gapOffset.xy, vec2f(0.001));
- let originPx = (params.origin.xy + params.gapOffset.zw) * params.geometry.xy;
+ let originPx = effectGeometry.contentRect.xy + (params.origin.xy + params.gapOffset.zw) * effectGeometry.contentRect.zw;
  let fragPx = input.position.xy;
  var cell = floor((fragPx - originPx) / pitch);
  for (var i = 0; i < 4; i++) {

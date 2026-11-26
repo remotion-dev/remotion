@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -54,6 +58,7 @@ type TvSignalOffState = {
 	readonly vao: WebGLVertexArrayObject;
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
@@ -72,6 +77,7 @@ void main() {
 
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -127,7 +133,7 @@ void main() {
 	vec4 color = texture(uSource, vUv);
 	vec3 sourceColor = color.a == 0.0 ? vec3(0.0) : color.rgb / color.a;
 	// Exact pixel centers keep stepped bars stable at fractional boundaries.
-	vec3 bars = tvPattern(gl_FragCoord.xy / uResolution);
+	vec3 bars = tvPattern(textureUvToElementUvBottomLeft(gl_FragCoord.xy / uResolution, uResolution));
 	vec3 mixed = mix(sourceColor, bars, uAmount);
 
 	fragColor = vec4(mixed * color.a, color.a);
@@ -224,6 +230,7 @@ const createTvSignalOffState = (
 		vao,
 		vbo,
 		texture,
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uSource: gl.getUniformLocation(program, 'uSource'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
@@ -281,7 +288,7 @@ fn tvPattern(uv: vec2f) -> vec3f {
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
  if (color.a == 0.0) {return vec4f(0);}
- let bars = tvPattern(vec2f(input.position.x, params.z - input.position.y) / params.yz);
+ let bars = tvPattern(textureUvToElementUvBottomLeft(vec2f(input.position.x, params.z - input.position.y) / params.yz, params.yz));
  return vec4f(mix(color.rgb / color.a, bars, params.x) * color.a, color.a);
 }
 `;
@@ -340,7 +347,15 @@ export const tvSignalOff = createEffect<TvSignalOffParams>({
 
 				return createTvSignalOffState(gl, VERTEX_SHADER, FRAGMENT_SHADER);
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const resolved = resolve(params);
 
 				state.gl.viewport(0, 0, width, height);
@@ -366,7 +381,14 @@ export const tvSignalOff = createEffect<TvSignalOffParams>({
 					state.gl.uniform1f(state.uAmount, resolved.amount);
 				}
 
-				state.gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					state.gl,
+					state.uContentRect,
+					state.uResolution,
+					contentRect,
+					width,
+					height,
+				);
 
 				state.gl.bindVertexArray(state.vao);
 				state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);

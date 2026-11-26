@@ -4,6 +4,8 @@
 // The deterministic hash is from crates/raster/src/lib.rs at the same revision.
 // Used under the MIT license; see ../../THIRD_PARTY_LICENSES.md.
 
+import type {EffectContentRect} from 'remotion';
+
 export type ShatterGeometryParams = {
 	time: number;
 	pattern: 'bricks' | 'glass' | 'hexagons' | 'squares' | 'triangles';
@@ -40,15 +42,52 @@ const hash = (x: number, y: number, seed: number): number => {
 	return (h & 0x00ffffff) / 16777216;
 };
 
-function* patternCells(
-	pattern: ShatterGeometryParams['pattern'],
-	cell: number,
-	x0: number,
-	y0: number,
-	x1: number,
-	y1: number,
-	seed: number,
-): Generator<Point[]> {
+type PatternBounds = {x0: number; y0: number; x1: number; y1: number};
+
+const getPatternBounds = (
+	rect: EffectContentRect,
+	{
+		originX,
+		originY,
+		cos,
+		sin,
+	}: {originX: number; originY: number; cos: number; sin: number},
+): PatternBounds => {
+	const corners = [
+		[rect.x, rect.y],
+		[rect.x + rect.width, rect.y],
+		[rect.x + rect.width, rect.y + rect.height],
+		[rect.x, rect.y + rect.height],
+	].map(([x, y]) => [
+		(x - originX) * cos + (y - originY) * sin,
+		-(x - originX) * sin + (y - originY) * cos,
+	]);
+	return {
+		x0: Math.min(...corners.map(([x]) => x)),
+		x1: Math.max(...corners.map(([x]) => x)),
+		y0: Math.min(...corners.map(([, y]) => y)),
+		y1: Math.max(...corners.map(([, y]) => y)),
+	};
+};
+
+function* patternCells({
+	pattern,
+	cell,
+	bounds: {x0, y0, x1, y1},
+	contentBounds,
+	seed,
+}: {
+	pattern: ShatterGeometryParams['pattern'];
+	cell: number;
+	bounds: PatternBounds;
+	contentBounds: PatternBounds;
+	seed: number;
+}): Generator<{points: Point[]; index: number}> {
+	// Keep the original iteration indices as seeds when the grid expands into padding.
+	const contentI0 = Math.floor(contentBounds.x0 / cell) - 1;
+	const contentJ0 = Math.floor(contentBounds.y0 / cell) - 1;
+	const contentCols = Math.ceil(contentBounds.x1 / cell) + 2 - contentI0;
+	const contentRows = Math.ceil(contentBounds.y1 / cell) + 2 - contentJ0;
 	const i0 = Math.floor(x0 / cell) - 1;
 	const i1 = Math.ceil(x1 / cell) + 1;
 	const j0 = Math.floor(y0 / cell) - 1;
@@ -56,20 +95,24 @@ function* patternCells(
 	if (pattern === 'bricks') {
 		const brickHeight = cell / 2;
 		const row0 = Math.floor(y0 / brickHeight) - 1;
+		const contentRow0 = Math.floor(contentBounds.y0 / brickHeight) - 1;
 		const row1 = Math.ceil(y1 / brickHeight) + 1;
 		for (let row = row0; row <= row1; row++) {
 			const shift = Math.abs(row % 2) * cell * 0.5;
 			for (let i = i0; i <= i1; i++) {
 				const x = i * cell + shift;
 				const y = row * brickHeight;
-				yield [
-					[x, y],
-					[x + cell * 0.5, y],
-					[x + cell, y],
-					[x + cell, y + brickHeight],
-					[x + cell * 0.5, y + brickHeight],
-					[x, y + brickHeight],
-				];
+				yield {
+					index: (row - contentRow0) * contentCols + i - contentI0,
+					points: [
+						[x, y],
+						[x + cell * 0.5, y],
+						[x + cell, y],
+						[x + cell, y + brickHeight],
+						[x + cell * 0.5, y + brickHeight],
+						[x, y + brickHeight],
+					],
+				};
 			}
 		}
 
@@ -80,15 +123,22 @@ function* patternCells(
 		const radius = cell / Math.sqrt(3);
 		const dx = 1.5 * radius;
 		const col0 = Math.floor(x0 / dx) - 1;
+		const contentCol0 = Math.floor(contentBounds.x0 / dx) - 1;
 		const col1 = Math.ceil(x1 / dx) + 1;
 		for (let col = col0; col <= col1; col++) {
 			for (let row = j0; row <= j1; row++) {
 				const cx = col * dx;
 				const cy = (row + Math.abs(col % 2) * 0.5) * cell;
-				yield Array.from({length: 6}, (_, k): Point => {
-					const angle = (k * Math.PI) / 3;
-					return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
-				});
+				yield {
+					index: (col - contentCol0) * contentRows + row - contentJ0,
+					points: Array.from({length: 6}, (_, k): Point => {
+						const angle = (k * Math.PI) / 3;
+						return [
+							cx + radius * Math.cos(angle),
+							cy + radius * Math.sin(angle),
+						];
+					}),
+				};
 			}
 		}
 
@@ -101,6 +151,7 @@ function* patternCells(
 	];
 	for (let j = j0; j <= j1; j++) {
 		for (let i = i0; i <= i1; i++) {
+			const index = (j - contentJ0) * contentCols + i - contentI0;
 			const x = i * cell;
 			const y = j * cell;
 			const a: Point = pattern === 'glass' ? jitter(i, j) : [x, y];
@@ -115,17 +166,17 @@ function* patternCells(
 			const bdValid =
 				signedTriangleArea(a, b, d) > 0 && signedTriangleArea(b, c, d) > 0;
 			if (pattern === 'squares') {
-				yield [a, b, c, d];
+				yield {index, points: [a, b, c, d]};
 			} else if (
 				pattern === 'glass'
 					? acValid && (!bdValid || hash(i, j, seed ^ 0x55) < 0.5)
 					: Math.abs((i + j) % 2) === 1
 			) {
-				yield [a, b, c];
-				yield [a, c, d];
+				yield {index: 2 * index, points: [a, b, c]};
+				yield {index: 2 * index + 1, points: [a, c, d]};
 			} else {
-				yield [a, b, d];
-				yield [b, c, d];
+				yield {index: 2 * index, points: [a, b, d]};
+				yield {index: 2 * index + 1, points: [b, c, d]};
 			}
 		}
 	}
@@ -133,15 +184,15 @@ function* patternCells(
 
 // Clip before assigning UVs: clamping outside vertices would repeat edge pixels
 // on the parts of a shard that never belonged to the source image.
-const clipPolygon = (
-	input: Point[],
-	width: number,
-	height: number,
-): Point[] => {
+const clipPolygon = (input: Point[], rect: EffectContentRect): Point[] => {
 	let polygon = input;
 	for (let boundary = 0; boundary < 4; boundary++) {
 		const axis = boundary < 2 ? 0 : 1;
-		const limit = boundary % 2 === 0 ? 0 : axis === 0 ? width : height;
+		const start = axis === 0 ? rect.x : rect.y;
+		const limit =
+			boundary % 2 === 0
+				? start
+				: start + (axis === 0 ? rect.width : rect.height);
 		const sign = boundary % 2 === 0 ? 1 : -1;
 		const output: Point[] = [];
 		for (let i = 0; i < polygon.length; i++) {
@@ -174,6 +225,7 @@ export const createShatterGeometry = (
 	width: number,
 	height: number,
 	params: ShatterGeometryParams,
+	contentRect: EffectContentRect,
 ): Float32Array => {
 	const identity = new Float32Array([
 		0,
@@ -233,44 +285,49 @@ export const createShatterGeometry = (
 	// Beyond this range lattice indices lose useful precision. Fold those remote
 	// origins to keep a finite covering grid even for extreme user input.
 	const originX =
+		contentRect.x +
 		(Math.abs(params.origin[0]) > 1e6
 			? params.origin[0] % 1
-			: params.origin[0]) * width;
+			: params.origin[0]) *
+			contentRect.width;
 	const originY =
+		contentRect.y +
 		(Math.abs(params.origin[1]) > 1e6
 			? params.origin[1] % 1
-			: params.origin[1]) * height;
-	const corners = [
-		[0, 0],
-		[width, 0],
-		[width, height],
-		[0, height],
-	].map(
-		([x, y]): Point => [
-			(x - originX) * cos + (y - originY) * sin,
-			-(x - originX) * sin + (y - originY) * cos,
-		],
+			: params.origin[1]) *
+			contentRect.height;
+	const gridTransform = {originX, originY, cos, sin};
+	const contentBounds = getPatternBounds(contentRect, gridTransform);
+	const cellSizeForBounds = (
+		{x0, x1, y0, y1}: PatternBounds,
+		minCellSize: number,
+	) => {
+		// At most about 50,000 candidate polygons, including the covering border.
+		// Grow cells on extreme aspect ratios instead of truncating image coverage.
+		let size = Math.max(
+			minCellSize,
+			Math.sqrt(((x1 - x0) * (y1 - y0)) / 20000),
+			Math.max(x1 - x0, y1 - y0) / 10000,
+		);
+		while (
+			2 *
+				(Math.ceil((x1 - x0) / size) + 5) *
+				(Math.ceil((y1 - y0) / size) + 5) >
+			50000
+		) {
+			size *= 1.1;
+		}
+
+		return size;
+	};
+
+	const cell = cellSizeForBounds(
+		contentBounds,
+		contentRect.width / params.repetitions,
 	);
-	const x0 = Math.min(...corners.map((point) => point[0]));
-	const x1 = Math.max(...corners.map((point) => point[0]));
-	const y0 = Math.min(...corners.map((point) => point[1]));
-	const y1 = Math.max(...corners.map((point) => point[1]));
-	// At most about 50,000 candidate polygons, including the covering border.
-	// Grow cells on extreme aspect ratios instead of truncating image coverage.
-	let cell = Math.max(
-		width / params.repetitions,
-		Math.sqrt(((x1 - x0) * (y1 - y0)) / 20000),
-		Math.max(x1 - x0, y1 - y0) / 10000,
-	);
-	while (
-		2 * (Math.ceil((x1 - x0) / cell) + 5) * (Math.ceil((y1 - y0) / cell) + 5) >
-		50000
-	) {
-		cell *= 1.1;
-	}
 
 	const seed = Math.imul(params.seed, 0x9e3779b1);
-	const unit = width * 0.1;
+	const unit = contentRect.width * 0.1;
 	const drag = params.viscosity * 5;
 	const {time} = params;
 	const velocityFactor = drag < 1e-6 ? time : -Math.expm1(-drag * time) / drag;
@@ -280,36 +337,66 @@ export const createShatterGeometry = (
 			: drag * time < 1e-3
 				? time * time * (0.5 - (drag * time) / 6 + (drag * time) ** 2 / 24)
 				: (time - velocityFactor) / drag;
-	const radius = params.radius * width;
-	const depth = params.depth * width;
-	const centerX = params.center[0] * width;
-	const centerY = params.center[1] * height;
+	const radius = params.radius * contentRect.width;
+	const depth = params.depth * contentRect.width;
+	const centerX = contentRect.x + params.center[0] * contentRect.width;
+	const centerY = contentRect.y + params.center[1] * contentRect.height;
 	const extrusion = params.extrusionDepth * cell;
-	const cameraDistance = Math.max(width, height) * 2;
+	const cameraDistance = Math.max(contentRect.width, contentRect.height) * 2;
+	const cameraX = contentRect.x + contentRect.width / 2;
+	const cameraY = contentRect.y + contentRect.height / 2;
 	const faces: {depth: number; vertices: Vertex[]}[] = [];
-	let key = 0;
 	let anyMoving = false;
-	for (const patternPolygon of patternCells(
-		params.pattern,
-		cell,
-		x0,
-		y0,
-		x1,
-		y1,
-		seed,
-	)) {
-		const index = key++;
-		const sourcePolygon = patternPolygon.map(
-			([x, y]): Point => [
-				originX + x * cos - y * sin,
-				originY + x * sin + y * cos,
-			],
-		);
-		const polygon = clipPolygon(sourcePolygon, width, height);
-		if (polygon.length < 3) {
-			continue;
+	function* clippedCells() {
+		// Grow the mesh around the original shards. Keeping their original clipped
+		// polygons preserves perspective interpolation, face depth ordering, and extrusion.
+		const regions: EffectContentRect[] = [contentRect];
+		if (contentRect.y > 0)
+			regions.push({x: 0, y: 0, width, height: contentRect.y});
+		const bottom = contentRect.y + contentRect.height;
+		if (bottom < height)
+			regions.push({x: 0, y: bottom, width, height: height - bottom});
+		if (contentRect.x > 0)
+			regions.push({
+				x: 0,
+				y: contentRect.y,
+				width: contentRect.x,
+				height: contentRect.height,
+			});
+		const right = contentRect.x + contentRect.width;
+		if (right < width)
+			regions.push({
+				x: right,
+				y: contentRect.y,
+				width: width - right,
+				height: contentRect.height,
+			});
+		for (const region of regions) {
+			const regionBounds =
+				region === contentRect
+					? contentBounds
+					: getPatternBounds(region, gridTransform);
+			for (const {points, index} of patternCells({
+				pattern: params.pattern,
+				cell:
+					region === contentRect ? cell : cellSizeForBounds(regionBounds, cell),
+				bounds: regionBounds,
+				contentBounds,
+				seed,
+			})) {
+				const sourcePolygon = points.map(
+					([x, y]): Point => [
+						originX + x * cos - y * sin,
+						originY + x * sin + y * cos,
+					],
+				);
+				const polygon = clipPolygon(sourcePolygon, region);
+				if (polygon.length >= 3) yield {index, sourcePolygon, polygon};
+			}
 		}
+	}
 
+	for (const {index, sourcePolygon, polygon} of clippedCells()) {
 		const cx =
 			sourcePolygon.reduce((sum, point) => sum + point[0], 0) /
 			sourcePolygon.length;
@@ -437,8 +524,8 @@ export const createShatterGeometry = (
 			const my = (frontA[1] + frontB[1] + rotation[5] * extrusion) / 2;
 			const mz = (frontA[2] + frontB[2] + rotation[8] * extrusion) / 2;
 			if (
-				nx * (width / 2 - mx) +
-					ny * (height / 2 - my) +
+				nx * (cameraX - mx) +
+					ny * (cameraY - my) +
 					nz * (-cameraDistance - mz) <=
 				0
 			) {

@@ -5,6 +5,7 @@ import {
 	validateUnitInterval,
 	validateNonNegative,
 } from '../color-utils.js';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
@@ -305,6 +306,7 @@ type FractalNoiseState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uOffset: WebGLUniformLocation | null;
 	readonly uFractalType: WebGLUniformLocation | null;
@@ -446,6 +448,7 @@ const setupFractalNoise = (target: HTMLCanvasElement): FractalNoiseState => {
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
+		uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uOffset: gl.getUniformLocation(program, 'uOffset'),
 		uFractalType: gl.getUniformLocation(program, 'uFractalType'),
@@ -523,7 +526,15 @@ export const fractalNoise = createEffect<FractalNoiseParams>({
 			FractalNoiseState
 		>({
 			setup: (target) => setupFractalNoise(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, vao} = state;
 
@@ -545,6 +556,14 @@ export const fractalNoise = createEffect<FractalNoiseParams>({
 				);
 
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
 				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
 				if (state.uOffset) gl.uniform2f(state.uOffset, r.offsetX, r.offsetY);

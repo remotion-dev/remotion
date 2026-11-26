@@ -1,4 +1,5 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import {ZOOM_BLUR_FS, ZOOM_BLUR_VS} from './zoom-blur-shaders.js';
 
 const {createWebGL2ContextError} = Internals;
@@ -11,6 +12,7 @@ export type ZoomBlurState = {
 	readonly textureSource: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uResolution: WebGLUniformLocation | null;
 		readonly uCenter: WebGLUniformLocation | null;
 		readonly uAmount: WebGLUniformLocation | null;
@@ -137,6 +139,7 @@ export const setupZoomBlur = (target: HTMLCanvasElement): ZoomBlurState => {
 		textureSource,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uCenter: gl.getUniformLocation(program, 'uCenter'),
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
@@ -165,6 +168,7 @@ export const applyZoomBlur = ({
 	source,
 	width,
 	height,
+	contentRect,
 	amount,
 	center,
 	samples,
@@ -174,6 +178,7 @@ export const applyZoomBlur = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly amount: number;
 	readonly center: readonly [number, number];
 	readonly samples: number;
@@ -200,7 +205,14 @@ export const applyZoomBlur = ({
 
 	gl.useProgram(program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-	if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uResolution,
+		contentRect,
+		width,
+		height,
+	);
 	if (uniforms.uCenter) gl.uniform2f(uniforms.uCenter, center[0], center[1]);
 	if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, amount);
 	if (uniforms.uSamples) gl.uniform1i(uniforms.uSamples, samples);

@@ -70,11 +70,19 @@ See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ### `width`
 
-Logical width of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical width of the children’s layout area, in pixels. Must be a positive integer.
 
 ### `height`
 
-Logical height of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical height of the children’s layout area, in pixels. Must be a positive integer.
+
+### `growBounds?`<AvailableFrom v="4.0.548" />
+
+_number_
+
+Adds transparent space on each side of the children before painting and applying effects. Accepts a nonnegative number of CSS pixels and defaults to `0`. The selection outline in Studio includes this space.
+
+For example, `width={100} height={60} growBounds={24}` paints a 148 × 108 canvas. The children still occupy 100 × 60 at their original position, leaving room for a CSS box shadow or a [`dropShadow()` effect](/effects/drop-shadow). Spatial effects use the original element as their coordinate system. Increasing the padding reveals more of a wave while its peaks stay anchored to the same points on the element.
 
 ### `pixelDensity?`<AvailableFrom v="4.0.472" />
 
@@ -97,7 +105,7 @@ If you also pass [`onPaint`](#onpaint), effects are applied after `onPaint` has 
 
 ### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
 
-The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/output-size).
 
 ### `onPaint?`
 
@@ -125,12 +133,12 @@ The callback receives:
 
 #### `canvas`
 
-An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.  
+An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `(width + 2 * growBounds) * pixelDensity` × `(height + 2 * growBounds) * pixelDensity`, rounded up.
 You should paint to this canvas.
 
 #### `element`
 
-The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
+The captured [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement), including the space added by [`growBounds`](#growbounds).
 The browser synchronizes its position and hit testing when you call `drawElementImage()`.
 
 #### `elementImage`

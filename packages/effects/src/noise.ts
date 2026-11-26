@@ -65,6 +65,7 @@ type NoiseState = {
 	readonly vbo: WebGLBuffer;
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uElementOrigin: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uAmount: WebGLUniformLocation | null;
 	readonly uSeed: WebGLUniformLocation | null;
@@ -116,6 +117,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+uniform vec2 uElementOrigin;
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uAmount;
@@ -137,7 +139,7 @@ void main() {
 		return;
 	}
 
-	float noise = random(gl_FragCoord.xy) - 0.5;
+	float noise = random(gl_FragCoord.xy - uElementOrigin) - 0.5;
 	vec3 rgb = texColor.rgb / alpha;
 	vec3 noiseLayer = uPremultiply ? rgb * noise : vec3(noise);
 	rgb = clamp(rgb + noiseLayer * uAmount, 0.0, 1.0);
@@ -253,6 +255,7 @@ const setupNoise = (target: HTMLCanvasElement): NoiseState => {
 		vbo,
 		texture,
 		uSource: gl.getUniformLocation(program, 'uSource'),
+		uElementOrigin: gl.getUniformLocation(program, 'uElementOrigin'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uAmount: gl.getUniformLocation(program, 'uAmount'),
 		uSeed: gl.getUniformLocation(program, 'uSeed'),
@@ -303,7 +306,15 @@ export const noise = createEffect<NoiseParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<NoiseParams, NoiseState>({
 			setup: (target) => setupNoise(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, vao} = state;
 
@@ -325,6 +336,11 @@ export const noise = createEffect<NoiseParams>({
 				);
 
 				gl.useProgram(program);
+				gl.uniform2f(
+					state.uElementOrigin,
+					contentRect.x,
+					height - contentRect.y - contentRect.height,
+				);
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
 				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
 				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);

@@ -4,6 +4,7 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {EFFECT_COORDINATES_GLSL} from './effect-coordinates.js';
 import {FILM_BURN_WEBGPU_SHADER} from './film-burn-webgpu-shader.js';
 import {
 	cleanupSinglePass,
@@ -109,6 +110,7 @@ const validateFilmBurnParams = (params: FilmBurnParams): void => {
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision highp float;
 precision highp int;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -159,9 +161,9 @@ void main() {
 		return;
 	}
 
-	vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
-	float distanceFromCenter = length(pixel - uCenter * uResolution)
-		/ max(length(uResolution), 1.0);
+	vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution - uContentRect.xy;
+	float distanceFromCenter = length(pixel - uCenter * uContentRect.zw)
+		/ max(length(uContentRect.zw), 1.0);
 	float noise = 0.0;
 	float amplitude = 1.0;
 	float frequency = 1.0;

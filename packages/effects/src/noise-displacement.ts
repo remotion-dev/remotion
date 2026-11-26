@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {NOISE_DISPLACEMENT_WEBGPU_SHADER} from './noise-displacement-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -160,6 +164,7 @@ type NoiseDisplacementState = {
 	readonly texture: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uResolution: WebGLUniformLocation | null;
 		readonly uCenter: WebGLUniformLocation | null;
 		readonly uRadius: WebGLUniformLocation | null;
@@ -286,6 +291,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform vec2 uCenter;
@@ -333,8 +339,8 @@ vec2 noiseVector(vec2 p) {
 }
 
 float effectMask(vec2 pixel) {
-	vec2 centerPx = uCenter * uResolution;
-	float radiusPx = uRadius * min(uResolution.x, uResolution.y);
+	vec2 centerPx = uCenter * uContentRect.zw;
+	float radiusPx = uRadius * min(uContentRect.z, uContentRect.w);
 	float dist = length(pixel - centerPx);
 
 	if (dist >= radiusPx) {
@@ -360,14 +366,15 @@ vec4 sampleSource(vec2 pixel) {
 
 void main() {
 	vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
-	float mask = effectMask(pixel);
+	vec2 elementPixel = pixel - uContentRect.xy;
+	float mask = effectMask(elementPixel);
 
 	if (mask <= 0.0 || uStrength <= 0.0) {
 		fragColor = texture(uSource, vUv);
 		return;
 	}
 
-	vec2 noiseCoord = pixel / max(uGrainSize, 0.001);
+	vec2 noiseCoord = elementPixel / max(uGrainSize, 0.001);
 	vec2 biasDir = vec2(
 		cos(uBiasDirection * PI / 180.0),
 		sin(uBiasDirection * PI / 180.0)
@@ -518,6 +525,7 @@ const setupNoiseDisplacement = (
 		texture,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uCenter: gl.getUniformLocation(program, 'uCenter'),
 			uRadius: gl.getUniformLocation(program, 'uRadius'),
@@ -589,7 +597,15 @@ export const noiseDisplacement = createEffect<NoiseDisplacementParams>({
 			NoiseDisplacementState
 		>({
 			setup: (target) => setupNoiseDisplacement(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, texture, vao, uniforms} = state;
 
@@ -611,6 +627,14 @@ export const noiseDisplacement = createEffect<NoiseDisplacementParams>({
 				);
 
 				gl.useProgram(program);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uResolution)
 					gl.uniform2f(uniforms.uResolution, width, height);

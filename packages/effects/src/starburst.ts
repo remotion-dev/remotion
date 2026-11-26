@@ -179,7 +179,7 @@ uniform sampler2D colorPalette;
 uniform float numRays;
 uniform float rotationOffset;
 uniform float smoothEdge;
-uniform vec2 resolution;
+uniform vec4 elementRect;
 uniform float numColors;
 uniform vec2 origin;
 
@@ -189,9 +189,9 @@ out vec4 fragColor;
 const float Pi = 3.14159265359;
 
 void main() {
-	vec2 uv = gl_FragCoord.xy / resolution;
+	vec2 uv = (gl_FragCoord.xy - elementRect.xy) / elementRect.zw;
 	vec2 center = uv - origin;
-	center.x *= resolution.x / resolution.y;
+	center.x *= elementRect.z / elementRect.w;
 
 	float angle = atan(center.y, center.x) + rotationOffset;
 	float normalizedAngle = (angle + Pi) / (2.0 * Pi);
@@ -230,7 +230,7 @@ type StarburstGlState = {
 	uNumRays: WebGLUniformLocation | null;
 	uRotationOffset: WebGLUniformLocation | null;
 	uSmoothEdge: WebGLUniformLocation | null;
-	uResolution: WebGLUniformLocation | null;
+	uElementRect: WebGLUniformLocation | null;
 	uNumColors: WebGLUniformLocation | null;
 	uOrigin: WebGLUniformLocation | null;
 	cachedPaletteKey: string;
@@ -408,14 +408,14 @@ export const starburst = createEffect<StarburstEffectParams>({
 					uNumRays: gl.getUniformLocation(program, 'numRays'),
 					uRotationOffset: gl.getUniformLocation(program, 'rotationOffset'),
 					uSmoothEdge: gl.getUniformLocation(program, 'smoothEdge'),
-					uResolution: gl.getUniformLocation(program, 'resolution'),
+					uElementRect: gl.getUniformLocation(program, 'elementRect'),
 					uNumColors: gl.getUniformLocation(program, 'numColors'),
 					uOrigin: gl.getUniformLocation(program, 'origin'),
 					cachedPaletteKey: '',
 					palettePixelData: new Uint8Array(0),
 				};
 			},
-			apply: ({width, height, params, state}) => {
+			apply: ({width, height, contentRect, params, state}) => {
 				const r = resolve(params);
 				const {
 					gl,
@@ -426,7 +426,7 @@ export const starburst = createEffect<StarburstEffectParams>({
 					uNumRays,
 					uRotationOffset,
 					uSmoothEdge,
-					uResolution,
+					uElementRect,
 					uNumColors,
 					uOrigin,
 				} = state;
@@ -482,7 +482,13 @@ export const starburst = createEffect<StarburstEffectParams>({
 				if (uRotationOffset) gl.uniform1f(uRotationOffset, rotationRad);
 				if (uSmoothEdge) gl.uniform1f(uSmoothEdge, r.smoothness);
 				if (uOrigin) gl.uniform2f(uOrigin, r.origin[0], 1 - r.origin[1]);
-				if (uResolution) gl.uniform2f(uResolution, width, height);
+				gl.uniform4f(
+					uElementRect,
+					contentRect.x,
+					height - contentRect.y - contentRect.height,
+					contentRect.width,
+					contentRect.height,
+				);
 
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

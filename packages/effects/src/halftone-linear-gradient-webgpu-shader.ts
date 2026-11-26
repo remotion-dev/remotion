@@ -18,13 +18,15 @@ fn sampleSource(uv: vec2f) -> vec4f {
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
  let vUv = vec2f(input.uv.x, 1.0 - input.uv.y);
 
- let center = params.geometry.xy * 0.5;
- let gridPos = vec2f(input.position.x, params.geometry.y - input.position.y) - center;
+ let rect = effectGeometry.contentRect;
+ let center = rect.zw * 0.5;
+ let pixel = input.position.xy - rect.xy;
+ let gridPos = vec2f(pixel.x, rect.w - pixel.y) - center;
  let gridSize = max(params.flags.x, 0.001);
  let cellIndex = floor(gridPos / gridSize + vec2f(0.5));
  let gridCenter = cellIndex * gridSize;
  let canvasCenter = center + gridCenter;
- let centerUv = canvasCenter / params.geometry.xy;
+ let centerUv = canvasCenter / rect.zw;
  let gradientUv = vec2f(centerUv.x, 1.0 - centerUv.y);
  let stopVector = params.stops.zw - params.stops.xy;
  let stopDistance = dot(stopVector, stopVector);
@@ -34,7 +36,7 @@ fn sampleSource(uv: vec2f) -> vec4f {
  if (dotSize <= 0.01) { return vec4f(0); }
  let radius = dotSize * 0.5;
  let coverage = 1.0 - smoothstep(radius - 0.75, radius + 0.75, length(gridPos - gridCenter));
- let texColor = sampleSource(clamp(centerUv, vec2f(0), vec2f(1)));
+ let texColor = sampleSource(clamp(elementUvToTextureUvBottomLeft(centerUv, params.geometry.xy), vec2f(0), vec2f(1)));
  let dotColor = select(params.color, texColor, params.flags.y != 0.0) * coverage;
  if (params.flags.y != 0.0) { return dotColor; }
  if (params.flags.z != 0.0) { return vec4f(dotColor.rgb * texColor.a + texColor.rgb * (1.0 - dotColor.a), texColor.a); }

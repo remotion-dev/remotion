@@ -12,7 +12,7 @@ fn random(co: vec2f) -> f32 {
 }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
-  let noise = random(vec2f(input.position.x, params.size.y - input.position.y));
+  let noise = random(texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.size.y - input.position.y), params.size.y));
   var rgb = vec3f(0);
   if (color.a != 0.0) { rgb = color.rgb / color.a; }
   return vec4f(mix(rgb, vec3f(noise), params.amount) * color.a, color.a);

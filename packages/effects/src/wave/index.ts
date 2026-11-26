@@ -164,13 +164,22 @@ export const wave = createEffect<WaveParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<WaveParams, WaveState>({
 			setup: (target) => setupWave(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyWave({
 					state,
 					source,
 					width,
 					height,
+					contentRect,
 					flipSourceY,
 					amplitude: r.amplitude,
 					wavelength: r.wavelength,

@@ -9,6 +9,7 @@ struct Params {
  wind: f32, windVariation: f32, spread: f32, wiggleAmount: f32,
  wiggleAmountVariation: f32, wiggleFrequency: f32, wiggleFrequencyVariation: f32, opacity: f32,
  refract: f32, composite: f32, lighten: f32, padding: f32,
+ contentRect: vec4f,
 }
 struct ParticleOutput {
  @builtin(position) position: vec4f,
@@ -61,38 +62,40 @@ fn sourceAt(position: vec2f) -> vec4f {
  var output: ParticleOutput;
 	var i: u32 = instanceIndex;
 	var depth: f32 = 1.0 / (1.0 + noise(i, 1u) * params.sceneDepth / 2500.0);
-	var offset: vec2f = (params.offset - vec2f(0.5)) * params.resolution;
+	let contentSize = params.contentRect.zw;
+	var offset: vec2f = (params.offset - vec2f(0.5)) * contentSize;
 	var position: vec2f ;
 	var line: vec2f = vec2f(0.0);
 	var radius: f32 ;
 	var alpha: f32 ;
 	if (params.snow == 1) {
 		radius = max(params.size * 0.5 * depth * (1.0 + params.sizeVariation * signedNoise(i, 2u)), 0.05);
-		var speed: f32 = params.speed * (params.resolution.y / 600.0) * depth * (1.0 + params.speedVariation * signedNoise(i, 3u));
-		var wind: f32 = params.wind * (params.resolution.y / 1200.0) * depth * (1.0 + params.windVariation * signedNoise(i, 4u))
+		var speed: f32 = params.speed * (contentSize.y / 600.0) * depth * (1.0 + params.speedVariation * signedNoise(i, 3u));
+		var wind: f32 = params.wind * (contentSize.y / 1200.0) * depth * (1.0 + params.windVariation * signedNoise(i, 4u))
 			+ params.spread * signedNoise(i, 8u) * depth;
 		var amplitude: f32 = params.wiggleAmount * 2.0 * depth * (1.0 + params.wiggleAmountVariation * signedNoise(i, 5u));
 		var frequency: f32 = params.wiggleFrequency * (1.0 + params.wiggleFrequencyVariation * signedNoise(i, 6u));
 		var phase: f32 = noise(i, 9u) * 6.283185307179586;
 		var margin: f32 = radius + abs(amplitude) + 2.0;
-		position.y = wrap(noise(i, 10u) * (params.resolution.y + 2.0 * margin) + speed * params.time + offset.y, margin, params.resolution.y);
-		position.x = wrap(noise(i, 11u) * (params.resolution.x + 2.0 * margin) + wind * params.time + offset.x, margin, params.resolution.x)
+		position.y = wrap(noise(i, 10u) * (contentSize.y + 2.0 * margin) + speed * params.time + offset.y, margin, contentSize.y);
+		position.x = wrap(noise(i, 11u) * (contentSize.x + 2.0 * margin) + wind * params.time + offset.x, margin, contentSize.x)
 			+ amplitude * sin(frequency * params.time * 6.283185307179586 + phase);
 		alpha = params.opacity * (0.4 + 0.6 * depth);
 	} else {
-		var speed: f32 = params.speed / 4000.0 * params.resolution.y * 2.2 * depth;
-		var wind: f32 = params.wind / 1000.0 * params.resolution.y * (1.0 + params.windVariation * signedNoise(i, 2u)) * depth
+		var speed: f32 = params.speed / 4000.0 * contentSize.y * 2.2 * depth;
+		var wind: f32 = params.wind / 1000.0 * contentSize.y * (1.0 + params.windVariation * signedNoise(i, 2u)) * depth
 			+ params.spread * signedNoise(i, 7u) * depth;
 		var length: f32 = max(speed * 0.04 * max(params.size, 0.2), 1.0);
 		var horizontalLength: f32 = wind * 0.04 * max(params.size, 0.2);
 		var margin: f32 = length + abs(horizontalLength) + 4.0;
-		position.y = wrap(noise(i, 3u) * (params.resolution.y + 2.0 * margin) + speed * params.time + offset.y, margin, params.resolution.y);
-		position.x = wrap(noise(i, 4u) * (params.resolution.x + 2.0 * margin) + wind * params.time + offset.x, margin, params.resolution.x);
+		position.y = wrap(noise(i, 3u) * (contentSize.y + 2.0 * margin) + speed * params.time + offset.y, margin, contentSize.y);
+		position.x = wrap(noise(i, 4u) * (contentSize.x + 2.0 * margin) + wind * params.time + offset.x, margin, contentSize.x);
 		line = vec2f(-horizontalLength, -length);
 		radius = max(params.size * 0.6 * depth, 0.25);
 		alpha = params.opacity * (0.35 + 0.65 * depth);
 	}
 
+	position += params.contentRect.xy;
 	var color: vec3f = params.color.rgb;
 	if (params.snow == 0 && params.refract == 1) {
 		var sampleColor: vec4f = sourceAt(position + vec2f(2.0, 0.0));

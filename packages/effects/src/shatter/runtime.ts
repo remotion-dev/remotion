@@ -1,3 +1,5 @@
+import type {EffectContentRect} from 'remotion';
+
 export type ShatterState = {
 	readonly gl: WebGL2RenderingContext;
 	readonly program: WebGLProgram;
@@ -6,6 +8,7 @@ export type ShatterState = {
 	readonly texture: WebGLTexture;
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
 };
 
 const VERTEX_SHADER = /* glsl */ `#version 300 es
@@ -15,22 +18,22 @@ layout(location = 2) in float aShade;
 layout(location = 3) in float aSide;
 
 uniform vec2 uResolution;
+uniform vec4 uContentRect;
 
 out vec2 vUv;
 out float vShade;
 out float vSide;
 
 void main() {
-	float distance = max(uResolution.x, uResolution.y) * 2.0;
+	float distance = max(uContentRect.z, uContentRect.w) * 2.0;
 	float near = distance * 0.05;
 	float w = distance + aPosition.z;
-	vec2 position = vec2(
-		(aPosition.x - uResolution.x * 0.5) * 2.0 / uResolution.x,
-		(uResolution.y * 0.5 - aPosition.y) * 2.0 / uResolution.y
-	);
+	vec2 cameraCenter = uContentRect.xy + 0.5 * uContentRect.zw;
+	vec2 position = ((aPosition.xy - uResolution * 0.5) * distance
+		+ (cameraCenter - uResolution * 0.5) * aPosition.z) * vec2(2.0, -2.0) / uResolution;
 	// Keep homogeneous coordinates so WebGL clips shards at the near plane
 	// and interpolates their texture coordinates with perspective correction.
-	gl_Position = vec4(position * distance, w - 2.0 * near, w);
+	gl_Position = vec4(position, w - 2.0 * near, w);
 	vUv = vec2(aUv.x, 1.0 - aUv.y);
 	vShade = aShade;
 	vSide = aSide;
@@ -130,6 +133,7 @@ export const setupShatter = (gl: WebGL2RenderingContext): ShatterState => {
 			texture,
 			uSource: gl.getUniformLocation(program, 'uSource'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 		};
 	} catch (error) {
 		gl.deleteTexture(texture);
@@ -149,6 +153,7 @@ export const drawShatter = ({
 	source,
 	width,
 	height,
+	contentRect,
 	flipSourceY,
 	vertices,
 }: {
@@ -156,6 +161,7 @@ export const drawShatter = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly flipSourceY: boolean;
 	readonly vertices: Float32Array;
 }): void => {
@@ -192,6 +198,13 @@ export const drawShatter = ({
 		);
 		gl.uniform1i(uSource, 0);
 		gl.uniform2f(uResolution, width, height);
+		gl.uniform4f(
+			state.uContentRect,
+			contentRect.x,
+			contentRect.y,
+			contentRect.width,
+			contentRect.height,
+		);
 		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 7);
 
 		gl.bindVertexArray(null);

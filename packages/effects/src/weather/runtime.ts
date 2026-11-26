@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
 import {parseColorRgba, type ParsedColorRgba} from '../color-utils.js';
 import {
 	WEATHER_COMPOSITE_FRAGMENT_SHADER,
@@ -142,6 +142,7 @@ export const setupWeather = (
 				[
 					'uSource',
 					'uResolution',
+					'uContentRect',
 					'uSnow',
 					'uTime',
 					'uSeed',
@@ -195,6 +196,7 @@ export const drawWeather = ({
 	source,
 	width,
 	height,
+	contentRect,
 	flipSourceY,
 	params,
 	type,
@@ -203,6 +205,7 @@ export const drawWeather = ({
 	source: TexImageSource;
 	width: number;
 	height: number;
+	contentRect: EffectContentRect;
 	flipSourceY: boolean;
 	params: WeatherRenderParams;
 	type: 'rain' | 'snow';
@@ -266,6 +269,13 @@ export const drawWeather = ({
 	gl.bindVertexArray(state.vao);
 	gl.uniform1i(uniforms.uSource, 0);
 	gl.uniform2f(uniforms.uResolution, width, height);
+	gl.uniform4f(
+		uniforms.uContentRect,
+		contentRect.x,
+		contentRect.y,
+		contentRect.width,
+		contentRect.height,
+	);
 	gl.uniform1i(uniforms.uSnow, type === 'snow' ? 1 : 0);
 	gl.uniform1f(uniforms.uTime, params.time);
 	gl.uniform1ui(uniforms.uSeed, params.seed);

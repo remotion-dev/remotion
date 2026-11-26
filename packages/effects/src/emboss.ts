@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {EMBOSS_WEBGPU_SHADER} from './emboss-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
@@ -116,6 +120,7 @@ type EmbossState = {
 	readonly texture: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uResolution: WebGLUniformLocation | null;
 		readonly uAmount: WebGLUniformLocation | null;
 		readonly uSize: WebGLUniformLocation | null;
@@ -179,6 +184,7 @@ precision highp float;
 in vec2 vUv;
 out vec4 fragColor;
 
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uAmount;
@@ -203,7 +209,7 @@ float roundedBoxSdf(vec2 p, vec2 halfSize, float radius) {
 float reliefHeight(vec2 fragPos) {
 	float size = max(uSize, 0.001);
 	float lineWidth = clamp(uLineWidth, 0.001, size * 0.85);
-	vec2 pos = rotation(uAngle) * (fragPos - uResolution * 0.5);
+	vec2 pos = rotation(uAngle) * (fragPos - uContentRect.zw * 0.5);
 	pos.x += uOffset;
 
 	vec2 cell = floor(pos / size);
@@ -235,7 +241,7 @@ void main() {
 		return;
 	}
 
-	vec2 fragPos = vUv * uResolution;
+	vec2 fragPos = textureUvToElementUvBottomLeft(vUv, uResolution) * uContentRect.zw;
 	float h = reliefHeight(fragPos);
 	float hLeft = reliefHeight(fragPos - vec2(1.0, 0.0));
 	float hRight = reliefHeight(fragPos + vec2(1.0, 0.0));
@@ -374,6 +380,7 @@ const setupEmboss = (target: HTMLCanvasElement): EmbossState => {
 		texture,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
 			uSize: gl.getUniformLocation(program, 'uSize'),
@@ -401,7 +408,15 @@ export const emboss = createEffect<EmbossParams>({
 	implementations: {
 		webgl2: Internals.createEffectImplementation<EmbossParams, EmbossState>({
 			setup: (target) => setupEmboss(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture, uniforms} = state;
 
@@ -425,6 +440,14 @@ export const emboss = createEffect<EmbossParams>({
 					source as TexImageSource,
 				);
 
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					null,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 				if (uniforms.uResolution)
 					gl.uniform2f(uniforms.uResolution, width, height);

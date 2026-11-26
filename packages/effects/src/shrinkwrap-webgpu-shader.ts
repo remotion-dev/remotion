@@ -95,8 +95,8 @@ fn curvedFoldField(px: vec2f, baseAngle: f32, spacing: f32, width: f32, seedOffs
 }
 
 fn edgeMask(uv: vec2f) -> f32 {
-	var pxFromEdge: vec2f = min(uv, vec2f(1.0) - uv) * params.size;
-	var minSide: f32 = min(params.size.x, params.size.y);
+	var pxFromEdge: vec2f = min(uv, vec2f(1.0) - uv) * effectGeometry.contentRect.zw;
+	var minSide: f32 = min(effectGeometry.contentRect.z, effectGeometry.contentRect.w);
 	var side: f32 = 1.0 - smoothstep(0.0, minSide * 0.16, min(pxFromEdge.x, pxFromEdge.y));
 	var corner: f32 = 1.0 - smoothstep(
 		0.0,
@@ -108,8 +108,8 @@ fn edgeMask(uv: vec2f) -> f32 {
 }
 
 fn heightMap(uv: vec2f) -> f32 {
-	var px: vec2f = uv * params.size;
-	var minSide: f32 = min(params.size.x, params.size.y);
+	var px: vec2f = uv * effectGeometry.contentRect.zw;
+	var minSide: f32 = min(effectGeometry.contentRect.z, effectGeometry.contentRect.w);
 	var density: f32 = clamp(params.wrinkleDensity, 0.0, 1.0);
 	var spacing: f32 = mix(minSide * 0.31, minSide * 0.13, density);
 	var width: f32 = mix(minSide * 0.03, minSide * 0.013, density);
@@ -165,17 +165,18 @@ fn heightMap(uv: vec2f) -> f32 {
 		return textureSampleLevel(source, sourceSampler, vec2f(vUv.x,1.0-vUv.y), 0);
 	}
 
-	var texel: vec2f = vec2f(1.0) / params.size;
-	var left: f32 = heightMap(vUv - vec2f(texel.x, 0.0));
-	var right: f32 = heightMap(vUv + vec2f(texel.x, 0.0));
-	var down: f32 = heightMap(vUv - vec2f(0.0, texel.y));
-	var up: f32 = heightMap(vUv + vec2f(0.0, texel.y));
+	let elementUv = textureUvToElementUvBottomLeft(vUv, params.size);
+	let texel = vec2f(1.0) / effectGeometry.contentRect.zw;
+	var left: f32 = heightMap(elementUv - vec2f(texel.x, 0.0));
+	var right: f32 = heightMap(elementUv + vec2f(texel.x, 0.0));
+	var down: f32 = heightMap(elementUv - vec2f(0.0, texel.y));
+	var up: f32 = heightMap(elementUv + vec2f(0.0, texel.y));
 	var gradient: vec2f = vec2f(right - left, up - down);
 	var reliefScale: f32 = mix(42.0, 115.0, params.wrinkleDensity);
 	var warpStrength: f32 = reliefScale * 0.32;
 
 	var sampleOffset: vec2f = gradient * warpStrength * params.displacement * params.amount;
-	var sampleUv: vec2f = clamp(vUv - sampleOffset * texel, vec2f(0.0), vec2f(1.0));
+	var sampleUv: vec2f = clamp(vUv - sampleOffset / params.size, vec2f(0.0), vec2f(1.0));
 	var color: vec4f = textureSampleLevel(source, sourceSampler, vec2f(sampleUv.x,1.0-sampleUv.y), 0);
 
 	var alpha: f32 = color.a;
@@ -191,11 +192,11 @@ fn heightMap(uv: vec2f) -> f32 {
 	var directional: f32 = dot(gradient, normalize(vec2f(-0.45, 0.72)));
 	var creaseHighlight: f32 = smoothstep(0.02, 0.07, directional);
 	var creaseShadow: f32 = smoothstep(0.02, 0.07, -directional);
-	var edge: f32 = edgeMask(vUv) * params.edgeTension;
+	var edge: f32 = edgeMask(elementUv) * params.edgeTension;
 	var edgeGlint: f32 = edge * smoothstep(
 		0.35,
 		0.95,
-		fbm(vUv * params.size / 90.0 + phaseVec(0.31, -0.24) + vec2f(params.seed))
+		fbm(elementUv * effectGeometry.contentRect.zw / 90.0 + phaseVec(0.31, -0.24) + vec2f(params.seed))
 	);
 
 	var highlight: f32 = clamp(

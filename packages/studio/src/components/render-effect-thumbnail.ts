@@ -84,7 +84,19 @@ export const renderEffectThumbnail = ({
 
 		const effect = factory(getEffectPickerConfig(item));
 		const {width, height} = snapshot;
-		const state = Internals.createEffectChainState(width, height);
+		const geometry = Internals.effectCanvasGeometries.get(snapshot);
+		const state = Internals.createEffectChainState(
+			width,
+			height,
+			geometry
+				? {
+						x: (geometry.contentRect.x * width) / geometry.width,
+						y: (geometry.contentRect.y * height) / geometry.height,
+						width: (geometry.contentRect.width * width) / geometry.width,
+						height: (geometry.contentRect.height * height) / geometry.height,
+					}
+				: null,
+		);
 		const output = document.createElement('canvas');
 		output.width = width;
 		output.height = height;

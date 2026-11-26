@@ -8,6 +8,10 @@ import {
 } from './color-utils.js';
 import {CONTOUR_LINES_WEBGPU_SHADER} from './contour-lines-webgpu-shader.js';
 import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertOptionalColor,
@@ -172,7 +176,8 @@ type ContourLinesState = {
 	readonly colorCtx: CanvasRenderingContext2D;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uLineColor: WebGLUniformLocation | null;
 		readonly uLineWidth: WebGLUniformLocation | null;
 		readonly uSpacing: WebGLUniformLocation | null;
@@ -251,7 +256,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform vec4 uLineColor;
 uniform float uLineWidth;
 uniform float uSpacing;
@@ -306,9 +311,8 @@ float fbm(vec2 p) {
 	return value / totalAmplitude;
 }
 
-void main() {
-	vec4 texColor = texture(uSource, vUv);
-	vec2 pixelPosition = gl_FragCoord.xy + uOffset;
+float contourAt(vec2 pixel) {
+	vec2 pixelPosition = pixel + uOffset;
 	float scale = max(uScale, 0.001);
 	vec2 p = pixelPosition / scale + vec2(uSeed * 0.137, uSeed * 0.193);
 
@@ -321,13 +325,29 @@ void main() {
 	float terrain = fbm(p + warp * complexity * mix(2.8, 1.2, smoothness));
 
 	float levels = max(
-		max(uResolution.x, uResolution.y) / (max(uSpacing, 0.001) * 2.0),
+		max(uContentRect.z, uContentRect.w) / (max(uSpacing, 0.001) * 2.0),
 		1.0
 	);
-	float contourPosition = terrain * levels;
+	return terrain * levels;
+}
+
+void main() {
+	vec4 texColor = texture(uSource, vUv);
+	vec2 pixel = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	float contourPosition = contourAt(pixel);
 	float contourFraction = fract(contourPosition);
 	float distanceToContour = min(contourFraction, 1.0 - contourFraction);
-	float derivative = max(fwidth(contourPosition), 0.0001);
+	vec2 derivatives = abs(vec2(dFdx(contourPosition), dFdy(contourPosition)));
+	// Keep antialiasing on the element's original 2×2 pixel quads.
+	vec2 parity = mod(floor(pixel), 2.0);
+	vec2 targetParity = mod(floor(gl_FragCoord.xy), 2.0);
+	if (parity.x != targetParity.x) {
+		derivatives.x = abs(contourAt(pixel + vec2(1.0 - 2.0 * parity.x, 0.0)) - contourPosition);
+	}
+	if (parity.y != targetParity.y) {
+		derivatives.y = abs(contourAt(pixel + vec2(0.0, 1.0 - 2.0 * parity.y)) - contourPosition);
+	}
+	float derivative = max(derivatives.x + derivatives.y, 0.0001);
 	float halfLineWidth = max(uLineWidth, 0.001) * 0.5 * derivative;
 	float coverage = 1.0 - smoothstep(
 		halfLineWidth,
@@ -485,7 +505,8 @@ const setupContourLines = (target: HTMLCanvasElement): ContourLinesState => {
 		colorCtx,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 			uLineColor: gl.getUniformLocation(program, 'uLineColor'),
 			uLineWidth: gl.getUniformLocation(program, 'uLineWidth'),
 			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
@@ -559,7 +580,15 @@ export const contourLines = createEffect<ContourLinesParams>({
 			ContourLinesState
 		>({
 			setup: (target) => setupContourLines(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, sourceTexture, uniforms, vao} = state;
 
@@ -593,8 +622,14 @@ export const contourLines = createEffect<ContourLinesParams>({
 
 				gl.useProgram(program);
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uLineColor) {
 					gl.uniform4f(
 						uniforms.uLineColor,

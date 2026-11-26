@@ -4,6 +4,10 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {PATTERN_WEBGPU_SHADER} from './pattern-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
@@ -197,7 +201,8 @@ type PatternState = {
 	readonly texture: WebGLTexture;
 	readonly uniforms: {
 		readonly uSource: WebGLUniformLocation | null;
-		readonly uResolution: WebGLUniformLocation | null;
+		readonly uEffectTextureSize: WebGLUniformLocation | null;
+		readonly uContentRect: WebGLUniformLocation | null;
 		readonly uScale: WebGLUniformLocation | null;
 		readonly uCrop: WebGLUniformLocation | null;
 		readonly uGap: WebGLUniformLocation | null;
@@ -313,7 +318,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uScale;
 uniform vec4 uCrop;
 uniform vec2 uGap;
@@ -350,7 +355,7 @@ bool sampleCell(vec2 cell, vec2 fragPx, vec2 cropStart, vec2 tileSize, vec2 pitc
 	}
 
 	vec2 sourcePx = cropStart + localPx / uScale;
-	vec2 sourceUv = vec2(sourcePx.x / uResolution.x, 1.0 - sourcePx.y / uResolution.y);
+	vec2 sourceUv = vec2(sourcePx.x / uEffectTextureSize.x, 1.0 - sourcePx.y / uEffectTextureSize.y);
 
 	if (sourceUv.x < 0.0 || sourceUv.y < 0.0 || sourceUv.x > 1.0 || sourceUv.y > 1.0) {
 		return false;
@@ -361,13 +366,13 @@ bool sampleCell(vec2 cell, vec2 fragPx, vec2 cropStart, vec2 tileSize, vec2 pitc
 }
 
 void main() {
-	vec2 cropStart = uCrop.xy;
-	vec2 cropEnd = uResolution - uCrop.zw;
+	vec2 cropStart = uContentRect.xy + uCrop.xy;
+	vec2 cropEnd = uContentRect.xy + uContentRect.zw - uCrop.zw;
 	vec2 cropSize = max(cropEnd - cropStart, vec2(0.001));
 	vec2 tileSize = max(cropSize * uScale, vec2(0.001));
 	vec2 pitch = max(tileSize + uGap, vec2(0.001));
-	vec2 originPx = (uOrigin + uOffset) * uResolution;
-	vec2 fragPx = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y);
+	vec2 originPx = uContentRect.xy + (uOrigin + uOffset) * uContentRect.zw;
+	vec2 fragPx = vec2(gl_FragCoord.x, uEffectTextureSize.y - gl_FragCoord.y);
 
 	vec2 gridPx = fragPx - originPx;
 	vec2 cell = floor(gridPx / pitch);
@@ -562,7 +567,11 @@ export const pattern = createEffect<PatternParams>({
 					texture,
 					uniforms: {
 						uSource: gl.getUniformLocation(program, 'uSource'),
-						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uEffectTextureSize: gl.getUniformLocation(
+							program,
+							'uEffectTextureSize',
+						),
+						uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 						uScale: gl.getUniformLocation(program, 'uScale'),
 						uCrop: gl.getUniformLocation(program, 'uCrop'),
 						uGap: gl.getUniformLocation(program, 'uGap'),
@@ -574,7 +583,15 @@ export const pattern = createEffect<PatternParams>({
 					},
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture, uniforms} = state;
 
@@ -599,8 +616,14 @@ export const pattern = createEffect<PatternParams>({
 				);
 
 				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-				if (uniforms.uResolution)
-					gl.uniform2f(uniforms.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					uniforms.uContentRect,
+					uniforms.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
 				if (uniforms.uCrop)
 					gl.uniform4f(

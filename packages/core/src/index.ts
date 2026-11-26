@@ -165,6 +165,7 @@ export {
 	type MultiBackendEffectDefinition,
 	type Backend,
 	type EffectApplyParams,
+	type EffectContentRect,
 	type EffectDefinition,
 	type EffectDefinitionAndStack,
 	type EffectDescriptor,

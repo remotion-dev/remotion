@@ -4,6 +4,7 @@ import {
 	assertOptionalFiniteNumber,
 	validateNonNegative,
 } from '../color-utils.js';
+import {elementUvToTextureUv} from '../effect-coordinates.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -159,17 +160,24 @@ export const fisheye = createEffect<FisheyeParams>({
 			WebGpuSinglePassState
 		>({
 			setup: (target) => setupWebGpuSinglePass(target, 'fisheye'),
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice) {
 					throw new Error('A WebGPU device is required for the fisheye effect');
 				}
 
 				const r = resolve(params);
 				const uniformData = new Float32Array([
-					r.center[0],
-					r.center[1],
+					...elementUvToTextureUv(r.center, contentRect, width, height),
 					r.fieldOfView,
-					r.radius,
+					(r.radius * contentRect.height) / height,
 					r.zoom,
 					width / height,
 					0,
@@ -189,16 +197,24 @@ export const fisheye = createEffect<FisheyeParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<FisheyeParams, FisheyeState>({
 			setup: (target) => setupFisheye(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyFisheye({
 					state,
 					source,
 					width,
 					height,
-					center: r.center,
+					center: elementUvToTextureUv(r.center, contentRect, width, height),
 					fieldOfView: r.fieldOfView,
-					radius: r.radius,
+					radius: (r.radius * contentRect.height) / height,
 					zoom: r.zoom,
 					flipSourceY,
 				});

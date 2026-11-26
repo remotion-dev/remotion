@@ -5,6 +5,10 @@ import {
 	validateNonNegative,
 } from './color-utils.js';
 import {DOT_GRID_WEBGPU_SHADER} from './dot-grid-webgpu-shader.js';
+import {
+	EFFECT_COORDINATES_GLSL,
+	setEffectCoordinateUniforms,
+} from './effect-coordinates.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 import {
 	applyWebGpuSinglePass,
@@ -116,14 +120,14 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform sampler2D uSource;
-uniform vec2 uResolution;
+${EFFECT_COORDINATES_GLSL}
 uniform float uDotSize;
 uniform float uGridSize;
 uniform bool uInvert;
 
 void main() {
-	vec2 fragPos = gl_FragCoord.xy;
-	vec2 center = uResolution * 0.5;
+	vec2 fragPos = texturePixelToElementPixelBottomLeft(gl_FragCoord.xy, uEffectTextureSize.y);
+	vec2 center = uContentRect.zw * 0.5;
 	vec2 gridPos = fragPos - center;
 
 	float gridSize = max(uGridSize, 0.001);
@@ -149,7 +153,8 @@ type DotGridState = {
 	vbo: WebGLBuffer;
 	texture: WebGLTexture;
 	uSource: WebGLUniformLocation | null;
-	uResolution: WebGLUniformLocation | null;
+	uEffectTextureSize: WebGLUniformLocation | null;
+	uContentRect: WebGLUniformLocation | null;
 	uDotSize: WebGLUniformLocation | null;
 	uGridSize: WebGLUniformLocation | null;
 	uInvert: WebGLUniformLocation | null;
@@ -306,13 +311,25 @@ export const dotGrid = createEffect<DotGridParams>({
 					vbo,
 					texture,
 					uSource: gl.getUniformLocation(program, 'uSource'),
-					uResolution: gl.getUniformLocation(program, 'uResolution'),
+					uEffectTextureSize: gl.getUniformLocation(
+						program,
+						'uEffectTextureSize',
+					),
+					uContentRect: gl.getUniformLocation(program, 'uContentRect'),
 					uDotSize: gl.getUniformLocation(program, 'uDotSize'),
 					uGridSize: gl.getUniformLocation(program, 'uGridSize'),
 					uInvert: gl.getUniformLocation(program, 'uInvert'),
 				};
 			},
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				const {gl, program, vao, texture} = state;
 
@@ -337,7 +354,14 @@ export const dotGrid = createEffect<DotGridParams>({
 				);
 
 				if (state.uSource) gl.uniform1i(state.uSource, 0);
-				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				setEffectCoordinateUniforms(
+					gl,
+					state.uContentRect,
+					state.uEffectTextureSize,
+					contentRect,
+					width,
+					height,
+				);
 				if (state.uDotSize) gl.uniform1f(state.uDotSize, r.dotSize);
 				if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
 				if (state.uInvert) gl.uniform1i(state.uInvert, r.invert ? 1 : 0);

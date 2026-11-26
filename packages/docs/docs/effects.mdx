@@ -4,6 +4,8 @@ id: effects
 title: Effects
 ---
 
+import {TableOfContents} from './effects/table-of-contents';
+
 # Effects<AvailableFrom v="4.0.464" />
 
 <video
@@ -17,6 +19,14 @@ title: Effects
 
 Apply effects doing pixel manipulation onto any element.  
 You can use one of Remotions built-in effects or create your own.
+
+## Available effects
+
+Browse the [Effects library](/effects) for previews, examples, and options for each effect.
+
+## Table of contents
+
+<TableOfContents />
 
 ## Supported components
 
@@ -75,10 +85,6 @@ Ask an agent with [Remotion Skills](/docs/agents/skills) installed to add an eff
 
 Multiple effects can be combined. They apply in the order they are specified.
 
-## Available effects
-
-Browse the [Effects library](/effects) for previews, examples, and options for each effect.
-
 ## Visual editing in Studio
 
 When you select a component with effects in [Remotion Studio](/docs/studio), you can edit effect parameters in the timeline and toggle effects.
@@ -87,7 +93,7 @@ When you select a component with effects in [Remotion Studio](/docs/studio), you
 
 ## Custom effects
 
-To build your own effect, use [`createEffect()`](/docs/create-effect). It supports 2D Canvas APIs, WebGL2 and WebGPU, and creates an effect factory that can be passed to an `effects` array.
+Follow [Make your own effect](/docs/effects/custom) for a short example, or see [`createEffect()`](/docs/create-effect) for the full API.
 
 ## See also
 

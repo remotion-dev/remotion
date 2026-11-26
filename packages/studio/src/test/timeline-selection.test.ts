@@ -28,6 +28,7 @@ import {canEditSelectedOutlineCrop} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
+	getEffectUvOutline,
 	getUvCoordinateForPoint,
 	getUvEllipseInteractiveControls,
 	getUvHandleConnectionEllipses,
@@ -4378,6 +4379,7 @@ test('Canvas outlines exclude descendants of connected compositions', () => {
 test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
+		effectGeometry: null,
 		dimensions: null,
 		uncroppedPoints: null,
 		path: null,
@@ -4426,6 +4428,7 @@ const makeTestOutline = ({
 	readonly height: number;
 }): SelectedOutline => ({
 	key,
+	effectGeometry: null,
 	dimensions: {width, height},
 	uncroppedPoints: null,
 	path: null,
@@ -5082,6 +5085,29 @@ test('UV handles use projective projection for perspective quads', () => {
 
 	expect(projectedCenter.x).toBeCloseTo(50, 5);
 	expect(projectedCenter.y).toBeCloseTo(100 / 3, 5);
+
+	const controlOutline = getEffectUvOutline({
+		key: 'padded',
+		dimensions: {width: 120, height: 80},
+		points,
+		uncroppedPoints: points,
+		effectGeometry: {
+			width: 120,
+			height: 80,
+			contentRect: {x: 10, y: 10, width: 100, height: 60},
+		},
+		path: null,
+	});
+	expect(controlOutline.dimensions).toEqual({width: 100, height: 60});
+	const originalCorner = getUvHandlePosition(points, [10 / 120, 10 / 80]);
+	expect(controlOutline.points[0].x).toBeCloseTo(originalCorner.x, 5);
+	expect(controlOutline.points[0].y).toBeCloseTo(originalCorner.y, 5);
+	const paddingClick = getUvCoordinateForPoint(
+		controlOutline.points,
+		points[0],
+	);
+	expect(paddingClick[0]).toBeCloseTo(-10 / 100, 5);
+	expect(paddingClick[1]).toBeCloseTo(-10 / 60, 5);
 });
 
 test('Sequence crops are projected through perspective transforms', () => {
