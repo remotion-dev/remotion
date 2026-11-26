@@ -45,6 +45,12 @@ A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/co
 
 A non-empty record of new values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes the prop or nested property. Only one level of nested keys is supported. Use `children` to replace static text. Use [`staticFileValue()`](/docs/codemods/static-file-value) to write a [`staticFile()`](/docs/staticfile) call. Provide exactly one of `props` or `updates`.
 
+#### Transition timing<AvailableFrom v="4.0.548" />
+
+For a [`<TransitionSeries.Transition>`](/docs/transitions/transitionseries#transitionseriestransition) node, `props: {durationInFrames: 20, easing: {type: 'step1'}}` writes `durationInFrames: 20` and `easing: Easing.step1` inside the existing [`linearTiming()`](/docs/transitions/timings/lineartiming) call. Either option can be updated on its own.
+
+A new duration must be a positive safe integer. Setting `easing` to `undefined` restores linear easing. Both the `props` and `updates` forms reject edits to a timing option that [`getNodeProps()` reports as computed](/docs/codemods/get-node-props#transition-timing).
+
 ### updates?
 
 A non-empty array of explicit prop edits. Use this form to remove a value when it matches a known default or to paste a structured animation. Unlike `props`, this form permits replacing computed prop values.
