@@ -380,6 +380,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								<dt>Duration</dt>
 								<dd>{(durationInFrames / fps).toFixed(2)}s</dd>
 							</div>
+							<div>
+								<dt title="Whether the Element repeats seamlessly at its default settings and duration">
+									Loopable
+								</dt>
+								<dd>{definition.loopable ? 'Yes' : 'No'}</dd>
+							</div>
 							<div className={styles.dependenciesMetadata}>
 								<dt>Dependencies</dt>
 								<dd>
