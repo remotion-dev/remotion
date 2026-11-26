@@ -90,6 +90,7 @@ export const studioCommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: false,
+		firstArgCanBeCompositionId: false,
 	});
 
 	Log.verbose(
