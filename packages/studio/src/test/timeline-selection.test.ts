@@ -4379,6 +4379,7 @@ test('Canvas outlines exclude descendants of connected compositions', () => {
 test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
+		effectGeometry: null,
 		dimensions: null,
 		uncroppedPoints: null,
 		path: null,
@@ -4427,6 +4428,7 @@ const makeTestOutline = ({
 	readonly height: number;
 }): SelectedOutline => ({
 	key,
+	effectGeometry: null,
 	dimensions: {width, height},
 	uncroppedPoints: null,
 	path: null,

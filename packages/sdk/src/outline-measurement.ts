@@ -481,6 +481,7 @@ export const measureCanvasOutlineTargets = (
 			];
 			outlines.push({
 				key: target.key,
+				effectGeometry: null,
 				points: groupPoints,
 				uncroppedPoints: groupPoints,
 				dimensions: null,
@@ -494,12 +495,10 @@ export const measureCanvasOutlineTargets = (
 			throw new Error('Expected measured outline geometry');
 		}
 
-		const effectGeometry = Internals.effectCanvasGeometries.get(
-			measurableNodes[0],
-		);
 		outlines.push({
 			...elementGeometry,
-			...(effectGeometry ? {effectGeometry} : {}),
+			effectGeometry:
+				Internals.effectCanvasGeometries.get(measurableNodes[0]) ?? null,
 			key: target.key,
 			points: cropCanvasOutlinePoints(
 				elementGeometry.uncroppedPoints,

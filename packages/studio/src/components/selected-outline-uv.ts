@@ -36,7 +36,7 @@ export const getEffectUvOutline = (
 ): SelectedOutline => {
 	const geometry = outline.effectGeometry;
 	const points = outline.uncroppedPoints ?? outline.points;
-	if (!geometry) {
+	if (geometry === null) {
 		return points === outline.points ? outline : {...outline, points};
 	}
 

@@ -9,9 +9,9 @@ export type CanvasOutlinePoint = {
 export type CanvasOutline = {
 	readonly key: string;
 	/** The processing dimensions and original element rectangle in effect coordinates. */
-	readonly effectGeometry?: NonNullable<
+	readonly effectGeometry: NonNullable<
 		ReturnType<typeof Internals.effectCanvasGeometries.get>
-	>;
+	> | null;
 	readonly dimensions: {
 		readonly width: number;
 		readonly height: number;
