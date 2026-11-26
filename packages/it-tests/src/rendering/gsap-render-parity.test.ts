@@ -271,6 +271,10 @@ describe('GSAP renderer parity', () => {
 
 			expect(serial.size).toBe(parity.durationInFrames);
 			expect(concurrent.size).toBe(parity.durationInFrames);
+			const boundary = serial.get(30)!;
+			expect(pixelAt(boundary, 430, 200)).toEqual([191, 0, 0, 255]);
+			expect(pixelAt(boundary, 470, 200)).toEqual([0, 128, 0, 255]);
+			expect(pixelAt(boundary, 510, 200)).toEqual([0, 0, 128, 255]);
 
 			for (let frame = 0; frame < parity.durationInFrames; frame++) {
 				expect(

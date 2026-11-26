@@ -121,7 +121,7 @@ const config: Config = {
 					label: 'Products',
 					position: 'left',
 					items: [
-						{to: '/docs/ai/plugins', label: 'Plugins'},
+						{to: '/docs/agents/plugins', label: 'Plugins'},
 						{to: '/player', label: 'Player'},
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},

@@ -138,18 +138,6 @@ export const OptionsPanel: React.FC<{
 	);
 
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(getSelectedPanel);
-	const onInspectorSelected = useCallback(
-		(event: React.MouseEvent<HTMLDivElement>) => {
-			if (panel === 'inspector' && shouldClearSelectionOnPointerDown(event)) {
-				currentSelection.current.stepBackSelection(true);
-			}
-
-			setPanel('inspector');
-			persistSelectedOptionsSidebarPanel('inspector');
-		},
-		[currentSelection, panel],
-	);
-
 	const onRendersSelected = useCallback(() => {
 		setPanel('renders');
 		persistSelectedOptionsSidebarPanel('renders');
@@ -210,6 +198,22 @@ export const OptionsPanel: React.FC<{
 		selectedItems[0].type === 'sequence-all-effects'
 			? selectedItems[0]
 			: null;
+	const canStepBackOnInspectorClick =
+		panel === 'inspector' && effectsSelection === null;
+	const onInspectorSelected = useCallback(
+		(event: React.MouseEvent<HTMLDivElement>) => {
+			if (
+				canStepBackOnInspectorClick &&
+				shouldClearSelectionOnPointerDown(event)
+			) {
+				currentSelection.current.stepBackSelection(true);
+			}
+
+			setPanel('inspector');
+			persistSelectedOptionsSidebarPanel('inspector');
+		},
+		[canStepBackOnInspectorClick, currentSelection],
+	);
 	const onEffectsBack = useCallback(() => {
 		if (effectsSelection === null) {
 			return;
@@ -405,7 +409,7 @@ export const OptionsPanel: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			e.stopPropagation();
 			if (
-				panel !== 'inspector' ||
+				!canStepBackOnInspectorClick ||
 				!shouldClearSelectionOnPointerDown(e) ||
 				!(e.target instanceof Element) ||
 				!e.target.closest(`[${INSPECTOR_BACKGROUND_ATTRIBUTE}]`) ||
@@ -422,7 +426,7 @@ export const OptionsPanel: React.FC<{
 
 			currentSelection.current.stepBackSelection(true);
 		},
-		[currentSelection, panel],
+		[canStepBackOnInspectorClick, currentSelection],
 	);
 
 	return (

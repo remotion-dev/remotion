@@ -13,23 +13,25 @@ This guide explains how to display captions in Remotion, assuming you already ha
 
 Read [Transcribing audio](transcribe-captions.md) for how to generate captions.
 
-First, the [`@remotion/captions`](https://www.remotion.dev/docs/captions.md) package needs to be installed.
-If it is not installed, use the following command:
-
-```bash
-npx remotion add @remotion/captions # If project uses npm
-bunx remotion add @remotion/captions # If project uses bun
-yarn remotion add @remotion/captions # If project uses yarn
-pnpm exec remotion add @remotion/captions # If project uses pnpm
-```
-
 ## Adding the Basic Captions element
 
 Use the [Basic Captions](https://www.remotion.dev/elements/captions/basic-captions) element to display captions.
 
 Alternatives are available at [Remotion Captions Elements](https://www.remotion.dev/elements/captions), but use Basic Captions unless there are more precise specifications.
 
-Fetch its source code from https://www.remotion.dev/elements/captions/basic-captions.md and save it as `basic-captions.element.tsx` in the project unchanged.
+Install it into the composition with [`remotion elements use`](https://www.remotion.dev/docs/cli/elements/use.md):
+
+```bash
+npx remotion elements use https://www.remotion.dev/elements/captions/basic-captions/ --composition <composition-id> --yes # If project uses npm
+bunx remotion elements use https://www.remotion.dev/elements/captions/basic-captions/ --composition <composition-id> --yes # If project uses bun
+yarn remotion elements use https://www.remotion.dev/elements/captions/basic-captions/ --composition <composition-id> --yes # If project uses yarn
+pnpm exec remotion elements use https://www.remotion.dev/elements/captions/basic-captions/ --composition <composition-id> --yes # If project uses pnpm
+```
+
+This installs `@remotion/captions` if it is missing, writes `basic-captions.element.tsx` next to the composition's component, and inserts a `<BasicCaptions>` with sample captions at frame 0 at the top level of the composition.
+Do not edit `basic-captions.element.tsx`.
+
+Then move the inserted `<BasicCaptions>` into the `<Sequence>` of the clip it belongs to and replace its sample captions with that clip's captions, as described below.
 
 ## Displaying captions alongside video content
 

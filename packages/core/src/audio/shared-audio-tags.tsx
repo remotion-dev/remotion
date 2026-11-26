@@ -478,8 +478,16 @@ export const SharedAudioContextProvider: React.FC<{
 			return Promise.resolve();
 		}
 
-		return ctxAndGain.suspend();
-	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+		return ctxAndGain.suspend().catch((err) => {
+			// Swallow to avoid an unhandled rejection, since callers
+			// (e.g. use-playback.ts, use-player-methods.ts) do not await this.
+			Log.verbose(
+				{logLevel, tag: 'audio'},
+				'AudioContext suspend rejected',
+				err,
+			);
+		});
+	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
 	// With _experimentalKeepAudioContextAlive, start the context as early as
 	// possible so the first play never waits on the suspended→running transition. Where

@@ -8,6 +8,7 @@ import {
 	makeCommandHelpOption,
 } from './command-help';
 import {ELEMENTS_COMMAND} from './elements';
+import {ADD_LIBRARY_COMMAND} from './elements/add-library';
 import {USE_COMMAND} from './elements/use';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
@@ -116,6 +117,7 @@ const studioOptions = options(
 		'allow-html-in-canvas',
 		'editor',
 		'coding-agent',
+		'double-click-action',
 		'rspack',
 		'webpack-poll',
 		'no-open',
@@ -331,7 +333,10 @@ export const cliCommandHelp = [
 				'license-key',
 				'is-production',
 			],
-			{},
+			{
+				'license-key': 'Deprecated for still renders.',
+				'is-production': 'Deprecated for still renders.',
+			},
 			'still',
 		),
 	},
@@ -543,7 +548,7 @@ export const cliCommandHelp = [
 	{
 		path: [ELEMENTS_COMMAND],
 		args: ' <command>',
-		description: 'Install Elements from Element Libraries.',
+		description: 'Add Element Libraries and install their Elements.',
 		documentation: 'https://www.remotion.dev/docs/cli/elements',
 		options: [],
 	},
@@ -580,6 +585,20 @@ export const cliCommandHelp = [
 				description: 'Preview the installation without changing files.',
 			},
 			...options(['public-dir', 'package-manager', 'log']),
+		],
+	},
+	{
+		path: [ELEMENTS_COMMAND, ADD_LIBRARY_COMMAND],
+		args: ' <url>',
+		description: 'Add an Element Library to the Remotion config file.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements/add-library',
+		options: [
+			{
+				flag: '--display-name <name>',
+				optionIds: [],
+				description: 'Name of the library in Studio.',
+			},
+			...options(['config', 'log']),
 		],
 	},
 	{

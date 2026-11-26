@@ -24,7 +24,6 @@ const stills = await renderFramesOnWeb({
     id: 'my-composition',
   },
   frames: [0, 30, 90],
-  licenseKey: 'free-license',
 });
 
 const pngBlobs = await Promise.all(stills.map((still) => still.blob({format: 'png'})));
@@ -38,15 +37,17 @@ Accepts the same arguments as [`renderStillOnWeb()`](/docs/web-renderer/render-s
 
 An array of frame numbers to render. Behaves like the [`frames`](/docs/renderer/render-frames#frames) option of [`renderFrames()`](/docs/renderer/render-frames).
 
-### `licenseKey?`
+### ~~`licenseKey?`~~
 
-A [license key](/docs/licensing) to use for this render. Pass a public license key, or `"free-license"` if you [qualify for the free license](/docs/license). Defaults to no key.
+:::info Deprecated
+Stills now don't count against your render count anymore. You can remove this option now from still renders.
+:::
 
-One still-render telemetry event is sent for the entire batch, even if no key is provided. See [Telemetry](/docs/telemetry#telemetry-in-client-side-rendering).
+### ~~`isProduction?`~~
 
-### `isProduction?`
-
-<Options id="is-production" />
+:::info Deprecated
+Stills now don't count against your render count anymore. You can remove this option now from still renders.
+:::
 
 ## Return value
 

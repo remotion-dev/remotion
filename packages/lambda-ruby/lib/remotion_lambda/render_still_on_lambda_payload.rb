@@ -1,4 +1,15 @@
+require 'logger'
 require_relative 'version'
+
+module RemotionLambda
+  def self.log_deprecated_still_license_key(license_key, log_level, api, option)
+    return if license_key.nil? || license_key == "free-license" || %w[warn error].include?(log_level)
+
+    Logger.new($stderr).info(
+      "Still renders don't need to be tracked anymore, an unlimited amount is now included in any Remotion License. You can now remove `#{option}` from #{api}."
+    )
+  end
+end
 
 def get_render_still_on_lambda_payload(
   bucket_name: nil,
@@ -11,6 +22,7 @@ def get_render_still_on_lambda_payload(
   force_duration_in_frames: nil,
   force_path_style: false,
   force_width: nil,
+  # Deprecated: Still renders do not send usage telemetry.
   api_key: nil,
   license_key: nil,
   image_format: "jpeg",
@@ -35,9 +47,12 @@ def get_render_still_on_lambda_payload(
   is_production: nil
 )
 
-if api_key != nil
-  warn "[DEPRECATED] The 'api_key' parameter is deprecated and will be removed in a future version. Please use 'license_key' instead."
-end
+RemotionLambda.log_deprecated_still_license_key(
+  license_key || api_key,
+  log_level,
+  "get_render_still_on_lambda_payload()",
+  license_key.nil? ? "api_key" : "license_key"
+)
 
 payload = {
     composition: composition,
@@ -50,7 +65,7 @@ payload = {
     forceDurationInFrames: force_duration_in_frames,
     forcePathStyle: force_path_style,
     forceWidth: force_width,
-    licenseKey: license_key || api_key,
+    licenseKey: nil,
     imageFormat: image_format,
     inputProps: {
       type: "payload",
@@ -75,7 +90,7 @@ payload = {
     attempt: 1,
     streamed: false,
     frame: frame,
-    isProduction: is_production
+    isProduction: nil
   }
   payload
 end

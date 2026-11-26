@@ -242,6 +242,22 @@ test.for(['error', 'cancel'] as const)(
 				return closeFinished;
 			},
 		});
+		const {flush} = VideoEncoder.prototype;
+		let startFlush!: () => void;
+		let finishFlush!: () => void;
+		const flushStarted = new Promise<void>((resolve) => {
+			startFlush = resolve;
+		});
+		const flushReleased = new Promise<void>((resolve) => {
+			finishFlush = resolve;
+		});
+		const flushSpy = vi
+			.spyOn(VideoEncoder.prototype, 'flush')
+			.mockImplementation(function (this: VideoEncoder) {
+				startFlush();
+				return flushReleased.then(() => flush.call(this));
+			});
+		let framesSeen = 0;
 		const error = new Error('Deliberate frame failure');
 		let settled = false;
 		const result = renderMediaOnWeb({
@@ -259,6 +275,11 @@ test.for(['error', 'cancel'] as const)(
 			outputWritable,
 			signal: controller.signal,
 			onFrame: (frame) => {
+				// Let two frames reach the encoder before triggering cleanup.
+				if (++framesSeen < 3) {
+					return frame;
+				}
+
 				if (mode === 'error') {
 					frame.close();
 					throw error;
@@ -279,12 +300,20 @@ test.for(['error', 'cancel'] as const)(
 		);
 
 		try {
-			await closeStarted;
+			const first = await Promise.race([
+				closeStarted.then(() => 'stream closed'),
+				flushStarted.then(() => 'encoder flush'),
+				result.then(() => 'render settled'),
+			]);
+			expect(first).toBe('stream closed');
 			// Let render rejection settle if cleanup was started without being awaited.
 			await new Promise((resolve) => setTimeout(resolve, 0));
 			expect(settled).toBe(false);
 		} finally {
+			finishFlush();
 			finishClose();
+			await result;
+			flushSpy.mockRestore();
 		}
 
 		const reason = await result;

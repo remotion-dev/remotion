@@ -41,6 +41,7 @@ export type EventSourceEvent =
 			type: 'config-file-changed';
 			changeType: ConfigFileChangeType;
 			originatorClientId: string | null;
+			sourceVersion: SourceFileVersion | null;
 			renderDefaults: RenderDefaults;
 			studioRuntimeConfig: StudioRuntimeConfig;
 			editorName: string | null;
@@ -48,6 +49,7 @@ export type EventSourceEvent =
 	| {
 			type: 'config-file-reload-failed';
 			errorMessage: string;
+			sourceVersion: SourceFileVersion | null;
 	  }
 	| {
 			type: 'root-file-changed';

@@ -1,18 +1,22 @@
 import {StudioServerInternals} from '@remotion/studio-server';
+import type {SourceFileVersion} from '@remotion/studio-shared';
 
-export type ConfigReloadPending = {originatorClientId: string | null};
+export type ConfigReloadPending = {
+	originatorClientId: string | null;
+	sourceVersion: SourceFileVersion | null;
+};
 
 export type ConfigReloadState =
 	| {type: 'idle'}
 	| {type: 'reloading'; pending: ConfigReloadPending | null};
 
 export type ConfigReloadEvent =
-	| {type: 'change'; originatorClientId: string | null}
+	| ({type: 'change'} & ConfigReloadPending)
 	| {type: 'finished'};
 
 export type ConfigReloadEffect =
 	| {type: 'none'}
-	| {type: 'start-reload'; originatorClientId: string | null};
+	| ({type: 'start-reload'} & ConfigReloadPending);
 
 export const transitionConfigReload = (
 	state: ConfigReloadState,
@@ -25,6 +29,7 @@ export const transitionConfigReload = (
 				effect: {
 					type: 'start-reload',
 					originatorClientId: event.originatorClientId,
+					sourceVersion: event.sourceVersion,
 				},
 			};
 		}
@@ -33,6 +38,8 @@ export const transitionConfigReload = (
 			state: {
 				type: 'reloading',
 				pending: {
+					sourceVersion:
+						event.sourceVersion ?? state.pending?.sourceVersion ?? null,
 					originatorClientId:
 						state.pending === null ||
 						state.pending.originatorClientId === event.originatorClientId
@@ -56,7 +63,7 @@ export const transitionConfigReload = (
 		state: {type: 'reloading', pending: null},
 		effect: {
 			type: 'start-reload',
-			originatorClientId: state.pending.originatorClientId,
+			...state.pending,
 		},
 	};
 };
@@ -66,7 +73,7 @@ export const watchConfigFileForReloads = ({
 	reload,
 }: {
 	configFile: string;
-	reload: (originatorClientId: string | null) => Promise<void>;
+	reload: (change: ConfigReloadPending) => Promise<void>;
 }) => {
 	let state: ConfigReloadState = {type: 'idle'};
 
@@ -74,7 +81,7 @@ export const watchConfigFileForReloads = ({
 		const next = transitionConfigReload(state, event);
 		state = next.state;
 		if (next.effect.type === 'start-reload') {
-			reload(next.effect.originatorClientId).finally(() => {
+			reload(next.effect).finally(() => {
 				dispatch({type: 'finished'});
 			});
 		}
@@ -88,6 +95,7 @@ export const watchConfigFileForReloads = ({
 				type: 'change',
 				originatorClientId:
 					event.type === 'deleted' ? null : (event.originatorClientId ?? null),
+				sourceVersion: event.type === 'deleted' ? null : event.sourceVersion,
 			});
 		},
 	});

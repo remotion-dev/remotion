@@ -54,12 +54,9 @@ export const getSites = async (
 		const [, , apiResponse] = await cloudStorageClient
 			.bucket(bucket.name)
 			.getFiles({autoPaginate: false, delimiter: '/', prefix: 'sites/'});
+		const {data} = apiResponse as {data: {prefixes?: string[]} | null};
 
-		if (!(apiResponse as any).prefixes) {
-			continue; // no sites folder within bucket
-		}
-
-		for (const prefix of (apiResponse as any).prefixes) {
+		for (const prefix of data?.prefixes ?? []) {
 			const sitePath = prefix.split('/');
 
 			sites.push({

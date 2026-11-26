@@ -16,13 +16,12 @@ const greyCircle: React.CSSProperties = {
 	marginTop: 4,
 };
 
-export const PricingBulletPoint: React.FC<{
-	readonly text: React.ReactNode;
-	readonly checked: boolean;
-	readonly children?: React.ReactNode;
-}> = ({text, checked, children}) => {
-	const checkmarkSVG = (
+export const PricingCheckmark: React.FC<{readonly marginTop: number}> = ({
+	marginTop,
+}) => {
+	return (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 20 20"
@@ -30,7 +29,7 @@ export const PricingBulletPoint: React.FC<{
 			xmlns="http://www.w3.org/2000/svg"
 			style={{
 				flexShrink: 0,
-				marginTop: 4,
+				marginTop,
 			}}
 		>
 			<circle cx="10" cy="10" r="10" fill="#0B84F3" />
@@ -40,10 +39,20 @@ export const PricingBulletPoint: React.FC<{
 			/>
 		</svg>
 	);
+};
 
+export const PricingBulletPoint: React.FC<{
+	readonly text: React.ReactNode;
+	readonly checked: boolean;
+	readonly children?: React.ReactNode;
+}> = ({text, checked, children}) => {
 	return (
 		<div style={container}>
-			{checked ? checkmarkSVG : <div style={greyCircle} />}
+			{checked ? (
+				<PricingCheckmark marginTop={4} />
+			) : (
+				<div style={greyCircle} />
+			)}
 			<div className={'fontbrand text-lg	'}>
 				{text}
 				{children}

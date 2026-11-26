@@ -1,6 +1,5 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
-import {inspect} from 'node:util';
 import {LicensingInternals} from '@remotion/licensing';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
@@ -78,28 +77,15 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
-	isProduction: boolean | null;
-} & ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>;
+} & ToOptions<typeof optionsMap.renderStill>;
 
-type MoreRenderStillOptions = ToOptions<
-	Omit<typeof optionsMap.renderStill, 'apiKey' | 'licenseKey'>
->;
-
-type EitherApiKeyOrLicenseKey =
+type LegacyStillApiKey =
 	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-		? {
-				licenseKey?: string | null;
-			}
-		:
-				| {
-						/**
-						 * @deprecated Use `licenseKey` instead
-						 */
-						apiKey?: string | null;
-				  }
-				| {
-						licenseKey?: string | null;
-				  };
+		? unknown
+		: {
+				/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+				apiKey?: string | null;
+			};
 
 export type RenderStillOptions = {
 	port?: number | null;
@@ -131,9 +117,12 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
+	licenseKey?: string | null;
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
 	isProduction?: boolean;
-} & Partial<MoreRenderStillOptions> &
-	EitherApiKeyOrLicenseKey;
+} & Partial<ToOptions<typeof optionsMap.renderStill>> &
+	LegacyStillApiKey;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null; contentType: string};
@@ -460,35 +449,7 @@ const internalRenderStillRaw = (
 				});
 			})
 
-			.then((res) => {
-				if (options.licenseKey === null) {
-					resolve(res);
-					return;
-				}
-
-				LicensingInternals.internalRegisterUsageEvent({
-					licenseKey:
-						options.licenseKey === 'free-license' ? null : options.licenseKey,
-					event: 'cloud-render',
-					host: null,
-					succeeded: true,
-					isStill: true,
-					isProduction: options.isProduction ?? true,
-				})
-					.then(() => {
-						Log.verbose(options, 'Usage event sent successfully');
-					})
-					.catch((err) => {
-						Log.error(
-							options,
-							LicensingInternals.getUsageEventErrorMessage(err),
-						);
-						Log.verbose(options, inspect(err));
-					})
-					.finally(() => {
-						resolve(res);
-					});
-			})
+			.then(resolve)
 			.catch((err) => reject(err))
 			.finally(() => {
 				cleanup.forEach((c) => {
@@ -551,8 +512,7 @@ export const renderStill = (
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
-		isProduction,
-		...apiKeyOrLicenseKey
+		licenseKey,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -573,30 +533,18 @@ export const renderStill = (
 		);
 	}
 
-	const licenseKey =
-		'licenseKey' in apiKeyOrLicenseKey &&
-		typeof apiKeyOrLicenseKey.licenseKey === 'string'
-			? apiKeyOrLicenseKey.licenseKey
-			: null;
 	const apiKey =
-		'apiKey' in apiKeyOrLicenseKey &&
-		typeof apiKeyOrLicenseKey.apiKey === 'string'
-			? apiKeyOrLicenseKey.apiKey
+		!NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		'apiKey' in options &&
+		typeof options.apiKey === 'string'
+			? options.apiKey
 			: null;
-	const effectiveLicenseKey =
-		(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-			? licenseKey
-			: (licenseKey ?? apiKey)) ?? null;
-
-	if (
-		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
-		effectiveLicenseKey === null
-	) {
-		Log.warn(
-			{indent, logLevel},
-			'Pass "licenseKey" to renderStill(). If you qualify for the Free License (https://remotion.dev/license), pass "free-license" instead.',
-		);
-	}
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: licenseKey ?? apiKey,
+		api: 'renderStill()',
+		option: typeof licenseKey === 'string' ? 'licenseKey' : 'apiKey',
+		logLevel,
+	});
 
 	return internalRenderStill({
 		composition,
@@ -645,8 +593,6 @@ export const renderStill = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		preferredEffectBackend: preferredEffectBackend ?? 'auto',
-		licenseKey: effectiveLicenseKey,
 		onLog: defaultOnLog,
-		isProduction: isProduction ?? null,
 	});
 };

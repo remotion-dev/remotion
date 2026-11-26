@@ -1,0 +1,126 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-ai-skills.png
+crumb: 'Agents'
+title: Agent Skills
+sidebar_label: Skills
+---
+
+Remotion maintains a list of [Agent Skills](https://agentskills.io/home) that define best practices for working in Remotion projects.
+
+These skills are useful for AI agents like Claude Code, Codex, Cursor, Kimi Code and OpenCode. See the [list of supported agents](https://github.com/vercel-labs/skills#supported-agents).
+
+In a Remotion project, install them by running:
+
+```bash
+npx remotion skills add
+```
+
+If Remotion is not installed in your project, use the [`skills`](https://github.com/vercel-labs/skills) CLI instead:
+
+```bash
+npx skills add remotion-dev/skills
+```
+
+Or install them with the GitHub CLI:
+
+```bash
+gh skill install remotion-dev/skills
+```
+
+When you create a new Remotion project, you are offered the option to add skills.  
+Pass [`--skills`](https://www.remotion.dev/docs/cli/create-video#--skills) to install all skills without a prompt:
+
+```bash
+npx create-video@latest --skills
+```
+
+The skills are also available on GitHub [here](https://github.com/remotion-dev/remotion/tree/main/packages/skills).
+
+## Available skills
+
+### `/remotion-best-practices`
+
+This skill encompasses all other skills.  
+Use it if you are not sure which specific skill to use.
+
+### `/remotion-create`
+
+Create a new Remotion project or composition.
+
+<SuggestedPrompt prompt="/remotion-create Make a promo video for a record store" />
+
+### `/remotion-markup`
+
+Best practices for writing Remotion React markup.
+
+Use this for knowledge about compositions, animations, layout, typography, media elements, effects, audio, fonts, timing.
+
+<SuggestedPrompt prompt="/remotion-markup Create an animated title card using Inter." />
+
+### `/remotion-studio`
+
+Launch the Studio to see a preview of your video.
+
+<SuggestedPrompt prompt="/remotion-studio" />
+
+### `/remotion-render`
+
+Render a video or still, or [export an editable OpenTimelineIO timeline](/docs/opentimeline/export).
+
+<SuggestedPrompt prompt="/remotion-render" />
+
+### `/remotion-maps`
+
+Best practices for creating map animations in Remotion.
+
+Use this for static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, and 3D geographic flyovers with CesiumJS.
+
+<SuggestedPrompt prompt="/remotion-maps Animate a route from Los Angeles to New York and make the camera follow it." />
+
+### `/remotion-elements`
+
+Find, install and use Elements, reusable video components from Element libraries.
+
+Use this to add an Element from an Element page or library URL.
+
+<SuggestedPrompt prompt="/remotion-elements Add a lower third to my video." />
+
+### `/remotion-captions`
+
+Guidance for captions and subtitles.
+
+### `/remotion-saas`
+
+Architecture guidance for Remotion-powered apps and product integrations.
+
+<SuggestedPrompt prompt="/remotion-saas Turn my video into a SaaS." />
+
+### `/remotion-interactivity`
+
+Guidance for making Remotion code [editable](https://www.remotion.dev/docs/studio/interactivity) in Studio.
+
+Use this when elements are not selectable or editable as you would like them to be.
+
+### `/remotion-docs`
+
+Search the Remotion documentation and fetch any page as Markdown.
+
+Use this to look up current API references, component props, and package guides before implementing.
+
+<SuggestedPrompt prompt="/remotion-docs How to set up Remotion Lambda?" />
+
+### `/remotion-license`<AvailableFrom v="4.0.540" />
+
+Find Remotion license information, FAQs, terms, and where to buy a license.
+
+### `/remotion-upgrade`
+
+Upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills.
+
+<SuggestedPrompt prompt="/remotion-upgrade" />
+
+### `/remotion-multimedia`
+
+Guidance for browser-based multimedia handling with Mediabunny.
+
+Use this for advice on how to get video and audio metadata.

@@ -210,7 +210,6 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			logLevel: LogLevel;
 			chromeMode: ChromeMode;
-			licenseKey: string | null;
 	  }
 	| {
 			type: 'sequence';
@@ -1635,7 +1634,7 @@ export type UpdateConfigRequest = {
 	updates: ConfigUpdate[];
 };
 export type UpdateConfigResponse =
-	| {success: true}
+	| {success: true; sourceVersion: SourceFileVersion | null}
 	| {success: false; reason: string};
 
 export type GetDefaultEditorInfoRequest = {

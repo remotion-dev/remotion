@@ -1,3 +1,4 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {Sandbox} from '@vercel/sandbox';
 import type {PreferredEffectBackend} from 'remotion';
 import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
@@ -28,7 +29,6 @@ export async function renderStillOnVercel({
 	preferredEffectBackend,
 	offthreadVideoThreads,
 	licenseKey,
-	isProduction,
 }: {
 	sandbox: Sandbox;
 	compositionId: string;
@@ -47,9 +47,18 @@ export async function renderStillOnVercel({
 	mediaCacheSizeInBytes?: number | null;
 	preferredEffectBackend?: PreferredEffectBackend;
 	offthreadVideoThreads?: number | null;
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
 	licenseKey?: string | null;
+	/** @deprecated Still renders are included in every Remotion License and do not send usage telemetry. */
 	isProduction?: boolean;
 }): Promise<{sandboxFilePath: string; contentType: string}> {
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: licenseKey ?? null,
+		api: 'renderStillOnVercel()',
+		option: 'licenseKey',
+		logLevel,
+	});
+
 	const serveUrl = `/vercel/sandbox/${REMOTION_SANDBOX_BUNDLE_DIR}`;
 
 	const renderConfig = {
@@ -69,8 +78,9 @@ export async function renderStillOnVercel({
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
-		licenseKey: licenseKey ?? null,
-		isProduction: isProduction ?? null,
+		// Older sandbox scripts use null to skip usage reporting.
+		licenseKey: null,
+		isProduction: null,
 		chromeMode: 'headless-shell',
 		browserExecutable: null,
 		binariesDirectory: null,

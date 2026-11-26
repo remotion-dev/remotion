@@ -1,4 +1,4 @@
-import {copyText} from '../../helpers/copy-text';
+import {copyContextForAgents} from '../../helpers/copy-text';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 
@@ -20,16 +20,10 @@ export const getCopyContextForAgentsMenuItem = ({
 				return;
 			}
 
-			copyText(
+			copyContextForAgents(
 				typeof contextForAgents === 'string'
 					? contextForAgents
-					: contextForAgents().then((context) => {
-							if (!context) {
-								throw new Error('No source location found');
-							}
-
-							return context;
-						}),
+					: contextForAgents(),
 			).catch((err) => {
 				showNotification(
 					`Could not copy to clipboard: ${(err as Error).message}`,

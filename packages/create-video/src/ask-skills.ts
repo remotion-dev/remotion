@@ -6,7 +6,7 @@ export type SkillsInstallation = 'recommended' | 'choose';
 export const askSkills = async (): Promise<SkillsInstallation | null> => {
 	const link = makeHyperlink({
 		text: 'agent skills',
-		url: 'https://remotion.dev/docs/ai/skills',
+		url: 'https://remotion.dev/docs/agents/skills',
 		fallback: 'agent skills',
 	});
 

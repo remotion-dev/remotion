@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {BACKGROUND, SHADOW_BLACK} from '../helpers/colors';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
-import {getPortal} from './Menu/portals';
 
 const overlay: React.CSSProperties = {
 	position: 'fixed',
@@ -32,7 +31,7 @@ export default function MobilePanel({
 	children: React.ReactNode;
 	onClose: () => void;
 }) {
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const panelRef = React.useRef<HTMLDivElement>(null);
 
 	React.useEffect(() => {
@@ -95,6 +94,6 @@ export default function MobilePanel({
 				</div>
 			</HigherZIndex>
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 }

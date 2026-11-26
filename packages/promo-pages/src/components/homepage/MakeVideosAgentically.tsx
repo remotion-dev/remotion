@@ -24,8 +24,8 @@ export const MakeVideosAgentically: React.FC<{
 	description = 'Turn your idea into a video using your coding agent.',
 	showLinks = true,
 	links = [
-		{label: 'Agent Skills', href: '/docs/ai/skills'},
-		{label: 'Plugins', href: '/docs/ai/plugins'},
+		{label: 'Agent Skills', href: '/docs/agents/skills'},
+		{label: 'Plugins', href: '/docs/agents/plugins'},
 	],
 	showVideo = true,
 	videoSrc = '/img/render-progress.webm',

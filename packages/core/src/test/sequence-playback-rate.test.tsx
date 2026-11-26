@@ -44,9 +44,9 @@ test('nested rates scale child clocks, trims and durations within parent-frame w
 	const view = render(content(34));
 	expect(view.container.textContent).toBe('');
 	view.rerender(content(35));
-	expect(view.getByText('Frame 3, duration 18')).toBeTruthy();
+	expect(view.getByText('Frame 3, duration 20')).toBeTruthy();
 	view.rerender(content(44));
-	expect(view.getByText('Frame 12, duration 18')).toBeTruthy();
+	expect(view.getByText('Frame 12, duration 20')).toBeTruthy();
 	view.rerender(content(50));
 	expect(view.container.textContent).toBe('');
 });
@@ -71,11 +71,11 @@ test('slow sequences retain fractional child frames and freeze in the child cloc
 		</WrapSequenceContext>
 	);
 	const view = render(content(11, false));
-	expect(view.getByText('Frame 4.5, duration 24')).toBeTruthy();
+	expect(view.getByText('Frame 4.5, duration 20')).toBeTruthy();
 	view.rerender(content(20, true));
-	expect(view.getByText('Frame 6, duration 24')).toBeTruthy();
+	expect(view.getByText('Frame 6, duration 20')).toBeTruthy();
 	view.rerender(content(49, true));
-	expect(view.getByText('Frame 6, duration 24')).toBeTruthy();
+	expect(view.getByText('Frame 6, duration 20')).toBeTruthy();
 	view.rerender(content(50, true));
 	expect(view.container.textContent).toBe('');
 });
@@ -133,9 +133,9 @@ test('premount and postmount freeze accelerated descendants at the window bounda
 		</WrapSequenceContext>
 	);
 	const view = render(content(8));
-	expect(view.getByText('Frame 6, duration 16')).toBeTruthy();
+	expect(view.getByText('Frame 6, duration 10')).toBeTruthy();
 	view.rerender(content(12));
-	expect(view.getByText('Frame 12.999999999999996, duration 16')).toBeTruthy();
+	expect(view.getByText('Frame 12.999999999999996, duration 10')).toBeTruthy();
 	view.rerender(content(15));
 	expect(view.container.textContent).toBe('');
 });
@@ -211,12 +211,12 @@ test('keeps sequence content stable while clocks advance and timing windows are 
 
 		expect(resolveCrop.mock.calls.length).toBe(initialWork);
 		view.rerender(content(100));
-		expect(view.getByText('Frame 4, duration 34')).toBeTruthy();
+		expect(view.getByText('Frame 4, duration 30')).toBeTruthy();
 		const enteredWork = resolveCrop.mock.calls.length;
 		for (const frame of [101, 110, 129, 159, 129, 110, 101, 100]) {
 			view.rerender(content(frame));
 			expect(
-				view.getByText(`Frame ${(frame - 100) * 0.5 + 4}, duration 34`),
+				view.getByText(`Frame ${(frame - 100) * 0.5 + 4}, duration 30`),
 			).toBeTruthy();
 			expect(registrations.get('active')!.getCurrentFrame!()).toBe(
 				(frame - 92) * 0.5,
@@ -227,7 +227,7 @@ test('keeps sequence content stable while clocks advance and timing windows are 
 		view.rerender(content(160));
 		expect(view.container.textContent).toBe('');
 		view.rerender(content(159));
-		expect(view.getByText('Frame 33.5, duration 34')).toBeTruthy();
+		expect(view.getByText('Frame 33.5, duration 30')).toBeTruthy();
 		view.rerender(content(99));
 		expect(view.container.textContent).toBe('');
 	} finally {

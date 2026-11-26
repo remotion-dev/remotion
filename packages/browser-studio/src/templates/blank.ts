@@ -64,7 +64,7 @@ export const MyComponent: React.FC<Props> = () => {
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/react": "19.3.0",
     "@types/web": "0.0.166",
-    "eslint": "10.12.0",
+    "eslint": "10.15.0",
     "prettier": "3.8.1",
     "typescript": "5.9.3"
   },
@@ -82,7 +82,7 @@ export const MyComponent: React.FC<Props> = () => {
     "jsx": "react-jsx",
     "strict": true,
     "noEmit": true,
-    "lib": ["es2015"],
+    "lib": ["ES2022"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

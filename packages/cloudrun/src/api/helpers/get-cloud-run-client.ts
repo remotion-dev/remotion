@@ -1,11 +1,10 @@
-import {v2} from '@google-cloud/run';
+// eslint-disable-next-line no-restricted-imports -- The pinned SDK's root entry bundles unused v1 clients.
+import {ServicesClient} from '@google-cloud/run/build/src/v2';
 import {
 	getProjectId,
 	isInCloudTask,
 } from '../../functions/helpers/is-in-cloud-task';
 import {checkCredentials} from '../../shared/check-credentials';
-
-const {ServicesClient} = v2;
 
 export const getCloudRunClient = () => {
 	checkCredentials();

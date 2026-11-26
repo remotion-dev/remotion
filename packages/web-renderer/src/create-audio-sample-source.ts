@@ -13,10 +13,8 @@ export const createAudioSampleSource = ({
 		return null;
 	}
 
-	const audioSampleSource = new AudioSampleSource({
+	return new AudioSampleSource({
 		codec,
 		bitrate,
 	});
-
-	return {audioSampleSource, [Symbol.dispose]: () => audioSampleSource.close()};
 };

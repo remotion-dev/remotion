@@ -9,7 +9,7 @@ const source = path.join(
 	'packages',
 	'docs',
 	'docs',
-	'ai',
+	'agents',
 	'skills.mdx',
 );
 const target = path.join(repoRoot, 'packages', 'skills', 'README.md');
@@ -20,7 +20,7 @@ const suggestedPromptRegex = /<SuggestedPrompt prompt="([^"]+)" \/>/g;
 const githubSourceParagraph =
 	'The skills are also available on GitHub [here](https://github.com/remotion-dev/remotion/tree/main/packages/skills).';
 const documentationParagraph =
-	'For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).';
+	'For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/agents/skills).';
 
 const sourceContents = readFileSync(source, 'utf-8');
 if (!frontmatterRegex.test(sourceContents)) {

@@ -51,6 +51,7 @@ import {
 	useRuntimeValueSelector,
 } from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
+import {getActiveStudioDialog} from '../../state/studio-dialog';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
@@ -453,12 +454,11 @@ const TimelineSequenceItemInner: React.FC<{
 	const {
 		canConfigureApps,
 		canOpenInEditor,
-		canOpenSource,
+		getSequenceSourceDoubleClickHandler,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
-		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence, nodePath);
 
@@ -1211,9 +1211,10 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
+			const onSourceDoubleClick = getSequenceSourceDoubleClickHandler();
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenSource,
+				canOpenSource: onSourceDoubleClick !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				// The track list row reorders via native drag-and-drop, which
 				// already suppresses `dblclick` after a drag.
@@ -1238,19 +1239,16 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			openSource();
+			onSourceDoubleClick?.();
 		},
 		[
-			canOpenSource,
+			getSequenceSourceDoubleClickHandler,
 			connectedCompositions,
-			openSource,
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
 		],
 	);
-	const canHandleSequenceDoubleClick =
-		connectedCompositions.length > 0 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -1277,7 +1275,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (!isHighestContext) {
+			if (!isHighestContext || getActiveStudioDialog() !== null) {
 				return;
 			}
 
@@ -1751,9 +1749,7 @@ const TimelineSequenceItemInner: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={
-				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
-			}
+			onDoubleClick={onSequenceDoubleClick}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>

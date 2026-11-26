@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -94,6 +94,8 @@ const AudioInner: React.FC<
 
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
+	const parentTrimBefore =
+		useContext(Internals.SequenceContext)?.trimBefore ?? 0;
 	const effectiveTrimAfter = getMediaTrimAfter({
 		durationInFrames,
 		trimAfter: props.trimAfter,
@@ -108,7 +110,7 @@ const AudioInner: React.FC<
 	});
 	const sequenceDurationInFrames = Math.min(
 		audioSequenceDuration ?? Infinity,
-		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
+		Math.max(0, videoConfig.durationInFrames + parentTrimBefore - (from ?? 0)),
 	);
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null

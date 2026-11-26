@@ -4,7 +4,10 @@ import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import type {StudioRuntimeConfig} from '@remotion/studio-shared';
+import type {
+	SourceFileVersion,
+	StudioRuntimeConfig,
+} from '@remotion/studio-shared';
 import {getConfigFileChangeMessage} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -13,7 +16,10 @@ import {
 	makeConfigFileFingerprints,
 	type ConfigFileFingerprints,
 } from './config-file-change';
-import {watchConfigFileForReloads} from './config-reload';
+import {
+	type ConfigReloadPending,
+	watchConfigFileForReloads,
+} from './config-reload';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {parseRemotionSkillVersion} from './detect-outdated-remotion-skills';
 import {findEntryPoint} from './entry-point';
@@ -61,6 +67,7 @@ const {
 	browserOption,
 	previewSampleRateOption,
 	defaultCodingAgentOption,
+	doubleClickActionOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showDiagnosticsOption,
@@ -230,6 +237,9 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			highContrast: highContrastOption.getValue({commandLine: parsedCli}),
+			doubleClickAction: doubleClickActionOption.getValue({
+				commandLine: parsedCli,
+			}),
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -266,32 +276,40 @@ export const studioCommand = async (
 			canvasTabsEnabled: canvasTabsOption.getValue({
 				commandLine: parsedCli,
 			}).value,
-			configFileStudioSettings: {
-				showDiagnostics: showDiagnosticsOption.getConfigValue(),
-				highContrast: highContrastOption.getConfigValue(),
-				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
-				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
-				showPremounting: showPremountingOption.getConfigValue(),
-				defaultPremountInSeconds:
-					defaultPremountInSecondsOption.getConfigValue(),
-				askAIEnabled: askAIOption.getConfigValue(),
-				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
-				beepOnFinish: beepOnFinishOption.getConfigValue(),
-				enableCrossSiteIsolation:
-					enableCrossSiteIsolationOption.getConfigValue(),
-				sequenceActivityLimit:
-					configuredSequenceActivityLimit === Infinity
-						? null
-						: configuredSequenceActivityLimit,
-				interactivityEnabled: interactivityOption.getConfigValue(),
-				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
-				logLevel: logLevelOption.getConfigValue(),
-				maxTimelineTracks:
-					StudioServerInternals.getConfiguredMaxTimelineTracks(),
-				numberOfSharedAudioTags: numberOfSharedAudioTagsOption.getConfigValue(),
-				rspack: rspackOption.getConfigValue(),
-				canvasTabsEnabled: canvasTabsOption.getConfigValue(),
-			},
+			configFileStudioSettings:
+				configFile === null
+					? null
+					: {
+							showDiagnostics: showDiagnosticsOption.getConfigValue(),
+							highContrast: highContrastOption.getConfigValue(),
+							doubleClickAction: doubleClickActionOption.getConfigValue(),
+							preservePitchOnPlayback:
+								preservePitchOnPlaybackOption.getConfigValue(),
+							showLayerFrameNumbers:
+								showLayerFrameNumbersOption.getConfigValue(),
+							showPremounting: showPremountingOption.getConfigValue(),
+							defaultPremountInSeconds:
+								defaultPremountInSecondsOption.getConfigValue(),
+							askAIEnabled: askAIOption.getConfigValue(),
+							audioLatencyHint: audioLatencyHintOption.getConfigValue(),
+							beepOnFinish: beepOnFinishOption.getConfigValue(),
+							enableCrossSiteIsolation:
+								enableCrossSiteIsolationOption.getConfigValue(),
+							sequenceActivityLimit:
+								configuredSequenceActivityLimit === Infinity
+									? null
+									: configuredSequenceActivityLimit,
+							interactivityEnabled: interactivityOption.getConfigValue(),
+							keyboardShortcutsEnabled:
+								keyboardShortcutsOption.getConfigValue(),
+							logLevel: logLevelOption.getConfigValue(),
+							maxTimelineTracks:
+								StudioServerInternals.getConfiguredMaxTimelineTracks(),
+							numberOfSharedAudioTags:
+								numberOfSharedAudioTagsOption.getConfigValue(),
+							rspack: rspackOption.getConfigValue(),
+							canvasTabsEnabled: canvasTabsOption.getConfigValue(),
+						},
 		};
 	};
 
@@ -313,16 +331,23 @@ export const studioCommand = async (
 	const startupConfigCode = getLoadedConfigFileCode();
 	if (configFile && startupConfigCode !== null) {
 		let startupConfigFingerprints: ConfigFileFingerprints | null = null;
-		const sendConfigFileReloadError = (errorMessage: string) => {
+		const sendConfigFileReloadError = (
+			errorMessage: string,
+			sourceVersion: SourceFileVersion | null,
+		) => {
 			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 				listener.sendEventToClient({
 					type: 'config-file-reload-failed',
 					errorMessage,
+					sourceVersion,
 				});
 			});
 		};
 
-		const runReload = async (originatorClientId: string | null) => {
+		const runReload = async ({
+			originatorClientId,
+			sourceVersion,
+		}: ConfigReloadPending) => {
 			try {
 				const reloadResult = await reloadConfig({
 					resetConfigOptions: ConfigInternals.resetConfigOptions,
@@ -350,7 +375,7 @@ export const studioCommand = async (
 				}
 
 				if (reloadResult.type === 'error') {
-					sendConfigFileReloadError(reloadResult.errorMessage);
+					sendConfigFileReloadError(reloadResult.errorMessage, sourceVersion);
 					return;
 				}
 
@@ -364,6 +389,7 @@ export const studioCommand = async (
 						type: 'config-file-changed',
 						changeType,
 						originatorClientId,
+						sourceVersion,
 						renderDefaults,
 						studioRuntimeConfig,
 						editorName,
@@ -373,7 +399,7 @@ export const studioCommand = async (
 				const errorMessage =
 					error instanceof Error ? error.message : String(error);
 				Log.error({indent: false, logLevel: 'error'}, errorMessage);
-				sendConfigFileReloadError(errorMessage);
+				sendConfigFileReloadError(errorMessage, sourceVersion);
 			}
 		};
 

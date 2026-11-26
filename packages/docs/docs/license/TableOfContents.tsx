@@ -10,7 +10,7 @@ export const TableOfContents: React.FC = () => {
 					<strong>License & Pricing</strong>
 					<div>Free license eligibility, company and enterprise pricing</div>
 				</TOCItem>
-				<TOCItem link="/docs/license/which-license">
+				<TOCItem link="/license/quiz">
 					<strong>Which license is needed?</strong>
 					<div>Answer a few questions to find your license</div>
 				</TOCItem>
@@ -18,13 +18,17 @@ export const TableOfContents: React.FC = () => {
 					<strong>License FAQ</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
-				<TOCItem link="/docs/terms">
-					<strong>Terms and Conditions</strong>
-					<div>Legal terms governing the use of Remotion</div>
-				</TOCItem>
 				<TOCItem link="/docs/telemetry">
 					<strong>Telemetry</strong>
 					<div>How Remotion reports rendering usage</div>
+				</TOCItem>
+				<TOCItem link="/docs/license/automatic-billing">
+					<strong>Automatic billing</strong>
+					<div>How to pay for renders based on reported usage</div>
+				</TOCItem>
+				<TOCItem link="/docs/terms">
+					<strong>Terms and Conditions</strong>
+					<div>Legal terms governing the use of Remotion</div>
 				</TOCItem>
 			</Grid>
 		</div>

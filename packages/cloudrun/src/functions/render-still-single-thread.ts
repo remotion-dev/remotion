@@ -1,5 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
@@ -33,6 +34,13 @@ export const renderStillSingleThread = async (
 			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${body.clientVersion}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
 		);
 	}
+
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: body.licenseKey,
+		api: 'renderStillOnCloudrun()',
+		option: 'licenseKey',
+		logLevel: body.logLevel,
+	});
 
 	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
@@ -118,8 +126,6 @@ export const renderStillSingleThread = async (
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			preferredEffectBackend: body.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
-			licenseKey: body.licenseKey,
-			isProduction: body.isProduction,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

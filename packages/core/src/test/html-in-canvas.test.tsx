@@ -5,12 +5,17 @@ import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {
+	HtmlInCanvasAncestorContext,
+	type HtmlInCanvasPaintState,
+} from '../HtmlInCanvasAncestorContext.js';
 import {Internals} from '../internals.js';
 import {
 	SequenceManagerProvider,
 	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {
 	ObserveSequenceRegistrations,
 	WrapSequenceContext,
@@ -880,3 +885,314 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 		w.remotion_cancelledError = undefined;
 	}
 });
+
+for (const behavior of [
+	'owned',
+	'resized',
+	'replaced-paint',
+	'replaced-init',
+	'replaced-init-late-success',
+	'replaced-init-late-reject',
+	'unmounted',
+	'unowned',
+	'success',
+] as const) {
+	test(`<HtmlInCanvas> terminal paint reporting: ${behavior}`, async () => {
+		const scope: DelayRenderScope = {
+			remotion_renderReady: true,
+			remotion_delayRenderHandles: [],
+			remotion_delayRenderTimeouts: {},
+			remotion_puppeteerTimeout: 30000,
+			remotion_attempt: 1,
+		};
+		const originalUserAgent = Object.getOwnPropertyDescriptor(
+			navigator,
+			'userAgent',
+		);
+		const failure = new Error('controlled HtmlInCanvas paint failure');
+		const reported: Error[] = [];
+		const paintListeners: EventListener[] = [];
+		const previousAdd = Object.getOwnPropertyDescriptor(
+			HTMLCanvasElement.prototype,
+			'addEventListener',
+		);
+		const previousCapture = Object.getOwnPropertyDescriptor(
+			HTMLCanvasElement.prototype,
+			'captureElementImage',
+		);
+		const originalAdd = HTMLCanvasElement.prototype.addEventListener;
+		let closes = 0;
+		let rejectPaint: ((error: Error) => void) | null = null;
+		let resolvePaint: (() => void) | null = null;
+		const paint = new Promise<void>((resolve, reject) => {
+			resolvePaint = resolve;
+			rejectPaint = reject;
+		});
+		Object.defineProperty(HTMLCanvasElement.prototype, 'addEventListener', {
+			configurable: true,
+			value(
+				this: HTMLCanvasElement,
+				type: string,
+				listener: EventListenerOrEventListenerObject,
+				options?: boolean | AddEventListenerOptions,
+			) {
+				if (type === 'paint' && typeof listener === 'function')
+					paintListeners.push(listener);
+				return originalAdd.call(this, type, listener, options);
+			},
+		});
+		Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
+			configurable: true,
+			value: () => ({
+				width: 1,
+				height: 1,
+				close: () => {
+					closes++;
+				},
+			}),
+		});
+		try {
+			let siblingControls!: ReturnType<typeof useDelayRender>;
+			const Sibling = () => {
+				siblingControls = useDelayRender();
+				return null;
+			};
+
+			const sibling = render(
+				<Internals.DelayRenderContextType.Provider value={scope}>
+					<Sibling />
+				</Internals.DelayRenderContextType.Provider>,
+			);
+			const siblingHandle = siblingControls.delayRender('unrelated sibling');
+			let owner = 0;
+			let initializationCalls = 0;
+			let replacementPaintCalls = 0;
+			const resources = new Set<number>();
+			const initializationCleanups: number[] = [];
+			const initialization = behavior.startsWith('replaced-init');
+			const lateInitialization = behavior.startsWith('replaced-init-late');
+			if (lateInitialization)
+				Object.defineProperty(navigator, 'userAgent', {
+					configurable: true,
+					value: 'Chrome/157.0.0.0',
+				});
+			const ancestor: HtmlInCanvasPaintState = {
+				pendingChildren: 0,
+				generation: 0,
+				release: null,
+				blockPaint: () => {
+					ancestor.pendingChildren++;
+					ancestor.generation++;
+					let released = false;
+					return () => {
+						if (!released) {
+							released = true;
+							ancestor.pendingChildren--;
+						}
+					};
+				},
+			};
+			const releaseSiblingAncestor = ancestor.blockPaint();
+			let releaseReplacementPaint!: () => void;
+			const replacementPaint = new Promise<void>((resolve) => {
+				releaseReplacementPaint = resolve;
+			});
+			const originalOwner = (error: Error) => {
+				if (owner === 0) reported.push(error);
+			};
+
+			const replacementOwner = (error: Error) => reported.push(error);
+			const scene = (width: number) => (
+				<Internals.DelayRenderContextType.Provider value={scope}>
+					<Internals.CancelRenderContext.Provider
+						value={
+							behavior === 'unowned'
+								? null
+								: owner === 0
+									? originalOwner
+									: replacementOwner
+						}
+					>
+						<SequenceTestWrapper
+							isRendering={lateInitialization}
+							isClientSideRendering={lateInitialization}
+							onRegisterSequence={() => undefined}
+						>
+							<HtmlInCanvasAncestorContext.Provider
+								value={lateInitialization ? ancestor : null}
+							>
+								<HtmlInCanvas
+									width={width}
+									height={50}
+									onInit={
+										initialization
+											? async () => {
+													const initializingOwner = owner;
+													initializationCalls++;
+													if (initializingOwner === 0) await paint;
+													resources.add(initializingOwner);
+													return () => {
+														initializationCleanups.push(initializingOwner);
+														resources.delete(initializingOwner);
+													};
+												}
+											: undefined
+									}
+									onPaint={() => {
+										if (initialization && owner === 1)
+											expect(resources.has(1)).toBe(true);
+										if (lateInitialization && owner === 1) {
+											replacementPaintCalls++;
+											return replacementPaint;
+										}
+
+										return owner === 0 ? paint : undefined;
+									}}
+								>
+									<div>paint</div>
+								</HtmlInCanvas>
+							</HtmlInCanvasAncestorContext.Provider>
+						</SequenceTestWrapper>
+					</Internals.CancelRenderContext.Provider>
+				</Internals.DelayRenderContextType.Provider>
+			);
+			const view = render(scene(50));
+			const canvas = view.container.querySelector('canvas')!;
+			expect(paintListeners.length).toBeGreaterThanOrEqual(2);
+			// Await the actual registered async paint callback; DOM dispatch does not expose its Promise.
+			const pending = (
+				paintListeners[0]!.call(
+					canvas,
+					new Event('paint'),
+				) as unknown as Promise<void>
+			).then(
+				() => null,
+				(error: unknown) => error,
+			);
+			for (const listener of paintListeners.slice(1))
+				listener.call(canvas, new Event('paint'));
+			if (behavior === 'unmounted') view.unmount();
+			if (behavior === 'resized') view.rerender(scene(51));
+			const replaced = behavior === 'replaced-paint' || initialization;
+			if (replaced) {
+				expect(scope.remotion_delayRenderHandles.length).toBeGreaterThan(1);
+				const transfers = transferControlToOffscreenCalls;
+				const retiredHandles = scope.remotion_delayRenderHandles.filter(
+					(handle) => handle !== siblingHandle,
+				);
+				owner = 1;
+				view.rerender(scene(50));
+				expect(view.container.querySelector('canvas')).toBe(canvas);
+				expect(transferControlToOffscreenCalls).toBe(transfers);
+				for (const handle of retiredHandles)
+					expect(scope.remotion_delayRenderHandles).not.toContain(handle);
+				expect(scope.remotion_delayRenderHandles).toContain(siblingHandle);
+			}
+
+			if (lateInitialization) {
+				canvas.dispatchEvent(new Event('paint'));
+				await waitFor(() => expect(initializationCalls).toBe(2));
+				await waitFor(() => expect(replacementPaintCalls).toBe(1));
+				expect(ancestor.pendingChildren).toBe(2);
+				expect(resources.has(1)).toBe(true);
+			}
+
+			const pendingHandles = scope.remotion_delayRenderHandles.length;
+			if (behavior === 'success' || behavior === 'replaced-init-late-success')
+				resolvePaint!();
+			else rejectPaint!(failure);
+			const rejection = await pending;
+			expect(closes).toBe(lateInitialization ? 2 : 1);
+			if (behavior === 'unowned') {
+				expect(rejection).toBe(failure);
+				expect(scope.remotion_cancelledErrorObject).toBe(failure);
+				expect(scope.remotion_cancelledError).toContain(failure.message);
+			} else {
+				expect(rejection).toBeNull();
+				expect(reported).toEqual(
+					behavior === 'owned' || behavior === 'resized' ? [failure] : [],
+				);
+				expect(scope.remotion_cancelledError).toBeUndefined();
+			}
+
+			if (
+				behavior === 'owned' ||
+				behavior === 'resized' ||
+				behavior === 'unowned'
+			) {
+				expect(scope.remotion_delayRenderHandles.length).toBe(pendingHandles);
+				expect(scope.remotion_renderReady).toBe(false);
+			}
+
+			if (lateInitialization) {
+				expect(ancestor.pendingChildren).toBe(2);
+				expect(resources.has(1)).toBe(true);
+				expect(resources.has(0)).toBe(false);
+				expect(initializationCleanups).toEqual(
+					behavior === 'replaced-init-late-success' ? [0] : [],
+				);
+				expect(scope.remotion_delayRenderHandles.length).toBe(pendingHandles);
+				canvas.dispatchEvent(new Event('paint'));
+				expect(replacementPaintCalls).toBe(1);
+				releaseReplacementPaint();
+			}
+
+			if (replaced) {
+				// The replacement may allocate its own initial-paint hold. Complete
+				// that healthy paint without releasing another component's hold.
+				if (!lateInitialization) canvas.dispatchEvent(new Event('paint'));
+				await waitFor(() =>
+					expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]),
+				);
+			}
+
+			if (lateInitialization) expect(ancestor.pendingChildren).toBe(1);
+
+			if (behavior === 'success' || replaced)
+				expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
+			view.unmount();
+			if (initialization) {
+				expect(initializationCalls).toBe(2);
+				expect(initializationCleanups).toEqual(
+					behavior === 'replaced-init-late-success' ? [0, 1] : [1],
+				);
+			}
+
+			expect(scope.remotion_delayRenderHandles).toEqual([siblingHandle]);
+			expect(scope.remotion_renderReady).toBe(false);
+			expect(ancestor.pendingChildren).toBe(1);
+			releaseSiblingAncestor();
+			expect(ancestor.pendingChildren).toBe(0);
+			siblingControls.continueRender(siblingHandle);
+			sibling.unmount();
+			expect(scope.remotion_delayRenderHandles).toEqual([]);
+			expect(scope.remotion_renderReady).toBe(behavior !== 'unowned');
+		} finally {
+			cleanup();
+			if (originalUserAgent)
+				Object.defineProperty(navigator, 'userAgent', originalUserAgent);
+			else Reflect.deleteProperty(navigator, 'userAgent');
+			if (previousAdd)
+				Object.defineProperty(
+					HTMLCanvasElement.prototype,
+					'addEventListener',
+					previousAdd,
+				);
+			else
+				Reflect.deleteProperty(HTMLCanvasElement.prototype, 'addEventListener');
+			if (previousCapture)
+				Object.defineProperty(
+					HTMLCanvasElement.prototype,
+					'captureElementImage',
+					previousCapture,
+				);
+			else
+				Reflect.deleteProperty(
+					HTMLCanvasElement.prototype,
+					'captureElementImage',
+				);
+			for (const item of Object.values(scope.remotion_delayRenderTimeouts))
+				clearTimeout(item.timeout);
+		}
+	});
+}

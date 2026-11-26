@@ -3,7 +3,7 @@ type Callback = () => void;
 export type CancelSignal = (callback: Callback) => void;
 
 /*
- * @description Returns a signal and a cancel function that allows to you cancel a render triggered using renderMedia(), renderStill(), renderFrames() or stitchFramesToVideo().
+ * @description Returns a signal and a cancel function that allows to you cancel a render triggered using renderMedia(), renderStill(), renderFrames(), stitchFramesToVideo() or selectComposition().
  * @see [Documentation](https://www.remotion.dev/docs/renderer/make-cancel-signal)
  */
 export const makeCancelSignal = (): {
@@ -37,6 +37,7 @@ export const cancelErrorMessages = {
 	renderFrames: 'renderFrames() got cancelled',
 	renderStill: 'renderStill() got cancelled',
 	stitchFramesToVideo: 'stitchFramesToVideo() got cancelled',
+	selectComposition: 'selectComposition() got cancelled',
 };
 
 export const isUserCancelledRender = (err: unknown) => {
@@ -50,7 +51,10 @@ export const isUserCancelledRender = (err: unknown) => {
 			(err as Error).message.includes(cancelErrorMessages.renderMedia) ||
 			(err as Error).message.includes(cancelErrorMessages.renderFrames) ||
 			(err as Error).message.includes(cancelErrorMessages.renderStill) ||
-			(err as Error).message.includes(cancelErrorMessages.stitchFramesToVideo)
+			(err as Error).message.includes(
+				cancelErrorMessages.stitchFramesToVideo,
+			) ||
+			(err as Error).message.includes(cancelErrorMessages.selectComposition)
 		);
 	}
 

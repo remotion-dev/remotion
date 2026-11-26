@@ -18,13 +18,15 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {CrfSetting} from './RenderModal/CrfSetting';
 import {humanReadableCodec} from './RenderModal/human-readable-codec';
-import {input, label, optionRow, rightRow} from './RenderModal/layout';
-import {NumberSetting} from './RenderModal/NumberSetting';
+import {input, rightRow} from './RenderModal/layout';
 import type {SegmentedControlItem} from './SegmentedControl';
 import {SegmentedControl} from './SegmentedControl';
+import {settingsCatalog} from './settings-catalog';
+import type {RenderingSettingsDisplayState} from './settings-search';
 import {useSettings} from './SettingsContext';
+import {SettingsNumber} from './SettingsNumber';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
@@ -36,8 +38,9 @@ const container: React.CSSProperties = {
 
 const dividerLabel: React.CSSProperties = {
 	...sectionHeader,
+	lineHeight: '16px',
 	margin: 0,
-	padding: '4px 16px',
+	padding: '4px 16px 0',
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -57,11 +60,16 @@ const DEFAULT_VIDEO_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
 const DEFAULT_PRO_RES_PROFILE: ProResProfile = 'hq';
 const DEFAULT_X264_PRESET: X264Preset = 'medium';
 type ProResProfile = (typeof BrowserSafeApis.proResProfileOptions)[number];
-type QualityMode = 'crf' | 'bitrate';
+type QualityMode = RenderingSettingsDisplayState['qualityMode'];
 
-export const RenderingSettings: React.FC = () => {
+export const RenderingSettings: React.FC<{
+	readonly displayState: RenderingSettingsDisplayState;
+	readonly setDisplayState: React.Dispatch<
+		React.SetStateAction<RenderingSettingsDisplayState>
+	>;
+}> = ({displayState, setDisplayState}) => {
 	const {error: settingsError, renderDefaults, revision} = useSettings();
-	const [codec, setCodec] = useState<Codec | null>(null);
+	const {codec, qualityMode} = displayState;
 	const [scale, setScale] = useState(1);
 	const [stillImageFormat, setStillImageFormat] =
 		useState<StillImageFormat | null>(null);
@@ -71,7 +79,6 @@ export const RenderingSettings: React.FC = () => {
 		null,
 	);
 	const [x264Preset, setX264Preset] = useState<X264Preset | null>(null);
-	const [qualityMode, setQualityMode] = useState<QualityMode>('crf');
 	const [crf, setCrf] = useState(18);
 	const [videoBitrate, setVideoBitrate] = useState('1M');
 	const [audioCodec, setAudioCodec] = useState<AudioCodec | null>(null);
@@ -88,7 +95,6 @@ export const RenderingSettings: React.FC = () => {
 			return;
 		}
 
-		setCodec(renderDefaults.configFileRenderDefaults?.codec ?? null);
 		setScale(renderDefaults.scale);
 		setStillImageFormat(
 			renderDefaults.configFileRenderDefaults?.stillImageFormat ?? null,
@@ -100,7 +106,6 @@ export const RenderingSettings: React.FC = () => {
 			renderDefaults.configFileRenderDefaults?.proResProfile ?? null,
 		);
 		setX264Preset(renderDefaults.configFileRenderDefaults?.x264Preset ?? null);
-		setQualityMode(renderDefaults.videoBitrate === null ? 'crf' : 'bitrate');
 		setCrf(
 			renderDefaults.crf ??
 				BrowserSafeApis.getDefaultCrfForCodec(renderDefaults.codec) ??
@@ -119,10 +124,10 @@ export const RenderingSettings: React.FC = () => {
 	}, []);
 	const selectCodec = useCallback(
 		(value: Codec | null) => {
-			setCodec(value);
+			setDisplayState((current) => ({...current, codec: value}));
 			markEdited('setCodec');
 		},
-		[markEdited],
+		[markEdited, setDisplayState],
 	);
 	const selectStillImageFormat = useCallback(
 		(value: StillImageFormat | null) => {
@@ -154,11 +159,11 @@ export const RenderingSettings: React.FC = () => {
 	);
 	const selectQualityMode = useCallback(
 		(value: QualityMode) => {
-			setQualityMode(value);
+			setDisplayState((current) => ({...current, qualityMode: value}));
 			markEdited('setCrf');
 			markEdited('setVideoBitrate');
 		},
-		[markEdited],
+		[markEdited, setDisplayState],
 	);
 	const changeCrf = useCallback<React.Dispatch<React.SetStateAction<number>>>(
 		(value) => {
@@ -447,70 +452,68 @@ export const RenderingSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Output</p>
-			<div style={optionRow}>
-				<div style={label}>Default codec</div>
+			<SettingsRow settingId="codec">
 				<div style={rightRow}>
 					<Combobox
 						values={codecValues}
 						selectedId={codec ?? REMOTION_DEFAULT}
-						aria-label="Codec"
+						aria-label={settingsCatalog.codec.name}
 					/>
 				</div>
-			</div>
-			<NumberSetting
-				name="Scale"
+			</SettingsRow>
+			<SettingsNumber
+				settingId="scale"
+				max={null}
 				value={scale}
 				onValueChanged={changeScale}
 				min={0.1}
 				step={0.1}
 			/>
-			<div style={optionRow}>
-				<div style={label}>Still image format</div>
+			<SettingsRow settingId="stillImageFormat">
 				<div style={rightRow}>
 					<Combobox
 						values={stillFormatValues}
 						selectedId={stillImageFormat ?? REMOTION_DEFAULT}
-						aria-label="Still image format"
+						aria-label={settingsCatalog.stillImageFormat.name}
 					/>
 				</div>
-			</div>
-			<div style={optionRow}>
-				<div style={label}>Video frame format</div>
+			</SettingsRow>
+			<SettingsRow settingId="videoImageFormat">
 				<div style={rightRow}>
 					<Combobox
 						values={videoFormatValues}
 						selectedId={videoImageFormat ?? REMOTION_DEFAULT}
-						aria-label="Video frame format"
+						aria-label={settingsCatalog.videoImageFormat.name}
 					/>
 				</div>
-			</div>
+			</SettingsRow>
 			<p style={sectionTitle}>Encoding</p>
 			{BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
 			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
-				<div style={optionRow}>
-					<div style={label}>Quality control</div>
+				<SettingsRow settingId="qualityControl">
 					<div style={rightRow}>
 						<SegmentedControl items={qualityModeValues} needsWrapping />
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{qualityMode === 'crf' &&
 			BrowserSafeApis.codecSupportsCrf(resolvedCodec) &&
 			BrowserSafeApis.getValidCrfRanges(resolvedCodec) ? (
-				<CrfSetting
-					crf={crf}
-					setCrf={changeCrf}
+				<SettingsNumber
+					settingId="crf"
+					value={crf}
+					onValueChanged={changeCrf}
 					min={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[0]}
 					max={BrowserSafeApis.getValidCrfRanges(resolvedCodec)[1]}
-					option="crfOption"
+					step={1}
 				/>
 			) : null}
 			{qualityMode === 'bitrate' &&
 			BrowserSafeApis.codecSupportsVideoBitrate(resolvedCodec) ? (
-				<div style={optionRow}>
-					<div style={label}>Video bitrate</div>
+				<SettingsRow settingId="videoBitrate">
 					<div style={rightRow}>
 						<RemotionInput
+							aria-label={settingsCatalog.videoBitrate.name}
 							style={{...input, ...fullWidth}}
 							value={videoBitrate}
 							onChange={onVideoBitrateChange}
@@ -519,47 +522,44 @@ export const RenderingSettings: React.FC = () => {
 							rightAlign
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{resolvedCodec === 'prores' ? (
-				<div style={optionRow}>
-					<div style={label}>ProRes profile</div>
+				<SettingsRow settingId="proResProfile">
 					<div style={rightRow}>
 						<Combobox
 							values={profileValues}
 							selectedId={proResProfile ?? REMOTION_DEFAULT}
-							aria-label="ProRes profile"
+							aria-label={settingsCatalog.proResProfile.name}
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 			{resolvedCodec === 'h264' ? (
-				<div style={optionRow}>
-					<div style={label}>x264 preset</div>
+				<SettingsRow settingId="x264Preset">
 					<div style={rightRow}>
 						<Combobox
 							values={presetValues}
 							selectedId={x264Preset ?? REMOTION_DEFAULT}
-							aria-label="x264 preset"
+							aria-label={settingsCatalog.x264Preset.name}
 						/>
 					</div>
-				</div>
+				</SettingsRow>
 			) : null}
 
 			<p style={sectionTitle}>Audio</p>
-			<div style={optionRow}>
-				<div style={label}>Audio codec</div>
+			<SettingsRow settingId="audioCodec">
 				<div style={rightRow}>
 					<Combobox
 						values={audioCodecValues}
 						selectedId={audioCodec ?? REMOTION_DEFAULT}
-						aria-label="Audio codec"
+						aria-label={settingsCatalog.audioCodec.name}
 					/>
 				</div>
-			</div>
+			</SettingsRow>
 			<p style={sectionTitle}>Performance</p>
-			<NumberSetting
-				name="Concurrency"
+			<SettingsNumber
+				settingId="concurrency"
 				value={concurrency}
 				onValueChanged={changeConcurrency}
 				min={renderDefaults.minConcurrency}
@@ -567,10 +567,10 @@ export const RenderingSettings: React.FC = () => {
 				step={1}
 			/>
 			<p style={sectionTitle}>Notifications</p>
-			<label style={optionRow}>
-				<div style={label}>Beep when render finishes</div>
+			<SettingsRow settingId="beepOnFinish">
 				<div style={rightRow}>
 					<Checkbox
+						inputId="remotion-setting-beepOnFinish-control"
 						checked={beepOnFinish}
 						name="Beep when render finishes"
 						onChange={(event) => {
@@ -579,7 +579,7 @@ export const RenderingSettings: React.FC = () => {
 						}}
 					/>
 				</div>
-			</label>
+			</SettingsRow>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

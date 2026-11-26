@@ -192,7 +192,7 @@ test('restarts start-up catch-up only for an explicit seek', async () => {
 	}
 });
 
-test('uses the initial volume before audio playback is ready', async () => {
+test('decodes at zero gain and restarts audio after muting', async () => {
 	const sharedAudioContext = makeSharedAudioContext();
 	const mediaGainNodes: GainNode[] = [];
 	const createGain = sharedAudioContext.audioContext.createGain.bind(
@@ -208,19 +208,133 @@ test('uses the initial volume before audio playback is ready', async () => {
 	const player = makeAudioPlayer(sharedAudioContext);
 
 	try {
-		const result = await player.initialize(0, false, 0.25, null);
+		const result = await player.initialize(0, false, 0, null);
 
 		expect(result.type).toBe('success');
 		expect(mediaGainNodes).toHaveLength(1);
-		expect(mediaGainNodes[0].gain.value).toBe(0.25);
-
-		player.setMuted(true);
 		expect(mediaGainNodes[0].gain.value).toBe(0);
-		player.setMuted(false);
+		const manager = player.audioIteratorManager!;
+		const iterator = manager.getAudioBufferIterator()!;
+		await vi.waitFor(() =>
+			expect(manager.getTotalAudioScheduledInSeconds()).toBeGreaterThan(0),
+		);
+
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
 		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioBufferIterator()).toBe(iterator);
+
+		player.setAudioState(true, 0.25);
+		expect(mediaGainNodes[0].gain.value).toBe(0);
+		expect(iterator.isDestroyed()).toBe(true);
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
+		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioIteratorsCreated()).toBe(2);
 	} finally {
 		createGainSpy.mockRestore();
 		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('keeps the audio iterator through a volume change to zero and back', async () => {
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext);
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		expect(created).toBeGreaterThan(0);
+
+		player.setAudioState(false, 0);
+		await player.seekTo(0, null);
+		player.setAudioState(false, 1);
+		await player.seekTo(0, null);
+
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('a muted seek skips audio without holding playback', async () => {
+	let holds = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			holds++;
+			return {unblock: () => {}};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		const heldWhileAudible = holds;
+		expect(heldWhileAudible).toBeGreaterThan(0);
+
+		player.setAudioState(true, 1);
+		await player.seekTo(5, null);
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
+		expect(holds).toBe(heldWhileAudible);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('the startup hold follows volume while audio is still loading', async () => {
+	let activeBlocks = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			activeBlocks++;
+			let unblocked = false;
+			return {
+				unblock: () => {
+					if (!unblocked) {
+						unblocked = true;
+						activeBlocks--;
+					}
+				},
+			};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		await player.seekTo(5, null);
+		expect(activeBlocks).toBe(1);
+		player.setAudioState(false, 0);
+		expect(activeBlocks).toBe(0);
+
+		player.setAudioState(false, 1);
+		expect(activeBlocks).toBe(1);
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		player.setAudioState(false, 0);
+		player.setAudioState(false, 1);
+		expect(activeBlocks).toBe(0);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
 	}
 });
 
@@ -416,6 +530,33 @@ test.each(['audio', 'video'] as const)(
 		}
 	},
 );
+
+test('defers a failed audio read at volume 0 until the volume rises', async () => {
+	const onError = vi.fn();
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, onError);
+	const error = new TypeError('Failed to fetch');
+	const buffers = vi
+		.spyOn(AudioBufferSink.prototype, 'buffers')
+		.mockImplementation(
+			// eslint-disable-next-line require-yield
+			async function* () {
+				throw error;
+			},
+		);
+	try {
+		await player.initialize(0, false, 0, null);
+		await player.seekTo(1, null);
+		await vi.waitFor(() => expect(player.audioIteratorManager).toBeNull());
+		expect(onError).not.toHaveBeenCalled();
+		player.setAudioState(false, 1);
+		await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
+	} finally {
+		buffers.mockRestore();
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
 
 test('ignores pending seek failures after disposal and skips new seeks', async () => {
 	const onError = vi.fn();
@@ -622,10 +763,44 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		expect(errors).toHaveLength(0);
 		expect(support).not.toHaveBeenCalled();
 		expect(player.audioIteratorManager).toBeNull();
-		player.setMuted(false);
+		player.setAudioState(false, 1);
 		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
-		player.setMuted(false);
+		player.setAudioState(false, 1);
+		expect(errors).toHaveLength(1);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+		support.mockRestore();
+	}
+});
+
+test('reports unsupported audio at volume 0 once the volume rises', async () => {
+	const support = vi
+		.spyOn(InputAudioTrack.prototype, 'canDecode')
+		.mockResolvedValue(false);
+	const errors: Error[] = [];
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(
+		sharedAudioContext,
+		(error) => errors.push(error),
+		'video',
+		{
+			src: '/bigbuckbunny.mp4',
+			canvas: document.createElement('canvas'),
+			onVideoFrameCallback: null,
+		},
+	);
+	try {
+		expect((await player.initialize(0, false, 0, null)).type).toBe('success');
+		expect(errors).toHaveLength(0);
+		player.setAudioState(true, 1);
+		player.setAudioState(false, 0);
+		expect(errors).toHaveLength(0);
+		player.setAudioState(false, 0.5);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('Cannot decode audio');
+		player.setAudioState(false, 1);
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();

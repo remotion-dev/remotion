@@ -1,0 +1,67 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-elements-why.png
+title: Why Elements?
+sidebar_label: Why Elements?
+description: What makes Elements worth using and creating.
+---
+
+import {ElementLibraryStrip, ElementsComposeDemo} from '@site/src/components/Elements/ElementsOverview';
+
+# Why Elements?
+
+[Elements](/docs/elements) are video building blocks whose source code is copied into your project.
+
+## Why use Elements
+
+### You own the code
+
+An Element is not an npm package. Its source is copied into your project as a regular component, so you can restyle it, retime it or rewrite it, and no update can change it afterwards.
+
+### Skip the iterations
+
+An AI agent can make any animation from a prompt. Making it look good takes many rounds of adjusting timing, easing, spacing and typography.
+
+<video src="https://remotion.media/elements/docs/first-output-vs-iterations.mp4" autoPlay loop muted playsInline aria-label="A generic first output next to a refined animation after iterations" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginBottom: 'var(--ifm-leading)'}} />
+
+An Element is the finished result of that work. Adding one gives you a polished animation right away, instead of a first draft.
+
+Agents benefit too. An agent that starts from an Element has a style to follow, instead of making one up each time.
+
+### Self-contained and reusable
+
+An Element is small and does one thing: a lower third, a marker stroke, a caption style. It is self-contained, so it works in any composition.
+
+- Layer Elements as overlays on top of an existing video.
+- Reuse the same Elements across projects to keep a consistent look.
+- Collect them into a [design system](/docs/design-systems) for a brand or a team.
+- Mix Elements from different libraries in one video.
+
+In this video, the captions and the lower third are Elements layered over a recording.
+
+<ElementsComposeDemo />
+
+### Editable without code
+
+Elements can expose controls to the Inspector of [Remotion Studio](/docs/studio), so text, colors and timing can be changed visually. The code stays available for everything else.
+
+To get started, see [Finding Elements](/docs/elements/finding) and [Using an Element](/docs/elements/using).
+
+## Why create Elements
+
+Elements are an open ecosystem. An [Element Library](/docs/elements/libraries) is your own website, and publishing one does not need our approval.
+
+- A library builds your audience. It is published under your own name, and good Elements get used in other people's videos.
+- Remotion Studio has more than 700,000 monthly active users. They can save your library in Studio, and add an Element with one click or by dragging it onto the canvas. AI agents and the CLI install from the same library.
+- An Element is self-contained and [can expose its props and timing](/docs/elements/creating), so users restyle, trim and retime your work visually.
+- [How you distribute Elements](/docs/elements/distributing) is your decision: free and open source, funded by sponsorships, or paid.
+- We feature good libraries in the [official listing](/docs/elements/distributing#get-listed).
+- We plan to make Elements installable in apps built with the [Remotion SDK](/docs/sdk), which is in development. Libraries would then also reach the users of those apps.
+
+<ElementLibraryStrip />
+
+To get started, see [Creating an Element](/docs/elements/creating) and [Building an Element Library](/docs/elements/libraries).
+
+## See also
+
+- [Elements](/docs/elements)
+- [Element Libraries](/elements/libraries)

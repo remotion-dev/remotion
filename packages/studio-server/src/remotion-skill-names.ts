@@ -3,6 +3,7 @@ export const remotionSkillNames = [
 	'remotion-captions',
 	'remotion-create',
 	'remotion-docs',
+	'remotion-elements',
 	'remotion-interactivity',
 	'remotion-license',
 	'remotion-maps',

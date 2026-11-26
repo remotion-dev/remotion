@@ -166,6 +166,8 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const parentTrimBefore =
+		useContext(Internals.SequenceContext)?.trimBefore ?? 0;
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
@@ -215,7 +217,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 				playbackRate,
 				loop,
 			}),
-			compositionDurationInFrames - (from ?? 0),
+			compositionDurationInFrames + parentTrimBefore - (from ?? 0),
 		),
 	);
 	const lastFrame =

@@ -8,6 +8,7 @@ import {Spacing} from './layout';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
 import {showNotification} from './Notifications/NotificationCenter';
+import {useSettings} from './SettingsContext';
 
 const footer: React.CSSProperties = {
 	flex: 'none',
@@ -50,6 +51,7 @@ export const SettingsModalFooter: React.FC<{
 	readonly showLicenseFaq: boolean;
 }> = ({showLicenseFaq}) => {
 	const {restartRequired} = useContext(StudioServerConnectionCtx);
+	const {studioRuntimeConfig} = useSettings();
 	const [restarting, setRestarting] = useState(false);
 	const configFileLocation = useMemo(() => {
 		return {
@@ -79,6 +81,19 @@ export const SettingsModalFooter: React.FC<{
 				<div style={configFileHint}>
 					{restartRequired ? (
 						'Restart the server to apply changes'
+					) : studioRuntimeConfig?.configFileStudioSettings === null ? (
+						<span>
+							Add a{' '}
+							<a
+								href="https://www.remotion.dev/docs/config"
+								target="_blank"
+								rel="noreferrer"
+								style={configFileName}
+							>
+								Remotion config file
+							</a>{' '}
+							and restart Studio to save project settings.
+						</span>
 					) : (
 						<>
 							Changes save to

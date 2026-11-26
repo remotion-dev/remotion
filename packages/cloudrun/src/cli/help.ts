@@ -272,6 +272,8 @@ export const cloudrunCommandHelp = [
 			],
 			{
 				port: 'Set the local server port when no composition ID is passed.',
+				'license-key': 'Deprecated for still renders.',
+				'is-production': 'Deprecated for still renders.',
 			},
 			'still',
 		),
