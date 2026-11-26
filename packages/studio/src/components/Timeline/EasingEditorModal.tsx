@@ -77,7 +77,7 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	end: '1',
 };
 const EASING_GRAPH_GUIDE_COLOR = WHITE_ALPHA_12;
-const EASING_GRAPH_LABEL_FONT_SIZE = 13;
+const EASING_GRAPH_LABEL_FONT_SIZE = 15;
 const EASING_GRAPH_LABEL_HEIGHT = 20;
 const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
 const EASING_GRAPH_LABEL_MAX_WIDTH = PLOT_WIDTH / 2;
@@ -580,7 +580,8 @@ const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 
 const getEasingGraphLabelWidth = (label: string) => {
 	return clamp(
-		label.length * 7.8 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
+		label.length * EASING_GRAPH_LABEL_FONT_SIZE * 0.6 +
+			EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
 		24,
 		EASING_GRAPH_LABEL_MAX_WIDTH,
 	);
