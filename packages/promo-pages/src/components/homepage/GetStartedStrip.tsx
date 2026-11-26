@@ -51,7 +51,7 @@ export const GetStarted: React.FC = () => {
 						<PromptAgentLogos />
 						<span
 							data-copied={copiedAt !== null}
-							className="relative ml-2 flex h-12 items-center text-left whitespace-nowrap transition-transform duration-200 ease-out data-[copied=true]:-translate-y-full motion-reduce:transition-none"
+							className="relative ml-2 flex h-18 items-center text-left whitespace-nowrap transition-transform duration-200 ease-out data-[copied=true]:-translate-y-full motion-reduce:transition-none"
 						>
 							Copy prompt
 							<span
