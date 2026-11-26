@@ -1302,6 +1302,7 @@ const HtmlInCanvasInner = forwardRef<
 		const {isRendering} = useRemotionEnvironment();
 		const videoEnabled = useVideoEnabled();
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
+		const showFallback = !isRendering && unsupportedMessage !== null;
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const isNestedUnsupported = Boolean(
 			ancestorPaintState && !isHtmlInCanvasNestingSupported(),
@@ -1427,6 +1428,11 @@ const HtmlInCanvasInner = forwardRef<
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					{...sequenceProps}
+					refForOutline={
+						growBounds !== undefined && videoEnabled && !showFallback
+							? actualRef
+							: null
+					}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
@@ -1438,7 +1444,7 @@ const HtmlInCanvasInner = forwardRef<
 						<DefaultPremountContext.Provider value={0}>
 							{children}
 						</DefaultPremountContext.Provider>
-					) : !isRendering && unsupportedMessage !== null ? (
+					) : showFallback ? (
 						<HtmlInCanvasFallback
 							style={{width, height, ...croppedStyle}}
 							title={

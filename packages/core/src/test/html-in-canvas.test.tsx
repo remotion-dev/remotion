@@ -223,7 +223,7 @@ test('<HtmlInCanvas> remains visible with a negative offset', () => {
 	expect(queryByText('Still visible')).not.toBeNull();
 });
 
-test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
+test('<HtmlInCanvas> registers its grown canvas for outline selection', async () => {
 	const registeredSequences: TSequence[] = [];
 	const canvasRef = React.createRef<HTMLCanvasElement>();
 
@@ -233,7 +233,7 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 				registeredSequences.push(sequence);
 			}}
 		>
-			<HtmlInCanvas ref={canvasRef} width={120} height={80}>
+			<HtmlInCanvas ref={canvasRef} width={120} height={80} growBounds={24}>
 				<div>Test</div>
 			</HtmlInCanvas>
 		</SequenceTestWrapper>,
@@ -246,11 +246,7 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
-	expect(
-		Internals.SequenceOutlineInternals.getNodes(
-			registeredSequences[0].refForOutline!,
-		),
-	).toEqual([]);
+	expect(registeredSequences[0].refForOutline?.current).toBe(canvas);
 });
 
 test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {

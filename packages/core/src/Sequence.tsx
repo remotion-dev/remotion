@@ -174,6 +174,8 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
 	 */
 	readonly outlineRef?: React.RefObject<Element | null> | null;
+	/** The element to measure for this sequence's selection outline in Studio. */
+	readonly refForOutline?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -243,6 +245,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		showInTimeline = true,
 		hidden = false,
 		controls,
+		refForOutline: outlineOverride = null,
 		_remotionInternalEffects,
 		_remotionInternalTimelineTrack: timelineTrackItem,
 		_remotionInternalLoopDisplay: loopDisplay,
@@ -416,14 +419,15 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
 	const automaticOutlineRef = useMemo(
 		() =>
-			shouldDiscoverOutline && layout === 'none'
+			shouldDiscoverOutline && layout === 'none' && outlineOverride === null
 				? SequenceOutlineInternals.createRef()
 				: null,
-		[shouldDiscoverOutline, layout],
+		[shouldDiscoverOutline, layout, outlineOverride],
 	);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
-		layout === 'none' ? automaticOutlineRef : wrapperRefForOutline;
+		outlineOverride ??
+		(layout === 'none' ? automaticOutlineRef : wrapperRefForOutline);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
