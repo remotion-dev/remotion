@@ -40,7 +40,7 @@ export const GetStarted: React.FC = () => {
 						/>
 					) : (
 						<Button
-							className="bg-[#333] text-white rounded-lg px-4 hover:bg-[#444] cursor-pointer w-full"
+							className="bg-brand text-white rounded-lg px-4 cursor-pointer w-full"
 							onClick={async () => {
 								try {
 									await navigator.clipboard.writeText(setupPrompt);
