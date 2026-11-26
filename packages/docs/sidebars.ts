@@ -1,5 +1,9 @@
 // @ts-expect-error
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import {
+	EFFECT_CATALOG,
+	getEffectDocumentationPath,
+} from '@remotion/studio-shared';
 
 const sidebars: SidebarsConfig = {
 	apiSidebar: [
@@ -309,7 +313,16 @@ const sidebars: SidebarsConfig = {
 				'cloudrun/testpermissions',
 			],
 		},
-		{type: 'doc', id: 'effects/effects-api', label: '@remotion/effects'},
+		{
+			type: 'category',
+			label: '@remotion/effects',
+			link: {type: 'doc', id: 'effects/effects-api'},
+			items: EFFECT_CATALOG.map((effect) => ({
+				type: 'link' as const,
+				label: effect.label,
+				href: getEffectDocumentationPath(effect),
+			})).sort((a, b) => a.label.localeCompare(b.label)),
+		},
 		{
 			type: 'category',
 			label: '@remotion/elevenlabs',
