@@ -1268,21 +1268,16 @@ const sidebars: SidebarsConfig = {
 				id: 'elements',
 			},
 			items: [
-				'elements/why',
+				'elements/using',
+				'elements/managing-libraries',
 				{
 					type: 'category',
-					label: 'Using Elements',
+					label: 'Creating',
 					collapsed: false,
-					items: [
-						'elements/finding',
-						'elements/using',
-						'elements/managing-libraries',
-					],
-				},
-				{
-					type: 'category',
-					label: 'Creating Elements',
-					collapsed: false,
+					link: {
+						type: 'doc',
+						id: 'elements/why-create',
+					},
 					items: [
 						'elements/creating',
 						'elements/libraries',

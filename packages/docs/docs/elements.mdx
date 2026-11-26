@@ -4,22 +4,55 @@ title: Elements
 description: Reusable, sharable and composable video components, published in Element Libraries.
 ---
 
-import {ElementsShowcase} from '@site/src/components/Elements/ElementsOverview';
+import {ElementsComposeDemo, ElementsShowcase} from '@site/src/components/Elements/ElementsOverview';
 import {TableOfContents} from './elements/TableOfContents';
 
 # Elements
 
 An Element is a video building block written as a React component, such as an animated title, background, chart, or caption style. Creators publish Elements on websites called [Element Libraries](/elements/libraries). Adding an Element copies its source code into your project.
 
-See [why to use and create Elements](/docs/elements/why).
-
 <ElementsShowcase />
+
+## Why use Elements
+
+### You own the code
+
+An Element is not an npm package. Its source is copied into your project as a regular component, so you can restyle it, retime it or rewrite it, and no update can change it afterwards.
+
+### Skip the iterations
+
+An AI agent can make any animation from a prompt. Making it look good takes many rounds of adjusting timing, easing, spacing and typography.
+
+<video src="https://remotion.media/elements/docs/first-output-vs-iterations.mp4" autoPlay loop muted playsInline aria-label="A generic first output next to a refined animation after iterations" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginBottom: 'var(--ifm-leading)'}} />
+
+An Element is the finished result of that work. Adding one gives you a polished animation right away, instead of a first draft.
+
+Agents benefit too. An agent that starts from an Element has a style to follow, instead of making one up each time.
+
+### Self-contained and reusable
+
+An Element is small and does one thing: a lower third, a marker stroke, a caption style. It is self-contained, so it works in any composition.
+
+- Layer Elements as overlays on top of an existing video.
+- Reuse the same Elements across projects to keep a consistent look.
+- Collect them into a [design system](/docs/design-systems) for a brand or a team.
+- Mix Elements from different libraries in one video.
+
+In this video, the captions and the lower third are Elements layered over a recording.
+
+<ElementsComposeDemo />
+
+### Editable without code
+
+Elements can expose controls to the Inspector of [Remotion Studio](/docs/studio), so text, colors and timing can be changed visually. The code stays available for everything else.
 
 ## Using Elements
 
 <TableOfContents section="using" />
 
 ## Creating Elements
+
+Elements are an open ecosystem. See [why to create Elements](/docs/elements/why-create).
 
 <TableOfContents section="creating" />
 

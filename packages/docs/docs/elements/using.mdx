@@ -1,21 +1,32 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-elements-using.png
-title: Using an Element
-sidebar_label: Using an Element
-description: Add an Element to your project with Remotion Studio, an AI agent or the CLI.
+title: Using Elements
+sidebar_label: Using
+description: Find Elements in Element Libraries and add them to your project with Remotion Studio, an AI agent or the CLI.
 ---
 
-# Using an Element
+# Using Elements
 
-Adding an [Element](/docs/elements) copies its source code into your project and installs its dependencies. Afterwards, it is a regular component of your project.
+[Elements](/docs/elements) are published in Element Libraries. Each library is a website with its own selection.
+
+Adding an Element copies its source code into your project and installs its dependencies. Afterwards, it is a regular component of your project.
 
 Install Elements only from websites you trust, since their source code runs in your project.
+
+## Where to find Elements
+
+- [Element Libraries](/elements/libraries) lists the libraries that we feature.
+- [Remotion Elements](/elements) is the library that we maintain.
+- A library that is not listed works the same way. All that is needed is its URL.
+
+Each Element has a page with a preview and its install actions.
 
 ## In Remotion Studio
 
 <Step>1</Step> Open your composition in Remotion Studio.<br />
 <Step>2</Step> Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.<br />
-<Step>3</Step> Pick a library and choose an Element to add to your composition.
+<Step>3</Step> Pick a library of your project, or select <strong>Explore</strong> at the top of the sidebar to see the libraries that we feature.<br />
+<Step>4</Step> Choose an Element to add to your composition.
 
 <video src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4" autoPlay loop muted playsInline controls aria-label="Browsing Remotion Elements in Studio" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginTop: 12}} />
 
@@ -27,7 +38,7 @@ See [Browse Elements in Studio](/docs/studio/browse-elements).
 
 ## With an AI agent
 
-[Install the Remotion Agent Skills](/docs/agents/skills), then use `/remotion-elements` when asking your agent to add an Element:
+[Install the Remotion Agent Skills](/docs/agents/skills), then use `/remotion-elements` when asking your agent to add an Element. The agent searches the [listed libraries](/elements/libraries), or a library that you name, and picks a fitting Element.
 
 ```text
 /remotion-elements Add a lower third to my composition.
@@ -56,6 +67,6 @@ See the [CLI reference](/docs/cli/elements/use) for supported URLs, version requ
 
 ## See also
 
-- [Finding Elements](/docs/elements/finding)
+- [Elements](/docs/elements)
 - [Managing Element Libraries](/docs/elements/managing-libraries)
 - [`npx remotion elements use`](/docs/cli/elements/use)
