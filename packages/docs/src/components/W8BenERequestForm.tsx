@@ -48,23 +48,30 @@ export const W8BenERequestForm: React.FC = () => {
 			aria-busy={sending}
 			className="grid max-w-md gap-4"
 		>
-			<div className="grid gap-1">
-				<label htmlFor={emailId}>Company email</label>
+			<div>
+				<label htmlFor={emailId} className="block font-bold text-lg mb-1">
+					Company email
+				</label>
 				<Input
 					id={emailId}
 					name="email"
 					type="email"
 					autoComplete="email"
+					placeholder="name@company.com"
 					maxLength={254}
 					required
 					disabled={sending || sent}
 				/>
 			</div>
-			<div className="grid gap-1">
-				<label htmlFor={notesId}>Notes (optional)</label>
+			<div>
+				<label htmlFor={notesId} className="block font-bold text-lg mb-1">
+					Notes (optional)
+				</label>
 				<Textarea
 					id={notesId}
 					name="notes"
+					placeholder="Add any vendor onboarding details"
+					rows={3}
 					maxLength={2000}
 					disabled={sending || sent}
 				/>
