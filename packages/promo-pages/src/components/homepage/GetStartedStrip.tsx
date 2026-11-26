@@ -48,15 +48,15 @@ export const GetStarted: React.FC = () => {
 						}}
 						title="Copy this prompt for ChatGPT, Claude, or Cursor"
 					>
+						<PromptAgentLogos />
 						<span
 							data-copied={copiedAt !== null}
-							className="relative flex h-12 items-center whitespace-nowrap transition-transform duration-200 ease-out data-[copied=true]:-translate-y-full motion-reduce:transition-none"
+							className="relative ml-2 flex h-12 items-center text-left whitespace-nowrap transition-transform duration-200 ease-out data-[copied=true]:-translate-y-full motion-reduce:transition-none"
 						>
-							<PromptAgentLogos />
-							<span className="ml-2">Copy prompt</span>
+							Copy prompt
 							<span
 								aria-hidden="true"
-								className="absolute inset-x-0 top-full flex h-full items-center justify-center"
+								className="absolute inset-x-0 top-full flex h-full items-center"
 							>
 								Have fun!
 							</span>
