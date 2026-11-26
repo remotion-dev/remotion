@@ -50,7 +50,7 @@ export const TimelineTransitionEasingField: React.FC<{
 		[cancelPreview, propStatus.codeValue, onDragEnd, onSave],
 	);
 	return (
-		<div role="group" aria-label="Transition easing">
+		<div role="group" aria-label="Transition easing" style={{marginTop: 8}}>
 			<EasingCurveEditor
 				initialEasing={easing}
 				graphLabels={null}
