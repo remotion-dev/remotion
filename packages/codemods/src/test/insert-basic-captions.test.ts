@@ -85,13 +85,14 @@ const captions = [
 
 test('inserts captions with save-stable defaults without formatting existing source', () => {
 	const input = `import { Video } from "@remotion/media";
+import { Punch } from "./Punch";
 
 const untouched   = {keep : "this spacing"};
 
 export const Comp = () => (
-  <>
+  <Punch>
     <Video src="video.mp4" from={30} trimBefore={15} playbackRate={1.5} />
-  </>
+  </Punch>
 );
 `;
 	const {output} = insertBasicCaptions({
@@ -105,18 +106,14 @@ export const Comp = () => (
 	expect(output).toBe(`import { BasicCaptions } from "./basic-captions.element";
 import { Interactive } from "remotion";
 import { Video } from "@remotion/media";
+import { Punch } from "./Punch";
 
 const untouched   = {keep : "this spacing"};
 
 export const Comp = () => (
-  <>
-    <CaptionedVideo
-      from={30}
-      trimBefore={15}
-      playbackRate={1.5}
-      durationInFrames={177.45}
-    />
-  </>
+  <Punch>
+    <CaptionedVideo from={30} trimBefore={15} playbackRate={1.5} />
+  </Punch>
 );
 
 const CaptionedVideoInner = () => {
@@ -186,7 +183,7 @@ test('uses the source whitespace and configured trailing comma style', () => {
 			'',
 			'export const Comp = () => (',
 			'\t<>',
-			'\t\t<CaptionedVideo durationInFrames={90} />',
+			'\t\t<CaptionedVideo />',
 			'\t</>',
 			')',
 			'',

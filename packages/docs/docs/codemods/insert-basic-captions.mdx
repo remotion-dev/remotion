@@ -46,7 +46,7 @@ Caption objects with `text`, `startMs`, `endMs`, `timestampMs`, `confidence`, an
 
 ### durationInFrames?
 
-Fallback duration when the media node does not specify one. Defaults to `null`.
+Fallback duration for sibling captions when extraction is unsafe and the media node does not specify one. Defaults to `null`. Extracted components retain the media's authored timing and inherit any surrounding clip boundary.
 
 ### importPath?
 

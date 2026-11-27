@@ -75,10 +75,9 @@ const modelSizes = [
 
 const INSTALL_MESSAGE = (
 	<>
-		Generate captions on-device with{' '}
 		<code style={codeStyle}>@remotion/whisper-webgpu</code> and{' '}
-		<code style={codeStyle}>Transformers.js</code>. Multilingual models support
-		99 languages. Models require a separate download before first use.
+		<code style={codeStyle}>@huggingface/transformers</code> will be installed
+		into your project.
 		<details style={detailsStyle}>
 			<summary
 				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}

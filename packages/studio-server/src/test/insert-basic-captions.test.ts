@@ -77,7 +77,7 @@ test('transcription groups static Video and Audio with inline captions', async (
 
 export const Comp = () => (
 	<>
-		<Video src="video.mp4" from={10} trimBefore={5} playbackRate={2} />
+		<Video src="video.mp4" from={10} trimBefore={5} playbackRate={2} durationInFrames={90} />
 		<Audio src="voice.mp3" durationInFrames={60} />
 	</>
 );
@@ -171,10 +171,10 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		durationInFrames: 30,
 	});
 
-	expect(output).toContain('<CaptionedAudio durationInFrames={30} />');
+	expect(output).toContain('<CaptionedAudio />');
 	expect(output).toContain('<Audio src="voice.mp3" />');
 	expect(output.replace(/\s+/g, ' ')).toContain('<BasicCaptions captions={[');
-	expect(output).toContain('durationInFrames={30}');
+	expect(output).not.toContain('durationInFrames={30}');
 });
 
 test('keeps edited Basic captions source and adds another instance for the same clip', () => {

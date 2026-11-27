@@ -428,11 +428,8 @@ export const insertBasicCaptions = ({
 		}
 
 		returnStatement.argument.children = [media, inserted];
-		const instanceSource = `<${componentName}${[
-			...mediaAttributes.map((attribute) => recast.print(attribute).code),
-			...fallbackTimingProps.map(({name, value}) => `${name}={${value}}`),
-		]
-			.map((attribute) => ` ${attribute}`)
+		const instanceSource = `<${componentName}${mediaAttributes
+			.map((attribute) => ` ${recast.print(attribute).code}`)
 			.join('')} />`;
 		const instanceDeclaration = parseAst(
 			`const instance = (${instanceSource});`,

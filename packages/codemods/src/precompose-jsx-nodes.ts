@@ -385,17 +385,18 @@ const getPrecompositionPlan = ({
 
 			const preservesMediaParent =
 				allowMediaParents &&
-				parentRoot.type === 'JSXIdentifier' &&
-				ancestor.scope.lookup(parentRoot.name)?.path.node === ast.program &&
-				[
-					'dev.remotion.remotion.Track',
-					'dev.remotion.remotion.Series.Sequence',
-					'dev.remotion.transitions.TransitionSeries.Sequence',
-				].includes(
-					getJsxComponentIdentity({
-						ast,
-						jsxElement: ancestorNode.openingElement,
-					}) ?? '',
+				!(
+					parentRoot.type === 'JSXIdentifier' &&
+					ancestor.scope.lookup(parentRoot.name)?.path.node === ast.program &&
+					[
+						'dev.remotion.remotion.Series',
+						'dev.remotion.transitions.TransitionSeries',
+					].includes(
+						getJsxComponentIdentity({
+							ast,
+							jsxElement: ancestorNode.openingElement,
+						}) ?? '',
+					)
 				);
 			if (!transparent && !preservesSeriesChild && !preservesMediaParent) {
 				throw new Error('The JSX parent may depend on its direct children');

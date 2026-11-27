@@ -343,7 +343,8 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 test('splits video audio and inserts captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const initialSource = `import {Video} from '@remotion/media';
-export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
+import {Punch} from './Punch';
+export const Component = () => <Punch><Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} /></Punch>;`;
 	let currentProject: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',
@@ -352,6 +353,9 @@ export const Component = () => <Video src="video.mp4" from={10} durationInFrames
 import {Root} from './Composition';
 registerRoot(Root);`,
 			[fileName]: initialSource,
+			'/project/src/Punch.tsx': `import {Interactive} from 'remotion';
+const PunchInner = ({children}) => <div>{children}</div>;
+export const Punch = Interactive.create({Component: PunchInner, layout: 'none'});`,
 		},
 	};
 	const operations = createBrowserStudioOperations({
@@ -368,8 +372,8 @@ registerRoot(Root);`,
 	operations.subscribeToEvent((event) => events.push(event));
 	const subscription = await operations.subscribeToSequenceProps({
 		fileName: 'src/Composition.tsx',
-		line: 2,
-		column: 31,
+		line: 3,
+		column: 38,
 		nodePath: null,
 		componentIdentity: 'dev.remotion.media.Video',
 		keys: ['from', 'durationInFrames'],
