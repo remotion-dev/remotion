@@ -324,6 +324,11 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'fix-default-props';
+			compositionId: string;
+			reason: string;
+	  }
+	| {
 			type: 'precompose-refactor';
 			targets: PrecomposeRefactorTarget[];
 			failureReason: string | null;

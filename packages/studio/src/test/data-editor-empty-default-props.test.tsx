@@ -1,10 +1,12 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {cleanup, render, screen} from '@testing-library/react';
+import {cleanup, fireEvent, render, screen} from '@testing-library/react';
 import type {_InternalTypes} from 'remotion';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
 import {ZodProvider} from '../components/get-zod-if-possible';
 import {DataEditor} from '../components/RenderModal/DataEditor';
+import type {ModalState} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 
 const originalInputProps = window.remotion_inputProps;
 const originalIsStudio = window.remotion_isStudio;
@@ -26,23 +28,66 @@ afterEach(() => {
 	window.remotion_staticFiles = originalStaticFiles;
 });
 
-test('shows invalid empty default props without crashing the editor', async () => {
-	const schema = z.object({title: z.string()});
-	const composition = {
+const makeComposition = (
+	id: string,
+	defaultProps: Record<string, unknown>,
+	schema: unknown,
+) =>
+	({
 		calculateMetadata: null,
 		component: () => null,
-		defaultProps: {},
+		defaultProps,
 		durationInFrames: 30,
 		folderName: null,
 		fps: 30,
 		height: 1080,
-		id: 'invalid-default-props',
+		id,
 		order: 0,
 		parentFolderName: null,
 		schema,
 		stack: null,
 		width: 1920,
-	} as unknown as _InternalTypes['AnyComposition'];
+	}) as unknown as _InternalTypes['AnyComposition'];
+
+test('opens the Fix modal from the cannot save default props warning', async () => {
+	const opened: (ModalState | null)[] = [];
+	const reason =
+		'Could not find or extract defaultProps for composition "Demo"';
+
+	render(
+		<SetSelectedModalContext.Provider
+			value={{
+				setSelectedModal: (modal) => {
+					opened.push(typeof modal === 'function' ? modal(null) : modal);
+				},
+			}}
+		>
+			<ZodProvider>
+				<DataEditor
+					unresolvedComposition={makeComposition(
+						'Demo',
+						{title: 'Hello'},
+						z.object({title: z.string()}),
+					)}
+					defaultProps={{title: 'Hello'}}
+					setDefaultProps={() => undefined}
+					propsEditType="default-props"
+					canSaveDefaultProps={{canUpdate: false, reason, determined: true}}
+					mode="schema"
+				/>
+			</ZodProvider>
+		</SetSelectedModalContext.Provider>,
+	);
+
+	fireEvent.click(await screen.findByRole('button', {name: 'Fix'}));
+	expect(opened).toEqual([
+		{type: 'fix-default-props', compositionId: 'Demo', reason},
+	]);
+});
+
+test('shows invalid empty default props without crashing the editor', async () => {
+	const schema = z.object({title: z.string()});
+	const composition = makeComposition('invalid-default-props', {}, schema);
 
 	render(
 		<ZodProvider>

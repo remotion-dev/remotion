@@ -1,13 +1,10 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {PropsEditType} from './DataEditor';
 
-export const CANNOT_SAVE_DEFAULT_PROPS_DOCS =
-	'https://www.remotion.dev/docs/troubleshooting/cannot-save-default-props';
-
 export type RenderModalWarning = {
 	readonly id: string;
 	readonly message: string;
-	readonly resolveLink?: string;
+	readonly fixReason?: string;
 };
 
 export type TypeCanSaveState =
@@ -74,7 +71,7 @@ const getCannotSaveDefaultProps = (
 	return {
 		id: 'cannot-save-default-props',
 		message: `Can't save default props: ${canSaveDefaultProps.reason}.`,
-		resolveLink: CANNOT_SAVE_DEFAULT_PROPS_DOCS,
+		fixReason: canSaveDefaultProps.reason,
 	};
 };
 
