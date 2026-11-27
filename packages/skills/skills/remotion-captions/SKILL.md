@@ -1,6 +1,6 @@
 ---
 name: remotion-captions
-description: Transcribing, displaying and animating captions
+description: Generate captions from audio or video, import subtitles, and display or animate captions in Remotion. Use before choosing a transcription package.
 version: 4.0.547
 ---
 
@@ -25,7 +25,7 @@ type Caption = {
 
 ## Generating captions
 
-To transcribe video and audio files to generate captions, load the [transcribe-captions.md](transcribe-captions.md) file for more instructions.
+To generate captions from video or audio, read [Transcribing audio](transcribe-captions.md) before installing any transcription packages.
 
 ## Displaying captions
 

@@ -1,24 +1,38 @@
 # Transcribing audio
 
-To transcribe audio to generate captions in Remotion, use the [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) function from the [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md) package.
-It runs Whisper locally on the GPU and works in both Node.js and the browser.
+The CLI and API workflows below use [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md) and require a compatible GPU. Node.js transcription through ONNX Runtime is unavailable on Linux arm64. See the [transcription options](https://www.remotion.dev/docs/captions/transcribing.md) for other setups.
 
-## Prerequisites
+Transcribe each original source video or audio file individually, including portions currently trimmed out of the edit. Keep each transcript separate and its timestamps relative to the beginning of the source file.
 
-Install the required packages if they are not installed:
+## Installing dependencies
+
+Check the project's package manager and workspace before installing. If `node_modules` is a symlink, follow the install workflow that manages the link. Preserve the dependency layout and let the package manager update its lockfile.
+
+Use [`remotion add`](https://www.remotion.dev/docs/cli/add.md) to select the version that matches the installed Remotion packages. The examples use `npx remotion` for npm. Use `bunx remotion` for Bun, `yarn remotion` for Yarn, or `pnpm exec remotion` for pnpm.
+
+## Transcribing local files with the CLI
+
+From Remotion 4.0.546, use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate a `Caption[]` JSON file. Add the required packages if they are missing:
 
 ```bash
-npx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses npm
-bunx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses bun
-yarn remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses yarn
-pnpm exec remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses pnpm
+npx remotion add @remotion/whisper-webgpu @huggingface/transformers
 ```
 
-A compatible GPU is required. ONNX Runtime does not work on Linux arm64.
+```bash
+npx remotion whisper transcribe public/video123.mp4 --no-overwrite
+```
 
-## Transcribing
+This downloads the model if needed and writes `public/video123-captions.json`. Use `--language` with the spoken language for non-English media.
 
-Make a Node.js script that decodes the audio to a 16kHz mono waveform, downloads a model, and transcribes it.
+## Transcribing in a Node.js script
+
+Use a script for programmatic transcription or for local files on Remotion 4.0.530 through 4.0.545. Add the script's dependencies if they are missing:
+
+```bash
+npx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server
+```
+
+Decode the audio to a 16 kHz mono waveform, then download the model and call [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md).
 
 ```ts
 import { registerMediabunnyServer } from "@mediabunny/server";
@@ -142,7 +156,7 @@ See [`getAvailableModels()`](https://www.remotion.dev/docs/whisper-webgpu/get-av
 
 ## Transcribing in the browser
 
-In the browser, use [`resampleTo16Khz()`](https://www.remotion.dev/docs/whisper-webgpu/resample-to-16khz.md) to get the waveform from a `File` instead of using Mediabunny:
+For a browser integration, install `@remotion/whisper-webgpu` and `@huggingface/transformers` as shown in the CLI section. Use [`resampleTo16Khz()`](https://www.remotion.dev/docs/whisper-webgpu/resample-to-16khz.md) to get the waveform from a `File`:
 
 ```ts
 import {
@@ -164,9 +178,5 @@ export const transcribeFile = async (file: File) => {
   return captions;
 };
 ```
-
-Transcribe each original source video or audio file individually.  
-Keep the resulting caption timestamps relative to the beginning of that source file, including portions currently trimmed out of the edit.  
-Do not add composition offsets or flatten multiple transcripts into composition-wide timestamps.
 
 See [Displaying captions](display-captions.md) for how to display the captions in Remotion.
