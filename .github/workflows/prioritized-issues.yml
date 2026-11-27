@@ -1,0 +1,34 @@
+name: Label issues filed by customers
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label:
+    if: github.repository == 'remotion-dev/remotion'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Check the issue author's priority support
+        id: lookup
+        env:
+          AUTHOR_ID: ${{ github.event.issue.user.id }}
+          PRIORITIZED_ISSUES_SECRET: ${{ secrets.PRIORITIZED_ISSUES_SECRET }}
+        run: |
+          set -euo pipefail
+          : "${PRIORITIZED_ISSUES_SECRET:?Missing prioritized issues secret}"
+          eligible=$(curl --fail --silent --show-error --retry 3 --retry-connrefused --max-time 25 \
+            --header "Authorization: Bearer ${PRIORITIZED_ISSUES_SECRET}" \
+            --get --data-urlencode "githubUserId=${AUTHOR_ID}" \
+            https://www.remotion.pro/api/prioritized-issues/eligible \
+            | jq -er 'if .eligible == true then "yes" elif .eligible == false then "no" else error("Invalid eligibility response") end')
+          echo "eligible=${eligible}" >> "$GITHUB_OUTPUT"
+
+      - name: Add the customer label
+        if: steps.lookup.outputs.eligible == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/labels" -f 'labels[]=filed by customer' --silent
