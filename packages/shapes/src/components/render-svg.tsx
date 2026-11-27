@@ -119,6 +119,7 @@ const RenderSvgWithTiming = ({
 };
 
 export const RenderSvg = ({
+	pathRef,
 	defaultName,
 	documentationLink,
 	width,
@@ -148,6 +149,7 @@ export const RenderSvg = ({
 	controls,
 	...props
 }: {
+	readonly pathRef: React.Ref<SVGPathElement>;
 	readonly defaultName: string;
 	readonly documentationLink: string;
 	readonly width: number;
@@ -155,7 +157,7 @@ export const RenderSvg = ({
 	readonly path: string;
 	readonly instructions: Instruction[];
 	readonly transformOrigin: string;
-} & AllShapesProps) => {
+} & Omit<AllShapesProps, 'ref'>) => {
 	const actualStyle = useMemo((): React.CSSProperties => {
 		return {
 			overflow: 'visible',
@@ -200,6 +202,7 @@ export const RenderSvg = ({
 				d={path}
 				style={actualPathStyle}
 				{...props}
+				ref={pathRef}
 			/>
 			{debug
 				? instructions.map((i, index) => {

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {forwardRef} from 'react';
 import {
 	AbsoluteFillElement,
 	type AbsoluteFillElementProps,
@@ -48,23 +48,16 @@ export const absoluteFillSchema = {
 	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
-const setRef = <ElementType,>(
-	ref: React.Ref<ElementType> | undefined,
-	value: ElementType | null,
-) => {
-	if (typeof ref === 'function') {
-		ref(value);
-	} else if (ref) {
-		ref.current = value;
-	}
+type AbsoluteFillInnerProps = Omit<AbsoluteFillProps, 'ref'> & {
+	readonly controls: SequenceControls | undefined;
 };
 
 const AbsoluteFillWithTiming: React.FC<
-	AbsoluteFillProps & {
-		readonly controls: SequenceControls | undefined;
+	AbsoluteFillInnerProps & {
+		readonly elementRef: React.Ref<HTMLDivElement>;
 	}
 > = ({
-	ref: callbackRef,
+	elementRef,
 	from,
 	premountFor,
 	postmountFor,
@@ -131,7 +124,7 @@ const AbsoluteFillWithTiming: React.FC<
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
 				<AbsoluteFillElement
-					ref={callbackRef}
+					ref={elementRef}
 					{...divProps}
 					style={premountingStyle ?? undefined}
 				>
@@ -142,75 +135,45 @@ const AbsoluteFillWithTiming: React.FC<
 	);
 };
 
-const AbsoluteFillInner: React.FC<
-	AbsoluteFillProps & {readonly controls: SequenceControls | undefined}
-> = ({
-	ref,
-	from,
-	premountFor,
-	postmountFor,
-	styleWhilePremounted,
-	styleWhilePostmounted,
-	trimBefore,
-	playbackRate,
-	loop,
-	freeze,
-	durationInFrames,
-	hidden,
-	name,
-	showInTimeline,
-	stack,
-	controls,
-	children,
-	...divProps
-}) => {
-	const videoConfig = useUnsafeVideoConfig();
-	const callbackRef = useCallback(
-		(element: HTMLDivElement | null) => {
-			setRef(ref, element);
-		},
-		[ref],
-	);
+const AbsoluteFillInner = forwardRef<HTMLDivElement, AbsoluteFillInnerProps>(
+	(props, ref) => {
+		const videoConfig = useUnsafeVideoConfig();
+		if (videoConfig !== null) {
+			return <AbsoluteFillWithTiming {...props} elementRef={ref} />;
+		}
 
-	if (videoConfig === null) {
-		return hidden ? null : (
-			<AbsoluteFillElement ref={callbackRef} {...divProps}>
-				{children}
-			</AbsoluteFillElement>
-		);
-	}
-
-	return (
-		<AbsoluteFillWithTiming
-			{...divProps}
-			ref={callbackRef}
-			from={from}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			styleWhilePremounted={styleWhilePremounted}
-			styleWhilePostmounted={styleWhilePostmounted}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			loop={loop}
-			freeze={freeze}
-			durationInFrames={durationInFrames}
-			hidden={hidden}
-			name={name}
-			showInTimeline={showInTimeline}
-			stack={stack}
-			controls={controls}
-		>
-			{children}
-		</AbsoluteFillWithTiming>
-	);
-};
+		const {
+			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
+			trimBefore,
+			playbackRate,
+			loop,
+			freeze,
+			durationInFrames,
+			hidden,
+			name,
+			showInTimeline,
+			stack,
+			controls,
+			...divProps
+		} = props;
+		return hidden ? null : <AbsoluteFillElement {...divProps} ref={ref} />;
+	},
+);
+AbsoluteFillInner.displayName = 'AbsoluteFillInner';
 
 /*
  * @description A helper component which renders an absolutely positioned <div> element with full width, height, and flex display suited for content layering.
  * @see [Documentation](https://remotion.dev/docs/absolute-fill)
  */
 
-export const AbsoluteFill = withInteractivitySchema({
+export const AbsoluteFill = withInteractivitySchema<
+	typeof absoluteFillSchema,
+	AbsoluteFillProps
+>({
 	Component: AbsoluteFillInner,
 	componentName: '<AbsoluteFill>',
 	componentIdentity: 'dev.remotion.remotion.AbsoluteFill',

@@ -1,4 +1,5 @@
 import React, {
+	forwardRef,
 	useCallback,
 	useContext,
 	useLayoutEffect,
@@ -86,8 +87,12 @@ type Expected = Omit<
 	'onError' | 'src' | 'crossOrigin' | 'ref' | 'hidden'
 >;
 
+type ImgPropsWithElementRef = Omit<ImgProps, 'ref'> & {
+	readonly elementRef: React.Ref<HTMLImageElement>;
+};
+
 type ImgContentProps = Omit<
-	ImgProps,
+	ImgPropsWithElementRef,
 	| 'hidden'
 	| 'name'
 	| 'showInTimeline'
@@ -327,7 +332,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	onImageFrame,
 	crossOrigin,
 	decoding,
-	ref,
+	elementRef,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
@@ -351,8 +356,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	}
 
 	const imageCallbackRef = useMemo(
-		() => setImageRef.bind(null, imageRef, ref ?? null),
-		[ref],
+		() => setImageRef.bind(null, imageRef, elementRef),
+		[elementRef],
 	);
 
 	const actualSrc = usePreload(src as string);
@@ -435,7 +440,10 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-type NativeImgInnerProps = Omit<ImgProps, 'effects' | 'effectsOutputSize'> & {
+type NativeImgInnerProps = Omit<
+	ImgPropsWithElementRef,
+	'effects' | 'effectsOutputSize'
+> & {
 	readonly controls: SequenceControls | undefined;
 };
 
@@ -589,7 +597,7 @@ const validateCanvasImageFallbackProps = ({
 	height,
 }: {
 	readonly props: Record<string, unknown>;
-	readonly ref: React.Ref<HTMLImageElement> | undefined;
+	readonly ref: React.Ref<HTMLImageElement>;
 	readonly width: ImgProps['width'];
 	readonly height: ImgProps['height'];
 }) => {
@@ -600,7 +608,7 @@ const validateCanvasImageFallbackProps = ({
 	}
 
 	const conflictingProps = getIncompatiblePropNames(props);
-	if (ref !== null && ref !== undefined) {
+	if (ref !== null) {
 		conflictingProps.unshift('ref');
 	}
 
@@ -634,13 +642,13 @@ const getFitFromObjectFit = (
 };
 
 const ImgWithPreview: React.FC<
-	ImgProps & {
+	ImgPropsWithElementRef & {
 		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	effects = [],
 	effectsOutputSize,
-	ref,
+	elementRef,
 	hidden,
 	name,
 	showInTimeline,
@@ -672,16 +680,9 @@ const ImgWithPreview: React.FC<
 }) => {
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
 	const nativeImageRef = useRef<HTMLImageElement | null>(null);
-	const nativeRef = useCallback(
-		(image: HTMLImageElement | null) => {
-			nativeImageRef.current = image;
-			if (typeof ref === 'function') {
-				ref(image);
-			} else if (ref) {
-				ref.current = image;
-			}
-		},
-		[ref],
+	const nativeRef = useMemo(
+		() => setImageRef.bind(null, nativeImageRef, elementRef),
+		[elementRef],
 	);
 	const [nativePreview, setNativePreview] = useState<{
 		readonly source: string;
@@ -765,7 +766,7 @@ const ImgWithPreview: React.FC<
 		return (
 			<NativeImgInner
 				{...props}
-				ref={nativeRef}
+				elementRef={nativeRef}
 				hidden={hidden}
 				name={name}
 				showInTimeline={showInTimeline}
@@ -802,7 +803,7 @@ const ImgWithPreview: React.FC<
 	}
 
 	if (effects.length > 0) {
-		validateCanvasImageFallbackProps({props, ref, width, height});
+		validateCanvasImageFallbackProps({props, ref: elementRef, width, height});
 	}
 
 	const canvasWidth =
@@ -871,24 +872,26 @@ const ImgWithPreview: React.FC<
 	);
 };
 
-const ImgInner: React.FC<
-	ImgProps & {
+const ImgInner = forwardRef<
+	HTMLImageElement,
+	Omit<ImgProps, 'ref'> & {
 		readonly controls: SequenceControls | undefined;
 	}
-> = (props) => {
+>((props, ref) => {
 	const videoEnabled = useVideoEnabled();
 	if (videoEnabled === false) {
 		return null;
 	}
 
-	return <ImgWithPreview {...props} />;
-};
+	return <ImgWithPreview {...props} elementRef={ref} />;
+});
+ImgInner.displayName = 'ImgInner';
 
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = withInteractivitySchema({
+export const Img = withInteractivitySchema<typeof imgSchema, ImgProps>({
 	Component: ImgInner,
 	componentName: '<Img>',
 	componentIdentity: 'dev.remotion.remotion.Img',

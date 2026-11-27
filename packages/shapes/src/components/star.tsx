@@ -43,29 +43,29 @@ const starSchema = makeShapeSchema({
  * @see [Documentation](https://www.remotion.dev/docs/shapes/star)
  */
 
-const StarInner: React.FC<StarProps> = ({
-	innerRadius,
-	outerRadius,
-	points,
-	cornerRadius,
-	edgeRoundness,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Star>"
-			documentationLink="https://www.remotion.dev/docs/shapes/star"
-			{...makeStar({
-				innerRadius,
-				outerRadius,
-				points,
-				cornerRadius,
-				edgeRoundness,
-			})}
-			{...props}
-		/>
-	);
-};
+const StarInner = React.forwardRef<SVGPathElement, StarProps>(
+	(
+		{innerRadius, outerRadius, points, cornerRadius, edgeRoundness, ...props},
+		pathRef,
+	) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Star>"
+				documentationLink="https://www.remotion.dev/docs/shapes/star"
+				{...makeStar({
+					innerRadius,
+					outerRadius,
+					points,
+					cornerRadius,
+					edgeRoundness,
+				})}
+				{...props}
+			/>
+		);
+	},
+);
+StarInner.displayName = 'StarInner';
 
 export const Star = Interactive.withSchema({
 	Component: StarInner,

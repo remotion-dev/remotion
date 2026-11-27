@@ -46,23 +46,23 @@ const pieSchema = makeShapeSchema({
  * @see [Documentation](https://www.remotion.dev/docs/shapes/pie)
  */
 
-const PieInner: React.FC<PieProps> = ({
-	radius,
-	progress,
-	closePath,
-	counterClockwise,
-	rotation,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Pie>"
-			documentationLink="https://www.remotion.dev/docs/shapes/pie"
-			{...makePie({radius, progress, closePath, counterClockwise, rotation})}
-			{...props}
-		/>
-	);
-};
+const PieInner = React.forwardRef<SVGPathElement, PieProps>(
+	(
+		{radius, progress, closePath, counterClockwise, rotation, ...props},
+		pathRef,
+	) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Pie>"
+				documentationLink="https://www.remotion.dev/docs/shapes/pie"
+				{...makePie({radius, progress, closePath, counterClockwise, rotation})}
+				{...props}
+			/>
+		);
+	},
+);
+PieInner.displayName = 'PieInner';
 
 export const Pie = Interactive.withSchema({
 	Component: PieInner,

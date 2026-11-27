@@ -22,7 +22,10 @@
 		"@remotion/zod-types-v3": "workspace:*"
 	},
 	"devDependencies": {
+		"@remotion/design": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/gif": "workspace:*",
+		"@remotion/shapes": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",

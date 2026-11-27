@@ -1,5 +1,5 @@
 import {useThree} from '@react-three/fiber';
-import {useEffect, useLayoutEffect, useRef} from 'react';
+import {forwardRef, useEffect, useLayoutEffect, useRef} from 'react';
 import {useCurrentFrame, useDelayRender} from 'remotion';
 import {WebGPURenderer} from 'three/webgpu';
 import type {
@@ -127,9 +127,13 @@ export type ThreeWebGPUCanvasProps = Omit<ThreeCanvasProps, 'gl'>;
  * @description A wrapper for React Three Fiber's <Canvas /> which uses Three.js's WebGPURenderer and synchronizes with Remotion's useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/three-webgpu-canvas)
  */
-export const ThreeWebGPUCanvas = (props: ThreeWebGPUCanvasProps) => {
+export const ThreeWebGPUCanvas = forwardRef<
+	HTMLCanvasElement,
+	ThreeWebGPUCanvasProps
+>((props, ref) => {
 	return (
 		<ThreeCanvasInternals
+			canvasRef={ref}
 			{...props}
 			gl={createWebGPURenderer}
 			FrameRenderer={WebGPUFrameRenderer}
@@ -137,4 +141,5 @@ export const ThreeWebGPUCanvas = (props: ThreeWebGPUCanvasProps) => {
 			documentationLink="https://www.remotion.dev/docs/three-webgpu-canvas"
 		/>
 	);
-};
+});
+ThreeWebGPUCanvas.displayName = 'ThreeWebGPUCanvas';

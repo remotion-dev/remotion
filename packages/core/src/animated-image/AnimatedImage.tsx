@@ -297,6 +297,11 @@ const AnimatedImageContent = forwardRef<
 
 AnimatedImageContent.displayName = 'AnimatedImageContent';
 
+type AnimatedImageInnerProps = AnimatedImageProps & {
+	readonly controls?: SequenceControls | undefined;
+	readonly motionBlur: ReturnType<typeof useMotionBlurCanvas>;
+};
+
 const AnimatedImageInner = ({
 	src,
 	width,
@@ -323,13 +328,8 @@ const AnimatedImageInner = ({
 	effectsOutputSize,
 	controls,
 	motionBlur,
-	ref,
 	...sequenceProps
-}: AnimatedImageProps & {
-	readonly controls?: SequenceControls | undefined;
-	readonly ref?: React.Ref<HTMLCanvasElement>;
-	readonly motionBlur: ReturnType<typeof useMotionBlurCanvas>;
-}) => {
+}: AnimatedImageInnerProps) => {
 	const isMedia = useMemo(
 		() => ({
 			type: 'image' as const,
@@ -419,7 +419,7 @@ const AnimatedImageInner = ({
 					{motionBlur.primary ? (
 						<AnimatedImageContent
 							{...animatedImageProps}
-							ref={ref}
+							ref={motionBlur.canvasRef}
 							effects={effects}
 							effectsOutputSize={effectsOutputSize ?? null}
 							controls={controls}
@@ -428,7 +428,7 @@ const AnimatedImageInner = ({
 					) : (
 						<canvas
 							{...canvasProps}
-							ref={ref}
+							ref={motionBlur.canvasRef}
 							id={id}
 							className={className}
 							width={width}
@@ -442,13 +442,7 @@ const AnimatedImageInner = ({
 	);
 };
 
-const AnimatedImageWithIntrinsicDuration = (
-	props: AnimatedImageProps & {
-		readonly controls?: SequenceControls | undefined;
-		readonly ref?: React.Ref<HTMLCanvasElement>;
-		readonly motionBlur: ReturnType<typeof useMotionBlurCanvas>;
-	},
-) => {
+const AnimatedImageWithIntrinsicDuration = (props: AnimatedImageInnerProps) => {
 	const {fps} = useVideoConfig();
 	const {delayRender, continueRender} = useDelayRender();
 	const reportRenderError = useReportRenderError();
@@ -526,12 +520,10 @@ const AnimatedImageWithIntrinsicDuration = (
 	);
 };
 
-const AnimatedImageComponent = (
-	props: AnimatedImageProps & {
-		readonly controls?: SequenceControls | undefined;
-		readonly ref?: React.Ref<HTMLCanvasElement>;
-	},
-) => {
+const AnimatedImageComponent: React.ForwardRefRenderFunction<
+	HTMLCanvasElement,
+	AnimatedImageProps & {readonly controls?: SequenceControls | undefined}
+> = (props, ref) => {
 	const videoEnabled = useVideoEnabled();
 	const parentSequence = useContext(SequenceContext);
 	const sourceStack = props.controls
@@ -575,7 +567,7 @@ const AnimatedImageComponent = (
 			resolveAnimatedImageSource(props.src),
 			serializeRequestInit(props.requestInit),
 		]),
-		forwardedRef: props.ref ?? null,
+		forwardedRef: ref,
 		onVideoFrame: null,
 	});
 	if (videoEnabled === false) {
@@ -586,7 +578,6 @@ const AnimatedImageComponent = (
 		return (
 			<AnimatedImageInner
 				{...props}
-				ref={motionBlur.canvasRef}
 				motionBlur={motionBlur}
 				loop={false}
 				durationInFrames={props.loop ? undefined : props.durationInFrames}
@@ -601,23 +592,16 @@ const AnimatedImageComponent = (
 			<AnimatedImageWithIntrinsicDuration
 				{...props}
 				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
-				ref={motionBlur.canvasRef}
 				motionBlur={motionBlur}
 			/>
 		);
 	}
 
-	return (
-		<AnimatedImageInner
-			{...props}
-			ref={motionBlur.canvasRef}
-			motionBlur={motionBlur}
-		/>
-	);
+	return <AnimatedImageInner {...props} motionBlur={motionBlur} />;
 };
 
 export const AnimatedImage = withInteractivitySchema({
-	Component: AnimatedImageComponent,
+	Component: forwardRef(AnimatedImageComponent),
 	componentName: '<AnimatedImage>',
 	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,

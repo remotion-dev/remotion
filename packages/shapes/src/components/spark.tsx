@@ -40,22 +40,20 @@ const sparkSchema = makeShapeSchema({
  * @param {Number} cornerRadius Rounds the four points. Default 0.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/spark)
  */
-const SparkInner: React.FC<SparkProps> = ({
-	width,
-	height,
-	edgeRoundness,
-	cornerRadius,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Spark>"
-			documentationLink="https://www.remotion.dev/docs/shapes/spark"
-			{...makeSpark({width, height, edgeRoundness, cornerRadius})}
-			{...props}
-		/>
-	);
-};
+const SparkInner = React.forwardRef<SVGPathElement, SparkProps>(
+	({width, height, edgeRoundness, cornerRadius, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Spark>"
+				documentationLink="https://www.remotion.dev/docs/shapes/spark"
+				{...makeSpark({width, height, edgeRoundness, cornerRadius})}
+				{...props}
+			/>
+		);
+	},
+);
+SparkInner.displayName = 'SparkInner';
 
 export const Spark = Interactive.withSchema({
 	Component: SparkInner,

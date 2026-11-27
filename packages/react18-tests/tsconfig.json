@@ -4,12 +4,10 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"module": "ESNext",
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		"paths": {
+			"react": ["./node_modules/@types/react"]
+		}
 	},
-	"include": ["src"],
-	"references": [
-		{"path": "../core"},
-		{"path": "../studio"},
-		{"path": "../web-renderer"}
-	]
+	"include": ["src"]
 }

@@ -35,7 +35,8 @@ export type ThreeCanvasFrameRendererProps = {
 	readonly onRendered: () => void;
 };
 
-type ThreeCanvasInternalsProps = ThreeCanvasProps & {
+type ThreeCanvasInternalsProps = Omit<ThreeCanvasProps, 'ref'> & {
+	readonly canvasRef: React.Ref<HTMLCanvasElement>;
 	readonly FrameRenderer: React.ComponentType<ThreeCanvasFrameRendererProps>;
 	readonly advanceOnCreated: boolean;
 	readonly documentationLink: string;
@@ -76,6 +77,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 		width,
 		height,
 		style,
+		canvasRef,
 		resize,
 		frameloop,
 		onCreated,
@@ -163,6 +165,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	return (
 		<SuspenseLoader>
 			<Canvas
+				ref={canvasRef}
 				style={actualStyle}
 				{...rest}
 				resize={{offsetSize: true, ...resize}}
@@ -249,13 +252,18 @@ export const ThreeCanvasInternals = ({
  * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
  */
-export const ThreeCanvas = (props: ThreeCanvasProps) => {
+export const ThreeCanvas = React.forwardRef<
+	HTMLCanvasElement,
+	ThreeCanvasProps
+>((props, ref) => {
 	return (
 		<ThreeCanvasInternals
+			canvasRef={ref}
 			{...props}
 			FrameRenderer={ManualFrameRenderer}
 			advanceOnCreated
 			documentationLink="https://www.remotion.dev/docs/three-canvas"
 		/>
 	);
-};
+});
+ThreeCanvas.displayName = 'ThreeCanvas';

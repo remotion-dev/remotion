@@ -37,27 +37,34 @@ const heartSchema = makeShapeSchema({
  * @param {Number} size The size of the heart.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/heart)
  */
-const HeartInner: React.FC<HeartProps> = ({
-	aspectRatio,
-	height,
-	bottomRoundnessAdjustment = 0,
-	depthAdjustment = 0,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Heart>"
-			documentationLink="https://www.remotion.dev/docs/shapes/heart"
-			{...makeHeart({
-				aspectRatio,
-				height,
-				bottomRoundnessAdjustment,
-				depthAdjustment,
-			})}
-			{...props}
-		/>
-	);
-};
+const HeartInner = React.forwardRef<SVGPathElement, HeartProps>(
+	(
+		{
+			aspectRatio,
+			height,
+			bottomRoundnessAdjustment = 0,
+			depthAdjustment = 0,
+			...props
+		},
+		pathRef,
+	) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Heart>"
+				documentationLink="https://www.remotion.dev/docs/shapes/heart"
+				{...makeHeart({
+					aspectRatio,
+					height,
+					bottomRoundnessAdjustment,
+					depthAdjustment,
+				})}
+				{...props}
+			/>
+		);
+	},
+);
+HeartInner.displayName = 'HeartInner';
 
 export const Heart = Interactive.withSchema({
 	Component: HeartInner,

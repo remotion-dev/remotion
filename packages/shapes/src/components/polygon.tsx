@@ -28,27 +28,25 @@ const polygonSchema = makeShapeSchema({
 	}),
 });
 
-const PolygonInner: React.FC<PolygonProps> = ({
-	points,
-	radius,
-	cornerRadius,
-	edgeRoundness,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Polygon>"
-			documentationLink="https://www.remotion.dev/docs/shapes/polygon"
-			{...makePolygon({
-				points,
-				cornerRadius,
-				edgeRoundness,
-				radius,
-			})}
-			{...props}
-		/>
-	);
-};
+const PolygonInner = React.forwardRef<SVGPathElement, PolygonProps>(
+	({points, radius, cornerRadius, edgeRoundness, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Polygon>"
+				documentationLink="https://www.remotion.dev/docs/shapes/polygon"
+				{...makePolygon({
+					points,
+					cornerRadius,
+					edgeRoundness,
+					radius,
+				})}
+				{...props}
+			/>
+		);
+	},
+);
+PolygonInner.displayName = 'PolygonInner';
 
 export const Polygon = Interactive.withSchema({
 	Component: PolygonInner,
