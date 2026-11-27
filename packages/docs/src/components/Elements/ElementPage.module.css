@@ -182,11 +182,11 @@
 	line-height: 1.5;
 }
 
-.studioGuidanceSteps li > div {
+.studioGuidanceSteps li > span:first-child {
 	flex: none;
 }
 
-.studioGuidanceSteps li > span {
+.studioGuidanceSteps li > span:last-child {
 	min-width: 0;
 }
 
@@ -207,6 +207,11 @@
 
 .errorStatus {
 	color: var(--ifm-color-danger-dark);
+}
+
+.details,
+.contributors {
+	font-family: 'GTPlanar', sans-serif;
 }
 
 .details {
@@ -252,14 +257,22 @@
 
 .dependencyList {
 	margin: 0;
-	padding-left: 18px;
-	text-align: left;
+	padding: 0;
+	list-style: none;
 }
 
-.dependencyList li {
+.metadata .dependencyList a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 	max-width: 100%;
 	line-height: 1.45;
 	overflow-wrap: anywhere;
+	text-decoration: none;
+}
+
+.dependencyList svg {
+	flex: none;
 }
 
 .dependencyList li + li {

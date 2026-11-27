@@ -9,7 +9,6 @@ import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
-import {getPortal} from './Menu/portals';
 
 const panel: React.CSSProperties = {
 	position: 'fixed',
@@ -69,7 +68,7 @@ export const FullscreenPanel: React.FC<{
 	readonly rightAction: React.ReactNode;
 	readonly sidebarWidth: number | null;
 }> = ({children, ariaLabel, headerContent, rightAction, sidebarWidth}) => {
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const goBack = useCallback(() => {
 		setSelectedModal(null);
@@ -115,6 +114,6 @@ export const FullscreenPanel: React.FC<{
 			</div>
 			{children}
 		</div>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };

@@ -144,7 +144,7 @@ const resolve = (params: SnowFallParams): WeatherRenderParams => ({
 export const snowFall = createEffect<SnowFallParams>({
 	type: 'remotion/snow-fall',
 	label: 'snowFall()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/snow-fall',
+	documentationLink: 'https://www.remotion.dev/effects/snow-fall',
 	calculateKey: (params) => `snow-fall-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<
@@ -152,7 +152,15 @@ export const snowFall = createEffect<SnowFallParams>({
 			WeatherWebGpuState
 		>({
 			setup: setupWeatherWebGpu,
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error(
 						'A WebGPU device is required for the snow fall effect',
@@ -161,6 +169,7 @@ export const snowFall = createEffect<SnowFallParams>({
 					source,
 					width,
 					height,
+					contentRect,
 					params: resolve(params),
 					state,
 					device: gpuDevice as GPUDevice,
@@ -171,12 +180,21 @@ export const snowFall = createEffect<SnowFallParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<SnowFallParams, WeatherState>({
 			setup: (target) => setupWeather(target, 'snow fall'),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				drawWeather({
 					state,
 					source: source as TexImageSource,
 					width,
 					height,
+					contentRect,
 					flipSourceY,
 					params: resolve(params),
 					type: 'snow',

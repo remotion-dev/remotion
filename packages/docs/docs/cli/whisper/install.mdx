@@ -1,0 +1,29 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-install.png
+title: npx remotion whisper install
+crumb: CLI Reference
+sidebar_label: install
+---
+
+# npx remotion whisper install<AvailableFrom v="4.0.546" />
+
+Download a Whisper model to the local cache.  
+The cache is shared with [`@remotion/whisper-webgpu`](/docs/whisper-webgpu).  
+Use [`npx remotion whisper ls`](/docs/cli/whisper/ls) for model names and download sizes.
+
+```bash title="Download the tiny English model"
+bunx remotion whisper install tiny.en
+```
+
+An existing cached model is not downloaded again.  
+[`npx remotion whisper transcribe`](/docs/cli/whisper/transcribe) also downloads its model automatically when needed.
+
+## Flags
+
+### `--log`
+
+<Options id="log" />
+
+### `--quiet`
+
+Suppress download progress. `-q` is an alias.

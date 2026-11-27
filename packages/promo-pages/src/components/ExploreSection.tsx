@@ -102,7 +102,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Effects',
-						href: '/docs/effects',
+						href: '/effects',
 						description: '80 presets that apply to any Element, make your own',
 					},
 					{
@@ -112,7 +112,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Elements',
-						href: '/elements',
+						href: '/elements/libraries',
 						description: 'Building blocks from Remotion and third parties',
 					},
 					{
@@ -132,7 +132,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Agents',
-						href: '/docs/ai',
+						href: '/docs/agents',
 						description: 'Skills, Agent Plugins and WebMCP integration',
 					},
 					{

@@ -1,4 +1,6 @@
+import type {EffectContentRect} from 'remotion';
 import {Internals} from 'remotion';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import {
 	BARREL_DISTORTION_FS,
 	BARREL_DISTORTION_VS,
@@ -14,6 +16,8 @@ export type BarrelDistortionState = {
 	textureSource: WebGLTexture;
 	uniforms: {
 		uSource: WebGLUniformLocation | null;
+		uContentRect: WebGLUniformLocation | null;
+		uEffectTextureSize: WebGLUniformLocation | null;
 		uAmount: WebGLUniformLocation | null;
 	};
 };
@@ -141,6 +145,8 @@ export const setupBarrelDistortion = (
 		textureSource,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 			uAmount: gl.getUniformLocation(program, 'uAmount'),
 		},
 	};
@@ -166,6 +172,7 @@ export const applyBarrelDistortion = ({
 	source,
 	width,
 	height,
+	contentRect,
 	amount,
 	flipSourceY,
 }: {
@@ -173,6 +180,7 @@ export const applyBarrelDistortion = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly amount: number;
 	readonly flipSourceY: boolean;
 }): void => {
@@ -197,6 +205,14 @@ export const applyBarrelDistortion = ({
 
 	gl.useProgram(program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uEffectTextureSize,
+		contentRect,
+		width,
+		height,
+	);
 	if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, amount);
 
 	gl.activeTexture(gl.TEXTURE0);

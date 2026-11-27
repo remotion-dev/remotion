@@ -37,6 +37,7 @@ const {
 	audioLatencyHintOption,
 	darkModeOption,
 	defaultCodingAgentOption,
+	doubleClickActionOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showDiagnosticsOption,
@@ -138,6 +139,9 @@ export type CommandLineOptions = {
 		typeof defaultCodingAgentOption
 	>;
 	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
+	[doubleClickActionOption.cliFlag]: TypeOfOption<
+		typeof doubleClickActionOption
+	>;
 	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
 		typeof defaultPremountInSecondsOption
 	>;

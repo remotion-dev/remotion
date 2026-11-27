@@ -61,7 +61,7 @@ const validateBarrelDistortionParams = (
 export const barrelDistortion = createEffect<BarrelDistortionParams>({
 	type: 'dev.remotion.effects.barrelDistortion',
 	label: 'barrelDistortion()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/barrel-distortion',
+	documentationLink: 'https://www.remotion.dev/effects/barrel-distortion',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `barrel-distortion-${r.amount}`;
@@ -96,13 +96,22 @@ export const barrelDistortion = createEffect<BarrelDistortionParams>({
 			BarrelDistortionState
 		>({
 			setup: (target) => setupBarrelDistortion(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyBarrelDistortion({
 					state,
 					source,
 					width,
 					height,
+					contentRect,
 					amount: r.amount,
 					flipSourceY,
 				});

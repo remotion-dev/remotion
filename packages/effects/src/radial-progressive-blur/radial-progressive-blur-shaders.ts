@@ -1,3 +1,4 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
 export const RADIAL_PROGRESSIVE_BLUR_VS = /* glsl */ `#version 300 es
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUv;
@@ -16,6 +17,7 @@ export const buildRadialProgressiveBlurFs = (
 
 	return /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -36,13 +38,13 @@ const float TARGET_SAMPLE_DISTANCE_PX = 2.0;
 const vec2 DIRECTION = ${dirVec};
 
 float progressiveRadius(vec2 uv) {
-	vec2 radii = vec2(uWidth / uTexelSize.x, uHeight / uTexelSize.y) * 0.5;
+	vec2 radii = vec2(uWidth, uHeight) * uContentRect.zw * 0.5;
 
 	if (radii.x <= 0.0000001 || radii.y <= 0.0000001) {
 		return max(0.0, uStartBlur);
 	}
 
-	vec2 delta = (uv - uCenter) / uTexelSize;
+	vec2 delta = (uv - uCenter) * uContentRect.zw;
 	float angle = radians(uRotation);
 	float c = cos(angle);
 	float s = sin(angle);
@@ -60,7 +62,7 @@ float progressiveRadius(vec2 uv) {
 
 void main() {
 	// Public UV coordinates use top-left origin, matching canvas/CSS coordinates.
-	float radius = progressiveRadius(vec2(vUv.x, 1.0 - vUv.y));
+	float radius = progressiveRadius(textureUvToElementUv(vec2(vUv.x, 1.0 - vUv.y), uEffectTextureSize));
 	if (radius <= 0.0) {
 		fragColor = texture(uSource, vUv);
 		return;

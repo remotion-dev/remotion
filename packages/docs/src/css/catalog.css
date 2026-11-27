@@ -29,7 +29,8 @@
 	padding: 32px clamp(20px, 3.33vw, 48px) 64px !important;
 }
 
-.catalog-layout article:has(.catalog-hero) > .elements-embed-breadcrumbs {
+.catalog-layout article:has(.catalog-hero) > .elements-embed-breadcrumbs,
+.catalog-layout .elements-embed-breadcrumbs:not(:has(nav)) {
 	display: none;
 }
 
@@ -53,25 +54,21 @@
 	outline-offset: 2px;
 }
 
-.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link {
+.catalog-sidebar-root > .menu__link {
+	gap: 8px;
 	min-height: 44px;
-	color: var(--ifm-font-color-base);
+	color: var(--catalog-muted-color);
 	font-size: 1.125rem;
 	font-weight: 500;
+}
+
+.catalog-sidebar-root > .menu__link > svg {
+	flex-shrink: 0;
 }
 
 .catalog-sidebar-root > .menu__list {
 	margin: 8px 0 0;
 	padding-left: 0;
-}
-
-.catalog-sidebar-root > .menu__list-item-collapsible--active,
-.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link--active {
-	background: transparent;
-}
-
-.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link--active {
-	color: var(--ifm-font-color-base);
 }
 
 .catalog-sidebar-root .menu__list-item {
@@ -83,20 +80,20 @@
 	color: var(--ifm-color-primary);
 }
 
-.catalog-layout .menu .catalog-sidebar-divider {
-	margin: 16px 0;
-	padding: 0;
+.catalog-sidebar-root > .menu__link--active {
+	background: transparent;
+	color: var(--ifm-font-color-base);
 }
 
-.catalog-sidebar-divider hr {
-	height: 1px;
-	margin: 0;
-	border: 0;
-	background: var(--catalog-divider);
+.catalog-layout .menu .catalog-sidebar-back {
+	margin: 0 0 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--catalog-divider);
 }
 
-.catalog-layout .menu .catalog-sidebar-libraries {
-	margin-top: 0;
+.catalog-sidebar-back .menu__link::before {
+	content: '←';
+	margin-right: 8px;
 }
 
 @media (max-width: 996px) {
@@ -125,8 +122,7 @@
 	padding: 16px 12px;
 }
 
-.studio-elements-embed .catalog-sidebar-divider,
-.studio-elements-embed .elements-sidebar-root > .menu__list-item-collapsible {
+.studio-elements-embed .elements-sidebar-root > .menu__link {
 	display: none;
 }
 

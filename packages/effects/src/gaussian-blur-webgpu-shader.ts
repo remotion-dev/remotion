@@ -13,9 +13,9 @@ fn radiusAt(uv: vec2f) -> f32 {
   let progress = clamp(dot(uv - params.startEnd.xy, gradient) / lengthSq, 0.0, 1.0);
   return max(0.0, mix(params.values.z, params.values.w, progress));
  }
- let radii = params.startEnd.zw * params.resolution * 0.5;
+ let radii = params.startEnd.zw * effectGeometry.contentRect.zw * 0.5;
  if (radii.x <= 0.0000001 || radii.y <= 0.0000001) {return max(0.0, params.values.z);}
- let delta = (uv - params.startEnd.xy) * params.resolution;
+ let delta = (uv - params.startEnd.xy) * effectGeometry.contentRect.zw;
  let angle = radians(params.radial.x);
  let c = cos(angle); let s = sin(angle);
  let local = vec2f(c * delta.x + s * delta.y, -s * delta.x + c * delta.y);
@@ -26,7 +26,7 @@ fn radiusAt(uv: vec2f) -> f32 {
  return max(0.0, mix(params.values.z, params.values.w, progress));
 }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
- let radius = radiusAt(input.uv);
+ let radius = radiusAt(textureUvToElementUv(input.uv, params.resolution));
  if (radius <= 0.0) {return textureSampleLevel(source, sourceSampler, input.uv, 0);}
  let halfKernel = i32(clamp(ceil(radius / 2.0), 4.0, 32.0));
  let stride = radius / f32(halfKernel);

@@ -2,6 +2,7 @@ export const TIMELINE_TRIM_HANDLE_WIDTH = 8;
 
 export const getTimelineTrimHandleLayout = ({
 	leftEdge,
+	incomingTransitionEnd,
 	rightEdge,
 	rolling,
 	leftTrim,
@@ -11,6 +12,7 @@ export const getTimelineTrimHandleLayout = ({
 	activeEdge,
 }: {
 	readonly leftEdge: number;
+	readonly incomingTransitionEnd: number | null;
 	readonly rightEdge: number;
 	readonly rolling: boolean;
 	readonly leftTrim: boolean;
@@ -22,12 +24,19 @@ export const getTimelineTrimHandleLayout = ({
 	const width = TIMELINE_TRIM_HANDLE_WIDTH;
 	// The roll owns the cut; each adjoining trim stays on its own side.
 	const rollingLeft = leftEdge - width / 2;
-	const leftTrimLeft = leftEdge + (rolling ? width / 2 : 0);
-	const secondaryLeft = leftTrimLeft + (leftTrim ? width : 0);
+	const afterRolling = leftEdge + (rolling ? width / 2 : 0);
 	const rightTrimLeft = rightEdge - width - (nextRolling ? width / 2 : 0);
 	const availableEnd = rightEdge - (nextRolling ? width / 2 : 0);
-	const rightTrimFits = rightTrim && rightTrimLeft >= leftTrimLeft;
+	const rightTrimFits = rightTrim && rightTrimLeft >= afterRolling;
 	const leftActionsEnd = rightTrimFits ? rightTrimLeft : availableEnd;
+	// Prefer the full-height clip body. A clip consumed by transitions can
+	// still be trimmed from its leading tab when the body has no room.
+	const leftTrimLeft =
+		incomingTransitionEnd !== null &&
+		incomingTransitionEnd + width <= leftActionsEnd
+			? Math.max(incomingTransitionEnd, afterRolling)
+			: afterRolling;
+	const secondaryLeft = leftTrimLeft + (leftTrim ? width : 0);
 	// Keep the wide-clip positions. Source trimming historically requires 32px;
 	// narrower clips lose actions rather than shrinking or repacking their targets.
 	// Keep a captured handle mounted if the drag itself makes its clip too narrow.
@@ -38,6 +47,7 @@ export const getTimelineTrimHandleLayout = ({
 				: null,
 		leftTrim:
 			leftTrim &&
+			leftTrimLeft >= 0 &&
 			(leftTrimLeft + width <= leftActionsEnd ||
 				activeEdge === 'left' ||
 				activeEdge === 'source-only')

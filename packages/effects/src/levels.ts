@@ -394,7 +394,7 @@ const setupLevels = (target: HTMLCanvasElement): LevelsState => {
 export const levels = createEffect<LevelsParams>({
 	type: 'remotion/levels',
 	label: 'levels()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/levels',
+	documentationLink: 'https://www.remotion.dev/effects/levels',
 	calculateKey: (params) => {
 		const {channel, blackPoint, whitePoint, gamma, outputBlack, outputWhite} =
 			resolve(params);

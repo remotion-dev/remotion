@@ -1,4 +1,6 @@
+import type {EffectContentRect} from 'remotion';
 import {Internals} from 'remotion';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {CORNER_PIN_FS, CORNER_PIN_VS} from './corner-pin-shaders.js';
 
@@ -12,6 +14,8 @@ export type CornerPinState = {
 	textureSource: WebGLTexture;
 	uniforms: {
 		uSource: WebGLUniformLocation | null;
+		uContentRect: WebGLUniformLocation | null;
+		uEffectTextureSize: WebGLUniformLocation | null;
 		uTopLeft: WebGLUniformLocation | null;
 		uTopRight: WebGLUniformLocation | null;
 		uBottomRight: WebGLUniformLocation | null;
@@ -140,6 +144,8 @@ export const setupCornerPin = (target: HTMLCanvasElement): CornerPinState => {
 		textureSource,
 		uniforms: {
 			uSource: gl.getUniformLocation(program, 'uSource'),
+			uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+			uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 			uTopLeft: gl.getUniformLocation(program, 'uTopLeft'),
 			uTopRight: gl.getUniformLocation(program, 'uTopRight'),
 			uBottomRight: gl.getUniformLocation(program, 'uBottomRight'),
@@ -181,6 +187,7 @@ export const applyCornerPin = ({
 	source,
 	width,
 	height,
+	contentRect,
 	topLeft,
 	topRight,
 	bottomRight,
@@ -191,6 +198,7 @@ export const applyCornerPin = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly topLeft: readonly [number, number];
 	readonly topRight: readonly [number, number];
 	readonly bottomRight: readonly [number, number];
@@ -218,6 +226,14 @@ export const applyCornerPin = ({
 
 	gl.useProgram(program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uEffectTextureSize,
+		contentRect,
+		width,
+		height,
+	);
 	setUvUniform(gl, uniforms.uTopLeft, topLeft);
 	setUvUniform(gl, uniforms.uTopRight, topRight);
 	setUvUniform(gl, uniforms.uBottomRight, bottomRight);

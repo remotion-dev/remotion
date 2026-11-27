@@ -9,6 +9,11 @@ import {
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		{
+			type: 'doc',
+			id: 'libraries',
+			className: 'catalog-sidebar-back',
+		},
+		{
 			type: 'category',
 			label: 'Elements',
 			className: 'elements-sidebar-root catalog-sidebar-root',
@@ -33,15 +38,10 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
-			type: 'html',
-			value: '<hr />',
-			className: 'catalog-sidebar-divider',
-			defaultStyle: true,
-		},
-		{
-			type: 'doc',
-			id: 'libraries',
-			className: 'catalog-sidebar-libraries',
+			type: 'link',
+			label: 'Effects',
+			href: '/effects/',
+			className: 'catalog-sidebar-root',
 		},
 	],
 };

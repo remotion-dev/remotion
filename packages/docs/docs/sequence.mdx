@@ -289,6 +289,27 @@ export const MyVideo = () => {
 };
 ```
 
+### `refForOutline?`<AvailableFrom v="4.0.548" />
+
+Pass a React ref attached to the element that Studio should measure for the selection outline. Omit this prop to use the default outline for the sequence's [layout](#layout).
+
+```tsx twoslash title="MyVideo.tsx"
+import {useRef} from 'react';
+import {Sequence} from 'remotion';
+
+export const MyVideo = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  return (
+    <Sequence layout="none" refForOutline={canvasRef}>
+      <div>
+        <canvas ref={canvasRef} width={420} height={112} />
+      </div>
+    </Sequence>
+  );
+};
+```
+
 ### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
 :::info Deprecated

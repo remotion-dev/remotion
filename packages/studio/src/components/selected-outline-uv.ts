@@ -31,6 +31,31 @@ export const {
 	getCanvasOutlineUv: getUvCoordinateForPoint,
 }: typeof CanvasInternals = CanvasInternals;
 
+export const getEffectUvOutline = (
+	outline: SelectedOutline,
+): SelectedOutline => {
+	const geometry = outline.effectGeometry;
+	const points = outline.uncroppedPoints ?? outline.points;
+	if (geometry === null) {
+		return points === outline.points ? outline : {...outline, points};
+	}
+
+	const {contentRect, width, height} = geometry;
+	return {
+		...outline,
+		points: CanvasInternals.cropCanvasOutlinePoints(points, {
+			left: contentRect.x / width,
+			top: contentRect.y / height,
+			right: 1 - (contentRect.x + contentRect.width) / width,
+			bottom: 1 - (contentRect.y + contentRect.height) / height,
+		}),
+		dimensions: {
+			width: contentRect.width,
+			height: contentRect.height,
+		},
+	};
+};
+
 export type UvCoordinate = readonly [number, number];
 
 type UvEllipseDimensions = {

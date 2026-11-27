@@ -1,3 +1,4 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
 import {VALUE_NOISE_SHADER} from '../value-noise-shader.js';
 
 // Adapted to WebGL2; see ../../THIRD_PARTY_LICENSES.md.
@@ -9,6 +10,7 @@ precision highp int;
 
 in vec2 vUv;
 out vec4 fragColor;
+${EFFECT_COORDINATES_GLSL}
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform vec2 uOffset;
@@ -55,7 +57,7 @@ void main() {
   }
   // Use exact pixel centers so block noise stays stable at cell boundaries.
   vec2 pixel = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y);
-  vec2 base = (pixel - uResolution * 0.5 - uOffset) / uScale;
+  vec2 base = (pixel - uContentRect.xy - uContentRect.zw * 0.5 - uOffset) / uScale;
   float sum = 0.0;
   float norm = 0.0;
   float amplitude = 1.0;

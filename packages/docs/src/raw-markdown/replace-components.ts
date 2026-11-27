@@ -1,16 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {getEffectDocumentationPath} from '@remotion/studio-shared';
 import {VERSION} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
 import {optionDescriptionToMarkdown} from '../../option-description';
+import {effectCategories} from '../components/Effects/effect-library-data';
+import {elementLibraries} from '../components/Elements/element-libraries-data';
 import {
 	getElementLibrarySections,
 	isElementCategory,
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
-import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
 import {articles} from '../data/articles';
 import {getElementMarkdownUrl} from './element-markdown';
 
@@ -165,7 +167,7 @@ const getInstallationMarkdown = (pkg: string) => {
 };
 
 const studioApiPath = path.join('docs', 'studio', 'api.mdx');
-const thirdPartyElementsPath = path.resolve(
+const elementLibrariesPath = path.resolve(
 	__dirname,
 	'..',
 	'..',
@@ -211,23 +213,40 @@ const renderElementLibraryMarkdown = (attributes: string) => {
 const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement[] =
 	[
 		{
+			componentName: 'EffectLibrary',
+			removeImport: /^import .*EffectLibrary.*;\s*\n/m,
+			render: () =>
+				[
+					'# Remotion Effects',
+					'Drag an effect into Studio or [apply it in code](https://www.remotion.dev/docs/effects.md#programmatically).',
+					...effectCategories.map(({title, effects}) =>
+						[
+							`## ${title}`,
+							...effects.map(
+								(effect) =>
+									`- [${effect.label}](https://www.remotion.dev${getEffectDocumentationPath(effect)}.md) — ${effect.description}`,
+							),
+						].join('\n'),
+					),
+				].join('\n\n'),
+		},
+		{
 			componentName: 'ElementLibrary',
 			render: ({attributes}) => renderElementLibraryMarkdown(attributes),
 			removeImport:
 				/^import\s+\{\s*ElementLibrary\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibrary['"];?\s*\n/m,
 		},
 		{
-			componentName: 'ThirdPartyElementLibraries',
+			componentName: 'ElementLibraries',
 			appliesTo: (sourcePath) =>
-				path.resolve(sourcePath) === thirdPartyElementsPath,
+				path.resolve(sourcePath) === elementLibrariesPath,
 			render: () =>
 				[
-					'For the Elements made by Remotion, see the [Remotion Elements index](https://www.remotion.dev/elements/index.md).',
 					'To install an Element from a page that embeds its payload, run [`npx remotion elements use <url> --composition <composition-id> --yes`](https://www.remotion.dev/docs/cli/elements/use.md).',
-					thirdPartyElementLibraries
+					elementLibraries
 						.map((library) =>
 							[
-								`- [${library.displayName}](${library.browseUrl})`,
+								`- [${library.displayName}](${new URL(library.browseUrl, 'https://www.remotion.dev').href})`,
 								`  - Element Library: \`${library.libraryUrl}\``,
 								...(library.markdownIndexUrl === null
 									? []
@@ -237,7 +256,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 						.join('\n'),
 				].join('\n\n'),
 			removeImport:
-				/^import\s+\{\s*ThirdPartyElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ThirdPartyElementLibraries['"];?\s*\n/m,
+				/^import\s+\{\s*ElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibraries['"];?\s*\n/m,
 			required: true,
 		},
 		{
@@ -285,6 +304,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 						getStringAttribute({attributes, name}) ?? defaultHref,
 					);
 				const faqHref = href('faqHref', '/docs/license/faq');
+				const quizHref = href('quizHref', '/license/quiz');
 				const termsHref = href(
 					'termsHref',
 					'https://www.remotion.dev/docs/terms',
@@ -295,7 +315,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 				return [
 					'## Free License',
 					'',
-					`For individuals and companies of up to 3 people. Create and automate, all features included, unlimited commercial use. [Terms](${termsHref}) apply. [Check eligibility](${faqHref}).`,
+					`For individuals and companies of up to 3 people. Create and automate, all features included, unlimited commercial use. [Terms](${termsHref}) apply. [Check eligibility](${quizHref}).`,
 					'',
 					'## Company License',
 					'',

@@ -8,6 +8,7 @@ precision highp int;
 
 uniform sampler2D uSource;
 uniform vec2 uResolution;
+uniform vec4 uContentRect;
 uniform int uSnow;
 uniform float uTime;
 uniform uint uSeed;
@@ -72,38 +73,40 @@ vec4 sourceAt(vec2 position) {
 void main() {
 	uint i = uint(gl_InstanceID);
 	float depth = 1.0 / (1.0 + noise(i, 1u) * uSceneDepth / 2500.0);
-	vec2 offset = (uOffset - 0.5) * uResolution;
+	vec2 contentSize = uContentRect.zw;
+	vec2 offset = (uOffset - 0.5) * contentSize;
 	vec2 position;
 	vec2 line = vec2(0.0);
 	float radius;
 	float alpha;
 	if (uSnow == 1) {
 		radius = max(uSize * 0.5 * depth * (1.0 + uSizeVariation * signedNoise(i, 2u)), 0.05);
-		float speed = uSpeed * (uResolution.y / 600.0) * depth * (1.0 + uSpeedVariation * signedNoise(i, 3u));
-		float wind = uWind * (uResolution.y / 1200.0) * depth * (1.0 + uWindVariation * signedNoise(i, 4u))
+		float speed = uSpeed * (contentSize.y / 600.0) * depth * (1.0 + uSpeedVariation * signedNoise(i, 3u));
+		float wind = uWind * (contentSize.y / 1200.0) * depth * (1.0 + uWindVariation * signedNoise(i, 4u))
 			+ uSpread * signedNoise(i, 8u) * depth;
 		float amplitude = uWiggleAmount * 2.0 * depth * (1.0 + uWiggleAmountVariation * signedNoise(i, 5u));
 		float frequency = uWiggleFrequency * (1.0 + uWiggleFrequencyVariation * signedNoise(i, 6u));
 		float phase = noise(i, 9u) * 6.283185307179586;
 		float margin = radius + abs(amplitude) + 2.0;
-		position.y = wrap(noise(i, 10u) * (uResolution.y + 2.0 * margin) + speed * uTime + offset.y, margin, uResolution.y);
-		position.x = wrap(noise(i, 11u) * (uResolution.x + 2.0 * margin) + wind * uTime + offset.x, margin, uResolution.x)
+		position.y = wrap(noise(i, 10u) * (contentSize.y + 2.0 * margin) + speed * uTime + offset.y, margin, contentSize.y);
+		position.x = wrap(noise(i, 11u) * (contentSize.x + 2.0 * margin) + wind * uTime + offset.x, margin, contentSize.x)
 			+ amplitude * sin(frequency * uTime * 6.283185307179586 + phase);
 		alpha = uOpacity * (0.4 + 0.6 * depth);
 	} else {
-		float speed = uSpeed / 4000.0 * uResolution.y * 2.2 * depth;
-		float wind = uWind / 1000.0 * uResolution.y * (1.0 + uWindVariation * signedNoise(i, 2u)) * depth
+		float speed = uSpeed / 4000.0 * contentSize.y * 2.2 * depth;
+		float wind = uWind / 1000.0 * contentSize.y * (1.0 + uWindVariation * signedNoise(i, 2u)) * depth
 			+ uSpread * signedNoise(i, 7u) * depth;
 		float length = max(speed * 0.04 * max(uSize, 0.2), 1.0);
 		float horizontalLength = wind * 0.04 * max(uSize, 0.2);
 		float margin = length + abs(horizontalLength) + 4.0;
-		position.y = wrap(noise(i, 3u) * (uResolution.y + 2.0 * margin) + speed * uTime + offset.y, margin, uResolution.y);
-		position.x = wrap(noise(i, 4u) * (uResolution.x + 2.0 * margin) + wind * uTime + offset.x, margin, uResolution.x);
+		position.y = wrap(noise(i, 3u) * (contentSize.y + 2.0 * margin) + speed * uTime + offset.y, margin, contentSize.y);
+		position.x = wrap(noise(i, 4u) * (contentSize.x + 2.0 * margin) + wind * uTime + offset.x, margin, contentSize.x);
 		line = vec2(-horizontalLength, -length);
 		radius = max(uSize * 0.6 * depth, 0.25);
 		alpha = uOpacity * (0.35 + 0.65 * depth);
 	}
 
+	position += uContentRect.xy;
 	vec3 color = uColor.rgb;
 	if (uSnow == 0 && uRefract == 1) {
 		vec4 sampleColor = sourceAt(position + vec2(2.0, 0.0));

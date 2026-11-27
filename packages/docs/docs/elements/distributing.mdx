@@ -1,0 +1,41 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-elements-distributing.png
+title: Distributing Elements
+sidebar_label: Distributing
+description: Publish Elements for free, with sponsorships or paid, and get listed.
+---
+
+# Distributing Elements
+
+How you distribute [Elements](/docs/elements) is your decision, as with any app built with Remotion. An [Element Library](/docs/elements/libraries) can be free and open source, funded by sponsorships, or paid.
+
+## Public libraries
+
+Most libraries are public. [Embedding the payload](/docs/elements/libraries#4-embed-the-payload) in each Element's page makes it installable for everyone, including agents.
+
+## Restricted access
+
+To restrict access, for example for paid Elements, keep in mind that Studio receives only the [payload](/docs/studio-protocol/create-element-payload) that your website creates:
+
+- Show the preview in a [`<Player>`](/docs/player) and the install actions to every visitor.
+- A `<Player>` ships the compiled component to every visitor. If the implementation must stay private, show a prerecorded video as the preview instead.
+- When a user without access selects an install action, show the paywall or login instead of installing.
+- Load the source code from your server after checking access, instead of bundling it into the page. Create the payload only then.
+- Do not embed the payload in a public page. For CLI and agent installs, give each user a private URL that returns the JSON payload.
+
+## Licensing
+
+Installing an Element hands over its source code. State in your terms what users may do with it, such as using it in client work or redistributing it.
+
+The license of an Element is separate from the [Remotion license](https://remotion.dev/license), which applies to everyone who uses Remotion.
+
+## Get listed
+
+We support libraries by featuring them on [Element Libraries](/elements/libraries), which is also the Explore view of Studio. The listing is curated. We look for Elements with a distinct design that took iterations to get right, and we do not list libraries of generic, generated animations.
+
+To propose a library, contact [hi@remotion.dev](mailto:hi@remotion.dev). A library that is not listed still works everywhere by URL.
+
+## See also
+
+- [Building Element Libraries](/docs/elements/libraries)
+- [Best practices for creating Elements](/docs/elements/creating)

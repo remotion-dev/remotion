@@ -8,9 +8,9 @@ crumb: 'API'
 
 This component renders its children into a `<canvas>` using the browser’s [HTML-in-canvas](https://github.com/WICG/html-in-canvas) API and allows you to draw an effect using the Canvas 2D API, WebGL or WebGPU.
 
-For an overview, examples and how to enable the Chrome flag, see the [HTML-in-canvas guide](/docs/html-in-canvas).
+For an overview and examples, see the [HTML-in-canvas guide](/docs/html-in-canvas).
 
-HTML-in-canvas is only available in Chrome 149 and later and if the `chrome://flags/#canvas-draw-element` flag is enabled.
+HTML-in-canvas is only available in Chrome currently.
 
 ```tsx twoslash title="MyComp.tsx"
 import {HtmlInCanvas} from 'remotion';
@@ -29,6 +29,8 @@ export const MyComp: React.FC = () => {
 Return value: _boolean_
 
 If HTML-in-canvas is not available, the component throws a fatal error during rendering.  
+In preview, the content gets passed through and a warning gets overlayed that any canvas manipulations and effects are not working.
+
 Use `HtmlInCanvas.isSupported()` to check if HTML-in-canvas is supported.  
 Buggy implementations such as the one in Chrome 147 are not considered supported.
 
@@ -46,17 +48,19 @@ if (HtmlInCanvas.isSupported()) {
 
 Return value: _boolean_
 
-Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
+Returns `true` when HTML-in-canvas is enabled and the browser supports nesting.  
+Use it before nesting `<HtmlInCanvas>` components.  
+Buggy implementations are not supported.
 
-From Remotion v4.0.534, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
+This returns `true` in current Chrome stable.
+From Remotion v4.0.534, this returns `true` during server-side rendering.
 
 ## Premounting<AvailableFrom v="4.0.537" />
 
 To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, from v4.0.537 we default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds).
 
-From v4.0.544, `<HtmlInCanvas>` inherits `defaultPremountInSeconds` when the browser's user agent reports Chromium 158.0.8127.2 or newer. If Chrome hides its build number as `158.0.0.0`, automatic premounting stays disabled; Chrome 159 and newer do not need the full build number.
-
-You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
+When using Remotion v4.0.544 or later and Chrome 159 and newer, default premounting is respected.  
+You can always override this by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
 
 ## Using WebGL and WebGPU during renders
 
@@ -66,11 +70,19 @@ See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ### `width`
 
-Logical width of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical width of the children’s layout area, in pixels. Must be a positive integer.
 
 ### `height`
 
-Logical height of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical height of the children’s layout area, in pixels. Must be a positive integer.
+
+### `growBounds?`<AvailableFrom v="4.0.548" />
+
+_number_
+
+Adds transparent space on each side of the children before painting and applying effects. Accepts a nonnegative number of CSS pixels and defaults to `0`. The selection outline in Studio includes this space.
+
+For example, `width={100} height={60} growBounds={24}` paints a 148 × 108 canvas. The children still occupy 100 × 60 at their original position, leaving room for a CSS box shadow or a [`dropShadow()` effect](/effects/drop-shadow). Spatial effects use the original element as their coordinate system. Increasing the padding reveals more of a wave while its peaks stay anchored to the same points on the element.
 
 ### `pixelDensity?`<AvailableFrom v="4.0.472" />
 
@@ -93,7 +105,7 @@ If you also pass [`onPaint`](#onpaint), effects are applied after `onPaint` has 
 
 ### `effectsOutputSize?`<AvailableFrom v="4.0.536" />
 
-The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+The pixel dimensions used by the effect chain. See [Effect resolution](/docs/effects/output-size).
 
 ### `onPaint?`
 
@@ -121,12 +133,12 @@ The callback receives:
 
 #### `canvas`
 
-An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.  
+An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `(width + 2 * growBounds) * pixelDensity` × `(height + 2 * growBounds) * pixelDensity`, rounded up.
 You should paint to this canvas.
 
 #### `element`
 
-The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
+The captured [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement), including the space added by [`growBounds`](#growbounds).
 The browser synchronizes its position and hit testing when you call `drawElementImage()`.
 
 #### `elementImage`
@@ -879,8 +891,6 @@ Server-side rendering supports nested compositions from Remotion v4.0.534, which
   studio
   hideServers
 />
-
-Only works in Chrome 149 and later with the flag enabled, as mentioned on the top of the page.
 
 ## See also
 

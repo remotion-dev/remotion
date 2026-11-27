@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
 import {WAVE_FS, WAVE_VS} from './wave-shaders.js';
 
 const {createWebGL2ContextError} = Internals;
@@ -12,6 +12,7 @@ export type WaveState = {
 	uniforms: {
 		uSource: WebGLUniformLocation | null;
 		uResolution: WebGLUniformLocation | null;
+		uElementOrigin: WebGLUniformLocation | null;
 		uAmplitude: WebGLUniformLocation | null;
 		uWavelength: WebGLUniformLocation | null;
 		uPhase: WebGLUniformLocation | null;
@@ -81,6 +82,7 @@ const getWaveUniforms = (
 ): WaveState['uniforms'] => ({
 	uSource: gl.getUniformLocation(program, 'uSource'),
 	uResolution: gl.getUniformLocation(program, 'uResolution'),
+	uElementOrigin: gl.getUniformLocation(program, 'uElementOrigin'),
 	uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
 	uWavelength: gl.getUniformLocation(program, 'uWavelength'),
 	uPhase: gl.getUniformLocation(program, 'uPhase'),
@@ -167,6 +169,7 @@ type ApplyWaveParams = {
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly flipSourceY: boolean;
 	readonly amplitude: number;
 	readonly wavelength: number;
@@ -186,6 +189,7 @@ export const applyWave = ({
 	source,
 	width,
 	height,
+	contentRect,
 	flipSourceY,
 	amplitude,
 	wavelength,
@@ -215,6 +219,11 @@ export const applyWave = ({
 	gl.useProgram(program);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 	if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
+	gl.uniform2f(
+		uniforms.uElementOrigin,
+		contentRect.x,
+		height - contentRect.y - contentRect.height,
+	);
 	if (uniforms.uAmplitude) gl.uniform1f(uniforms.uAmplitude, amplitude);
 	if (uniforms.uWavelength) gl.uniform1f(uniforms.uWavelength, wavelength);
 	if (uniforms.uPhase) gl.uniform1f(uniforms.uPhase, phase);

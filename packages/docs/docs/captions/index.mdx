@@ -5,13 +5,55 @@ sidebar_label: Overview
 ---
 
 import {GuideTableOfContents} from './GuideTableOfContents';
+import styles from './caption-overview.module.css';
 
 # Captions
 
-Learn how to add captions and subtitles to your Remotion videos.
+Process captions in TypeScript with the [`Caption`](/docs/captions/caption) type and style them with HTML and CSS.
+
+<div className={styles.previews}>
+  <figure>
+    <img
+      src="https://remotion.media/docs/captions/overview/transcribe-modal-closeup.webp"
+      alt="The Transcribe dialog in Remotion Studio"
+      width={536}
+      height={536}
+    />
+    <figcaption>
+      <em>Videos or audio can be transcribed locally using WebGPU, in Studio, with agents or programmatically</em>
+    </figcaption>
+  </figure>
+  <figure>
+    <video
+      aria-label="Editing the transcript in the Remotion Studio Captions inspector"
+      src="https://remotion.media/explore-remotion/captions-reframed-2026-10-28-dfccfc1a3317.mp4"
+      width={1080}
+      height={1080}
+      autoPlay
+      loop
+      muted
+      playsInline
+    />
+    <figcaption>
+      <em>Captions can be interactively edited in the Studio</em>
+    </figcaption>
+  </figure>
+  <figure>
+    <img
+      src="https://remotion.media/docs/captions/overview/caption-elements-closeup-v2.webp"
+      alt="Basic, Rounded, Moving Pill and Popping Word caption styles from the Elements gallery"
+      width={1120}
+      height={1120}
+    />
+    <figcaption>
+      <em>Captions can be styled in any way you want using HTML and CSS, or you can pick presets using <a href="/docs/captions/styling">Elements</a></em>
+    </figcaption>
+  </figure>
+</div>
 
 <GuideTableOfContents />
 
 ## See also
 
-- [`@remotion/captions`](/docs/captions/api) - API reference for caption utilities
+- [`@remotion/captions`](/docs/captions/api)
+- The [`Caption` type](/docs/captions/caption)

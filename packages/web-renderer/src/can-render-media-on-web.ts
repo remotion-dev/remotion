@@ -127,7 +127,7 @@ export const canRenderMediaOnWeb = async (
 		issues.push(...audioResult.issues);
 	}
 
-	const webglIssue = checkWebGLSupport();
+	const webglIssue = videoEnabled ? checkWebGLSupport() : null;
 	if (webglIssue) {
 		issues.push(webglIssue);
 	}

@@ -1,78 +1,62 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-elements.png
-title: Creating Elements
-description: Design reusable Remotion Elements for any Element library.
+title: Elements
+description: Reusable, sharable and composable video components, published in Element Libraries.
 ---
 
-# Creating Elements
+import {ElementsComposeDemo, ElementsShowcase} from '@site/src/components/Elements/ElementsOverview';
+import {TableOfContents} from './elements/TableOfContents';
 
-An Element is a reusable video building block written as a React component, such as an animated title, background, chart, or caption style. Browse the [Elements catalog](/elements) to see examples.
+# Elements
 
-When you [add an Element in Studio](/docs/studio/browse-elements), Studio copies its source code into your project and installs its dependencies. You can edit the copied code to change how it looks and behaves, or use its Inspector controls if it exposes them.
+An Element is a video building block written as a React component, such as an animated title, background, chart, or caption style. Creators publish Elements on websites called [Element Libraries](/elements/libraries). Adding an Element copies its source code into your project.
 
-This guide covers how to design and build Elements for the official catalog or your own Element Library. To let users install Elements from your library's website, see [Building Element Libraries](/docs/elements/libraries).
+<ElementsShowcase />
 
-## Design
+## Why use Elements
 
-### Use real videos as references
+### You own the code
 
-If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video. Use published videos as a reference instead: video usually needs larger, simpler graphics.
+An Element is not an npm package. Its source is copied into your project as a regular component, so you can restyle it, retime it or rewrite it, and no update can change it afterwards.
 
-### Keep it focused
+### Skip the iterations
 
-Users add Elements to their own projects and combine them into a larger video. This works best when each Element does one thing. An Element that bundles several things, such as a title with its own background, is harder to fit in.
+An AI agent can make any animation from a prompt. Making it look good takes many rounds of adjusting timing, easing, spacing and typography.
 
-### Animate overlays in and out
+<video src="https://remotion.media/elements/docs/first-output-vs-iterations.mp4" autoPlay loop muted playsInline aria-label="A generic first output next to a refined animation after iterations" style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', border: '1px solid var(--ifm-color-emphasis-300)', marginBottom: 'var(--ifm-leading)'}} />
 
-Give overlays, such as lower thirds, an entrance and an exit animation.
+An Element is the finished result of that work. Adding one gives you a polished animation right away, instead of a first draft.
 
-Animate the parts inside the Element, not its position on screen. Studio sets the position, so the user can move the Element and the animation moves with it.
+Agents benefit too. An agent that starts from an Element has a style to follow, instead of making one up each time.
 
-## Build
+### Self-contained and reusable
 
-### Make it portable
+An Element is small and does one thing: a lower third, a marker stroke, a caption style. It is self-contained, so it works in any composition.
 
-- Avoid global styles and layout side effects.
-- Don't make the Element fill the whole frame unless it's a background.
-- Set a text color on the Element itself. Otherwise it inherits the page's color, including through `currentColor`, which changes between light and dark themes.
-- Avoid project-specific branding or footage, and make colors easy to change.
+- Layer Elements as overlays on top of an existing video.
+- Reuse the same Elements across projects to keep a consistent look.
+- Collect them into a [design system](/docs/design-systems) for a brand or a team.
+- Mix Elements from different libraries in one video.
 
-### Dependencies
+In this video, the captions and the lower third are Elements layered over a recording.
 
-Minimize dependencies, and declare them as described in the [`dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
+<ElementsComposeDemo />
 
-### Assets
+### Editable without code
 
-Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/elements/libraries#asset-handling). Use Google Fonts for non-websafe fonts.
+Elements can expose controls to the Inspector of [Remotion Studio](/docs/studio), so text, colors and timing can be changed visually. The code stays available for everything else.
 
-## Integrate with Studio
+## Using Elements
 
-### Choose an installation mode
+<TableOfContents section="using" />
 
-Where possible, expose the Element's layers so users can edit them with [Studio interactivity](/docs/studio/interactivity). Pick an installation mode based on what users should see in Studio.
+## Creating Elements
 
-#### Separate editable layers
+Elements are an open ecosystem. See [why to create Elements](/docs/elements/why-create).
 
-`installationMode: 'wrapped'` is the default. Studio wraps the component in a [`<Sequence>`](/docs/sequence) that sets its placement and duration, and the layers inside stay editable through their `Interactive` call sites.
+<TableOfContents section="creating" />
 
-Size the Element to its smallest useful bounding box. If it adapts to the composition, set [`dimensions`](/docs/studio-protocol/create-element-payload#dimensions) to `null`.
+## See also
 
-#### One interactive object
-
-Use `installationMode: 'component-owned-sequence'` when editing the internal parts doesn't make sense, for example for generative effects, canvas drawings, or a single image overlay.
-
-Wrap the exported component in [`Interactive.create()`](/docs/interactive-create) and export it directly, without another wrapper. The component must accept a `style` prop and apply it to its visual root. Check in Studio that it shows up as one layer that users can move and trim.
-
-Don't use this mode just to hide markup, and don't add padding just for the gallery preview.
-
-### Expose useful controls
-
-Users get a copy of the Element's source and can edit it directly, so the `Interactive` schema doesn't need to expose every detail. Add controls with [`Interactive.create()`](/docs/interactive-create) where they make the Element easier to edit. Controls can tune the look, but shouldn't switch between unrelated styles.
-
-Give editable objects clear names. Use a generic name such as `Container` for the main object, and add child controls only for parts users edit separately. See the [interactivity best practices](/docs/studio/interactivity-best-practices).
-
-### Initial props
-
-If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. Studio writes them onto the installed component in both installation modes, so users can edit them in the Inspector or in the source.
-
-To submit an Element to the official gallery, read the [contribution guide](/docs/contributing/elements).
+- [Element Libraries](/elements/libraries)
+- [Remotion Elements](/elements)

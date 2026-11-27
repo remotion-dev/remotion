@@ -9,6 +9,7 @@ import React, {
 import {canPremountInHtmlInCanvas} from './can-premount-in-html-in-canvas.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
+import {effectCanvasGeometries} from './effects/effect-canvas-geometries.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -41,7 +42,7 @@ import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
-import {useDelayRender} from './use-delay-render.js';
+import {useDelayRender, useReportRenderError} from './use-delay-render.js';
 import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -461,6 +462,8 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
+		/** Transparent space on each side of the captured children, in CSS pixels. */
+		readonly growBounds?: number;
 		// captureElementImage() only accepts immediate children of the layout canvas.
 		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
 		readonly _remotionInternalFallbackLabel?: string;
@@ -481,6 +484,7 @@ export const useHtmlInCanvasUnsupportedMessage = (): string | null => {
 };
 
 type HtmlInCanvasContentProps = {
+	readonly growBounds: number;
 	readonly width: number;
 	readonly height: number;
 	readonly effects: EffectsProp;
@@ -502,6 +506,7 @@ const HtmlInCanvasContent = forwardRef<
 		{
 			width,
 			height,
+			growBounds,
 			effects,
 			effectsOutputSize,
 			children,
@@ -518,7 +523,6 @@ const HtmlInCanvasContent = forwardRef<
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const inheritedPremountInSeconds = useContext(DefaultPremountContext);
 		const canPremount = useMemo(canPremountInHtmlInCanvas, []);
-		assertHtmlInCanvasDimensions(width, height);
 		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
 				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
@@ -531,6 +535,7 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasSizeKey = `${canvasWidth}x${canvasHeight}@${resolvedPixelDensity}`;
 		const committedCanvasSizeRef = useRef(canvasSizeKey);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const reportRenderError = useReportRenderError();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -606,7 +611,63 @@ const HtmlInCanvasContent = forwardRef<
 			[ref, paintTargetMode],
 		);
 
-		const chainState = useEffectChainState(effectsOutputSize);
+		const effectWidth = effectsOutputSize?.width;
+		const effectHeight = effectsOutputSize?.height;
+		const effectGeometry = useMemo(() => {
+			if (
+				growBounds === 0 &&
+				(effectWidth ?? canvasWidth) * height ===
+					(effectHeight ?? canvasHeight) * width
+			) {
+				return null;
+			}
+
+			// The requested resolution applies to the element. Process the padding at the same density.
+			const textureWidth =
+				effectWidth === undefined
+					? canvasWidth
+					: Math.ceil((effectWidth * width) / (width - 2 * growBounds));
+			const textureHeight =
+				effectHeight === undefined
+					? canvasHeight
+					: Math.ceil((effectHeight * height) / (height - 2 * growBounds));
+			const x = (growBounds * textureWidth) / width;
+			const y = (growBounds * textureHeight) / height;
+			return {
+				width: textureWidth,
+				height: textureHeight,
+				contentRect: {
+					x,
+					y,
+					width: textureWidth - 2 * x,
+					height: textureHeight - 2 * y,
+				},
+			};
+		}, [
+			canvasWidth,
+			canvasHeight,
+			width,
+			height,
+			growBounds,
+			effectWidth,
+			effectHeight,
+		]);
+		const chainState = useEffectChainState(effectsOutputSize, effectGeometry);
+
+		useLayoutEffect(() => {
+			const visibleCanvas =
+				paintTargetMode === 'copied'
+					? outputCanvasRef.current
+					: canvas2dRef.current;
+			if (!visibleCanvas || effectGeometry === null) {
+				return;
+			}
+
+			effectCanvasGeometries.set(visibleCanvas, effectGeometry);
+			return () => {
+				effectCanvasGeometries.delete(visibleCanvas);
+			};
+		}, [effectGeometry, paintTargetMode]);
 
 		const memoizedEffects = useMemoizedEffects({
 			effects,
@@ -625,16 +686,49 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedSizeRef = useRef<string | null>(null);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const pendingPaintReleases = useRef(new Set<() => void>());
+		const paintOwnerRef = useRef({reportRenderError, retired: false});
+		const initializingOwnerRef = useRef<typeof paintOwnerRef.current | null>(
+			null,
+		);
 		const effectScratchCanvasesRef = useRef<{
 			source: HTMLCanvasElement;
 			previousOutput: HTMLCanvasElement;
 		} | null>(null);
 		const resizeSnapshotRef = useRef<HTMLCanvasElement | null>(null);
+		const previousBitmapPaddingRef = useRef(0);
 		const paintingTargets = useRef(
-			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
+			new WeakMap<
+				HtmlInCanvasPaintTarget,
+				{repaint: boolean; owner: typeof paintOwnerRef.current}
+			>(),
 		);
 
+		useLayoutEffect(() => {
+			const owner = {reportRenderError, retired: false};
+			paintOwnerRef.current = owner;
+			const paintReleases = pendingPaintReleases.current;
+			const paintTargets = paintingTargets.current;
+			return () => {
+				owner.retired = true;
+				if (initializingOwnerRef.current === owner) {
+					initializingOwnerRef.current = null;
+					initializedSizeRef.current = null;
+				}
+
+				for (const release of paintReleases) release();
+				const target = paintTargetRef.current;
+				if (target && paintTargets.get(target)?.owner === owner)
+					paintTargets.delete(target);
+			};
+		}, [reportRenderError]);
+
 		const onPaintCb = useCallback(async () => {
+			const owner = paintOwnerRef.current;
+			if (owner.retired || owner.reportRenderError !== reportRenderError)
+				return;
+			const isCurrentOwner = () =>
+				paintOwnerRef.current === owner && !owner.retired;
 			if (isRendering && paintState.pendingChildren > 0) {
 				return;
 			}
@@ -662,7 +756,7 @@ const HtmlInCanvasContent = forwardRef<
 				return;
 			}
 
-			const painting = {repaint: false};
+			const painting = {repaint: false, owner};
 			if (serializePaint) {
 				paintingTargets.current.set(paintTarget, painting);
 			}
@@ -677,6 +771,21 @@ const HtmlInCanvasContent = forwardRef<
 				? ancestorPaintState?.blockPaint()
 				: null;
 			let canReleasePaint = false;
+			let handle: number | null = null;
+			// Retain the allocating scope's continuation until this paint finishes
+			// or its subtree is removed after a handled failure.
+			const releasePaint = () => {
+				if (handle !== null) {
+					continueRender(handle);
+					handle = null;
+				}
+
+				// Ancestor barriers belong to this paint too; retirement must not
+				// leave its replacement waiting for an obsolete promise.
+				releaseAncestor?.();
+				pendingPaintReleases.current.delete(releasePaint);
+			};
+
 			try {
 				const placeholderCanvas = canvas2dRef.current;
 				if (!placeholderCanvas) {
@@ -684,7 +793,8 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				const outputCanvas = outputCanvasRef.current;
-				const handle = delayRender('onPaint');
+				handle = delayRender('onPaint');
+				pendingPaintReleases.current.add(releasePaint);
 				if (initializedSizeRef.current !== canvasSizeKey) {
 					onInitCleanupRef.current?.();
 					onInitCleanupRef.current = null;
@@ -707,7 +817,7 @@ const HtmlInCanvasContent = forwardRef<
 								// The web renderer explicitly drives additional paint cycles, so a
 								// transient missing record can be retried without failing the render.
 								canReleasePaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
@@ -726,6 +836,7 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
+							initializingOwnerRef.current = owner;
 							const cleanup = await currentOnInit({
 								canvas: paintTarget,
 								element,
@@ -739,20 +850,26 @@ const HtmlInCanvasContent = forwardRef<
 							}
 
 							if (
+								!isCurrentOwner() ||
 								unmountedRef.current ||
 								paintTargetRef.current !== paintTarget ||
 								committedCanvasSizeRef.current !== canvasSizeKey
 							) {
 								cleanup();
-								if (paintTargetRef.current === paintTarget) {
+								if (
+									initializingOwnerRef.current === owner &&
+									paintTargetRef.current === paintTarget
+								) {
+									initializingOwnerRef.current = null;
 									initializedSizeRef.current = null;
 								}
 
 								painting.repaint = true;
-								continueRender(handle);
+								releasePaint();
 								return;
 							}
 
+							initializingOwnerRef.current = null;
 							onInitCleanupRef.current = cleanup;
 						} finally {
 							initImage.close();
@@ -769,7 +886,7 @@ const HtmlInCanvasContent = forwardRef<
 					// Skip this paint cycle — the canvas retains its last state.
 					if (isMissingPaintRecordError(error) && canRetryMissingPaintRecord) {
 						canReleasePaint = true;
-						continueRender(handle);
+						releasePaint();
 						return;
 					}
 
@@ -800,9 +917,12 @@ const HtmlInCanvasContent = forwardRef<
 							await paintResult;
 						}
 
-						if (committedCanvasSizeRef.current !== canvasSizeKey) {
+						if (
+							!isCurrentOwner() ||
+							committedCanvasSizeRef.current !== canvasSizeKey
+						) {
 							painting.repaint = true;
-							continueRender(handle);
+							releasePaint();
 							return;
 						}
 					} else if (
@@ -879,6 +999,11 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				if (!isCurrentOwner()) {
+					releasePaint();
+					return;
+				}
+
 				if (
 					paintTargetMode === 'copied' &&
 					paintTargetRef.current === paintTarget &&
@@ -899,12 +1024,21 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				canReleasePaint = true;
-				continueRender(handle);
+				releasePaint();
 			} catch (error) {
-				cancelRender(error);
+				if (
+					!isCurrentOwner() ||
+					unmountedRef.current ||
+					paintTargetRef.current !== paintTarget
+				) {
+					releasePaint();
+				} else {
+					reportRenderError(error);
+				}
 			} finally {
 				if (
 					canReleasePaint &&
+					isCurrentOwner() &&
 					paintState.pendingChildren === 0 &&
 					paintState.generation === childrenGeneration
 				) {
@@ -914,8 +1048,13 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				releaseAncestor?.();
-				paintingTargets.current.delete(paintTarget);
-				if (painting.repaint && paintTargetRef.current === paintTarget) {
+				if (paintingTargets.current.get(paintTarget) === painting)
+					paintingTargets.current.delete(paintTarget);
+				if (
+					isCurrentOwner() &&
+					painting.repaint &&
+					paintTargetRef.current === paintTarget
+				) {
 					canvas2dRef.current?.requestPaint?.();
 				}
 			}
@@ -925,7 +1064,7 @@ const HtmlInCanvasContent = forwardRef<
 			canvasSizeKey,
 			chainState,
 			continueRender,
-			cancelRender,
+			reportRenderError,
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
@@ -963,13 +1102,19 @@ const HtmlInCanvasContent = forwardRef<
 					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
+			previousBitmapPaddingRef.current = 0;
 			initializedSizeRef.current = null;
 			unmountedRef.current = false;
+			const paintReleases = pendingPaintReleases.current;
 
 			return () => {
 				paintTargetRef.current = null;
 				initializedSizeRef.current = null;
 				unmountedRef.current = true;
+				for (const release of paintReleases) {
+					release();
+				}
+
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
@@ -1005,15 +1150,38 @@ const HtmlInCanvasContent = forwardRef<
 				width: canvasWidth,
 				height: canvasHeight,
 			});
+			const padding = growBounds * resolvedPixelDensity;
 			if (snapshot) {
 				const context = paintTarget.getContext('2d');
 				if (!context) {
 					throw new Error('Failed to acquire 2D context for canvas resize');
 				}
 
-				context.drawImage(snapshot, 0, 0, canvasWidth, canvasHeight);
+				// Keep the previous frame aligned with the child while its new bounds paint.
+				const previousPadding = previousBitmapPaddingRef.current;
+				const scaleX =
+					(canvasWidth - 2 * padding) / (snapshot.width - 2 * previousPadding);
+				const scaleY =
+					(canvasHeight - 2 * padding) /
+					(snapshot.height - 2 * previousPadding);
+				context.drawImage(
+					snapshot,
+					padding - previousPadding * scaleX,
+					padding - previousPadding * scaleY,
+					snapshot.width * scaleX,
+					snapshot.height * scaleY,
+				);
 			}
-		}, [canvasWidth, canvasHeight, canvasSizeKey, paintTargetMode]);
+
+			previousBitmapPaddingRef.current = padding;
+		}, [
+			canvasWidth,
+			canvasHeight,
+			canvasSizeKey,
+			paintTargetMode,
+			growBounds,
+			resolvedPixelDensity,
+		]);
 
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current!;
@@ -1169,6 +1337,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
+			growBounds,
 			_remotionInternalCanvasSiblings,
 			_remotionInternalFallbackLabel = 'Effects are not visible',
 			controls,
@@ -1190,12 +1359,22 @@ const HtmlInCanvasInner = forwardRef<
 		const {isRendering} = useRemotionEnvironment();
 		const videoEnabled = useVideoEnabled();
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
+		const showFallback = !isRendering && unsupportedMessage !== null;
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const isNestedUnsupported = Boolean(
 			ancestorPaintState && !isHtmlInCanvasNestingSupported(),
 		);
 		assertHtmlInCanvasDimensions(width, height);
 		resolveHtmlInCanvasPixelDensity(pixelDensity);
+		if (
+			growBounds !== undefined &&
+			(!Number.isFinite(growBounds) || growBounds < 0)
+		) {
+			throw new Error(
+				`HtmlInCanvas: \`growBounds\` must be a non-negative finite number. Received: ${String(growBounds)}.`,
+			);
+		}
+
 		const Content = isRendering
 			? HtmlInCanvasContentForRendering
 			: HtmlInCanvasContent;
@@ -1244,6 +1423,54 @@ const HtmlInCanvasInner = forwardRef<
 			componentName: '<HtmlInCanvas />',
 		});
 
+		// Keep the padded layout mounted when an animated growBounds reaches zero.
+		const padding = growBounds ?? 0;
+		const paintWidth = width + padding * 2;
+		const paintHeight = height + padding * 2;
+		const content = (
+			<Content
+				ref={setCanvasRef}
+				renderFrame={null}
+				width={paintWidth}
+				height={paintHeight}
+				growBounds={padding}
+				effects={effects}
+				effectsOutputSize={effectsOutputSize ?? null}
+				onPaint={onPaint}
+				onInit={onInit}
+				pixelDensity={pixelDensity}
+				canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+				controls={controls}
+				style={
+					growBounds === undefined
+						? (croppedStyle ?? undefined)
+						: {
+								position: 'absolute',
+								left: 0,
+								top: 0,
+								transform: `translate(${-padding}px, ${-padding}px)`,
+								width: `calc(100% + ${padding * 2}px)`,
+								height: `calc(100% + ${padding * 2}px)`,
+							}
+				}
+			>
+				{growBounds === undefined ? (
+					children
+				) : (
+					<div
+						style={{
+							position: 'relative',
+							transform: `translate(${padding}px, ${padding}px)`,
+							width,
+							height,
+						}}
+					>
+						{children}
+					</div>
+				)}
+			</Content>
+		);
+
 		return (
 			<Freeze
 				frame={freezeFrame}
@@ -1258,6 +1485,11 @@ const HtmlInCanvasInner = forwardRef<
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					{...sequenceProps}
+					refForOutline={
+						growBounds !== undefined && videoEnabled && !showFallback
+							? actualRef
+							: null
+					}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
@@ -1269,7 +1501,7 @@ const HtmlInCanvasInner = forwardRef<
 						<DefaultPremountContext.Provider value={0}>
 							{children}
 						</DefaultPremountContext.Provider>
-					) : !isRendering && unsupportedMessage !== null ? (
+					) : showFallback ? (
 						<HtmlInCanvasFallback
 							style={{width, height, ...croppedStyle}}
 							title={
@@ -1283,23 +1515,31 @@ const HtmlInCanvasInner = forwardRef<
 								<div style={{width, height}}>{children}</div>
 							</DefaultPremountContext.Provider>
 						</HtmlInCanvasFallback>
+					) : growBounds === undefined ? (
+						content
 					) : (
-						<Content
-							ref={setCanvasRef}
-							renderFrame={null}
-							width={width}
-							height={height}
-							effects={effects}
-							effectsOutputSize={effectsOutputSize ?? null}
-							onPaint={onPaint}
-							onInit={onInit}
-							pixelDensity={pixelDensity}
-							canvasSiblings={_remotionInternalCanvasSiblings ?? null}
-							controls={controls}
-							style={croppedStyle ?? undefined}
+						<div
+							style={{
+								width,
+								height,
+								...croppedStyle,
+								display:
+									!croppedStyle?.display || croppedStyle.display === 'inline'
+										? 'inline-block'
+										: croppedStyle.display,
+							}}
 						>
-							{children}
-						</Content>
+							<div
+								style={{
+									position: 'relative',
+									width: '100%',
+									height: '100%',
+									aspectRatio: `${width} / ${height}`,
+								}}
+							>
+								{content}
+							</div>
+						</div>
 					)}
 				</Sequence>
 			</Freeze>
@@ -1319,6 +1559,15 @@ export const htmlInCanvasSchema = {
 		default: 1,
 		description: 'Pixel density',
 		hiddenFromList: false,
+	},
+	growBounds: {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: 0,
+		description: 'Grow bounds',
+		hiddenFromList: false,
+		keyframable: false,
 	},
 	...transformSchema,
 	...backgroundSchema,

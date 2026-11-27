@@ -18,7 +18,7 @@ fn hash22(p: vec2f) -> vec2f { return vec2f(hash21(p + vec2f(17.13)), hash21(p +
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
   if (params.density <= 0.0 || params.radius <= 0.0) { return color; }
-  let fragPos = vec2f(input.uv.x, 1.0 - input.uv.y) * params.size;
+  let fragPos = texturePixelToElementPixelBottomLeft(vec2f(input.position.x, params.size.y - input.position.y), params.size.y);
   let cellSize = max(params.radius * 2.5, 1.0);
   let baseCell = floor(fragPos / cellSize);
   var hole = 0.0;

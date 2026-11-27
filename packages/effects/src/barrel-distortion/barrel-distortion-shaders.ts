@@ -1,3 +1,5 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
+
 export const BARREL_DISTORTION_VS = /* glsl */ `#version 300 es
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUv;
@@ -10,6 +12,7 @@ void main() {
 
 export const BARREL_DISTORTION_FS = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -17,12 +20,12 @@ uniform sampler2D uSource;
 uniform float uAmount;
 
 void main() {
-	vec2 centered = vUv * 2.0 - 1.0;
+	vec2 centered = textureUvToElementUvBottomLeft(vUv, uEffectTextureSize) * 2.0 - 1.0;
 	vec2 warped = centered;
 	warped.x *= 1.0 + uAmount * centered.y * centered.y;
 	warped.y *= 1.0 + uAmount * centered.x * centered.x;
 
-	vec2 srcUv = warped * 0.5 + 0.5;
+	vec2 srcUv = elementUvToTextureUvBottomLeft(warped * 0.5 + 0.5, uEffectTextureSize);
 
 	if (
 		srcUv.x < 0.0 ||

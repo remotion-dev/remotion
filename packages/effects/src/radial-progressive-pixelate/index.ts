@@ -188,7 +188,7 @@ export const radialProgressivePixelate =
 		type: 'dev.remotion.effects.radialProgressivePixelate',
 		label: 'radialProgressivePixelate()',
 		documentationLink:
-			'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+			'https://www.remotion.dev/effects/radial-progressive-pixelate',
 		calculateKey: (params) => {
 			const r = resolve(params);
 			return `radial-progressive-pixelate-${r.center.join(':')}-${r.width}-${r.height}-${r.rotation}-${r.start}-${r.startBlockSize}-${r.endBlockSize}`;
@@ -242,10 +242,19 @@ export const radialProgressivePixelate =
 				ProgressivePixelateState
 			>({
 				setup: setupProgressivePixelate,
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					prepareProgressivePixelate({
 						state,
+						contentRect,
 						source,
 						width,
 						height,

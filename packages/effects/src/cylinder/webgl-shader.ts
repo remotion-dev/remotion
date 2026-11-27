@@ -1,13 +1,17 @@
+import {SAMPLE_LONGITUDE_GLSL} from '../webgl-projection-runtime.js';
+
 export const CYLINDER_WEBGL_SHADER = /* glsl */ `#version 300 es
 precision highp float;
 uniform sampler2D uSource;
-uniform vec4 uParams[3];
+uniform vec4 uParams[4];
 out vec4 fragColor;
+${SAMPLE_LONGITUDE_GLSL}
 vec4 sampleFace(vec3 point, mat3 inverseRotation, mat3 rotation) {
   vec3 local = inverseRotation * point;
-  vec2 uv = vec2(fract((atan(local.x, local.z) + uParams[1].y) / 6.28318530718 + 0.5), local.y / uParams[0].xy.y + 0.5);
-  vec4 color = textureLod(uSource, vec2(uv.x, 1.0 - uv.y), 0.0);
-  if (uv.y < 0.0 || uv.y > 1.0) { return vec4(0); }
+  vec2 uv = vec2(fract((atan(local.x, local.z) + uParams[1].y) / 6.28318530718 + 0.5), local.y / uParams[3].w + 0.5);
+  vec4 color = sampleLongitude(uv);
+  float textureY = uParams[3].y + uv.y * uParams[3].w;
+  if (textureY < 0.0 || textureY > uParams[0].y) { return vec4(0); }
   vec3 normal = rotation * vec3(local.x / uParams[1].x, 0, local.z / uParams[1].x);
   float shade = mix(1.0, abs(normal.z), uParams[1].z);
   return vec4(color.rgb * shade, color.a);

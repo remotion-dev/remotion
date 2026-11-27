@@ -7,6 +7,7 @@ import {
 	Interactive,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	Internals,
 	type SequenceControls,
@@ -25,7 +26,8 @@ import {
 } from './motion-blur-context';
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
-	InteractivePremountProps & {
+	InteractivePremountProps &
+	InteractiveTransformProps & {
 		readonly children: React.ReactNode;
 		readonly width: number;
 		readonly height: number;
@@ -37,6 +39,7 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 
 const htmlInCanvasMotionBlurSchema = {
 	...Interactive.baseSchema,
+	...Interactive.transformSchema,
 	shutterAngle: {
 		type: 'number',
 		min: 0,
@@ -157,11 +160,14 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	premountFor,
 	postmountFor,
 	showInTimeline,
+	style,
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const parentTrimBefore =
+		useContext(Internals.SequenceContext)?.trimBefore ?? 0;
 	const {isRendering} = useRemotionEnvironment();
 	const videoEnabled = Internals.useVideoEnabled();
 	const preferredBackend = useContext(Internals.PreferredEffectBackendContext);
@@ -211,7 +217,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 				playbackRate,
 				loop,
 			}),
-			compositionDurationInFrames - (from ?? 0),
+			compositionDurationInFrames + parentTrimBefore - (from ?? 0),
 		),
 	);
 	const lastFrame =
@@ -349,6 +355,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			premountFor={premountFor}
 			postmountFor={postmountFor}
 			showInTimeline={showInTimeline}
+			style={style}
 			styleWhilePremounted={styleWhilePremounted}
 			styleWhilePostmounted={styleWhilePostmounted}
 			{...{controls}}

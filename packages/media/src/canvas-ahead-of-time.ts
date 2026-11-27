@@ -1,5 +1,8 @@
-import type {VideoSampleTransformOptions, WrappedCanvas} from 'mediabunny';
-import type {VideoSample, VideoSampleSink} from 'mediabunny';
+import type {VideoSample, VideoSampleSink, WrappedCanvas} from 'mediabunny';
+import {
+	makePreviewSampleResizer,
+	type PreviewFrameResize,
+} from './resize-preview-sample';
 
 export type CanvasAheadOfTimeNext =
 	| {type: 'ready'; frame: WrappedCanvas | null}
@@ -58,8 +61,17 @@ export const getStableEffectSource = (
 	);
 };
 
-const makeStableFramePool = () => {
-	const availableCanvases: OffscreenCanvas[] = [];
+export const makeStableFramePool = () => {
+	let availableCanvases: OffscreenCanvas[] | null = [];
+
+	const releaseFrameCanvas = (canvas: OffscreenCanvas) => {
+		if (availableCanvases) {
+			availableCanvases.push(canvas);
+		} else {
+			canvas.width = 0;
+			canvas.height = 0;
+		}
+	};
 
 	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
 		let sampleCanvas: OffscreenCanvas | null = null;
@@ -74,7 +86,7 @@ const makeStableFramePool = () => {
 			get canvas() {
 				if (!sampleCanvas) {
 					sampleCanvas =
-						availableCanvases.pop() ??
+						availableCanvases?.pop() ??
 						new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
 					if (sampleCanvas.width !== frame.displayWidth)
 						sampleCanvas.width = frame.displayWidth;
@@ -103,7 +115,7 @@ const makeStableFramePool = () => {
 			[effectSource]: ({width, height, allowDirectSource}) => {
 				if (width !== frame.displayWidth || height !== frame.displayHeight) {
 					effectCanvas ??=
-						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
+						availableCanvases?.pop() ?? new OffscreenCanvas(width, height);
 					if (effectCanvas.width !== width) effectCanvas.width = width;
 					if (effectCanvas.height !== height) effectCanvas.height = height;
 					const effectContext = effectCanvas.getContext('2d');
@@ -144,14 +156,21 @@ const makeStableFramePool = () => {
 				)
 					retainedSource.close();
 				frame.close();
-				if (sampleCanvas) availableCanvases.push(sampleCanvas);
-				if (effectCanvas) availableCanvases.push(effectCanvas);
+				if (sampleCanvas) releaseFrameCanvas(sampleCanvas);
+				if (effectCanvas) releaseFrameCanvas(effectCanvas);
 			},
 		};
 		return sampleFrame;
 	};
 
-	return {makeStableFrame};
+	return {
+		makeStableFrame,
+		dispose: () => {
+			const canvases = availableCanvases;
+			availableCanvases = null;
+			canvases?.forEach(releaseFrameCanvas);
+		},
+	};
 };
 
 type Slot = {
@@ -161,17 +180,18 @@ type Slot = {
 
 export const canvasesAheadOfTime = (
 	videoSink: VideoSampleSink,
-	startTimestamp?: number,
-	resize: VideoSampleTransformOptions | null = null,
+	startTimestamp: number | undefined,
+	resize: PreviewFrameResize | null,
+	stableFramePool: ReturnType<typeof makeStableFramePool>,
 ) => {
 	const iterator = videoSink.samples(startTimestamp);
+	const resizer = resize ? makePreviewSampleResizer(resize) : null;
 
 	const buffer: Slot[] = [];
 	let chaining = false;
 	let reachedEnd = false;
 	let closed = false;
 	let inFlight: Promise<void> | null = null;
-	const stableFramePool = makeStableFramePool();
 	const unclaimedFrames = new Set<WrappedCanvas>();
 
 	const takeFrame = (frame: VideoSample): WrappedCanvas => {
@@ -203,15 +223,13 @@ export const canvasesAheadOfTime = (
 
 		chaining = true;
 		const nextSample = iterator.next();
-		const promise = resize
-			? nextSample.then(async (result) => {
+		const promise = resizer
+			? nextSample.then((result) => {
 					if (result.done || closed) return result;
 					try {
-						// transform() uses Mediabunny's pooled, quality-preserving resampling.
-						// The returned sample owns its pixels independently of that scratch canvas.
 						return {
 							done: false as const,
-							value: await result.value.transform(resize),
+							value: resizer.resize(result.value),
 						};
 					} finally {
 						result.value.close();
@@ -290,6 +308,7 @@ export const canvasesAheadOfTime = (
 
 	const closeIterator = async () => {
 		closed = true;
+		resizer?.dispose();
 		// A caller may abandon a pending next() after its slot leaves the buffer.
 		// Keep ownership until wait() actually hands the frame to that caller.
 		unclaimedFrames.forEach(releaseStableFrame);

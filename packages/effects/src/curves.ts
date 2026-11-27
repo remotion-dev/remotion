@@ -264,7 +264,7 @@ fn sampleCurve(value: f32) -> f32 {
 export const curves = createEffect<CurvesParams>({
 	type: 'remotion/curves',
 	label: 'curves()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/curves',
+	documentationLink: 'https://www.remotion.dev/effects/curves',
 	calculateKey: (params) => {
 		const {points, channel, interpolation, amount} = resolve(params);
 		return `curves-${JSON.stringify(points)}-${channel}-${interpolation}-${amount}`;

@@ -19,7 +19,8 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [Using fonts](https://www.remotion.dev/docs/fonts.md)
 - [@remotion/transitions](https://www.remotion.dev/docs/transitions/index.md)
 - [Captions](https://www.remotion.dev/docs/captions/index.md)
-- [Effects](https://www.remotion.dev/docs/effects.md)
+- [Using effects](https://www.remotion.dev/docs/effects.md)
+- [Effects library](https://www.remotion.dev/effects.md)
 - [@remotion/shapes](https://www.remotion.dev/docs/shapes/index.md)
 
 ## Previewing and rendering
@@ -65,7 +66,9 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 - [@remotion/media-parser](https://www.remotion.dev/docs/media-parser/index.md)
 - [@remotion/webcodecs](https://www.remotion.dev/docs/webcodecs/index.md)
 
-## AI
+## Agents
 
-- [Building with Remotion and AI](https://www.remotion.dev/docs/ai/index.md)
-- [Prompting videos with coding agents](https://www.remotion.dev/docs/ai/coding-agents.md)
+- [Make videos with coding agents](https://www.remotion.dev/docs/agents.md)
+- [Agent Skills](https://www.remotion.dev/docs/agents/skills.md)
+- [Plugins](https://www.remotion.dev/docs/agents/plugins.md)
+- [WebMCP](https://www.remotion.dev/docs/agents/webmcp.md)

@@ -15,7 +15,7 @@ fn gradientProgress(uv: vec2f) -> f32 {
 }
 
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
-  let color = mix(params.startColor, params.endColor, gradientProgress(input.uv));
+  let color = mix(params.startColor, params.endColor, gradientProgress(textureUvToElementUv(input.uv, effectGeometry.textureSize)));
   return vec4f(color.rgb * color.a, color.a);
 }
 `;

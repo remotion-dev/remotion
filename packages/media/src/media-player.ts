@@ -44,8 +44,6 @@ export type MediaPlayerInitResult =
 export type MediaSeekIntent =
 	| {readonly revision: number; readonly playing: boolean}
 	// An internal resync after media configuration changes, not a timeline seek.
-	// Invalidate the satisfied revision so the next video request cannot be
-	// mistaken for continuous playback. This does not always restart the iterator.
 	| 'discontinuity'
 	| null;
 
@@ -70,14 +68,16 @@ export class MediaPlayer {
 	private muted = false;
 	private volume = 1;
 	private audioInitialized = false;
+	private deferredAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
 	private lastRequestedTime = 0;
-	private lastSeekIntent: MediaSeekIntent = null;
+	private lastTimelineSeek: Exclude<MediaSeekIntent, 'discontinuity'> = null;
 	private satisfiedSeekRevision: number | null = null;
+	private seekRevision = 0;
 	private loop = false;
 	private fps: number;
 
@@ -104,6 +104,8 @@ export class MediaPlayer {
 	) => EffectChainState | null;
 
 	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	private pauseWhenBuffering: boolean;
+	private catchUpOnStart: boolean;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -139,6 +141,8 @@ export class MediaPlayer {
 		getEffects,
 		getEffectChainState,
 		maxCanvasSinkFrameSize,
+		pauseWhenBuffering,
+		catchUpOnStart,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -170,6 +174,8 @@ export class MediaPlayer {
 			height: number,
 		) => EffectChainState | null;
 		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+		pauseWhenBuffering: boolean;
+		catchUpOnStart: boolean | null;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -185,10 +191,13 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
+		this.pauseWhenBuffering = pauseWhenBuffering;
+		this.catchUpOnStart = catchUpOnStart ?? false;
 		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
 			bufferState,
 			isPremounting,
 			isPostmounting,
+			pauseWhenBuffering,
 		});
 		this.sequenceDurationInFrames = durationInFrames;
 		this.nonceManager = makeNonceManager();
@@ -259,11 +268,16 @@ export class MediaPlayer {
 		startTimeUnresolved: number,
 		initialMuted: boolean,
 		initialVolume: number,
+		initialTimelineRevision: number | null,
 	): Promise<MediaPlayerInitResult> {
 		this.muted = initialMuted;
 		this.volume = initialVolume;
 		this.lastRequestedTime = startTimeUnresolved;
-		const promise = this._initialize(startTimeUnresolved);
+		this.lastTimelineSeek =
+			initialTimelineRevision === null
+				? null
+				: {revision: initialTimelineRevision, playing: this.playing};
+		const promise = this._initialize(startTimeUnresolved, this.seekRevision);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -311,7 +325,8 @@ export class MediaPlayer {
 			return null;
 		}
 
-		using _ = this.delayPlaybackHandleIfNotPremounting();
+		using _ =
+			this.volume > 0 ? this.delayPlaybackHandleIfNotPremounting() : null;
 		const [videoTrack, audioTracks] = await Promise.all([
 			this.input.getPrimaryVideoTrack(),
 			this.input.getAudioTracks(),
@@ -370,12 +385,16 @@ export class MediaPlayer {
 		}
 
 		if (!canDecode) {
-			return {
-				type: 'cannot-decode',
-				error: new Error(
-					`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
-				),
-			};
+			const error = new Error(
+				`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+			);
+			if (this.volume <= 0) {
+				this.audioInitialized = true;
+				this.deferredAudioError = error;
+				return null;
+			}
+
+			return {type: 'cannot-decode', error};
 		}
 
 		this.audioIteratorManager = audioIteratorManager({
@@ -391,7 +410,16 @@ export class MediaPlayer {
 			initialVolume: this.volume,
 			toneFrequency: this.toneFrequency,
 			drawDebugOverlay: this.drawDebugOverlay,
-			onError: (error) => this.reportTerminalError(error),
+			onError: (error) => {
+				if (!this.muted && this.volume > 0) {
+					this.reportTerminalError(error);
+					return;
+				}
+
+				this.audioIteratorManager?.dispose();
+				this.audioIteratorManager = null;
+				this.deferredAudioError = error;
+			},
 			getSequenceDurationInSeconds: () => this.getSequenceDurationInSeconds(),
 		});
 		this.audioInitialized = true;
@@ -400,6 +428,7 @@ export class MediaPlayer {
 
 	private async _initialize(
 		startTimeUnresolved: number,
+		seekRevision: number,
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
@@ -490,6 +519,11 @@ export class MediaPlayer {
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
+					// Catching up moves forward; reverse playback keeps the normal path.
+					getCatchesUp: () =>
+						!this.pauseWhenBuffering &&
+						this.playbackRate * this.globalPlaybackRate > 0,
+					getIsPlaying: () => this.playing,
 				});
 				this.videoIteratorManager.setCanvasUpdateCallback(this.onCanvasUpdated);
 			}
@@ -529,9 +563,15 @@ export class MediaPlayer {
 									this.sharedAudioContext!.audioContext.currentTime,
 							})
 						: Promise.resolve(),
-					this.videoIteratorManager
-						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
-						: Promise.resolve(),
+					this.videoIteratorManager?.startVideoIterator({
+						time: startTime,
+						nonce,
+						seekRevision,
+						catchUp:
+							(this.playing || this.catchUpOnStart) &&
+							!this.pauseWhenBuffering &&
+							this.playbackRate * this.globalPlaybackRate > 0,
+					}),
 				]);
 			} catch (error) {
 				if (this.isDisposalError()) {
@@ -581,15 +621,12 @@ export class MediaPlayer {
 		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(
-			newTime,
-			unloopedNewTime,
-			nonce,
-			intent,
+		this.videoIteratorManager?.cancelStaleEffect();
+		const seek = this.seekPromiseChain.then(() =>
+			this.seekToDoNotCallDirectly(newTime, unloopedNewTime, nonce, intent),
 		);
-		await this.seekPromiseChain;
+		this.seekPromiseChain = seek;
+		await seek;
 	};
 
 	public async seekTo(time: number, intent: MediaSeekIntent): Promise<void> {
@@ -603,11 +640,18 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.lastSeekIntent = intent;
 		this.lastRequestedTime = time;
 		if (intent === 'discontinuity') {
-			// A mapping change may supersede a queued timeline request.
-			this.satisfiedSeekRevision = null;
+			this.seekRevision++;
+		} else {
+			if (
+				intent !== null &&
+				intent.revision !== this.lastTimelineSeek?.revision
+			) {
+				this.seekRevision++;
+			}
+
+			this.lastTimelineSeek = intent;
 		}
 
 		await this.seekToWithQueue(newTime, time, intent);
@@ -653,7 +697,8 @@ export class MediaPlayer {
 							? null
 							: intent !== 'discontinuity' &&
 								intent.playing &&
-								intent.revision === this.satisfiedSeekRevision,
+								this.seekRevision === this.satisfiedSeekRevision,
+					seekRevision: this.seekRevision,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -676,7 +721,7 @@ export class MediaPlayer {
 			]);
 			// Superseded work must not consume an explicit seek boundary.
 			if (!nonce.isStale() && intent !== null && intent !== 'discontinuity') {
-				this.satisfiedSeekRevision = intent.revision;
+				this.satisfiedSeekRevision = this.seekRevision;
 			}
 		} catch (error) {
 			if (this.isDisposalError()) {
@@ -704,28 +749,45 @@ export class MediaPlayer {
 		return this.premountAwareDelayPlayback.createHandle();
 	};
 
-	public pause(): void {
+	public pause(mediaPlayerReady: boolean): void {
 		if (!this.playing) {
 			return;
 		}
 
 		this.playing = false;
 		this.drawDebugOverlay();
-	}
-
-	public setMuted(muted: boolean): void {
-		this.muted = muted;
-		this.audioIteratorManager?.setMuted(muted);
-		if (!muted && !this.audioInitialized && this.sharedAudioContext) {
-			this.seekTo(this.lastRequestedTime, this.lastSeekIntent).catch((error) =>
-				this.reportTerminalError(error),
+		// During initialization the first ready seek supplies the latest time.
+		// Once ready, a same-frame pause needs its own seek while catching up.
+		if (mediaPlayerReady && this.videoIteratorManager?.isCatchingUp()) {
+			this.seekTo(this.lastRequestedTime, this.lastTimelineSeek).catch(
+				(error) => this.reportTerminalError(error),
 			);
 		}
 	}
 
-	public setVolume(volume: number): void {
+	public setAudioState(muted: boolean, volume: number): void {
+		const wasMuted = this.muted;
+		this.muted = muted;
 		this.volume = volume;
-		this.audioIteratorManager?.setVolume(volume);
+		this.audioIteratorManager?.setAudioState(muted, volume);
+
+		if (!muted && volume > 0 && this.deferredAudioError) {
+			const error = this.deferredAudioError;
+			this.deferredAudioError = null;
+			this.reportTerminalError(error);
+			return;
+		}
+
+		if (
+			wasMuted &&
+			!muted &&
+			!this.audioInitialized &&
+			this.sharedAudioContext
+		) {
+			this.seekTo(this.lastRequestedTime, this.lastTimelineSeek).catch(
+				(error) => this.reportTerminalError(error),
+			);
+		}
 	}
 
 	private getTrimmedTime(unloopedTimeInSeconds: number): number | null {
@@ -810,6 +872,11 @@ export class MediaPlayer {
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
+	}
+
+	public setPauseWhenBuffering(pauseWhenBuffering: boolean): void {
+		this.pauseWhenBuffering = pauseWhenBuffering;
+		this.premountAwareDelayPlayback.setPauseWhenBuffering(pauseWhenBuffering);
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {
@@ -1010,7 +1077,15 @@ export class MediaPlayer {
 	}
 
 	public async redrawVideoEffects(): Promise<void> {
-		await this.videoIteratorManager?.redrawCurrentFrame();
+		const nonce = this.nonceManager.getCurrentNonce();
+		// A seek can recycle the source canvas once the redraw finishes.
+		const redraw = this.seekPromiseChain.then(() => {
+			if (!nonce.isStale()) {
+				return this.videoIteratorManager?.redrawCurrentFrame();
+			}
+		});
+		this.seekPromiseChain = redraw.catch(() => undefined);
+		await redraw;
 	}
 
 	private drawDebugOverlay = () => {
@@ -1050,12 +1125,10 @@ export class MediaPlayer {
 		// Re-anchoring is not navigation. Preserve the captured revision so an
 		// outstanding explicit seek still takes the restart path, but don't let
 		// an audio-clock pause turn ordinary video catch-up into a scrub.
-		const intent = this.lastSeekIntent;
+		const intent = this.lastTimelineSeek;
 		await this.seekTo(
 			unloopedTimeInSeconds,
-			intent !== null && intent !== 'discontinuity'
-				? {...intent, playing: true}
-				: intent,
+			intent === null ? null : {...intent, playing: true},
 		);
 	};
 }

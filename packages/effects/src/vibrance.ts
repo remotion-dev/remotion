@@ -240,7 +240,7 @@ const setupVibrance = (target: HTMLCanvasElement): VibranceState => {
 export const vibrance = createEffect<VibranceParams>({
 	type: 'remotion/vibrance',
 	label: 'vibrance()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/vibrance',
+	documentationLink: 'https://www.remotion.dev/effects/vibrance',
 	calculateKey: (params) => {
 		const {amount} = resolve(params);
 		return `vibrance-${amount}`;

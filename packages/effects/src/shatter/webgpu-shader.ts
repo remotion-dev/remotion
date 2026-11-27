@@ -1,5 +1,5 @@
 export const SHATTER_WEBGPU_SHADER = /* wgsl */ `
-struct Params {resolution: vec2f,}
+struct Params {resolution: vec2f, contentRect: vec4f,}
 struct VertexOutput {
  @builtin(position) position: vec4f,
  @location(0) uv: vec2f,
@@ -13,13 +13,15 @@ struct VertexOutput {
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput {
  let offset=index*7u;
  let point=vec3f(vertices[offset],vertices[offset+1u],vertices[offset+2u]);
- let distance=max(params.resolution.x,params.resolution.y)*2.0;
+ let distance=max(params.contentRect.z,params.contentRect.w)*2.0;
  let near=distance*0.05;
  let w=distance+point.z;
- let position=vec2f((point.x-params.resolution.x*0.5)*2.0/params.resolution.x,(params.resolution.y*0.5-point.y)*2.0/params.resolution.y);
+ let cameraCenter = params.contentRect.xy + 0.5 * params.contentRect.zw;
+ let position = ((point.xy - params.resolution * 0.5) * distance
+   + (cameraCenter - params.resolution * 0.5) * point.z) * 2.0 / params.resolution;
  var output: VertexOutput;
  // WebGPU's clip depth is [0,w], corresponding to WebGL's [-w,w].
- output.position=vec4f(position*vec2f(1,-1)*distance,w-near,w);
+ output.position=vec4f(position,w-near,w);
  output.uv=vec2f(vertices[offset+3u],vertices[offset+4u]);
  output.shade=vertices[offset+5u];output.side=vertices[offset+6u];
  return output;

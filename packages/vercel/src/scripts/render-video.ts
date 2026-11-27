@@ -163,6 +163,7 @@ try {
 			serveUrl: config.serveUrl,
 			id: config.compositionId,
 			onServeUrlVisited: noop,
+			cancelSignal: null,
 			logLevel: config.logLevel,
 			timeoutInMilliseconds: config.timeoutInMilliseconds,
 			binariesDirectory: config.binariesDirectory,

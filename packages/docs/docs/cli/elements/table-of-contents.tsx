@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>elements use</strong>
 					<div>Install an Element from an Element Library page</div>
 				</TOCItem>
+				<TOCItem link="/docs/cli/elements/add-library">
+					<strong>elements add-library</strong>
+					<div>Add an Element Library to the Remotion config file</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

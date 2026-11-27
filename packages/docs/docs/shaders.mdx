@@ -10,7 +10,7 @@ You can use shader effects in Remotion to generate backgrounds or transform cont
 ## Shaders as backgrounds
 
 [`@remotion/effects`](/docs/effects/api) includes many effect presets that can be applied to canvas-based components.
-To create a shader background, apply an effect such as [`halftoneLinearGradient()`](/docs/effects/halftone-linear-gradient) to [`<Solid>`](/docs/solid).
+To create a shader background, apply an effect such as [`halftoneLinearGradient()`](/effects/halftone-linear-gradient) to [`<Solid>`](/docs/solid).
 
 <Demo type="shader" />
 
@@ -46,7 +46,7 @@ You can also vibe code a custom effect using [`createEffect()`](/docs/create-eff
 ## Apply shaders to content
 
 Use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) to capture HTML content and apply shader effects to its pixels.
-This example applies [`fisheye()`](/docs/effects/fisheye) to a DOM element:
+This example applies [`fisheye()`](/effects/fisheye) to a DOM element:
 
 ```tsx twoslash title="FisheyeContent.tsx"
 import {fisheye} from '@remotion/effects/fisheye';

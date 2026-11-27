@@ -180,7 +180,7 @@ const getTileBounds = ({
 export const tile = createEffect<TileParams>({
 	type: 'dev.remotion.effects.tile',
 	label: 'tile()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/tile',
+	documentationLink: 'https://www.remotion.dev/effects/tile',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `tile-${r.horizontal}-${r.vertical}`;

@@ -56,6 +56,7 @@ test('round trips a payload through HTML', () => {
 		payloads: [hostilePayload],
 		invalidPayloadCount: 0,
 		alternateHrefs: [],
+		siteName: null,
 	});
 });
 
@@ -97,6 +98,7 @@ test('ignores commented-out payloads', () => {
 		payloads: [],
 		invalidPayloadCount: 0,
 		alternateHrefs: [],
+		siteName: null,
 	});
 });
 
@@ -113,6 +115,7 @@ test('counts invalid embedded payloads', () => {
 		payloads: [assetPayload],
 		invalidPayloadCount: 2,
 		alternateHrefs: [],
+		siteName: null,
 	});
 });
 
@@ -134,7 +137,22 @@ test('collects alternate links for pages rendered in the browser', () => {
 			'/elements/lower-third.json',
 			'https://example.com/e.json?a=1&b=2',
 		],
+		siteName: null,
 	});
+});
+
+test('reads the Open Graph site name', () => {
+	const html = wrapInPage(
+		[
+			'<!-- <meta property="og:site_name" content="Commented"> -->',
+			'<meta name="og:site_name" content="Wrong attribute">',
+			'<meta property="og:site_name" content="  ">',
+			'<meta property="OG:SITE_NAME" content=" Studio > Supply ">',
+			'<meta property="og:site_name" content="Second">',
+		].join(''),
+	);
+
+	expect(parseElementPayloadsFromHtml(html).siteName).toBe('Studio > Supply');
 });
 
 test('rejects payloads that were not created with createElementPayload()', () => {

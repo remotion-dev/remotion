@@ -56,7 +56,7 @@ export const HomepageHero: React.FC<{readonly colorMode: ColorMode}> = ({
 				/>
 			</div>
 			<div className="mt-2.5 min-[900px]:hidden">
-				<GetStarted command="npx create-video" />
+				<GetStarted />
 			</div>
 			<div
 				ref={studioHandoffLabelsRef}

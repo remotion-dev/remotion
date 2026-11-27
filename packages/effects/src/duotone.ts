@@ -334,7 +334,7 @@ const getParsedColors = (
 export const duotone = createEffect<DuotoneParams>({
 	type: 'dev.remotion.effects.duotone',
 	label: 'duotone()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/duotone',
+	documentationLink: 'https://www.remotion.dev/effects/duotone',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `duotone-${r.darkColor}-${r.lightColor}-${r.threshold}`;

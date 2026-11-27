@@ -51,6 +51,7 @@ import {
 	useRuntimeValueSelector,
 } from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
+import {getActiveStudioDialog} from '../../state/studio-dialog';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
@@ -76,6 +77,8 @@ import {
 	rotateFieldKey,
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {useAddEffect} from '../use-add-effect';
+import {canApplyEffects} from '../use-prepare-html-in-canvas-wrap';
 import {useSelectAsset} from '../use-select-asset';
 import {useSelectEffects} from '../use-select-effects';
 import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
@@ -409,6 +412,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectEffects = useSelectEffects();
+	const addEffect = useAddEffect();
 	const rotateShortcut = useKeyboardShortcutLabel('selectRotateProp');
 	const effectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const {isHighestContext} = useKeybinding();
@@ -450,12 +454,11 @@ const TimelineSequenceItemInner: React.FC<{
 	const {
 		canConfigureApps,
 		canOpenInEditor,
-		canOpenSource,
+		getSequenceSourceDoubleClickHandler,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
-		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence, nodePath);
 
@@ -1208,9 +1211,10 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
+			const onSourceDoubleClick = getSequenceSourceDoubleClickHandler();
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenSource,
+				canOpenSource: onSourceDoubleClick !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				// The track list row reorders via native drag-and-drop, which
 				// already suppresses `dblclick` after a drag.
@@ -1235,19 +1239,16 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			openSource();
+			onSourceDoubleClick?.();
 		},
 		[
-			canOpenSource,
+			getSequenceSourceDoubleClickHandler,
 			connectedCompositions,
-			openSource,
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
 		],
 	);
-	const canHandleSequenceDoubleClick =
-		connectedCompositions.length > 0 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -1274,7 +1275,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (!isHighestContext) {
+			if (!isHighestContext || getActiveStudioDialog() !== null) {
 				return;
 			}
 
@@ -1315,7 +1316,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRenameThisSequence]);
 
 	const canAddEffect =
-		nodePathInfo?.supportsEffects === true &&
+		canApplyEffects(sequence, nodePathInfo) &&
 		canMutateEffects &&
 		Boolean(validatedLocation?.source);
 	const canCrop = useRuntimeValueSelector({
@@ -1569,7 +1570,7 @@ const TimelineSequenceItemInner: React.FC<{
 												},
 											]
 										: []),
-									...(nodePathInfo?.supportsEffects
+									...(canApplyEffects(sequence, nodePathInfo)
 										? [
 												{
 													type: 'item' as const,
@@ -1652,7 +1653,7 @@ const TimelineSequenceItemInner: React.FC<{
 		canMutateEffects &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		sequence.controls?.supportsEffects === true;
+		canApplyEffects(sequence, nodePathInfo);
 
 	const sequenceReorderLineStyle = useMemo((): React.CSSProperties | null => {
 		if (sequenceDropIndicator !== 'before') {
@@ -1707,17 +1708,15 @@ const TimelineSequenceItemInner: React.FC<{
 
 			await addEffectFromDrop({
 				dataTransfer: e.dataTransfer,
-				fileName: validatedLocation.source,
 				nodePathInfo,
-				clientId: previewServerState.clientId,
-				selectItems: currentSelection.current.selectItems,
+				addEffect,
 			});
 		},
 		[
+			addEffect,
 			canDropEffect,
 			nodePathInfo,
 			previewServerState,
-			currentSelection,
 			validatedLocation,
 		],
 	);
@@ -1750,9 +1749,7 @@ const TimelineSequenceItemInner: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={
-				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
-			}
+			onDoubleClick={onSequenceDoubleClick}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>

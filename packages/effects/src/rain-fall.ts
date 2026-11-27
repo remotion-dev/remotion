@@ -79,7 +79,7 @@ const resolve = (params: RainFallParams): WeatherRenderParams => ({
 export const rainFall = createEffect<RainFallParams>({
 	type: 'remotion/rain-fall',
 	label: 'rainFall()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/rain-fall',
+	documentationLink: 'https://www.remotion.dev/effects/rain-fall',
 	calculateKey: (params) => `rain-fall-${JSON.stringify(resolve(params))}`,
 	implementations: {
 		webgpu: Internals.createEffectImplementation<
@@ -87,7 +87,15 @@ export const rainFall = createEffect<RainFallParams>({
 			WeatherWebGpuState
 		>({
 			setup: setupWeatherWebGpu,
-			apply: ({source, width, height, params, state, gpuDevice}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				gpuDevice,
+			}) => {
 				if (!gpuDevice)
 					throw new Error(
 						'A WebGPU device is required for the rain fall effect',
@@ -96,6 +104,7 @@ export const rainFall = createEffect<RainFallParams>({
 					source,
 					width,
 					height,
+					contentRect,
 					params: resolve(params),
 					state,
 					device: gpuDevice as GPUDevice,
@@ -106,12 +115,21 @@ export const rainFall = createEffect<RainFallParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<RainFallParams, WeatherState>({
 			setup: (target) => setupWeather(target, 'rain fall'),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				drawWeather({
 					state,
 					source: source as TexImageSource,
 					width,
 					height,
+					contentRect,
 					flipSourceY,
 					params: resolve(params),
 					type: 'rain',

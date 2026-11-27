@@ -20,8 +20,8 @@ fn valueNoise(p: vec2f) -> f32 {
 }
 fn noiseVector(p: vec2f) -> vec2f { return vec2f(valueNoise(p+vec2f(17.13,71.79)),valueNoise(p+vec2f(83.41,29.67)))*2.0-vec2f(1.0); }
 fn effectMask(pixel: vec2f) -> f32 {
-  let radius=params.radius*min(params.size.x,params.size.y);
-  let distance=length(pixel-params.center*params.size);
+  let radius=params.radius*min(effectGeometry.contentRect.z,effectGeometry.contentRect.w);
+  let distance=length(pixel-params.center*effectGeometry.contentRect.zw);
   if(distance>=radius) { return 0.0; }
   if(params.feather<=0.0001) { return 1.0; }
   return 1.0-smoothstep(radius*(1.0-params.feather),radius,distance);
@@ -29,9 +29,10 @@ fn effectMask(pixel: vec2f) -> f32 {
 fn sampleSource(pixel: vec2f) -> vec4f { return textureSampleLevel(source,sourceSampler,clamp(pixel/params.size,vec2f(0),vec2f(1)),0); }
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let pixel=input.uv*params.size;
-  let mask=effectMask(pixel);
+  let elementPixel=pixel-effectGeometry.contentRect.xy;
+  let mask=effectMask(elementPixel);
   if(mask<=0.0 || params.strength<=0.0) { return textureSampleLevel(source,sourceSampler,input.uv,0); }
-  let noiseCoord=pixel/max(params.grainSize,0.001);
+  let noiseCoord=elementPixel/max(params.grainSize,0.001);
   let direction=params.biasDirection*3.141592653589793/180.0;
   let displacement=(noiseVector(noiseCoord)+vec2f(cos(direction),sin(direction))*params.biasAmount)*params.strength*mask;
   let passes=max(i32(params.passes),1);

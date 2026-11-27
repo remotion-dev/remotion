@@ -6,12 +6,12 @@ export const addVideoSampleAndCloseFrame = async (
 	videoSampleSource: VideoSampleSource,
 	durationInSeconds: number,
 ) => {
-	const sample = new VideoSample(frameToEncode, {duration: durationInSeconds});
-
+	let sample: VideoSample | undefined;
 	try {
+		sample = new VideoSample(frameToEncode, {duration: durationInSeconds});
 		await videoSampleSource.add(sample);
 	} finally {
-		sample.close();
+		sample?.close();
 		frameToEncode.close();
 	}
 };

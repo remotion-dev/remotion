@@ -4,6 +4,8 @@ import {
 	AnimatingPropertiesText,
 } from './AnimatingProperties';
 import {ConnectedCompositionExamples} from './ConnectedCompositions';
+import {GrowBoundsClippedWaveComposition} from './GrowBoundsClippedWaveComposition';
+import {GrowBoundsRevealWaveComposition} from './GrowBoundsRevealWaveComposition';
 
 const transparentVideoMetadata = () => ({
 	defaultCodec: 'vp9' as const,
@@ -14,6 +16,22 @@ const transparentVideoMetadata = () => ({
 export const DocsAnimationCompositions = () => {
 	return (
 		<Folder name="DocsAnimations">
+			<Composition
+				id="GrowBoundsClippedWave"
+				component={GrowBoundsClippedWaveComposition}
+				durationInFrames={267}
+				fps={60}
+				width={2560}
+				height={1000}
+			/>
+			<Composition
+				id="GrowBoundsRevealWave"
+				component={GrowBoundsRevealWaveComposition}
+				durationInFrames={208}
+				fps={60}
+				width={2560}
+				height={1072}
+			/>
 			<Folder name="ConnectedCompositions">
 				<ConnectedCompositionExamples />
 			</Folder>

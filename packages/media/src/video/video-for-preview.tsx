@@ -90,6 +90,8 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+	// null when the prop is omitted: the decoder holds, the native fallback keeps its own default.
+	readonly pauseWhenBuffering: boolean | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -136,6 +138,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	requestInit,
 	objectFit: objectFitProp,
 	maxCanvasSinkFrameSize,
+	pauseWhenBuffering,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	effectsOutputSize,
@@ -143,6 +146,20 @@ const VideoForPreviewAssertedShowing: React.FC<
 	...props
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
+		const previousCanvas = canvasRef.current;
+		canvasRef.current = canvas;
+		if (!previousCanvas || previousCanvas === canvas) {
+			return;
+		}
+
+		queueMicrotask(() => {
+			if (!previousCanvas.isConnected && canvasRef.current !== previousCanvas) {
+				previousCanvas.width = 0;
+				previousCanvas.height = 0;
+			}
+		});
+	}, []);
 	const {isStudio} = useRemotionEnvironment();
 	const [staticFiles, setStaticFiles] = useState<StaticFile[] | null>(() =>
 		isStudio ? (window.remotion_staticFiles ?? null) : null,
@@ -322,6 +339,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
 	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
 
+	const pauseWhenBufferingRef = useRef(pauseWhenBuffering ?? true);
+	pauseWhenBufferingRef.current = pauseWhenBuffering ?? true;
+
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
@@ -339,6 +359,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.durationInFrames / sequencePlaybackRate;
 	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
+	const {seek} = useContext(Internals.SetTimelineContext);
+	const timelineRevisionRef = useRef<number | null>(null);
+	timelineRevisionRef.current = seek?.revision.current ?? null;
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
 
@@ -350,13 +373,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 		volume: userPreferredVolume,
 		audioEnabled: audioEnabled !== false,
 	});
-	const mediaPlayerMuted = useMediaPlayerMuted({
-		muted,
-		volume: userPreferredVolume,
-	});
+	const mediaPlayerMuted = useMediaPlayerMuted(muted);
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
+	// A player that does not hold the clock starts by catching up even while the
+	// clock is buffering: drawing its mount-time frame would show a stale picture
+	// once the clock moves on without it.
+	const initialCatchesUp = useRef(playing && pauseWhenBuffering === false);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
@@ -553,6 +577,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
 				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
+				pauseWhenBuffering: pauseWhenBufferingRef.current,
+				catchUpOnStart: initialCatchesUp.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -601,6 +627,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					currentTimeRef.current,
 					initialMuted.current,
 					initialVolume.current,
+					timelineRevisionRef.current,
 				)
 				.then((result) => {
 					if (result.type === 'disposed') {
@@ -793,6 +820,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
 
+	// Applied as soon as the player exists: a change during a slow
+	// initialization must be able to release its buffering handle.
+	useLayoutEffect(() => {
+		mediaPlayerRef.current?.setPauseWhenBuffering(pauseWhenBuffering ?? true);
+	}, [pauseWhenBuffering]);
+
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
@@ -920,6 +953,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				loop={loop}
 				showInTimeline={showInTimeline}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
+				{...(pauseWhenBuffering === null ? {} : {pauseWhenBuffering})}
 				{...fallbackOffthreadVideoProps}
 				preservePitch={
 					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
@@ -935,7 +969,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			{...props}
-			ref={canvasRef}
+			ref={setCanvasRef}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

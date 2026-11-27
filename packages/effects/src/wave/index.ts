@@ -123,7 +123,7 @@ const validateWaveParams = (params: WaveParams): void => {
 export const wave = createEffect<WaveParams>({
 	type: 'dev.remotion.effects.wave',
 	label: 'wave()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/wave',
+	documentationLink: 'https://www.remotion.dev/effects/wave',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `wave-${r.phase}-${r.direction}-${r.amplitude}-${r.wavelength}`;
@@ -164,13 +164,22 @@ export const wave = createEffect<WaveParams>({
 		}),
 		webgl2: Internals.createEffectImplementation<WaveParams, WaveState>({
 			setup: (target) => setupWave(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolve(params);
 				applyWave({
 					state,
 					source,
 					width,
 					height,
+					contentRect,
 					flipSourceY,
 					amplitude: r.amplitude,
 					wavelength: r.wavelength,

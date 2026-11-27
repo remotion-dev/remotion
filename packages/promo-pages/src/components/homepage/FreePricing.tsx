@@ -71,8 +71,8 @@ const textUnitWrapper: React.CSSProperties = {
 
 export const FreePricing: React.FC<{
 	readonly termsHref: string;
-	readonly faqHref: string;
-}> = ({termsHref, faqHref}) => {
+	readonly eligibilityHref: string;
+}> = ({termsHref, eligibilityHref}) => {
 	const mobileLayout = useMobileLayout();
 
 	return (
@@ -119,8 +119,8 @@ export const FreePricing: React.FC<{
 						}}
 					>
 						<a
-							target={faqHref.startsWith('http') ? '_blank' : undefined}
-							href={faqHref}
+							target={eligibilityHref.startsWith('http') ? '_blank' : undefined}
+							href={eligibilityHref}
 							className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 						>
 							Check eligibility{' '}

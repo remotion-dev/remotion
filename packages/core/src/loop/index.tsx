@@ -5,6 +5,7 @@ import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {useVideo} from '../use-video.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {LoopContext, type LoopContextType} from './loop-context.js';
 
@@ -45,7 +46,9 @@ export const Loop: React.FC<LoopProps> & {
 	...props
 }) => {
 	const currentFrame = useCurrentFrame();
-	const {durationInFrames: compDuration} = useVideoConfig();
+	const videoConfig = useVideoConfig();
+	const compositionDuration =
+		useVideo()?.durationInFrames ?? videoConfig.durationInFrames;
 	const parentSequence = useContext(SequenceContext);
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const playbackRateValue = playbackRate ?? 1;
@@ -53,6 +56,10 @@ export const Loop: React.FC<LoopProps> & {
 	const loopStartFrame = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
+	const compDuration = Math.max(
+		0,
+		(compositionDuration - loopStartFrame) * parentPlaybackRate,
+	);
 	const firstVisibleFrame =
 		loopStartFrame -
 		(parentSequence?.cumulatedNegativeFrom ?? 0) / parentPlaybackRate;

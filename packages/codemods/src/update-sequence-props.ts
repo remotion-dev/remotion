@@ -5,12 +5,14 @@ import type {
 	JSXFragment,
 	JSXOpeningElement,
 	JSXSpreadAttribute,
+	NumericLiteral,
 	ObjectProperty,
 	StringLiteral,
 	Expression,
 	File,
 	Statement,
 } from '@babel/types';
+import {isKeyframeEasing} from '@remotion/studio-shared';
 import type {
 	EffectClipboardParam,
 	GoogleFontSourceEdit,
@@ -37,6 +39,7 @@ import {
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	findJsxElementNodeAtNodePath,
+	findJsxElementPathAtNodePath,
 	getNodePathForRecastPath,
 	getStaticJsxChildrenAttribute,
 	getStaticJsxTextContent,
@@ -53,7 +56,17 @@ import {
 	getCssShorthandsForUpdates,
 	type CssShorthandProperty,
 } from './sequence-props/css-shorthand-properties';
-import {ensureStaticFileBinding} from './sequence-props/imports';
+import {
+	ensureOfficialNamedImport,
+	ensureStaticFileBinding,
+} from './sequence-props/imports';
+import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
+import {
+	getLinearTimingDurationLiteral,
+	getLinearTimingEasing,
+	transitionComponentIdentity,
+} from './sequence-props/linear-timing-options';
+import {makeEasingExpression} from './sequence-props/make-easing-expression';
 import {parseAst, serializeAst} from './sequence-props/parse-ast';
 import {
 	parseVideoConfigNumericExpression,
@@ -936,12 +949,16 @@ const migrateCssShorthand = ({
 };
 
 const updateSequencePropsNode = ({
+	ast,
+	nodePath,
 	jsxElement,
 	updates,
 	schema,
 	videoConfigValues,
 	clipboardParamLocalNames,
 }: {
+	ast: File;
+	nodePath: SequenceNodePath;
 	jsxElement: JSXElementLike;
 	updates: SequencePropUpdate[];
 	schema: InteractivitySchema;
@@ -951,6 +968,7 @@ const updateSequencePropsNode = ({
 	oldValueStrings: string[];
 	logLine: number;
 	removedProps: RemovedProp[];
+	transitionDuration: NumericLiteral | null;
 } => {
 	const node = jsxElement.openingElement;
 	const logLine = node.loc?.start.line ?? 1;
@@ -1002,8 +1020,76 @@ const updateSequencePropsNode = ({
 			: updateVideoConfigNumericExpression({expression, value});
 	};
 
+	let transitionDuration: NumericLiteral | null = null;
 	for (const {key, value, defaultValue, clipboardParam} of updates) {
 		let oldValueString = '';
+
+		if (
+			key === 'durationInFrames' &&
+			getJsxComponentIdentity({ast, jsxElement: node}) ===
+				transitionComponentIdentity
+		) {
+			const path = findJsxElementPathAtNodePath(ast, nodePath);
+			const duration = path && getLinearTimingDurationLiteral(path);
+			if (
+				!duration ||
+				clipboardParam ||
+				typeof value !== 'number' ||
+				!Number.isSafeInteger(value) ||
+				value < 1
+			) {
+				throw new Error(
+					'Expected an editable linearTiming duration and a positive whole number of frames.',
+				);
+			}
+
+			oldValueStrings.push(String(duration.value));
+			duration.value = value;
+			transitionDuration = duration;
+			continue;
+		}
+
+		if (
+			key === 'easing' &&
+			getJsxComponentIdentity({ast, jsxElement: node}) ===
+				transitionComponentIdentity
+		) {
+			const path = findJsxElementPathAtNodePath(ast, nodePath);
+			const option = path && getLinearTimingEasing(path);
+			const easing = value === undefined ? {type: 'linear'} : value;
+			if (!option || clipboardParam || !isKeyframeEasing(easing)) {
+				throw new Error('Expected an editable linearTiming easing.');
+			}
+
+			oldValueStrings.push(
+				option.property
+					? recast.print(option.property.value).code
+					: 'undefined',
+			);
+			if (!option.property && easing.type === 'linear') continue;
+			const expression = makeEasingExpression({
+				easing,
+				easingLocalName: ensureOfficialNamedImport({
+					ast,
+					sourcePath: 'remotion',
+					importedName: 'Easing',
+					preferredLocalName: 'Easing',
+				}),
+			});
+			if (option.property) {
+				option.property.value = expression as Expression;
+				option.property.shorthand = false;
+			} else {
+				option.options.properties.push(
+					b.objectProperty(
+						b.identifier('easing'),
+						expression,
+					) as ObjectProperty,
+				);
+			}
+
+			continue;
+		}
 
 		if (key === 'children') {
 			oldValueString = updateJsxTextContent({jsxElement, value});
@@ -1141,6 +1227,7 @@ const updateSequencePropsNode = ({
 	}
 
 	return {
+		transitionDuration,
 		oldValueStrings,
 		logLine,
 		removedProps,
@@ -1184,6 +1271,8 @@ export const updateSequencePropsAst = ({
 	});
 
 	const {oldValueStrings, logLine, removedProps} = updateSequencePropsNode({
+		ast,
+		nodePath,
 		jsxElement,
 		updates,
 		schema,
@@ -1346,7 +1435,7 @@ export const updateMultipleSequenceProps = ({
 				);
 			}
 
-			return {jsxElement, updates, schema, videoConfigValues};
+			return {nodePath, jsxElement, updates, schema, videoConfigValues};
 		},
 	);
 	const elementsWithChildrenUpdates = new Set(
@@ -1411,11 +1500,13 @@ export const updateMultipleSequenceProps = ({
 	});
 	const allUpdates: SequencePropUpdate[] = [];
 	const updateResults = resolvedChanges.map(
-		({jsxElement, updates, schema, videoConfigValues}) => {
+		({nodePath, jsxElement, updates, schema, videoConfigValues}) => {
 			allUpdates.push(...updates);
 			return {
 				jsxElement,
 				result: updateSequencePropsNode({
+					ast,
+					nodePath,
 					jsxElement,
 					updates,
 					schema,
@@ -1453,14 +1544,22 @@ export const updateMultipleSequenceProps = ({
 		});
 	}
 
-	const results = updateResults.map(({jsxElement, result}) => {
-		const newNodePath = updatedNodePaths.get(jsxElement.openingElement);
-		if (!newNodePath) {
-			throw new Error('Could not determine the updated JSX element path');
-		}
+	const literalEdits = new Map<JSXOpeningElement, NumericLiteral>();
+	const onlyDurations = allUpdates.every(
+		(update) => update.key === 'durationInFrames' && !update.retimeKeyframes,
+	);
+	const results = updateResults.map(
+		({jsxElement, result: {transitionDuration, ...result}}) => {
+			if (onlyDurations && transitionDuration)
+				literalEdits.set(jsxElement.openingElement, transitionDuration);
+			const newNodePath = updatedNodePaths.get(jsxElement.openingElement);
+			if (!newNodePath) {
+				throw new Error('Could not determine the updated JSX element path');
+			}
 
-		return {...result, newNodePath: [...newNodePath]};
-	});
+			return {...result, newNodePath: [...newNodePath]};
+		},
+	);
 	const {coveredRanges, edits: functionEdits} =
 		getFunctionSourceEditsForPrependedStatements({
 			indentationUnit: getIndentationUnit(input, prettierConfig),
@@ -1486,6 +1585,16 @@ export const updateMultipleSequenceProps = ({
 		const start = recastLocToOffset(input, location.start);
 		const end = recastLocToOffset(input, location.end);
 		if (isCoveredByFunctionEdit(start, end)) {
+			continue;
+		}
+
+		const literal = literalEdits.get(openingElement);
+		if (literal?.loc) {
+			elementEdits.push({
+				start: recastLocToOffset(input, literal.loc.start),
+				end: recastLocToOffset(input, literal.loc.end),
+				replacement: String(literal.value),
+			});
 			continue;
 		}
 

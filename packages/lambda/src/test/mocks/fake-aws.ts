@@ -15,6 +15,7 @@ import {afterAll, afterEach, beforeAll, spyOn, type Mock} from 'bun:test';
 import {createReadStream, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {speculateFunctionName} from '@remotion/lambda-client';
+import type {HeadlessBrowser} from '@remotion/renderer';
 import {openBrowser, RenderInternals} from '@remotion/renderer';
 import * as bucketExists from '../../../../lambda-client/src/bucket-exists';
 import * as callLambdaAsync from '../../../../lambda-client/src/call-lambda-async';
@@ -53,6 +54,7 @@ import {
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
 	getMockInvokeWithResponseStream,
+	pendingLambdaInvocations,
 } from './aws-clients';
 import {mockBundleSite} from './mock-bundle-site';
 import {mockCreateFunction} from './mock-create-function';
@@ -80,6 +82,29 @@ const realGenerateRenderId = lifecycle.generateRandomHashWithLifeCycleRule;
 
 const webhookCalls: InvokeWebhookParams[] = [];
 const pendingBrowserCloses: Promise<void>[] = [];
+const openBrowsers = new Set<HeadlessBrowser>();
+
+const closeBrowser = async (instance: HeadlessBrowser, silent: boolean) => {
+	try {
+		await instance.close({silent});
+	} finally {
+		openBrowsers.delete(instance);
+	}
+};
+
+const closeLeftoverBrowsers = async () => {
+	const deadline = Date.now() + 10_000;
+	while (openBrowsers.size > 0 && Date.now() < deadline) {
+		await new Promise((resolve) => {
+			setTimeout(resolve, 50);
+		});
+	}
+
+	await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
+	await waitForPromisesToFinish(
+		[...openBrowsers].map((instance) => closeBrowser(instance, true)),
+	);
+};
 
 export const getWebhookCalls = () => webhookCalls;
 export const resetWebhookCalls = () => {
@@ -239,13 +264,14 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 	// browser cache cannot be exercised here. Open a browser per invocation.
 	getBrowserInstance: async ({logLevel}) => {
 		const instance = await openBrowser('chrome', {logLevel});
+		openBrowsers.add(instance);
 		return {instance, configurationString: 'chrome'};
 	},
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
-		pendingBrowserCloses.push(launchedBrowser.instance.close({silent: false}));
+		pendingBrowserCloses.push(closeBrowser(launchedBrowser.instance, false));
 	},
 	closeBrowserInstance: async ({launchedBrowser}) => {
-		await launchedBrowser.instance.close({silent: true});
+		await closeBrowser(launchedBrowser.instance, true);
 	},
 	// Identity of the simulated Lambda function.
 	getCurrentRegionInFunction: () => 'eu-central-1',
@@ -356,10 +382,23 @@ export const useFakeAws = () => {
 	beforeAll(installFakeAws);
 	afterEach(async () => {
 		try {
-			await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
+			// A completed client stream can precede the handler's final cleanup.
+			while (pendingLambdaInvocations.length > 0) {
+				await waitForPromisesToFinish(pendingLambdaInvocations.splice(0));
+			}
+
+			while (pendingBrowserCloses.length > 0) {
+				await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
+			}
 		} finally {
 			resetFakeAws();
 		}
 	});
-	afterAll(uninstallFakeAws);
+	afterAll(async () => {
+		try {
+			await closeLeftoverBrowsers();
+		} finally {
+			uninstallFakeAws();
+		}
+	}, 20_000);
 };

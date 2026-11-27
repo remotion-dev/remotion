@@ -4,7 +4,7 @@ import React from 'react';
 export const Skill: React.FC<{readonly children: string}> = ({children}) => {
 	return (
 		<Link
-			to={`/docs/ai/skills#${children.replace(/^.*[/:]/, '')}`}
+			to={`/docs/agents/skills#${children.replace(/^.*[/:]/, '')}`}
 			style={{
 				marginLeft: '0.25em',
 				whiteSpace: 'nowrap',

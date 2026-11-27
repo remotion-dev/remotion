@@ -9,7 +9,7 @@ struct Params { shape: vec4f, color: vec4f, center: vec2f, mode: f32, padding: f
 
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let color = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
-  let centered = abs(input.uv - params.center) * 2.0;
+  let centered = abs(textureUvToElementUv(input.uv, effectGeometry.textureSize) - params.center) * 2.0;
   let distanceFromCenter = mix(max(centered.x, centered.y), length(centered), params.shape.w);
   var mask: f32;
   if (params.shape.z <= 0.0001) {

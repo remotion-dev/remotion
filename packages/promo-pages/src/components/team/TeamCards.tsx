@@ -136,7 +136,7 @@ export const TeamCardsLayout: React.FC = () => {
 				name="Jonny Burger"
 				title="Chief Hacker"
 				description="Making cool software for myself and others and getting to know all kinds of different people - that's what makes Remotion my dream job!"
-				image="/img/team/jonny.png"
+				image="/img/team/jonny.webp"
 				twitter="https://twitter.com/JNYBGR"
 				linkedin="https://ch.linkedin.com/in/jonny-burger-4115109b"
 				github="https://github.com/JonnyBurger"

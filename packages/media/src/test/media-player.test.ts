@@ -96,6 +96,8 @@ const makeAudioPlayer = (
 		getEffects: options?.getEffects ?? (() => []),
 		getEffectChainState: options?.getEffectChainState ?? (() => null),
 		maxCanvasSinkFrameSize: null,
+		pauseWhenBuffering: true,
+		catchUpOnStart: null,
 		onError,
 	});
 };
@@ -103,7 +105,7 @@ const makeAudioPlayer = (
 test('audio-only file should initialize without `audioStreamIndex` (regression for #7210)', async () => {
 	const player = makeAudioPlayer(makeSharedAudioContext());
 
-	const result = await player.initialize(0, false, 1);
+	const result = await player.initialize(0, false, 1, null);
 
 	expect(result.type).toBe('success');
 
@@ -113,7 +115,7 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 test('queued playback cannot consume a superseded seek boundary', async () => {
 	const player = makeAudioPlayer(null, null, 'video');
 	try {
-		expect((await player.initialize(0, true, 1)).type).toBe('success');
+		expect((await player.initialize(0, true, 1, 0)).type).toBe('success');
 		const manager = player.videoIteratorManager!;
 		await player.seekTo(0, {revision: 0, playing: true});
 		await player.seekTo(2, {revision: 0, playing: true});
@@ -136,7 +138,61 @@ test('queued playback cannot consume a superseded seek boundary', async () => {
 	}
 });
 
-test('uses the initial volume before audio playback is ready', async () => {
+test('restarts catch-up once when playback ticks supersede a trim change', async () => {
+	const player = makeAudioPlayer(null, null, 'video');
+	player.setPauseWhenBuffering(false);
+	player.play();
+	const {samples} = VideoSampleSink.prototype;
+	const read = vi.spyOn(VideoSampleSink.prototype, 'samples');
+
+	try {
+		expect((await player.initialize(2, true, 1, 5)).type).toBe('success');
+		const manager = player.videoIteratorManager!;
+		const iteratorsBeforeTrim = manager.getVideoIteratorsCreated();
+		const playing = {revision: 5, playing: true};
+		let tickDuringDecode: Promise<void> | null = null;
+		read.mockImplementationOnce(function (this: VideoSampleSink, ...args) {
+			tickDuringDecode = player.seekTo(2 + 2 / 30, playing);
+			return samples.apply(this, args);
+		});
+
+		await Promise.all([
+			player.setTrimRange(30, undefined, 2),
+			player.seekTo(2 + 1 / 30, playing),
+		]);
+		expect(tickDuringDecode).not.toBeNull();
+		await tickDuringDecode;
+		expect(manager.getVideoIteratorsCreated()).toBe(iteratorsBeforeTrim + 1);
+	} finally {
+		read.mockRestore();
+		await player.dispose();
+	}
+});
+
+test('restarts start-up catch-up only for an explicit seek', async () => {
+	for (const revision of [5, 6]) {
+		const player = makeAudioPlayer(null, null, 'video');
+		player.setPauseWhenBuffering(false);
+		player.play();
+		try {
+			expect((await player.initialize(4, true, 1, 5)).type).toBe('success');
+			const manager = player.videoIteratorManager!;
+			const initialIterator = manager.getVideoFrameIterator();
+
+			await player.seekTo(4 + 1 / 30, {revision, playing: true});
+			if (revision === 5) {
+				expect(manager.getVideoFrameIterator()).toBe(initialIterator);
+			} else {
+				expect(manager.getVideoFrameIterator()).not.toBe(initialIterator);
+				expect(manager.isCatchingUp()).toBe(true);
+			}
+		} finally {
+			await player.dispose();
+		}
+	}
+});
+
+test('decodes at zero gain and restarts audio after muting', async () => {
 	const sharedAudioContext = makeSharedAudioContext();
 	const mediaGainNodes: GainNode[] = [];
 	const createGain = sharedAudioContext.audioContext.createGain.bind(
@@ -152,19 +208,133 @@ test('uses the initial volume before audio playback is ready', async () => {
 	const player = makeAudioPlayer(sharedAudioContext);
 
 	try {
-		const result = await player.initialize(0, false, 0.25);
+		const result = await player.initialize(0, false, 0, null);
 
 		expect(result.type).toBe('success');
 		expect(mediaGainNodes).toHaveLength(1);
-		expect(mediaGainNodes[0].gain.value).toBe(0.25);
-
-		player.setMuted(true);
 		expect(mediaGainNodes[0].gain.value).toBe(0);
-		player.setMuted(false);
+		const manager = player.audioIteratorManager!;
+		const iterator = manager.getAudioBufferIterator()!;
+		await vi.waitFor(() =>
+			expect(manager.getTotalAudioScheduledInSeconds()).toBeGreaterThan(0),
+		);
+
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
 		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioBufferIterator()).toBe(iterator);
+
+		player.setAudioState(true, 0.25);
+		expect(mediaGainNodes[0].gain.value).toBe(0);
+		expect(iterator.isDestroyed()).toBe(true);
+		player.setAudioState(false, 0.25);
+		await player.seekTo(0, null);
+		expect(mediaGainNodes[0].gain.value).toBe(0.25);
+		expect(manager.getAudioIteratorsCreated()).toBe(2);
 	} finally {
 		createGainSpy.mockRestore();
 		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('keeps the audio iterator through a volume change to zero and back', async () => {
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext);
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		expect(created).toBeGreaterThan(0);
+
+		player.setAudioState(false, 0);
+		await player.seekTo(0, null);
+		player.setAudioState(false, 1);
+		await player.seekTo(0, null);
+
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('a muted seek skips audio without holding playback', async () => {
+	let holds = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			holds++;
+			return {unblock: () => {}};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await player.seekTo(0, null);
+		const manager = player.audioIteratorManager!;
+		const created = manager.getAudioIteratorsCreated();
+		const heldWhileAudible = holds;
+		expect(heldWhileAudible).toBeGreaterThan(0);
+
+		player.setAudioState(true, 1);
+		await player.seekTo(5, null);
+		expect(manager.getAudioIteratorsCreated()).toBe(created);
+		expect(holds).toBe(heldWhileAudible);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
+test('the startup hold follows volume while audio is still loading', async () => {
+	let activeBlocks = 0;
+	const bufferState = {
+		delayPlayback: () => {
+			activeBlocks++;
+			let unblocked = false;
+			return {
+				unblock: () => {
+					if (!unblocked) {
+						unblocked = true;
+						activeBlocks--;
+					}
+				},
+			};
+		},
+	};
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, null, 'audio', {
+		canvas: null,
+		onVideoFrameCallback: null,
+		src: '/voice-note.m4a',
+		bufferState,
+	});
+	try {
+		expect((await player.initialize(0, false, 1, null)).type).toBe('success');
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		await player.seekTo(5, null);
+		expect(activeBlocks).toBe(1);
+		player.setAudioState(false, 0);
+		expect(activeBlocks).toBe(0);
+
+		player.setAudioState(false, 1);
+		expect(activeBlocks).toBe(1);
+		await vi.waitFor(() => expect(activeBlocks).toBe(0));
+
+		player.setAudioState(false, 0);
+		player.setAudioState(false, 1);
+		expect(activeBlocks).toBe(0);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
 	}
 });
 
@@ -227,6 +397,8 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
+		pauseWhenBuffering: true,
+		catchUpOnStart: null,
 		onError: null,
 	});
 
@@ -249,7 +421,7 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 			return iterator;
 		});
 	try {
-		await player.initialize(0, false, 1);
+		await player.initialize(0, false, 1, 0);
 		await player.seekTo(0, {revision: 0, playing: true});
 
 		const seekDelayPromise = new Promise<void>((resolve) => {
@@ -282,7 +454,11 @@ test.each(['video'] as const)(
 		const player = makeAudioPlayer(null, onError);
 		const error = new TypeError('Failed to fetch');
 		const seek = vi.fn(() => Promise.reject(error));
-		player[`${tagType}IteratorManager`] = {seek, destroy: vi.fn()} as never;
+		player[`${tagType}IteratorManager`] = {
+			seek,
+			destroy: vi.fn(),
+			cancelStaleEffect: vi.fn(),
+		} as never;
 		player.play();
 
 		await player.seekTo(1, null);
@@ -305,7 +481,7 @@ test.each(['audio', 'video'] as const)(
 	async (tagType) => {
 		const onError = vi.fn();
 		const player = makeAudioPlayer(makeSharedAudioContext(), onError, tagType);
-		await player.initialize(0, false, 1);
+		await player.initialize(0, false, 1, null);
 		player.audioIteratorManager!.destroyIterator();
 		// Observe the existing buffering owner, including scheduler cleanup.
 		// eslint-disable-next-line dot-notation
@@ -355,6 +531,33 @@ test.each(['audio', 'video'] as const)(
 	},
 );
 
+test('defers a failed audio read at volume 0 until the volume rises', async () => {
+	const onError = vi.fn();
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(sharedAudioContext, onError);
+	const error = new TypeError('Failed to fetch');
+	const buffers = vi
+		.spyOn(AudioBufferSink.prototype, 'buffers')
+		.mockImplementation(
+			// eslint-disable-next-line require-yield
+			async function* () {
+				throw error;
+			},
+		);
+	try {
+		await player.initialize(0, false, 0, null);
+		await player.seekTo(1, null);
+		await vi.waitFor(() => expect(player.audioIteratorManager).toBeNull());
+		expect(onError).not.toHaveBeenCalled();
+		player.setAudioState(false, 1);
+		await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
+	} finally {
+		buffers.mockRestore();
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+	}
+});
+
 test('ignores pending seek failures after disposal and skips new seeks', async () => {
 	const onError = vi.fn();
 	const player = makeAudioPlayer(null, onError);
@@ -365,7 +568,8 @@ test('ignores pending seek failures after disposal and skips new seeks', async (
 				rejectSeek = reject;
 			}),
 	);
-	player.videoIteratorManager = {seek} as never;
+	const manager = {seek, cancelStaleEffect: vi.fn()} as never;
+	player.videoIteratorManager = manager;
 
 	const pending = player.seekTo(1, null);
 	await vi.waitFor(() => expect(seek).toHaveBeenCalledOnce());
@@ -373,7 +577,7 @@ test('ignores pending seek failures after disposal and skips new seeks', async (
 	await player.dispose();
 	rejectSeek(new TypeError('Failed to fetch'));
 	await pending;
-	player.videoIteratorManager = {seek} as never;
+	player.videoIteratorManager = manager;
 	await player.seekTo(2, null);
 
 	expect(onError).not.toHaveBeenCalled();
@@ -474,7 +678,7 @@ test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
 
 								return iterator;
 							});
-		const initialization = oldPlayer.initialize(1, true, 1);
+		const initialization = oldPlayer.initialize(1, true, 1, null);
 		let disposal: Promise<void> | null = null;
 		const picture = async () => {
 			const pixels = canvas
@@ -488,7 +692,9 @@ test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
 		try {
 			await held;
 			disposal = oldPlayer.dispose();
-			expect((await replacement.initialize(1, true, 1)).type).toBe('success');
+			expect((await replacement.initialize(1, true, 1, null)).type).toBe(
+				'success',
+			);
 			expect(
 				replacement.videoIteratorManager!.getFramesRendered(),
 			).toBeGreaterThan(0);
@@ -518,7 +724,7 @@ test('disposal clears a rendered canvas only once', async () => {
 		src: '/bigbuckbunny.mp4',
 	});
 	try {
-		expect((await player.initialize(1, true, 1)).type).toBe('success');
+		expect((await player.initialize(1, true, 1, null)).type).toBe('success');
 		const clear = vi.spyOn(canvas.getContext('2d')!, 'clearRect');
 		try {
 			await player.dispose();
@@ -552,15 +758,49 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		},
 	);
 	try {
-		expect((await player.initialize(0, true, 1)).type).toBe('success');
+		expect((await player.initialize(0, true, 1, null)).type).toBe('success');
 		expect(frames).toBeGreaterThan(0);
 		expect(errors).toHaveLength(0);
 		expect(support).not.toHaveBeenCalled();
 		expect(player.audioIteratorManager).toBeNull();
-		player.setMuted(false);
+		player.setAudioState(false, 1);
 		await vi.waitFor(() => expect(errors).toHaveLength(1));
 		expect(errors[0].message).toContain('Cannot decode audio');
-		player.setMuted(false);
+		player.setAudioState(false, 1);
+		expect(errors).toHaveLength(1);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+		support.mockRestore();
+	}
+});
+
+test('reports unsupported audio at volume 0 once the volume rises', async () => {
+	const support = vi
+		.spyOn(InputAudioTrack.prototype, 'canDecode')
+		.mockResolvedValue(false);
+	const errors: Error[] = [];
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(
+		sharedAudioContext,
+		(error) => errors.push(error),
+		'video',
+		{
+			src: '/bigbuckbunny.mp4',
+			canvas: document.createElement('canvas'),
+			onVideoFrameCallback: null,
+		},
+	);
+	try {
+		expect((await player.initialize(0, false, 0, null)).type).toBe('success');
+		expect(errors).toHaveLength(0);
+		player.setAudioState(true, 1);
+		player.setAudioState(false, 0);
+		expect(errors).toHaveLength(0);
+		player.setAudioState(false, 0.5);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('Cannot decode audio');
+		player.setAudioState(false, 1);
 		expect(errors).toHaveLength(1);
 	} finally {
 		await player.dispose();
@@ -636,7 +876,7 @@ test.each([
 				},
 			},
 		});
-		const initialization = player.initialize(0, true, 1);
+		const initialization = player.initialize(0, true, 1, null);
 		let disposal: Promise<void> | null = null;
 		try {
 			await held;
@@ -712,7 +952,7 @@ test.each([
 		});
 		const buffers = vi.spyOn(AudioBufferSink.prototype, 'buffers');
 		try {
-			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			expect((await player.initialize(0, false, 1, null)).type).toBe('success');
 			await vi.waitFor(() => expect(buffers).toHaveBeenCalled());
 			const end = buffers.mock.calls[0][1]!;
 			const sequenceEnd =
@@ -750,7 +990,7 @@ test.each(['audio', 'video'] as const)(
 			durationInFrames: 6,
 		});
 		try {
-			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			expect((await player.initialize(0, false, 1, null)).type).toBe('success');
 			await vi.waitFor(() =>
 				expect(
 					player

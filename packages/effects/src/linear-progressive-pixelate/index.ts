@@ -139,7 +139,7 @@ export const linearProgressivePixelate =
 		type: 'dev.remotion.effects.linearProgressivePixelate',
 		label: 'linearProgressivePixelate()',
 		documentationLink:
-			'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+			'https://www.remotion.dev/effects/linear-progressive-pixelate',
 		calculateKey: (params) => {
 			const r = resolve(params);
 			return `linear-progressive-pixelate-${r.start.join(':')}-${r.end.join(':')}-${r.startBlockSize}-${r.endBlockSize}`;
@@ -193,10 +193,19 @@ export const linearProgressivePixelate =
 				ProgressivePixelateState
 			>({
 				setup: setupProgressivePixelate,
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					prepareProgressivePixelate({
 						state,
+						contentRect,
 						source,
 						width,
 						height,

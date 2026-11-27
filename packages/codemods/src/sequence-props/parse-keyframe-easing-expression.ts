@@ -75,15 +75,19 @@ const getMemberExpressionKeyframeEasing = (
 
 export const parseKeyframeEasingExpression = (
 	node: Expression,
+	isEasingReference: (node: Expression) => boolean = (receiver) =>
+		receiver.type === 'Identifier' && receiver.name === 'Easing',
 ): CanUpdateSequencePropStatusEasing | null => {
 	if (node.type === 'TSAsExpression') {
-		return parseKeyframeEasingExpression(node.expression as Expression);
+		return parseKeyframeEasingExpression(
+			node.expression as Expression,
+			isEasingReference,
+		);
 	}
 
 	if (
 		node.type === 'MemberExpression' &&
-		node.object.type === 'Identifier' &&
-		node.object.name === 'Easing' &&
+		isEasingReference(node.object) &&
 		node.property.type === 'Identifier' &&
 		node.computed === false
 	) {
@@ -93,8 +97,7 @@ export const parseKeyframeEasingExpression = (
 	if (
 		node.type !== 'CallExpression' ||
 		node.callee.type !== 'MemberExpression' ||
-		node.callee.object.type !== 'Identifier' ||
-		node.callee.object.name !== 'Easing' ||
+		!isEasingReference(node.callee.object) ||
 		node.callee.property.type !== 'Identifier' ||
 		node.callee.computed
 	) {
@@ -172,7 +175,9 @@ export const parseKeyframeEasingExpression = (
 		}
 
 		const expression = getExpressionArgument(node.arguments[0]);
-		return expression ? parseKeyframeEasingExpression(expression) : null;
+		return expression
+			? parseKeyframeEasingExpression(expression, isEasingReference)
+			: null;
 	}
 
 	if (propertyName === 'out') {
@@ -182,7 +187,7 @@ export const parseKeyframeEasingExpression = (
 
 		const expression = getExpressionArgument(node.arguments[0]);
 		const easing = expression
-			? parseKeyframeEasingExpression(expression)
+			? parseKeyframeEasingExpression(expression, isEasingReference)
 			: null;
 		return easing ? getOutKeyframeEasing(easing) : null;
 	}
@@ -194,7 +199,7 @@ export const parseKeyframeEasingExpression = (
 
 		const expression = getExpressionArgument(node.arguments[0]);
 		const easing = expression
-			? parseKeyframeEasingExpression(expression)
+			? parseKeyframeEasingExpression(expression, isEasingReference)
 			: null;
 		return easing?.type === 'linear' ? easing : null;
 	}

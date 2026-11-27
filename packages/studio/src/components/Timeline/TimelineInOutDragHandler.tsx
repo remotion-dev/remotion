@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
@@ -19,7 +18,7 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {defaultInOutValue} from '../TimelineInOutToggle';
 import {scrollableRef} from './timeline-refs';
-import {getFrameFromX, getTimelineContentWidth} from './timeline-scroll-logic';
+import {getFrameFromX} from './timeline-scroll-logic';
 import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	TimelineInOutPointerHandle,
@@ -45,10 +44,6 @@ export const TimelineInOutDragHandler: React.FC = () => {
 
 const TimelineInOutDragHandlerInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-	const size = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
 	const {isHighestContext} = useZIndex();
 
 	const [inOutDragging, setInOutDragging] = useState<
@@ -83,9 +78,6 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		},
 		[timelineWidth, videoConfig.durationInFrames],
 	);
-
-	const width = getTimelineContentWidth();
-	const left = size?.left ?? 0;
 
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
@@ -171,7 +163,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 
 	const onPointerMoveInOut = useCallback(
 		(e: PointerEvent) => {
-			if (!videoConfig) {
+			if (!videoConfig || timelineWidth === null) {
 				return;
 			}
 
@@ -225,10 +217,10 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				outMarkerAreaRef.current.style.left =
 					String(get(outFrame) + offset) + 'px';
 				outMarkerAreaRef.current.style.width =
-					String(width - get(outFrame) - offset) + 'px';
+					String(timelineWidth - get(outFrame) - offset) + 'px';
 			}
 		},
-		[get, inFrame, inOutDragging, outFrame, videoConfig, width],
+		[get, inFrame, inOutDragging, outFrame, timelineWidth, videoConfig],
 	);
 
 	const onPointerUpInOut = useCallback(
@@ -249,10 +241,15 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				dragging: false,
 			});
 
+			if (timelineWidth === null) {
+				return;
+			}
+
+			const left = scrollableRef.current?.getBoundingClientRect().left ?? 0;
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
 				durationInFrames: videoConfig.durationInFrames,
-				width,
+				width: timelineWidth,
 				extrapolate: 'extend',
 			});
 			if (inOutDragging.dragging === 'in') {
@@ -298,11 +295,10 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		[
 			inFrame,
 			inOutDragging.dragging,
-			left,
 			outFrame,
 			setInAndOutFrames,
+			timelineWidth,
 			videoConfig,
-			width,
 		],
 	);
 

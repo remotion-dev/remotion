@@ -1,3 +1,5 @@
+import {SAMPLE_LONGITUDE_WGSL} from '../webgpu-projection-runtime.js';
+
 export const CYLINDER_SHADER = /* wgsl */ `
 struct Params {
   resolution: vec2f,
@@ -7,6 +9,7 @@ struct Params {
   shading: f32,
   faces: f32,
   rotation: vec4f,
+  contentRect: vec4f,
 }
 @group(0) @binding(0) var source: texture_2d<f32>;
 @group(0) @binding(1) var sourceSampler: sampler;
@@ -17,11 +20,13 @@ struct Params {
   return vec4f(positions[index], 0, 1);
 }
 
+${SAMPLE_LONGITUDE_WGSL}
 fn sampleFace(point: vec3f, inverse: mat3x3f, rotation: mat3x3f) -> vec4f {
   let local = inverse * point;
-  let uv = vec2f(fract((atan2(local.x, local.z) + params.spin) / 6.28318530718 + 0.5), local.y / params.resolution.y + 0.5);
-  let color = textureSampleLevel(source, sourceSampler, uv, 0);
-  if (uv.y < 0 || uv.y > 1) { return vec4f(0); }
+  let uv = vec2f(fract((atan2(local.x, local.z) + params.spin) / 6.28318530718 + 0.5), local.y / params.contentRect.w + 0.5);
+  let color = sampleLongitude(uv);
+  let textureY = params.contentRect.y + uv.y * params.contentRect.w;
+  if (textureY < 0 || textureY > params.resolution.y) { return vec4f(0); }
   let normal = rotation * vec3f(local.x / params.radius, 0, local.z / params.radius);
   let shade = mix(1.0, abs(normal.z), params.shading);
   return vec4f(color.rgb * shade, color.a);

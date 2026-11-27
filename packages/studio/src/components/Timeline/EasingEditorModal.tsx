@@ -16,7 +16,6 @@ import {Easing, Internals} from 'remotion';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	BACKGROUND,
 	BLACK_ALPHA_60,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -78,7 +77,7 @@ const DEFAULT_EASING_GRAPH_LABELS: EasingGraphLabels = {
 	end: '1',
 };
 const EASING_GRAPH_GUIDE_COLOR = WHITE_ALPHA_12;
-const EASING_GRAPH_LABEL_FONT_SIZE = 13;
+const EASING_GRAPH_LABEL_FONT_SIZE = 15;
 const EASING_GRAPH_LABEL_HEIGHT = 20;
 const EASING_GRAPH_LABEL_HORIZONTAL_PADDING = 4;
 const EASING_GRAPH_LABEL_MAX_WIDTH = PLOT_WIDTH / 2;
@@ -203,17 +202,20 @@ const numberInputStyle: React.CSSProperties = {
 };
 
 const graphWrapperStyle: React.CSSProperties = {
-	margin: `12px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
+	marginTop: 12,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const graphPlotStyle: React.CSSProperties = {
 	position: 'relative',
 };
 
 const svgStyle: React.CSSProperties = {
 	aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
-	backgroundColor: 'rgba(21, 21, 25, 0.32)',
-	border: '1px solid #45454b',
 	display: 'block',
 	height: 'auto',
 	overflow: 'visible',
+	padding: 1,
 	width: '100%',
 };
 
@@ -361,7 +363,7 @@ const springFormatters: Record<
 	stiffness: formatNumberWithDecimalPlaces(SPRING_DECIMAL_PLACES.stiffness),
 };
 
-const areEasingsEqual = (
+export const areEasingsEqual = (
 	first: TimelineEasingValue,
 	second: TimelineEasingValue,
 ) => {
@@ -499,30 +501,6 @@ const presetPreviewYToSvg = (value: number) =>
 		(PRESET_PREVIEW_Y_MAX - PRESET_PREVIEW_Y_MIN)) *
 		(PRESET_PREVIEW_HEIGHT - PRESET_PREVIEW_PADDING * 2);
 
-const getEasingFunction = (easing: TimelineEasingValue) => {
-	switch (easing.type) {
-		case 'linear':
-			return Easing.linear;
-		case 'step1':
-			return Easing.step1;
-		case 'bezier':
-			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
-		case 'spring':
-			return Easing.spring({
-				allowTail: easing.allowTail ?? undefined,
-				damping: easing.damping,
-				durationRestThreshold: easing.durationRestThreshold ?? undefined,
-				mass: easing.mass,
-				overshootClamping: easing.overshootClamping,
-				stiffness: easing.stiffness,
-			});
-		default:
-			throw new Error(
-				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
-			);
-	}
-};
-
 const getPresetPreviewPath = (easing: TimelineEasingValue) => {
 	if (easing.type === 'step1') {
 		const startX = presetPreviewXToSvg(0);
@@ -532,7 +510,10 @@ const getPresetPreviewPath = (easing: TimelineEasingValue) => {
 		return `M ${startX} ${startY} L ${endX} ${startY} L ${endX} ${endY}`;
 	}
 
-	const easingFunction = getEasingFunction(easing);
+	const easingFunction = Internals.easingToFn({
+		easing,
+		forceSpringAllowTail: null,
+	});
 	const samples = 36;
 	const points: string[] = [];
 
@@ -599,7 +580,8 @@ const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 
 const getEasingGraphLabelWidth = (label: string) => {
 	return clamp(
-		label.length * 7.8 + EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
+		label.length * EASING_GRAPH_LABEL_FONT_SIZE * 0.6 +
+			EASING_GRAPH_LABEL_HORIZONTAL_PADDING * 2,
 		24,
 		EASING_GRAPH_LABEL_MAX_WIDTH,
 	);
@@ -609,7 +591,7 @@ const getEasingGraphLabelStyle = (
 	textAlign: 'left' | 'right',
 ): React.CSSProperties => ({
 	alignItems: 'center',
-	backgroundColor: BACKGROUND,
+	backgroundColor: TRANSPARENT,
 	color: LIGHT_TEXT,
 	display: 'flex',
 	fontSize: EASING_GRAPH_LABEL_FONT_SIZE,
@@ -625,6 +607,18 @@ const getEasingGraphLabelStyle = (
 	whiteSpace: 'nowrap',
 });
 
+const EasingGraphContainer: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => (
+	<div
+		className="__remotion-easing-graph"
+		style={graphWrapperStyle}
+		{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
+	>
+		<div style={graphPlotStyle}>{children}</div>
+	</div>
+);
+
 const EasingGraphScaffold: React.FC<{
 	readonly labels: EasingGraphLabels;
 }> = ({labels}) => {
@@ -632,19 +626,25 @@ const EasingGraphScaffold: React.FC<{
 	const yOne = yToSvg(1);
 	const bottomLabelWidth = getEasingGraphLabelWidth(labels.start);
 	const topLabelWidth = getEasingGraphLabelWidth(labels.end);
+	const topLabelX = PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING;
+	const bottomLabelX =
+		PLOT_LEFT +
+		PLOT_WIDTH -
+		bottomLabelWidth +
+		EASING_GRAPH_LABEL_HORIZONTAL_PADDING;
 
 	return (
 		<>
 			<line
 				x1={PLOT_LEFT}
 				y1={yZero}
-				x2={PLOT_LEFT + PLOT_WIDTH}
+				x2={bottomLabelX}
 				y2={yZero}
 				stroke={EASING_GRAPH_GUIDE_COLOR}
 				strokeWidth={1}
 			/>
 			<line
-				x1={PLOT_LEFT}
+				x1={topLabelX + topLabelWidth}
 				y1={yOne}
 				x2={PLOT_LEFT + PLOT_WIDTH}
 				y2={yOne}
@@ -652,7 +652,7 @@ const EasingGraphScaffold: React.FC<{
 				strokeWidth={1}
 			/>
 			<foreignObject
-				x={PLOT_LEFT - EASING_GRAPH_LABEL_HORIZONTAL_PADDING}
+				x={topLabelX}
 				y={yOne - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
@@ -666,12 +666,7 @@ const EasingGraphScaffold: React.FC<{
 				</div>
 			</foreignObject>
 			<foreignObject
-				x={
-					PLOT_LEFT +
-					PLOT_WIDTH -
-					bottomLabelWidth +
-					EASING_GRAPH_LABEL_HORIZONTAL_PADDING
-				}
+				x={bottomLabelX}
 				y={yZero - EASING_GRAPH_LABEL_HEIGHT / 2}
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
@@ -738,47 +733,34 @@ export type EasingEditorState = {
 	selections: TimelineSelection[];
 };
 
-const EasingEditorUnmemoized: React.FC<{
-	readonly state: EasingEditorState;
-	readonly easingUpdate: SelectedEasingUpdate;
-	readonly renderHeader?: (
-		modeItems: SegmentedControlItem[],
-	) => React.ReactNode;
-}> = ({state, easingUpdate, renderHeader}) => {
-	const calculateTimeline = useTimelineCalculator();
+export const EasingCurveEditor: React.FC<{
+	readonly initialEasing: TimelineEasingValue;
+	readonly graphLabels: EasingGraphLabels | null;
+	readonly renderHeader:
+		| ((items: SegmentedControlItem[]) => React.ReactNode)
+		| null;
+	readonly applyLiveEasing: (easing: TimelineEasingValue) => void;
+	readonly commitEasing: (easing: TimelineEasingValue) => void;
+	readonly cancelPreview: () => void;
+}> = ({
+	initialEasing,
+	graphLabels,
+	renderHeader,
+	applyLiveEasing,
+	commitEasing,
+	cancelPreview,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const propStatusesRef = useContext(
-		Internals.VisualModePropStatusesRefContext,
-	);
-	const {
-		setDragOverrides,
-		clearDragOverrides,
-		setEffectDragOverrides,
-		clearEffectDragOverrides,
-		setPropStatuses,
-	} = useContext(Internals.VisualModeSettersContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
 	const svgRef = useRef<SVGSVGElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedHandle, setSelectedHandle] = useState<HandleIndex | null>(
 		null,
 	);
-	const [mode, setModeState] = useState(() =>
-		easingToMode(state.initialEasing),
-	);
-	const [bezier, setBezier] = useState(() =>
-		easingToBezier(state.initialEasing),
-	);
-	const [spring, setSpring] = useState(() =>
-		easingToSpring(state.initialEasing),
-	);
+	const [mode, setModeState] = useState(() => easingToMode(initialEasing));
+	const [bezier, setBezier] = useState(() => easingToBezier(initialEasing));
+	const [spring, setSpring] = useState(() => easingToSpring(initialEasing));
 	const bezierRef = useRef(bezier);
 	const springRef = useRef(spring);
-	const liveOverrideVersionRef = useRef(0);
-	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
 	const stopPointerSession = useRef<(() => void) | null>(null);
 
 	const setMode = useCallback((nextMode: EditorMode) => {
@@ -789,162 +771,14 @@ const EasingEditorUnmemoized: React.FC<{
 	}, []);
 
 	useEffect(() => {
-		const nextBezier = easingToBezier(state.initialEasing);
-		const nextSpring = easingToSpring(state.initialEasing);
+		const nextBezier = easingToBezier(initialEasing);
+		const nextSpring = easingToSpring(initialEasing);
 		bezierRef.current = nextBezier;
 		springRef.current = nextSpring;
-		setMode(easingToMode(state.initialEasing));
+		setMode(easingToMode(initialEasing));
 		setBezier(nextBezier);
 		setSpring(nextSpring);
-	}, [setMode, state.initialEasing]);
-
-	const getCurrentEasingUpdates = useCallback(() => {
-		return getSelectedEasingUpdates({
-			selections: state.selections,
-			tracks: calculateTimeline({
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			}).tracks,
-			propStatuses: propStatusesRef.current,
-		});
-	}, [
-		calculateTimeline,
-		overrideIdToNodePathMappings,
-		propStatusesRef,
-		sequencesRef,
-		state.selections,
-	]);
-
-	const clearEasingDragOverrides = useCallback(
-		(updates: readonly SelectedEasingUpdate[]) => {
-			const sequenceTargets = new Set<string>();
-			const effectTargets = new Set<string>();
-
-			for (const update of updates) {
-				const key = Internals.makeSequencePropsSubscriptionKey(update.nodePath);
-				if (update.type === 'sequence') {
-					if (!sequenceTargets.has(key)) {
-						sequenceTargets.add(key);
-						clearDragOverrides(update.nodePath);
-					}
-
-					continue;
-				}
-
-				const effectKey = `${key}.${update.effectIndex}`;
-				if (!effectTargets.has(effectKey)) {
-					effectTargets.add(effectKey);
-					clearEffectDragOverrides(update.nodePath, update.effectIndex);
-				}
-			}
-		},
-		[clearDragOverrides, clearEffectDragOverrides],
-	);
-
-	const applyLiveEasing = useCallback(
-		(easing: TimelineEasingValue) => {
-			const updates = getCurrentEasingUpdates();
-			liveOverrideVersionRef.current++;
-			const version = liveOverrideVersionRef.current;
-			const nextTargetKeys = new Set(updates.map(getEasingUpdateTargetKey));
-			const staleTargets = pendingOverrideTargetsRef.current.filter(
-				(update) => !nextTargetKeys.has(getEasingUpdateTargetKey(update)),
-			);
-
-			clearEasingDragOverrides(staleTargets);
-			pendingOverrideTargetsRef.current = updates;
-
-			for (const update of updates) {
-				const dragOverrideValue = makeEasingDragOverride({update, easing});
-				if (dragOverrideValue === null) {
-					continue;
-				}
-
-				if (update.type === 'sequence') {
-					setDragOverrides(update.nodePath, update.fieldKey, dragOverrideValue);
-				} else {
-					setEffectDragOverrides(
-						update.nodePath,
-						update.effectIndex,
-						update.fieldKey,
-						dragOverrideValue,
-					);
-				}
-			}
-
-			return version;
-		},
-		[
-			clearEasingDragOverrides,
-			getCurrentEasingUpdates,
-			setDragOverrides,
-			setEffectDragOverrides,
-		],
-	);
-
-	const clearPendingEasingDragOverrides = useCallback(
-		(version: number) => {
-			if (version !== liveOverrideVersionRef.current) {
-				return;
-			}
-
-			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
-			pendingOverrideTargetsRef.current = [];
-		},
-		[clearEasingDragOverrides],
-	);
-
-	const commitEasing = useCallback(
-		(easing: TimelineEasingValue, version: number) => {
-			const updates = getCurrentEasingUpdates();
-			const hasChange = updates.some(
-				(update) => !areEasingsEqual(update.currentEasing, easing),
-			);
-
-			if (
-				previewServerState.type !== 'connected' ||
-				updates.length === 0 ||
-				!hasChange
-			) {
-				clearPendingEasingDragOverrides(version);
-				return;
-			}
-
-			const promise = updateSelectedTimelineEasings({
-				selections: state.selections,
-				tracks: calculateTimeline({
-					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				}).tracks,
-				propStatuses: propStatusesRef.current,
-				setPropStatuses,
-				clientId: previewServerState.clientId,
-				easing,
-			});
-
-			if (promise === null) {
-				clearPendingEasingDragOverrides(version);
-				return;
-			}
-
-			promise
-				.catch(() => undefined)
-				.finally(() => {
-					clearPendingEasingDragOverrides(version);
-				});
-		},
-		[
-			calculateTimeline,
-			clearPendingEasingDragOverrides,
-			getCurrentEasingUpdates,
-			overrideIdToNodePathMappings,
-			previewServerState,
-			propStatusesRef,
-			sequencesRef,
-			setPropStatuses,
-			state.selections,
-		],
-	);
+	}, [setMode, initialEasing]);
 
 	const setBezierAndPreview = useCallback(
 		(nextBezier: CubicBezierTuple) => {
@@ -984,10 +818,10 @@ const EasingEditorUnmemoized: React.FC<{
 						: 3;
 			next[index] =
 				coordinate === 'x' ? clamp(value, 0, 1) : clamp(value, Y_MIN, Y_MAX);
-			const version = setBezierAndPreview(next);
+			setBezierAndPreview(next);
 
 			if (commit) {
-				commitEasing(serializeBezier(next), version);
+				commitEasing(serializeBezier(next));
 			}
 		},
 		[commitEasing, setBezierAndPreview],
@@ -999,10 +833,10 @@ const EasingEditorUnmemoized: React.FC<{
 				...springRef.current,
 				[key]: sanitizeSpringValue(value, key, SPRING_FALLBACKS[key]),
 			};
-			const version = setSpringAndPreview(next);
+			setSpringAndPreview(next);
 
 			if (commit) {
-				commitEasing(serializeSpring(next), version);
+				commitEasing(serializeSpring(next));
 			}
 		},
 		[commitEasing, setSpringAndPreview],
@@ -1013,8 +847,8 @@ const EasingEditorUnmemoized: React.FC<{
 			...springRef.current,
 			overshootClamping: !springRef.current.overshootClamping,
 		};
-		const version = setSpringAndPreview(next);
-		commitEasing(serializeSpring(next), version);
+		setSpringAndPreview(next);
+		commitEasing(serializeSpring(next));
 	}, [commitEasing, setSpringAndPreview]);
 
 	const setAllowTail = useCallback(() => {
@@ -1022,8 +856,8 @@ const EasingEditorUnmemoized: React.FC<{
 			...springRef.current,
 			allowTail: !(springRef.current.allowTail ?? false),
 		};
-		const version = setSpringAndPreview(next);
-		commitEasing(serializeSpring(next), version);
+		setSpringAndPreview(next);
+		commitEasing(serializeSpring(next));
 	}, [commitEasing, setSpringAndPreview]);
 
 	const switchMode = useCallback(
@@ -1039,8 +873,8 @@ const EasingEditorUnmemoized: React.FC<{
 					: nextMode === 'hold'
 						? HOLD_KEYFRAME_EASING
 						: serializeBezier(bezierRef.current);
-			const version = applyLiveEasing(easing);
-			commitEasing(easing, version);
+			applyLiveEasing(easing);
+			commitEasing(easing);
 		},
 		[applyLiveEasing, commitEasing, mode, previewServerState.type, setMode],
 	);
@@ -1054,22 +888,22 @@ const EasingEditorUnmemoized: React.FC<{
 			if (isSpringEasing(easing)) {
 				const nextSpring = sanitizeSpring(easing);
 				setMode('spring');
-				const springVersion = setSpringAndPreview(nextSpring);
-				commitEasing(serializeSpring(nextSpring), springVersion);
+				setSpringAndPreview(nextSpring);
+				commitEasing(serializeSpring(nextSpring));
 				return;
 			}
 
 			if (easing.type === 'step1') {
 				setMode('hold');
-				const holdVersion = applyLiveEasing(HOLD_KEYFRAME_EASING);
-				commitEasing(HOLD_KEYFRAME_EASING, holdVersion);
+				applyLiveEasing(HOLD_KEYFRAME_EASING);
+				commitEasing(HOLD_KEYFRAME_EASING);
 				return;
 			}
 
 			const nextBezier = easingToBezier(easing);
 			setMode('bezier');
-			const bezierVersion = setBezierAndPreview(nextBezier);
-			commitEasing(serializeBezier(nextBezier), bezierVersion);
+			setBezierAndPreview(nextBezier);
+			commitEasing(serializeBezier(nextBezier));
 		},
 		[
 			applyLiveEasing,
@@ -1146,14 +980,10 @@ const EasingEditorUnmemoized: React.FC<{
 				onEnd: (reason, endEvent) => {
 					stopPointerSession.current = null;
 					if (isPointerSessionRelease(reason, endEvent)) {
-						commitEasing(
-							serializeBezier(bezierRef.current),
-							liveOverrideVersionRef.current,
-						);
+						commitEasing(serializeBezier(bezierRef.current));
 					} else {
 						setSelectedHandle(null);
-						clearEasingDragOverrides(pendingOverrideTargetsRef.current);
-						pendingOverrideTargetsRef.current = [];
+						cancelPreview();
 						bezierRef.current = bezierBeforeDrag;
 						setBezier(bezierBeforeDrag);
 					}
@@ -1161,7 +991,7 @@ const EasingEditorUnmemoized: React.FC<{
 			});
 		},
 		[
-			clearEasingDragOverrides,
+			cancelPreview,
 			commitEasing,
 			previewServerState.type,
 			updateHandleFromPointer,
@@ -1171,10 +1001,9 @@ const EasingEditorUnmemoized: React.FC<{
 	useEffect(() => {
 		return () => {
 			stopPointerSession.current?.();
-			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
-			pendingOverrideTargetsRef.current = [];
+			cancelPreview();
 		};
-	}, [clearEasingDragOverrides]);
+	}, [cancelPreview]);
 
 	useEffect(() => {
 		if (selectedHandle === null) {
@@ -1245,7 +1074,6 @@ const EasingEditorUnmemoized: React.FC<{
 	);
 
 	const disabled = previewServerState.type !== 'connected';
-	const graphLabels = getEasingGraphLabels([easingUpdate]);
 	const currentEasing = useMemo(() => {
 		if (mode === 'spring') {
 			return serializeSpring(spring);
@@ -1257,7 +1085,7 @@ const EasingEditorUnmemoized: React.FC<{
 		return [
 			{
 				key: 'bezier',
-				label: 'Bezier',
+				label: 'Bézier',
 				onClick: () => switchMode('bezier'),
 				selected: mode === 'bezier',
 			},
@@ -1314,19 +1142,18 @@ const EasingEditorUnmemoized: React.FC<{
 			</div>
 			{mode === 'bezier' ? (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							ref={svgRef}
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
 							viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
 							style={svgStyle}
-							aria-label="Bezier curve editor"
+							aria-label="Bézier curve editor"
 						>
-							<EasingGraphScaffold labels={graphLabels} />
+							<EasingGraphScaffold
+								labels={graphLabels ?? DEFAULT_EASING_GRAPH_LABELS}
+							/>
 							<line
 								x1={startPoint.x}
 								y1={startPoint.y}
@@ -1346,7 +1173,7 @@ const EasingEditorUnmemoized: React.FC<{
 							<path
 								d={bezierPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
@@ -1359,7 +1186,7 @@ const EasingEditorUnmemoized: React.FC<{
 									width={18}
 									height={18}
 									viewBox="0 0 18 18"
-									aria-label={`Bezier control point ${handle + 1}`}
+									aria-label={`Bézier control point ${handle + 1}`}
 									data-easing-handle
 									style={{
 										position: 'absolute',
@@ -1382,7 +1209,7 @@ const EasingEditorUnmemoized: React.FC<{
 								</svg>
 							);
 						})}
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1485,10 +1312,7 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : mode === 'spring' ? (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1496,16 +1320,18 @@ const EasingEditorUnmemoized: React.FC<{
 							style={svgStyle}
 							aria-label="Spring easing curve"
 						>
-							<EasingGraphScaffold labels={graphLabels} />
+							<EasingGraphScaffold
+								labels={graphLabels ?? DEFAULT_EASING_GRAPH_LABELS}
+							/>
 							<path
 								d={springPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
 						</svg>
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 					<div style={coordinatesGrid}>
 						<div style={coordinateRow}>
@@ -1649,10 +1475,7 @@ const EasingEditorUnmemoized: React.FC<{
 				</>
 			) : (
 				<>
-					<div
-						style={graphWrapperStyle}
-						{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
-					>
+					<EasingGraphContainer>
 						<svg
 							width={SVG_WIDTH}
 							height={SVG_HEIGHT}
@@ -1660,20 +1483,209 @@ const EasingEditorUnmemoized: React.FC<{
 							style={svgStyle}
 							aria-label="Hold easing curve"
 						>
-							<EasingGraphScaffold labels={graphLabels} />
+							<EasingGraphScaffold
+								labels={graphLabels ?? DEFAULT_EASING_GRAPH_LABELS}
+							/>
 							<path
 								d={holdPath}
 								fill="none"
-								stroke={WHITE}
+								stroke={LIGHT_TEXT}
 								strokeWidth={2}
 								vectorEffect="non-scaling-stroke"
 							/>
 						</svg>
-					</div>
+					</EasingGraphContainer>
 					{modeSwitcher}
 				</>
 			)}
 		</div>
+	);
+};
+
+const EasingEditorUnmemoized: React.FC<{
+	readonly state: EasingEditorState;
+	readonly easingUpdate: SelectedEasingUpdate;
+	readonly renderHeader?: (
+		modeItems: SegmentedControlItem[],
+	) => React.ReactNode;
+}> = ({state, easingUpdate, renderHeader}) => {
+	const calculateTimeline = useTimelineCalculator();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {
+		setDragOverrides,
+		clearDragOverrides,
+		setEffectDragOverrides,
+		clearEffectDragOverrides,
+		setPropStatuses,
+	} = useContext(Internals.VisualModeSettersContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const liveOverrideVersionRef = useRef(0);
+	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
+	const getCurrentEasingUpdates = useCallback(() => {
+		return getSelectedEasingUpdates({
+			selections: state.selections,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			}).tracks,
+			propStatuses: propStatusesRef.current,
+		});
+	}, [
+		calculateTimeline,
+		overrideIdToNodePathMappings,
+		propStatusesRef,
+		sequencesRef,
+		state.selections,
+	]);
+
+	const clearEasingDragOverrides = useCallback(
+		(updates: readonly SelectedEasingUpdate[]) => {
+			const sequenceTargets = new Set<string>();
+			const effectTargets = new Set<string>();
+
+			for (const update of updates) {
+				const key = Internals.makeSequencePropsSubscriptionKey(update.nodePath);
+				if (update.type === 'sequence') {
+					if (!sequenceTargets.has(key)) {
+						sequenceTargets.add(key);
+						clearDragOverrides(update.nodePath);
+					}
+
+					continue;
+				}
+
+				const effectKey = `${key}.${update.effectIndex}`;
+				if (!effectTargets.has(effectKey)) {
+					effectTargets.add(effectKey);
+					clearEffectDragOverrides(update.nodePath, update.effectIndex);
+				}
+			}
+		},
+		[clearDragOverrides, clearEffectDragOverrides],
+	);
+
+	const applyLiveEasing = useCallback(
+		(easing: TimelineEasingValue) => {
+			const updates = getCurrentEasingUpdates();
+			liveOverrideVersionRef.current++;
+			const nextTargetKeys = new Set(updates.map(getEasingUpdateTargetKey));
+			const staleTargets = pendingOverrideTargetsRef.current.filter(
+				(update) => !nextTargetKeys.has(getEasingUpdateTargetKey(update)),
+			);
+
+			clearEasingDragOverrides(staleTargets);
+			pendingOverrideTargetsRef.current = updates;
+
+			for (const update of updates) {
+				const dragOverrideValue = makeEasingDragOverride({update, easing});
+				if (dragOverrideValue === null) {
+					continue;
+				}
+
+				if (update.type === 'sequence') {
+					setDragOverrides(update.nodePath, update.fieldKey, dragOverrideValue);
+				} else {
+					setEffectDragOverrides(
+						update.nodePath,
+						update.effectIndex,
+						update.fieldKey,
+						dragOverrideValue,
+					);
+				}
+			}
+		},
+		[
+			clearEasingDragOverrides,
+			getCurrentEasingUpdates,
+			setDragOverrides,
+			setEffectDragOverrides,
+		],
+	);
+
+	const clearPendingEasingDragOverrides = useCallback(
+		(version: number) => {
+			if (version !== liveOverrideVersionRef.current) {
+				return;
+			}
+
+			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
+			pendingOverrideTargetsRef.current = [];
+		},
+		[clearEasingDragOverrides],
+	);
+
+	const commitEasing = useCallback(
+		(easing: TimelineEasingValue) => {
+			const version = liveOverrideVersionRef.current;
+			const updates = getCurrentEasingUpdates();
+			const hasChange = updates.some(
+				(update) => !areEasingsEqual(update.currentEasing, easing),
+			);
+
+			if (
+				previewServerState.type !== 'connected' ||
+				updates.length === 0 ||
+				!hasChange
+			) {
+				clearPendingEasingDragOverrides(version);
+				return;
+			}
+
+			const promise = updateSelectedTimelineEasings({
+				selections: state.selections,
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}).tracks,
+				propStatuses: propStatusesRef.current,
+				setPropStatuses,
+				clientId: previewServerState.clientId,
+				easing,
+			});
+
+			if (promise === null) {
+				clearPendingEasingDragOverrides(version);
+				return;
+			}
+
+			promise
+				.catch(() => undefined)
+				.finally(() => {
+					clearPendingEasingDragOverrides(version);
+				});
+		},
+		[
+			calculateTimeline,
+			clearPendingEasingDragOverrides,
+			getCurrentEasingUpdates,
+			overrideIdToNodePathMappings,
+			previewServerState,
+			propStatusesRef,
+			sequencesRef,
+			setPropStatuses,
+			state.selections,
+		],
+	);
+
+	const cancelPreview = useCallback(() => {
+		clearPendingEasingDragOverrides(liveOverrideVersionRef.current);
+	}, [clearPendingEasingDragOverrides]);
+
+	return (
+		<EasingCurveEditor
+			initialEasing={state.initialEasing}
+			graphLabels={getEasingGraphLabels([easingUpdate])}
+			renderHeader={renderHeader ?? null}
+			applyLiveEasing={applyLiveEasing}
+			commitEasing={commitEasing}
+			cancelPreview={cancelPreview}
+		/>
 	);
 };
 

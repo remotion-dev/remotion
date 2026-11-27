@@ -29,10 +29,12 @@ test('setTrimRange should atomically update trims when paused', async () => {
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
+		pauseWhenBuffering: true,
+		catchUpOnStart: null,
 		onError: null,
 	});
 
-	await player.initialize(0, false, 1);
+	await player.initialize(0, false, 1, null);
 
 	const initialFrames = player.videoIteratorManager!.getFramesRendered();
 	await player.setTrimRange(30, 90, 0);

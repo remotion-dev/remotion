@@ -44,7 +44,7 @@ fn alphaGradient(uv: vec2f) -> vec2f {
 }
 fn edgeNoise(uv: vec2f,salt: f32) -> f32 {
   var patternUV=uv-vec2f(0.5);
-  patternUV *= vec2f(params.size.x/max(params.size.y,1.0),1.0);
+  patternUV *= vec2f(effectGeometry.contentRect.z/max(effectGeometry.contentRect.w,1.0),1.0);
   patternUV *= 7.0/max(params.scale,0.001);
   patternUV += 64.0*seedOffset(salt);
   return fbm(patternUV);
@@ -56,11 +56,12 @@ fn edgeNoise(uv: vec2f,salt: f32) -> f32 {
   let proximity=edgeProximity(uv,color.a);
   if(proximity<=0.001) { return color; }
   let gradient=alphaGradient(uv);
-  let noiseVector=vec2f(edgeNoise(uv+vec2f(0.17,0),2.0),edgeNoise(uv+vec2f(0,0.31),3.0))*2.0-vec2f(1.0);
+  let elementUv=textureUvToElementUvBottomLeft(uv,params.size);
+  let noiseVector=vec2f(edgeNoise(elementUv+vec2f(0.17,0),2.0),edgeNoise(elementUv+vec2f(0,0.31),3.0))*2.0-vec2f(1.0);
   var direction=gradient+0.7*noiseVector;
   if(length(direction)<=0.0001) { direction=select(noiseVector,vec2f(1,0),length(noiseVector)<=0.0001); }
   direction=normalize(direction);
-  let scalar=edgeNoise(uv,4.0)*2.0-1.0;
+  let scalar=edgeNoise(elementUv,4.0)*2.0-1.0;
   let offset=direction*scalar*params.border/params.size;
   return mix(color,sampleSource(uv+offset),clamp(proximity*params.amount,0.0,1.0));
 }

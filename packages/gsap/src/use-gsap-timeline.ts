@@ -1,8 +1,12 @@
 /// <reference types="gsap" />
 import {gsap} from 'gsap';
-import {type DependencyList, useLayoutEffect, useRef, useState} from 'react';
+import {type DependencyList, useLayoutEffect, useReducer, useRef} from 'react';
 import {Internals, useCurrentFrame, useVideoConfig} from 'remotion';
 import {frameToSeconds} from './frame-time';
+import {
+	mountGsapTimeline,
+	type MountedGsapTimeline,
+} from './mount-gsap-timeline';
 
 export type GsapTimelineBuildContext<T extends Element> = {
 	/** A package-owned timeline that is already paused at time zero. */
@@ -426,6 +430,202 @@ const guardTimelineMethods = (
 	};
 };
 
+const buildTimeline = <T extends Element>(
+	scope: T,
+	build: GsapTimelineBuilder<T>,
+	seconds: number,
+	trackTarget: (element: Element) => void,
+) => {
+	const state: {
+		timeline: gsap.core.Timeline | null;
+		controls: TimelineControls | null;
+	} = {timeline: null, controls: null};
+	const context = gsap.context(() => undefined, scope);
+	// A selector resolves once, when the builder runs. Record every query,
+	// including bare string targets, which GSAP resolves through the
+	// context's selector, so a child that mounts later (a Sequence that
+	// starts after this timeline was built) can trigger a rebuild. GSAP
+	// passes element targets through the context's selector too.
+	const select = gsap.utils.selector(scope);
+	const queries = new Set<string>();
+	const selector = ((query: unknown) => {
+		const elements = select(query as string);
+		for (const element of elements) {
+			if (isElementTarget(element)) {
+				trackTarget(element);
+			}
+		}
+
+		if (typeof query === 'string') {
+			queries.add(query);
+		}
+
+		return elements;
+	}) as gsap.utils.SelectorFunc;
+	context.selector = selector;
+
+	try {
+		context.add(() => {
+			state.timeline = gsap.timeline({paused: true});
+			state.controls = guardTimelineMethods(state.timeline);
+
+			const preexisting = new Set<gsap.core.Animation>(
+				gsap.globalTimeline.getChildren(true, true, true),
+			);
+			const originalTickerAdd = gsap.ticker.add.bind(gsap.ticker);
+			gsap.ticker.add = (() => {
+				throw new Error(
+					'useGsapTimeline builders must not register gsap.ticker callbacks. The Remotion frame is the only clock.',
+				);
+			}) as typeof gsap.ticker.add;
+
+			let result: unknown;
+			try {
+				result = build({
+					timeline: state.timeline,
+					scope,
+					selector,
+				});
+			} finally {
+				gsap.ticker.add = originalTickerAdd;
+			}
+
+			if (!state.controls.isPaused()) {
+				throw new Error(
+					'useGsapTimeline builders must not start playback. Remove play(), resume(), restart(), or reverse().',
+				);
+			}
+
+			// GSAP animations are thenable; only a genuine Promise means async.
+			if (result instanceof Promise) {
+				throw new TypeError(
+					'useGsapTimeline builders must be synchronous. Load data before building the timeline.',
+				);
+			}
+
+			const callbacks = findTimelineCallbacks(state.timeline);
+			if (callbacks.length > 0) {
+				throw new Error(
+					`useGsapTimeline does not allow timeline callbacks (${callbacks.join(', ')}). Derive visual state from the timeline instead of side effects.`,
+				);
+			}
+
+			const nonElementTargets = findNonElementTargets(state.timeline);
+			if (nonElementTargets.length > 0) {
+				throw new Error(
+					`useGsapTimeline tweens must target DOM or SVG elements, but found: ${nonElementTargets.join(
+						'; ',
+					)}. Tweening plain objects animates in the Player but freezes in stills and renders, because nothing re-reads the object after a frame seek. Animate elements through the scoped selector or refs, or derive numeric values with Remotion's useCurrentFrame() and interpolate().`,
+				);
+			}
+
+			const nondeterminism = findTimelineNondeterminism(state.timeline);
+			if (nondeterminism.length > 0) {
+				throw new Error(
+					`useGsapTimeline rejects nondeterministic tween configuration (${nondeterminism.join(
+						'; ',
+					)}). GSAP resolves these with unseeded Math.random, so every mount and every render process disagrees. Derive stable values from data or Remotion's seeded random().`,
+				);
+			}
+
+			const strays = findStrayAnimations(state.timeline, preexisting);
+			if (strays.length > 0) {
+				throw new Error(
+					`useGsapTimeline builders created ${strays.join(
+						'; ',
+					)}. Animations that are not children of the provided timeline advance on the wall clock instead of the Remotion frame. Attach them to the timeline, or use a plain zero-duration gsap.set() for static state.`,
+				);
+			}
+
+			// Builders only describe motion. Reassert package ownership of playback.
+			state.controls.pause();
+		});
+
+		// Prime outside the context. Seeking makes GSAP create tweens of its
+		// own (the start state of a fromTo with immediateRender: false). Once
+		// the context records them, context.revert() undoes them before the
+		// tween that owns them, and the owner's revert then puts its
+		// from-values back on the element, where the next mount reads them as
+		// the element's own style. Left to their owners, they revert in order.
+		if (state.timeline && state.controls) {
+			// A fresh timeline is not path-independent: zero-duration tweens at
+			// the playhead render only once passed, and overlapping tweens
+			// record start values lazily at the first visited frame. Sweep the
+			// playhead through every child start time in playback order so
+			// initialization matches sequential playback. startTime() is
+			// parent-relative, so map it onto this timeline's clock.
+			const ownedTimeline = state.timeline;
+			const startTimeOnOwnedClock = (child: gsap.core.Animation): number => {
+				let time = child.startTime();
+				let parent = child.parent as gsap.core.Timeline | null;
+				while (parent && parent !== ownedTimeline) {
+					time = parent.startTime() + time / (parent.timeScale() || 1);
+					parent = parent.parent as gsap.core.Timeline | null;
+				}
+
+				return time;
+			};
+
+			const startTimes = [
+				...new Set(
+					state.timeline
+						.getChildren(true, true, true)
+						.map((child) => startTimeOnOwnedClock(child))
+						.filter((startTime) => Number.isFinite(startTime))
+						.sort((a, b) => a - b),
+				),
+			];
+			const totalDuration = state.timeline.totalDuration();
+			const cycleDuration = state.timeline.duration();
+			const primeEnd = Number.isFinite(totalDuration)
+				? totalDuration
+				: Number.isFinite(cycleDuration)
+					? cycleDuration
+					: 3600;
+			for (const startTime of [...startTimes, primeEnd]) {
+				state.controls.renderAt(startTime);
+			}
+
+			state.controls.renderAt(seconds);
+		}
+
+		const matches = [...queries].map((query) => ({
+			query,
+			elements: select(query),
+		}));
+		// Browser state such as :focus can change without a DOM mutation.
+		const pseudoClasses = matches.filter(({query}) => query.includes(':'));
+		return {
+			targetsChanged: (domChanged: boolean) => {
+				let changed = false;
+				for (const {query, elements} of domChanged ? matches : pseudoClasses) {
+					const now = select(query);
+					if (
+						now.length !== elements.length ||
+						now.some((element, index) => element !== elements[index])
+					) {
+						now.forEach(trackTarget);
+						changed = true;
+					}
+				}
+
+				return changed;
+			},
+			renderAt: (time: number) => state.controls?.renderAt(time),
+			revert: () => {
+				state.controls?.restoreForContextRevert();
+				context.revert();
+				state.controls?.kill();
+			},
+		};
+	} catch (error) {
+		state.controls?.restoreForContextRevert();
+		context.revert();
+		state.controls?.kill();
+		throw error;
+	}
+};
+
 /**
  * Builds one scoped, paused GSAP timeline and seeks it from Remotion's frame.
  * The hook never plays the timeline on GSAP's ticker.
@@ -438,195 +638,51 @@ export const useGsapTimeline = <T extends Element>(
 	const videoEnabled = Internals.useVideoEnabled();
 	const {fps} = useVideoConfig();
 	const scopeRef = useRef<T>(null);
-	const controlsRef = useRef<TimelineControls | null>(null);
-	// Element the current timeline was built for. A conditionally unmounted
-	// scope runs no cleanup, leaving a stale timeline on the detached element.
-	const builtForRef = useRef<Element | null>(null);
-	const buildRef = useRef(build);
-	const frameRef = useRef(frame);
-	const fpsRef = useRef(fps);
-	// Bumped to re-run the build effect when the scope element changes.
-	const [remountNonce, setRemountNonce] = useState(0);
-
-	buildRef.current = build;
-	frameRef.current = frame;
-	fpsRef.current = fps;
+	const mounted = useRef<MountedGsapTimeline | null>(null);
+	const previousDependencies = useRef<DependencyList>(EMPTY_DEPENDENCIES);
+	const latest = useRef({build, frame, fps, dependencies});
+	latest.current = {build, frame, fps, dependencies};
+	const [, requestUpdate] = useReducer((revision: number) => revision + 1, 0);
 
 	useLayoutEffect(() => {
-		const scope = scopeRef.current;
-		builtForRef.current = scope;
-		if (!scope || !videoEnabled) {
+		const scope = videoEnabled ? scopeRef.current : null;
+		const depsChanged =
+			dependencies.length !== previousDependencies.current.length ||
+			dependencies.some(
+				(dep, index) => !Object.is(dep, previousDependencies.current[index]),
+			);
+		if (mounted.current?.scope === scope) {
+			mounted.current.update(depsChanged);
 			return;
 		}
 
-		const state: {
-			timeline: gsap.core.Timeline | null;
-			controls: TimelineControls | null;
-		} = {timeline: null, controls: null};
-		const context = gsap.context(() => undefined, scope);
-
-		try {
-			context.add(() => {
-				state.timeline = gsap.timeline({paused: true});
-				state.controls = guardTimelineMethods(state.timeline);
-				const selector = gsap.utils.selector(scope);
-
-				const preexisting = new Set<gsap.core.Animation>(
-					gsap.globalTimeline.getChildren(true, true, true),
-				);
-				const originalTickerAdd = gsap.ticker.add.bind(gsap.ticker);
-				gsap.ticker.add = (() => {
-					throw new Error(
-						'useGsapTimeline builders must not register gsap.ticker callbacks. The Remotion frame is the only clock.',
-					);
-				}) as typeof gsap.ticker.add;
-
-				let result: unknown;
-				try {
-					result = buildRef.current({
-						timeline: state.timeline,
+		mounted.current?.dispose();
+		mounted.current = null;
+		if (scope) {
+			mounted.current = mountGsapTimeline(
+				scope,
+				(seconds, trackTarget) => {
+					previousDependencies.current = [...latest.current.dependencies];
+					return buildTimeline(
 						scope,
-						selector,
-					});
-				} finally {
-					gsap.ticker.add = originalTickerAdd;
-				}
-
-				if (!state.controls.isPaused()) {
-					throw new Error(
-						'useGsapTimeline builders must not start playback. Remove play(), resume(), restart(), or reverse().',
+						latest.current.build,
+						seconds,
+						trackTarget,
 					);
-				}
-
-				// GSAP animations are thenable; only a genuine Promise means async.
-				if (result instanceof Promise) {
-					throw new TypeError(
-						'useGsapTimeline builders must be synchronous. Load data before building the timeline.',
-					);
-				}
-
-				const callbacks = findTimelineCallbacks(state.timeline);
-				if (callbacks.length > 0) {
-					throw new Error(
-						`useGsapTimeline does not allow timeline callbacks (${callbacks.join(', ')}). Derive visual state from the timeline instead of side effects.`,
-					);
-				}
-
-				const nonElementTargets = findNonElementTargets(state.timeline);
-				if (nonElementTargets.length > 0) {
-					throw new Error(
-						`useGsapTimeline tweens must target DOM or SVG elements, but found: ${nonElementTargets.join(
-							'; ',
-						)}. Tweening plain objects animates in the Player but freezes in stills and renders, because nothing re-reads the object after a frame seek. Animate elements through the scoped selector or refs, or derive numeric values with Remotion's useCurrentFrame() and interpolate().`,
-					);
-				}
-
-				const nondeterminism = findTimelineNondeterminism(state.timeline);
-				if (nondeterminism.length > 0) {
-					throw new Error(
-						`useGsapTimeline rejects nondeterministic tween configuration (${nondeterminism.join(
-							'; ',
-						)}). GSAP resolves these with unseeded Math.random, so every mount and every render process disagrees. Derive stable values from data or Remotion's seeded random().`,
-					);
-				}
-
-				const strays = findStrayAnimations(state.timeline, preexisting);
-				if (strays.length > 0) {
-					throw new Error(
-						`useGsapTimeline builders created ${strays.join(
-							'; ',
-						)}. Animations that are not children of the provided timeline advance on the wall clock instead of the Remotion frame. Attach them to the timeline, or use a plain zero-duration gsap.set() for static state.`,
-					);
-				}
-
-				// Builders only describe motion. Reassert package ownership of playback.
-				state.controls.pause();
-			});
-
-			// Prime outside the context. Seeking makes GSAP create tweens of its
-			// own (the start state of a fromTo with immediateRender: false). Once
-			// the context records them, context.revert() undoes them before the
-			// tween that owns them, and the owner's revert then puts its
-			// from-values back on the element, where the next mount reads them as
-			// the element's own style. Left to their owners, they revert in order.
-			if (state.timeline && state.controls) {
-				// A fresh timeline is not path-independent: zero-duration tweens at
-				// the playhead render only once passed, and overlapping tweens
-				// record start values lazily at the first visited frame. Sweep the
-				// playhead through every child start time in playback order so
-				// initialization matches sequential playback. startTime() is
-				// parent-relative, so map it onto this timeline's clock.
-				const ownedTimeline = state.timeline;
-				const startTimeOnOwnedClock = (child: gsap.core.Animation): number => {
-					let time = child.startTime();
-					let parent = child.parent as gsap.core.Timeline | null;
-					while (parent && parent !== ownedTimeline) {
-						time = parent.startTime() + time / (parent.timeScale() || 1);
-						parent = parent.parent as gsap.core.Timeline | null;
-					}
-
-					return time;
-				};
-
-				const startTimes = [
-					...new Set(
-						state.timeline
-							.getChildren(true, true, true)
-							.map((child) => startTimeOnOwnedClock(child))
-							.filter((startTime) => Number.isFinite(startTime))
-							.sort((a, b) => a - b),
-					),
-				];
-				const totalDuration = state.timeline.totalDuration();
-				const cycleDuration = state.timeline.duration();
-				const primeEnd = Number.isFinite(totalDuration)
-					? totalDuration
-					: Number.isFinite(cycleDuration)
-						? cycleDuration
-						: 3600;
-				for (const startTime of [...startTimes, primeEnd]) {
-					state.controls.renderAt(startTime);
-				}
-
-				state.controls.renderAt(
-					frameToSeconds(frameRef.current, fpsRef.current),
-				);
-			}
-
-			controlsRef.current = state.controls;
-		} catch (error) {
-			state.controls?.restoreForContextRevert();
-			context.revert();
-			state.controls?.kill();
-			throw error;
-		}
-
-		return () => {
-			controlsRef.current = null;
-			state.controls?.restoreForContextRevert();
-			context.revert();
-			state.controls?.kill();
-		};
-		// The explicit dependency list is the same contract as useEffect dependencies.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [...dependencies, remountNonce, videoEnabled]);
-
-	useLayoutEffect(() => {
-		const controls = controlsRef.current;
-		if (controls && videoEnabled) {
-			controls.renderAt(frameToSeconds(frame, fps));
-		}
-	}, [fps, frame, videoEnabled]);
-
-	// Runs every commit: re-arm the build effect if the scope element is not
-	// the one the timeline was built for. Identities match after the rebuild,
-	// so the update chain is finite.
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useLayoutEffect(() => {
-		if (scopeRef.current !== builtForRef.current) {
-			setRemountNonce((nonce) => nonce + 1);
+				},
+				() => frameToSeconds(latest.current.frame, latest.current.fps),
+				requestUpdate,
+			);
 		}
 	});
+
+	useLayoutEffect(
+		() => () => {
+			mounted.current?.dispose();
+			mounted.current = null;
+		},
+		[],
+	);
 
 	return scopeRef;
 };

@@ -24,6 +24,7 @@ export const getMissedFramesForCodecs = async () => {
 	const missedFrames = {
 		webm: {normal: 0, offthread: 0},
 		mp4: {normal: 0, offthread: 0},
+		fractionalTrim: 0,
 	};
 
 	for (let frame = 0; frame < 100; frame++) {
@@ -56,6 +57,25 @@ export const getMissedFramesForCodecs = async () => {
 				missedFrames[codec][type],
 				frame,
 				`${filename} (${codec} ${type})`,
+			);
+		}
+
+		if (frame === 0) {
+			const offset = 1079 * info.channels;
+			missedFrames.fractionalTrim = missedFrameChecker(
+				{
+					red: selectColor('red', 20),
+					green: selectColor('green', 20),
+					blue: selectColor('blue', 20),
+				},
+				{
+					red: data.readUInt8(offset),
+					green: data.readUInt8(offset + 1),
+					blue: data.readUInt8(offset + 2),
+				},
+				missedFrames.fractionalTrim,
+				20,
+				`${filename} (mp4 offthread fractional trim)`,
 			);
 		}
 	}
@@ -180,53 +200,6 @@ export const getMissedFramesWithTrimApplied = async (
 			filename,
 		);
 	}
-	RenderInternals.deleteDirectory(outputPath);
-
-	return missedFrames;
-};
-
-export const getMissedFramesWithFractionalTrimApplied = async () => {
-	const outputPath = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-'),
-	);
-	const filename = path.join(outputPath, 'fractional-trim.png');
-
-	await execa(
-		'node_modules/.bin/remotion',
-		[
-			'still',
-			'./build',
-			'video-testing-mp4-offthread',
-			filename,
-			'--frame',
-			'0',
-			'--props',
-			JSON.stringify({trimBefore: 20.75}),
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-		},
-	);
-
-	const img = await sharp(filename).raw().toBuffer();
-	const actualColor = {
-		red: img.readUInt8(0),
-		green: img.readUInt8(1),
-		blue: img.readUInt8(2),
-	};
-	const expectedColor = {
-		red: selectColor('red', 20),
-		green: selectColor('green', 20),
-		blue: selectColor('blue', 20),
-	};
-
-	const missedFrames = missedFrameChecker(
-		expectedColor,
-		actualColor,
-		0,
-		20,
-		filename,
-	);
 	RenderInternals.deleteDirectory(outputPath);
 
 	return missedFrames;

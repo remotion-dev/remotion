@@ -47,6 +47,7 @@ export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 
 export type SchemaFieldGroup =
 	| 'source'
+	| 'timing'
 	| 'controls'
 	| 'transforms'
 	| 'background'
@@ -63,6 +64,7 @@ export type SchemaFieldGroupInfo = {
 
 export const SCHEMA_FIELD_GROUPS = [
 	{id: 'source', label: 'Source'},
+	{id: 'timing', label: 'Timing'},
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
 	{id: 'text', label: 'Text'},
@@ -222,6 +224,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	array: true,
 	asset: true,
 	boolean: true,
+	'transition-easing': true,
 	'remotion-captions': false,
 	color: true,
 	enum: true,
@@ -356,6 +359,7 @@ export const getFieldsToShow = ({
 		propStatuses,
 		nodePath,
 	});
+	const hasTransitionEasing = activeSchema.easing?.type === 'transition-easing';
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
@@ -401,7 +405,11 @@ export const getFieldsToShow = ({
 					value: valuesDotNotation[key],
 				}),
 				fieldSchema,
-				group: getSchemaFieldGroup(key),
+				group:
+					hasTransitionEasing &&
+					(key === 'durationInFrames' || key === 'easing')
+						? 'timing'
+						: getSchemaFieldGroup(key),
 			};
 		})
 		.filter(NoReactInternals.truthy);

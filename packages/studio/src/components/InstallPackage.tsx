@@ -18,7 +18,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {Checkbox} from './Checkbox';
 import {InstallablePackageComp} from './InstallablePackage';
 import {Flex, Row} from './layout';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
 import {markOptionalPackageInstalled} from './OptionalPackageModal';
@@ -28,7 +27,6 @@ const container: React.CSSProperties = {
 	flex: 1,
 	fontFamily: 'sans-serif',
 	minHeight: 0,
-	overflowY: 'auto',
 	padding: '16px 16px 0',
 };
 
@@ -162,7 +160,7 @@ export const InstallPackageSettings: React.FC<{
 
 	return (
 		<div style={settingsContainer}>
-			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<div style={container}>
 				{state.type === 'done' ? (
 					<div style={text}>
 						Installed package{selectedPackages.length === 1 ? '' : 's'}{' '}

@@ -84,6 +84,7 @@ test('reset config options restores defaults before reloading config', async () 
 	).toBe('webgl2');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
+	Config.setDoubleClickAction('open-in-agent');
 	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.setAskAIEnabled(false);
@@ -135,6 +136,10 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
 	expect(getRenderDefaults('info').crf).toBe(12);
+	expect(
+		BrowserSafeApis.options.doubleClickActionOption.getValue({commandLine: {}})
+			.value,
+	).toBe('open-in-agent');
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
@@ -214,6 +219,13 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
 	expect(getRenderDefaults('info').crf).toBeNull();
+	expect(
+		BrowserSafeApis.options.doubleClickActionOption.getValue({commandLine: {}})
+			.value,
+	).toBe('open-in-editor');
+	expect(
+		BrowserSafeApis.options.doubleClickActionOption.getConfigValue(),
+	).toBeNull();
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
@@ -295,6 +307,17 @@ test('reset config options restores defaults before reloading config', async () 
 test('CLI app flags take precedence over the configured defaults', () => {
 	ConfigInternals.resetConfigOptions();
 	Config.setDefaultCodingAgent('codex');
+	Config.setDoubleClickAction('copy-context');
+	const {doubleClickActionOption} = BrowserSafeApis.options;
+	expect(
+		doubleClickActionOption.getValue({
+			commandLine: {'double-click-action': 'open-in-agent'},
+		}),
+	).toEqual({source: 'cli', value: 'open-in-agent'});
+	expect(doubleClickActionOption.getConfigValue()).toBe('copy-context');
+	expect(() =>
+		Config.setDoubleClickAction('invalid' as 'copy-context'),
+	).toThrow('Config.setDoubleClickAction()');
 	Config.setDefaultEditor({
 		type: 'custom',
 		name: 'Acme Editor',

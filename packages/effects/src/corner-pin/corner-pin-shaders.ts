@@ -1,3 +1,5 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
+
 export const CORNER_PIN_VS = /* glsl */ `#version 300 es
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUv;
@@ -11,6 +13,7 @@ void main() {
 
 export const CORNER_PIN_FS = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 
 in vec2 vUv;
 out vec4 fragColor;
@@ -73,12 +76,14 @@ bool solveProjectiveInverse(vec2 p, out vec2 uv) {
 }
 
 void main() {
-	vec2 sourceUv;
-	if (!solveProjectiveInverse(vUv, sourceUv)) {
+	vec2 elementUv = textureUvToElementUvBottomLeft(vUv, uEffectTextureSize);
+	vec2 sourceElementUv;
+	if (!solveProjectiveInverse(elementUv, sourceElementUv)) {
 		fragColor = vec4(0.0);
 		return;
 	}
 
+	vec2 sourceUv = elementUvToTextureUvBottomLeft(sourceElementUv, uEffectTextureSize);
 	if (
 		sourceUv.x < 0.0 ||
 		sourceUv.x > 1.0 ||

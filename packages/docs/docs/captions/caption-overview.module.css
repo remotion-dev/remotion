@@ -1,0 +1,29 @@
+.previews {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-bottom: var(--ifm-spacing-vertical);
+}
+
+.previews figure {
+	margin: 0;
+}
+
+.previews img,
+.previews video {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.previews figcaption {
+	margin-top: 8px;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+	.previews {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}

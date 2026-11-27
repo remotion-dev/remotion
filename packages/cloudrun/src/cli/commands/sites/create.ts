@@ -43,6 +43,7 @@ export const sitesCreateSubcommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: false,
+		firstArgCanBeCompositionId: false,
 	});
 	if (!file) {
 		Log.error({indent: false, logLevel}, 'No entry file passed.');

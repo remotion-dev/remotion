@@ -11,7 +11,7 @@ import {CreateWithChatGPTButton} from '../components/CreateWithChatGPTButton';
 
 ## Using ChatGPT
 
-If you have the [ChatGPT desktop app](https://chatgpt.com/download/), it can create a complete Remotion project that you can edit, run, and render locally using the [Remotion plugin](/docs/ai/codex-plugin).
+If you have the [ChatGPT desktop app](https://chatgpt.com/download/), it can create a complete Remotion project that you can edit, run, and render locally using the [Remotion plugin](/docs/agents/codex-plugin).
 
 <CreateWithChatGPTButton />
 
@@ -32,10 +32,9 @@ npx remotion skills add
 npm run dev
 ```
 
-Creates a video in the `my-video` directory using the blank template and [Agent Skills](/docs/ai/skills), without TailwindCSS.
+Creates a video in the `my-video` directory using the blank template and [Agent Skills](/docs/agents/skills), without TailwindCSS.
 
-Planning to prompt a video using a coding agent?  
-Click [here](/docs/ai/coding-agents) for more detailed beginner instructions.
+Follow the [coding agent walkthrough](/docs/agents) to preview and prompt your first video.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -98,10 +97,6 @@ nubx create-video@latest
 bun create video
 ```
 
-:::note
-Bun as a runtime is mostly supported. [Read more here](/docs/bun).
-:::
-
   </TabItem>
 </Tabs>
 
@@ -148,7 +143,7 @@ Remotion templates include a recommended ESLint configuration. See [`@remotion/e
 
 ## System requirements
 
-To use Remotion, you need at least [Node](https://nodejs.org/en/download/) <MinNodeVersion /> or [Bun](https://bun.sh) <MinBunVersion />.  
+To use Remotion, you need at least [Node](https://nodejs.org/en/download/) <MinNodeVersion /> or [Bun](https://bun.com) <MinBunVersion />.  
 🍎 macOS 15 (Sequoia) or later is required. [Older versions are not supported.](https://github.com/remotion-dev/remotion/issues/7027)  
 🐧 [Linux distros need glibc 2.35 or later.](/docs/miscellaneous/linux-dependencies#glibc-requirements) Amazon Linux 2023 on ARM64 is supported with glibc 2.34. Amazon Linux 2023 on x64 is unsupported.
 They also need to [install some additional packages](/docs/miscellaneous/linux-dependencies).  

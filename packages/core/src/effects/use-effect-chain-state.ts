@@ -1,5 +1,6 @@
 import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {validateDimension} from '../validation/validate-dimensions.js';
+import type {EffectCanvasGeometry} from './effect-canvas-geometries.js';
 import type {EffectsOutputSize} from './effect-types.js';
 import {
 	PreferredEffectBackendContext,
@@ -13,6 +14,7 @@ import {
 
 export const useEffectChainState = (
 	effectsOutputSize: EffectsOutputSize | null = null,
+	geometry: EffectCanvasGeometry | null = null,
 ): {
 	recoveryRevision: number;
 	get: (width: number, height: number) => EffectChainState | null;
@@ -39,7 +41,6 @@ export const useEffectChainState = (
 	}
 
 	const chainStateRef = useRef<EffectChainState | null>(null);
-	const sizeRef = useRef<{width: number; height: number} | null>(null);
 	const unmountedRef = useRef(false);
 	const [recoveryRevision, setRecoveryRevision] = useState(0);
 
@@ -53,7 +54,6 @@ export const useEffectChainState = (
 			if (chainStateRef.current) {
 				cleanupEffectChainState(chainStateRef.current);
 				chainStateRef.current = null;
-				sizeRef.current = null;
 			}
 		};
 	}, []);
@@ -62,38 +62,48 @@ export const useEffectChainState = (
 		() => ({
 			recoveryRevision,
 			get: (width, height) => {
-				width = effectWidth ?? width;
-				height = effectHeight ?? height;
+				width = geometry?.width ?? effectWidth ?? width;
+				height = geometry?.height ?? effectHeight ?? height;
 				// Async work such as a late decoded video frame can still get here
 				// after unmount. Nothing would release a pool created at this point.
 				if (unmountedRef.current) {
 					return null;
 				}
 
+				const state = chainStateRef.current;
+				const rect = geometry?.contentRect ?? null;
 				if (
-					!sizeRef.current ||
-					sizeRef.current.width !== width ||
-					sizeRef.current.height !== height ||
-					chainStateRef.current?.preferredEffectBackend !==
-						preferredEffectBackend
+					!state ||
+					state.width !== width ||
+					state.height !== height ||
+					state.contentRect.x !== (rect?.x ?? 0) ||
+					state.contentRect.y !== (rect?.y ?? 0) ||
+					state.contentRect.width !== (rect?.width ?? width) ||
+					state.contentRect.height !== (rect?.height ?? height) ||
+					state.preferredEffectBackend !== preferredEffectBackend
 				) {
-					if (chainStateRef.current) {
-						cleanupEffectChainState(chainStateRef.current);
+					if (state) {
+						cleanupEffectChainState(state);
 					}
 
-					chainStateRef.current = createEffectChainState(width, height);
+					chainStateRef.current = createEffectChainState(width, height, rect);
 					chainStateRef.current.requestRedraw = () => {
 						if (!unmountedRef.current)
 							setRecoveryRevision((revision) => revision + 1);
 					};
 
 					chainStateRef.current.preferredEffectBackend = preferredEffectBackend;
-					sizeRef.current = {width, height};
 				}
 
 				return chainStateRef.current;
 			},
 		}),
-		[effectWidth, effectHeight, preferredEffectBackend, recoveryRevision],
+		[
+			effectWidth,
+			effectHeight,
+			preferredEffectBackend,
+			recoveryRevision,
+			geometry,
+		],
 	);
 };

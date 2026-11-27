@@ -1,4 +1,5 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
+import {setEffectCoordinateUniforms} from '../effect-coordinates.js';
 import type {RadialProgressiveBlurResolved} from './index.js';
 import {
 	buildRadialProgressiveBlurFs,
@@ -9,6 +10,8 @@ const {createWebGL2ContextError} = Internals;
 
 type RadialProgressiveBlurUniforms = {
 	readonly uSource: WebGLUniformLocation | null;
+	readonly uContentRect: WebGLUniformLocation | null;
+	readonly uEffectTextureSize: WebGLUniformLocation | null;
 	readonly uTexelSize: WebGLUniformLocation | null;
 	readonly uCenter: WebGLUniformLocation | null;
 	readonly uWidth: WebGLUniformLocation | null;
@@ -97,6 +100,8 @@ const getUniforms = (
 	program: WebGLProgram,
 ): RadialProgressiveBlurUniforms => ({
 	uSource: gl.getUniformLocation(program, 'uSource'),
+	uContentRect: gl.getUniformLocation(program, 'uContentRect'),
+	uEffectTextureSize: gl.getUniformLocation(program, 'uEffectTextureSize'),
 	uTexelSize: gl.getUniformLocation(program, 'uTexelSize'),
 	uCenter: gl.getUniformLocation(program, 'uCenter'),
 	uWidth: gl.getUniformLocation(program, 'uWidth'),
@@ -297,14 +302,24 @@ const setUniforms = ({
 	uniforms,
 	width,
 	height,
+	contentRect,
 	params,
 }: {
 	readonly gl: WebGL2RenderingContext;
 	readonly uniforms: RadialProgressiveBlurUniforms;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly params: RadialProgressiveBlurResolved;
 }): void => {
+	setEffectCoordinateUniforms(
+		gl,
+		uniforms.uContentRect,
+		uniforms.uEffectTextureSize,
+		contentRect,
+		width,
+		height,
+	);
 	if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
 	if (uniforms.uTexelSize)
 		gl.uniform2f(uniforms.uTexelSize, 1 / width, 1 / height);
@@ -330,6 +345,7 @@ export const applyRadialProgressiveBlur = ({
 	source,
 	width,
 	height,
+	contentRect,
 	params,
 	flipSourceY,
 }: {
@@ -337,6 +353,7 @@ export const applyRadialProgressiveBlur = ({
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly params: RadialProgressiveBlurResolved;
 	readonly flipSourceY: boolean;
 }): void => {
@@ -373,6 +390,7 @@ export const applyRadialProgressiveBlur = ({
 		uniforms: state.horizontal,
 		width,
 		height,
+		contentRect,
 		params,
 	});
 	drawFullscreenQuad(state);
@@ -386,6 +404,7 @@ export const applyRadialProgressiveBlur = ({
 		uniforms: state.vertical,
 		width,
 		height,
+		contentRect,
 		params,
 	});
 	drawFullscreenQuad(state);

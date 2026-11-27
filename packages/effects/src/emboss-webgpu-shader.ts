@@ -23,7 +23,7 @@ fn roundedBoxSdf(p: vec2f, halfSize: vec2f, radius: f32) -> f32 {
 fn reliefHeight(fragPos: vec2f) -> f32 {
   let size = max(params.size, 0.001);
   let lineWidth = clamp(params.lineWidth, 0.001, size * 0.85);
-  var pos = rotation(params.angle) * (fragPos - params.resolution * 0.5);
+  var pos = rotation(params.angle) * (fragPos - effectGeometry.contentRect.zw * 0.5);
   pos.x += params.offset;
   let cell = floor(pos / size);
   let local = (fract(pos / size) - vec2f(0.5)) * size;
@@ -39,7 +39,7 @@ fn reliefHeight(fragPos: vec2f) -> f32 {
   let alpha = color.a;
   if (alpha <= 0.001) { return vec4f(0.0); }
   if (params.amount <= 0.0 || params.depth <= 0.0) { return color; }
-  let fragPos = vec2f(input.uv.x, 1.0 - input.uv.y) * params.resolution;
+  let fragPos = textureUvToElementUvBottomLeft(vec2f(input.uv.x, 1.0 - input.uv.y), params.resolution) * effectGeometry.contentRect.zw;
   let h = reliefHeight(fragPos);
   let hLeft = reliefHeight(fragPos - vec2f(1.0, 0.0));
   let hRight = reliefHeight(fragPos + vec2f(1.0, 0.0));

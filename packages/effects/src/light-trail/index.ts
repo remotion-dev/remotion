@@ -169,7 +169,7 @@ const validateLightTrailParams = (params: LightTrailParams): void => {
 export const lightTrail = createEffect<LightTrailParams>({
 	type: 'remotion/light-trail',
 	label: 'lightTrail()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/light-trail',
+	documentationLink: 'https://www.remotion.dev/effects/light-trail',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `light-trail-${r.direction}-${r.distance}-${r.intensity}-${r.decay}-${r.threshold}-${r.samples}-${r.color}`;

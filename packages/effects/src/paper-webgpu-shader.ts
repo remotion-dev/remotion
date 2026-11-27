@@ -2,19 +2,18 @@
 import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
 export const PAPER_WEBGPU_SHADER = /* wgsl */ `
-diagnostic(off, derivative_uniformity);
 ${WEBGPU_SINGLE_PASS_VERTEX}
 @group(0) @binding(0) var source: texture_2d<f32>;
 @group(0) @binding(1) var sourceSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
-struct Params { size: vec2f, aspectRatio: f32, amount: f32, colorFront: vec4f, colorBack: vec4f, contrast: f32, roughness: f32, fiber: f32, fiberSize: f32, crumples: f32, crumpleSize: f32, folds: f32, foldCount: f32, drops: f32, fade: f32, seed: f32, scale: f32, offsetY: f32, }
+struct Params { size: vec2f, aspectRatio: f32, amount: f32, colorFront: vec4f, colorBack: vec4f, contrast: f32, roughness: f32, fiber: f32, fiberSize: f32, crumples: f32, crumpleSize: f32, folds: f32, foldCount: f32, drops: f32, fade: f32, seed: f32, scale: f32, }
 @group(0) @binding(3) var noiseTexture: texture_2d<f32>;
 const TWO_PI=6.28318530718;
 const PI=3.14159265358979323846;
 fn getUvFrame(uv: vec2f) -> f32 {
 
-	var aax: f32 = 2.0 * fwidth(uv.x);
-	var aay: f32 = 2.0 * fwidth(uv.y);
+	var aax: f32 = 2.0 / effectGeometry.contentRect.z;
+	var aay: f32 = 2.0 / effectGeometry.contentRect.w;
 
 	var left: f32 = smoothstep(0.0, aax, uv.x);
 	var right: f32 = 1.0 - smoothstep(1.0 - aax, 1.0, uv.x);
@@ -215,8 +214,10 @@ fn drops(uv: vec2f) -> f32 {
 }
 
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
- let pixel=vec2f(input.position.x,params.size.y+params.offsetY-input.position.y);
+ let pixel=vec2f(input.position.x,params.size.y-input.position.y);
  let vUv=pixel/params.size;
+ let paperPx = texturePixelToElementPixelBottomLeft(pixel, params.size.y);
+ let paperUv = paperPx / effectGeometry.contentRect.zw;
 	var color: vec4f = textureSampleLevel(source,sourceSampler,vec2f(vUv.x,1.0-vUv.y),0);
 	var sourceAlpha: f32 = color.a;
 
@@ -225,13 +226,13 @@ fn drops(uv: vec2f) -> f32 {
 	}
 
 	var sourceRgb: vec3f = color.rgb / sourceAlpha;
-	var imageUV: vec2f = vUv;
-	var patternUV: vec2f = vUv - vec2f(0.5);
+	var imageUV: vec2f = paperUv;
+	var patternUV: vec2f = paperUv - vec2f(0.5);
 	patternUV /= max(params.scale, 0.001);
 	patternUV = 5.0 * (patternUV * vec2f(params.aspectRatio, 1.0));
 
 	var roughnessUv: vec2f =
-		1.5 * (pixel - 0.5 * params.size) +
+		1.5 * (paperPx - 0.5 * effectGeometry.contentRect.zw) +
 		128.0 * seedOffset(1.0);
 	var roughness: f32 =
 		roughnessNoise(roughnessUv + vec2f(1.0, 0.0)) -
@@ -288,6 +289,7 @@ fn drops(uv: vec2f) -> f32 {
 
 	imageUV += 0.02 * normalImage;
 	var frame: f32 = getUvFrame(imageUV);
+	imageUV = elementUvToTextureUvBottomLeft(imageUV, params.size);
 	var displacedSource: vec4f = textureSampleLevel(source,sourceSampler,clamp(vec2f(imageUV.x,1.0-imageUV.y),vec2f(0),vec2f(1)),0);
 	var displacedRgb: vec3f = select(sourceRgb,displacedSource.rgb / max(displacedSource.a,0.001),displacedSource.a > 0.001);
 	displacedRgb += vec3f(0.6 * pow(params.contrast, 0.4) * (res - 0.7));
@@ -304,14 +306,4 @@ fn drops(uv: vec2f) -> f32 {
 	return vec4f(finalRgb * sourceAlpha, sourceAlpha);
 }
 
-`;
-
-export const PAPER_CROP_WEBGPU_SHADER = /* wgsl */ `
-${WEBGPU_SINGLE_PASS_VERTEX}
-@group(0) @binding(0) var source: texture_2d<f32>;
-@group(0) @binding(1) var sourceSampler: sampler;
-@group(0) @binding(2) var<uniform> params: vec4f;
-@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
-  return textureLoad(source,vec2i(input.position.xy)+vec2i(0,1),0);
-}
 `;

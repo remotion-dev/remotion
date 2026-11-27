@@ -5,13 +5,11 @@ import {RenderInternals} from '@remotion/renderer';
 export const sendTelemetryEvent = async ({
 	licenseKey,
 	logLevel,
-	isStill,
 	isProduction,
 	idempotencyKey,
 }: {
 	licenseKey: string | null;
 	logLevel: LogLevel;
-	isStill: boolean;
 	isProduction: boolean;
 	idempotencyKey: string;
 }) => {
@@ -26,7 +24,7 @@ export const sendTelemetryEvent = async ({
 			event: 'cloud-render',
 			host: null,
 			succeeded: true,
-			isStill,
+			isStill: false,
 			isProduction,
 			idempotencyKey,
 		});

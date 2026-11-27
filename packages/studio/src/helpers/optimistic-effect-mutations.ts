@@ -433,7 +433,10 @@ export const captureOptimisticEffectMutation = (
 
 		if (endpoint === '/api/add-effect') {
 			const request = body as AddEffectRequest;
-			if (Internals.OptimisticEffects.get(request.sequenceNodePath)) {
+			if (
+				!request.wrapInHtmlInCanvas &&
+				Internals.OptimisticEffects.get(request.sequenceNodePath)
+			) {
 				preparations.push({
 					operation: addChange(request.sequenceNodePath, {
 						type: 'add',

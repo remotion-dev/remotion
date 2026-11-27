@@ -34,5 +34,5 @@ test('@remotion/starburst re-exports the migrated effect', () => {
 	expect(
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/effects/starburst');
+	).toBe('https://www.remotion.dev/effects/starburst');
 });

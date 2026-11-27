@@ -18,7 +18,7 @@ fn gradientProgress(uv: vec2f) -> f32 {
   let color = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
   let alpha = color.a;
   if (alpha <= 0.001) { return vec4f(0.0); }
-  let tintColor = mix(params.startColor, params.endColor, gradientProgress(input.uv));
+  let tintColor = mix(params.startColor, params.endColor, gradientProgress(textureUvToElementUv(input.uv, effectGeometry.textureSize)));
   let blended = mix(color.rgb / alpha, tintColor.rgb, params.amount * tintColor.a);
   return vec4f(blended * alpha, alpha);
 }

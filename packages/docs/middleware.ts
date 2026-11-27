@@ -3,12 +3,30 @@ import {rewrite} from '@vercel/functions';
 export const config = {
 	matcher: [
 		'/docs/:path*',
+		'/effects',
+		'/effects.md',
+		'/effects/:path*',
 		'/elements',
 		'/elements.md',
 		'/elements/:path*',
 		'/assets/:path*',
 	],
 };
+
+const legacyAgentDocRedirects = new Map([
+	['/docs/ai', '/docs/agents'],
+	['/docs/ai/index', '/docs/agents'],
+	['/docs/ai/coding-agents', '/docs/agents'],
+	['/docs/ai/claude-code', '/docs/agents'],
+	['/docs/ai/skills', '/docs/agents/skills'],
+	['/docs/ai/plugins', '/docs/agents/plugins'],
+	['/docs/ai/claude-code-plugin', '/docs/agents/claude-code-plugin'],
+	['/docs/ai/codex-plugin', '/docs/agents/codex-plugin'],
+	['/docs/ai/cursor-plugin', '/docs/agents/cursor-plugin'],
+	['/docs/ai/github-copilot-plugin', '/docs/agents/github-copilot-plugin'],
+	['/docs/ai/kimi-code-plugin', '/docs/agents/kimi-code-plugin'],
+	['/docs/ai/webmcp', '/docs/agents/webmcp'],
+]);
 
 let assetManifestPromise: Promise<Set<string> | null> | null = null;
 
@@ -132,6 +150,23 @@ export default async function middleware(request: Request) {
 		return;
 	}
 
+	const effectApiPath = pathname.match(/^\/effects\/api(\.md)?\/?$/);
+	if (effectApiPath) {
+		url.pathname = `/docs/effects/api${effectApiPath[1] ?? ''}`;
+		return Response.redirect(url, 308);
+	}
+
+	const legacyEffect = pathname.match(
+		/^\/docs\/effects\/([\w-]+)(?:\.md)?\/?$/,
+	);
+	if (
+		legacyEffect &&
+		!['api', 'custom', 'grow-bounds', 'output-size'].includes(legacyEffect[1])
+	) {
+		url.pathname = pathname.slice('/docs'.length);
+		return Response.redirect(url, 308);
+	}
+
 	if (pathname === '/docs/pricing') {
 		return Response.redirect(
 			new URL('/docs/license/pricing', request.url),
@@ -147,6 +182,45 @@ export default async function middleware(request: Request) {
 		return Response.redirect(new URL('/docs/license/faq', request.url), 308);
 	}
 
+	const legacyAgentPath = pathname.match(
+		/^(\/docs\/ai(?:\/[a-z-]+)?)(\.md)?\/?$/,
+	);
+	if (legacyAgentPath) {
+		const [, legacyPath, extension = ''] = legacyAgentPath;
+		const destination = legacyAgentDocRedirects.get(legacyPath);
+		if (destination) {
+			url.pathname = `${destination}${extension}`;
+			return Response.redirect(url, 308);
+		}
+	}
+
+	if (
+		pathname === '/docs/license/which-license' ||
+		pathname === '/docs/license/which-license/' ||
+		pathname === '/docs/license/which-license.md'
+	) {
+		url.pathname = '/license/quiz';
+		return Response.redirect(url, 308);
+	}
+
+	if (
+		pathname === '/effects.md' ||
+		pathname === '/effects' ||
+		pathname === '/effects/'
+	) {
+		if (
+			pathname.endsWith('.md') ||
+			prefersMarkdown(
+				request.headers.get('accept'),
+				request.headers.get('user-agent'),
+			)
+		) {
+			return rewrite(new URL('/_raw/effects/index.md', request.url));
+		}
+
+		return;
+	}
+
 	if (pathname === '/elements.md') {
 		return rewrite(new URL('/_raw/elements/index.md', request.url));
 	}
@@ -155,7 +229,11 @@ export default async function middleware(request: Request) {
 		return;
 	}
 
-	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
+	if (
+		!pathname.startsWith('/docs/') &&
+		!pathname.startsWith('/elements/') &&
+		!pathname.startsWith('/effects/')
+	) {
 		return;
 	}
 
@@ -163,7 +241,10 @@ export default async function middleware(request: Request) {
 	// Example: /docs/your-first-video.md → /_raw/docs/your-first-video.md
 	// Example: /elements/overlays/name-lower-third.md → /_raw/elements/overlays/name-lower-third.md
 	if (pathname.endsWith('.md')) {
-		const targetPath = pathname.replace(/^\/(docs|elements)\//, '/_raw/$1/');
+		const targetPath = pathname.replace(
+			/^\/(docs|elements|effects)\//,
+			'/_raw/$1/',
+		);
 		return rewrite(new URL(targetPath, request.url));
 	}
 

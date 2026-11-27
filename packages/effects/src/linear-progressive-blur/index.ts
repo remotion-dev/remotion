@@ -132,8 +132,7 @@ const validateLinearProgressiveBlurParams = (
 export const linearProgressiveBlur = createEffect<LinearProgressiveBlurParams>({
 	type: 'dev.remotion.effects.linearProgressiveBlur',
 	label: 'linearProgressiveBlur()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
+	documentationLink: 'https://www.remotion.dev/effects/linear-progressive-blur',
 	calculateKey: (params) => {
 		const r = resolveLinearProgressiveBlurParams(params);
 		return `linear-progressive-blur-${r.start.join(':')}-${r.end.join(':')}-${r.startBlur}-${r.endBlur}`;
@@ -210,10 +209,19 @@ export const linearProgressiveBlur = createEffect<LinearProgressiveBlurParams>({
 			LinearProgressiveBlurState
 		>({
 			setup: (target) => setupLinearProgressiveBlur(target),
-			apply: ({source, width, height, params, state, flipSourceY}) => {
+			apply: ({
+				source,
+				width,
+				height,
+				contentRect,
+				params,
+				state,
+				flipSourceY,
+			}) => {
 				const r = resolveLinearProgressiveBlurParams(params);
 				applyLinearProgressiveBlur({
 					state,
+					contentRect,
 					source,
 					width,
 					height,

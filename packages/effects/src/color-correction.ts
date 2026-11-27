@@ -518,7 +518,7 @@ const setupColorCorrection = (
 export const colorCorrection = createEffect<ColorCorrectionParams>({
 	type: 'remotion/color-correction',
 	label: 'colorCorrection()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/color-correction',
+	documentationLink: 'https://www.remotion.dev/effects/color-correction',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `color-correction-${r.exposure}-${r.contrast}-${r.pivot}-${r.shadows}-${r.highlights}-${r.whites}-${r.blacks}-${r.temperature}-${r.tint}-${r.saturation}-${r.vibrance}`;

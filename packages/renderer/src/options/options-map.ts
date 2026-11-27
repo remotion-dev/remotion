@@ -86,8 +86,6 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
-		apiKey: apiKeyOption,
-		licenseKey: licenseKeyOption,
 	},
 	getCompositions: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -160,8 +158,6 @@ export const optionsMap = {
 		deleteAfter: deleteAfterOption,
 		scale: scaleOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
-		apiKey: apiKeyOption,
-		licenseKey: licenseKeyOption,
 	},
 	getCompositionsOnLambda: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -205,7 +201,6 @@ export const optionsMap = {
 		scale: scaleOption,
 		jpegQuality: jpegQualityOption,
 		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
-		licenseKey: licenseKeyOption,
 	},
 	ensureBrowser: {
 		logLevel: logLevelOption,

@@ -36,9 +36,10 @@ import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useCropStyle} from '../use-crop-style.js';
-import {useDelayRender} from '../use-delay-render.js';
+import {useDelayRender, useReportRenderError} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
+import {useReleaseCanvas} from '../use-release-canvas.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {LoadedImage} from './canvas-image-load-state.js';
 import {canvasImageLoadReducer} from './canvas-image-load-state.js';
@@ -253,6 +254,7 @@ const CanvasImageContent = forwardRef<
 		ref,
 	) => {
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const reportRenderError = useReportRenderError();
 		const {delayPlayback} = useBufferState();
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
@@ -299,6 +301,8 @@ const CanvasImageContent = forwardRef<
 			() => setCanvasRef.bind(null, setOutputCanvas, ref),
 			[ref],
 		);
+		useReleaseCanvas(sourceCanvas);
+		useReleaseCanvas(outputCanvas);
 
 		useLayoutEffect(() => {
 			if (
@@ -346,6 +350,7 @@ const CanvasImageContent = forwardRef<
 						dispatchLoad({type: 'image-decoded', image});
 					})
 					.catch((err) => {
+						if (cancelled) return;
 						if ((err as Error).name === 'AbortError') {
 							return;
 						}
@@ -367,7 +372,7 @@ const CanvasImageContent = forwardRef<
 							dispatchLoad({type: 'load-failed'});
 							releasePendingLoadDelay();
 						} else {
-							cancelRender(err);
+							reportRenderError(err);
 						}
 					});
 			};
@@ -385,7 +390,7 @@ const CanvasImageContent = forwardRef<
 			};
 		}, [
 			actualSrc,
-			cancelRender,
+			reportRenderError,
 			releasePendingLoadDelay,
 			crossOrigin,
 			delayRender,

@@ -75,8 +75,7 @@ const validateChromaticAberrationParams = (
 export const chromaticAberration = createEffect<ChromaticAberrationParams>({
 	type: 'dev.remotion.effects.chromaticAberration',
 	label: 'chromaticAberration()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/chromatic-aberration',
+	documentationLink: 'https://www.remotion.dev/effects/chromatic-aberration',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `chromatic-aberration-${resolved.amount}-${resolved.angle}`;

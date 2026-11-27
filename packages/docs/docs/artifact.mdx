@@ -43,9 +43,10 @@ export const MyComp: React.FC = () => {
 
 ### `filename`
 
-A string that is the name of the file that will be emitted.  
-Use forward slashes only, even on Windows.  
-Must match the regex `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
+A relative path for the emitted file. Use forward slashes on every platform and omit `..` path segments.
+The path must match the regex `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)$/`.
+
+The CLI and Studio save the file under `out/<composition-id>/`. Filenames can include subdirectories such as `captions/this-week.srt`.
 
 ### `content`
 

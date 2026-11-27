@@ -60,6 +60,7 @@ import {
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 } from './delay-render.js';
+import {disposeMediabunnyInput} from './dispose-mediabunny-input.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -71,6 +72,7 @@ import {
 	createEffect,
 	createEffectImplementation,
 } from './effects/create-effect.js';
+import {effectCanvasGeometries} from './effects/effect-canvas-geometries.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {getGpuDevice} from './effects/gpu-device.js';
@@ -81,6 +83,7 @@ import {
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
+	getEffectChainLink,
 	runEffectChain,
 } from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -154,6 +157,7 @@ import {
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
 import {
+	easingToFn,
 	interpolateKeyframedStatus,
 	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
@@ -293,8 +297,15 @@ import {
 	CurrentScaleContext,
 	PreviewSizeContext,
 } from './use-current-scale.js';
-import {DelayRenderContextType} from './use-delay-render.js';
-import {useLazyComponent} from './use-lazy-component.js';
+import {
+	CancelRenderContext,
+	DelayRenderContextType,
+	useReportRenderError,
+} from './use-delay-render.js';
+import {
+	useLazyComponent,
+	useLazyComponentWithOwner,
+} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
@@ -304,6 +315,7 @@ import {useMotionBlurCanvas} from './use-motion-blur-canvas.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
+import {useReleaseCanvas} from './use-release-canvas.js';
 import type {
 	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusFalse,
@@ -385,6 +397,7 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	MotionBlurContext,
 	useMotionBlurCanvas,
+	useReleaseCanvas,
 	getDelayRenderSuspendedTime,
 	suspendDelayRenderTimeout,
 	bufferingDiagnostics,
@@ -405,6 +418,7 @@ export const Internals = {
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
+	disposeMediabunnyInput,
 	getMediabunnyInputResourceKey,
 	globalMediaResourceManager,
 	makeMediaResourceManager,
@@ -477,6 +491,7 @@ export const Internals = {
 	usePlayerMutedState,
 	useMediaInTimeline,
 	useLazyComponent,
+	useLazyComponentWithOwner,
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
@@ -570,6 +585,8 @@ export const Internals = {
 	TimelinePosition,
 	useTimelineSeek,
 	DelayRenderContextType,
+	CancelRenderContext,
+	useReportRenderError,
 	TimelineContext,
 	usePlaying,
 	PlaybackPitchContext,
@@ -582,6 +599,7 @@ export const Internals = {
 	createEffectChainState,
 	cleanupEffectChainState,
 	runEffectChain,
+	getEffectChainLink,
 	useMemoizedEffects,
 	getGpuDevice,
 	subscribeToEffectSource,
@@ -590,12 +608,14 @@ export const Internals = {
 	validatePreferredEffectBackend,
 	createEffect,
 	EffectPreviewContext,
+	effectCanvasGeometries,
 	captureEffectPreviewSnapshot,
 	createEffectImplementation,
 	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
+	easingToFn,
 	interpolateKeyframedStatus,
 	prepareNumericKeyframedStatus,
 	setInterpolatePaths,

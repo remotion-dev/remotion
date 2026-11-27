@@ -57,6 +57,7 @@ export const snapCompositionDropPosition = ({
 	const bottom = top + compositionDimensions.height;
 	const outline: SelectedOutline = {
 		key: 'composition-drop-preview',
+		effectGeometry: null,
 		dimensions: compositionDimensions,
 		uncroppedPoints: null,
 		path: null,

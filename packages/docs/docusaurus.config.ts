@@ -121,7 +121,7 @@ const config: Config = {
 					label: 'Products',
 					position: 'left',
 					items: [
-						{to: '/docs/ai/plugins', label: 'Plugins'},
+						{to: '/docs/agents/plugins', label: 'Plugins'},
 						{to: '/player', label: 'Player'},
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
@@ -134,7 +134,8 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
-						{to: '/elements', label: 'Elements'},
+						{to: '/elements/libraries', label: 'Elements'},
+						{to: '/effects', label: 'Effects'},
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
@@ -191,166 +192,6 @@ const config: Config = {
 					'aria-label': 'X / Twitter',
 				},
 			].filter(Boolean),
-		},
-		footer: {
-			style: 'light',
-			links: [
-				{
-					title: 'Remotion',
-					items: [
-						{
-							label: 'Getting started',
-							to: '/docs/',
-						},
-						{
-							label: 'Elements',
-							to: '/elements',
-						},
-						{
-							label: 'Templates',
-							to: '/templates',
-						},
-						{
-							label: 'API Reference',
-							to: '/docs/api',
-						},
-						{
-							label: 'Player',
-							to: '/player',
-						},
-						{
-							label: 'Lambda',
-							to: '/lambda',
-						},
-						{
-							label: 'remotion.dev/convert',
-							to: 'https://remotion.dev/convert',
-							className: 'footer-convert-link',
-						},
-						{
-							label: 'Editor Starter',
-							href: 'https://www.remotion.dev/store/editor-starter',
-						},
-						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
-						},
-						{
-							label: 'License & Pricing',
-							to: 'https://www.remotion.dev/pricing',
-							target: '_self',
-						},
-					],
-				},
-				{
-					title: 'Community',
-					items: [
-						{
-							label: 'Showcase',
-							to: 'showcase',
-						},
-						{
-							label: 'Success Stories',
-							to: 'success-stories',
-						},
-						{
-							label: 'Experts',
-							to: 'experts',
-						},
-						{
-							label: 'GitHub',
-							href: 'https://github.com/remotion-dev/remotion',
-						},
-						{
-							label: 'Discord',
-							href: 'https://remotion.dev/discord',
-						},
-						{
-							label: 'X',
-							href: 'https://x.com/remotion',
-						},
-						{
-							label: 'YouTube',
-							href: 'https://youtube.com/@remotion_dev',
-						},
-						{
-							label: 'LinkedIn',
-							href: 'https://www.linkedin.com/company/remotion-dev/',
-						},
-						{
-							label: 'Instagram',
-							href: 'https://instagram.com/remotion',
-						},
-						{
-							label: 'TikTok',
-							href: 'https://www.tiktok.com/@remotion',
-						},
-					],
-				},
-				{
-					title: 'Company',
-					items: [
-						{
-							label: 'About Us',
-							to: 'about',
-						},
-						{
-							label: 'Contact Us',
-							to: 'contact',
-						},
-						{
-							label: 'Investors',
-							to: '/docs/investors',
-						},
-						{
-							label: 'Brand',
-							href: 'https://remotion.dev/brand',
-						},
-					],
-				},
-				{
-					title: 'Legal & Trust',
-					items: [
-						{
-							label: 'Terms and Conditions',
-							to: '/docs/terms',
-						},
-						{
-							label: 'Privacy Policy',
-							to: '/docs/privacy',
-						},
-						{
-							label: 'DPA Statement',
-							to: '/docs/dpa',
-						},
-						{
-							label: 'DPIA Statement',
-							to: '/docs/dpia',
-						},
-						{
-							label: 'Acknowledgments',
-							to: '/docs/acknowledgements',
-						},
-					],
-				},
-				{
-					title: 'More',
-					items: [
-						{
-							label: 'Blog',
-							to: 'blog',
-						},
-						{
-							label: 'Support',
-							to: '/docs/support',
-						},
-						{
-							label: 'Accessibility',
-							to: '/docs/accessibility/dev',
-						},
-					],
-				},
-			],
 		},
 		colorMode: {
 			respectPrefersColorScheme: true,
@@ -460,6 +301,19 @@ const config: Config = {
 					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 				showLastUpdateTime: showGitLastUpdate,
 				beforeDefaultRemarkPlugins: [[remarkElementSource, {elementRegistry}]],
+				remarkPlugins: [remarkExportRaw],
+			},
+		],
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'effects',
+				path: './effects',
+				routeBasePath: 'effects',
+				sidebarPath: './effects-sidebars.ts',
+				editUrl:
+					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
+				showLastUpdateTime: showGitLastUpdate,
 				remarkPlugins: [remarkExportRaw],
 			},
 		],

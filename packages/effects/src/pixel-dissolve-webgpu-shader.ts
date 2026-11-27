@@ -16,8 +16,8 @@ fn hash21(p: vec2f) -> f32 {
 
 @fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
   let divisions = max(vec2f(params.columns, params.rows), vec2f(1));
-  let uv = vec2f(input.uv.x, 1.0 - input.uv.y);
-  let cell = floor(min(uv, vec2f(1.0 - 0.000001)) * divisions + vec2f(0.00001));
+  let uv = textureUvToElementUvBottomLeft(vec2f(input.uv.x, 1.0 - input.uv.y), effectGeometry.textureSize);
+  let cell = floor(uv * divisions + vec2f(0.00001));
   let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
   let noise = hash21(cell + vec2f(params.seed, params.seed * 1.618));
   let edge = max(params.feather, 0.0);

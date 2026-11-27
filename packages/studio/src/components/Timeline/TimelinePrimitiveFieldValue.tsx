@@ -22,6 +22,7 @@ import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineScaleField} from './TimelineScaleField';
 import {TimelineTextContentField} from './TimelineTextContentField';
 import {TimelineTransformOriginField} from './TimelineTransformOriginField';
+import {TimelineTransitionEasingField} from './TimelineTransitionEasingField';
 import {TimelineTranslateField} from './TimelineTranslateField';
 import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
 
@@ -81,6 +82,17 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 	effectiveValue,
 	scaleLockNodePath,
 }) => {
+	if (field.typeName === 'transition-easing') {
+		return (
+			<TimelineTransitionEasingField
+				propStatus={propStatus}
+				onDragValueChange={onDragValueChange}
+				onDragEnd={onDragEnd}
+				onSave={onSave}
+			/>
+		);
+	}
+
 	if (field.typeName === 'number') {
 		return (
 			<TimelineNumberField

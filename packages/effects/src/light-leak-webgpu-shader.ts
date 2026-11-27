@@ -6,7 +6,7 @@ ${WEBGPU_SINGLE_PASS_VERTEX}
 @group(0) @binding(1) var sourceSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
 
-struct Params { size: vec2f, progress: f32, seed: f32, hue: f32, }
+struct Params { progress: f32, seed: f32, hue: f32, }
 fn computePattern(uv: vec2f, s: f32, t: f32) -> vec3f {
   var p = uv * 0.8 + vec2f(sin(s * 1.61803) * 5.0, cos(s * 2.71828) * 5.0);
   for (var i = 1; i < 5; i++) {
@@ -27,11 +27,12 @@ fn computePattern(uv: vec2f, s: f32, t: f32) -> vec3f {
   let evolveProgress = min(1.0, params.progress * 2.0);
   let retractProgress = max(0.0, params.progress * 2.0 - 1.0);
   let refScale = 1.92;
-  let uv = (vec2f(input.position.x, params.size.y - input.position.y) / params.size) * vec2f(refScale, refScale * params.size.y / params.size.x);
+  let localPixel = input.position.xy - effectGeometry.contentRect.xy;
+  let maxUv = vec2f(refScale, refScale * effectGeometry.contentRect.w / effectGeometry.contentRect.z);
+  let uv = (vec2f(localPixel.x, effectGeometry.contentRect.w - localPixel.y) / effectGeometry.contentRect.zw) * maxUv;
   let patA = computePattern(uv, params.seed, evolveProgress * 3.14159);
   let threshA = 1.0 - evolveProgress;
   let revealAlpha = smoothstep(threshA, threshA + 0.3, patA.z);
-  let maxUv = vec2f(refScale, refScale * params.size.y / params.size.x);
   let patB = computePattern(maxUv - uv, params.seed + 42.0, retractProgress * 3.14159);
   let threshB = 1.0 - retractProgress;
   let eraseAlpha = smoothstep(threshB, threshB + 0.3, patB.z);

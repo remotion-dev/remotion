@@ -131,6 +131,7 @@ export const Comp = () => <>
 			const result = await addEffectHandler({
 				...context,
 				input: {
+					wrapInHtmlInCanvas: null,
 					fileName: filePath,
 					sequenceNodePath,
 					effectName,
@@ -267,6 +268,7 @@ export const Comp = () => <>
 		const overridden = await addEffectHandler({
 			...context,
 			input: {
+				wrapInHtmlInCanvas: null,
 				fileName: filePath,
 				sequenceNodePath: {
 					...sequenceNodePath,
@@ -483,6 +485,7 @@ test('external changes reject queued codemods and preserve later source after co
 		addEffectHandler({
 			...context,
 			input: {
+				wrapInHtmlInCanvas: null,
 				fileName,
 				sequenceNodePath: {...sequenceNodePath, absolutePath: fileName},
 				effectName: 'brightness',
@@ -812,6 +815,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 				const result = await addEffectHandler({
 					...context,
 					input: {
+						wrapInHtmlInCanvas: null,
 						fileName: filePath,
 						sequenceNodePath,
 						effectName,
@@ -942,6 +946,7 @@ export const Root = () => <Composition id="Comp" component={Comp} width={100} he
 			const overridden = await addEffectHandler({
 				...context,
 				input: {
+					wrapInHtmlInCanvas: null,
 					fileName: filePath,
 					sequenceNodePath: {
 						...sequenceNodePath,

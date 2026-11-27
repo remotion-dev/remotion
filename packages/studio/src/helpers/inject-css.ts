@@ -10,12 +10,14 @@ import {
 	TEXT_SELECTION_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_25,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
 const inspectorSectionTransitionDuration = 120;
 const inspectorSectionTransition = `${inspectorSectionTransitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+const easingGraphBackground = 'rgba(21, 21, 25, 0.32)';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 6;
@@ -30,6 +32,14 @@ const makeDefaultGlobalCSS = () => {
     overscroll-behavior: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
+  }
+
+  dialog.__remotion-modal-dialog[open] {
+    display: flex;
+  }
+
+  dialog.__remotion-modal-dialog::backdrop {
+    background: transparent;
   }
 
   html.__remotion-slide-forward,
@@ -59,6 +69,38 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion-inspector-section-title {
     --remotion-disclosure-transition: transform ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-viewport .__remotion-easing-graph {
+    anchor-name: --remotion-easing-graph;
+    background-color: ${easingGraphBackground};
+  }
+
+  @supports (height: anchor-size(height)) {
+    .__remotion-inspector-viewport:has(.__remotion-easing-graph) {
+      position: relative;
+      isolation: isolate;
+      overflow: clip;
+
+      > .__remotion-vertical-scrollbar {
+        /* Leave the native scrollbar gutter open to the background below. */
+        background-attachment: local;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        position-anchor: --remotion-easing-graph;
+        position-visibility: anchors-visible;
+        top: anchor(top);
+        left: anchor(right);
+        right: 0;
+        height: anchor-size(height);
+        background-color: ${easingGraphBackground};
+        pointer-events: none;
+        z-index: -1;
+      }
+    }
   }
 
   .__remotion-inspector-section-content {
@@ -164,6 +206,10 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion_color_swatch:focus {
     outline: none;
+  }
+
+  .__remotion-settings-search:focus-visible {
+    --remotion-settings-search-background: ${WHITE_ALPHA_25};
   }
 
 	  .__remotion_input_dragger:focus-visible {

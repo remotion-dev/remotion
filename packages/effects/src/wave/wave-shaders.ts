@@ -19,6 +19,7 @@ out vec4 fragColor;
 
 uniform sampler2D uSource;
 uniform vec2 uResolution;
+uniform vec2 uElementOrigin;
 uniform float uAmplitude;
 uniform float uWavelength;
 uniform float uPhase;
@@ -31,17 +32,20 @@ void main() {
 	vec2 srcUv = vUv;
 
 	if (uDirection == 0) {
-		float coordPx = vUv.x * uResolution.x;
+		float coordPx = vUv.x * uResolution.x - uElementOrigin.x;
 		float offsetPx =
 			sin((coordPx / wavelength) * TWO_PI + uPhase) * uAmplitude;
 		srcUv.y -= offsetPx / uResolution.y;
 	} else {
-		float coordPx = vUv.y * uResolution.y;
+		float coordPx = vUv.y * uResolution.y - uElementOrigin.y;
 		float offsetPx =
 			sin((coordPx / wavelength) * TWO_PI + uPhase) * uAmplitude;
 		srcUv.x -= offsetPx / uResolution.x;
 	}
 
-	fragColor = texture(uSource, srcUv);
+	// Bilinear filtering across the texture boundary blends the last texel with transparency.
+	vec2 edgeDistance = min(srcUv, 1.0 - srcUv) * uResolution;
+	vec2 coverage = clamp(edgeDistance + 0.5, 0.0, 1.0);
+	fragColor = texture(uSource, srcUv) * coverage.x * coverage.y;
 }
 `;

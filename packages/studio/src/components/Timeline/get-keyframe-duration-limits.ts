@@ -101,13 +101,14 @@ export const getKeyframeDurationLimits = ({
 
 		sequencesById ??= new Map(sequences.map((item) => [item.id, item]));
 		tracksById ??= new Map(tracks.map((item) => [item.sequence.id, item]));
+		const tracksBySequenceId = tracksById;
 
 		// A hook in the render function reads the context outside its outermost
 		// JSX element. Nested JSX sequences do not change that hook's clock.
 		let scopeTrack = track;
 		let owner = sequencesById.get(scopeTrack.sequence.parent ?? '');
 		while (owner) {
-			const parentTrack = tracksById.get(owner.id);
+			const parentTrack = tracksBySequenceId.get(owner.id);
 			const parentPath = parentTrack?.nodePathInfo?.sequenceSubscriptionKey;
 			if (
 				!parentTrack ||
@@ -172,8 +173,8 @@ export const getKeyframeDurationLimits = ({
 			}
 		}
 
-		for (const child of chain) {
-			const childPath = tracksById.get(child.id)?.nodePathInfo
+		const childTimings = chain.map((child) => {
+			const childPath = tracksBySequenceId.get(child.id)?.nodePathInfo
 				?.sequenceSubscriptionKey;
 			const childProps = childPath
 				? Internals.getPropStatusesCtx(propStatuses, childPath)
@@ -195,6 +196,33 @@ export const getKeyframeDurationLimits = ({
 				);
 				return !coefficients || coefficients.factor !== 0;
 			});
+			const runtimeDuration =
+				child.controls?.runtimeValues.getSnapshot().durationInFrames;
+			const ownDuration =
+				typeof runtimeDuration === 'number'
+					? runtimeDuration
+					: child.unclippedDuration === undefined ||
+						  child.unclippedDuration === null
+						? Infinity
+						: child.unclippedDuration * child.sequencePlaybackRate;
+			return {
+				child,
+				hasDependentTiming,
+				ownDuration,
+				hasIndependentDuration:
+					childProps !== null &&
+					!hasDependentTiming &&
+					(child.type === 'sequence' || Number.isFinite(ownDuration)),
+			};
+		});
+
+		if (
+			childTimings.some(({hasIndependentDuration}) => hasIndependentDuration)
+		) {
+			continue;
+		}
+
+		for (const {child, hasDependentTiming, ownDuration} of childTimings) {
 			if (child.loopDisplay || hasDependentTiming) {
 				locked = true;
 				// Partial loops and duration-dependent child timings are not affine
@@ -207,15 +235,6 @@ export const getKeyframeDurationLimits = ({
 			}
 
 			const trimBefore = child.trimBefore ?? 0;
-			const runtimeDuration =
-				child.controls?.runtimeValues.getSnapshot().durationInFrames;
-			const ownDuration =
-				typeof runtimeDuration === 'number'
-					? runtimeDuration
-					: child.unclippedDuration !== undefined &&
-						  child.unclippedDuration !== null
-						? child.unclippedDuration * child.sequencePlaybackRate
-						: Infinity;
 			// Once a child's explicit duration caps its clock, extending an
 			// ancestor cannot cross the child's upper interpolation bound.
 			if (ownDuration + trimBefore <= maximum) maximum = Infinity;
@@ -223,6 +242,12 @@ export const getKeyframeDurationLimits = ({
 				child.from + (minimum - trimBefore) / child.sequencePlaybackRate;
 			maximum =
 				child.from + (maximum - trimBefore) / child.sequencePlaybackRate;
+		}
+
+		if (chain.length === 0) {
+			const trimBefore = sequence.trimBefore ?? 0;
+			minimum += trimBefore;
+			maximum += trimBefore;
 		}
 
 		if (

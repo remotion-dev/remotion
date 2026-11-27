@@ -9,6 +9,7 @@ import {
 	type RenderStillFunctionResponsePayload,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
+import {LicensingInternals} from '@remotion/licensing';
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
@@ -29,7 +30,6 @@ import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
-import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
 	params: ServerlessPayload;
@@ -56,6 +56,13 @@ const innerStillHandler = async (
 	checkVersionMismatch({
 		apiName: 'renderStillOnLambda()',
 		params,
+	});
+
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: params.licenseKey ?? null,
+		api: 'renderStillOnLambda()',
+		option: 'licenseKey',
+		logLevel: params.logLevel,
 	});
 
 	LambdaClientInternals.validateDownloadBehavior(params.downloadBehavior);
@@ -336,8 +343,6 @@ const innerStillHandler = async (
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		onLog: RenderInternals.defaultOnLog,
-		licenseKey: null,
-		isProduction: null,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -364,13 +369,6 @@ const innerStillHandler = async (
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
-		sendTelemetryEvent({
-			licenseKey: params.licenseKey,
-			logLevel: params.logLevel,
-			isStill: true,
-			isProduction: params.isProduction ?? true,
-			idempotencyKey: `cloud-still:${bucketName}:${renderId}`,
-		}),
 	]);
 
 	const estimatedPrice = LambdaClientInternals.estimatePrice({

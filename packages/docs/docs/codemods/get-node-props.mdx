@@ -73,6 +73,12 @@ A record keyed by the requested names. Each value has `status: 'static'` with `c
 
 Recognized static `style.translate` strings contain one to three space-separated values. The X and Y values accept `px` or `%`; the optional Z value must use `px`. Supported [`interpolate()`](/docs/interpolate) expressions with percentage values return `status: 'keyframed'` and preserve those values in the keyframes.
 
+#### Transition timing<AvailableFrom v="4.0.548" />
+
+For a [`<TransitionSeries.Transition>`](/docs/transitions/transitionseries#transitionseriestransition) node, pass `keys: ['durationInFrames', 'easing']` to inspect the options inside an inline [`linearTiming()`](/docs/transitions/timings/lineartiming) call.
+
+The two options are inspected independently. For `linearTiming({durationInFrames: 20, easing: customEasing})`, the duration is static with `codeValue: 20` and the easing is computed. Omitting `easing` gives `codeValue: {type: 'linear'}`. A custom timing function or [`springTiming()`](/docs/transitions/timings/springtiming) makes both options computed.
+
 ### effects
 
 An array of effect descriptions. Editable entries include `canUpdate: true`, `effectIndex`, `callee`, `importPath`, and prop statuses. Unsupported entries include `canUpdate: false` and a `reason`. Automatically discovering effects requires an inline array.

@@ -63,6 +63,7 @@ type RegisterUsageEventMandatoryOptions = {
 };
 
 type OptionalRegisterUsageEventOptional = {
+	/** @deprecated As of November 2026, usage reporting can be omitted for still renders. */
 	isStill: boolean;
 	isProduction: boolean;
 	/** Automatically generated when omitted and reused across request retries. */

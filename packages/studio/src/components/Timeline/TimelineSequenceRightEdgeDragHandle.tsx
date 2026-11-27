@@ -58,7 +58,7 @@ import {
 } from './get-keyframed-sequence-drag-targets';
 import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {
-	getMinimumSequenceDuration,
+	getTransitionSeriesDurationLimits,
 	getTrimPlaybackRate,
 	getEffectiveSequenceTimingValues,
 	getTimelineSequenceTimingLimits,
@@ -1121,14 +1121,17 @@ export const getTimelineSequenceDurationDragTargets = ({
 				timelineDurationInFrames,
 			});
 			const {minimumDuration} = timingLimits;
+			const visibleEnd = Math.min(
+				track.sequence.from + track.sequence.duration,
+				timelineDurationInFrames,
+			);
+			const visibleDuration =
+				(visibleEnd - track.cascadedStart) * track.keyframePlaybackRate;
 			const initialDuration = mediaDurationDragLimits
 				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
 				: originalSequence.autoDuration
-					? (track.sequence.from +
-							track.sequence.duration -
-							track.cascadedStart) *
-						track.keyframePlaybackRate
-					: originalSequence.duration;
+					? visibleDuration
+					: Math.min(originalSequence.duration, visibleDuration);
 			const naturalDuration = getTimelineSequenceNaturalDuration({
 				sequence: originalSequence,
 				sequences,
@@ -1391,6 +1394,8 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				typeof durationStatus.codeValue === 'number'
 					? durationStatus.codeValue
 					: runtimeValues.durationInFrames;
+			const hasExplicitDuration =
+				typeof runtimeDuration === 'number' && Number.isFinite(runtimeDuration);
 			// The handle is at the visible start, which can be later than the
 			// child's own start when an ancestor clips it. Include those hidden
 			// frames in the trim so the visible edge follows the pointer.
@@ -1415,9 +1420,6 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					(track.sequence.from - track.cascadedStart) *
 						track.keyframePlaybackRate,
 				);
-				const hasExplicitDuration =
-					typeof runtimeDuration === 'number' &&
-					Number.isFinite(runtimeDuration);
 				const visibleEnd =
 					(track.sequence.from +
 						track.sequence.duration -
@@ -1524,15 +1526,16 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				parentPlaybackRate: track.keyframePlaybackRate,
 				fileName: nodePath.absolutePath,
 				initialDuration:
-					(originalSequence.autoDuration
-						? (track.sequence.from +
-								track.sequence.duration -
+					(originalSequence.autoDuration || (trimsMedia && !hasExplicitDuration)
+						? (Math.min(
+								track.sequence.from + track.sequence.duration,
+								timelineDurationInFrames,
+							) -
 								track.cascadedStart) *
 							track.keyframePlaybackRate
-						: typeof runtimeDuration !== 'number' ||
-							  !Number.isFinite(runtimeDuration)
-							? originalSequence.duration
-							: runtimeDuration / playbackRate) - hiddenStartInParentFrames,
+						: hasExplicitDuration
+							? runtimeDuration / playbackRate
+							: originalSequence.duration) - hiddenStartInParentFrames,
 				initialFrom:
 					positionField === 'from'
 						? originalSequence.from + hiddenStartInParentFrames
@@ -1550,10 +1553,10 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 								))
 							: (originalSequence.trimBefore ?? 0)) +
 					hiddenStartInParentFrames * playbackRate,
-				minimumDuration: getMinimumSequenceDuration({
+				minimumDuration: getTransitionSeriesDurationLimits({
 					sequence: originalSequence,
 					sequences,
-				}),
+				}).minimum,
 				nodePath,
 				playbackRate,
 				positionField,
@@ -1668,10 +1671,10 @@ export const getTimelineSequenceRollingEditTargets = ({
 				initialDuration: incoming.initialDuration,
 				initialFrom: 0,
 				initialTrimBefore: incoming.endField.trimBefore,
-				minimumDuration: getMinimumSequenceDuration({
+				minimumDuration: getTransitionSeriesDurationLimits({
 					sequence: next.sequence,
 					sequences,
-				}),
+				}).minimum,
 				nodePath: incoming.nodePath,
 				playbackRate: incoming.endField.playbackRate,
 				positionField: null,
@@ -2036,6 +2039,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly rollingEnabled: boolean;
 	readonly handleLayout: ReturnType<typeof getTimelineTrimHandleLayout>;
 	readonly edgeOffset: number;
+	readonly incomingTransitionEnd: number | null;
 	readonly fillTarget: boolean;
 	readonly isTransitionSeries: boolean;
 	readonly onHoverEnd: () => void;
@@ -2065,6 +2069,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	rollingEnabled,
 	handleLayout,
 	edgeOffset,
+	incomingTransitionEnd,
 	fillTarget,
 	isTransitionSeries,
 	onHoverEnd,
@@ -2262,13 +2267,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
-			const initialEdgeClientX =
-				captureTarget.parentElement!.getBoundingClientRect().left +
-				(fillTarget
-					? captureTarget.parentElement!.getBoundingClientRect().width / 2
-					: edgeOffset);
+			const trimAtTransitionEnd =
+				mode === 'head-trim' && incomingTransitionEnd !== null;
+			const initialEdgeClientX = trimAtTransitionEnd
+				? handleRect.left
+				: captureTarget.parentElement!.getBoundingClientRect().left +
+					(fillTarget
+						? captureTarget.parentElement!.getBoundingClientRect().width / 2
+						: edgeOffset);
 			const initialEdgeClientY = handleRect.top;
-			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
+			const initialTimelineEdge = trimAtTransitionEnd
+				? incomingTransitionEnd
+				: latestRef.current.initialEdgeFrame;
 
 			const getTargets = (statuses: PropStatuses) =>
 				canCalculateDelta && blockedReason === null
@@ -2714,6 +2724,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			windowWidth,
 			fillTarget,
 			edgeOffset,
+			incomingTransitionEnd,
 			isTransitionSeries,
 			edgeMode,
 			edgeBlockedReason,

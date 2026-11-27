@@ -1,3 +1,4 @@
+import {EFFECT_COORDINATES_GLSL} from '../effect-coordinates.js';
 export const ZOOM_BLUR_VS = /* glsl */ `#version 300 es
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUv;
@@ -10,6 +11,7 @@ void main() {
 
 export const ZOOM_BLUR_FS = /* glsl */ `#version 300 es
 precision highp float;
+${EFFECT_COORDINATES_GLSL}
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -22,8 +24,8 @@ uniform int uSamples;
 const int MAX_SAMPLES = 64;
 
 void main() {
-	vec2 direction = vUv - uCenter;
-	float normalizedAmount = uAmount / min(uResolution.x, uResolution.y);
+	vec2 direction = vUv - elementUvToTextureUvBottomLeft(uCenter, uResolution);
+	float normalizedAmount = uAmount / min(uContentRect.z, uContentRect.w);
 	vec4 color = vec4(0.0);
 	float total = 0.0;
 

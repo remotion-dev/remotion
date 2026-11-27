@@ -28,15 +28,13 @@ export const getElementCatalogMarkdown = () => {
 				section.definitions
 					.map(
 						(definition) =>
-							`- [${definition.displayName}](${getElementMarkdownUrl(definition)}) - ${definition.description}`,
+							`- [${definition.displayName}](${getElementMarkdownUrl(definition)}) - ${definition.description}${definition.loopable ? ' (Loopable)' : ''}`,
 					)
 					.join('\n'),
 			].join('\n\n'),
 		),
-		'## More Elements',
-		'Browse the catalog [directly inside Remotion Studio](https://www.remotion.dev/docs/studio/browse-elements.md).',
-		'Add [third-party Element Libraries](https://www.remotion.dev/elements/libraries.md) to browse and install Elements from other creators in Studio.',
-		'Have an Element idea? [Contribute](https://www.remotion.dev/docs/contributing/elements.md).',
+		'## More libraries',
+		'Remotion Elements is one of many [Element Libraries](https://www.remotion.dev/elements/libraries.md). Add any of them to [Browse Elements in Studio](https://www.remotion.dev/docs/studio/browse-elements.md), or [make your own library](https://www.remotion.dev/docs/elements/libraries.md).',
 		'',
 	].join('\n\n');
 };
@@ -53,6 +51,7 @@ export const getElementMarkdown = ({
 	return [
 		`# ${definition.displayName}`,
 		definition.description,
+		`Loopable: ${definition.loopable ? 'Yes' : 'No'}`,
 		`Element page: [${pageUrl}](${pageUrl})`,
 		'## Installation',
 		'Install this Element into a composition of your Remotion project:',

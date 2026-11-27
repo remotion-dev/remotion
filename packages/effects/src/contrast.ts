@@ -40,7 +40,7 @@ const validateContrastParams = (params: ContrastParams): void => {
 export const contrast = createEffect<ContrastParams>({
 	type: 'dev.remotion.effects.contrast',
 	label: 'contrast()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/contrast',
+	documentationLink: 'https://www.remotion.dev/effects/contrast',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `contrast-${r.amount}`;

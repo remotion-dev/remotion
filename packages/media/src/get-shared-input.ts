@@ -89,7 +89,7 @@ export const acquireSharedInput = ({
 				resource: input,
 				dispose: () => {
 					recovery.dispose();
-					input.dispose();
+					Internals.disposeMediabunnyInput(input, logLevel, '@remotion/media');
 				},
 			};
 		},

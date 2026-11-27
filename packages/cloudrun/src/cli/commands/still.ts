@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -264,6 +265,15 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
+	const licenseKey =
+		CliInternals.parsedCli[BrowserSafeApis.options.licenseKeyOption.cliFlag];
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
+		api: 'remotion cloudrun still',
+		option: '--license-key',
+		logLevel,
+	});
+
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,
 		serveUrl,
@@ -285,12 +295,6 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outName,
 		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
-		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value,
-		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value,
 	});
 	if (res.type === 'crash') {
 		displayCrashLogs(res, logLevel);

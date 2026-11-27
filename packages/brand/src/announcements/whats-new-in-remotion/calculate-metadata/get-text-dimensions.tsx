@@ -1,5 +1,6 @@
 import {measureText} from '@remotion/layout-utils';
-import {fontFamily, fontSize, lineHeight, tabSize} from '../code-font';
+import {brandCodeLineHeight} from '../../../code-theme';
+import {fontFamily, fontSize, tabSize} from '../code-font';
 
 export const getTextDimensions = (contents: string) => {
 	const widthPerCharacter = measureText({
@@ -18,5 +19,8 @@ export const getTextDimensions = (contents: string) => {
 	);
 
 	const codeWidth = widthPerCharacter * maxCharacters;
-	return {width: codeWidth, height: lines.length * fontSize * lineHeight};
+	return {
+		width: codeWidth,
+		height: lines.length * fontSize * brandCodeLineHeight,
+	};
 };

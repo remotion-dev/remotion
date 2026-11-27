@@ -142,6 +142,14 @@ export const MyScene = () => {
 
 The `muted` prop is also supported by [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Video>`](/docs/html5-video) and [`<Html5Audio>`](/docs/html5-audio).
 
+## Difference between `muted` and `volume={0}`<AvailableFrom v="4.0.548" />
+
+In Studio and Player previews, `@remotion/media` keeps decoding audio at `volume={0}`. Once audio has buffered, raising the volume makes it audible without rebuffering.
+
+Setting `muted` skips audio decoding, saving compute and potentially reducing bandwidth.
+
+During rendering, both settings silence the clip.
+
 ## See also
 
 - [Adding background music](/docs/videos#adding-background-music)

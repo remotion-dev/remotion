@@ -4,6 +4,8 @@ id: effects
 title: Effects
 ---
 
+import {TableOfContents} from './effects/table-of-contents';
+
 # Effects<AvailableFrom v="4.0.464" />
 
 <video
@@ -13,25 +15,33 @@ title: Effects
   muted
   playsInline
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
-/>
+/><br/><br/>
 
-Pixels of canvas-based components can be manipulated using effects.
+Apply effects doing pixel manipulation onto any element.  
+You can use one of Remotions built-in effects or create your own.
+
+## Available effects
+
+Browse the [Effects library](/effects) for previews, examples, and options for each effect.
+
+## Table of contents
+
+<TableOfContents />
 
 ## Supported components
 
 The following components support effects:
 
 - [`<Solid>`](/docs/solid)
-- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
 - [`<Video>`](/docs/media/video)
 - [`<Img>`](/docs/img)
 - [`<CanvasImage>`](/docs/canvasimage)
 - [`<AnimatedImage>`](/docs/animatedimage)
 - [`<Gif>`](/docs/gif/gif)
 - [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas)
-- [`@remotion/shapes` components](/docs/shapes) (from v4.0.474)
+- [`@remotion/shapes` components](/docs/shapes)
 
-Use `effectsOutputSize` on any supported component to choose the pixel dimensions used by its effect chain. See [Effect resolution](/docs/effects/api#effect-resolution).
+All other elements, and any HTML component can be wrapped in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), which can then accept effects.
 
 ## Usage
 
@@ -57,25 +67,23 @@ export const MyComp: React.FC = () => {
 
 ### Interactively
 
-In [Remotion Studio](/docs/studio), first add an element that supports effects. Drag a video into the canvas, or add a [`<Solid>`](/docs/solid) by right-clicking an empty space in the timeline.
+In [Remotion Studio](/docs/studio), select any element.  
+You then have multiple ways of adding an effect:
 
-Then drag an effect from the table of contents below into the element.
+- Click the `+` icon in the Inspector next to `Effects`.
+- Press <kbd>E</kbd>
+- Right-click and select `Add Effect`
+- Drag an effect from the [Effects library](/effects) onto the element.
 
 ### Agentically
 
-Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add an effect while following Remotion conventions:
+Ask an agent with [Remotion Skills](/docs/agents/skills) installed to add an effect while following Remotion conventions:
 
 <SuggestedPrompt prompt="/remotion-markup Add a blur effect to the video." />
 
 ## Multipass
 
 Multiple effects can be combined. They apply in the order they are specified.
-
-## Available effects
-
-import {TableOfContents} from './effects/table-of-contents';
-
-<TableOfContents />
 
 ## Visual editing in Studio
 
@@ -85,7 +93,7 @@ When you select a component with effects in [Remotion Studio](/docs/studio), you
 
 ## Custom effects
 
-To build your own effect, use [`createEffect()`](/docs/create-effect). It supports 2D Canvas APIs, WebGL2 and WebGPU, and creates an effect factory that can be passed to an `effects` array.
+Follow [Make your own effect](/docs/effects/custom) for a short example, or see [`createEffect()`](/docs/create-effect) for the full API.
 
 ## See also
 

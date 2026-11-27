@@ -48,9 +48,9 @@ export type XyTranslateParams = {
 };
 
 export type UvTranslateParams = {
-	/** Horizontal offset in UV coordinates. `1` equals the full canvas width. Defaults to `0`. */
+	/** Horizontal offset in UV coordinates. `1` equals the original element width. Defaults to `0`. */
 	readonly u?: number;
-	/** Vertical offset in UV coordinates. `1` equals the full canvas height. Defaults to `0`. */
+	/** Vertical offset in UV coordinates. `1` equals the original element height. Defaults to `0`. */
 	readonly v?: number;
 };
 
@@ -119,7 +119,7 @@ const applyTranslate = ({
 export const xyTranslate = createEffect<XyTranslateParams>({
 	type: 'dev.remotion.effects.xyTranslate',
 	label: 'xyTranslate()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/xy-translate',
+	documentationLink: 'https://www.remotion.dev/effects/xy-translate',
 	calculateKey: (params) => {
 		const r = resolveXyTranslate(params);
 		return `xy-translate-${r.x}-${r.y}`;
@@ -155,7 +155,7 @@ export const xyTranslate = createEffect<XyTranslateParams>({
 export const uvTranslate = createEffect<UvTranslateParams>({
 	type: 'dev.remotion.effects.uvTranslate',
 	label: 'uvTranslate()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/uv-translate',
+	documentationLink: 'https://www.remotion.dev/effects/uv-translate',
 	calculateKey: (params) => {
 		const r = resolveUvTranslate(params);
 		return `uv-translate-${r.u}-${r.v}`;
@@ -163,22 +163,27 @@ export const uvTranslate = createEffect<UvTranslateParams>({
 	implementations: {
 		...createRectTransformImplementations<UvTranslateParams>(
 			'uvTranslate',
-			(params, width, height) => {
+			(params, width, height, contentRect) => {
 				const r = resolveUvTranslate(params);
-				return {x: r.u * width, y: r.v * height, width, height};
+				return {
+					x: r.u * contentRect.width,
+					y: r.v * contentRect.height,
+					width,
+					height,
+				};
 			},
 		),
 		'2d': Internals.createEffectImplementation<UvTranslateParams, null>({
 			setup: () => null,
-			apply: ({source, target, width, height, params}) => {
+			apply: ({source, target, width, height, contentRect, params}) => {
 				const r = resolveUvTranslate(params);
 				applyTranslate({
 					source,
 					target,
 					width,
 					height,
-					x: r.u * width,
-					y: r.v * height,
+					x: r.u * contentRect.width,
+					y: r.v * contentRect.height,
 				});
 			},
 			cleanup: () => undefined,

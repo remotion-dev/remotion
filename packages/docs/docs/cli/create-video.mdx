@@ -38,7 +38,7 @@ Requires a template flag and a directory argument.
 When used:
 
 - TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates
-- [Agent skills](/docs/ai/skills) are not installed unless [`--skills`](#--skills) is passed
+- [Agent skills](/docs/agents/skills) are not installed unless [`--skills`](#--skills) is passed
 - The editor is not opened
 - If already inside a Git repository, the command fails
 
@@ -74,7 +74,7 @@ npx create-video --yes --blank --tmp
 
 ### `--skills`<AvailableFrom v="4.0.541" />
 
-Install all Remotion [agent skills](/docs/ai/skills) without showing the skills selection prompt. Works with or without `--yes`.
+Install all Remotion [agent skills](/docs/agents/skills) without showing the skills selection prompt. Works with or without `--yes`.
 
 Without `--skills`, interactive setup asks which skills to install, while `--yes` skips skill installation.
 
@@ -126,7 +126,7 @@ npx create-video --yes --blank my-video
 When using `--yes`:
 
 - TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates.
-- [Agent skills](/docs/ai/skills) are installed only with [`--skills`](#--skills). You can also add them afterwards by running [`npx remotion skills add`](/docs/cli/skills) in the project directory.
+- [Agent skills](/docs/agents/skills) are installed only with [`--skills`](#--skills). You can also add them afterwards by running [`npx remotion skills add`](/docs/cli/skills) in the project directory.
 - The editor is not opened after scaffolding.
 - The command fails if you are already inside a Git repository.
 

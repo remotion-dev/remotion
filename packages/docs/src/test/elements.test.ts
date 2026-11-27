@@ -34,6 +34,10 @@ mock.module('@docusaurus/Link', () => ({
 		React.createElement('a', {...props, href: to}),
 }));
 
+mock.module('@docusaurus/useDocusaurusContext', () => ({
+	default: () => ({siteConfig: {url: 'https://www.remotion.dev'}}),
+}));
+
 const collectedAnchors = new Set<string>();
 mock.module('@docusaurus/useBrokenLinks', () => ({
 	default: () => ({
@@ -455,6 +459,7 @@ describe('Element Library', () => {
 				installAssets: false,
 			});
 
+			expect(payload.element).not.toHaveProperty('loopable');
 			expect(payload).toMatchObject({
 				type: 'remotion-element',
 				version: 1,
@@ -486,6 +491,7 @@ describe('Element Library', () => {
 					installAssets: true,
 				});
 				expect(assetPayload.version).toBe(2);
+				expect(assetPayload.element).not.toHaveProperty('loopable');
 				expect(assetPayload.element.assets).toEqual(definition.assets);
 				expect(assetPayload.element.initialProps).toEqual({
 					...definition.initialProps,

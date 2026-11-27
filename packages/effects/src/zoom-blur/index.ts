@@ -131,7 +131,7 @@ const validateZoomBlurParams = (params: ZoomBlurParams): void => {
 export const zoomBlur = createEffect<ZoomBlurParams>({
 	type: 'remotion/zoom-blur',
 	label: 'zoomBlur()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/zoom-blur',
+	documentationLink: 'https://www.remotion.dev/effects/zoom-blur',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `zoom-blur-${r.amount}-${r.center[0]}-${r.center[1]}-${r.samples}`;
@@ -175,10 +175,19 @@ export const zoomBlur = createEffect<ZoomBlurParams>({
 		webgl2: Internals.createEffectImplementation<ZoomBlurParams, ZoomBlurState>(
 			{
 				setup: (target) => setupZoomBlur(target),
-				apply: ({source, width, height, params, state, flipSourceY}) => {
+				apply: ({
+					source,
+					width,
+					height,
+					contentRect,
+					params,
+					state,
+					flipSourceY,
+				}) => {
 					const r = resolve(params);
 					applyZoomBlur({
 						state,
+						contentRect,
 						source,
 						width,
 						height,

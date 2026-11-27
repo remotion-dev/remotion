@@ -1,15 +1,8 @@
 import fs from 'fs';
 import type {BrowserExecutable} from './browser-executable';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {
-	downloadBrowser,
-	getExpectedVersion,
-	getPlatform,
-	getRevisionInfo,
-	readVersionFile,
-} from './browser/BrowserFetcher';
+import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
 import type {BrowserSafeApis} from './client';
-import {Log} from './logger';
 import type {ChromeMode} from './options/chrome-mode';
 import type {ToOptions} from './options/option';
 
@@ -34,6 +27,7 @@ type InternalEnsureBrowserOptions = {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
 	chromeMode: ChromeMode;
+	preferRequestedVersion: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>;
 
 export type EnsureBrowserOptions = Partial<
@@ -50,6 +44,7 @@ const internalEnsureBrowserUncapped = async ({
 	browserExecutable,
 	onBrowserDownload,
 	chromeMode,
+	preferRequestedVersion,
 }: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
 	const defaultStatus = getBrowserStatus({
 		browserExecutable,
@@ -57,8 +52,9 @@ const internalEnsureBrowserUncapped = async ({
 		version: null,
 	});
 	if (
-		defaultStatus.type === 'local-puppeteer-browser' ||
-		defaultStatus.type === 'user-defined-path'
+		defaultStatus.type === 'user-defined-path' ||
+		(defaultStatus.type === 'local-puppeteer-browser' &&
+			!preferRequestedVersion)
 	) {
 		return defaultStatus;
 	}
@@ -71,24 +67,7 @@ const internalEnsureBrowserUncapped = async ({
 		return status;
 	}
 
-	if (status.type === 'version-mismatch') {
-		const expectedVersion = getExpectedVersion({
-			version,
-			chromeMode,
-			platform: getPlatform(),
-		});
-		const versionInfo = status.actualVersion
-			? ` (installed: ${status.actualVersion})`
-			: '';
-		Log.info(
-			{indent, logLevel},
-			`This version of Remotion uses Chrome version ${expectedVersion}, but the installed one differs${versionInfo}. Re-downloading.`,
-		);
-	}
-
-	if (status.type === 'no-browser' || status.type === 'version-mismatch') {
-		await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
-	}
+	await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
 
 	const newStatus = getBrowserStatus({browserExecutable, chromeMode, version});
 	return newStatus;
@@ -122,21 +101,9 @@ const getBrowserStatus = ({
 		return {path: browserExecutable, type: 'user-defined-path'};
 	}
 
-	const revision = getRevisionInfo(chromeMode);
-	if (revision.local && fs.existsSync(revision.executablePath)) {
-		const actualVersion = readVersionFile(chromeMode);
-		if (
-			actualVersion ===
-			getExpectedVersion({
-				version,
-				chromeMode,
-				platform: getPlatform(),
-			})
-		) {
-			return {path: revision.executablePath, type: 'local-puppeteer-browser'};
-		}
-
-		return {type: 'version-mismatch', actualVersion};
+	const revision = getRevisionInfo({chromeMode, version});
+	if (revision.local) {
+		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 
 	return {type: 'no-browser'};
@@ -162,5 +129,6 @@ export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 				logLevel,
 			}),
 		chromeMode: options?.chromeMode ?? 'headless-shell',
+		preferRequestedVersion: true,
 	});
 };

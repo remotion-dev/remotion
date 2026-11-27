@@ -17,9 +17,7 @@ import type {
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {openSourceInEditor} from '../../helpers/open-in-editor';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -32,7 +30,6 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
-import {useEditorOpening} from '../use-default-editor-info';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {
@@ -60,10 +57,12 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {getTransitionEasingLabel} from './TimelineTransitionEasingField';
 import {Transform3DModeContext} from './Transform3DModeContext';
 import {useClampSequenceTimingValue} from './use-clamp-sequence-timing-value';
 import {usePlaybackRatePreview} from './use-playback-rate-preview';
 import {useSequencePropPreview} from './use-sequence-prop-preview';
+import {useTimelinePropertySource} from './use-timeline-property-source';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -717,10 +716,18 @@ export const TimelineSequencePropItem: React.FC<{
 		nodePath,
 	});
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
-		previewServerState.type === 'connected',
+	const {getContextForAgents, onPropertyDoubleClick} =
+		useTimelinePropertySource({
+			effectIndex: null,
+			location: validatedLocation,
+			previewServerConnected: previewServerState.type === 'connected',
+			property: field.key,
+		});
+	const selection = useTimelineRowSelection(
+		nodePathInfo,
+		keyframeControlsMode === 'timeline' &&
+			field.typeName === 'transition-easing',
 	);
-	const selection = useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
@@ -886,11 +893,7 @@ export const TimelineSequencePropItem: React.FC<{
 
 		return [
 			getCopyContextForAgentsMenuItem({
-				contextForAgents: formatContextForAgents({
-					location: validatedLocation,
-					name: `Property "${field.key}"`,
-					root: window.remotion_cwd,
-				}),
+				contextForAgents: getContextForAgents,
 			}),
 			{
 				type: 'divider',
@@ -909,26 +912,7 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
-
-	const onPropertyDoubleClick = useCallback<
-		React.MouseEventHandler<HTMLDivElement>
-	>(
-		(event) => {
-			if (!canOpenInEditor || !defaultEditorId) {
-				return;
-			}
-
-			event.stopPropagation();
-			openSourceInEditor({
-				editorId: defaultEditorId,
-				originalPosition: validatedLocation,
-				property: field.key,
-				effectIndex: null,
-			}).catch(() => undefined);
-		},
-		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
-	);
+	}, [canShowReset, getContextForAgents, onReset, selection]);
 
 	if (propStatus === null) {
 		return null;
@@ -975,6 +959,8 @@ export const TimelineSequencePropItem: React.FC<{
 		);
 	}
 
+	const editableTransitionEasing =
+		field.typeName === 'transition-easing' && propStatus.status === 'static';
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -1003,11 +989,20 @@ export const TimelineSequencePropItem: React.FC<{
 					rowDepth={rowDepth}
 					selected={selection.selected || containsSelection}
 				>
-					{fieldValue}
+					{editableTransitionEasing
+						? getTransitionEasingLabel(propStatus.codeValue)
+						: fieldValue}
 				</TimelineFieldRowContent>
 			)}
 		</TimelineRowChrome>
 	);
 
-	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
+	return (
+		<ContextMenu getItems={getContextMenuItems}>
+			{row}
+			{editableTransitionEasing && keyframeControlsMode === 'inspector'
+				? fieldValue
+				: null}
+		</ContextMenu>
+	);
 };

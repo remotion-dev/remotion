@@ -179,7 +179,10 @@ export const TimelineRowChrome: React.FC<{
 				onSelect();
 			}
 
-			if (!doubleClickTracker.acceptClickAsDoubleClick(e)) {
+			if (
+				isTimelineSelectionModifierEvent(e) ||
+				!doubleClickTracker.acceptClickAsDoubleClick(e)
+			) {
 				return;
 			}
 

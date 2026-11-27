@@ -21,6 +21,7 @@ import {
 	TimelineFieldValue,
 	UnsupportedStatus,
 } from '../Timeline/TimelineSchemaField';
+import {getTransitionEasingLabel} from '../Timeline/TimelineTransitionEasingField';
 import {useClampSequenceTimingValue} from '../Timeline/use-clamp-sequence-timing-value';
 import {useSequencePropPreview} from '../Timeline/use-sequence-prop-preview';
 import {useTimelineFieldEdit} from '../Timeline/use-timeline-field-edit';
@@ -227,6 +228,7 @@ export const MultiSequenceField: React.FC<{
 			setPropStatuses,
 		],
 	);
+	let inlineEditor: React.ReactNode = null;
 	let content: React.ReactNode;
 	if (!editable) {
 		content = (
@@ -241,7 +243,9 @@ export const MultiSequenceField: React.FC<{
 								: 'Keyframed'
 						: mixed
 							? 'Mixed'
-							: String(values[0] ?? '')
+							: field.typeName === 'transition-easing'
+								? getTransitionEasingLabel(values[0])
+								: String(values[0] ?? '')
 				}
 			/>
 		);
@@ -290,33 +294,41 @@ export const MultiSequenceField: React.FC<{
 			</button>
 		);
 	} else {
-		content = (
-			<>
-				{mixed ? <span style={{fontSize: 12}}>Mixed · </span> : null}
-				<TimelineFieldValue
-					field={field}
-					effectiveValue={values[0]}
-					propStatus={{
-						status: 'static',
-						keyframeDisplayOffsetAdjustment: null,
-						codeValue: mixed ? undefined : values[0],
-					}}
-					scaleLockNodePath={
-						field.typeName === 'string' || field.typeName === 'text-content'
-							? null
-							: targets[0].nodePath
-					}
-					onSave={(value, options) =>
-						save(
-							targets.map(() => value),
-							options,
-						)
-					}
-					onDragValueChange={(value) => preview(targets.map(() => value))}
-					onDragEnd={clear}
-				/>
-			</>
+		const editor = (
+			<TimelineFieldValue
+				field={field}
+				effectiveValue={values[0]}
+				propStatus={{
+					status: 'static',
+					keyframeDisplayOffsetAdjustment: null,
+					codeValue: mixed ? undefined : values[0],
+				}}
+				scaleLockNodePath={
+					field.typeName === 'string' || field.typeName === 'text-content'
+						? null
+						: targets[0].nodePath
+				}
+				onSave={(value, options) =>
+					save(
+						targets.map(() => value),
+						options,
+					)
+				}
+				onDragValueChange={(value) => preview(targets.map(() => value))}
+				onDragEnd={clear}
+			/>
 		);
+		if (field.typeName === 'transition-easing') {
+			content = mixed ? 'Mixed' : getTransitionEasingLabel(values[0]);
+			inlineEditor = editor;
+		} else {
+			content = (
+				<>
+					{mixed ? <span style={{fontSize: 12}}>Mixed · </span> : null}
+					{editor}
+				</>
+			);
+		}
 	}
 
 	const row = (
@@ -339,7 +351,12 @@ export const MultiSequenceField: React.FC<{
 		</TimelineRowChrome>
 	);
 	if (field.key !== 'premountFor' || field.fieldSchema.default !== undefined) {
-		return row;
+		return (
+			<>
+				{row}
+				{inlineEditor}
+			</>
+		);
 	}
 
 	return (

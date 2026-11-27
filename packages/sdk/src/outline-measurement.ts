@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {
 	getResultingTransformationBetweenElementAndAllAncestors,
 	useCache as resetBoxQuadsCache,
@@ -480,6 +481,7 @@ export const measureCanvasOutlineTargets = (
 			];
 			outlines.push({
 				key: target.key,
+				effectGeometry: null,
 				points: groupPoints,
 				uncroppedPoints: groupPoints,
 				dimensions: null,
@@ -495,6 +497,8 @@ export const measureCanvasOutlineTargets = (
 
 		outlines.push({
 			...elementGeometry,
+			effectGeometry:
+				Internals.effectCanvasGeometries.get(measurableNodes[0]) ?? null,
 			key: target.key,
 			points: cropCanvasOutlinePoints(
 				elementGeometry.uncroppedPoints,
@@ -515,7 +519,7 @@ export const canvasOutlinesAreEqual = (
 	}
 
 	for (let i = 0; i < a.length; i++) {
-		if (a[i].key !== b[i].key) {
+		if (a[i].key !== b[i].key || a[i].effectGeometry !== b[i].effectGeometry) {
 			return false;
 		}
 

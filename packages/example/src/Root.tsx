@@ -119,6 +119,7 @@ import {
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
 import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
+import {GrowBoundsButton} from './HtmlInCanvas/grow-bounds-button';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
@@ -1295,6 +1296,14 @@ export const Index: React.FC = () => {
 				/>
 				<Folder name="html-in-canvas">
 					<Composition
+						id="GrowBoundsButton"
+						component={GrowBoundsButton}
+						fps={30}
+						height={600}
+						width={960}
+						durationInFrames={120}
+					/>
+					<Composition
 						id="BouncingVideoMotionBlur"
 						component={BouncingVideoMotionBlur}
 						fps={120}
@@ -2137,6 +2146,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					width={640}
 					height={300}
+				/>
+				<Composition
+					id="gsap-late-mount"
+					lazyComponent={() => import('./Gsap/LateMount')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
 				/>
 			</Folder>
 			<Folder name="lottie">

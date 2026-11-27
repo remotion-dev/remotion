@@ -17,7 +17,7 @@ export const DisclosureChevron: React.FC<{
 		<path
 			d="M1.5 1.5L4.5 5L1.5 8.5"
 			fill="none"
-			stroke="currentColor"
+			stroke="var(--remotion-disclosure-color, currentColor)"
 			strokeLinecap="round"
 			strokeLinejoin="round"
 			strokeWidth="1"

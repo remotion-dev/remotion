@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {Internals, type EffectContentRect} from 'remotion';
 import {
 	cleanupSinglePass,
 	drawSinglePass,
@@ -61,13 +61,26 @@ struct Params {
 // edge coverage. Keep that coverage separate from texture filtering.
 export const createRectTransformImplementations = <P>(
 	label: string,
-	getRect: (params: P, width: number, height: number) => DestinationRect,
+	getRect: (
+		params: P,
+		width: number,
+		height: number,
+		contentRect: EffectContentRect,
+	) => DestinationRect,
 ) => ({
 	webgl2: Internals.createEffectImplementation<P, SinglePassState>({
 		setup: (target) =>
 			setupSinglePass(target, WEBGL_SHADER, label, ['uResolution', 'uRect']),
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const rect = getRect(params, width, height);
+		apply: ({
+			source,
+			width,
+			height,
+			contentRect,
+			params,
+			state,
+			flipSourceY,
+		}) => {
+			const rect = getRect(params, width, height, contentRect);
 			prepareSinglePassSource({
 				state,
 				source: source as TexImageSource,
@@ -89,12 +102,12 @@ export const createRectTransformImplementations = <P>(
 	}),
 	webgpu: Internals.createEffectImplementation<P, WebGpuSinglePassState>({
 		setup: (target) => setupWebGpuSinglePass(target, label),
-		apply: ({source, width, height, params, state, gpuDevice}) => {
+		apply: ({source, width, height, contentRect, params, state, gpuDevice}) => {
 			if (!gpuDevice) {
 				throw new Error(`A WebGPU device is required for the ${label} effect`);
 			}
 
-			const rect = getRect(params, width, height);
+			const rect = getRect(params, width, height, contentRect);
 			applyWebGpuSinglePass({
 				state,
 				source,

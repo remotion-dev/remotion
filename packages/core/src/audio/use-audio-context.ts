@@ -88,7 +88,16 @@ export const useSingletonAudioContext = ({
 		gainNode.connect(audioContext.destination);
 		Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
 
-		audioContext.suspend();
+		// Safari can reject this with "InvalidStateError: AudioDestinationNode is
+		// not initialized" while the output device is still starting. The context
+		// is then left in its initial state, which resume() handles later.
+		audioContext.suspend().catch((err) => {
+			Log.verbose(
+				{logLevel, tag: 'audio'},
+				'Initial AudioContext suspend() was rejected',
+				err,
+			);
+		});
 
 		// Tracks the state we are transitioning towards while resume()/suspend()
 		// have been called but the native state has not updated yet.
@@ -160,7 +169,13 @@ export const useSingletonAudioContext = ({
 			transitionId++;
 			transitionTarget = null;
 			gainNode.disconnect(audioContext.destination);
-			audioContext.close();
+			audioContext.close().catch((err) => {
+				Log.verbose(
+					{logLevel, tag: 'audio'},
+					'AudioContext close() was rejected',
+					err,
+				);
+			});
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
 

@@ -183,13 +183,12 @@
 	position: relative;
 	aspect-ratio: 16 / 9;
 	overflow: hidden;
+	border: 1px solid rgb(17 24 39 / 8%);
 	border-radius: min(1vw, 10px);
-	outline: 1px solid rgb(17 24 39 / 8%);
-	outline-offset: -1px;
 }
 
 :global([data-theme='dark']) .preview {
-	outline-color: rgb(255 255 255 / 10%);
+	border-color: rgb(255 255 255 / 10%);
 }
 
 .card[aria-pressed='true'] .previewMedia {
@@ -209,8 +208,18 @@
 }
 
 .content {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0 8px;
 	min-width: 0;
 	padding: 8px 0;
+}
+
+.loopable {
+	color: var(--ifm-color-emphasis-700);
+	font-size: 0.75rem;
 }
 
 .title {

@@ -14,6 +14,7 @@ import type {
 	DefaultCodingAgent,
 	DefaultEditor,
 	DeleteAfter,
+	DoubleClickAction,
 	FrameRange,
 	NumberOfGifLoops,
 	StillImageFormat,
@@ -143,6 +144,7 @@ const {
 	imageSequencePatternOption,
 	darkModeOption,
 	defaultCodingAgentOption,
+	doubleClickActionOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showDiagnosticsOption,
@@ -715,6 +717,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
+		/** Choose the source action for double-clicks in Remotion Studio. */
+		setDoubleClickAction: (action: DoubleClickAction) => void;
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
@@ -954,6 +958,7 @@ export const Config: FlatConfig = {
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
+	setDoubleClickAction: doubleClickActionOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
 	setHighContrast: highContrastOption.setConfig,

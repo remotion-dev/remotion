@@ -523,8 +523,8 @@ const globalParams: Param[] = [
 		description: (
 			<>
 				The pixel dimensions used by the effect chain. See{' '}
-				<a href="/docs/effects/api#effect-resolution">Effect resolution</a>.
-				Available from v4.0.536.
+				<a href="/docs/effects/output-size">Effect resolution</a>. Available
+				from v4.0.536.
 			</>
 		),
 	},

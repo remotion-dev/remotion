@@ -1,7 +1,6 @@
 import type {StudioElementLibrary} from '@remotion/studio-shared';
 
-export const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
-export const THIRD_PARTY_ELEMENTS_URL =
+export const ELEMENT_LIBRARIES_URL =
 	'https://www.remotion.dev/elements/libraries';
 
 export const isElementLibraryUpdateApplied = (

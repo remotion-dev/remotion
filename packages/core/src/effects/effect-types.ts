@@ -28,6 +28,14 @@ import type {InteractivitySchema} from '../interactivity-schema.js';
 export type Backend = '2d' | 'webgl2' | 'webgpu';
 export type PreferredEffectBackend = Backend | 'auto';
 
+/** Original element bounds, measured from the top-left of the effect target in pixels. */
+export type EffectContentRect = {
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+};
+
 export type EffectImplementation<P, S> = {
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
@@ -48,6 +56,20 @@ export type MultiBackendEffectDefinition<P> = Omit<
 // (e.g. via a local type assertion or by depending on `@webgpu/types`).
 type AnyGpuDevice = unknown;
 
+// One effect's output within a chain. `runEffectChain` creates a new link
+// before every `apply()`, so a link never outlives the pixels it describes.
+export type EffectChainLink = {
+	readonly contentRect: EffectContentRect;
+	// The chain draws this target into its 8-bit output canvas.
+	readonly final: boolean;
+	// A higher-precision copy of the target's pixels that the next effect may
+	// read instead of the canvas. Set by the effect that wrote the target.
+	precise: unknown;
+	// Set by an effect whose output is only known to be valid once the GPU
+	// reports back. Resolves `false` if the chain must render the frame again.
+	check: Promise<boolean> | null;
+};
+
 export type EffectApplyParams<P, S> = {
 	readonly source: CanvasImageSource;
 	readonly target: HTMLCanvasElement;
@@ -55,6 +77,7 @@ export type EffectApplyParams<P, S> = {
 	readonly params: P;
 	readonly width: number;
 	readonly height: number;
+	readonly contentRect: EffectContentRect;
 	readonly gpuDevice: AnyGpuDevice | null;
 	/**
 	 * When `true`, WebGL `texImage2D` uploads use `UNPACK_FLIP_Y_WEBGL` so DOM-style

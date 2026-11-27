@@ -45,6 +45,7 @@ import {
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {LevelsEditor} from './InspectorPanel/LevelsEditor';
+import {sectionHeaderActionIcon} from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {
@@ -82,6 +83,7 @@ import {
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
+import {canApplyEffects} from './use-prepare-html-in-canvas-wrap';
 import {useSelectAsset} from './use-select-asset';
 import {useSelectEffects} from './use-select-effects';
 
@@ -96,12 +98,6 @@ const container: React.CSSProperties = {
 const sectionHeaderActionStyle: React.CSSProperties = {
 	...NO_HOVER_BACKGROUND_STYLE,
 	marginRight: -6,
-};
-
-const sectionHeaderActionIcon: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
 };
 
 const transform3DToggleIcon: React.CSSProperties = {
@@ -1013,9 +1009,10 @@ export const InspectorSequenceSection: React.FC<{
 		revealPendingCaption();
 	}, [inlineCaptions, revealPendingCaption]);
 
-	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
+	const showEffectsSection =
+		canApplyEffects(sequence, nodePathInfo) || hasEffects;
 	const canAddEffect =
-		nodePathInfo.supportsEffects &&
+		canApplyEffects(sequence, nodePathInfo) &&
 		previewServerState.type === 'connected' &&
 		isStudioInteractivityEnabled() &&
 		Boolean(validatedLocation.source);

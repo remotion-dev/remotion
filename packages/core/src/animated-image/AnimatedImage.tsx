@@ -36,7 +36,7 @@ import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
-import {useDelayRender} from '../use-delay-render.js';
+import {useDelayRender, useReportRenderError} from '../use-delay-render.js';
 import {useVideoEnabled} from '../use-media-enabled.js';
 import {useMotionBlurCanvas} from '../use-motion-blur-canvas.js';
 import {usePremounting} from '../use-premounting.js';
@@ -105,7 +105,8 @@ const AnimatedImageContent = forwardRef<
 		} | null>(null);
 		const imageDecoder = decodedImage?.decoder ?? null;
 		const activeDecoderRef = useRef<RemotionImageDecoder | null>(null);
-		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const {delayRender, continueRender} = useDelayRender();
+		const reportRenderError = useReportRenderError();
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
@@ -186,7 +187,7 @@ const AnimatedImageContent = forwardRef<
 						onError?.(err as Error);
 						continueRenderOnce();
 					} else {
-						cancelRender(err);
+						reportRenderError(err);
 					}
 				});
 
@@ -204,7 +205,7 @@ const AnimatedImageContent = forwardRef<
 			initialLoopBehavior,
 			continueRender,
 			delayRender,
-			cancelRender,
+			reportRenderError,
 		]);
 
 		useLayoutEffect(() => {
@@ -253,7 +254,7 @@ const AnimatedImageContent = forwardRef<
 						onError(err as Error);
 						continueRender(delay);
 					} else {
-						cancelRender(err);
+						reportRenderError(err);
 					}
 				});
 
@@ -274,7 +275,7 @@ const AnimatedImageContent = forwardRef<
 			fit,
 			width,
 			height,
-			cancelRender,
+			reportRenderError,
 			effectsOutputSize?.width,
 			effectsOutputSize?.height,
 		]);
@@ -449,7 +450,8 @@ const AnimatedImageWithIntrinsicDuration = (
 	},
 ) => {
 	const {fps} = useVideoConfig();
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {delayRender, continueRender} = useDelayRender();
+	const reportRenderError = useReportRenderError();
 	const {src, requestInit, trimBefore} = props;
 	const requestInitRef = useRef(requestInit);
 	requestInitRef.current = requestInit;
@@ -491,7 +493,7 @@ const AnimatedImageWithIntrinsicDuration = (
 					onErrorRef.current(error);
 					setFailedHandle(handle);
 				} else {
-					cancelRender(error);
+					reportRenderError(error);
 				}
 			});
 
@@ -500,7 +502,7 @@ const AnimatedImageWithIntrinsicDuration = (
 			controller.abort();
 			continueRender(handle);
 		};
-	}, [cancelRender, continueRender, delayRender, fps, src, trimBefore]);
+	}, [reportRenderError, continueRender, delayRender, fps, src, trimBefore]);
 
 	useLayoutEffect(() => {
 		if (duration !== null) {

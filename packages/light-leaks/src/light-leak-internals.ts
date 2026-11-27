@@ -1,5 +1,5 @@
 /**
- * @deprecated Import `lightLeak()` from `@remotion/effects/light-leak` instead: https://www.remotion.dev/docs/effects/light-leak
+ * @deprecated Import `lightLeak()` from `@remotion/effects/light-leak` instead: https://www.remotion.dev/effects/light-leak
  */
 export {
 	lightLeak,

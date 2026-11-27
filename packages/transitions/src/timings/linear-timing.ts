@@ -1,15 +1,24 @@
 import {interpolate} from 'remotion';
 import type {TransitionTiming} from '../types.js';
 
+type LinearTimingOptions = {
+	durationInFrames: number;
+	easing?: ((input: number) => number) | undefined;
+};
+
+export const linearTimingOptions = new WeakMap<
+	TransitionTiming,
+	LinearTimingOptions
+>();
+
 /*
  * @description A timing function for `<TransitionSeries>` based on `interpolate()`.
  * @see [Documentation](https://www.remotion.dev/docs/transitions/timings/lineartiming)
  */
-export const linearTiming = (options: {
-	durationInFrames: number;
-	easing?: ((input: number) => number) | undefined;
-}): TransitionTiming => {
-	return {
+export const linearTiming = (
+	options: LinearTimingOptions,
+): TransitionTiming => {
+	const timing: TransitionTiming = {
 		getDurationInFrames: () => {
 			return options.durationInFrames;
 		},
@@ -21,4 +30,6 @@ export const linearTiming = (options: {
 			});
 		},
 	};
+	linearTimingOptions.set(timing, options);
+	return timing;
 };
