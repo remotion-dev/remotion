@@ -88,6 +88,7 @@ import {
 	HEIGHT as EFFECT_SHOWCASE_HEIGHT,
 	WIDTH as EFFECT_SHOWCASE_WIDTH,
 } from './effects/EffectShowcaseScaffold';
+import {EffectsShort, effectsShortSchema} from './effects/EffectsShort';
 import {BillboardForeground} from './effects/experiments/BillboardForeground';
 import {FxIconComposition} from './effects/FxIconComposition';
 import {Goal} from './effects/Goal';
@@ -339,6 +340,22 @@ export const RemotionRoot: React.FC = () => {
 		<>
 			<AgenticallyProgrammaticallyCompositions />
 			<MotionBlurCompositions />
+			<Folder name="EffectsPromo">
+				<Composition
+					id="EffectsShort"
+					component={EffectsShort}
+					schema={effectsShortSchema}
+					defaultProps={{format: 'portrait'}}
+					calculateMetadata={({props}) => ({
+						width: props.format === 'portrait' ? 1080 : 1920,
+						height: props.format === 'portrait' ? 1920 : 1080,
+					})}
+					durationInFrames={1337}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+			</Folder>
 			<Folder name="VideoElements">
 				<Composition
 					id="CodexUI"
