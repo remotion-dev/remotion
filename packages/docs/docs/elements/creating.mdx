@@ -9,30 +9,87 @@ description: Design reusable, portable Elements for your Element Library.
 
 An [Element](/docs/elements) is a reusable React component that users copy into their video projects. These practices make Elements easy to combine and edit. To publish your Elements, see [Building Element Libraries](/docs/elements/libraries).
 
+## Example
+
+This lower third follows the practices on this page:
+
+```tsx twoslash title="lower-third.tsx"
+import {Interactive, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const LowerThird = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames} = useVideoConfig();
+
+  return (
+    // Sized to its content, with its own text color
+    <div style={{width: 560, height: 86, color: '#ffffff', fontFamily: 'Arial, sans-serif'}}>
+      <Interactive.Div
+        // A named layer that users can select in Studio
+        name="Name bar"
+        // Animates in and out, and the exit follows the end of the Element
+        cropRight={interpolate(frame, [0, 20, durationInFrames - 24, durationInFrames - 4], [1, 0, 0, 1], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        })}
+        style={{width: 560, height: 86, padding: '20px 30px', backgroundColor: '#174c3c', fontSize: 40, fontWeight: 700}}
+      >
+        {/* Text written inline, so it can be edited in Studio */}
+        Alex Morgan
+      </Interactive.Div>
+    </div>
+  );
+};
+```
+
+For complete Elements, see [Name Lower Third](/elements/overlays/name-lower-third), [Text Marker](/elements/text/text-marker) and [YouTube Comment Highlight](/elements/youtube/youtube-comment-highlight), or the Elements in the [Element Library template](/docs/elements/libraries#template).
+
 ## Design
 
-### Use real videos as references
+### Design for video, not for a web page
 
-If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video. Use published videos as a reference instead: video usually needs larger, simpler graphics.
+If you use AI to build an Element, it often designs it like a website component. Use published videos as a reference instead: video usually needs larger, simpler graphics.
+
+- Use large text. A font size that is readable on a web page, such as 20px, is too small in a 1920x1080 video.
+- Leave out links, buttons with hover states and printed URLs. Nothing in a rendered video can be clicked.
+- Drive all motion with [`useCurrentFrame()`](/docs/use-current-frame). CSS transitions and animations do not render correctly.
 
 ### Keep it focused
 
 Users add Elements to their own projects and combine them into a larger video. This works best when each Element does one thing. An Element that bundles several things, such as a title with its own background, is harder to fit in.
 
+## Timing
+
+### Pick a useful default duration
+
+Set [`durationInFrames`](/docs/studio-protocol/create-element-payload#durationinframes) to a length at which the Element looks right without changes. Users can trim or extend it afterwards.
+
 ### Animate overlays in and out
 
 Give overlays, such as lower thirds, an entrance and an exit animation.
 
-Animate the parts inside the Element, not its position on screen. Studio sets the position, so the user can move the Element and the animation moves with it.
+Read `durationInFrames` from [`useVideoConfig()`](/docs/use-video-config) and count the exit from the end, as in the [example](#example). When a user trims or extends the Element, the exit follows its new end.
 
-## Build
+### Keep it working when trimmed
 
-### Make it portable
+[`interpolate()`](/docs/interpolate) throws an error if its input range is not strictly increasing. A range such as `[0, 20, durationInFrames - 24, durationInFrames - 4]` breaks once the Element is shorter than its entrance and exit combined, here 44 frames.
+
+Keep the entrance and exit short compared to the default duration, and [trim the Element](#test-before-publishing) to the shortest length that still makes sense.
+
+## Make it portable
 
 - Avoid global styles and layout side effects.
-- Don't make the Element fill the whole frame unless it's a background.
 - Set a text color on the Element itself. Otherwise it inherits the page's color, including through `currentColor`, which changes between light and dark themes.
 - Avoid project-specific branding or footage, and make colors easy to change.
+
+### Size
+
+Size the Element to its smallest useful bounding box, and don't add padding for the gallery preview. Only backgrounds should fill the whole frame.
+
+If the Element adapts to the composition, set [`dimensions`](/docs/studio-protocol/create-element-payload#dimensions) to `null`.
+
+### Fonts
+
+Web-safe fonts need no setup. Load any other font inside the Element's source, for example with [`@remotion/google-fonts`](/docs/google-fonts), and declare the package as a dependency. A font that is only loaded by the library's website is missing in the user's project, and the Element falls back to a default font.
 
 ### Dependencies
 
@@ -40,38 +97,64 @@ Minimize dependencies, and declare them as described in the [`dependencies` fiel
 
 ### Assets
 
-Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/elements/libraries#asset-handling). Use Google Fonts for non-websafe fonts.
+Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/elements/libraries#asset-handling).
 
-## Integrate with Studio
+### Keep the source self-contained
+
+An Element is one file with one exported component. Helpers that live elsewhere in the library must be copied into it.
+
+Remove unused imports, variables and helpers. Remotion's templates enable strict TypeScript checks, so leftover code fails the user's type check.
+
+## Make it editable in Studio
+
+### Expose layers with `Interactive`
+
+Where possible, expose the Element's layers so users can edit them with [Studio interactivity](/docs/studio/interactivity). Follow the [interactivity best practices](/docs/studio/interactivity-best-practices):
+
+- Give each part that users edit separately its own `Interactive` node with a descriptive `name`, such as `Name bar`.
+- Write text inline in a named layer. Text passed as a prop is only editable in Studio if the component exposes it through [`Interactive.create()`](/docs/interactive-create).
+- Animate the parts inside the Element, not its root. Studio sets the position, so the user can move the Element and the animation moves with it. Animating the opacity or position of the root makes those properties read-only in the Inspector.
 
 ### Choose an installation mode
 
-Where possible, expose the Element's layers so users can edit them with [Studio interactivity](/docs/studio/interactivity). Pick an installation mode based on what users should see in Studio.
+Pick an installation mode based on what users should see in Studio.
 
 #### Separate editable layers
 
 `installationMode: 'wrapped'` is the default. Studio wraps the component in a [`<Sequence>`](/docs/sequence) that sets its placement and duration, and the layers inside stay editable through their `Interactive` call sites.
 
-Size the Element to its smallest useful bounding box. If it adapts to the composition, set [`dimensions`](/docs/studio-protocol/create-element-payload#dimensions) to `null`.
-
 #### One interactive object
 
-Use `installationMode: 'component-owned-sequence'` when editing the internal parts doesn't make sense, for example for generative effects, canvas drawings, or a single image overlay.
+Use `installationMode: 'component-owned-sequence'` when editing the internal parts doesn't make sense, for example for generative effects, canvas drawings, or a single image overlay. It is not meant for hiding markup that users could edit.
 
-Wrap the exported component in [`Interactive.create()`](/docs/interactive-create) and export it directly, without another wrapper. The component must accept a `style` prop and apply it to its visual root. Check in Studio that it shows up as one layer that users can move and trim.
+Wrap the exported component in [`Interactive.create()`](/docs/interactive-create) and export it directly, without another wrapper. The component must accept a `style` prop and apply it to its visual root.
 
-Don't use this mode just to hide markup, and don't add padding just for the gallery preview.
+Caption styles always use this mode and have [additional requirements](/docs/studio-protocol/create-element-payload#iscaptionstyle).
 
 ### Expose useful controls
 
 Users get a copy of the Element's source and can edit it directly, so the `Interactive` schema doesn't need to expose every detail. Add controls with [`Interactive.create()`](/docs/interactive-create) where they make the Element easier to edit. Controls can tune the look, but shouldn't switch between unrelated styles.
 
-Give editable objects clear names. Use a generic name such as `Container` for the main object, and add child controls only for parts users edit separately. See the [interactivity best practices](/docs/studio/interactivity-best-practices).
-
 ### Initial props
 
-If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. Studio writes them onto the installed component in both installation modes, so users can edit them in the Inspector or in the source.
+If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. Studio writes them onto the installed component in both installation modes.
 
-## Publish your Elements
+Users can always edit these props in the source. They only show up in the Inspector if the component exposes them through [`Interactive.create()`](/docs/interactive-create).
 
-Publish your Elements in [your own Element Library](/docs/elements/libraries). See [Distributing Elements](/docs/elements/distributing) for free, sponsored and paid libraries.
+## Test before publishing
+
+Install the Element into a new project, for example one created with [`npx create-video@latest --blank`](/docs), using [`npx remotion elements use`](/docs/cli/elements/use). Then check that:
+
+- the project's type check and lint pass without changes to the Element
+- the Element shows up in Studio with the expected layers, and can be moved
+- trimming it short and extending it does not break the animation
+- it still works when added near the end of the composition
+- fonts and assets load
+
+See [Test the integration](/docs/elements/libraries#5-test-the-integration) for testing the library website.
+
+## See also
+
+- [Building Element Libraries](/docs/elements/libraries)
+- [Distributing Elements](/docs/elements/distributing)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)

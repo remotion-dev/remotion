@@ -27,7 +27,7 @@ export const TableOfContents: React.FC<{
 			<Grid>
 				<TOCItem link="/docs/elements/creating">
 					<strong>Creating an Element</strong>
-					<div>Best practices for design, portability and Studio</div>
+					<div>Best practices for design, timing, portability and Studio</div>
 				</TOCItem>
 				<TOCItem link="/docs/elements/libraries">
 					<strong>Building an Element Library</strong>
