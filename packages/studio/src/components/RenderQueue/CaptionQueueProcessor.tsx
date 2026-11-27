@@ -178,6 +178,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 								fileName: job.target.fileName,
 								nodePath: job.target.nodePath.nodePath,
 								durationInFrames: job.target.durationInFrames,
+								composition: job.target.composition,
 								captions,
 							},
 							element,
@@ -217,6 +218,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 						fileName: job.target.fileName,
 						nodePath: job.target.nodePath.nodePath,
 						durationInFrames: job.target.durationInFrames,
+						composition: job.target.composition,
 						captions,
 					};
 					const browserStudioOperations = getBrowserStudioOperations();

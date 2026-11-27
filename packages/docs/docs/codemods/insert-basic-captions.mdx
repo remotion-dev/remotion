@@ -10,6 +10,8 @@ Adds captions to an audio or video node. When the media can be extracted without
 
 Uses the same safety analysis as pre-compose. If extraction is unsafe, such as when the media uses props, frame-dependent values, or spread attributes, inserts sibling captions and copies the media timing instead. Creates a reusable Basic captions renderer file when needed in either case.
 
+When `composition` is provided, also exports and registers the extracted component as a [connected composition](/docs/composing#connected-compositions). If registration cannot be edited safely, keeps the grouped source without a registration.
+
 :::warning
 
 _Draft API_: This API is experimental and may change.
@@ -52,6 +54,22 @@ Fallback duration for sibling captions when extraction is unsafe and the media n
 
 The module exporting `BasicCaptions`, or the custom `element`. When omitted, the result includes a new `basic-captions.element.tsx` file beside the media source, or reuses an existing matching component. An unrelated file with that name is preserved and another name is selected.
 
+### composition?
+
+Registration settings for the extracted component, or `null` to skip registration. Defaults to `null`. Only used when the media can be extracted safely.
+
+#### fileName
+
+The source file containing composition registrations. It must be present in `project.files`.
+
+#### existingCompositionIds
+
+Existing composition IDs across the project. The generated ID avoids these and the IDs in the registration file.
+
+#### metadata
+
+An object containing `width`, `height`, `fps`, and `durationInFrames`. Use the parent's dimensions and FPS, and the full untrimmed media duration in frames. Clip timing remains on the instance in the parent timeline.
+
 ### element?
 
 A custom caption component description, or `null` for Basic captions. Defaults to `null`. Requires an explicit `importPath`.
@@ -91,6 +109,10 @@ The media node's reference after insertion.
 ### editDetails
 
 The edited media source file and line.
+
+### newCompositionId
+
+The registered composition's ID, or `null` when no composition was registered.
 
 ## Errors
 

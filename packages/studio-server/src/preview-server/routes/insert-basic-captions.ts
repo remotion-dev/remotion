@@ -1,4 +1,4 @@
-import {lstatSync, readFileSync} from 'node:fs';
+import {lstatSync, readFileSync, rmSync} from 'node:fs';
 import {CodemodsInternals, insertBasicCaptions} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -12,6 +12,7 @@ import {formatLogFileLocation} from '../format-log-file-location';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
+	discardLastUndoEntryAfterFailedCommit,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
@@ -27,11 +28,17 @@ export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse
 > = ({
-	input: {fileName, nodePath, captions, durationInFrames},
+	input: {fileName, nodePath, captions, durationInFrames, composition},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue<InsertBasicCaptionsResponse>(() => {
+		const attemptedWrites: {
+			filePath: string;
+			previousContents: string | null;
+			nextContents: string;
+		}[] = [];
+		let undoEntryPushed = false;
 		try {
 			const {absolutePath} = resolveFileInsideProject({
 				remotionRoot,
@@ -65,43 +72,65 @@ export const insertBasicCaptionsHandler: ApiHandler<
 					return readFileSync(elementPath, 'utf-8');
 				},
 			});
+			const files: Record<string, string> = {[absolutePath]: fileContents};
+			let registration = null;
+			if (composition) {
+				try {
+					const resolved = resolveFileInsideProject({
+						remotionRoot,
+						fileName: composition.fileName,
+						action: 'modify',
+					});
+					files[resolved.absolutePath] = readFileSync(
+						resolved.absolutePath,
+						'utf-8',
+					);
+					registration = {...composition, fileName: resolved.absolutePath};
+				} catch {
+					registration = null;
+				}
+			}
+
 			const result = insertBasicCaptions({
 				element: null,
-				project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
+				project: {rootDir: remotionRoot, files},
 				node: {filePath: absolutePath, nodePath},
 				captions,
 				durationInFrames,
+				composition: registration,
 				importPath: elementFile.importPath,
 			});
-			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {logLine} = result.editDetails[0];
-			const {nodePathRemappings} = result;
-			const nodePathMutation = broadcastSequenceNodePathMutation(
-				[{absolutePath, remappings: nodePathRemappings}],
-				null,
-			);
-
+			const changes = [
+				...(elementFile.shouldWrite
+					? [
+							{
+								filePath: elementFile.fileName,
+								previousContents: null,
+								nextContents: basicCaptionsElementSource,
+							},
+						]
+					: []),
+				...result.changes,
+			];
+			const mutationFiles = result.changes
+				.map(({filePath}) => ({
+					absolutePath: filePath,
+					remappings: result.nodePathRemappings
+						.filter((remapping) => remapping.filePath === filePath)
+						.map(({filePath: _filePath, ...remapping}) => remapping),
+				}))
+				.filter(({remappings}) => remappings.length > 0);
 			pushTransactionToUndoStack({
-				snapshots: [
-					...(elementFile.shouldWrite
-						? [
-								{
-									filePath: elementFile.fileName,
-									oldContents: null,
-									newContents: basicCaptionsElementSource,
-									logLine: 1,
-									nodePathRemappings: null,
-								},
-							]
-						: []),
-					{
-						filePath: absolutePath,
-						oldContents: fileContents,
-						newContents: output,
-						logLine,
-						nodePathRemappings,
-					},
-				],
+				snapshots: changes.map((change) => ({
+					filePath: change.filePath,
+					oldContents: change.previousContents,
+					newContents: change.nextContents,
+					logLine: change.filePath === absolutePath ? logLine : 1,
+					nodePathRemappings:
+						mutationFiles.find((file) => file.absolutePath === change.filePath)
+							?.remappings ?? null,
+				})),
 				logLevel,
 				remotionRoot,
 				description: {
@@ -112,23 +141,30 @@ export const insertBasicCaptionsHandler: ApiHandler<
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation: null,
 			});
-			if (elementFile.shouldWrite) {
-				suppressUndoStackInvalidation(elementFile.fileName);
+			undoEntryPushed = true;
+			for (const change of changes) {
+				if (change.nextContents === null) {
+					throw new Error('Could not write the captioned source');
+				}
+
+				attemptedWrites.push({...change, nextContents: change.nextContents});
+				suppressUndoStackInvalidation(change.filePath);
 				writeFileAndNotifyFileWatchers({
-					file: elementFile.fileName,
-					content: basicCaptionsElementSource,
+					file: change.filePath,
+					content: change.nextContents,
 					originatorClientId: undefined,
-					metadata: null,
+					metadata: mutationFiles.some(
+						(file) => file.absolutePath === change.filePath,
+					)
+						? {skipSequencePropsUpdate: true}
+						: null,
 				});
 			}
 
-			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers({
-				file: absolutePath,
-				content: output,
-				originatorClientId: undefined,
-				metadata: {skipSequencePropsUpdate: true},
-			});
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				mutationFiles,
+				null,
+			);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -142,6 +178,25 @@ export const insertBasicCaptionsHandler: ApiHandler<
 			printUndoHint(logLevel);
 			return Promise.resolve({success: true as const, nodePathMutation});
 		} catch (error) {
+			for (const change of attemptedWrites.reverse()) {
+				try {
+					if (readFileSync(change.filePath, 'utf-8') !== change.nextContents)
+						continue;
+					suppressUndoStackInvalidation(change.filePath);
+					if (change.previousContents === null) {
+						rmSync(change.filePath);
+					} else {
+						writeFileAndNotifyFileWatchers({
+							file: change.filePath,
+							content: change.previousContents,
+							originatorClientId: undefined,
+							metadata: null,
+						});
+					}
+				} catch {}
+			}
+
+			if (undoEntryPushed) discardLastUndoEntryAfterFailedCommit();
 			return Promise.resolve({
 				success: false,
 				reason: (error as Error).message,

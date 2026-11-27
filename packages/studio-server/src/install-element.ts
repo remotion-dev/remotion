@@ -459,6 +459,12 @@ export const installElement = async ({
 							position,
 						},
 			};
+			let captionRegistration: {
+				fileName: string;
+				oldContents: string;
+				output: string;
+				nodePathRemappings: SequenceNodePathRemapping[];
+			} | null = null;
 			let inserted: {
 				fileName: string;
 				oldContents: string;
@@ -476,9 +482,32 @@ export const installElement = async ({
 			} else {
 				const fileName = plan.safePaths.compositionFileName;
 				const oldContents = readFileSync(fileName, 'utf-8');
+				const files: Record<string, string> = {[fileName]: oldContents};
+				let registration = null;
+				if (captionTarget.composition) {
+					try {
+						const resolved = resolveFileInsideProject({
+							remotionRoot,
+							fileName: captionTarget.composition.fileName,
+							action: 'modify',
+						});
+						files[resolved.absolutePath] = readFileSync(
+							resolved.absolutePath,
+							'utf-8',
+						);
+						registration = {
+							...captionTarget.composition,
+							fileName: resolved.absolutePath,
+						};
+					} catch {
+						registration = null;
+					}
+				}
+
 				const result = insertBasicCaptions({
 					...captionTarget,
-					project: {rootDir: remotionRoot, files: {[fileName]: oldContents}},
+					composition: registration,
+					project: {rootDir: remotionRoot, files},
 					node: {filePath: fileName, nodePath: captionTarget.nodePath},
 					importPath: plan.importPath,
 					element: {componentName: plan.componentName, initialProps},
@@ -488,8 +517,26 @@ export const installElement = async ({
 					oldContents,
 					output: result.changes[0]?.nextContents ?? oldContents,
 					logLine: result.editDetails[0].logLine,
-					nodePathRemappings: result.nodePathRemappings,
+					nodePathRemappings: result.nodePathRemappings.filter(
+						(remapping) => remapping.filePath === fileName,
+					),
 				};
+				const registrationChange = result.changes.find(
+					(change) => change.filePath !== fileName,
+				);
+				if (
+					registrationChange?.previousContents !== null &&
+					registrationChange?.nextContents
+				) {
+					captionRegistration = {
+						fileName: registrationChange.filePath,
+						oldContents: registrationChange.previousContents,
+						output: registrationChange.nextContents,
+						nodePathRemappings: result.nodePathRemappings.filter(
+							(remapping) => remapping.filePath === registrationChange.filePath,
+						),
+					};
+				}
 			}
 
 			if (
@@ -589,6 +636,14 @@ export const installElement = async ({
 
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
+					...(captionRegistration === null
+						? []
+						: [
+								{
+									absolutePath: captionRegistration.fileName,
+									remappings: captionRegistration.nodePathRemappings,
+								},
+							]),
 					{
 						absolutePath: inserted.fileName,
 						remappings: inserted.nodePathRemappings,
@@ -620,6 +675,17 @@ export const installElement = async ({
 			if (studio) {
 				pushTransactionToUndoStack({
 					snapshots: [
+						...(captionRegistration === null
+							? []
+							: [
+									{
+										filePath: captionRegistration.fileName,
+										oldContents: captionRegistration.oldContents,
+										newContents: captionRegistration.output,
+										logLine: 1,
+										nodePathRemappings: captionRegistration.nodePathRemappings,
+									},
+								]),
 						...(compositionCreation === null
 							? []
 							: [
@@ -683,6 +749,8 @@ export const installElement = async ({
 				}
 
 				suppressUndoStackInvalidation(inserted.fileName);
+				if (captionRegistration !== null)
+					suppressUndoStackInvalidation(captionRegistration.fileName);
 			}
 
 			if (compositionCreation !== null) {
@@ -706,6 +774,18 @@ export const installElement = async ({
 				content: inserted.output,
 				metadata: {skipSequencePropsUpdate: true},
 			});
+			if (captionRegistration !== null) {
+				if (
+					readFileSync(captionRegistration.fileName, 'utf-8') !==
+					captionRegistration.oldContents
+				)
+					throw new Error('Source changed before registering captions');
+				writeSource({
+					file: captionRegistration.fileName,
+					content: captionRegistration.output,
+					metadata: {skipSequencePropsUpdate: true},
+				});
+			}
 
 			if (newComposition !== null && compositionCreation !== null) {
 				RenderInternals.Log.info(

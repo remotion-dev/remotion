@@ -342,6 +342,10 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 
 test('splits video audio and inserts captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
+	const registrationFile = '/project/src/Root.tsx';
+	const registrationSource = `import {Composition} from 'remotion';
+import {Component} from './Composition';
+export const Root = () => <Composition id="Main" component={Component} width={1280} height={720} fps={30} durationInFrames={90} />;`;
 	const initialSource = `import {Video} from '@remotion/media';
 import {Punch} from './Punch';
 export const Component = () => <Punch><Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} /></Punch>;`;
@@ -350,9 +354,10 @@ export const Component = () => <Punch><Video src="video.mp4" from={10} durationI
 		entryPoint: '/project/src/index.tsx',
 		files: {
 			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
-import {Root} from './Composition';
+import {Root} from './Root';
 registerRoot(Root);`,
 			[fileName]: initialSource,
+			[registrationFile]: registrationSource,
 			'/project/src/Punch.tsx': `import {Interactive} from 'remotion';
 const PunchInner = ({children}) => <div>{children}</div>;
 export const Punch = Interactive.create({Component: PunchInner, layout: 'none'});`,
@@ -421,6 +426,11 @@ export const Punch = Interactive.create({Component: PunchInner, layout: 'none'})
 		fileName: 'src/Composition.tsx',
 		nodePath: subscription.nodePath.nodePath,
 		durationInFrames: 20,
+		composition: {
+			fileName: registrationFile,
+			existingCompositionIds: ['Main', 'CaptionedVideo'],
+			metadata: {width: 1280, height: 720, fps: 30, durationInFrames: 120},
+		},
 		captions: [
 			{
 				text: ' Hello',
@@ -447,6 +457,12 @@ export const Punch = Interactive.create({Component: PunchInner, layout: 'none'})
 	expect(currentProject.files[fileName]).toContain("text: ' Hello'");
 	expect(currentProject.files[fileName]).toContain(
 		'const CaptionedVideo = Interactive.create({',
+	);
+	expect(currentProject.files[fileName]).toContain(
+		'export const CaptionedVideo',
+	);
+	expect(currentProject.files[registrationFile].replace(/\s+/g, ' ')).toContain(
+		'<Composition id="CaptionedVideo2" component={CaptionedVideo} durationInFrames={120} fps={30} width={1280} height={720} />',
 	);
 	expect(events).toContainEqual({
 		type: 'sequence-node-paths-remapped',
@@ -482,6 +498,11 @@ export const Punch = Interactive.create({Component: PunchInner, layout: 'none'})
 		fileName: 'src/Composition.tsx',
 		nodePath: currentSubscription.nodePath.nodePath,
 		durationInFrames: 20,
+		composition: {
+			fileName: registrationFile,
+			existingCompositionIds: ['Main', 'CaptionedVideo', 'CaptionedVideo2'],
+			metadata: {width: 1280, height: 720, fps: 30, durationInFrames: 120},
+		},
 		captions: [
 			{
 				text: ' Again',
@@ -510,6 +531,7 @@ export const Punch = Interactive.create({Component: PunchInner, layout: 'none'})
 	).toHaveLength(1);
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
+	expect(currentProject.files[registrationFile]).toBe(registrationSource);
 	expect(
 		currentProject.files['/project/src/basic-captions.element.tsx'],
 	).toBeUndefined();

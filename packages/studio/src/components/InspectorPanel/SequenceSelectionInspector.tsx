@@ -1,9 +1,13 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {useMediaMetadata} from '../../helpers/use-media-metadata';
+import {
+	getMediaDurationInFrames,
+	useMediaMetadata,
+} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {BackgroundRemovalIcon} from '../../icons/background-removal';
 import {DuplicateIcon} from '../../icons/duplicate';
@@ -25,6 +29,10 @@ import {
 	duplicateSequencesFromSource,
 	useIsDuplicatingSequence,
 } from '../Timeline/duplicate-selected-timeline-item';
+import {
+	getCurrentDimensions,
+	getCurrentFps,
+} from '../Timeline/imperative-state';
 import {useIsSplittingSequence} from '../Timeline/pending-sequence-splits';
 import {
 	canSplitTimelineSequences,
@@ -34,6 +42,7 @@ import {
 } from '../Timeline/split-selected-timeline-item';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
 import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
@@ -176,6 +185,13 @@ const SequenceSourceQuickActions: React.FC<{
 			? track.sequence
 			: null;
 	const mediaMetadata = useMediaMetadata(mediaSequence?.src ?? null);
+	const {compositions, canvasContent} = useContext(
+		Internals.CompositionManager,
+	);
+	const compositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const composition = compositions.find((item) => item.id === compositionId);
+	const compositionLocation = useResolvedStack(composition?.stack ?? null);
 	const transcriptionDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
@@ -192,6 +208,12 @@ const SequenceSourceQuickActions: React.FC<{
 		}
 
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		const compositionFile =
+			compositionLocation?.source ??
+			(compositionId
+				? getBrowserStudioOperations()?.getCompositionFile(compositionId)
+				: null);
+		const fps = getCurrentFps();
 		setSelectedModal({
 			type: 'transcribe',
 			captionStyle: null,
@@ -208,12 +230,34 @@ const SequenceSourceQuickActions: React.FC<{
 				durationInFrames: Number.isFinite(mediaSequence.duration)
 					? mediaSequence.duration
 					: null,
+				composition:
+					compositionFile &&
+					mediaMetadata &&
+					Number.isFinite(mediaMetadata.duration) &&
+					mediaMetadata.duration > 0
+						? {
+								fileName: compositionFile,
+								existingCompositionIds: compositions.map(({id}) => id),
+								metadata: {
+									...getCurrentDimensions(),
+									fps,
+									durationInFrames: getMediaDurationInFrames(
+										mediaMetadata.duration,
+										fps,
+									),
+								},
+							}
+						: null,
 			},
 		});
 	}, [
 		selection.nodePathInfo,
 		setSelectedModal,
 		mediaSequence,
+		mediaMetadata,
+		compositionLocation,
+		compositionId,
+		compositions,
 		transcriptionDisabledReason,
 	]);
 	const onRemoveBackground = useCallback(() => {

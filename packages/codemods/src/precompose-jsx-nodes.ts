@@ -1487,7 +1487,7 @@ export class PrecomposeNameError extends Error {
 	name = 'PrecomposeNameError';
 }
 
-const getRegistrationPathChanges = ({
+export const getRegistrationPathChanges = ({
 	before,
 	after,
 	compositionId,

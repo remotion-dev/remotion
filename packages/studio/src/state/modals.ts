@@ -17,6 +17,7 @@ import type {
 	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	InsertBasicCaptionsRequest,
 	EffectDefinition,
 	NodeWrapper,
 	PrecomposeJsxNodesRequest,
@@ -180,6 +181,7 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		composition: InsertBasicCaptionsRequest['composition'];
 	} | null;
 };
 

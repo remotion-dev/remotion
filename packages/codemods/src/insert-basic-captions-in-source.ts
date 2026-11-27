@@ -68,6 +68,7 @@ export const insertBasicCaptions = ({
 	output: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
+	componentName: string | null;
 } => {
 	const ast = parseAst(input);
 	const captured = captureJsxNodePaths(ast);
@@ -477,6 +478,7 @@ export const insertBasicCaptions = ({
 		});
 		return {
 			output: outputWithSource,
+			componentName,
 			logLine: media.openingElement.loc?.start.line ?? 1,
 			nodePathRemappings: getNodePathRemappings({
 				ast,
@@ -559,6 +561,7 @@ export const insertBasicCaptions = ({
 	});
 	return {
 		output,
+		componentName: null,
 		logLine: media.openingElement.loc?.start.line ?? 1,
 		nodePathRemappings,
 	};

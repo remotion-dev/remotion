@@ -391,6 +391,16 @@ test('downloads a model in the queued job before transcribing', async () => {
 				outName: 'Basic captions',
 				target: {
 					fileName: '/project/Root.tsx',
+					composition: {
+						fileName: '/project/Root.tsx',
+						existingCompositionIds: ['Main'],
+						metadata: {
+							width: 1920,
+							height: 1080,
+							fps: 30,
+							durationInFrames: 180,
+						},
+					},
 					nodePath: {
 						absolutePath: '/project/Root.tsx',
 						nodePath: [0],
@@ -415,6 +425,16 @@ test('downloads a model in the queued job before transcribing', async () => {
 				endpoint: '/api/insert-basic-captions',
 				body: {
 					fileName: '/project/Root.tsx',
+					composition: {
+						fileName: '/project/Root.tsx',
+						existingCompositionIds: ['Main'],
+						metadata: {
+							width: 1920,
+							height: 1080,
+							fps: 30,
+							durationInFrames: 180,
+						},
+					},
 					nodePath: [0],
 					durationInFrames: 90,
 					captions: [
@@ -488,6 +508,11 @@ test('downloads a model in the queued job before transcribing', async () => {
 			{
 				fileName: '/project/Browser.tsx',
 				nodePath: [0],
+				composition: {
+					fileName: '/project/Root.tsx',
+					existingCompositionIds: ['Main'],
+					metadata: {width: 1920, height: 1080, fps: 30, durationInFrames: 180},
+				},
 				durationInFrames: 45,
 				captions: (insertedRequests[0].body as {captions: unknown}).captions,
 			},

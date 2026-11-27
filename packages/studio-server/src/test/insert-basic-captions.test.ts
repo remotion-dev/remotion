@@ -74,6 +74,7 @@ test('transcription groups static Video and Audio with inline captions', async (
 		writeFileSync(
 			entryPoint,
 			`import {Video, Audio} from '@remotion/media';
+import {Composition} from 'remotion';
 
 export const Comp = () => (
 	<>
@@ -81,6 +82,7 @@ export const Comp = () => (
 		<Audio src="voice.mp3" durationInFrames={60} />
 	</>
 );
+export const Root = () => <Composition id="Main" component={Comp} width={1280} height={720} fps={30} durationInFrames={90} />;
 `,
 		);
 
@@ -95,6 +97,16 @@ export const Comp = () => (
 					nodePath: lineContainingToNodePath(current, tag),
 					captions,
 					durationInFrames,
+					composition: {
+						fileName: entryPoint,
+						existingCompositionIds: ['Main'],
+						metadata: {
+							width: 1280,
+							height: 720,
+							fps: 30,
+							durationInFrames: 240,
+						},
+					},
 				},
 				entryPoint,
 				remotionRoot,
@@ -144,6 +156,11 @@ export const Comp = () => (
 		expect(written).toContain('<Video src="video.mp4" />');
 		expect(written).toContain('<Audio src="voice.mp3" />');
 		expect(written.match(/Interactive\.create\(/g)).toHaveLength(2);
+		expect(written).toContain('export const CaptionedVideo');
+		expect(written).toContain('export const CaptionedAudio');
+		expect(written.replace(/\s+/g, ' ')).toContain(
+			'<Composition id="CaptionedVideo" component={CaptionedVideo} durationInFrames={240} fps={30} width={1280} height={720} />',
+		);
 		expect(getUndoStack()).toHaveLength(2);
 	} finally {
 		cleanupFileWatcher();
