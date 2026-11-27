@@ -95,6 +95,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
@@ -360,6 +361,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasInteraction} />
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
