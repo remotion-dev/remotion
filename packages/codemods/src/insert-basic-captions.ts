@@ -28,8 +28,8 @@ export type InsertBasicCaptionsOptions<Project extends CodemodProject> = {
 		typeof insertBasicCaptionsInSource
 	>[0]['captions'][number][];
 	durationInFrames?: number | null;
-	composition?: InsertBasicCaptionsRequest['composition'];
-	importPath?: string;
+	composition: InsertBasicCaptionsRequest['composition'];
+	importPath: string | null;
 	element?: {
 		componentName: string;
 		initialProps: ElementInitialProps | null;
@@ -42,20 +42,20 @@ export const insertBasicCaptions = <Project extends CodemodProject>({
 	node,
 	captions,
 	durationInFrames = null,
-	composition = null,
+	composition,
 	importPath,
 	element = null,
 	prettierConfigOverride = null,
 }: InsertBasicCaptionsOptions<Project>) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const companion =
-		importPath === undefined
+		importPath === null
 			? getBasicCaptionsElementFile({
 					fileName: filePath,
 					readFileContents: (file) => project.files[file] ?? null,
 				})
 			: null;
-	if (element !== null && importPath === undefined)
+	if (element !== null && importPath === null)
 		throw new Error('A custom caption element requires an importPath');
 	const edit = insertBasicCaptionsInSource({
 		input: project.files[filePath],

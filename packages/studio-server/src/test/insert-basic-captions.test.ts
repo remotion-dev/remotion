@@ -174,6 +174,8 @@ test('groups a root Audio in a reusable component when adding captions', () => {
 export const Comp = () => <Audio src="voice.mp3" />;`;
 	const {output} = insertBasicCaptions({
 		element: null,
+		composition: null,
+		importPath: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions: [
@@ -225,6 +227,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 	];
 	const first = insertBasicCaptions({
 		element: null,
+		composition: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions,
@@ -233,6 +236,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 	});
 	const second = insertBasicCaptions({
 		element: null,
+		composition: null,
 		input: first.output,
 		nodePath: lineContainingToNodePath(first.output, '<Audio'),
 		captions,

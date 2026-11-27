@@ -26,6 +26,8 @@ declare const node: NodeReference;
 
 const result = insertBasicCaptions({
   project, node,
+  composition: null,
+  importPath: null,
   captions: [{text: 'Hello', startMs: 0, endMs: 1000, timestampMs: 0, confidence: null}],
 });
 
@@ -50,13 +52,13 @@ Caption objects with `text`, `startMs`, `endMs`, `timestampMs`, `confidence`, an
 
 Fallback duration for sibling captions when extraction is unsafe and the media node does not specify one. Defaults to `null`. Extracted components retain the media's authored timing and inherit any surrounding clip boundary.
 
-### importPath?
+### importPath
 
-The module exporting `BasicCaptions`, or the custom `element`. When omitted, the result includes a new `basic-captions.element.tsx` file beside the media source, or reuses an existing matching component. An unrelated file with that name is preserved and another name is selected.
+The module exporting `BasicCaptions`, or the custom `element`. When `null`, the result includes a new `basic-captions.element.tsx` file beside the media source, or reuses an existing matching component. An unrelated file with that name is preserved and another name is selected.
 
-### composition?
+### composition
 
-Registration settings for the extracted component, or `null` to skip registration. Defaults to `null`. Only used when the media can be extracted safely.
+Registration settings for the extracted component, or `null` to skip registration. Only used when the media can be extracted safely.
 
 #### fileName
 
