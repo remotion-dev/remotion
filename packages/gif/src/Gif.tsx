@@ -57,6 +57,11 @@ export const gifSchema: InteractivitySchema = {
 	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
+type GifInnerProps = GifProps & {
+	readonly controls?: SequenceControls | undefined;
+	readonly motionBlur: ReturnType<typeof Internals.useMotionBlurCanvas>;
+};
+
 const GifInner = ({
 	src,
 	width,
@@ -84,13 +89,8 @@ const GifInner = ({
 	motionBlur,
 	effects = [],
 	effectsOutputSize,
-	ref,
 	...sequenceProps
-}: GifProps & {
-	readonly controls?: SequenceControls | undefined;
-	readonly ref?: React.Ref<HTMLCanvasElement>;
-	readonly motionBlur: ReturnType<typeof Internals.useMotionBlurCanvas>;
-}) => {
+}: GifInnerProps) => {
 	const env = useRemotionEnvironment();
 	const isMedia = useMemo(
 		() => ({
@@ -167,15 +167,15 @@ const GifInner = ({
 
 	const inner = !motionBlur.primary ? (
 		<canvas
-			ref={ref}
+			ref={motionBlur.canvasRef}
 			width={width}
 			height={height}
 			style={{width, height, ...croppedStyle}}
 		/>
 	) : env.isRendering ? (
-		<GifForRendering {...gifProps} ref={ref} />
+		<GifForRendering {...gifProps} ref={motionBlur.canvasRef} />
 	) : (
-		<GifForDevelopment {...gifProps} ref={ref} />
+		<GifForDevelopment {...gifProps} ref={motionBlur.canvasRef} />
 	);
 
 	return (
@@ -202,13 +202,7 @@ const GifInner = ({
 	);
 };
 
-const GifWithIntrinsicDuration = (
-	props: GifProps & {
-		readonly controls?: SequenceControls | undefined;
-		readonly ref?: React.Ref<HTMLCanvasElement>;
-		readonly motionBlur: ReturnType<typeof Internals.useMotionBlurCanvas>;
-	},
-) => {
+const GifWithIntrinsicDuration = (props: GifInnerProps) => {
 	const {fps} = useVideoConfig();
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const {src, requestInit, trimBefore} = props;
@@ -282,12 +276,10 @@ const GifWithIntrinsicDuration = (
 	return <GifInner {...props} durationInFrames={duration.durationInFrames} />;
 };
 
-const GifComponent = (
-	props: GifProps & {
-		readonly controls?: SequenceControls | undefined;
-		readonly ref?: React.Ref<HTMLCanvasElement>;
-	},
-) => {
+const GifComponent: React.ForwardRefRenderFunction<
+	HTMLCanvasElement,
+	GifProps & {readonly controls?: SequenceControls | undefined}
+> = (props, ref) => {
 	const videoEnabled = Internals.useVideoEnabled();
 	const parentSequence = useContext(Internals.SequenceContext);
 	const sourceStack = props.controls
@@ -333,7 +325,7 @@ const GifComponent = (
 			resolvedSrc: resolveGifSource(props.src),
 			requestInit: props.requestInit,
 		}),
-		forwardedRef: props.ref ?? null,
+		forwardedRef: ref,
 		onVideoFrame: null,
 	});
 	if (!videoEnabled) {
@@ -344,7 +336,6 @@ const GifComponent = (
 		return (
 			<GifInner
 				{...props}
-				ref={motionBlur.canvasRef}
 				motionBlur={motionBlur}
 				loop={false}
 				durationInFrames={props.loop ? undefined : props.durationInFrames}
@@ -362,19 +353,16 @@ const GifComponent = (
 			<GifWithIntrinsicDuration
 				{...props}
 				key={`${cacheKey}-${props.trimBefore ?? 0}`}
-				ref={motionBlur.canvasRef}
 				motionBlur={motionBlur}
 			/>
 		);
 	}
 
-	return (
-		<GifInner {...props} ref={motionBlur.canvasRef} motionBlur={motionBlur} />
-	);
+	return <GifInner {...props} motionBlur={motionBlur} />;
 };
 
 export const Gif = Interactive.withSchema({
-	Component: GifComponent,
+	Component: React.forwardRef(GifComponent),
 	componentName: '<Gif>',
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

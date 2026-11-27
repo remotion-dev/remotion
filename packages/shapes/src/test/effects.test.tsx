@@ -179,6 +179,7 @@ const loadComponents = async () => {
 	}) => {
 		return (
 			<RenderSvg
+				pathRef={null}
 				defaultName="<Circle>"
 				documentationLink="https://www.remotion.dev/docs/shapes/circle"
 				{...makeCircle({radius})}
@@ -196,6 +197,7 @@ const loadComponents = async () => {
 	}) => {
 		return (
 			<RenderSvg
+				pathRef={null}
 				defaultName="<Rect>"
 				documentationLink="https://www.remotion.dev/docs/shapes/rect"
 				{...makeRect({height, width, edgeRoundness, cornerRadius})}

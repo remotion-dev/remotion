@@ -51,31 +51,38 @@ const arrowSchema = makeShapeSchema({
  * @param {Number} cornerRadius Rounds the corner using an arc. Similar to CSS's border-radius.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/arrow)
  */
-const ArrowInner: React.FC<ArrowProps> = ({
-	length,
-	headWidth,
-	headLength,
-	shaftWidth,
-	direction,
-	cornerRadius,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Arrow>"
-			documentationLink="https://www.remotion.dev/docs/shapes/arrow"
-			{...makeArrow({
-				length,
-				headWidth,
-				headLength,
-				shaftWidth,
-				direction,
-				cornerRadius,
-			})}
-			{...props}
-		/>
-	);
-};
+const ArrowInner = React.forwardRef<SVGPathElement, ArrowProps>(
+	(
+		{
+			length,
+			headWidth,
+			headLength,
+			shaftWidth,
+			direction,
+			cornerRadius,
+			...props
+		},
+		pathRef,
+	) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Arrow>"
+				documentationLink="https://www.remotion.dev/docs/shapes/arrow"
+				{...makeArrow({
+					length,
+					headWidth,
+					headLength,
+					shaftWidth,
+					direction,
+					cornerRadius,
+				})}
+				{...props}
+			/>
+		);
+	},
+);
+ArrowInner.displayName = 'ArrowInner';
 
 export const Arrow = Interactive.withSchema({
 	Component: ArrowInner,

@@ -60,35 +60,42 @@ const calloutSchema = makeShapeSchema({
  * @param {Number} cornerRadius Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/callout)
  */
-const CalloutInner: React.FC<CalloutProps> = ({
-	width,
-	height,
-	pointerLength,
-	pointerBaseWidth,
-	pointerPosition,
-	pointerDirection,
-	edgeRoundness,
-	cornerRadius,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Callout>"
-			documentationLink="https://www.remotion.dev/docs/shapes/callout"
-			{...makeCallout({
-				width,
-				height,
-				pointerLength,
-				pointerBaseWidth,
-				pointerPosition,
-				pointerDirection,
-				edgeRoundness,
-				cornerRadius,
-			})}
-			{...props}
-		/>
-	);
-};
+const CalloutInner = React.forwardRef<SVGPathElement, CalloutProps>(
+	(
+		{
+			width,
+			height,
+			pointerLength,
+			pointerBaseWidth,
+			pointerPosition,
+			pointerDirection,
+			edgeRoundness,
+			cornerRadius,
+			...props
+		},
+		pathRef,
+	) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Callout>"
+				documentationLink="https://www.remotion.dev/docs/shapes/callout"
+				{...makeCallout({
+					width,
+					height,
+					pointerLength,
+					pointerBaseWidth,
+					pointerPosition,
+					pointerDirection,
+					edgeRoundness,
+					cornerRadius,
+				})}
+				{...props}
+			/>
+		);
+	},
+);
+CalloutInner.displayName = 'CalloutInner';
 
 export const Callout = Interactive.withSchema({
 	Component: CalloutInner,

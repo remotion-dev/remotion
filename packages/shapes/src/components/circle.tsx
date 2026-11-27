@@ -21,16 +21,20 @@ const circleSchema = makeShapeSchema({
  * @param {Number} radius The radius of the circle.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/circle)
  */
-const CircleInner: React.FC<CircleProps> = ({radius, ...props}) => {
-	return (
-		<RenderSvg
-			defaultName="<Circle>"
-			documentationLink="https://www.remotion.dev/docs/shapes/circle"
-			{...makeCircle({radius})}
-			{...props}
-		/>
-	);
-};
+const CircleInner = React.forwardRef<SVGPathElement, CircleProps>(
+	({radius, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Circle>"
+				documentationLink="https://www.remotion.dev/docs/shapes/circle"
+				{...makeCircle({radius})}
+				{...props}
+			/>
+		);
+	},
+);
+CircleInner.displayName = 'CircleInner';
 
 export const Circle = Interactive.withSchema({
 	Component: CircleInner,

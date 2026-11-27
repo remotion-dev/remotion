@@ -34,22 +34,20 @@ const rectSchema = makeShapeSchema({
  * @param {null|Number} edgeRoundness Allows to modify the shape by rounding the edges using bezier curves. Default null.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/rect)
  */
-const RectInner: React.FC<RectProps> = ({
-	width,
-	edgeRoundness,
-	height,
-	cornerRadius,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Rect>"
-			documentationLink="https://www.remotion.dev/docs/shapes/rect"
-			{...makeRect({height, width, edgeRoundness, cornerRadius})}
-			{...props}
-		/>
-	);
-};
+const RectInner = React.forwardRef<SVGPathElement, RectProps>(
+	({width, edgeRoundness, height, cornerRadius, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Rect>"
+				documentationLink="https://www.remotion.dev/docs/shapes/rect"
+				{...makeRect({height, width, edgeRoundness, cornerRadius})}
+				{...props}
+			/>
+		);
+	},
+);
+RectInner.displayName = 'RectInner';
 
 export const Rect = Interactive.withSchema({
 	Component: RectInner,

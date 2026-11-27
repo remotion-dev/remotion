@@ -3,10 +3,14 @@ import React from 'react';
 const d =
 	'M143.056 81.4934C147.25 77.2994 147.25 70.4506 143.056 66.2566C138.862 62.0627 132.013 62.0627 127.819 66.2566L86.1875 107.888L69.1809 90.8816C64.9869 86.6877 58.1381 86.6877 53.9441 90.8816C49.7502 95.0756 49.7502 101.924 53.9441 106.118L78.5691 130.743C82.7631 134.937 89.6119 134.937 93.8059 130.743L143.056 81.4934Z';
 
-export const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+export const CheckIcon = React.forwardRef<
+	SVGSVGElement,
+	React.SVGProps<SVGSVGElement>
+>((props, ref) => {
 	return (
 		<svg
 			{...props}
+			ref={ref}
 			viewBox={
 				'50.79867500000001 63.11117499999997 95.40282500000015 70.77732499999999'
 			}
@@ -16,4 +20,5 @@ export const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
 			<path d={d} fill="currentcolor" />
 		</svg>
 	);
-};
+});
+CheckIcon.displayName = 'CheckIcon';

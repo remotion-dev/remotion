@@ -28,16 +28,20 @@ const ellipseSchema = makeShapeSchema({
  * @see [Documentation](https://www.remotion.dev/docs/shapes/ellipse)
  */
 
-const EllipseInner: React.FC<EllipseProps> = ({rx, ry, ...props}) => {
-	return (
-		<RenderSvg
-			defaultName="<Ellipse>"
-			documentationLink="https://www.remotion.dev/docs/shapes/ellipse"
-			{...makeEllipse({rx, ry})}
-			{...props}
-		/>
-	);
-};
+const EllipseInner = React.forwardRef<SVGPathElement, EllipseProps>(
+	({rx, ry, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Ellipse>"
+				documentationLink="https://www.remotion.dev/docs/shapes/ellipse"
+				{...makeEllipse({rx, ry})}
+				{...props}
+			/>
+		);
+	},
+);
+EllipseInner.displayName = 'EllipseInner';
 
 export const Ellipse = Interactive.withSchema({
 	Component: EllipseInner,

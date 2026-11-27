@@ -34,22 +34,20 @@ const triangleSchema = makeShapeSchema({
  * @param {Number} cornerRadius Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/triangle)
  */
-const TriangleInner: React.FC<TriangleProps> = ({
-	length,
-	direction,
-	edgeRoundness,
-	cornerRadius,
-	...props
-}) => {
-	return (
-		<RenderSvg
-			defaultName="<Triangle>"
-			documentationLink="https://www.remotion.dev/docs/shapes/triangle"
-			{...makeTriangle({length, direction, edgeRoundness, cornerRadius})}
-			{...props}
-		/>
-	);
-};
+const TriangleInner = React.forwardRef<SVGPathElement, TriangleProps>(
+	({length, direction, edgeRoundness, cornerRadius, ...props}, pathRef) => {
+		return (
+			<RenderSvg
+				pathRef={pathRef}
+				defaultName="<Triangle>"
+				documentationLink="https://www.remotion.dev/docs/shapes/triangle"
+				{...makeTriangle({length, direction, edgeRoundness, cornerRadius})}
+				{...props}
+			/>
+		);
+	},
+);
+TriangleInner.displayName = 'TriangleInner';
 
 export const Triangle = Interactive.withSchema({
 	Component: TriangleInner,
