@@ -2,10 +2,15 @@ import {colorCorrection} from '@remotion/effects/color-correction';
 import {loadFont} from '@remotion/fonts';
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {staticFile} from 'remotion';
+import {Sequence, staticFile} from 'remotion';
 import {z} from 'zod';
 import {BasicCaptions} from '../basic-captions';
+import {EffectsRangeInputIntro} from '../EffectsIntroCaptureComposition';
+import {EffectsBackendsSlide} from './EffectsBackendsSlide';
+import {EffectsPowerRangers} from './EffectsPowerRangers';
+import {EffectsRangersMusic, rangersMusicSchema} from './EffectsRangersMusic';
 import {EffectsShaderGallery} from './EffectsShaderGallery';
+import {EffectsSuperheroBadges} from './EffectsSuperheroBadges';
 
 loadFont({
 	family: 'Effects GT Planar',
@@ -15,9 +20,17 @@ loadFont({
 
 export const effectsShortSchema = z.object({
 	format: z.enum(['portrait', 'landscape']).describe('Video format'),
+	ending: z
+		.enum(['Power Rangers', 'Deadpool & Wolverine'])
+		.describe('Ending footage'),
+	rangersMusic: rangersMusicSchema,
 });
 
-export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
+export const EffectsShort = ({
+	format,
+	ending,
+	rangersMusic,
+}: z.infer<typeof effectsShortSchema>) => {
 	const portrait = format === 'portrait';
 
 	return (
@@ -51,8 +64,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.236413043 : 0.263586957}
+						cropRight={portrait ? 0.274456522 : 0.301630435}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -61,13 +74,34 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-522px 820px' : '378px -51px',
 						}}
 					/>
 					<Audio
 						name="1 - Dialogue"
 						src="https://remotion.media/effects-promo-2026-11-27/effect1-auphonic-62a9f9a2854b.flac"
 					/>
+					<Sequence
+						name="Range input close-up"
+						from={69}
+						durationInFrames={125}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						style={{
+							left: 0,
+							top: 0,
+							overflow: 'hidden',
+							backgroundColor: 'black',
+							perspective: 1400,
+						}}
+					>
+						<Sequence
+							name="Screen tilt"
+							style={{rotate: '0.88 -0.06 -0.46 18deg'}}
+						>
+							<EffectsRangeInputIntro />
+						</Sequence>
+					</Sequence>
 					<BasicCaptions
 						name="1 - Captions"
 						width={portrait ? 1040 : 1200}
@@ -206,8 +240,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.224184783 : 0.251358696}
+						cropRight={portrait ? 0.286684783 : 0.313858696}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -216,7 +250,7 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-495px 820px' : '405px -51px',
 						}}
 					/>
 					<Audio
@@ -362,8 +396,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.216938406 : 0.244112319}
+						cropRight={portrait ? 0.293931159 : 0.321105072}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -372,7 +406,7 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-479px 820px' : '421px -51px',
 						}}
 					/>
 					<Audio
@@ -546,8 +580,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.230072464 : 0.257246377}
+						cropRight={portrait ? 0.280797101 : 0.307971014}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -556,7 +590,7 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-508px 820px' : '392px -51px',
 						}}
 					/>
 					<Audio
@@ -787,8 +821,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.216032609 : 0.243206522}
+						cropRight={portrait ? 0.294836957 : 0.32201087}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -797,13 +831,23 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-477px 820px' : '423px -51px',
 						}}
 					/>
 					<Audio
 						name="5 - Dialogue"
 						src="https://remotion.media/effects-promo-2026-11-27/effect5-auphonic-18af99532d13.flac"
 					/>
+					<Sequence
+						name="Supported Effect Backends"
+						from={158}
+						durationInFrames={66}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						style={{left: 0, top: 0}}
+					>
+						<EffectsBackendsSlide />
+					</Sequence>
 					<BasicCaptions
 						name="5 - Captions"
 						width={portrait ? 1040 : 1200}
@@ -942,8 +986,8 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 								saturation: 0.95,
 							}),
 						]}
-						cropLeft={portrait ? 0.255434783 : 0.282608696}
-						cropRight={portrait ? 0.255434783 : 0.282608696}
+						cropLeft={portrait ? 0.219655797 : 0.24682971}
+						cropRight={portrait ? 0.291213768 : 0.318387681}
 						cropTop={portrait ? 0.112721417 : 0.041062802}
 						cropBottom={portrait ? 0.114331723 : 0.08937198}
 						style={{
@@ -952,13 +996,56 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 							top: 0,
 							width: 2208,
 							height: 1242,
-							translate: portrait ? '-564px 820px' : '336px -51px',
+							translate: portrait ? '-485px 820px' : '415px -51px',
 						}}
 					/>
 					<Audio
 						name="6 - Dialogue"
 						src="https://remotion.media/effects-promo-2026-11-27/effect6-auphonic-e1dfa4d22d5a.flac"
 					/>
+					{ending === 'Power Rangers' ? (
+						<Sequence
+							name="Power Rangers"
+							from={389}
+							durationInFrames={226}
+							width={portrait ? 1080 : 960}
+							height={portrait ? 960 : 1080}
+							style={{left: 0, top: 0, overflow: 'hidden'}}
+						>
+							<EffectsPowerRangers />
+							<EffectsRangersMusic music={rangersMusic} />
+						</Sequence>
+					) : (
+						<Sequence
+							name="HTML and Canvas"
+							from={389}
+							durationInFrames={90}
+							playbackRate={0.72}
+							width={portrait ? 1080 : 960}
+							height={portrait ? 960 : 1080}
+							style={{left: 0, top: 0, overflow: 'hidden'}}
+						>
+							<div
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: portrait ? 130 : 210,
+									width: 1200,
+									height: 804,
+									scale: portrait ? 0.9 : 0.8,
+									transformOrigin: 'top left',
+								}}
+							>
+								<Video
+									name="Deadpool & Wolverine - trailer at 0:43"
+									src="https://remotion.media/effects-promo-2026-11-27/deadpool-wolverine-00-43-deab48952c3a.mp4"
+									muted
+									style={{width: '100%', height: '100%'}}
+								/>
+								<EffectsSuperheroBadges />
+							</div>
+						</Sequence>
+					)}
 					<BasicCaptions
 						name="6 - Captions"
 						width={portrait ? 1040 : 1200}

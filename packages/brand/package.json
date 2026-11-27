@@ -26,6 +26,7 @@
 	"devDependencies": {
 		"@code-hike/lighter": "1.0.3",
 		"@remotion/cli": "workspace:*",
+		"@remotion/design": "workspace:*",
 		"@remotion/effects": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/fonts": "workspace:*",
