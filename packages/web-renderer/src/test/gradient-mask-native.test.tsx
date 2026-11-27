@@ -46,7 +46,7 @@ const cases: Record<string, React.CSSProperties> = {
 					{
 						maskImage: `linear-gradient(to right, black 60%, transparent 60%), url("${rasterMask}")`,
 						maskComposite,
-						maskSize: 'auto, 40px 20px',
+						maskSize: 'auto, 16px 8px',
 						maskRepeat: 'no-repeat, repeat',
 						maskPosition: '0 0, 7px 5px',
 					},
