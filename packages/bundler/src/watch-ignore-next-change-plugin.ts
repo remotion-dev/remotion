@@ -5,6 +5,7 @@
 // timestamps are restored, the file is removed from changedFiles, and the original
 // callback is skipped (which would trigger _invalidate → compile). The watchpack
 // listeners are re-registered and unpaused so subsequent real changes still work.
+// Rspack's native watcher is resumed through watch() with no dependency changes.
 import {readFileSync, statSync} from 'node:fs';
 import path from 'node:path';
 import type {Compiler} from 'webpack';
@@ -30,8 +31,8 @@ type Watcher = {
 	pause: () => void;
 	getAggregatedRemovals?: () => Set<string>;
 	getAggregatedChanges?: () => Set<string>;
-	getFileTimeInfoEntries: () => Map<string, TimeInfoEntry>;
-	getContextTimeInfoEntries: () => Map<string, TimeInfoEntry>;
+	getFileTimeInfoEntries: (() => Map<string, TimeInfoEntry>) | undefined;
+	getContextTimeInfoEntries: (() => Map<string, TimeInfoEntry>) | undefined;
 	getInfo?: () => {
 		changes: Set<string>;
 		removals: Set<string>;
@@ -368,6 +369,7 @@ export class WatchIgnoreNextChangePlugin {
 				callbackUndelayed,
 			) => {
 				const watchedDirectories = new Set(directories);
+				let isNativeWatcher = false;
 				const wrappedCallbackUndelayed: CallbackUndelayed = (
 					fileName,
 					changeTime,
@@ -385,7 +387,7 @@ export class WatchIgnoreNextChangePlugin {
 									self.isAlreadyNotifiedDirectory(
 										fileName,
 										info?.fileTimeInfoEntries ??
-											self.currentWatcher?.getFileTimeInfoEntries() ??
+											self.currentWatcher?.getFileTimeInfoEntries?.() ??
 											null,
 									)))) ||
 						self.filesToIgnore.has(fileName) ||
@@ -414,6 +416,18 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
+					if (err) {
+						callback(
+							err,
+							fileTimestamps,
+							dirTimestamps,
+							changedFiles,
+							removedFiles,
+						);
+						return;
+					}
+
+					const resumeTime = Date.now();
 					self.releaseChangedSuppressions();
 					const ignoredDirs = [...self.dirsToIgnore].filter((dir) =>
 						self.isIgnoredDirectory(
@@ -529,6 +543,26 @@ export class WatchIgnoreNextChangePlugin {
 							suppressedDirs,
 						);
 
+						if (isNativeWatcher) {
+							// Native watchers pause before notifying us and do not expose
+							// Watchpack's timestamps or mutable paused state. Re-register
+							// the callbacks with empty deltas to resume the same watcher.
+							const unchangedDependencies = Object.assign(new Set<string>(), {
+								added: new Set<string>(),
+								removed: new Set<string>(),
+							});
+							originalWatch(
+								unchangedDependencies,
+								unchangedDependencies,
+								unchangedDependencies,
+								resumeTime,
+								options,
+								wrappedCallback,
+								wrappedCallbackUndelayed,
+							);
+							return;
+						}
+
 						// Don't call the callback — that would trigger _invalidate() → compile().
 						// Instead, re-register the watchpack listeners and unpause,
 						// so the watch loop stays alive for future changes.
@@ -636,45 +670,51 @@ export class WatchIgnoreNextChangePlugin {
 					wrappedCallbackUndelayed,
 				);
 
+				isNativeWatcher =
+					!watcher.getFileTimeInfoEntries && !watcher.getContextTimeInfoEntries;
 				self.currentWatcher = watcher;
 
 				const originalGetFileTimeInfoEntries =
-					watcher.getFileTimeInfoEntries.bind(watcher);
-				watcher.getFileTimeInfoEntries = () => {
-					self.releaseChangedSuppressions();
-					const entries = originalGetFileTimeInfoEntries();
-					for (const [file, notified] of self.notifiedFiles) {
-						if (self.isAlreadyNotified(file))
-							entries.set(file, notified.timestamp);
-					}
-
-					for (const file of self.filesToIgnore.keys()) {
-						const prev = self.snapshotFileTimestamps.get(file);
-						if (prev !== undefined) {
-							entries.set(file, prev);
+					watcher.getFileTimeInfoEntries?.bind(watcher);
+				if (originalGetFileTimeInfoEntries) {
+					watcher.getFileTimeInfoEntries = () => {
+						self.releaseChangedSuppressions();
+						const entries = originalGetFileTimeInfoEntries();
+						for (const [file, notified] of self.notifiedFiles) {
+							if (self.isAlreadyNotified(file))
+								entries.set(file, notified.timestamp);
 						}
-					}
 
-					return entries;
-				};
+						for (const file of self.filesToIgnore.keys()) {
+							const prev = self.snapshotFileTimestamps.get(file);
+							if (prev !== undefined) {
+								entries.set(file, prev);
+							}
+						}
+
+						return entries;
+					};
+				}
 
 				const originalGetContextTimeInfoEntries =
-					watcher.getContextTimeInfoEntries.bind(watcher);
-				watcher.getContextTimeInfoEntries = () => {
-					self.releaseChangedSuppressions();
-					const entries = originalGetContextTimeInfoEntries();
-					const fileTimestamps = originalGetFileTimeInfoEntries();
-					for (const dir of self.dirsToIgnore) {
-						if (!self.isIgnoredDirectory(dir, fileTimestamps, null, null))
-							continue;
-						const prev = self.snapshotDirTimestamps.get(dir);
-						if (prev !== undefined) {
-							entries.set(dir, prev);
+					watcher.getContextTimeInfoEntries?.bind(watcher);
+				if (originalGetContextTimeInfoEntries) {
+					watcher.getContextTimeInfoEntries = () => {
+						self.releaseChangedSuppressions();
+						const entries = originalGetContextTimeInfoEntries();
+						const fileTimestamps = originalGetFileTimeInfoEntries?.() ?? null;
+						for (const dir of self.dirsToIgnore) {
+							if (!self.isIgnoredDirectory(dir, fileTimestamps, null, null))
+								continue;
+							const prev = self.snapshotDirTimestamps.get(dir);
+							if (prev !== undefined) {
+								entries.set(dir, prev);
+							}
 						}
-					}
 
-					return entries;
-				};
+						return entries;
+					};
+				}
 
 				if (watcher.getInfo) {
 					const originalGetInfo = watcher.getInfo.bind(watcher);
@@ -740,7 +780,7 @@ export class WatchIgnoreNextChangePlugin {
 					watcher.getAggregatedChanges = () => {
 						self.releaseChangedSuppressions();
 						const changes = originalGetAggregatedChanges();
-						const fileTimestamps = originalGetFileTimeInfoEntries();
+						const fileTimestamps = originalGetFileTimeInfoEntries?.() ?? null;
 						const ignoredDirs = [...self.dirsToIgnore].filter((dir) =>
 							self.isIgnoredDirectory(dir, fileTimestamps, changes, null),
 						);
@@ -760,8 +800,12 @@ export class WatchIgnoreNextChangePlugin {
 					const info = watcher.getInfo?.() ?? {
 						changes: new Set<string>(),
 						removals: new Set<string>(),
-						fileTimeInfoEntries: watcher.getFileTimeInfoEntries(),
-						contextTimeInfoEntries: watcher.getContextTimeInfoEntries(),
+						fileTimeInfoEntries:
+							watcher.getFileTimeInfoEntries?.() ??
+							new Map<string, TimeInfoEntry>(),
+						contextTimeInfoEntries:
+							watcher.getContextTimeInfoEntries?.() ??
+							new Map<string, TimeInfoEntry>(),
 					};
 					const now = Date.now();
 					for (const [file, contents] of notifications) {
@@ -779,7 +823,7 @@ export class WatchIgnoreNextChangePlugin {
 							info.removals.add(file);
 						}
 
-						wfs.inputFileSystem.purge?.(file);
+						compiler.inputFileSystem?.purge?.(file);
 					}
 
 					self.notifiedDirectoryContents = new Map(
@@ -801,7 +845,7 @@ export class WatchIgnoreNextChangePlugin {
 									timestamp: now,
 									safeTime: now,
 								});
-								wfs.inputFileSystem.purge?.(dir);
+								compiler.inputFileSystem?.purge?.(dir);
 							}
 
 							self.notifiedDirectories.add(dir);
