@@ -35,6 +35,7 @@ export const bundleCommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: false,
+		firstArgCanBeCompositionId: false,
 	});
 	const explicitlyPassed = args[0];
 	if (

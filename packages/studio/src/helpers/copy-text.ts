@@ -1,3 +1,5 @@
+import {getActiveStudioDialog} from '../state/studio-dialog';
+
 const copyTextWithExecCommand = (text: string): void => {
 	const previouslyFocused = document.activeElement;
 	const textarea = document.createElement('textarea');
@@ -7,7 +9,7 @@ const copyTextWithExecCommand = (text: string): void => {
 	textarea.style.top = '0';
 	textarea.style.left = '0';
 	textarea.style.opacity = '0';
-	document.body.appendChild(textarea);
+	(getActiveStudioDialog() ?? document.body).appendChild(textarea);
 	textarea.focus({preventScroll: true});
 	textarea.select();
 	// iOS Safari does not select the content of a readonly textarea on select()
@@ -62,3 +64,15 @@ export const copyText = async (
 
 	copyTextWithExecCommand(await text);
 };
+
+export const copyContextForAgents = (
+	context: string | null | Promise<string | null>,
+) =>
+	copyText(
+		typeof context === 'string'
+			? context
+			: Promise.resolve(context).then((resolved) => {
+					if (!resolved) throw new Error('No source location found');
+					return resolved;
+				}),
+	);

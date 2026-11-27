@@ -203,6 +203,7 @@ export const benchmarkCommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: true,
+		firstArgCanBeCompositionId: true,
 	});
 
 	if (!file) {
@@ -325,6 +326,7 @@ export const benchmarkCommand = async (
 		logLevel,
 		onBrowserDownload,
 		chromeMode,
+		preferRequestedVersion: false,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({

@@ -51,7 +51,10 @@ export const useBasicMediaInTimeline = ({
 		playbackRate,
 		trimBefore,
 		trimAfter,
-		parentSequenceDurationInFrames: parentSequence?.durationInFrames ?? null,
+		parentSequenceDurationInFrames:
+			parentSequence === null
+				? null
+				: parentSequence.durationInFrames + parentSequence.trimBefore,
 		loop,
 	});
 
@@ -126,7 +129,8 @@ export const useMediaInTimelineRegistration = ({
 		trimAfter: undefined,
 		trimBefore: undefined,
 		playbackRate,
-		sequenceDurationInFrames: durationInFrames,
+		sequenceDurationInFrames:
+			durationInFrames + (parentSequence?.trimBefore ?? 0),
 		mediaStartsAt,
 		loop: false,
 		muted,

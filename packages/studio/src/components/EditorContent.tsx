@@ -1,6 +1,5 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
-import {BORDER_BLACK} from '../helpers/colors';
 import {AudioLevelsContext} from '../state/audio-levels';
 import {Transform3DModeStateProvider} from '../state/transform-3d-mode';
 import {AudioLevels} from './AudioLevels';
@@ -74,6 +73,7 @@ export const EditorContent: React.FC<{
 	const content = (
 		<SplitterContainer
 			orientation="horizontal"
+			width={null}
 			id="top-to-bottom"
 			maxFlex={0.9}
 			minFlex={0.2}
@@ -105,7 +105,6 @@ export const EditorContent: React.FC<{
 							minWidth: 0,
 							position: 'relative',
 							overflow: 'hidden',
-							borderRight: audioLevelsVisible ? BORDER_BLACK : undefined,
 						}}
 					>
 						{showTimeline ? <Timeline /> : <TimelineEmptyState />}

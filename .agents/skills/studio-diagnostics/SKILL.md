@@ -33,7 +33,7 @@ recording. Do not modify the composition just to obtain a trace.
    remains enabled if the panel is still open. Report the composition, frame,
    source location, media URL, duration, and evidence for the cause.
 
-See the [WebMCP tool schemas](../../../packages/docs/docs/ai/webmcp.mdx) for exact
+See the [WebMCP tool schemas](../../../packages/docs/docs/agents/webmcp.mdx) for exact
 inputs, outputs, and availability. These tools work in regular, detached, deployed,
 and remotion.new. Reveal requires a selectable composition timeline; it reports
 an error if a record, composition, or matching layer no longer exists.

@@ -1,22 +1,10 @@
-import {useThemeConfig} from '@docusaurus/theme-common';
+import Link from '@docusaurus/Link';
+import {useLocation} from '@docusaurus/router';
+import {SiteFooter} from '@remotion/promo-pages/dist/SiteFooter.js';
+import '@remotion/promo-pages/dist/site-footer.css';
 import React from 'react';
-import FooterLayout from './Layout';
-import FooterLinks from './Links';
 
-const Footer = () => {
-	const {footer} = useThemeConfig();
-
-	if (!footer) {
-		return null;
-	}
-
-	const {links, style} = footer;
-	return (
-		<FooterLayout
-			style={style}
-			links={links && links.length > 0 && <FooterLinks links={links} />}
-		/>
-	);
-};
-
-export default React.memo(Footer);
+export default function Footer() {
+	const {pathname} = useLocation();
+	return <SiteFooter site="docs" pathname={pathname} LinkComponent={Link} />;
+}

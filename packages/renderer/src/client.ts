@@ -50,6 +50,7 @@ export type {
 	CustomEditor,
 	DefaultEditor,
 } from './options/default-editor';
+export {doubleClickActions} from './options/double-click-action';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 

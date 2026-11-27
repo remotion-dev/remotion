@@ -9,8 +9,13 @@ import {
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		{
+			type: 'doc',
+			id: 'libraries',
+			className: 'catalog-sidebar-back',
+		},
+		{
 			type: 'category',
-			label: 'Elements',
+			label: 'Remotion Elements',
 			className: 'elements-sidebar-root catalog-sidebar-root',
 			link: {type: 'doc', id: 'index'},
 			collapsible: false,
@@ -31,17 +36,6 @@ const sidebars: SidebarsConfig = {
 						.map(([slug]) => `${slug}/index`),
 				})),
 			],
-		},
-		{
-			type: 'html',
-			value: '<hr />',
-			className: 'catalog-sidebar-divider',
-			defaultStyle: true,
-		},
-		{
-			type: 'doc',
-			id: 'libraries',
-			className: 'catalog-sidebar-libraries',
 		},
 	],
 };

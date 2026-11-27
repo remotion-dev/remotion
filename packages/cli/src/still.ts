@@ -1,3 +1,4 @@
+import {LicensingInternals} from '@remotion/licensing';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -6,7 +7,6 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {getLicenseKey} from './get-license-key';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 import {renderStillFlow} from './render-flows/still';
@@ -42,7 +42,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	framesOption,
-	isProductionOption,
+	licenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -50,12 +50,24 @@ export const still = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
-	const licenseKey = getLicenseKey();
+	const licenseKey = parsedCli[licenseKeyOption.cliFlag];
+	LicensingInternals.logDeprecatedStillRenderLicenseKey({
+		licenseKey: typeof licenseKey === 'string' ? licenseKey : null,
+		api: 'remotion still',
+		option: '--license-key',
+		logLevel,
+	});
 	const {
 		file,
 		remainingArgs,
 		reason: entryPointReason,
-	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
+	} = findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: true,
+		firstArgCanBeCompositionId: true,
+	});
 
 	if (!file) {
 		Log.error(
@@ -238,7 +250,5 @@ export const still = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
-		licenseKey,
-		isProduction: isProductionOption.getValue({commandLine: parsedCli}).value,
 	});
 };

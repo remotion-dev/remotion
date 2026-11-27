@@ -2137,6 +2137,14 @@ export const Index: React.FC = () => {
 					width={640}
 					height={300}
 				/>
+				<Composition
+					id="gsap-late-mount"
+					lazyComponent={() => import('./Gsap/LateMount')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
+				/>
 			</Folder>
 			<Folder name="lottie">
 				<Composition

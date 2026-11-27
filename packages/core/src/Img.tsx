@@ -207,8 +207,8 @@ const handleImageError = (
 	try {
 		cancelRender(`${failedMessage} Pass onError to handle the failure.`);
 	} catch {
-		// cancelRender() intentionally throws after storing the error in scope.
-		// In async image callbacks, we rely on the stored error for renderer propagation.
+		// cancelRender() always throws after notifying its Player/Thumbnail owner
+		// or storing the renderer error. This image callback relies on that report.
 	}
 };
 

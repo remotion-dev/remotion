@@ -141,6 +141,7 @@ const TopPanelInner: React.FC<{
 				) : null}
 				<div style={row}>
 					<SplitterContainer
+						width={null}
 						minFlex={0.15}
 						maxFlex={0.4}
 						defaultFlex={0.2}
@@ -170,6 +171,7 @@ const TopPanelInner: React.FC<{
 						) : null}
 						<SplitterElement sticky={null} type="anti-flexer">
 							<SplitterContainer
+								width={null}
 								minFlex={0.5}
 								maxFlex={0.8}
 								defaultFlex={0.7}

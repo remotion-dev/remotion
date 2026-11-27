@@ -34,6 +34,10 @@ mock.module('@docusaurus/Link', () => ({
 		React.createElement('a', {...props, href: to}),
 }));
 
+mock.module('@docusaurus/useDocusaurusContext', () => ({
+	default: () => ({siteConfig: {url: 'https://www.remotion.dev'}}),
+}));
+
 const collectedAnchors = new Set<string>();
 mock.module('@docusaurus/useBrokenLinks', () => ({
 	default: () => ({

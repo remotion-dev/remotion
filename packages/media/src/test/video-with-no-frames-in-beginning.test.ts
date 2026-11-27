@@ -48,11 +48,18 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
+		getCatchesUp: () => false,
+		getIsPlaying: () => false,
 	});
 
 	const nonceManager = makeNonceManager();
 
-	await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+	await manager.startVideoIterator({
+		time: 0,
+		nonce: nonceManager.createAsyncOperation(),
+		seekRevision: 0,
+		catchUp: false,
+	});
 	await manager.seek({
 		newTime: 0.03,
 		continuousPlayback: null,
@@ -60,6 +67,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		seekRevision: 0,
 	});
 	await manager.seek({
 		newTime: 1,
@@ -68,6 +76,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		seekRevision: 0,
 	});
 	await manager.seek({
 		newTime: 2,
@@ -76,6 +85,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		seekRevision: 0,
 	});
 
 	const iteratorsCreated = manager.getVideoIteratorsCreated();
@@ -88,6 +98,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		seekRevision: 0,
 	});
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();

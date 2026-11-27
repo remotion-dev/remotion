@@ -469,6 +469,147 @@ describe('useGsapTimeline', () => {
 		);
 	});
 
+	// A child that mounts after the build stands in for a <Sequence from={30}>:
+	// the Player and a render that starts at frame 0 build before it exists.
+	const LateHarness = ({late}: {readonly late: boolean}) => {
+		const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
+			timeline
+				.fromTo(
+					selector('[data-early]'),
+					{opacity: 0.2, x: 0},
+					{
+						opacity: 1,
+						x: 80,
+						duration: 1,
+						ease: 'none',
+						immediateRender: false,
+					},
+					0.5,
+				)
+				.fromTo(
+					'[data-fade]:not([style])',
+					{opacity: 0},
+					{opacity: 1, duration: 3, ease: 'none'},
+					0,
+				)
+				.fromTo(
+					selector('[data-late]'),
+					{opacity: 0},
+					{opacity: 1, duration: 1, ease: 'none'},
+					1,
+				)
+				.fromTo(
+					'[data-late-string]',
+					{opacity: 0},
+					{opacity: 0.5, duration: 1, ease: 'none'},
+					1,
+				);
+		});
+
+		const rotation = useGsapTimeline<HTMLDivElement>(({timeline}) => {
+			timeline.fromTo(
+				'[data-early]',
+				{rotation: 0},
+				{rotation: 90, duration: 3, ease: 'none'},
+			);
+		});
+
+		return (
+			<div ref={scope}>
+				<div ref={rotation}>
+					<div data-early style={{opacity: 0.25}} />
+				</div>
+				<div data-fade />
+				{late ? (
+					<>
+						<div data-late />
+						<div data-late-string />
+					</>
+				) : null}
+			</div>
+		);
+	};
+
+	it('animates selector targets that mount after the timeline was built', async () => {
+		await setFrame(0, <LateHarness late={false} />);
+		await setFrame(45, <LateHarness late />);
+
+		expect(opacity(container.querySelector('[data-late]')!)).toBeCloseTo(
+			0.5,
+			4,
+		);
+		expect(opacity(container.querySelector('[data-late-string]')!)).toBeCloseTo(
+			0.25,
+			4,
+		);
+		const early = container.querySelector('[data-early]')!;
+		expect(opacity(early)).toBeCloseTo(1, 4);
+		expect(gsap.getProperty(early, 'rotation')).toBeCloseTo(45, 4);
+		expect(opacity(container.querySelector('[data-fade]')!)).toBeCloseTo(
+			0.5,
+			4,
+		);
+
+		await setFrame(54, <LateHarness late />);
+		expect(opacity(container.querySelector('[data-late]')!)).toBeCloseTo(
+			0.8,
+			4,
+		);
+	});
+
+	it('matches a fresh mount after a late target unmounts and mounts again', async () => {
+		await setFrame(0, <LateHarness late={false} />);
+		await setFrame(45, <LateHarness late />);
+		// Seeking back before the Sequence unmounts the child...
+		await setFrame(10, <LateHarness late={false} />);
+		expect(container.querySelector('[data-late]')).toBeNull();
+		expect(opacity(container.querySelector('[data-early]')!)).toBeCloseTo(
+			0.25,
+			4,
+		);
+
+		// ...and playing forward again mounts a new element.
+		await setFrame(39, <LateHarness late />);
+		expect(opacity(container.querySelector('[data-late]')!)).toBeCloseTo(
+			0.3,
+			4,
+		);
+		expect(opacity(container.querySelector('[data-early]')!)).toBeCloseTo(
+			0.84,
+			4,
+		);
+	});
+
+	it('does not rebuild while every selector query matches the same elements', async () => {
+		const builds = mock(() => undefined);
+		const StableHarness = ({frameText}: {readonly frameText: string}) => {
+			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
+				builds();
+				timeline.to(selector('[data-stable]'), {opacity: 1, duration: 1});
+			});
+
+			return (
+				<div ref={scope}>
+					<div data-stable style={{opacity: 0}} />
+					<span>{frameText}</span>
+				</div>
+			);
+		};
+
+		for (const frame of [0, 5, 10, 20, 29]) {
+			await setFrame(frame, <StableHarness frameText={String(frame)} />);
+		}
+
+		const select = spyOn(container.firstElementChild!, 'querySelectorAll');
+		try {
+			await setFrame(30, <StableHarness frameText="29" />);
+			expect(select).not.toHaveBeenCalled();
+			expect(builds).toHaveBeenCalledTimes(1);
+		} finally {
+			select.mockRestore();
+		}
+	});
+
 	it('rejects asynchronous builders', async () => {
 		const AsyncHarness = () => {
 			const scope = useGsapTimeline<HTMLDivElement>(async () => undefined);

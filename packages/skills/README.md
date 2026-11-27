@@ -32,7 +32,7 @@ Pass [`--skills`](https://www.remotion.dev/docs/cli/create-video#--skills) to in
 npx create-video@latest --skills
 ```
 
-For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).
+For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/agents/skills).
 
 ## Available skills
 
@@ -64,7 +64,7 @@ Launch the Studio to see a preview of your video.
 
 ### `/remotion-render`
 
-Invoke a render into a video or a still.
+Render a video or still, or [export an editable OpenTimelineIO timeline](/docs/opentimeline/export).
 
 > Example prompt: `/remotion-render`
 
@@ -75,6 +75,14 @@ Best practices for creating map animations in Remotion.
 Use this for static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, and 3D geographic flyovers with CesiumJS.
 
 > Example prompt: `/remotion-maps Animate a route from Los Angeles to New York and make the camera follow it.`
+
+### `/remotion-elements`
+
+Find, install and use Elements, reusable video components from Element libraries.
+
+Use this to add an Element from an Element page or library URL.
+
+> Example prompt: `/remotion-elements Add a lower third to my video.`
 
 ### `/remotion-captions`
 

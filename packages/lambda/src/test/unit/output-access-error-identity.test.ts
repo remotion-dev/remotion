@@ -341,9 +341,16 @@ const invokeProgress = (_fixture: ReturnType<typeof makeFixture>) =>
 		},
 	});
 
-test.each(['normalized', 'constructed'] as const)(
-	'packaged launch accepts %s access errors and retains final overwrite protection',
-	async (copy) => {
+test.each([
+	['normalized', 'conditional'],
+	['constructed', 'conditional'],
+	['normalized', 'rejected'],
+	['constructed', 'rejected'],
+	['normalized', 'overwrite'],
+	['constructed', 'overwrite'],
+] as const)(
+	'packaged launch accepts %s access errors with %s output',
+	async (copy, output) => {
 		const error =
 			copy === 'normalized'
 				? await getBundledHeadError(403)
@@ -410,26 +417,37 @@ test.each(['normalized', 'constructed'] as const)(
 			},
 		);
 		try {
-			await invokeLaunch(fixture);
-			expect(fixture.writeFileIfNotExists).toHaveBeenCalledWith(
-				expect.objectContaining({
-					bucketName: destination,
-					key: `renders/${renderId}/out.mp4`,
-				}),
-			);
-			expect(fixture.getOutput()!.toString()).toBe('rendered output');
-			expect(fixture.getProgress().postRenderData).not.toBeNull();
-			expect(
-				fixture.getProgress().renderMetadata!.outputFileIsConditional,
-			).toBe(true);
-			await expect(invokeLaunch(fixture)).rejects.toBe(fixture.conflict);
-			expect(fixture.writeFileIfNotExists).toHaveBeenCalledTimes(2);
-			expect(fixture.getOutput()!.toString()).toBe('rendered output');
-			expect(
-				fixture.writeFile.mock.calls.every(
-					([input]) => input.bucketName === bucketName,
-				),
-			).toBe(true);
+			if (output === 'overwrite') {
+				await invokeLaunch(fixture, true);
+				expect(fixture.headFile).not.toHaveBeenCalled();
+				expect(fixture.writeFileIfNotExists).not.toHaveBeenCalled();
+				expect(fixture.getOutput()!.toString()).toBe('rendered output');
+				return;
+			}
+
+			if (output === 'conditional') {
+				await invokeLaunch(fixture);
+				expect(fixture.writeFileIfNotExists).toHaveBeenCalledWith(
+					expect.objectContaining({
+						bucketName: destination,
+						key: `renders/${renderId}/out.mp4`,
+					}),
+				);
+				expect(fixture.getOutput()!.toString()).toBe('rendered output');
+				expect(fixture.getProgress().postRenderData).not.toBeNull();
+				expect(
+					fixture.getProgress().renderMetadata!.outputFileIsConditional,
+				).toBe(true);
+				await expect(invokeLaunch(fixture)).rejects.toBe(fixture.conflict);
+				expect(fixture.writeFileIfNotExists).toHaveBeenCalledTimes(2);
+				expect(fixture.getOutput()!.toString()).toBe('rendered output');
+				expect(
+					fixture.writeFile.mock.calls.every(
+						([input]) => input.bucketName === bucketName,
+					),
+				).toBe(true);
+				return;
+			}
 
 			// Destinations without conditional uploads keep denied reads fatal.
 			const unsupported = makeFixture(error);
@@ -461,12 +479,6 @@ test.each(['normalized', 'constructed'] as const)(
 			);
 			await expect(invokeLaunch(existing)).rejects.toThrow('already exists');
 			expect(existing.writeFileIfNotExists).not.toHaveBeenCalled();
-
-			const overwrite = makeFixture(error);
-			await invokeLaunch(overwrite, true);
-			expect(overwrite.headFile).not.toHaveBeenCalled();
-			expect(overwrite.writeFileIfNotExists).not.toHaveBeenCalled();
-			expect(overwrite.getOutput()!.toString()).toBe('rendered output');
 		} finally {
 			select.mockRestore();
 			render.mockRestore();

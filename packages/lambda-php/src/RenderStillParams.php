@@ -28,6 +28,12 @@ class RenderStillParams extends RenderParams
         return $this->frame;
     }
 
+    /** @deprecated Still renders do not send usage telemetry. */
+    public function setLicenseKey($licenseKey)
+    {
+        parent::setLicenseKey($licenseKey);
+    }
+
     public function serializeParams()
     {
         if (!in_array($this->getImageFormat(), ['png', 'jpeg', 'webp'], true)) {
@@ -35,6 +41,15 @@ class RenderStillParams extends RenderParams
         }
 
         $parameters = parent::serializeParams();
+
+        if ($parameters['licenseKey'] !== null && $parameters['licenseKey'] !== 'free-license'
+            && !in_array($parameters['logLevel'], ['warn', 'error'], true)
+        ) {
+            error_log("Still renders don't need to be tracked anymore, an unlimited amount is now included in any Remotion License. You can now remove `licenseKey` from RenderStillParams.");
+        }
+
+        $parameters['licenseKey'] = null;
+        $parameters['isProduction'] = null;
 
         // A still is a separate routine on the Lambda function than a video, and
         // it does not produce a video, so the video-only fields are removed.

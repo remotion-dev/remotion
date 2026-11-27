@@ -136,6 +136,7 @@ export const UnsupportedStatus: React.FC<{
 					aria-label="Fix computed Studio value"
 					onClick={(event) => {
 						stopMousePropagation(event);
+						event.currentTarget.focus({preventScroll: true});
 						onFix();
 					}}
 					onDoubleClick={stopMousePropagation}

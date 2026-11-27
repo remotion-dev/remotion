@@ -6,6 +6,11 @@ import React, {
 } from 'react';
 import ReactDOM from 'react-dom';
 import {TRANSPARENT} from '../../helpers/colors';
+import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
+import {
+	getActiveStudioDialog,
+	subscribeToStudioDialogs,
+} from '../../state/studio-dialog';
 import {useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {Notification} from './Notification';
@@ -59,6 +64,10 @@ export const showNotification = (
 export const NotificationCenter: React.FC = () => {
 	const [notifications, setNotifications] = useState<TNotification[]>([]);
 	const {currentZIndex} = useZIndex();
+	const dialog = useSyncExternalStore(
+		subscribeToStudioDialogs,
+		getActiveStudioDialog,
+	);
 
 	const onRemove = useCallback((id: string) => {
 		setNotifications((not) => {
@@ -111,6 +120,10 @@ export const NotificationCenter: React.FC = () => {
 		};
 	}, [addNotification]);
 
+	if (notifications.length === 0) {
+		return null;
+	}
+
 	return ReactDOM.createPortal(
 		<div style={container}>
 			{notifications.map((n) => {
@@ -129,6 +142,6 @@ export const NotificationCenter: React.FC = () => {
 		</div>,
 		// Notifications must be above overlays opened from the editor, such as the
 		// floating sidebars used in the mobile layout.
-		getPortal(currentZIndex + 1),
+		dialog ?? getPortal(currentZIndex + 1),
 	);
 };

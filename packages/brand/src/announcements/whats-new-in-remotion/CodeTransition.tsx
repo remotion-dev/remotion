@@ -14,11 +14,12 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {brandCodeLineHeight} from '../../code-theme';
 import {callout} from './annotations/Callout';
 import {errorInline, errorMessage} from './annotations/Error';
 import {tokenTransitions} from './annotations/InlineToken';
 import {getTextDimensions} from './calculate-metadata/get-text-dimensions';
-import {fontFamily, fontSize, lineHeight, tabSize} from './code-font';
+import {fontFamily, fontSize, tabSize} from './code-font';
 import {applyStyle} from './code-utils';
 import {PADDING_X, TOP_EXPLAINER_HEIGHT, TopExplainer} from './TopExplainer';
 
@@ -130,7 +131,7 @@ export function CodeTransition({
 		return {
 			position: 'relative',
 			fontSize,
-			lineHeight,
+			lineHeight: brandCodeLineHeight,
 			fontFamily,
 			tabSize,
 			marginTop: 0,

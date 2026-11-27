@@ -1,8 +1,9 @@
 import type React from 'react';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import type {LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
+import {useIsomorphicLayoutEffect} from './use-isomorphic-layout-effect.js';
 
 export const useMediaBuffering = ({
 	element,
@@ -25,7 +26,7 @@ export const useMediaBuffering = ({
 	const [isBuffering, setIsBuffering] = useState(false);
 
 	// Buffer state based on `waiting` and `canplay`
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		let cleanupFns: ((reason: string) => unknown)[] = [];
 
 		const {current} = element;

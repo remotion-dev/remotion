@@ -177,10 +177,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		volume: userPreferredVolume,
 		audioEnabled: audioEnabled !== false,
 	});
-	const mediaPlayerMuted = useMediaPlayerMuted({
-		muted,
-		volume: userPreferredVolume,
-	});
+	const mediaPlayerMuted = useMediaPlayerMuted(muted);
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -272,6 +269,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				getEffects: () => [],
 				getEffectChainState: () => null,
 				maxCanvasSinkFrameSize: null,
+				pauseWhenBuffering: true,
+				catchUpOnStart: null,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -295,6 +294,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					currentTimeRef.current,
 					initialMuted.current,
 					initialVolume.current,
+					null,
 				)
 				.then((result) => {
 					if (result.type === 'disposed') {

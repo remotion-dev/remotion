@@ -47,6 +47,7 @@ export const listCompositionsCommand = async (
 		remotionRoot,
 		logLevel,
 		allowDirectory: true,
+		firstArgCanBeCompositionId: false,
 	});
 
 	if (!file) {

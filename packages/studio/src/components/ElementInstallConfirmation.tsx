@@ -43,7 +43,6 @@ import {
 	HORIZONTAL_SCROLLBAR_CLASSNAME,
 	VERTICAL_SCROLLBAR_CLASSNAME,
 } from './Menu/is-menu-item';
-import {getPortal} from './Menu/portals';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
@@ -354,7 +353,7 @@ export const ElementInstallConfirmation: React.FC<{
 					height: config.height,
 					width: config.width,
 				};
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null || request.source.type === 'browser-studio-link'
 			? 'new-composition'
@@ -1116,6 +1115,6 @@ export const ElementInstallConfirmation: React.FC<{
 				</ModalFooterContainer>
 			</form>
 		</ModalContainer>,
-		getPortal(currentZIndex),
+		getPortal(),
 	);
 };

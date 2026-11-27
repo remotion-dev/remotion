@@ -69,6 +69,7 @@ import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
 import {getProjectInfo} from './preview-server/project-info';
 import {getElementInstallPlan} from './preview-server/routes/element-install-plan';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {updateConfigFile} from './preview-server/routes/update-config';
 import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
@@ -124,4 +125,5 @@ export const StudioServerInternals = {
 	getElementInstallPlan,
 	getInstalledInstallablePackages,
 	httpGet,
+	updateConfigFile,
 };

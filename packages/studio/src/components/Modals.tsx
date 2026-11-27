@@ -14,6 +14,7 @@ import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {CodeChangeModal} from './CodeChangeModal';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
+import {CreateEffectModal} from './CreateEffectModal';
 import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
@@ -418,6 +419,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
+			) : null}
+			{modalContextType?.type === 'create-effect' ? (
+				<CreateEffectModal state={modalContextType} />
 			) : null}
 			{modalContextType && modalContextType.type === 'reorder-composition' ? (
 				<ReorderCompositionModal state={modalContextType} />

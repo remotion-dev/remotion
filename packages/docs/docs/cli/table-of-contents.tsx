@@ -60,7 +60,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/cli/elements">
 					<strong>elements</strong>
-					<div>Install Elements from Element Libraries</div>
+					<div>Add Element Libraries and install their Elements</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/canvas-capture">
 					<strong>canvas-capture</strong>
@@ -69,6 +69,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/cli/open-timeline">
 					<strong>open-timeline</strong>
 					<div>Import OpenTimelineIO timelines</div>
+				</TOCItem>
+				<TOCItem link="/docs/cli/whisper">
+					<strong>whisper</strong>
+					<div>Transcribe media and manage Whisper models</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/skills">
 					<strong>skills</strong>

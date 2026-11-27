@@ -11,7 +11,7 @@ import {createPortal} from 'react-dom';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, TIMELINE_BLUE, WHITE_ALPHA_05} from '../helpers/colors';
-import {THIRD_PARTY_ELEMENTS_URL} from '../helpers/element-libraries';
+import {ELEMENT_LIBRARIES_URL} from '../helpers/element-libraries';
 import {getElementLibraryLabel} from '../helpers/get-element-library-label';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
@@ -31,7 +31,6 @@ import {ElementLibraryIcon} from './ElementLibraryIcon';
 import {FullscreenPanel} from './FullscreenPanel';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {MenuDivider} from './Menu/MenuDivider';
-import {getPortal} from './Menu/portals';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {
 	horizontalLayout,
@@ -130,7 +129,7 @@ export const ElementLibraryModal: React.FC<{
 	readonly installState: ElementInstallModalState | null;
 	readonly confirmationState: ConfirmationDialogState | null;
 }> = ({name, url, installState, confirmationState}) => {
-	const {currentZIndex} = useZIndex();
+	const {getPortal} = useZIndex();
 	const sidebarRef = useRef<HTMLElement>(null);
 	const sidebarSize = PlayerInternals.useElementSize(sidebarRef, {
 		triggerOnWindowResize: true,
@@ -159,7 +158,7 @@ export const ElementLibraryModal: React.FC<{
 	useEffect(() => {
 		if (
 			studioRuntimeConfig === null ||
-			url === THIRD_PARTY_ELEMENTS_URL ||
+			url === ELEMENT_LIBRARIES_URL ||
 			studioRuntimeConfig.elementLibraries.some(
 				(library) => library.url === url,
 			)
@@ -171,7 +170,7 @@ export const ElementLibraryModal: React.FC<{
 				? {
 						...current,
 						name: nextLibrary ? getElementLibraryLabel(nextLibrary) : 'Explore',
-						url: nextLibrary?.url ?? THIRD_PARTY_ELEMENTS_URL,
+						url: nextLibrary?.url ?? ELEMENT_LIBRARIES_URL,
 					}
 				: current,
 		);
@@ -263,12 +262,12 @@ export const ElementLibraryModal: React.FC<{
 					<VerticalTab
 						draggable={false}
 						style={tabStyle}
-						selected={url === THIRD_PARTY_ELEMENTS_URL}
+						selected={url === ELEMENT_LIBRARIES_URL}
 						onClick={() => {
 							setSelectedModal({
 								type: 'element-library',
 								name: 'Explore',
-								url: THIRD_PARTY_ELEMENTS_URL,
+								url: ELEMENT_LIBRARIES_URL,
 							});
 						}}
 						renderIcon={(color) => (
@@ -448,7 +447,7 @@ export const ElementLibraryModal: React.FC<{
 				? null
 				: createPortal(
 						<ConfirmationDialog state={confirmationState} />,
-						getPortal(currentZIndex),
+						getPortal(),
 					)}
 		</FullscreenPanel>
 	);

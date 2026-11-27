@@ -60,7 +60,7 @@ export const useCommonEffects = ({
 		if (playing && !isPlayerBuffering) {
 			mediaPlayer.play();
 		} else {
-			mediaPlayer.pause();
+			mediaPlayer.pause(mediaPlayerReady);
 		}
 	}, [
 		isPlayerBuffering,
@@ -104,17 +104,8 @@ export const useCommonEffects = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.setMuted(effectiveMuted);
-	}, [effectiveMuted, mediaPlayerReady, mediaPlayerRef]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady, mediaPlayerRef]);
+		mediaPlayer.setAudioState(effectiveMuted, userPreferredVolume);
+	}, [effectiveMuted, userPreferredVolume, mediaPlayerReady, mediaPlayerRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

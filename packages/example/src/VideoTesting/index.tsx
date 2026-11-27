@@ -72,6 +72,22 @@ export const VideoTestingFrameAccuracy: React.FC = () => {
 					</div>
 				</div>
 			))}
+			<div
+				style={{
+					position: 'absolute',
+					left: 1079,
+					top: 0,
+					width: 1,
+					height: 1,
+					overflow: 'hidden',
+				}}
+			>
+				<div style={{position: 'relative', width: 1080, height: 1080}}>
+					<Sequence durationInFrames={1}>
+						<VideoTesting codec="mp4" type="offthread" trimBefore={20.75} />
+					</Sequence>
+				</div>
+			</div>
 		</div>
 	);
 };

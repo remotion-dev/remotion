@@ -813,7 +813,6 @@ const RenderModal: React.FC<
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
 			preferredEffectBackend,
-			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				setSelectedModal(null);
@@ -844,7 +843,6 @@ const RenderModal: React.FC<
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		preferredEffectBackend,
-		renderDefaults.publicLicenseKey,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(

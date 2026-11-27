@@ -57,11 +57,13 @@ import {
 	validateVersionsBeforeCommand,
 	versionsCommand,
 } from './versions';
+import {whisperCommand} from './whisper';
+import {parseWhisperTranscribeArgs} from './whisper/transcribe';
 
 const {packageManagerOption, skipSkillsOption, versionFlagOption} =
 	BrowserSafeApis.options;
 
-export const cli = async () => {
+const runCli = async (): Promise<string | null> => {
 	const [command, ...args] = parsedCli._;
 	const helpPath =
 		command === 'help' && (args.length > 0 || !parsedCli.help)
@@ -76,12 +78,12 @@ export const cli = async () => {
 					? tryPrintLambdaHelp(helpRemotionRoot, helpArgs, 'info')
 					: tryPrintCloudrunHelp(helpRemotionRoot, helpArgs, 'info');
 			if (printed) {
-				return;
+				return null;
 			}
 		}
 
 		printHelp('info', helpPath);
-		return;
+		return null;
 	}
 
 	const packageManager = packageManagerOption.getValue({
@@ -107,11 +109,6 @@ export const cli = async () => {
 				throw new Error('Please upgrade to at least Bun 1.0.3');
 			}
 		}
-
-		Log.info(
-			{indent: false, logLevel},
-			'You are running Remotion with Bun, which is mostly supported. Visit https://remotion.dev/bun for more information.',
-		);
 	}
 
 	const isStudio = command === 'studio' || command === 'preview';
@@ -138,6 +135,12 @@ export const cli = async () => {
 			await render(remotionRoot, args, logLevel);
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
+		} else if (command === 'whisper') {
+			return await whisperCommand({
+				remotionRoot,
+				argv: process.argv.slice(3),
+				logLevel,
+			});
 		} else if (command === 'ffmpeg') {
 			ffmpegCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
@@ -215,6 +218,46 @@ export const cli = async () => {
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
 		cleanupBeforeQuit({indent: false, logLevel});
+	}
+
+	return null;
+};
+
+export const cli = async () => {
+	const outputToStdout =
+		!parsedCli.help &&
+		parsedCli._[0] === 'whisper' &&
+		process.argv[3] === 'transcribe' &&
+		parseWhisperTranscribeArgs(process.argv.slice(4)).output === '-';
+	const {stdout, stderr} = process;
+	const {write} = stdout;
+	if (outputToStdout) {
+		// Config files and external loggers can write directly to stdout.
+		stdout.write = stderr.write.bind(stderr);
+	}
+
+	let result: string | null;
+	try {
+		result = await runCli();
+	} finally {
+		if (outputToStdout) {
+			stdout.write = write;
+		}
+	}
+
+	if (result !== null) {
+		await new Promise<void>((resolve, reject) => {
+			stdout.once('error', reject);
+			stdout.write(result, (error) => {
+				if (error) {
+					reject(error);
+					return;
+				}
+
+				stdout.removeListener('error', reject);
+				resolve();
+			});
+		});
 	}
 };
 

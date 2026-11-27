@@ -23,6 +23,13 @@ if (nodeVersion.trim() === 'undefined') {
 
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
+// Publish the standalone footer with its React props for both site frameworks.
+await $`bunx tsc src/components/SiteFooter.tsx --target ES2022 --module ESNext --moduleResolution Bundler --jsx react-jsx --declaration --skipLibCheck --outDir dist`;
+await Bun.write(
+	'dist/site-footer.css',
+	Bun.file('src/components/site-footer.css'),
+);
+
 const external = [
 	'react',
 	'react/jsx-runtime',
@@ -47,6 +54,7 @@ const results = [
 			'./src/components/Homepage.tsx',
 			'./src/components/GetStartedCta.tsx',
 			'./src/components/homepage/Pricing.tsx',
+			'./src/components/LicenseQuiz.tsx',
 			'./src/components/team.tsx',
 			'./src/components/design.tsx',
 			'./src/components/templates.tsx',

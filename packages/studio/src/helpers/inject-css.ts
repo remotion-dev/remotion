@@ -10,6 +10,7 @@ import {
 	TEXT_SELECTION_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_25,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
@@ -30,6 +31,14 @@ const makeDefaultGlobalCSS = () => {
     overscroll-behavior: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
+  }
+
+  dialog.__remotion-modal-dialog[open] {
+    display: flex;
+  }
+
+  dialog.__remotion-modal-dialog::backdrop {
+    background: transparent;
   }
 
   html.__remotion-slide-forward,
@@ -164,6 +173,10 @@ const makeDefaultGlobalCSS = () => {
 
   .__remotion_color_swatch:focus {
     outline: none;
+  }
+
+  .__remotion-settings-search:focus-visible {
+    --remotion-settings-search-background: ${WHITE_ALPHA_25};
   }
 
 	  .__remotion_input_dragger:focus-visible {

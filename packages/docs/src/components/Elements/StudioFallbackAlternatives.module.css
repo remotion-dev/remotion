@@ -1,0 +1,127 @@
+.container {
+	margin-top: 12px;
+}
+
+.tabList {
+	display: flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 8px;
+	background: var(--ifm-color-emphasis-200);
+}
+
+.tab {
+	flex: 1;
+	min-width: 0;
+	padding: 4px 8px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.tab:hover {
+	color: var(--ifm-font-color-base);
+}
+
+.tab[aria-selected='true'] {
+	background: var(--ifm-background-surface-color);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+	color: var(--ifm-font-color-base);
+}
+
+.tab:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 1px;
+}
+
+.panel > :first-child {
+	margin-top: 12px;
+}
+
+.label {
+	margin: 12px 0 0;
+	line-height: 1.5;
+}
+
+.field {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	box-sizing: border-box;
+	width: 100%;
+	margin-top: 6px;
+	padding: 6px 4px 6px 10px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 6px;
+	background: var(--ifm-color-emphasis-100);
+}
+
+.code {
+	flex: 1;
+	min-width: 0;
+	padding: 2px 0;
+	border: 0;
+	background: transparent;
+	color: var(--ifm-font-color-base);
+	font-family: var(--ifm-font-family-monospace);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+}
+
+.code:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.copyError {
+	margin: 6px 0 0;
+	color: var(--ifm-color-danger);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.skill {
+	color: var(--ifm-color-primary);
+}
+
+.copyButton {
+	display: flex;
+	flex: none;
+	width: 28px;
+	height: 28px;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+}
+
+.copyButton:hover {
+	background: var(--ifm-color-emphasis-200);
+	color: var(--ifm-font-color-base);
+}
+
+.copyButton:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.visuallyHidden {
+	position: absolute;
+	margin: 0;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}

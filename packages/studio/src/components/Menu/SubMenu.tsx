@@ -11,11 +11,13 @@ import {portals} from './portals';
 
 export const SubMenuComponent: React.FC<{
 	readonly portalStyle: React.CSSProperties;
+	readonly menuTrigger: HTMLElement | null;
 	readonly subMenu: SubMenu;
 	readonly onQuitFullMenu: () => void;
 	readonly onQuitSubMenu: () => void;
 	readonly subMenuActivated: SubMenuActivated;
 }> = ({
+	menuTrigger,
 	portalStyle,
 	subMenuActivated,
 	subMenu,
@@ -89,6 +91,7 @@ export const SubMenuComponent: React.FC<{
 				onPointerDown={onPointerDown}
 			>
 				<MenuContent
+					menuTrigger={menuTrigger}
 					onNextMenu={noop}
 					onPreviousMenu={onQuitSubMenu}
 					values={subMenu.items}

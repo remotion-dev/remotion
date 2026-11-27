@@ -31,7 +31,6 @@ import {
 	MENU_INITIATOR_CLASSNAME,
 	VERTICAL_SCROLLBAR_CLASSNAME,
 } from '../Menu/is-menu-item';
-import {getPortal} from '../Menu/portals';
 import {
 	SHADOW_TOWARDS_BOTTOM,
 	SHADOW_TOWARDS_TOP,
@@ -358,7 +357,7 @@ export const TimelineFontFamilyField: React.FC<{
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listRef = useRef<HTMLDivElement>(null);
-	const {tabIndex, currentZIndex} = useZIndex();
+	const {tabIndex, getPortal} = useZIndex();
 	const size = PlayerInternals.useElementSize(buttonRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -839,7 +838,7 @@ export const TimelineFontFamilyField: React.FC<{
 								</HigherZIndex>
 							</div>
 						</div>,
-						getPortal(currentZIndex),
+						getPortal(),
 					)
 				: null}
 		</>

@@ -29,15 +29,17 @@ test('wrapping JSX writes the child on a new line with aligned indentation', asy
 	try {
 		const entryPoint = path.join(remotionRoot, 'NewComposition.tsx');
 		const compositionId = 'MyComp';
-		const input = `import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+		const input = `import {Sequence, HtmlInCanvas} from 'remotion';
 
-export const Comp = () => {
+export const Comp = ({portrait}: {portrait: boolean}) => {
 	return (
-        <AbsoluteFill
-                style={{width: 2560, height: 1248}}
+        <Sequence
+                width={portrait ? 1080 : 960}
+                height={portrait ? 960 : 1080}
+                style={{left: 24, top: 0, opacity: 0.5}}
             >
                 <div data-role="child" />
-            </AbsoluteFill>
+            </Sequence>
 	);
 };
 `;
@@ -47,10 +49,9 @@ export const Comp = () => {
 			input: {
 				fileName: entryPoint,
 				compositionId,
-				nodePath: lineContainingToNodePath(input, '<AbsoluteFill'),
+				nodePath: lineContainingToNodePath(input, '<Sequence'),
 				wrapper: 'HtmlInCanvas',
-				width: 2560,
-				height: 1248,
+				measuredSize: null,
 				timing: {
 					from: 10,
 					durationInFrames: 30,
@@ -88,17 +89,20 @@ export const Comp = () => {
 		expect(output).toContain(
 			[
 				'        <HtmlInCanvas',
-				'            width={2560}',
-				'            height={1248}',
+				'            width={portrait ? 1080 : 960}',
+				'            height={portrait ? 960 : 1080}',
 				'            from={10}',
 				'            durationInFrames={30}',
 				'            trimBefore={10}',
+				"            style={{position: 'absolute', left: 24, top: 0}}",
 				'        >',
-				'            <AbsoluteFill',
-				'                style={{width: 2560, height: 1248}}',
+				'            <Sequence',
+				'                width={portrait ? 1080 : 960}',
+				'                height={portrait ? 960 : 1080}',
+				'                style={{opacity: 0.5}}',
 				'            >',
 				'                <div data-role="child" />',
-				'            </AbsoluteFill>',
+				'            </Sequence>',
 				'        </HtmlInCanvas>',
 			].join('\n'),
 		);

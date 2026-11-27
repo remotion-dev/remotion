@@ -8,7 +8,7 @@ import {
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
-import {brandCodeTheme} from '../code-theme';
+import {brandCodeLineHeight, brandCodeTheme} from '../code-theme';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 
 const example = `import {
@@ -82,7 +82,7 @@ const MotionBlurCodeCloseupContent = () => {
 				style={{
 					position: 'absolute',
 					left: `calc(50% + ${218 * fitScale}px)`,
-					top: `calc(46% - ${200 * fitScale}px)`,
+					top: `calc(46% - ${250 * fitScale}px)`,
 					width: 960,
 					translate: '-50% -50%',
 					rotate: EXPLORE_CAMERA_ANGLE,
@@ -91,7 +91,7 @@ const MotionBlurCodeCloseupContent = () => {
 					scale: interpolate(
 						frame,
 						[0, 2.6 * fps],
-						[1.68 * fitScale, 1.76 * fitScale],
+						[1.55 * fitScale, 1.63 * fitScale],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -109,7 +109,7 @@ const MotionBlurCodeCloseupContent = () => {
 							margin: 0,
 							fontFamily: 'Menlo, Monaco, monospace',
 							fontSize: 27,
-							lineHeight: '29px',
+							lineHeight: brandCodeLineHeight,
 						}}
 					/>
 				) : null}

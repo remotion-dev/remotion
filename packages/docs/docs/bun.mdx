@@ -5,7 +5,7 @@ crumb: bun bun bun bun bun
 title: Bun support
 ---
 
-Remotion is excited about [Bun](https://bun.sh), and we mostly support it (from v1.0.3).
+Remotion supports [Bun](https://bun.com).
 
 ## As a package manager
 
@@ -27,17 +27,6 @@ It doesn't matter if you prefix `remotionb` with `npx`, `bunx` or another runner
 ```
 npx remotionb render
 ```
-
-## As a runtime
-
-As of Bun 1.0.24 and Remotion 4.0.88, the following issues are known:
-
-- ⚠️ The [`lazyComponent`](/docs/composition#component-or-lazycomponent) prop on [`<Composition>`](/docs/composition) and [`<Player>`](/docs/player/player) does not work, and this feature is automatically disabled.
-- ⚠️ A server-side rendering script may not quit automatically after it is done running.
-
-Feel free to file more issues with Remotion if you find them.
-
-Previous issues listed here have been resolved as of Bun 1.0.24.
 
 ## For contributors
 

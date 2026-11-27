@@ -1,0 +1,26 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-whisper-ls.png
+title: npx remotion whisper ls
+crumb: CLI Reference
+sidebar_label: ls
+---
+
+# npx remotion whisper ls<AvailableFrom v="4.0.546" />
+
+List the [available Whisper models](/docs/whisper-webgpu/get-available-models), their download sizes, and their status in the local cache.
+
+```bash title="List Whisper models"
+bunx remotion whisper ls
+```
+
+Use the listed names with [`whisper install`](/docs/cli/whisper/install) or [`whisper rm`](/docs/cli/whisper/rm).
+
+## Flags
+
+### `--installed`
+
+Show only installed models.
+
+### `--log`
+
+<Options id="log" />

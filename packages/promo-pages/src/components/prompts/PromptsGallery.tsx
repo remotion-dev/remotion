@@ -186,7 +186,7 @@ export const PromptsGalleryPage: React.FC<{
 					<p className="font-brand text-muted-foreground mt-4 max-w-[700px]">
 						See what the community has built using{' '}
 						<a
-							href="/docs/ai/skills"
+							href="/docs/agents/skills"
 							className="underline hover:text-text underline-offset-4"
 						>
 							Remotion Skills
@@ -196,7 +196,7 @@ export const PromptsGalleryPage: React.FC<{
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
-						href="/docs/ai/coding-agents"
+						href="/docs/agents"
 						className="font-brand rounded-full bg-[#D97757] flex items-center text-white"
 					>
 						<svg

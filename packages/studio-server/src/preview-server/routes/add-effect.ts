@@ -36,6 +36,7 @@ export const addEffectHandler: ApiHandler<
 				effectImportPath,
 				effectConfig,
 				clientId,
+				wrapInHtmlInCanvas,
 			} = request;
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -55,6 +56,7 @@ export const addEffectHandler: ApiHandler<
 				importName: effectName,
 				importPath: effectImportPath,
 				props: effectConfig,
+				wrapInHtmlInCanvas,
 			});
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, nodeLabel, logLine} =

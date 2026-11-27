@@ -1,4 +1,5 @@
 import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
 	ELEMENT_PAYLOAD_MIME_TYPE,
 	isInsideStudio,
@@ -26,6 +27,7 @@ import {
 	createElementPayloadFromDefinition,
 	installElementInStudio,
 } from './element-drag-data';
+import {getElementDocumentationUrl} from './element-library-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -33,6 +35,7 @@ import {
 	getElementPreviewDimensions,
 } from './ElementPreviewComposition';
 import {ElementStudioAction} from './ElementStudioAction';
+import {StudioFallbackAlternatives} from './StudioFallbackAlternatives';
 import styles from './ElementPage.module.css';
 
 type ElementPageProps = {
@@ -53,6 +56,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	sourceCode,
 }) => {
 	const {contributors, description, durationInFrames, fps} = definition;
+	const {siteConfig} = useDocusaurusContext();
+	const elementUrl = new URL(
+		getElementDocumentationUrl(definition),
+		siteConfig.url,
+	).href;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
@@ -249,25 +257,28 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							(installStatus.code === 'no-compatible-studio' ||
 								installStatus.code === 'no-installable-target') ? (
 								<div aria-live="polite" className={styles.studioGuidance}>
-									{installStatus.code === 'no-installable-target' ? (
-										<>
-											<p className={styles.studioGuidanceTitle}>
-												No installation destination found
-											</p>
-											<p className={styles.studioGuidanceText}>
-												Drag the <strong>Use</strong> button above into your
-												open <a href="/docs/studio">Remotion Studio</a> instead.
-											</p>
-											<p className={styles.studioGuidanceText}>
-												Or focus a destination in Studio, then click{' '}
-												<strong>Use</strong> again.
-											</p>
-										</>
-									) : (
-										<>
-											<p className={styles.studioGuidanceTitle}>
-												Connect to Remotion Studio
-											</p>
+									<p className={styles.studioGuidanceTitle}>
+										{installStatus.code === 'no-installable-target'
+											? 'No installation destination found'
+											: 'No running Remotion Studio found'}
+									</p>
+									<StudioFallbackAlternatives
+										agentPrompt={`Add the ${definition.displayName} element from ${elementUrl}`}
+										cliCommand={`npx remotion elements use ${elementUrl}`}
+									>
+										{installStatus.code === 'no-installable-target' ? (
+											<>
+												<p className={styles.studioGuidanceText}>
+													Drag the <strong>Use</strong> button above into your
+													open <a href="/docs/studio">Remotion Studio</a>{' '}
+													instead.
+												</p>
+												<p className={styles.studioGuidanceText}>
+													Or focus a destination in Studio, then click{' '}
+													<strong>Use</strong> again.
+												</p>
+											</>
+										) : (
 											<ol className={styles.studioGuidanceSteps} role="list">
 												<li>
 													<InlineStep>1</InlineStep>
@@ -284,8 +295,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 													</span>
 												</li>
 											</ol>
-										</>
-									)}
+										)}
+									</StudioFallbackAlternatives>
 								</div>
 							) : installStatus.type !== 'idle' &&
 							  (installStatus.type !== 'installing' ||

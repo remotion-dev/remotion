@@ -49,10 +49,6 @@ import {
 	invalidateDuplicatedElementSelection,
 	setDuplicationSelectionComposition,
 } from '../../helpers/duplicated-element-selection';
-import {
-	invalidateEffectDeletionSelection,
-	getEffectDeletionSelectionRevision,
-} from '../../helpers/effect-deletion-state';
 import {cancelActivePointerSessions} from '../../helpers/escape-cancelable-pointer-session';
 import type {
 	SequenceNodePathInfo,
@@ -74,6 +70,10 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {
+	advanceTimelineSelectionRevision,
+	getTimelineSelectionRevision,
+} from '../../helpers/timeline-selection-revision';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {SIDEBAR_RESPONSIVE_BREAKPOINTS} from '../../helpers/use-responsive-sidebar-status';
@@ -1164,10 +1164,10 @@ export const TimelineSelectionProvider: React.FC<{
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	useLayoutEffect(() => {
 		setDuplicationSelectionComposition(timelineSelectionScope);
-		invalidateEffectDeletionSelection();
+		advanceTimelineSelectionRevision();
 		return () => {
 			setDuplicationSelectionComposition(null);
-			invalidateEffectDeletionSelection();
+			advanceTimelineSelectionRevision();
 		};
 	}, [timelineSelectionScope]);
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
@@ -1309,7 +1309,7 @@ export const TimelineSelectionProvider: React.FC<{
 					: {...item, nodePathInfo};
 			};
 
-			if (restore && restore.revision !== getEffectDeletionSelectionRevision())
+			if (restore && restore.revision !== getTimelineSelectionRevision())
 				restore = null;
 			let selectedItems = snapshot.selectedItems.map(
 				(item) => remapItem(item, previous)!,
@@ -1319,7 +1319,7 @@ export const TimelineSelectionProvider: React.FC<{
 				restore = {
 					snapshot,
 					effects: previous,
-					revision: getEffectDeletionSelectionRevision(),
+					revision: getTimelineSelectionRevision(),
 				};
 			if (restore) {
 				removed = false;
@@ -1522,7 +1522,7 @@ export const TimelineSelectionProvider: React.FC<{
 			}
 
 			invalidateDuplicatedElementSelection();
-			invalidateEffectDeletionSelection();
+			advanceTimelineSelectionRevision();
 
 			selectOptionsSidebarInspectorPanel();
 			expandParentsForSelectionItem(item);
@@ -1565,7 +1565,7 @@ export const TimelineSelectionProvider: React.FC<{
 			}
 
 			invalidateDuplicatedElementSelection();
-			invalidateEffectDeletionSelection();
+			advanceTimelineSelectionRevision();
 
 			if (items.length > 0) {
 				selectOptionsSidebarInspectorPanel();
@@ -1662,7 +1662,7 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const clearSelection = useCallback(() => {
 		invalidateDuplicatedElementSelection();
-		invalidateEffectDeletionSelection();
+		advanceTimelineSelectionRevision();
 		selectionScope.current = null;
 		setInspectorRevealRequest(null);
 		setRevealRequest(null);

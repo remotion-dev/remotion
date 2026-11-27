@@ -1,3 +1,4 @@
+import {BrowserSafeApis, doubleClickActions} from '@remotion/renderer/client';
 import type {
 	ConfigUpdate,
 	EditorPickerId,
@@ -8,19 +9,30 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {EditorIcon} from '../icons/editor';
 import {CodingAgentIcon} from './CodingAgentIcon';
+import {ConfigSelect} from './ConfigSelect';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {label, optionRow, rightRow} from './RenderModal/layout';
+import {rightRow} from './RenderModal/layout';
 import {useSettings} from './SettingsContext';
+import {SettingsRow} from './SettingsRow';
 import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
+	border: 0,
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
+	margin: 0,
 	minWidth: 0,
+	padding: 0,
+};
+
+const disabledContainer: React.CSSProperties = {
+	...container,
+	opacity: 0.6,
+	pointerEvents: 'none',
 };
 
 const content: React.CSSProperties = {
@@ -79,9 +91,12 @@ const NO_PREFERENCE_ID = 'no-preference';
 export const DefaultEditorSettings: React.FC = () => {
 	const {
 		codingAgentInfo,
+		doubleClickAction,
 		editorInfo,
 		error: settingsError,
 		revision,
+		setDoubleClickAction,
+		studioRuntimeConfig,
 	} = useSettings();
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
 		null,
@@ -228,8 +243,11 @@ export const DefaultEditorSettings: React.FC = () => {
 		editorInfo !== null &&
 		codingAgentInfo !== null &&
 		syncedRevision === revision;
+	const hasConfigFile =
+		studioRuntimeConfig !== null &&
+		studioRuntimeConfig.configFileStudioSettings !== null;
 	useAutoSaveConfig({
-		enabled: ready,
+		enabled: ready && hasConfigFile,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
@@ -238,10 +256,26 @@ export const DefaultEditorSettings: React.FC = () => {
 	const displayedError = error ?? settingsError;
 
 	return (
-		<div style={container}>
+		<fieldset
+			disabled={!hasConfigFile}
+			style={hasConfigFile ? container : disabledContainer}
+		>
 			<div style={content}>
-				<div style={optionRow}>
-					<div style={label}>Default editor</div>
+				{studioRuntimeConfig === null ? null : (
+					<ConfigSelect
+						settingId="doubleClickAction"
+						cliFlag={
+							studioRuntimeConfig.doubleClickAction?.source === 'cli'
+								? BrowserSafeApis.options.doubleClickActionOption.cliFlag
+								: null
+						}
+						defaultLabel="Open in editor"
+						options={doubleClickActions}
+						value={doubleClickAction}
+						onChange={setDoubleClickAction}
+					/>
+				)}
+				<SettingsRow settingId="defaultEditor">
 					<div style={rightColumn}>
 						{editorInfo === null && displayedError === null ? (
 							<p style={rightDescription}>Loading installed editors...</p>
@@ -260,9 +294,8 @@ export const DefaultEditorSettings: React.FC = () => {
 							/>
 						)}
 					</div>
-				</div>
-				<div style={optionRow}>
-					<div style={label}>Default coding agent</div>
+				</SettingsRow>
+				<SettingsRow settingId="defaultCodingAgent">
 					<div style={rightColumn}>
 						{codingAgentInfo === null && displayedError === null ? (
 							<p style={rightDescription}>Loading installed coding agents...</p>
@@ -281,7 +314,7 @@ export const DefaultEditorSettings: React.FC = () => {
 							/>
 						)}
 					</div>
-				</div>
+				</SettingsRow>
 				{displayedError ? (
 					<>
 						<Spacing y={1.5} />
@@ -295,6 +328,6 @@ export const DefaultEditorSettings: React.FC = () => {
 					</>
 				) : null}
 			</div>
-		</div>
+		</fieldset>
 	);
 };

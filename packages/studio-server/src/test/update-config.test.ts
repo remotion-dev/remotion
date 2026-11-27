@@ -13,6 +13,7 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	doubleClickAction: null,
 	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
@@ -202,6 +203,39 @@ test('adds Element Libraries without replacing or duplicating existing calls', (
 	).toBe(configContents);
 });
 
+test('keeps the imported Config name and CRLF line endings', () => {
+	const configContents = [
+		"import {Config as RemotionConfig} from '@remotion/cli/config';",
+		'RemotionConfig.setOverwriteOutput(true);',
+		"RemotionConfig.addElementLibrary({url: 'https://existing.example.com/'});",
+		'',
+	].join('\r\n');
+	const update = (url: string) =>
+		updateConfigFile({
+			configContents,
+			existingElementLibraryUrls: [],
+			updates: [
+				{setter: 'addElementLibrary', type: 'set', value: {url}},
+				{setter: 'setOverwriteOutput', type: 'set', value: false},
+			],
+		});
+
+	expect(update('https://new.example.com/')).toBe(
+		[
+			"import {Config as RemotionConfig} from '@remotion/cli/config';",
+			"RemotionConfig.addElementLibrary({url: 'https://existing.example.com/'});",
+			'RemotionConfig.addElementLibrary({',
+			"    'url': 'https://new.example.com/'",
+			'});',
+			'RemotionConfig.setOverwriteOutput(false);',
+			'',
+		].join('\r\n'),
+	);
+	expect(update('https://existing.example.com')).not.toContain(
+		"'url': 'https://existing.example.com/'",
+	);
+});
+
 test('uses runtime Element Libraries for dynamic config deduplication and skips no-op writes', async () => {
 	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
 	const configFile = join(directory, 'remotion.config.ts');
@@ -241,7 +275,7 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(duplicateResponse).toEqual({success: true});
+		expect(duplicateResponse).toEqual({success: true, sourceVersion: null});
 		expect(readFileSync(configFile, 'utf8')).toBe(configContents);
 		expect(configChangeEvent).toBe(null);
 
@@ -263,7 +297,13 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(additionResponse).toEqual({success: true});
+		expect(additionResponse).toEqual({
+			success: true,
+			sourceVersion: {
+				sessionId: fileWatcherRegistry.sourceVersionSessionId,
+				revision: 1,
+			},
+		});
 		const addedContents = readFileSync(configFile, 'utf8');
 		expect(addedContents).toContain("'url': 'https://new.example.com/'");
 		expect(addedContents).toContain("'displayName': 'New library'");
@@ -288,7 +328,7 @@ test('uses runtime Element Libraries for dynamic config deduplication and skips 
 			},
 			remotionRoot: directory,
 		});
-		expect(repeatedResponse).toEqual({success: true});
+		expect(repeatedResponse).toEqual({success: true, sourceVersion: null});
 		expect(readFileSync(configFile, 'utf8')).toBe(addedContents);
 		expect(configChangeEvent).toBe(null);
 	} finally {
@@ -340,7 +380,13 @@ test('persists Studio keyboard shortcuts through the config route', async () => 
 			remotionRoot: directory,
 		});
 
-		expect(response).toEqual({success: true});
+		expect(response).toEqual({
+			success: true,
+			sourceVersion: {
+				sessionId: fileWatcherRegistry.sourceVersionSessionId,
+				revision: 1,
+			},
+		});
 		const updatedConfig = readFileSync(configFile, 'utf8');
 		expect(updatedConfig).toContain('Config.setKeyboardShortcuts({');
 		expect(updatedConfig).toContain("'playPause': {");

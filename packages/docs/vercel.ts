@@ -173,6 +173,17 @@ const siteConfig: VercelConfig = {
 				});
 			}),
 		routes.redirect('/sitemap', '/sitemap.xml', {permanent: true}),
+		...[
+			['/opentimeline', '/docs/opentimeline'],
+			['/docs/import-opentimeline', '/docs/opentimeline/import'],
+			['/docs/export-opentimeline', '/docs/opentimeline/export'],
+			['/docs/elements/why', '/docs/elements'],
+			['/docs/elements/finding', '/docs/elements/using'],
+		].flatMap(([source, destination]) => [
+			routes.redirect(source, destination, {permanent: true}),
+			routes.redirect(`${source}/`, destination, {permanent: true}),
+			routes.redirect(`${source}.md`, `${destination}.md`, {permanent: true}),
+		]),
 		routes.redirect(
 			'/docs/starburst',
 			'/elements/backgrounds/rotating-starburst',
@@ -221,12 +232,16 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/docs/audio/muting.md', '/docs/audio/volume.md#muting', {
 			permanent: true,
 		}),
-		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
-			permanent: true,
-		}),
-		routes.redirect('/docs/studio/creating-elements.md', '/docs/elements.md', {
-			permanent: true,
-		}),
+		routes.redirect(
+			'/docs/studio/creating-elements',
+			'/docs/elements/creating',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio/creating-elements.md',
+			'/docs/elements/creating.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/docs/studio/element-libraries',
 			'/docs/elements/libraries',
@@ -274,10 +289,10 @@ const siteConfig: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect('/elements/guidelines', '/docs/elements', {
+		routes.redirect('/elements/guidelines', '/docs/elements/creating', {
 			permanent: true,
 		}),
-		routes.redirect('/elements/guidelines.md', '/docs/elements.md', {
+		routes.redirect('/elements/guidelines.md', '/docs/elements/creating.md', {
 			permanent: true,
 		}),
 		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
@@ -359,7 +374,7 @@ const siteConfig: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
-		routes.redirect('/webmcp', '/docs/ai/webmcp', {permanent: false}),
+		routes.redirect('/webmcp', '/docs/agents/webmcp', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
@@ -556,8 +571,8 @@ const siteConfig: VercelConfig = {
 		routes.redirect('/design-systems', '/docs/design-systems', {
 			permanent: false,
 		}),
-		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
-		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
+		routes.redirect('/skills', '/docs/agents/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/agents/plugins', {permanent: false}),
 		routes.redirect(
 			'/codex',
 			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',
@@ -751,9 +766,6 @@ const siteConfig: VercelConfig = {
 			'/docs/accessibility/dev.md',
 			{permanent: true},
 		),
-		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
-			permanent: false,
-		}),
 	],
 };
 

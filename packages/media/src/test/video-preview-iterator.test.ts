@@ -24,7 +24,6 @@ test('preview iterator uses next frame timestamp instead of reported duration', 
 	];
 
 	const iterator = await createVideoIterator(0, {
-		destroy: () => undefined,
 		makeIteratorOrUsePrewarmed: () => {
 			let index = 0;
 
@@ -39,7 +38,6 @@ test('preview iterator uses next frame timestamp instead of reported duration', 
 				},
 			};
 		},
-		prewarmIteratorForLooping: () => undefined,
 	});
 
 	try {
@@ -68,7 +66,6 @@ test('preview iterator does not trust reported duration without a next timestamp
 	let pendingWaits = 0;
 
 	const iterator = await createVideoIterator(0, {
-		destroy: () => undefined,
 		makeIteratorOrUsePrewarmed: () => {
 			return {
 				closeIterator: () => Promise.resolve(),
@@ -91,7 +88,6 @@ test('preview iterator does not trust reported duration without a next timestamp
 				},
 			};
 		},
-		prewarmIteratorForLooping: () => undefined,
 	});
 
 	try {
@@ -115,7 +111,6 @@ test('preview iterator waits through high-FPS frames for a sequential timeline s
 	let pendingWaits = 0;
 
 	const iterator = await createVideoIterator(0, {
-		destroy: () => undefined,
 		makeIteratorOrUsePrewarmed: () => {
 			return {
 				closeIterator: () => Promise.resolve(),
@@ -140,7 +135,6 @@ test('preview iterator waits through high-FPS frames for a sequential timeline s
 				},
 			};
 		},
-		prewarmIteratorForLooping: () => undefined,
 	});
 
 	try {
@@ -170,7 +164,6 @@ test('preview iterator supports frames longer than one timeline step', async () 
 	];
 
 	const iterator = await createVideoIterator(0, {
-		destroy: () => undefined,
 		makeIteratorOrUsePrewarmed: () => {
 			return {
 				closeIterator: () => Promise.resolve(),
@@ -190,7 +183,6 @@ test('preview iterator supports frames longer than one timeline step', async () 
 				},
 			};
 		},
-		prewarmIteratorForLooping: () => undefined,
 	});
 
 	try {
@@ -218,7 +210,6 @@ test('preview iterator stops decoding when a seek is superseded', async () => {
 	let shouldContinue = true;
 
 	const iterator = await createVideoIterator(0, {
-		destroy: () => undefined,
 		makeIteratorOrUsePrewarmed: () => {
 			return {
 				closeIterator: () => Promise.resolve(),
@@ -244,7 +235,6 @@ test('preview iterator stops decoding when a seek is superseded', async () => {
 				},
 			};
 		},
-		prewarmIteratorForLooping: () => undefined,
 	});
 
 	try {
@@ -273,7 +263,6 @@ test('preview iterator closes the underlying iterator if the first frame fails',
 
 	await expect(
 		createVideoIterator(0, {
-			destroy: () => undefined,
 			makeIteratorOrUsePrewarmed: () => ({
 				closeIterator: () => {
 					closed++;
@@ -284,7 +273,6 @@ test('preview iterator closes the underlying iterator if the first frame fails',
 					wait: () => Promise.reject(failure),
 				}),
 			}),
-			prewarmIteratorForLooping: () => undefined,
 		}),
 	).rejects.toBe(failure);
 

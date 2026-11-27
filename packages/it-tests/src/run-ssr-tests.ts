@@ -1,5 +1,6 @@
 import {readdirSync} from 'node:fs';
 import path from 'node:path';
+import {ensureBrowser} from '@remotion/renderer';
 
 const packageRoot = path.join(import.meta.dir, '..');
 const requestedFiles = Bun.argv.slice(2);
@@ -11,6 +12,10 @@ const testFiles = requestedFiles.length
 				.sort()
 				.map((file) => `./src/${directory}/${file}`),
 		);
+
+// Use the test children's browser cache and finish installation before their deadlines.
+process.chdir(packageRoot);
+await ensureBrowser();
 
 for (const testFile of testFiles) {
 	for (let attempt = 1; attempt <= 2; attempt++) {

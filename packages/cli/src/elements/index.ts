@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {chalk} from '../chalk';
 import {Log} from '../log';
+import {ADD_LIBRARY_COMMAND, elementsAddLibraryCommand} from './add-library';
 import {USE_COMMAND, elementsUseCommand} from './use';
 
 export const ELEMENTS_COMMAND = 'elements';
@@ -22,6 +23,15 @@ const printHelp = (logLevel: LogLevel) => {
 		{indent: false, logLevel},
 		chalk.gray('Install an Element from an Element Library page.'),
 	);
+	Log.info({indent: false, logLevel}, '');
+	Log.info(
+		{indent: false, logLevel},
+		`remotion ${ELEMENTS_COMMAND} ${ADD_LIBRARY_COMMAND} <url>`,
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('Add an Element Library to the Remotion config file.'),
+	);
 };
 
 export const elementsCommand = async ({
@@ -37,6 +47,11 @@ export const elementsCommand = async ({
 }) => {
 	if (args[0] === USE_COMMAND) {
 		await elementsUseCommand({remotionRoot, argv, logLevel});
+		return;
+	}
+
+	if (args[0] === ADD_LIBRARY_COMMAND) {
+		await elementsAddLibraryCommand({remotionRoot, argv, logLevel});
 		return;
 	}
 

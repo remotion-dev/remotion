@@ -1406,7 +1406,6 @@ export const launchHandler = async ({
 		await sendTelemetryEvent({
 			licenseKey: params.licenseKey ?? null,
 			logLevel: params.logLevel,
-			isStill: false,
 			isProduction: params.isProduction ?? true,
 			idempotencyKey: `cloud-render:${params.bucketName}:${params.renderId}`,
 		});

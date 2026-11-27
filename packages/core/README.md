@@ -43,7 +43,7 @@ Remotion is extensively documented over 1,200 pages.
 - Get Started
   - [Installation](https://remotion.dev/docs)
   - [Your first video](https://remotion.dev/docs/your-first-video)
-  - [Agent Skills](https://www.remotion.dev/docs/ai/skills)
+  - [Agent Skills](https://www.remotion.dev/docs/agents/skills)
   - [Templates](https://remotion.dev/templates)
 - Making videos
   - [Elements](https://remotion.dev/elements)

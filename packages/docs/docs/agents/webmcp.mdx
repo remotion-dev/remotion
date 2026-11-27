@@ -1,0 +1,1652 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-ai-webmcp.png
+crumb: 'Agents'
+title: WebMCP
+sidebar_label: WebMCP
+---
+
+# WebMCP<AvailableFrom v="4.0.518" />
+
+Remotion Studio exposes WebMCP tools that allow an AI agent to inspect and steer it.
+
+## Capabilities
+
+Agents can:
+
+- See which items you currently have selected
+- See selectable items and select them
+- Duplicate sequences and inspect pending edits
+- See available compositions and navigate to them
+- Inspect render jobs, cancel queued or running renders, and reopen saved render settings
+- Read the error currently shown in the Studio error overlay
+- Get the current HTML of your composition
+- See current outlines of elements and their geometry
+- Get your current playhead position and playback state
+- Play, pause and seek
+- Set timeline zoom, playback rate, looping, volume and mute state
+- Inspect and resize Studio panels
+- See, select, add, move and remove guides
+- Install packages into the current project
+- Transcribe audio and video assets
+- Remove the background from video assets
+- Restart or shut down the Studio server
+
+## Requirements
+
+Start the [Remotion Studio](/docs/studio) and open it in a browser with an AI agent that supports [WebMCP](https://webmcp.dev/).
+
+## Compatible agents
+
+Out of the major harnesses, only ChatGPT Codex supports WebMCP. We hope more agents add support soon.
+
+## Available tools
+
+:::note
+
+The shape of inputs and outputs is not currently stable.
+
+:::
+
+Tools that edit sequences or guides require a composition to be open.
+Playback tools work with compositions and, from v4.0.540, ready audio and video asset and rendered-output previews. This includes local browser-rendered outputs. Images, image-sequence directories and text files are not supported by playback tools.
+
+Playback tools run locally in all four Studio modes: regular, detached, read-only deployed and remotion.new. They require a ready preview, not an attached Studio server. Rendered outputs use their native audio/video controls and keep their own volume, mute, rate and loop settings. They have no timeline zoom and do not support reverse playback.
+
+From v4.0.543, rendering over the file in an open output tab preserves its playback position and settings. A paused preview stays paused. A playing preview resumes when the replacement loads. A paused position beyond the new duration moves to the end.
+
+### `install_package`<AvailableFrom v="4.0.523" />
+
+Installs an npm package into the current Remotion project. Remotion packages use the current Remotion version. Auxiliary packages such as `@huggingface/transformers` use Remotion's recommended version.
+
+```ts title="Input"
+{
+  packageName: string;
+  version?: string;
+}
+```
+
+`version` must be an exact semantic version when specified.
+
+```ts title="Output"
+{
+  installed: true;
+  packageName: string;
+}
+```
+
+### `transcribe_asset`<AvailableFrom v="4.0.523" />
+
+Transcribes an audio or video asset from the `public/` folder and adds the work to the Jobs queue. The output is a JSON file containing a [`Caption[]`](/docs/captions/caption) array.
+
+If `assetPath` is omitted, the asset currently open in the Studio is used.
+
+```ts title="Input"
+{
+  assetPath?: string;
+  outputPath?: string;
+  model?: string;
+  language?: string;
+  task?: 'transcribe' | 'translate';
+  chunkLengthInSeconds?: number;
+  strideLengthInSeconds?: number;
+  forceFullSequences?: boolean;
+  doSample?: boolean;
+  temperature?: number;
+  topK?: number;
+  repetitionPenalty?: number;
+  noRepeatNgramSize?: number;
+}
+```
+
+The default model is `small.en`. The default output is `<asset>-captions.json`. See [`transcribe()`](/docs/whisper-webgpu/transcribe) for the Whisper options and their defaults.
+
+```ts title="Output"
+{
+  success: true;
+  jobId: string;
+  outputPath: string;
+}
+```
+
+`success: true` acknowledges that the job was queued. The job continues in the background. Find the returned job ID in `get_transcription_jobs` to follow its progress and outcome, or use the Jobs panel. `outputPath` identifies the intended destination. A `done` status confirms that the file was written.
+
+This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it returns:
+
+```ts title="Missing package output"
+{
+  success: false;
+  error: string;
+  installPackage: {
+    tool: 'install_package';
+    packageName: '@remotion/whisper-webgpu';
+  }
+}
+```
+
+Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
+### `get_transcription_jobs`<AvailableFrom v="4.0.543" />
+
+Returns the transcription jobs shown in this Studio tab, including jobs started through the UI and `transcribe_asset`. Available in all four Studio modes, including with a detached server. A reload clears the tab-local queue.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  jobs: Array<{
+    id: string;
+    displayName: string;
+    src: string;
+    output: {type: 'file'; path: string} | {type: 'composition'; fileName: string};
+    status: 'idle' | 'running' | 'saving' | 'done' | 'failed' | 'cancelled';
+    canCancel: boolean;
+    progress: number | null;
+    progressMessage: string | null;
+    captionCount: number | null;
+    error: {message: string; stack: string | null} | null;
+  }>;
+}
+```
+
+#### `jobs`
+
+The transcription jobs currently known to the tab. An empty array indicates that the queue is empty.
+
+##### `id`
+
+The identifier returned by `transcribe_asset` and accepted as `jobId` by `cancel_transcription_job`.
+
+##### `displayName`
+
+The source label shown in the Jobs panel.
+
+##### `src`
+
+The URL of the audio or video being transcribed.
+
+##### `output`
+
+`file` identifies the intended Caption JSON path relative to `public/`. `composition` identifies the source file where the UI requested captions to be inserted. The destination is present before the job completes. A `done` status confirms that its output was saved or inserted.
+
+##### `status`
+
+`idle` means queued, `running` includes model loading and transcription, and `saving` means the captions are being saved or inserted. `done`, `failed` and `cancelled` are terminal outcomes.
+
+##### `canCancel`
+
+Matches the UI's Cancel transcription action. Returns `true` while `running` and `false` for queued, saving or terminal jobs. Cancellation runs locally in the tab and may take time to finish after being requested.
+
+##### `progress`
+
+Progress from `0` to `1` while running or saving. Queued jobs report `0`, completed jobs report `1`, and failed or cancelled jobs report `null`.
+
+##### `progressMessage`
+
+The progress message shown in the Jobs panel while running or saving, otherwise `null`.
+
+##### `captionCount`
+
+The number of generated captions for a completed job, otherwise `null`. For file outputs, read the generated JSON to obtain the captions. For composition outputs, read the updated source.
+
+##### `error`
+
+The failure message and available stack for a failed job, otherwise `null`.
+
+### `cancel_transcription_job`<AvailableFrom v="4.0.543" />
+
+Requests cancellation using the same action as the UI's Cancel transcription control. Only running jobs can be cancelled. Queued jobs can be cleared in the Jobs panel. Available for local transcription jobs in all four Studio modes, including with a detached server.
+
+```ts title="Input"
+{
+  jobId: string;
+}
+```
+
+#### `jobId`
+
+Required. A non-empty transcription job identifier returned by `get_transcription_jobs` or `transcribe_asset`.
+
+```ts title="Output"
+{
+  jobId: string;
+  status: 'requested' | 'not-cancellable' | 'not-found';
+}
+```
+
+#### `status`
+
+`requested` acknowledges the cancellation request. Repeating it while the job is still running is harmless and also returns `requested`. Read `get_transcription_jobs` for the terminal outcome.
+
+`not-cancellable` means the job is queued, saving or already finished, including an already cancelled job. `not-found` means the job is absent from this tab's transcription queue. Invalid input rejects the tool call before cancellation starts.
+
+### `remove_video_background`<AvailableFrom v="4.0.523" />
+
+Removes a video asset's background and saves a transparent WebM file in the `public/` folder. The work is added to the Jobs queue.
+
+If `assetPath` is omitted, the video asset currently open in the Studio is used.
+
+```ts title="Input"
+{
+  assetPath?: string;
+  outputPath?: string;
+  model?: string;
+  audio?: 'keep' | 'none';
+  videoBitrate?:
+    | 'very-low'
+    | 'low'
+    | 'medium'
+    | 'high'
+    | 'very-high'
+    | number;
+}
+```
+
+The default model is `ben2-base`, the input audio is kept, and video quality defaults to `very-high`. The output name defaults to `<asset>-no-background.webm`.
+
+```ts title="Output"
+{
+  success: true;
+  jobId: string;
+  outputPath: string;
+}
+```
+
+The job continues in the background and can be followed in the Jobs panel.
+
+This tool is always exposed. If `@remotion/video-matting` is not installed, it returns:
+
+```ts title="Missing package output"
+{
+  success: false;
+  error: string;
+  installPackage: {
+    tool: 'install_package';
+    packageName: '@remotion/video-matting';
+  }
+}
+```
+
+Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
+
+### `restart_studio`<AvailableFrom v="4.0.521" />
+
+Restarts the Studio server using [`restartStudio()`](/docs/studio/restart-studio). Requires a writable Studio with a running server. No composition needs to be open. The browser temporarily disconnects and reconnects when Studio is ready.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+}
+```
+
+The output acknowledges the restart request; it does not wait for the restarted server to be ready.
+
+### `shut_down_studio`<AvailableFrom v="4.0.521" />
+
+Gracefully shuts down the Studio server using [`shutDownStudio()`](/docs/studio/shut-down-studio). Requires a writable Studio with a running server. No composition needs to be open. Start Studio again from the terminal to reconnect.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+}
+```
+
+The output acknowledges the shutdown request; the connection closes as Studio shuts down.
+
+### `get_render_jobs`<AvailableFrom v="4.0.540" />
+
+Returns the server and browser render jobs shown in Studio, including pending cancellation and availability of saved render settings. Transcription and background removal jobs are excluded. Available in all Studio modes; no composition needs to be open.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  jobs: Array<{
+    id: string;
+    type: 'still' | 'sequence' | 'video' | 'client-still' | 'client-video';
+    compositionId: string;
+    outputName: string;
+    status: 'idle' | 'running' | 'saving' | 'done' | 'failed' | 'cancelled';
+    cancelling: boolean;
+    canCancel: boolean;
+    canRetry: boolean;
+    retryUnavailableReason: string | null;
+    progress: number | null;
+    error: string | null;
+  }>;
+}
+```
+
+#### `jobs`
+
+The jobs currently known to this Studio tab. Server job updates require an attached Studio server; a disconnected tab may retain the last received state. Browser render jobs run locally in the tab.
+
+##### `id`
+
+The identifier to pass as `jobId` to `cancel_render_job`.
+
+##### `type`
+
+`still`, `sequence` and `video` identify server renders. `client-still` and `client-video` identify browser renders.
+
+##### `compositionId`
+
+The ID of the composition being rendered.
+
+##### `outputName`
+
+The selected output filename or image-sequence directory. A job listed here has not necessarily produced its output yet.
+
+##### `status`
+
+`idle` means queued, `running` means rendering, and `saving` means a browser render is saving its output. `done`, `failed` and `cancelled` are terminal outcomes. An intentional cancellation is reported as `cancelled`, without an error message.
+
+##### `cancelling`
+
+Whether a cancellation request started in this Studio tab is pending. The job may still report `running` while cancellation is in progress.
+
+##### `canCancel`
+
+Whether the shared Studio cancellation action is currently available for this job. This is `false` while cancellation is pending or the job is no longer cancellable. Server renders require a connected Studio server; queued or running browser renders can be cancelled locally in all Studio modes.
+
+##### `canRetry`
+
+Whether `open_render_job_settings` can reopen this job’s saved settings. Requires a terminal job, its registered composition and the original rendering settings. Server jobs also require a connected interactive Studio.
+
+##### `retryUnavailableReason`
+
+The reason saved settings cannot currently be reopened, or `null` when `canRetry` is `true`.
+
+##### `progress`
+
+The current render progress from `0` to `1`. Queued jobs report `0` and completed jobs report `1`. `null` means no progress value is available, including failed, cancelled and browser-saving jobs.
+
+##### `error`
+
+The failure message for a `failed` job, otherwise `null`.
+
+### `open_render_job_settings`<AvailableFrom v="4.0.540" />
+
+Opens the same prefilled render dialog as Studio's Retry control for a completed, failed or cancelled job. It restores the job's output name, render type and saved rendering settings. Opening the dialog does not enqueue or start a render; rendering starts only when you submit it. The render uses the current composition code.
+
+If this job's dialog is already open, its unsaved changes are preserved. Opening a different job replaces the dialog with that job's saved settings.
+
+Server render settings require a connected interactive Studio. Browser render settings can reopen locally in all four Studio modes. The composition must still be registered, and the original settings must be available. Browser renders restored after a page reload only retain output information, so their settings cannot be reopened. Read `canRetry` and `retryUnavailableReason` from `get_render_jobs` before calling this tool.
+
+```ts title="Input"
+{
+  jobId: string;
+}
+```
+
+#### `jobId`
+
+Required. A non-empty job identifier returned by `get_render_jobs`.
+
+```ts title="Output"
+{jobId: string} & (
+  | {status: 'opened'; renderMode: 'server' | 'browser'; outputName: string}
+  | {status: 'not-found' | 'not-retryable' | 'unavailable' | 'error'; reason: string}
+)
+```
+
+#### `status`
+
+`opened` means the prefilled settings dialog opened. No render was started.
+
+`not-found` means the job is no longer in the queue. `not-retryable` means it is still queued, running or saving. `unavailable` means the Studio mode, missing composition or unavailable original settings prevent reopening the dialog. These results leave the current dialog unchanged.
+
+`error` means preparing the saved settings failed. Invalid input rejects the tool call before opening a dialog.
+
+#### `renderMode`
+
+The opened dialog's rendering mode, present when `status` is `opened`.
+
+#### `outputName`
+
+The job's original output filename or image-sequence directory, present when `status` is `opened`. This identifies the saved job; an already-open dialog may contain an edited output name.
+
+#### `reason`
+
+The reason the dialog could not be opened, present for every result except `opened`. Studio shows the same message when its Retry action cannot proceed. Environment variables and input props are not included in the tool output.
+
+### `cancel_render_job`<AvailableFrom v="4.0.540" />
+
+Requests cancellation using the same action as Studio's Cancel render control. Pending cancellation appears immediately in `get_render_jobs`, and repeated requests do not start another cancellation. A failed request clears its pending state and shows the same error notification as the UI.
+
+Server render cancellation requires a connected interactive Studio. It is unavailable when the server is detached or in a read-only deployed Studio or remotion.new. Queued or running browser render jobs can be cancelled locally in all four modes. Queued jobs are cancelled without starting their render. No composition needs to be open.
+
+```ts title="Input"
+{
+  jobId: string;
+}
+```
+
+#### `jobId`
+
+Required. A non-empty job identifier returned by `get_render_jobs`.
+
+```ts title="Output"
+{jobId: string} & (
+  | {status: 'requested' | 'already-pending' | 'not-cancellable' | 'not-found'}
+  | {status: 'error'; reason: string}
+)
+```
+
+#### `status`
+
+`requested` means the cancellation request was accepted. Read `get_render_jobs` to observe the terminal outcome; a render that finished before cancellation can still report `done`.
+
+`already-pending` means a request for this job is already in progress. `not-cancellable` means the job's state or Studio mode does not allow cancellation. `not-found` means the job is no longer in the render queue. None of these results starts another request.
+
+`error` means the request failed. Invalid input rejects the tool call before cancellation starts.
+
+#### `reason`
+
+The failure message, present when `status` is `error`.
+
+### `get_current_error`<AvailableFrom v="4.0.520" />
+
+Returns the error currently shown in the Studio error overlay. It waits for source map symbolication and includes symbolicated stack frames when available, while preserving the raw stack as a fallback. Returns `null` when the error overlay is not visible.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+type ScriptLine = {
+  lineNumber: number;
+  content: string;
+  highlight: boolean;
+};
+
+type SymbolicatedStackFrame = {
+  originalFunctionName: string | null;
+  originalFileName: string | null;
+  originalLineNumber: number | null;
+  originalColumnNumber: number | null;
+  originalScriptCode: ScriptLine[] | null;
+};
+
+null | {
+  name: string;
+  message: string;
+  stack: string | null;
+  symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+}
+```
+
+### `get_compositions`
+
+Returns the mounted compositions in the same nested folder hierarchy shown in the Studio sidebar. Compositions and folders that were moved or deleted in the sidebar are reported at their new positions immediately, while the source edit is still being saved.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+type CompositionTreeItem =
+  | {
+      type: 'composition';
+      compositionName: string;
+    }
+  | {
+      type: 'folder';
+      folderName: string;
+      children: CompositionTreeItem[];
+    };
+
+{
+  compositions: CompositionTreeItem[];
+}
+```
+
+### `select_composition`
+
+Opens a registered composition by ID. From v4.0.540, the tool acknowledges after the canvas selection has committed, so a following tool targets that composition. Preview metadata and media may still be loading.
+
+```ts title="Input"
+{
+  compositionName: string;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+}
+```
+
+### `get_sequences`
+
+Returns the timeline sequences mounted for the current composition, including their hierarchy, timing, effects, source stack and selection support.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent | null;
+  pendingTimingEdits: Array<{
+    id: number;
+    operation: 'move' | 'trim-start' | 'trim-end' | 'slip-source';
+    nodes: Array<{
+      absolutePath: string;
+      nodePath: Array<string | number>;
+    }>;
+  }>;
+  pendingDuplications: Array<{
+    absolutePath: string;
+    nodePath: Array<string | number>;
+  }>;
+  pendingSplits: Array<{
+    absolutePath: string;
+    nodePath: Array<string | number>;
+    sourceFrame: number;
+  }>;
+  pendingEffectEdits: Array<{
+    absolutePath: string;
+    nodePath: Array<string | number>;
+    operationId: number;
+    type: 'add' | 'delete' | 'duplicate' | 'reorder' | 'restore';
+    status: 'queued' | 'acknowledged';
+    effectIds: string[];
+  }>;
+  pendingEffectDeletions: Array<{
+    absolutePath: string;
+    nodePath: Array<string | number>;
+    effectIndices: number[];
+  }>;
+  sequences: Array<{
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+    duplicating: boolean;
+    splitting: boolean;
+    effects: Array<{
+      effectIndex: number;
+      effectId: string | null;
+      type: string;
+      label: string;
+      canDelete: boolean;
+      deleting: boolean;
+    }>;
+  }>;
+}
+```
+
+#### `pendingTimingEdits`<AvailableFrom v="4.0.540" />
+
+Timing edits started through the timeline and awaiting a save response in this Studio tab. The preview updates immediately. A request leaves this list when it succeeds or fails; an empty list does not guarantee the preview has finished refreshing. Later edits can supersede an earlier preview while its request remains pending.
+
+##### `id`
+
+An identifier for the pending request within the current Studio tab.
+
+##### `operation`
+
+`move`, `trim-start`, `trim-end`, or `slip-source`.
+
+##### `nodes`
+
+The source nodes affected by the request, including nodes temporarily unmounted during refresh.
+
+###### `absolutePath`
+
+The source file's absolute path.
+
+###### `nodePath`
+
+The path to the source JSX node, represented as an array of strings and numbers.
+
+#### `sequences[].duplicating`<AvailableFrom v="4.0.540" />
+
+Whether a duplication of this sequence's source node is pending. This includes duplications started through the Studio interface or `duplicate_sequence`.
+
+#### `pendingDuplications`<AvailableFrom v="4.0.540" />
+
+Source nodes with a pending duplication in the current Studio tab, including nodes that are temporarily unmounted during a preview refresh. An empty array reports no pending source nodes; it does not mean the preview has finished refreshing.
+
+##### `absolutePath`
+
+The absolute path of the source file.
+
+##### `nodePath`
+
+The path to the JSX node within that source file, represented as an array of strings and numbers.
+
+#### `sequences[].splitting`<AvailableFrom v="4.0.540" />
+
+Whether a split of this sequence's source node is being applied. The flag follows source-path remapping while the operation is pending.
+
+#### `pendingSplits`<AvailableFrom v="4.0.540" />
+
+Pending source splits in this Studio tab, including sources temporarily unmounted during refresh. Source locations follow edits that move their JSX nodes.
+
+For the active composition, a split stays pending until its save is acknowledged and the shortened original clip and new right half appear in the preview. This works whether the save response or preview refresh arrives first. A failed split clears its pending state. Undo, reconnecting Studio, or a newer timing edit affecting the clip, including a confirmed newer edit made directly in code, can supersede it.
+
+If you navigate away from the composition, a saved split can stop being pending before its preview is shown again. An empty array does not guarantee that an offscreen composition has finished refreshing.
+
+##### `absolutePath`
+
+The source file's absolute path.
+
+##### `nodePath`
+
+The path to the source JSX node, represented as an array of strings and numbers.
+
+##### `sourceFrame`
+
+The split frame in that source node's timing. It may differ from the composition playhead, for example inside a nested sequence or a composition with a different playback rate.
+
+#### `sequences[].effects`<AvailableFrom v="4.0.540" />
+
+The sequence's effects in their current optimistic order. Added and duplicated effects appear immediately, and deleted effects disappear immediately, while source edits are queued. Available in all Studio modes; deletion requires source editing.
+
+##### `effectIndex`
+
+The zero-based position in the effect chain. Use this with `sequenceId` when calling `delete_effect`. Read the effects again after deleting, adding, or reordering an effect because indices can change.
+
+##### `effectId`
+
+A stable identifier for the effect in the current Studio session, or `null` when source identity is unavailable. It remains the same when effects are reordered or their code indices change.
+
+##### `type`
+
+The effect definition's type identifier. Multiple effects can have the same type.
+
+##### `label`
+
+The effect's display name in Studio.
+
+##### `canDelete`
+
+Whether the current mode and source allow deletion. Pending edits of the same effect chain do not block another deletion.
+
+##### `deleting`
+
+Retained for compatibility. This is `false` because deleted effects are immediately removed from the optimistic list. Read `pendingEffectEdits` for operations awaiting persistence or preview refresh.
+
+#### `pendingEffectEdits`
+
+Pending additions, deletions, duplications, reorders and undo/redo restorations in the current Studio tab, including source nodes temporarily unmounted during a preview refresh. `operationId` identifies the edit, and `effectIds` identifies its targets (or the newly added effect for `add`).
+
+`queued` means the source edit has not completed; `acknowledged` means it was saved and the preview is still catching up. Operations leave the list once their compiled update is installed, or on failure. Source locations follow edits that move their JSX nodes. Further edits can target the optimistic effect list without waiting for this list to empty.
+
+#### `pendingEffectDeletions`<AvailableFrom v="4.0.540" />
+
+Pending effect deletions in the current Studio tab, including source nodes that are temporarily unmounted during a preview refresh.
+
+##### `absolutePath`
+
+The absolute path of the source file.
+
+##### `nodePath`
+
+The path to the JSX node within that source file, represented as an array of strings and numbers.
+
+##### `effectIndices`
+
+The zero-based effect indices in the last compiled chain. Newly added copies that have not yet compiled have no index in this list. Prefer `pendingEffectEdits[].effectIds` to track deletions across overlapping edits; these indices do not refer to the current optimistic effect list.
+
+### `delete_effect`<AvailableFrom v="4.0.540" />
+
+Deletes an effect using the same action as the Studio interface. The preview updates optimistically; a failed deletion restores the effect.
+
+Requires a composition to be open and editable effect source in a connected interactive Studio or remotion.new. Unavailable when the preview server is detached or the Studio is deployed as read-only. Deleting an effect edits the source and affects every runtime instance of that JSX node.
+
+```ts title="Input"
+{
+  sequenceId: string;
+  effectIndex: number;
+}
+```
+
+#### `sequenceId`
+
+Required. The ID of a sequence returned by `get_sequences`.
+
+#### `effectIndex`
+
+Required. A non-negative integer from the sequence's current `effects` list in `get_sequences`.
+
+```ts title="Output"
+{sequenceId: string; effectIndex: number} & (
+  | {status: 'success'}
+  | {status: 'error'; reason: string}
+)
+```
+
+#### `status`
+
+`success` means the deletion was saved to source. The preview may still be refreshing.
+
+`error` means deletion failed. Invalid inputs, unavailable effect editing, and missing sequences or effects reject the tool call before deletion starts.
+
+#### `reason`
+
+The failure message, present when `status` is `error`.
+
+### `duplicate_sequence`<AvailableFrom v="4.0.540" />
+
+Duplicates the source JSX node for a sequence using the same action as the Studio inspector.
+
+Studio selects the copied sequence roots once they are available in the preview. Changing the selection or switching away from the composition while duplication is pending prevents this automatic selection. If overlapping source refreshes make the copied nodes ambiguous, Studio preserves the current selection; select a copy after the preview finishes updating.
+
+A clip directly inside a [`<Track>`](/docs/track), including through anonymous fragments, is copied into a separate sibling track with its timing preserved. If an intervening element or expression prevents this, duplicate the enclosing track instead.
+
+Requires a composition to be open and source editing to be available in a connected interactive Studio or remotion.new. Unavailable when the preview server is detached or the Studio is deployed as read-only. Transitions and sequences whose source is unavailable cannot be duplicated.
+
+```ts title="Input"
+{
+  sequenceId: string;
+  confirmProgrammaticDuplication: boolean;
+}
+```
+
+#### `sequenceId`
+
+Required. The ID of a sequence returned by `get_sequences`.
+
+#### `confirmProgrammaticDuplication`
+
+Required. When one source node produces multiple runtime instances, copying it creates a copy for every instance. Set `true` to confirm this behavior. Set `false` to cancel duplication of programmatically repeated nodes. A single-instance node is duplicated with either value.
+
+```ts title="Output"
+{sequenceId: string} & (
+  | {status: 'success'}
+  | {status: 'cancelled'}
+  | {status: 'error'; reason: string}
+)
+```
+
+#### `status`
+
+`success` means the source copy was saved. The preview may still be refreshing; new sequence IDs appear in `get_sequences` afterward.
+
+`already-pending` means a duplication of this source node is already in progress. No additional copy was requested.
+
+`cancelled` means no copy was requested, for example because a programmatically repeated node was not confirmed.
+
+`error` means duplication failed. Invalid inputs, unavailable source editing, and missing or unsupported sequences reject the tool call before duplication starts.
+
+#### `reason`
+
+The failure message, present when `status` is `error`.
+
+### `select_sequence`
+
+Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
+
+```ts title="Input"
+{
+  sequenceId: string;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  selectedSequence: {
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+  }
+}
+```
+
+### `get_composition`
+
+Returns metadata and the current frame for the open composition. All fields are `null` when the canvas is showing an asset or other non-composition content.
+
+While `calculateMetadata` is pending, `currentFrame` is `null` and metadata fields use the registered values where available. Once it resolves, the fields report the calculated values.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  compositionName: string | null;
+  stack: string | null;
+  durationInFrames: number | null;
+  height: number | null;
+  width: number | null;
+  fps: number | null;
+  currentFrame: number | null;
+}
+```
+
+### `get_canvas_html`
+
+Returns the rendered composition HTML at the current frame without the surrounding Studio interface. The returned HTML is capped at 100,000 characters. Canvas and WebGL pixels are not represented.
+
+While composition metadata is loading, `currentFrame` and `html` are `null`.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent | null;
+  currentFrame: number | null;
+  html: string | null;
+  htmlLength: number | null;
+  truncated: boolean;
+}
+```
+
+### `get_outlines`
+
+Returns the measurable selectable component outlines active at the current frame. Coordinates use composition pixels and do not change with the Studio canvas zoom.
+
+While composition metadata is loading, `currentFrame` is `null` and `outlines` is empty.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent | null;
+  currentFrame: number | null;
+  outlines: Array<{
+    sequenceId: string;
+    parentSequenceId: string | null;
+    name: string | null;
+    location: {
+      filename: string;
+      line: number;
+    } | null;
+    geometry: {
+      points: [{x: number; y: number}, {x: number; y: number}, {x: number; y: number}, {x: number; y: number}];
+      boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+    };
+  }>;
+}
+```
+
+### `get_diagnostics`<AvailableFrom v="4.0.543" />
+
+Returns cumulative audio iterator and buffering handle creation counts, the number of internal buffering states triggered, and the number of currently open Mediabunny sinks. Counts cover media preview and extraction in the current page. Counters reset when the page reloads. The buffering handle count can also be reset from the Diagnostics window or with `reset_buffering_handles_created`. Available in every Studio mode, including when the diagnostics window is hidden.
+
+`bufferingStatesTriggered` counts each transition into the internal buffering state, including states too short to show the loading indicator. Overlapping handles count as one buffering state. Handles created and cleared within the same React batch do not trigger a buffering state.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  audioIteratorsCreated: number;
+  mediabunnySinksOpen: number;
+  bufferingHandlesCreated: number;
+  bufferingStatesTriggered: number;
+}
+```
+
+### `reset_buffering_handles_created`<AvailableFrom v="4.0.543" />
+
+Resets the buffering handle creation count to zero. Active buffering handles and the other diagnostics counters are unchanged. New buffering handles start counting from zero. Available in every Studio mode, including when the diagnostics window is hidden.
+
+```ts title="Input"
+{
+}
+```
+
+Returns the same fields as `get_diagnostics` with `bufferingHandlesCreated` set to `0`.
+
+### `set_buffering_tracing`<AvailableFrom v="4.0.543" />
+
+Enables or disables detailed buffering tracing through WebMCP. The [Diagnostics window](/docs/options/show-diagnostics) also enables tracing while visible. Tracing remains enabled while either requests it. Enable tracing before reproducing a stall; handles created earlier have no captured source information. Available in every Studio mode.
+
+```ts title="Input"
+{
+  enabled: boolean;
+}
+```
+
+Returns the same output as `get_buffering_events`. Disabling tracing preserves recorded events. Reloading the page clears them and disables tracing requested through WebMCP.
+
+### `get_buffering_events`<AvailableFrom v="4.0.543" />
+
+Returns recorded buffering episodes, including the handles present at the start and those added while buffering. Each handle includes its creation stack, owning layer ancestry, media source when available, and resolved source locations. Handles created and cleared without a buffering transition do not appear. Available in every Studio mode.
+
+```ts title="Input"
+{
+  limit?: number; // Integer from 1 to 100. Default: 20.
+  afterId?: number; // Only return newer event IDs. Omit to read updates to existing events.
+}
+```
+
+```ts title="Output"
+{
+  enabled: boolean;
+  panelEnabled: boolean;
+  webmcpEnabled: boolean;
+  revision: number;
+  maxEvents: number; // 100
+  maxHandlesPerEvent: number; // 50
+  droppedEvents: number;
+  events: Array<{
+    id: number;
+    compositionId: string | null;
+    frame: number;
+    startedAt: number;
+    endedAt: number | null;
+    endReason: 'resumed' | 'unmounted' | null;
+    durationInMilliseconds: number;
+    omittedHandles: number;
+    handles: Array<{
+      id: number;
+      compositionId: string | null;
+      frame: number;
+      createdAt: number;
+      releasedAt: number | null;
+      releasedFrame: number | null;
+      durationInMilliseconds: number;
+      activeAtStart: boolean;
+      stack: string | null;
+      owners: Array<{
+        sequenceId: string;
+        name: string;
+        source: string | null;
+        stack: string | null;
+        overrideId: string | null;
+        location: {filename: string; line: number | null; column: number | null} | null;
+      }>;
+    }>;
+  }>;
+}
+```
+
+Events are ordered oldest first. Timestamps use milliseconds since the page's performance time origin. A null `endedAt` indicates ongoing buffering; a null `releasedAt` means no release was recorded. `activeAtStart` distinguishes initial handles from those that joined later. Owners are ordered from the nearest layer to its ancestors.
+
+History is limited to 100 events with 50 handles per event. `droppedEvents` counts discarded events; `omittedHandles` counts handles that exceeded the limit or were created before tracing began. Events may be shorter than the loading indicator's display threshold. The Diagnostics window displays the most recent 20 events.
+
+### `clear_buffering_events`<AvailableFrom v="4.0.543" />
+
+Clears completed buffering events and resets `droppedEvents`. Active events and diagnostics counters are preserved. Available in every Studio mode.
+
+```ts title="Input"
+{
+}
+```
+
+Returns the same output as `get_buffering_events`.
+
+### `reveal_buffering_handle`<AvailableFrom v="4.0.543" />
+
+Pauses playback, selects the recorded composition, seeks to the frame where the buffering episode began, and reveals the handle's owning layer in the timeline and Inspector. Use IDs from `get_buffering_events`. Available when composition timeline selection is supported, including detached, deployed, and remotion.new.
+
+```ts title="Input"
+{
+  eventId: number;
+  handleId: number;
+}
+```
+
+```ts title="Output"
+{
+  compositionId: string;
+  frame: number;
+  sequenceId: string;
+}
+```
+
+If the nearest layer is unavailable, an available ancestor is selected. Returns an error if the record was cleared or the composition or layer can no longer be found. Captured source information remains readable after the original layer unmounts.
+
+### `get_audio_levels`<AvailableFrom v="4.0.543" />
+
+Returns the Audio Levels panel's visibility and the current left and right sample peaks in dBFS from Studio's shared Web Audio context. Silence is reported as `-60`. Levels are `null` when the panel is hidden or audio is unavailable. Media that bypasses this context is not measured. Available in every Studio mode.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+  levels: {left: number; right: number} | null;
+}
+```
+
+### `set_audio_levels_visible`<AvailableFrom v="4.0.543" />
+
+Shows or hides the fixed-width Audio Levels panel to the right of the timeline. Updates the View menu and saves the preference in the browser. The panel is hidden by default. Available in every Studio mode.
+
+```ts title="Input"
+{
+  visible: boolean;
+}
+```
+
+```ts title="Output"
+{
+  visible: boolean;
+}
+```
+
+### `get_splitters`<AvailableFrom v="4.0.543" />
+
+Returns the mounted, visible Studio panel dividers. Available in regular Studio, detached Studio, read-only deployed Studio and remotion.new.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  splitters: Array<{
+    id: string;
+    label: string;
+    orientation: 'horizontal' | 'vertical';
+    positionInPixels: number;
+    minPositionInPixels: number;
+    maxPositionInPixels: number;
+    isDragging: boolean;
+  }>;
+}
+```
+
+#### `id`
+
+Pass this ID to `set_splitter_position`. Read the list again after opening or closing panels, changing previews, or resizing the Studio window.
+
+#### `label`
+
+The divider's accessible name. It describes the preview height, left sidebar width, preview area width, or timeline labels width.
+
+#### `orientation`
+
+The divider's orientation. A horizontal divider controls the height of the pane above it. A vertical divider controls the width of the pane to its left.
+
+#### `positionInPixels`
+
+The current first-pane size in CSS pixels from the start of its container. The right sidebar divider reports the preview area's width.
+
+#### `minPositionInPixels`
+
+The smallest allowed first-pane size for the current layout, including minimum and maximum pixel sizes of both panes.
+
+#### `maxPositionInPixels`
+
+The largest allowed first-pane size for the current layout. Sizes and bounds use whole pixels where the constraints permit. A fractional bound is retained when required by the constraints.
+
+#### `isDragging`
+
+Whether a pointer drag is currently resizing this divider. `set_splitter_position` rejects changes during the drag.
+
+### `set_splitter_position`<AvailableFrom v="4.0.543" />
+
+Resizes a Studio panel using the same size constraints and browser preference as the divider's keyboard controls. Available in all four Studio modes. Resizing updates and saves the local layout.
+
+```ts title="Input"
+{
+  id: string;
+  positionInPixels: number;
+}
+```
+
+#### `id`
+
+A divider ID returned by `get_splitters`. Unknown, hidden and unmounted dividers return an error.
+
+#### `positionInPixels`
+
+The requested first-pane size in CSS pixels from the start of its container. Must be a finite number. The value is clamped to the current bounds and rounded to a whole pixel where possible.
+
+Returns the effective divider state with the same fields as one entry in the `splitters` array returned by `get_splitters`. The returned position may differ from the requested value because of size constraints or rounding. Calls for unavailable or actively dragged dividers return an error.
+
+### `get_playback_state`
+
+Returns the current playhead, marked playback range, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from v4.0.540.
+
+One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent | null;
+  currentFrame: number | null;
+  playbackStartFrame: number | null;
+  fps: number | null;
+  durationInFrames: number | null;
+  inFrame: number | null;
+  outFrame: number | null;
+  playing: boolean | null;
+  muted: boolean | null;
+  volume: number | null;
+  playbackRate: number | null;
+  looping: boolean | null;
+  timelineZoom: number | null;
+}
+```
+
+#### `fps`<AvailableFrom v="4.0.540" />
+
+The preview's frame rate, used to interpret `currentFrame` and `seek_to_frame`. Rendered video uses its own media metadata, independently of the previously selected composition. Audio outputs and rendered video without a known frame rate use a 30 fps preview clock. `null` when no supported preview is ready.
+
+#### `durationInFrames`<AvailableFrom v="4.0.540" />
+
+The current preview's duration in its frame clock, or `null` when unavailable. A rendered video uses the length of its video track when available, with frame `0` at the first picture. While trailing audio finishes, the playhead stays on the last picture. Audio outputs and videos without track timing use the native media duration. An asset preview includes the full soundtrack, even when the audio extends past the video.
+
+The duration remains the full preview duration when in and out points are set.
+
+#### `inFrame`<AvailableFrom v="4.0.543" />
+
+The marked first included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses frame `0`.
+
+Each composition and asset keeps its own marks. These fields follow the range shown in the timeline in regular Studio, detached Studio, deployed read-only Studio and remotion.new. Both `inFrame` and `outFrame` are `null` for render-output previews, unsupported or unready content, and one-frame compositions.
+
+#### `outFrame`<AvailableFrom v="4.0.543" />
+
+The marked last included playback frame, using the current preview's zero-based frame clock. For a ready composition or audio/video asset, `null` uses `durationInFrames - 1`. For example, `inFrame: 225` and `outFrame: 374` mark 150 frames.
+
+#### `playbackStartFrame`<AvailableFrom v="4.0.540" />
+
+The rendered output's remembered playback-start frame, using its `fps` clock. It updates when playback starts, including through native media controls, and stays unchanged while pausing or seeking. It is `null` before playback has started, and for compositions, assets and unready content.
+
+To pause an output and return to this frame, call `pause`, then `seek_to_frame` with `playbackStartFrame` while the same output remains open.
+
+#### `timelineZoom`
+
+`null` for rendered outputs because their native media preview has no Studio timeline.
+
+#### `currentContent`
+
+Identifies the open canvas content. Server outputs report their path; local browser outputs report their display name, dimensions and size. Blob data and blob retrieval functions are not exposed.
+
+### `get_selection`
+
+`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from v4.0.541. A still image or a preview that is still loading returns `0`.
+
+Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentFrame: number;
+  currentContent: CurrentContent | null;
+  currentSelection: string | null;
+  selectionType:
+    | 'guide'
+    | 'sequence'
+    | 'sequence-prop'
+    | 'sequence-all-effects'
+    | 'sequence-effect'
+    | 'sequence-effect-prop'
+    | 'keyframe'
+    | 'easing'
+    | null;
+  selectedSequence: {
+    sequenceId: string;
+    name: string | null;
+    type: 'sequence' | 'audio' | 'video' | 'image';
+    parentSequenceId: string | null;
+    depth: number;
+    startFrame: number;
+    endFrame: number;
+    durationInFrames: number;
+    stack: string | null;
+    selectable: boolean;
+  } | null;
+  selectedItems: SelectedTimelineItem[];
+}
+```
+
+#### `selectedItems`<AvailableFrom v="4.0.543" />
+
+Lists every selected timeline item, including multi-selections. The field is available in regular, detached, read-only deployed and remotion.new. An empty array means nothing is selected. Match `sequenceId` against [`get_sequences`](#get_sequences) and `guideId` against [`get_guides`](#get_guides). If the owning sequence is unavailable, its ID is `null`.
+
+```ts
+type SelectedTimelineItem =
+  | {type: 'guide'; guideId: string}
+  | {type: 'sequence' | 'sequence-all-effects'; sequenceId: string | null}
+  | {type: 'sequence-prop'; sequenceId: string | null; fieldKey: string}
+  | {type: 'sequence-effect'; sequenceId: string | null; effectIndex: number}
+  | {type: 'sequence-effect-prop'; sequenceId: string | null; effectIndex: number; fieldKey: string}
+  | {
+      type: 'keyframe';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      frame: number;
+    }
+  | {
+      type: 'easing';
+      sequenceId: string | null;
+      fieldKey: string | null;
+      effectIndex: number | null;
+      fromFrame: number;
+      toFrame: number;
+      segmentIndex: number;
+    };
+```
+
+Keyframes and easing segments on a sequence property have a `null` `effectIndex`. Studio returns a `null` `fieldKey` when it cannot identify the property.
+
+### `get_guides`
+
+Returns guides for the current composition. Vertical positions are x-coordinates from the left edge; horizontal positions are y-coordinates from the top edge.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent | null;
+  guidesVisible: boolean;
+  guides: Array<{
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: boolean;
+    selected: boolean;
+  }>;
+}
+```
+
+### `select_guide`<AvailableFrom v="4.0.544" />
+
+Selects one guide from the current composition, highlights it on the canvas, and opens the inspector with all vertical guides followed by all horizontal guides. Replaces the current selection; `null` clears it. Available in regular, read-only deployed, and remotion.new when selection is enabled. A detached regular Studio cannot change selection. An unknown or hidden guide ID causes an error before the selection changes. Read [`get_selection`](#get_selection) or [`get_guides`](#get_guides) to inspect the result.
+
+```ts title="Input"
+{
+  guideId: string | null;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  selectedGuideId: string | null;
+}
+```
+
+### `set_guides_visible`
+
+Shows or hides every guide in the current composition.
+
+```ts title="Input"
+{
+  visible: boolean;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guidesVisible: boolean;
+}
+```
+
+### `add_guide`
+
+Adds and shows a guide in the current composition. Positions use composition pixels.
+
+```ts title="Input"
+{
+  orientation: 'horizontal' | 'vertical';
+  position: number;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guide: {
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: true;
+  }
+}
+```
+
+### `update_guide`<AvailableFrom v="4.0.544" />
+
+Moves a guide from the current composition using the same position update as the Inspector. Positions are rounded to whole composition pixels and may be negative. Guides at the same position remain separate guides. Available in every Studio mode; guide positions are saved locally in the browser and do not require source editing.
+
+An unknown guide ID or a non-finite position causes an error before anything changes. The output confirms the updated position. Global guide visibility is preserved; use `set_guides_visible` to show hidden guides.
+
+```ts title="Input"
+{
+  guideId: string;
+  position: number;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guide: {
+    id: string;
+    orientation: 'horizontal' | 'vertical';
+    position: number;
+    visible: boolean;
+  }
+}
+```
+
+### `remove_guide`
+
+Removes a guide using an ID returned by `get_guides` or `add_guide`.
+If the guide is selected, selection moves to the next guide in the same orientation, then the previous one. If none remain, selection clears.
+
+```ts title="Input"
+{
+  guideId: string;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: {
+    type: 'composition';
+    compositionId: string;
+  }
+  guideId: string;
+  removed: true;
+}
+```
+
+### `play`
+
+Starts playback from the current frame. Composition and asset previews with only one frame cannot be played. A rendered output can play whenever its native media has a positive duration, including one-frame outputs. The tool waits for native playback to start and reports playback errors or navigation away from that output.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  playing: boolean;
+}
+```
+
+### `pause`
+
+Pauses playback at the current frame.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  playing: false;
+}
+```
+
+### `mute`
+
+Mutes audio playback.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  muted: true;
+}
+```
+
+### `unmute`
+
+Unmutes audio playback.
+
+```ts title="Input"
+{
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  muted: false;
+}
+```
+
+### `set_volume`<AvailableFrom v="4.0.540" />
+
+Sets playback volume for the current composition or ready audio/video asset or rendered output. Available locally in all four Studio modes. This changes preview volume, not the composition's audio source properties, and does not change the muted state.
+
+Composition and asset previews share Studio's volume. A rendered output keeps its own volume while mounted.
+
+```ts title="Input"
+{
+  volume: number;
+}
+```
+
+#### `volume`
+
+Required. A finite number from `0` (silent) through `1` (full volume). Invalid values and unsupported or unready previews return an error before changing volume.
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  volume: number;
+}
+```
+
+### `set_timeline_zoom`
+
+Sets the timeline zoom using a normalized value between `0` (fully zoomed out) and `1` (maximum zoom). The output contains the effective normalized zoom after Studio applies its supported zoom step. Still compositions and asset previews with only one frame do not have timeline zoom. Rendered-output previews reject this tool because they have no Studio timeline.
+
+```ts title="Input"
+{
+  zoom: number;
+}
+```
+
+`zoom` must be a finite number between `0` and `1`, inclusive.
+
+```ts title="Output"
+{
+  currentContent:
+    | {type: 'composition'; compositionId: string}
+    | {type: 'asset'; asset: string};
+  timelineZoom: number;
+}
+```
+
+### `set_looping`<AvailableFrom v="4.0.540" />
+
+Enables or disables looping for the current composition or ready audio/video preview. For compositions and assets, it updates the Loop control immediately and saves the preference for subsequent previews. For rendered outputs with a positive duration, it changes only the mounted native media element. Returns an error if no supported preview is ready or a composition or asset preview has only one frame.
+
+```ts title="Input"
+{
+  looping: boolean;
+}
+```
+
+`looping` is required.
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  looping: boolean;
+}
+```
+
+### `set_playback_rate`
+
+Sets the playback multiplier. Negative values play backwards in compositions and asset previews. Rendered outputs accept only positive rates and retain their own playback rate; a negative rate returns an error without changing playback preferences.
+
+```ts title="Input"
+{
+  playbackRate:
+    | -4
+    | -2
+    | -1
+    | -0.5
+    | -0.25
+    | 0.25
+    | 0.5
+    | 1
+    | 1.5
+    | 2
+    | 4;
+}
+```
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  playbackRate: number;
+}
+```
+
+### `seek_to_frame`
+
+Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame. Read `fps` and `durationInFrames` from `get_playback_state` to interpret rendered-output frames. A seek updates the native media element used by the preview controls.
+
+```ts title="Input"
+{
+  frame: number;
+}
+```
+
+`frame` must be a non-negative integer.
+
+```ts title="Output"
+{
+  currentContent: CurrentContent;
+  currentFrame: number;
+}
+```
+
+## Development-only React Scan tools
+
+These tools are available only in the Remotion repository's React Scan capture mode, started with `bun run react-scan:capture` or `bun run react-scan:capture:brand` from the repository root.
+
+Call `start_react_scan_recording` with `{}`, perform a short interaction, then call `stop_react_scan_recording` with `{}`. Starting clears the previous recording. Stopping freezes the events for retrieval.
+
+### `get_react_scan_recording`
+
+Requires a recording that has been started and stopped. Returns recording status, timestamps, `durationInMilliseconds`, `eventCount`, raw `events`, and a `summary` of commit costs, component costs and profiling-hook availability.
+
+#### `includeEvents?`
+
+Defaults to `true`. Set to `false` to return `events: null` with the same status and summary fields. This avoids serializing raw fiber trees, which can exceed the size supported by a native WebMCP response even for a short recording.
+
+```json title="Summary-only input"
+{"includeEvents": false}
+```
+
+Summary-only reads keep the raw events in memory. Retrieve them with `{"includeEvents": true}` or `{}` when needed. Recordings are cleared by the next recording or page reload.
+
+## Example prompts
+
+You can ask a browser agent:
+
+- "What is currently selected in the Studio?"
+- "Fix the error"
+- "List all mounted compositions and their folders."
+- "Open the `Shapes` composition."
+- "List the sequences and select the `Title` sequence."
+- "Duplicate the `Title` sequence."
+- "Inspect the HTML rendered on the canvas."
+- "List the visible components and their canvas geometry."
+- "What is the current playback state?"
+- "Set the timeline zoom to 0.5."
+- "Seek to frame 90, set the playback rate to 0.5x and play."
+- "List the guides in the current composition."
+- "Hide the guides."
+- "Add a vertical guide at 640 pixels."
+- "Mute the preview."
+- "Turn off looping for the audio asset preview."
+- "Transcribe the audio asset that is currently open."
+- "Remove the background from `product-shot.mp4`."
+
+The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
+
+## Browser support
+
+WebMCP is a draft web platform API. Refer to the [WebMCP specification](https://webmachinelearning.github.io/webmcp/) and [Chrome's WebMCP documentation](https://developer.chrome.com/docs/ai/agents) for current browser and agent support.
+
+## See also
+
+- [Make videos with coding agents](/docs/agents)
+- [Remotion Agent Skills](/docs/agents/skills)
+- [Remotion Studio](/docs/studio)
