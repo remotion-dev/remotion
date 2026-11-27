@@ -37,6 +37,12 @@ export const getSharedInputCacheKey = ({
 		revision: null,
 	});
 
+// mediabunny's `UrlSource` defaults to 2 concurrent range requests. The shared
+// `Input` serves every `<Video>` and `<Audio>` with the same `src`, and each of
+// them may read a video region and an audio region at once, so with 2 workers
+// those reads queue behind each other on high-latency connections.
+const SHARED_URL_SOURCE_PARALLELISM = 4;
+
 export const acquireSharedInput = ({
 	src,
 	credentials,
@@ -78,6 +84,7 @@ export const acquireSharedInput = ({
 						);
 					},
 					maxCacheSize: getMaxSourceCacheSize(logLevel),
+					parallelism: SHARED_URL_SOURCE_PARALLELISM,
 					...(resolvedRequestInit
 						? {requestInit: resolvedRequestInit}
 						: undefined),
