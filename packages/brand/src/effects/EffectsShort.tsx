@@ -5,6 +5,7 @@ import {TransitionSeries} from '@remotion/transitions';
 import {staticFile} from 'remotion';
 import {z} from 'zod';
 import {BasicCaptions} from '../basic-captions';
+import {EffectsShaderGallery} from './EffectsShaderGallery';
 
 loadFont({
 	family: 'Effects GT Planar',
@@ -561,6 +562,24 @@ export const EffectsShort = ({format}: z.infer<typeof effectsShortSchema>) => {
 					<Audio
 						name="4 - Dialogue"
 						src="https://remotion.media/effects-promo-2026-11-27/effect4-auphonic-3c24a98dc37f.flac"
+					/>
+					<EffectsShaderGallery
+						name="Paper Shaders"
+						from={58}
+						durationInFrames={68}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						gallery="Paper Shaders"
+						style={{left: 0, top: 0}}
+					/>
+					<EffectsShaderGallery
+						name="Shadertoy"
+						from={126}
+						durationInFrames={39}
+						width={portrait ? 1080 : 960}
+						height={portrait ? 960 : 1080}
+						gallery="Shadertoy"
+						style={{left: 0, top: 0}}
 					/>
 					<BasicCaptions
 						name="4 - Captions"

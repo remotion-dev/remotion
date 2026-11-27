@@ -2,9 +2,10 @@ import {colorCorrection} from '@remotion/effects/color-correction';
 import {loadFont} from '@remotion/fonts';
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {Interactive, Sequence, useVideoConfig} from 'remotion';
+import {Sequence, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 import {BasicCaptions} from '../basic-captions';
+import {Credit} from '../Credit';
 import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-angle';
 import {MotionBlurAdjustment} from './MotionBlurAdjustment';
 import {MotionBlurAgentPrompt} from './MotionBlurAgentPrompt';
@@ -117,25 +118,17 @@ export const MotionBlurShort = ({
 							objectFit="cover"
 							style={{width: '100%', height: '100%'}}
 						/>
-						<Interactive.Div
+						<Credit
 							name="Footage credit"
 							durationInFrames={3 * fps}
+							href={null}
 							style={{
-								position: 'absolute',
-								left: 32,
-								top: 32,
 								fontFamily: 'Here GT Planar',
-								fontWeight: 500,
 								fontSize: portrait ? 34 : 30,
-								lineHeight: 1.2,
-								padding: '0.21875em 0.625em',
-								backgroundColor: '#ffffff',
-								color: '#000000',
-								whiteSpace: 'nowrap',
 							}}
 						>
 							Orhan Pergel · Pexels
-						</Interactive.Div>
+						</Credit>
 					</Sequence>
 					<BasicCaptions
 						name="1 - Captions"
