@@ -22,14 +22,23 @@ export const createSvgClipMask = ({
 	scale: number;
 }) => {
 	const namespace = 'http://www.w3.org/2000/svg';
+	// Firefox does not apply CSS zoom to clip path user units, so the layout
+	// is scaled explicitly and the clip path gets a matching transform.
+	const scaleRect = (rect: DOMRect) =>
+		new DOMRect(
+			rect.x * scale,
+			rect.y * scale,
+			rect.width * scale,
+			rect.height * scale,
+		);
 	const {svg, target} = createNativeMaskSvg({
 		ownerDocument: resource.ownerDocument,
-		maskRect,
-		precomposeRect,
-		referenceRect,
+		maskRect: scaleRect(maskRect),
+		precomposeRect: scaleRect(precomposeRect),
+		referenceRect: scaleRect(referenceRect),
 		width,
 		height,
-		scale,
+		scale: 1,
 	});
 	target.style.clipPath = 'url(#remotion-svg-clip)';
 
@@ -37,6 +46,11 @@ export const createSvgClipMask = ({
 	clip.id = 'remotion-svg-clip';
 	const originals = Array.from(resource.children);
 	withScaffoldVisible(resource, () => {
+		if (resource.clipPathUnits.animVal !== 2) {
+			const {transform} = getComputedStyle(resource);
+			clip.style.transform = `scale(${scale})${transform === 'none' ? '' : ` ${transform}`}`;
+		}
+
 		for (let i = 0; i < originals.length; i++) {
 			const original = originals[i] as SVGElement;
 			const style = getComputedStyle(original);
