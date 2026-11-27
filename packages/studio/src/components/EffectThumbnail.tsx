@@ -127,6 +127,7 @@ export const EffectThumbnail: React.FC<{
 				/>
 			) : showFallback && (!isScrolling || loaded) ? (
 				<img
+					crossOrigin="anonymous"
 					src={getEffectPreviewSource(item)}
 					alt={getEffectPreviewAlt(item)}
 					style={{
