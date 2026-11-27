@@ -45,10 +45,11 @@ See the [Element best practices](https://www.remotion.dev/docs/elements/creating
 - `elements/self-contained` (error): Keep each Element in one source file. Do not use relative imports, absolute paths, or project aliases such as `@/`, `~/`, and `#`. Package imports are allowed; declare their dependencies in the registry. Computed import paths that cannot be resolved statically are rejected.
 - `elements/no-global-styles` (error): Use styles on the Element's own nodes, not stylesheet imports, `<style>` tags, stylesheet links, or direct mutations of `document.body.style` and `document.documentElement.style`.
 - `elements/interactive-name` (warning): Give `Interactive.*` nodes and supported Remotion media and sequence layers an explicit, nonempty `name`. Dynamic names are allowed.
+- `elements/editable-text` (warning): Keep text editable in Studio. Write fixed text inline as the only child of an `Interactive` text node such as `<Interactive.Div>`. Text in a plain tag, text next to other children or JSX comments, and text from a constant or template literal are read-only in Studio. Text that comes from a prop of the Element must have a field in the `Interactive.create()` schema, for example a `string` field or `...Interactive.childrenSchema`. The rule does not check text from data, such as captions.
 
 For example, use `<Img name="Photo" src={src} />` in the Element and supply the photo URL in the registry. Do not use `<Img src="https://example.com/photo.jpg" />` inside the Element.
 
-These checks catch common static patterns, not every possible runtime dependency or side effect. They do not validate registry dependencies or prove that a dynamic asset comes from props. Check installation in a clean Remotion project and review the result in Studio.
+These checks catch common static patterns, not every possible runtime dependency or side effect. They do not validate registry dependencies or prove that a dynamic asset comes from props. `elements/editable-text` does not follow text into helper components or props that are destructured in the function body. Check installation in a clean Remotion project and review the result in Studio.
 
 ## Render and upload previews
 
