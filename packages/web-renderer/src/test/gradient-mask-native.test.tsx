@@ -2,6 +2,7 @@ import {AbsoluteFill} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {rasterMask} from './fixtures/mask-image-url-sizing';
 import {captureNativeReference, countNativePixels} from './native-reference';
 
 const cases: Record<string, React.CSSProperties> = {
@@ -29,6 +30,30 @@ const cases: Record<string, React.CSSProperties> = {
 	'none and gradient layers': {
 		maskImage: 'none, radial-gradient(circle, black 40%, transparent 41%)',
 	},
+	...Object.fromEntries(
+		(['add', 'subtract', 'intersect', 'exclude'] as const).flatMap(
+			(maskComposite) => [
+				[
+					`two gradient layers with mask-composite: ${maskComposite}`,
+					{
+						maskImage:
+							'linear-gradient(to right, black 60%, transparent 60%), radial-gradient(circle, black 40%, transparent 41%)',
+						maskComposite,
+					},
+				],
+				[
+					`gradient and url() layers with mask-composite: ${maskComposite}`,
+					{
+						maskImage: `linear-gradient(to right, black 60%, transparent 60%), url("${rasterMask}")`,
+						maskComposite,
+						maskSize: 'auto, 40px 20px',
+						maskRepeat: 'no-repeat, repeat',
+						maskPosition: '0 0, 7px 5px',
+					},
+				],
+			],
+		),
+	),
 };
 
 test.for(Object.entries(cases))(
