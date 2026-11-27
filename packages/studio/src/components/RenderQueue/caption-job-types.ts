@@ -1,4 +1,7 @@
-import type {ElementInstallRequest} from '@remotion/studio-shared';
+import type {
+	ElementInstallRequest,
+	InsertBasicCaptionsRequest,
+} from '@remotion/studio-shared';
 import type {
 	WhisperWebGpuModel,
 	WhisperWebGpuTask,
@@ -31,6 +34,7 @@ export type AddCaptionJobParams = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		composition: InsertBasicCaptionsRequest['composition'];
 	} | null;
 	model: WhisperWebGpuModel;
 	language: string | null;

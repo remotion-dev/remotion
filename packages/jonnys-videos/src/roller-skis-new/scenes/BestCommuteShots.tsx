@@ -1,14 +1,9 @@
 import {Video} from '@remotion/media';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Track,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const TechBrosShotInner: React.FC = () => {
+const BestCommuteSourceInner = () => {
+	const frame = useCurrentFrame();
 	return (
 		<>
 			<Video
@@ -18,7 +13,79 @@ const TechBrosShotInner: React.FC = () => {
 				}
 				volume={0.83}
 				objectFit="cover"
-				style={{width: '100%', height: '100%'}}
+				style={{
+					width: '100%',
+					height: '100%',
+					scale:
+						frame >= 534
+							? interpolate(frame, [558, 567], [1, 1.1], {
+									easing: Easing.bezier(0.16, 1, 0.3, 1),
+									output: 'perceptual-scale',
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								})
+							: 1,
+				}}
+			/>
+			<Video
+				durationInFrames={112}
+				name="Sunrise"
+				src={
+					'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0462.mp4'
+				}
+				from={170}
+				trimBefore={9}
+				muted
+				objectFit="cover"
+				style={{position: 'absolute', width: '100%', height: '100%'}}
+			/>
+			<Video
+				name="Chickens"
+				src={
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
+				}
+				from={347}
+				durationInFrames={37}
+				trimBefore={219}
+				muted
+				objectFit="cover"
+				style={{position: 'absolute', width: '100%', height: '100%'}}
+			/>
+			<Video
+				name="Cows"
+				src={
+					'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
+				}
+				from={384}
+				durationInFrames={30}
+				trimBefore={1794}
+				muted
+				objectFit="cover"
+				style={{position: 'absolute', width: '100%', height: '100%'}}
+			/>
+			<Video
+				durationInFrames={42}
+				name="Mountains"
+				src={
+					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0461.MOV'
+				}
+				from={414}
+				trimBefore={6}
+				muted
+				objectFit="cover"
+				style={{position: 'absolute', width: '100%', height: '100%'}}
+			/>
+			<Video
+				durationInFrames={65}
+				name="Skis"
+				src={
+					'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
+				}
+				from={456}
+				trimBefore={609}
+				muted
+				objectFit="cover"
+				style={{position: 'absolute', width: '100%', height: '100%'}}
 			/>
 			<PoppingWordCaptions
 				combineTokensWithinMilliseconds={null}
@@ -95,46 +162,8 @@ const TechBrosShotInner: React.FC = () => {
 						endMs: 4420,
 						timestampMs: 4260,
 						confidence: null,
+						pageBreakAfter: true,
 					},
-				]}
-			/>
-		</>
-	);
-};
-export const TechBrosShot = Interactive.create({
-	Component: TechBrosShotInner,
-	layout: 'absolute-fill',
-});
-
-const BestCommuteShotInner: React.FC = () => {
-	return (
-		<>
-			<Video
-				name="IMG_0463"
-				src={
-					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
-				}
-				volume={0.83}
-				objectFit="cover"
-				style={{width: '100%', height: '100%'}}
-			/>
-			<Video
-				name="Sunrise"
-				src={
-					'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0462.mp4'
-				}
-				from={170}
-				trimBefore={9}
-				muted
-				objectFit="cover"
-				style={{position: 'absolute', width: '100%', height: '100%'}}
-			/>
-			<PoppingWordCaptions
-				combineTokensWithinMilliseconds={null}
-				name="Captions"
-				width={1600}
-				style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
-				captions={[
 					{
 						text: ' I',
 						startMs: 5880,
@@ -190,72 +219,8 @@ const BestCommuteShotInner: React.FC = () => {
 						endMs: 9400,
 						timestampMs: 9300,
 						confidence: null,
+						pageBreakAfter: true,
 					},
-				]}
-			/>
-		</>
-	);
-};
-export const BestCommuteShot = Interactive.create({
-	Component: BestCommuteShotInner,
-	layout: 'absolute-fill',
-});
-
-const SceneryShotInner: React.FC = () => {
-	return (
-		<>
-			<Video
-				name="IMG_0463"
-				src={
-					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
-				}
-				volume={0.83}
-				objectFit="cover"
-				style={{width: '100%', height: '100%'}}
-			/>
-			<Track name="Chickens, cows, mountains">
-				<Video
-					name="Chickens"
-					src={
-						'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
-					}
-					from={347}
-					durationInFrames={37}
-					trimBefore={219}
-					muted
-					objectFit="cover"
-					style={{position: 'absolute', width: '100%', height: '100%'}}
-				/>
-				<Video
-					name="Cows"
-					src={
-						'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
-					}
-					from={384}
-					durationInFrames={30}
-					trimBefore={1794}
-					muted
-					objectFit="cover"
-					style={{position: 'absolute', width: '100%', height: '100%'}}
-				/>
-				<Video
-					name="Mountains"
-					src={
-						'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0461.MOV'
-					}
-					from={414}
-					trimBefore={6}
-					muted
-					objectFit="cover"
-					style={{position: 'absolute', width: '100%', height: '100%'}}
-				/>
-			</Track>
-			<PoppingWordCaptions
-				combineTokensWithinMilliseconds={null}
-				name="Captions"
-				width={1600}
-				style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
-				captions={[
 					{
 						text: ' Come',
 						startMs: 10300,
@@ -290,46 +255,8 @@ const SceneryShotInner: React.FC = () => {
 						endMs: 15000,
 						timestampMs: 14480,
 						confidence: null,
+						pageBreakAfter: true,
 					},
-				]}
-			/>
-		</>
-	);
-};
-export const SceneryShot = Interactive.create({
-	Component: SceneryShotInner,
-	layout: 'absolute-fill',
-});
-
-const RollerSkisShotInner: React.FC = () => {
-	return (
-		<>
-			<Video
-				name="IMG_0463"
-				src={
-					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
-				}
-				volume={0.83}
-				objectFit="cover"
-				style={{width: '100%', height: '100%'}}
-			/>
-			<Video
-				name="Skis"
-				src={
-					'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
-				}
-				from={456}
-				trimBefore={609}
-				muted
-				objectFit="cover"
-				style={{position: 'absolute', width: '100%', height: '100%'}}
-			/>
-			<PoppingWordCaptions
-				combineTokensWithinMilliseconds={null}
-				name="Captions"
-				width={1600}
-				style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
-				captions={[
 					{
 						text: ' What',
 						startMs: 15260,
@@ -378,45 +305,8 @@ const RollerSkisShotInner: React.FC = () => {
 						endMs: 17367,
 						timestampMs: 17224,
 						confidence: null,
+						pageBreakAfter: true,
 					},
-				]}
-			/>
-		</>
-	);
-};
-export const RollerSkisShot = Interactive.create({
-	Component: RollerSkisShotInner,
-	layout: 'absolute-fill',
-});
-
-const CommuteWinnerShotInner: React.FC = () => {
-	const frame = useCurrentFrame() + 418 - 534;
-	return (
-		<>
-			<Video
-				name="IMG_0463"
-				src={
-					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
-				}
-				volume={0.83}
-				objectFit="cover"
-				style={{
-					width: '100%',
-					height: '100%',
-					scale: interpolate(frame, [442, 451], [1, 1.1], {
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-						output: 'perceptual-scale',
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
-				}}
-			/>
-			<PoppingWordCaptions
-				combineTokensWithinMilliseconds={null}
-				name="Captions"
-				width={1600}
-				style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
-				captions={[
 					{
 						text: ' Come',
 						startMs: 18100,
@@ -472,13 +362,15 @@ const CommuteWinnerShotInner: React.FC = () => {
 						endMs: 20840,
 						timestampMs: 20790,
 						confidence: null,
+						pageBreakAfter: true,
 					},
 				]}
 			/>
 		</>
 	);
 };
-export const CommuteWinnerShot = Interactive.create({
-	Component: CommuteWinnerShotInner,
+
+export const BestCommuteSource = Interactive.create({
+	Component: BestCommuteSourceInner,
 	layout: 'absolute-fill',
 });

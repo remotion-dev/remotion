@@ -45,7 +45,7 @@ const insertBasicCaptions = ({
 	};
 };
 
-test('transcription inserts inline Basic captions beside selected Video and Audio tags', async () => {
+test('transcription groups static Video and Audio with inline captions', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-captions-'));
 	const entryPoint = path.join(remotionRoot, 'Root.tsx');
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -74,13 +74,15 @@ test('transcription inserts inline Basic captions beside selected Video and Audi
 		writeFileSync(
 			entryPoint,
 			`import {Video, Audio} from '@remotion/media';
+import {Composition} from 'remotion';
 
 export const Comp = () => (
 	<>
-		<Video src="video.mp4" from={10} trimBefore={5} playbackRate={2} />
+		<Video src="video.mp4" from={10} trimBefore={5} playbackRate={2} durationInFrames={90} />
 		<Audio src="voice.mp3" durationInFrames={60} />
 	</>
 );
+export const Root = () => <Composition id="Main" component={Comp} width={1280} height={720} fps={30} durationInFrames={90} />;
 `,
 		);
 
@@ -95,6 +97,16 @@ export const Comp = () => (
 					nodePath: lineContainingToNodePath(current, tag),
 					captions,
 					durationInFrames,
+					composition: {
+						fileName: entryPoint,
+						existingCompositionIds: ['Main'],
+						metadata: {
+							width: 1280,
+							height: 720,
+							fps: 30,
+							durationInFrames: 240,
+						},
+					},
 				},
 				entryPoint,
 				remotionRoot,
@@ -137,9 +149,18 @@ export const Comp = () => (
 		expect(written.replace(/\s+/g, ' ')).toContain(
 			'<BasicCaptions captions={[',
 		);
-		expect(written).toContain('trimBefore={5} playbackRate={2}');
-		expect(written).toContain('durationInFrames={90}');
-		expect(written).toContain('durationInFrames={60}');
+		expect(written.replace(/\s+/g, ' ')).toContain(
+			'<CaptionedVideo from={10} trimBefore={5} playbackRate={2} durationInFrames={90} />',
+		);
+		expect(written).toContain('<CaptionedAudio durationInFrames={60} />');
+		expect(written).toContain('<Video src="video.mp4" />');
+		expect(written).toContain('<Audio src="voice.mp3" />');
+		expect(written.match(/Interactive\.create\(/g)).toHaveLength(2);
+		expect(written).toContain('export const CaptionedVideo');
+		expect(written).toContain('export const CaptionedAudio');
+		expect(written.replace(/\s+/g, ' ')).toContain(
+			'<Composition id="CaptionedVideo" component={CaptionedVideo} durationInFrames={240} fps={30} width={1280} height={720} />',
+		);
 		expect(getUndoStack()).toHaveLength(2);
 	} finally {
 		cleanupFileWatcher();
@@ -148,11 +169,13 @@ export const Comp = () => (
 	}
 });
 
-test('wraps a root Audio in a fragment when adding captions', () => {
+test('groups a root Audio in a reusable component when adding captions', () => {
 	const input = `import {Audio} from 'remotion';
 export const Comp = () => <Audio src="voice.mp3" />;`;
 	const {output} = insertBasicCaptions({
 		element: null,
+		composition: null,
+		importPath: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions: [
@@ -167,10 +190,10 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		durationInFrames: 30,
 	});
 
-	expect(output).toContain('<>');
+	expect(output).toContain('<CaptionedAudio />');
 	expect(output).toContain('<Audio src="voice.mp3" />');
 	expect(output.replace(/\s+/g, ' ')).toContain('<BasicCaptions captions={[');
-	expect(output).toContain('durationInFrames={30}');
+	expect(output).not.toContain('durationInFrames={30}');
 });
 
 test('keeps edited Basic captions source and adds another instance for the same clip', () => {
@@ -204,6 +227,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 	];
 	const first = insertBasicCaptions({
 		element: null,
+		composition: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions,
@@ -212,6 +236,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 	});
 	const second = insertBasicCaptions({
 		element: null,
+		composition: null,
 		input: first.output,
 		nodePath: lineContainingToNodePath(first.output, '<Audio'),
 		captions,

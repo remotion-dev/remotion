@@ -21,15 +21,18 @@ const returnScale = (frame: number) =>
 export const OriginReturnPresenter = ({
 	children,
 	from,
+	active,
 }: {
 	readonly children: ReactNode;
 	readonly from: number;
+	readonly active: boolean | null;
 }) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
 			style={{
-				scale: returnScale(frame - from) / (1680 / 1920) ** 2,
+				scale:
+					active === false ? 1 : returnScale(frame - from) / (1680 / 1920) ** 2,
 				transformOrigin: 'center',
 			}}
 		>

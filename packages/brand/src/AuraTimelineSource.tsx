@@ -1,6 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {AbsoluteFill, Sequence, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Interactive, Sequence, useVideoConfig} from 'remotion';
 import {assetUrl} from './announcements/whats-new-in-remotion/assets';
 import {LowerThird} from './announcements/whats-new-in-remotion/LowerThird';
 import {Scene1 as IntroScene} from './announcements/whats-new-in-remotion/Scene1';
@@ -39,6 +39,45 @@ export const AuraTimelineCard = () => <LowerThird />;
 
 // Materializes scripts/aura-code/captions.ts. The caption text and timestamps
 // remain illustrative; they are not a transcription of the announcement.
+const CaptionedPresenterInner = () => {
+	return (
+		<>
+			<Video name="Presenter video" src={assetUrl('whats1.mov')} />
+			<BasicCaptions
+				name="Presenter captions"
+				combineTokensWithinMilliseconds={null}
+				width={900}
+				style={{
+					position: 'absolute',
+					bottom: 280,
+					translate: '510px 0px',
+				}}
+				captions={[
+					{
+						text: "What's new",
+						startMs: 900,
+						endMs: 1600,
+						timestampMs: null,
+						confidence: null,
+					},
+					{
+						text: ' in Remotion',
+						startMs: 1600,
+						endMs: 2400,
+						timestampMs: null,
+						confidence: null,
+					},
+				]}
+			/>
+		</>
+	);
+};
+
+const CaptionedPresenter = Interactive.create({
+	Component: CaptionedPresenterInner,
+	layout: 'absolute-fill',
+});
+
 export const AuraTimelineCaptions = () => {
 	const {fps} = useVideoConfig();
 	return (
@@ -48,33 +87,7 @@ export const AuraTimelineCaptions = () => {
 				trimBefore={0.9 * fps}
 				durationInFrames={3.8 * fps}
 			>
-				<Video name="Presenter video" src={assetUrl('whats1.mov')} />
-				<BasicCaptions
-					name="Presenter captions"
-					combineTokensWithinMilliseconds={null}
-					width={900}
-					style={{
-						position: 'absolute',
-						bottom: 280,
-						translate: '510px 0px',
-					}}
-					captions={[
-						{
-							text: "What's new",
-							startMs: 900,
-							endMs: 1600,
-							timestampMs: null,
-							confidence: null,
-						},
-						{
-							text: ' in Remotion',
-							startMs: 1600,
-							endMs: 2400,
-							timestampMs: null,
-							confidence: null,
-						},
-					]}
-				/>
+				<CaptionedPresenter />
 			</Sequence>
 			<Sequence name="Presenter introduction" from={0.5 * fps} layout="none">
 				<LowerThird />

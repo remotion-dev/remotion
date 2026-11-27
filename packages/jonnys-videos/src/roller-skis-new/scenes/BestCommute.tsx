@@ -2,13 +2,7 @@ import {Audio} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
 import {Interactive} from 'remotion';
 import {AwardBadge} from '../elements/AwardBadge';
-import {
-	TechBrosShot,
-	BestCommuteShot,
-	SceneryShot,
-	RollerSkisShot,
-	CommuteWinnerShot,
-} from './BestCommuteShots';
+import {BestCommuteSource} from './BestCommuteShots';
 
 const BestCommuteInner: React.FC = () => {
 	return (
@@ -19,35 +13,35 @@ const BestCommuteInner: React.FC = () => {
 					trimBefore={47}
 					durationInFrames={87}
 				>
-					<TechBrosShot />
+					<BestCommuteSource />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Best commute"
 					trimBefore={170}
 					durationInFrames={112}
 				>
-					<BestCommuteShot />
+					<BestCommuteSource />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Chickens cows mountains"
 					trimBefore={302}
 					durationInFrames={154}
 				>
-					<SceneryShot />
+					<BestCommuteSource />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Roller skis"
 					trimBefore={456}
 					durationInFrames={65}
 				>
-					<RollerSkisShot />
+					<BestCommuteSource />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Best commute goes to Jonny"
 					trimBefore={534}
 					durationInFrames={94}
 				>
-					<CommuteWinnerShot />
+					<BestCommuteSource />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 			<CommuteAward name="Commute award" from={445} durationInFrames={67} />

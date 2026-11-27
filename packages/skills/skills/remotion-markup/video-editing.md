@@ -23,19 +23,61 @@ appropriate when the edit is already specified in frames.
 
 ## Keep synchronized layers on one clock
 
-Put a shot's video, captions, and source-synchronized overlays under one timing
-boundary. Apply `trimBefore`, `durationInFrames`, and `playbackRate` to that
+Put a source's video and full inline transcript in a component created with
+`Interactive.create()`. Keep source-synchronized overlays in that component too.
+Apply `trimBefore`, `durationInFrames`, and `playbackRate` to the shared timing
 boundary once. For an independently placed group, also set its `from`.
 
-A `Sequence` is useful here because moving, trimming, retiming, or deleting the
-group affects all its layers. For consecutive shots, use the existing
-`TransitionSeries.Sequence` for the same purpose:
+Moving, trimming, retiming, or deleting the group in Studio affects all its layers.
+For consecutive shots, reuse the source component inside the existing
+`TransitionSeries.Sequence`:
 
 ```tsx
 import {Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {staticFile, useVideoConfig} from 'remotion';
+import {Interactive, staticFile, useVideoConfig} from 'remotion';
 import {BasicCaptions} from './basic-captions.element';
+
+const InterviewSourceInner = () => {
+  return (
+    <>
+      <Video name="Interview footage" src={staticFile('interview.mp4')} />
+      <BasicCaptions
+        name="Interview captions"
+        width={900}
+        style={{position: 'absolute', bottom: 80, translate: '510px 0px'}}
+        captions={[
+          {
+            text: 'Hello',
+            startMs: 4500,
+            endMs: 4900,
+            timestampMs: 4700,
+            confidence: null,
+          },
+          {
+            text: ' world',
+            startMs: 4900,
+            endMs: 5400,
+            timestampMs: 5150,
+            confidence: null,
+          },
+          {
+            text: 'Next',
+            startMs: 10500,
+            endMs: 11000,
+            timestampMs: 10750,
+            confidence: null,
+          },
+        ]}
+      />
+    </>
+  );
+};
+
+export const InterviewSource = Interactive.create({
+  Component: InterviewSourceInner,
+  layout: 'absolute-fill',
+});
 
 export const Interview = () => {
   const {fps} = useVideoConfig();
@@ -46,59 +88,24 @@ export const Interview = () => {
         trimBefore={4 * fps}
         durationInFrames={3 * fps}
       >
-        <Video name="Opening footage" src={staticFile('interview.mp4')} />
-        <BasicCaptions
-          name="Opening captions"
-          width={900}
-          style={{position: 'absolute', bottom: 80, translate: '510px 0px'}}
-          captions={[
-            {
-              text: 'Hello',
-              startMs: 4500,
-              endMs: 4900,
-              timestampMs: 4700,
-              confidence: null,
-            },
-            {
-              text: ' world',
-              startMs: 4900,
-              endMs: 5400,
-              timestampMs: 5150,
-              confidence: null,
-            },
-          ]}
-        />
+        <InterviewSource />
       </TransitionSeries.Sequence>
       <TransitionSeries.Sequence
         name="Next shot"
         trimBefore={10 * fps}
         durationInFrames={2 * fps}
       >
-        <Video name="Next footage" src={staticFile('interview.mp4')} />
-        <BasicCaptions
-          name="Next captions"
-          width={900}
-          style={{position: 'absolute', bottom: 80, translate: '510px 0px'}}
-          captions={[
-            {
-              text: 'Next',
-              startMs: 10500,
-              endMs: 11000,
-              timestampMs: 10750,
-              confidence: null,
-            },
-          ]}
-        />
+        <InterviewSource />
       </TransitionSeries.Sequence>
     </TransitionSeries>
   );
 };
 ```
 
-Each caption array stays inline on its own caption node, with timestamps relative
-to the original media file. Passing the array through a generic shot prop removes
-the source array the Caption editor needs. See
-[displaying captions](../remotion-captions/display-captions.md#displaying-captions-alongside-video-content)
+Both cuts use one inline transcript, with timestamps relative to the original
+media file. Splitting a clip reuses the source component instead of duplicating
+its transcript, and the captions remain editable in Studio. See
+[displaying captions](../remotion-captions/display-captions.md#one-component-per-captioned-source)
 for the caption component and setup.
 
 ## Place overlays at the scope they span

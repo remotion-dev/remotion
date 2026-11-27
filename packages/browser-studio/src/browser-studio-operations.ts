@@ -2784,6 +2784,7 @@ export const createBrowserStudioOperations = ({
 		nodePath,
 		captions,
 		durationInFrames,
+		composition,
 	}) => {
 		try {
 			const project = getProject();
@@ -2793,6 +2794,8 @@ export const createBrowserStudioOperations = ({
 				node: {filePath: absolutePath, nodePath},
 				captions,
 				durationInFrames,
+				composition,
+				importPath: null,
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,

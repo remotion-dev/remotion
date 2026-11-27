@@ -1238,6 +1238,16 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
+	composition: {
+		fileName: string;
+		existingCompositionIds: readonly string[];
+		metadata: {
+			width: number;
+			height: number;
+			fps: number;
+			durationInFrames: number;
+		};
+	} | null;
 	captions: {
 		text: string;
 		startMs: number;
