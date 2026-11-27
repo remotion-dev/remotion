@@ -1,7 +1,7 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {Internals, Sequence} from 'remotion';
+import {Internals, Sequence, type ScheduleAudioNodeOptions} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {Audio} from '../audio/audio';
@@ -185,6 +185,7 @@ test.each([
 	'keep-alive bounds paused audio from frame $from at $playbackRate× without blocking playback',
 	async ({from, playbackRate}) => {
 		const nodes: AudioBufferSourceNode[] = [];
+		const ownedDurations = new Map<AudioBuffer, number>();
 		const originalCreateBufferSource =
 			AudioContext.prototype.createBufferSource;
 		const createBufferSourceSpy = vi
@@ -196,16 +197,29 @@ test.each([
 			});
 		let audioContext: AudioContext | null = null;
 		const Composition: React.FC = () => {
-			audioContext =
-				React.useContext(Internals.SharedAudioContext)?.audioContext ?? null;
+			const shared = React.useContext(Internals.SharedAudioContext);
+			audioContext = shared?.audioContext ?? null;
+			const observed = React.useMemo(
+				() =>
+					shared && {
+						...shared,
+						scheduleAudioNode: (options: ScheduleAudioNodeOptions) => {
+							ownedDurations.set(options.node.buffer!, options.duration);
+							return shared.scheduleAudioNode(options);
+						},
+					},
+				[shared],
+			);
 			return (
-				<Sequence from={from} premountFor={from}>
-					<Audio
-						src="/voice-note.m4a"
-						playbackRate={playbackRate}
-						disallowFallbackToHtml5Audio
-					/>
-				</Sequence>
+				<Internals.SharedAudioContext.Provider value={observed}>
+					<Sequence from={from} premountFor={from}>
+						<Audio
+							src="/voice-note.m4a"
+							playbackRate={playbackRate}
+							disallowFallbackToHtml5Audio
+						/>
+					</Sequence>
+				</Internals.SharedAudioContext.Provider>
 			);
 		};
 
@@ -229,7 +243,10 @@ test.each([
 		try {
 			await vi.waitFor(() => {
 				expect(
-					nodes.reduce((sum, node) => sum + (node.buffer?.duration ?? 0), 0),
+					[...ownedDurations.values()].reduce(
+						(sum, duration) => sum + duration,
+						0,
+					),
 				).toBeGreaterThanOrEqual(0.1);
 			});
 			if (!audioContext) throw new Error('Audio context did not initialize');
@@ -255,11 +272,20 @@ test.each([
 				(sum, buffer) => sum + (buffer?.duration ?? 0),
 				0,
 			);
+			const ownedDuration = [...ownedDurations.values()].reduce(
+				(sum, duration) => sum + duration,
+				0,
+			);
+			// Audible coverage retains the original horizon; each queued buffer can
+			// additionally contain one interpolation neighbor of the same duration.
+			expect(decodedDuration).toBeLessThan(
+				2 * Math.max(2.2 * playbackRate, 0.2),
+			);
 			// The final decoded chunk can straddle the two-second boundary.
-			expect(decodedDuration).toBeGreaterThanOrEqual(
+			expect(ownedDuration).toBeGreaterThanOrEqual(
 				Math.max(1.9 * playbackRate, 0.1),
 			);
-			expect(decodedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
+			expect(ownedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
 			playerRef.current?.play();
 			await vi.waitFor(
 				() => {

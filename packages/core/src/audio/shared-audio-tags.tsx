@@ -59,6 +59,7 @@ export type ScheduleAudioNodeOptions = {
 	readonly scheduledTime: number;
 	readonly originalUnloopedMediaTimestamp: number;
 	readonly duration: number;
+	readonly endTime?: number | null;
 	readonly offset: number;
 };
 
@@ -146,6 +147,7 @@ export const SharedAudioTagsContext =
 	createContext<SharedAudioTagsContextValue | null>(null);
 
 type NodeToResume = {
+	endTime: number | null;
 	scheduledTime: number;
 	offset: number;
 	duration: number;
@@ -257,6 +259,7 @@ export const SharedAudioContextProvider: React.FC<{
 			sourceOffset,
 			scheduledTime,
 			duration,
+			endTime = null,
 			offset,
 			originalUnloopedMediaTimestamp,
 		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
@@ -289,14 +292,27 @@ export const SharedAudioContextProvider: React.FC<{
 						scheduledTime,
 						offset,
 						duration,
+						endTime,
 					});
-				} else {
+				} else if (endTime === null) {
 					node.start(scheduledTime, offset, duration);
+				} else if (endTime > ctxAndGain.audioContext.currentTime) {
+					const start = Math.max(
+						scheduledTime,
+						ctxAndGain.audioContext.currentTime,
+					);
+					node.start(
+						start,
+						offset + (start - scheduledTime) * node.playbackRate.value,
+					);
+					node.stop(endTime);
+				} else {
+					return {type: 'not-started', reason: 'audio window has ended'};
 				}
 			}
 
 			const scheduledEndTime =
-				scheduledTime + duration / node.playbackRate.value;
+				endTime ?? scheduledTime + duration / node.playbackRate.value;
 
 			const mediaTime = mediaTimestamp + offset - sourceOffset;
 
@@ -388,7 +404,25 @@ export const SharedAudioContextProvider: React.FC<{
 		);
 
 		nodesToResume.current.forEach((r, node) => {
-			node.start(r.scheduledTime, r.offset, r.duration);
+			if (r.endTime === null) {
+				node.start(r.scheduledTime, r.offset, r.duration);
+			} else if (r.endTime > ctxAndGain.audioContext.currentTime) {
+				const start = Math.max(
+					r.scheduledTime,
+					ctxAndGain.audioContext.currentTime,
+				);
+				node.start(
+					start,
+					r.offset + (start - r.scheduledTime) * node.playbackRate.value,
+				);
+				node.stop(r.endTime);
+			} else {
+				// Finish the one-shot node without PCM so its existing ended listener
+				// can release the media iterator's prepared-buffer ownership.
+				const now = ctxAndGain.audioContext.currentTime;
+				node.start(now, r.offset);
+				node.stop(now);
+			}
 		});
 		nodesToResume.current.clear();
 
