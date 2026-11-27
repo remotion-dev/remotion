@@ -689,7 +689,7 @@ const siteConfig: VercelConfig = {
 		),
 		routes.redirect(
 			'/discord-blue-badges',
-			'https://github.com/remotion-dev/business/issues/347',
+			'https://github.com/remotion-dev/sales/issues/1408#issuecomment-7218115955',
 			{permanent: false},
 		),
 		routes.redirect(
