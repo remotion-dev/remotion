@@ -7,7 +7,7 @@ A compatible GPU is required. The Node.js version of ONNX Runtime is unavailable
 
 ## Transcribing with the CLI
 
-From Remotion 4.0.546, use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate captions from a local audio or video file.
+Use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate captions from a local audio or video file.
 
 Add the CLI dependencies if they are missing.
 
@@ -31,7 +31,7 @@ This downloads the Whisper model if needed and writes `public/video123-captions.
 
 ## Transcribing in a Node.js script
 
-Use [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) for programmatic transcription or to transcribe local files on Remotion 4.0.530 through 4.0.545.
+Use [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) for programmatic transcription.
 
 Install the required packages if they are not installed:
 
