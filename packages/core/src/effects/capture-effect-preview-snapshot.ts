@@ -19,8 +19,8 @@ export const captureEffectPreviewSnapshot = (
 			? [element]
 			: Array.from(element.querySelectorAll('canvas, img, video')).filter(
 					(candidate) => {
-						// Canvas fallback children are not part of the rendered frame.
-						if (candidate.parentElement?.closest('canvas')) {
+						const parentCanvas = candidate.parentElement?.closest('canvas');
+						if (parentCanvas && element.contains(parentCanvas)) {
 							return false;
 						}
 
