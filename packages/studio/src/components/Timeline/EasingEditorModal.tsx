@@ -1216,6 +1216,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>X1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="X1"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[0]}
@@ -1240,6 +1241,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Y1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Y1"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[1]}
@@ -1264,6 +1266,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>X2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="X2"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[2]}
@@ -1288,6 +1291,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Y2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Y2"
 									onValueChangeCancel={null}
 									type="number"
 									value={bezier[3]}
@@ -1338,6 +1342,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Damping</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Damping"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.damping}
@@ -1365,6 +1370,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Mass</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Mass"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.mass}
@@ -1392,6 +1398,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Stiffness</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Stiffness"
 									onValueChangeCancel={null}
 									type="number"
 									value={spring.stiffness}
@@ -1419,6 +1426,7 @@ export const EasingCurveEditor: React.FC<{
 							<div style={coordinateLabel}>Rest threshold</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									name="Rest threshold"
 									onValueChangeCancel={null}
 									type="number"
 									value={
