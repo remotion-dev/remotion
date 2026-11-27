@@ -86,6 +86,12 @@ The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-wid
 
 Text pixels may differ on transparent output, including LCD text on Linux Chromium. Opaque output against black is supported with `transparent: false` in [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#transparent), [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#transparent).
 
+### Inline SVG viewport sizing
+
+SVG elements with fixed width and height and no viewBox retain their resolved CSS viewport when flex layout resizes them.
+Fixed dimensions include SVG numeric forms such as `+320` and `3.2e2`, and `px`, `cm`, `mm`, `in`, `pt` and `pc` units.
+For resized SVGs, embedded media queries and stylesheet `media` attributes preserve their owning-document matches. Stylesheet rewriting retains authored declarations, including logical/physical property order, pending custom-property shorthands and unquoted URL tokens. Resized SVGs retain the used width and height of direct HTML children in `foreignObject` when becoming images. Nested declaration lists with custom-property braces retain their scope. This does not establish full native corner pixel parity. Stylesheets containing `@import` or `@scope` retain the existing conservative serialization path.
+
 ### Inline SVG stylesheet state
 
 The `CSSStyleSheet.disabled` property is <a style={{color: 'green'}}>supported</a> for inline SVG stylesheets.
@@ -96,7 +102,7 @@ Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-
 
 Registered fonts are also embedded for SVG CDATA, including content inside `<a>` and `<tspan>` elements. Native glyph rasterization can differ across engines.
 
-WebKit exports preserve native SVG text colors, including under CSS gradient masks. Colors can differ at raster-mask edges, with `<feImage>` or non-default blend modes, or when the affected area exceeds 16,384 pixels on either axis or 16,777,216 pixels in total. For SVG text with filters or shadows, the limit can apply to the full export area.
+WebKit exports preserve native SVG text and `foreignObject` paint colors, including text under CSS gradient masks. Colors can differ at raster-mask edges, with `<feImage>` or non-default blend modes, or when the affected area exceeds 16,384 pixels on either axis or 16,777,216 pixels in total. For SVG text or `foreignObject` content with filters or shadows, the limit can apply to the full export area.
 
 Removing and re-adding script-loaded SVG font families is supported. Removing or replacing individual faces while another face of the same family remains is not fully supported.
 
