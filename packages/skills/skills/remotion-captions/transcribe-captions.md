@@ -1,38 +1,48 @@
 # Transcribing audio
 
-The CLI and API workflows below use [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md) and require a compatible GPU. Node.js transcription through ONNX Runtime is unavailable on Linux arm64. See the [transcription options](https://www.remotion.dev/docs/captions/transcribing.md) for other setups.
+To transcribe audio to generate captions in Remotion, use [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md).
+It runs Whisper locally on the GPU and works in both Node.js and the browser.
 
-Transcribe each original source video or audio file individually, including portions currently trimmed out of the edit. Keep each transcript separate and its timestamps relative to the beginning of the source file.
+A compatible GPU is required. The Node.js version of ONNX Runtime is unavailable on Linux arm64.
 
-## Installing dependencies
+## Transcribing with the CLI
 
-Check the project's package manager and workspace before installing. If `node_modules` is a symlink, follow the install workflow that manages the link. Preserve the dependency layout and let the package manager update its lockfile.
+From Remotion 4.0.546, use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate captions from a local audio or video file.
 
-Use [`remotion add`](https://www.remotion.dev/docs/cli/add.md) to select the version that matches the installed Remotion packages. The examples use `npx remotion` for npm. Use `bunx remotion` for Bun, `yarn remotion` for Yarn, or `pnpm exec remotion` for pnpm.
-
-## Transcribing local files with the CLI
-
-From Remotion 4.0.546, use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate a `Caption[]` JSON file. Add the required packages if they are missing:
+Add the CLI dependencies if they are missing.
 
 ```bash
-npx remotion add @remotion/whisper-webgpu @huggingface/transformers
+npx remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses npm
+bunx remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses bun
+yarn remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses yarn
+pnpm exec remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses pnpm
 ```
+
+Pass the path to the source file to the transcription command.
 
 ```bash
-npx remotion whisper transcribe public/video123.mp4 --no-overwrite
+npx remotion whisper transcribe public/video123.mp4 # If project uses npm
+bunx remotion whisper transcribe public/video123.mp4 # If project uses bun
+yarn remotion whisper transcribe public/video123.mp4 # If project uses yarn
+pnpm exec remotion whisper transcribe public/video123.mp4 # If project uses pnpm
 ```
 
-This downloads the model if needed and writes `public/video123-captions.json`. Use `--language` with the spoken language for non-English media.
+This downloads the Whisper model if needed and writes `public/video123-captions.json`.
 
 ## Transcribing in a Node.js script
 
-Use a script for programmatic transcription or for local files on Remotion 4.0.530 through 4.0.545. Add the script's dependencies if they are missing:
+Use [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) for programmatic transcription or to transcribe local files on Remotion 4.0.530 through 4.0.545.
+
+Install the required packages if they are not installed:
 
 ```bash
-npx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server
+npx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses npm
+bunx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses bun
+yarn remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses yarn
+pnpm exec remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses pnpm
 ```
 
-Decode the audio to a 16 kHz mono waveform, then download the model and call [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md).
+Make a Node.js script that decodes the audio to a 16kHz mono waveform, downloads a model, and transcribes it.
 
 ```ts
 import { registerMediabunnyServer } from "@mediabunny/server";
@@ -156,7 +166,7 @@ See [`getAvailableModels()`](https://www.remotion.dev/docs/whisper-webgpu/get-av
 
 ## Transcribing in the browser
 
-For a browser integration, install `@remotion/whisper-webgpu` and `@huggingface/transformers` as shown in the CLI section. Use [`resampleTo16Khz()`](https://www.remotion.dev/docs/whisper-webgpu/resample-to-16khz.md) to get the waveform from a `File`:
+In the browser, use [`resampleTo16Khz()`](https://www.remotion.dev/docs/whisper-webgpu/resample-to-16khz.md) to get the waveform from a `File` instead of using Mediabunny:
 
 ```ts
 import {
@@ -178,5 +188,9 @@ export const transcribeFile = async (file: File) => {
   return captions;
 };
 ```
+
+Transcribe each original source video or audio file individually.  
+Keep the resulting caption timestamps relative to the beginning of that source file, including portions currently trimmed out of the edit.  
+Do not add composition offsets or flatten multiple transcripts into composition-wide timestamps.
 
 See [Displaying captions](display-captions.md) for how to display the captions in Remotion.
