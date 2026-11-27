@@ -51,6 +51,7 @@ const NameLowerThirdInner: React.FC<
 						],
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						overlap: 'compress',
 					},
 				)}
 				name="Name bar"
@@ -85,6 +86,7 @@ const NameLowerThirdInner: React.FC<
 						],
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
+						overlap: 'compress',
 					},
 				)}
 				name="Title bar"

@@ -124,6 +124,7 @@ export const addKeyframeToPropStatus = ({
 			clamping: {left: 'clamp', right: 'clamp'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		};
 	}
 

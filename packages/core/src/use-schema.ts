@@ -13,7 +13,11 @@ import type {
 	InteractivitySchemaField,
 } from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
-import type {ExtrapolateType, InterpolateOutputOption} from './interpolate.js';
+import type {
+	ExtrapolateType,
+	InterpolateOutputOption,
+	InterpolateOverlapOption,
+} from './interpolate.js';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -159,6 +163,7 @@ export type CanUpdateSequencePropStatusKeyframed<Numeric = number> = {
 	clamping: CanUpdateSequencePropStatusClamping;
 	posterize: number | undefined;
 	output: InterpolateOutputOption | undefined;
+	overlap: InterpolateOverlapOption | null;
 };
 
 export type CanUpdateSequencePropStatusFalse =

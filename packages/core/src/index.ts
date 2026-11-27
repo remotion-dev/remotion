@@ -247,6 +247,7 @@ export {
 	type InterpolateOptions,
 	type InterpolateOutputOption,
 	type InterpolateOutputType,
+	type InterpolateOverlapOption,
 	random,
 	type RandomSeed,
 } from './no-react';

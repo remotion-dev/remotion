@@ -23,6 +23,7 @@ const previous: CanUpdateSequencePropsResponse<number> = {
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
 			output: undefined,
+			overlap: null,
 		},
 	},
 	effects: [
@@ -44,6 +45,7 @@ const previous: CanUpdateSequencePropsResponse<number> = {
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
 					output: undefined,
+					overlap: null,
 				},
 			},
 		},

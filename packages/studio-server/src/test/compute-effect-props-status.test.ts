@@ -125,6 +125,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	});
 });
 
@@ -158,6 +159,7 @@ test('computeEffectPropStatus reports output for inline interpolated effect prop
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
 		output: 'perceptual-scale',
+		overlap: null,
 	});
 });
 

@@ -41,7 +41,11 @@ const SpeedLinesInner: React.FC<SpeedLinesProps> = ({color = '#ffffff'}) => {
 					frame,
 					[0, 3, durationInFrames - 5, durationInFrames - 1],
 					[0, 0.85, 0.85, 0],
-					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+					{
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						overlap: 'compress',
+					},
 				),
 			}}
 		>

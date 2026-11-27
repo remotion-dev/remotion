@@ -68,6 +68,7 @@ type PropEasing = KeyframedPropStatus['easing'];
 type PropClamping = KeyframedPropStatus['clamping'];
 type PropPosterize = KeyframedPropStatus['posterize'];
 type PropOutput = KeyframedPropStatus['output'];
+type PropOverlap = KeyframedPropStatus['overlap'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 const staticStatus = (
@@ -367,6 +368,7 @@ const getInterpolationMetadata = (
 	clamping: PropClamping;
 	posterize: PropPosterize;
 	output: PropOutput;
+	overlap: PropOverlap;
 } | null => {
 	const segments = Math.max(0, keyframeCount - 1);
 	const defaultClamping: PropClamping =
@@ -384,6 +386,7 @@ const getInterpolationMetadata = (
 		clamping: defaultClamping,
 		posterize: undefined,
 		output: undefined,
+		overlap: null,
 	};
 
 	const optionsArg = callExpression.arguments[3];
@@ -399,6 +402,7 @@ const getInterpolationMetadata = (
 	let {clamping}: {clamping: PropClamping} = defaults;
 	let posterize: PropPosterize;
 	let {output}: {output: PropOutput} = defaults;
+	let {overlap}: {overlap: PropOverlap} = defaults;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
@@ -491,6 +495,19 @@ const getInterpolationMetadata = (
 			continue;
 		}
 
+		if (key === 'overlap') {
+			if (
+				interpolationFunction !== 'interpolate' ||
+				value.type !== 'StringLiteral' ||
+				(value.value !== 'throw' && value.value !== 'compress')
+			) {
+				return null;
+			}
+
+			overlap = value.value;
+			continue;
+		}
+
 		return null;
 	}
 
@@ -499,6 +516,7 @@ const getInterpolationMetadata = (
 		clamping,
 		posterize,
 		output,
+		overlap,
 	};
 };
 
@@ -1151,6 +1169,7 @@ const getInterpolationKeyframes = (
 			clamping: PropClamping;
 			posterize: PropPosterize;
 			output: PropOutput;
+			overlap: PropOverlap;
 			interpolationFunction: PropInterpolationFunction;
 			keyframeDisplayOffsetAdjustment: SourceNumericValue | null;
 			keyframePlaybackRateAdjustment: SourceNumericValue;
@@ -1286,6 +1305,7 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		overlap: metadata.overlap,
 		keyframePlaybackRateAdjustment: frameDisplayOffset.playbackRateAdjustment,
 		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
 			? frameDisplayOffset.adjustment
@@ -1319,6 +1339,7 @@ export const getComputedStatus = (
 		clamping: interpolation.clamping,
 		posterize: interpolation.posterize,
 		output: interpolation.output,
+		overlap: interpolation.overlap,
 	};
 };
 

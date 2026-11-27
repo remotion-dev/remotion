@@ -497,6 +497,7 @@ export const captureOptimisticEffectMutation = (
 												easing: param.easing,
 												clamping: param.clamping,
 												output: param.output,
+												overlap: param.overlap ?? null,
 												posterize: param.posterize,
 												keyframeDisplayOffsetAdjustment: null,
 											},
