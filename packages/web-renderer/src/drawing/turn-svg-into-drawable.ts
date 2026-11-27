@@ -2,7 +2,11 @@ import {
 	getEmbeddedFontStyleForSvg,
 	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
-import {preserveSvgAttributeSelectors} from './preserve-svg-style-selectors';
+import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
+import {
+	expandSvgCornerStyle,
+	preserveSvgAttributeSelectors,
+} from './preserve-svg-style-selectors';
 
 const textFontProperties = [
 	'font-family',
@@ -56,6 +60,29 @@ const drawableBySvg = new WeakMap<
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height, opacity} = getComputedStyle(svg);
 	const textElements = getSvgTextElements(svg);
+	const canPreserveCornerSelectors = !Array.from(
+		svg.querySelectorAll('style'),
+	).some((style) => {
+		if (style.sheet?.disabled) return false;
+		const type = style.getAttribute('type')?.trim().toLowerCase();
+		if (type && type !== 'text/css') return false;
+		if (hasExcludedSvgStyleAtRule(style.textContent ?? '')) return true;
+		try {
+			return Array.from(style.sheet?.cssRules ?? []).some((rule) =>
+				hasExcludedSvgStyleAtRule(rule.cssText),
+			);
+		} catch {
+			return true;
+		}
+	});
+	// WebKit's image document does not parse the corner shorthand emitted by
+	// its page CSSOM. Keep authored longhands instead of resolving their cascade.
+	const cornerStyles = Array.from(
+		svg.querySelectorAll<HTMLElement | SVGElement>('foreignObject [style]'),
+		(element) =>
+			canPreserveCornerSelectors ? expandSvgCornerStyle(element.style) : null,
+	);
+	const hasCornerStyles = cornerStyles.some((style) => style !== null);
 	const referencedTemplates = textElements.length
 		? getReferencedTemplates(svg)
 		: new Set<Element>();
@@ -81,7 +108,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	).lastIndexOf(true);
 
 	const authoredElements =
-		textElements.length > 0 ? [svg, ...svg.querySelectorAll('*')] : null;
+		textElements.length > 0 || hasCornerStyles
+			? [svg, ...svg.querySelectorAll('*')]
+			: null;
 	const authoredStyles =
 		authoredElements?.map((element) => element.getAttribute('style')) ?? null;
 	const authoredMedia =
@@ -144,9 +173,21 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 && embeddedFontStyle === null && !hasDisabledStyles
+		textStyles.length === 0 &&
+		embeddedFontStyle === null &&
+		!hasDisabledStyles &&
+		!hasCornerStyles
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
+	if (hasCornerStyles) {
+		svgForSerialization
+			.querySelectorAll('foreignObject [style]')
+			.forEach((element, index) => {
+				if (cornerStyles[index] !== null)
+					element.setAttribute('style', cornerStyles[index]);
+			});
+	}
+
 	if (hasDisabledStyles) {
 		const clonedStyles = svgForSerialization.querySelectorAll('style');
 		for (let i = 0; i < styles.length; i++) {

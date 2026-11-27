@@ -95,6 +95,7 @@ import {
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {htmlInCanvasInteraction} from './fixtures/html-in-canvas-interaction';
 import {htmlInCanvasResize} from './fixtures/html-in-canvas-resize';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
@@ -198,6 +199,10 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {styleAttributeCleanupFixture} from './fixtures/style-attribute-cleanup';
 import {svgAtRuleText, svgAtRuleTextModes} from './fixtures/svg-at-rule-text';
+import {
+	svgCornerDeclarations,
+	svgCornerStyles,
+} from './fixtures/svg-corner-styles';
 import {
 	svgDataMimeWhitespace,
 	svgDataMimeCoverWhitespace,
@@ -360,6 +365,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasInteraction} />
 			<Composition {...htmlInCanvasFrames} />
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
@@ -388,6 +394,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgForeignObjectFont} />
+			<Composition {...svgCornerStyles} />
+			<Composition {...svgCornerDeclarations} />
 			{svgAtRuleTextModes.flatMap((mode) =>
 				[false, true].map((positive) => (
 					<Composition

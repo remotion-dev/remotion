@@ -4,6 +4,135 @@ import {hasExcludedSvgStyleAtRule} from './has-excluded-svg-style-at-rule';
 const attributeSelector =
 	/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|\[([\t\n\f\r ]*(?:(?:\*\||\|)[\t\n\f\r ]*)?)(style|media)(?=[\t\n\f\r \]~^$*=]|\|=)|(:empty)(?![\w-])/g;
 
+const cornerLonghands = [
+	'top-left',
+	'top-right',
+	'bottom-right',
+	'bottom-left',
+].flatMap((corner) => [`border-${corner}-radius`, `corner-${corner}-shape`]);
+
+export const expandSvgCornerStyle = (
+	style: CSSStyleDeclaration,
+): string | null => {
+	if (
+		!/(?:^|;)\s*corner\s*:/.test(style.cssText) ||
+		cornerLonghands.some((property) => !style.getPropertyValue(property))
+	)
+		return null;
+	const text = style.cssText;
+	const longhands = cornerLonghands
+		.map(
+			(property) =>
+				`${property}: ${style.getPropertyValue(property)}${style.getPropertyPriority(property) ? ' !important' : ''};`,
+		)
+		.join(' ');
+	// WebKit emits a folded declaration that its parser may not accept again.
+	// Replace that declaration in place, preserving later logical overrides.
+	let start = 0;
+	let depth = 0;
+	let quote: string | null = null;
+	let comment = false;
+	for (let index = 0; index < text.length; index++) {
+		const char = text[index];
+		if (comment) {
+			if (char === '*' && text[index + 1] === '/') {
+				comment = false;
+				index++;
+			}
+
+			continue;
+		}
+
+		if (char === '\\') {
+			index++;
+			continue;
+		}
+
+		if (quote !== null) {
+			if (char === quote) quote = null;
+			continue;
+		}
+
+		if (char === '"' || char === "'") quote = char;
+		else if (char === '/' && text[index + 1] === '*') {
+			comment = true;
+			index++;
+		} else if (char === '(' || char === '[' || char === '{') depth++;
+		else if (char === ')' || char === ']' || char === '}') depth--;
+		else if (char === ';' && depth === 0) {
+			if (/^\s*corner\s*:/.test(text.slice(start, index + 1))) {
+				return `${text.slice(0, start)} ${longhands}${text.slice(index + 1)}`;
+			}
+
+			start = index + 1;
+		}
+	}
+
+	return null;
+};
+
+const serializeSvgStyleRule = (rule: CSSRule): string => {
+	const style = 'style' in rule ? (rule.style as CSSStyleDeclaration) : null;
+	const expanded = style ? expandSvgCornerStyle(style) : null;
+	// CSSNestedDeclarations has a declaration list without an outer block.
+	// Custom-property values can contain braces, so detect it before scanning.
+	if (style && rule.cssText === style.cssText) return expanded ?? rule.cssText;
+	const children =
+		'cssRules' in rule ? Array.from(rule.cssRules as CSSRuleList) : [];
+	const serializedChildren = children.map(serializeSvgStyleRule);
+	if (
+		expanded === null &&
+		serializedChildren.every(
+			(serialized, index) => serialized === children[index].cssText,
+		)
+	)
+		return rule.cssText;
+
+	// Locate the declaration block without treating braces inside a quoted
+	// selector, escaped identifier or grouping condition as its opening brace.
+	const text = rule.cssText;
+	let quote: string | null = null;
+	let comment = false;
+	let depth = 0;
+	let opening = -1;
+	for (let index = 0; index < text.length; index++) {
+		const char = text[index];
+		if (comment) {
+			if (char === '*' && text[index + 1] === '/') {
+				comment = false;
+				index++;
+			}
+
+			continue;
+		}
+
+		if (char === '\\') {
+			index++;
+			continue;
+		}
+
+		if (quote !== null) {
+			if (char === quote) quote = null;
+			continue;
+		}
+
+		if (char === '"' || char === "'") quote = char;
+		else if (char === '/' && text[index + 1] === '*') {
+			comment = true;
+			index++;
+		} else if (char === '(' || char === '[') depth++;
+		else if (char === ')' || char === ']') depth--;
+		else if (char === '{' && depth === 0) {
+			opening = index;
+			break;
+		}
+	}
+
+	// Nested declaration rules have no surrounding block of their own.
+	if (opening === -1) return expanded ?? text;
+	return `${text.slice(0, opening + 1)} ${expanded ?? style?.cssText ?? ''} ${serializedChildren.join(' ')} }`;
+};
+
 export const preserveSvgAttributeSelectors = ({
 	svg,
 	authoredStyles,
@@ -118,7 +247,7 @@ export const preserveSvgAttributeSelectors = ({
 		if (rewritten) {
 			style.textContent = Array.from(
 				sheet.cssRules,
-				(rule) => rule.cssText,
+				serializeSvgStyleRule,
 			).join('');
 			changed = true;
 		}
