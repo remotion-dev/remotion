@@ -44,13 +44,15 @@ export const createSvgClipMask = ({
 
 	const clip = resource.cloneNode(true) as SVGClipPathElement;
 	clip.id = 'remotion-svg-clip';
+	if (resource.clipPathUnits.animVal !== 2) {
+		clip.setAttribute(
+			'transform',
+			`scale(${scale}) ${resource.getAttribute('transform') ?? ''}`,
+		);
+	}
+
 	const originals = Array.from(resource.children);
 	withScaffoldVisible(resource, () => {
-		if (resource.clipPathUnits.animVal !== 2) {
-			const {transform} = getComputedStyle(resource);
-			clip.style.transform = `scale(${scale})${transform === 'none' ? '' : ` ${transform}`}`;
-		}
-
 		for (let i = 0; i < originals.length; i++) {
 			const original = originals[i] as SVGElement;
 			const style = getComputedStyle(original);
