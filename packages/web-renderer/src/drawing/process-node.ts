@@ -264,6 +264,7 @@ export const processNode = async ({
 				maskRect: dimensions,
 				precomposeRect: layerRect,
 				tempContext,
+				scale: layerScale,
 			});
 		}
 

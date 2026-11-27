@@ -3,7 +3,6 @@ import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
 import {createCssMask} from './css-mask';
 import type {MaskImageInfo} from './mask-image';
-import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
 import {createSvgClipMask} from './svg-clip-mask';
 
@@ -35,6 +34,7 @@ export const handleMask = async ({
 			precomposeRect,
 			width: tempContext.canvas.width,
 			height: tempContext.canvas.height,
+			scale,
 			internalState,
 		});
 		const mask = new OffscreenCanvas(
@@ -62,27 +62,6 @@ export const handleMask = async ({
 		maskRect.width * scale,
 		maskRect.height * scale,
 	);
-
-	if (maskImageInfo.type === 'linear-gradient') {
-		const gradient = createCanvasGradient({
-			ctx: tempContext,
-			rect: rectToFill,
-			gradientInfo: maskImageInfo.gradientInfo,
-			offsetLeft: 0,
-			offsetTop: 0,
-			cssPixelsPerUnit: scale,
-		});
-
-		tempContext.globalCompositeOperation = 'destination-in';
-		tempContext.fillStyle = gradient;
-		tempContext.fillRect(
-			rectToFill.left,
-			rectToFill.top,
-			rectToFill.width,
-			rectToFill.height,
-		);
-		return;
-	}
 
 	const image = await getRasterImage({
 		src: maskImageInfo.src,
@@ -191,12 +170,14 @@ export const handleSvgClip = async ({
 	precomposeRect,
 	element,
 	tempContext,
+	scale,
 }: {
 	resource: SVGClipPathElement;
 	element: HTMLElement | SVGElement;
 	maskRect: DOMRect;
 	precomposeRect: DOMRect;
 	tempContext: OffscreenCanvasRenderingContext2D;
+	scale: number;
 }) => {
 	const image = await createSvgClipMask({
 		resource,
@@ -207,6 +188,7 @@ export const handleSvgClip = async ({
 		referenceRect: getBiggestBoundingClientRect(element, false, true),
 		width: tempContext.canvas.width,
 		height: tempContext.canvas.height,
+		scale,
 	});
 	tempContext.globalCompositeOperation = 'destination-in';
 	tempContext.drawImage(image, 0, 0);

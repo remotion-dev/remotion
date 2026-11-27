@@ -25,7 +25,11 @@ test('uses SVG readback through CSS mask precomposition', async () => {
 				licenseKey: 'free-license',
 				allowHtmlInCanvas: false,
 			});
-			expect(readbacks, mode).toBe(server.browser === 'webkit' ? 1 : 0);
+			// Gradient masks are rasterized by the browser into one readback context.
+			expect(readbacks, mode).toBe(
+				(server.browser === 'webkit' ? 1 : 0) +
+					(mode === 'css' || mode === 'important' ? 1 : 0),
+			);
 		} finally {
 			spy.mockRestore();
 		}
@@ -52,7 +56,7 @@ test('keeps SVG readback consistent when masks change between frames', async () 
 	let frames: Awaited<ReturnType<typeof renderFramesOnWeb>>;
 	try {
 		frames = await renderFramesOnWeb({...renderOptions, frames: [0, 1, 2]});
-		expect(readbacks).toBe(server.browser === 'webkit' ? 3 : 0);
+		expect(readbacks).toBe(server.browser === 'webkit' ? 5 : 2);
 	} finally {
 		spy.mockRestore();
 	}
