@@ -25,6 +25,9 @@ import {
 import {resolveHardwareAcceleration} from './probe-encoder';
 import type {RemotionRawFrame} from './remotion-shared-memory';
 import {createRemotionSharedMemoryFfmpegBridge} from './remotion-shared-memory-ffmpeg';
+import {getVaapiStreamFormat} from './vaapi';
+import type {VaapiRawStream} from './vaapi-output';
+import {getVaapiRawStreamLocation} from './vaapi-output';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {writeWithBackpressure} from './write-with-backpressure';
@@ -198,6 +201,8 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		encodingBufferSize: options.encodingBufferSize,
 		proResBitsPerMacroblock: options.proResBitsPerMacroblock,
 		onLog: options.onLog,
+		pixelFormat,
+		vaapiRawStream: true,
 	});
 
 	const encodingArgs = generateFfmpegArgs({
@@ -218,7 +223,21 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		logLevel: options.logLevel,
 		cpuCount: getCpuCount(),
 		lambdaMemoryInBytes: getMaxLambdaMemory(),
+		vaapiRawStream: true,
 	});
+	// A VA-API encode is written as a raw stream and becomes the pre-encoded
+	// file after it (vaapi.ts, render-media.ts)
+	const vaapiFormat = getVaapiStreamFormat(
+		encodingArgs.find(([flag]) => flag === '-c:v')?.[1] ?? '',
+	);
+	const vaapiRawStream: VaapiRawStream | null = vaapiFormat
+		? {
+				file: getVaapiRawStreamLocation(options.outputLocation, vaapiFormat),
+				format: vaapiFormat,
+				width: options.width,
+				height: options.height,
+			}
+		: null;
 	const encodingArgsWithOwnedPixels =
 		options.inputMode === 'remotion-shared-memory'
 			? encodingArgs.some(([flag]) => flag === '-vf')
@@ -259,8 +278,9 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			? ['-fps_mode', 'passthrough']
 			: null,
 
+		vaapiRawStream ? ['-f', vaapiRawStream.format] : null,
 		'-y',
-		options.outputLocation,
+		vaapiRawStream ? vaapiRawStream.file : options.outputLocation,
 	];
 
 	Log.verbose(
@@ -344,6 +364,9 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 
 	return {
 		task,
+		// a VA-API pre-encode's raw stream, finished after the encode
+		// (render-media.ts, vaapi-output.ts)
+		vaapiRawStream,
 		getLogs: () => ffmpegOutput,
 		getExitStatus: () => exitCode,
 		writeFrame: async ({

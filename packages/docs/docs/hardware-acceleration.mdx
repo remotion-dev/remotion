@@ -14,6 +14,7 @@ Since encoding is platform- and codec-specific, only a few scenarios are support
 
 - macOS: Acceleration using VideoToolbox
 - Linux and Windows: Acceleration using NVENC (requires an NVIDIA GPU) (from v4.0.484)
+- Linux: Acceleration using VA-API (AMD and Intel GPUs) when `REMOTION_VAAPI_DEVICE` is set (from v4.0.546)
 - ProRes is supported from v4.0.228, H.264 and H.265 are supported from v4.0.236
 
 ## Enable hardware accelerated encoding
@@ -96,6 +97,45 @@ Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the con
 
 Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs fall back to software encoding, with these exceptions when hardware acceleration is `"required"`: `h264-mkv` and `h264-ts` throw an error on every platform, and ProRes throws an error on Linux and Windows.
 
+## Prerequisites for VA-API (Linux, AMD and Intel)
+
+To encode on an AMD or Intel GPU on Linux, you need:
+
+- A VA-API render node, for example `/dev/dri/renderD128` (in Docker: `--device /dev/dri`)
+- A VA-API driver for the GPU (Mesa's `radeonsi` for AMD, `iHD` for recent Intel GPUs)
+- FFmpeg compiled with VA-API: the `h264_vaapi` and `hevc_vaapi` encoders, the `hwupload` filter, and the `hevc_metadata` and `trace_headers` bitstream filters (all part of a default build with `--enable-vaapi`)
+
+The FFmpeg binaries bundled with Remotion do not include VA-API. [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) replaces all of Remotion's binaries at once (`ffmpeg`, `ffprobe`, Remotion's compositor and their shared libraries), so prepare a complete folder:
+
+1. Copy the folder of your platform's compositor package, for example `node_modules/@remotion/compositor-linux-x64-gnu`.
+2. Replace `ffmpeg` and `ffprobe` in it with a build that has VA-API (`--enable-vaapi`) and `libfdk_aac`, which Remotion uses for AAC audio.
+3. Pass that folder to the render.
+
+```bash
+REMOTION_VAAPI_DEVICE=/dev/dri/renderD128 npx remotion render --hardware-acceleration if-possible --binaries-directory ./vaapi-binaries
+```
+
+Without `--binaries-directory`, the bundled FFmpeg is used: it has no VA-API, so `"if-possible"` falls back to software encoding.
+
+With the variable set, H.264 is encoded with `h264_vaapi` and H.265 with `hevc_vaapi`; every other codec keeps its encoder, and without the variable Linux uses NVENC as before. H.265 uses VA-API only where the video is encoded on its own before the audio is added (parallel encoding, which `renderMedia()` uses by default); with [`disallowParallelEncoding`](/docs/renderer/render-media#disallowparallelencoding) or [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) it keeps its other encoders (see below). Before the render, Remotion encodes one frame with the selected encoder on the device. If that fails (no VA-API in the FFmpeg, a device the process cannot open, a GPU without an encoder for the codec), `"if-possible"` falls back to software encoding and `"required"` throws an error.
+
+VA-API is only selected for what it encodes exactly: the `yuv420p` pixel format (the frames are uploaded as NV12, so other pixel formats such as `yuv420p10le` stay on the software encoder) and a [`crf`](/docs/options/crf) of 1 or more. Unlike NVENC, VA-API accepts the CRF: it is passed as the constant quantizer (`-rc_mode CQP -qp <crf>`). CRF 0 stays on the software encoder, because FFmpeg treats `-qp 0` as unset.
+
+### How a VA-API file is written
+
+Mesa's `radeonsi` writes its own parameter sets into the stream, and they differ from the ones FFmpeg puts into the container: in the H.264 PPS (`transform_8x8_mode_flag`, `pic_init_qp_minus26`), and for H.265 in the coded size (the width rounded up to a multiple of 64, the height to 16) and in coding tools. A decoder that sets itself up from the container (Apple's AVFoundation does) then shows a broken picture or refuses the file. The driver's HEVC conformance window is wrong as well: none at 1920x1080, which leaves 8 rows of padding at the bottom, and 6 rows instead of 14 at 800x450 (Mesa 26.2 fixes how it is written). Apple's decoders apply a conformance window, but they size an HEVC track by the MP4 sample entry.
+
+So the video is encoded without B-frames (`-bf 0`) into a raw stream, which holds only the driver's parameter sets. After the encode, an H.265 stream gets the crop from its coded size (read from its SPS) back to the composition's size, written into that SPS (`hevc_metadata`); then the stream is wrapped into the container at the composition's frame rate. The container's header is built from the stream's own parameter sets, the MP4 sample entry carries the cropped size, H.265 is tagged `hvc1`, and without B-frames the frame rate gives back every timestamp. These steps are stream copies: about 2 seconds for 362 frames at 1080p.
+
+When the stitcher encodes the video together with the audio, there is no raw stream. An H.264 file is rewrapped after that encode instead: the video is extracted to Annex B (`h264_mp4toannexb` inserts no parameter sets where the stream has its own) and wrapped again at the frame rate, with the audio copied from the original. That does not work for H.265 (`hevc_mp4toannexb` puts FFmpeg's parameter sets back into the stream), so H.265 keeps its other encoders there.
+
+Measured on an AMD Radeon RX 7900 XTX and an RX 6800 XT (Mesa 25.0.7, FFmpeg 8.1):
+
+- On a 568-frame 1080p composition against a near-lossless reference, `h264_vaapi` at `-qp 15` reached the SSIM of `libx264` at CRF 16 (`faster`): 0.9866 against 0.9858, with a file about 1.45 times the size.
+- On a 362-frame 1080p composition, `hevc_vaapi` at `-qp 18` (RX 7900 XTX) and `-qp 16` (RX 6800 XT) came out at 45.2 and 45.1 dB PSNR against the `libx264` CRF 16 render of the same composition, at 1.03 and 1.13 times its size.
+- The encode leaves the CPU free (`libx264` took about 127 s of CPU time on the 568-frame composition).
+- FFmpeg and AVFoundation decode both codecs at exactly 1920x1080, and 800x450 at 800x450.
+
 ## Quality using `--video-bitrate` {#controlling-quality-using---video-bitrate}
 
 Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
@@ -103,7 +143,7 @@ We recommend that you use the `--video-bitrate` flag to control the file size.
 
 We find that `--video-bitrate=8M` achieves a similar file size than software encoding when exporting a H.264 Full HD video.
 
-The [`crf`](/docs/options/crf), `encodingMaxRate` and `encodingBufferSize` options are not compatible with hardware-accelerated encoders. If you set one of them, a render with `"required"` throws an error, and a render with `"if-possible"` falls back to software encoding. Instead, use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the quality and file size of the output video.
+The [`crf`](/docs/options/crf), `encodingMaxRate` and `encodingBufferSize` options are not compatible with hardware-accelerated encoders (VA-API takes the `crf` as its quantizer, see above). If you set one of them, a render with `"required"` throws an error, and a render with `"if-possible"` falls back to software encoding. Instead, use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the quality and file size of the output video.
 
 ## Tell if hardware acceleration is being used
 
@@ -113,6 +153,7 @@ If the render is using hardware acceleration, you will see a log message like th
 ```
 Encoder: prores_videotoolbox, hardware accelerated: true
 Encoder: h264_nvenc, hardware accelerated: true
+Encoder: hevc_vaapi, hardware accelerated: true
 ```
 
 Don't rely on the exact wording of the log message to determine if hardware acceleration is being used.

@@ -10,6 +10,7 @@ import {validateProResBitsPerMacroblock} from './options/prores-bits-per-macrobl
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
+import {getVaapiDevice, isVaapiEncoder, withVaapiUpload} from './vaapi';
 
 const firstEncodingStepOnly = ({
 	hasPreencoded,
@@ -27,6 +28,7 @@ const firstEncodingStepOnly = ({
 	hardwareAccelerated,
 	cpuCount,
 	lambdaMemoryInBytes,
+	vaapi,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -43,6 +45,7 @@ const firstEncodingStepOnly = ({
 	hardwareAccelerated: boolean;
 	cpuCount: number;
 	lambdaMemoryInBytes: number | null;
+	vaapi: boolean;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -55,7 +58,8 @@ const firstEncodingStepOnly = ({
 		proResBitsPerMacroblock === null
 			? null
 			: ['-bits_per_mb', String(proResBitsPerMacroblock)],
-		['-pix_fmt', pixelFormat],
+		// VA-API: the frames reach the encoder as NV12 surfaces (hwupload)
+		vaapi ? null : ['-pix_fmt', pixelFormat],
 
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
@@ -70,7 +74,10 @@ const firstEncodingStepOnly = ({
 				lambdaMemoryInBytes >= 2048 * 1024 * 1024))
 			? ['-row-mt', '1']
 			: null,
-		x264Preset ? ['-preset', x264Preset] : null,
+		x264Preset && !vaapi ? ['-preset', x264Preset] : null,
+		// VA-API: no B-frames, so the wrap after the encode, at the frame rate,
+		// gives back every timestamp (vaapi-output.ts)
+		vaapi ? ['-bf', '0'] : null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
 		// https://discord.com/channels/809501355504959528/817306238811111454/1437471619089170613
@@ -105,6 +112,7 @@ export const generateFfmpegArgs = ({
 	logLevel,
 	cpuCount,
 	lambdaMemoryInBytes,
+	vaapiRawStream = false,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -123,6 +131,9 @@ export const generateFfmpegArgs = ({
 	logLevel: LogLevel;
 	cpuCount: number;
 	lambdaMemoryInBytes: number | null;
+	// the output is written as a raw stream and finished after the encode
+	// (Remotion's pre-encode with VA-API: vaapi.ts, vaapi-output.ts)
+	vaapiRawStream?: boolean;
 }): string[][] => {
 	validateProResBitsPerMacroblock(proResBitsPerMacroblock);
 	if (proResBitsPerMacroblock !== null && codec !== 'prores') {
@@ -139,6 +150,8 @@ export const generateFfmpegArgs = ({
 		indent,
 		logLevel,
 		onLog: null,
+		pixelFormat,
+		vaapiRawStream,
 	});
 
 	if (encoderSettings === null) {
@@ -194,7 +207,11 @@ export const generateFfmpegArgs = ({
 					]
 				: [];
 
-	return [
+	const vaapiDevice =
+		!hasPreencoded && isVaapiEncoder(encoderName) ? getVaapiDevice() : null;
+
+	const args = [
+		vaapiDevice ? ['-vaapi_device', vaapiDevice] : null,
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
 		codec === 'h264-ts' ? ['-f', 'mpegts'] : null,
 		// -c:v is the same as -vcodec as -codec:video
@@ -216,6 +233,9 @@ export const generateFfmpegArgs = ({
 			hardwareAccelerated,
 			cpuCount,
 			lambdaMemoryInBytes,
+			vaapi: vaapiDevice !== null,
 		}),
 	].filter(truthy);
+
+	return vaapiDevice ? withVaapiUpload(args) : args;
 };

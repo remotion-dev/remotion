@@ -79,6 +79,7 @@ import {
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import {succeedOrCancel} from './succeed-or-cancel';
 import type {OnStartData} from './types';
+import {finishVaapiRawStream} from './vaapi-output';
 import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
@@ -636,6 +637,21 @@ const internalRenderMediaRaw = async ({
 				await stitcherFfmpeg;
 			} catch {
 				throw new Error(preStitcher?.getLogs());
+			}
+
+			// a VA-API pre-encode was written as a raw stream: it becomes the
+			// pre-encoded file now (vaapi-output.ts)
+			const vaapiRawStream = preStitcher?.vaapiRawStream ?? null;
+			if (preEncodedFileLocation && vaapiRawStream) {
+				await finishVaapiRawStream({
+					stream: vaapiRawStream,
+					output: preEncodedFileLocation,
+					fps,
+					binariesDirectory,
+					indent,
+					logLevel,
+					cancelSignal: cancelPrestitcher.cancelSignal,
+				});
 			}
 		}
 

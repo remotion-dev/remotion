@@ -2,6 +2,7 @@
 import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import {getVaapiEncoderFor} from './vaapi';
 
 export type Crf = number | undefined;
 
@@ -71,6 +72,16 @@ export const validateQualitySettings = ({
 	hardwareAccelerated: boolean;
 }): string[] => {
 	const hasExplicitCrf = crf !== null && typeof crf !== 'undefined';
+	// VA-API takes the CRF as its constant quantizer (CQP); not a CRF of 0
+	// (vaapi.ts). With hardware acceleration and a CRF, the encoder chosen is
+	// the VA-API one: NVENC is never chosen with a CRF. Asked as for a raw
+	// stream, where VA-API encodes the most codecs: an encode that cannot use
+	// it there picks a software encoder (hardwareAccelerated false), and
+	// "required" is refused by getCodecName.
+	const vaapi =
+		hardwareAcceleration !== 'disable' &&
+		getVaapiEncoderFor({codec, pixelFormat: null, crf, rawStream: true}) !==
+			null;
 
 	if (hasExplicitCrf && videoBitrate) {
 		throw new Error(
@@ -78,11 +89,11 @@ export const validateQualitySettings = ({
 		);
 	}
 
-	if (hasExplicitCrf && hardwareAcceleration === 'required') {
+	if (hasExplicitCrf && hardwareAcceleration === 'required' && !vaapi) {
 		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
-	if (hasExplicitCrf && hardwareAccelerated) {
+	if (hasExplicitCrf && hardwareAccelerated && !vaapi) {
 		throw new Error('"crf" option is not supported with hardware acceleration');
 	}
 
@@ -171,6 +182,17 @@ export const validateQualitySettings = ({
 	if (isAudioCodec(codec)) {
 		console.warn(`${codec} does not support the "crf" option. Ignoring.`);
 		return [];
+	}
+
+	if (vaapi && hardwareAccelerated) {
+		return [
+			'-rc_mode',
+			'CQP',
+			'-qp',
+			String(crf),
+			...bufSizeArray,
+			...maxRateArray,
+		];
 	}
 
 	return ['-crf', String(crf), ...bufSizeArray, ...maxRateArray];

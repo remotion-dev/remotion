@@ -49,6 +49,8 @@ import {
 import {resolveHardwareAcceleration} from './probe-encoder';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
+import {isVaapiEncoder} from './vaapi';
+import {finishVaapiOutput} from './vaapi-output';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
@@ -443,7 +445,17 @@ const innerStitchFramesToVideo = async (
 				encodingBufferSize: bufferSize,
 				proResBitsPerMacroblock,
 				onLog,
+				pixelFormat,
 			});
+
+	// a pre-encoded H.265 stream copied into MP4/MOV is tagged hvc1, the tag
+	// QuickTime and Safari read (FFmpeg writes hev1 by default)
+	const hevcCopyArgs =
+		preEncodedFileLocation &&
+		codec === 'h265' &&
+		['mp4', 'mov', 'm4v'].includes(outputExtension)
+			? [['-tag:v', 'hvc1']]
+			: [];
 
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
@@ -493,6 +505,7 @@ const innerStitchFramesToVideo = async (
 			cpuCount: getCpuCount(),
 			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
+		...hevcCopyArgs,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		// VP8/VP9 store alpha in additional blocks. Stream copying cannot infer
@@ -578,6 +591,31 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+
+	// this stitch encoded with VA-API itself (no pre-encode): its file is
+	// rewrapped from the stream's own parameter sets (vaapi-output.ts)
+	const stitchVideoEncoder =
+		(
+			ffmpegArgs.find((arg) => Array.isArray(arg) && arg[0] === '-c:v') as
+				| string[]
+				| undefined
+		)?.[1] ?? null;
+	const writtenFile = fastStartIntermediate ?? outputLocation ?? tempFile;
+	if (
+		!preEncodedFileLocation &&
+		stitchVideoEncoder &&
+		isVaapiEncoder(stitchVideoEncoder) &&
+		writtenFile
+	) {
+		await finishVaapiOutput({
+			file: path.resolve(remotionRoot, writtenFile),
+			fps,
+			binariesDirectory,
+			indent: indent ?? false,
+			logLevel,
+			cancelSignal: cancelSignal ?? undefined,
+		});
+	}
 
 	if (separateAudioTo && audio) {
 		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
