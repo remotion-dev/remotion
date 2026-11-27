@@ -69,6 +69,10 @@
 			"cache": false,
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
+		"@remotion/react18-tests#testwebrenderer": {
+			"cache": false,
+			"dependsOn": ["^make"]
+		},
 		"testbrowserstudio": {
 			"dependsOn": ["@remotion/browser-studio#make"]
 		},

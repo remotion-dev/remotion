@@ -1,6 +1,10 @@
+import {CheckIcon} from '@remotion/design';
+import {Gif} from '@remotion/gif';
+import {Circle} from '@remotion/shapes';
 import {renderStillOnWeb} from '@remotion/web-renderer';
 import React, {useEffect} from 'react';
-import {expect, test} from 'vitest';
+import {AbsoluteFill, AnimatedImage, Img} from 'remotion';
+import {expect, test, vi} from 'vitest';
 
 test('should render still on web', async () => {
 	const Component: React.FC = () => {
@@ -27,6 +31,52 @@ test('should render still on web', async () => {
 	});
 
 	// It worked!
+});
+
+test('forwards refs to the rendered DOM nodes on React 18', async ({
+	onTestFinished,
+}) => {
+	const consoleError = vi.spyOn(console, 'error');
+	onTestFinished(() => consoleError.mockRestore());
+	const fill = vi.fn();
+	const image = vi.fn();
+	const canvas = vi.fn();
+	const path = vi.fn();
+	const svg = vi.fn();
+	const src =
+		'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+	expect(React.version).toMatch(/^18\./);
+	await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			id: 'react18-refs',
+			component: () => (
+				<AbsoluteFill ref={fill}>
+					<Img ref={image} src={src} />
+					<AnimatedImage src={src} width={8} height={8} />
+					<Gif ref={canvas} src={src} width={8} height={8} />
+					<Circle ref={path} radius={4} />
+					<CheckIcon ref={svg} />
+				</AbsoluteFill>
+			),
+			width: 16,
+			height: 16,
+			fps: 30,
+			durationInFrames: 1,
+		},
+		inputProps: {},
+		frame: 0,
+	});
+
+	expect(fill).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+	expect(image).toHaveBeenCalledWith(expect.any(HTMLImageElement));
+	expect(canvas).toHaveBeenCalledWith(expect.any(HTMLCanvasElement));
+	expect(path).toHaveBeenCalledWith(expect.any(SVGPathElement));
+	expect(svg).toHaveBeenCalledWith(expect.any(SVGSVGElement));
+	expect(consoleError.mock.calls.flat().join(' ')).not.toMatch(
+		/`ref` is not a prop|Function components cannot be given refs/,
+	);
 });
 
 class UseEffectError extends Error {
