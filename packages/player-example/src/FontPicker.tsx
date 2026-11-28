@@ -11,12 +11,16 @@ export const FontPicker: React.FC = () => {
 			// Load font information
 			const loaded = await fonts.load();
 
-			// Load the font itself
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const {fontFamily, ...otherInfo} = loaded.loadFont();
-
-			// Or get metadata about the font
+			// Get metadata about the font
 			const info = loaded.getInfo();
+
+			// Load the font itself
+			const firstStyle = Object.keys(info.fonts)[0];
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const {fontFamily, ...otherInfo} = loaded.loadFont(firstStyle, {
+				weights: Object.keys(info.fonts[firstStyle]),
+				subsets: info.subsets,
+			});
 			const styles = Object.keys(info.fonts);
 			console.log('Font', info.fontFamily, ' Styles', styles);
 			for (const style of styles) {

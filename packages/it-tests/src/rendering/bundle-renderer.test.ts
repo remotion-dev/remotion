@@ -65,12 +65,12 @@ test(
 		});
 
 		const out = execSync('node ' + outfile + ' ' + exampleVideos.bigBuckBunny);
-		expect(out.toString('utf8')).toBe('h264\n');
+		expect(parseFloat(out.toString('utf8'))).toBe(60);
 
 		const out2 = execSync(
 			'node ' + 'test-index-esm.mjs' + ' ' + exampleVideos.bigBuckBunny,
 		);
-		expect(out2.toString('utf8')).toBe('h264\n');
+		expect(parseFloat(out2.toString('utf8'))).toBe(60);
 
 		rmSync(outputdir, {
 			recursive: true,

@@ -27,6 +27,7 @@ for (let i = 0; i < dur / framesPerLambda; i++) {
 	const outputLocation = path.join(filelistDir, 'out/there' + i + '.aac');
 	await renderMedia({
 		codec: 'aac',
+		licenseKey: null,
 		composition,
 		outputLocation,
 		serveUrl: bundled,

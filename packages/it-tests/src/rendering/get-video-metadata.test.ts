@@ -3,8 +3,20 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {exampleVideos} from '@remotion/example-videos';
 import {VideoMetadata, getVideoMetadata} from '@remotion/renderer';
+import {NoReactInternals} from 'remotion/no-react';
 
-test('Should return video metadata', async () => {
+const testV4 = test.skipIf(NoReactInternals.ENABLE_V5_BREAKING_CHANGES);
+
+test.if(NoReactInternals.ENABLE_V5_BREAKING_CHANGES)(
+	'getVideoMetadata() throws in v5',
+	async () => {
+		await expect(getVideoMetadata(exampleVideos.framer24fps)).rejects.toThrow(
+			'getVideoMetadata() has been removed in Remotion 5',
+		);
+	},
+);
+
+testV4('Should return video metadata', async () => {
 	const metadataResponse = await getVideoMetadata(exampleVideos.framer24fps, {
 		logLevel: 'info',
 	});
@@ -26,7 +38,7 @@ test('Should return video metadata', async () => {
 	expect(metadataResponse).toEqual(videoMetadata);
 });
 
-test('Should return video metadata', async () => {
+testV4('Should return video metadata', async () => {
 	const metadataResponse = await getVideoMetadata(exampleVideos.customDar, {
 		logLevel: 'info',
 	});
@@ -37,7 +49,7 @@ test('Should return video metadata', async () => {
 	expect(metadataResponse.audioFileExtension).toEqual('aac');
 });
 
-test('Should return AV1 video data', async () => {
+testV4('Should return AV1 video data', async () => {
 	const metadataResponse = await getVideoMetadata(exampleVideos.av1, {
 		logLevel: 'info',
 	});
@@ -47,7 +59,7 @@ test('Should return AV1 video data', async () => {
 	expect(metadataResponse.audioFileExtension).toEqual(null);
 });
 
-test('Should return AV1 video data', async () => {
+testV4('Should return AV1 video data', async () => {
 	const metadataResponse = await getVideoMetadata(exampleVideos.webcam, {
 		logLevel: 'info',
 	});
@@ -57,7 +69,7 @@ test('Should return AV1 video data', async () => {
 	expect(metadataResponse.audioFileExtension).toEqual('opus');
 });
 
-test('Should return HEVC video codec', async () => {
+testV4('Should return HEVC video codec', async () => {
 	const metadataResponse = await getVideoMetadata(exampleVideos.iphonevideo, {
 		logLevel: 'info',
 	});
@@ -68,7 +80,7 @@ test('Should return HEVC video codec', async () => {
 	expect(metadataResponse.audioFileExtension).toEqual('aac');
 });
 
-test('Should return an error due to non existing file', async () => {
+testV4('Should return an error due to non existing file', async () => {
 	try {
 		await getVideoMetadata('invalid', {logLevel: 'info'});
 	} catch (err) {
@@ -78,7 +90,7 @@ test('Should return an error due to non existing file', async () => {
 	}
 });
 
-test('Should return an error due to using a audio file', async () => {
+testV4('Should return an error due to using a audio file', async () => {
 	const audioFile = path.join(
 		__dirname,
 		'..',
@@ -100,7 +112,7 @@ test('Should return an error due to using a audio file', async () => {
 	}
 });
 
-test('Should not return duration in variable fps video', async () => {
+testV4('Should not return duration in variable fps video', async () => {
 	const video = path.join(
 		__dirname,
 		'..',

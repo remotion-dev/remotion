@@ -14,6 +14,7 @@ import {
 import {rollerSkiAsset} from './assets';
 
 loadFont('normal', {
+	subsets: ['latin'],
 	weights: ['500'],
 });
 

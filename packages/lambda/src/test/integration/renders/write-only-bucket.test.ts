@@ -9,6 +9,7 @@ import {
 	ServerlessRoutines,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactInternals} from 'remotion/no-react';
 import {fakeAws, fakeAwsDefaults, useFakeAws} from '../../mocks/fake-aws';
 import {readMockS3File} from '../../mocks/mock-store';
 import {waitUntilDone} from '../wait-until-done';
@@ -103,7 +104,10 @@ test.each([1, 2])(
 					readMockS3File({region, bucketName: destination, key})!.content,
 				).equals(Uint8Array.from(original)),
 			).toBe(false);
-			expect(destinationChecks).toBeGreaterThanOrEqual(2);
+			// In v5, the first render overwrites by default and skips the existence check.
+			expect(destinationChecks).toBeGreaterThanOrEqual(
+				NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 1 : 2,
+			);
 
 			// The provider can reject a destination even when it implements conditional writes.
 			capabilitySpy.mockReturnValue(false);
