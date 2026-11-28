@@ -1,9 +1,37 @@
 # Transcribing audio
 
-To transcribe audio to generate captions in Remotion, use the [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) function from the [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md) package.
+To transcribe audio to generate captions in Remotion, use [`@remotion/whisper-webgpu`](https://www.remotion.dev/docs/whisper-webgpu.md).
 It runs Whisper locally on the GPU and works in both Node.js and the browser.
 
-## Prerequisites
+A compatible GPU is required. The Node.js version of ONNX Runtime is unavailable on Linux arm64.
+
+## Transcribing with the CLI
+
+Use [`remotion whisper transcribe`](https://www.remotion.dev/docs/cli/whisper/transcribe.md) to generate captions from a local audio or video file.
+
+Add the CLI dependencies if they are missing.
+
+```bash
+npx remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses npm
+bunx remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses bun
+yarn remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses yarn
+pnpm exec remotion add @remotion/whisper-webgpu @huggingface/transformers # If project uses pnpm
+```
+
+Pass the path to the source file to the transcription command.
+
+```bash
+npx remotion whisper transcribe public/video123.mp4 # If project uses npm
+bunx remotion whisper transcribe public/video123.mp4 # If project uses bun
+yarn remotion whisper transcribe public/video123.mp4 # If project uses yarn
+pnpm exec remotion whisper transcribe public/video123.mp4 # If project uses pnpm
+```
+
+This downloads the Whisper model if needed and writes `public/video123-captions.json`.
+
+## Transcribing in a Node.js script
+
+Use [`transcribe()`](https://www.remotion.dev/docs/whisper-webgpu/transcribe.md) for programmatic transcription.
 
 Install the required packages if they are not installed:
 
@@ -13,10 +41,6 @@ bunx remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny 
 yarn remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses yarn
 pnpm exec remotion add @remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server # If project uses pnpm
 ```
-
-A compatible GPU is required. ONNX Runtime does not work on Linux arm64.
-
-## Transcribing
 
 Make a Node.js script that decodes the audio to a 16kHz mono waveform, downloads a model, and transcribes it.
 
