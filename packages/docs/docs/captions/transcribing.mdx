@@ -7,6 +7,29 @@ crumb: Captions
 
 # Transcribing audio
 
+You can transcribe video or audio in the [Studio](/docs/studio), with the CLI, or in the browser on [remotion.dev/transcribe](https://www.remotion.dev/transcribe).
+
+## In the Studio
+
+<Step>1</Step> Select a video or audio layer.<br />
+<Step>2</Step> Click <code>Generate captions</code> in the inspector.
+
+From v4.0.535, you can select a style from [caption Elements](/elements/captions/) in the <code>Styles</code> tab. See [Styling captions](/docs/captions/styling).
+
+## With the CLI
+
+[`npx remotion whisper transcribe`](/docs/cli/whisper/transcribe) transcribes a local audio or video file.
+
+```bash title="Transcribe a file"
+npx remotion whisper transcribe public/interview.mp4
+```
+
+## On remotion.dev/transcribe
+
+[remotion.dev/transcribe](https://www.remotion.dev/transcribe) transcribes audio and video locally in the browser.
+
+## Packages
+
 Remotion maintains several options for transcribing audio to generate captions:
 
 - **[`@remotion/whisper-webgpu`](/docs/whisper-webgpu) - Transcribe in the browser, Node.js or Bun using WebGPU**
@@ -30,5 +53,9 @@ All of these options can output captions in the [`Caption`](/docs/captions/capti
 
 ## See also
 
+- [Styling captions](/docs/captions/styling) - Choose a caption style in the Studio
+- [Caption Elements](/elements/captions/) - Preset caption styles
+- [`npx remotion whisper transcribe`](/docs/cli/whisper/transcribe) - Transcribe a local file
+- [remotion.dev/transcribe](https://www.remotion.dev/transcribe) - Transcribe audio and video in the browser
 - [`Caption`](/docs/captions/caption) - The caption data structure
 - [`@remotion/captions`](/docs/captions/api) - Caption manipulation utilities
