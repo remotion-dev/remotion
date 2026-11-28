@@ -11,9 +11,27 @@ export const waitUntilActuallyResumed = (
 	isAutoPlayAttempt: boolean,
 ): Promise<AudioContextResumeResult> => {
 	return new Promise((resolve) => {
+		// Cancellation wins before any native audio call is made.
+		if (signal.aborted) {
+			resolve('cancelled');
+			return;
+		}
+
+		// https://github.com/remotion-dev/remotion/issues/13345
+		// Firefox can block the main thread inside AudioContext.getOutputTimestamp(),
+		// both when it is called on entry and while polling. A JavaScript timeout
+		// cannot recover from that, so Firefox never calls it. There, playback is
+		// considered started once the context is running and its own clock has
+		// advanced. This does not account for output latency, so it can report
+		// the start earlier than the output timestamp would.
+		const usesOutputTimestamp =
+			typeof navigator === 'undefined' ||
+			!navigator.userAgent.includes('Firefox/');
 		const startCurrentTime = audioContext.currentTime;
-		const start = audioContext.getOutputTimestamp();
-		const startOutputPerformanceTime = start.performanceTime;
+		const start = usesOutputTimestamp
+			? audioContext.getOutputTimestamp()
+			: null;
+		const startOutputPerformanceTime = start?.performanceTime;
 		const startWallClock = performance.now();
 		let animationFrame: number | null = null;
 		let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -42,7 +60,14 @@ export const waitUntilActuallyResumed = (
 
 		const hasAudiblyStarted = (
 			startPerformanceTime: number | undefined,
-		): startPerformanceTime is number => {
+		): boolean => {
+			if (!usesOutputTimestamp) {
+				return (
+					audioContext.state === 'running' &&
+					audioContext.currentTime > startCurrentTime
+				);
+			}
+
 			const outputTimestamp = audioContext.getOutputTimestamp();
 			return (
 				startPerformanceTime !== undefined &&
@@ -56,23 +81,31 @@ export const waitUntilActuallyResumed = (
 		const check = () => {
 			animationFrame = null;
 			const {currentTime} = audioContext;
-			const outputTimestamp = audioContext.getOutputTimestamp();
+			const outputTimestamp = usesOutputTimestamp
+				? audioContext.getOutputTimestamp()
+				: null;
 			const elapsedWallClock = performance.now() - startWallClock;
 
 			if (hasAudiblyStarted(startOutputPerformanceTime)) {
 				Log.verbose(
 					{logLevel, tag: 'audio'},
-					`waitUntilActuallyResumed: getOutputTimestamp.performanceTime advanced from ${startOutputPerformanceTime.toFixed(
-						6,
-					)} to ${outputTimestamp.performanceTime?.toFixed(
-						6,
-					)} after ${elapsedWallClock.toFixed(
-						1,
-					)}ms. currentTime=${currentTime.toFixed(6)} (advanced by ${(
-						currentTime - startCurrentTime
-					).toFixed(6)}), getOutputTimestamp.performanceTime=${
-						outputTimestamp.performanceTime?.toFixed(1) ?? 'undefined'
-					}`,
+					outputTimestamp === null
+						? `waitUntilActuallyResumed: currentTime advanced by ${(
+								currentTime - startCurrentTime
+							).toFixed(6)} after ${elapsedWallClock.toFixed(
+								1,
+							)}ms (getOutputTimestamp is skipped in Firefox)`
+						: `waitUntilActuallyResumed: getOutputTimestamp.performanceTime advanced from ${startOutputPerformanceTime?.toFixed(
+								6,
+							)} to ${outputTimestamp.performanceTime?.toFixed(
+								6,
+							)} after ${elapsedWallClock.toFixed(
+								1,
+							)}ms. currentTime=${currentTime.toFixed(6)} (advanced by ${(
+								currentTime - startCurrentTime
+							).toFixed(6)}), getOutputTimestamp.performanceTime=${
+								outputTimestamp.performanceTime?.toFixed(1) ?? 'undefined'
+							}`,
 				);
 				finish('resumed');
 				return;
@@ -80,11 +113,6 @@ export const waitUntilActuallyResumed = (
 
 			animationFrame = requestAnimationFrame(check);
 		};
-
-		if (signal.aborted) {
-			finish('cancelled');
-			return;
-		}
 
 		signal.addEventListener('abort', onAbort, {once: true});
 		if (isAutoPlayAttempt) {
