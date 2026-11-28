@@ -619,7 +619,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					autoFocus
 					onClick={onAddToQueue}
 					style={buttonStyle}
-					disabled={!outnameValidation.valid}
+					disabled={
+						!outnameValidation.valid ||
+						(renderMode === 'video' && encodableVideoCodecs.length === 0)
+					}
 				>
 					Render {renderMode}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
