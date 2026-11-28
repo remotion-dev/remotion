@@ -10,6 +10,7 @@ import type {
 	KeyframeMutationResult,
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
 import {
 	updateEffectKeyframes,
@@ -371,6 +372,16 @@ export const addKeyframes = ({
 			throw new Error('Could not remap JSX nodes after keyframing');
 		}
 
+		const beforeResults = targets.map((target) => {
+			try {
+				return getKeyframeMutationResults({
+					fileContents,
+					targets: [target],
+				})[0];
+			} catch {
+				return null;
+			}
+		});
 		const fileResults = getKeyframeMutationResults({
 			fileContents: output,
 			targets: targets.map((target) => ({
@@ -384,6 +395,67 @@ export const addKeyframes = ({
 		results.push(...fileResults);
 		resultsByFile.set(absolutePath, fileResults);
 
+		// The committed keyframes are the source of truth: pasting also removes
+		// the uncovered in-range frames and reuses existing ones, so the receipt
+		// must describe what actually changed, not what was requested.
+		const keyframeEditsByNode = new Map<
+			string,
+			NonNullable<SequenceNodePathRemapping['keyframeEdits']>
+		>();
+		targets.forEach((target, index) => {
+			const id = JSON.stringify(target.nodePath.nodePath);
+			const edits = keyframeEditsByNode.get(id) ?? [];
+			for (const key of target.keys) {
+				const beforeProps = beforeResults[index]?.props[key];
+				const afterProps = fileResults[index]?.props[key];
+				const beforeFrames = new Set(
+					beforeProps?.status === 'keyframed'
+						? beforeProps.keyframes.map((keyframe) =>
+								NoReactInternals.evaluateSourceNumericValue(
+									keyframe.frame,
+									null,
+								),
+							)
+						: [],
+				);
+				const afterFrames = new Set(
+					afterProps?.status === 'keyframed'
+						? afterProps.keyframes.map((keyframe) =>
+								NoReactInternals.evaluateSourceNumericValue(
+									keyframe.frame,
+									null,
+								),
+							)
+						: [],
+				);
+				for (const frame of beforeFrames) {
+					if (!afterFrames.has(frame)) {
+						edits.push({
+							key,
+							effectIndex: target.effectIndex,
+							frame,
+							movedTo: null,
+						});
+					}
+				}
+
+				for (const frame of afterFrames) {
+					if (!beforeFrames.has(frame)) {
+						edits.push({
+							key,
+							effectIndex: target.effectIndex,
+							frame: null,
+							movedTo: frame,
+						});
+					}
+				}
+			}
+
+			if (edits.length > 0) {
+				keyframeEditsByNode.set(id, edits);
+			}
+		});
+
 		snapshots.push({
 			filePath: absolutePath,
 			oldContents: fileContents,
@@ -392,15 +464,20 @@ export const addKeyframes = ({
 			nodePathRemappings: originalNodes.flatMap(
 				({location, nodePath}, index) => {
 					const next = finalNodes[index];
+					const keyframeEdits = keyframeEditsByNode.get(
+						JSON.stringify(nodePath),
+					);
 					return location?.line === next.location?.line &&
 						location?.column === next.location?.column &&
-						JSON.stringify(nodePath) === JSON.stringify(next.nodePath)
+						JSON.stringify(nodePath) === JSON.stringify(next.nodePath) &&
+						keyframeEdits === undefined
 						? []
 						: [
 								{
 									oldNodePath: nodePath,
 									newNodePath: next.nodePath,
 									sourceLocations: {before: location, after: next.location},
+									...(keyframeEdits ? {keyframeEdits} : {}),
 								},
 							];
 				},
@@ -452,7 +529,15 @@ export const addKeyframes = ({
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: clientId,
-			metadata: snapshot.nodePathRemappings.length
+			metadata: snapshot.nodePathRemappings.some(
+				(remapping) =>
+					JSON.stringify(remapping.oldNodePath) !==
+						JSON.stringify(remapping.newNodePath) ||
+					remapping.sourceLocations?.before?.line !==
+						remapping.sourceLocations?.after?.line ||
+					remapping.sourceLocations?.before?.column !==
+						remapping.sourceLocations?.after?.column,
+			)
 				? {skipSequencePropsUpdate: true}
 				: null,
 		});

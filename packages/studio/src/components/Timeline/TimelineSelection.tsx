@@ -26,6 +26,7 @@ import React, {
 } from 'react';
 import {
 	Internals,
+	type CanUpdateSequencePropStatus,
 	type GetDragOverrides,
 	type GetEffectDragOverrides,
 	type PropStatuses,
@@ -34,6 +35,7 @@ import {
 	canUseEffectOperations,
 	canUseKeyframeOperations,
 } from '../../helpers/browser-studio-operations';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -58,12 +60,16 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
-import {useOptimisticEffectSnapshot} from '../../helpers/optimistic-effect-projection';
+import {
+	projectEffectPropStatuses,
+	useOptimisticEffectSnapshot,
+} from '../../helpers/optimistic-effect-projection';
 import {registerOptimisticEffectSelection} from '../../helpers/optimistic-effect-selection';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {consumeSequenceMutationSelectionBaseline} from '../../helpers/sequence-node-path-mutations';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -90,13 +96,22 @@ import {
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getNodeCanEditEasing,
 	getNodeHasKeyframes,
 	getNodeKeyframes,
 } from './get-node-keyframes';
 import {getParentTimelineSelection} from './get-parent-timeline-selection';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframePlaybackRate,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {getCurrentFrame} from './imperative-state';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {remapKeyframeSelectionFrame} from './remap-keyframe-selection-frames';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1185,6 +1200,14 @@ export const TimelineSelectionProvider: React.FC<{
 	const {clearEffectDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const calculateTimeline = useTimelineCalculator();
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
 	useLayoutEffect(() => {
 		let previous = Internals.OptimisticEffects.getSnapshot();
 		let restore: {
@@ -1721,6 +1744,24 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const remapSelectionNodePaths = useCallback(
 		(mutations: readonly SequenceNodePathMutation[]) => {
+			// A receipt remaps the selection state its edit was enqueued against.
+			// Once the user selects again, the queued remap must not move it.
+			const selectionRevision = getTimelineSelectionRevision();
+			const applicableMutations = mutations.filter((mutation) => {
+				const baseline = consumeSequenceMutationSelectionBaseline(
+					mutation.mutationId,
+				);
+				return baseline === undefined || baseline === selectionRevision;
+			});
+			if (applicableMutations.length === 0) {
+				return;
+			}
+
+			const propStatuses = propStatusesRef.current;
+			const {tracks} = calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			});
 			const remappingIndexes = new Map<
 				SequenceNodePathMutation['files'][number],
 				{
@@ -1739,7 +1780,84 @@ export const TimelineSelectionProvider: React.FC<{
 				let {nodePath} = sequenceSubscriptionKey;
 				let wasRemapped = false;
 
-				for (const mutation of mutations) {
+				const keyframeField =
+					item.type === 'keyframe' || item.type === 'easing'
+						? parseKeyframeFieldFromNodePath(item.nodePathInfo.auxiliaryKeys)
+						: null;
+
+				// Selection frames are composition frames while keyframe receipts
+				// carry source frames, so resolve the item's display clock first.
+				let propStatus: CanUpdateSequencePropStatus | null = null;
+				let keyframeDisplayOffset = 0;
+				let trackPlaybackRate = 1;
+				if (keyframeField !== null) {
+					const track = findTrackForNodePathInfo({
+						tracks,
+						nodePathInfo: item.nodePathInfo,
+					});
+					trackPlaybackRate = track?.keyframePlaybackRate ?? 1;
+					const resolvedNodePath = {
+						...sequenceSubscriptionKey,
+						videoConfigValues:
+							track?.sequence.controls?.videoConfigValues ??
+							sequenceSubscriptionKey.videoConfigValues,
+					};
+					const sequenceStatus = projectEffectPropStatuses(
+						propStatuses,
+						resolvedNodePath,
+					)[Internals.makeSequencePropsSubscriptionKey(resolvedNodePath)];
+					if (sequenceStatus?.canUpdate) {
+						if (keyframeField.type === 'effect') {
+							const effectStatus = sequenceStatus.effects.find(
+								(effect) => effect.effectIndex === keyframeField.effectIndex,
+							);
+							if (effectStatus?.canUpdate) {
+								propStatus =
+									Internals.evaluateSourcePropStatuses(
+										effectStatus.props,
+										resolvedNodePath.videoConfigValues,
+									)[keyframeField.fieldKey] ?? null;
+							}
+						} else {
+							propStatus =
+								Internals.evaluateSourcePropStatuses(
+									sequenceStatus.props,
+									resolvedNodePath.videoConfigValues,
+								)[keyframeField.fieldKey] ?? null;
+						}
+					}
+
+					keyframeDisplayOffset = getKeyframeDisplayOffset({
+						propStatus,
+						keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+						keyframePlaybackRate: trackPlaybackRate,
+					});
+				}
+
+				const toSourceFrame = (displayFrame: number): number =>
+					getKeyframeSourceFrame({
+						displayFrame,
+						keyframeDisplayOffset,
+						keyframePlaybackRate: trackPlaybackRate,
+						propStatus,
+					});
+				const resolvedRate = getKeyframePlaybackRate(
+					propStatus,
+					trackPlaybackRate,
+				);
+				const toDisplayFrame = (sourceFrame: number): number =>
+					sourceFrame / resolvedRate + keyframeDisplayOffset;
+				const frameTolerance = (sourceFrame: number): number =>
+					Number.EPSILON * Math.max(1, Math.abs(sourceFrame)) * 8;
+
+				let keyframeSource: number | null =
+					item.type === 'keyframe' ? toSourceFrame(item.frame) : null;
+				let easingFromSource: number | null =
+					item.type === 'easing' ? toSourceFrame(item.fromFrame) : null;
+				let easingToSource: number | null =
+					item.type === 'easing' ? toSourceFrame(item.toFrame) : null;
+
+				for (const mutation of applicableMutations) {
 					const file = mutation.files.find(
 						(candidate) =>
 							candidate.absolutePath === sequenceSubscriptionKey.absolutePath,
@@ -1787,10 +1905,72 @@ export const TimelineSelectionProvider: React.FC<{
 					}
 
 					nodePath = remapping.newNodePath;
+
+					if (remapping.keyframeEdits) {
+						keyframeSource = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							keyframeSource,
+							keyframeSource === null ? 0 : frameTolerance(keyframeSource),
+						);
+						easingFromSource = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							easingFromSource,
+							easingFromSource === null ? 0 : frameTolerance(easingFromSource),
+						);
+						easingToSource = remapKeyframeSelectionFrame(
+							remapping.keyframeEdits,
+							keyframeField,
+							easingToSource,
+							easingToSource === null ? 0 : frameTolerance(easingToSource),
+						);
+					}
 				}
 
 				if (!wasRemapped) {
 					return item;
+				}
+
+				if (
+					(item.type === 'keyframe' && keyframeSource === null) ||
+					(item.type === 'easing' &&
+						(easingFromSource === null || easingToSource === null))
+				) {
+					return null;
+				}
+
+				let segmentIndex: number | null =
+					item.type === 'easing' ? item.segmentIndex : null;
+				if (
+					item.type === 'easing' &&
+					easingFromSource !== null &&
+					easingToSource !== null &&
+					propStatus !== null
+				) {
+					if (propStatus.status !== 'keyframed') {
+						return null;
+					}
+
+					// The stored segment index refers to the pre-remap keyframe list;
+					// resolve it again from the remapped endpoints.
+					const {keyframes} = propStatus;
+					const tolerance = Math.max(
+						frameTolerance(easingFromSource),
+						frameTolerance(easingToSource),
+					);
+					const resolvedIndex = keyframes.findIndex(
+						(keyframe, index) =>
+							index + 1 < keyframes.length &&
+							Math.abs(keyframe.frame - easingFromSource) <= tolerance &&
+							Math.abs(keyframes[index + 1].frame - easingToSource) <=
+								tolerance,
+					);
+					if (resolvedIndex === -1) {
+						return null;
+					}
+
+					segmentIndex = resolvedIndex;
 				}
 
 				return {
@@ -1802,6 +1982,18 @@ export const TimelineSelectionProvider: React.FC<{
 							nodePath,
 						},
 					},
+					...(item.type === 'keyframe' && keyframeSource !== null
+						? {frame: toDisplayFrame(keyframeSource)}
+						: {}),
+					...(item.type === 'easing' &&
+					easingFromSource !== null &&
+					easingToSource !== null
+						? {
+								fromFrame: toDisplayFrame(easingFromSource),
+								toFrame: toDisplayFrame(easingToSource),
+								...(segmentIndex === null ? {} : {segmentIndex}),
+							}
+						: {}),
 				};
 			};
 
@@ -1821,7 +2013,13 @@ export const TimelineSelectionProvider: React.FC<{
 				selectionController.setSnapshot({selectedItems, anchor});
 			}
 		},
-		[selectionController],
+		[
+			calculateTimeline,
+			overrideIdToNodePathMappingsRef,
+			propStatusesRef,
+			selectionController,
+			sequencesRef,
+		],
 	);
 
 	const value = useMemo(

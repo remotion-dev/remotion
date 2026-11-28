@@ -515,6 +515,16 @@ export function popUndo(): UndoResponse {
 									},
 								}
 							: {}),
+						...(remapping.keyframeEdits
+							? {
+									keyframeEdits: remapping.keyframeEdits.map((edit) => ({
+										key: edit.key,
+										effectIndex: edit.effectIndex,
+										frame: edit.movedTo,
+										movedTo: edit.frame,
+									})),
+								}
+							: {}),
 					}),
 				),
 			},

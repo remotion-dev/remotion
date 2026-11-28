@@ -33,12 +33,14 @@ import {
 	getPendingSequenceNodePathMutations,
 	queuePendingSequenceDeletionRemappings,
 	queueSequenceNodePathMutationFromApiResponse,
+	recordSequenceMutationSelectionBaseline,
 	subscribeToSequenceNodePathMutations,
 } from './sequence-node-path-mutations';
 import {
 	cancelActiveSourceMutation,
 	enqueueSourceMutation,
 } from './source-mutation-queue';
+import {getTimelineSelectionRevision} from './timeline-selection-revision';
 
 export const enqueueStudioSourceMutation = <T>(
 	endpoint: keyof ApiRoutes,
@@ -66,6 +68,7 @@ export const enqueueStudioSourceMutation = <T>(
 	let unsubscribeFromMutations = () => {};
 	let unsubscribeFromExternalChanges = () => {};
 	let sourceGuard: SourceMutationGuard | null = null;
+	let selectionRevisionAtEnqueue = 0;
 	let effectMutation: ReturnType<
 		typeof captureOptimisticEffectMutation
 	> | null = null;
@@ -138,6 +141,15 @@ export const enqueueStudioSourceMutation = <T>(
 					result.nodePathMutation
 						? (result.nodePathMutation as SequenceNodePathMutation)
 						: null;
+				if (ownMutation !== null) {
+					// The receipt remaps the selection state this edit acted on. A
+					// newer user selection must win over the queued remap.
+					recordSequenceMutationSelectionBaseline(
+						ownMutation.mutationId,
+						selectionRevisionAtEnqueue,
+					);
+				}
+
 				if (
 					ownMutation &&
 					typeof result === 'object' &&
@@ -246,6 +258,7 @@ export const enqueueStudioSourceMutation = <T>(
 		},
 		(operation) => {
 			try {
+				selectionRevisionAtEnqueue = getTimelineSelectionRevision();
 				capturedBody = captureSourceRequest(body, initialMutations);
 				rebasedBody = capturedBody;
 				effectMutation = captureOptimisticEffectMutation(endpoint, body);

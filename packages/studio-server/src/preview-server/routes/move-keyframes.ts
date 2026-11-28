@@ -7,7 +7,9 @@ import type {
 	MoveKeyframesResponse,
 	KeyframeMutationResult,
 	MoveSequenceKeyframe,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -49,6 +51,7 @@ type UndoSnapshot = {
 	oldContents: string;
 	newContents: string;
 	logLine: number;
+	nodePathRemappings: SequenceNodePathRemapping[];
 };
 
 type SequenceLog = {
@@ -167,6 +170,7 @@ export const moveKeyframes = ({
 
 	for (const [absolutePath, group] of fileGroups) {
 		const fileContents = readFileSync(absolutePath, 'utf-8');
+		const originalNodes = captureJsxNodePaths(fileContents);
 		let output = fileContents;
 		let firstLogLine = Number.POSITIVE_INFINITY;
 		const targets: Parameters<
@@ -305,11 +309,68 @@ export const moveKeyframes = ({
 		results.push(...fileResults);
 		resultsByFile.set(absolutePath, fileResults);
 
+		const finalNodes = captureJsxNodePaths(output);
+		if (finalNodes.length !== originalNodes.length) {
+			throw new Error('Could not remap JSX nodes after moving keyframes');
+		}
+
+		const keyframeEditsByNode = new Map<
+			string,
+			NonNullable<SequenceNodePathRemapping['keyframeEdits']>
+		>();
+		for (const keyframe of group.sequenceKeyframes) {
+			const id = JSON.stringify(keyframe.nodePath.nodePath);
+			const edits = keyframeEditsByNode.get(id) ?? [];
+			edits.push({
+				key: keyframe.key,
+				effectIndex: null,
+				frame: keyframe.fromFrame,
+				movedTo: keyframe.toFrame,
+			});
+			keyframeEditsByNode.set(id, edits);
+		}
+
+		for (const keyframe of group.effectKeyframes) {
+			const id = JSON.stringify(keyframe.sequenceNodePath.nodePath);
+			const edits = keyframeEditsByNode.get(id) ?? [];
+			edits.push({
+				key: keyframe.key,
+				effectIndex: keyframe.effectIndex,
+				frame: keyframe.fromFrame,
+				movedTo: keyframe.toFrame,
+			});
+			keyframeEditsByNode.set(id, edits);
+		}
+
 		snapshots.push({
 			filePath: absolutePath,
 			oldContents: fileContents,
 			newContents: output,
 			logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
+			nodePathRemappings: originalNodes.flatMap(
+				({location, nodePath}, index) => {
+					const next = finalNodes[index];
+					const keyframeEdits = keyframeEditsByNode.get(
+						JSON.stringify(nodePath),
+					);
+					return location?.line === next.location?.line &&
+						location?.column === next.location?.column &&
+						JSON.stringify(nodePath) === JSON.stringify(next.nodePath) &&
+						keyframeEdits === undefined
+						? []
+						: [
+								{
+									oldNodePath: nodePath,
+									newNodePath: next.nodePath,
+									sourceLocations: {
+										before: location,
+										after: next.location,
+									},
+									...(keyframeEdits ? {keyframeEdits} : {}),
+								},
+							];
+				},
+			),
 		});
 	}
 
@@ -322,7 +383,9 @@ export const moveKeyframes = ({
 	pushTransactionToUndoStack({
 		snapshots: snapshots.map((snapshot) => ({
 			...snapshot,
-			nodePathRemappings: null,
+			nodePathRemappings: snapshot.nodePathRemappings.length
+				? snapshot.nodePathRemappings
+				: null,
 		})),
 		logLevel,
 		remotionRoot,

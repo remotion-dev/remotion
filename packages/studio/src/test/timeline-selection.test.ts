@@ -87,6 +87,8 @@ import {
 	getPasteKeyframeTarget,
 	type PasteKeyframeTarget,
 } from '../components/Timeline/keyframe-clipboard';
+import {parseKeyframeFieldFromNodePath} from '../components/Timeline/parse-keyframe-field-from-node-path';
+import {remapKeyframeSelectionFrame} from '../components/Timeline/remap-keyframe-selection-frames';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {
 	getPasteSequencePropTarget,
@@ -10053,4 +10055,108 @@ test('pending effect copies expose their schema and keyframes before source refr
 	expect(deletions).toMatchObject([
 		{effectKeyframes: [{effectIndex: 1, schema}]},
 	]);
+});
+
+test('remapKeyframeSelectionFrame follows moved and removed keyframes', () => {
+	const sequenceField = parseKeyframeFieldFromNodePath([
+		'controls',
+		'style.opacity',
+	]);
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{
+					key: 'style.opacity',
+					effectIndex: null,
+					frame: 27,
+					movedTo: 30,
+				},
+				{key: 'left', effectIndex: null, frame: 10, movedTo: 20},
+			],
+			sequenceField,
+			27,
+		),
+	).toBe(30);
+	// A different prop's keyframes do not move the selection.
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'left', effectIndex: null, frame: 27, movedTo: 30}],
+			sequenceField,
+			27,
+		),
+	).toBe(27);
+	// Removed keyframes drop the selection frame.
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{
+					key: 'style.opacity',
+					effectIndex: null,
+					frame: 27,
+					movedTo: null,
+				},
+			],
+			sequenceField,
+			27,
+		),
+	).toBe(null);
+	// Effect keyframes only match their effect index and field.
+	const effectField = parseKeyframeFieldFromNodePath([
+		'effects',
+		'1',
+		'amount',
+	]);
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'amount', effectIndex: 1, frame: 5, movedTo: 8}],
+			effectField,
+			5,
+		),
+	).toBe(8);
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'amount', effectIndex: 0, frame: 5, movedTo: 8}],
+			effectField,
+			5,
+		),
+	).toBe(5);
+	// Without a parseable field the frame follows any matching edit.
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'style.opacity', effectIndex: null, frame: 27, movedTo: 30}],
+			null,
+			27,
+		),
+	).toBe(30);
+	// Edits in one receipt apply simultaneously: moving 10 to 20 and 20 to 30
+	// remaps each input once instead of chaining 10 all the way to 30.
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: 20},
+				{key: 'style.opacity', effectIndex: null, frame: 20, movedTo: 30},
+			],
+			sequenceField,
+			10,
+		),
+	).toBe(20);
+	expect(
+		remapKeyframeSelectionFrame(
+			[
+				{key: 'style.opacity', effectIndex: null, frame: 10, movedTo: 20},
+				{key: 'style.opacity', effectIndex: null, frame: 20, movedTo: 30},
+			],
+			sequenceField,
+			20,
+		),
+	).toBe(30);
+	// Fractional source frames still match within the given tolerance.
+	expect(
+		remapKeyframeSelectionFrame(
+			[{key: 'style.opacity', effectIndex: null, frame: 27, movedTo: 30}],
+			sequenceField,
+			27 + Number.EPSILON * 27,
+			Number.EPSILON * 27 * 8,
+		),
+	).toBe(30);
 });
