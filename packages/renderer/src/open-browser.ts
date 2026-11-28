@@ -49,6 +49,7 @@ const featuresToEnable = (option?: OpenGlRenderer | null) => {
 		'NetworkService',
 		'NetworkServiceInProcess',
 		'CanvasDrawElement',
+		'RemotionImmediateSnapshotDraw',
 	];
 
 	if (renderer === 'vulkan') {
