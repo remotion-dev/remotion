@@ -13,6 +13,7 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
@@ -223,11 +224,23 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 								/>
 							</div>
 							<div style={rightRow}>
-								<Combobox
-									values={codecOptions}
-									selectedId={effectiveVideoCodec}
-									aria-label="Codec"
-								/>
+								{codecOptions.length === 0 ? (
+									<ValidationMessage
+										align="flex-end"
+										message={
+											window.isSecureContext
+												? `This browser cannot encode any ${containerLabels[container]} video codec. Try another container.`
+												: 'Video encoding requires HTTPS or localhost.'
+										}
+										type="error"
+									/>
+								) : (
+									<Combobox
+										values={codecOptions}
+										selectedId={effectiveVideoCodec}
+										aria-label="Codec"
+									/>
+								)}
 							</div>
 						</div>
 					) : null}
