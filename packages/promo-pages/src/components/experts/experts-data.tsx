@@ -834,7 +834,7 @@ export const experts: Expert[] = [
 		slug: 'trung-nguyen',
 		name: 'Trung Nguyen',
 		image: '/img/freelancers/trung-nguyen.jpg',
-		website: 'https://www.upwork.com/freelancers/~010b8f923d3203cc29',
+		website: 'https://www.youtube.com/@nguyentrungdevil13/shorts',
 		x: null,
 		github: 'devil131313',
 		linkedin: 'in/trungnguyen-video/',
@@ -844,13 +844,17 @@ export const experts: Expert[] = [
 		since: new Date('2026-11-12').getTime(),
 		description: (
 			<div>
-				I edit short-form videos with Remotion and Claude Code. One command
-				turns a podcast or talking-head video into captioned 9:16 Shorts:
-				transcription, cuts of retakes and silences, face-tracked reframing, a
-				camera that follows the active speaker, and word-level captions. A QC
-				step checks every frame and listens back to each cut before delivery.{' '}
-				<a target={'_blank'} href="https://youtu.be/tY0ZGlVn9_s">
-					See my process
+				I make short-form videos in code with Remotion and Claude Code: 3D
+				character and product animation, flat 2D explainers, UI animation for
+				launches, and podcast clips. For podcasts and talking heads, one command
+				handles transcription, retake and silence cuts, face-tracked 9:16
+				reframing and word-level captions. A QC step checks every frame and
+				listens back to each cut before delivery.{' '}
+				<a
+					target={'_blank'}
+					href="https://www.youtube.com/@nguyentrungdevil13/shorts"
+				>
+					See my samples
 				</a>
 				. My caption layer is open source:{' '}
 				<a
@@ -859,7 +863,7 @@ export const experts: Expert[] = [
 				>
 					remotion-phrase-captions
 				</a>
-				. I also build motion graphics for product launches and ads.
+				.
 			</div>
 		),
 	},
